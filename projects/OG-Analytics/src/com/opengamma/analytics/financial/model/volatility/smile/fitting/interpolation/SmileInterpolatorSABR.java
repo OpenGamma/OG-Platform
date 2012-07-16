@@ -85,7 +85,13 @@ public class SmileInterpolatorSABR extends SmileInterpolator<SABRFormulaData> {
     final double b = fitP.getEntry(1);
     final double c = fitP.getEntry(2);
 
+    double alpha, beta, rho, nu;
     //TODO make better use of the polynomial fit information
+    if (_externalBeta) {
+      beta = _beta;
+    } else {
+      beta = RANDOM.nextDouble();
+    }
 
     if (a <= 0.0) { //negative ATM vol - can get this if fit points are far from ATM
       double sum = 0;
@@ -93,8 +99,11 @@ public class SmileInterpolatorSABR extends SmileInterpolator<SABRFormulaData> {
       for (int i = 0; i < n; i++) {
         sum += impliedVols[i];
       }
-      final double approxAlpha = sum / n * Math.pow(forward, 1 - _beta);
-      return new DoubleMatrix1D(approxAlpha, _beta, 0, 0.2);
+      final double approxAlpha = sum / n * Math.pow(forward, 1 - beta);
+      alpha = (RANDOM.nextDouble() + 0.5) * approxAlpha;
+      rho = RANDOM.nextDouble() - 0.5;
+      nu = 0.5 * RANDOM.nextDouble() + 0.1;
+      return new DoubleMatrix1D(alpha, beta, rho, nu);
     }
     if (Math.abs(b) < 1e-3 && Math.abs(c) < 1e-3) { //almost flat smile
       if (_externalBeta && _beta != 1.0) {
@@ -102,8 +111,11 @@ public class SmileInterpolatorSABR extends SmileInterpolator<SABRFormulaData> {
       }
       return new DoubleMatrix1D(a, 1.0, 0.0, Math.max(0.0, 4 * c));
     }
-    final double approxAlpha = a * Math.pow(forward, 1 - _beta);
-    return new DoubleMatrix1D(approxAlpha, _beta, 0.0, Math.max(0.0, 4 * c));
+    final double approxAlpha = a * Math.pow(forward, 1 - beta);
+    alpha = (RANDOM.nextDouble() + 0.5) * approxAlpha;
+    rho = RANDOM.nextDouble() - 0.5;
+    nu = (RANDOM.nextDouble() + 0.5) * Math.max(0.0, 4 * c);
+    return new DoubleMatrix1D(alpha, beta, rho, nu);
   }
 
   @Override
