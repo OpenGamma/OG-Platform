@@ -322,6 +322,7 @@ $.register_module({
                 camera.updateProjectionMatrix();
                 renderer.setSize(width, height);
                 renderer.render(scene, camera);
+                hud.load();
             };
             /**
              * Updates without reloading everything
