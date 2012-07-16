@@ -20,8 +20,8 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.bloomberglp.blpapi.SessionOptions;
 import com.opengamma.bbg.BloombergConnector;
+import com.opengamma.bbg.BloombergConnectorFactoryBean;
 import com.opengamma.bbg.BloombergReferenceDataProvider;
 import com.opengamma.bbg.EHCachingReferenceDataProvider;
 import com.opengamma.bbg.ReferenceDataProvider;
@@ -30,7 +30,7 @@ import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 
 /**
- * Component factory for the bloomberg reference data provider
+ * Component factory for the Bloomberg reference data provider.
  */
 @BeanDefinition
 public class BloombergReferenceDataComponentFactory extends AbstractComponentFactory {
@@ -56,17 +56,14 @@ public class BloombergReferenceDataComponentFactory extends AbstractComponentFac
   @PropertyDefinition
   private CacheManager _cacheManager;
 
-
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
     initReferenceDataProvider(repo);
   }
 
   protected void initReferenceDataProvider(ComponentRepository repo) {
-    final SessionOptions sessionOptions = new SessionOptions();
-    sessionOptions.setServerHost(getServerHost());
-    sessionOptions.setServerPort(getServerPort());
-    BloombergConnector connector = new BloombergConnector("BloombergHistoricalTimeSeriesSourceComponentFactory", sessionOptions);
+    BloombergConnectorFactoryBean factory = new BloombergConnectorFactoryBean("BloombergHistoricalTimeSeriesSourceComponentFactory", getServerHost(), getServerPort());
+    BloombergConnector connector = factory.getObjectCreating();
     BloombergReferenceDataProvider bbgRdp = new BloombergReferenceDataProvider(connector);
     repo.registerLifecycle(bbgRdp);
     

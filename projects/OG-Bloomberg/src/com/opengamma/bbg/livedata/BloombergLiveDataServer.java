@@ -18,7 +18,6 @@ import org.springframework.context.Lifecycle;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bloomberglp.blpapi.Session;
-import com.bloomberglp.blpapi.SessionOptions;
 import com.bloomberglp.blpapi.Subscription;
 import com.bloomberglp.blpapi.SubscriptionList;
 import com.opengamma.OpenGammaRuntimeException;
@@ -138,21 +137,20 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
     }
     setSession(null);
   }
-  
+
   @Override
   protected void doConnect() {
     s_logger.info("Making Bloomberg service connection...");
-    SessionOptions sessionOptions = getBloombergConnector().getSessionOptions();
-    Session session = new Session(sessionOptions);
+    Session session = new Session(getBloombergConnector().getSessionOptions());
     try {
       if (!session.start()) {
-        throw new OpenGammaRuntimeException("Unable to start session with options " + sessionOptions);
+        throw new OpenGammaRuntimeException("Unable to start session with options " + getBloombergConnector());
       }
-    } catch (InterruptedException e) {
+    } catch (InterruptedException ex) {
       Thread.interrupted();
-      throw new OpenGammaRuntimeException("Unable to start session with options " + sessionOptions, e);
-    } catch (Exception e) {
-      throw new OpenGammaRuntimeException("Unable to start session with options " + sessionOptions, e);
+      throw new OpenGammaRuntimeException("Unable to start session with options " + getBloombergConnector(), ex);
+    } catch (Exception ex) {
+      throw new OpenGammaRuntimeException("Unable to start session with options " + getBloombergConnector(), ex);
     }
     // TODO kirk 2009-10-12 -- Should stop session if we fail here. Not doing so
     // due to the interrupted exception crap.

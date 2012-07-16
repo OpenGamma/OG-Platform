@@ -18,8 +18,8 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.bloomberglp.blpapi.SessionOptions;
 import com.opengamma.bbg.BloombergConnector;
+import com.opengamma.bbg.BloombergConnectorFactoryBean;
 import com.opengamma.bbg.BloombergHistoricalTimeSeriesSource;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
@@ -27,7 +27,7 @@ import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 
 /**
- * Component factory for the bloomberg reference data provider
+ * Component factory for the Bloomberg time series provider.
  */
 @BeanDefinition
 public class BloombergHistoricalTimeSeriesSourceComponentFactory extends AbstractComponentFactory {
@@ -37,15 +37,13 @@ public class BloombergHistoricalTimeSeriesSourceComponentFactory extends Abstrac
    */
   @PropertyDefinition(validate = "notNull")
   private String _classifier;
-
   /**
-   * Bloomberg session options
+   * Bloomberg server host.
    */
   @PropertyDefinition(validate = "notNull")
   private String _serverHost;
-
   /**
-   * Bloomberg session options
+   * Bloomberg server port.
    */
   @PropertyDefinition(validate = "notNull")
   private int _serverPort;
@@ -53,10 +51,8 @@ public class BloombergHistoricalTimeSeriesSourceComponentFactory extends Abstrac
 
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
-    SessionOptions sessionOptions = new SessionOptions();
-    sessionOptions.setServerHost(getServerHost());
-    sessionOptions.setServerPort(getServerPort());
-    BloombergConnector connector = new BloombergConnector("BloombergHistoricalTimeSeriesSourceComponentFactory", sessionOptions);
+    BloombergConnectorFactoryBean factory = new BloombergConnectorFactoryBean("BloombergHistoricalTimeSeriesSourceComponentFactory", getServerHost(), getServerPort());
+    BloombergConnector connector = factory.getObjectCreating();
     BloombergHistoricalTimeSeriesSource refDataProvider = new BloombergHistoricalTimeSeriesSource(connector);
     ComponentInfo info = new ComponentInfo(HistoricalTimeSeriesSource.class, getClassifier());
     repo.registerComponent(info, refDataProvider);
