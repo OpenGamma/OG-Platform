@@ -121,7 +121,7 @@ public class EquityBlackVolatilitySurfaceFunction extends BlackVolatilitySurface
       fullVols[i] = availableVols.toDoubleArray();
     }
     // TODO Where does it matter whether calls are used? No prices are given, just vols..
-    return new StandardSmileSurfaceDataBundle(forwardCurve, uniqueExpiries, fullStrikes, fullVols, false);
+    return new StandardSmileSurfaceDataBundle(forwardCurve, uniqueExpiries, fullStrikes, fullVols);
   }
 
   @Override

@@ -301,7 +301,7 @@ public class VarianceSwapStaticReplicationTest {
   // impliedVolatility Tests ------------------------------------------
 
   @Test
-  public void testImpliedVolatility() {
+  public void testExpectedVolatility() {
     final double sigmaSquared = PRICER.expectedVariance(swap5, MARKET_W_STRIKESURF);
     final double sigma = PRICER.expectedVolatility(swap5, MARKET_W_STRIKESURF);
 

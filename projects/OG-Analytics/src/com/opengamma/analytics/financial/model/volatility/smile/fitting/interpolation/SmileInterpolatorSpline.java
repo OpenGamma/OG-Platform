@@ -5,18 +5,16 @@
  */
 package com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation;
 
+import org.apache.commons.lang.ObjectUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.analytics.math.differentiation.ScalarFirstOrderDifferentiator;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.util.ArgumentChecker;
-
-import java.util.Arrays;
-
-import org.apache.commons.lang.ObjectUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Fits a set of implied volatilities at given strikes by interpolating log-moneyness (ln(strike/forward)) against implied volatility using the supplied interpolator (the default
@@ -85,25 +83,12 @@ public class SmileInterpolatorSpline implements GeneralSmileInterpolator {
 
     // Low strike extrapolation // TODO Review 
     final double[] shiftLnVolLow;
-    try {
-      shiftLnVolLow = TAIL_FITTER.fitVolatilityAndGrad(forward, kL, volL, gradL, expiry);
-    } catch (Exception e) {
-      final double[] oneLessLowStrike = Arrays.copyOfRange(strikes, 1, strikes.length); // copy of range with left most point removed
-      final double[] oneLessLowVol = Arrays.copyOfRange(impliedVols, 1, strikes.length);
-      LOG.debug("Failed to match volatility and smile gradient on left tail. Removing point {}, {} and trying again", expiry, strikes[0]);
-      return getVolatilityFunction(forward, oneLessLowStrike, expiry, oneLessLowVol);
-    }
+    shiftLnVolLow = TAIL_FITTER.fitVolatilityAndGrad(forward, kL, volL, gradL, expiry);
 
     // High strike extrapolation
     final double[] shiftLnVolHigh;
-    try {
-      shiftLnVolHigh = TAIL_FITTER.fitVolatilityAndGrad(forward, kH, volH, gradH, expiry);
-    } catch (Exception e) {
-      final double[] oneLessHighStrike = Arrays.copyOfRange(strikes, 0, strikes.length - 1); // copy of range with right most point removed
-      final double[] oneLessHighVol = Arrays.copyOfRange(impliedVols, 0, strikes.length - 1);
-      LOG.debug("Failed to match volatility and smile gradient on left tail. Removing point {}, {} and trying again", expiry, strikes[n - 1]);
-      return getVolatilityFunction(forward, oneLessHighStrike, expiry, oneLessHighVol);
-    }
+    shiftLnVolHigh = TAIL_FITTER.fitVolatilityAndGrad(forward, kH, volH, gradH, expiry);
+
     // Resulting Functional Vol Surface
     return new Function1D<Double, Double>() {
       @Override

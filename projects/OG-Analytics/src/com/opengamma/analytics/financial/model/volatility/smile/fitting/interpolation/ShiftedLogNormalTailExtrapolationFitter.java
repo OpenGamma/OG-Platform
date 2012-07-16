@@ -7,9 +7,6 @@ package com.opengamma.analytics.financial.model.volatility.smile.fitting.interpo
 
 import java.util.BitSet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.math.differentiation.ScalarFirstOrderDifferentiator;
 import com.opengamma.analytics.math.differentiation.VectorFieldFirstOrderDifferentiator;
@@ -34,7 +31,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ShiftedLogNormalTailExtrapolationFitter {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ShiftedLogNormalTailExtrapolationFitter.class);
+  // private static final Logger LOG = LoggerFactory.getLogger(ShiftedLogNormalTailExtrapolationFitter.class);
   private static final ScalarFirstOrderDifferentiator DIFFERENTIATOR = new ScalarFirstOrderDifferentiator();
   private static final NewtonVectorRootFinder ROOTFINDER = new BroydenVectorRootFinder(1e-9, 1e-9, 100);
   private static final NonLinearParameterTransforms TRANSFORMS;
@@ -146,11 +143,38 @@ public class ShiftedLogNormalTailExtrapolationFitter {
    */
   public double[] fitVolatilityAndGrad(final double forward, final double strike, final double vol, final double volGrad, final double timeToExpiry) {
 
+    //check the inputs make sense 
+    final boolean isCall = strike >= forward;
+    final double blackDD = BlackFormulaRepository.dualDelta(forward, strike, timeToExpiry, vol, isCall);
+    final double blackVega = BlackFormulaRepository.vega(forward, strike, timeToExpiry, vol);
+    final double dd = blackDD + blackVega * volGrad;
+    if (isCall && dd >= 0.0) {
+      final double maxVolGrad = -blackDD / blackVega;
+      throw new IllegalArgumentException("Volatility smile is too steep - implies call prices that are not decreasing with strike. The maximum volGrad is " + maxVolGrad +
+          " but value given is " + volGrad);
+    }
+    if (!isCall && dd <= 0.0) {
+      final double minVolGrad = -blackDD / blackVega;
+      throw new IllegalArgumentException("Volatility smile is not steep enough - implies put not increasing with strike. The minimum volGrad is  " + minVolGrad +
+          " but value given is " + volGrad);
+    }
+
     DoubleMatrix1D start = TRANSFORMS.transform(new DoubleMatrix1D(0.0, vol));
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> func = getVolGradDifferenceFunc(forward, strike, vol, volGrad, timeToExpiry);
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac = getVolGradJac(forward, strike, vol, volGrad, timeToExpiry);
     NonLinearTransformFunction nltf = new NonLinearTransformFunction(func, jac, TRANSFORMS);
-    return TRANSFORMS.inverseTransform(ROOTFINDER.getRoot(nltf.getFittingFunction(), nltf.getFittingJacobian(), start)).getData();
+
+    //The shifted log-normal model does not guarantee that call prices are below the forward and hence that the implied volatility exists. The root finding can fail (when 
+    //a genuine solution does exist) because the parameters have wandered into a region where the implied volatility does not exist. In this case the remedy is to fit for
+    //price and dual delta, which will give the correct answer (prices above the forward, while not economically possible, do not bother the root finder)
+    try {
+      return TRANSFORMS.inverseTransform(ROOTFINDER.getRoot(nltf.getFittingFunction(), nltf.getFittingJacobian(), start)).getData();
+    } catch (Exception e) {
+
+      final double price = BlackFormulaRepository.price(forward, strike, timeToExpiry, vol, isCall);
+
+      return fitPriceAndGrad(forward, strike, price, dd, timeToExpiry, isCall);
+    }
   }
 
   /**
