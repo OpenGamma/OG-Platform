@@ -16,6 +16,9 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ViewportResults {
 
+  private static final Cell s_emptyCell = new Cell(null, null, null);
+  //private static final Cell s_emtpyCellWithHistory = new Cell(null, null, Collections.emptyList());
+
   private final List<List<Cell>> _allResults;
   private final AnalyticsColumnGroups _columns;
   private final ViewportSpecification _viewportSpec;
@@ -69,8 +72,12 @@ public class ViewportResults {
   }
 
   public static Cell emptyCell() {
-    return new Cell(null, null, null);
+    return s_emptyCell;
   }
+
+  /*public static Cell emptyCellWithHistory() {
+    return s_emtpyCellWithHistory;
+  }*/
 
   public static class Cell {
 

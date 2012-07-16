@@ -73,7 +73,6 @@ public class MainGridViewport extends AnalyticsViewport {
         }
       }
       // TODO split into 2 loops over the rows. can exit early if nothing was updated and keep the previous results
-      // TODO that means initializing them properly, currently relying on this method to do that
       // create a list for each row of results, reusing the previous results if there was no new value for a cell
       String rowName = row.getName();
       List<ViewportResults.Cell> rowResults = Lists.newArrayListWithCapacity(_viewportSpec.getColumns().size() + 1);
@@ -109,6 +108,25 @@ public class MainGridViewport extends AnalyticsViewport {
       return null;
     }
   }
+
+  // this will be needed when delta results are supported and we can reuse old results if nothing has been updated
+  /*private ViewportResults emtpyResults(ResultsCache cache) {
+    List<List<ViewportResults.Cell>> rows = Lists.newArrayListWithCapacity(_viewportSpec.getRows().size());
+    List<ViewportResults.Cell> rowCells = Lists.newArrayListWithCapacity(_viewportSpec.getColumns().size());
+
+    for (int i = 0; i < _viewportSpec.getRows().size(); i++) {
+      for (Integer colIndex : _viewportSpec.getColumns()) {
+        Class<?> columnType = _gridStructure.getColumnType(colIndex);
+        if (cache.isHistoryType(columnType)) {
+          rowCells.add(ViewportResults.emptyCellWithHistory());
+        } else {
+          rowCells.add(ViewportResults.emptyCell());
+        }
+      }
+      rows.add(rowCells);
+    }
+    return new ViewportResults(rows, _viewportSpec, _gridStructure.getColumnStructure());
+  }*/
 
   public void update(ViewportSpecification viewportSpec, ViewResultModel results, ResultsCache cache) {
     ArgumentChecker.notNull(viewportSpec, "viewportSpec");
