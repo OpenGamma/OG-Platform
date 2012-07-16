@@ -15,7 +15,6 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -97,7 +96,6 @@ public class YieldCurveBundle {
    * @param curveCurrency The map of currencies.
    */
   public YieldCurveBundle(final Map<String, ? extends YieldAndDiscountCurve> curvesMap, final FXMatrix fxMatrix, final Map<String, Currency> curveCurrency) {
-    ArgumentChecker.isTrue(curvesMap.keySet().equals(curveCurrency.keySet()), "The maps for curves and currencies should have the same list of curves names.");
     _curves = new LinkedHashMap<String, YieldAndDiscountCurve>(curvesMap);
     _curveCurrency = new HashMap<String, Currency>(curveCurrency);
     _fxMatrix = new FXMatrix(fxMatrix);

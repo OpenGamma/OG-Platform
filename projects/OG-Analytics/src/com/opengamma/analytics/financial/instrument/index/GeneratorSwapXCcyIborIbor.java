@@ -9,9 +9,10 @@ import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
-import com.opengamma.analytics.financial.instrument.swap.SwapIborIborDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapXCcyIborIborDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.util.ArgumentChecker;
@@ -19,14 +20,14 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Class with the description of swap characteristics.
  */
-public class GeneratorSwapIborIbor extends Generator {
+public class GeneratorSwapXCcyIborIbor extends Generator {
 
   /**
    * The Ibor index of the first leg.
    */
   private final IborIndex _iborIndex1;
   /**
-   * The Ibor index of the second leg. The two index should be related to the same currency.
+   * The Ibor index of the second leg.
    */
   private final IborIndex _iborIndex2;
   /**
@@ -50,11 +51,10 @@ public class GeneratorSwapIborIbor extends Generator {
    * @param iborIndex1 The Ibor index of the first leg.
    * @param iborIndex2 The Ibor index of the second leg.
    */
-  public GeneratorSwapIborIbor(final String name, final IborIndex iborIndex1, final IborIndex iborIndex2) {
+  public GeneratorSwapXCcyIborIbor(final String name, final IborIndex iborIndex1, final IborIndex iborIndex2) {
     super(name);
-    ArgumentChecker.notNull(iborIndex1, "ibor index 1");
-    ArgumentChecker.notNull(iborIndex2, "ibor index 2");
-    ArgumentChecker.isTrue(iborIndex1.getCurrency() == iborIndex2.getCurrency(), "Currencies of both index should be identical");
+    Validate.notNull(iborIndex1, "ibor index");
+    Validate.notNull(iborIndex2, "ibor index");
     _iborIndex1 = iborIndex1;
     _iborIndex2 = iborIndex2;
     _businessDayConvention = iborIndex1.getBusinessDayConvention();
@@ -71,12 +71,11 @@ public class GeneratorSwapIborIbor extends Generator {
    * @param endOfMonth The end-of-month flag.
    * @param spotLag The swap spot lag (usually 2 or 0).
    */
-  public GeneratorSwapIborIbor(final String name, final IborIndex iborIndex1, final IborIndex iborIndex2, final BusinessDayConvention businessDayConvention, final boolean endOfMonth,
+  public GeneratorSwapXCcyIborIbor(final String name, final IborIndex iborIndex1, final IborIndex iborIndex2, final BusinessDayConvention businessDayConvention, final boolean endOfMonth,
       final int spotLag) {
     super(name);
-    ArgumentChecker.notNull(iborIndex1, "ibor index 1");
-    ArgumentChecker.notNull(iborIndex2, "ibor index 2");
-    ArgumentChecker.isTrue(iborIndex1.getCurrency() == iborIndex2.getCurrency(), "Currencies of both index should be identical");
+    Validate.notNull(iborIndex1, "ibor index");
+    Validate.notNull(iborIndex2, "ibor index");
     _iborIndex1 = iborIndex1;
     _iborIndex2 = iborIndex2;
     _businessDayConvention = businessDayConvention;
@@ -126,8 +125,11 @@ public class GeneratorSwapIborIbor extends Generator {
 
   @Override
   public InstrumentDefinition<?> generateInstrument(ZonedDateTime date, Period tenor, double spread, double notional, Object... objects) {
+    ArgumentChecker.isTrue(objects.length == 1, "Forex rate required");
+    ArgumentChecker.isTrue(objects[0] instanceof Double, "forex rate should be a double");
+    Double fx = (Double) objects[0];
     final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(date, _spotLag, _iborIndex1.getCalendar());
-    return SwapIborIborDefinition.from(startDate, tenor, this, notional, spread, true);
+    return SwapXCcyIborIborDefinition.from(startDate, tenor, this, notional, notional * fx, spread, true);
   }
 
   @Override
@@ -158,7 +160,7 @@ public class GeneratorSwapIborIbor extends Generator {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    GeneratorSwapIborIbor other = (GeneratorSwapIborIbor) obj;
+    GeneratorSwapXCcyIborIbor other = (GeneratorSwapXCcyIborIbor) obj;
     if (!ObjectUtils.equals(_businessDayConvention, other._businessDayConvention)) {
       return false;
     }

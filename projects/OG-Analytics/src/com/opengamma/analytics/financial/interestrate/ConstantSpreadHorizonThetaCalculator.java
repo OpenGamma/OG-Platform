@@ -5,8 +5,8 @@
  */
 package com.opengamma.analytics.financial.interestrate;
 
+import com.opengamma.analytics.financial.calculator.PresentValueMCACalculator;
 import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackForexCalculator;
-import com.opengamma.analytics.financial.forex.calculator.PresentValueMCACalculator;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexOptionDigitalDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexOptionVanillaDefinition;

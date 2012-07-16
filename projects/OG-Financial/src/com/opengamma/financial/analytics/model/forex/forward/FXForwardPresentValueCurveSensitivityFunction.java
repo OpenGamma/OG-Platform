@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.model.forex.forward;
 import java.util.Collections;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.forex.calculator.PresentValueCurveSensitivityMCSCalculator;
+import com.opengamma.analytics.financial.calculator.PresentValueCurveSensitivityMCSCalculator;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;

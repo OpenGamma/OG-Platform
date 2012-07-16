@@ -14,9 +14,9 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.calculator.PresentValueMCACalculator;
 import com.opengamma.analytics.financial.forex.calculator.CurrencyExposureForexCalculator;
 import com.opengamma.analytics.financial.forex.calculator.ForwardRateForexCalculator;
-import com.opengamma.analytics.financial.forex.calculator.PresentValueMCACalculator;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableForwardDefinition;
 import com.opengamma.analytics.financial.forex.derivative.Forex;

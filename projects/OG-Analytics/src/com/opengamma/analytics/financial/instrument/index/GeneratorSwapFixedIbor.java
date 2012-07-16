@@ -6,10 +6,14 @@
 package com.opengamma.analytics.financial.instrument.index;
 
 import javax.time.calendar.Period;
+import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -155,6 +159,12 @@ public class GeneratorSwapFixedIbor extends Generator {
    */
   public Boolean isEndOfMonth() {
     return _endOfMonth;
+  }
+
+  @Override
+  public InstrumentDefinition<?> generateInstrument(ZonedDateTime date, Period tenor, double fixedRate, double notional, Object... objects) {
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(date, _spotLag, _iborIndex.getCalendar());
+    return SwapFixedIborDefinition.from(startDate, tenor, this, notional, fixedRate, true);
   }
 
   @Override

@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.forex.calculator;
 
+import com.opengamma.analytics.financial.calculator.PresentValueCurveSensitivityMCSCalculator;
 import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;

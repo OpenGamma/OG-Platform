@@ -5,8 +5,13 @@
  */
 package com.opengamma.analytics.financial.instrument.index;
 
+import javax.time.calendar.Period;
+import javax.time.calendar.ZonedDateTime;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
+
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 
 /**
  * Generic class for generators (deposit, ois, irs, ...).
@@ -34,6 +39,9 @@ public abstract class Generator {
   public String getName() {
     return _name;
   }
+
+  public abstract InstrumentDefinition<?> generateInstrument(final ZonedDateTime date, final Period tenor, final double marketQuote,
+      final double notional, final Object... objects);
 
   @Override
   public int hashCode() {

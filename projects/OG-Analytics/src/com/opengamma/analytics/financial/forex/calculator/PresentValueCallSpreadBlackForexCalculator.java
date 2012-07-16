@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.forex.calculator;
 
+import com.opengamma.analytics.financial.calculator.PresentValueMCACalculator;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionDigital;
 import com.opengamma.analytics.financial.forex.method.ForexOptionDigitalCallSpreadBlackMethod;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;

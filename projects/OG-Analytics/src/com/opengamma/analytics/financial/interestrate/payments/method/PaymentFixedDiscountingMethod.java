@@ -5,15 +5,22 @@
  */
 package com.opengamma.analytics.financial.interestrate.payments.method;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.method.PricingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.util.surface.StringValue;
 import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Methods related to fixed payments.
@@ -58,6 +65,24 @@ public final class PaymentFixedDiscountingMethod implements PricingMethod {
     Validate.notNull(instrument);
     Validate.isTrue(instrument instanceof PaymentFixed, "Payment Fixed");
     return presentValue((PaymentFixed) instrument, curves);
+  }
+
+  /**
+   * Computes the present value curve sensitivity of a fixed payment by discounting.
+   * @param pay The fixed payment.
+   * @param curves The curve bundle.
+   * @return The sensitivity.
+   */
+  public InterestRateCurveSensitivity presentValueCurveSensitivity(PaymentFixed pay, YieldCurveBundle curves) {
+    final String curveName = pay.getFundingCurveName();
+    final YieldAndDiscountCurve discountingCurve = curves.getCurve(curveName);
+    final double time = pay.getPaymentTime();
+    final DoublesPair s = new DoublesPair(time, -time * pay.getAmount() * discountingCurve.getDiscountFactor(time));
+    final List<DoublesPair> list = new ArrayList<DoublesPair>();
+    list.add(s);
+    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+    result.put(curveName, list);
+    return new InterestRateCurveSensitivity(result);
   }
 
   /**

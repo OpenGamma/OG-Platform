@@ -5,9 +5,16 @@
  */
 package com.opengamma.analytics.financial.instrument.index;
 
+import javax.time.calendar.Period;
+import javax.time.calendar.ZonedDateTime;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
+import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -114,6 +121,14 @@ public class GeneratorDeposit extends Generator {
    */
   public boolean isEndOfMonth() {
     return _endOfMonth;
+  }
+
+  @Override
+  public InstrumentDefinition<Cash> generateInstrument(ZonedDateTime date, Period tenor, double rate, double notional, Object... objects) {
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(date, _spotLag, _calendar);
+    final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, tenor, this);
+    final double accrualFactor = _dayCount.getDayCountFraction(startDate, endDate);
+    return new CashDefinition(_currency, startDate, endDate, notional, rate, accrualFactor);
   }
 
   @Override

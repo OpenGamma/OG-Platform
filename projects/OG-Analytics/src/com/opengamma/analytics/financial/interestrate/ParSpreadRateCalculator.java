@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.interestrate;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.calculator.PresentValueMCACalculator;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZero;
 import com.opengamma.analytics.financial.interestrate.cash.method.CashDiscountingMethod;
@@ -17,7 +18,6 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * Compute the spread to be added to the rate of the instrument for which the present value of the instrument is zero. 
@@ -47,7 +47,7 @@ public final class ParSpreadRateCalculator extends AbstractInstrumentDerivativeV
   /**
    * The methods and calculators.
    */
-  private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
+  private static final PresentValueMCACalculator PVMCC = PresentValueMCACalculator.getInstance();
   private static final PresentValueBasisPointCalculator PVBPC = PresentValueBasisPointCalculator.getInstance();
   private static final CashDiscountingMethod METHOD_DEPOSIT = CashDiscountingMethod.getInstance();
   private static final DepositZeroDiscountingMethod METHOD_DEPOSIT_ZERO = DepositZeroDiscountingMethod.getInstance();
@@ -82,8 +82,7 @@ public final class ParSpreadRateCalculator extends AbstractInstrumentDerivativeV
   public Double visitSwap(final Swap<?, ?> swap, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(swap);
-    ArgumentChecker.isTrue(swap.getFirstLeg().getCurrency().equals(swap.getSecondLeg().getCurrency()), "Both legs should have the same currency");
-    return -PVC.visit(swap, curves) / PVBPC.visit(swap.getFirstLeg(), curves);
+    return -curves.convert(PVMCC.visit(swap, curves), swap.getFirstLeg().getCurrency()).getAmount() / PVBPC.visit(swap.getFirstLeg(), curves);
   }
 
   @Override
