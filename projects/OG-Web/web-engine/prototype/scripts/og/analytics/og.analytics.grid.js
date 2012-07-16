@@ -47,7 +47,7 @@ $.register_module({
             grid.events[type].forEach(function (value) {value.handler.apply(null, value.args.concat(args));});
         };
         var format = function (grid, value, type) {
-            return grid.formatter[type] ? grid.formatter[type](value) : value || '&nbsp;';
+            return grid.formatter[type] ? grid.formatter[type](value) : value || '';
         };
         var init_data = function (grid, config) {
             grid.alive = function () {return grid.$(grid.id).length ? true : !grid.elements.style.remove();};
