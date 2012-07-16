@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.interestrate.curve;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
@@ -43,32 +44,37 @@ public abstract class AbstractParameterSensitivityCalculator {
 
   /**
    * Computes the sensitivity with respect to the parameters.
-   * @param instrument The instrument.
-   * @param fixedCurves The fixed curves (for which the parameter sensitivity are not computed even if they are necessary for the instrument pricing).
-   * @param sensitivityCurves The curves which respect to which the sensitivity is computed.
+   * @param instrument The instrument. Not null.
+   * @param fixedCurves The fixed curves names (for which the parameter sensitivity are not computed even if they are necessary for the instrument pricing).
+   * The curve in the list may or may not be in the bundle. Not null.
+   * @param bundle The curve bundle with all curves and data required to price the instrument. 
+   * The sensitivity with respect to the curves in the fixedCurves list will not be part of the output total sensitivity. Not null.
    * @return The sensitivity (as a DoubleMatrix1D).
    */
-  public DoubleMatrix1D calculateSensitivity(final InstrumentDerivative instrument, final YieldCurveBundle fixedCurves, final YieldCurveBundle sensitivityCurves) {
+  public DoubleMatrix1D calculateSensitivity(final InstrumentDerivative instrument, final Set<String> fixedCurves, final YieldCurveBundle bundle) {
     Validate.notNull(instrument, "null InterestRateDerivative");
-    Validate.notNull(sensitivityCurves, "interpolated curves");
-    final YieldCurveBundle allCurves = sensitivityCurves.copy();
-    if (fixedCurves != null) {
-      for (final String name : sensitivityCurves.getAllNames()) {
-        Validate.isTrue(!fixedCurves.containsName(name), "Fixed curves contain a name that is also in the sensitivity curves");
-      }
-      allCurves.addAll(fixedCurves);
-    }
-    final InterestRateCurveSensitivity sensitivity = _curveSensitivityCalculator.visit(instrument, allCurves);
-    return pointToParameterSensitivity(sensitivity, sensitivityCurves);
+    Validate.notNull(fixedCurves, "null set of fixed curves.");
+    Validate.notNull(bundle, "null bundle");
+    //    final YieldCurveBundle allCurves = sensitivityCurves.copy();
+    //    if (fixedCurves != null) {
+    //      for (final String name : sensitivityCurves.getAllNames()) {
+    //        Validate.isTrue(!fixedCurves.containsName(name), "Fixed curves contain a name that is also in the sensitivity curves");
+    //      }
+    //      allCurves.addAll(fixedCurves);
+    //    }
+    final InterestRateCurveSensitivity sensitivity = _curveSensitivityCalculator.visit(instrument, bundle);
+    return pointToParameterSensitivity(sensitivity, fixedCurves, bundle);
   }
 
   /**
    * Computes the sensitivity with respect to the parameters from the point sensitivities to the continuously compounded rate.
    * @param sensitivity The point sensitivity.
-   * @param sensitivityCurves The curves which respect to which the sensitivity is computed.
+   * @param fixedCurves The fixed curves names (for which the parameter sensitivity are not computed even if they are necessary for the instrument pricing).
+   * The curve in the list may or may not be in the bundle. Not null.
+   * @param bundle The curve bundle with all the curves with respect to which the sensitivity should be computed. Not null.
    * @return The sensitivity (as a DoubleMatrix1D).
    */
-  public abstract DoubleMatrix1D pointToParameterSensitivity(final InterestRateCurveSensitivity sensitivity, final YieldCurveBundle sensitivityCurves);
+  public abstract DoubleMatrix1D pointToParameterSensitivity(final InterestRateCurveSensitivity sensitivity, final Set<String> fixedCurves, final YieldCurveBundle bundle);
 
   /**
    * Computes the sensitivity with respect to the parameters from the point sensitivities to only one curve.

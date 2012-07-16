@@ -9,7 +9,9 @@ import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.F
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.Set;
 
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
@@ -110,23 +112,26 @@ public abstract class ParameterUnderlyingSensitivityCalculatorTest {
     getCalculator().calculateSensitivity(SWAP, null, (YieldCurveBundle) null);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testWrongNames() {
-    getCalculator().calculateSensitivity(SWAP, new YieldCurveBundle(CURVE_BUNDLE_YIELD), CURVE_BUNDLE_YIELD);
-  }
+  //  @Test(expectedExceptions = IllegalArgumentException.class)
+  //  public void testWrongNames() {
+  //    getCalculator().calculateSensitivity(SWAP, new YieldCurveBundle(CURVE_BUNDLE_YIELD), CURVE_BUNDLE_YIELD);
+  //  }
 
   @Test
   /**
    * Tests when the sensitivity to only one curve is computed (no underlying curve trickery).
    */
   public void testWithNoUnderlying() {
-    final YieldCurveBundle fixedCurve = new YieldCurveBundle();
-    fixedCurve.setCurve(DISCOUNTING_CURVE_NAME, DISCOUNTING_CURVE_SPREAD);
-    final LinkedHashMap<String, YieldAndDiscountCurve> fittingCurveMap = new LinkedHashMap<String, YieldAndDiscountCurve>();
-    fittingCurveMap.put(FORWARD_CURVE_NAME, FORWARD_CURVE_SPREAD);
-    YieldCurveBundle fittingCurve = new YieldCurveBundle(fittingCurveMap);
-    final DoubleMatrix1D resultU = getCalculator().calculateSensitivity(SWAP, fixedCurve, fittingCurve);
-    final DoubleMatrix1D resultNoU = getNoUnderlyingCalculator().calculateSensitivity(SWAP, fixedCurve, fittingCurve);
+    //    final YieldCurveBundle fixedCurve = new YieldCurveBundle();
+    //    fixedCurve.setCurve(DISCOUNTING_CURVE_NAME, DISCOUNTING_CURVE_SPREAD);
+    //    final LinkedHashMap<String, YieldAndDiscountCurve> fittingCurveMap = new LinkedHashMap<String, YieldAndDiscountCurve>();
+    //    fittingCurveMap.put(FORWARD_CURVE_NAME, FORWARD_CURVE_SPREAD);
+    //    YieldCurveBundle fittingCurve = new YieldCurveBundle(fittingCurveMap);
+
+    final Set<String> fixedCurve = new HashSet<String>();
+    fixedCurve.add(DISCOUNTING_CURVE_NAME);
+    final DoubleMatrix1D resultU = getCalculator().calculateSensitivity(SWAP, fixedCurve, CURVE_BUNDLE_SPREAD);
+    final DoubleMatrix1D resultNoU = getNoUnderlyingCalculator().calculateSensitivity(SWAP, fixedCurve, CURVE_BUNDLE_SPREAD);
     assertArrayEquals("Sensitivity to rates: YieldCurve", resultNoU.getData(), resultU.getData(), TOLERANCE_SENSI);
   }
 
