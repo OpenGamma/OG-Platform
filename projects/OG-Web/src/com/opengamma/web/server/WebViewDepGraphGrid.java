@@ -36,6 +36,7 @@ import com.opengamma.engine.view.calc.ComputationCacheResponse;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.conversion.ResultConverter;
 import com.opengamma.web.server.conversion.ResultConverterCache;
@@ -79,13 +80,19 @@ public class WebViewDepGraphGrid extends WebViewGrid {
       return false;
     }
     
-    HashMap<ValueSpecification, IntSet> rowIdMap = new HashMap<ValueSpecification, IntSet>();
-    _rowStructure = generateRowStructure(depGraph, valueSpecification, rowIdMap);
-    _rowIdMap = rowIdMap;
-    
-    _cacheQuery = new ComputationCacheQuery();
-    _cacheQuery.setCalculationConfigurationName(calcConfigName);
-    _cacheQuery.setValueSpecifications(new HashSet<ValueSpecification>(_rowIdMap.keySet()));
+    try {
+      HashMap<ValueSpecification, IntSet> rowIdMap = new HashMap<ValueSpecification, IntSet>();
+      _rowStructure = generateRowStructure(depGraph, valueSpecification, rowIdMap);
+      _rowIdMap = rowIdMap;
+      
+      _cacheQuery = new ComputationCacheQuery();
+      _cacheQuery.setCalculationConfigurationName(calcConfigName);
+      _cacheQuery.setValueSpecifications(new HashSet<ValueSpecification>(_rowIdMap.keySet()));
+    } catch (Exception e) {
+      s_logger.error("Exception initialising dependency graph grid", e);
+      _init.set(false);
+      return false;
+    }
     
     return true;
   }
@@ -149,6 +156,9 @@ public class WebViewDepGraphGrid extends WebViewGrid {
   }
 
   private Object getJsonRowStructure(DependencyNode node, ValueSpecification valueSpecification, long parentRowId, long rowId, int indent) {
+    ArgumentChecker.notNull(node, "node");
+    ArgumentChecker.notNull(valueSpecification, "valueSpecification");
+    
     Map<String, Object> row = new HashMap<String, Object>();
     final String targetName = getTargetName(node.getComputationTarget());
     final String targetType = getTargetTypeName(node.getComputationTarget().getType());
