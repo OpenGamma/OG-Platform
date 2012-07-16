@@ -76,6 +76,10 @@ import com.opengamma.util.money.CurrencyAmount;
     }
   }
 
+  /* package */ /*boolean isHistoryType(Class<?> columnType) {
+    return s_historyTypes.contains(columnType);
+  }*/
+
   /* package */ static class Result {
 
     private final Collection<Object> _history;
