@@ -10,7 +10,6 @@ import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -75,9 +74,7 @@ public class ViewportResultsMessageBodyWriter implements MessageBodyWriter<Viewp
     List<List<Object>> allResults = Lists.newArrayListWithCapacity(viewportCells.size());
     for (List<ViewportResults.Cell> rowCells : viewportCells) {
       List<Object> rowResults = Lists.newArrayListWithCapacity(rowCells.size());
-      // iterator of column indicies that are in the viewport. will always have the same number of elements as
-      // each row of the results
-      Iterator<Integer> viewportColIterator = results.getViewportSpec().getColumns().iterator();
+      int viewportColIndex = 0;
       for (ViewportResults.Cell cell : rowCells) {
         Object formattedValue;
         Object cellValue = cell.getValue();
@@ -88,9 +85,7 @@ public class ViewportResultsMessageBodyWriter implements MessageBodyWriter<Viewp
           formattedValue = _formatter.formatForDisplay(cellValue, cellValueSpec);
         }
         Collection<Object> history = cell.getHistory();
-        // absolute column index in the grid
-        Integer columnIndex = viewportColIterator.next();
-        Class<?> columnType = results.getColumns().getColumn(columnIndex).getType();
+        Class<?> columnType = results.getColumnType(viewportColIndex++);
 
         if (columnType == null || history != null) {
           // if there is history or we need to send type info then we need to send an object, not just the value
