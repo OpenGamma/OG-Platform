@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.common.gadgets.surface',
     dependencies: ['og.common.gadgets.manager', 'og.api.text'],
     obj: function () {
-        var webgl = Detector.webgl ? true : false, util = {}, tmp_data,
+        var webgl = Detector.webgl ? true : false, util = {}, matlib = {}, tmp_data,
             settings = {
                 floating_height: 10, // how high does the top surface float over the bottom grid
                 font_face: 'Arial',
@@ -16,7 +16,7 @@ $.register_module({
                 font_height: 2,
                 font_height_axis_labels: 4,
                 font_height_interactive_labels: 5,
-                font_color_axis_labels: '0xffffff',
+                font_color_axis_labels: '0xcccccc',
                 interactive_color_nix: '0xff0000',
                 interactive_color_css: '#f00',
                 log10: true,
@@ -110,6 +110,52 @@ $.register_module({
             });
         };
         /**
+         * Material Library
+         */
+        matlib.canvas = {};
+        matlib.canvas.compound_surface = function () {
+            return [matlib.canvas.flat('0xcccccc'), matlib.canvas.wire('0xeeeeee')];
+        };
+        matlib.canvas.flat = function (color) {
+            return new THREE.MeshLambertMaterial({color: color, shading: THREE.FlatShading});
+        };
+        matlib.canvas.wire = function (color) {
+            return new THREE.MeshBasicMaterial({color: color || 0xcccccc, wireframe: true});
+        };
+        matlib.compound_white_wire = function () {
+            return [
+                new THREE.MeshPhongMaterial({
+                    // color represents diffuse in THREE.MeshPhongMaterial
+                    ambient: 0x000000, color: 0xefefef, specular: 0xffffff, emissive: 0x000000, shininess: 10
+                }),
+                matlib.wire(0xcccccc)
+            ]
+        };
+        matlib.compound_surface = function () {
+            if (!webgl) return matlib.canvas.compound_surface();
+            return [matlib.vertex(), matlib.wire('0xffffff')]
+        };
+        matlib.wire = function (color) {
+            if (!webgl) return matlib.canvas.wire(color);
+            return new THREE.MeshBasicMaterial({color: color || 0x999999, wireframe: true});
+        };
+        matlib.flat = function (color) {
+            if (!webgl) return matlib.canvas.flat(color);
+            return new THREE.MeshBasicMaterial({color: color, wireframe: false});
+        };
+        matlib.phong = function (color) {
+            if (!webgl) return matlib.canvas.flat(color);
+            return new THREE.MeshPhongMaterial({
+                ambient: 0x000000, color: color, specular: 0x999999, shininess: 50, shading: THREE.SmoothShading
+            });
+        };
+        matlib.texture = function (texture) {
+            return new THREE.MeshBasicMaterial({map: texture, color: 0xffffff, transparent: true});
+        };
+        matlib.vertex = function () {
+            return new THREE.MeshPhongMaterial({shading: THREE.FlatShading, vertexColors: THREE.VertexColors})
+        };
+        /**
          * Creates a surface gadget
          * @param {Object} config
          */
@@ -156,9 +202,8 @@ $.register_module({
             var Text3D = function (str, color, size, height) {
                 var text = new THREE.TextGeometry(str, {
                     size: size, height: height || 10, font: 'helvetiker', weight: 'normal', style: 'normal'
-                }),
-                material = new THREE.MeshPhongMaterial({color: color, shading: THREE.SmoothShading});
-                return new THREE.Mesh(text, material);
+                });
+                return new THREE.Mesh(text, matlib.phong(color));
             };
             /**
              * Constructor for 2d text on a 3d mesh. Creates a canvas texture, applies to mesh
@@ -182,9 +227,7 @@ $.register_module({
                 create_mesh = function (str) {
                     var map = create_texture_map(str),
                         plane = new THREE.PlaneGeometry(map.width, map.height),
-                        texture = new THREE.Texture(map),
-                        material = new THREE.MeshBasicMaterial({map: texture, color: 0xffffff, transparent: true}),
-                        mesh = new THREE.Mesh(plane, material);
+                        mesh = new THREE.Mesh(plane, matlib.texture(new THREE.Texture(map)));
                     mesh.material.map.needsUpdate = true;
                     mesh.doubleSided = true;
                     return mesh;
@@ -199,12 +242,11 @@ $.register_module({
              * @return {THREE.Object3D}
              */
             var Tube = function (points) {
-                var mesh = new THREE.Object3D(), i = points.length - 1, line, tube,
-                    mat = new THREE.MeshBasicMaterial({color: settings.interactive_color_nix, wireframe: false});
+                var mesh = new THREE.Object3D(), i = points.length - 1, line, tube;
                 while (i--) {
                     line = new THREE.LineCurve3(points[i], points[i+1]);
                     tube = new THREE.TubeGeometry(line, 1, 0.2, 5, false, false);
-                    mesh.add(new THREE.Mesh(tube, mat));
+                    mesh.add(new THREE.Mesh(tube, matlib.flat(settings.interactive_color_nix)));
                 }
                 return mesh;
             };
@@ -241,14 +283,8 @@ $.register_module({
              * @return {THREE.Object3D}
              */
             gadget.create_floor = function () {
-                var plane = new THREE.PlaneGeometry(1000, 1000, 10, 10), floor,
-                    materials = [
-                        new THREE.MeshPhongMaterial({
-                            color: 0xffffff, specular: 0xeeeeee, shininess: 0.5, ambient: 0xffff00
-                        }),
-                        new THREE.MeshBasicMaterial({color: 0xdddddd, wireframe: true})
-                    ];
-                floor = THREE.SceneUtils.createMultiMaterialObject(plane, materials);
+                var plane = new THREE.PlaneGeometry(5000, 5000, 100, 100), floor;
+                floor = THREE.SceneUtils.createMultiMaterialObject(plane, matlib.compound_white_wire());
                 floor.position.y = -0.01;
                 return floor;
             };
@@ -288,14 +324,14 @@ $.register_module({
                 backlight = new THREE.DirectionalLight(0xf2f6ff, 0.3, 100);
                 backlight.position.set(-150, 150, -200).normalize();
                 keylight = new THREE.DirectionalLight(0xfffaf2, 0.6, 300);
-                keylight.position.set(-150, 150, 150).normalize();
-                filllight = new THREE.DirectionalLight(0xfffdf8, 0.6, 500);
-                filllight.position.set(150, 200, 150).normalize();
+                keylight.position.set(-150, 150, 100).normalize();
+                filllight = new THREE.DirectionalLight(0xf6f8ff, 0.6, 500);
+                filllight.position.set(150, 300, 150).normalize();
                 // setup actors / groups & create scene
                 camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000); /* fov, aspect, near, far */
                 animation_group.add(backlight);
-                animation_group.add(filllight);
                 animation_group.add(keylight);
+                animation_group.add(filllight);
                 animation_group.add(surface.create_surface());
                 scene = new THREE.Scene();
                 scene.add(animation_group);
@@ -409,7 +445,7 @@ $.register_module({
                 (function () { // axis values
                     var value;
                     for (i = 0; i < lbl_arr.length; i++) {
-                        value = new Text3D(lbl_arr[i], '0x555555', settings.font_size, settings.font_height);
+                        value = new Text3D(lbl_arr[i], '0x000000', settings.font_size, settings.font_height);
                         value.scale.set(scale, scale, scale);
                         value.rotation.x = -Math.PI * .5;
                         value.position.x = pos_arr[i] - 2 - ((THREE.FontUtils.drawText(lbl_arr[i]).offset * 0.1) / 2);
@@ -432,9 +468,7 @@ $.register_module({
                     var canvas = document.createElement('canvas'),
                         ctx = canvas.getContext('2d'),
                         plane = new THREE.PlaneGeometry(axis_len, 5, 0, 0),
-                        texture = new THREE.Texture(canvas),
-                        material = new THREE.MeshBasicMaterial({map: texture, transparent: true}),
-                        axis = new THREE.Mesh(plane, material),
+                        axis = new THREE.Mesh(plane, matlib.texture(new THREE.Texture(canvas))),
                         labels = util.thin(config.spacing.map(function (val) {return (val + (axis_len / 2)) * 5}), nth);
                     canvas.width = axis_len * 5;
                     canvas.height = 50;
@@ -459,11 +493,7 @@ $.register_module({
              * @return {THREE.Mesh}
              */
             surface.create_bottom_grid = function () {
-                var mesh, material,
-                    weblg_material = new THREE.MeshBasicMaterial({color: 0x999999, wireframe: true}),
-                    canvas_material = new THREE.MeshBasicMaterial({color: 0xdddddd, wireframe: true});
-                material = webgl ? weblg_material : canvas_material;
-                mesh = new THREE.Mesh(new Plane(), material);
+                var mesh = new THREE.Mesh(new Plane(), matlib.wire());
                 mesh.overdraw = true;
                 return mesh;
             };
@@ -481,6 +511,7 @@ $.register_module({
                 surface_top_group.add(vertex_sphere);
                 surface_top_group.position.y = settings.floating_height;
                 surface_bottom_group.add(surface.create_bottom_grid());
+                console.log(surface_top_group);
                 if (webgl) surface_bottom_group.add(gadget.create_floor());
                 if (webgl) surface_bottom_group.add(surface.create_axes());
                 surface_group.add(surface_top_group);
@@ -492,18 +523,8 @@ $.register_module({
              * @return {THREE.Object3D}
              */
             surface.create_surface_plane = function () {
-                var plane = new Plane(), group, materials, i,
-                    weblg_materials = [
-                        new THREE.MeshLambertMaterial({color: 0xffffff, shading: THREE.FlatShading,
-                            vertexColors: THREE.VertexColors}),
-                        new THREE.MeshBasicMaterial({color: 0xffffff, wireframe: true, opacity: 0.5})
-                    ],
-                    canvas_materials = [
-                        new THREE.MeshLambertMaterial({color: 0xcccccc, shading: THREE.FlatShading}),
-                        new THREE.MeshBasicMaterial({color: 0xdddddd, wireframe: true})
-                    ];
+                var plane = new Plane(), group, i;
                 plane.verticesNeedUpdate = true;
-                materials = webgl ? weblg_materials : canvas_materials;
                 for (i = 0; i < adjusted_vol.length; i++) {plane.vertices[i].y = adjusted_vol[i];} // extrude
                 plane.computeCentroids();
                 plane.computeFaceNormals();
@@ -526,7 +547,7 @@ $.register_module({
                 }());
                 // apply surface materials,
                 // actualy duplicates the geometry and adds each material separatyle, returns the group
-                group = THREE.SceneUtils.createMultiMaterialObject(plane, materials);
+                group = THREE.SceneUtils.createMultiMaterialObject(plane, matlib.compound_surface());
                 group.children.forEach(function (mesh) {mesh.doubleSided = true;});
                 gadget.interactive_meshes.add('surface', group.children[0]);
                 return group;
@@ -583,8 +604,7 @@ $.register_module({
                             var txt_width = THREE.FontUtils.drawText(txt).offset, height = 60,
                                 box_width = txt_width * 3,
                                 box = new THREE.CubeGeometry(box_width, height, 4, 4, 1, 1),
-                                material = new THREE.MeshPhongMaterial({color: 0xffffff, shading: THREE.SmoothShading}),
-                                mesh = new THREE.Mesh(box, material);
+                                mesh = new THREE.Mesh(box, matlib.phong('0xdddddd'));
                             mesh.position.x = (box_width / 2) - (txt_width / 2);
                             mesh.position.y = 20;
                             // create the tail by moving the 2 center vertices closes to the surface
@@ -650,8 +670,7 @@ $.register_module({
             };
             surface.vertex_sphere = function () {
                 var sphere = new THREE.Mesh(
-                    new THREE.SphereGeometry(1.5, 10, 10),
-                    new THREE.MeshLambertMaterial({color: settings.interactive_color_nix, shading: THREE.FlatShading})
+                    new THREE.SphereGeometry(1.5, 10, 10), matlib.phong(settings.interactive_color_nix)
                 );
                 sphere.visible = false;
                 return sphere;
