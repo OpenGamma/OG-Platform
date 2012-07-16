@@ -12,7 +12,11 @@ import com.opengamma.analytics.financial.forex.calculator.PresentValueCurveSensi
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionExecutionContext;
+import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
@@ -27,10 +31,9 @@ public class FXForwardPresentValueCurveSensitivityFunction extends FXForwardMult
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final Forex fxForward, final YieldCurveBundle data, final ValueSpecification spec) {
+  protected Set<ComputedValue> getResult(final Forex fxForward, final YieldCurveBundle data, final ComputationTarget target, final Set<ValueRequirement> desiredValues,
+      final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
     final MultipleCurrencyInterestRateCurveSensitivity result = CALCULATOR.visit(fxForward, data);
     return Collections.singleton(new ComputedValue(spec, result));
   }
-
-
 }
