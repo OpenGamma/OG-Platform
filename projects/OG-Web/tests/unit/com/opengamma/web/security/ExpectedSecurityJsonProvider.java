@@ -142,6 +142,7 @@ import com.opengamma.util.time.Expiry;
           }
           templateData.put("underlyingBond", underlyingBond);
         }
+        templateData.put("unitAmount", security.getUnitAmount());
         secMap.put(TEMPLATE_DATA, templateData);
         addExternalIds(security, secMap);
         return new JSONObject(secMap);
