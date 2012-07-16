@@ -1153,4 +1153,22 @@ public final class ValueRequirementNames {
    * The PDE space grid values of the price
    */
   public static final String GRID_PRESENT_VALUE = "Grid Present Value";
+  
+  ///// Externally-sourced values
+  // Existing value requirement names with a suffix
+  // NOTE jonathan 2012-07-13 -- simply to allow clearer column headers. Should be removed once we have a better solution.
+  private static final String EXTERNAL_SUFFIX = " (ext)";
+  /**
+   * External value of {@link #CONDITIONAL_HISTORICAL_VAR}
+   */
+  public static final String EXTERNAL_CONDITIONAL_HISTORICAL_VAR = CONDITIONAL_HISTORICAL_VAR + EXTERNAL_SUFFIX;
+  /**
+   * External value of {@link #HISTORICAL_VAR_STDDEV}
+   */
+  public static final String EXTERNAL_HISTORICAL_VAR_STDDEV = HISTORICAL_VAR_STDDEV + EXTERNAL_SUFFIX;
+  /**
+   * External value of {@link #DV01}
+   */
+  public static final String EXTERNAL_DV01 = DV01 + EXTERNAL_SUFFIX;
+  
 }
