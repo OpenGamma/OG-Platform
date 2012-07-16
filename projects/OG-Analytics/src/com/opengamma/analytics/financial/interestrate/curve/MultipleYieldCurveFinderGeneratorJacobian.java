@@ -27,16 +27,14 @@ public class MultipleYieldCurveFinderGeneratorJacobian extends Function1D<Double
 
   @Override
   public DoubleMatrix2D evaluate(DoubleMatrix1D x) {
-    YieldCurveBundle curves = _data.getBuildingFunction().evaluate(x);
-    final YieldCurveBundle knownCurves = _data.getKnownCurves();
-    if (knownCurves != null) {
-      curves.addAll(knownCurves);
-    }
+    final YieldCurveBundle bundle = _data.getKnownData().copy();
+    YieldCurveBundle newCurves = _data.getBuildingFunction().evaluate(x);
+    bundle.addAll(newCurves);
     final int nbParameters = _data.getNumberOfInstruments();
     final double[][] res = new double[nbParameters][nbParameters];
     for (int i = 0; i < _data.getNumberOfInstruments(); i++) { // loop over all instruments
       InstrumentDerivative deriv = _data.getInstrument(i);
-      res[i] = _parameterSensitivityCalculator.calculateSensitivity(deriv, null, curves).getData();
+      res[i] = _parameterSensitivityCalculator.calculateSensitivity(deriv, null, bundle).getData(); // REVIEW: dowe need to pass the knownData?
     }
     return new DoubleMatrix2D(res);
   }

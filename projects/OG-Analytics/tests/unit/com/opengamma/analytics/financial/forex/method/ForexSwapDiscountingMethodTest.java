@@ -15,9 +15,9 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.calculator.PresentValueCurveSensitivityMCSCalculator;
+import com.opengamma.analytics.financial.calculator.PresentValueMCACalculator;
 import com.opengamma.analytics.financial.forex.calculator.CurrencyExposureForexCalculator;
-import com.opengamma.analytics.financial.forex.calculator.PresentValueCurveSensitivityMCSCalculator;
-import com.opengamma.analytics.financial.forex.calculator.PresentValueMCACalculator;
 import com.opengamma.analytics.financial.forex.definition.ForexSwapDefinition;
 import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;

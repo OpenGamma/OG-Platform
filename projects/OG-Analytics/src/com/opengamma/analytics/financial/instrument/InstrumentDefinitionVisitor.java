@@ -54,6 +54,7 @@ import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapIborIborDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapXCcyIborIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionBermudaFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
@@ -208,6 +209,10 @@ public interface InstrumentDefinitionVisitor<T, U> {
   U visitSwapIborIborDefinition(SwapIborIborDefinition swap, T data);
 
   U visitSwapIborIborDefinition(SwapIborIborDefinition swap);
+
+  U visitSwapXCcyIborIborDefinition(SwapXCcyIborIborDefinition swap, T data);
+
+  U visitSwapXCcyIborIborDefinition(SwapXCcyIborIborDefinition swap);
 
   U visitSwaptionCashFixedIborDefinition(SwaptionCashFixedIborDefinition swaption, T data);
 
