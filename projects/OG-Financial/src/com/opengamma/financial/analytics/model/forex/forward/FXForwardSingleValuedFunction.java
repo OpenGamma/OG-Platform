@@ -13,9 +13,9 @@ import com.opengamma.engine.value.ValueRequirement;
 /**
  * 
  */
-public abstract class FXForwardMultiValuedFunction extends FXForwardFunction {
+public abstract class FXForwardSingleValuedFunction extends FXForwardFunction {
 
-  public FXForwardMultiValuedFunction(final String valueRequirementName) {
+  public FXForwardSingleValuedFunction(final String valueRequirementName) {
     super(valueRequirementName);
   }
 
@@ -25,7 +25,8 @@ public abstract class FXForwardMultiValuedFunction extends FXForwardFunction {
         .withAny(ValuePropertyNames.PAY_CURVE)
         .withAny(ValuePropertyNames.RECEIVE_CURVE)
         .withAny(PAY_CURVE_CALC_CONFIG)
-        .withAny(RECEIVE_CURVE_CALC_CONFIG);
+        .withAny(RECEIVE_CURVE_CALC_CONFIG)
+        .with(ValuePropertyNames.CURRENCY);
   }
 
   @Override
@@ -34,10 +35,12 @@ public abstract class FXForwardMultiValuedFunction extends FXForwardFunction {
     final String receiveCurveName = desiredValue.getConstraint(ValuePropertyNames.RECEIVE_CURVE);
     final String payCurveCalculationConfig = desiredValue.getConstraint(PAY_CURVE_CALC_CONFIG);
     final String receiveCurveCalculationConfig = desiredValue.getConstraint(RECEIVE_CURVE_CALC_CONFIG);
+    final String currency = desiredValue.getConstraint(ValuePropertyNames.CURRENCY);
     return createValueProperties()
         .with(ValuePropertyNames.PAY_CURVE, payCurveName)
         .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveName)
         .with(PAY_CURVE_CALC_CONFIG, payCurveCalculationConfig)
-        .with(RECEIVE_CURVE_CALC_CONFIG, receiveCurveCalculationConfig);
+        .with(RECEIVE_CURVE_CALC_CONFIG, receiveCurveCalculationConfig)
+        .with(ValuePropertyNames.CURRENCY, currency);
   }
 }
