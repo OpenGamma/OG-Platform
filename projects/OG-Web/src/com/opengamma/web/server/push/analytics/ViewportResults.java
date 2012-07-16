@@ -8,6 +8,7 @@ package com.opengamma.web.server.push.analytics;
 import java.util.Collection;
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 
@@ -19,6 +20,7 @@ public class ViewportResults {
   private final List<List<Cell>> _allResults;
   private final AnalyticsColumnGroups _columns;
   private final ViewportSpecification _viewportSpec;
+  private final List<Integer> _colIndices;
 
   /* package */ ViewportResults(List<List<Cell>> allResults,
                                 ViewportSpecification viewportSpec,
@@ -29,6 +31,7 @@ public class ViewportResults {
     _allResults = allResults;
     _viewportSpec = viewportSpec;
     _columns = columns;
+    _colIndices = ImmutableList.copyOf(_viewportSpec.getColumns());
   }
 
   public List<List<Cell>> getResults() {
@@ -39,12 +42,15 @@ public class ViewportResults {
     return _viewportSpec.isExpanded();
   }
 
-  public AnalyticsColumnGroups getColumns() {
-    return _columns;
-  }
-
-  public ViewportSpecification getViewportSpec() {
-    return _viewportSpec;
+  /**
+   * @param viewportColIndex The column index <em>in terms of the viewport columns</em>. For exmaple, if a viewport
+   * contains columns 3 and 5 a call to {@code getColumnType(0)} will return the type of column 3 and
+   * {@code getColumnType(1)} will return the type of column 5
+   * @return The type of the specified column
+   */
+  public Class<?> getColumnType(int viewportColIndex) {
+    Integer gridColIndex = _colIndices.get(viewportColIndex);
+    return _columns.getColumn(gridColIndex).getType();
   }
 
   @Override
