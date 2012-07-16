@@ -19,7 +19,7 @@ $.register_module({
                 font_color_axis_labels: '0xcccccc',
                 interactive_color_nix: '0xff0000',
                 interactive_color_css: '#f00',
-                log10: true,
+                log: true,
                 precision: 3, // floating point presions for vol display
                 snap_distance: 3,
                 surface_x: 100,
@@ -88,13 +88,11 @@ $.register_module({
             });
         };
         /**
-         * Apply Log 10 to each item in Array
+         * Apply Natrual Log to each item in Array
          * @param {Array} arr
          * @returns {Array}
          */
-        util.log = function (arr) {
-            return settings.log10 ? arr.map(function (val) {return Math.log(val) / Math.LN10}) : arr;
-        };
+        util.log = function (arr) {return settings.log ? arr.map(function (val) {return Math.log(val)}) : arr};
         /**
          * Remove every nth item in Array keeping the first and last,
          * also spesificaly remove the second last (as we want to keep the last)
@@ -122,7 +120,15 @@ $.register_module({
         matlib.canvas.wire = function (color) {
             return new THREE.MeshBasicMaterial({color: color || 0xcccccc, wireframe: true});
         };
-        matlib.compound_white_wire = function () {
+        matlib.compound_dark_wire = function () {
+            return [
+                new THREE.MeshPhongMaterial({
+                    ambient: 0x000000, color: 0xeeeeee, specular: 0xeeeeee, emissive: 0x000000
+                }),
+                matlib.wire(0xcccccc)
+            ]
+        };
+        matlib.compound_light_wire = function () {
             return [
                 new THREE.MeshPhongMaterial({
                     // color represents diffuse in THREE.MeshPhongMaterial
@@ -284,7 +290,7 @@ $.register_module({
              */
             gadget.create_floor = function () {
                 var plane = new THREE.PlaneGeometry(5000, 5000, 100, 100), floor;
-                floor = THREE.SceneUtils.createMultiMaterialObject(plane, matlib.compound_white_wire());
+                floor = THREE.SceneUtils.createMultiMaterialObject(plane, matlib.compound_light_wire());
                 floor.position.y = -0.01;
                 return floor;
             };
@@ -382,7 +388,7 @@ $.register_module({
             hud.vol_min = (Math.min.apply(null, config.vol)).toFixed(settings.precision);
             hud.options = function () {
                 $selector.find('.og-options input').on('change', function () {
-                    settings.log10 = $(this).is(':checked');
+                    settings.log = $(this).is(':checked');
                     gadget.update();
                 });
             };
@@ -493,7 +499,7 @@ $.register_module({
              * @return {THREE.Mesh}
              */
             surface.create_bottom_grid = function () {
-                var mesh = new THREE.Mesh(new Plane(), matlib.wire());
+                var mesh = THREE.SceneUtils.createMultiMaterialObject(new Plane(), matlib.compound_dark_wire());
                 mesh.overdraw = true;
                 return mesh;
             };
@@ -511,7 +517,6 @@ $.register_module({
                 surface_top_group.add(vertex_sphere);
                 surface_top_group.position.y = settings.floating_height;
                 surface_bottom_group.add(surface.create_bottom_grid());
-                console.log(surface_top_group);
                 if (webgl) surface_bottom_group.add(gadget.create_floor());
                 if (webgl) surface_bottom_group.add(surface.create_axes());
                 surface_group.add(surface_top_group);
