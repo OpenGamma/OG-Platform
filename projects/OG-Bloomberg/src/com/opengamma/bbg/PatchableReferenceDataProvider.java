@@ -66,7 +66,7 @@ public class PatchableReferenceDataProvider implements ReferenceDataProvider {
             }
           }
         }
-        s_logger.info("Patching {} with {}", new Object[] {fieldData, alteredFieldData });
+        s_logger.debug("Patching {} with {}", new Object[] {fieldData, alteredFieldData });
         result.setFieldData(alteredFieldData);
       }
       rawResult.addResult(result); // actually does a put into the map.
