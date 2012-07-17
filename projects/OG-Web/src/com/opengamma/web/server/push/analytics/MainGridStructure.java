@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.server.push.analytics;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -57,12 +58,14 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
   /* package */ MainGridStructure(CompiledViewDefinition compiledViewDef, List<Row> rows) {
     ViewDefinition viewDef = compiledViewDef.getViewDefinition();
     _colIndexByRequirement = Maps.newHashMap();
-    // column group for the label column
-    AnalyticsColumnGroup labelGroup = new AnalyticsColumnGroup("", ImmutableList.of(new AnalyticsColumn("Label", "", String.class)));
+    // column group for the label and quantity columns which don't come from the calculation results
+    AnalyticsColumnGroup labelGroup =
+        new AnalyticsColumnGroup("", ImmutableList.of(new AnalyticsColumn("Label", "", String.class),
+                                                      new AnalyticsColumn("Quantity", "", BigDecimal.class)));
     List<AnalyticsColumnGroup> columnGroups = Lists.newArrayList(labelGroup);
     _specsToReqs = Maps.newHashMap();
     _reqsToSpecs = Maps.newHashMap();
-    int colIndex = 1; // col 0 is the node name
+    int colIndex = 2; // col 0 is the node name, col 1 is the quantity
     _columnKeys.add(null); // there is no key for the row label column, stick null in there to get the indices right
     for (ViewCalculationConfiguration calcConfig : viewDef.getAllCalculationConfigurations()) {
       String configName = calcConfig.getName();
@@ -165,16 +168,23 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
     return _columnGroups.getColumn(colIndex).getType();
   }
 
+  // TODO add quantity for position rows?
   /* package */ static class Row {
 
     private final ComputationTargetSpecification _target;
     private final String _name;
+    private final BigDecimal _quantity;
 
     /* package */ Row(ComputationTargetSpecification target, String name) {
+      this(target, name, null);
+    }
+
+    /* package */ Row(ComputationTargetSpecification target, String name, BigDecimal quantity) {
       ArgumentChecker.notNull(target, "target");
       ArgumentChecker.notNull(name, "name");
       _target = target;
       _name = name;
+      _quantity = quantity;
     }
 
     /* package */ ComputationTargetSpecification getTarget() {
@@ -185,9 +195,13 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
       return _name;
     }
 
+    /* package */ BigDecimal getQuantity() {
+      return _quantity;
+    }
+
     @Override
     public String toString() {
-      return "Row [_target=" + _target + ", _name='" + _name + '\'' + "]";
+      return "Row [_target=" + _target + ", _name='" + _name + '\'' + ", _quantity=" + _quantity + "]";
     }
   }
 

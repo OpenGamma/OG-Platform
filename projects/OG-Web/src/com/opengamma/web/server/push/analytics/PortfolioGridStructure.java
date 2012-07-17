@@ -70,8 +70,7 @@ public class PortfolioGridStructure extends MainGridStructure {
       public Row apply(Position position) {
         ComputationTargetSpecification target =
             new ComputationTargetSpecification(ComputationTargetType.POSITION, position.getUniqueId());
-        // TODO will the security be resolved?
-        return new Row(target, position.getSecurity().getName());
+        return new Row(target, position.getSecurity().getName(), position.getQuantity());
       }
     };
     return PortfolioMapper.map(viewDef.getPortfolio().getRootNode(), targetFn);

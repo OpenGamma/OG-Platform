@@ -177,6 +177,9 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
   }
 
   private DoubleValueFormatter getFormatter(ValueSpecification valueSpec) {
+    if (valueSpec == null) {
+      return s_defaultFormatter;
+    }
     DoubleValueFormatter valueNameFormatter = s_formatters.get(valueSpec.getValueName());
     if (valueNameFormatter != null) {
       return valueNameFormatter;
