@@ -8,6 +8,7 @@ package com.opengamma.integration.component;
 import java.util.Collection;
 import java.util.Map;
 
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -41,7 +42,7 @@ public class IntegrationFieldMappingHistoricalTimeSeriesSourceComponentFactory e
 
   //-------------------------------------------------------------------------
   @Override
-  protected FieldMappingHistoricalTimeSeriesResolver initResolver() {
+  protected HistoricalTimeSeriesResolver initResolver() {
     HistoricalTimeSeriesFieldAdjustmentMap bbgFieldAdjustmentMap = BloombergDataUtils.createFieldAdjustmentMap(getBbgReferenceData(), getCacheManager());
     Collection<HistoricalTimeSeriesFieldAdjustmentMap> fieldAdjustmentMaps = ImmutableList.of(bbgFieldAdjustmentMap);
     
