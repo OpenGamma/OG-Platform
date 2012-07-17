@@ -26,7 +26,7 @@ public abstract class FXForwardSingleValuedFunction extends FXForwardFunction {
         .withAny(ValuePropertyNames.RECEIVE_CURVE)
         .withAny(PAY_CURVE_CALC_CONFIG)
         .withAny(RECEIVE_CURVE_CALC_CONFIG)
-        .with(ValuePropertyNames.CURRENCY);
+        .withAny(ValuePropertyNames.CURRENCY);
   }
 
   @Override
