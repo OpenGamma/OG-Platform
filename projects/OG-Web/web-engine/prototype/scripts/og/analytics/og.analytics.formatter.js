@@ -10,12 +10,9 @@ $.register_module({
         return function (grid) {
             var formatter = this;
             formatter.DOUBLE = function (value) {
-                if (!value) return '&nbsp;';
-                return value.v + '<span class="sp" values="' + value.h.join(',') + '"></span>';
+                return value ? value.v + '<span class="sp" values="' + value.h.join(',') + '"></span>' : '';
             };
-            grid.on('render', function () {
-                grid.elements.parent.find('.OG-g .sp').sparkline();
-            });
+            grid.on('render', function () {grid.elements.parent.find('.OG-g .sp').sparkline();});
         };
     }
 });

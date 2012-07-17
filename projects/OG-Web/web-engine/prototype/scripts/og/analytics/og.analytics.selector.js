@@ -80,7 +80,7 @@ $.register_module({
                     },
                     fixed: false
                 });
-                selector.render(regions, rectangle);
+                render(regions, rectangle);
             };
             var nearest_cell = function (x, y) {
                 var top, bottom, lcv, scan = grid.meta.columns.scan.all, len = scan.length;
@@ -89,20 +89,20 @@ $.register_module({
                 top = bottom - grid.meta.row_height;
                 return {top: top, bottom: bottom, left: scan[lcv - 1] || 0, right: scan[lcv]};
             };
-            selector.render = function (regions, rectangle) {
-                if (!selector.render.regions && !regions) return;
-                if (regions) (selector.render.regions = regions), (selector.render.rectangle = rectangle);
+            var render = function (regions, rectangle) {
+                if (!render.regions && !regions) return;
+                if (regions) (render.regions = regions), (render.rectangle = rectangle);
                 $(grid.id + ' ' + overlay).remove();
-                selector.render.regions.forEach(function (region) {
+                render.regions.forEach(function (region) {
                     $('<div class="' + overlay.substring(1) + '" />').css(region.position).css(region.dimensions)
                         .appendTo(grid.elements[region.fixed ? 'fixed_body' : 'scroll_body']);
                 });
             };
-            (selector.render.regions = null), (selector.render.rectangle = null);
+            (render.regions = null), (render.rectangle = null);
             selector.selection = function () {
-                if (!selector.render.rectangle) return null;
-                var bottom_right = selector.render.rectangle.bottom_right,
-                    top_left = selector.render.rectangle.top_left,
+                if (!render.rectangle) return null;
+                var bottom_right = render.rectangle.bottom_right,
+                    top_left = render.rectangle.top_left,
                     row_start = Math.floor(top_left.top / grid.meta.row_height),
                     row_end = Math.floor(bottom_right.bottom / grid.meta.row_height),
                     lcv, scan = grid.meta.columns.scan.all, rows = [], cols = [];
@@ -112,7 +112,7 @@ $.register_module({
                 for (lcv = row_start; lcv < row_end; lcv += 1) rows.push(lcv);
                 return {rows: rows, cols: cols};
             };
-            grid.on('mousedown', mousedown_observer); // initialize
+            grid.on('mousedown', mousedown_observer).on('render', render); // initialize
         };
     }
 });

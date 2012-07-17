@@ -62,6 +62,7 @@ $.register_module({
             grid.on = function (type, handler) {
                 if (type in grid.events)
                     grid.events[type].push({handler: handler, args: Array.prototype.slice.call(arguments, 2)});
+                return grid;
             };
             grid.formatter = new og.analytics.Formatter(grid);
         };
@@ -85,6 +86,7 @@ $.register_module({
                 }
             })(null));
             grid.selector = new og.analytics.Selector(grid);
+            og.common.gadgets.manager.register({alive: grid.alive, resize: grid.resize});
             grid.elements.empty = false;
         };
         var init_grid = function (grid, config, metadata) {
@@ -101,9 +103,8 @@ $.register_module({
                     return acc.concat(set.columns.map(function (col) {return col.type;}));
                 }, []));
             if (grid.elements.empty) init_elements(grid, config);
-            set_size(grid, config);
+            grid.resize();
             render_header(grid);
-            og.common.gadgets.manager.register({alive: grid.alive, resize: grid.resize});
         };
         var render_header = (function () {
             var head_data = function (meta, sets, col_offset, set_offset) {
@@ -135,9 +136,10 @@ $.register_module({
             var row_data = function (grid, data, fixed) {
                 var meta = grid.meta, fixed_length = meta.fixed_length;
                 return data.reduce(function (acc, row, idx) {
-                    var slice = fixed ? row.slice(0, fixed_length) : row.slice(fixed_length);
+                    var slice = fixed ? row.slice(0, fixed_length) : row.slice(fixed_length),
+                        abs_row = idx + meta.viewport.abs_rows[0], first = fixed && idx === 0;
                     acc.rows.push({
-                        top: (idx + meta.viewport.abs_rows[0]) * row_height,
+                        top: abs_row * row_height,
                         cells: slice.reduce(function (acc, val, idx) {
                             var column = meta.viewport.cols[fixed ? idx : fixed_length + idx];
                             return acc.concat({column: column, value: format(grid, val, meta.columns.types[column])});
@@ -150,8 +152,7 @@ $.register_module({
                 if (grid.dataman.busy()) return;
                 grid.elements.fixed_body.html(templates.row(row_data(grid, data, true)));
                 grid.elements.scroll_body.html(templates.row(row_data(grid, data, false)));
-                grid.selector.render();
-                fire(grid, 'render', data);
+                fire(grid, 'render');
             };
         })();
         var set_css = function (id, sets, offset) {
