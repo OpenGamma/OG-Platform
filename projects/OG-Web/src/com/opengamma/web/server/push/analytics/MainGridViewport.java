@@ -7,6 +7,7 @@ package com.opengamma.web.server.push.analytics;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,7 +46,7 @@ public class MainGridViewport extends AnalyticsViewport {
     boolean updated = false;
     List<List<ViewportResults.Cell>> allResults = new ArrayList<List<ViewportResults.Cell>>();
     // iterate over each row in the viewport
-    // TODO could move this to the ResultsCache. add flag to each item if it was updated last time
+    // TODO could move this to the ResultsCache. add flag to each cache item if it was updated last time
     for (int rowIndex : _viewportSpec.getRows()) {
       MainGridStructure.Row row = _gridStructure.getRowAtIndex(rowIndex);
       ComputationTargetSpecification target = row.getTarget();
@@ -78,10 +79,12 @@ public class MainGridViewport extends AnalyticsViewport {
       List<ViewportResults.Cell> rowResults = Lists.newArrayListWithCapacity(_viewportSpec.getColumns().size() + 1);
       // row label always goes in the first column
       rowResults.add(ViewportResults.stringCell(rowName));
+      // TODO fake ValueSpec here?
+      rowResults.add(ViewportResults.valueCell(row.getQuantity(), null, Collections.emptyList()));
       // iterate over all columns in the viewport and populate the results for the current row
       for (int colIndex : _viewportSpec.getColumns()) {
-        // TODO is there a better way that just hard-coding for the label column?
-        if (colIndex != 0) { // label column
+        // TODO is there a better way that just hard-coding for the label and quantity columns?
+        if (colIndex > 1) { // label and quantity columns
           ViewportResults.Cell cell = rowResultsMap.get(colIndex);
           if (cell != null) {
             rowResults.add(cell);
