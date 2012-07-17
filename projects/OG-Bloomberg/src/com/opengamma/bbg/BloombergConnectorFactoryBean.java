@@ -21,7 +21,7 @@ import com.bloomberglp.blpapi.SessionOptions;
 import com.opengamma.util.spring.SpringFactoryBean;
 
 /**
- * Spring factory bean to create a Tullett Prebon connector.
+ * Spring factory bean to create a Bloomberg connector.
  */
 @BeanDefinition
 public class BloombergConnectorFactoryBean extends SpringFactoryBean<BloombergConnector> {
