@@ -75,39 +75,6 @@ $.register_module({
             }
         };
         /**
-         * Scales an Array of numbers to a new range
-         * @param {Array} arr Array to be scaled
-         * @param {Number} range_min New minimum range
-         * @param {Number} range_max New maximum range
-         * @returns {Array}
-         */
-        util.scale = function (arr, range_min, range_max) {
-            var min = Math.min.apply(null, arr), max = Math.max.apply(null, arr);
-            return arr.map(function (val) {
-                return ((val - min) / (max - min) * (range_max - range_min) + range_min)
-            });
-        };
-        /**
-         * Apply Natrual Log to each item in Array
-         * @param {Array} arr
-         * @returns {Array}
-         */
-        util.log = function (arr) {return settings.log ? arr.map(function (val) {return Math.log(val)}) : arr};
-        /**
-         * Remove every nth item in Array keeping the first and last,
-         * also spesificaly remove the second last (as we want to keep the last)
-         * @param {Array} arr
-         * @param {Number} nth
-         * @returns {Array}
-         */
-        util.thin = function (arr, nth) {
-            if (!nth || nth === 1) return arr;
-            var len = arr.length;
-            return arr.filter(function (val, i) {
-                return ((i === 0) || !(i % nth) || (i === (len -1))) || (i === (len -2)) && false
-            });
-        };
-        /**
          * Material Library
          */
         matlib.canvas = {};
@@ -160,6 +127,39 @@ $.register_module({
         };
         matlib.vertex = function () {
             return new THREE.MeshPhongMaterial({shading: THREE.FlatShading, vertexColors: THREE.VertexColors})
+        };
+        /**
+         * Scales an Array of numbers to a new range
+         * @param {Array} arr Array to be scaled
+         * @param {Number} range_min New minimum range
+         * @param {Number} range_max New maximum range
+         * @returns {Array}
+         */
+        util.scale = function (arr, range_min, range_max) {
+            var min = Math.min.apply(null, arr), max = Math.max.apply(null, arr);
+            return arr.map(function (val) {
+                return ((val - min) / (max - min) * (range_max - range_min) + range_min)
+            });
+        };
+        /**
+         * Apply Natrual Log to each item in Array
+         * @param {Array} arr
+         * @returns {Array}
+         */
+        util.log = function (arr) {return settings.log ? arr.map(function (val) {return Math.log(val)}) : arr};
+        /**
+         * Remove every nth item in Array keeping the first and last,
+         * also spesificaly remove the second last (as we want to keep the last)
+         * @param {Array} arr
+         * @param {Number} nth
+         * @returns {Array}
+         */
+        util.thin = function (arr, nth) {
+            if (!nth || nth === 1) return arr;
+            var len = arr.length;
+            return arr.filter(function (val, i) {
+                return ((i === 0) || !(i % nth) || (i === (len -1))) || (i === (len -2)) && false
+            });
         };
         /**
          * Creates a surface gadget
@@ -374,19 +374,22 @@ $.register_module({
                 animation_group.add(surface.create_surface());
             };
             /**
-             * Loads 2D overlay display with options
+             * Loads 2D overlay display with form
              */
             hud.load = function () {
                 $.when(og.api.text({module: 'og.views.gadgets.surface.hud_tash'})).then(function (tmpl) {
                     var html = (Handlebars.compile(tmpl))({min: hud.vol_min, max: hud.vol_max});
                     hud.vol_canvas_height = height / 2;
                     hud.volatility($(html).appendTo($selector).find('canvas')[0]);
-                    hud.options();
+                    hud.form();
                 });
             };
             hud.vol_max = (Math.max.apply(null, config.vol)).toFixed(settings.precision);
             hud.vol_min = (Math.min.apply(null, config.vol)).toFixed(settings.precision);
-            hud.options = function () {
+            /**
+             * Configure surface gadget display
+             */
+            hud.form = function () {
                 $selector.find('.og-options input').on('change', function () {
                     settings.log = $(this).is(':checked');
                     gadget.update();
