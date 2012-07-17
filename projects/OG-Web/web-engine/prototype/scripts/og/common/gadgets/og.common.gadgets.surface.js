@@ -375,6 +375,7 @@ $.register_module({
                 animation_group.add(keylight);
                 animation_group.add(filllight);
                 animation_group.add(surface.create_surface());
+                smile.load();
                 scene = new THREE.Scene();
                 scene.add(animation_group);
                 scene.add(camera);
@@ -390,7 +391,6 @@ $.register_module({
                 renderer.render(scene, camera);
                 $selector.html(renderer.domElement).find('canvas').css({position: 'relative'});
                 hud.load();
-                smile.load();
                 return gadget;
             };
             gadget.resize = function () {
