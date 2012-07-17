@@ -95,6 +95,7 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
     return getResult(forex, yieldCurves, target, desiredValues, inputs, spec, executionContext);
   }
 
+  //TODO clumsy. Push the execute() method down into the functions and have getForward() and getData() methods
   protected abstract Set<ComputedValue> getResult(final Forex fxForward, final YieldCurveBundle data, final ComputationTarget target, final Set<ValueRequirement> desiredValues,
       final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext);
 

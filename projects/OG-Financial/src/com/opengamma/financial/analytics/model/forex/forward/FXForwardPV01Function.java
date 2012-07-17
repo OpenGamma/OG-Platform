@@ -56,7 +56,7 @@ public class FXForwardPV01Function extends FXForwardSingleValuedFunction {
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final String payCurveName = desiredValue.getConstraint(ValuePropertyNames.PAY_CURVE);
     final String receiveCurveName = desiredValue.getConstraint(ValuePropertyNames.RECEIVE_CURVE);
-    final String currency = desiredValue.getConstraint(ValuePropertyNames.CURRENCY);
+    final String currency = desiredValue.getConstraint(ValuePropertyNames.CURVE_CURRENCY);
     final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
     final Object curveSensitivitiesObject = inputs.getValue(ValueRequirementNames.FX_CURVE_SENSITIVITIES);
     if (!(curveName.equals(payCurveName) || curveName.equals(receiveCurveName))) {
@@ -84,9 +84,9 @@ public class FXForwardPV01Function extends FXForwardSingleValuedFunction {
       s_logger.error("Did not specify a curve name for requirement {}", desiredValue);
       return null;
     }
-    final Set<String> currencies = constraints.getValues(ValuePropertyNames.CURRENCY);
+    final Set<String> currencies = constraints.getValues(ValuePropertyNames.CURVE_CURRENCY);
     if (currencies == null || currencies.size() != 1) {
-      s_logger.error("Did not specify a currency for requirement {}", desiredValue);
+      s_logger.error("Did not specify a curve currency for requirement {}", desiredValue);
       return null;
     }
     final Set<String> payCurveNames = constraints.getValues(ValuePropertyNames.PAY_CURVE);
@@ -155,7 +155,7 @@ public class FXForwardPV01Function extends FXForwardSingleValuedFunction {
       final ValueRequirement value = entry.getValue();
       if (value.getValueName().equals(ValueRequirementNames.FX_CURVE_SENSITIVITIES)) {
         final ValueProperties constraints = value.getConstraints();
-        currency = constraints.getValues(ValuePropertyNames.CURRENCY).iterator().next();
+        currency = constraints.getValues(ValuePropertyNames.CURVE_CURRENCY).iterator().next();
         curveName = constraints.getValues(ValuePropertyNames.CURVE).iterator().next();
         break;
       }
@@ -174,6 +174,7 @@ public class FXForwardPV01Function extends FXForwardSingleValuedFunction {
         .withAny(PAY_CURVE_CALC_CONFIG)
         .withAny(RECEIVE_CURVE_CALC_CONFIG)
         .withAny(ValuePropertyNames.CURRENCY)
+        .withAny(ValuePropertyNames.CURVE_CURRENCY)
         .withAny(ValuePropertyNames.CURVE);
   }
 
@@ -184,6 +185,7 @@ public class FXForwardPV01Function extends FXForwardSingleValuedFunction {
         .withAny(PAY_CURVE_CALC_CONFIG)
         .withAny(RECEIVE_CURVE_CALC_CONFIG)
         .with(ValuePropertyNames.CURRENCY, currency)
+        .with(ValuePropertyNames.CURVE_CURRENCY, currency)
         .with(ValuePropertyNames.CURVE, curveName);
   }
 
@@ -201,6 +203,7 @@ public class FXForwardPV01Function extends FXForwardSingleValuedFunction {
         .with(PAY_CURVE_CALC_CONFIG, payCurveCalculationConfig)
         .with(RECEIVE_CURVE_CALC_CONFIG, receiveCurveCalculationConfig)
         .with(ValuePropertyNames.CURRENCY, currency)
+        .with(ValuePropertyNames.CURVE_CURRENCY, currency)
         .with(ValuePropertyNames.CURVE, curveName);
   }
 
@@ -212,6 +215,7 @@ public class FXForwardPV01Function extends FXForwardSingleValuedFunction {
         .with(PAY_CURVE_CALC_CONFIG, payCurveCalculationConfig)
         .with(RECEIVE_CURVE_CALC_CONFIG, receiveCurveCalculationConfig)
         .with(ValuePropertyNames.CURRENCY, resultCurrency).withOptional(ValuePropertyNames.CURRENCY)
+        .with(ValuePropertyNames.CURVE_CURRENCY, resultCurrency).withOptional(ValuePropertyNames.CURVE_CURRENCY)
         .with(ValuePropertyNames.CURVE, resultCurveName).withOptional(ValuePropertyNames.CURVE).get();
     return new ValueRequirement(ValueRequirementNames.FX_CURVE_SENSITIVITIES, target.toSpecification(), properties);
   }

@@ -462,6 +462,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_VOMMA);
     addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_VANNA);
     addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_RHO);
+    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_PHI);
 
     functionConfigs.add(functionConfiguration(SecurityCurrencyConversionFunction.class, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES));
     functionConfigs.add(functionConfiguration(PortfolioNodeDefaultCurrencyFunction.Permissive.class, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES));
@@ -706,6 +707,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addScalingFunction(functionConfigs, ValueRequirementNames.VALUE_DELTA);
     addScalingFunction(functionConfigs, ValueRequirementNames.VALUE_RHO);
     addSummingFunction(functionConfigs, ValueRequirementNames.VALUE_RHO);
+    addScalingFunction(functionConfigs, ValueRequirementNames.VALUE_PHI);
+    addSummingFunction(functionConfigs, ValueRequirementNames.VALUE_PHI);
 
     addScalingFunction(functionConfigs, ValueRequirementNames.VALUE_VOMMA);
     addSummingFunction(functionConfigs, ValueRequirementNames.VALUE_VOMMA);
