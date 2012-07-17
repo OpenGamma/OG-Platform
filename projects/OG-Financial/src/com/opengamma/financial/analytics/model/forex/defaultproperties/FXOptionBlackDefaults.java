@@ -51,7 +51,9 @@ public class FXOptionBlackDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.PV01,
     ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY,
     ValueRequirementNames.VALUE_THETA,
-    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES
+    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
+    ValueRequirementNames.VALUE_RHO,
+    ValueRequirementNames.VALUE_PHI
   };
   private final PriorityClass _priority;
   private final String _interpolatorName;
