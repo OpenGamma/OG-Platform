@@ -10,7 +10,7 @@ $.register_module({
         return function (grid) {
             var formatter = this;
             formatter.DOUBLE = function (value) {
-                return value ? value.v + '<span class="sp" values="' + value.h.join(',') + '"></span>' : '';
+                return value ? (value.v || '') + '<span class="sp" values="' + value.h.join(',') + '"></span>' : '';
             };
             grid.on('render', function () {grid.elements.parent.find('.OG-g .sp').sparkline();});
         };

@@ -49,6 +49,9 @@ $.register_module({
         var format = function (grid, value, type) {
             return grid.formatter[type] ? grid.formatter[type](value) : value || '';
         };
+        var indent = function (grid, row, value) {
+            return value;
+        };
         var init_data = function (grid, config) {
             grid.alive = function () {return grid.$(grid.id).length ? true : !grid.elements.style.remove();};
             grid.elements = {empty: true};
@@ -137,12 +140,13 @@ $.register_module({
                 var meta = grid.meta, fixed_length = meta.fixed_length;
                 return data.reduce(function (acc, row, idx) {
                     var slice = fixed ? row.slice(0, fixed_length) : row.slice(fixed_length),
-                        abs_row = idx + meta.viewport.abs_rows[0], first = fixed && idx === 0;
+                        abs_row = idx + meta.viewport.abs_rows[0];
                     acc.rows.push({
                         top: abs_row * row_height,
                         cells: slice.reduce(function (acc, val, idx) {
-                            var column = meta.viewport.cols[fixed ? idx : fixed_length + idx];
-                            return acc.concat({column: column, value: format(grid, val, meta.columns.types[column])});
+                            var column = meta.viewport.cols[fixed ? idx : fixed_length + idx],
+                                first = fixed && idx === 0, value = format(grid, val, meta.columns.types[column]);
+                            return acc.concat({column: column, value: first ? indent(grid, abs_row, value) : value});
                         }, [])
                     });
                     return acc;

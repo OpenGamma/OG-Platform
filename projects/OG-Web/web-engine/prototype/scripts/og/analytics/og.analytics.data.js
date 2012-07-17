@@ -9,8 +9,7 @@ $.register_module({
         var module = this, counter = 1, api = og.api.rest.views;
         return function (config) {
             var data = this, events = {meta: [], data: []}, id = 'data_' + counter++, meta, cols,
-                viewport = null, view_id = config.view, viewport_id,
-                subs = {viewport: false, cols: false},
+                viewport = null, view_id = config.view, viewport_id, subscribed = false,
                 ROOT = 'rootNode', SETS = 'columnSets', ROWS = 'rowCount',
                 grid_type = config.type, depgraph = !!config.depgraph,
                 fixed_set = {portfolio: 'Portfolio', primitives: 'Primitives'};
@@ -22,7 +21,7 @@ $.register_module({
             var data_setup = function () {
                 if (!viewport) return;
                 var viewports = api[grid_type].viewports;
-                subs.data = true;
+                subscribed = true;
                 (viewport_id ? viewports.get({
                     view_id: view_id, viewport_id: viewport_id, update: data_setup
                 }) : viewports.put({view_id: view_id, rows: viewport.rows, columns: viewport.cols})
@@ -37,7 +36,9 @@ $.register_module({
                 events[type].forEach(function (value) {value.handler.apply(null, value.args.concat(args));});
             };
             var grid_handler = function (result) {
-                if (result.error) return og.dev.warn(result.message); else if (!result.data[SETS].length) return;
+                if (result.error)
+                    return (view_id = viewport_id = subscribed = null), og.dev.warn(result.message), initialize();
+                if (!result.data[SETS].length) return;
                 meta.rows = result.data[ROOT] ? result.data[ROOT][1] + 1 : result.data[ROWS];
                 meta.columns.fixed = [{
                     name: fixed_set[grid_type], columns: result.data[SETS][0].columns
@@ -47,7 +48,7 @@ $.register_module({
                     return set.columns.forEach(function (col) {return (col.width = 175), col;}), set;
                 });
                 fire('meta', meta);
-                if (!subs.data) return data_setup();
+                if (!subscribed) return data_setup();
             };
             var grid_setup = function (result) {
                 return api[grid_type].grid.get({id: view_id, update: initialize});
@@ -60,7 +61,6 @@ $.register_module({
                 return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
             })(false);
             data.id = id;
-            data.kill = function () {for (var type in events) events[type] = [];};
             data.meta = meta = {columns: {}};
             data.cols = cols = {};
             data.on = function (type, handler) {
