@@ -464,7 +464,7 @@ $.register_module({
             };
             smile.load = function () {
                 smile.x();
-                smile.y();
+                smile.z();
             };
             smile.x = function () {
                 var plane = new Plane('smilex'),
@@ -473,8 +473,14 @@ $.register_module({
                 mesh.position.y = (settings.surface_z / 2) - settings.floating_height;
                 mesh.position.z = -((settings.surface_z / 2) + settings.smile_distance);
                 surface_top_group.add(mesh);
+//                (function () { // axis
+//                    var group = new THREE.Object3D,
+//                        y = {axis: 'z', spacing: adjusted_ys, labels: adjusted_ys, label: 'sss'};
+//                    group.add(surface.create_axis(y));
+//                    surface_top_group.add(group);
+//                }());
             };
-            smile.y = function () {
+            smile.z = function () {
                 var plane = new Plane('smiley'),
                     mesh = THREE.SceneUtils.createMultiMaterialObject(plane, matlib.compound_dark_wire());
                 mesh.position.x = (settings.surface_x / 2) + settings.smile_distance;
