@@ -34,7 +34,7 @@ import com.opengamma.util.tuple.Pair;
   private final ComputationTargetResolver _targetResolver;
 
   private ViewResultModel _latestResults = new InMemoryViewComputationResultModel();
-  private AnalyticsHistory _history = new AnalyticsHistory();
+  private ResultsCache _cache = new ResultsCache();
   private ViewCycle _cycle = EmptyViewCycle.INSTANCE;
 
   /* package */ MainAnalyticsGrid(AnalyticsView.GridType gridType,
@@ -91,31 +91,31 @@ import com.opengamma.util.tuple.Pair;
     if (_depGraphs.containsKey(graphId)) {
       throw new IllegalArgumentException("Dependency graph ID " + graphId + " is already in use");
     }
-    Pair<ValueSpecification, String> targetForCell = _gridStructure.getTargetForCell(row, col);
+    Pair<String, ValueSpecification> targetForCell = _gridStructure.getTargetForCell(row, col);
     if (targetForCell == null) {
       throw new DataNotFoundException("No dependency graph is available for row " + row + ", col " + col);
     }
-    ValueSpecification valueSpec = targetForCell.getFirst();
-    String calcConfigName = targetForCell.getSecond();
+    String calcConfigName = targetForCell.getFirst();
+    ValueSpecification valueSpec = targetForCell.getSecond();
     DependencyGraphGrid grid =
-        DependencyGraphGrid.create(compiledViewDef, valueSpec, calcConfigName, _cycle, _history, gridId, _targetResolver);
+        DependencyGraphGrid.create(compiledViewDef, valueSpec, calcConfigName, _cycle, _cache, gridId, _targetResolver);
     _depGraphs.put(graphId, grid);
   }
 
   /* package */ void updateViewport(String viewportId, ViewportSpecification viewportSpecification) {
-    getViewport(viewportId).update(viewportSpecification, _latestResults, _history);
+    getViewport(viewportId).update(viewportSpecification, _latestResults, _cache);
   }
 
-  /* package */ List<String> updateResults(ViewResultModel results, AnalyticsHistory history, ViewCycle cycle) {
+  /* package */ List<String> updateResults(ViewResultModel results, ResultsCache cache, ViewCycle cycle) {
     _latestResults = results;
-    _history = history;
+    _cache = cache;
     _cycle = cycle;
     List<String> updatedIds = Lists.newArrayList();
     for (MainGridViewport viewport : _viewports.values()) {
-      CollectionUtils.addIgnoreNull(updatedIds, viewport.updateResults(results, history));
+      CollectionUtils.addIgnoreNull(updatedIds, viewport.updateResults(results, cache));
     }
     for (DependencyGraphGrid grid : _depGraphs.values()) {
-      updatedIds.addAll(grid.updateResults(cycle, history));
+      updatedIds.addAll(grid.updateResults(cycle, cache));
     }
     return updatedIds;
   }
@@ -141,7 +141,7 @@ import com.opengamma.util.tuple.Pair;
   /* package */ void updateViewport(String graphId,
                                     String viewportId,
                                     ViewportSpecification viewportSpec) {
-    getDependencyGraph(graphId).updateViewport(viewportId, viewportSpec, _cycle, _history);
+    getDependencyGraph(graphId).updateViewport(viewportId, viewportSpec, _cycle, _cache);
   }
 
   /* package */ void deleteViewport(String graphId, String viewportId) {
@@ -167,6 +167,6 @@ import com.opengamma.util.tuple.Pair;
 
   @Override
   protected MainGridViewport createViewport(ViewportSpecification viewportSpecification, String dataId) {
-    return new MainGridViewport(viewportSpecification, _gridStructure, dataId, _latestResults, _history);
+    return new MainGridViewport(viewportSpecification, _gridStructure, dataId, _latestResults, _cache);
   }
 }

@@ -66,7 +66,6 @@ import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.security.bond.BondSecurity;
-import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.id.ExternalId;
@@ -175,26 +174,12 @@ public class BondLoader extends SecurityLoader {
     }
     return fieldData.getDouble(fieldName);
   }
-
-  private Integer validateAndGetIntegerField(FudgeMsg fieldData, String fieldName) {
+  
+  private Integer validateAndGetNullableIntegerField(FudgeMsg fieldData, String fieldName) {
     if (!isValidField(fieldData.getString(fieldName))) {
-      s_logger.warn(fieldName + " is null, cannot construct bond security");
-      throw new OpenGammaRuntimeException(fieldName + " is null, cannot construct bond security");
+      return null;
     }
     return fieldData.getInt(fieldName);
-  }
-
-  private ZonedDateTime validateAndGetDateField(FudgeMsg fieldData, String fieldName) {
-    if (!isValidField(fieldData.getString(fieldName))) {
-      s_logger.warn(fieldName + " is null, cannot construct bond security.  Value was " + fieldData.getString(fieldName));
-      throw new OpenGammaRuntimeException(fieldName + " is null, cannot construct bond security");
-    }
-    // These will need to be sorted out.
-    LocalTime expiryTime = LocalTime.of(17, 00);
-    TimeZone zone = TimeZone.UTC;
-    
-    LocalDate localDate = LocalDate.parse(fieldData.getString(fieldName));
-    return ZonedDateTime.of(localDate, expiryTime, zone);
   }
 
   private ZonedDateTime validateAndGetNullableDateField(FudgeMsg fieldData, String fieldName) {
@@ -242,8 +227,8 @@ public class BondLoader extends SecurityLoader {
       if ("Y".equals(zeroCoupon)) {
         couponFrequency = SimpleFrequency.NEVER;
       } else {
-        Integer couponFrequencyInt = validateAndGetIntegerField(fieldData, FIELD_CPN_FREQ);
-        couponFrequency = SimpleFrequencyFactory.INSTANCE.getFrequency(couponFrequencyInt);
+        Integer couponFrequencyInt = validateAndGetNullableIntegerField(fieldData, FIELD_CPN_FREQ);
+        couponFrequency = couponFrequencyInt != null ? SimpleFrequencyFactory.INSTANCE.getFrequency(couponFrequencyInt) : SimpleFrequency.NEVER;
       }
       String dayCountString = validateAndGetStringField(fieldData, FIELD_DAY_CNT_DES);
       // REVIEW: jim 27-Jan-2011 -- remove this and fix it properly.
@@ -251,9 +236,9 @@ public class BondLoader extends SecurityLoader {
         dayCountString = "Actual/Actual ICMA";
       }
       ZonedDateTime announcementDate = validateAndGetNullableDateField(fieldData, FIELD_ANNOUNCE_DT);
-      ZonedDateTime interestAccrualDate = validateAndGetDateField(fieldData, FIELD_INT_ACC_DT);
+      ZonedDateTime interestAccrualDate = validateAndGetNullableDateField(fieldData, FIELD_INT_ACC_DT);
       ZonedDateTime settlementDate = validateAndGetNullableDateField(fieldData, FIELD_SETTLE_DT);
-      ZonedDateTime firstCouponDate = validateAndGetDateField(fieldData, FIELD_FIRST_CPN_DT);
+      ZonedDateTime firstCouponDate = validateAndGetNullableDateField(fieldData, FIELD_FIRST_CPN_DT);
       if (currencyStr.equals("GBP")) {
         if (announcementDate.toLocalDate().isAfter(LocalDate.of(1998, 11, 1)) && dayCountString.equals("ACT/ACT")) {
           dayCountString = "Actual/Actual ICMA";

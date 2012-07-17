@@ -5,8 +5,8 @@
  */
 package com.opengamma.analytics.financial.equity.option;
 
-import com.opengamma.analytics.financial.equity.EquityDerivative;
-import com.opengamma.analytics.financial.equity.EquityDerivativeVisitor;
+import com.opengamma.analytics.financial.equity.Derivative;
+import com.opengamma.analytics.financial.equity.DerivativeVisitor;
 import com.opengamma.util.money.Currency;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -14,7 +14,7 @@ import org.apache.commons.lang.ObjectUtils;
 /**
  * OG-Analytics derivative of the exchange traded Equity Index Option
  */
-public class EquityIndexOption implements EquityDerivative {
+public class EquityIndexOption implements Derivative {
   private final double _timeToExpiry;
   private final double _timeToSettlement;
   private final double _strike;
@@ -85,13 +85,13 @@ public class EquityIndexOption implements EquityDerivative {
 
   @Override
   /// @export "accept-visitor"
-  public <S, T> T accept(final EquityDerivativeVisitor<S, T> visitor, final S data) {
+  public <S, T> T accept(final DerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitEquityIndexOption(this, data);
   }
 
   /// @end
   @Override
-  public <T> T accept(final EquityDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final DerivativeVisitor<?, T> visitor) {
     return visitor.visitEquityIndexOption(this);
   }
 

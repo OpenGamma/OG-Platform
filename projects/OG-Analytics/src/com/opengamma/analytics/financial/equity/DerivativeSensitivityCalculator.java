@@ -25,13 +25,13 @@ import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * This Calculator provides simple bump and reprice sensitivities for EquityDerivatives
+ * This Calculator provides simple bump and reprice sensitivities for Derivatives
  */
-public class EquityDerivativeSensitivityCalculator {
+public class DerivativeSensitivityCalculator {
 
-  private final AbstractEquityDerivativeVisitor<EquityOptionDataBundle, Double> _pricer;
+  private final AbstractDerivativeVisitor<StaticReplicationDataBundle, Double> _pricer;
 
-  public EquityDerivativeSensitivityCalculator(final AbstractEquityDerivativeVisitor<EquityOptionDataBundle, Double> pricer) {
+  public DerivativeSensitivityCalculator(final AbstractDerivativeVisitor<StaticReplicationDataBundle, Double> pricer) {
     _pricer = pricer;
   }
 
@@ -43,16 +43,16 @@ public class EquityDerivativeSensitivityCalculator {
    * @param relShift Relative size of shift made in centered-finite difference approximation.
    * @return A Double. Currency amount per unit amount change in the black volatility
    */
-  public Double calcForwardSensitivity(final EquityDerivative derivative, final EquityOptionDataBundle market, final double relShift) {
+  public Double calcForwardSensitivity(final Derivative derivative, final StaticReplicationDataBundle market, final double relShift) {
     Validate.notNull(derivative, "null EquityDerivative");
     Validate.notNull(market, "null EquityOptionDataBundle");
 
     // Shift UP
-    EquityOptionDataBundle bumpedMarket = new EquityOptionDataBundle(market.getVolatilitySurface(), market.getDiscountCurve(), market.getForwardCurve().withFractionalShift(relShift));
+    StaticReplicationDataBundle bumpedMarket = new StaticReplicationDataBundle(market.getVolatilitySurface(), market.getDiscountCurve(), market.getForwardCurve().withFractionalShift(relShift));
     final double pvUp = _pricer.visit(derivative, bumpedMarket);
 
     // Shift Down
-    bumpedMarket = new EquityOptionDataBundle(market.getVolatilitySurface(), market.getDiscountCurve(), market.getForwardCurve().withFractionalShift(-relShift));
+    bumpedMarket = new StaticReplicationDataBundle(market.getVolatilitySurface(), market.getDiscountCurve(), market.getForwardCurve().withFractionalShift(-relShift));
     final double pvDown = _pricer.visit(derivative, bumpedMarket);
 
     final double t = derivative.getTimeToSettlement();
@@ -68,7 +68,7 @@ public class EquityDerivativeSensitivityCalculator {
    * @param market the EquityOptionDataBundle
    * @return A Double. Currency amount per unit amount change in the black volatility
    */
-  public Double calcForwardSensitivity(final EquityDerivative derivative, final EquityOptionDataBundle market) {
+  public Double calcForwardSensitivity(final Derivative derivative, final StaticReplicationDataBundle market) {
     final double relativeShift = 0.01;
     return calcForwardSensitivity(derivative, market, relativeShift);
   }
@@ -86,7 +86,7 @@ public class EquityDerivativeSensitivityCalculator {
    * @param shift Relative size of shift made in centered-finite difference approximation.
    * @return A Double in the currency, deriv.getCurrency(). Currency amount per unit amount change in discount rate
    */
-  public Double calcDiscountRateSensitivity(final EquityDerivative derivative, final EquityOptionDataBundle market, final double shift) {
+  public Double calcDiscountRateSensitivity(final Derivative derivative, final StaticReplicationDataBundle market, final double shift) {
     Validate.notNull(market);
     Validate.notNull(derivative);
     // Sensitivity from the discounting
@@ -113,7 +113,7 @@ public class EquityDerivativeSensitivityCalculator {
    * @param market the EquityOptionDataBundle
    * @return A Double in the currency, deriv.getCurrency(). Currency amount per unit amount change in discount rate
    */
-  public Double calcDiscountRateSensitivity(final EquityDerivative derivative, final EquityOptionDataBundle market) {
+  public Double calcDiscountRateSensitivity(final Derivative derivative, final StaticReplicationDataBundle market) {
     final double relativeShift = 0.01;
     return calcDiscountRateSensitivity(derivative, market, relativeShift);
   }
@@ -125,7 +125,7 @@ public class EquityDerivativeSensitivityCalculator {
    * @param market the EquityOptionDataBundle
    * @return A Double in the currency, derivative.getCurrency()
    */
-  public Double calcPV01(final EquityDerivative derivative, final EquityOptionDataBundle market) {
+  public Double calcPV01(final Derivative derivative, final StaticReplicationDataBundle market) {
     return calcDiscountRateSensitivity(derivative, market) / 10000;
   }
 
@@ -137,7 +137,7 @@ public class EquityDerivativeSensitivityCalculator {
    * @param market the EquityOptionDataBundle
    * @return A DoubleMatrix1D containing bucketed delta in order and length of market.getDiscountCurve(). Currency amount per unit amount change in discount rate
    */
-  public DoubleMatrix1D calcDeltaBucketed(final EquityDerivative derivative, final EquityOptionDataBundle market) {
+  public DoubleMatrix1D calcDeltaBucketed(final Derivative derivative, final StaticReplicationDataBundle market) {
     Validate.notNull(derivative, "null EquityDerivative");
     Validate.notNull(market, "null EquityOptionDataBundle");
 
@@ -171,7 +171,7 @@ public class EquityDerivativeSensitivityCalculator {
    * @param market the EquityOptionDataBundle
    * @return A Double. Currency amount per unit amount change in the black volatility
    */
-  public Double calcBlackVegaParallel(final EquityDerivative derivative, final EquityOptionDataBundle market) {
+  public Double calcBlackVegaParallel(final Derivative derivative, final StaticReplicationDataBundle market) {
     final double shift = 0.001; // Shift each vol point by what? +/- 0.1%
     return calcBlackVegaParallel(derivative, market, shift);
   }
@@ -184,17 +184,17 @@ public class EquityDerivativeSensitivityCalculator {
    * @param shift Size of shift made in centered-finite difference approximation. e.g. 1% would be 0.01, and 1bp 0.0001
    * @return A Double. Currency amount per unit amount change in the black volatility
    */
-  public Double calcBlackVegaParallel(final EquityDerivative derivative, final EquityOptionDataBundle market, final double shift) {
+  public Double calcBlackVegaParallel(final Derivative derivative, final StaticReplicationDataBundle market, final double shift) {
     Validate.notNull(derivative, "null EquityDerivative");
     Validate.notNull(market, "null EquityOptionDataBundle");
 
     // Parallel shift UP
     final BlackVolatilitySurface<?> upSurface = market.getVolatilitySurface().withShift(shift, true);
-    final double pvUp = _pricer.visit(derivative, new EquityOptionDataBundle(upSurface, market.getDiscountCurve(), market.getForwardCurve()));
+    final double pvUp = _pricer.visit(derivative, new StaticReplicationDataBundle(upSurface, market.getDiscountCurve(), market.getForwardCurve()));
 
     // Parallel shift DOWN
     final BlackVolatilitySurface<?> downSurface = market.getVolatilitySurface().withShift(-shift, true);
-    final double pvDown = _pricer.visit(derivative, new EquityOptionDataBundle(downSurface, market.getDiscountCurve(), market.getForwardCurve()));
+    final double pvDown = _pricer.visit(derivative, new StaticReplicationDataBundle(downSurface, market.getDiscountCurve(), market.getForwardCurve()));
 
     // Centered-difference result
     return (pvUp - pvDown) / (2.0 * shift);
@@ -208,7 +208,7 @@ public class EquityDerivativeSensitivityCalculator {
    * @param market the EquityOptionDataBundle
    * @return A NodalDoublesSurface with same axes as market.getVolatilitySurface(). Contains currencys amount per unit amount change in the black volatility of each node
    */
-  public NodalDoublesSurface calcBlackVegaForEntireSurface(final EquityDerivative derivative, final EquityOptionDataBundle market) {
+  public NodalDoublesSurface calcBlackVegaForEntireSurface(final Derivative derivative, final StaticReplicationDataBundle market) {
     final double shift = 0.001; // Shift each vol point by what? +/- 0.1%
     return calcBlackVegaForEntireSurface(derivative, market, shift);
   }
@@ -219,10 +219,10 @@ public class EquityDerivativeSensitivityCalculator {
    * Note - the change of the surface due to the movement of a single node is interpolator-dependent, so an instrument may have non-local sensitivity
    * @param derivative the EquityDerivative
    * @param market the EquityOptionDataBundle
-   * @param shift Size of shift made in centered-finite difference approximation. e.g. 1% would be 0.01, and 1bp 0.0001
+   * @param shift Size of shift made in centred-finite difference approximation. e.g. 1% would be 0.01, and 1bp 0.0001
    * @return A NodalDoublesSurface with same axes as market.getVolatilitySurface(). Contains currency amount per unit amount change in the black volatility of each node
    */
-  public NodalDoublesSurface calcBlackVegaForEntireSurface(final EquityDerivative derivative, final EquityOptionDataBundle market, final double shift) {
+  public NodalDoublesSurface calcBlackVegaForEntireSurface(final Derivative derivative, final StaticReplicationDataBundle market, final double shift) {
     Validate.notNull(derivative, "null EquityDerivative");
     Validate.notNull(market, "null EquityOptionDataBundle");
 
@@ -255,7 +255,7 @@ public class EquityDerivativeSensitivityCalculator {
    * @param shift Size of shift made in centered-finite difference approximation. e.g. 1% would be 0.01, and 1bp 0.0001
    * @return Currency amount per unit amount change in the black volatility at the point provided
    */
-  public double calcBlackVegaForSinglePoint(final EquityDerivative derivative, final EquityOptionDataBundle market, final double maturity, final double strike, final double shift) {
+  public double calcBlackVegaForSinglePoint(final Derivative derivative, final StaticReplicationDataBundle market, final double maturity, final double strike, final double shift) {
 
     final Surface<Double, Double, Double> surface = market.getVolatilitySurface().getSurface();
     Validate.isTrue(surface instanceof InterpolatedDoublesSurface, "Currently will only accept a Equity VolatilitySurfaces based on an InterpolatedDoublesSurface");
@@ -265,19 +265,19 @@ public class EquityDerivativeSensitivityCalculator {
 
     // shift UP
     final InterpolatedDoublesSurface bumpedVolUp = volShifter.evaluate(blackSurf, maturity, strike, shift);
-    EquityOptionDataBundle bumpedMarket = new EquityOptionDataBundle(market.getVolatilitySurface().withSurface(bumpedVolUp), market.getDiscountCurve(), market.getForwardCurve());
+    StaticReplicationDataBundle bumpedMarket = new StaticReplicationDataBundle(market.getVolatilitySurface().withSurface(bumpedVolUp), market.getDiscountCurve(), market.getForwardCurve());
     final double pvUp = _pricer.visit(derivative, bumpedMarket);
 
     // shift DOWN
     final InterpolatedDoublesSurface bumpedVolDown = volShifter.evaluate(blackSurf, maturity, strike, -shift);
-    bumpedMarket = new EquityOptionDataBundle(market.getVolatilitySurface().withSurface(bumpedVolDown), market.getDiscountCurve(), market.getForwardCurve());
+    bumpedMarket = new StaticReplicationDataBundle(market.getVolatilitySurface().withSurface(bumpedVolDown), market.getDiscountCurve(), market.getForwardCurve());
     final double pvDown = _pricer.visit(derivative, bumpedMarket);
 
     // Centered-difference result
     return (pvUp - pvDown) / (2.0 * shift);
   }
 
-  protected AbstractEquityDerivativeVisitor<EquityOptionDataBundle, Double> getPricer() {
+  protected AbstractDerivativeVisitor<StaticReplicationDataBundle, Double> getPricer() {
     return _pricer;
   }
 }

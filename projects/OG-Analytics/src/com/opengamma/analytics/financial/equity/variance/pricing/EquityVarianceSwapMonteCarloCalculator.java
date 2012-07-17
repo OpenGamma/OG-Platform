@@ -20,7 +20,7 @@ import com.opengamma.util.ArgumentChecker;
  * Monte Carlo calculator to price a variance swap in the presence of discrete dividends. <p>
  * <b>Note</b> this is primarily to test other numerical methods 
  */
-public class VarianceSwapMonteCarloCalculator {
+public class EquityVarianceSwapMonteCarloCalculator {
 
   private static final int N_SIM_VARIABLES = 3;
   private static final int DAYS_PER_YEAR = 252;
@@ -29,14 +29,14 @@ public class VarianceSwapMonteCarloCalculator {
   private final boolean _calculateVariance;
   private final NormalDistribution _norm;
 
-  public VarianceSwapMonteCarloCalculator(final int seed) {
+  public EquityVarianceSwapMonteCarloCalculator(final int seed) {
     _useAntithetics = true;
     _calculateVariance = true;
     final RandomEngine random = new MersenneTwister64(seed);
     _norm = new NormalDistribution(0, 1.0, random);
   }
 
-  public VarianceSwapMonteCarloCalculator(final int seed, final boolean useAntithetics, final boolean calculateVariance) {
+  public EquityVarianceSwapMonteCarloCalculator(final int seed, final boolean useAntithetics, final boolean calculateVariance) {
     _useAntithetics = useAntithetics;
     _calculateVariance = calculateVariance;
     final RandomEngine random = new MersenneTwister64(seed);

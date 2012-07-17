@@ -39,6 +39,8 @@ import com.opengamma.util.ArgumentChecker;
  *
  */
 public class BloombergIdResolver extends AbstractResolver<ExternalIdBundle, ExternalId> implements IdResolver {
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergIdResolver.class);
   private final ReferenceDataProvider _referenceDataProvider;
   

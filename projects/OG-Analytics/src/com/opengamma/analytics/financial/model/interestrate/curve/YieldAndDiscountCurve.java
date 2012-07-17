@@ -58,7 +58,7 @@ public abstract class YieldAndDiscountCurve implements InterestRateModel<Double>
    * @param t The time 
    * @return The discount factor for time to maturity <i>t</i>.
    */
-  public double getDiscountFactor(final Double t) {
+  public double getDiscountFactor(final double t) {
     return Math.exp(-t * getInterestRate(t));
   }
 
@@ -68,7 +68,7 @@ public abstract class YieldAndDiscountCurve implements InterestRateModel<Double>
    * @param compoundingPeriodsPerYear The number of composition per year.
    * @return The rate in the requested composition.
    */
-  public double getPeriodicInterestRate(final Double t, final int compoundingPeriodsPerYear) {
+  public double getPeriodicInterestRate(final double t, final int compoundingPeriodsPerYear) {
     final double rcc = getInterestRate(t);
     final ContinuousInterestRate cont = new ContinuousInterestRate(rcc);
     return cont.toPeriodic(compoundingPeriodsPerYear).getRate();

@@ -36,7 +36,7 @@ public class FittedVolatilitySurfaceBuilderTest extends AnalyticsTestBase {
       CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
   private static final ForexSmileDeltaSurfaceDataBundle FOREX_DATA = new ForexSmileDeltaSurfaceDataBundle(FORWARDS, EXPIRIES, DELTAS, ATM, RR, BUTT, true, EXTRAPOLATOR_1D);
   private static final StandardSmileSurfaceDataBundle STANDARD_DATA = new StandardSmileSurfaceDataBundle(FOREX_DATA.getForwardCurve(), FOREX_DATA.getExpiries(), FOREX_DATA.getStrikes(),
-      FOREX_DATA.getVolatilities(), true);
+      FOREX_DATA.getVolatilities());
 
   @Test
   public void testStandardData() {

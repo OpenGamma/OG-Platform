@@ -50,7 +50,8 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  * 
  */
 public class BloombergTickWriter extends TerminatableJob {
-  
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergTickWriter.class);
   //interval in millis
   private static final long DEFAULT_REPORT_INTERVAL = 10000L;

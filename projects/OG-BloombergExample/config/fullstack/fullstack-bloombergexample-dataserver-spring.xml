@@ -153,9 +153,14 @@
     <property name="serverPort" value="${opengamma.bloomberg.sapi.port}" />
   </bean>
   
+  <bean id="bloombergConnector" class="com.opengamma.bbg.BloombergConnector">
+    <constructor-arg value="FullStack"/>
+    <constructor-arg ref="sessionOptions"/>
+  </bean>
+  
   <!-- Reference data -->   
   <bean id="refDataProvider" class="com.opengamma.bbg.BloombergReferenceDataProvider" init-method="start" destroy-method="stop">
-    <constructor-arg index="0" ref="sessionOptions" />
+    <constructor-arg index="0" ref="bloombergConnector" />
   </bean>
   
   <bean id="bbgReferenceDataProvider" class="com.opengamma.bbg.EHCachingReferenceDataProvider">
@@ -191,7 +196,7 @@
   <bean id="bbgTimeSeriesStatistics" class="com.opengamma.bbg.referencedata.statistics.DailyBloombergReferenceDataStatistics" />
   
   <bean id="historicalTimeSeriesSource" class="com.opengamma.bbg.BloombergHistoricalTimeSeriesSource" init-method="start">
-    <constructor-arg ref="sessionOptions" />
+    <constructor-arg ref="bloombergConnector" />
     <constructor-arg ref="bbgTimeSeriesStatistics" />
   </bean>
   

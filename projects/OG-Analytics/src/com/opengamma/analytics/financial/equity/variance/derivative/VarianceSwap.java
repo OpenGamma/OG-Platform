@@ -5,23 +5,25 @@
  */
 package com.opengamma.analytics.financial.equity.variance.derivative;
 
-import com.opengamma.analytics.financial.equity.EquityDerivative;
-import com.opengamma.analytics.financial.equity.EquityDerivativeVisitor;
-import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
-import com.opengamma.analytics.financial.equity.variance.VarianceSwapPresentValueCalculator;
-import com.opengamma.util.money.Currency;
+import java.util.Arrays;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.equity.Derivative;
+import com.opengamma.analytics.financial.equity.DerivativeVisitor;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
+
 /**
- * A Variance Swap is a forward contract on the realized variance of an underlying security. 
+ * A Variance Swap is a forward contract on the realised variance of a generic underlying. This could be a single equity price, the value of an equity index,
+ * an FX rate or <b>any</b> other financial metric on which a varinace swap contract is based.<p>
  * The floating leg of a Variance Swap is the realized variance and is calculate using the second moment of log returns of the underlying asset
  * 
  * Because variance is additive in time, the value of a VarianceSwap can be decomposed at any point in time between realized and implied variance as
  * _varNotional * Z(t,T) * [ t/T * RealizedVol(0,t)^2 + (T-t)/T * ImpliedVol(t,T)^2 - volStrike^2 ] 
  */
-public class VarianceSwap implements EquityDerivative {
+public class VarianceSwap implements Derivative {
   private final double _timeToObsStart;
   private final double _timeToObsEnd;
   private final double _timeToSettlement;
@@ -50,8 +52,8 @@ public class VarianceSwap implements EquityDerivative {
    * @param observationWeights Array of weights to give observation returns. If null, all weights are 1. Else, length must be: observations.length-1
    */
   public VarianceSwap(double timeToObsStart, double timeToObsEnd, double timeToSettlement,
-                      double varStrike, double varNotional, Currency currency, double annualizationFactor,
-                      int nObsExpected, int nObsDisrupted, double[] observations, double[] observationWeights) {
+      double varStrike, double varNotional, Currency currency, double annualizationFactor,
+      int nObsExpected, int nObsDisrupted, double[] observations, double[] observationWeights) {
 
     _timeToObsStart = timeToObsStart;
     _timeToObsEnd = timeToObsEnd;
@@ -67,27 +69,32 @@ public class VarianceSwap implements EquityDerivative {
     if (_observationWeights.length > 1) {
       int nWeights = _observationWeights.length;
       int nObs = _observations.length;
-      Validate.isTrue(nWeights + 1 == nObs,
-            "If provided, observationWeights must be of length one less than observations, as they weight returns log(obs[i]/obs[i-1])."
-                + " Found " + nWeights + " weights and " + nObs + " observations.");
+      ArgumentChecker.isTrue(nWeights + 1 == nObs,
+          "If provided, observationWeights must be of length one less than observations, as they weight returns log(obs[i]/obs[i-1])."
+              + " Found {} weights and {} observations.", nWeights, nObs);
     }
 
     Validate.isTrue(_nObsExpected > 0, "Encountered a VarianceSwap with 0 nObsExpected! "
         + "If it is impractical to count, contact Quant to default this value in VarianceSwap constructor.");
   }
 
-  @Override
-  public <S, T> T accept(EquityDerivativeVisitor<S, T> visitor, S data) {
-    return visitor.visitVarianceSwap(this, data);
-  }
-
-  public Double accept(VarianceSwapPresentValueCalculator pvc, EquityOptionDataBundle data) {
-    return pvc.visitVarianceSwap(this, data);
-  }
-
-  @Override
-  public <T> T accept(EquityDerivativeVisitor<?, T> visitor) {
-    return visitor.visitVarianceSwap(this);
+  /**
+   * Copy constructor
+   * @param other VarianceSwap to copy from
+   */
+  public VarianceSwap(VarianceSwap other) {
+    ArgumentChecker.notNull(other, "null VarianceSwap to copy from");
+    _timeToObsStart = other._timeToObsStart;
+    _timeToObsEnd = other._timeToObsEnd;
+    _timeToSettlement = other._timeToSettlement;
+    _varStrike = other._varStrike;
+    _varNotional = other._varNotional;
+    _currency = other._currency;
+    _annualizationFactor = other._annualizationFactor;
+    _nObsExpected = other._nObsExpected;
+    _nObsDisrupted = other._nObsDisrupted;
+    _observations = Arrays.copyOf(other._observations, other._observations.length);
+    _observationWeights = Arrays.copyOf(other._observationWeights, other._observationWeights.length);
   }
 
   /**
@@ -110,7 +117,6 @@ public class VarianceSwap implements EquityDerivative {
    * Gets the timeToSettlement.
    * @return the timeToSettlement
    */
-  @Override
   public double getTimeToSettlement() {
     return _timeToSettlement;
   }
@@ -245,6 +251,16 @@ public class VarianceSwap implements EquityDerivative {
       return false;
     }
     return true;
+  }
+
+  @Override
+  public <S, T> T accept(DerivativeVisitor<S, T> visitor, S data) {
+    return visitor.visitVarianceSwap(this, data);
+  }
+
+  @Override
+  public <T> T accept(DerivativeVisitor<?, T> visitor) {
+    return visitor.visitVarianceSwap(this);
   }
 
 }

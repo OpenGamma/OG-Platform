@@ -20,10 +20,10 @@ import com.bloomberglp.blpapi.CorrelationID;
 import com.bloomberglp.blpapi.Element;
 import com.bloomberglp.blpapi.Request;
 import com.bloomberglp.blpapi.Service;
-import com.bloomberglp.blpapi.SessionOptions;
 import com.bloomberglp.blpapi.UserHandle;
 import com.google.common.collect.Sets;
 import com.opengamma.bbg.AbstractBloombergStaticDataProvider;
+import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.bbg.BloombergReferenceDataProvider;
 import com.opengamma.bbg.PerSecurityReferenceDataResult;
@@ -37,40 +37,57 @@ import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**
+ * Checks that the user has entitlement to access Bloomberg.
+ * <p>
  * To understand what's going on this class, read Bloomberg Server API 3.0 Developer Guide, Chapter 7.
- * 
  */
 public class BloombergEntitlementChecker extends AbstractBloombergStaticDataProvider implements LiveDataEntitlementChecker {
-  
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergEntitlementChecker.class);
-  
-  private final BloombergReferenceDataProvider _refDataProvider;
-  
+  /**
+   * The length of half a day in seconds.
+   */
   private static final long HALF_A_DAY_IN_SECONDS = 12 * 60 * 60;
-  
-  /** Bloomberg //blp/apiauth service */
+
+  /**
+   * The Bloomberg reference data provider.
+   */
+  private final BloombergReferenceDataProvider _refDataProvider;
+  /**
+   * The Bloomberg //blp/apiauth service.
+   */
   private Service _apiAuthSvc;
-  
   /** 
-   * UserPrincipal -> UserHandle 
+   * Cache: UserPrincipal -> UserHandle 
    */
   private final Cache _userHandleCache;
-  
   /** 
-   * DistributionSpecification -> com.bloomberglp.blpapi.Element (containing Bloomberg Entitlement IDs)
+   * Cache: DistributionSpecification -> com.bloomberglp.blpapi.Element (containing Bloomberg Entitlement IDs)
    */
   private final Cache _eidCache;
-  
+  /**
+   * The distribution resolver.
+   */
   private final DistributionSpecificationResolver _resolver;
-  
-  
-  public BloombergEntitlementChecker(SessionOptions sessionOptions,
-      BloombergReferenceDataProvider refDataProvider,
+
+  /**
+   * Creates an instance.
+   * 
+   * @param bloombergConnector  the Bloomberg connector, not null
+   * @param referenceDataProvider  the reference data provider, not null
+   * @param resolver  the resolver, not null
+   */
+  public BloombergEntitlementChecker(
+      BloombergConnector bloombergConnector,
+      BloombergReferenceDataProvider referenceDataProvider,
       DistributionSpecificationResolver resolver) {
-    super(sessionOptions);
+    super(bloombergConnector);
+    ArgumentChecker.notNull(referenceDataProvider, "referenceDataProvider");
+    ArgumentChecker.notNull(resolver, "resolver");
     
-    ArgumentChecker.notNull(refDataProvider, "Reference data provider");
-    _refDataProvider = refDataProvider;
+    _refDataProvider = referenceDataProvider;
+    _resolver = resolver;
     
     // Cache will contain max 100 entries, each of which will expire in 12 hours  
     _userHandleCache = new Cache("Bloomberg user handle cache", 100, false, false, HALF_A_DAY_IN_SECONDS, HALF_A_DAY_IN_SECONDS);
@@ -79,30 +96,20 @@ public class BloombergEntitlementChecker extends AbstractBloombergStaticDataProv
     // Cache will contain max 100 entries, each of which will expire in 12 hours
     _eidCache = new Cache("Bloomberg EID cache", 100, false, false, HALF_A_DAY_IN_SECONDS, HALF_A_DAY_IN_SECONDS);
     _eidCache.initialise();
-    
-    ArgumentChecker.notNull(resolver, "Distribution spec resolver");
-    _resolver = resolver;
   }
-  
+
   @Override
   protected void openServices() {
     Service authService = openService(BloombergConstants.AUTH_SVC_NAME);
     _apiAuthSvc = authService;
   }
-  
+
   @Override
   protected Logger getLogger() {
     return s_logger;
   }
-  
-  // --------------------------------------------------------------------------
-  
-  @Override
-  public boolean isEntitled(UserPrincipal user, LiveDataSpecification requestedSpecification) {
-    DistributionSpecification distributionSpecification = _resolver.resolve(requestedSpecification); 
-    return isEntitled(user, distributionSpecification);
-  }
-  
+
+  //-------------------------------------------------------------------------
   @Override
   public Map<LiveDataSpecification, Boolean> isEntitled(UserPrincipal user, Collection<LiveDataSpecification> requestedSpecifications) {
     Map<LiveDataSpecification, Boolean> returnValue = new HashMap<LiveDataSpecification, Boolean>();
@@ -112,9 +119,14 @@ public class BloombergEntitlementChecker extends AbstractBloombergStaticDataProv
     }
     return returnValue;
   }
-  
-  // --------------------------------------------------------------------------
-  
+
+  @Override
+  public boolean isEntitled(UserPrincipal user, LiveDataSpecification requestedSpecification) {
+    DistributionSpecification distributionSpecification = _resolver.resolve(requestedSpecification); 
+    return isEntitled(user, distributionSpecification);
+  }
+
+  //-------------------------------------------------------------------------
   public boolean isEntitled(UserPrincipal user, DistributionSpecification distributionSpec) {
     UserHandle userHandle = getUserHandle(user);
     if (userHandle == null) {
@@ -130,7 +142,55 @@ public class BloombergEntitlementChecker extends AbstractBloombergStaticDataProv
     return isEntitled;
   }
 
-  
+  private UserHandle getUserHandle(UserPrincipal user) {
+    net.sf.ehcache.Element cachedUserHandle = _userHandleCache.get(user);
+    if (cachedUserHandle == null) {
+      Request authorizationRequest = _apiAuthSvc.createAuthorizationRequest();
+      
+      Integer uuid;
+      try {
+        uuid = Integer.parseInt(user.getUserName());
+      } catch (NumberFormatException e) {
+        s_logger.info("Bloomberg user IDs are integers - so " + user.getUserName() + " cannot be entitled to anything");        
+        return null;
+      }
+      
+      authorizationRequest.set("uuid", uuid);
+      authorizationRequest.set("ipAddress", user.getIpAddress());
+      UserHandle userHandle = getSession().createUserHandle();
+      
+      CorrelationID cid = submitBloombergAuthorizationRequest(authorizationRequest, userHandle);
+      BlockingQueue<Element> resultElements = getResultElement(cid);
+      if (resultElements == null || resultElements.isEmpty()) {
+        s_logger.info("Unable to get authorization info from Bloomberg for {}", user);
+        return null;
+      }
+      
+      boolean authorizedSuccessfully = false;
+      for (Element resultElem : resultElements) {
+        if (resultElem.name().equals(BloombergConstants.AUTHORIZATION_SUCCESS)) {
+          cachedUserHandle = new net.sf.ehcache.Element(user, userHandle);
+          _userHandleCache.put(cachedUserHandle);
+          authorizedSuccessfully = true;          
+          
+        } else if (resultElem.name().equals(BloombergConstants.AUTHORIZATION_FAILURE)) {
+          Element reasonElem = resultElem.getElement(BloombergConstants.REASON);
+          s_logger.info("Bloomberg authorization failed {}", reasonElem);
+          
+        } else {
+          s_logger.info("Bloomberg authorization result {}", resultElem);
+        }
+      }
+      
+      if (!authorizedSuccessfully) {
+        return null;        
+      }
+    }
+    
+    UserHandle userHandle = (UserHandle) cachedUserHandle.getObjectValue();
+    return userHandle;
+  }
+
   private Element getEids(DistributionSpecification distributionSpec) {
     net.sf.ehcache.Element cachedEids = _eidCache.get(distributionSpec);
     if (cachedEids == null) {
@@ -147,65 +207,9 @@ public class BloombergEntitlementChecker extends AbstractBloombergStaticDataProv
       cachedEids = new net.sf.ehcache.Element(distributionSpec, eids);
       _eidCache.put(cachedEids);
     }
-
+    
     Element neededEntitlements = (Element) cachedEids.getObjectValue();
     return neededEntitlements;
   }
 
-  
-  private UserHandle getUserHandle(UserPrincipal user) {
-    net.sf.ehcache.Element cachedUserHandle = _userHandleCache.get(user);
-    if (cachedUserHandle == null) {
-      Request authorizationRequest = _apiAuthSvc.createAuthorizationRequest();
-      
-      Integer uuid;
-      try {
-        uuid = Integer.parseInt(user.getUserName());
-      } catch (NumberFormatException e) {
-        s_logger.info("Bloomberg user IDs are integers - so " + user.getUserName() + " cannot be entitled to anything");        
-        return null;
-      }
-     
-      authorizationRequest.set("uuid", uuid);
-      authorizationRequest.set("ipAddress", user.getIpAddress());
-      UserHandle userHandle = getSession().createUserHandle();
-      
-      CorrelationID cid = submitBloombergAuthorizationRequest(authorizationRequest, userHandle);
-      BlockingQueue<Element> resultElements = getResultElement(cid);
-      if (resultElements == null || resultElements.isEmpty()) {
-        s_logger.info("Unable to get authorization info from Bloomberg for {}", user);
-        return null;
-      }
-      
-      boolean authorizedSuccessfully = false;
-      for (Element resultElem : resultElements) {
-        
-        if (resultElem.name().equals(BloombergConstants.AUTHORIZATION_SUCCESS)) {
-
-          cachedUserHandle = new net.sf.ehcache.Element(user, userHandle);
-          _userHandleCache.put(cachedUserHandle);
-
-          authorizedSuccessfully = true;          
-
-        } else if (resultElem.name().equals(BloombergConstants.AUTHORIZATION_FAILURE)) {
-          
-          Element reasonElem = resultElem.getElement(BloombergConstants.REASON);
-          
-          s_logger.info("Bloomberg authorization failed {}", reasonElem);
-        
-        } else {
-          s_logger.info("Bloomberg authorization result {}", resultElem);
-        }
-      }
-      
-      if (!authorizedSuccessfully) {
-        return null;        
-      }
-    }
-    
-    UserHandle userHandle = (UserHandle) cachedUserHandle.getObjectValue();
-    return userHandle;
-  }
-  
-  
 }

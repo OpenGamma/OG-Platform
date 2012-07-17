@@ -37,7 +37,7 @@ public class BloombergSwaptionFileLoader {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergSwaptionFileLoader.class);
-  
+
   /* package */static final String CONTEXT_CONFIGURATION_PATH = "/com/opengamma/bbg/loader/bloomberg-security-loader-context.xml";
   private static final int NAME_FIELD = 0;
   private static final int BUID_FIELD = 8;

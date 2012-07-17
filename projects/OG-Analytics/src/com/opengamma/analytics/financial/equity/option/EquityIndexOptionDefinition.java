@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.equity.option;
 
 import com.opengamma.analytics.financial.ExerciseDecisionType;
-import com.opengamma.analytics.financial.equity.EquityDerivative;
+import com.opengamma.analytics.financial.equity.Derivative;
 import com.opengamma.analytics.financial.equity.EquityInstrumentDefinition;
 import com.opengamma.analytics.financial.equity.EquityInstrumentDefinitionVisitor;
 import com.opengamma.analytics.util.time.TimeCalculator;
@@ -22,7 +22,7 @@ import org.apache.commons.lang.Validate;
  * Calendar aware version of an EquityIndexOption
  * The definition is responsible for constructing the 'Derivative' for pricing visitors.
  */
-public class EquityIndexOptionDefinition implements EquityInstrumentDefinition<EquityDerivative> {
+public class EquityIndexOptionDefinition implements EquityInstrumentDefinition<Derivative> {
 
   /** Call if true, Put if false */
   private final boolean _isCall;
@@ -83,7 +83,7 @@ public class EquityIndexOptionDefinition implements EquityInstrumentDefinition<E
    * @param valueDate Date at which valuation will occur
    * @return EquityIndexOption derivative as of date
    */
-  public EquityDerivative toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+  public Derivative toDerivative(ZonedDateTime date, String... yieldCurveNames) {
     return toDerivative(date);
   }
 

@@ -95,7 +95,7 @@
         "tradingExchange":"${security.tradingExchange}",
         "settlementExchange":"${security.settlementExchange}",
         "redemptionValue":"${security.currency}",
-        "unitAmount":"${security.unitAmount}",
+        "unitAmount": ${security.unitAmount},
         <#if futureSecurityType == "BondFuture">
             "firstDeliveryDate":"${security.firstDeliveryDate}",
             "lastDeliveryDate":"${security.lastDeliveryDate}",

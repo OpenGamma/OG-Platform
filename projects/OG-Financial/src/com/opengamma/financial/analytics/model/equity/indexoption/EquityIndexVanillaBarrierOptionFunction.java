@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
+import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.security.Security;
@@ -58,7 +58,7 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
    * @param market EquityOptionDataBundle
    * @return  ComputedValue typically
    */
-  protected abstract Object computeValues(Set<EquityIndexOption> vanillaOptions, EquityOptionDataBundle market);
+  protected abstract Object computeValues(Set<EquityIndexOption> vanillaOptions, StaticReplicationDataBundle market);
 
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
@@ -85,7 +85,7 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
     Set<EquityIndexOption> vanillas = vanillaDecomposition(now, barrierSec, smoothing, overhedge);
 
     // 3. Build up the market data bundle
-    final EquityOptionDataBundle market = buildMarketBundle(underlyingId, executionContext, inputs, target, desiredValues);
+    final StaticReplicationDataBundle market = buildMarketBundle(underlyingId, executionContext, inputs, target, desiredValues);
 
     // 4. Compute Values
     final Object results = computeValues(vanillas, market);
@@ -154,8 +154,8 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
   @Override
   protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
     return super.createValueProperties(target)
-      .withAny(ValuePropertyNames.BINARY_OVERHEDGE)
-      .withAny(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH);
+        .withAny(ValuePropertyNames.BINARY_OVERHEDGE)
+        .withAny(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH);
   }
 
   private Set<EquityIndexOption> vanillaDecomposition(final ZonedDateTime valuation, final EquityBarrierOptionSecurity barrierOption,
@@ -190,7 +190,7 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
         }
         size = (barrier - strike) / width;
         nearStrike = barrier + oh - 0.5 * width;
-        farStrike =  barrier + oh + 0.5 * width;
+        farStrike = barrier + oh + 0.5 * width;
         break;
       case DOWN:
         isCall = false;
@@ -199,7 +199,7 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
         }
         size = (strike - barrier) / smoothingFullWidth;
         nearStrike = barrier + oh + 0.5 * width;
-        farStrike =  barrier + oh - 0.5 * width;
+        farStrike = barrier + oh - 0.5 * width;
         break;
       case DOUBLE:
         throw new OpenGammaRuntimeException("Encountered an EquityBarrierOption where barrierType is DOUBLE. This isn't yet handled.");
@@ -223,7 +223,7 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
         vanillas.add(longLinearB);
         // Long a binary of size, barrier - strike. Modelled as call spread struck around strike + oh, with spread of 2*eps
         EquityIndexOption longNear = new EquityIndexOption(ttm, ttm, nearStrike, isCall, ccy, ptVal * size);
-        EquityIndexOption shortFar = new EquityIndexOption(ttm, ttm, farStrike, isCall, ccy, -1 *  ptVal * size);
+        EquityIndexOption shortFar = new EquityIndexOption(ttm, ttm, farStrike, isCall, ccy, -1 * ptVal * size);
         vanillas.add(longNear);
         vanillas.add(shortFar);
         break;
@@ -236,11 +236,8 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
   private static final Logger s_logger = LoggerFactory.getLogger(FuturePriceCurveFunction.class);
 
   @Override
-  protected Object computeValues(EquityIndexOption derivative, EquityOptionDataBundle market) {
+  protected Object computeValues(EquityIndexOption derivative, StaticReplicationDataBundle market) {
     throw new OpenGammaRuntimeException("Execution wasn't intended to go here. Please review.");
   }
 
 }
-
-
-
