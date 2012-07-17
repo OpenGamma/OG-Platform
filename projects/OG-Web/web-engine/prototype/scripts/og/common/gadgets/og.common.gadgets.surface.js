@@ -21,10 +21,12 @@ $.register_module({
                 interactive_color_css: '#f00',
                 log: true,
                 precision: 3, // floating point presions for vol display
+                smile_distance: 30,
                 snap_distance: 3,
                 surface_x: 100,
                 surface_z: 100,
                 surface_y: 35, // the height range of the surface
+                y_segments: 10, // number of segments to thin vol out to for smile planes
                 vertex_shading_hue_min: 180,
                 vertex_shading_hue_max: 0
             };
@@ -90,7 +92,7 @@ $.register_module({
         matlib.compound_dark_wire = function () {
             return [
                 new THREE.MeshPhongMaterial({
-                    ambient: 0x000000, color: 0xeeeeee, specular: 0xeeeeee, emissive: 0x000000
+                    ambient: 0x000000, color: 0xeeeeee, specular: 0xdddddd, emissive: 0x000000, shininess: 0
                 }),
                 matlib.wire(0xcccccc)
             ]
@@ -174,7 +176,7 @@ $.register_module({
             config.zs = tmp_data[config.id].zs;
             config.zs_labels = tmp_data[config.id].zs_labels;
             config.zs_label = tmp_data[config.id].zs_label;
-            var gadget = this, surface = {}, hud = {}, selector = config.selector, $selector = $(selector),
+            var gadget = this, hud = {}, smile = {}, surface = {}, selector = config.selector, $selector = $(selector),
                 animation_group = new THREE.Object3D(), // everything in animation_group rotates with mouse drag
                 hover_group,          // THREE.Object3D that gets created on hover and destroyed afterward
                 width, height,        // selector / canvas width and height
@@ -182,21 +184,49 @@ $.register_module({
                 surface_bottom_group, // the bottom grid, axis etc
                 surface_group,        // full surface group, including axis
                 vertex_sphere,        // the sphere displayed on vertex hover
-                x_segments = config.xs.length - 1, y_segments = config.zs.length - 1, // surface segments
+                x_segments = config.xs.length - 1, z_segments = config.zs.length - 1, y_segments = settings.y_segments,
+                vol_max = (Math.max.apply(null, config.vol)).toFixed(settings.precision),
+                vol_min = (Math.min.apply(null, config.vol)).toFixed(settings.precision),
                 renderer, camera, scene, backlight, keylight, filllight,
-                adjusted_vol, adjusted_xs, adjusted_zs; // call gadget.init_data to setup
+                adjusted_vol, adjusted_xs, adjusted_ys, adjusted_zs; // call gadget.init_data to setup
             /**
-             * Constructor for plane with correct x / z vertex positions
+             * Constructor for a plane with correct x / y vertex position spacing
+             * @param {String} type 'surface', 'smilex' or 'smiley'
              * @returns {THREE.PlaneGeometry}
              */
-            var Plane = function () {
-                var plane = new THREE.PlaneGeometry(settings.surface_x, settings.surface_z, x_segments, y_segments),
-                    vertex, i, k;
-                for (i = 0, k = 0; i < adjusted_vol.length; i++, k++) {
+            var Plane = function (type) {
+                var xlen, ylen, xseg, yseg, xoff, yoff, plane, vertex, len, i, k;
+                if (type === 'surface') {
+                    xlen = settings.surface_x;
+                    ylen = settings.surface_z;
+                    xseg = x_segments;
+                    yseg = z_segments;
+                    xoff = adjusted_xs;
+                    yoff = adjusted_zs;
+                }
+                if (type === 'smilex') {
+                    xlen = settings.surface_x;
+                    ylen = settings.surface_y;
+                    xseg = x_segments;
+                    yseg = y_segments;
+                    xoff = adjusted_xs;
+                    yoff = adjusted_ys;
+                }
+                if (type === 'smiley') {
+                    xlen = settings.surface_y;
+                    ylen = settings.surface_z;
+                    xseg = y_segments;
+                    yseg = z_segments;
+                    xoff = adjusted_ys;
+                    yoff = adjusted_zs;
+                }
+                plane = new THREE.PlaneGeometry(xlen, ylen, xseg, yseg);
+                len = (xseg + 1) * (yseg + 1);
+                for (i = 0, k = 0; i < len; i++, k++) {
                     vertex = plane.vertices[i];
-                    if (!adjusted_xs[k]) k = 0;
-                    vertex.x = adjusted_xs[k];
-                    vertex.z = adjusted_zs[Math.floor(i / config.xs.length)];
+                    if (typeof xoff[k] === 'undefined') k = 0;
+                    vertex.x = xoff[k];
+                    vertex.z = yoff[Math.floor(i / xoff.length)];
                 }
                 return plane;
             };
@@ -243,7 +273,8 @@ $.register_module({
             /**
              * Constructor for a tube.
              * THREE doesnt currently support creating a tube with a line as a path
-             * (Spline is supported, but we dont want that), So we create separate tubes and add them to an object
+             * (Spline is supported, but we dont want that), So we create separate tubes and add them to an object.
+             * Also linewidth doest seem to work for a LineBasicMaterial, thus using tube
              * @param {Array} points Array of Vector3's
              * @return {THREE.Object3D}
              */
@@ -301,6 +332,11 @@ $.register_module({
                 adjusted_vol = util.scale(config.vol, 0, settings.surface_y);
                 adjusted_xs = util.scale(util.log(config.xs), -(settings.surface_x / 2), settings.surface_x / 2);
                 adjusted_zs = util.scale(util.log(config.zs), -(settings.surface_z / 2), settings.surface_z / 2);
+                adjusted_ys = (function () { // ys doesnt exist, we need to create it out of the given vol range
+                    var increment = Math.ceil(settings.surface_y / y_segments), y_seg = [], i;
+                    for (i = 0; i < y_segments + 1; i++) y_seg.push(i * increment);
+                    return y_seg;
+                }());
             };
             /**
              * Keeps a tally of meshes that need to support raycasting
@@ -327,12 +363,12 @@ $.register_module({
                 gadget.init_data();
                 vertex_sphere = surface.vertex_sphere();
                 // create lights
-                backlight = new THREE.DirectionalLight(0xf2f6ff, 0.3, 100);
-                backlight.position.set(-150, 150, -200).normalize();
-                keylight = new THREE.DirectionalLight(0xfffaf2, 0.6, 300);
-                keylight.position.set(-150, 150, 100).normalize();
-                filllight = new THREE.DirectionalLight(0xf6f8ff, 0.6, 500);
-                filllight.position.set(150, 300, 150).normalize();
+                keylight = new THREE.DirectionalLight(0xf2f6ff, 0.7, 300); // surface light
+                keylight.position.set(-80, 150, 80);
+                backlight = new THREE.DirectionalLight(0xf2f6ff, 0.5, 500); // smile left
+                backlight.position.set(-150, 100, 100);
+                filllight = new THREE.DirectionalLight(0xf2f6ff, 0.5, 500); // smile right
+                filllight.position.set(100, 100, 150);
                 // setup actors / groups & create scene
                 camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000); /* fov, aspect, near, far */
                 animation_group.add(backlight);
@@ -343,7 +379,7 @@ $.register_module({
                 scene.add(animation_group);
                 scene.add(camera);
                 // positions & rotations
-                animation_group.rotation.y = 0.7;
+                animation_group.rotation.y = Math.PI * 0.25;
                 camera.position.x = 0;
                 camera.position.y = 125;
                 camera.position.z = 160;
@@ -354,6 +390,7 @@ $.register_module({
                 renderer.render(scene, camera);
                 $selector.html(renderer.domElement).find('canvas').css({position: 'relative'});
                 hud.load();
+                smile.load();
                 return gadget;
             };
             gadget.resize = function () {
@@ -365,6 +402,7 @@ $.register_module({
                 renderer.setSize(width, height);
                 renderer.render(scene, camera);
                 hud.load();
+                smile.load();
             };
             /**
              * Updates without reloading everything
@@ -372,20 +410,19 @@ $.register_module({
             gadget.update = function () {
                 gadget.init_data();
                 animation_group.add(surface.create_surface());
+                smile.load();
             };
             /**
              * Loads 2D overlay display with form
              */
             hud.load = function () {
                 $.when(og.api.text({module: 'og.views.gadgets.surface.hud_tash'})).then(function (tmpl) {
-                    var html = (Handlebars.compile(tmpl))({min: hud.vol_min, max: hud.vol_max});
+                    var html = (Handlebars.compile(tmpl))({min: vol_min, max: vol_max});
                     hud.vol_canvas_height = height / 2;
                     hud.volatility($(html).appendTo($selector).find('canvas')[0]);
                     hud.form();
                 });
             };
-            hud.vol_max = (Math.max.apply(null, config.vol)).toFixed(settings.precision);
-            hud.vol_min = (Math.min.apply(null, config.vol)).toFixed(settings.precision);
             /**
              * Configure surface gadget display
              */
@@ -400,7 +437,7 @@ $.register_module({
              * @param {Number} value The value to set. If value is not a number the indicator is hidden
              */
             hud.set_volatility = function (value) {
-                var top = (util.scale([hud.vol_min, value, hud.vol_max], hud.vol_canvas_height, 0))[1],
+                var top = (util.scale([vol_min, value, vol_max], hud.vol_canvas_height, 0))[1],
                     css = {top: top + 'px', color: settings.interactive_color_css},
                     $vol = $selector.find('.og-val-vol');
                 typeof value === 'number'
@@ -424,6 +461,25 @@ $.register_module({
                 gradient.addColorStop(1, 'hsl(' + min_hue + ', 100%, 50%)');
                 ctx.fillStyle = gradient;
                 ctx.fillRect(0, 0, 10, hud.vol_canvas_height);
+            };
+            smile.load = function () {
+                smile.x();
+                smile.y();
+            };
+            smile.x = function () {
+                var plane = new Plane('smilex'),
+                    mesh = THREE.SceneUtils.createMultiMaterialObject(plane, matlib.compound_dark_wire());
+                mesh.rotation.x = (Math.PI * 0.5);
+                mesh.position.y = (settings.surface_z / 2) - settings.floating_height;
+                mesh.position.z = -((settings.surface_z / 2) + settings.smile_distance);
+                surface_top_group.add(mesh);
+            };
+            smile.y = function () {
+                var plane = new Plane('smiley'),
+                    mesh = THREE.SceneUtils.createMultiMaterialObject(plane, matlib.compound_dark_wire());
+                mesh.position.x = (settings.surface_x / 2) + settings.smile_distance;
+                mesh.rotation.z = Math.PI * 0.5;
+                surface_top_group.add(mesh);
             };
             /**
              * Creates both axes
@@ -502,7 +558,8 @@ $.register_module({
              * @return {THREE.Mesh}
              */
             surface.create_bottom_grid = function () {
-                var mesh = THREE.SceneUtils.createMultiMaterialObject(new Plane(), matlib.compound_dark_wire());
+                var plane = new Plane('surface'),
+                    mesh = THREE.SceneUtils.createMultiMaterialObject(plane, matlib.compound_dark_wire());
                 mesh.overdraw = true;
                 return mesh;
             };
@@ -531,7 +588,7 @@ $.register_module({
              * @return {THREE.Object3D}
              */
             surface.create_surface_plane = function () {
-                var plane = new Plane(), group, i;
+                var plane = new Plane('surface'), group, i;
                 plane.verticesNeedUpdate = true;
                 for (i = 0; i < adjusted_vol.length; i++) {plane.vertices[i].y = adjusted_vol[i];} // extrude
                 plane.computeCentroids();
@@ -578,7 +635,7 @@ $.register_module({
                         xfrom = index - (index % (x_segments + 1)),
                         xto   = xfrom + x_segments + 1,
                         zfrom = index % (x_segments + 1),
-                        zto   = ((x_segments + 1) * (y_segments + 1)) - (x_segments - zfrom);
+                        zto   = ((x_segments + 1) * (z_segments + 1)) - (x_segments - zfrom);
                     for (x = xfrom; x < xto; x++) xvertices.push(object.geometry.vertices[x]);
                     for (z = zfrom; z < zto; z += x_segments + 1) zvertices.push(object.geometry.vertices[z]);
                     hud.set_volatility(config.vol[index]);
