@@ -5,6 +5,10 @@
  */
 package com.opengamma.financial.convention;
 
+import static com.opengamma.core.id.ExternalSchemes.bloombergTickerSecurityId;
+import static com.opengamma.core.id.ExternalSchemes.tullettPrebonSecurityId;
+import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.simpleNameSecurityId;
+
 import javax.time.calendar.Period;
 
 import org.apache.commons.lang.Validate;
@@ -22,9 +26,6 @@ import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.sensitivities.FactorExposureData;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-
-import static com.opengamma.core.id.ExternalSchemes.bloombergTickerSecurityId;
-import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.simpleNameSecurityId;
 
 /**
  * 
@@ -51,36 +52,35 @@ public class USConventions {
         "USD LIBOR O/N", act360, following, Period.ofDays(1), 0, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US00T/N Index"), simpleNameSecurityId("USD LIBOR T/N")),
         "USD LIBOR T/N", act360, following, Period.ofDays(1), 1, false, us);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0001W Index"), simpleNameSecurityId("USD LIBOR 1w")),
-        "USD LIBOR 1w", act360, following, Period.ofDays(7), 2, false, us);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0002W Index"), simpleNameSecurityId("USD LIBOR 2w")),
-        "USD LIBOR 2w", act360, following, Period.ofDays(14), 2, false, us);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0001M Index"), simpleNameSecurityId("USD LIBOR 1m")),
-        "USD LIBOR 1m", act360, modified, Period.ofMonths(1), 2, false, us);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0002M Index"), simpleNameSecurityId("USD LIBOR 2m")),
-        "USD LIBOR 2m", act360, modified, Period.ofMonths(2), 2, false, us);
-    utils.addConventionBundle(
-        ExternalIdBundle.of(bloombergTickerSecurityId("US0003M Index"), simpleNameSecurityId("USD LIBOR 3m"),
-            ExternalSchemes.ricSecurityId("USD3MFSR=")), "USD LIBOR 3m", act360, modified, Period.ofMonths(3), 2,
-        false, us);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0004M Index"), simpleNameSecurityId("USD LIBOR 4m")),
-        "USD LIBOR 4m", act360, modified, Period.ofMonths(4), 2, false, us);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0005M Index"), simpleNameSecurityId("USD LIBOR 5m")),
-        "USD LIBOR 5m", act360, modified, Period.ofMonths(5), 2, false, us);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0006M Index"), simpleNameSecurityId("USD LIBOR 6m")),
-        "USD LIBOR 6m", act360, modified, Period.ofMonths(6), 2, false, us);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0007M Index"), simpleNameSecurityId("USD LIBOR 7m")),
-        "USD LIBOR 7m", act360, modified, Period.ofMonths(7), 2, false, us);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0008M Index"), simpleNameSecurityId("USD LIBOR 8m")),
-        "USD LIBOR 8m", act360, modified, Period.ofMonths(8), 2, false, us);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0009M Index"), simpleNameSecurityId("USD LIBOR 9m")),
-        "USD LIBOR 9m", act360, modified, Period.ofMonths(9), 2, false, us);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0010M Index"), simpleNameSecurityId("USD LIBOR 10m")),
-        "USD LIBOR 10m", act360, modified, Period.ofMonths(10), 2, false, us);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0011M Index"), simpleNameSecurityId("USD LIBOR 11m")),
-        "USD LIBOR 11m", act360, modified, Period.ofMonths(11), 2, false, us);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0012M Index"), simpleNameSecurityId("USD LIBOR 12m")), 
-        "USD LIBOR 12m", act360, modified, Period.ofMonths(12), 2, false, us);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0001W Index"), simpleNameSecurityId("USD LIBOR 1w"),
+        tullettPrebonSecurityId("ASLIBUSD1WL")), "USD LIBOR 1w", act360, following, Period.ofDays(7), 2, false, us);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0002W Index"), simpleNameSecurityId("USD LIBOR 2w"),
+        tullettPrebonSecurityId("ASLIBUSD2WL")), "USD LIBOR 2w", act360, following, Period.ofDays(14), 2, false, us);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0001M Index"), simpleNameSecurityId("USD LIBOR 1m"),
+        tullettPrebonSecurityId("ASLIBUSD01L")), "USD LIBOR 1m", act360, modified, Period.ofMonths(1), 2, false, us);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0002M Index"), simpleNameSecurityId("USD LIBOR 2m"),
+        tullettPrebonSecurityId("ASLIBUSD02L")), "USD LIBOR 2m", act360, modified, Period.ofMonths(2), 2, false, us);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0003M Index"), simpleNameSecurityId("USD LIBOR 3m"),
+        ExternalSchemes.ricSecurityId("USD3MFSR="), tullettPrebonSecurityId("ASLIBUSD03L")),
+        "USD LIBOR 3m", act360, modified, Period.ofMonths(3), 2, false, us);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0004M Index"), simpleNameSecurityId("USD LIBOR 4m"),
+        tullettPrebonSecurityId("ASLIBUSD04L")), "USD LIBOR 4m", act360, modified, Period.ofMonths(4), 2, false, us);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0005M Index"), simpleNameSecurityId("USD LIBOR 5m"),
+        tullettPrebonSecurityId("ASLIBUSD05L")), "USD LIBOR 5m", act360, modified, Period.ofMonths(5), 2, false, us);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0006M Index"), simpleNameSecurityId("USD LIBOR 6m"),
+        tullettPrebonSecurityId("ASLIBUSD06L")), "USD LIBOR 6m", act360, modified, Period.ofMonths(6), 2, false, us);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0007M Index"), simpleNameSecurityId("USD LIBOR 7m"),
+        tullettPrebonSecurityId("ASLIBUSD07L")), "USD LIBOR 7m", act360, modified, Period.ofMonths(7), 2, false, us);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0008M Index"), simpleNameSecurityId("USD LIBOR 8m"),
+        tullettPrebonSecurityId("ASLIBUSD08L")), "USD LIBOR 8m", act360, modified, Period.ofMonths(8), 2, false, us);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0009M Index"), simpleNameSecurityId("USD LIBOR 9m"),
+        tullettPrebonSecurityId("ASLIBUSD09L")), "USD LIBOR 9m", act360, modified, Period.ofMonths(9), 2, false, us);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0010M Index"), simpleNameSecurityId("USD LIBOR 10m"),
+        tullettPrebonSecurityId("ASLIBUSD10L")), "USD LIBOR 10m", act360, modified, Period.ofMonths(10), 2, false, us);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0011M Index"), simpleNameSecurityId("USD LIBOR 11m"),
+        tullettPrebonSecurityId("ASLIBUSD11L")), "USD LIBOR 11m", act360, modified, Period.ofMonths(11), 2, false, us);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0012M Index"), simpleNameSecurityId("USD LIBOR 12m"),
+        tullettPrebonSecurityId("ASLIBUSD12L")), "USD LIBOR 12m", act360, modified, Period.ofMonths(12), 2, false, us);
 
     //TODO need to check that these are right for deposit rates
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDR1T Curncy"), simpleNameSecurityId("USD DEPOSIT 1d")),
@@ -89,36 +89,36 @@ public class USConventions {
         "USD DEPOSIT 2d", act360, following, Period.ofDays(1), 1, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDR3T Curncy"), simpleNameSecurityId("USD DEPOSIT 3d")),
         "USD DEPOSIT 3d", act360, following, Period.ofDays(1), 2, false, us);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDR7D Curncy"), simpleNameSecurityId("USD DEPOSIT 1w")),
-        "USD DEPOSIT 1w", act360, following, Period.ofDays(7), 2, false, us);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDR2Z Curncy"), simpleNameSecurityId("USD DEPOSIT 2w")),
-        "USD DEPOSIT 2w", act360, following, Period.ofDays(14), 2, false, us);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDR3Z Curncy"), simpleNameSecurityId("USD DEPOSIT 3w")),
-        "USD DEPOSIT 3w", act360, following, Period.ofDays(21), 2, false, us);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDRA Curncy"), simpleNameSecurityId("USD DEPOSIT 1m")),
-        "USD DEPOSIT 1m", act360, following, Period.ofMonths(1), 2, false, us);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDRB Curncy"), simpleNameSecurityId("USD DEPOSIT 2m")),
-        "USD DEPOSIT 2m", act360, following, Period.ofMonths(2), 2, false, us);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDRC Curncy"), simpleNameSecurityId("USD DEPOSIT 3m")),
-        "USD DEPOSIT 3m", act360, following, Period.ofMonths(3), 2, false, us);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDRD Curncy"), simpleNameSecurityId("USD DEPOSIT 4m")),
-        "USD DEPOSIT 4m", act360, following, Period.ofMonths(4), 2, false, us);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDRE Curncy"), simpleNameSecurityId("USD DEPOSIT 5m")),
-        "USD DEPOSIT 5m", act360, following, Period.ofMonths(5), 2, false, us);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDRF Curncy"), simpleNameSecurityId("USD DEPOSIT 6m")),
-        "USD DEPOSIT 6m", act360, following, Period.ofMonths(6), 2, false, us);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDRG Curncy"), simpleNameSecurityId("USD DEPOSIT 7m")),
-        "USD DEPOSIT 7m", act360, following, Period.ofMonths(7), 2, false, us);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDRH Curncy"), simpleNameSecurityId("USD DEPOSIT 8m")),
-        "USD DEPOSIT 8m", act360, following, Period.ofMonths(8), 2, false, us);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDRI Curncy"), simpleNameSecurityId("USD DEPOSIT 9m")),
-        "USD DEPOSIT 9m", act360, following, Period.ofMonths(9), 2, false, us);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDRJ Curncy"), simpleNameSecurityId("USD DEPOSIT 10m")),
-        "USD DEPOSIT 10m", act360, following, Period.ofMonths(10), 2, false, us);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDRK Curncy"), simpleNameSecurityId("USD DEPOSIT 11m")),
-        "USD DEPOSIT 11m", act360, following, Period.ofMonths(11), 2, false, us);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDR1 Curncy"), simpleNameSecurityId("USD DEPOSIT 1y")),
-        "USD DEPOSIT 1y", act360, following, Period.ofYears(1), 2, false, us);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDR7D Curncy"), simpleNameSecurityId("USD DEPOSIT 1w"),
+        tullettPrebonSecurityId("ASDEPUSDSPT01W")), "USD DEPOSIT 1w", act360, following, Period.ofDays(7), 2, false, us);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDR2Z Curncy"), simpleNameSecurityId("USD DEPOSIT 2w"),
+        tullettPrebonSecurityId("ASDEPUSDSPT02W")), "USD DEPOSIT 2w", act360, following, Period.ofDays(14), 2, false, us);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDR3Z Curncy"), simpleNameSecurityId("USD DEPOSIT 3w"),
+        tullettPrebonSecurityId("ASDEPUSDSPT03W")), "USD DEPOSIT 3w", act360, following, Period.ofDays(21), 2, false, us);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDRA Curncy"), simpleNameSecurityId("USD DEPOSIT 1m"),
+        tullettPrebonSecurityId("ASDEPUSDSPT01M")), "USD DEPOSIT 1m", act360, following, Period.ofMonths(1), 2, false, us);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDRB Curncy"), simpleNameSecurityId("USD DEPOSIT 2m"),
+        tullettPrebonSecurityId("ASDEPUSDSPT02M")), "USD DEPOSIT 2m", act360, following, Period.ofMonths(2), 2, false, us);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDRC Curncy"), simpleNameSecurityId("USD DEPOSIT 3m"),
+        tullettPrebonSecurityId("ASDEPUSDSPT03M")), "USD DEPOSIT 3m", act360, following, Period.ofMonths(3), 2, false, us);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDRD Curncy"), simpleNameSecurityId("USD DEPOSIT 4m"),
+        tullettPrebonSecurityId("ASDEPUSDSPT04M")), "USD DEPOSIT 4m", act360, following, Period.ofMonths(4), 2, false, us);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDRE Curncy"), simpleNameSecurityId("USD DEPOSIT 5m"),
+        tullettPrebonSecurityId("ASDEPUSDSPT05M")), "USD DEPOSIT 5m", act360, following, Period.ofMonths(5), 2, false, us);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDRF Curncy"), simpleNameSecurityId("USD DEPOSIT 6m"),
+        tullettPrebonSecurityId("ASDEPUSDSPT06M")), "USD DEPOSIT 6m", act360, following, Period.ofMonths(6), 2, false, us);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDRG Curncy"), simpleNameSecurityId("USD DEPOSIT 7m"),
+        tullettPrebonSecurityId("ASDEPUSDSPT07M")), "USD DEPOSIT 7m", act360, following, Period.ofMonths(7), 2, false, us);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDRH Curncy"), simpleNameSecurityId("USD DEPOSIT 8m"),
+        tullettPrebonSecurityId("ASDEPUSDSPT08M")), "USD DEPOSIT 8m", act360, following, Period.ofMonths(8), 2, false, us);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDRI Curncy"), simpleNameSecurityId("USD DEPOSIT 9m"),
+        tullettPrebonSecurityId("ASDEPUSDSPT09M")), "USD DEPOSIT 9m", act360, following, Period.ofMonths(9), 2, false, us);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDRJ Curncy"), simpleNameSecurityId("USD DEPOSIT 10m"),
+        tullettPrebonSecurityId("ASDEPUSDSPT10M")), "USD DEPOSIT 10m", act360, following, Period.ofMonths(10), 2, false, us);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDRK Curncy"), simpleNameSecurityId("USD DEPOSIT 11m"),
+        tullettPrebonSecurityId("ASDEPUSDSPT11M")), "USD DEPOSIT 11m", act360, following, Period.ofMonths(11), 2, false, us);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDR1 Curncy"), simpleNameSecurityId("USD DEPOSIT 1y"),
+        tullettPrebonSecurityId("ASDEPUSDSPT12M")), "USD DEPOSIT 1y", act360, following, Period.ofYears(1), 2, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDR2 Curncy"), simpleNameSecurityId("USD DEPOSIT 2y")),
         "USD DEPOSIT 2y", act360, following, Period.ofYears(2), 2, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDR3 Curncy"), simpleNameSecurityId("USD DEPOSIT 3y")),
@@ -186,8 +186,8 @@ public class USConventions {
       final String tenorString = element + "Y";
       final String tenorStringBbg = String.format("%02d", element);
       utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("USD_ISDAFIX_USDLIBOR10_" + tenorString),
-          ExternalSchemes.ricSecurityId("USDSFIX" + tenorString + "="), bloombergTickerSecurityId("USISDA" + tenorStringBbg + " Index")), 
-          "USD_ISDAFIX_USDLIBOR10_" + tenorString, swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 2, us, act360, modified, semiAnnual, 2, 
+          ExternalSchemes.ricSecurityId("USDSFIX" + tenorString + "="), bloombergTickerSecurityId("USISDA" + tenorStringBbg + " Index")),
+          "USD_ISDAFIX_USDLIBOR10_" + tenorString, swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 2, us, act360, modified, semiAnnual, 2,
           simpleNameSecurityId("USD LIBOR 3m"), us, true, Period.ofYears(element));
     }
 
