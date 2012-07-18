@@ -21,7 +21,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
-import com.opengamma.examples.marketdata.MockTimeSeriesLoader;
+import com.opengamma.examples.historical.MockTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 
 /**

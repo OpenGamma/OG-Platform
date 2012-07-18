@@ -3,19 +3,18 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.examples.server;
+package com.opengamma.examples;
 
-import com.opengamma.examples.marketdata.MockServerConstants;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.SingletonFactoryBean;
 
 /**
  * Creates a mock/test user.
  */
-public class MockUserFactoryBean extends SingletonFactoryBean<UserPrincipal> {
+public class ExampleUserFactoryBean extends SingletonFactoryBean<UserPrincipal> {
 
   @Override
   protected UserPrincipal createObject() {
-    return MockServerConstants.TEST_USER;
+    return ExampleServerConstants.TEST_USER;
   }
 }
