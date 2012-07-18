@@ -50,7 +50,11 @@ $.register_module({
                 return value && formatter[type] ? formatter[type](value) : value && value.v || '';
             };
             grid.on('render', function () {
-                grid.elements.parent.find('.OG-g .sp').sparkline('html', {disableInteraction: true});
+                var options = {
+                    type: 'line', lineColor: '#b0b0b0', fillColor: '#ecedee', spotColor: '#b0b0b0',
+                    minSpotColor: '#b0b0b0', maxSpotColor: '#b0b0b0', disableInteraction: true
+                };
+                grid.elements.parent.find('.OG-g .sp').sparkline('html', options);
             });
         };
     }
