@@ -7,6 +7,7 @@ package com.opengamma.analytics.math.rootfinding;
 
 import org.apache.commons.lang.Validate;
 
+import com.google.common.primitives.Doubles;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 
@@ -40,6 +41,19 @@ public abstract class VectorRootFinder implements SingleRootFinder<DoubleMatrix1
   protected void checkInputs(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, final DoubleMatrix1D x0) {
     Validate.notNull(function);
     Validate.notNull(x0);
+    final int n = x0.getNumberOfElements();
+    for (int i = 0; i < n; i++) {
+      if (!Doubles.isFinite(x0.getEntry(i))) {
+        throw new IllegalArgumentException("Invaild start position x0 = " + x0.toString());
+      }
+    }
+    DoubleMatrix1D y = function.evaluate(x0);
+    final int m = y.getNumberOfElements();
+    for (int i = 0; i < m; i++) {
+      if (!Doubles.isFinite(y.getEntry(i))) {
+        throw new IllegalArgumentException("Invaild start position f(x0) = " + y.toString());
+      }
+    }
   }
 
 }

@@ -54,9 +54,6 @@ public abstract class SmileInterpolator<T extends SmileModelData> implements Gen
   private final VolatilityFunctionProvider<T> _model;
   private final WeightingFunction _weightingFunction;
 
-  //  private final boolean leftExtrapolate = true;
-  //  private final boolean rightExtrapolate = true;
-
   public SmileInterpolator(final VolatilityFunctionProvider<T> model) {
     this(model, DEFAULT_WEIGHTING_FUNCTION);
   }
@@ -98,7 +95,7 @@ public abstract class SmileInterpolator<T extends SmileModelData> implements Gen
           chiSqr = gBest.getChiSq();
         }
         count++;
-      } catch (final MathException e) {
+      } catch (final Exception e) {
       }
       tries++;
       if (tries > 20) {

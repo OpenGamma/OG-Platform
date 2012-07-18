@@ -31,7 +31,7 @@ public class AffineDividends {
     if (_n > 0) {
       ArgumentChecker.isTrue(tau[0] >= 0.0, "first dividend at negative time. Please remove from list");
       ArgumentChecker.isTrue(alpha[0] >= 0.0, "first cash dividend is negative.");
-      ArgumentChecker.isTrue(beta[0] >= 0.0 && beta[0] < 1.0, "Proportional dividend must be between 0.0 (inclusive) and 1.0 (exclusive). Value is ", beta[0]);
+      ArgumentChecker.isTrue(beta[0] >= 0.0 && beta[0] < 1.0, "Proportional dividend must be between 0.0 (inclusive) and 1.0 (exclusive). Value is {}", beta[0]);
       for (int i = 1; i < _n; i++) {
         ArgumentChecker.isTrue(tau[i] > tau[i - 1], "Dividends not increasing. {}th dividend is {}, and {}th is {}", i, tau[i], i - 1, tau[i - 1]);
         ArgumentChecker.isTrue(alpha[i] >= 0.0, "Cash dividend is negative. alpha[{}] = {}", i, alpha[i]);
