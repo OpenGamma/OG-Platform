@@ -21,7 +21,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
-import com.opengamma.examples.marketdata.MockSecurityLoader;
+import com.opengamma.examples.loader.MockSecurityLoader;
 import com.opengamma.master.security.SecurityLoader;
 
 /**

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.examples.marketdata;
+package com.opengamma.examples;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -15,7 +15,7 @@ import com.opengamma.livedata.UserPrincipal;
  * 
  *
  */
-public class MockServerConstants {
+public class ExampleServerConstants {
 
   /**
    * The user that should be used for entitlement checking
@@ -25,16 +25,16 @@ public class MockServerConstants {
   /**
    * The topic subscription requests should be made to.
    */
-  public static final String SUBSCRIPTION_REQUEST_TOPIC = "MockSubscriptionRequestTopic";
+  public static final String SUBSCRIPTION_REQUEST_TOPIC = "SubscriptionRequestTopic";
   
   /**
    * The topic entitlement requests should be made to.
    */
-  public static final String ENTITLEMENT_REQUEST_TOPIC = "MockEntitlementRequestTopic";
+  public static final String ENTITLEMENT_REQUEST_TOPIC = "EntitlementRequestTopic";
   
   static {
     try {
-      TEST_USER = new UserPrincipal("mockintegrationtestuser", InetAddress.getLocalHost().toString());
+      TEST_USER = new UserPrincipal("exampleintegrationtestuser", InetAddress.getLocalHost().toString());
     } catch (UnknownHostException e) {
       throw new OpenGammaRuntimeException("Could not initialize test user", e);
     }

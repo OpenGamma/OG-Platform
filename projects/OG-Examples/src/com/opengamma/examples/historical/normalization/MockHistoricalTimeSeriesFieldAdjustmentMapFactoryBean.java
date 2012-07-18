@@ -6,7 +6,7 @@
 package com.opengamma.examples.historical.normalization;
 
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.examples.marketdata.SimulatedHistoricalDataGenerator;
+import com.opengamma.examples.historical.SimulatedHistoricalDataGenerator;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesAdjuster;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesFieldAdjustmentMap;
 import com.opengamma.util.spring.SpringFactoryBean;

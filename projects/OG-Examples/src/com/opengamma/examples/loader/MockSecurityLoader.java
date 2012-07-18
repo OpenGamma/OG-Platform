@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.examples.marketdata;
+package com.opengamma.examples.loader;
 
 import java.util.Collection;
 import java.util.Map;
