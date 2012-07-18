@@ -26,7 +26,16 @@ $.register_module({
             },
             load_item: function (args) {
                 view.check_state({args: args, conditions: [{new_page: view.load}]});
-                new og.analytics.Grid({selector: '.OG-layout-analytics-center'});
+                new og.analytics.Grid({
+                   selector: '.OG-layout-analytics-center',
+                   source: {
+                       type: 'portfolio',
+                       depgraph: false,
+                       viewdefinition: args.id,
+                       live: true,
+                       provider: 'Live market data (Bloomberg, Activ, TullettPrebon)'
+                   }
+                });
                 ['south', 'dock-north', 'dock-center', 'dock-south'].forEach(function (val) {
                     new GadgetsContainer('.OG-layout-analytics-', val).add(args[val]);
                 });
