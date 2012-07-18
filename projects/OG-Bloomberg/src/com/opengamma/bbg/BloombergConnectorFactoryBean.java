@@ -21,7 +21,7 @@ import com.bloomberglp.blpapi.SessionOptions;
 import com.opengamma.util.spring.SpringFactoryBean;
 
 /**
- * Spring factory bean to create a Tullett Prebon connector.
+ * Spring factory bean to create a Bloomberg connector.
  */
 @BeanDefinition
 public class BloombergConnectorFactoryBean extends SpringFactoryBean<BloombergConnector> {
@@ -86,7 +86,7 @@ public class BloombergConnectorFactoryBean extends SpringFactoryBean<BloombergCo
   public BloombergConnector createObject() {
     SessionOptions sessionOptions = getSessionOptions();
     sessionOptions = (sessionOptions != null ? sessionOptions : new SessionOptions());
-    if (sessionOptions.getServerHost() == null) {
+    if (getHost() != null) {
       sessionOptions.setServerHost(getHost());
       sessionOptions.setServerPort(getPort());
     }
