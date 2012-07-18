@@ -53,6 +53,7 @@ import com.opengamma.util.time.Expiry;
 /**
  * Test.
  */
+@Test(groups = "integration")
 public class RemoteBloombergSecuritySourceWithActiveMQTest {
 
   private static final String APV_EQUITY_OPTION_TICKER = "APV US 1 C190 Equity";
@@ -526,7 +527,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
     return equitySecurity;
   }
 
-  public static void assertEquitySecurity(EquitySecurity expectedEquity,
+  private static void assertEquitySecurity(EquitySecurity expectedEquity,
       Security sec) {
     assertNotNull(sec);
     assertTrue(sec instanceof EquitySecurity);
@@ -541,7 +542,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
     assertEquals(expectedEquity.getCurrency(), actualEquity.getCurrency());
   }
 
-  public static void assertAmericanVanillaEquityOptionSecurity(
+  private static void assertAmericanVanillaEquityOptionSecurity(
       EquityOptionSecurity expectedOption, Security sec) {
     assertNotNull(sec);
     assertTrue(sec instanceof EquityOptionSecurity);
@@ -558,22 +559,22 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
     assertEquals(expectedOption.getUnderlyingId(), actualOption.getUnderlyingId());
   }
 
-  public static void assertEuropeanVanillaEquityOptionSecurity(
-      EquityOptionSecurity expectedOption, Security sec) {
-    assertNotNull(sec);
-    assertTrue(sec instanceof EquityOptionSecurity);
-    EquityOptionSecurity actualOption = (EquityOptionSecurity) sec;
-    assertTrue(actualOption.getExerciseType() instanceof EuropeanExerciseType);
-    assertEquals(expectedOption.getExternalIdBundle(), actualOption.getExternalIdBundle());
-    assertEquals(expectedOption.getUniqueId(), actualOption.getUniqueId());
-    assertEquals(expectedOption.getSecurityType(), actualOption
-        .getSecurityType());
-    assertEquals(expectedOption.getCurrency(), actualOption.getCurrency());
-    assertEquals(expectedOption.getOptionType(), actualOption.getOptionType());
-    assertTrue(expectedOption.getStrike() == actualOption.getStrike());
-    assertEquals(expectedOption.getExpiry(), actualOption.getExpiry());
-    assertEquals(expectedOption.getUnderlyingId(), actualOption.getUnderlyingId());
-  }
+//  private static void assertEuropeanVanillaEquityOptionSecurity(
+//      EquityOptionSecurity expectedOption, Security sec) {
+//    assertNotNull(sec);
+//    assertTrue(sec instanceof EquityOptionSecurity);
+//    EquityOptionSecurity actualOption = (EquityOptionSecurity) sec;
+//    assertTrue(actualOption.getExerciseType() instanceof EuropeanExerciseType);
+//    assertEquals(expectedOption.getExternalIdBundle(), actualOption.getExternalIdBundle());
+//    assertEquals(expectedOption.getUniqueId(), actualOption.getUniqueId());
+//    assertEquals(expectedOption.getSecurityType(), actualOption
+//        .getSecurityType());
+//    assertEquals(expectedOption.getCurrency(), actualOption.getCurrency());
+//    assertEquals(expectedOption.getOptionType(), actualOption.getOptionType());
+//    assertTrue(expectedOption.getStrike() == actualOption.getStrike());
+//    assertEquals(expectedOption.getExpiry(), actualOption.getExpiry());
+//    assertEquals(expectedOption.getUnderlyingId(), actualOption.getUnderlyingId());
+//  }
 
   private class BSMGetSecurityCallable implements Callable<Security> {
     ExternalIdBundle _secKey;

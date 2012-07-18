@@ -70,6 +70,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Test.
  */
+@Test(groups = "integration")
 public class BloombergHistoricalLoaderTest extends DbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergHistoricalLoaderTest.class);

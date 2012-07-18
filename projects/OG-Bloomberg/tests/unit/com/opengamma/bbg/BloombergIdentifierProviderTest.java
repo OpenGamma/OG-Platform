@@ -31,6 +31,7 @@ import com.opengamma.master.historicaltimeseries.ExternalIdResolver;
 /**
  * Test.
  */
+@Test(groups = "integration")
 public class BloombergIdentifierProviderTest {
 
   private ExternalIdResolver _idProvider = null;

@@ -38,6 +38,7 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 /**
  * Test.
  */
+@Test(groups = "integration")
 public class BloombergHistoricalTimeSeriesSourceTest {
   
   private HistoricalTimeSeriesSource _source;

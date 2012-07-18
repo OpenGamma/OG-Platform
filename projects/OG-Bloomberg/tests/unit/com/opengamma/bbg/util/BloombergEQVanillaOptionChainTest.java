@@ -23,6 +23,7 @@ import com.opengamma.id.ExternalId;
 /**
  * Test.
  */
+@Test(groups = "unit")
 public class BloombergEQVanillaOptionChainTest {
 
   // ------------ FIELDS ------------
@@ -35,7 +36,8 @@ public class BloombergEQVanillaOptionChainTest {
   // ------------ METHODS ------------
   // -------- TESTS --------
   // ---- PRECONDITIONS - TEST DATA ----
-  public void preTest() {  // not a test
+  @Test
+  public void preTest() {
     // Make sure the test data itself is correct
     assertEquals(1024, s_identifiers.size());
   }

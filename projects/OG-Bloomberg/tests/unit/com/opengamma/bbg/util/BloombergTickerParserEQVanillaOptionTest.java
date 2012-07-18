@@ -21,6 +21,7 @@ import com.opengamma.id.ExternalId;
 /**
  * Test.
  */
+@Test(groups = "unit")
 public class BloombergTickerParserEQVanillaOptionTest {
 
   //-------- BASIC CASES --------

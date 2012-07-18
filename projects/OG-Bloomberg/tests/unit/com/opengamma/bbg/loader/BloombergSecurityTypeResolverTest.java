@@ -28,6 +28,7 @@ import com.opengamma.id.ExternalScheme;
 /**
  * Test.
  */
+@Test(groups = "integration")
 public class BloombergSecurityTypeResolverTest {
 
   private ConfigurableApplicationContext _context;

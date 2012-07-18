@@ -28,6 +28,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Test.
  */
+@Test(groups = "integration")
 public class UnionFakeSubscriptionSelectorTest {
 
   private BloombergReferenceDataProvider _underlying;

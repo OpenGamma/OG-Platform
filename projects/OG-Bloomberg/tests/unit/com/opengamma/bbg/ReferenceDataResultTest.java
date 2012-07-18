@@ -12,6 +12,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 /**
  * Test.
  */
+@Test(groups = "unit")
 public class ReferenceDataResultTest {
 
   @Test

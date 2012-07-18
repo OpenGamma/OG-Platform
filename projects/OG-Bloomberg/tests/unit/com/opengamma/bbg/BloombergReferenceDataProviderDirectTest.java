@@ -26,6 +26,7 @@ import com.opengamma.id.ExternalId;
 /**
  * Test.
  */
+@Test(groups = "integration")
 public class BloombergReferenceDataProviderDirectTest extends BloombergReferenceDataProviderTestCase {
 
   private static final Set<String> VALID_EQUITY_TYPES = new TreeSet<String>();
