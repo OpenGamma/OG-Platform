@@ -9,13 +9,13 @@ $.register_module({
         var webgl = Detector.webgl ? true : false, util = {}, matlib = {}, tmp_data,
             settings = {
                 floating_height: 10, // how high does the top surface float over the bottom grid
-                font_face: 'Arial',
+                font_face: 'Arial',  // 2D text font (glyphs for 3D fonts need to be loaded separatly)
                 font_size: 40,
                 font_size_axis_labels: 70,
                 font_size_interactive_labels: 40,
-                font_height: 2,
-                font_height_axis_labels: 4,
-                font_height_interactive_labels: 5,
+                font_height: 2,                    // extrusion height for 3D font value labels
+                font_height_axis_labels: 4,        // extrusion height for 3D font axis labels
+                font_height_interactive_labels: 5, // extrusion height for 3D font interactive labels
                 font_color_axis_labels: '0xcccccc',
                 interactive_color_nix: '0xff0000',
                 interactive_color_css: '#f00',
