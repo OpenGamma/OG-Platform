@@ -73,8 +73,7 @@ public class InterestRateFutureDefinition implements InstrumentDefinitionWithDat
   private final String _name;
 
   public InterestRateFutureDefinition(final ZonedDateTime transactionDate, final double transactionPrice, final int quantity, final ZonedDateTime lastTradingDate,
-      final ZonedDateTime fixingPeriodStartDate, final ZonedDateTime fixingPeriodEndDate, final IborIndex iborIndex, final double notional,
-      final double paymentAccrualFactor, final String name) {
+      final ZonedDateTime fixingPeriodStartDate, final ZonedDateTime fixingPeriodEndDate, final IborIndex iborIndex, final double notional, final double paymentAccrualFactor, final String name) {
     ArgumentChecker.notNull(lastTradingDate, "Last trading date");
     ArgumentChecker.notNull(fixingPeriodStartDate, "Fixing period start date");
     ArgumentChecker.notNull(fixingPeriodEndDate, "Fixing period end date");
@@ -88,6 +87,7 @@ public class InterestRateFutureDefinition implements InstrumentDefinitionWithDat
     _fixingPeriodEndDate = fixingPeriodEndDate;
     _fixingPeriodAccrualFactor = iborIndex.getDayCount().getDayCountFraction(_fixingPeriodStartDate, _fixingPeriodEndDate);
     _iborIndex = iborIndex;
+    _notional = notional;
     _paymentAccrualFactor = paymentAccrualFactor;
     _name = name;
   }
