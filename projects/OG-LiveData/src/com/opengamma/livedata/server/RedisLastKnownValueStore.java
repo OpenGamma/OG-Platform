@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
@@ -48,7 +49,7 @@ public class RedisLastKnownValueStore implements LastKnownValueStore {
     */
     _jedisKey = jedisKey;
     _writeThrough = writeThrough;
-    updateFromRedis();
+    updateFromRedis(true);
   }
 
   /**
@@ -96,6 +97,8 @@ public class RedisLastKnownValueStore implements LastKnownValueStore {
           // Yep, this is ugly as hell.
           jedis.hset(getJedisKey(), field.getName(), ((Double) field.getValue()).toString());
         }
+      } catch (Exception e) {
+        s_logger.error("Unable to write fields to Redis {}", _jedisKey, e);
       } finally {
         getJedisPool().returnResource(jedis);
       }
@@ -115,8 +118,11 @@ public class RedisLastKnownValueStore implements LastKnownValueStore {
 
   /**
    * 
+   * @param failOnError Whether to propagate any exception from a failure to load.
+   *                    This should be used to control whether this is resilient
+   *                    in the case of Redis failures.
    */
-  public synchronized void updateFromRedis() {
+  public synchronized void updateFromRedis(boolean failOnError) {
     _inMemoryStore.clear();
     Jedis jedis = getJedisPool().getResource();
     try {
@@ -127,6 +133,11 @@ public class RedisLastKnownValueStore implements LastKnownValueStore {
         fudgeMsg.add(fieldEntry.getKey(), Double.parseDouble(fieldEntry.getValue()));
       }
       _inMemoryStore.liveDataReceived(fudgeMsg);
+    } catch (Exception e) {
+      s_logger.error("Unable to update from Redis", e);
+      if (failOnError) {
+        throw new OpenGammaRuntimeException("Unable to load state from underlying Redis instance on " + _jedisKey, e);
+      }
     } finally {
       getJedisPool().returnResource(jedis);
     }
