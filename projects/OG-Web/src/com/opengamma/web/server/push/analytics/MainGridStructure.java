@@ -28,7 +28,7 @@ import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.RequirementBasedColumnKey;
 
 /**
- *
+ * TODO label and quantity columns are hard-code here and in {@link MainGridViewport}. there has to be a better way
  */
 /* package */ abstract class MainGridStructure implements GridStructure {
 
@@ -67,6 +67,7 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
     _reqsToSpecs = Maps.newHashMap();
     int colIndex = 2; // col 0 is the node name, col 1 is the quantity
     _columnKeys.add(null); // there is no key for the row label column, stick null in there to get the indices right
+    _columnKeys.add(null); // as above, but for the quantity column
     for (ViewCalculationConfiguration calcConfig : viewDef.getAllCalculationConfigurations()) {
       String configName = calcConfig.getName();
       CompiledViewCalculationConfiguration compiledConfig = compiledViewDef.getCompiledCalculationConfiguration(configName);
