@@ -9,9 +9,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 
 import com.google.common.base.Supplier;
+import com.opengamma.core.change.BasicChangeManager;
+import com.opengamma.core.change.ChangeListener;
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.ChangeType;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.id.ExternalIdBundle;
@@ -366,4 +371,8 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
     return null;
   }
 
+  @Override
+  public ChangeManager changeManager() {
+    return new BasicChangeManager();
+  }
 }

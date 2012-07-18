@@ -10,6 +10,7 @@ import java.util.Set;
 
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
@@ -29,7 +30,7 @@ import com.opengamma.util.tuple.Pair;
  * Implementations must be thread-safe.
  */
 @PublicSPI
-public interface HistoricalTimeSeriesSource {
+public interface HistoricalTimeSeriesSource extends ChangeProvider {
 
   // By Unique Id
   

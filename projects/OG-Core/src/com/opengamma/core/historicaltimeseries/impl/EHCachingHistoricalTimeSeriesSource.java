@@ -8,12 +8,18 @@ package com.opengamma.core.historicaltimeseries.impl;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
 import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.core.change.BasicChangeManager;
+import com.opengamma.core.change.ChangeEvent;
+import com.opengamma.core.change.ChangeListener;
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.security.Security;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
@@ -56,6 +62,20 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
    */
   private static final String ID_BUNDLE_CACHE_NAME = "HistoricalTimeSeriesIdBundleCache";
 
+  /**
+   * Listens for changes in the underlying security source.
+   */
+  private ChangeListener _changeListener;
+  /**
+   * The local change manager.
+   */
+  private final ChangeManager _changeManager;
+
+  @Override
+  public ChangeManager changeManager() {
+    return _changeManager;
+  }
+
   private static class MissHTS implements HistoricalTimeSeries, Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -96,7 +116,6 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
    * The identifier bundle cache
    */
   private final Cache _identifierBundleCache;
-
   /**
    * The clock.
    */
@@ -132,7 +151,10 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     EHCacheUtils.addCache(cacheManager, ID_BUNDLE_CACHE_NAME, maxElementsInMemory, memoryStoreEvictionPolicy, overflowToDisk, diskStorePath,
         eternal, timeToLiveSeconds, timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, registeredEventListeners);
     _identifierBundleCache = EHCacheUtils.getCacheFromManager(cacheManager, ID_BUNDLE_CACHE_NAME);
-    
+
+    _changeListener = createChangeListener();
+    _underlying.changeManager().addChangeListener(_changeListener);
+    _changeManager = new BasicChangeManager();
   } 
 
   /**
@@ -149,6 +171,40 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     _dataCache = EHCacheUtils.getCacheFromManager(cacheManager, DATA_CACHE_NAME);
     EHCacheUtils.addCache(cacheManager, ID_BUNDLE_CACHE_NAME);
     _identifierBundleCache = EHCacheUtils.getCacheFromManager(cacheManager, ID_BUNDLE_CACHE_NAME);
+
+    _changeListener = createChangeListener();
+    _underlying.changeManager().addChangeListener(_changeListener);
+    _changeManager = new BasicChangeManager();
+  }
+
+  private ChangeListener createChangeListener() {
+    return new ChangeListener() {
+
+      @Override
+      public void entityChanged(ChangeEvent event) {
+        final UniqueId beforeId = event.getBeforeId();
+        if (beforeId != null) {
+          cleanCaches(beforeId);
+        }
+        final UniqueId afterId = event.getAfterId();
+        if (afterId != null) {
+          cleanCaches(afterId);
+        }
+        changeManager().entityChanged(event.getType(), event.getBeforeId(), event.getAfterId(),
+            event.getVersionInstant());
+      }
+
+    };
+  }
+
+  private void cleanCaches(UniqueId id) {
+    // Only care where the unversioned ID has been cached since it now represents something else
+    UniqueId latestId = id.toLatest();
+    _dataCache.remove(latestId);
+    _identifierBundleCache.remove(latestId);
+    // Destroy all version/correction cached values for the object
+    _dataCache.remove(id.getObjectId());
+    _identifierBundleCache.remove(id.getObjectId());
   }
 
   //-------------------------------------------------------------------------
