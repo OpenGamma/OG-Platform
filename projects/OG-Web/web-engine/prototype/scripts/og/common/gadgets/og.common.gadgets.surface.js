@@ -8,7 +8,7 @@ $.register_module({
     obj: function () {
         var webgl = Detector.webgl ? true : false, util = {}, matlib = {}, tmp_data,
             settings = {
-                floating_height: 10, // how high does the top surface float over the bottom grid
+                floating_height: 5, // how high does the top surface float over the bottom grid
                 font_face: 'Arial',  // 2D text font (glyphs for 3D fonts need to be loaded separatly)
                 font_size: 40,
                 font_size_axis_labels: 70,
@@ -16,16 +16,18 @@ $.register_module({
                 font_height: 2,                    // extrusion height for 3D font value labels
                 font_height_axis_labels: 4,        // extrusion height for 3D font axis labels
                 font_height_interactive_labels: 5, // extrusion height for 3D font interactive labels
+                font_color: '0x000000',            // font color for value labels
                 font_color_axis_labels: '0xcccccc',
                 interactive_color_nix: '0xff0000',
                 interactive_color_css: '#f00',
                 log: true,          // default value for log checkbox
-                precision: 3,       // floating point presions for vol display
-                smile_distance: 30, // distance away from the surface
+                precision_lbl: 2,   // floating point presions for vol display
+                precision_hud: 3,   // floating point presions for vol display
+                smile_distance: 50, // distance away from the surface
                 snap_distance: 3,   // mouse proximity to vertices before an interaction is approved
                 surface_x: 100,     // width
                 surface_z: 100,     // depth
-                surface_y: 35,      // the height range of the surface
+                surface_y: 40,      // the height range of the surface
                 y_segments: 10,     // number of segments to thin vol out to for smile planes
                 vertex_shading_hue_min: 180,
                 vertex_shading_hue_max: 0
@@ -185,10 +187,10 @@ $.register_module({
                 surface_group,        // full surface group, including axis
                 vertex_sphere,        // the sphere displayed on vertex hover
                 x_segments = config.xs.length - 1, z_segments = config.zs.length - 1, y_segments = settings.y_segments,
-                vol_max = (Math.max.apply(null, config.vol)).toFixed(settings.precision),
-                vol_min = (Math.min.apply(null, config.vol)).toFixed(settings.precision),
+                vol_max = (Math.max.apply(null, config.vol)),
+                vol_min = (Math.min.apply(null, config.vol)),
                 renderer, camera, scene, backlight, keylight, filllight,
-                adjusted_vol, adjusted_xs, adjusted_ys, adjusted_zs; // call gadget.init_data to setup
+                ys, adjusted_vol, adjusted_xs, adjusted_ys, adjusted_zs; // call gadget.init_data to setup
             /**
              * Constructor for a plane with correct x / y vertex position spacing
              * @param {String} type 'surface', 'smilex' or 'smiley'
@@ -329,13 +331,26 @@ $.register_module({
              * Scale data to fit surface dimentions, apply Log scales if enabled
              */
             gadget.init_data = function () {
+                // adjusted data is the original data scaled to fit 2D grids width/length/height.
+                // It is used to set the distance between plane segments. Then the real data is used as the values
                 adjusted_vol = util.scale(config.vol, 0, settings.surface_y);
                 adjusted_xs = util.scale(util.log(config.xs), -(settings.surface_x / 2), settings.surface_x / 2);
                 adjusted_zs = util.scale(util.log(config.zs), -(settings.surface_z / 2), settings.surface_z / 2);
-                adjusted_ys = (function () { // ys doesnt exist, we need to create it out of the given vol range
-                    var increment = Math.ceil(settings.surface_y / y_segments), y_seg = [], i;
-                    for (i = 0; i < y_segments + 1; i++) y_seg.push(i * increment);
-                    return y_seg;
+                // config.ys doesnt exist, so we need to create adjusted_ys manualy out of the given
+                // vol plane range: 0 - settings.surface_y
+                adjusted_ys = (function () {
+                    var increment = settings.surface_y / y_segments, arr = [], i;
+                    for (i = 0; i < y_segments + 1; i++) arr.push(i * increment);
+                    return arr;
+                }());
+                // create config.ys out of vol_min and vol_max, call it ys not to confuse with config paramater
+                // we are not using ys to create adjusted_ys as we want more control over adjusted_ys
+                // than a standard util.scale
+                ys = (function () {
+                    var increment = (vol_max - vol_min) / y_segments, arr = [], i;
+                    for (i = 0; i < y_segments + 1; i++)
+                        arr.push((+vol_min + (i * increment)).toFixed(settings.precision_lbl));
+                    return arr;
                 }());
             };
             /**
@@ -417,7 +432,8 @@ $.register_module({
              */
             hud.load = function () {
                 $.when(og.api.text({module: 'og.views.gadgets.surface.hud_tash'})).then(function (tmpl) {
-                    var html = (Handlebars.compile(tmpl))({min: vol_min, max: vol_max});
+                    var min = vol_min.toFixed(settings.precision_hud), max = vol_max.toFixed(settings.precision_hud),
+                        html = (Handlebars.compile(tmpl))({min: min, max: max});
                     hud.vol_canvas_height = height / 2;
                     hud.volatility($(html).appendTo($selector).find('canvas')[0]);
                     hud.form();
@@ -444,10 +460,14 @@ $.register_module({
                     css = {top: top + 'px', color: settings.interactive_color_css},
                     $vol = $selector.find('.og-val-vol');
                 typeof value === 'number'
-                    ? $vol.html(value.toFixed(settings.precision)).css(css).show()
+                    ? $vol.html(value.toFixed(settings.precision_hud)).css(css).show()
                     : $vol.empty().hide();
             };
             hud.vol_canvas_height = null;
+            /**
+             * Volatility gradient canvas
+             * @param {Object} canvas html canvas element
+             */
             hud.volatility = function (canvas) {
                 var ctx = canvas.getContext('2d'), gradient,
                     min_hue = settings.vertex_shading_hue_min, max_hue = settings.vertex_shading_hue_max,
@@ -470,25 +490,40 @@ $.register_module({
                 smile.z();
             };
             smile.x = function () {
-                var plane = new Plane('smilex'),
-                    mesh = THREE.SceneUtils.createMultiMaterialObject(plane, matlib.compound_dark_wire());
-                mesh.rotation.x = (Math.PI * 0.5);
-                mesh.position.y = (settings.surface_z / 2) - settings.floating_height;
-                mesh.position.z = -((settings.surface_z / 2) + settings.smile_distance);
-                surface_top_group.add(mesh);
-//                (function () { // axis
-//                    var group = new THREE.Object3D,
-//                        y = {axis: 'z', spacing: adjusted_ys, labels: adjusted_ys, label: 'sss'};
-//                    group.add(surface.create_axis(y));
-//                    surface_top_group.add(group);
-//                }());
+                (function () { // plane
+                    var plane = new Plane('smilex'),
+                        mesh = THREE.SceneUtils.createMultiMaterialObject(plane, matlib.compound_dark_wire());
+                    mesh.rotation.x = Math.PI * 0.5;
+                    mesh.position.y = settings.surface_y;
+                    mesh.position.z = -((settings.surface_z / 2) + settings.smile_distance);
+                    surface_top_group.add(mesh);
+                }());
+                (function () { // axis
+                    var y = {axis: 'y', spacing: adjusted_ys, labels: ys, right: true}, y_axis = surface.create_axis(y);
+                    y_axis.position.x = -(settings.surface_x / 2) - 25;
+                    y_axis.position.y = 4;
+                    y_axis.position.z = -(settings.surface_z / 2) - settings.smile_distance;
+                    y_axis.rotation.y = Math.PI * .5;
+                    y_axis.rotation.z = Math.PI * .5;
+                    surface_top_group.add(y_axis);
+                }());
             };
             smile.z = function () {
-                var plane = new Plane('smiley'),
-                    mesh = THREE.SceneUtils.createMultiMaterialObject(plane, matlib.compound_dark_wire());
-                mesh.position.x = (settings.surface_x / 2) + settings.smile_distance;
-                mesh.rotation.z = Math.PI * 0.5;
-                surface_top_group.add(mesh);
+                (function () { // plane
+                    var plane = new Plane('smiley'),
+                        mesh = THREE.SceneUtils.createMultiMaterialObject(plane, matlib.compound_dark_wire());
+                    mesh.position.x = (settings.surface_x / 2) + settings.smile_distance;
+                    mesh.rotation.z = Math.PI * 0.5;
+                    surface_top_group.add(mesh);
+                }());
+                (function () { // axis
+                    var y = {axis: 'y', spacing: adjusted_ys, labels: ys}, y_axis = surface.create_axis(y);
+                    y_axis.position.y = 4;
+                    y_axis.position.z = (settings.surface_z / 2) + 5;
+                    y_axis.position.x = (settings.surface_x / 2) + settings.smile_distance;
+                    y_axis.rotation.z = Math.PI * .5;
+                    surface_top_group.add(y_axis);
+                }());
             };
             /**
              * Creates both axes
@@ -501,7 +536,8 @@ $.register_module({
                     x_axis = surface.create_axis(x),
                     z_axis = surface.create_axis(z);
                 x_axis.position.z = settings.surface_z / 2;
-                z_axis.position.x = -(settings.surface_x / 2);
+                z_axis.position.x = -settings.surface_x / 2;
+                z_axis.rotation.y = -Math.PI * .5;
                 group.add(x_axis);
                 group.add(z_axis);
                 return group;
@@ -522,16 +558,26 @@ $.register_module({
                 (function () { // axis values
                     var value;
                     for (i = 0; i < lbl_arr.length; i++) {
-                        value = new Text3D(lbl_arr[i], '0x000000', settings.font_size, settings.font_height);
+                        value = new Text3D(lbl_arr[i], settings.font_color, settings.font_size, settings.font_height);
                         value.scale.set(scale, scale, scale);
-                        value.rotation.x = -Math.PI * .5;
-                        value.position.x = pos_arr[i] - 2 - ((THREE.FontUtils.drawText(lbl_arr[i]).offset * 0.1) / 2);
-                        value.position.y = 0.1;
-                        value.position.z = 12;
+                        if (config.axis === 'y') {
+                            value.position.x = pos_arr[i] - 6;
+                            value.position.z = config.right
+                                ? -(THREE.FontUtils.drawText(lbl_arr[i]).offset * 0.2) + 18
+                                : 2;
+                            value.rotation.z = -Math.PI * .5;
+                            value.rotation.x = -Math.PI * .5;
+                        } else {
+                            value.rotation.x = -Math.PI * .5;
+                            value.position.x = pos_arr[i] - ((THREE.FontUtils.drawText(lbl_arr[i]).offset * 0.2) / 2);
+                            value.position.y = 0.1;
+                            value.position.z = 12;
+                        }
                         mesh.add(value);
                     }
                 }());
                 (function () { // axis label
+                    if (!config.label) return;
                     var label = new Text3D(config.label, settings.font_color_axis_labels,
                         settings.font_size_axis_labels, settings.font_height_axis_labels);
                     label.scale.set(scale, scale, scale);
@@ -546,7 +592,11 @@ $.register_module({
                         ctx = canvas.getContext('2d'),
                         plane = new THREE.PlaneGeometry(axis_len, 5, 0, 0),
                         axis = new THREE.Mesh(plane, matlib.texture(new THREE.Texture(canvas))),
-                        labels = util.thin(config.spacing.map(function (val) {return (val + (axis_len / 2)) * 5}), nth);
+                        labels = util.thin(config.spacing.map(function (val) {
+                            // if not y axis offset half. y planes start at 0, x and z start at minus half width
+                            var offset = config.axis === 'y' ? 0 : axis_len / 2;
+                            return (val + offset) * 5
+                        }), nth);
                     canvas.width = axis_len * 5;
                     canvas.height = 50;
                     ctx.beginPath();
@@ -559,10 +609,14 @@ $.register_module({
                     ctx.stroke();
                     axis.material.map.needsUpdate = true;
                     axis.doubleSided = true;
-                    axis.position.z = 5;
+                    if (config.axis === 'y') {
+                        if (config.right) axis.rotation.x = Math.PI, axis.position.z = 20;
+                        axis.position.x = (axis_len / 2) - 4;
+                    } else {
+                        axis.position.z = 5;
+                    }
                     mesh.add(axis);
                 }());
-                if (config.axis === 'z') mesh.rotation.y = -Math.PI * .5;
                 return mesh;
             };
             /**
