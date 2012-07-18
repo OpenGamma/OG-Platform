@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.examples.marketdata;
+package com.opengamma.examples.historical;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;

@@ -7,6 +7,8 @@ package com.opengamma.analytics.financial.equity.variance;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang.Validate;
 import org.testng.annotations.Test;
 
@@ -30,6 +32,8 @@ import com.opengamma.util.money.Currency;
  * 
  */
 public class EquityVarianceSwapPricerTest {
+
+  private static final boolean PRINT = false;
 
   private static final double SPOT = 65.4;
   private static final double[] EXPIRIES = new double[] {1. / 52, 2. / 52, 1. / 12, 3. / 12, 6. / 12, 1.0, 2.0 };
@@ -58,7 +62,10 @@ public class EquityVarianceSwapPricerTest {
 
   static {
 
+    //find "market" prices if the pure implied volatility surface was flat
     OTM_PRICES_FLAT = getOptionPrices(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, DIVIDENDS, new PureImpliedVolatilitySurface(ConstantDoublesSurface.from(PURE_VOL)));
+
+    //set up an arbitrage free pure implied volatility surface using a mixture of log-normal model
     final int n = 3;
     final double[] sigma = new double[] {0.2, 0.5, 1.0 };
     final double[] w = new double[] {0.8, 0.15, 0.05 };
@@ -85,11 +92,108 @@ public class EquityVarianceSwapPricerTest {
         return BlackFormulaRepository.impliedVolatility(price, 1.0, x, expiry, isCall);
       }
     };
-
     PURE_VOL_SURFACE = new PureImpliedVolatilitySurface(FunctionalDoublesSurface.from(surf));
+
+    //get the 'market' prices for the hypothetical pure implied volatility surface 
     OTM_PRICES = getOptionPrices(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, DIVIDENDS, PURE_VOL_SURFACE);
   }
 
+  @Test
+  public void printOnTest() {
+    if (PRINT) {
+      System.out.println("EquityVarianceSwapPricerTest: true PRINT to false");
+    }
+  }
+
+  /**
+   * This is really just testing whether we can recover the flat pure implied volatility surface from the option prices - the code paths after that point are identical 
+   */
+  @Test
+  public void flatSurfaceeTest() {
+    EquityVarianceSwapPricer pricer = new EquityVarianceSwapPricer();
+    double rv1 = pricer.price(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, EXPIRIES, STRIKES, OTM_PRICES_FLAT);
+    double rv2 = pricer.price(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, EXPIRIES, STRIKES, OTM_PRICES_FLAT);
+    @SuppressWarnings("unused")
+    double noDivRV = pricer.price(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, EXPIRIES, STRIKES, OTM_PRICES_FLAT);
+
+    if (PRINT) {
+      System.out.println(rv1 + "\t" + rv2);
+    }
+
+    EquityVarianceSwapStaticReplication staRep = new EquityVarianceSwapStaticReplication();
+    double[] rvExpected = staRep.expectedVariance(SPOT, DISCOUNT_CURVE, DIVIDENDS, EVS.getTimeToObsEnd(), new PureImpliedVolatilitySurface(ConstantDoublesSurface.from(PURE_VOL)));
+    @SuppressWarnings("unused")
+    double[] noDivRVExpected = staRep.expectedVariance(SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, EVS.getTimeToObsEnd(), new PureImpliedVolatilitySurface(ConstantDoublesSurface.from(PURE_VOL)));
+    if (PRINT) {
+      System.out.println(rvExpected[0] + "\t" + rvExpected[1]);
+    }
+    assertEquals("div corrected", rvExpected[0], rv1, 1e-10);
+    assertEquals("div uncorrected", rvExpected[1], rv2, 1e-10);
+
+    //in this case the reconstructed implied volatility surface (which is identical to the pure one as no dividends are assumed) is NOT flat so we would not expect the items 
+    //below to be equal
+    //assertEquals("no divs", noDivRVExpected[0], noDivRV, 1e-10);
+  }
+
+  @Test
+  //  (enabled = false)
+  public void nonFlatSurfaceTest() {
+
+    // PDEUtilityTools.printSurface("pure", PURE_VOL_SURFACE.getSurface(), 0.01, 2.0, 0.2, 2.5);
+
+    //    ShiftedLogNormalTailExtrapolationFitter fitter = new ShiftedLogNormalTailExtrapolationFitter();
+    //  fitter.fitVolatilityAndGrad(1.0,1.2430807745879624 ,vol,volGrad,0.019230769230769232);
+
+    EquityVarianceSwapPricer pricer = new EquityVarianceSwapPricer();
+    double rv1 = pricer.price(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, EXPIRIES, STRIKES, OTM_PRICES);
+    double rv2 = pricer.price(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, EXPIRIES, STRIKES, OTM_PRICES);
+    double rv3 = pricer.price(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, EXPIRIES, STRIKES, OTM_PRICES);
+
+    if (PRINT) {
+      System.out.println(rv1 + "\t" + rv2 + "\t" + rv3);
+    }
+
+    EquityVarianceSwapStaticReplication staRep = new EquityVarianceSwapStaticReplication();
+    double[] rv = staRep.expectedVariance(SPOT, DISCOUNT_CURVE, DIVIDENDS, EVS.getTimeToObsEnd(), PURE_VOL_SURFACE);
+    if (PRINT) {
+      System.out.println(rv[0] + "\t" + rv[1]);
+    }
+    assertEquals("div corrected", rv[0], rv1, 5e-3);
+    assertEquals("div uncorrected", rv[1], rv2, 5e-3);
+  }
+
+  @Test(enabled = false)
+  public void dividendSensitivityTest() {
+    double eps = 1e-5;
+    EquityVarianceSwapPricer pricer = new EquityVarianceSwapPricer();
+    int nDivs = TAU.length;
+    double base = pricer.price(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, EXPIRIES, STRIKES, OTM_PRICES);
+    for (int i = 0; i < nDivs; i++) {
+      double[] alpha = Arrays.copyOf(ALPHA, nDivs);
+      alpha[i] += (1.0 + ALPHA[i]) * eps;
+      AffineDividends divs = new AffineDividends(TAU, alpha, BETA);
+      double temp = pricer.price(EVS, SPOT, DISCOUNT_CURVE, divs, EXPIRIES, STRIKES, OTM_PRICES);
+      double sense = (temp - base) / eps / (1 + ALPHA[i]);
+      System.out.print(sense + "\t");
+      double[] beta = Arrays.copyOf(BETA, nDivs);
+      beta[i] += eps;
+      divs = new AffineDividends(TAU, ALPHA, beta);
+      temp = pricer.price(EVS, SPOT, DISCOUNT_CURVE, divs, EXPIRIES, STRIKES, OTM_PRICES);
+      sense = (temp - base) / eps;
+      System.out.print(sense + "\n");
+    }
+  }
+
+  /**
+   * Compute actual option (i.e. as would be observed in the market) from a hypothetical <b>pure</b> implied volatility surface and dividend assumptions  
+   * @param spot The current level of the stock or index
+   * @param expiries expiries of option strips 
+   * @param strikes strikes at each expiry 
+   * @param discountCurve The discount curve 
+   * @param dividends dividend assumptions 
+   * @param surf hypothetical <b>pure</b> implied volatility surface
+   * @return Market observed option prices 
+   */
   private static double[][] getOptionPrices(final double spot, final double[] expiries, final double[][] strikes, final YieldAndDiscountCurve discountCurve, final AffineDividends dividends,
       final PureImpliedVolatilitySurface surf) {
     int nExp = expiries.length;
@@ -110,45 +214,5 @@ public class EquityVarianceSwapPricerTest {
       }
     }
     return prices;
-  }
-
-  /**
-   * This is really just testing whether we can recover the flat pure implied volatility surface from the option prices - the code paths after that point are identical 
-   */
-  @Test
-  public void flatSurfaceeTest() {
-    EquityVarianceSwapPricer pricer = new EquityVarianceSwapPricer();
-    double rv1 = pricer.price(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, EXPIRIES, STRIKES, OTM_PRICES_FLAT);
-    double rv2 = pricer.price(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, EXPIRIES, STRIKES, OTM_PRICES_FLAT);
-
-    //   System.out.println(rv1 + "\t" + rv2);
-
-    EquityVarianceSwapStaticReplication staRep = new EquityVarianceSwapStaticReplication();
-    double[] rv = staRep.expectedVariance(SPOT, DISCOUNT_CURVE, DIVIDENDS, EVS.getTimeToObsEnd(), new PureImpliedVolatilitySurface(ConstantDoublesSurface.from(PURE_VOL)));
-    //    System.out.println(rv[0] + "\t" + rv[1]);
-    assertEquals("div corrected", rv[0], rv1, 1e-10);
-    assertEquals("div corrected", rv[1], rv2, 1e-10);
-  }
-
-  @Test(enabled = false)
-  public void nonFlatSurfaceeTest() {
-
-    // PDEUtilityTools.printSurface("pure", PURE_VOL_SURFACE.getSurface(), 0.01, 2.0, 0.2, 2.5);
-
-    //    ShiftedLogNormalTailExtrapolationFitter fitter = new ShiftedLogNormalTailExtrapolationFitter();
-    //  fitter.fitVolatilityAndGrad(1.0,1.2430807745879624 ,vol,volGrad,0.019230769230769232);
-
-    EquityVarianceSwapPricer pricer = new EquityVarianceSwapPricer();
-    double rv1 = pricer.price(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, EXPIRIES, STRIKES, OTM_PRICES);
-    double rv2 = pricer.price(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, EXPIRIES, STRIKES, OTM_PRICES);
-    double rv3 = pricer.price(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, EXPIRIES, STRIKES, OTM_PRICES);
-
-    System.out.println(rv1 + "\t" + rv2 + "\t" + rv3);
-
-    EquityVarianceSwapStaticReplication staRep = new EquityVarianceSwapStaticReplication();
-    double[] rv = staRep.expectedVariance(SPOT, DISCOUNT_CURVE, DIVIDENDS, EVS.getTimeToObsEnd(), PURE_VOL_SURFACE);
-    System.out.println(rv[0] + "\t" + rv[1]);
-    assertEquals("div corrected", rv[0], rv1, 1e-10);
-    assertEquals("div corrected", rv[1], rv2, 1e-10);
   }
 }

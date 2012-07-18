@@ -27,6 +27,7 @@ import com.opengamma.util.ArgumentChecker;
 public class EquityVarianceSwapPricer {
 
   private static final GeneralSmileInterpolator SMILE_INTERPOLATOR = new SmileInterpolatorSpline();
+  //private static final GeneralSmileInterpolator SMILE_INTERPOLATOR = new SmileInterpolatorSABR();
   private static final Interpolator1D TIME_INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE,
       Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
   private static final boolean USE_LOG_TIME = true;

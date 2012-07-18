@@ -24,7 +24,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
- *
+ * TODO label and quantity columns are hard-code here and in {@link MainGridStructure}. there has to be a better way
  */
 public class MainGridViewport extends AnalyticsViewport {
 
@@ -78,9 +78,13 @@ public class MainGridViewport extends AnalyticsViewport {
       String rowName = row.getName();
       List<ViewportResults.Cell> rowResults = Lists.newArrayListWithCapacity(_viewportSpec.getColumns().size() + 1);
       // row label always goes in the first column
-      rowResults.add(ViewportResults.stringCell(rowName));
-      // TODO fake ValueSpec here?
-      rowResults.add(ViewportResults.valueCell(row.getQuantity(), null, Collections.emptyList()));
+      if (_viewportSpec.getColumns().contains(0)) {
+        rowResults.add(ViewportResults.stringCell(rowName));
+      }
+      // quantity in the second column
+      if (_viewportSpec.getColumns().contains(1)) {
+        rowResults.add(ViewportResults.valueCell(row.getQuantity(), null, Collections.emptyList()));
+      }
       // iterate over all columns in the viewport and populate the results for the current row
       for (int colIndex : _viewportSpec.getColumns()) {
         // TODO is there a better way that just hard-coding for the label and quantity columns?
