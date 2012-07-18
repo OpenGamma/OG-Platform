@@ -26,7 +26,7 @@ import com.opengamma.transport.jms.JmsByteArrayRequestSender;
 /**
  * Test.
  */
-@Test
+@Test(groups = "integration")
 public class RemoteReferenceDataProviderWithInMemoryTransportTest extends BloombergReferenceDataProviderTestCase {
 
   private ConfigurableApplicationContext _appContext;

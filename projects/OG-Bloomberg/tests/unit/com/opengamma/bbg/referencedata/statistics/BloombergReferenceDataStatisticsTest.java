@@ -18,6 +18,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Test.
  */
+@Test(groups = "unit")
 public class BloombergReferenceDataStatisticsTest {
 
   @Test
@@ -120,11 +121,11 @@ public class BloombergReferenceDataStatisticsTest {
     }
   }
 
-  public <T> void assertSmall(Supplier<T> factory, long maxSize, String name) throws InterruptedException {
+  private <T> void assertSmall(Supplier<T> factory, long maxSize, String name) throws InterruptedException {
     assertSmallAndFast(factory, maxSize, null, name);
   }
 
-  public <T> void assertSmallAndFast(Supplier<T> factory, Long maxSize, Long maxTime, String name) throws InterruptedException {
+  private <T> void assertSmallAndFast(Supplier<T> factory, Long maxSize, Long maxTime, String name) throws InterruptedException {
     int blocks = 3;
     int blockSize = 10;
     

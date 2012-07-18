@@ -13,7 +13,7 @@ import com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider;
 /**
  * Test.
  */
-@Test
+@Test(groups = "integration")
 public class BloombergSecuritySourceDirectTest extends BloombergSecuritySourceTestCase {
 
   private BloombergReferenceDataProvider _dataProvider;

@@ -30,6 +30,7 @@ import com.opengamma.livedata.server.DistributionSpecification;
 /**
  * Test.
  */
+@Test(groups = "integration")
 public class BloombergEntitlementCheckerTest {
 
   static final String AAPL_BB_ID_UNIQUE = "EQ0010169500001000";

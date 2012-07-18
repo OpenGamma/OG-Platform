@@ -29,6 +29,7 @@ import com.opengamma.livedata.resolver.JmsTopicNameResolveRequest;
 /**
  * Test.
  */
+@Test(groups = "integration")
 public class BloombergJmsTopicNameResolverTest {
 
   private BloombergLiveDataServer _server;

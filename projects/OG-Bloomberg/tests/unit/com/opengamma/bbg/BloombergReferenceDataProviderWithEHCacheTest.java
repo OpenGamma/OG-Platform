@@ -14,7 +14,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 /**
  * Test.
  */
-@Test
+@Test(groups = "integration")
 public class BloombergReferenceDataProviderWithEHCacheTest  extends BloombergReferenceDataProviderTestCase {
 
   @Override

@@ -87,6 +87,7 @@ import com.opengamma.util.test.DbTest;
 /**
  * Test.
  */
+@Test(groups = "integration")
 public class BloombergSecurityLoaderTest extends DbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergSecurityLoaderTest.class);

@@ -5,12 +5,15 @@
  */
 package com.opengamma.bbg;
 
+import org.testng.annotations.Test;
+
 import com.opengamma.bbg.test.BloombergLiveDataServerUtils;
 import com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider;
 
 /**
  * Test.
  */
+@Test(groups = "integration")
 public class BloombergSecuritySourceWithEHCacheTest extends BloombergSecuritySourceTestCase {
 
   private CachingReferenceDataProvider _refDataProvider = null;

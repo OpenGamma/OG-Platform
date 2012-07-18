@@ -12,6 +12,7 @@ import org.testng.annotations.Test;
 /**
  * Test.
  */
+@Test(groups = "unit")
 public class BloombergTickerParserTest {
 
   @Test

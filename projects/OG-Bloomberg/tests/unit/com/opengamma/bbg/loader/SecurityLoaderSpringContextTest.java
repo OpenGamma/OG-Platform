@@ -13,6 +13,7 @@ import com.opengamma.util.test.AbstractSpringContextValidationTestNG;
 /**
  * Test Spring.
  */
+@Test(groups = "integration")
 public class SecurityLoaderSpringContextTest extends AbstractSpringContextValidationTestNG {
 
   @Test(enabled=false, dataProvider = "runModes", dataProviderClass = AbstractSpringContextValidationTestNG.class)

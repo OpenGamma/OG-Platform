@@ -44,6 +44,7 @@ import com.opengamma.livedata.test.LiveDataClientTestUtils;
 /**
  * Test.
  */
+@Test(groups = "integration")
 public class CombiningBloombergLiveDataServerTest {
 
   private static final UserPrincipal TEST_USER = UserPrincipal.getTestUser();

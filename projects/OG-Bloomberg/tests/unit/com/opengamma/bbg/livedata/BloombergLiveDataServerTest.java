@@ -37,6 +37,7 @@ import com.opengamma.livedata.test.StandardRulesUtils;
 /**
  * Test.
  */
+@Test(groups = "integration")
 public class BloombergLiveDataServerTest {
 
   private final static UserPrincipal TEST_USER = UserPrincipal.getTestUser(); 
