@@ -92,6 +92,7 @@ $.register_module({
         matlib.compound_dark_wire = function () {
             return [
                 new THREE.MeshPhongMaterial({
+                    // color represents diffuse in THREE.MeshPhongMaterial
                     ambient: 0x000000, color: 0xeeeeee, specular: 0xdddddd, emissive: 0x000000, shininess: 0
                 }),
                 matlib.wire(0xcccccc)
@@ -100,7 +101,6 @@ $.register_module({
         matlib.compound_light_wire = function () {
             return [
                 new THREE.MeshPhongMaterial({
-                    // color represents diffuse in THREE.MeshPhongMaterial
                     ambient: 0x000000, color: 0xefefef, specular: 0xffffff, emissive: 0x000000, shininess: 10
                 }),
                 matlib.wire(0xcccccc)
@@ -273,7 +273,7 @@ $.register_module({
             /**
              * Constructor for a tube.
              * THREE doesnt currently support creating a tube with a line as a path
-             * (Spline is supported, but we dont want that), So we create separate tubes and add them to an object.
+             * (Spline is supported, but we dont want that), so we create separate tubes and add them to an object.
              * Also linewidth doest seem to work for a LineBasicMaterial, thus using tube
              * @param {Array} points Array of Vector3's
              * @return {THREE.Object3D}
@@ -523,7 +523,7 @@ $.register_module({
                         value.scale.set(scale, scale, scale);
                         value.rotation.x = -Math.PI * .5;
                         value.position.x = pos_arr[i] - 2 - ((THREE.FontUtils.drawText(lbl_arr[i]).offset * 0.1) / 2);
-                        value.position.y = 1;
+                        value.position.y = 0.1;
                         value.position.z = (other_axis_len / 2) + 12;
                         mesh.add(value);
                     }
