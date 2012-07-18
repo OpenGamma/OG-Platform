@@ -13,6 +13,7 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
@@ -22,6 +23,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Computes the present value change when the rate/market quote changes by 1 (it is not rescaled to 1 basis point). 
@@ -105,6 +107,15 @@ public final class PresentValueBasisPointCalculator extends AbstractInstrumentDe
   @Override
   public Double visitForwardRateAgreement(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
     return METHOD_FRA.presentValueCouponSensitivity(fra, curves) * fra.getNotional();
+  }
+
+  // -----     Futures     ------
+
+  @Override
+  public Double visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
+    ArgumentChecker.notNull(future, "Futures");
+    ArgumentChecker.notNull(curves, "Bundle");
+    return future.getNotional() * future.getPaymentAccrualFactor() * future.getQuantity();
   }
 
   // -----     Annuity     ------

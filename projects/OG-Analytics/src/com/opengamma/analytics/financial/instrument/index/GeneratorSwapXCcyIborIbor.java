@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -11,7 +11,6 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapXCcyIborIborDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -44,6 +43,7 @@ public class GeneratorSwapXCcyIborIbor extends Generator {
   private final int _spotLag;
 
   // REVIEW: Do we need stubShort and stubFirst flags?
+  // TODO: Add a merged calendar? [PLAT-1747]
 
   /**
    * Constructor from the details. The business day conventions, end-of-month and spot lag are from the first Ibor index.
@@ -124,7 +124,7 @@ public class GeneratorSwapXCcyIborIbor extends Generator {
   }
 
   @Override
-  public InstrumentDefinition<?> generateInstrument(ZonedDateTime date, Period tenor, double spread, double notional, Object... objects) {
+  public SwapXCcyIborIborDefinition generateInstrument(ZonedDateTime date, Period tenor, double spread, double notional, Object... objects) {
     ArgumentChecker.isTrue(objects.length == 1, "Forex rate required");
     ArgumentChecker.isTrue(objects[0] instanceof Double, "forex rate should be a double");
     Double fx = (Double) objects[0];
