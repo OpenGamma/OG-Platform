@@ -222,7 +222,6 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
    * @return the service, not null
    */
   protected Service openService(String serviceName) {
-    ensureStarted();
     try {
       if (getSession().openService(serviceName) == false) {
         throw new OpenGammaRuntimeException("Bloomberg service failed to start: " + serviceName);
