@@ -23,6 +23,7 @@ import java.util.Set;
 import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.core.change.ChangeManager;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -449,6 +450,10 @@ public class BloombergHistoricalLoaderTest extends DbTest {
       throw new UnsupportedOperationException();
     }
 
+    @Override
+    public ChangeManager changeManager() {
+      throw new UnsupportedOperationException();
+    }
   }
 
   private List<Pair<HistoricalTimeSeriesInfoDocument, HistoricalTimeSeries>> addAndTestTimeSeries() {

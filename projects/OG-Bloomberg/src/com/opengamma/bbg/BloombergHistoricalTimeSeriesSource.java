@@ -28,6 +28,8 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
 import javax.time.calendar.format.DateTimeFormatters;
 
+import com.opengamma.core.change.BasicChangeManager;
+import com.opengamma.core.change.ChangeManager;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
@@ -89,6 +91,15 @@ public class BloombergHistoricalTimeSeriesSource extends AbstractBloombergStatic
    * The statistics for Bloomberg access.
    */
   private final BloombergReferenceDataStatistics _statistics;
+  /**
+   * The local change manager.
+   */
+  private final ChangeManager _changeManager;
+
+  @Override
+  public ChangeManager changeManager() {
+    return _changeManager;
+  }
 
   /**
    * Creates an instance.
@@ -101,16 +112,27 @@ public class BloombergHistoricalTimeSeriesSource extends AbstractBloombergStatic
     this(bloombergConnector, NullBloombergReferenceDataStatistics.INSTANCE);
   }
 
+  public BloombergHistoricalTimeSeriesSource(BloombergConnector bloombergConnector, final ChangeManager changeManager) {
+    this(bloombergConnector, NullBloombergReferenceDataStatistics.INSTANCE, changeManager);
+  }
+
+  public BloombergHistoricalTimeSeriesSource(BloombergConnector bloombergConnector, BloombergReferenceDataStatistics statistics) {
+    this(bloombergConnector, statistics, new BasicChangeManager());
+  }
+
   /**
    * Creates an instance with statistics gathering.
    * 
    * @param bloombergConnector  the Bloomberg connector, not null
    * @param statistics  the statistics to collect, not null
    */
-  public BloombergHistoricalTimeSeriesSource(BloombergConnector bloombergConnector, BloombergReferenceDataStatistics statistics) {
+  public BloombergHistoricalTimeSeriesSource(BloombergConnector bloombergConnector, BloombergReferenceDataStatistics statistics,
+                                             final ChangeManager changeManager) {
     super(bloombergConnector);
     ArgumentChecker.notNull(statistics, "statistics");
+    ArgumentChecker.notNull(changeManager, "changeManager");
     _statistics = statistics;
+    _changeManager = changeManager;
   }
 
   //-------------------------------------------------------------------------
