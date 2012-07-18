@@ -19,14 +19,14 @@ $.register_module({
                 font_color_axis_labels: '0xcccccc',
                 interactive_color_nix: '0xff0000',
                 interactive_color_css: '#f00',
-                log: true,
-                precision: 3, // floating point presions for vol display
-                smile_distance: 30,
-                snap_distance: 3,
-                surface_x: 100,
-                surface_z: 100,
-                surface_y: 35, // the height range of the surface
-                y_segments: 10, // number of segments to thin vol out to for smile planes
+                log: true,          // default value for log checkbox
+                precision: 3,       // floating point presions for vol display
+                smile_distance: 30, // distance away from the surface
+                snap_distance: 3,   // mouse proximity to vertices before an interaction is approved
+                surface_x: 100,     // width
+                surface_z: 100,     // depth
+                surface_y: 35,      // the height range of the surface
+                y_segments: 10,     // number of segments to thin vol out to for smile planes
                 vertex_shading_hue_min: 180,
                 vertex_shading_hue_max: 0
             };
@@ -427,10 +427,13 @@ $.register_module({
              * Configure surface gadget display
              */
             hud.form = function () {
-                $selector.find('.og-options input').on('change', function () {
-                    settings.log = $(this).is(':checked');
-                    gadget.update();
-                });
+                $selector
+                    .find('.og-options input')
+                    .prop('checked', settings.log)
+                    .on('change', function () {
+                        settings.log = $(this).is(':checked');
+                        gadget.update();
+                    });
             };
             /**
              * Set a value in the 2D volatility display
