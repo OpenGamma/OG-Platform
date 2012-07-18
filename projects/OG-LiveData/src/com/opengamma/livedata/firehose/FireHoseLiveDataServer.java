@@ -177,17 +177,9 @@ public class FireHoseLiveDataServer extends AbstractLiveDataServer {
     }
     if (failures != null) {
       waitForMarketData(failures);
-      final Iterator<String> itr = failures.iterator();
-      while (itr.hasNext()) {
-        final String identifier = itr.next();
+      for (String identifier : failures) {
         final FudgeMsg msg = getFireHose().getLatestValue(identifier);
-        if (msg != null) {
-          result.put(identifier, msg);
-          itr.remove();
-        }
-      }
-      if (!failures.isEmpty()) {
-        throw new OpenGammaRuntimeException("Couldn't snapshot " + failures);
+        result.put(identifier, msg);
       }
     }
     return result;

@@ -579,9 +579,17 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     Map<String, FudgeMsg> snapshots = doSnapshot(snapshotsToActuallyDo);
     for (Map.Entry<String, FudgeMsg> snapshotEntry : snapshots.entrySet()) {
       String securityUniqueId = snapshotEntry.getKey();
+      LiveDataSpecification liveDataSpecFromClient = securityUniqueId2LiveDataSpecificationFromClient.get(securityUniqueId);
+      
       FudgeMsg msg = snapshotEntry.getValue();
       
-      LiveDataSpecification liveDataSpecFromClient = securityUniqueId2LiveDataSpecificationFromClient.get(securityUniqueId);
+      if (msg == null) {
+        responses.add(getErrorResponse(
+            liveDataSpecFromClient,
+            LiveDataSubscriptionResult.NOT_PRESENT,
+            "Underlying market data server could not load a snapshot on the fly for " + securityUniqueId));
+        continue;
+      }
       
       DistributionSpecification distributionSpec = resolved.get(liveDataSpecFromClient);
       FudgeMsg normalizedMsg = distributionSpec.getNormalizedMessage(msg, securityUniqueId);
