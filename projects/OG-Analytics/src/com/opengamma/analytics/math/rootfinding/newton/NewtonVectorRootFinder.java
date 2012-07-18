@@ -8,6 +8,7 @@ package com.opengamma.analytics.math.rootfinding.newton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.primitives.Doubles;
 import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.analytics.math.function.Function1D;
@@ -93,17 +94,26 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
         estimate = _initializationFunction.getInitializedMatrix(jacobianFunction, data.getX());
         jacReconCount = 1;
         if (!getNextPosition(function, estimate, data)) {
-          s_logger.info("Failed to converge in backtracking, even after a Jacobian recalculation. Final position: \n" + data.getX() + "\n function value: \n" + data.getY() + "\n Jacobian: \n"
-              + jacobianFunction.evaluate(data.getX()));
-          throw new MathException("Failed to converge in backtracking, even after a Jacobian recalculation.");
+          if (isConverged(data)) {
+            return data.getX(); //non-standard exit. Cannot find an improvement from this position, so provided we are close enough to the root, exit.
+          }
+          String msg = "Failed to converge in backtracking, even after a Jacobian recalculation." + getErrorMessage(data, jacobianFunction);
+          s_logger.info(msg);
+          throw new MathException(msg);
         }
       }
       count++;
       if (count > _maxSteps) {
-        throw new MathException("Failed to converge");
+        throw new MathException("Failed to converge - maximum iterations of " + _maxSteps + " reached." + getErrorMessage(data, jacobianFunction));
       }
     }
     return data.getX();
+  }
+
+  private String getErrorMessage(final DataBundle data, final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianFunction) {
+    String msg = "Final position:" + data.getX() + "\nlast deltaX:" + data.getDeltaX() + "\n function value:" + data.getY() + "\nJacobian: \n"
+        + jacobianFunction.evaluate(data.getX());
+    return msg;
   }
 
   private boolean getNextPosition(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, final DoubleMatrix2D estimate, final DataBundle data) {
@@ -116,7 +126,7 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
     updatePosition(p, function, data);
     final double g1 = data.getG1();
     // the function is invalid at the new position, try to recover
-    if (Double.isInfinite(g1) || Double.isNaN(g1)) {
+    if (!Doubles.isFinite(g1)) {
       bisectBacktrack(p, function, data);
     }
     if (data.getG1() > data.getG0() / (1 + ALPHA * data.getLambda0())) {
