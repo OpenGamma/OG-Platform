@@ -86,7 +86,7 @@ public class BloombergConnectorFactoryBean extends SpringFactoryBean<BloombergCo
   public BloombergConnector createObject() {
     SessionOptions sessionOptions = getSessionOptions();
     sessionOptions = (sessionOptions != null ? sessionOptions : new SessionOptions());
-    if (sessionOptions.getServerHost() == null) {
+    if (getHost() != null) {
       sessionOptions.setServerHost(getHost());
       sessionOptions.setServerPort(getPort());
     }

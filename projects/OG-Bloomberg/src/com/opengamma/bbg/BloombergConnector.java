@@ -135,20 +135,8 @@ public class BloombergConnector implements Connector {
   public Session createOpenSession() {
     Session session = createSession();
     try {
-      session.setEventHandler(new EventHandler() {
-        @Override
-        public void processEvent(Event sessionStatusEvent, Session session) {
-          s_logger.info("Event received from Bloomberg Session");
-          MessageIterator messageIterator = sessionStatusEvent.messageIterator();
-          while (messageIterator.hasNext()) {
-            Message message = messageIterator.next();
-            s_logger.info(message.toString());
-          }
-        }
-      }, EventType.SESSION_STATUS);
       if (session.start() == false) {
-       
-        throw new OpenGammaRuntimeException("Bloomberg session failed to start: " + getSessionOptions());
+        throw new OpenGammaRuntimeException("Bloomberg session failed to start: " + SessionOptionsUtils.toString(getSessionOptions()));
       }
     } catch (InterruptedException ex) {
       Thread.interrupted();
