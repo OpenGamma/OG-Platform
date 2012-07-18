@@ -13,6 +13,7 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.core.change.BasicChangeManager;
 import net.sf.ehcache.CacheManager;
 
 import org.testng.annotations.BeforeMethod;
@@ -42,6 +43,7 @@ public class EHCachingHistoricalTimeSeriesSourceTest {
   public void setUp() throws Exception {
     EHCacheUtils.clearAll();
     _underlyingSource = mock(HistoricalTimeSeriesSource.class);
+    when(_underlyingSource.changeManager()).thenReturn(new BasicChangeManager());
     CacheManager cm = EHCacheUtils.createCacheManager();
     _cachingSource = new EHCachingHistoricalTimeSeriesSource(_underlyingSource, cm);
   }
