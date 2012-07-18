@@ -15,6 +15,9 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.Sets;
 import com.opengamma.util.tuple.Pair;
 
+/**
+ * Test.
+ */
 public class BloombergReferenceDataStatisticsTest {
 
   @Test
@@ -78,7 +81,7 @@ public class BloombergReferenceDataStatisticsTest {
       }
     }, 10 * 1024 * 1024, "Stats");
   }
-  
+
   @Test
   public void bigIncrementTest() throws InterruptedException {
     final MapBloombergReferenceDataStatistics stats = getBigStats();
@@ -90,7 +93,7 @@ public class BloombergReferenceDataStatisticsTest {
       }
     }, 1 * 1024 * 1024, "Increment");
   }
-  
+
   @Test
   public void bigSnapshotTest() throws InterruptedException {
     final MapBloombergReferenceDataStatistics stats = getBigStats();
@@ -101,7 +104,7 @@ public class BloombergReferenceDataStatisticsTest {
       }
     }, 10 * 1024 * 1024, "Snapshot");
   }
-  
+
   @Test(enabled = false)
   public void fastTest() throws InterruptedException {
     MapBloombergReferenceDataStatistics stats = getBigStats();
@@ -117,12 +120,10 @@ public class BloombergReferenceDataStatisticsTest {
     }
   }
 
-
-
-  
   public <T> void assertSmall(Supplier<T> factory, long maxSize, String name) throws InterruptedException {
     assertSmallAndFast(factory, maxSize, null, name);
   }
+
   public <T> void assertSmallAndFast(Supplier<T> factory, Long maxSize, Long maxTime, String name) throws InterruptedException {
     int blocks = 3;
     int blockSize = 10;
@@ -131,8 +132,7 @@ public class BloombergReferenceDataStatisticsTest {
     long baseline = getUsedMemory();
     for (int i = 0; i < blocks; i++) {
       long start = System.currentTimeMillis();
-      for (int n=0;n<blockSize;n++)
-      {
+      for (int n=0;n<blockSize;n++) {
         list.add(factory.get());  
       }
       long elapsed = System.currentTimeMillis() - start;
@@ -144,16 +144,14 @@ public class BloombergReferenceDataStatisticsTest {
       {
         assertLessThan((long) maxSize, usedPerUnit);
       }
-      if (maxTime != null)
-      {
+      if (maxTime != null) {
         assertLessThan((long) maxTime, elapsedPerUnit);
       }
     }
   }
-  
+
   private void assertLessThan(long expected, long actual) {
-    if (actual > expected)
-    {
+    if (actual > expected) {
       throw new AssertionError(actual+" > "+expected);
     }
   }
@@ -164,16 +162,14 @@ public class BloombergReferenceDataStatisticsTest {
     return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
   }
 
-  
   private MapBloombergReferenceDataStatistics getBigStats() {
     MapBloombergReferenceDataStatistics stats = new MapBloombergReferenceDataStatistics();
-
     return incrementBigStats(stats);
   }
 
   private static final Set<String> securities = getInts(100000);
   private static final Set<String> fields = getInts(100);
-  
+
   private MapBloombergReferenceDataStatistics incrementBigStats(MapBloombergReferenceDataStatistics stats) {
     stats.gotFields(securities, fields);
     return stats;
@@ -191,4 +187,5 @@ public class BloombergReferenceDataStatisticsTest {
     assertEquals(expected.getKey().longValue(), actual.getKey().longValue());
     assertEquals(expected.getValue(), actual.getValue());
   }
+
 }

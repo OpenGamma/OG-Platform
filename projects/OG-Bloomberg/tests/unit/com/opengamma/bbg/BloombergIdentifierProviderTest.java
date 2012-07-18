@@ -29,7 +29,7 @@ import com.opengamma.id.ExternalIdWithDates;
 import com.opengamma.master.historicaltimeseries.ExternalIdResolver;
 
 /**
- * Test BloombergIdentifierProvider.
+ * Test.
  */
 public class BloombergIdentifierProviderTest {
 
@@ -63,7 +63,7 @@ public class BloombergIdentifierProviderTest {
     assertFalse(identifiers.isEmpty());
     assertEquals(expected, identifiers.iterator().next());
   }
-  
+
   @Test
   public void bondFuture() {
     Set<ExternalIdWithDates> ids = new HashSet<ExternalIdWithDates>();

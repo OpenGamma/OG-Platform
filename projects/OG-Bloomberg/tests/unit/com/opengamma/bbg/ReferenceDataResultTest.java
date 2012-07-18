@@ -9,11 +9,13 @@ import org.testng.annotations.Test;
 
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
+/**
+ * Test.
+ */
 public class ReferenceDataResultTest {
 
   @Test
-  public void roundTrip()
-  {
+  public void roundTrip() {
     FudgeContext context = OpenGammaFudgeContext.getInstance();
     
     ReferenceDataResult referenceDataResult = new ReferenceDataResult();
@@ -33,4 +35,5 @@ public class ReferenceDataResultTest {
     assertEquals(1, result2.getFieldExceptions().get("SomeField").getCode());
     assertEquals(result.getFieldData().toString(), result2.getFieldData().toString());
   }
+
 }

@@ -11,7 +11,7 @@ import org.testng.annotations.Test;
 import com.opengamma.util.test.AbstractSpringContextValidationTestNG;
 
 /**
- * Test Spring xml file.
+ * Test Spring.
  */
 public class SecurityLoaderSpringContextTest extends AbstractSpringContextValidationTestNG {
 
@@ -21,7 +21,7 @@ public class SecurityLoaderSpringContextTest extends AbstractSpringContextValida
     assertContextLoaded();
     assertBeanExists(BloombergSecurityFileLoader.class, "securityLoader");
   }
-  
+
   @AfterMethod
   public void runAfter() {
     getSpringContext().close();

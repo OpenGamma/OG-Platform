@@ -48,31 +48,31 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.test.TestProperties;
 
 /**
- * 
+ * Test.
  */
 @Test(enabled = false)
 public class BloombergTickWriterTest {
+
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergTickWriterTest.class);
-  
+
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
   private static final String DEFAULT_ROOT_DIR = "tmp/tickDataTest";
-  
+
   private static final int TICKS_GENERATOR_THREAD_SIZE = 1;
   private static final int RUN_DURATION = 5000;
   private static final long REPORT_INTERVAL = RUN_DURATION * 3;
   private static final long WRITER_SPEED_THRESHOLD = 1024000; 
   private static final int MAX_QUEUE_SIZE = 1000;
-  
+
   private BlockingQueue<FudgeMsg> _allTicksQueue = new ArrayBlockingQueue<FudgeMsg>(MAX_QUEUE_SIZE);
   private BloombergTickWriter _writer;
   private CachingReferenceDataProvider _refDataProvider = null;
   private File _rootDir;
   private RandomTicksGeneratorJob _ticksGenerator;
   private Map<String, String> _ticker2buid = ImmutableMap.of("QQQQ US Equity", "EQ0082335400001000");
-  
+
   @BeforeMethod
   public void setUp(Method m) throws Exception {
-    
     Properties testProperties = TestProperties.getTestProperties();
     String rootDir = testProperties.getProperty("bloombergTickWriter.rootDir");
     if ( rootDir != null ) {
@@ -86,9 +86,6 @@ public class BloombergTickWriterTest {
     makeRootDir();
   }
 
-  /**
-   * 
-   */
   private void makeRootDir() {
     if (!_rootDir.exists()) {
       if(!_rootDir.mkdirs()) {
@@ -215,11 +212,7 @@ public class BloombergTickWriterTest {
       assertAllFieldsMatch(expected, actual);
     }
   }
-  
-  /**
-   * @param expectedMsg [documentation not available]
-   * @param actualMsg [documentation not available]
-   */
+
   public static void assertAllFieldsMatch(FudgeMsg expectedMsg, FudgeMsg actualMsg) {
     FudgeUtils.assertAllFieldsMatch(expectedMsg, actualMsg, true);
   }

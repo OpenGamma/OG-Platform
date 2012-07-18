@@ -40,15 +40,15 @@ import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.id.ExternalIdWithDates;
 
 /**
- * 
+ * Test.
  */
 public class BloombergDataUtilsTest {
 
   @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergDataUtilsTest.class);
-  
+
   private CachingReferenceDataProvider _refDataProvider;
-  
+
   private static final String[] IDENTIFIERS = new String[] {
       "#Comment",
       "ISIN~ISIN 1234",
@@ -57,12 +57,12 @@ public class BloombergDataUtilsTest {
       "CUSIP~CUSIP 1234",
       "SEDOL1~SEDOL1 1234",
       "BLOOMBERG_TCM~BLOOMBERG_TCM 1234"};
-  
+
   @BeforeMethod
   public void setupBloombergSecuritySource(Method m) {
     _refDataProvider = BloombergLiveDataServerUtils.getCachingReferenceDataProvider(m);
   }
-  
+
   @AfterMethod
   public void terminateSecurityMaster() {
     BloombergLiveDataServerUtils.stopCachingReferenceDataProvider(_refDataProvider);
@@ -127,7 +127,7 @@ public class BloombergDataUtilsTest {
     ExternalIdBundleWithDates actual = BloombergDataUtils.parseIdentifiers(message, FIELD_FUT_FIRST_TRADE_DT, FIELD_FUT_LAST_TRADE_DT);
     assertEquals(expected, actual);
   }
-  
+
   @Test
   public void identifierLoader() throws Exception {
     Set<ExternalId> identifiers = BloombergDataUtils.identifierLoader(new StringReader(multiStringLine(IDENTIFIERS)));
@@ -140,7 +140,7 @@ public class BloombergDataUtilsTest {
     assertTrue(identifiers.contains(ExternalId.of("SEDOL1", "SEDOL1 1234")));
     assertTrue(identifiers.contains(ExternalId.of("BLOOMBERG_TCM", "BLOOMBERG_TCM 1234")));
   }
-  
+
   @Test
   public void getBUID() throws Exception {
     Map<String, String> buids = BloombergDataUtils.getBUID(_refDataProvider, Sets.newHashSet("AAPL US Equity", "IBM US Equity"));
@@ -149,7 +149,7 @@ public class BloombergDataUtilsTest {
     assertEquals("EQ0010169500001000", buids.get("AAPL US Equity"));
     assertEquals("EQ0010080100001000", buids.get("IBM US Equity"));
   }
-  
+
   private static String multiStringLine(String... lines) {
     StringBuilder buf = new StringBuilder();
     for (String string : lines) {
@@ -158,7 +158,5 @@ public class BloombergDataUtilsTest {
     }
     return buf.toString();
   }
-  
-  
 
 }

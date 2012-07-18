@@ -10,6 +10,9 @@ import org.testng.annotations.Test;
 
 import com.opengamma.util.test.AbstractSpringContextValidationTestNG;
 
+/**
+ * Test.
+ */
 @Test(enabled = false, description = "Properties file refers to absolute paths which won't work")
 public class BloombergTicksCollectorSpringTest extends AbstractSpringContextValidationTestNG {
 
@@ -18,7 +21,7 @@ public class BloombergTicksCollectorSpringTest extends AbstractSpringContextVali
     loadClassPathResource(opengammaPlatformRunmode, BloombergTicksCollectorLauncher.CONFIG_XML_CLASSPATH);
     assertContextLoaded();
   }
-  
+
   @AfterMethod
   public void runAfter() {
     getSpringContext().close();

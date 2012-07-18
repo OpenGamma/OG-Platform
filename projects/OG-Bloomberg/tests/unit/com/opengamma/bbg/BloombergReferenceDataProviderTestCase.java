@@ -21,7 +21,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
- *
+ * Test.
  */
 public abstract class BloombergReferenceDataProviderTestCase {
 

@@ -27,17 +27,17 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ * Test.
  */
 public class EHCachingReferenceDataProviderTest {
-  
+
   private static final String CISCO_TICKER = "CSCO US Equity";
   private static final String FIELD_ID_ISIN = "ID_ISIN";
   private static final String FIELD_ID_CUSIP = "ID_CUSIP";
   private static final String FIELD_TICKER = "TICKER";
   private static final String FIELD_ID_BB_UNIQUE = "ID_BB_UNIQUE";
   private static final String AAPL_TICKER = "AAPL US Equity";
-  
+
   private CachingReferenceDataProvider _underlyingProvider = null;
   private UnitTestingReferenceDataProvider _unitProvider = null;
   private EHCachingReferenceDataProvider _cachingProvider = null;
@@ -124,7 +124,7 @@ public class EHCachingReferenceDataProviderTest {
     assertNotNull(result);
     assertNotNull(result.getResult(securityDes));
   }
-  
+
   @Test
   public void fieldNotAvailable() {
     
@@ -162,7 +162,7 @@ public class EHCachingReferenceDataProviderTest {
     assertEquals(ciscoResult.getSecurity(), ciscoCachedResult.getSecurity());
     assertEquals(ciscoResult.getFieldData(), ciscoCachedResult.getFieldData());
   }
-  
+
   @Test
   public void securityNotAvailable() {
     EHCachingReferenceDataProvider provider = _cachingProvider;
@@ -184,8 +184,7 @@ public class EHCachingReferenceDataProviderTest {
     assertNotNull(result);
     assertNotNull(result.getResult(invalidSec));
   }
-  
-  
+
   @Test
   public void multipleSecuritiesSameEscalatingFields() {
     EHCachingReferenceDataProvider provider = _cachingProvider;
