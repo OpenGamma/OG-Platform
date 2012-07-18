@@ -5,9 +5,18 @@
  */
 package com.opengamma.bbg;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.bloomberglp.blpapi.Event;
+import com.bloomberglp.blpapi.EventHandler;
+import com.bloomberglp.blpapi.Message;
+import com.bloomberglp.blpapi.MessageIterator;
 import com.bloomberglp.blpapi.Session;
 import com.bloomberglp.blpapi.SessionOptions;
+import com.bloomberglp.blpapi.Event.EventType;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.bbg.util.SessionOptionsUtils;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.Connector;
 
@@ -21,6 +30,7 @@ import com.opengamma.util.Connector;
  */
 public class BloombergConnector implements Connector {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(BloombergConnector.class);
   /**
    * The configuration name.
    */
@@ -125,14 +135,26 @@ public class BloombergConnector implements Connector {
   public Session createOpenSession() {
     Session session = createSession();
     try {
+      session.setEventHandler(new EventHandler() {
+        @Override
+        public void processEvent(Event sessionStatusEvent, Session session) {
+          s_logger.info("Event received from Bloomberg Session");
+          MessageIterator messageIterator = sessionStatusEvent.messageIterator();
+          while (messageIterator.hasNext()) {
+            Message message = messageIterator.next();
+            s_logger.info(message.toString());
+          }
+        }
+      }, EventType.SESSION_STATUS);
       if (session.start() == false) {
+       
         throw new OpenGammaRuntimeException("Bloomberg session failed to start: " + getSessionOptions());
       }
     } catch (InterruptedException ex) {
       Thread.interrupted();
-      throw new OpenGammaRuntimeException("Bloomberg session failed to start: " + getSessionOptions(), ex);
+      throw new OpenGammaRuntimeException("Bloomberg session failed to start: " + SessionOptionsUtils.toString(getSessionOptions()), ex);
     } catch (Exception ex) {
-      throw new OpenGammaRuntimeException("Bloomberg session failed to start: " + getSessionOptions(), ex);
+      throw new OpenGammaRuntimeException("Bloomberg session failed to start: " + SessionOptionsUtils.toString(getSessionOptions()), ex);
     }
     return session;
   }
