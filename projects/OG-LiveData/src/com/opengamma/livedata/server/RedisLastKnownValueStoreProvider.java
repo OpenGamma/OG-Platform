@@ -5,6 +5,9 @@
  */
 package com.opengamma.livedata.server;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
@@ -33,6 +36,7 @@ import com.opengamma.id.ExternalId;
  * 
  */
 public class RedisLastKnownValueStoreProvider implements LastKnownValueStoreProvider {
+  private static final Logger s_logger = LoggerFactory.getLogger(RedisLastKnownValueStoreProvider.class);
   private String _server = "localhost";
   private int _port = 6379;
   private String _globalPrefix = "";
@@ -106,9 +110,32 @@ public class RedisLastKnownValueStoreProvider implements LastKnownValueStoreProv
 
   @Override
   public LastKnownValueStore newInstance(ExternalId security, String normalizationRuleSetId) {
-    return null;
+    initIfNecessary();
+    String redisKey = generateRedisKey(security, normalizationRuleSetId);
+    s_logger.debug("Creating Redis LKV store on {}/{} with key name {}", new Object[] {security, normalizationRuleSetId, redisKey});
+    RedisLastKnownValueStore store = new RedisLastKnownValueStore(_jedisPool, redisKey, isWriteThrough());
+    return store;
   }
   
+  /**
+   * @param security
+   * @param normalizationRuleSetId
+   * @return
+   */
+  private String generateRedisKey(ExternalId security, String normalizationRuleSetId) {
+    StringBuilder sb = new StringBuilder();
+    if (getGlobalPrefix() != null) {
+      sb.append(getGlobalPrefix());
+    }
+    sb.append(security.getScheme().getName());
+    sb.append("-");
+    sb.append(security.getValue());
+    sb.append("[");
+    sb.append(normalizationRuleSetId);
+    sb.append("]");
+    return sb.toString();
+  }
+
   protected synchronized void initIfNecessary() {
     if (_isInitialized) {
       return;
