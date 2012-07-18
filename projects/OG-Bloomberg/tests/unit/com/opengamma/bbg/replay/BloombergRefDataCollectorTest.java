@@ -31,14 +31,14 @@ import com.opengamma.bbg.test.BloombergLiveDataServerUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- * Test BloombergRefDataCollector
+ * Test.
  */
 public class BloombergRefDataCollectorTest {
-  
+
   private static final String WATCH_LIST_FILE = "watchListTest.txt";
   private static final String FIELD_LIST_FILE = "fieldListTest.txt";
   public static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
-  
+
   private BloombergRefDataCollector _refDataCollector;
   private CachingReferenceDataProvider _refDataProvider;
   private File _outputFile;
@@ -87,7 +87,6 @@ public class BloombergRefDataCollectorTest {
       String securityType = fieldData.getString("SECURITY_TYP");
       assertEquals("ETP", securityType);
     }
-    
   }
 
 }

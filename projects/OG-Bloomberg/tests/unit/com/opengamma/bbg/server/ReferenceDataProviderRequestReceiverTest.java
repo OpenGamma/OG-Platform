@@ -25,7 +25,7 @@ import com.opengamma.transport.FudgeRequestDispatcher;
 import com.opengamma.transport.InMemoryByteArrayRequestConduit;
 
 /**
- * 
+ * Test.
  */
 public class ReferenceDataProviderRequestReceiverTest {
 
@@ -63,9 +63,6 @@ public class ReferenceDataProviderRequestReceiverTest {
     assertNotNull(dataResult);
   }
 
-  /**
-   * @return
-   */
   private ReferenceDataProvider getReferenceDataProvider() {
     return _refDataProvider;   
   }

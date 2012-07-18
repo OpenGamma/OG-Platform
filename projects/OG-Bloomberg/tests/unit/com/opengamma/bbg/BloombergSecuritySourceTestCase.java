@@ -70,7 +70,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.time.Expiry;
 
 /**
- * Base case for testing BloombergSecuritySource
+ * Base case for testing BloombergSecuritySource.
  */
 public abstract class BloombergSecuritySourceTestCase {
 
@@ -110,6 +110,7 @@ public abstract class BloombergSecuritySourceTestCase {
   protected void stopSecuritySource() throws Exception {
   }
 
+  //-------------------------------------------------------------------------
   @Test
   public void getSecurityType() throws Exception {
     String bbgEquitySecType = BBG_COMMON_STOCK_TYPE;
@@ -437,10 +438,6 @@ public abstract class BloombergSecuritySourceTestCase {
     }
   }
 
-  /**
-   * @param sec
-   * @param expectedEquity
-   */
   public static void assertEquitySecurity(EquitySecurity expectedEquity, Security sec) {
     // check specific bits we want to spot failures on quickly
     assertNotNull(sec);
@@ -474,10 +471,6 @@ public abstract class BloombergSecuritySourceTestCase {
     actualEquity.setExternalIdBundle(actualIdentifiers);
   }
 
-  /**
-   * @param expectedOption
-   * @param sec
-   */
   public static void assertAmericanVanillaEquityOptionSecurity(EquityOptionSecurity expectedOption, Security sec) {
     // check specific bits we want to spot failures on quickly
     assertNotNull(sec);
@@ -486,11 +479,7 @@ public abstract class BloombergSecuritySourceTestCase {
     assertTrue(equitySec.getExerciseType() instanceof AmericanExerciseType);
     assertEquityOptionSecurity(expectedOption, sec);
   }
-  
-  /**
-   * @param expectedOption
-   * @param sec
-   */
+
   public static void assertAmericanVanillaEquityIndexOptionSecurity(EquityIndexOptionSecurity expectedOption, Security sec) {
     // check specific bits we want to spot failures on quickly
     assertNotNull(sec);
@@ -516,7 +505,7 @@ public abstract class BloombergSecuritySourceTestCase {
     // check the lot
     assertEquals(expectedOption, sec);
   }
-  
+
   public static void assertEquityIndexOptionSecurity(EquityIndexOptionSecurity expectedOption, Security sec) {
     assertNotNull(expectedOption);
     assertNotNull(sec);
@@ -534,10 +523,6 @@ public abstract class BloombergSecuritySourceTestCase {
     assertEquals(expectedOption, sec);
   }
 
-  /**
-   * @param expectedOption
-   * @param sec
-   */
   public static void assertEuropeanVanillaEquityOptionSecurity(EquityOptionSecurity expectedOption, Security sec) {
     // check specific bits we want to spot failures on quickly
     assertNotNull(sec);
@@ -546,11 +531,7 @@ public abstract class BloombergSecuritySourceTestCase {
     assertTrue(equitySec.getExerciseType() instanceof EuropeanExerciseType);
     assertEquityOptionSecurity(expectedOption, sec);
   }
-  
-  /**
-   * @param expectedOption
-   * @param sec
-   */
+
   public static void assertEuropeanVanillaEquityIndexOptionSecurity(EquityIndexOptionSecurity expectedOption, Security sec) {
     // check specific bits we want to spot failures on quickly
     assertNotNull(sec);
@@ -571,7 +552,7 @@ public abstract class BloombergSecuritySourceTestCase {
       return _securitySource.getSecurity(_secKey);
     }
   }
-  
+
   @Test
   public void test_getBulkSecurity() throws Exception {
     UniqueId aaplId = UniqueId.of(BloombergSecuritySource.BLOOMBERG_SCHEME, BloombergSecurityUtils.AAPL_BUID);

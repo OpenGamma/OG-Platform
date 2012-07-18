@@ -11,7 +11,7 @@ import org.testng.annotations.Test;
 import com.opengamma.util.test.AbstractSpringContextValidationTestNG;
 
 /**
- * Test Spring xml file.
+ * Test Spring.
  */
 public class HistoricalLoaderSpringContextTest extends AbstractSpringContextValidationTestNG {
 
@@ -21,7 +21,7 @@ public class HistoricalLoaderSpringContextTest extends AbstractSpringContextVali
     assertContextLoaded();
     assertBeanExists(BloombergHistoricalLoader.class, "missingHistoricalDataLoader");
   }
-  
+
   @AfterMethod
   public void runAfter() {
     getSpringContext().close();

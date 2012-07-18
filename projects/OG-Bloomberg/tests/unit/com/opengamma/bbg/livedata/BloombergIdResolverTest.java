@@ -25,9 +25,6 @@ import com.opengamma.id.ExternalIdBundle;
  */
 public class BloombergIdResolverTest {
 
-  /**
-   * 
-   */
   static final String AAPL_BB_ID_UNIQUE = "EQ0010169500001000";
   private CachingReferenceDataProvider _refDataProvider = null;
 
@@ -35,7 +32,7 @@ public class BloombergIdResolverTest {
   public void setupBloombergSecuritySource(Method m) {
     _refDataProvider = BloombergLiveDataServerUtils.getCachingReferenceDataProvider(m);
   }
-  
+
   @AfterMethod
   public void terminateSecuritySource() {
     BloombergLiveDataServerUtils.stopCachingReferenceDataProvider(_refDataProvider);
@@ -67,7 +64,7 @@ public class BloombergIdResolverTest {
     ExternalId resolved = resolver.resolve(aaplEquity);
     assertEquals(ExternalSchemes.bloombergBuidSecurityId(AAPL_BB_ID_UNIQUE), resolved);
   }
-  
+
   @Test
   public void invalidBbgId() {
     ExternalIdBundle invalidSpec = ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("foo123"));
@@ -75,7 +72,7 @@ public class BloombergIdResolverTest {
     ExternalId resolved = resolver.resolve(invalidSpec);
     assertNull(resolved);
   }
-  
+
   @Test
   public void invalidBbgUniqueId() {
     ExternalId invalidSpec = ExternalSchemes.bloombergBuidSecurityId("foo123");
@@ -85,4 +82,5 @@ public class BloombergIdResolverTest {
     // doesn't validate unique IDs at the moment! should it?
     assertEquals(invalidSpec, resolved);
   }
+
 }

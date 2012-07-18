@@ -18,7 +18,7 @@ import com.opengamma.transport.InMemoryByteArrayRequestConduit;
  */
 @Test
 public class RemoteReferenceDataProviderTest  extends BloombergReferenceDataProviderTestCase {
-  
+
   private CachingReferenceDataProvider _refDataProvider;
 
   @Override

@@ -68,7 +68,7 @@ import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Test BloombergHistoricalLoader.
+ * Test.
  */
 public class BloombergHistoricalLoaderTest extends DbTest {
 
@@ -500,7 +500,7 @@ public class BloombergHistoricalLoaderTest extends DbTest {
     }
     return result;
   }
-  
+
   private LocalDateDoubleTimeSeries makeRandomTimeSeries(LocalDate start, LocalDate end) {
     MapLocalDateDoubleTimeSeries tsMap = new MapLocalDateDoubleTimeSeries();
     LocalDate current = start;
