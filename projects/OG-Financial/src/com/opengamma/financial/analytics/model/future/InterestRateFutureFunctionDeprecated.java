@@ -125,8 +125,8 @@ public abstract class InterestRateFutureFunctionDeprecated extends AbstractFunct
     requirements.add(getCurveRequirement(target, forwardCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod));
     requirements.add(getCurveRequirement(target, fundingCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod));
     final Trade trade = target.getTrade();
-    final Set<ValueRequirement> timeSeriesRequirements = _dataConverter.getConversionTimeSeriesRequirements(trade.getSecurity(), _converter.convert(trade), new String[] {fundingCurveName,
-        forwardCurveName });
+    final Set<ValueRequirement> timeSeriesRequirements = _dataConverter.getConversionTimeSeriesRequirements(trade.getSecurity(), _converter.convert(trade),
+        new String[] {fundingCurveName, forwardCurveName });
     if (timeSeriesRequirements == null) {
       return null;
     }

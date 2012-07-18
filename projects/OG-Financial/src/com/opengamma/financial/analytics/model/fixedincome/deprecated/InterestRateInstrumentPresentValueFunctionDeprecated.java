@@ -14,11 +14,13 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentPresentValueFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.bond.BondSecurity;
 
 /**
- * 
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see InterestRateInstrumentPresentValueFunction
  */
 @Deprecated
 public class InterestRateInstrumentPresentValueFunctionDeprecated extends InterestRateInstrumentFunctionDeprecated {
