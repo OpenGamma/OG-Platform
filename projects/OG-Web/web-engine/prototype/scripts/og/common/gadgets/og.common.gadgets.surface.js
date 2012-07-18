@@ -497,9 +497,13 @@ $.register_module({
             surface.create_axes = function () {
                 var group = new THREE.Object3D,
                     x = {axis: 'x', spacing: adjusted_xs, labels: config.xs_labels || config.xs, label: config.xs_label},
-                    z = {axis: 'z', spacing: adjusted_zs, labels: config.zs_labels || config.zs, label: config.zs_label};
-                group.add(surface.create_axis(x));
-                group.add(surface.create_axis(z));
+                    z = {axis: 'z', spacing: adjusted_zs, labels: config.zs_labels || config.zs, label: config.zs_label},
+                    x_axis = surface.create_axis(x),
+                    z_axis = surface.create_axis(z);
+                x_axis.position.z = settings.surface_z / 2;
+                z_axis.position.x = -(settings.surface_x / 2);
+                group.add(x_axis);
+                group.add(z_axis);
                 return group;
             };
             /**
@@ -514,8 +518,7 @@ $.register_module({
             surface.create_axis = function (config) {
                 var mesh = new THREE.Object3D(), i, nth = Math.ceil(config.spacing.length / 6), scale = '0.1',
                     lbl_arr = util.thin(config.labels, nth), pos_arr = util.thin(config.spacing, nth),
-                    axis_len = settings['surface_' + config.axis],
-                    other_axis_len = config.axis === 'x' ? settings['surface_z'] : settings['surface_x'];
+                    axis_len = settings['surface_' + config.axis];
                 (function () { // axis values
                     var value;
                     for (i = 0; i < lbl_arr.length; i++) {
@@ -524,7 +527,7 @@ $.register_module({
                         value.rotation.x = -Math.PI * .5;
                         value.position.x = pos_arr[i] - 2 - ((THREE.FontUtils.drawText(lbl_arr[i]).offset * 0.1) / 2);
                         value.position.y = 0.1;
-                        value.position.z = (other_axis_len / 2) + 12;
+                        value.position.z = 12;
                         mesh.add(value);
                     }
                 }());
@@ -535,7 +538,7 @@ $.register_module({
                     label.rotation.x = -Math.PI * .5;
                     label.position.x = -(axis_len / 2) -3;
                     label.position.y = 1;
-                    label.position.z = (other_axis_len / 2) + 25;
+                    label.position.z = 25;
                     mesh.add(label);
                 }());
                 (function () { // axis ticks
@@ -556,7 +559,7 @@ $.register_module({
                     ctx.stroke();
                     axis.material.map.needsUpdate = true;
                     axis.doubleSided = true;
-                    axis.position.z = other_axis_len / 2 + 5;
+                    axis.position.z = 5;
                     mesh.add(axis);
                 }());
                 if (config.axis === 'z') mesh.rotation.y = -Math.PI * .5;
