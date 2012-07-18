@@ -8,19 +8,34 @@ package com.opengamma.bbg.util;
 import com.bloomberglp.blpapi.SessionOptions;
 
 /**
- * Utility to provide proper toString() for SessionOptions to aid with debugging.
+ * Utilities for working with {@code SessionOptions}.
+ * <p>
+ * This is a thread-safe static utility class.
  */
-public class SessionOptionsUtils {
-  
-  public static String toString(SessionOptions session) {
+public final class SessionOptionsUtils {
+
+  /**
+   * Restricted constructor.
+   */
+  private SessionOptionsUtils() {
+  }
+
+  /**
+   * Converts a {@code SessionOptions} to a string for debugging.
+   * 
+   * @param options  the session options, not null
+   * @return the string for debugging, not null
+   */
+  public static String toString(SessionOptions options) {
     StringBuilder sb = new StringBuilder();
     sb.append("SessionOptions[host=");
-    sb.append(session.getServerHost());
+    sb.append(options.getServerHost());
     sb.append(",port=");
-    sb.append(session.getServerPort());
+    sb.append(options.getServerPort());
     sb.append(",clientMode");
-    sb.append(session.getClientMode());
+    sb.append(options.getClientMode());
     sb.append("]");
     return sb.toString();
   }
+
 }
