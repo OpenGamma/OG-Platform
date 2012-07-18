@@ -51,8 +51,7 @@ public class RemoteReferenceDataProviderWithInMemoryTransportTest extends Bloomb
     
     BloombergReferenceDataProvider refDataProvider = (BloombergReferenceDataProvider)_appContext.getBean("refDataProvider");
     assertNotNull(refDataProvider);
-    assertNotNull(refDataProvider.getSessionOptions());
-    assertNotNull(refDataProvider.getSessionOptions().getServerHost());
+    assertNotNull(refDataProvider.getBloombergConnector());
     
     CachingReferenceDataProvider cachingRefDataProvider = (CachingReferenceDataProvider)_appContext.getBean("cachingRefDataProvider");
     assertNotNull(cachingRefDataProvider);

@@ -40,67 +40,67 @@ public class StandardSmileSurfaceDataBundleTest {
   private static final boolean IS_CALL_DATA = true;
   private static final Interpolator1D INTERPOLATOR = Interpolator1DFactory.DOUBLE_QUADRATIC_INSTANCE;
   private static final ForwardCurve FORWARD_CURVE = new ForwardCurve(InterpolatedDoublesCurve.from(EXPIRIES, FORWARDS, INTERPOLATOR));
-  private static final StandardSmileSurfaceDataBundle DATA = new StandardSmileSurfaceDataBundle(FORWARD_CURVE, EXPIRIES, STRIKES, VOLS, IS_CALL_DATA);
+  private static final StandardSmileSurfaceDataBundle DATA = new StandardSmileSurfaceDataBundle(FORWARD_CURVE, EXPIRIES, STRIKES, VOLS);
   private static final double EPS = 1e-15;
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullForwards() {
-    new StandardSmileSurfaceDataBundle(null, EXPIRIES, STRIKES, VOLS, IS_CALL_DATA, INTERPOLATOR);
+    new StandardSmileSurfaceDataBundle(null, EXPIRIES, STRIKES, VOLS, INTERPOLATOR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullExpiries1() {
-    new StandardSmileSurfaceDataBundle(FORWARDS, null, STRIKES, VOLS, IS_CALL_DATA, INTERPOLATOR);
+    new StandardSmileSurfaceDataBundle(FORWARDS, null, STRIKES, VOLS, INTERPOLATOR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullStrikes1() {
-    new StandardSmileSurfaceDataBundle(FORWARDS, EXPIRIES, null, VOLS, IS_CALL_DATA, INTERPOLATOR);
+    new StandardSmileSurfaceDataBundle(FORWARDS, EXPIRIES, null, VOLS, INTERPOLATOR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullVols1() {
-    new StandardSmileSurfaceDataBundle(FORWARDS, EXPIRIES, STRIKES, null, IS_CALL_DATA, INTERPOLATOR);
+    new StandardSmileSurfaceDataBundle(FORWARDS, EXPIRIES, STRIKES, null, INTERPOLATOR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolator() {
-    new StandardSmileSurfaceDataBundle(FORWARDS, EXPIRIES, STRIKES, VOLS, IS_CALL_DATA, null);
+    new StandardSmileSurfaceDataBundle(FORWARDS, EXPIRIES, STRIKES, VOLS, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullForwardCurve() {
-    new StandardSmileSurfaceDataBundle(null, EXPIRIES, STRIKES, VOLS, IS_CALL_DATA);
+    new StandardSmileSurfaceDataBundle(null, EXPIRIES, STRIKES, VOLS);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullExpiries2() {
-    new StandardSmileSurfaceDataBundle(FORWARD_CURVE, null, STRIKES, VOLS, IS_CALL_DATA);
+    new StandardSmileSurfaceDataBundle(FORWARD_CURVE, null, STRIKES, VOLS);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullStrikes2() {
-    new StandardSmileSurfaceDataBundle(FORWARD_CURVE, EXPIRIES, null, VOLS, IS_CALL_DATA);
+    new StandardSmileSurfaceDataBundle(FORWARD_CURVE, EXPIRIES, null, VOLS);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullVols2() {
-    new StandardSmileSurfaceDataBundle(FORWARD_CURVE, EXPIRIES, STRIKES, null, IS_CALL_DATA);
+    new StandardSmileSurfaceDataBundle(FORWARD_CURVE, EXPIRIES, STRIKES, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testForwardLength() {
-    new StandardSmileSurfaceDataBundle(new double[] {1, 2, 3, 4}, EXPIRIES, STRIKES, VOLS, IS_CALL_DATA, INTERPOLATOR);
+    new StandardSmileSurfaceDataBundle(new double[] {1, 2, 3, 4}, EXPIRIES, STRIKES, VOLS, INTERPOLATOR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testStrikeLength1() {
-    new StandardSmileSurfaceDataBundle(FORWARDS, EXPIRIES, new double[][] {new double[] {1, 2, 3, 4, 5, 6}}, VOLS, IS_CALL_DATA, INTERPOLATOR);
+    new StandardSmileSurfaceDataBundle(FORWARDS, EXPIRIES, new double[][] {new double[] {1, 2, 3, 4, 5, 6}}, VOLS, INTERPOLATOR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testVolLength1() {
-    new StandardSmileSurfaceDataBundle(FORWARDS, EXPIRIES, STRIKES, new double[][] {new double[] {0.1, 0.1, 0.1, 0.1, 0.1, 0.1}}, IS_CALL_DATA, INTERPOLATOR);
+    new StandardSmileSurfaceDataBundle(FORWARDS, EXPIRIES, STRIKES, new double[][] {new double[] {0.1, 0.1, 0.1, 0.1, 0.1, 0.1}}, INTERPOLATOR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -108,22 +108,22 @@ public class StandardSmileSurfaceDataBundleTest {
     new StandardSmileSurfaceDataBundle(FORWARDS, EXPIRIES, STRIKES, new double[][] {
         new double[] {0.1, 0.1, 0.1, 0.1},
         new double[] {0.11, 0.11, 0.11, 0.11},
-        new double[] {0.12, 0.12, 0.12, 0.12}}, IS_CALL_DATA, INTERPOLATOR);
+        new double[] {0.12, 0.12, 0.12, 0.12}}, INTERPOLATOR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadVolData1() {
-    new StandardSmileSurfaceDataBundle(FORWARDS, EXPIRIES, STRIKES, DECREASING_VARIANCE, IS_CALL_DATA, INTERPOLATOR);
+    new StandardSmileSurfaceDataBundle(FORWARDS, EXPIRIES, STRIKES, DECREASING_VARIANCE, INTERPOLATOR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testStrikeLength2() {
-    new StandardSmileSurfaceDataBundle(FORWARD_CURVE, EXPIRIES, new double[][] {new double[] {1, 2, 3, 4, 5, 6}}, VOLS, IS_CALL_DATA);
+    new StandardSmileSurfaceDataBundle(FORWARD_CURVE, EXPIRIES, new double[][] {new double[] {1, 2, 3, 4, 5, 6}}, VOLS);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testVolLength3() {
-    new StandardSmileSurfaceDataBundle(FORWARD_CURVE, EXPIRIES, STRIKES, new double[][] {new double[] {0.1, 0.1, 0.1, 0.1, 0.1, 0.1}}, IS_CALL_DATA);
+    new StandardSmileSurfaceDataBundle(FORWARD_CURVE, EXPIRIES, STRIKES, new double[][] {new double[] {0.1, 0.1, 0.1, 0.1, 0.1, 0.1}});
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -131,12 +131,12 @@ public class StandardSmileSurfaceDataBundleTest {
     new StandardSmileSurfaceDataBundle(FORWARD_CURVE, EXPIRIES, STRIKES, new double[][] {
         new double[] {0.1, 0.1, 0.1, 0.1},
         new double[] {0.11, 0.11, 0.11, 0.11},
-        new double[] {0.12, 0.12, 0.12, 0.12}}, IS_CALL_DATA);
+        new double[] {0.12, 0.12, 0.12, 0.12}});
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadVolData2() {
-    new StandardSmileSurfaceDataBundle(FORWARD_CURVE, EXPIRIES, STRIKES, DECREASING_VARIANCE, IS_CALL_DATA);
+    new StandardSmileSurfaceDataBundle(FORWARD_CURVE, EXPIRIES, STRIKES, DECREASING_VARIANCE);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -169,10 +169,10 @@ public class StandardSmileSurfaceDataBundleTest {
     }
     assertEquals(FORWARD_CURVE, DATA.getForwardCurve());
     //   assertEquals(IS_CALL_DATA, DATA.isCallData());
-    StandardSmileSurfaceDataBundle other = new StandardSmileSurfaceDataBundle(FORWARD_CURVE, EXPIRIES, STRIKES, VOLS, IS_CALL_DATA);
+    StandardSmileSurfaceDataBundle other = new StandardSmileSurfaceDataBundle(FORWARD_CURVE, EXPIRIES, STRIKES, VOLS);
     assertEquals(DATA, other);
     assertEquals(DATA.hashCode(), other.hashCode());
-    other = new StandardSmileSurfaceDataBundle(FORWARDS, EXPIRIES, STRIKES, VOLS, IS_CALL_DATA, INTERPOLATOR);
+    other = new StandardSmileSurfaceDataBundle(FORWARDS, EXPIRIES, STRIKES, VOLS, INTERPOLATOR);
     assertArrayEquals(DATA.getExpiries(), other.getExpiries(), 0);
     for (int i = 0; i < STRIKES.length; i++) {
       assertArrayEquals(DATA.getStrikes()[i], other.getStrikes()[i], 0);
@@ -186,13 +186,13 @@ public class StandardSmileSurfaceDataBundleTest {
     assertEquals(((InterpolatedDoublesCurve) DATA.getForwardCurve().getForwardCurve()).getInterpolator(),
         ((InterpolatedDoublesCurve) other.getForwardCurve().getForwardCurve()).getInterpolator());
     final ForwardCurve otherCurve = new ForwardCurve(InterpolatedDoublesCurve.from(EXPIRIES, EXPIRIES, INTERPOLATOR));
-    other = new StandardSmileSurfaceDataBundle(otherCurve, EXPIRIES, STRIKES, VOLS, IS_CALL_DATA);
+    other = new StandardSmileSurfaceDataBundle(otherCurve, EXPIRIES, STRIKES, VOLS);
     assertFalse(DATA.equals(other));
-    other = new StandardSmileSurfaceDataBundle(FORWARD_CURVE, new double[] {0, 0.01, 0.02}, STRIKES, VOLS, IS_CALL_DATA);
+    other = new StandardSmileSurfaceDataBundle(FORWARD_CURVE, new double[] {0, 0.01, 0.02}, STRIKES, VOLS);
     assertFalse(DATA.equals(other));
-    other = new StandardSmileSurfaceDataBundle(FORWARD_CURVE, EXPIRIES, VOLS, VOLS, IS_CALL_DATA);
+    other = new StandardSmileSurfaceDataBundle(FORWARD_CURVE, EXPIRIES, VOLS, VOLS);
     assertFalse(DATA.equals(other));
-    other = new StandardSmileSurfaceDataBundle(FORWARD_CURVE, EXPIRIES, STRIKES, STRIKES, IS_CALL_DATA);
+    other = new StandardSmileSurfaceDataBundle(FORWARD_CURVE, EXPIRIES, STRIKES, STRIKES);
     assertFalse(DATA.equals(other));
     //    other = new StandardSmileSurfaceDataBundle(FORWARD_CURVE, EXPIRIES, STRIKES, VOLS, !IS_CALL_DATA);
     //    assertFalse(DATA.equals(other));
@@ -206,6 +206,6 @@ public class StandardSmileSurfaceDataBundleTest {
       bumpedVols[i] = VOLS[i];
     }
     bumpedVols[2][3] += 0.05;
-    assertEquals(bumped, new StandardSmileSurfaceDataBundle(FORWARD_CURVE, EXPIRIES, STRIKES, bumpedVols, IS_CALL_DATA));
+    assertEquals(bumped, new StandardSmileSurfaceDataBundle(FORWARD_CURVE, EXPIRIES, STRIKES, bumpedVols));
   }
 }

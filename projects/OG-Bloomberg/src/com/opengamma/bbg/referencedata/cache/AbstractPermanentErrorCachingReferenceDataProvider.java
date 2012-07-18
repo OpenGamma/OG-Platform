@@ -14,8 +14,8 @@ import java.util.TreeSet;
 
 import org.fudgemsg.FudgeContext;
 
-import com.bloomberglp.blpapi.SessionOptions;
 import com.google.common.collect.Sets;
+import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.BloombergReferenceDataProvider;
 import com.opengamma.bbg.ErrorInfo;
 import com.opengamma.bbg.PerSecurityReferenceDataResult;
@@ -23,18 +23,24 @@ import com.opengamma.bbg.ReferenceDataResult;
 import com.opengamma.bbg.referencedata.statistics.BloombergReferenceDataStatistics;
 
 /**
- * A {@link BloombergReferenceDataProvider} which avoids requerying fields for which permanent errors have been observed.
- * BBG-72 
+ * A {@link BloombergReferenceDataProvider} which avoids requerying fields for which permanent
+ * errors have been observed.
  */
 public abstract class AbstractPermanentErrorCachingReferenceDataProvider extends BloombergReferenceDataProvider {
+  // See BBG-72 
   //TODO: this is quite similar to the AbstractCachingReferenceDataProvider
 
-  
-  protected AbstractPermanentErrorCachingReferenceDataProvider(SessionOptions sessionOptions,
-      BloombergReferenceDataStatistics statistics) {
-    super(sessionOptions, statistics);
+  /**
+   * Creates an instance with statistics gathering.
+   * 
+   * @param bloombergConnector  the Bloomberg connector, not null
+   * @param statistics  the statistics to collect, not null
+   */
+  protected AbstractPermanentErrorCachingReferenceDataProvider(BloombergConnector bloombergConnector, BloombergReferenceDataStatistics statistics) {
+    super(bloombergConnector, statistics);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public ReferenceDataResult getFields(Set<String> securities, Set<String> fields) {
     Map<String, Set<String>> failedFieldsMap = getFailedFields(securities);
@@ -57,7 +63,6 @@ public abstract class AbstractPermanentErrorCachingReferenceDataProvider extends
         }
       }
     }
-
     return result;
   }
 
@@ -97,12 +102,13 @@ public abstract class AbstractPermanentErrorCachingReferenceDataProvider extends
     savePermanentErrors(security, permanentFailures);
   }
 
-  
   protected abstract void savePermanentErrors(String security, Set<String> permanentFailures);
+
   protected abstract Map<String, Set<String>> getFailedFields(Set<String> securities);
-  
+
   private boolean isPermanent(ErrorInfo value) {
     //BBG-72
     return "BAD_FLD".equals(value.getCategory()) && "NOT_APPLICABLE_TO_REF_DATA".equals(value.getSubcategory());
   }
+
 }

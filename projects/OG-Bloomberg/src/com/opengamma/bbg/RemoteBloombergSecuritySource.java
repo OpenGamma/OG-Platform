@@ -35,6 +35,9 @@ import com.opengamma.transport.ByteArrayRequestSender;
 import com.opengamma.util.ArgumentChecker;
 
 /**
+ * Provides remote access to the {@link BloombergSecuritySource}.
+ */
+/**
  * Provides remote access to the security master.
  */
 public class RemoteBloombergSecuritySource implements SecuritySource {
@@ -52,7 +55,8 @@ public class RemoteBloombergSecuritySource implements SecuritySource {
   private final FudgeContext _fudgeContext;
 
   /**
-   * Constructor.
+   * Creates an instance.
+   * 
    * @param byteArrayRequestSender  the sender
    */
   public RemoteBloombergSecuritySource(ByteArrayRequestSender byteArrayRequestSender) {
@@ -60,7 +64,8 @@ public class RemoteBloombergSecuritySource implements SecuritySource {
   }
 
   /**
-   * Constructor.
+   * Creates an instance.
+   * 
    * @param byteArrayRequestSender  the sender
    * @param fudgeContext  the context, not null
    */
@@ -74,6 +79,7 @@ public class RemoteBloombergSecuritySource implements SecuritySource {
   //-------------------------------------------------------------------------
   /**
    * Gets the sender.
+   * 
    * @return the sender
    */
   public ByteArrayRequestSender getByteArrayRequestSender() {
@@ -82,6 +88,7 @@ public class RemoteBloombergSecuritySource implements SecuritySource {
 
   /**
    * Gets the Fudge context.
+   * 
    * @return the Fudge context
    */
   public FudgeContext getFudgeContext() {
@@ -136,7 +143,7 @@ public class RemoteBloombergSecuritySource implements SecuritySource {
     SecurityMasterResponseMessage response = toSecurityMasterResponseMessage(data);
     return response.getSecurity();
   }
-  
+
   @Override
   public Security getSecurity(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     return getSecurity(bundle);
@@ -163,7 +170,7 @@ public class RemoteBloombergSecuritySource implements SecuritySource {
     SecurityMasterResponseMessage response = toSecurityMasterResponseMessage(data);
     return response.getSecurity();
   }
-  
+
   @Override
   public Security getSecurity(ObjectId objectId, VersionCorrection versionCorrection) {
     // This is wrong

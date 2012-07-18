@@ -25,6 +25,8 @@ public final class BloombergTicksCollectorLauncher {
   /* package */static final String CONFIG_XML_CLASSPATH = "/com/opengamma/bbg/replay/bloomberg-ticks-collector-context.xml";
 
   private ConfigurableApplicationContext _context;
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergTicksCollectorLauncher.class);
 
   /**

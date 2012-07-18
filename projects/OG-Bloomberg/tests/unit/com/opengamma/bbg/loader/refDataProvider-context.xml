@@ -11,13 +11,14 @@
 	</bean>
 
 	<!-- Bloomberg Reference Data Provider -->
+  <bean id="bloombergConnector" class="com.opengamma.bbg.BloombergConnectorFactoryBean">
+    <property name="name" value="Test" />
+    <property name="host" value="${bbgServer.host}" />
+    <property name="port" value="${bbgServer.port}" />
+  </bean>
+
 	<bean id="refDataProvider" class="com.opengamma.bbg.BloombergReferenceDataProvider">
-		<constructor-arg>
-			<bean class="com.bloomberglp.blpapi.SessionOptions">
-				<property name="serverHost" value="${bbgServer.host}" />
-				<property name="serverPort" value="${bbgServer.port}" />
-			</bean>
-		</constructor-arg>
+	  <constructor-arg ref="bloombergConnector" />
 	</bean>
 
 	<!-- Caching Reference Data Provider -->

@@ -46,7 +46,7 @@ public class DiscountCurve extends YieldAndDiscountCurve {
   }
 
   @Override
-  public double getDiscountFactor(final Double t) {
+  public double getDiscountFactor(final double t) {
     return _curve.getYValue(t);
   }
 

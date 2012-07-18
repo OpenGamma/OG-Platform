@@ -16,6 +16,9 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ViewportResults {
 
+  private static final Cell s_emptyCell = new Cell(null, null, null);
+  //private static final Cell s_emtpyCellWithHistory = new Cell(null, null, Collections.emptyList());
+
   private final List<List<Cell>> _allResults;
   private final AnalyticsColumnGroups _columns;
   private final ViewportSpecification _viewportSpec;
@@ -39,12 +42,15 @@ public class ViewportResults {
     return _viewportSpec.isExpanded();
   }
 
-  public AnalyticsColumnGroups getColumns() {
-    return _columns;
-  }
-
-  public ViewportSpecification getViewportSpec() {
-    return _viewportSpec;
+  /**
+   * @param viewportColIndex The column index <em>in terms of the viewport columns</em>. For exmaple, if a viewport
+   * contains columns 3 and 5 a call to {@code getColumnType(0)} will return the type of column 3 and
+   * {@code getColumnType(1)} will return the type of column 5
+   * @return The type of the specified column
+   */
+  public Class<?> getColumnType(int viewportColIndex) {
+    Integer gridColIndex = _viewportSpec.getGridColumnIndex(viewportColIndex);
+    return _columns.getColumn(gridColIndex).getType();
   }
 
   @Override
@@ -62,14 +68,16 @@ public class ViewportResults {
   }
 
   public static Cell valueCell(Object value, ValueSpecification valueSpecification, Collection<Object> history) {
-    ArgumentChecker.notNull(value, "value");
-    ArgumentChecker.notNull(valueSpecification, "valueSpecification");
     return new Cell(value, valueSpecification, history);
   }
 
   public static Cell emptyCell() {
-    return new Cell(null, null, null);
+    return s_emptyCell;
   }
+
+  /*public static Cell emptyCellWithHistory() {
+    return s_emtpyCellWithHistory;
+  }*/
 
   public static class Cell {
 

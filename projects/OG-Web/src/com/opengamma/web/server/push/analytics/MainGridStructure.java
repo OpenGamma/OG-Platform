@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.server.push.analytics;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -57,12 +58,14 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
   /* package */ MainGridStructure(CompiledViewDefinition compiledViewDef, List<Row> rows) {
     ViewDefinition viewDef = compiledViewDef.getViewDefinition();
     _colIndexByRequirement = Maps.newHashMap();
-    // column group for the label column
-    AnalyticsColumnGroup labelGroup = new AnalyticsColumnGroup("", ImmutableList.of(new AnalyticsColumn("Label", "", String.class)));
+    // column group for the label and quantity columns which don't come from the calculation results
+    AnalyticsColumnGroup labelGroup =
+        new AnalyticsColumnGroup("", ImmutableList.of(new AnalyticsColumn("Label", "", String.class),
+                                                      new AnalyticsColumn("Quantity", "", BigDecimal.class)));
     List<AnalyticsColumnGroup> columnGroups = Lists.newArrayList(labelGroup);
     _specsToReqs = Maps.newHashMap();
     _reqsToSpecs = Maps.newHashMap();
-    int colIndex = 1; // col 0 is the node name
+    int colIndex = 2; // col 0 is the node name, col 1 is the quantity
     _columnKeys.add(null); // there is no key for the row label column, stick null in there to get the indices right
     for (ViewCalculationConfiguration calcConfig : viewDef.getAllCalculationConfigurations()) {
       String configName = calcConfig.getName();
@@ -125,7 +128,7 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
    * @return Pair of value spec and calculation config name.
    * TODO need to specify this using a stable target ID to cope with dynamic reaggregation
    */
-  /* package */ Pair<ValueSpecification, String> getTargetForCell(int rowIndex, int colIndex) {
+  /* package */ Pair<String, ValueSpecification> getTargetForCell(int rowIndex, int colIndex) {
     if (rowIndex < 0 || rowIndex >= getRowCount() || colIndex < 0 || colIndex >= getColumnCount()) {
       throw new IllegalArgumentException("Cell is outside grid bounds: row=" + rowIndex + ", col=" + colIndex +
                                              ", rowCount=" + getRowCount() + ", colCount=" + getColumnCount());
@@ -135,11 +138,15 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
       return null;
     }
     Row row = _rows.get(rowIndex);
-     ValueRequirement valueReq = new ValueRequirement(colKey.getValueName(), row.getTarget(), colKey.getValueProperties());
+    ValueRequirement valueReq = new ValueRequirement(colKey.getValueName(), row.getTarget(), colKey.getValueProperties());
     String calcConfigName = colKey.getCalcConfigName();
     ValueRequirementKey requirementKey = new ValueRequirementKey(valueReq, calcConfigName);
     ValueSpecification valueSpec = _reqsToSpecs.get(requirementKey);
-    return Pair.of(valueSpec, calcConfigName);
+    if (valueSpec != null) {
+      return Pair.of(calcConfigName, valueSpec);
+    } else {
+      return null;
+    }
   }
 
   @Override
@@ -157,16 +164,27 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
     return _columnGroups.getColumnCount();
   }
 
+  public Class<?> getColumnType(int colIndex) {
+    return _columnGroups.getColumn(colIndex).getType();
+  }
+
+  // TODO add quantity for position rows?
   /* package */ static class Row {
 
     private final ComputationTargetSpecification _target;
     private final String _name;
+    private final BigDecimal _quantity;
 
     /* package */ Row(ComputationTargetSpecification target, String name) {
+      this(target, name, null);
+    }
+
+    /* package */ Row(ComputationTargetSpecification target, String name, BigDecimal quantity) {
       ArgumentChecker.notNull(target, "target");
       ArgumentChecker.notNull(name, "name");
       _target = target;
       _name = name;
+      _quantity = quantity;
     }
 
     /* package */ ComputationTargetSpecification getTarget() {
@@ -177,9 +195,13 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
       return _name;
     }
 
+    /* package */ BigDecimal getQuantity() {
+      return _quantity;
+    }
+
     @Override
     public String toString() {
-      return "Row [_target=" + _target + ", _name='" + _name + '\'' + "]";
+      return "Row [_target=" + _target + ", _name='" + _name + '\'' + ", _quantity=" + _quantity + "]";
     }
   }
 
@@ -219,6 +241,14 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
       int result = _valueRequirement.hashCode();
       result = 31 * result + _calcConfigName.hashCode();
       return result;
+    }
+
+    @Override
+    public String toString() {
+      return "ValueRequirementKey [" +
+          "_valueRequirement=" + _valueRequirement +
+          ", _calcConfigName='" + _calcConfigName + '\'' +
+          "]";
     }
   }
 }

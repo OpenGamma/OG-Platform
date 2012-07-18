@@ -27,7 +27,7 @@
   <bean id="bbgReferenceDataProvider" class="com.opengamma.bbg.MongoDBCachingReferenceDataProvider">
     <constructor-arg>
       <bean class="com.opengamma.bbg.referencedata.cache.MongoDBPermanentErrorCachingReferenceDataProvider" init-method="start">
-        <constructor-arg ref="sessionOptions" />
+        <constructor-arg ref="bloombergConnector" />
         <constructor-arg ref="mongoConnector"/>
         <constructor-arg ref="bbgReferenceDataStatistics" />
       </bean>

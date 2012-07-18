@@ -112,8 +112,7 @@ public class ForexOptionBlackConstantSpreadThetaFunction extends FXOptionBlackMu
     }
     final SmileDeltaTermStructureParametersStrikeInterpolation smiles = (SmileDeltaTermStructureParametersStrikeInterpolation) volatilitySurfaceObject;
     final FXMatrix fxMatrix = new FXMatrix(ccy1, ccy2, spot);
-    final ValueProperties.Builder properties = getResultProperties(putCurveName, callCurveName, putCurveConfig, callCurveConfig, surfaceName, interpolatorName,
-        leftExtrapolatorName, rightExtrapolatorName, target);
+    final ValueProperties.Builder properties = getResultProperties(target, desiredValue);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.VALUE_THETA, target.toSpecification(), properties.get());
     final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(fxMatrix, curveCurrency, yieldCurves, smiles, Pair.of(ccy1, ccy2));
     final ConstantSpreadHorizonThetaCalculator calculator = ConstantSpreadHorizonThetaCalculator.getInstance();
@@ -139,7 +138,8 @@ public class ForexOptionBlackConstantSpreadThetaFunction extends FXOptionBlackMu
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative forex, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
+  protected Set<ComputedValue> getResult(final InstrumentDerivative forex, final SmileDeltaTermStructureDataBundle data, final ComputationTarget target,
+      final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
     throw new NotImplementedException("Should never get here");
   }
 
@@ -151,10 +151,8 @@ public class ForexOptionBlackConstantSpreadThetaFunction extends FXOptionBlackMu
   }
 
   @Override
-  protected ValueProperties.Builder getResultProperties(final String putCurveName, final String callCurveName, final String putCurveConfig, final String callCurveConfig,
-      final String surfaceName, final String interpolatorName, final String leftExtrapolatorName, final String rightExtrapolatorName, final ComputationTarget target) {
-    final ValueProperties.Builder properties = super.getResultProperties(putCurveName, callCurveName, putCurveConfig, callCurveConfig, surfaceName,
-        interpolatorName, leftExtrapolatorName, rightExtrapolatorName, target);
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
+    final ValueProperties.Builder properties = super.getResultProperties(target, desiredValue);
     properties.with(InterestRateFutureConstantSpreadThetaFunction.PROPERTY_THETA_CALCULATION_METHOD, InterestRateFutureConstantSpreadThetaFunction.THETA_CONSTANT_SPREAD);
     return properties;
   }

@@ -5,16 +5,16 @@
  */
 package com.opengamma.analytics.financial.equity;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
 
-import org.apache.commons.lang.Validate;
-
 /**
- * Market data required to price a Equity Options and Variance Swaps
+ * Market data required to price a Variance Swaps through static replication of a log-contract
  */
-public class EquityOptionDataBundle {
+public class StaticReplicationDataBundle {
 
   private final YieldAndDiscountCurve _discountCurve;
   private final ForwardCurve _forwardCurve;
@@ -25,7 +25,7 @@ public class EquityOptionDataBundle {
    * @param discCrv YieldAndDiscountCurve used to discount payments and in this case, also to compute the forward value of the underlying
    * @param forwardCurve the forward curve
    */
-  public EquityOptionDataBundle(final BlackVolatilitySurface<?> volSurf, final YieldAndDiscountCurve discCrv, final ForwardCurve forwardCurve) {
+  public StaticReplicationDataBundle(final BlackVolatilitySurface<?> volSurf, final YieldAndDiscountCurve discCrv, final ForwardCurve forwardCurve) {
     Validate.notNull(discCrv, "discountCurve");
     Validate.notNull(volSurf, "volatilitySurface");
     Validate.notNull(forwardCurve, "forwardCurve");
@@ -79,7 +79,7 @@ public class EquityOptionDataBundle {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    EquityOptionDataBundle other = (EquityOptionDataBundle) obj;
+    StaticReplicationDataBundle other = (StaticReplicationDataBundle) obj;
     if (_discountCurve == null) {
       if (other._discountCurve != null) {
         return false;

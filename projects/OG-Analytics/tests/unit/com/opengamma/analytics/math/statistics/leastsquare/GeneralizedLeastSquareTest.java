@@ -30,9 +30,6 @@ import com.opengamma.analytics.math.interpolation.PSplineFitter;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
-import com.opengamma.analytics.math.statistics.leastsquare.GeneralizedLeastSquare;
-import com.opengamma.analytics.math.statistics.leastsquare.GeneralizedLeastSquareResults;
-import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResults;
 
 /**
  * 
@@ -157,6 +154,13 @@ public class GeneralizedLeastSquareTest {
     // System.out.print("\n");
     // }
 
+  }
+
+  @Test
+  public void printTest() {
+    if (PRINT) {
+      System.out.println("GeneralizedLeastSquareTest: true PRINT to false");
+    }
   }
 
   @Test

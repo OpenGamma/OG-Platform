@@ -14,6 +14,7 @@ import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.calc.EngineResourceReference;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.engine.view.client.ViewResultMode;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
@@ -65,7 +66,6 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
 
   @Override
   public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
-    // TODO use deltaResult and be more intelligent about viewport updates? do delta results work?
     EngineResourceReference<? extends ViewCycle> cycleReference = _viewClient.createCycleReference(fullResult.getViewCycleId());
     if (cycleReference == null) {
       // this shouldn't happen if everything in the engine is working as it should
@@ -79,8 +79,7 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
   /* package */ void start() {
     _viewClient.setResultListener(this);
     _viewClient.setViewCycleAccessSupported(true);
-    // TODO enable this when a full cache exists that can continuously apply the deltas
-    //_viewClient.setFragmentResultMode(ViewResultMode.FULL_THEN_DELTA);
+    _viewClient.setFragmentResultMode(ViewResultMode.FULL_THEN_DELTA);
     try {
       _viewClient.attachToViewProcess(_aggregatedViewDef.getUniqueId(), _executionOptions);
     } catch (Exception e) {

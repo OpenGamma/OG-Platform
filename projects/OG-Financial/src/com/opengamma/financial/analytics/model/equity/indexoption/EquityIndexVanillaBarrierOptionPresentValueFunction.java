@@ -7,7 +7,7 @@ package com.opengamma.financial.analytics.model.equity.indexoption;
 
 import java.util.Set;
 
-import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
+import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionPresentValueCalculator;
 import com.opengamma.engine.ComputationTarget;
@@ -27,7 +27,7 @@ public class EquityIndexVanillaBarrierOptionPresentValueFunction extends EquityI
   }
 
   @Override
-  protected Object computeValues(final Set<EquityIndexOption> vanillaOptions, final EquityOptionDataBundle market) {
+  protected Object computeValues(Set<EquityIndexOption> vanillaOptions, StaticReplicationDataBundle market) {
     double pv = 0.0;
     for (EquityIndexOption derivative : vanillaOptions) {
       pv += s_calculator.visitEquityIndexOption(derivative, market);

@@ -23,65 +23,66 @@ import com.opengamma.util.ArgumentChecker;
  */
 public final class BloombergCliOptions {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergCliOptions.class);
   /**
-   * Fields option name
+   * Fields option name.
    */
   public static final String FIELDS_OPTION = "fields";
   /**
-   * Fields file option name
+   * Fields file option name.
    */
   public static final String FIELDS_FILE_OPTION = "fieldsFile";
   /**
-   * Data providers option name
+   * Data providers option name.
    */
   public static final String DATAPROVIDERS_OPTION = "dataproviders";
   /**
-   * Help option name
+   * Help option name.
    */
   public static final String HELP_OPTION = "help";
   /**
-   * Position master option name
+   * Position master option name.
    */
   public static final String POSITION_MASTER_OPTION = "pm";
   /**
-   * Reload option name
+   * Reload option name.
    */
   public static final String RELOAD_OPTION = "reload";
   /**
-   * Update option name
+   * Update option name.
    */
   public static final String UPDATE_OPTION = "update";
   /**
-   * Start date option name
+   * Start date option name.
    */
   public static final String START_OPTION = "start";
   /**
-   * End date option name
+   * End date option name.
    */
   public static final String END_OPTION = "end";
   /**
-   * Unique option name
+   * Unique option name.
    */
   public static final String UNIQUE_ID_OPTION = "unique";
   /**
-   * CSV option name
+   * CSV option name.
    */
   public static final String CSV_OPTION = "csv";
   /**
-   * Identifiers option name
+   * Identifiers option name.
    */
   public static final String IDENTIFIERS_OPTION = "identifiers";
   /**
-   * Output file option name
+   * Output file option name.
    */
   public static final String OUPUT_OPTION = "output";
   /**
-   * Host option name
+   * Host option name.
    */
   public static final String HOST_OPTION = "host";
   /**
-   * Port option name
+   * Port option name.
    */
   public static final String PORT_OPTION = "port";
   
@@ -104,13 +105,13 @@ public final class BloombergCliOptions {
   private boolean _host;
     
   /**
-   * Restricted constructor
+   * Restricted constructor.
    */
   private BloombergCliOptions() {
   }
     
   /**
-   * Checks if options has data fields option
+   * Checks if options has data fields option.
    * @return true or false
    */
   public boolean hasFields() {
@@ -118,7 +119,7 @@ public final class BloombergCliOptions {
   }
   
   /**
-   * Checks if options has data fields file option
+   * Checks if options has data fields file option.
    * @return true or false
    */
   public boolean hasFieldsFile() {
@@ -142,7 +143,7 @@ public final class BloombergCliOptions {
   }
 
   /**
-   * Checks if options has identifiers option
+   * Checks if options has identifiers option.
    * @return true or false
    */
   public boolean hasIdentifiers() {
@@ -150,7 +151,7 @@ public final class BloombergCliOptions {
   }
 
   /**
-   * Checks if options has output option
+   * Checks if options has output option.
    * @return true or false
    */
   public boolean hasOutput() {
@@ -158,7 +159,7 @@ public final class BloombergCliOptions {
   }
   
   /**
-   * Checks if options has host option
+   * Checks if options has host option.
    * @return true or false
    */
   public boolean hasHost() {
@@ -166,7 +167,7 @@ public final class BloombergCliOptions {
   }
   
   /**
-   * Checks if options has port option
+   * Checks if options has port option.
    * @return true or false
    */
   public boolean hasPort() {

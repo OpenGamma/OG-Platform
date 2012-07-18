@@ -12,7 +12,11 @@ import com.opengamma.analytics.financial.forex.calculator.PresentValueCurveSensi
 import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionExecutionContext;
+import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
@@ -20,7 +24,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class FXOptionBlackPresentValueCurveSensitivityFunction extends FXOptionBlackSingleValuedFunction {
+public class FXOptionBlackPresentValueCurveSensitivityFunction extends FXOptionBlackMultiValuedFunction {
   private static final PresentValueCurveSensitivityBlackForexCalculator CALCULATOR = PresentValueCurveSensitivityBlackForexCalculator.getInstance();
 
   public FXOptionBlackPresentValueCurveSensitivityFunction() {
@@ -28,8 +32,9 @@ public class FXOptionBlackPresentValueCurveSensitivityFunction extends FXOptionB
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
-    final MultipleCurrencyInterestRateCurveSensitivity result = CALCULATOR.visit(fxOption, data);
+  protected Set<ComputedValue> getResult(final InstrumentDerivative forex, final SmileDeltaTermStructureDataBundle data, final ComputationTarget target,
+      final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
+    final MultipleCurrencyInterestRateCurveSensitivity result = CALCULATOR.visit(forex, data);
     ArgumentChecker.isTrue(result.getCurrencies().size() == 1, "Only one currency");
     return Collections.singleton(new ComputedValue(spec, result));
   }

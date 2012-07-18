@@ -16,8 +16,9 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.mongo.MongoConnector;
 
 /**
- * An implementation of {@link CachingReferenceDataProvider} which puts all data
- * into a Mongo database.
+ * Decorates a reference data provider, adding caching.
+ * <p>
+ * The cache is implemented using the a Mongo database.
  */
 public class MongoDBCachingReferenceDataProvider extends AbstractCachingReferenceDataProvider {
   //TODO: generic version of this to turn inheritance into composition (AbstractCachingReferenceDataProvider)
@@ -62,15 +63,17 @@ public class MongoDBCachingReferenceDataProvider extends AbstractCachingReferenc
   }
 
   @Override
-  protected Map<String, PerSecurityReferenceDataResult> loadCachedResults(Set<String> securities) {
-    return _cache.loadCachedResults(securities);    
+  protected Map<String, PerSecurityReferenceDataResult> loadCachedResults(Set<String> securityKeys) {
+    return _cache.loadCachedResults(securityKeys);    
   }
 
   /**
    * Gets the cache field.
+   * 
    * @return the cache
    */
   public MongoDBReferenceDataCache getCache() {
     return _cache;
   }
+
 }

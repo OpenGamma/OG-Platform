@@ -13,7 +13,7 @@ import com.opengamma.analytics.financial.equity.variance.pricing.AffineDividends
 import com.opengamma.analytics.financial.equity.variance.pricing.EquityDividendsCurvesBundle;
 import com.opengamma.analytics.financial.equity.variance.pricing.EquityVarianceSwapForwardPurePDE;
 import com.opengamma.analytics.financial.equity.variance.pricing.EquityVarianceSwapStaticReplication;
-import com.opengamma.analytics.financial.equity.variance.pricing.VarianceSwapMonteCarloCalculator;
+import com.opengamma.analytics.financial.equity.variance.pricing.EquityVarianceSwapMonteCarloCalculator;
 import com.opengamma.analytics.financial.equity.variance.pricing.VarianceSwapPureMonteCarloCalculator;
 import com.opengamma.analytics.financial.equity.variance.pricing.VolatilitySurfaceConverter;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
@@ -41,7 +41,7 @@ public class VarianceSwapWithDividendsTest {
   final static int seed = 123;
   private static final double MC_SD = 4.0;
 
-  private static final VarianceSwapMonteCarloCalculator MC_CALCULATOR = new VarianceSwapMonteCarloCalculator(seed, true, true);
+  private static final EquityVarianceSwapMonteCarloCalculator MC_CALCULATOR = new EquityVarianceSwapMonteCarloCalculator(seed, true, true);
   private static final VarianceSwapPureMonteCarloCalculator MC_CALCULATOR_PURE = new VarianceSwapPureMonteCarloCalculator(seed, true, true);
   private static final EquityVarianceSwapStaticReplication STATIC_REPLICATION = new EquityVarianceSwapStaticReplication();
   private static final EquityVarianceSwapForwardPurePDE PDE_SOLVER = new EquityVarianceSwapForwardPurePDE();

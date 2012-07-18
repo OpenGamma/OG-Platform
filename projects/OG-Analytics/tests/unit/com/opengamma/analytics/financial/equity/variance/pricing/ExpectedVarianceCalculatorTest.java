@@ -27,7 +27,7 @@ public class ExpectedVarianceCalculatorTest {
   private static final double SPOT = 80;
   private static final double DRIFT = 0.05;
   private static final ForwardCurve FORWARD_CURVE = new ForwardCurve(SPOT, DRIFT);
-  private static final ExpectedVarianceCalculator CALCULATOR = new ExpectedVarianceCalculator(TOL);
+  private static final ExpectedVarianceStaticReplicationCalculator CALCULATOR = new ExpectedVarianceStaticReplicationCalculator(TOL);
 
   /**
    * Start with a Black volatility surface (strike) - which comes from a mixed log-normal model (hence we know the answer analytically) and convert the surface to ones

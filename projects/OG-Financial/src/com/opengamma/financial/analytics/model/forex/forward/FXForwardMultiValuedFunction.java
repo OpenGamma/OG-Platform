@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.model.forex.forward;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.engine.value.ValueRequirement;
 
 /**
  * 
@@ -28,8 +29,11 @@ public abstract class FXForwardMultiValuedFunction extends FXForwardFunction {
   }
 
   @Override
-  protected ValueProperties.Builder getResultProperties(final String payCurveName, final String receiveCurveName, final String payCurveCalculationConfig, final String receiveCurveCalculationConfig,
-      final ComputationTarget target) {
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
+    final String payCurveName = desiredValue.getConstraint(ValuePropertyNames.PAY_CURVE);
+    final String receiveCurveName = desiredValue.getConstraint(ValuePropertyNames.RECEIVE_CURVE);
+    final String payCurveCalculationConfig = desiredValue.getConstraint(PAY_CURVE_CALC_CONFIG);
+    final String receiveCurveCalculationConfig = desiredValue.getConstraint(RECEIVE_CURVE_CALC_CONFIG);
     return createValueProperties()
         .with(ValuePropertyNames.PAY_CURVE, payCurveName)
         .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveName)

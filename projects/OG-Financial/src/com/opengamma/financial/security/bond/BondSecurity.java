@@ -113,7 +113,7 @@ public abstract class BondSecurity extends FinancialSecurity {
   /**
    * The interest accrual date.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private ZonedDateTime _interestAccrualDate;
   /**
    * The settlement date.
@@ -123,7 +123,7 @@ public abstract class BondSecurity extends FinancialSecurity {
   /**
    * The first coupon date.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private ZonedDateTime _firstCouponDate;
   /**
    * The issuance price.
@@ -350,8 +350,6 @@ public abstract class BondSecurity extends FinancialSecurity {
     JodaBeanUtils.notNull(_couponType, "couponType");
     JodaBeanUtils.notNull(_couponFrequency, "couponFrequency");
     JodaBeanUtils.notNull(_dayCount, "dayCount");
-    JodaBeanUtils.notNull(_interestAccrualDate, "interestAccrualDate");
-    JodaBeanUtils.notNull(_firstCouponDate, "firstCouponDate");
     super.validate();
   }
 
@@ -782,7 +780,7 @@ public abstract class BondSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   /**
    * Gets the interest accrual date.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public ZonedDateTime getInterestAccrualDate() {
     return _interestAccrualDate;
@@ -790,10 +788,9 @@ public abstract class BondSecurity extends FinancialSecurity {
 
   /**
    * Sets the interest accrual date.
-   * @param interestAccrualDate  the new value of the property, not null
+   * @param interestAccrualDate  the new value of the property
    */
   public void setInterestAccrualDate(ZonedDateTime interestAccrualDate) {
-    JodaBeanUtils.notNull(interestAccrualDate, "interestAccrualDate");
     this._interestAccrualDate = interestAccrualDate;
   }
 
@@ -833,7 +830,7 @@ public abstract class BondSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   /**
    * Gets the first coupon date.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public ZonedDateTime getFirstCouponDate() {
     return _firstCouponDate;
@@ -841,10 +838,9 @@ public abstract class BondSecurity extends FinancialSecurity {
 
   /**
    * Sets the first coupon date.
-   * @param firstCouponDate  the new value of the property, not null
+   * @param firstCouponDate  the new value of the property
    */
   public void setFirstCouponDate(ZonedDateTime firstCouponDate) {
-    JodaBeanUtils.notNull(firstCouponDate, "firstCouponDate");
     this._firstCouponDate = firstCouponDate;
   }
 
