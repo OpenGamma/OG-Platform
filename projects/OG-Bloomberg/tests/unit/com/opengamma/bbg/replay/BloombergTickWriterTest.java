@@ -47,7 +47,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 /**
  * Test.
  */
-@Test(groups = "unit")
+@Test(groups = {"unit", "slow"})
 public class BloombergTickWriterTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergTickWriterTest.class);
