@@ -414,8 +414,8 @@ public abstract class BlackFormulaRepository {
       lowerSigma = temp[0];
       upperSigma = temp[1];
     } catch (final MathException e) {
-      throw new IllegalArgumentException(e.toString() + " No implied Volatility for this price. [price: " + otmPrice + ", forward: " + forward + ", strike: " +
-          strike + ", timeToExpiry: " + timeToExpiry + ", " + (isCall ? "Call" : "put"));
+      throw new IllegalArgumentException(e.toString() + " No implied Volatility for this price. [price: " + otmPrice + ", forward: " + forward + ", strike: " + strike + ", timeToExpiry: "
+          + timeToExpiry + ", " + (isCall ? "Call" : "put"));
     }
     double sigma = (lowerSigma + upperSigma) / 2.0;
     final double maxChange = 0.5;
@@ -482,8 +482,7 @@ public abstract class BlackFormulaRepository {
     for (final SimpleOptionData option : data) {
       intrinsicPrice += Math.max(0, (option.isCall() ? 1 : -1) * option.getDiscountFactor() * (option.getForward() - option.getStrike()));
     }
-    Validate.isTrue(price >= intrinsicPrice, "option price (" + price + ") less than intrinsic value (" + intrinsicPrice
-        + ")");
+    Validate.isTrue(price >= intrinsicPrice, "option price (" + price + ") less than intrinsic value (" + intrinsicPrice + ")");
 
     if (price == intrinsicPrice) {
       return 0.0;
@@ -560,6 +559,37 @@ public abstract class BlackFormulaRepository {
     Validate.isTrue(forward > 0, "Forward negative");
     final double omega = (isCall ? 1.0 : -1.0);
     final double strike = forward * Math.exp(-volatility * Math.sqrt(time) * omega * NORMAL.getInverseCDF(omega * delta) + volatility * volatility * time / 2);
+    return strike;
+  }
+
+  /**
+   * Computes the implied strike and its derivatives from delta and volatility in the Black formula.
+   * @param delta The option delta
+   * @param isCall The call (true) / put (false) flag.
+   * @param forward The forward.
+   * @param time The time to expiration.
+   * @param volatility The volatility.
+   * @param derivatives The derivatives of the implied strike with respect to the input. The array is changed by the method.
+   * Derivatives with respect to: [0] delta, [1] forward, [2] time, [3] volatility. 
+   * @return The strike.
+   */
+  public static double impliedStrike(final double delta, final boolean isCall, final double forward, final double time, final double volatility, double[] derivatives) {
+    Validate.isTrue(delta > -1 && delta < 1, "Delta out of range");
+    Validate.isTrue(isCall ^ (delta < 0), "Delta incompatible with call/put: " + isCall + ", " + delta);
+    Validate.isTrue(forward > 0, "Forward negative");
+    final double omega = (isCall ? 1.0 : -1.0);
+    final double sqrtt = Math.sqrt(time);
+    final double n = NORMAL.getInverseCDF(omega * delta);
+    final double part1 = Math.exp(-volatility * sqrtt * omega * n + volatility * volatility * time / 2);
+    final double strike = forward * part1;
+    // Backward sweep
+    double strikeBar = 1.0;
+    double part1Bar = forward * strikeBar;
+    double nBar = part1 * -volatility * Math.sqrt(time) * omega * part1Bar;
+    derivatives[0] = omega / NORMAL.getPDF(n) * nBar;
+    derivatives[1] = part1 * strikeBar;
+    derivatives[2] = part1 * (-volatility * omega * n * 0.5 / sqrtt + volatility * volatility / 2) * part1Bar;
+    derivatives[3] = part1 * (-sqrtt * omega * n + volatility * time) * part1Bar;
     return strike;
   }
 
