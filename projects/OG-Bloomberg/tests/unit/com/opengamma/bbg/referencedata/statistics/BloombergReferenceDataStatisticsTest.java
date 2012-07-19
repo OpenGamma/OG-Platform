@@ -18,10 +18,9 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Test.
  */
-@Test(groups = "unit")
 public class BloombergReferenceDataStatisticsTest {
 
-  @Test
+  @Test(groups = "unit")
   public void singleTest() {
     MapBloombergReferenceDataStatistics stats = new MapBloombergReferenceDataStatistics();
     stats.gotFields(Collections.singleton("1"), Collections.singleton("A"));
@@ -44,7 +43,7 @@ public class BloombergReferenceDataStatisticsTest {
     assertEquals(2, snap2.getLookupsBySecurity().get(0).getFirst().longValue());
   }
 
-  @Test
+  @Test(groups = "unit")
   public void multiTest() {
     MapBloombergReferenceDataStatistics stats = new MapBloombergReferenceDataStatistics();
     stats.gotFields(Collections.singleton("1"), Collections.singleton("A"));
@@ -73,7 +72,7 @@ public class BloombergReferenceDataStatisticsTest {
     assertPairEquals(Pair.of(1, "A"), snap2.getLookupsByField().get(1));
   }
 
-  @Test
+  @Test(groups = {"unit", "slow"})
   public void bigTest() throws InterruptedException {
     assertSmall(new Supplier<MapBloombergReferenceDataStatistics>() {
       @Override
@@ -83,7 +82,7 @@ public class BloombergReferenceDataStatisticsTest {
     }, 10 * 1024 * 1024, "Stats");
   }
 
-  @Test
+  @Test(groups = {"unit", "slow"})
   public void bigIncrementTest() throws InterruptedException {
     final MapBloombergReferenceDataStatistics stats = getBigStats();
     assertSmall(new Supplier<Object>() {
@@ -95,7 +94,7 @@ public class BloombergReferenceDataStatisticsTest {
     }, 1 * 1024 * 1024, "Increment");
   }
 
-  @Test
+  @Test(groups = {"unit", "slow"})
   public void bigSnapshotTest() throws InterruptedException {
     final MapBloombergReferenceDataStatistics stats = getBigStats();
     assertSmall(new Supplier<Snapshot>() {
