@@ -7,6 +7,7 @@
 package com.opengamma.livedata.firehose;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
@@ -28,8 +29,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.firehose.FireHoseLiveData.DataStateListener;
 import com.opengamma.livedata.firehose.FireHoseLiveData.ValueUpdateListener;
-import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
-import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 import com.opengamma.livedata.server.AbstractLiveDataServer;
 import com.opengamma.livedata.server.Subscription;
 import com.opengamma.livedata.server.distribution.EmptyMarketDataSenderFactory;
@@ -147,21 +146,19 @@ public class FireHoseLiveDataServer extends AbstractLiveDataServer {
     s_logger.debug("Subscribing to {}", uniqueIds);
     final Map<String, Object> result = Maps.newHashMapWithExpectedSize(uniqueIds.size());
     for (String identifier : uniqueIds) {
-      if (getFireHose().isMarketDataComplete() && !getFireHose().isDataAvailable(identifier)) {
-        LiveDataSubscriptionResponse error = new LiveDataSubscriptionResponse(
-            null,
-            LiveDataSubscriptionResult.NOT_PRESENT);
-        error.setUserMessage("After full StateOfWorld and " + identifier + " not available.");
-        result.put(identifier, error);
-        continue;
-      }
+      result.put(identifier, new AtomicReference<FudgeMsg>());
+    }
+    return result;
+  }
+  
+  @Override
+  protected void subscriptionDone(Set<String> uniqueIds) {
+    for (String identifier : uniqueIds) {
       final FudgeMsg msg = getFireHose().getLatestValue(identifier);
       if (msg != null) {
         liveDataReceived(identifier, msg);
       }
-      result.put(identifier, new AtomicReference<FudgeMsg>());
     }
-    return result;
   }
 
   @Override
@@ -186,9 +183,17 @@ public class FireHoseLiveDataServer extends AbstractLiveDataServer {
     }
     if (failures != null) {
       waitForMarketData(failures);
-      for (String identifier : failures) {
+      final Iterator<String> itr = failures.iterator();
+      while (itr.hasNext()) {
+        final String identifier = itr.next();
         final FudgeMsg msg = getFireHose().getLatestValue(identifier);
-        result.put(identifier, msg);
+        if (msg != null) {
+          result.put(identifier, msg);
+          itr.remove();
+        }
+      }
+      if (!failures.isEmpty()) {
+        throw new OpenGammaRuntimeException("Couldn't snapshot " + failures);
       }
     }
     return result;
