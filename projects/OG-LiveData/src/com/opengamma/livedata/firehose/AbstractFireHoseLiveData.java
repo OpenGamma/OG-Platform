@@ -80,4 +80,9 @@ public abstract class AbstractFireHoseLiveData implements FireHoseLiveData {
     }
   }
 
+  @Override
+  public boolean isDataAvailable(String uniqueId) {
+    return _marketValues.containsKey(uniqueId);
+  }
+
 }
