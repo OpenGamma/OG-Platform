@@ -118,7 +118,7 @@ public class FXForwardPV01Function extends FXForwardSingleValuedFunction {
     final ValueRequirement receiveFundingCurve = getCurveRequirement(receiveCurveName, receiveCurrency, receiveCurveCalculationConfigName);
     final String resultCurrency, resultCurveName, resultCurveConfigName;
     if (!(curveName.equals(payCurveName) || curveName.equals(receiveCurveName))) {
-      s_logger.error("Curve name {} did not match either pay curve name {} or receive curve name {}", new Object[] {curveName, payCurveName, receiveCurveName});
+      s_logger.info("Curve name {} did not match either pay curve name {} or receive curve name {}", new Object[] {curveName, payCurveName, receiveCurveName});
       return null;
     }
     if (currency.equals(payCurrency.getCode())) {
@@ -139,7 +139,7 @@ public class FXForwardPV01Function extends FXForwardSingleValuedFunction {
     final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
     final MultiCurveCalculationConfig resultCurveCalculationConfig = curveCalculationConfigSource.getConfig(resultCurveConfigName);
     if (resultCurveCalculationConfig == null) {
-      s_logger.error("Could not find curve calculation configuration named " + resultCurveConfigName + " for currency " + resultCurrency);
+      s_logger.error("Could not find curve calculation configuration named " + resultCurveConfigName + " for currency " + currency);
       return null;
     }
     requirements.add(getCurveSensitivitiesRequirement(payCurveName, payCurveCalculationConfigName, receiveCurveName, receiveCurveCalculationConfigName, resultCurrency,
