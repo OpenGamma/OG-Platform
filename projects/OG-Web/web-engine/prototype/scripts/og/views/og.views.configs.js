@@ -82,9 +82,9 @@ $.register_module({
                 var rest_options, is_new = !!new_config_type, rest_handler;
                 rest_handler = function (result) {
                     var details_json = result.data, too_large = result.meta.content_length > 0.75 * 1024 * 1024,
-                        config_type = details_json.template_data.type.toLowerCase().split('.').reverse()[0],
-                        render_type, render_options;
+                        config_type, render_type, render_options;
                     if (result.error) return view.notify(null), view.error(result.message);
+                    config_type = details_json.template_data.type.toLowerCase().split('.').reverse()[0];
                     if (is_new) {
                         if (!result.data) return view.error('No template for: ' + new_config_type);
                         if (!result.data.template_data.configJSON) result.data.template_data.configJSON = {};
