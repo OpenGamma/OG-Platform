@@ -154,7 +154,11 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
    * <p>
    * The return value is a map from unique ID to subscription handle.
    * The map must contain an entry for each <code>uniqueId</code>.
-   * Failure to subscribe to any <code>uniqueId</code> should result in an exception being thrown. 
+   * While this call is intended to be asynchronous in the handling
+   * of the connection to the underlying data provider, in the event
+   * that a failure to subscribe can be detected immediately the
+   * result map should include a {@link LiveDataSubscriptionResponse}
+   * which includes the failure mode to return to the client immediately. 
    * 
    * @param uniqueIds A collection of unique IDs. Not null. May be empty.
    * @return Subscription handles corresponding to the unique IDs.
@@ -452,8 +456,19 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
       // Set up data structures
       for (Map.Entry<String, Object> subscriptionHandle : subscriptionHandles.entrySet()) {
         String securityUniqueId = subscriptionHandle.getKey();
-        Object handle = subscriptionHandle.getValue();
         LiveDataSpecification specFromClient = securityUniqueId2SpecFromClient.get(securityUniqueId);
+        
+        Object handle = subscriptionHandle.getValue();
+        
+        if (handle instanceof LiveDataSubscriptionResponse) {
+          LiveDataSubscriptionResponse response = (LiveDataSubscriptionResponse) handle;
+          // This is a failure to subscribe. Handle it specifically.
+          responses.add(getErrorResponse(
+              specFromClient,
+              response.getSubscriptionResult(),
+              response.getUserMessage()));
+          continue;
+        }
         
         Subscription subscription = securityUniqueId2NewSubscription.get(securityUniqueId); 
         subscription.setHandle(handle);
@@ -579,9 +594,17 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     Map<String, FudgeMsg> snapshots = doSnapshot(snapshotsToActuallyDo);
     for (Map.Entry<String, FudgeMsg> snapshotEntry : snapshots.entrySet()) {
       String securityUniqueId = snapshotEntry.getKey();
+      LiveDataSpecification liveDataSpecFromClient = securityUniqueId2LiveDataSpecificationFromClient.get(securityUniqueId);
+      
       FudgeMsg msg = snapshotEntry.getValue();
       
-      LiveDataSpecification liveDataSpecFromClient = securityUniqueId2LiveDataSpecificationFromClient.get(securityUniqueId);
+      if (msg == null) {
+        responses.add(getErrorResponse(
+            liveDataSpecFromClient,
+            LiveDataSubscriptionResult.NOT_PRESENT,
+            "Underlying market data server could not load a snapshot on the fly for " + securityUniqueId));
+        continue;
+      }
       
       DistributionSpecification distributionSpec = resolved.get(liveDataSpecFromClient);
       FudgeMsg normalizedMsg = distributionSpec.getNormalizedMessage(msg, securityUniqueId);

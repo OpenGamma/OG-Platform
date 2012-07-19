@@ -9,14 +9,13 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_FIRST_TRADE_DT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_LAST_TRADE_DT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_BBG_UNIQUE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_CUSIP;
+import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_CHAIN;
 import static com.opengamma.bbg.BloombergConstants.FIELD_PARSEKYABLE_DES;
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.StringReader;
-import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,30 +24,20 @@ import javax.time.calendar.MonthOfYear;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeMsg;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
-import com.opengamma.bbg.CachingReferenceDataProvider;
-import com.opengamma.bbg.test.BloombergLiveDataServerUtils;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.id.ExternalIdWithDates;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = "unit")
 public class BloombergDataUtilsTest {
 
-  @SuppressWarnings("unused")
-  private static final Logger s_logger = LoggerFactory.getLogger(BloombergDataUtilsTest.class);
-  
-  private CachingReferenceDataProvider _refDataProvider;
-  
   private static final String[] IDENTIFIERS = new String[] {
       "#Comment",
       "ISIN~ISIN 1234",
@@ -57,24 +46,19 @@ public class BloombergDataUtilsTest {
       "CUSIP~CUSIP 1234",
       "SEDOL1~SEDOL1 1234",
       "BLOOMBERG_TCM~BLOOMBERG_TCM 1234"};
-  
-  @BeforeMethod
-  public void setupBloombergSecuritySource(Method m) {
-    _refDataProvider = BloombergLiveDataServerUtils.getCachingReferenceDataProvider(m);
-  }
-  
-  @AfterMethod
-  public void terminateSecurityMaster() {
-    BloombergLiveDataServerUtils.stopCachingReferenceDataProvider(_refDataProvider);
-  }
 
+  //-------------------------------------------------------------------------
   @Test
-  // @Ignore("Because this contacts Bloomberg, we don't want to run all the time")
-  public void aaplOptionChain() throws Exception {
+  public void optionChain() throws Exception {
+    MockReferenceDataProvider rdp = new MockReferenceDataProvider();
+    rdp.addExpectedField(FIELD_OPT_CHAIN);
+    rdp.addResult("FIRST US Equity", FIELD_OPT_CHAIN, "Security Description=SECOND US Equity");
+    rdp.addResult("FIRST US Equity", FIELD_OPT_CHAIN, "Security Description=THIRD US Equity");
     
-    Set<ExternalId> optionChain = BloombergDataUtils.getOptionChain(_refDataProvider, "AAPL US Equity");
+    Set<ExternalId> optionChain = BloombergDataUtils.getOptionChain(rdp, "FIRST US Equity");
     assertNotNull(optionChain);
-    assertFalse(optionChain.isEmpty());
+    assertTrue(optionChain.contains(ExternalSchemes.bloombergTickerSecurityId("SECOND US Equity")));
+    assertTrue(optionChain.contains(ExternalSchemes.bloombergTickerSecurityId("THIRD US Equity")));
   }
 
   @Test
@@ -127,7 +111,7 @@ public class BloombergDataUtilsTest {
     ExternalIdBundleWithDates actual = BloombergDataUtils.parseIdentifiers(message, FIELD_FUT_FIRST_TRADE_DT, FIELD_FUT_LAST_TRADE_DT);
     assertEquals(expected, actual);
   }
-  
+
   @Test
   public void identifierLoader() throws Exception {
     Set<ExternalId> identifiers = BloombergDataUtils.identifierLoader(new StringReader(multiStringLine(IDENTIFIERS)));
@@ -140,16 +124,21 @@ public class BloombergDataUtilsTest {
     assertTrue(identifiers.contains(ExternalId.of("SEDOL1", "SEDOL1 1234")));
     assertTrue(identifiers.contains(ExternalId.of("BLOOMBERG_TCM", "BLOOMBERG_TCM 1234")));
   }
-  
+
   @Test
   public void getBUID() throws Exception {
-    Map<String, String> buids = BloombergDataUtils.getBUID(_refDataProvider, Sets.newHashSet("AAPL US Equity", "IBM US Equity"));
+    MockReferenceDataProvider rdp = new MockReferenceDataProvider();
+    rdp.addExpectedField(FIELD_ID_BBG_UNIQUE);
+    rdp.addResult("FIRST US Equity", FIELD_ID_BBG_UNIQUE, "EQ1234");
+    rdp.addResult("SECOND US Equity", FIELD_ID_BBG_UNIQUE, "EQ4321");
+    
+    Map<String, String> buids = BloombergDataUtils.getBUID(rdp, Sets.newHashSet("FIRST US Equity", "SECOND US Equity"));
     assertNotNull(buids);
     assertEquals(2, buids.size());
-    assertEquals("EQ0010169500001000", buids.get("AAPL US Equity"));
-    assertEquals("EQ0010080100001000", buids.get("IBM US Equity"));
+    assertEquals("EQ1234", buids.get("FIRST US Equity"));
+    assertEquals("EQ4321", buids.get("SECOND US Equity"));
   }
-  
+
   private static String multiStringLine(String... lines) {
     StringBuilder buf = new StringBuilder();
     for (String string : lines) {
@@ -158,7 +147,5 @@ public class BloombergDataUtilsTest {
     }
     return buf.toString();
   }
-  
-  
 
 }

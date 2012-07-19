@@ -12,8 +12,6 @@ import static org.testng.AssertJUnit.assertTrue;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -29,14 +27,13 @@ import com.opengamma.livedata.normalization.NormalizationRuleSet;
 import com.opengamma.livedata.resolver.JmsTopicNameResolveRequest;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = "integration")
 public class BloombergJmsTopicNameResolverTest {
 
-  @SuppressWarnings("unused")
-  private static final Logger s_logger = LoggerFactory.getLogger(BloombergJmsTopicNameResolverTest.class);
   private BloombergLiveDataServer _server;
-  
+
   @BeforeClass
   public void setUpClass() {
     _server = BloombergLiveDataServerUtils.startTestServer(BloombergJmsTopicNameResolverTest.class);
@@ -46,7 +43,8 @@ public class BloombergJmsTopicNameResolverTest {
   public void tearDownClass() {
     BloombergLiveDataServerUtils.stopTestServer(_server);
   }
-  
+
+  //-------------------------------------------------------------------------
   @Test(enabled = false)
   private void testResolve(NormalizationRuleSet rules) {
     
@@ -89,12 +87,12 @@ public class BloombergJmsTopicNameResolverTest {
     assertEquals("LiveData.Bloomberg.Bond.MOBIL CORP.607059AT9" + rules.getJmsTopicSuffix(),
         request2TopicName.get(new JmsTopicNameResolveRequest(usDomesticBond, rules)));
   }
-  
+
   @Test
   public void emptyNormalization() {
     testResolve(new NormalizationRuleSet(""));    
   }
-  
+
   @Test
   public void nonEmptyNormalization() {
     testResolve(new NormalizationRuleSet("Test"));

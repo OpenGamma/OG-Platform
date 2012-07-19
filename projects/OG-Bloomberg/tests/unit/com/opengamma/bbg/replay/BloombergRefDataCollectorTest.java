@@ -23,30 +23,32 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
-import com.opengamma.bbg.CachingReferenceDataProvider;
 import com.opengamma.bbg.PerSecurityReferenceDataResult;
 import com.opengamma.bbg.ReferenceDataResult;
 import com.opengamma.bbg.livedata.LoggedReferenceDataProvider;
-import com.opengamma.bbg.test.BloombergLiveDataServerUtils;
+import com.opengamma.bbg.util.MockReferenceDataProvider;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- * Test BloombergRefDataCollector
+ * Test.
  */
+@Test(groups = "unit")
 public class BloombergRefDataCollectorTest {
-  
+
   private static final String WATCH_LIST_FILE = "watchListTest.txt";
   private static final String FIELD_LIST_FILE = "fieldListTest.txt";
   public static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
-  
+
   private BloombergRefDataCollector _refDataCollector;
-  private CachingReferenceDataProvider _refDataProvider;
+  private MockReferenceDataProvider _refDataProvider;
   private File _outputFile;
 
   @BeforeMethod
   public void setUp(Method m) throws Exception {    
-    CachingReferenceDataProvider cachingReferenceDataProvider = BloombergLiveDataServerUtils.getCachingReferenceDataProvider(m);
-    _refDataProvider = cachingReferenceDataProvider;
+    _refDataProvider = new MockReferenceDataProvider();
+    _refDataProvider.addExpectedField("SECURITY_TYP");
+    _refDataProvider.addResult("QQQQ US Equity", "SECURITY_TYP", "ETP");
+    _refDataProvider.addResult("/buid/EQ0082335400001000", "SECURITY_TYP", "ETP");
     
     File watchListFile = new File(BloombergRefDataCollectorTest.class.getResource(WATCH_LIST_FILE).getPath());
     File fieldListFile = new File(BloombergRefDataCollectorTest.class.getResource(FIELD_LIST_FILE).getPath());
@@ -64,7 +66,6 @@ public class BloombergRefDataCollectorTest {
   public void tearDown() throws Exception {
     //clean up
     _refDataCollector.stop();
-    BloombergLiveDataServerUtils.stopCachingReferenceDataProvider(_refDataProvider);
   }
 
   //-------------------------------------------------------------------------
@@ -87,7 +88,6 @@ public class BloombergRefDataCollectorTest {
       String securityType = fieldData.getString("SECURITY_TYP");
       assertEquals("ETP", securityType);
     }
-    
   }
 
 }

@@ -11,10 +11,11 @@ import com.opengamma.bbg.test.BloombergTestUtils;
 import com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider;
 
 /**
- * Test BloombergSecuritySource.
+ * Test.
  */
-@Test
+@Test(groups = "integration")
 public class BloombergSecuritySourceDirectTest extends BloombergSecuritySourceTestCase {
+
   private BloombergReferenceDataProvider _dataProvider;
 
   @Override
@@ -28,7 +29,7 @@ public class BloombergSecuritySourceDirectTest extends BloombergSecuritySourceTe
     
     return new BloombergSecuritySource(_dataProvider, exchangeProvider);
   }
-  
+
   @Override
   protected void stopSecuritySource() {
     if(_dataProvider != null) {
@@ -37,5 +38,5 @@ public class BloombergSecuritySourceDirectTest extends BloombergSecuritySourceTe
       dataProvider.stop();
     }
   }
-  
+
 }

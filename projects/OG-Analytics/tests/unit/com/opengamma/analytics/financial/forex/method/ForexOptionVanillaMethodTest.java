@@ -41,6 +41,7 @@ import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermS
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
+import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;
@@ -972,6 +973,35 @@ public class ForexOptionVanillaMethodTest {
     final MultipleCurrencyAmount pvTomorrow = PVC_BLACK.visit(swapTomorrow, tomorrowData);
     final MultipleCurrencyAmount thetaExpected = pvTomorrow.plus(pvToday.multipliedBy(-1.0));
     assertEquals("ThetaCalculator: forex option", thetaExpected.getAmount(USD), theta.getAmount(USD), TOLERANCE_PV);
+  }
+
+  @Test
+  /**
+   * Tests the theoretical Theta (derivative with respect to time in Black formula).
+   */
+  public void thetaTheoretical() {
+    final double strike = 1.45;
+    final boolean isCall = true;
+    final boolean isLong = true;
+    final double notional = 100000000;
+    final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(9), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime expDate = ScheduleCalculator.getAdjustedDate(payDate, -SETTLEMENT_DAYS, CALENDAR);
+    final double timeToExpiry = TimeCalculator.getTimeBetween(REFERENCE_DATE, expDate);
+    final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(EUR, USD, payDate, notional, strike);
+    final ForexOptionVanillaDefinition callDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, isCall, isLong);
+    final ForexOptionVanilla call = callDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
+    final double df = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(TimeCalculator.getTimeBetween(REFERENCE_DATE, payDate));
+    final double forward = SPOT * CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(TimeCalculator.getTimeBetween(REFERENCE_DATE, payDate)) / df;
+    final double volatility = SMILE_TERM.getVolatility(timeToExpiry, strike, forward);
+    final double thetaUnit = BlackFormulaRepository.theta(forward, strike, timeToExpiry, volatility);
+    final double thetaExpected = thetaUnit * notional;
+    final CurrencyAmount thetaCallComputed = METHOD_OPTION.thetaTheoretical(call, SMILE_BUNDLE);
+    assertEquals("Theta theoretical: forex option", thetaExpected, thetaCallComputed.getAmount(), TOLERANCE_PV);
+    assertEquals("Theta theoretical: forex option", USD, thetaCallComputed.getCurrency());
+    final ForexOptionVanillaDefinition putDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, !isCall, isLong);
+    final ForexOptionVanilla put = putDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
+    final CurrencyAmount thetaPutComputed = METHOD_OPTION.thetaTheoretical(put, SMILE_BUNDLE);
+    assertEquals("Theta theoretical: forex option", thetaCallComputed.getAmount(), thetaPutComputed.getAmount(), TOLERANCE_PV);
   }
 
 }

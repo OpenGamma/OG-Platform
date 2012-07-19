@@ -5,16 +5,8 @@
  */
 package com.opengamma.bbg;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.bloomberglp.blpapi.Event;
-import com.bloomberglp.blpapi.EventHandler;
-import com.bloomberglp.blpapi.Message;
-import com.bloomberglp.blpapi.MessageIterator;
 import com.bloomberglp.blpapi.Session;
 import com.bloomberglp.blpapi.SessionOptions;
-import com.bloomberglp.blpapi.Event.EventType;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.util.SessionOptionsUtils;
 import com.opengamma.util.ArgumentChecker;
@@ -30,7 +22,6 @@ import com.opengamma.util.Connector;
  */
 public class BloombergConnector implements Connector {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(BloombergConnector.class);
   /**
    * The configuration name.
    */
@@ -39,14 +30,6 @@ public class BloombergConnector implements Connector {
    * The Bloomberg Session Options.
    */
   private final SessionOptions _sessionOptions;
-//  /**
-//   * Whether the shared session is initialized.
-//   */
-//  private volatile boolean _sharedSessionStarted;
-//  /**
-//   * The shared Bloomberg Session.
-//   */
-//  private volatile Session _sharedSession;
 
   /**
    * Creates an instance.
@@ -57,7 +40,6 @@ public class BloombergConnector implements Connector {
   public BloombergConnector(String name, SessionOptions sessionOptions) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(sessionOptions, "sessionOptions");
-    ArgumentChecker.notNull(sessionOptions.getServerHost(), "sessionOptions.serverHost");
     _name = name;
     _sessionOptions = sessionOptions;
   }
@@ -99,29 +81,6 @@ public class BloombergConnector implements Connector {
   }
 
   //-------------------------------------------------------------------------
-//  /**
-//   * Returns the shared Bloomberg {@code Session} owned by this connector.
-//   * <p>
-//   * The shared session is started synchronously if not yet started.
-//   * See {@link #obtainNewSession()} to create a session managed by the caller.
-//   * 
-//   * @return the shared Bloomberg session, not null
-//   * @throws RuntimeException if an error occurs
-//   */
-//  public Session obtainSharedSession() {
-//    if (_sharedSessionStarted == false) {
-//      synchronized (this) {
-//        if (_sharedSessionStarted == false) {
-//          Session session = obtainNewSession();
-//          _sharedSession = session;
-//          _sharedSessionStarted = true;
-//          return session;
-//        }
-//      }
-//    }
-//    return _sharedSession;
-//  }
-
   /**
    * Creates and starts a new Bloomberg {@code Session}.
    * <p>
@@ -161,14 +120,7 @@ public class BloombergConnector implements Connector {
   //-------------------------------------------------------------------------
   @Override
   public void close() {
-//    if (_sharedSessionStarted) {
-//      try {
-//        _sharedSession.stop();
-//      } catch (InterruptedException ex) {
-//        Thread.interrupted();
-//        throw new OpenGammaRuntimeException("Interrupted while starting session with options " + getSessionOptions(), ex);
-//      }
-//    }
+    // no action, as the connector holds no closeable state
   }
 
   //-------------------------------------------------------------------------

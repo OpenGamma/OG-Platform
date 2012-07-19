@@ -5,7 +5,6 @@
  */
 package com.opengamma.analytics.financial.equity.variance.pricing;
 
-import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackImpliedStrikeFromDeltaFunction;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceConverter;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceDelta;
@@ -250,7 +249,7 @@ public class ExpectedVarianceStaticReplicationCalculator {
         final double sigmaRootT = vol * rootT;
         //TODO handle sigmaRootT -> 0
 
-        final double strike = BlackImpliedStrikeFromDeltaFunction.impliedStrike(delta, true, forward, expiry, vol);
+        final double strike = BlackFormulaRepository.impliedStrike(delta, true, forward, expiry, vol);
         final boolean isCall = strike >= forward;
         final int sign = isCall ? 1 : -1;
 

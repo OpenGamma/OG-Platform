@@ -45,6 +45,7 @@ import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.ReferenceDataResult;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.bbg.util.BloombergDomainIdentifierResolver;
+import com.opengamma.bbg.util.SessionOptionsUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
@@ -292,7 +293,7 @@ public class BloombergTicksCollector implements Lifecycle {
         session.stop();
       }
     }
-    s_logger.info("Connecting to {}:{} ", _bloombergConnector.getSessionOptions().getServerHost(), _bloombergConnector.getSessionOptions().getServerPort());
+    s_logger.info("Connecting to {} ", SessionOptionsUtils.toString(_bloombergConnector.getSessionOptions()));
     BloombergTickCollectorHandler handler = new BloombergTickCollectorHandler(_allTicksQueue, this);
     for (int i = 0; i < _bbgSessions; i++) {
       Session session = new Session(_bloombergConnector.getSessionOptions(), handler);
