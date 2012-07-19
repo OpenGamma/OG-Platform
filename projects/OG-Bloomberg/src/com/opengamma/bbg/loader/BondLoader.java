@@ -36,8 +36,6 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_SECURITY_TYP;
 import static com.opengamma.bbg.BloombergConstants.FIELD_SETTLE_DT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_TICKER;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ZERO_CPN;
-import static com.opengamma.bbg.BloombergConstants.MARKET_SECTOR_CORP;
-import static com.opengamma.bbg.BloombergConstants.MARKET_SECTOR_GOVT;
 import static com.opengamma.bbg.BloombergConstants.MARKET_SECTOR_MUNI;
 import static com.opengamma.bbg.util.BloombergDataUtils.isValidField;
 
@@ -66,6 +64,7 @@ import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.security.bond.BondSecurity;
+import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.id.ExternalId;
@@ -143,6 +142,8 @@ public class BondLoader extends SecurityLoader {
       "UK GILT STOCK",
       "CANADIAN",
       "DOMESTIC");
+  
+  private static final String SOVEREIGN = "Sovereign";
 
   /**
    * Creates an instance.
@@ -262,7 +263,7 @@ public class BondLoader extends SecurityLoader {
       String des = validateAndGetStringField(fieldData, FIELD_SECURITY_DES);
       
       ManageableSecurity bondSecurity;
-      if (marketSector.equals(MARKET_SECTOR_GOVT) || marketSector.equals(MARKET_SECTOR_CORP)) {
+      if (issuerType.trim().equals(SOVEREIGN)) {
         bondSecurity = new GovernmentBondSecurity(issuerName, issuerType, issuerDomicile, market, currency,
             yieldConvention, maturity, couponType, couponRate,
             couponFrequency, dayCount, interestAccrualDate, settlementDate, firstCouponDate, issuancePrice,
@@ -270,16 +271,6 @@ public class BondLoader extends SecurityLoader {
             redemptionValue);
         ((BondSecurity) bondSecurity).setAnnouncementDate(announcementDate);
         ((BondSecurity) bondSecurity).setGuaranteeType(guaranteeType);
-        /**
-      } else if (marketSector.equals(MARKET_SECTOR_CORP)) {
-        bondSecurity = new CorporateBondSecurity(issuerName, issuerType, issuerDomicile, market, currency,
-            yieldConvention, maturity, couponType, couponRate,
-            couponFrequency, dayCount, interestAccrualDate, settlementDate, firstCouponDate, issuancePrice,
-            totalAmountIssued, minimumAmount, minimumIncrement, parAmount,
-            redemptionValue);
-        ((BondSecurity) bondSecurity).setAnnouncementDate(announcementDate);
-        ((BondSecurity) bondSecurity).setGuaranteeType(guaranteeType);
-        */
       } else if (marketSector.equals(MARKET_SECTOR_MUNI)) {
         bondSecurity = new MunicipalBondSecurity(issuerName, issuerType, issuerDomicile, market, currency,
             yieldConvention, maturity, couponType, couponRate,
@@ -290,7 +281,13 @@ public class BondLoader extends SecurityLoader {
         ((BondSecurity) bondSecurity).setGuaranteeType(guaranteeType);
         
       } else {
-        throw new OpenGammaRuntimeException("Unsupported bond (" + des + ") of market sector type " + marketSector);
+        bondSecurity = new CorporateBondSecurity(issuerName, issuerType, issuerDomicile, market, currency,
+            yieldConvention, maturity, couponType, couponRate,
+            couponFrequency, dayCount, interestAccrualDate, settlementDate, firstCouponDate, issuancePrice,
+            totalAmountIssued, minimumAmount, minimumIncrement, parAmount,
+            redemptionValue);
+        ((BondSecurity) bondSecurity).setAnnouncementDate(announcementDate);
+        ((BondSecurity) bondSecurity).setGuaranteeType(guaranteeType);
       }
       
       bondSecurity.setName(des.trim());
