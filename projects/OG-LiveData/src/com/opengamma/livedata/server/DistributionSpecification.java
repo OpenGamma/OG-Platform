@@ -155,7 +155,12 @@ public class DistributionSpecification {
 
   @Override
   public String toString() {
-    return _jmsTopic;
+    StringBuilder sb = new StringBuilder();
+    sb.append("DistributionSpecification[");
+    sb.append(_jmsTopic);
+    sb.append(":").append(_normalizationRuleSet.getId());
+    sb.append("]");
+    return sb.toString();
   }
 
 }
