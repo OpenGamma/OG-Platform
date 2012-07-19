@@ -328,7 +328,7 @@ $.register_module({
                 return floor;
             };
             /**
-             * Scale data to fit surface dimentions, apply Log scales if enabled
+             * Scale data to fit surface dimentions, apply Log scales (to x and z) if enabled
              */
             gadget.init_data = function () {
                 // adjusted data is the original data scaled to fit 2D grids width/length/height.
@@ -705,17 +705,37 @@ $.register_module({
                     for (x = xfrom; x < xto; x++) xvertices.push(object.geometry.vertices[x]);
                     for (z = zfrom; z < zto; z += x_segments + 1) zvertices.push(object.geometry.vertices[z]);
                     hud.set_volatility(config.vol[index]);
-                    // top lines
+                    // surface x and z lines
                     hover_group.add(new Tube(xvertices));
                     hover_group.add(new Tube(zvertices));
-                    // bottom lines
-                    xvertices_bottom.push(xvertices[0].clone(), xvertices[xvertices.length-1].clone());
-                    xvertices_bottom[0].y = xvertices_bottom[1].y = -settings.floating_height;
-                    zvertices_bottom.push(zvertices[0].clone(), zvertices[zvertices.length-1].clone());
-                    zvertices_bottom[0].y = zvertices_bottom[1].y = -settings.floating_height;
-                    hover_group.add(new Tube(xvertices_bottom));
-                    hover_group.add(new Tube(zvertices_bottom));
-                    // labels
+                    // smile z, z and y lines
+                    (function () {
+                        var yvertices = [{x: 0, y: 0, z: vertex.z}, {x: 0, y: settings.surface_y, z: vertex.z}],
+                            zlines = new Tube(zvertices), ylines = new Tube(yvertices);
+                        zlines.position.x = Math.abs(zvertices[0].x - settings.surface_z / 2) + settings.smile_distance;
+                        ylines.position.x = settings.surface_z / 2 + settings.smile_distance;
+                        hover_group.add(zlines);
+                        hover_group.add(ylines);
+                    }());
+                    // smile x, x and y lines
+                    (function () {
+                        var yvertices = [{x: vertex.x, y: 0, z: 0}, {x: vertex.x, y: settings.surface_y, z: 0}],
+                            xlines = new Tube(xvertices), ylines = new Tube(yvertices);
+                        xlines.position.z = -((settings.surface_x / 2) + xvertices[0].z + settings.smile_distance);
+                        ylines.position.z = -(settings.surface_x / 2) - settings.smile_distance;
+                        hover_group.add(xlines);
+                        hover_group.add(ylines);
+                    }());
+                    // bottom grid, x and z lines
+                    (function () {
+                        xvertices_bottom.push(xvertices[0].clone(), xvertices[xvertices.length-1].clone());
+                        xvertices_bottom[0].y = xvertices_bottom[1].y = -settings.floating_height;
+                        zvertices_bottom.push(zvertices[0].clone(), zvertices[zvertices.length-1].clone());
+                        zvertices_bottom[0].y = zvertices_bottom[1].y = -settings.floating_height;
+                        hover_group.add(new Tube(xvertices_bottom));
+                        hover_group.add(new Tube(zvertices_bottom));
+                    }());
+                    // surface labels
                     ['x', 'z'].forEach(function (val) {
                         var lbl_arr = config[val + 's_labels'] || config[val + 's'],
                             txt = val === 'x'
