@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -28,11 +27,16 @@ import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.RequirementBasedColumnKey;
 
 /**
- * TODO label and quantity columns are hard-code here and in {@link MainGridViewport}. there has to be a better way
+ * TODO label and quantity columns are hard-coded here and in {@link MainGridViewport}. there has to be a better way
  */
 /* package */ abstract class MainGridStructure implements GridStructure {
 
-  private static final Set<ValueRequirement> NO_MAPPINGS = ImmutableSet.of();
+  /* package */ static final int LABEL_COLUMN = 0;
+  /* package */ static final int QUANTITY_COLUMN = 1;
+
+  private static final AnalyticsColumnGroup s_fixedColumnGroup =
+      new AnalyticsColumnGroup("fixed", ImmutableList.of(new AnalyticsColumn("Label", "", String.class),
+                                                         new AnalyticsColumn("Quantity", "", BigDecimal.class)));
 
   private final List<Row> _rows;
   private final AnalyticsColumnGroups _columnGroups;
@@ -59,10 +63,7 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
     ViewDefinition viewDef = compiledViewDef.getViewDefinition();
     _colIndexByRequirement = Maps.newHashMap();
     // column group for the label and quantity columns which don't come from the calculation results
-    AnalyticsColumnGroup labelGroup =
-        new AnalyticsColumnGroup("", ImmutableList.of(new AnalyticsColumn("Label", "", String.class),
-                                                      new AnalyticsColumn("Quantity", "", BigDecimal.class)));
-    List<AnalyticsColumnGroup> columnGroups = Lists.newArrayList(labelGroup);
+    List<AnalyticsColumnGroup> columnGroups = Lists.newArrayList(s_fixedColumnGroup);
     _specsToReqs = Maps.newHashMap();
     _reqsToSpecs = Maps.newHashMap();
     int colIndex = 2; // col 0 is the node name, col 1 is the quantity
@@ -102,24 +103,6 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
 
   /* package */ Row getRowAtIndex(int rowIndex) {
     return _rows.get(rowIndex);
-  }
-
-  /* package */ int getColumnIndexForRequirement(String calcConfigName, ValueRequirement requirement) {
-    RequirementBasedColumnKey key =
-        new RequirementBasedColumnKey(calcConfigName, requirement.getValueName(), requirement.getConstraints());
-    return _colIndexByRequirement.get(key);
-  }
-
-  /* package */ Set<ValueRequirement> getRequirementsForSpecification(String calcConfigName, ValueSpecification spec) {
-    Map<ValueSpecification, Set<ValueRequirement>> specToReqs = _specsToReqs.get(calcConfigName);
-    if (specToReqs == null) {
-      return null;
-    }
-    Set<ValueRequirement> reqs = specToReqs.get(spec);
-    if (reqs == null) {
-      return NO_MAPPINGS;
-    }
-    return reqs;
   }
 
   /**

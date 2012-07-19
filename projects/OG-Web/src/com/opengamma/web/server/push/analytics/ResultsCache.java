@@ -36,20 +36,24 @@ import com.opengamma.util.money.CurrencyAmount;
   private static final Result s_emptyResult = Result.empty();
   private static final Result s_emptyResultWithHistory = Result.emptyWithHistory();
 
-  private final Map<ResultKey, Result> _results = Maps.newHashMap();
+  private final Map<ResultKey, CacheItem> _results = Maps.newHashMap();
+
+  /** ID that's incremented each time results are received, used for keeping track of which items were updated. */
+  private long _lastUpdateId = 0;
 
   /* package */ void put(ViewResultModel results) {
+    _lastUpdateId++;
     List<ViewResultEntry> allResults = results.getAllResults();
     for (ViewResultEntry result : allResults) {
       ComputedValue computedValue = result.getComputedValue();
       Object value = computedValue.getValue();
       ResultKey key = new ResultKey(result.getCalculationConfiguration(), computedValue.getSpecification());
-      Result cacheResult = _results.get(key);
+      CacheItem cacheResult = _results.get(key);
       if (cacheResult == null) {
-        Result newResult = Result.forValue(value);
+        CacheItem newResult = CacheItem.forValue(value, _lastUpdateId);
         _results.put(key, newResult);
       } else {
-        cacheResult.setLatestValue(value);
+        cacheResult.setLatestValue(value, _lastUpdateId);
       }
     }
   }
@@ -64,9 +68,11 @@ import com.opengamma.util.money.CurrencyAmount;
   }
 
   /* package */ Result getResult(String calcConfigName, ValueSpecification valueSpec, Class<?> columnType) {
-    Result result = _results.get(new ResultKey(calcConfigName, valueSpec));
-    if (result != null) {
-      return result;
+    CacheItem item = _results.get(new ResultKey(calcConfigName, valueSpec));
+    if (item != null) {
+      // flag whether this result was updated by the last set of results that were put into the cache
+      boolean updatedByLastResults = (item.getLastUpdateId() == _lastUpdateId);
+      return new Result(item.getValue(), item.getHistory(), updatedByLastResults);
     } else {
       if (s_historyTypes.contains(columnType)) {
         return s_emptyResultWithHistory;
@@ -78,17 +84,51 @@ import com.opengamma.util.money.CurrencyAmount;
 
   /* package */ static class Result {
 
+    private final Object _value;
+    private final Collection<Object> _history;
+    private final boolean _updated;
+
+    private Result(Object value, Collection<Object> history, boolean updated) {
+      _value = value;
+      _history = history;
+      _updated = updated;
+    }
+
+    public Object getValue() {
+      return _value;
+    }
+
+    public Collection<Object> getHistory() {
+      return _history;
+    }
+
+    public boolean isUpdated() {
+      return _updated;
+    }
+
+    public static Result empty() {
+      return new Result(null, null, false);
+    }
+
+    public static Result emptyWithHistory() {
+      return new Result(null, Collections.emptyList(), false);
+    }
+  }
+
+  private static class CacheItem {
+
     private final Collection<Object> _history;
 
     private Object _latestValue;
+    private long _lastUpdateId = -1;
 
     @SuppressWarnings("unchecked")
-    private Result(Collection<Object> history) {
+    private CacheItem(Collection<Object> history) {
       _history = history;
     }
 
     @SuppressWarnings("unchecked")
-    private static Result forValue(Object value) {
+    private static CacheItem forValue(Object value, long lastUpdateId) {
       ArgumentChecker.notNull(value, "latestValue");
       CircularFifoBuffer history;
       if (s_historyTypes.contains(value.getClass())) {
@@ -96,25 +136,18 @@ import com.opengamma.util.money.CurrencyAmount;
       } else {
         history = null;
       }
-      Result result = new Result(history);
-      result.setLatestValue(value);
+      CacheItem result = new CacheItem(history);
+      result.setLatestValue(value, lastUpdateId);
       return result;
     }
 
-    private static Result empty() {
-      return new Result(null);
-    }
-
-    private static Result emptyWithHistory() {
-      return new Result(Collections.emptyList());
-    }
-
-    /* package */ Object getLatestValue() {
+    private Object getValue() {
       return _latestValue;
     }
 
-    private void setLatestValue(Object latestValue) {
+    private void setLatestValue(Object latestValue, long lastUpdateId) {
       _latestValue = latestValue;
+      _lastUpdateId = lastUpdateId;
       if (_history != null) {
         _history.add(latestValue);
       }
@@ -128,6 +161,10 @@ import com.opengamma.util.money.CurrencyAmount;
       } else {
         return null;
       }
+    }
+
+    private long getLastUpdateId() {
+      return _lastUpdateId;
     }
   }
 
