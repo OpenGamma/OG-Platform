@@ -65,8 +65,8 @@ import com.opengamma.util.ArgumentChecker;
   public void updateResults(ViewResultModel results, ViewCycle viewCycle) {
     _cache.put(results);
     List<String> updatedIds = Lists.newArrayList();
-    updatedIds.addAll(_portfolioGrid.updateResults(results, _cache, viewCycle));
-    updatedIds.addAll(_primitivesGrid.updateResults(results, _cache, viewCycle));
+    updatedIds.addAll(_portfolioGrid.updateResults(_cache, viewCycle));
+    updatedIds.addAll(_primitivesGrid.updateResults(_cache, viewCycle));
     _listener.gridDataChanged(updatedIds);
   }
 
