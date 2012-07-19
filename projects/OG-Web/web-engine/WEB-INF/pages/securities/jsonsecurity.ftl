@@ -62,30 +62,52 @@
         "dayCount":"${security.dayCount.conventionName}",
         "guaranteeType":"${security.guaranteeType}",
         "businessDayConvention":"${security.businessDayConvention}",
-        "announcementDate":"${security.announcementDate}",
-        "interestAccrualDate": {
-            "date": "${security.interestAccrualDate.toLocalDate()}",
-            "zone": "${security.interestAccrualDate.zone}"
-        },
-        <#if security.settlementDate?has_content>
+        <#if security.announcementDate??>
+          "announcementDate":"${security.announcementDate}",
+        <#else>
+          "announcementDate":"null",
+        </#if>
+        
+        <#if security.interestAccrualDate??>
+          "interestAccrualDate": {
+              "date": "${security.interestAccrualDate.toLocalDate()}",
+              "zone": "${security.interestAccrualDate.zone}"
+          },
+        <#else>
+          "interestAccrualDate": {
+              "date": "null",
+              "zone": "null"
+          },
+        </#if>
+        <#if security.settlementDate??>
           "settlementDate": {
               "date": "${security.settlementDate.toLocalDate()}",
               "zone": "${security.settlementDate.zone}"
           },
         <#else>
-          "settlementDate": "null",
+          "settlementDate": { 
+              "date": "null",
+              "zone": "null"
+          },
         </#if>
-        "firstCouponDate": {
-            "date": "${security.firstCouponDate.toLocalDate()}",
-            "zone": "${security.firstCouponDate.zone}"
-        },
+        <#if security.firstCouponDate??>
+          "firstCouponDate": {
+              "date": "${security.firstCouponDate.toLocalDate()}",
+              "zone": "${security.firstCouponDate.zone}"
+          },
+        <#else>
+          "firstCouponDate": { 
+              "date": "null",
+              "zone": "null"
+          },
+        <#/if>
         "issuancePrice":"${security.issuancePrice}",
         "totalAmountIssued":"${security.totalAmountIssued}",
         "minimumAmount":"${security.minimumAmount}",
         "minimumIncrement":"${security.minimumIncrement}",
         "parAmount":"${security.parAmount}",
         "redemptionValue":"${security.redemptionValue}",
-      <#break>
+        <#break>
       <#case "FUTURE">
         "expirydate": {
             "datetime": "${security.expiry.expiry.toOffsetDateTime()}",
