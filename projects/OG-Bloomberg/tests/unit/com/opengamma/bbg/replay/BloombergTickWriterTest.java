@@ -125,11 +125,13 @@ public class BloombergTickWriterTest {
     
     //now lets replay generated allTicks.dat
     Set<String> buids = Sets.newHashSet(_ticker2buid.values());
-    BloombergTicksReplayer player = new BloombergTicksReplayer(Mode.AS_FAST_AS_POSSIBLE, _rootDir.getAbsolutePath(), new UnitTestTickReceiver(), startTime, endTime, buids);
+    UnitTestTickReceiver receiver = new UnitTestTickReceiver();
+    BloombergTicksReplayer player = new BloombergTicksReplayer(Mode.AS_FAST_AS_POSSIBLE, _rootDir.getAbsolutePath(), receiver, startTime, endTime, buids);
     player.start();
-    while(player.isRunning()) {
+    while (player.isRunning()) {
       Thread.sleep(1000);
     }
+    assertTrue(receiver.count() > 0);
   }
 
   @Test
@@ -190,14 +192,19 @@ public class BloombergTickWriterTest {
   }
 
   private class UnitTestTickReceiver implements BloombergTickReceiver {
-
     private Random _valueGenerator = new Random(RandomTicksGeneratorJob.RANDOM_SEED);
+    private int _count;
     
     public void tickReceived(BloombergTick msg) {
+      _count++;
       FudgeMsg randomStandardTick = BloombergTestUtils.makeRandomStandardTick(_valueGenerator, s_fudgeContext);
       FudgeMsg actual = msg.getFields();
       FudgeMsg expected = randomStandardTick.getMessage(FIELDS_KEY);
       assertAllFieldsMatch(expected, actual);
+    }
+
+    int count() {
+      return _count;
     }
   }
 
