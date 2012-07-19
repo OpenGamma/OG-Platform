@@ -10,7 +10,6 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 import org.testng.internal.junit.ArrayAsserts;
 
-import com.opengamma.analytics.financial.model.interestrate.G2ppPiecewiseConstantModel;
 import com.opengamma.analytics.financial.model.interestrate.definition.G2ppPiecewiseConstantParameters;
 
 /**
@@ -71,6 +70,26 @@ public class G2ppPiecewiseConstantModelTest {
     double[] hVector = MODEL_G2PP.volatilityMaturityPart(MODEL_PARAMETERS, u, v[0]);
     assertEquals("G2++: maturity dependent volatility part", hExpected[0][0], hVector[0], 1.0E-7);
     assertEquals("G2++: maturity dependent volatility part", hExpected[1][0], hVector[1], 1.0E-7);
+  }
+
+  @Test
+  /**
+   * Tests the volatilityMaturityPart method for arrays.
+   */
+  public void volatilityMaturityPartArray() {
+    double u = 0.75;
+    double[][] v = new double[][] { {2.0, 4.0, 7.0}, {5.0, 3.0}};
+    double[][][] h = MODEL_G2PP.volatilityMaturityPart(MODEL_PARAMETERS, u, v);
+    double[][] h0 = MODEL_G2PP.volatilityMaturityPart(MODEL_PARAMETERS, u, v[0]);
+    double[][] h1 = MODEL_G2PP.volatilityMaturityPart(MODEL_PARAMETERS, u, v[1]);
+    for (int loop = 0; loop < v[0].length; loop++) {
+      assertEquals("G2++: maturity dependent volatility part", h[0][0][loop], h0[0][loop], 1.0E-7);
+      assertEquals("G2++: maturity dependent volatility part", h[1][0][loop], h0[1][loop], 1.0E-7);
+    }
+    for (int loop = 0; loop < v[1].length; loop++) {
+      assertEquals("G2++: maturity dependent volatility part", h[0][1][loop], h1[0][loop], 1.0E-7);
+      assertEquals("G2++: maturity dependent volatility part", h[1][1][loop], h1[1][loop], 1.0E-7);
+    }
   }
 
   @Test
