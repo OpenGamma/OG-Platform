@@ -8,7 +8,6 @@ package com.opengamma.financial.analytics.model.fixedincome;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import javax.time.calendar.Clock;
@@ -36,7 +35,6 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
@@ -186,11 +184,17 @@ public abstract class InterestRateInstrumentCurveSpecificFunction extends Abstra
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
     if (!currency.equals(curveCalculationConfig.getUniqueId())) {
       s_logger.error("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getUniqueId());
+      return null;
     }
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
     final String curve = curves.iterator().next();
     if (Arrays.binarySearch(curveNames, curve) < 0) {
       s_logger.error("Curve named {} is not available in curve calculation configuration called {}", curve, curveCalculationConfigName);
+      return null;
+    }
+    final String[] applicableCurveNames = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, curveNames);
+    if (Arrays.binarySearch(applicableCurveNames, curve) < 0) {
+      s_logger.error("Security {} is not sensitive to the curve {}", security, curve);
       return null;
     }
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
@@ -208,37 +212,6 @@ public abstract class InterestRateInstrumentCurveSpecificFunction extends Abstra
     }
     requirements.addAll(timeSeriesRequirements);
     return requirements;
-  }
-
-  @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-    String curveCalculationConfigName = null;
-    String curveName = null;
-    for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
-      final ValueRequirement requirement = entry.getValue();
-      if (requirement.getValueName().equals(ValueRequirementNames.YIELD_CURVE)) {
-        curveCalculationConfigName = requirement.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-        curveName = requirement.getConstraint(PROPERTY_REQUESTED_CURVE);
-        break;
-      }
-    }
-    assert curveCalculationConfigName != null;
-    assert curveName != null;
-    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
-    final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
-    if (curveCalculationConfig == null) {
-      throw new OpenGammaRuntimeException("Could not find curve calculation configuration named " + curveCalculationConfigName);
-    }
-    final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
-    final String[] applicableCurveNames = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, curveNames);
-    if (Arrays.binarySearch(applicableCurveNames, curveName) < 0) {
-      s_logger.error("Security {} is not sensitive to the curve {}", security, curveName);
-      return Collections.emptySet();
-    }
-    final ValueProperties properties = createValueProperties(target);
-    return Collections.singleton(new ValueSpecification(_valueRequirement, target.toSpecification(), properties));
   }
 
   protected abstract Set<ComputedValue> getResults(final InstrumentDerivative derivative, final String curveName, final YieldCurveBundle curves,

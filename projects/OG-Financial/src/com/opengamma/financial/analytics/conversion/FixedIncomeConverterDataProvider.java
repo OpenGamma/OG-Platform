@@ -302,6 +302,10 @@ public class FixedIncomeConverterDataProvider {
         throw new OpenGammaRuntimeException("Price time series for " + security.getExternalIdBundle() + " was empty");
       }
       final double lastMarginPrice = ts.getTimeSeries().getLatestValue();
+      if (curveNames.length == 1) {
+        final String[] singleCurve = new String[] {curveNames[0], curveNames[0]};
+        return definition.toDerivative(now, lastMarginPrice, singleCurve);
+      }
       return definition.toDerivative(now, lastMarginPrice, curveNames);
     }
 
@@ -454,9 +458,12 @@ public class FixedIncomeConverterDataProvider {
     @Override
     public InstrumentDerivative convert(final Security security, final InstrumentDefinition<?> definition, final ZonedDateTime now, final String[] curveNames,
         final HistoricalTimeSeriesBundle timeSeries) {
+      if (curveNames.length == 1) {
+        final String[] singleCurve = new String[] {curveNames[0], curveNames[0]};
+        return definition.toDerivative(now, singleCurve);
+      }
       return definition.toDerivative(now, curveNames);
     }
-
   };
 
   private ValueRequirement getIndexTimeSeriesRequirement(final InterestRateInstrumentType type, final SwapLeg leg, final ZonedDateTime swapEffectiveDate) {
