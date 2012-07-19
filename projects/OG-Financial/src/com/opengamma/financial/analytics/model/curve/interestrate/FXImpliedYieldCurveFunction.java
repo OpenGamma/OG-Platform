@@ -269,6 +269,9 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
       s_logger.error("Could not get domestic curve calculation config called {}", domesticCurveCalculationConfigName);
       return null;
     }
+    if (!domesticCurveCalculationConfig.getCalculationMethod().equals(FX_IMPLIED)) {
+      return null;
+    }
     if (domesticCurveCalculationConfig.getExogenousConfigData() == null) {
       s_logger.error("Need an externally-supplied curve to imply data; tried {}", domesticCurveCalculationConfigName);
       return null;

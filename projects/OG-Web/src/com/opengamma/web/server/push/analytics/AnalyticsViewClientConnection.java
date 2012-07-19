@@ -108,7 +108,7 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
 
     private final AggregatedViewDefinitionManager _aggregatedViewDefManager;
     private final UniqueId _baseViewDefId;
-    private final String _aggregatorName;
+    private final List<String> _aggregatorNames;
     private final UniqueId _id;
 
     private AggregatedViewDefinition(AggregatedViewDefinitionManager aggregatedViewDefManager, ViewRequest viewRequest) {
@@ -116,15 +116,9 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
       ArgumentChecker.notNull(viewRequest, "viewRequest");
       _aggregatedViewDefManager = aggregatedViewDefManager;
       _baseViewDefId = viewRequest.getViewDefinitionId();
-      List<String> aggregators = viewRequest.getAggregators();
-      if (!aggregators.isEmpty()) {
-        // TODO support multiple aggregtors
-        _aggregatorName = aggregators.get(0);
-      } else {
-        _aggregatorName = null;
-      }
+      _aggregatorNames = viewRequest.getAggregators();
       try {
-        _id = _aggregatedViewDefManager.getViewDefinitionId(_baseViewDefId, _aggregatorName);
+        _id = _aggregatedViewDefManager.getViewDefinitionId(_baseViewDefId, _aggregatorNames);
       } catch (Exception e) {
         close();
         throw new OpenGammaRuntimeException("Failed to get aggregated view definition", e);
@@ -136,7 +130,7 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
     }
 
     private void close() {
-      _aggregatedViewDefManager.releaseViewDefinition(_baseViewDefId, _aggregatorName);
+      _aggregatedViewDefManager.releaseViewDefinition(_baseViewDefId, _aggregatorNames);
     }
   }
 }

@@ -16,8 +16,6 @@ import com.google.common.collect.Lists;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.InMemoryViewComputationResultModel;
-import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.util.ArgumentChecker;
@@ -33,7 +31,6 @@ import com.opengamma.util.tuple.Pair;
   private final MainGridStructure _gridStructure;
   private final ComputationTargetResolver _targetResolver;
 
-  private ViewResultModel _latestResults = new InMemoryViewComputationResultModel();
   private ResultsCache _cache = new ResultsCache();
   private ViewCycle _cycle = EmptyViewCycle.INSTANCE;
 
@@ -103,16 +100,15 @@ import com.opengamma.util.tuple.Pair;
   }
 
   /* package */ void updateViewport(String viewportId, ViewportSpecification viewportSpecification) {
-    getViewport(viewportId).update(viewportSpecification, _latestResults, _cache);
+    getViewport(viewportId).update(viewportSpecification, _cache);
   }
 
-  /* package */ List<String> updateResults(ViewResultModel results, ResultsCache cache, ViewCycle cycle) {
-    _latestResults = results;
+  /* package */ List<String> updateResults(ResultsCache cache, ViewCycle cycle) {
     _cache = cache;
     _cycle = cycle;
     List<String> updatedIds = Lists.newArrayList();
     for (MainGridViewport viewport : _viewports.values()) {
-      CollectionUtils.addIgnoreNull(updatedIds, viewport.updateResults(results, cache));
+      CollectionUtils.addIgnoreNull(updatedIds, viewport.updateResults(cache));
     }
     for (DependencyGraphGrid grid : _depGraphs.values()) {
       updatedIds.addAll(grid.updateResults(cycle, cache));
@@ -167,6 +163,6 @@ import com.opengamma.util.tuple.Pair;
 
   @Override
   protected MainGridViewport createViewport(ViewportSpecification viewportSpecification, String dataId) {
-    return new MainGridViewport(viewportSpecification, _gridStructure, dataId, _latestResults, _cache);
+    return new MainGridViewport(viewportSpecification, _gridStructure, dataId, _cache);
   }
 }

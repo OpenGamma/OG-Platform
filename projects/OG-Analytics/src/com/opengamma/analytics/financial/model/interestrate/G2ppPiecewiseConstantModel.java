@@ -18,8 +18,25 @@ public class G2ppPiecewiseConstantModel {
    * The maturity dependent part of the volatility (function called H in the implementation note).
    * @param g2parameters The model parameters.
    * @param u The start time.
-   * @param v The end times.
+   * @param v The end time (one time).
    * @return The volatility.
+   */
+  public double[] volatilityMaturityPart(final G2ppPiecewiseConstantParameters g2parameters, double u, double v) {
+    double[] a = g2parameters.getMeanReversion();
+    double[] result = new double[2];
+    double expa0u = Math.exp(-a[0] * u);
+    double expa1u = Math.exp(-a[1] * u);
+    result[0] = (expa0u - Math.exp(-a[0] * v)) / a[0];
+    result[1] = (expa1u - Math.exp(-a[1] * v)) / a[1];
+    return result;
+  }
+
+  /**
+   * The maturity dependent part of the volatility (function called H in the implementation note).
+   * @param g2parameters The model parameters.
+   * @param u The start time.
+   * @param v The end times (array).
+   * @return The volatility. factor/time
    */
   public double[][] volatilityMaturityPart(final G2ppPiecewiseConstantParameters g2parameters, double u, double[] v) {
     double[] a = g2parameters.getMeanReversion();
@@ -37,16 +54,22 @@ public class G2ppPiecewiseConstantModel {
    * The maturity dependent part of the volatility (function called H in the implementation note).
    * @param g2parameters The model parameters.
    * @param u The start time.
-   * @param v The end times.
-   * @return The volatility.
+   * @param v The end times (array of arrays).
+   * @return The volatility. factor/time
    */
-  public double[] volatilityMaturityPart(final G2ppPiecewiseConstantParameters g2parameters, double u, double v) {
+  public double[][][] volatilityMaturityPart(final G2ppPiecewiseConstantParameters g2parameters, double u, double[][] v) {
     double[] a = g2parameters.getMeanReversion();
-    double[] result = new double[2];
+    double[][][] result = new double[2][v.length][];
     double expa0u = Math.exp(-a[0] * u);
     double expa1u = Math.exp(-a[1] * u);
-    result[0] = (expa0u - Math.exp(-a[0] * v)) / a[0];
-    result[1] = (expa1u - Math.exp(-a[1] * v)) / a[1];
+    for (int loopcf1 = 0; loopcf1 < v.length; loopcf1++) {
+      result[0][loopcf1] = new double[v[loopcf1].length];
+      result[1][loopcf1] = new double[v[loopcf1].length];
+      for (int loopcf2 = 0; loopcf2 < v[loopcf1].length; loopcf2++) {
+        result[0][loopcf1][loopcf2] = (expa0u - Math.exp(-a[0] * v[loopcf1][loopcf2])) / a[0];
+        result[1][loopcf1][loopcf2] = (expa1u - Math.exp(-a[1] * v[loopcf1][loopcf2])) / a[1];
+      }
+    }
     return result;
   }
 

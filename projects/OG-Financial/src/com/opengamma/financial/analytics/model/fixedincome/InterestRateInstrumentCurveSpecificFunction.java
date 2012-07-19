@@ -45,6 +45,7 @@ import com.opengamma.financial.analytics.conversion.FRASecurityConverter;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.InterestRateFutureSecurityConverter;
 import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
+import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveExposureHelper;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
@@ -67,6 +68,7 @@ import com.opengamma.util.money.Currency;
  */
 public abstract class InterestRateInstrumentCurveSpecificFunction extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(InterestRateInstrumentCurveSpecificFunction.class);
+  private static final String PROPERTY_REQUESTED_CURVE = "RequestedCurve";
   private final String _valueRequirement;
   private FinancialSecurityVisitor<InstrumentDefinition<?>> _visitor;
   private FixedIncomeConverterDataProvider _definitionConverter;
@@ -182,6 +184,7 @@ public abstract class InterestRateInstrumentCurveSpecificFunction extends Abstra
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
     if (!currency.equals(curveCalculationConfig.getUniqueId())) {
       s_logger.error("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getUniqueId());
+      return null;
     }
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
     final String curve = curves.iterator().next();
@@ -189,8 +192,20 @@ public abstract class InterestRateInstrumentCurveSpecificFunction extends Abstra
       s_logger.error("Curve named {} is not available in curve calculation configuration called {}", curve, curveCalculationConfigName);
       return null;
     }
+    final String[] applicableCurveNames = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, curveNames);
+    if (Arrays.binarySearch(applicableCurveNames, curve) < 0) {
+      s_logger.error("Security {} is not sensitive to the curve {}", security, curve);
+      return null;
+    }
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-    requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
+    final Set<ValueRequirement> curveRequirements = YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource);
+    final Set<ValueRequirement> curveWithRequestedCurveRequirements = new HashSet<ValueRequirement>();
+    for (final ValueRequirement requirement : curveRequirements) {
+      final ValueProperties.Builder properties = requirement.getConstraints().copy();
+      properties.with(PROPERTY_REQUESTED_CURVE, curve).withOptional(PROPERTY_REQUESTED_CURVE);
+      curveWithRequestedCurveRequirements.add(new ValueRequirement(requirement.getValueName(), requirement.getTargetSpecification(), properties.get()));
+    }
+    requirements.addAll(curveWithRequestedCurveRequirements);
     final Set<ValueRequirement> timeSeriesRequirements = InterestRateInstrumentFunction.getDerivativeTimeSeriesRequirements(security, curveNames, security.accept(_visitor), _definitionConverter);
     if (timeSeriesRequirements == null) {
       return null;

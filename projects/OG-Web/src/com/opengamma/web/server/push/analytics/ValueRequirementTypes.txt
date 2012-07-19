@@ -32,6 +32,7 @@
 'Par Rate' java.lang.Double
 'PV Z Spread Sensitivity' java.lang.Double
 'PV01' java.lang.Double
+'Par Rate' java.lang.Double
 'Piecewise SABR fitted surface' com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness
 'Present Value Curve Sensitivity' java.util.HashMap
 'Present Value SABR Alpha Node Sensitivity' com.opengamma.financial.analytics.DoubleLabelledMatrix2D
