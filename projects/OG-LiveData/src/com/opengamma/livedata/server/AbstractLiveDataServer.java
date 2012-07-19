@@ -154,11 +154,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
    * <p>
    * The return value is a map from unique ID to subscription handle.
    * The map must contain an entry for each <code>uniqueId</code>.
-   * While this call is intended to be asynchronous in the handling
-   * of the connection to the underlying data provider, in the event
-   * that a failure to subscribe can be detected immediately the
-   * result map should include a {@link LiveDataSubscriptionResponse}
-   * which includes the failure mode to return to the client immediately. 
+   * Failure to subscribe to any <code>uniqueId</code> should result in an exception being thrown. 
    * 
    * @param uniqueIds A collection of unique IDs. Not null. May be empty.
    * @return Subscription handles corresponding to the unique IDs.
@@ -456,31 +452,12 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
       // Set up data structures
       for (Map.Entry<String, Object> subscriptionHandle : subscriptionHandles.entrySet()) {
         String securityUniqueId = subscriptionHandle.getKey();
-        LiveDataSpecification specFromClient = securityUniqueId2SpecFromClient.get(securityUniqueId);
-        
         Object handle = subscriptionHandle.getValue();
-        
-        if (handle instanceof LiveDataSubscriptionResponse) {
-          LiveDataSubscriptionResponse response = (LiveDataSubscriptionResponse) handle;
-          // This is a failure to subscribe. Handle it specifically.
-          responses.add(getErrorResponse(
-              specFromClient,
-              response.getSubscriptionResult(),
-              response.getUserMessage()));
-          continue;
-        }
+        LiveDataSpecification specFromClient = securityUniqueId2SpecFromClient.get(securityUniqueId);
         
         Subscription subscription = securityUniqueId2NewSubscription.get(securityUniqueId); 
         subscription.setHandle(handle);
-          
-        for (SubscriptionListener listener : _subscriptionListeners) {
-          try {
-            listener.subscribed(subscription);
-          } catch (RuntimeException e) {
-            s_logger.error("Listener " + listener + " subscribe failed", e);
-          }
-        }
-          
+         
         _currentlyActiveSubscriptions.add(subscription);
 
         if (subscription.getDistributionSpecifications().size() != 1) {
@@ -496,6 +473,9 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
         }
         
         s_logger.info("Created {}", subscription);
+        
+        notifySubscriptionListeners(subscription);
+        
       }
 
     } catch (RuntimeException e) {
@@ -516,10 +496,32 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     } finally {
       _subscriptionLock.unlock();
     }
+    
+    //notify that subscription data structure is completely built
+    subscriptionDone(securityUniqueId2NewSubscription.keySet());
 
     return responses;
   }
+
+  private void notifySubscriptionListeners(Subscription subscription) {
+    for (SubscriptionListener listener : _subscriptionListeners) {
+      try {
+        listener.subscribed(subscription);
+      } catch (RuntimeException e) {
+        s_logger.error("Listener " + listener + " subscribe failed", e);
+      }
+    }
+  }
   
+  /**
+   * Implement necessary data flow logic after subscription is completed
+   * 
+   * @param subscriptions the subscriptions, not null 
+   */
+  protected void subscriptionDone(Set<String> subscriptions) {
+    //Do nothing by default
+  }
+
   /**
    * Check that a subscription request is valid.
    * Will be called before any snapshot or subscribe requests for the keys
@@ -594,17 +596,9 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     Map<String, FudgeMsg> snapshots = doSnapshot(snapshotsToActuallyDo);
     for (Map.Entry<String, FudgeMsg> snapshotEntry : snapshots.entrySet()) {
       String securityUniqueId = snapshotEntry.getKey();
-      LiveDataSpecification liveDataSpecFromClient = securityUniqueId2LiveDataSpecificationFromClient.get(securityUniqueId);
-      
       FudgeMsg msg = snapshotEntry.getValue();
       
-      if (msg == null) {
-        responses.add(getErrorResponse(
-            liveDataSpecFromClient,
-            LiveDataSubscriptionResult.NOT_PRESENT,
-            "Underlying market data server could not load a snapshot on the fly for " + securityUniqueId));
-        continue;
-      }
+      LiveDataSpecification liveDataSpecFromClient = securityUniqueId2LiveDataSpecificationFromClient.get(securityUniqueId);
       
       DistributionSpecification distributionSpec = resolved.get(liveDataSpecFromClient);
       FudgeMsg normalizedMsg = distributionSpec.getNormalizedMessage(msg, securityUniqueId);
