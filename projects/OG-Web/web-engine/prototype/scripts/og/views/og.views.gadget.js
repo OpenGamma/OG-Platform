@@ -20,7 +20,7 @@ $.register_module({
                         depgraph: false,
                         viewdefinition: args.id,
                         live: true,
-                        provider: 'Live market data (Bloomberg, Activ, TullettPrebon)'
+                        provider: 'Simulated live market data'
                     }
                 });
             },
