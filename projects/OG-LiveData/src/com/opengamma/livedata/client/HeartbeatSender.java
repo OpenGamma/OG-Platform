@@ -81,7 +81,11 @@ public class HeartbeatSender {
       Heartbeat heartbeat = new Heartbeat(liveDataSpecs);
       FudgeMsg heartbeatMsg = heartbeat.toFudgeMsg(new FudgeSerializer(getFudgeContext()));
       byte[] bytes = getFudgeContext().toByteArray(heartbeatMsg);
-      getMessageSender().send(bytes);
+      try {
+        getMessageSender().send(bytes);
+      } catch (Exception e) {
+        s_logger.error("Unable to send heartbeat message", e);
+      }
     }
   }
 
