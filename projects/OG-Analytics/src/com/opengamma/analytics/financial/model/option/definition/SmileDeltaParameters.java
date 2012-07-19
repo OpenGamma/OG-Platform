@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.model.option.definition;
 
 import java.util.Arrays;
 
-import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackImpliedStrikeFromDeltaFunction;
+import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -82,8 +82,8 @@ public class SmileDeltaParameters {
     final double[] strike = new double[2 * nbDelta + 1];
     strike[nbDelta] = forward * Math.exp(_volatility[nbDelta] * _volatility[nbDelta] * _timeToExpiry / 2.0);
     for (int loopdelta = 0; loopdelta < nbDelta; loopdelta++) {
-      strike[loopdelta] = BlackImpliedStrikeFromDeltaFunction.impliedStrike(-_delta[loopdelta], false, forward, _timeToExpiry, _volatility[loopdelta]); // Put
-      strike[2 * nbDelta - loopdelta] = BlackImpliedStrikeFromDeltaFunction.impliedStrike(_delta[loopdelta], true, forward, _timeToExpiry, _volatility[2 * nbDelta - loopdelta]); // Call
+      strike[loopdelta] = BlackFormulaRepository.impliedStrike(-_delta[loopdelta], false, forward, _timeToExpiry, _volatility[loopdelta]); // Put
+      strike[2 * nbDelta - loopdelta] = BlackFormulaRepository.impliedStrike(_delta[loopdelta], true, forward, _timeToExpiry, _volatility[2 * nbDelta - loopdelta]); // Call
     }
     return strike;
   }
