@@ -42,6 +42,7 @@ public class FXUtils {
     BASE_ORDER.put(Currency.CAD, 8);
     BASE_ORDER.put(Currency.SEK, 9);
     BASE_ORDER.put(Currency.NOK, 10);
+    BASE_ORDER.put(Currency.JPY, 11);
   }
 
   /**

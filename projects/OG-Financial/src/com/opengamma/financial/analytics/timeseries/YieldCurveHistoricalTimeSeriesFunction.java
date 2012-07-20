@@ -67,7 +67,7 @@ public class YieldCurveHistoricalTimeSeriesFunction extends AbstractFunction.Non
     final boolean includeEnd = HistoricalTimeSeriesFunctionUtils.parseBoolean(desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY));
     final InterpolatedYieldCurveSpecificationWithSecurities yieldCurve = (InterpolatedYieldCurveSpecificationWithSecurities) inputs.getAllValues().iterator().next().getValue();
     final HistoricalTimeSeriesBundle bundle = new HistoricalTimeSeriesBundle();
-    for (FixedIncomeStripWithSecurity strip : yieldCurve.getStrips()) {
+    for (final FixedIncomeStripWithSecurity strip : yieldCurve.getStrips()) {
       final ExternalIdBundle id = ExternalIdBundle.of(strip.getSecurityIdentifier());
       final HistoricalTimeSeries timeSeries = timeSeriesSource.getHistoricalTimeSeries(dataField, id, resolutionKey, startDate, includeStart, endDate, includeEnd);
       if (timeSeries != null) {
