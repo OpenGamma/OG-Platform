@@ -18,7 +18,6 @@ import javax.time.calendar.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -99,8 +98,10 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
     final String receiveCurveName = desiredValue.getConstraint(ValuePropertyNames.RECEIVE_CURVE);
     final Period samplingPeriod = getSamplingPeriod(desiredValue.getConstraint(ValuePropertyNames.SAMPLING_PERIOD));
     final LocalDate startDate = now.minus(samplingPeriod);
-    final Schedule scheduleCalculator = getScheduleCalculator(desiredValue.getConstraint(ValuePropertyNames.SCHEDULE_CALCULATOR));
-    final TimeSeriesSamplingFunction samplingFunction = getSamplingFunction(desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION));
+    final String scheduleCalculatorName = desiredValue.getConstraint(ValuePropertyNames.SCHEDULE_CALCULATOR);
+    final Schedule scheduleCalculator = getScheduleCalculator(scheduleCalculatorName);
+    final String samplingFunctionName = desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION);
+    final TimeSeriesSamplingFunction samplingFunction = getSamplingFunction(samplingFunctionName);
     final LocalDate[] schedule = HOLIDAY_REMOVER.getStrippedSchedule(scheduleCalculator.getSchedule(startDate, now, true, false), WEEKEND_CALENDAR); //REVIEW emcleod should "fromEnd" be hard-coded?
     final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
     final MultiCurveCalculationConfig payCurveCalculationConfig = curveCalculationConfigSource.getConfig(payCurveCalculationConfigName);
@@ -133,16 +134,16 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
     final HistoricalTimeSeriesBundle payYCHTS = (HistoricalTimeSeriesBundle) payYCHTSObject;
     final HistoricalTimeSeriesBundle receiveYCHTS = (HistoricalTimeSeriesBundle) receiveYCHTSObject;
     DoubleTimeSeries<?> payResult = null;
-    payResult = getPnLForCurve(inputs, position, Currency.of(payCurrency), samplingPeriodName, samplingFunction, schedule, payResult, payCurveCalculationConfig, payYCNS, payYCHTS);
+    payResult = getPnLForCurve(inputs, position, Currency.of(payCurrency), payCurveName, samplingFunction, schedule, payResult, payCurveCalculationConfig, payYCNS, payYCHTS);
     DoubleTimeSeries<?> receiveResult = null;
-    receiveResult = getPnLForCurve(inputs, position, Currency.of(receiveCurrency), samplingPeriodName, samplingFunction, schedule, receiveResult, receiveCurveCalculationConfig,
+    receiveResult = getPnLForCurve(inputs, position, Currency.of(receiveCurrency), receiveCurveName, samplingFunction, schedule, receiveResult, receiveCurveCalculationConfig,
         receiveYCNS, receiveYCHTS);
     final Currency currencyBase = FXUtils.baseCurrency(security.accept(ForexVisitors.getPayCurrencyVisitor()), security.accept(ForexVisitors.getReceiveCurrencyVisitor())); // The base currency
     final Object fxSpotTSObject = inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
     if (fxSpotTSObject == null) {
       throw new OpenGammaRuntimeException("Could not get spot FX time series");
     }
-    final DoubleTimeSeries<?> fxSpotTS = (DoubleTimeSeries<?>) fxSpotTSObject;
+    final DoubleTimeSeries<?> fxSpotTS = ((HistoricalTimeSeries) fxSpotTSObject).getTimeSeries();
     DoubleTimeSeries<?> result;
     if (payCurrency.equals(currencyBase.getCode())) {
       result = payResult;
@@ -151,7 +152,8 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
       result = receiveResult;
       result = result.add(payResult.multiply(fxSpotTS));
     }
-    final ValueProperties resultProperties = getResultProperties(security, currencyBase.getCode());
+    final ValueProperties resultProperties = getResultProperties(payCurveName, payCurveCalculationConfigName, receiveCurveName, receiveCurveCalculationConfigName,
+        currencyBase.getCode(), samplingPeriodName, scheduleCalculatorName, samplingFunctionName);
     final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), resultProperties);
     return Sets.newHashSet(new ComputedValue(resultSpec, payResult));
   }
@@ -237,14 +239,13 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
         payCurrencyName, payCurveName, security);
     final ValueRequirement receiveYCNSRequirement = getYCNSRequirement(payCurveName, payCurveCalculationConfigName, receiveCurveName, receiveCurveCalculationConfigName,
         receiveCurrencyName, receiveCurveName, security);
-    final ValueRequirement payCurveSpecRequirement = getCurveSpecRequirement(payCurrency, payCurveName);
-    final ValueRequirement receiveCurveSpecRequirement = getCurveSpecRequirement(receiveCurrency, receiveCurveName);
     final String samplingPeriod = Iterables.getOnlyElement(samplingPeriods);
     final ValueRequirement payYCHTSRequirement = getYCHTSRequirement(payCurrency, payCurveName, samplingPeriod);
     final ValueRequirement receiveYCHTSRequirement = getYCHTSRequirement(receiveCurrency, receiveCurveName, samplingPeriod);
     final HistoricalTimeSeriesResolver historicalTimeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     final ValueRequirement marketValueRequirement = getMarketValueRequirement(historicalTimeSeriesResolver, security, samplingPeriod);
     if (marketValueRequirement == null) {
+      s_logger.error("Could not get time series for identifier " + FXUtils.getSpotIdentifier((FXForwardSecurity) target.getPosition().getSecurity()));
       return null;
     }
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
@@ -259,7 +260,7 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
     if (!receiveCurveCalculationConfig.getCalculationMethod().equals(FXImpliedYieldCurveFunction.FX_IMPLIED)) {
       requirements.add(getCurveSpecRequirement(receiveCurrency, receiveCurveName));
     }
-    return ImmutableSet.of(payYCNSRequirement, receiveYCNSRequirement, payCurveSpecRequirement, receiveCurveSpecRequirement, marketValueRequirement);
+    return requirements;
   }
 
   private ValueRequirement getCurveSpecRequirement(final Currency currency, final String yieldCurveName) {
@@ -408,16 +409,17 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
     return TimeSeriesSamplingFunctionFactory.getFunction(samplingFunctionName);
   }
 
-  private ValueProperties getResultProperties(final FinancialSecurity security, final String currencyBase) {
+  private ValueProperties getResultProperties(final String payCurveName, final String payCurveCalcConfig, final String receiveCurveName, final String receiveCurveCalcConfig,
+      final String currencyBase, final String samplingPeriod, final String scheduleCalculator, final String samplingFunction) {
     return createValueProperties()
-        .withAny(ValuePropertyNames.PAY_CURVE)
-        .withAny(FXForwardFunction.PAY_CURVE_CALC_CONFIG)
-        .withAny(ValuePropertyNames.RECEIVE_CURVE)
-        .withAny(FXForwardFunction.RECEIVE_CURVE_CALC_CONFIG)
+        .with(ValuePropertyNames.PAY_CURVE, payCurveName)
+        .with(FXForwardFunction.PAY_CURVE_CALC_CONFIG, payCurveCalcConfig)
+        .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveName)
+        .with(FXForwardFunction.RECEIVE_CURVE_CALC_CONFIG, receiveCurveCalcConfig)
         .with(ValuePropertyNames.CURRENCY, currencyBase)
-        .withAny(ValuePropertyNames.SAMPLING_PERIOD)
-        .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
-        .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
+        .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriod)
+        .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculator)
+        .with(ValuePropertyNames.SAMPLING_FUNCTION, samplingFunction)
         .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES)
         .get();
   }

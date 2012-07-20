@@ -21,9 +21,9 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 /**
  * 
  */
-public class FXForwardPnLSeriesCurrencyConversionFunction extends PnlSeriesCurrencyConversionFunction {
+public class FXForwardYCNSPnLCurrencyConversionFunction extends PnlSeriesCurrencyConversionFunction {
 
-  public FXForwardPnLSeriesCurrencyConversionFunction(final String currencyMatrixName) {
+  public FXForwardYCNSPnLCurrencyConversionFunction(final String currencyMatrixName) {
     super(currencyMatrixName);
   }
 
@@ -43,7 +43,7 @@ public class FXForwardPnLSeriesCurrencyConversionFunction extends PnlSeriesCurre
         .withAny(ValuePropertyNames.SAMPLING_PERIOD)
         .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
         .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
-        .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.FX_CURRENCY_EXPOSURE).get();
+        .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
     return ImmutableSet.of(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties));
   }
 

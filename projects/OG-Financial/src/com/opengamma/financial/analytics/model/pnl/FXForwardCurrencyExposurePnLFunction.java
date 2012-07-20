@@ -12,6 +12,9 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.schedule.HolidayDateRemovalFunction;
@@ -54,6 +57,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * 
  */
 public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction.NonCompiledInvoker {
+  private static final Logger s_logger = LoggerFactory.getLogger(FXForwardCurrencyExposurePnLFunction.class);
   private static final HolidayDateRemovalFunction HOLIDAY_REMOVER = HolidayDateRemovalFunction.getInstance();
   private static final Calendar WEEKEND_CALENDAR = new MondayToFridayCalendar("Weekend");
   private static final TimeSeriesDifferenceOperator DIFFERENCE = new TimeSeriesDifferenceOperator();
@@ -148,15 +152,16 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction.NonCo
     if (samplingPeriods == null || samplingPeriods.size() != 1) {
       return null;
     }
-    final ValueRequirement fxCurrencyExposureRequirement = new ValueRequirement(
-        ValueRequirementNames.FX_CURRENCY_EXPOSURE, target.getPosition().getSecurity(), ValueProperties.builder()
-            .with(ValuePropertyNames.PAY_CURVE, payCurveNames.iterator().next())
-            .with(FXForwardFunction.PAY_CURVE_CALC_CONFIG, payCurveCalculationConfigs.iterator().next())
-            .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveNames.iterator().next())
-            .with(FXForwardFunction.RECEIVE_CURVE_CALC_CONFIG, receiveCurveCalculationConfigs.iterator().next()).get());
+    final ValueRequirement fxCurrencyExposureRequirement = new ValueRequirement(ValueRequirementNames.FX_CURRENCY_EXPOSURE, target.getPosition().getSecurity(),
+        ValueProperties.builder()
+        .with(ValuePropertyNames.PAY_CURVE, payCurveNames.iterator().next())
+        .with(FXForwardFunction.PAY_CURVE_CALC_CONFIG, payCurveCalculationConfigs.iterator().next())
+        .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveNames.iterator().next())
+        .with(FXForwardFunction.RECEIVE_CURVE_CALC_CONFIG, receiveCurveCalculationConfigs.iterator().next()).get());
     final HistoricalTimeSeriesResolutionResult timeSeries = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context).resolve(
         ExternalIdBundle.of(FXUtils.getSpotIdentifier((FXForwardSecurity) target.getPosition().getSecurity())), null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
     if (timeSeries == null) {
+      s_logger.error("Could not get time series for identifier " + FXUtils.getSpotIdentifier((FXForwardSecurity) target.getPosition().getSecurity()));
       return null;
     }
     final ValueRequirement marketValueRequirement = HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries,
