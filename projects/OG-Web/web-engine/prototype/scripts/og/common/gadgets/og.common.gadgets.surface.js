@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.common.gadgets.surface',
     dependencies: ['og.common.gadgets.manager', 'og.api.text'],
     obj: function () {
-        var webgl = Detector.webgl ? true : false, util = {}, matlib = {}, tmp_data,
+        var webgl = Detector.webgl ? true : false, util = {}, matlib = {}, tmp_data, prefix = 'surface_', counter = 1,
             settings = {
                 floating_height: 5,         // how high the top surface floats over the bottom grid
                 font_face_2d: 'Arial',      // 2D text font
@@ -175,20 +175,18 @@ $.register_module({
             config.zs = tmp_data[config.id].zs;
             config.zs_labels = tmp_data[config.id].zs_labels;
             config.zs_label = tmp_data[config.id].zs_label;
-            var gadget = this, hud = {}, smile = {}, surface = {}, selector = config.selector, $selector = $(selector),
-                animation_group = new THREE.Object3D(), // everything in animation_group rotates with mouse drag
+            var gadget = this, alive = prefix + counter++, $selector = $(config.selector), width, height,
+                hud = {}, smile = {}, surface = {}, char_geometries = {},
+                animation_group = new THREE.Object3D(), // everything in animation_group rotates on mouse drag
                 hover_group,          // THREE.Object3D that gets created on hover and destroyed afterward
-                width, height,        // selector / canvas width and height
                 surface_top_group,    // actual surface and anything that needs to be at that y pos
                 surface_bottom_group, // the bottom grid, axis etc
                 surface_group,        // full surface group, including axis
                 vertex_sphere,        // the sphere displayed on vertex hover
                 x_segments = config.xs.length - 1, z_segments = config.zs.length - 1, y_segments = settings.y_segments,
-                vol_max = (Math.max.apply(null, config.vol)),
-                vol_min = (Math.min.apply(null, config.vol)),
-                renderer, camera, scene, backlight, keylight, filllight,
-                ys, adjusted_vol, adjusted_xs, adjusted_ys, adjusted_zs, // call gadget.init_data to setup
-                char_geometries = {};
+                ys, adjusted_vol, adjusted_xs, adjusted_ys, adjusted_zs, // gadget.init_data calculates these values
+                vol_max = Math.max.apply(null, config.vol), vol_min = Math.min.apply(null, config.vol),
+                renderer, camera, scene, backlight, keylight, filllight;
             /**
              * Constructor for a plane with correct x / y vertex position spacing
              * @param {String} type 'surface', 'smilex' or 'smiley'
@@ -317,9 +315,8 @@ $.register_module({
             };
             /**
              * Tells the resize manager if the gadget is still alive
-             * TODO: set this up
              */
-            gadget.alive = function () {return true};
+            gadget.alive = function () {return !!$('.' + alive).length;};
             /**
              * Rotate the (world) group on mouse drag
              */
@@ -459,7 +456,7 @@ $.register_module({
             hud.load = function () {
                 $.when(og.api.text({module: 'og.views.gadgets.surface.hud_tash'})).then(function (tmpl) {
                     var min = vol_min.toFixed(settings.precision_hud), max = vol_max.toFixed(settings.precision_hud),
-                        html = (Handlebars.compile(tmpl))({min: min, max: max});
+                        html = (Handlebars.compile(tmpl))({min: min, max: max, alive: alive});
                     hud.vol_canvas_height = height / 2;
                     hud.volatility($(html).appendTo($selector).find('canvas')[0]);
                     hud.form();
