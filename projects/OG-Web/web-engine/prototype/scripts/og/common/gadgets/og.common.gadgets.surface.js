@@ -88,7 +88,7 @@ $.register_module({
         matlib.canvas.wire = function (color) {
             return new THREE.MeshBasicMaterial({color: color || 0xcccccc, wireframe: true});
         };
-        matlib.compound_dark_wire = function () {
+        matlib.compound_grid_wire = function () {
             return [
                 new THREE.MeshPhongMaterial({
                     // color represents diffuse in THREE.MeshPhongMaterial
@@ -97,7 +97,7 @@ $.register_module({
                 matlib.wire(0xcccccc)
             ]
         };
-        matlib.compound_light_wire = function () {
+        matlib.compound_floor_wire = function () {
             return [
                 new THREE.MeshPhongMaterial({
                     ambient: 0x000000, color: 0xefefef, specular: 0xffffff, emissive: 0x000000, shininess: 10
@@ -346,7 +346,7 @@ $.register_module({
              */
             gadget.create_floor = function () {
                 var plane = new THREE.PlaneGeometry(5000, 5000, 100, 100), floor;
-                floor = THREE.SceneUtils.createMultiMaterialObject(plane, matlib.compound_light_wire());
+                floor = THREE.SceneUtils.createMultiMaterialObject(plane, matlib.compound_floor_wire());
                 floor.position.y = -0.01;
                 return floor;
             };
@@ -515,7 +515,7 @@ $.register_module({
             smile.x = function () {
                 (function () { // plane
                     var plane = new Plane('smilex'),
-                        mesh = THREE.SceneUtils.createMultiMaterialObject(plane, matlib.compound_dark_wire());
+                        mesh = THREE.SceneUtils.createMultiMaterialObject(plane, matlib.compound_grid_wire());
                     mesh.rotation.x = Math.PI * 0.5;
                     mesh.position.y = settings.surface_y;
                     mesh.position.z = -((settings.surface_z / 2) + settings.smile_distance);
@@ -539,7 +539,7 @@ $.register_module({
             smile.z = function () {
                 (function () { // plane
                     var plane = new Plane('smiley'),
-                        mesh = THREE.SceneUtils.createMultiMaterialObject(plane, matlib.compound_dark_wire());
+                        mesh = THREE.SceneUtils.createMultiMaterialObject(plane, matlib.compound_grid_wire());
                     mesh.position.x = (settings.surface_x / 2) + settings.smile_distance;
                     mesh.rotation.z = Math.PI * 0.5;
                     surface_top_group.add(mesh);
@@ -657,7 +657,7 @@ $.register_module({
              */
             surface.create_bottom_grid = function () {
                 var plane = new Plane('surface'),
-                    mesh = THREE.SceneUtils.createMultiMaterialObject(plane, matlib.compound_dark_wire());
+                    mesh = THREE.SceneUtils.createMultiMaterialObject(plane, matlib.compound_grid_wire());
                 mesh.overdraw = true;
                 return mesh;
             };
