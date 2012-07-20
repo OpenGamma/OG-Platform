@@ -8,15 +8,12 @@ $.register_module({
     obj: function () {
         var webgl = Detector.webgl ? true : false, util = {}, matlib = {}, tmp_data,
             settings = {
-                floating_height: 5, // how high does the top surface float over the bottom grid
-                font_face: 'Arial',  // 2D text font (glyphs for 3D fonts need to be loaded separatly)
+                floating_height: 5,         // how high the top surface floats over the bottom grid
+                font_face_2d: 'Arial',      // 2D text font
+                font_face_3d: 'helvetiker', // 3D text font (glyphs for 3D fonts need to be loaded separatly)
                 font_size: 40,
-                font_size_axis_labels: 70,
-                font_size_interactive_labels: 40,
-                font_height: 2,                    // extrusion height for 3D font value labels
-                font_height_axis_labels: 4,        // extrusion height for 3D font axis labels
-                font_height_interactive_labels: 5, // extrusion height for 3D font interactive labels
-                font_color: '0x000000',            // font color for value labels
+                font_height: 4,             // extrusion height for 3D text
+                font_color: '0x000000',     // font color for value labels
                 font_color_axis_labels: '0xcccccc',
                 interactive_color_nix: '0xff0000',
                 interactive_color_css: '#f00',
@@ -190,7 +187,8 @@ $.register_module({
                 vol_max = (Math.max.apply(null, config.vol)),
                 vol_min = (Math.min.apply(null, config.vol)),
                 renderer, camera, scene, backlight, keylight, filllight,
-                ys, adjusted_vol, adjusted_xs, adjusted_ys, adjusted_zs; // call gadget.init_data to setup
+                ys, adjusted_vol, adjusted_xs, adjusted_ys, adjusted_zs, // call gadget.init_data to setup
+                char_geometries = {};
             /**
              * Constructor for a plane with correct x / y vertex position spacing
              * @param {String} type 'surface', 'smilex' or 'smiley'
@@ -233,15 +231,43 @@ $.register_module({
                 return plane;
             };
             /**
+             * Constructor for 3D text geometry, also cache character geometry calculations
+             * @param {String} str a single character
+             * @param {Object} options text geometry options
+             * @returns {THREE.Geometry}
+             */
+            var CachedTextGeometry = function (str, options) {
+                var geometry;
+                if (char_geometries[str]) return char_geometries[str];
+                if (str === ' ') {
+                    geometry = new THREE.Geometry();
+                    geometry.boundingBox = {min: new THREE.Vector3(0, 0, 0), max: new THREE.Vector3(100, 0, 0)};
+                    return geometry;
+                }
+                geometry = new THREE.TextGeometry(str, options);
+                geometry.computeBoundingBox();
+                return char_geometries[str] = geometry;
+            };
+            /**
              * Constructor for 3D text
              * @param {String} str String you want to create
              * @returns {THREE.TextGeometry}
              */
-            var Text3D = function (str, color, size, height) {
-                var text = new THREE.TextGeometry(str, {
-                    size: size, height: height || 10, font: 'helvetiker', weight: 'normal', style: 'normal'
+            var Text3D = function (str, color, preserve_kerning, bevel) {
+                var object = new THREE.Object3D(), xpos = 0, options = {
+                    size: settings.font_size, height: settings.font_height,
+                    font: settings.font_face_3d, weight: 'normal', style: 'normal',
+                    bevelEnabled: bevel || false, bevelSize: 0.6, bevelThickness: 0.6
+                };
+                if (preserve_kerning) return new THREE.Mesh(new CachedTextGeometry(str, options), matlib.phong(color));
+                str.split('').forEach(function (val) {
+                    var text = new CachedTextGeometry(val, options),
+                        mesh = new THREE.Mesh(text, matlib.phong(color));
+                    mesh.position.x = xpos + (val === '.' ? 5 : 0);                                   // space before
+                    xpos = xpos + ((THREE.FontUtils.drawText(val).offset)) + (val === '.' ? 10 : 15); // space after
+                    object.add(mesh);
                 });
-                return new THREE.Mesh(text, matlib.phong(color));
+                return object;
             };
             /**
              * Constructor for 2d text on a 3d mesh. Creates a canvas texture, applies to mesh
@@ -254,10 +280,10 @@ $.register_module({
                 var create_texture_map = function (str) {
                     var canvas = document.createElement('canvas'), ctx = canvas.getContext('2d');
                     size = size || 50;
-                    ctx.font = (size + 'px ' + settings.font_face);
+                    ctx.font = (size + 'px ' + settings.font_face_2d);
                     canvas.width = ctx.measureText(str).width;
                     canvas.height = Math.ceil(size * 1.25);
-                    ctx.font = (size + 'px ' + settings.font_face);
+                    ctx.font = (size + 'px ' + settings.font_face_2d);
                     ctx.fillStyle = color || '#000';
                     ctx.fillText(str, 0, size);
                     return canvas;
@@ -280,14 +306,14 @@ $.register_module({
              * @param {Array} points Array of Vector3's
              * @return {THREE.Object3D}
              */
-            var Tube = function (points) {
-                var mesh = new THREE.Object3D(), i = points.length - 1, line, tube;
+            var Tube = function (points, color) {
+                var object = new THREE.Object3D(), i = points.length - 1, line, tube;
                 while (i--) {
                     line = new THREE.LineCurve3(points[i], points[i+1]);
-                    tube = new THREE.TubeGeometry(line, 1, 0.2, 5, false, false);
-                    mesh.add(new THREE.Mesh(tube, matlib.flat(settings.interactive_color_nix)));
+                    tube = new THREE.TubeGeometry(line, 1, 0.2, 4, false, false);
+                    object.add(new THREE.Mesh(tube, matlib.flat(color)));
                 }
-                return mesh;
+                return object;
             };
             /**
              * Tells the resize manager if the gadget is still alive
@@ -498,6 +524,11 @@ $.register_module({
                     mesh.position.z = -((settings.surface_z / 2) + settings.smile_distance);
                     surface_top_group.add(mesh);
                 }());
+                (function () { // plane shadow
+                    var z = settings.surface_z / 2 + settings.smile_distance, half_width = settings.surface_x / 2,
+                        shadow = new Tube([{x: -half_width, y: 0, z: -z}, {x: half_width, y: 0, z: -z}], '0xaaaaaa');
+                    surface_bottom_group.add(shadow);
+                }());
                 (function () { // axis
                     var y = {axis: 'y', spacing: adjusted_ys, labels: ys, right: true}, y_axis = surface.create_axis(y);
                     y_axis.position.x = -(settings.surface_x / 2) - 25;
@@ -515,6 +546,11 @@ $.register_module({
                     mesh.position.x = (settings.surface_x / 2) + settings.smile_distance;
                     mesh.rotation.z = Math.PI * 0.5;
                     surface_top_group.add(mesh);
+                }());
+                (function () { // plane shadow
+                    var x = settings.surface_x / 2 + settings.smile_distance, half_width = settings.surface_z / 2,
+                        shadow = new Tube([{x: x, y: 0, z: -half_width}, {x: x, y: 0, z: half_width}], '0xaaaaaa');
+                    surface_bottom_group.add(shadow);
                 }());
                 (function () { // axis
                     var y = {axis: 'y', spacing: adjusted_ys, labels: ys}, y_axis = surface.create_axis(y);
@@ -552,14 +588,14 @@ $.register_module({
              * @return {THREE.Object3D}
              */
             surface.create_axis = function (config) {
-                var mesh = new THREE.Object3D(), i, nth = Math.ceil(config.spacing.length / 6), scale = '0.1',
+                var mesh = new THREE.Object3D(), i, nth = Math.ceil(config.spacing.length / 6),
                     lbl_arr = util.thin(config.labels, nth), pos_arr = util.thin(config.spacing, nth),
                     axis_len = settings['surface_' + config.axis];
                 (function () { // axis values
                     var value;
                     for (i = 0; i < lbl_arr.length; i++) {
-                        value = new Text3D(lbl_arr[i], settings.font_color, settings.font_size, settings.font_height);
-                        value.scale.set(scale, scale, scale);
+                        value = new Text3D(lbl_arr[i], settings.font_color);
+                        value.scale.set(0.1, 0.1, 0.1);
                         if (config.axis === 'y') {
                             value.position.x = pos_arr[i] - 6;
                             value.position.z = config.right
@@ -578,9 +614,8 @@ $.register_module({
                 }());
                 (function () { // axis label
                     if (!config.label) return;
-                    var label = new Text3D(config.label, settings.font_color_axis_labels,
-                        settings.font_size_axis_labels, settings.font_height_axis_labels);
-                    label.scale.set(scale, scale, scale);
+                    var label = new Text3D(config.label, settings.font_color_axis_labels, true, true);
+                    label.scale.set(0.2, 0.2, 0.1);
                     label.rotation.x = -Math.PI * .5;
                     label.position.x = -(axis_len / 2) -3;
                     label.position.y = 1;
@@ -698,6 +733,7 @@ $.register_module({
                 (function () {
                     // [xz]from & [xz]to are the start and end vertex indexes for a vertex row or column
                     var x, xvertices = [], xvertices_bottom = [], z, zvertices = [], zvertices_bottom = [],
+                        color = settings.interactive_color_nix,
                         xfrom = index - (index % (x_segments + 1)),
                         xto   = xfrom + x_segments + 1,
                         zfrom = index % (x_segments + 1),
@@ -706,23 +742,23 @@ $.register_module({
                     for (z = zfrom; z < zto; z += x_segments + 1) zvertices.push(object.geometry.vertices[z]);
                     hud.set_volatility(config.vol[index]);
                     // surface x and z lines
-                    hover_group.add(new Tube(xvertices));
-                    hover_group.add(new Tube(zvertices));
+                    hover_group.add(new Tube(xvertices, color));
+                    hover_group.add(new Tube(zvertices, color));
                     // smile z, z and y lines
                     (function () {
                         var yvertices = [{x: 0, y: 0, z: vertex.z}, {x: 0, y: settings.surface_y, z: vertex.z}],
-                            zlines = new Tube(zvertices), ylines = new Tube(yvertices);
-                        zlines.position.x = Math.abs(zvertices[0].x - settings.surface_z / 2) + settings.smile_distance;
-                        ylines.position.x = settings.surface_z / 2 + settings.smile_distance;
+                            zlines = new Tube(zvertices, color), ylines = new Tube(yvertices, color);
+                        zlines.position.x = Math.abs(zvertices[0].x - settings.surface_x / 2) + settings.smile_distance;
+                        ylines.position.x = settings.surface_x / 2 + settings.smile_distance;
                         hover_group.add(zlines);
                         hover_group.add(ylines);
                     }());
                     // smile x, x and y lines
                     (function () {
                         var yvertices = [{x: vertex.x, y: 0, z: 0}, {x: vertex.x, y: settings.surface_y, z: 0}],
-                            xlines = new Tube(xvertices), ylines = new Tube(yvertices);
-                        xlines.position.z = -((settings.surface_x / 2) + xvertices[0].z + settings.smile_distance);
-                        ylines.position.z = -(settings.surface_x / 2) - settings.smile_distance;
+                            xlines = new Tube(xvertices, color), ylines = new Tube(yvertices, color);
+                        xlines.position.z = -((settings.surface_z / 2) + xvertices[0].z + settings.smile_distance);
+                        ylines.position.z = -(settings.surface_z / 2) - settings.smile_distance;
                         hover_group.add(xlines);
                         hover_group.add(ylines);
                     }());
@@ -732,8 +768,8 @@ $.register_module({
                         xvertices_bottom[0].y = xvertices_bottom[1].y = -settings.floating_height;
                         zvertices_bottom.push(zvertices[0].clone(), zvertices[zvertices.length-1].clone());
                         zvertices_bottom[0].y = zvertices_bottom[1].y = -settings.floating_height;
-                        hover_group.add(new Tube(xvertices_bottom));
-                        hover_group.add(new Tube(zvertices_bottom));
+                        hover_group.add(new Tube(xvertices_bottom, color));
+                        hover_group.add(new Tube(zvertices_bottom, color));
                     }());
                     // surface labels
                     ['x', 'z'].forEach(function (val) {
@@ -746,8 +782,7 @@ $.register_module({
                             offset, lbl, vertices;
                         // create label
                         offset = ((width / 2) * scale) + (width * 0.05); // half the width * scale + a relative offset
-                        lbl = new Text3D(txt, settings.interactive_color_nix,
-                            settings.font_size_interactive_labels, settings.font_height_interactive_labels);
+                        lbl = new Text3D(txt, color);
                         vertices = val === 'x' ? zvertices : xvertices;
                         group.add(lbl);
                         // create box
