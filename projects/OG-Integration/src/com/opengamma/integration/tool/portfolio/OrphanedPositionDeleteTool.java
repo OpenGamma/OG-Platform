@@ -34,6 +34,7 @@ public class OrphanedPositionDeleteTool extends AbstractComponentTool {
     OrphanedPositionRemover orphanedPositionRemover = new OrphanedPositionRemover(toolContext.getPortfolioMaster(), toolContext.getPositionMaster());
     s_logger.info("running orphanedPositionRemover");
     orphanedPositionRemover.run();
+    toolContext.close();
   }
   
 }
