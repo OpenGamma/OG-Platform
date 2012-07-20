@@ -8,9 +8,6 @@ package com.opengamma.component.factory.source;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.opengamma.master.historicaltimeseries.impl.EHCachingHistoricalTimeSeriesResolver;
-import net.sf.ehcache.CacheManager;
-
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -34,8 +31,11 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesSelector;
 import com.opengamma.master.historicaltimeseries.impl.DataHistoricalTimeSeriesResolverResource;
 import com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSeriesSelector;
+import com.opengamma.master.historicaltimeseries.impl.EHCachingHistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.impl.MasterHistoricalTimeSeriesSource;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+
+import net.sf.ehcache.CacheManager;
 
 /**
  * Component factory for the historical time-series source.
@@ -75,7 +75,7 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
     final HistoricalTimeSeriesResolver resolver = initResolver();
     final ComponentInfo infoResolver = new ComponentInfo(HistoricalTimeSeriesResolver.class, getClassifier());
     repo.registerComponent(infoResolver, resolver);
-    HistoricalTimeSeriesSource source = new MasterHistoricalTimeSeriesSource(getHistoricalTimeSeriesMaster(), resolver);
+    HistoricalTimeSeriesSource source = initSource(resolver);
     if (getCacheManager() != null) {
       source = new EHCachingHistoricalTimeSeriesSource(source, getCacheManager());
     }
@@ -85,6 +85,10 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
       repo.getRestComponents().publish(infoResolver, new DataHistoricalTimeSeriesResolverResource(resolver, OpenGammaFudgeContext.getInstance()));
       repo.getRestComponents().publish(infoSource, new DataHistoricalTimeSeriesSourceResource(source));
     }
+  }
+
+  protected HistoricalTimeSeriesSource initSource(HistoricalTimeSeriesResolver resolver) {
+    return new MasterHistoricalTimeSeriesSource(getHistoricalTimeSeriesMaster(), resolver);
   }
 
   protected HistoricalTimeSeriesResolver initResolver() {
