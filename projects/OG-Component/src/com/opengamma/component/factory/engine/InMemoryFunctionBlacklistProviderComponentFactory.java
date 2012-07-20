@@ -23,11 +23,14 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.engine.function.blacklist.DataFunctionBlacklistProviderResource;
 import com.opengamma.engine.function.blacklist.DataManageableFunctionBlacklistProviderResource;
 import com.opengamma.engine.function.blacklist.FunctionBlacklistProvider;
 import com.opengamma.engine.function.blacklist.InMemoryFunctionBlacklistProvider;
 import com.opengamma.engine.function.blacklist.ManageableFunctionBlacklistProvider;
+import com.opengamma.engine.function.blacklist.RemoteFunctionBlacklistProvider;
+import com.opengamma.engine.function.blacklist.RemoteManageableFunctionBlacklistProvider;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.jms.JmsConnector;
 
@@ -61,13 +64,18 @@ public class InMemoryFunctionBlacklistProviderComponentFactory extends AbstractC
   @Override
   public void init(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
     final ManageableFunctionBlacklistProvider provider = new InMemoryFunctionBlacklistProvider(getExecutor());
-    final ComponentInfo readonly = new ComponentInfo(FunctionBlacklistProvider.class, getClassifier());
-    repo.registerComponent(readonly, provider);
-    final ComponentInfo manageable = new ComponentInfo(ManageableFunctionBlacklistProvider.class, getClassifier());
-    repo.registerComponent(manageable, provider);
+    final ComponentInfo infoRO = new ComponentInfo(FunctionBlacklistProvider.class, getClassifier());
+    infoRO.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+    infoRO.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteFunctionBlacklistProvider.class);
+    repo.registerComponent(infoRO, provider);
+    
+    final ComponentInfo infoMng = new ComponentInfo(ManageableFunctionBlacklistProvider.class, getClassifier());
+    infoMng.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+    infoMng.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteManageableFunctionBlacklistProvider.class);
+    repo.registerComponent(infoMng, provider);
     if (isPublishRest()) {
-      repo.getRestComponents().publish(readonly, new DataFunctionBlacklistProviderResource(provider, OpenGammaFudgeContext.getInstance(), getJmsConnector()));
-      repo.getRestComponents().publish(manageable, new DataManageableFunctionBlacklistProviderResource(provider, OpenGammaFudgeContext.getInstance(), getJmsConnector()));
+      repo.getRestComponents().publish(infoRO, new DataFunctionBlacklistProviderResource(provider, OpenGammaFudgeContext.getInstance(), getJmsConnector()));
+      repo.getRestComponents().publish(infoMng, new DataManageableFunctionBlacklistProviderResource(provider, OpenGammaFudgeContext.getInstance(), getJmsConnector()));
     }
   }
 
