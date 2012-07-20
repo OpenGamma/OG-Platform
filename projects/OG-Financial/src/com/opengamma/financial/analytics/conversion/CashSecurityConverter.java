@@ -7,27 +7,41 @@ package com.opengamma.financial.analytics.conversion;
 
 import javax.time.calendar.ZonedDateTime;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
+import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.region.RegionSource;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.id.ExternalId;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
  * 
  */
 public class CashSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
+  private final HolidaySource _holidaySource;
+  private final RegionSource _regionSource;
+
+  public CashSecurityConverter(final HolidaySource holidaySource, final RegionSource regionSource) {
+    ArgumentChecker.notNull(holidaySource, "holiday source");
+    ArgumentChecker.notNull(regionSource, "region source");
+    _holidaySource = holidaySource;
+    _regionSource = regionSource;
+  }
 
   @Override
   public CashDefinition visitCashSecurity(final CashSecurity security) {
-    Validate.notNull(security, "security");
+    ArgumentChecker.notNull(security, "cash security");
     final Currency currency = security.getCurrency();
     // TODO: Do we need to adjust the dates to a good business day?
     final ZonedDateTime startDate = security.getStart();
     final ZonedDateTime endDate = security.getMaturity();
-    final double accrualFactor = security.getDayCount().getDayCountFraction(startDate, endDate);
+    final ExternalId regionId = security.getRegionId();
+    final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionId);
+    final double accrualFactor = security.getDayCount().getDayCountFraction(startDate, endDate, calendar);
     return new CashDefinition(currency, startDate, endDate, security.getAmount(), security.getRate(), accrualFactor);
   }
 
