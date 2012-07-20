@@ -100,7 +100,7 @@
               "date": "null",
               "zone": "null"
           },
-        <#/if>
+        </#if>
         "issuancePrice":"${security.issuancePrice}",
         "totalAmountIssued":"${security.totalAmountIssued}",
         "minimumAmount":"${security.minimumAmount}",
