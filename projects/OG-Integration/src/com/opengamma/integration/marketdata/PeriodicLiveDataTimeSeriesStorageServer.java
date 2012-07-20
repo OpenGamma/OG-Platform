@@ -23,12 +23,15 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.time.Duration;
 import javax.time.calendar.Clock;
+import javax.time.calendar.ISOChronology;
 import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.OffsetDate;
 import javax.time.calendar.OffsetDateTime;
 import javax.time.calendar.Period;
 import javax.time.calendar.TimeZone;
+import javax.time.calendar.ZoneOffset;
 
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
@@ -223,7 +226,7 @@ public class PeriodicLiveDataTimeSeriesStorageServer implements Lifecycle {
         } else {
           atTheHour = atTheHour.withMinuteOfHour(0);
         }
-        String observationTimeName = atTheHour.toString();
+        String observationTimeName = atTheHour.toOffsetTime().toString();
         try {
           _storageExecutor.execute(new StorageTask(entry.getKey(), entry.getValue(), atTheHour.toOffsetDate(), observationTimeName));
         } catch (Exception e) {
@@ -281,8 +284,10 @@ public class PeriodicLiveDataTimeSeriesStorageServer implements Lifecycle {
   public void start() {
     LocalDateTime now = LocalDateTime.now();
     LocalDateTime nextHour = now.withMinuteOfHour(0).withSecondOfMinute(0).withNanoOfSecond(0).plusHours(1);
-    Period delay = Period.between(now, nextHour);
-    _timerExecutor.scheduleAtFixedRate(new SnapshotTask(), delay.toDuration().toMillisLong(), 1, TimeUnit.HOURS);
+    Duration delay = Duration.between(now.atOffset(ZoneOffset.UTC), nextHour.atOffset(ZoneOffset.UTC));
+    Period oneHour = Period.of(1, ISOChronology.periodHours());
+    s_logger.warn("Now {} Next {} Delay {} {}", new Object[] {now, nextHour, delay, delay.toMillisLong() });
+    _timerExecutor.scheduleAtFixedRate(new SnapshotTask(), delay.toMillisLong(), oneHour.toDuration().toMillisLong(), TimeUnit.MILLISECONDS);
     if (getInitializationFileName() != null) {
       initializeFromFile(getInitializationFileName());
     }
@@ -327,7 +332,7 @@ public class PeriodicLiveDataTimeSeriesStorageServer implements Lifecycle {
         String normalization = fields[2];
         addSubscription(ExternalId.of(scheme, id), normalization);
         try {
-          Thread.sleep(100L);
+          Thread.sleep(200L);
         } catch (InterruptedException ex) {
           // TODO Auto-generated catch block
           ex.printStackTrace();
