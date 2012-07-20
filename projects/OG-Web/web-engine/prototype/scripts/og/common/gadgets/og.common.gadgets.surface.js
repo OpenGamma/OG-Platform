@@ -80,10 +80,10 @@ $.register_module({
          */
         matlib.canvas = {};
         matlib.canvas.compound_surface = function () {
-            return [matlib.canvas.flat('0xcccccc'), matlib.canvas.wire('0xeeeeee')];
+            return [matlib.canvas.flat('0xbbbbbb'), matlib.canvas.wire('0xffffff')];
         };
         matlib.canvas.flat = function (color) {
-            return new THREE.MeshLambertMaterial({color: color, shading: THREE.FlatShading});
+            return new THREE.MeshBasicMaterial({color: color, shading: THREE.FlatShading});
         };
         matlib.canvas.wire = function (color) {
             return new THREE.MeshBasicMaterial({color: color || 0xcccccc, wireframe: true});
@@ -318,9 +318,9 @@ $.register_module({
              */
             gadget.alive = function () {return !!$('.' + alive).length;};
             /**
-             * Rotate the (world) group on mouse drag
+             * Setup animation_group rotations for next frame
              */
-            gadget.animate = function () {
+            gadget.rotation = function () {
                 var mousedown = false, sx = 0, sy = 0;
                 $selector
                     .on('mousedown', function (event) {
@@ -335,10 +335,8 @@ $.register_module({
                         var dx = event.clientX - sx, dy = event.clientY - sy;
                         animation_group.rotation.y += dx * 0.01;
                         animation_group.rotation.x += dy * 0.01;
-                        renderer.render(scene, camera);
                         sx += dx, sy += dy;
                     });
-                return gadget;
             };
             /**
              * Creates floor
@@ -413,7 +411,6 @@ $.register_module({
                 animation_group.add(keylight);
                 animation_group.add(filllight);
                 animation_group.add(surface.create_surface());
-                smile.load();
                 scene = new THREE.Scene();
                 scene.add(animation_group);
                 scene.add(camera);
@@ -426,8 +423,8 @@ $.register_module({
                 // render scene
                 renderer = webgl ? new THREE.WebGLRenderer({antialias: true}) : new THREE.CanvasRenderer();
                 renderer.setSize(width, height);
-                renderer.render(scene, camera);
                 $selector.html(renderer.domElement).find('canvas').css({position: 'relative'});
+                gadget.rotation();
                 hud.load();
                 return gadget;
             };
@@ -438,9 +435,7 @@ $.register_module({
                 camera.aspect = width / height;
                 camera.updateProjectionMatrix();
                 renderer.setSize(width, height);
-                renderer.render(scene, camera);
                 hud.load();
-                smile.load();
             };
             /**
              * Updates without reloading everything
@@ -448,7 +443,6 @@ $.register_module({
             gadget.update = function () {
                 gadget.init_data();
                 animation_group.add(surface.create_surface());
-                smile.load();
             };
             /**
              * Loads 2D overlay display with form
@@ -456,9 +450,11 @@ $.register_module({
             hud.load = function () {
                 $.when(og.api.text({module: 'og.views.gadgets.surface.hud_tash'})).then(function (tmpl) {
                     var min = vol_min.toFixed(settings.precision_hud), max = vol_max.toFixed(settings.precision_hud),
-                        html = (Handlebars.compile(tmpl))({min: min, max: max, alive: alive});
+                        html = (Handlebars.compile(tmpl))({min: min, max: max, alive: alive}),
+                        $html = $(html).appendTo($selector);
                     hud.vol_canvas_height = height / 2;
-                    hud.volatility($(html).appendTo($selector).find('canvas')[0]);
+                    if (webgl) hud.volatility($html.find('canvas')[0]);
+                    else $html.find('.og-volatility').hide();
                     hud.form();
                 });
             };
@@ -508,23 +504,15 @@ $.register_module({
                 ctx.fillStyle = gradient;
                 ctx.fillRect(0, 0, 10, hud.vol_canvas_height);
             };
-            smile.load = function () {
-                smile.x();
-                smile.z();
-            };
             smile.x = function () {
+                var obj = new THREE.Object3D();
                 (function () { // plane
                     var plane = new Plane('smilex'),
                         mesh = THREE.SceneUtils.createMultiMaterialObject(plane, matlib.compound_grid_wire());
                     mesh.rotation.x = Math.PI * 0.5;
                     mesh.position.y = settings.surface_y;
                     mesh.position.z = -((settings.surface_z / 2) + settings.smile_distance);
-                    surface_top_group.add(mesh);
-                }());
-                (function () { // plane shadow
-                    var z = settings.surface_z / 2 + settings.smile_distance, half_width = settings.surface_x / 2,
-                        shadow = new Tube([{x: -half_width, y: 0, z: -z}, {x: half_width, y: 0, z: -z}], '0xaaaaaa');
-                    surface_bottom_group.add(shadow);
+                    obj.add(mesh);
                 }());
                 (function () { // axis
                     var y = {axis: 'y', spacing: adjusted_ys, labels: ys, right: true}, y_axis = surface.create_axis(y);
@@ -533,21 +521,18 @@ $.register_module({
                     y_axis.position.z = -(settings.surface_z / 2) - settings.smile_distance;
                     y_axis.rotation.y = Math.PI * .5;
                     y_axis.rotation.z = Math.PI * .5;
-                    surface_top_group.add(y_axis);
+                    obj.add(y_axis);
                 }());
+                return obj;
             };
             smile.z = function () {
+                var obj = new THREE.Object3D();
                 (function () { // plane
                     var plane = new Plane('smiley'),
                         mesh = THREE.SceneUtils.createMultiMaterialObject(plane, matlib.compound_grid_wire());
                     mesh.position.x = (settings.surface_x / 2) + settings.smile_distance;
                     mesh.rotation.z = Math.PI * 0.5;
-                    surface_top_group.add(mesh);
-                }());
-                (function () { // plane shadow
-                    var x = settings.surface_x / 2 + settings.smile_distance, half_width = settings.surface_z / 2,
-                        shadow = new Tube([{x: x, y: 0, z: -half_width}, {x: x, y: 0, z: half_width}], '0xaaaaaa');
-                    surface_bottom_group.add(shadow);
+                    obj.add(mesh);
                 }());
                 (function () { // axis
                     var y = {axis: 'y', spacing: adjusted_ys, labels: ys}, y_axis = surface.create_axis(y);
@@ -555,8 +540,23 @@ $.register_module({
                     y_axis.position.z = (settings.surface_z / 2) + 5;
                     y_axis.position.x = (settings.surface_x / 2) + settings.smile_distance;
                     y_axis.rotation.z = Math.PI * .5;
-                    surface_top_group.add(y_axis);
+                    obj.add(y_axis);
                 }());
+                return obj;
+            };
+            smile.shadows = function () {
+                var obj = new THREE.Object3D();
+                (function () { // x shadow
+                    var z = settings.surface_z / 2 + settings.smile_distance, half_width = settings.surface_x / 2,
+                        shadow = new Tube([{x: -half_width, y: 0, z: -z}, {x: half_width, y: 0, z: -z}], '0xaaaaaa');
+                    obj.add(shadow);
+                }());
+                (function () { // z shadow
+                    var x = settings.surface_x / 2 + settings.smile_distance, half_width = settings.surface_z / 2,
+                        shadow = new Tube([{x: x, y: 0, z: -half_width}, {x: x, y: 0, z: half_width}], '0xaaaaaa');
+                    obj.add(shadow);
+                }());
+                return obj;
             };
             /**
              * Creates both axes
@@ -672,13 +672,16 @@ $.register_module({
                 surface_top_group = new THREE.Object3D();
                 surface_bottom_group = new THREE.Object3D();
                 surface_top_group.add(surface.create_surface_plane());
-                surface_top_group.add(vertex_sphere);
-                surface_top_group.position.y = settings.floating_height;
-                surface_bottom_group.add(surface.create_bottom_grid());
+                if (webgl) surface_top_group.add(smile.x());
+                if (webgl) surface_top_group.add(smile.z());
+                if (webgl) surface_top_group.add(vertex_sphere);
+                if (webgl) surface_top_group.position.y = settings.floating_height;
+                if (webgl) surface_bottom_group.add(surface.create_bottom_grid());
+                if (webgl) surface_bottom_group.add(smile.shadows());
                 if (webgl) surface_bottom_group.add(gadget.create_floor());
                 if (webgl) surface_bottom_group.add(surface.create_axes());
                 surface_group.add(surface_top_group);
-                surface_group.add(surface_bottom_group);
+                if (webgl) surface_group.add(surface_bottom_group);
                 return surface_group;
             };
             /**
@@ -847,7 +850,6 @@ $.register_module({
                         intersected = null;
                         hud.set_volatility();
                     }
-                    renderer.render(scene, camera);
                 });
                 return surface;
             };
@@ -859,8 +861,12 @@ $.register_module({
                 return sphere;
             };
             if (!config.child) og.common.gadgets.manager.register(surface);
-            gadget.load().animate();
-            surface.interactive();
+            gadget.load();
+            if (webgl) surface.interactive();
+            (function animate() {
+                requestAnimationFrame(animate);
+                renderer.render(scene, camera);
+            }());
         }
     }
 });
