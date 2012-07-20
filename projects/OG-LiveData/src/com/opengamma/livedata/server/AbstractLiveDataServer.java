@@ -763,7 +763,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
           responses.add(getErrorResponse(
               requestedSpecification, 
               LiveDataSubscriptionResult.INTERNAL_ERROR,
-              e.getMessage()));
+              "Problem obtaining snapshot: " + e.getMessage()));
         }
       }
     }
