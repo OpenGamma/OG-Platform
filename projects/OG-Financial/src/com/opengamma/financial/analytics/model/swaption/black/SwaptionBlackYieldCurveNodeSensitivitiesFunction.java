@@ -95,7 +95,10 @@ public class SwaptionBlackYieldCurveNodeSensitivitiesFunction extends SwaptionBl
     if (curveCalculationConfig == null) {
       throw new OpenGammaRuntimeException("Could not find curve calculation configuration named " + curveCalculationConfigName);
     }
-    final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
+    String[] curveNames = curveCalculationConfig.getYieldCurveNames();
+    if (curveNames.length == 1) {
+      curveNames = new String[] {curveNames[0], curveNames[0]};
+    }
     final String curveCalculationMethod = curveCalculationConfig.getCalculationMethod();
     if (curveCalculationMethod.equals(FXImpliedYieldCurveFunction.FX_IMPLIED)) {
       throw new UnsupportedOperationException("Cannot handle FX implied curves at the moment");
