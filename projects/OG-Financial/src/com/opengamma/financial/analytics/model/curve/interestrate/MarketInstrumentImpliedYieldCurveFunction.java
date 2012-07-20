@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -419,7 +420,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
       }
       try {
         derivative = getDefinitionConverter().convert(financialSecurity, definition, now, curveNames, timeSeries);
-      } catch (OpenGammaRuntimeException ogre) {
+      } catch (final OpenGammaRuntimeException ogre) {
         s_logger.error("Error thrown by convertor for security {}, definition {}, time {}, curveNames {}, dataSource {}", new Object[] {financialSecurity, definition, now, curveNames, timeSeries });
         throw ogre;
       }
@@ -442,7 +443,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
     curveNodes.put(curveName, nodeTimes);
     interpolators.put(curveName, getInterpolator(specificationWithSecurities));
     // TODO have use finite difference or not as an input [FIN-147]
-    final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, marketValues, null, curveNodes, interpolators, false);
+    final Currency currency = Currency.of(targetSpec.getUniqueId().getValue());
+    final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, marketValues, null, curveNodes, interpolators, false, new FXMatrix(currency));
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MultipleYieldCurveFinderFunction(data, getCalculator());
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MultipleYieldCurveFinderJacobian(data, getSensitivityCalculator());
     NewtonVectorRootFinder rootFinder;
@@ -576,7 +578,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
     curveNodes.put(forwardCurveName, forwardNodeTimes);
     interpolators.put(forwardCurveName, getInterpolator(forwardCurveSpecificationWithSecurities));
     // TODO have use finite difference or not as an input [FIN-147]
-    final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, marketValues, null, curveNodes, interpolators, false);
+    final Currency currency = Currency.of(targetSpec.getUniqueId().getValue());
+    final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, marketValues, null, curveNodes, interpolators, false, new FXMatrix(currency));
     // TODO have the calculator and sensitivity calculators as an input [FIN-144], [FIN-145]
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MultipleYieldCurveFinderFunction(data, getCalculator());
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MultipleYieldCurveFinderJacobian(data, getSensitivityCalculator());
