@@ -31,11 +31,8 @@ public class INConventions {
     final DayCount act365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
     final Frequency semiAnnual = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.SEMI_ANNUAL_NAME);
     final Frequency annual = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.ANNUAL_NAME);
-
     final ExternalId in = ExternalSchemes.financialRegionId("IN");
-
     final Integer overnightPublicationLag = 0;
-
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
     // IR FUTURES
     utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "INR_IR_FUTURE")), "INR_IR_FUTURE", act365, modified, Period.ofMonths(3),
