@@ -28,7 +28,7 @@ public class FXMatrix {
   private final Map<Currency, Integer> _currencies;
   /**
    * The matrix with all exchange rates. The entry [i][j] is such that 1.0 * Currency[i] = _fxrate * Currency[j].
-   * If _currencies.get(EUR) = 0 and _currencies.get(USD) = 1, the element _fxRate[0][1] is likely to be something like 1.40 and _fxRate[1][0] like 0.7142... 
+   * If _currencies.get(EUR) = 0 and _currencies.get(USD) = 1, the element _fxRate[0][1] is likely to be something like 1.40 and _fxRate[1][0] like 0.7142...
    * (the rate _fxRate[1][0] will be computed from _fxRate[0][1] when the object is constructed or updated).
    * All the element of the matrix are meaningful and coherent (the matrix is always completed in a coherent way when a currency is added or a rate updated).
    */
@@ -73,7 +73,7 @@ public class FXMatrix {
   }
 
   /**
-   * Constructor from an existing FXMatrix. A new map and array are created. 
+   * Constructor from an existing FXMatrix. A new map and array are created.
    * @param fxMatrix The FXMatrix.
    */
   public FXMatrix(final FXMatrix fxMatrix) {
@@ -89,7 +89,7 @@ public class FXMatrix {
   /**
    * Add a new currency to the FX matrix.
    * @param ccyToAdd The currency to add. Should not be in the FX matrix already.
-   * @param ccyReference The reference currency used to compute the cross rates with the new currency. Should already be in the matrix, except if the matrix is empty. 
+   * @param ccyReference The reference currency used to compute the cross rates with the new currency. Should already be in the matrix, except if the matrix is empty.
    * IF the FX matrix is empty, the reference currency will be used as currency 0.
    * @param fxRate TheFX rate between the new currency and the reference currency. It is 1 ccyToAdd = fxrate ccyReference. The FX matrix will be completed using cross rate
    * coherent with the data provided.
@@ -98,7 +98,7 @@ public class FXMatrix {
     ArgumentChecker.notNull(ccyToAdd, "Currency to add to the FX matrix should not be null");
     ArgumentChecker.notNull(ccyReference, "Reference currency should not be null");
     ArgumentChecker.isTrue(!ccyToAdd.equals(ccyReference), "Currencies should be different");
-    if (_nbCurrencies == 0) { // FX Matrix is empty. 
+    if (_nbCurrencies == 0) { // FX Matrix is empty.
       _currencies.put(ccyReference, 0);
       _currencies.put(ccyToAdd, 1);
       _fxRates = new double[2][2];
@@ -112,13 +112,13 @@ public class FXMatrix {
       Validate.isTrue(!_currencies.containsKey(ccyToAdd), "New currency already in the FX matrix");
       _currencies.put(ccyToAdd, _nbCurrencies);
       _nbCurrencies++;
-      double[][] fxRatesNew = new double[_nbCurrencies][_nbCurrencies];
+      final double[][] fxRatesNew = new double[_nbCurrencies][_nbCurrencies];
       // Copy the previous matrix
       for (int loopccy = 0; loopccy < _nbCurrencies - 1; loopccy++) {
         System.arraycopy(_fxRates[loopccy], 0, fxRatesNew[loopccy], 0, _nbCurrencies - 1);
       }
       fxRatesNew[_nbCurrencies - 1][_nbCurrencies - 1] = 1.0;
-      int indexRef = _currencies.get(ccyReference);
+      final int indexRef = _currencies.get(ccyReference);
       for (int loopccy = 0; loopccy < _nbCurrencies - 1; loopccy++) {
         fxRatesNew[_nbCurrencies - 1][loopccy] = fxRate * _fxRates[indexRef][loopccy];
         fxRatesNew[loopccy][_nbCurrencies - 1] = 1.0 / fxRatesNew[_nbCurrencies - 1][loopccy];
@@ -134,10 +134,13 @@ public class FXMatrix {
    * @return The exchange rate: 1.0 * ccy1 = x * ccy2.
    */
   public double getFxRate(final Currency ccy1, final Currency ccy2) {
-    Integer index1 = _currencies.get(ccy1);
-    Integer index2 = _currencies.get(ccy2);
-    ArgumentChecker.notNull(index1, "Currency 1 not in the FX Matrix.");
-    ArgumentChecker.notNull(index2, "Currency 2 not in the FX Matrix.");
+    if (ccy1.equals(ccy2)) {
+      return 1;
+    }
+    final Integer index1 = _currencies.get(ccy1);
+    final Integer index2 = _currencies.get(ccy2);
+    ArgumentChecker.isTrue(index1 != null, "Currency {} not in the FX Matrix", ccy1);
+    ArgumentChecker.isTrue(index2 != null, "Currency {} not in the FX Matrix", ccy2);
     return _fxRates[index1][index2];
   }
 
@@ -149,9 +152,9 @@ public class FXMatrix {
    */
   public CurrencyAmount convert(final MultipleCurrencyAmount amount, final Currency ccy) {
     double convertion = 0;
-    CurrencyAmount[] ca = amount.getCurrencyAmounts();
-    for (int loopccy = 0; loopccy < ca.length; loopccy++) {
-      convertion += ca[loopccy].getAmount() * getFxRate(ca[loopccy].getCurrency(), ccy);
+    final CurrencyAmount[] ca = amount.getCurrencyAmounts();
+    for (final CurrencyAmount element : ca) {
+      convertion += element.getAmount() * getFxRate(element.getCurrency(), ccy);
     }
     return CurrencyAmount.of(ccy, convertion);
   }
@@ -166,8 +169,8 @@ public class FXMatrix {
   public void updateRates(final Currency ccyToUpdate, final Currency ccyReference, final double fxRate) {
     ArgumentChecker.isTrue(_currencies.containsKey(ccyReference), "Reference currency not in the FX matrix");
     ArgumentChecker.isTrue(_currencies.containsKey(ccyToUpdate), "Currency to update not in the FX matrix");
-    int indexUpdate = _currencies.get(ccyToUpdate);
-    int indexRef = _currencies.get(ccyReference);
+    final int indexUpdate = _currencies.get(ccyToUpdate);
+    final int indexRef = _currencies.get(ccyReference);
     for (int loopccy = 0; loopccy < _nbCurrencies; loopccy++) {
       _fxRates[indexUpdate][loopccy] = fxRate * _fxRates[indexRef][loopccy];
       _fxRates[loopccy][indexUpdate] = 1.0 / _fxRates[indexUpdate][loopccy];
@@ -191,7 +194,7 @@ public class FXMatrix {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -201,7 +204,7 @@ public class FXMatrix {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    FXMatrix other = (FXMatrix) obj;
+    final FXMatrix other = (FXMatrix) obj;
     if (!ObjectUtils.equals(_currencies, other._currencies)) {
       return false;
     }
