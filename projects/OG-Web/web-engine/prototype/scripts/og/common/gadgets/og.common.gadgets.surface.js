@@ -18,7 +18,7 @@ $.register_module({
                 interactive_color_nix: '0xff0000',
                 interactive_color_css: '#f00',
                 log: true,          // default value for log checkbox
-                precision_lbl: 2,   // floating point presions for vol display
+                precision_lbl: 2,   // floating point presions for labels
                 precision_hud: 3,   // floating point presions for vol display
                 smile_distance: 50, // distance away from the surface
                 snap_distance: 3,   // mouse proximity to vertices before an interaction is approved
