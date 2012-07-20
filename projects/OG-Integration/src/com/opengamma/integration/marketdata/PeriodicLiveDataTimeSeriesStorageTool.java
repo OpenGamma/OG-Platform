@@ -24,6 +24,8 @@ public class PeriodicLiveDataTimeSeriesStorageTool extends AbstractTool {
   public static final String TIME_SERIES_DATAPROVIDER_OPT = "p";
   /** User name for Live Data entitlements. */
   public static final String USER_NAME_OPT = "u";
+  /** Flag for whether to actually write to the DB. */
+  public static final String WRITE_TO_DB_OPT = "w";
 
 
   /**
@@ -39,7 +41,8 @@ public class PeriodicLiveDataTimeSeriesStorageTool extends AbstractTool {
         ldc,
         getToolContext().getHistoricalTimeSeriesMaster(),
         getCommandLine().getOptionValue(TIME_SERIES_DATASOURCE_OPT),
-        getCommandLine().getOptionValue(TIME_SERIES_DATAPROVIDER_OPT));
+        getCommandLine().getOptionValue(TIME_SERIES_DATAPROVIDER_OPT),
+        getCommandLine().hasOption(WRITE_TO_DB_OPT));
     if (fileName != null) {
       server.setInitializationFileName(fileName);
     }
@@ -83,6 +86,11 @@ public class PeriodicLiveDataTimeSeriesStorageTool extends AbstractTool {
         USER_NAME_OPT, "user", true, "The name of the user for entitlement checking");
     userNameOption.setRequired(false);
     options.addOption(userNameOption);
+    
+    Option writeToDbOption = new Option(
+        WRITE_TO_DB_OPT, "write", false, "Set to enable writing to DB. False by default for safety");
+    writeToDbOption.setRequired(false);
+    options.addOption(writeToDbOption);
     
     return options;
   }
