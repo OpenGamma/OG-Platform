@@ -92,15 +92,18 @@ public class ComponentInfo extends DirectBean {
 
   //-------------------------------------------------------------------------
   /**
-   * Adds a key value pair to attributes
+   * Adds a key value pair to attributes.
+   * <p>
+   * The value is converted to a string using {@link JodaBeanUtils#stringConverter()}.
    *
    * @param key  the key to add, not null
    * @param value  the value to add, not null
    */
-  public void addAttribute(String key, String value) {
+  public void addAttribute(String key, Object value) {
     ArgumentChecker.notNull(key, "key");
     ArgumentChecker.notNull(value, "value");
-    _attributes.put(key, value);
+    String str = JodaBeanUtils.stringConverter().convertToString(value);
+    _attributes.put(key, str);
   }
 
   /**

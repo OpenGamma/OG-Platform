@@ -23,10 +23,12 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.function.rest.DataRepositoryConfigurationSourceResource;
+import com.opengamma.financial.function.rest.RemoteRepositoryConfigurationSource;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.web.spring.DemoCurveFunctionConfiguration;
 import com.opengamma.web.spring.DemoStandardFunctionConfiguration;
@@ -80,6 +82,8 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
     RepositoryConfigurationSource source = new CombiningRepositoryConfigurationSource((RepositoryConfigurationSource[]) underlying.toArray(new RepositoryConfigurationSource[underlying.size()]));
     
     ComponentInfo info = new ComponentInfo(RepositoryConfigurationSource.class, getClassifier());
+    info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteRepositoryConfigurationSource.class);
     repo.registerComponent(info, source);
     
     if (isPublishRest()) {

@@ -21,10 +21,12 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
 import com.opengamma.financial.currency.CurrencyPairsSource;
 import com.opengamma.financial.currency.rest.DataCurrencyPairsSourceResource;
+import com.opengamma.financial.currency.rest.RemoteCurrencyPairsSource;
 
 /**
  * Component factory providing the {@code CurrencyPairsSource}.
@@ -52,6 +54,9 @@ public class CurrencyPairsSourceComponentFactory extends AbstractComponentFactor
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
     ComponentInfo info = new ComponentInfo(CurrencyPairsSource.class, getClassifier());
+    info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteCurrencyPairsSource.class);
+    
     CurrencyPairsSource source = new ConfigDBCurrencyPairsSource(getConfigSource());
     
     repo.registerComponent(info, source);
