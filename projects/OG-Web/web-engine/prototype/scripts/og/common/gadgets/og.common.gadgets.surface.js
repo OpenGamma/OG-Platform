@@ -130,6 +130,12 @@ $.register_module({
             return new THREE.MeshPhongMaterial({shading: THREE.FlatShading, vertexColors: THREE.VertexColors})
         };
         /**
+         * Apply Natrual Log to each item in Array
+         * @param {Array} arr
+         * @returns {Array}
+         */
+        util.log = function (arr) {return settings.log ? arr.map(function (val) {return Math.log(val)}) : arr};
+        /**
          * Scales an Array of numbers to a new range
          * @param {Array} arr Array to be scaled
          * @param {Number} range_min New minimum range
@@ -142,12 +148,6 @@ $.register_module({
                 return ((val - min) / (max - min) * (range_max - range_min) + range_min)
             });
         };
-        /**
-         * Apply Natrual Log to each item in Array
-         * @param {Array} arr
-         * @returns {Array}
-         */
-        util.log = function (arr) {return settings.log ? arr.map(function (val) {return Math.log(val)}) : arr};
         /**
          * Remove every nth item in Array keeping the first and last,
          * also spesificaly remove the second last (as we want to keep the last)
@@ -176,7 +176,8 @@ $.register_module({
             config.zs_labels = tmp_data[config.id].zs_labels;
             config.zs_label = tmp_data[config.id].zs_label;
             var gadget = this, alive = prefix + counter++, $selector = $(config.selector), width, height,
-                hud = {}, smile = {}, surface = {}, char_geometries = {},
+                sel_offset = $selector.offset(), // needed to calculate mouse coordinates for raycasting
+                hud = {}, smile = {}, surface = {}, slice = {}, char_geometries = {},
                 animation_group = new THREE.Object3D(), // everything in animation_group rotates on mouse drag
                 hover_group,          // THREE.Object3D that gets created on hover and destroyed afterward
                 surface_top_group,    // actual surface and anything that needs to be at that y pos
@@ -186,7 +187,7 @@ $.register_module({
                 x_segments = config.xs.length - 1, z_segments = config.zs.length - 1, y_segments = settings.y_segments,
                 ys, adjusted_vol, adjusted_xs, adjusted_ys, adjusted_zs, // gadget.init_data calculates these values
                 vol_max = Math.max.apply(null, config.vol), vol_min = Math.min.apply(null, config.vol),
-                renderer, camera, scene, backlight, keylight, filllight;
+                renderer, camera, scene, backlight, keylight, filllight, projector = new THREE.Projector();
             /**
              * Constructor for a plane with correct x / y vertex position spacing
              * @param {String} type 'surface', 'smilex' or 'smiley'
@@ -318,6 +319,21 @@ $.register_module({
              */
             gadget.alive = function () {return !!$('.' + alive).length;};
             /**
+             * Test if the cursor is over a mesh
+             * @event {Object} mouse event object
+             * @meshes {Array} meshes array of meshes to test
+             * @return {Object} THREE.Ray intersects object
+             */
+            gadget.intersects = function (event, meshes) {
+                var mouse = {x: 0, y: 0}, vector, ray;
+                mouse.x = ((event.clientX - sel_offset.left) / width) * 2 - 1;
+                mouse.y = -((event.clientY - sel_offset.top) / height) * 2 + 1;
+                vector = new THREE.Vector3(mouse.x, mouse.y, 0.5);
+                projector.unprojectVector(vector, camera);
+                ray = new THREE.Ray(camera.position, vector.subSelf(camera.position).normalize());
+                return ray.intersectObjects(meshes);
+            };
+            /**
              * Setup animation_group rotations for next frame
              */
             gadget.rotation = function () {
@@ -379,19 +395,12 @@ $.register_module({
              */
             gadget.interactive_meshes = {
                 add: function (name, mesh) {
-                    var obj = {};
-                    obj[name] = mesh;
-                    gadget.interactive_meshes.obj_arr.push(obj);
-                    gadget.interactive_meshes.meshes.push(mesh);
+                    if (!gadget.interactive_meshes.meshes[name]) gadget.interactive_meshes.meshes[name] = {};
+                    gadget.interactive_meshes.meshes[name] = mesh;
                 },
-                meshes: [],  // meshes array
-                obj_arr: [], // array of objects {name: mesh}
+                meshes: {},
                 remove: function (name) {
-                    gadget.interactive_meshes.obj_arr.forEach(function (val, i) {
-                        if (!(name in val)) return;
-                        gadget.interactive_meshes.obj_arr.splice(i, 1);
-                        gadget.interactive_meshes.meshes.splice(i, 1);
-                    });
+                    if (name in gadget.interactive_meshes.meshes) delete gadget.interactive_meshes.meshes[name];
                 }
             };
             gadget.load = function () {
@@ -431,6 +440,7 @@ $.register_module({
             gadget.resize = function () {
                 width = $selector.width();
                 height = $selector.height();
+                sel_offset = $selector.offset();
                 $selector.find('> canvas').css({width: width, height: height});
                 camera.aspect = width / height;
                 camera.updateProjectionMatrix();
@@ -504,6 +514,17 @@ $.register_module({
                 ctx.fillStyle = gradient;
                 ctx.fillRect(0, 0, 10, hud.vol_canvas_height);
             };
+            slice.x = function () {
+                var cube = new THREE.CubeGeometry(3, 3, 3, 0, 0, 0),
+                    mesh = new THREE.Mesh(cube, matlib.phong('0xcccccc'));
+                mesh.position.x = -(settings.surface_x / 2 - 1.5);
+                mesh.position.z = settings.surface_z / 2 + 1.5;
+                surface_bottom_group.add(mesh);
+                gadget.interactive_meshes.add('drag', mesh);
+            };
+            /**
+             * Create x smile plane and axis
+             */
             smile.x = function () {
                 var obj = new THREE.Object3D();
                 (function () { // plane
@@ -525,6 +546,9 @@ $.register_module({
                 }());
                 return obj;
             };
+            /**
+             * Create z smile plane and axis
+             */
             smile.z = function () {
                 var obj = new THREE.Object3D();
                 (function () { // plane
@@ -544,6 +568,9 @@ $.register_module({
                 }());
                 return obj;
             };
+            /**
+             * Create smile shadows, the planes float above the floor, so draw a line to show where the ground below is
+             */
             smile.shadows = function () {
                 var obj = new THREE.Object3D();
                 (function () { // x shadow
@@ -789,7 +816,7 @@ $.register_module({
                         (function () {
                             var txt_width = THREE.FontUtils.drawText(txt).offset, height = 60,
                                 box_width = txt_width * 3,
-                                box = new THREE.CubeGeometry(box_width, height, 4, 4, 1, 1),
+                                box = new THREE.CubeGeometry(box_width, height, 4, 4, 0, 0),
                                 mesh = new THREE.Mesh(box, matlib.phong('0xdddddd'));
                             mesh.position.x = (box_width / 2) - (txt_width / 2);
                             mesh.position.y = 20;
@@ -801,7 +828,7 @@ $.register_module({
                         }());
                         // position / rotation
                         group.scale.set(scale, scale, scale);
-                        group.position.y = -settings.floating_height + 1.1;
+                        group.position.y = -settings.floating_height + .5;
                         group.rotation.x = -Math.PI * .5;
                         if (val === 'x') {
                             group.position.x = vertices[0][val] - offset;
@@ -820,38 +847,36 @@ $.register_module({
             /**
              * On mouse move determin if the mouse position, translated to 3D space, is within settings.snap_distance
              * from any vertex on the surface, if so, call surface.hover, otherwise remove the hover group
-             * @return {THREE.Object3D} return the surface to allow method chaining
              */
             surface.interactive = function () {
-                var mouse = {x: 0, y: 0}, intersected, projector = new THREE.Projector();
+                slice.x();
                 $selector.on('mousemove.surface.interactive', function (event) {
                     event.preventDefault();
-                    var vector, ray, intersects, offset = $selector.offset(),
-                        object, point, faces = 'abcd', i, index, vertex, vertex_world_position;
-                    mouse.x = ((event.clientX - offset.left) / width) * 2 - 1;
-                    mouse.y = -((event.clientY - offset.top) / height) * 2 + 1;
-                    vector = new THREE.Vector3(mouse.x, mouse.y, 0.5);
-                    projector.unprojectVector(vector, camera);
-                    ray = new THREE.Ray(camera.position, vector.subSelf(camera.position).normalize());
-                    intersects = ray.intersectObjects(gadget.interactive_meshes.meshes);
-                    if (intersects.length > 0) { // intersecting at least one object
-                        point = intersects[0].point, object = intersects[0].object;
-                        for (i = 0; i < 4; i++) { // loop through vertices
-                            index = intersects[0].face[faces.charAt(i)];
-                            vertex = object.geometry.vertices[index];
-                            vertex_world_position = object.matrixWorld.multiplyVector3(vertex.clone());
-                            if (vertex_world_position.distanceTo(point) < settings.snap_distance) {
-                                surface.hover(vertex, index, object);
+                    (function () { // surface
+                        var intersects = gadget.intersects(event, [gadget.interactive_meshes.meshes.surface]),
+                            object, point, faces = 'abcd', i, index, vertex, vertex_world_position, intersected;
+                        if (intersects.length > 0) { // intersecting at least one object
+                            point = intersects[0].point, object = intersects[0].object;
+                            for (i = 0; i < 4; i++) { // loop through vertices
+                                index = intersects[0].face[faces.charAt(i)];
+                                vertex = object.geometry.vertices[index];
+                                vertex_world_position = object.matrixWorld.multiplyVector3(vertex.clone());
+                                if (vertex_world_position.distanceTo(point) < settings.snap_distance) {
+                                    surface.hover(vertex, index, object);
+                                }
                             }
+                        } else { // not intersecting
+                            if (hover_group) surface_top_group.remove(hover_group);
+                            vertex_sphere.visible = false;
+                            intersected = null;
+                            hud.set_volatility();
                         }
-                    } else { // not intersecting
-                        if (hover_group) surface_top_group.remove(hover_group);
-                        vertex_sphere.visible = false;
-                        intersected = null;
-                        hud.set_volatility();
-                    }
+                    }());
+                    (function () { // test cube
+                        var intersects = gadget.intersects(event, [gadget.interactive_meshes.meshes.drag]);
+                        if (intersects.length) console.log(intersects);
+                    }());
                 });
-                return surface;
             };
             surface.vertex_sphere = function () {
                 var sphere = new THREE.Mesh(
