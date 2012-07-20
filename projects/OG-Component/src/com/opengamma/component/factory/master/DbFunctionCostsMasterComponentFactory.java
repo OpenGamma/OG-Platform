@@ -21,8 +21,10 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.engine.view.calcnode.stats.DataFunctionCostsMasterResource;
 import com.opengamma.engine.view.calcnode.stats.FunctionCostsMaster;
+import com.opengamma.engine.view.calcnode.stats.RemoteFunctionCostsMaster;
 import com.opengamma.masterdb.engine.stats.DbFunctionCostsMaster;
 import com.opengamma.util.db.DbConnector;
 
@@ -57,6 +59,8 @@ public class DbFunctionCostsMasterComponentFactory extends AbstractComponentFact
     DbFunctionCostsMaster master = new DbFunctionCostsMaster(getDbConnector());
     
     // register
+    info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteFunctionCostsMaster.class);
     repo.registerComponent(info, master);
     
     // publish

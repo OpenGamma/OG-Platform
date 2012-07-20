@@ -16,9 +16,12 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.engine.function.blacklist.FunctionBlacklist;
 import com.opengamma.engine.function.blacklist.FunctionBlacklistFactoryBean;
 import com.opengamma.engine.function.blacklist.ManageableFunctionBlacklist;
+import com.opengamma.engine.function.blacklist.RemoteFunctionBlacklist;
+import com.opengamma.engine.function.blacklist.RemoteManageableFunctionBlacklist;
 
 /**
  * Component factory form of {@link FunctionBlacklistFactoryBean}.
@@ -58,9 +61,17 @@ public class FunctionBlacklistComponentFactory extends AbstractComponentFactory 
       itr.remove();
     }
     final FunctionBlacklist blacklist = _bean.getObjectCreating();
-    repo.registerComponent(new ComponentInfo(FunctionBlacklist.class, classifier), blacklist);
+    
+    ComponentInfo infoRO = new ComponentInfo(FunctionBlacklist.class, classifier);
+    infoRO.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+    infoRO.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteFunctionBlacklist.class);
+    repo.registerComponent(infoRO, blacklist);
+    
     if (blacklist instanceof ManageableFunctionBlacklist) {
-      repo.registerComponent(new ComponentInfo(ManageableFunctionBlacklist.class, classifier), blacklist);
+      ComponentInfo infoMng = new ComponentInfo(ManageableFunctionBlacklist.class, classifier);
+      infoMng.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+      infoMng.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteManageableFunctionBlacklist.class);
+      repo.registerComponent(infoMng, blacklist);
     }
   }
 

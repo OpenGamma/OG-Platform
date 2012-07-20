@@ -8,6 +8,11 @@ package com.opengamma.component.factory.source;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.opengamma.component.factory.ComponentInfoAttributes;
+import com.opengamma.core.historicaltimeseries.impl.RemoteHistoricalTimeSeriesSource;
+import com.opengamma.master.historicaltimeseries.impl.EHCachingHistoricalTimeSeriesResolver;
+import net.sf.ehcache.CacheManager;
+
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -31,11 +36,9 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesSelector;
 import com.opengamma.master.historicaltimeseries.impl.DataHistoricalTimeSeriesResolverResource;
 import com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSeriesSelector;
-import com.opengamma.master.historicaltimeseries.impl.EHCachingHistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.impl.MasterHistoricalTimeSeriesSource;
+import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesResolver;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
-
-import net.sf.ehcache.CacheManager;
 
 /**
  * Component factory for the historical time-series source.
@@ -74,12 +77,16 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
     final HistoricalTimeSeriesResolver resolver = initResolver();
     final ComponentInfo infoResolver = new ComponentInfo(HistoricalTimeSeriesResolver.class, getClassifier());
+    infoResolver.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+    infoResolver.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteHistoricalTimeSeriesResolver.class);
     repo.registerComponent(infoResolver, resolver);
     HistoricalTimeSeriesSource source = initSource(resolver);
     if (getCacheManager() != null) {
       source = new EHCachingHistoricalTimeSeriesSource(source, getCacheManager());
     }
     final ComponentInfo infoSource = new ComponentInfo(HistoricalTimeSeriesSource.class, getClassifier());
+    infoSource.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+    infoSource.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteHistoricalTimeSeriesSource.class);
     repo.registerComponent(infoSource, source);
     if (isPublishRest()) {
       repo.getRestComponents().publish(infoResolver, new DataHistoricalTimeSeriesResolverResource(resolver, OpenGammaFudgeContext.getInstance()));

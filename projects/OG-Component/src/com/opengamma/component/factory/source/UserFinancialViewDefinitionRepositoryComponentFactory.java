@@ -23,11 +23,13 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.engine.view.AggregatingViewDefinitionRepository;
 import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.financial.view.ConfigDbViewDefinitionRepository;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.financial.view.memory.InMemoryViewDefinitionRepository;
+import com.opengamma.financial.view.rest.RemoteViewDefinitionRepository;
 import com.opengamma.master.config.ConfigMaster;
 
 /**
@@ -73,6 +75,8 @@ public class UserFinancialViewDefinitionRepositoryComponentFactory extends Abstr
     
     // register
     ComponentInfo info = new ComponentInfo(ViewDefinitionRepository.class, getClassifier());
+    info.addAttribute(ComponentInfoAttributes.LEVEL, 2);
+    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteViewDefinitionRepository.class);
     repo.registerComponent(info, source);
   }
 
@@ -80,6 +84,8 @@ public class UserFinancialViewDefinitionRepositoryComponentFactory extends Abstr
     ViewDefinitionRepository source = new ConfigDbViewDefinitionRepository(getUnderlyingConfigMaster());
     if (getUnderlyingClassifier() != null) {
       ComponentInfo info = new ComponentInfo(ViewDefinitionRepository.class, getUnderlyingClassifier());
+      info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+      info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteViewDefinitionRepository.class);
       repo.registerComponent(info, source);
     }
     return source;
@@ -91,6 +97,8 @@ public class UserFinancialViewDefinitionRepositoryComponentFactory extends Abstr
     }
     ManageableViewDefinitionRepository source = new InMemoryViewDefinitionRepository();
     ComponentInfo info = new ComponentInfo(ManageableViewDefinitionRepository.class, getUserClassifier());
+    info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteViewDefinitionRepository.class);
     repo.registerComponent(info, source);
     return source;
   }

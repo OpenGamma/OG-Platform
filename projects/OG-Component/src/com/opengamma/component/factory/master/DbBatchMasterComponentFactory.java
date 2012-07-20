@@ -20,6 +20,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.batch.BatchMaster;
 import com.opengamma.batch.rest.DataBatchMasterResource;
+import com.opengamma.batch.rest.RemoteBatchMaster;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
@@ -57,20 +58,23 @@ public class DbBatchMasterComponentFactory extends AbstractComponentFactory {
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
-    ComponentInfo infoMaster = new ComponentInfo(BatchMaster.class, getClassifier());
+    ComponentInfo info = new ComponentInfo(BatchMaster.class, getClassifier());
     
     // master
     DbBatchMaster master = new DbBatchMaster(getDbConnector());
-    
     if (getUniqueIdScheme() != null) {
       master.setUniqueIdScheme(getUniqueIdScheme());
     }
-    infoMaster.addAttribute(ComponentInfoAttributes.UNIQUE_ID_SCHEME, master.getUniqueIdScheme());
-    repo.registerComponent(infoMaster, master);
+    
+    // register
+    info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteBatchMaster.class);
+    info.addAttribute(ComponentInfoAttributes.UNIQUE_ID_SCHEME, master.getUniqueIdScheme());
+    repo.registerComponent(info, master);
     
     // publish
     if (isPublishRest()) {
-      repo.getRestComponents().publish(infoMaster, new DataBatchMasterResource(master));
+      repo.getRestComponents().publish(info, new DataBatchMasterResource(master));
     }
   }
 

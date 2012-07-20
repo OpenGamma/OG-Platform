@@ -741,11 +741,12 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
       try {
         responses.addAll(snapshot(snapshots));
       } catch (Exception e) {
+        s_logger.error("Error obtaining snapshots for " + snapshots, e);
         for (LiveDataSpecification requestedSpecification : snapshots) {
           responses.add(getErrorResponse(
               requestedSpecification, 
               LiveDataSubscriptionResult.INTERNAL_ERROR,
-              e.getMessage()));
+              "Problem obtaining snapshot: " + e.getMessage()));
         }
       }
     }

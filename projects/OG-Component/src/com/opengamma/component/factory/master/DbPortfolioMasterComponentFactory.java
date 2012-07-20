@@ -24,6 +24,7 @@ import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.change.JmsChangeManager;
 import com.opengamma.master.portfolio.PortfolioMaster;
+import com.opengamma.master.portfolio.impl.RemotePortfolioMaster;
 import com.opengamma.masterdb.portfolio.DataDbPortfolioMasterResource;
 import com.opengamma.masterdb.portfolio.DbPortfolioMaster;
 import com.opengamma.util.db.DbConnector;
@@ -95,6 +96,8 @@ public class DbPortfolioMasterComponentFactory extends AbstractComponentFactory 
     }
     
     // register
+    info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemotePortfolioMaster.class);
     info.addAttribute(ComponentInfoAttributes.UNIQUE_ID_SCHEME, master.getUniqueIdScheme());
     repo.registerComponent(info, master);
     

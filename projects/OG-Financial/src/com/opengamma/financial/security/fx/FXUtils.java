@@ -89,6 +89,25 @@ public class FXUtils {
    * @return an Identifier containing identifier for the spot rate, not null
    */
   // TODO: review: Should Bbg code be in Financial?
+  public static final ExternalId getSpotIdentifier(final NonDeliverableFXForwardSecurity fxForwardSecurity) {
+    final Currency putCurrency = fxForwardSecurity.getPayCurrency();
+    final Currency callCurrency = fxForwardSecurity.getReceiveCurrency();
+    ExternalId bloomberg;
+    if (isInBaseQuoteOrder(putCurrency, callCurrency)) {
+      bloomberg = ExternalSchemes.bloombergTickerSecurityId(putCurrency.getCode() + callCurrency.getCode() + " Curncy");
+    } else {
+      bloomberg = ExternalSchemes.bloombergTickerSecurityId(callCurrency.getCode() + putCurrency.getCode() + " Curncy");
+    }
+    return bloomberg;
+  }
+
+  /**
+   * Returns a bundle containing all known identifiers for the spot rate of this FXOptionSecurity.
+   * The identifier respect the market base/quote currencies.
+   * @param fxForwardSecurity the fx option security
+   * @return an Identifier containing identifier for the spot rate, not null
+   */
+  // TODO: review: Should Bbg code be in Financial?
   public static final ExternalId getSpotIdentifier(final FXForwardSecurity fxForwardSecurity) {
     final Currency putCurrency = fxForwardSecurity.getPayCurrency();
     final Currency callCurrency = fxForwardSecurity.getReceiveCurrency();

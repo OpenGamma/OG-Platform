@@ -33,15 +33,15 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public class FXForwardCurrencyExposurePnLDefaults extends DefaultPropertyFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(FXForwardCurrencyExposurePnLDefaults.class);
+public class FXForwardPnLDefaults extends DefaultPropertyFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(FXForwardPnLDefaults.class);
   private final String _samplingPeriod;
   private final String _scheduleCalculator;
   private final String _samplingFunction;
   private final PriorityClass _priority;
   private final Map<String, Pair<String, String>> _currencyCurveConfigAndDiscountingCurveNames;
 
-  public FXForwardCurrencyExposurePnLDefaults(final String samplingPeriod, final String scheduleCalculator, final String samplingFunction, final String priority,
+  public FXForwardPnLDefaults(final String samplingPeriod, final String scheduleCalculator, final String samplingFunction, final String priority,
       final String... currencyCurveConfigAndDiscountingCurveNames) {
     super(ComputationTargetType.POSITION, true);
     ArgumentChecker.notNull(samplingPeriod, "sampling period");
