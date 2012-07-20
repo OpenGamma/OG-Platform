@@ -144,8 +144,6 @@ public class YieldCurveFittingTest extends YieldCurveFittingSetup {
         FLAT_EXTRAPOLATOR);
     final InstrumentDerivativeVisitor<YieldCurveBundle, Double> calculator = PresentValueCalculator.getInstance();
     final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator = PresentValueCurveSensitivityCalculator.getInstance();
-    // final InterestRateDerivativeVisitor<Double> calculator = ParRateDifferenceCalculator.getInstance();
-    // final InterestRateDerivativeVisitor<Map<String, List<DoublesPair>>> sensitivityCalculator = ParRateCurveSensitivityCalculator.getInstance();
 
     final HashMap<String, double[]> maturities = new LinkedHashMap<String, double[]>();
 
@@ -206,7 +204,7 @@ public class YieldCurveFittingTest extends YieldCurveFittingSetup {
     final DoubleMatrix1D startPosition = new DoubleMatrix1D(rates);
 
     final YieldCurveFittingTestDataBundle data = getYieldCurveFittingTestDataBundle(instruments, null, curveNames, curveKnots, extrapolator, calculator, sensitivityCalculator,
-        marketValues, startPosition, yields, false);
+        marketValues, startPosition, yields, false, FX_MATRIX);
 
     return data;
   }
@@ -289,7 +287,7 @@ public class YieldCurveFittingTest extends YieldCurveFittingSetup {
     final DoubleMatrix1D startPosition = new DoubleMatrix1D(rates);
 
     final YieldCurveFittingTestDataBundle data = getYieldCurveFittingTestDataBundle(instruments, null, curveNames, curveKnots, extrapolator, calculator, sensitivityCalculator,
-        marketValues, startPosition, yields, false);
+        marketValues, startPosition, yields, false, FX_MATRIX);
 
     return data;
   }

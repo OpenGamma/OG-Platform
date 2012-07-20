@@ -13,12 +13,7 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderDataBundle;
-import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderFunction;
-import com.opengamma.analytics.financial.interestrate.ParRateCalculator;
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -44,6 +39,7 @@ public class MultipleYieldCurveFinderFunctionTest {
   private static final LinkedHashMap<String, double[]> NODES = new LinkedHashMap<String, double[]>();
   private static final LinkedHashMap<String, Interpolator1D> INTERPOLATORS = new LinkedHashMap<String, Interpolator1D>();
   private static final MultipleYieldCurveFinderDataBundle DATA;
+  private static final FXMatrix FX_MATRIX = new FXMatrix(Currency.USD);
 
   static {
     final int n = 10;
@@ -61,7 +57,7 @@ public class MultipleYieldCurveFinderFunctionTest {
     }
     NODES.put(CURVE_NAME, TIMES);
     INTERPOLATORS.put(CURVE_NAME, INTERPOLATOR);
-    DATA = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, SIMPLE_RATES, null, NODES, INTERPOLATORS, false);
+    DATA = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, SIMPLE_RATES, null, NODES, INTERPOLATORS, false, FX_MATRIX);
     FINDER = new MultipleYieldCurveFinderFunction(DATA, CALCULATOR);
   }
 
@@ -90,7 +86,7 @@ public class MultipleYieldCurveFinderFunctionTest {
     final List<InstrumentDerivative> list = new ArrayList<InstrumentDerivative>();
     list.add(new Cash(CUR, 0, 1, 1, 0.01, 1, CURVE_NAME));
     list.add(new Cash(CUR, 0, 0.5, 1, 0.01, 0.5, CURVE_NAME));
-    new MultipleYieldCurveFinderFunction(new MultipleYieldCurveFinderDataBundle(list, new double[list.size()], null, NODES, INTERPOLATORS, false), CALCULATOR);
+    new MultipleYieldCurveFinderFunction(new MultipleYieldCurveFinderDataBundle(list, new double[list.size()], null, NODES, INTERPOLATORS, false, FX_MATRIX), CALCULATOR);
   }
 
   @Test

@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderDataBundle;
@@ -49,28 +50,15 @@ public class YieldCurveFittingTestDataBundle extends MultipleYieldCurveFinderDat
    * Sets the testType field.
    * @param testType  the testType
    */
-  public void setTestType(TestType testType) {
+  public void setTestType(final TestType testType) {
     _testType = testType;
   }
 
-//  public YieldCurveFittingTestDataBundle(List<InterestRateDerivative> derivatives, YieldCurveBundle knownCurves, LinkedHashMap<String, double[]> unknownCurveNodePoints,
-//      LinkedHashMap<String, Interpolator1D> unknownCurveInterpolators,
-//      InterestRateDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator, InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> marketValueSensitivityCalculator,
-//      double[] marketRates, DoubleMatrix1D startPosition) {
-//    this(derivatives, knownCurves, unknownCurveNodePoints, unknownCurveInterpolators, marketValueCalculator, marketValueSensitivityCalculator, marketRates, startPosition, false);
-//  }
-
-  /**
-   * @param derivatives
-   * @param knownCurves
-   * @param unknownCurveNodePoints
-   * @param unknownCurveInterpolators
-   */
-  public YieldCurveFittingTestDataBundle(List<InstrumentDerivative> derivatives, YieldCurveBundle knownCurves, LinkedHashMap<String, double[]> unknownCurveNodePoints,
-      LinkedHashMap<String, Interpolator1D> unknownCurveInterpolators,
-      InstrumentDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator, InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> marketValueSensitivityCalculator,
-      double[] marketRates, DoubleMatrix1D startPosition, boolean useFiniteDifferenceByDefault) {
-    super(derivatives, marketRates, knownCurves, unknownCurveNodePoints, unknownCurveInterpolators, useFiniteDifferenceByDefault);
+  public YieldCurveFittingTestDataBundle(final List<InstrumentDerivative> derivatives, final YieldCurveBundle knownCurves, final LinkedHashMap<String, double[]> unknownCurveNodePoints,
+      final LinkedHashMap<String, Interpolator1D> unknownCurveInterpolators,
+      final InstrumentDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator, final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> marketValueSensitivityCalculator,
+      final double[] marketRates, final DoubleMatrix1D startPosition, final boolean useFiniteDifferenceByDefault, final FXMatrix fxMatrix) {
+    super(derivatives, marketRates, knownCurves, unknownCurveNodePoints, unknownCurveInterpolators, useFiniteDifferenceByDefault, fxMatrix);
     Validate.notNull(marketValueCalculator);
     Validate.notNull(marketValueSensitivityCalculator);
     Validate.notNull(marketRates);
@@ -96,22 +84,15 @@ public class YieldCurveFittingTestDataBundle extends MultipleYieldCurveFinderDat
    * Sets the curveYields field.
    * @param curveYields  the curveYields
    */
-  public void setCurveYields(HashMap<String, double[]> curveYields) {
+  public void setCurveYields(final HashMap<String, double[]> curveYields) {
     _curveYields = curveYields;
   }
 
-//  public YieldCurveFittingTestDataBundle(List<InterestRateDerivative> derivatives, YieldCurveBundle knownCurves, LinkedHashMap<String, double[]> unknownCurveNodePoints,
-//      LinkedHashMap<String, Interpolator1D> unknownCurveInterpolators,
-//      InterestRateDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator, InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> marketValueSensitivityCalculator,
-//      double[] marketRates, DoubleMatrix1D startPosition, HashMap<String, double[]> curveYields) {
-//    this(derivatives, knownCurves, unknownCurveNodePoints, unknownCurveInterpolators, marketValueCalculator, marketValueSensitivityCalculator, marketRates, startPosition, curveYields, false);
-//  }
-
-  public YieldCurveFittingTestDataBundle(List<InstrumentDerivative> derivatives, YieldCurveBundle knownCurves, LinkedHashMap<String, double[]> unknownCurveNodePoints,
-      LinkedHashMap<String, Interpolator1D> unknownCurveInterpolators,
-      InstrumentDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator, InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> marketValueSensitivityCalculator,
-      double[] marketRates, DoubleMatrix1D startPosition, HashMap<String, double[]> curveYields, boolean useFiniteDifferenceByDefault) {
-    super(derivatives, marketRates, knownCurves, unknownCurveNodePoints, unknownCurveInterpolators, useFiniteDifferenceByDefault);
+  public YieldCurveFittingTestDataBundle(final List<InstrumentDerivative> derivatives, final YieldCurveBundle knownCurves, final LinkedHashMap<String, double[]> unknownCurveNodePoints,
+      final LinkedHashMap<String, Interpolator1D> unknownCurveInterpolators,
+      final InstrumentDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator, final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> marketValueSensitivityCalculator,
+      final double[] marketRates, final DoubleMatrix1D startPosition, final HashMap<String, double[]> curveYields, final boolean useFiniteDifferenceByDefault, final FXMatrix fxMatrix) {
+    super(derivatives, marketRates, knownCurves, unknownCurveNodePoints, unknownCurveInterpolators, useFiniteDifferenceByDefault, fxMatrix);
     Validate.notNull(marketValueCalculator);
     Validate.notNull(marketValueSensitivityCalculator);
     Validate.notNull(marketRates);
@@ -119,7 +100,7 @@ public class YieldCurveFittingTestDataBundle extends MultipleYieldCurveFinderDat
     Validate.notNull(curveYields);
     Validate.isTrue(getTotalNodes() == startPosition.getNumberOfElements());
 
-    for (String name : getCurveNames()) {
+    for (final String name : getCurveNames()) {
       Validate.isTrue(getCurveNodePointsForCurve(name).length == curveYields.get(name).length);
     }
 
@@ -142,7 +123,7 @@ public class YieldCurveFittingTestDataBundle extends MultipleYieldCurveFinderDat
    * Sets the marketValueSensitivityCalculator field.
    * @param marketValueSensitivityCalculator  the marketValueSensitivityCalculator
    */
-  public void setMarketValueSensitivityCalculator(InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> marketValueSensitivityCalculator) {
+  public void setMarketValueSensitivityCalculator(final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> marketValueSensitivityCalculator) {
     _marketValueSensitivityCalculator = marketValueSensitivityCalculator;
   }
 
@@ -158,7 +139,7 @@ public class YieldCurveFittingTestDataBundle extends MultipleYieldCurveFinderDat
    * Sets the marketRates field.
    * @param marketRates  the marketRates
    */
-  public void setMarketRates(double[] marketRates) {
+  public void setMarketRates(final double[] marketRates) {
     _marketRates = marketRates;
   }
 
@@ -174,7 +155,7 @@ public class YieldCurveFittingTestDataBundle extends MultipleYieldCurveFinderDat
    * Sets the startPosition field.
    * @param startPosition  the startPosition
    */
-  public void setStartPosition(DoubleMatrix1D startPosition) {
+  public void setStartPosition(final DoubleMatrix1D startPosition) {
     _startPosition = startPosition;
   }
 
@@ -190,7 +171,7 @@ public class YieldCurveFittingTestDataBundle extends MultipleYieldCurveFinderDat
    * Sets the marketValueCalculator field.
    * @param marketValueCalculator  the marketValueCalculator
    */
-  public void setMarketValueCalculator(InstrumentDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator) {
+  public void setMarketValueCalculator(final InstrumentDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator) {
     _marketValueCalculator = marketValueCalculator;
   }
 

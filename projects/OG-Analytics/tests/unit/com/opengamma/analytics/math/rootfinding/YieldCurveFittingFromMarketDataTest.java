@@ -164,7 +164,7 @@ public class YieldCurveFittingFromMarketDataTest extends YieldCurveFittingSetup 
     final DoubleMatrix1D startPosition = new DoubleMatrix1D(rates);
 
     final YieldCurveFittingTestDataBundle data = getYieldCurveFittingTestDataBundle(instruments, null, curveNames,
-        curveKnots, extrapolator, calculator, sensitivityCalculator, marketValues, startPosition, null, false);
+        curveKnots, extrapolator, calculator, sensitivityCalculator, marketValues, startPosition, null, false, FX_MATRIX);
 
     return data;
 
