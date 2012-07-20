@@ -17,7 +17,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -65,6 +64,7 @@ public class PeriodicLiveDataTimeSeriesStorageServer implements Lifecycle {
   private final HistoricalTimeSeriesMasterUtils _htsUtils;
   private final String _dataSource;
   private final String _dataProvider;
+  private final boolean _writeToDatabase;
   private String _initializationFileName;
   
   private final ScheduledExecutorService _timerExecutor;
@@ -76,7 +76,8 @@ public class PeriodicLiveDataTimeSeriesStorageServer implements Lifecycle {
       LiveDataClient liveDataClient,
       HistoricalTimeSeriesMaster htsMaster,
       String dataSource,
-      String dataProvider) {
+      String dataProvider,
+      boolean writeToDatabase) {
     ArgumentChecker.notNull(liveDataClient, "liveDataClient");
     ArgumentChecker.notNull(htsMaster, "htsMaster");
     ArgumentChecker.notNull(dataSource, "dataSource");
@@ -90,6 +91,7 @@ public class PeriodicLiveDataTimeSeriesStorageServer implements Lifecycle {
     _htsUtils = new HistoricalTimeSeriesMasterUtils(htsMaster);
     _dataSource = dataSource;
     _dataProvider = dataProvider;
+    _writeToDatabase = writeToDatabase;
     _timerExecutor = Executors.newScheduledThreadPool(3, new ThreadFactory() {
       private final AtomicInteger _threadCount = new AtomicInteger(0);
 
@@ -172,6 +174,14 @@ public class PeriodicLiveDataTimeSeriesStorageServer implements Lifecycle {
     _initializationFileName = initializationFileName;
   }
 
+  /**
+   * Gets the writeToDatabase.
+   * @return the writeToDatabase
+   */
+  public boolean isWriteToDatabase() {
+    return _writeToDatabase;
+  }
+
   public void addSubscription(ExternalId id, String normalizationSet) {
     LiveDataSpecification ldSpec = new LiveDataSpecification(normalizationSet, id);
     s_logger.warn("Subscribing to {}", ldSpec);
@@ -244,23 +254,24 @@ public class PeriodicLiveDataTimeSeriesStorageServer implements Lifecycle {
     public void run() {
       String description = _liveDataSpecification.getIdentifiers().getExternalIds().iterator().next().toString();
       for (FudgeField field : _values.getAllFields()) {
-        s_logger.error("Writing {} {} {} {} {} {} {} {}",
-            new Object[] {description, getDataSource(), getDataProvider(), field.getName(), _observationTimeName,
-            _liveDataSpecification.getIdentifiers().toString(), _date.toLocalDate(), field.getValue()});
-        // TODO kirk 2012-07-19 -- The first time this starts it should be able to identify
-        // the underlying identifiers for the HTS entries for each TS and cache those in RAM
-        // to avoid DB thrashing.
-        /*
-        _htsUtils.writeTimeSeriesPoint(
-            description,
-            getDataSource(),
-            getDataProvider(),
-            field.getName(),
-            _observationTimeName,
-            _liveDataSpecification.getIdentifiers(),
-            _date.toLocalDate(),
-            (Double) field.getValue());
-            */
+        if (isWriteToDatabase()) {
+          // TODO kirk 2012-07-19 -- The first time this starts it should be able to identify
+          // the underlying identifiers for the HTS entries for each TS and cache those in RAM
+          // to avoid DB thrashing.
+          _htsUtils.writeTimeSeriesPoint(
+              description,
+              getDataSource(),
+              getDataProvider(),
+              field.getName(),
+              _observationTimeName,
+              _liveDataSpecification.getIdentifiers(),
+              _date.toLocalDate(),
+              (Double) field.getValue());
+        } else {
+          s_logger.error("Would write {} {} {} {} {} {} {} {}",
+              new Object[] {description, getDataSource(), getDataProvider(), field.getName(), _observationTimeName,
+                            _liveDataSpecification.getIdentifiers().toString(), _date.toLocalDate(), field.getValue()});
+        }
       }
     }
     
