@@ -62,44 +62,34 @@
         "dayCount":"${security.dayCount.conventionName}",
         "guaranteeType":"${security.guaranteeType}",
         "businessDayConvention":"${security.businessDayConvention}",
-        <#if security.announcementDate??>
-          "announcementDate":"${security.announcementDate}",
+        <#if security.announcementDate?has_content>
+          "announcementDate": "${security.announcementDate.toLocalDate()}",
         <#else>
-          "announcementDate":"null",
+          "announcementDate": "-",
         </#if>
-        
-        <#if security.interestAccrualDate??>
+        <#if security.interestAccrualDate?has_content>
           "interestAccrualDate": {
               "date": "${security.interestAccrualDate.toLocalDate()}",
               "zone": "${security.interestAccrualDate.zone}"
           },
         <#else>
-          "interestAccrualDate": {
-              "date": "null",
-              "zone": "null"
-          },
+          "interestAccrualDate": "null",
         </#if>
-        <#if security.settlementDate??>
+        <#if security.settlementDate?has_content>
           "settlementDate": {
               "date": "${security.settlementDate.toLocalDate()}",
               "zone": "${security.settlementDate.zone}"
           },
         <#else>
-          "settlementDate": { 
-              "date": "null",
-              "zone": "null"
-          },
+          "settlementDate": "null",
         </#if>
-        <#if security.firstCouponDate??>
+        <#if security.firstCouponDate?has_content>
           "firstCouponDate": {
               "date": "${security.firstCouponDate.toLocalDate()}",
               "zone": "${security.firstCouponDate.zone}"
           },
         <#else>
-          "firstCouponDate": { 
-              "date": "null",
-              "zone": "null"
-          },
+          "firstCouponDate": "null",
         </#if>
         "issuancePrice":"${security.issuancePrice}",
         "totalAmountIssued":"${security.totalAmountIssued}",
