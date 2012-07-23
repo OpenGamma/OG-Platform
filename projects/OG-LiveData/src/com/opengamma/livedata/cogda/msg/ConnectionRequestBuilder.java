@@ -21,6 +21,8 @@ public class ConnectionRequestBuilder implements FudgeBuilder<ConnectionRequestM
     
     msg.add("userName", request.getUserName());
     
+    msg.add("capabilities", request.getCapabilities());
+    
     return msg;
   }
 
@@ -32,6 +34,7 @@ public class ConnectionRequestBuilder implements FudgeBuilder<ConnectionRequestM
   public static ConnectionRequestMessage buildObjectStatic(FudgeDeserializer deserializer, FudgeMsg message) {
     ConnectionRequestMessage request = new ConnectionRequestMessage();
     request.setUserName(message.getString("userName"));
+    request.applyCapabilities(message.getMessage("capabilities"));
     return request;
   }
 
