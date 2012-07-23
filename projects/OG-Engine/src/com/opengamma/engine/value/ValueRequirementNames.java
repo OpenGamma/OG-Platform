@@ -199,6 +199,10 @@ public final class ValueRequirementNames {
    * A volatility surface specification
    */
   public static final String VOLATILITY_SURFACE_SPEC = "VolatilitySurfaceSpecification";
+  /**
+   * The bundle of historical time series objects for elements of a volatility surface.
+   */
+  public static final String VOLATILITY_SURFACE_HISTORICAL_TIME_SERIES = "Volatility Surface Historical Time Series";
 
   ///// Cubes
 

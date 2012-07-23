@@ -28,7 +28,7 @@ import com.opengamma.util.money.Currency;
 
 /**
  * @deprecated Use the version that does not refer the put or call currency
- * @see FXOptionBlackDeltaPnLDefaults
+ * @see FXOptionBlackPnLDefaults
  */
 @Deprecated
 public class FXOptionBlackDeltaPnLDefaultsDeprecated extends DefaultPropertyFunction {

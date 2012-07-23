@@ -16,10 +16,12 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesAdjuster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
  * Helper methods for working with the historical time series functions.
@@ -80,26 +82,41 @@ public final class HistoricalTimeSeriesFunctionUtils {
     final String adjustment = (adjuster == null) ? "" : adjuster.getAdjustment(timeSeries.getHistoricalTimeSeriesInfo().getExternalIdBundle().toBundle()).toString();
     return new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES, timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(),
         ValueProperties.builder()
-            .with(DATA_FIELD_PROPERTY, dataField)
-            .with(ADJUST_PROPERTY, adjustment)
-            .with(START_DATE_PROPERTY, startDate.toString())
-            .with(INCLUDE_START_PROPERTY, includeStart ? YES_VALUE : NO_VALUE)
-            .with(END_DATE_PROPERTY, endDate.toString())
-            .with(INCLUDE_END_PROPERTY, includeEnd ? YES_VALUE : NO_VALUE).get());
+        .with(DATA_FIELD_PROPERTY, dataField)
+        .with(ADJUST_PROPERTY, adjustment)
+        .with(START_DATE_PROPERTY, startDate.toString())
+        .with(INCLUDE_START_PROPERTY, includeStart ? YES_VALUE : NO_VALUE)
+        .with(END_DATE_PROPERTY, endDate.toString())
+        .with(INCLUDE_END_PROPERTY, includeEnd ? YES_VALUE : NO_VALUE).get());
   }
 
   public static ValueRequirement createYCHTSRequirement(final Currency currency, final String curveName, final String dataField, final String resolutionKey, final DateConstraint startDate,
       final boolean includeStart, final DateConstraint endDate, final boolean includeEnd) {
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_HISTORICAL_TIME_SERIES, currency,
         ValueProperties.builder()
-            .with(ValuePropertyNames.CURVE, curveName)
-            .with(DATA_FIELD_PROPERTY, dataField)
-            .with(RESOLUTION_KEY_PROPERTY, (resolutionKey != null) ? resolutionKey : "")
-            .with(START_DATE_PROPERTY, startDate.toString())
-            .with(INCLUDE_START_PROPERTY, includeStart ? YES_VALUE : NO_VALUE)
-            .with(END_DATE_PROPERTY, endDate.toString())
-            .with(INCLUDE_END_PROPERTY, includeEnd ? YES_VALUE : NO_VALUE).get());
+        .with(ValuePropertyNames.CURVE, curveName)
+        .with(DATA_FIELD_PROPERTY, dataField)
+        .with(RESOLUTION_KEY_PROPERTY, (resolutionKey != null) ? resolutionKey : "")
+        .with(START_DATE_PROPERTY, startDate.toString())
+        .with(INCLUDE_START_PROPERTY, includeStart ? YES_VALUE : NO_VALUE)
+        .with(END_DATE_PROPERTY, endDate.toString())
+        .with(INCLUDE_END_PROPERTY, includeEnd ? YES_VALUE : NO_VALUE).get());
   }
+
+  public static ValueRequirement createVolatilitySurfaceHTSRequirement(final UnorderedCurrencyPair currencies, final String surfaceName, final String instrumentType, final String dataField,
+      final String resolutionKey, final DateConstraint startDate, final boolean includeStart, final DateConstraint endDate, final boolean includeEnd) {
+    return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_HISTORICAL_TIME_SERIES, currencies,
+        ValueProperties.builder()
+        .with(ValuePropertyNames.SURFACE, surfaceName)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, instrumentType)
+        .with(DATA_FIELD_PROPERTY, dataField)
+        .with(RESOLUTION_KEY_PROPERTY, (resolutionKey != null) ? resolutionKey : "")
+        .with(START_DATE_PROPERTY, startDate.toString())
+        .with(INCLUDE_START_PROPERTY, includeStart ? YES_VALUE : NO_VALUE)
+        .with(END_DATE_PROPERTY, endDate.toString())
+        .with(INCLUDE_END_PROPERTY, includeEnd ? YES_VALUE : NO_VALUE).get());
+  }
+
 
   /**
    * Reduces any parameters of value name {@link ValueRequirementNames#HISTORICAL_TIME_SERIES} to a single {@link HistoricalTimeSeriesBundle}.
@@ -111,7 +128,7 @@ public final class HistoricalTimeSeriesFunctionUtils {
   public static HistoricalTimeSeriesBundle getHistoricalTimeSeriesInputs(final FunctionExecutionContext executionContext, final FunctionInputs inputs) {
     final HistoricalTimeSeriesSource timeSeriesSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final HistoricalTimeSeriesBundle bundle = new HistoricalTimeSeriesBundle();
-    for (ComputedValue input : inputs.getAllValues()) {
+    for (final ComputedValue input : inputs.getAllValues()) {
       if (ValueRequirementNames.HISTORICAL_TIME_SERIES.equals(input.getSpecification().getValueName())) {
         final String fieldName = input.getSpecification().getProperty(DATA_FIELD_PROPERTY);
         final HistoricalTimeSeries hts = (HistoricalTimeSeries) input.getValue();

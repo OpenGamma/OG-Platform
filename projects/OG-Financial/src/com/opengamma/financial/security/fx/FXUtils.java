@@ -45,6 +45,8 @@ public class FXUtils {
     BASE_ORDER.put(Currency.JPY, 11);
   }
 
+  //TODO all of the spot identifiers should be visitors
+
   /**
    * Returns a bundle containing all known identifiers for the spot rate of this FXOptionSecurity
    * @param fxOptionSecurity the fx option security
@@ -72,6 +74,25 @@ public class FXUtils {
    */
   // TODO: review: Should Bbg code be in Financial?
   public static final ExternalId getSpotIdentifier(final FXOptionSecurity fxOptionSecurity) {
+    final Currency putCurrency = fxOptionSecurity.getPutCurrency();
+    final Currency callCurrency = fxOptionSecurity.getCallCurrency();
+    ExternalId bloomberg;
+    if (isInBaseQuoteOrder(putCurrency, callCurrency)) {
+      bloomberg = ExternalSchemes.bloombergTickerSecurityId(putCurrency.getCode() + callCurrency.getCode() + " Curncy");
+    } else {
+      bloomberg = ExternalSchemes.bloombergTickerSecurityId(callCurrency.getCode() + putCurrency.getCode() + " Curncy");
+    }
+    return bloomberg;
+  }
+
+  /**
+   * Returns a bundle containing all known identifiers for the spot rate of this FXOptionSecurity.
+   * The identifier respect the market base/quote currencies.
+   * @param fxOptionSecurity the fx option security
+   * @return an Identifier containing identifier for the spot rate, not null
+   */
+  // TODO: review: Should Bbg code be in Financial?
+  public static final ExternalId getSpotIdentifier(final NonDeliverableFXOptionSecurity fxOptionSecurity) {
     final Currency putCurrency = fxOptionSecurity.getPutCurrency();
     final Currency callCurrency = fxOptionSecurity.getCallCurrency();
     ExternalId bloomberg;

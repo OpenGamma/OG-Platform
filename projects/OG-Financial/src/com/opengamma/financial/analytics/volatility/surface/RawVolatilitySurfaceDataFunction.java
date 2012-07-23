@@ -66,7 +66,6 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
     return _instrumentType;
   }
 
-  @SuppressWarnings("unchecked")
   public static <X, Y> Set<ValueRequirement> buildDataRequirements(final VolatilitySurfaceSpecification specification, final VolatilitySurfaceDefinition<X, Y> definition,
       final ZonedDateTime atInstant, final String surfaceName, final String instrumentType) {
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
@@ -189,7 +188,7 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
       return isCorrectIdType(target);
     }
 
-    @SuppressWarnings({"unchecked", "synthetic-access" })
+    @SuppressWarnings({"synthetic-access" })
     @Override
     public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
         final Set<ValueRequirement> desiredValues) {
@@ -239,7 +238,6 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
       return true;
     }
 
-    @SuppressWarnings({"unchecked" })
     protected VolatilitySurfaceDefinition<Object, Object> getSurfaceDefinition(final ComputationTarget target, final String definitionName, final String instrumentType) {
       final String fullDefinitionName = definitionName + "_" + target.getUniqueId().getValue();
       final VolatilitySurfaceDefinition<Object, Object> definition = (VolatilitySurfaceDefinition<Object, Object>) getDefinitionSource().getDefinition(fullDefinitionName, instrumentType);
