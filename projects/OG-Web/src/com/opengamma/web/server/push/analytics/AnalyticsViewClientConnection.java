@@ -66,6 +66,7 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
 
   @Override
   public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
+    _cycleReference.release();
     EngineResourceReference<? extends ViewCycle> cycleReference = _viewClient.createCycleReference(fullResult.getViewCycleId());
     if (cycleReference == null) {
       // this shouldn't happen if everything in the engine is working as it should
