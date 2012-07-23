@@ -160,13 +160,9 @@
     <property name="autodetect" value="true"/>
   </bean>
 
-  <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean">
-    <property name="locateExistingServerIfPossible" value="true" />
-  </bean>
+  <alias name="standardCacheManager" alias="cacheManager"/>
+  <alias name="standardMBeanServer" alias="mbeanServer"/>
 
-  <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
-    <property name="shared" value="true"/>
-  </bean>
   <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
     <property name="staticMethod" value="net.sf.ehcache.management.ManagementService.registerMBeans"/>
     <property name="arguments">
