@@ -20,5 +20,13 @@
   <alias name="exampleDistributionSpecificationResolver" alias="distributionSpecificationResolver"/>
   <alias name="exampleEntitlementChecker" alias="entitlementChecker"/>
   <alias name="exampleServerMBean" alias="serverMBean"/>
-  
+
+  <!-- copied from marketdata server infrastructure -->
+  <bean id="standardCacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+    <property name="shared" value="true"/>
+  </bean>
+  <bean id="standardMBeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean">
+    <property name="locateExistingServerIfPossible" value="true" />
+  </bean>
+
 </beans>

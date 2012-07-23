@@ -17,6 +17,13 @@
   <alias name="bbgLiveDataServer" alias="liveDataServer"/>
   <alias name="bbgDistributionSpecificationResolver" alias="distributionSpecificationResolver"/>
   <alias name="bbgEntitlementChecker" alias="entitlementChecker"/>
+
+  <!-- copied from marketdata server infrastructure -->
+  <bean id="standardCacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+    <property name="shared" value="true"/>
+  </bean>
+  <bean id="standardMBeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean">
+    <property name="locateExistingServerIfPossible" value="true" />
+  </bean>
+
 </beans>
-	
-	
