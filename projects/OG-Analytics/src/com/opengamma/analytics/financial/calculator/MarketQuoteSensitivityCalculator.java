@@ -14,10 +14,10 @@ import java.util.Set;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.curve.AbstractParameterSensitivityCalculator;
+import com.opengamma.analytics.math.matrix.ColtMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
-import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -28,7 +28,7 @@ public final class MarketQuoteSensitivityCalculator {
   /**
    * The matrix algebra used for matrix inversion.
    */
-  private static final MatrixAlgebra MATRIX_ALGEBRA = new OGMatrixAlgebra(); //TODO make this a parameter
+  private static final MatrixAlgebra MATRIX_ALGEBRA = new ColtMatrixAlgebra(); //TODO make this a parameter
   /**
    * The parameter sensitivity calculator. The parameters are the parameters used to described the curve.
    */
@@ -70,7 +70,7 @@ public final class MarketQuoteSensitivityCalculator {
    * Calculate the instrument sensitivity from the yield sensitivity, the jacobian matrix and the coupon sensitivity.
    * @param curveSensitivities The sensitivity to points of the yield curve.
    * @param curves The curve bundle.
-   * @param couponSensitivity The sensitivity 
+   * @param couponSensitivity The sensitivity
    * @param jacobian The present value coupon sensitivity.
    * @return The instrument quote/rate sensitivity.
    */
