@@ -5,9 +5,12 @@
  */
 package com.opengamma.livedata.server;
 
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
@@ -135,6 +138,26 @@ public class RedisLastKnownValueStoreProvider implements LastKnownValueStoreProv
     sb.append("]");
     return sb.toString();
   }
+  
+  private String generateAllSchemesKey() {
+    StringBuilder sb = new StringBuilder();
+    if (getGlobalPrefix() != null) {
+      sb.append(getGlobalPrefix());
+    }
+    sb.append("-<ALL_SCHEMES>");
+    return sb.toString();
+  }
+  
+  private String generatePerSchemeKey(String scheme) {
+    StringBuilder sb = new StringBuilder();
+    if (getGlobalPrefix() != null) {
+      sb.append(getGlobalPrefix());
+    }
+    sb.append(scheme);
+    sb.append("-");
+    sb.append("<ALL_IDENTIFIERS>");
+    return sb.toString();
+  }
 
   protected synchronized void initIfNecessary() {
     if (_isInitialized) {
@@ -148,5 +171,20 @@ public class RedisLastKnownValueStoreProvider implements LastKnownValueStoreProv
     
     _isInitialized = true;
   }
+  
+  protected void updateIdentifiers(ExternalId security) {
+    Jedis jedis = _jedisPool.getResource();
+    jedis.sadd(generateAllSchemesKey(), security.getScheme().getName());
+    jedis.sadd(generatePerSchemeKey(security.getScheme().getName()), security.getValue());
+    _jedisPool.returnResource(jedis);
+  }
 
+  @Override
+  public Set<String> getAllIdentifiers(String identifierScheme) {
+    Jedis jedis = _jedisPool.getResource();
+    Set<String> allMembers = jedis.smembers(generatePerSchemeKey(identifierScheme));
+    _jedisPool.returnResource(jedis);
+    return allMembers;
+  }
+  
 }

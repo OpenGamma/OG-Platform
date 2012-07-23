@@ -5,6 +5,8 @@
  */
 package com.opengamma.livedata.server;
 
+import java.util.Set;
+
 import com.opengamma.id.ExternalId;
 
 /**
@@ -16,6 +18,11 @@ public class MapLastKnownValueStoreProvider implements LastKnownValueStoreProvid
   public LastKnownValueStore newInstance(ExternalId security, String normalizationRuleSetId) {
     // Ignore the inputs.
     return new MapLastKnownValueStore();
+  }
+
+  @Override
+  public Set<String> getAllIdentifiers(String identifierScheme) {
+    throw new UnsupportedOperationException();
   }
 
 }
