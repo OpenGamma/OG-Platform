@@ -175,8 +175,10 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final Position position = target.getPosition();
-    final FXForwardSecurity security = (FXForwardSecurity) position.getSecurity();
-    final Currency currencyBase = FXUtils.baseCurrency(security.getPayCurrency(), security.getReceiveCurrency()); // The base currency
+    final FinancialSecurity security = (FinancialSecurity) position.getSecurity();
+    final Currency payCurrency = security.accept(ForexVisitors.getPayCurrencyVisitor());
+    final Currency receiveCurrency = security.accept(ForexVisitors.getReceiveCurrencyVisitor());
+    final Currency currencyBase = FXUtils.baseCurrency(payCurrency, receiveCurrency); // The base currency
     final ValueProperties properties = createValueProperties()
         .withAny(ValuePropertyNames.PAY_CURVE)
         .withAny(FXForwardFunction.PAY_CURVE_CALC_CONFIG)
@@ -243,8 +245,8 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
     final ValueRequirement payYCHTSRequirement = getYCHTSRequirement(payCurrency, payCurveName, samplingPeriod);
     final ValueRequirement receiveYCHTSRequirement = getYCHTSRequirement(receiveCurrency, receiveCurveName, samplingPeriod);
     final HistoricalTimeSeriesResolver historicalTimeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
-    final ValueRequirement marketValueRequirement = getMarketValueRequirement(historicalTimeSeriesResolver, security, samplingPeriod);
-    if (marketValueRequirement == null) {
+    final ValueRequirement fxSpotRequirement = getFXSpotRequirement(historicalTimeSeriesResolver, security, samplingPeriod);
+    if (fxSpotRequirement == null) {
       s_logger.error("Could not get time series for identifier " + FXUtils.getSpotIdentifier((FXForwardSecurity) target.getPosition().getSecurity()));
       return null;
     }
@@ -253,7 +255,7 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
     requirements.add(payYCHTSRequirement);
     requirements.add(receiveYCNSRequirement);
     requirements.add(receiveYCHTSRequirement);
-    requirements.add(marketValueRequirement);
+    requirements.add(fxSpotRequirement);
     if (!payCurveCalculationConfig.getCalculationMethod().equals(FXImpliedYieldCurveFunction.FX_IMPLIED)) {
       requirements.add(getCurveSpecRequirement(payCurrency, payCurveName));
     }
@@ -269,7 +271,7 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, currency, properties);
   }
 
-  private ValueRequirement getMarketValueRequirement(final HistoricalTimeSeriesResolver historicalTimeSeriesResolver, final FinancialSecurity security, final String samplingPeriods) {
+  private ValueRequirement getFXSpotRequirement(final HistoricalTimeSeriesResolver historicalTimeSeriesResolver, final FinancialSecurity security, final String samplingPeriods) {
     if (security instanceof FXForwardSecurity) {
       final FXForwardSecurity fxForward = (FXForwardSecurity) security;
       final HistoricalTimeSeriesResolutionResult timeSeries = historicalTimeSeriesResolver.resolve(

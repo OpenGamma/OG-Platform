@@ -46,9 +46,8 @@ public class YieldCurveHistoricalTimeSeriesFunction extends AbstractFunction.Non
   private static String parseString(final String str) {
     if (str.length() == 0) {
       return null;
-    } else {
-      return str;
     }
+    return str;
   }
 
   @Override
@@ -167,10 +166,9 @@ public class YieldCurveHistoricalTimeSeriesFunction extends AbstractFunction.Non
         curveConstraints = ValueProperties.none();
       }
       return Collections.singleton(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, target.toSpecification(), curveConstraints));
-    } else {
-      // We need to substitute ourselves with the adjusted constraints
-      return Collections.singleton(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_HISTORICAL_TIME_SERIES, target.toSpecification(), constraints.get()));
     }
+    // We need to substitute ourselves with the adjusted constraints
+    return Collections.singleton(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_HISTORICAL_TIME_SERIES, target.toSpecification(), constraints.get()));
   }
 
   @Override
@@ -179,10 +177,9 @@ public class YieldCurveHistoricalTimeSeriesFunction extends AbstractFunction.Non
     if (ValueRequirementNames.YIELD_CURVE_HISTORICAL_TIME_SERIES.equals(input.getValueName())) {
       // Use the substituted result
       return Collections.singleton(input);
-    } else {
-      // Use full results - graph builder will compose correctly against the desired value
-      return getResults(context, target);
     }
+    // Use full results - graph builder will compose correctly against the desired value
+    return getResults(context, target);
   }
 
 }

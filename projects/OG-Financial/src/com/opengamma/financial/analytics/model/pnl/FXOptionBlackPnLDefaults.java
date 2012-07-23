@@ -34,8 +34,8 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public class FXOptionBlackDeltaPnLDefaults extends DefaultPropertyFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(FXOptionBlackDeltaPnLDefaults.class);
+public class FXOptionBlackPnLDefaults extends DefaultPropertyFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(FXOptionBlackPnLDefaults.class);
   private final String _samplingPeriod;
   private final String _scheduleCalculator;
   private final String _samplingFunction;
@@ -47,7 +47,7 @@ public class FXOptionBlackDeltaPnLDefaults extends DefaultPropertyFunction {
   private final Map<String, Pair<String, String>> _propertyValuesBySecondCurrency;
   private final Map<Pair<String, String>, String> _surfaceNameByCurrencyPair;
 
-  public FXOptionBlackDeltaPnLDefaults(final String samplingPeriod, final String scheduleCalculator, final String samplingFunction, final String priority,
+  public FXOptionBlackPnLDefaults(final String samplingPeriod, final String scheduleCalculator, final String samplingFunction, final String priority,
       final String interpolatorName, final String leftExtrapolatorName, final String rightExtrapolatorName, final String... propertyValuesByCurrencies) {
     super(ComputationTargetType.POSITION, true);
     ArgumentChecker.notNull(interpolatorName, "interpolator name");
