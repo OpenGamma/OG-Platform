@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.integration.marketdata;
+package com.opengamma.component.factory.engine;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
