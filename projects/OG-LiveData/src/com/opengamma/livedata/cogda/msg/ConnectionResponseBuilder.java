@@ -19,6 +19,7 @@ public class ConnectionResponseBuilder implements FudgeBuilder<ConnectionRespons
 
   public static MutableFudgeMsg buildMessageStatic(FudgeSerializer serializer, ConnectionResponseMessage response) {
     MutableFudgeMsg msg = serializer.newMessage();
+    msg.add("MESSAGE_TYPE", CogdaMessageType.CONNECTION_RESPONSE.name());
     
     msg.add("result", response.getResult().name());
     

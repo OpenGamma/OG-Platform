@@ -18,6 +18,7 @@ public class CogdaLiveDataUpdateBuilder implements FudgeBuilder<CogdaLiveDataUpd
 
   public static MutableFudgeMsg buildMessageStatic(FudgeSerializer serializer, CogdaLiveDataUpdateMessage update) {
     MutableFudgeMsg msg = serializer.newMessage();
+    msg.add("MESSAGE_TYPE", CogdaMessageType.LIVE_DATA_UPDATE.name());
     
     CogdaLiveDataBuilderUtil.addExternalId(msg, update.getSubscriptionId(), update.getNormalizationScheme());
     msg.add("values", update.getValues());

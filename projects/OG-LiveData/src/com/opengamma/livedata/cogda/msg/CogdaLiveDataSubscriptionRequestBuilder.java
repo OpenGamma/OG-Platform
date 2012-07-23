@@ -18,6 +18,7 @@ public class CogdaLiveDataSubscriptionRequestBuilder implements FudgeBuilder<Cog
 
   public static MutableFudgeMsg buildMessageStatic(FudgeSerializer serializer, CogdaLiveDataSubscriptionRequestMessage request) {
     MutableFudgeMsg msg = serializer.newMessage();
+    msg.add("MESSAGE_TYPE", CogdaMessageType.SUBSCRIPTION_REQUEST.name());
     msg.add("correlationId", request.getCorrelationId());
     CogdaLiveDataBuilderUtil.addExternalId(msg, request.getSubscriptionId(), request.getNormalizationScheme());
     return msg;

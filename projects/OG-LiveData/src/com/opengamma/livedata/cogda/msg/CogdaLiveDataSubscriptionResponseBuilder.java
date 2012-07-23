@@ -18,6 +18,7 @@ public class CogdaLiveDataSubscriptionResponseBuilder implements FudgeBuilder<Co
 
   public static MutableFudgeMsg buildMessageStatic(FudgeSerializer serializer, CogdaLiveDataSubscriptionResponseMessage response) {
     MutableFudgeMsg msg = serializer.newMessage();
+    msg.add("MESSAGE_TYPE", CogdaMessageType.SUBSCRIPTION_RESPONSE.name());
     CogdaLiveDataBuilderUtil.addResponseFields(msg, response);
     return msg;
   }

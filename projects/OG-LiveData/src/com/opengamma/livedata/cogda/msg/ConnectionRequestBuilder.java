@@ -18,6 +18,7 @@ public class ConnectionRequestBuilder implements FudgeBuilder<ConnectionRequestM
   
   public static MutableFudgeMsg buildMessageStatic(FudgeSerializer serializer, ConnectionRequestMessage request) {
     MutableFudgeMsg msg = serializer.newMessage();
+    msg.add("MESSAGE_TYPE", CogdaMessageType.CONNECTION_REQUEST.name());
     
     msg.add("userName", request.getUserName());
     
