@@ -20,6 +20,7 @@ public class CogdaLiveDataUpdateBuilder implements FudgeBuilder<CogdaLiveDataUpd
     MutableFudgeMsg msg = serializer.newMessage();
     
     CogdaLiveDataBuilderUtil.addExternalId(msg, update.getSubscriptionId(), update.getNormalizationScheme());
+    msg.add("values", update.getValues());
     
     return msg;
   }
@@ -33,6 +34,7 @@ public class CogdaLiveDataUpdateBuilder implements FudgeBuilder<CogdaLiveDataUpd
     CogdaLiveDataUpdateMessage update = new CogdaLiveDataUpdateMessage();
     update.setSubscriptionId(CogdaLiveDataBuilderUtil.parseExternalId(message));
     update.setNormalizationScheme(message.getString("normalizationScheme"));
+    update.setValues(message.getMessage("values"));
     return update;
   }
 

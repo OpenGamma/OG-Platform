@@ -19,6 +19,7 @@ public class CogdaLiveDataSnapshotResponseBuilder implements FudgeBuilder<CogdaL
   public static MutableFudgeMsg buildMessageStatic(FudgeSerializer serializer, CogdaLiveDataSnapshotResponseMessage response) {
     MutableFudgeMsg msg = serializer.newMessage();
     CogdaLiveDataBuilderUtil.addResponseFields(msg, response);
+    msg.add("values", response.getValues());
     return msg;
   }
 
@@ -30,6 +31,7 @@ public class CogdaLiveDataSnapshotResponseBuilder implements FudgeBuilder<CogdaL
   public static CogdaLiveDataSnapshotResponseMessage buildObjectStatic(FudgeDeserializer deserializer, FudgeMsg message) {
     CogdaLiveDataSnapshotResponseMessage response = new CogdaLiveDataSnapshotResponseMessage();
     CogdaLiveDataBuilderUtil.setResponseFields(message, response);
+    response.setValues(message.getMessage("values"));
     return response;
   }
   
