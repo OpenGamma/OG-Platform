@@ -44,6 +44,7 @@ import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
@@ -371,6 +372,11 @@ public class FinancialSecurityUtils {
         }
 
         @Override
+        public Currency visitBondFutureOptionSecurity(BondFutureOptionSecurity security) {
+          return null;
+        }
+
+        @Override
         public Currency visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
           return equityIndexDividendFutureOptionSecurity.getCurrency();
         }
@@ -626,6 +632,11 @@ public class FinancialSecurityUtils {
 
         @Override
         public Collection<Currency> visitCommodityFutureOptionSecurity(final CommodityFutureOptionSecurity commodityFutureOptionSecurity) {
+          return null;
+        }
+
+        @Override
+        public Collection<Currency> visitBondFutureOptionSecurity(BondFutureOptionSecurity security) {
           return null;
         }
 
