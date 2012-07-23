@@ -1163,12 +1163,20 @@ public final class ValueRequirementNames {
    */
   public static final String EXTERNAL_CONDITIONAL_HISTORICAL_VAR = CONDITIONAL_HISTORICAL_VAR + EXTERNAL_SUFFIX;
   /**
+   * External value of {@link #DV01}
+   */
+  public static final String EXTERNAL_DV01 = DV01 + EXTERNAL_SUFFIX;
+  /**
    * External value of {@link #HISTORICAL_VAR_STDDEV}
    */
   public static final String EXTERNAL_HISTORICAL_VAR_STDDEV = HISTORICAL_VAR_STDDEV + EXTERNAL_SUFFIX;
   /**
-   * External value of {@link #DV01}
+   * External value of {@link #PRESENT_VALUE}.
    */
-  public static final String EXTERNAL_DV01 = DV01 + EXTERNAL_SUFFIX;
+  public static final String EXTERNAL_PRESENT_VALUE = PRESENT_VALUE + EXTERNAL_SUFFIX;
+  /**
+   * External position quantity.
+   */
+  public static final String EXTERNAL_QUANTITY = "Quantity" + EXTERNAL_SUFFIX;
   
 }
