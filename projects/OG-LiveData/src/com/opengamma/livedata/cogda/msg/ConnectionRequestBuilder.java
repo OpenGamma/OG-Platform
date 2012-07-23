@@ -5,14 +5,16 @@
  */
 package com.opengamma.livedata.cogda.msg;
 
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeMessageBuilder;
+import org.fudgemsg.mapping.FudgeBuilder;
+import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 /**
  * 
  */
-public class ConnectionRequestMessageBuilder implements FudgeMessageBuilder<ConnectionRequestMessage> {
+public class ConnectionRequestBuilder implements FudgeBuilder<ConnectionRequestMessage> {
   
   public static MutableFudgeMsg buildMessageStatic(FudgeSerializer serializer, ConnectionRequestMessage request) {
     MutableFudgeMsg msg = serializer.newMessage();
@@ -25,6 +27,17 @@ public class ConnectionRequestMessageBuilder implements FudgeMessageBuilder<Conn
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ConnectionRequestMessage object) {
     return buildMessageStatic(serializer, object);
+  }
+
+  public static ConnectionRequestMessage buildObjectStatic(FudgeDeserializer deserializer, FudgeMsg message) {
+    ConnectionRequestMessage request = new ConnectionRequestMessage();
+    request.setUserName(message.getString("userName"));
+    return request;
+  }
+
+  @Override
+  public ConnectionRequestMessage buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
+    return buildObjectStatic(deserializer, message);
   }
 
 }
