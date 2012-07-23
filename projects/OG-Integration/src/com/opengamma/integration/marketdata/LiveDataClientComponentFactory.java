@@ -26,10 +26,11 @@ import com.opengamma.livedata.client.RemoteLiveDataClientFactoryBean;
 import com.opengamma.util.jms.JmsConnector;
 
 /**
- * 
+ * Component factory to create a {@code LiveDataClient}.
  */
 @BeanDefinition
 public class LiveDataClientComponentFactory extends AbstractComponentFactory {
+
   /**
    * The classifier under which to publish.
    */
@@ -56,6 +57,7 @@ public class LiveDataClientComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition(validate = "notNull")
   private String _heartbeatTopic;
 
+  //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
     RemoteLiveDataClientFactoryBean ldcFb = new RemoteLiveDataClientFactoryBean();
