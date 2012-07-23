@@ -88,6 +88,9 @@ public class CogdaDataDistributor implements Lifecycle {
   }
 
   public void addDistribution(String uniqueIdentifier) {
+    for (String normalizationScheme : _normalization.keySet()) {
+      ensureLastKnownValueStore(ExternalId.of(_externalIdScheme, uniqueIdentifier), normalizationScheme);
+    }
     
   }
 
