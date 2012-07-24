@@ -14,7 +14,6 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.Period;
 
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.schedule.HolidayDateRemovalFunction;
 import com.opengamma.analytics.financial.schedule.Schedule;
@@ -40,6 +39,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
@@ -58,10 +58,12 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
+import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
@@ -111,7 +113,16 @@ public class FXOptionBlackVegaPnLFunction extends AbstractFunction.NonCompiledIn
     final LocalDate[] schedule = HOLIDAY_REMOVER.getStrippedSchedule(scheduleCalculator.getSchedule(startDate, now, true, false), WEEKEND_CALENDAR);
     DoubleTimeSeries<?> vegaPnL = getPnLSeries(definition, specification, timeSeriesBundle, vegaMatrix, now, schedule, samplingFunction);
     vegaPnL = vegaPnL.multiply(position.getQuantity().doubleValue());
-    final String currencyBase = getResultCurrency(target);
+    final String vegaResultCurrency = getResultCurrency(target);
+    final String currencyBase = FXUtils.baseCurrency(putCurrency, callCurrency).getCode();
+    if (!currencyBase.equals(vegaResultCurrency)) {
+      final Object spotFXObject = inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
+      if (spotFXObject == null) {
+        throw new OpenGammaRuntimeException("Could not get spot FX time series");
+      }
+      final DoubleTimeSeries<?> spotFX = ((HistoricalTimeSeries) spotFXObject).getTimeSeries();
+      vegaPnL = vegaPnL.multiply(spotFX);
+    }
     final ValueProperties properties = getResultProperties(desiredValue, currencyBase);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, vegaPnL));
@@ -133,7 +144,7 @@ public class FXOptionBlackVegaPnLFunction extends AbstractFunction.NonCompiledIn
     final FinancialSecurity security = (FinancialSecurity) target.getPosition().getSecurity();
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
-    final Currency currencyBase = FXUtils.baseCurrency(putCurrency, callCurrency); // The base currency
+    final String currencyBase = FXUtils.baseCurrency(putCurrency, callCurrency).getCode(); // The base currency
     final ValueProperties properties = createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
         .withAny(FXOptionBlackFunction.PUT_CURVE)
@@ -144,13 +155,13 @@ public class FXOptionBlackVegaPnLFunction extends AbstractFunction.NonCompiledIn
         .withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
         .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
         .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
-        .with(ValuePropertyNames.CURRENCY, currencyBase.getCode())
+        .with(ValuePropertyNames.CURRENCY, currencyBase)
         .withAny(ValuePropertyNames.SAMPLING_PERIOD)
         .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
         .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
         .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.VEGA_QUOTE_MATRIX)
         .get();
-    return Sets.newHashSet(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties));
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties));
   }
 
   @Override
@@ -198,6 +209,8 @@ public class FXOptionBlackVegaPnLFunction extends AbstractFunction.NonCompiledIn
     final UnorderedCurrencyPair currencies = UnorderedCurrencyPair.of(putCurrency, callCurrency);
     final String surfaceName = Iterables.getOnlyElement(surfaceNames);
     final String samplingPeriod = Iterables.getOnlyElement(samplingPeriods);
+    final String vegaResultCurrency = getResultCurrency(target);
+    final String currencyBase = FXUtils.baseCurrency(putCurrency, callCurrency).getCode();
     final ValueRequirement vegaMatrixRequirement = new ValueRequirement(ValueRequirementNames.VEGA_QUOTE_MATRIX, security,
         ValueProperties.builder()
         .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
@@ -209,11 +222,29 @@ public class FXOptionBlackVegaPnLFunction extends AbstractFunction.NonCompiledIn
         .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, Iterables.getOnlyElement(interpolatorNames))
         .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, Iterables.getOnlyElement(leftExtrapolatorNames))
         .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, Iterables.getOnlyElement(rightExtrapolatorNames))
-        .with(ValuePropertyNames.CURRENCY, getResultCurrency(target)).get());
+        .with(ValuePropertyNames.CURRENCY, vegaResultCurrency).get());
     final ValueRequirement surfaceHTSRequirement = getVolatilitySurfaceHTSRequirement(currencies, surfaceName, samplingPeriod);
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     requirements.add(vegaMatrixRequirement);
     requirements.add(surfaceHTSRequirement);
+    if (!currencyBase.equals(vegaResultCurrency)) {
+      final ExternalIdBundle spotIdentifier;
+      if (security instanceof FXOptionSecurity) {
+        spotIdentifier = ExternalIdBundle.of(FXUtils.getSpotIdentifier((FXOptionSecurity) security));
+      } else if (security instanceof FXDigitalOptionSecurity) {
+        spotIdentifier = ExternalIdBundle.of(FXUtils.getSpotIdentifier((FXDigitalOptionSecurity) security));
+      } else {
+        throw new IllegalStateException(security.toString());
+      }
+      final HistoricalTimeSeriesResolutionResult timeSeries = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context).resolve(spotIdentifier, null, null, null,
+          MarketDataRequirementNames.MARKET_VALUE, null);
+      if (timeSeries == null) {
+        return null;
+      }
+      final ValueRequirement spotFXRequirement = HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries,
+          MarketDataRequirementNames.MARKET_VALUE, DateConstraint.VALUATION_TIME.minus(samplingPeriods.iterator().next()), true, DateConstraint.VALUATION_TIME, true);
+      requirements.add(spotFXRequirement);
+    }
     return requirements;
   }
 
@@ -278,7 +309,7 @@ public class FXOptionBlackVegaPnLFunction extends AbstractFunction.NonCompiledIn
           throw new OpenGammaRuntimeException("Could not get identifier / vol series for " + id);
         }
         final DoubleTimeSeries<?> volHistory = DIFFERENCE.evaluate(samplingFunction.getSampledTimeSeries(tsForTicker.getTimeSeries(), schedule));
-        final double vega = vegas[j][i] * 100;
+        final double vega = vegas[j][i] / 100;
         if (vegaPnL == null) {
           vegaPnL = volHistory.multiply(vega);
         } else {
