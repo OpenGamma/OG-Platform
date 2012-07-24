@@ -13,10 +13,10 @@ import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractSpringComponentFactory;
 
 /**
- * 
+ * Spring-based data server.
  */
-public class ExampleBloombergDataServerComponentFactory extends AbstractSpringComponentFactory {
-  
+public class ExampleBloombergSpringDataServerComponentFactory extends AbstractSpringComponentFactory {
+
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
     GenericApplicationContext appContext = createApplicationContext(repo);
