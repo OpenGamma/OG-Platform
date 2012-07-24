@@ -198,6 +198,7 @@ public class FixedIncomeConverterDataProvider {
           DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, false));
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public InstrumentDerivative convert(final FRASecurity security, final ForwardRateAgreementDefinition definition, final ZonedDateTime now, final String[] curveNames,
         final HistoricalTimeSeriesBundle timeSeries) {
@@ -256,6 +257,7 @@ public class FixedIncomeConverterDataProvider {
 
   private final Converter<CapFloorSecurity, AnnuityCapFloorCMSDefinition> _capFloorCMSSecurity = new Converter<CapFloorSecurity, AnnuityCapFloorCMSDefinition>() {
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public Set<ValueRequirement> getTimeSeriesRequirements(final CapFloorSecurity security, final String[] curveNames) {
       final ExternalId id = security.getUnderlyingId();
@@ -268,6 +270,7 @@ public class FixedIncomeConverterDataProvider {
       return Collections.singleton(requirement);
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public InstrumentDerivative convert(final CapFloorSecurity security, final AnnuityCapFloorCMSDefinition definition, final ZonedDateTime now, final String[] curveNames,
         final HistoricalTimeSeriesBundle timeSeries) {
@@ -343,6 +346,7 @@ public class FixedIncomeConverterDataProvider {
 
   private final Converter<SwapSecurity, SwapDefinition> _swapSecurity = new Converter<SwapSecurity, SwapDefinition>() {
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public Set<ValueRequirement> getTimeSeriesRequirements(final SwapSecurity security, final String[] curveNames) {
       Validate.notNull(security, "security");
@@ -363,7 +367,7 @@ public class FixedIncomeConverterDataProvider {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "synthetic-access" })
     public InstrumentDerivative convert(final SwapSecurity security, final SwapDefinition definition, final ZonedDateTime now, final String[] curveNames, final HistoricalTimeSeriesBundle timeSeries) {
       Validate.notNull(security, "security");
       final SwapLeg payLeg = security.getPayLeg();
@@ -418,6 +422,7 @@ public class FixedIncomeConverterDataProvider {
 
   private final Converter<CapFloorCMSSpreadSecurity, AnnuityCapFloorCMSSpreadDefinition> _capFloorCMSSpreadSecurity = new Converter<CapFloorCMSSpreadSecurity, AnnuityCapFloorCMSSpreadDefinition>() {
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public Set<ValueRequirement> getTimeSeriesRequirements(final CapFloorCMSSpreadSecurity security, final String[] curveNames) {
       final ExternalId longId = security.getLongId();
@@ -435,6 +440,7 @@ public class FixedIncomeConverterDataProvider {
       return ImmutableSet.of(indexLongTS, indexShortTS);
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public InstrumentDerivative convert(final CapFloorCMSSpreadSecurity security, final AnnuityCapFloorCMSSpreadDefinition definition, final ZonedDateTime now, final String[] curveNames,
         final HistoricalTimeSeriesBundle timeSeries) {
@@ -509,9 +515,8 @@ public class FixedIncomeConverterDataProvider {
   private ExternalIdBundle getIndexIdForSwap(final FloatingInterestRateLeg floatingLeg) {
     if (floatingLeg.getFloatingRateType().isIbor() || floatingLeg.getFloatingRateType().equals(FloatingRateType.OIS) || floatingLeg.getFloatingRateType().equals(FloatingRateType.CMS)) {
       return getIndexIdBundle(floatingLeg.getFloatingReferenceRateId());
-    } else {
-      return ExternalIdBundle.of(floatingLeg.getFloatingReferenceRateId());
     }
+    return ExternalIdBundle.of(floatingLeg.getFloatingReferenceRateId());
   }
 
   /**
