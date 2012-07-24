@@ -50,7 +50,7 @@ public class ConfigDBVolatilitySurfaceDefinitionSource implements VolatilitySurf
         final String firstCcy = substrings[1].substring(0, 3);
         final String secondCcy = substrings[1].substring(3, 6);
         final String reversedName = secondCcy + firstCcy;
-        return _configSource.getLatestByName(VolatilitySurfaceDefinition.class, reversedName + "_" + instrumentType);
+        return _configSource.getLatestByName(VolatilitySurfaceDefinition.class, substrings[0] + "_" + reversedName + "_" + instrumentType);
       }
     }
     return definition;
@@ -65,7 +65,7 @@ public class ConfigDBVolatilitySurfaceDefinitionSource implements VolatilitySurf
         final String firstCcy = substrings[1].substring(0, 3);
         final String secondCcy = substrings[1].substring(3, 6);
         final String reversedName = secondCcy + firstCcy;
-        return _configSource.getByName(VolatilitySurfaceDefinition.class, reversedName + "_" + instrumentType, version);
+        return _configSource.getByName(VolatilitySurfaceDefinition.class, substrings[0] + "_" + reversedName + "_" + instrumentType, version);
       }
     }
     return definition;
