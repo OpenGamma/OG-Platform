@@ -44,6 +44,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.aggregation.BottomPositionValues;
 import com.opengamma.financial.aggregation.SortedPositionValues;
 import com.opengamma.financial.aggregation.TopPositionValues;
+import com.opengamma.financial.analytics.DV01Function;
 import com.opengamma.financial.analytics.FilteringSummingFunction;
 import com.opengamma.financial.analytics.LastHistoricalValueFunction;
 import com.opengamma.financial.analytics.PositionScalingFunction;
@@ -455,6 +456,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   protected static void addCurrencyConversionFunctions(final List<FunctionConfiguration> functionConfigs) {
     addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.FAIR_VALUE);
     addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.PV01);
+    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.DV01);
     addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.PRESENT_VALUE);
     addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.DAILY_PNL);
     //TODO PRESENT_VALUE_CURVE_SENSITIVITY
@@ -728,6 +730,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addDataShiftingFunctions(functionConfigs);
     addDefaultPropertyFunctions(functionConfigs);
     addHistoricalDataFunctions(functionConfigs);
+    addPassthroughFunctions(functionConfigs);
+    
     functionConfigs.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "FUNDING"));
     functionConfigs.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "SECONDARY"));
 
@@ -1490,6 +1494,10 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(ExternallyProvidedSecurityMarkFunction.class));
     functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivitiesYieldCurveDV01Function.class));
     functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivitiesYieldCurveCS01Function.class));
+  }
+  
+  private static void addPassthroughFunctions(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(DV01Function.class));
   }
 
   //-------------------------------------------------------------------------
