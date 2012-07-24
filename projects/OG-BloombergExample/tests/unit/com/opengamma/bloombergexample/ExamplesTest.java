@@ -20,9 +20,8 @@ import com.opengamma.component.rest.RemoteComponentServer;
 /**
  * Test.
  */
-@Test
+@Test(groups = "integration")
 public class ExamplesTest {
-  
 
   private static final String CONFIG_RESOURCE_LOCATION = "classpath:fullstack/fullstack-bloombergexample-test.properties";
 
