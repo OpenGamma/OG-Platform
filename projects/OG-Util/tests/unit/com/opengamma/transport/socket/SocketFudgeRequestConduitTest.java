@@ -31,6 +31,7 @@ import com.opengamma.transport.FudgeRequestReceiver;
 @Test
 public class SocketFudgeRequestConduitTest {
 
+  @Test(invocationCount = 3, successPercentage = 25)
   public void simpleTest() throws Exception {
     CollectingFudgeMessageReceiver collectingReceiver = new CollectingFudgeMessageReceiver();
     FudgeRequestReceiver requestReceiver = new FudgeRequestReceiver() {
@@ -58,10 +59,10 @@ public class SocketFudgeRequestConduitTest {
     sender.sendRequest(msg, collectingReceiver);
     
     int nChecks = 0;
-    while(collectingReceiver.getMessages().size() < 2) {
+    while (collectingReceiver.getMessages().size() < 2) {
       Thread.sleep(100);
       nChecks++;
-      if(nChecks > 20) {
+      if (nChecks > 20) {
         fail("Didn't receive messages in 2 seconds");
       }
     }
@@ -87,6 +88,7 @@ public class SocketFudgeRequestConduitTest {
     requestDispatcher.stop();
   }
 
+  //-------------------------------------------------------------------------
   private void parallelSendTest(final ExecutorService executor, final AtomicInteger maxConcurrency) throws Exception {
     final CollectingFudgeMessageReceiver collectingReceiver = new CollectingFudgeMessageReceiver();
     FudgeRequestReceiver requestReceiver = new FudgeRequestReceiver() {
@@ -121,16 +123,18 @@ public class SocketFudgeRequestConduitTest {
         }
       }.start();
     }
-    assertNotNull(collectingReceiver.waitForMessage(2000));
-    assertNotNull(collectingReceiver.waitForMessage(2000));
+    assertNotNull("Message should be received in 4s timeout", collectingReceiver.waitForMessage(4000L));
+    assertNotNull("Message should be received in 4s timeout", collectingReceiver.waitForMessage(4000L));
   }
 
+  @Test(invocationCount = 3, successPercentage = 25)
   public void parallelSendTest_single() throws Exception {
     final AtomicInteger concurrencyMax = new AtomicInteger(0);
     parallelSendTest(null, concurrencyMax);
     assertEquals(1, concurrencyMax.get());
   }
 
+  @Test(invocationCount = 3, successPercentage = 25)
   public void parallelSendTest_multi() throws Exception {
     final AtomicInteger concurrencyMax = new AtomicInteger(0);
     parallelSendTest(Executors.newCachedThreadPool(), concurrencyMax);
