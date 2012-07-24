@@ -5,7 +5,6 @@
  */
 package com.opengamma.master.historicaltimeseries.impl;
 
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
@@ -19,10 +18,6 @@ import net.sf.ehcache.Element;
 
 import javax.time.calendar.LocalDate;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * A <code>HistoricalTimeSeriesResolver</code> that tries to find
@@ -94,46 +89,47 @@ public class EHCachingHistoricalTimeSeriesResolver implements HistoricalTimeSeri
     HistoricalTimeSeriesResolutionResult returnValue =
         _underlying.resolve(identifierBundle, identifierValidityDate, dataSource, dataProvider, dataField, resolutionKey);
 
-    ManageableHistoricalTimeSeriesInfo info = returnValue.getHistoricalTimeSeriesInfo();
+    if (returnValue != null) {
+      ManageableHistoricalTimeSeriesInfo info = returnValue.getHistoricalTimeSeriesInfo();
+      for (ExternalId id : info.getExternalIdBundle().toBundle()) {
 
-    for (ExternalId id : info.getExternalIdBundle().toBundle()) {
+        String key =
+            id.toString() + SEPARATOR +
+            dataField + SEPARATOR +
+            info.getDataSource() + SEPARATOR +
+            info.getDataProvider() + SEPARATOR +
+            resolutionKey + SEPARATOR +
+            (identifierValidityDate != null ? identifierValidityDate.toString() : "");
+        _cache.put(new Element(key, returnValue));
 
-      String key =
-          id.toString() + SEPARATOR +
-          dataField + SEPARATOR +
-          info.getDataSource() + SEPARATOR +
-          info.getDataProvider() + SEPARATOR +
-          resolutionKey + SEPARATOR +
-          (identifierValidityDate != null ? identifierValidityDate.toString() : "");
-      _cache.put(new Element(key, returnValue));
+        key =
+            id.toString() + SEPARATOR +
+            dataField + SEPARATOR +
+            SEPARATOR +
+            info.getDataProvider() + SEPARATOR +
+            resolutionKey + SEPARATOR +
+            (identifierValidityDate != null ? identifierValidityDate.toString() : "");
+        _cache.put(new Element(key, returnValue));
 
-      key =
-          id.toString() + SEPARATOR +
-          dataField + SEPARATOR +
-          SEPARATOR +
-          info.getDataProvider() + SEPARATOR +
-          resolutionKey + SEPARATOR +
-          (identifierValidityDate != null ? identifierValidityDate.toString() : "");
-      _cache.put(new Element(key, returnValue));
+        key =
+            id.toString() + SEPARATOR +
+            dataField + SEPARATOR +
+            info.getDataSource() + SEPARATOR +
+            SEPARATOR +
+            resolutionKey + SEPARATOR +
+            (identifierValidityDate != null ? identifierValidityDate.toString() : "");
+        _cache.put(new Element(key, returnValue));
 
-      key =
-          id.toString() + SEPARATOR +
-          dataField + SEPARATOR +
-          info.getDataSource() + SEPARATOR +
-          SEPARATOR +
-          resolutionKey + SEPARATOR +
-          (identifierValidityDate != null ? identifierValidityDate.toString() : "");
-      _cache.put(new Element(key, returnValue));
+        key =
+            id.toString() + SEPARATOR +
+            dataField + SEPARATOR +
+            SEPARATOR +
+            SEPARATOR +
+            resolutionKey + SEPARATOR +
+            (identifierValidityDate != null ? identifierValidityDate.toString() : "");
+        _cache.put(new Element(key, returnValue));
 
-      key =
-          id.toString() + SEPARATOR +
-          dataField + SEPARATOR +
-          SEPARATOR +
-          SEPARATOR +
-          resolutionKey + SEPARATOR +
-          (identifierValidityDate != null ? identifierValidityDate.toString() : "");
-      _cache.put(new Element(key, returnValue));
-
+      }
     }
 
     return returnValue;
