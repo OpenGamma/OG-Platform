@@ -17,9 +17,9 @@ import org.fudgemsg.FudgeMsg;
 import org.testng.annotations.Test;
 
 /**
- * Tests the {@link @AbstractFireHoseLiveData} class.
+ * Test.
  */
-@Test
+@Test(groups = "unit")
 public class VirtualFireHoseLiveDataTest {
 
   private static class Impl extends AbstractFireHoseLiveData {
@@ -36,11 +36,9 @@ public class VirtualFireHoseLiveDataTest {
     public boolean isStarted() {
       return false;
     }
-
   }
 
   private static class ValueUpdateListener implements FireHoseLiveData.ValueUpdateListener {
-
     private String _uniqueId;
 
     @Override
@@ -51,11 +49,9 @@ public class VirtualFireHoseLiveDataTest {
     public String getUniqueId() {
       return _uniqueId;
     }
-
   }
 
   private static class DataStateListener implements FireHoseLiveData.DataStateListener {
-
     private boolean _refreshed;
 
     @Override
@@ -66,7 +62,6 @@ public class VirtualFireHoseLiveDataTest {
     public boolean isRefreshed() {
       return _refreshed;
     }
-
   }
 
   public void testBasicOperation() {

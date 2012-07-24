@@ -20,8 +20,9 @@ import com.opengamma.livedata.server.Subscription;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = "unit")
 public class MarketDataDistributorTest {
   
   public static MarketDataDistributor getTestDistributor(MarketDataSenderFactory factory) {
@@ -35,13 +36,13 @@ public class MarketDataDistributorTest {
         false,
         lkvStoreProvider);
   }
-  
-  public static MarketDataDistributor getTestDistributor() {
+
+  static MarketDataDistributor getTestDistributor() {
     return getTestDistributor(new EmptyMarketDataSenderFactory());
   }
-  
-  @Test
-  public void sequenceNumber() {
+
+  //-------------------------------------------------------------------------
+  public void testSequenceNumber() {
     MarketDataDistributor mdd = getTestDistributor();
     assertEquals(LiveDataValueUpdate.SEQUENCE_START, mdd.getNumMessagesSent());
     mdd.updateFieldHistory(FudgeContext.EMPTY_MESSAGE);
@@ -54,5 +55,5 @@ public class MarketDataDistributorTest {
     mdd.distributeLiveData(FudgeContext.EMPTY_MESSAGE); // empty msg not sent
     assertEquals(1, mdd.getNumMessagesSent());
   }
-  
+
 }

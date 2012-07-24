@@ -31,23 +31,25 @@ import com.opengamma.transport.CollectingByteArrayMessageSender;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- *
+ * Test.
  */
+@Test(groups = "unit")
 public class HeartbeatSenderTest {
+
   private Timer _timer = null;
 
   @BeforeMethod
   public void startTimer() {
     _timer = new Timer("HeartbeatSenderTest Timer");
   }
-  
+
   @AfterMethod
   public void shutdownTimer() {
     _timer.cancel();
     _timer = null;
   }
-  
-  @Test
+
+  //-------------------------------------------------------------------------
   public void basicOperation() throws InterruptedException, IOException {
     CollectingByteArrayMessageSender messageSender = new CollectingByteArrayMessageSender();
     ValueDistributor valueDistributor = new ValueDistributor();
@@ -62,9 +64,9 @@ public class HeartbeatSenderTest {
     valueDistributor.addListener(spec2, listener1);
     
     @SuppressWarnings("unused")
-    HeartbeatSender heartbeatSender = new HeartbeatSender(messageSender, valueDistributor, OpenGammaFudgeContext.getInstance(), _timer, 100l);
+    HeartbeatSender heartbeatSender = new HeartbeatSender(messageSender, valueDistributor, OpenGammaFudgeContext.getInstance(), _timer, 100L);
     // Wait 250ms to make sure we get two ticks.
-    Thread.sleep(250l);
+    Thread.sleep(250L);
     
     List<byte[]> messages = messageSender.getMessages();
     assertTrue(messages.size() >= 2);

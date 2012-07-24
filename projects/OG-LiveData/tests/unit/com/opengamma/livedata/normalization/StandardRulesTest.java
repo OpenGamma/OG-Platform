@@ -15,12 +15,12 @@ import com.opengamma.livedata.server.FieldHistoryStore;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = "unit")
 public class StandardRulesTest {
-  
-  private FieldHistoryStore _store = new FieldHistoryStore();
-  
+
+
   @Test
   public void noNormalization() {
     NormalizationRuleSet ruleSet = StandardRules.getNoNormalization();
@@ -30,8 +30,9 @@ public class StandardRulesTest {
     msg.add("Bar", 2.0);
     msg.add("Baz", 500);
     
-    FudgeMsg normalizedMsg = ruleSet.getNormalizedMessage(msg, "123", _store);
+    FieldHistoryStore store = new FieldHistoryStore();
+    FudgeMsg normalizedMsg = ruleSet.getNormalizedMessage(msg, "123", store);
     assertEquals(msg, normalizedMsg);
   }
-  
+
 }

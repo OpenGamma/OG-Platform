@@ -15,8 +15,9 @@ import com.opengamma.livedata.server.FieldHistoryStore;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = "unit")
 public class NormalizationRuleSetTest {
 
   /**
@@ -24,7 +25,6 @@ public class NormalizationRuleSetTest {
    * Testing to make sure that the break condition happens, and that
    * no NPEs happen.
    */
-  @Test
   public void filterRemovingMessageEntirely() {
     NormalizationRuleSet ruleSet = new NormalizationRuleSet(
         "Testing",
@@ -38,4 +38,5 @@ public class NormalizationRuleSetTest {
     FudgeMsg normalizedMsg = ruleSet.getNormalizedMessage(msg, "123", new FieldHistoryStore());
     assertNull(normalizedMsg);
   }
+
 }

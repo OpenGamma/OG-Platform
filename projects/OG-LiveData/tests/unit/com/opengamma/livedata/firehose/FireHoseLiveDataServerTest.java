@@ -33,9 +33,9 @@ import com.opengamma.livedata.server.distribution.MarketDataSenderFactory;
 import com.opengamma.util.test.Timeout;
 
 /**
- * Tests the {@link @FireHoseLiveDataServer} class.
+ * Test.
  */
-@Test
+@Test(groups = {"unit", "slow"})
 public class FireHoseLiveDataServerTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(FireHoseLiveDataServerTest.class);
@@ -54,7 +54,6 @@ public class FireHoseLiveDataServerTest {
     public boolean isStarted() {
       return false;
     }
-
   }
 
   public void testBasicSnapshotOperation() {
