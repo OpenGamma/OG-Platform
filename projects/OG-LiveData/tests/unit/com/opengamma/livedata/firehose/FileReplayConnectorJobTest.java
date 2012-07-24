@@ -17,11 +17,11 @@ import java.util.Queue;
 import org.testng.annotations.Test;
 
 /**
- * Tests the {@link FileReplayConnectorJob} class.
+ * Test.
  */
-@Test
+@Test(groups = {"unit", "slow"})
 public class FileReplayConnectorJobTest {
-  
+
   public void testFileReplay() {
     new AbstractTest.FileReplayConnectorJobTest<Integer>() {
 
@@ -67,5 +67,5 @@ public class FileReplayConnectorJobTest {
 
     }.run();
   }
-  
+
 }

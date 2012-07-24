@@ -29,9 +29,10 @@ import com.opengamma.util.test.ActiveMQTestUtils;
 /**
  * 
  */
-@Test // PL 24.6.2010: Putting on ignore as it's failing intermittently on Bamboo and I can't figure out why
+@Test(groups = "integration")
+// PL 24.6.2010: Putting on ignore as it's failing intermittently on Bamboo and I can't figure out why
 public class JmsSenderTest {
-  
+
   private CollectingByteArrayMessageReceiver _collectingReceiver;
   private DefaultMessageListenerContainer _container;
   private MarketDataDistributor _mdd;
@@ -73,7 +74,7 @@ public class JmsSenderTest {
     assertTrue(_container.isRunning());
     assertEquals(1, _container.getActiveConsumerCount());
   }
-  
+
   @Test(timeOut=30000, enabled = false)
   public void simpleScenario() throws Exception {
     ensureStarted();
@@ -99,7 +100,7 @@ public class JmsSenderTest {
       assertEquals(msg, update.getFields());
     }
   }
-  
+
   @Test(timeOut=30000, enabled = false)
   public void reconnectionScenario() throws Exception {
     ensureStarted();

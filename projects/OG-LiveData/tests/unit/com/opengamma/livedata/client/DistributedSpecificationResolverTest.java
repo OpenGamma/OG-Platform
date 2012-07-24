@@ -18,15 +18,14 @@ import com.opengamma.transport.FudgeRequestDispatcher;
 import com.opengamma.transport.InMemoryByteArrayRequestConduit;
 
 /**
- * Test DistributedSpecificationResolver.
+ * Test.
  */
+@Test(groups = "unit")
 public class DistributedSpecificationResolverTest {
 
-  @Test
   public void testRequestResponse() {
-    
     IdentityIdResolver delegate = new IdentityIdResolver();
-    IdResolverServer server = new IdResolverServer(delegate); 
+    IdResolverServer server = new IdResolverServer(delegate);
     
     FudgeRequestDispatcher fudgeRequestDispatcher = new FudgeRequestDispatcher(server);
     InMemoryByteArrayRequestConduit inMemoryByteArrayRequestConduit = new InMemoryByteArrayRequestConduit(fudgeRequestDispatcher);

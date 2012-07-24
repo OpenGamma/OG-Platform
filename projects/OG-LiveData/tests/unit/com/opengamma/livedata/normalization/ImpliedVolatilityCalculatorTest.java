@@ -15,13 +15,13 @@ import com.opengamma.livedata.server.FieldHistoryStore;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = "unit")
 public class ImpliedVolatilityCalculatorTest {
-  
+
   ImpliedVolatilityCalculator _calculator = new ImpliedVolatilityCalculator();
-  
-  @Test
+
   public void best() {
     MutableFudgeMsg msg = OpenGammaFudgeContext.getInstance().newMessage();
     msg.add(MarketDataRequirementNames.BEST_IMPLIED_VOLATILITY, 50.80);
@@ -34,8 +34,7 @@ public class ImpliedVolatilityCalculatorTest {
     assertEquals(3, normalized.getAllFields().size());
     assertEquals(50.80, normalized.getDouble(MarketDataRequirementNames.IMPLIED_VOLATILITY), 0.0001);
   }
-  
-  @Test
+
   public void mid() {
     MutableFudgeMsg msg = OpenGammaFudgeContext.getInstance().newMessage();
     msg.add(MarketDataRequirementNames.MID_IMPLIED_VOLATILITY, 50.80);
@@ -48,8 +47,7 @@ public class ImpliedVolatilityCalculatorTest {
     assertEquals(3, normalized.getAllFields().size());
     assertEquals(50.80, normalized.getDouble(MarketDataRequirementNames.IMPLIED_VOLATILITY), 0.0001);
   }
-  
-  @Test
+
   public void last() {
     MutableFudgeMsg msg = OpenGammaFudgeContext.getInstance().newMessage();
     msg.add(MarketDataRequirementNames.LAST_IMPLIED_VOLATILITY, 50.80);
@@ -63,8 +61,7 @@ public class ImpliedVolatilityCalculatorTest {
     assertEquals(4, normalized.getAllFields().size());
     assertEquals(50.80, normalized.getDouble(MarketDataRequirementNames.IMPLIED_VOLATILITY), 0.0001);
   }
-  
-  @Test
+
   public void bidAsk() {
     MutableFudgeMsg msg = OpenGammaFudgeContext.getInstance().newMessage();
     msg.add(MarketDataRequirementNames.BID_IMPLIED_VOLATILITY, 50.81);
@@ -77,8 +74,7 @@ public class ImpliedVolatilityCalculatorTest {
     assertEquals(3, normalized.getAllFields().size());
     assertEquals(50.815, normalized.getDouble(MarketDataRequirementNames.IMPLIED_VOLATILITY), 0.0001);
   }
-  
-  @Test
+
   public void history() {
     MutableFudgeMsg msg = OpenGammaFudgeContext.getInstance().newMessage();
     msg.add(MarketDataRequirementNames.IMPLIED_VOLATILITY, 50.80);

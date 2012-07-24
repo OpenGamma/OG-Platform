@@ -23,12 +23,13 @@ import com.opengamma.livedata.test.CollectingLiveDataListener;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = "unit")
 public class ValueDistributorTest {
+
   private final FudgeContext _fudgeContext = OpenGammaFudgeContext.getInstance();
-  
-  @Test
+
   public void activeSpecificationsOneSpec() {
     ValueDistributor distributor = new ValueDistributor();
     Set<LiveDataSpecification> activeSpecs = null;
@@ -42,7 +43,7 @@ public class ValueDistributorTest {
     assertNotNull(activeSpecs);
     assertEquals(1, activeSpecs.size());
     assertTrue(activeSpecs.contains(spec));
-
+    
     distributor.addListener(spec, listener2);
     activeSpecs = distributor.getActiveSpecifications();
     assertNotNull(activeSpecs);
@@ -54,14 +55,13 @@ public class ValueDistributorTest {
     assertNotNull(activeSpecs);
     assertEquals(1, activeSpecs.size());
     assertTrue(activeSpecs.contains(spec));
-
+    
     distributor.removeListener(spec, listener2);
     activeSpecs = distributor.getActiveSpecifications();
     assertNotNull(activeSpecs);
     assertTrue(activeSpecs.isEmpty());
   }
 
-  @Test
   public void activeSpecificationsTwoSpecs() {
     ValueDistributor distributor = new ValueDistributor();
     Set<LiveDataSpecification> activeSpecs = null;
@@ -75,7 +75,7 @@ public class ValueDistributorTest {
     assertNotNull(activeSpecs);
     assertEquals(1, activeSpecs.size());
     assertTrue(activeSpecs.contains(spec1));
-
+    
     distributor.addListener(spec2, listener1);
     activeSpecs = distributor.getActiveSpecifications();
     assertNotNull(activeSpecs);
@@ -83,8 +83,7 @@ public class ValueDistributorTest {
     assertTrue(activeSpecs.contains(spec1));
     assertTrue(activeSpecs.contains(spec2));
   }
-  
-  @Test
+
   public void simpleDistribution() {
     ValueDistributor distributor = new ValueDistributor();
     CollectingLiveDataListener listener1 = new CollectingLiveDataListener();

@@ -21,11 +21,11 @@ import com.opengamma.transport.DirectInvocationByteArrayMessageSender;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- * Test ExpirationManager.
+ * Test.
  */
+@Test(groups = "integration")
 public class ExpirationManagerTest {
-  
-  @Test
+
   public void expirationWithHeartbeatSendingClient() throws InterruptedException {
     ExternalScheme identificationDomain = ExternalScheme.of("BbgId");
     
@@ -64,8 +64,7 @@ public class ExpirationManagerTest {
     assertEquals(subscription.getIdentifier(identificationDomain), dataServer.getActualSubscriptions().get(0));
     assertEquals(subscription.getIdentifier(identificationDomain), dataServer.getActualUnsubscriptions().get(0));
   }
-  
-  @Test
+
   public void expirationWithClientThatDoesNotSendHeartbeats() throws InterruptedException {
     ExternalScheme identificationDomain = ExternalScheme.of("BbgId");
     

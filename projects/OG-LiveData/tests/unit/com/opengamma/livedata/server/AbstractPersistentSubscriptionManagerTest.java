@@ -23,8 +23,7 @@ public class AbstractPersistentSubscriptionManagerTest {
   private final String _normalizationRulesetId = StandardRules.getNoNormalization().getId();
   
   @Test
-  public void testNormalStartup() throws InterruptedException
-  {
+  public void testNormalStartup() throws InterruptedException {
     MockLiveDataServer server = new MockLiveDataServer(_scheme);
     TestPersistentSubscriptionManager subManager = new TestPersistentSubscriptionManager(server);
     String ticker = "X";
@@ -38,8 +37,7 @@ public class AbstractPersistentSubscriptionManagerTest {
   }
 
   @Test
-  public void testLateRefresh() throws InterruptedException
-  {
+  public void testLateRefresh() throws InterruptedException {
     MockLiveDataServer server = new MockLiveDataServer(_scheme);
     TestPersistentSubscriptionManager subManager = new TestPersistentSubscriptionManager(server);
     String ticker = "X";
@@ -49,7 +47,6 @@ public class AbstractPersistentSubscriptionManagerTest {
     subManager.start();
     Thread.sleep(1000);
     assertEquals(new HashSet<String>(), server.getActiveSubscriptionIds());
-    
     
     server.subscribe(ticker);
     
@@ -73,8 +70,7 @@ public class AbstractPersistentSubscriptionManagerTest {
     return new LiveDataSpecification(_normalizationRulesetId, ExternalId.of(_scheme, ticker));
   }
   
-  private class TestPersistentSubscriptionManager extends AbstractPersistentSubscriptionManager
-  {
+  class TestPersistentSubscriptionManager extends AbstractPersistentSubscriptionManager  {
 
     public TestPersistentSubscriptionManager(AbstractLiveDataServer server) {
       super(server);
@@ -103,6 +99,6 @@ public class AbstractPersistentSubscriptionManagerTest {
     public Queue<Set<PersistentSubscription>> getPendingWrites() {
       return _pendingWrites;
     }
-    
   }
+
 }
