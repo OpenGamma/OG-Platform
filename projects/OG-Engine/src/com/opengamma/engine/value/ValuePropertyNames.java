@@ -218,6 +218,11 @@ public final class ValuePropertyNames {
    */
   public static final String BINARY_SMOOTHING_FULLWIDTH = "BinarySmoothingFullWidth";
 
+  /**
+   * The amount to shift DV01 by in basis points
+   */
+  public static final String SHIFT = "Shift";
+
 
 
 }
