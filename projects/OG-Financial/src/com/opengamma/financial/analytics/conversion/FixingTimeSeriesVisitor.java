@@ -61,10 +61,10 @@ public class FixingTimeSeriesVisitor extends FinancialSecurityVisitorAdapter<Val
     }
     final FloatingInterestRateLeg floatingLeg = (FloatingInterestRateLeg) (security.getPayLeg() instanceof FixedInterestRateLeg ? security.getReceiveLeg() : security.getPayLeg());
     final ZonedDateTime swapStartDate = security.getEffectiveDate();
-    return getIndexTimeSeries(type, floatingLeg, swapStartDate, _now, true, _resolver);
+    return getIndexTimeSeries(floatingLeg, swapStartDate, _now, true, _resolver);
   }
 
-  private ValueRequirement getIndexTimeSeries(final InterestRateInstrumentType type, final FloatingInterestRateLeg leg, final ZonedDateTime swapEffectiveDate, final DateConstraint now,
+  private ValueRequirement getIndexTimeSeries(final FloatingInterestRateLeg leg, final ZonedDateTime swapEffectiveDate, final DateConstraint now,
       final boolean includeEndDate, final HistoricalTimeSeriesResolver resolver) {
     final FloatingInterestRateLeg floatingLeg = leg;
     final ExternalIdBundle id = getIndexIdForSwap(floatingLeg);
@@ -86,9 +86,8 @@ public class FixingTimeSeriesVisitor extends FinancialSecurityVisitorAdapter<Val
   private ExternalIdBundle getIndexIdForSwap(final FloatingInterestRateLeg floatingLeg) {
     if (floatingLeg.getFloatingRateType().isIbor() || floatingLeg.getFloatingRateType().equals(FloatingRateType.OIS) || floatingLeg.getFloatingRateType().equals(FloatingRateType.CMS)) {
       return getIndexIdBundle(floatingLeg.getFloatingReferenceRateId());
-    } else {
-      return ExternalIdBundle.of(floatingLeg.getFloatingReferenceRateId());
     }
+    return ExternalIdBundle.of(floatingLeg.getFloatingReferenceRateId());
   }
 
   private ExternalIdBundle getIndexIdBundle(final ExternalId indexId) {
