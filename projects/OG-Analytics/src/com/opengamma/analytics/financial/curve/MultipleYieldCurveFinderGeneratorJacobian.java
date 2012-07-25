@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.curve;
+package com.opengamma.analytics.financial.curve;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
@@ -17,9 +17,20 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
  */
 public class MultipleYieldCurveFinderGeneratorJacobian extends Function1D<DoubleMatrix1D, DoubleMatrix2D> {
 
+  /**
+   * The instrument parameter sensitivity calculator.
+   */
   private final AbstractParameterSensitivityCalculator _parameterSensitivityCalculator;
+  /**
+   * The data required for curve building.
+   */
   private final MultipleYieldCurveFinderGeneratorDataBundle _data;
 
+  /**
+   * Constructor.
+   * @param parameterSensitivityCalculator The instrument parameter sensitivity calculator.
+   * @param data The data required for curve building.
+   */
   public MultipleYieldCurveFinderGeneratorJacobian(final AbstractParameterSensitivityCalculator parameterSensitivityCalculator, MultipleYieldCurveFinderGeneratorDataBundle data) {
     _parameterSensitivityCalculator = parameterSensitivityCalculator;
     _data = data;
@@ -32,9 +43,9 @@ public class MultipleYieldCurveFinderGeneratorJacobian extends Function1D<Double
     bundle.addAll(newCurves);
     final int nbParameters = _data.getNumberOfInstruments();
     final double[][] res = new double[nbParameters][nbParameters];
-    for (int i = 0; i < _data.getNumberOfInstruments(); i++) { // loop over all instruments
-      InstrumentDerivative deriv = _data.getInstrument(i);
-      res[i] = _parameterSensitivityCalculator.calculateSensitivity(deriv, _data.getKnownData().getAllNames(), bundle).getData();
+    for (int loopinstrument = 0; loopinstrument < _data.getNumberOfInstruments(); loopinstrument++) {
+      InstrumentDerivative deriv = _data.getInstrument(loopinstrument);
+      res[loopinstrument] = _parameterSensitivityCalculator.calculateSensitivity(deriv, _data.getKnownData().getAllNames(), bundle).getData();
     }
     return new DoubleMatrix2D(res);
   }

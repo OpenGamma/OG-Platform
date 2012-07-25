@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.curve;
+package com.opengamma.analytics.financial.curve;
 
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -15,7 +15,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Store the details and generate the required curve. The curve is interpolated on the rate (continuously compounded).
  */
-public class GeneratorCurveYieldInterpolated implements GeneratorCurve {
+public class GeneratorCurveYieldInterpolatedNode extends GeneratorCurve {
 
   /**
    * The nodes (times) on which the interpolated curves is constructed.
@@ -35,7 +35,7 @@ public class GeneratorCurveYieldInterpolated implements GeneratorCurve {
    * @param nodePoints The node points (X) used to define the interpolated curve. 
    * @param interpolator The interpolator.
    */
-  public GeneratorCurveYieldInterpolated(double[] nodePoints, Interpolator1D interpolator) {
+  public GeneratorCurveYieldInterpolatedNode(double[] nodePoints, Interpolator1D interpolator) {
     ArgumentChecker.notNull(nodePoints, "Node points");
     ArgumentChecker.notNull(interpolator, "Interpolator");
     _nodePoints = nodePoints;

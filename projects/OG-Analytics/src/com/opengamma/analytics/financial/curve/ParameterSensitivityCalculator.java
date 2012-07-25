@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.curve;
+package com.opengamma.analytics.financial.curve;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,10 +42,10 @@ public class ParameterSensitivityCalculator extends AbstractParameterSensitivity
   @Override
   public DoubleMatrix1D pointToParameterSensitivity(final InterestRateCurveSensitivity sensitivity, final Set<String> fixedCurves, final YieldCurveBundle bundle) {
     final List<Double> result = new ArrayList<Double>();
-    for (final String name : bundle.getAllNames()) { // loop over all curves (by name)
-      if (!fixedCurves.contains(name)) {
-        final YieldAndDiscountCurve curve = bundle.getCurve(name);
-        List<Double> oneCurveSensitivity = pointToParameterSensitivity(sensitivity.getSensitivities().get(name), curve);
+    for (final String curveName : bundle.getAllNames()) {
+      if (!fixedCurves.contains(curveName)) {
+        final YieldAndDiscountCurve curve = bundle.getCurve(curveName);
+        List<Double> oneCurveSensitivity = pointToParameterSensitivity(sensitivity.getSensitivities().get(curveName), curve);
         result.addAll(oneCurveSensitivity);
       }
     }

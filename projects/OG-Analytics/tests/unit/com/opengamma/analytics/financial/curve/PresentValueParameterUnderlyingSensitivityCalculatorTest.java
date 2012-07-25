@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.curve;
+package com.opengamma.analytics.financial.curve;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
@@ -12,6 +12,8 @@ import java.util.HashSet;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.curve.ParameterSensitivityCalculator;
+import com.opengamma.analytics.financial.curve.ParameterUnderlyingSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityIRSCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueNodeSensitivityCalculator;
