@@ -9,6 +9,7 @@ import com.opengamma.masterdb.security.hibernate.bond.*;
 import com.opengamma.masterdb.security.hibernate.capfloor.CapFloorCMSSpreadSecurityBean;
 import com.opengamma.masterdb.security.hibernate.capfloor.CapFloorSecurityBean;
 import com.opengamma.masterdb.security.hibernate.cash.CashSecurityBean;
+import com.opengamma.masterdb.security.hibernate.cds.CDSSecurityBean;
 import com.opengamma.masterdb.security.hibernate.equity.EquitySecurityBean;
 import com.opengamma.masterdb.security.hibernate.equity.EquityVarianceSwapSecurityBean;
 import com.opengamma.masterdb.security.hibernate.equity.GICSCodeBean;
@@ -76,6 +77,8 @@ public final class HibernateSecurityMasterFiles implements HibernateMappingFiles
       NonDeliverableFXForwardSecurityBean.class,
       CapFloorSecurityBean.class,
       CapFloorCMSSpreadSecurityBean.class,
+      
+      CDSSecurityBean.class
     };
   }
 

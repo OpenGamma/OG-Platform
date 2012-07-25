@@ -17,6 +17,7 @@ import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.cds.CDSSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
@@ -276,6 +277,11 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
         @Override
         public String visitMetalForwardSecurity(MetalForwardSecurity security) {
           return null;  //TODO implement me !
+        }
+        
+        @Override
+        public String visitCDSSecurity(CDSSecurity security) {
+          return null; //TODO Should be possible to see direction of CDS trade? quantity < 0?
         }
       };
       if (position.getSecurity() instanceof FinancialSecurity) {

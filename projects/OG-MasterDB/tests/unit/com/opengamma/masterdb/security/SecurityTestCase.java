@@ -54,6 +54,7 @@ import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.cds.CDSSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.equity.GICSCode;
@@ -894,5 +895,11 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
   @Test
   public void testContinuousZeroDepositSecurity() {
     return;
+  }
+  
+  @Override
+  @Test
+  public void testCDSSecurity() {
+    assertSecurities(CDSSecurity.class);
   }
 }
