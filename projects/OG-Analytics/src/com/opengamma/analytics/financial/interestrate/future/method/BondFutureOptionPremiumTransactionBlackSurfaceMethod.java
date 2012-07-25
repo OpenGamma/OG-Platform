@@ -72,6 +72,8 @@ public final class BondFutureOptionPremiumTransactionBlackSurfaceMethod {
    * @return The present value curve sensitivity.
    */
   public double presentValueGamma(final BondFutureOptionPremiumTransaction transaction, final YieldCurveWithBlackCubeBundle blackData) {
+    ArgumentChecker.notNull(transaction, "transaction");
+    ArgumentChecker.notNull(blackData, "Black data");
     final double securityGamma = METHOD.optionPriceGamma(transaction.getUnderlyingOption(), blackData);
     final double txnGamma = securityGamma * transaction.getQuantity() * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional();
     return txnGamma;
