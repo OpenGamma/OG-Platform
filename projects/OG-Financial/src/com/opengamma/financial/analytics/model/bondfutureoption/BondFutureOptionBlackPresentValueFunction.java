@@ -11,7 +11,9 @@ import java.util.Set;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.PresentValueBlackCalculator;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
+import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
@@ -26,7 +28,8 @@ public class BondFutureOptionBlackPresentValueFunction extends BondFutureOptionB
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative bondFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec) {
+  protected Set<ComputedValue> getResult(final InstrumentDerivative bondFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec,
+      final FunctionInputs inputs, final Set<ValueRequirement> desiredValue) {
     final double pv = s_calculator.visit(bondFutureOption, data);
     return Collections.singleton(new ComputedValue(spec, pv));
   }
