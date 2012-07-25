@@ -78,7 +78,7 @@ public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction
     final Object curveSensitivitiesObject = inputs.getValue(ValueRequirementNames.FX_CURVE_SENSITIVITIES);
     final String resultCurveConfigName;
     if (!(curveName.equals(putCurveName) || curveName.equals(callCurveName))) {
-      s_logger.error("Curve name {} did not match either put curve name {} or call curve name {}", new Object[] {curveName, putCurveName, callCurveName});
+      s_logger.error("Curve name {} did not match either put curve name {} or call curve name {}", new Object[] {curveName, putCurveName, callCurveName });
       return null;
     }
     final String putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor()).getCode();
@@ -102,7 +102,7 @@ public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction
     final InterpolatedYieldCurveSpecificationWithSecurities curveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) curveSpecObject;
     final MultipleCurrencyInterestRateCurveSensitivity curveSensitivities = (MultipleCurrencyInterestRateCurveSensitivity) curveSensitivitiesObject;
     final Map<String, List<DoublesPair>> sensitivitiesForCurrency = curveSensitivities.getSensitivity(Currency.of(resultCurrency)).getSensitivities();
-    return getResult(inputs, resultCurveConfigName, calculationMethod, fullCurveName, data, curveSpec, sensitivitiesForCurrency, spec);
+    return getResult(inputs, calculationMethod, fullCurveName, data, curveSpec, sensitivitiesForCurrency, spec);
   }
 
   @Override
@@ -167,7 +167,7 @@ public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction
     final ValueRequirement callFundingCurve = getCurveRequirement(callCurveName, callCurrency, callCurveCalculationConfigName);
     final String resultCurrency, resultCurveName, resultCurveConfigName;
     if (!(curveName.equals(putCurveName) || curveName.equals(callCurveName))) {
-      s_logger.error("Curve name {} did not match either put curve name {} or call curve name {}", new Object[] {curveName, putCurveName, callCurveName});
+      s_logger.error("Curve name {} did not match either put curve name {} or call curve name {}", new Object[] {curveName, putCurveName, callCurveName });
       return null;
     }
     if (currency.equals(putCurrency.getCode())) {
@@ -329,7 +329,7 @@ public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction
     return new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY, currency, properties);
   }
 
-  private static Set<ComputedValue> getResult(final FunctionInputs inputs, final String curveCalculationConfig, final String calculationMethod,
+  private static Set<ComputedValue> getResult(final FunctionInputs inputs, final String calculationMethod,
       final String fullCurveName, final YieldCurveBundle interpolatedCurves, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec,
       final Map<String, List<DoublesPair>> sensitivitiesForCurrency, final ValueSpecification spec) {
     final Object jacobianObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE_JACOBIAN);
