@@ -24,6 +24,8 @@ public class InstrumentTypeProperties {
   public static final String SWAPTION_ATM = "SWAPTION_ATM";
   /** Property representing a surface for equity options */
   public static final String EQUITY_OPTION = "EQUITY_OPTION";
+  /** Property representing a surface for bond future options */
+  public static final String BOND_FUTURE_OPTION = "BOND_FUTURE_OPTION";
 
   /**
    * Name of the cube type property. This allows cubes to be distinguished by instrument type.

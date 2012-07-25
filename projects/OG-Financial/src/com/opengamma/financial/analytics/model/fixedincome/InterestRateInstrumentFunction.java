@@ -340,12 +340,10 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
           resetFrequency = ((FloatingInterestRateLeg) swapSecurity.getReceiveLeg()).getFrequency();
         }
         return definitionConverter.getConversionTimeSeriesRequirements(security, definition, FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, curveNames, resetFrequency));
-      } else {
-        return definitionConverter.getConversionTimeSeriesRequirements(security, definition, FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, curveNames));
       }
-    } else {
       return definitionConverter.getConversionTimeSeriesRequirements(security, definition, FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, curveNames));
     }
+    return definitionConverter.getConversionTimeSeriesRequirements(security, definition, FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, curveNames));
   }
 
 }
