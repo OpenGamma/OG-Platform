@@ -88,14 +88,14 @@ public class FinancialSecurityUtils {
           return ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
         }
       }
-      break;
+        break;
       case PRIMITIVE: {
         final UniqueId uid = target.getUniqueId();
         if (uid.getScheme().equals(Currency.OBJECT_SCHEME)) {
           return ValueProperties.with(ValuePropertyNames.CURRENCY, uid.getValue()).get();
         }
       }
-      break;
+        break;
       case SECURITY: {
         final Security security = target.getSecurity();
         final Currency ccy = getCurrency(security);
@@ -103,7 +103,7 @@ public class FinancialSecurityUtils {
           return ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
         }
       }
-      break;
+        break;
       case TRADE: {
         final Security security = target.getTrade().getSecurity();
         final Currency ccy = getCurrency(security);
@@ -111,7 +111,7 @@ public class FinancialSecurityUtils {
           return ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
         }
       }
-      break;
+        break;
     }
     return ValueProperties.none();
   }
@@ -181,7 +181,6 @@ public class FinancialSecurityUtils {
           return security.getRegion();
         }
       });
-
 
       return regionId;
     }
@@ -372,8 +371,8 @@ public class FinancialSecurityUtils {
         }
 
         @Override
-        public Currency visitBondFutureOptionSecurity(BondFutureOptionSecurity security) {
-          return null;
+        public Currency visitBondFutureOptionSecurity(final BondFutureOptionSecurity security) {
+          return security.getCurrency();
         }
 
         @Override
@@ -636,7 +635,7 @@ public class FinancialSecurityUtils {
         }
 
         @Override
-        public Collection<Currency> visitBondFutureOptionSecurity(BondFutureOptionSecurity security) {
+        public Collection<Currency> visitBondFutureOptionSecurity(final BondFutureOptionSecurity security) {
           return null;
         }
 
@@ -805,12 +804,12 @@ public class FinancialSecurityUtils {
 
       final Boolean isExchangeTraded = finSec.accept(
           FinancialSecurityVisitorAdapter.<Boolean>builder().
-          sameValueForSecurityVisitor(false).
-          equitySecurityVisitor(true).
-          futureSecurityVisitor(true).
-          equityIndexOptionVisitor(true).
-          equityOptionVisitor(true).
-          equityBarrierOptionVisitor(true).create());
+              sameValueForSecurityVisitor(false).
+              equitySecurityVisitor(true).
+              futureSecurityVisitor(true).
+              equityIndexOptionVisitor(true).
+              equityOptionVisitor(true).
+              equityBarrierOptionVisitor(true).create());
 
       result = isExchangeTraded == null ? false : isExchangeTraded;
     }
