@@ -38,50 +38,58 @@ $.register_module({
             };
             var mousedown_observer = function (event) {
                 if (event.which === 3 || event.button === 2) return; else initialize(); // ignore right clicks
-                var $target, x = event.pageX - grid_offset.left + (event.pageX > fixed_width ?
+                var $target, is_overlay, x = event.pageX - grid_offset.left + (event.pageX > fixed_width ?
                         grid.elements.scroll_body.scrollLeft() : 0),
                     y = event.pageY - grid_offset.top + grid.elements.scroll_body.scrollTop() - grid.meta.header_height;
                 if (!(($target = $(event.target)).is(cell) ? $target : $target.parents(cell + ':first'))
-                    .length && !$target.is(overlay)) return; // if the cursor is not over a cell, bail
-                $(document).on('mouseup' + namespace, clean_up)
+                    .length && !(is_overlay = $target.is(overlay))) return; // if the cursor is not over a cell, bail
+                if (is_overlay)
+                    return $(grid.id + ' ' + overlay).remove(), (render.regions = null), (render.rectangle = null);
+                $(document)
+                    .on('mouseup' + namespace, clean_up)
                     .on('mousemove' + namespace, (function (x, y, handler) { // run it manually once and return it
                         return (handler = function (event) {mousemove({x: x, y: y}, event);})(event), handler;
                     })(x, y));
             };
-            var mousemove = function (start, event) {
-                event.preventDefault();
-                var scroll_left = grid.elements.scroll_body.scrollLeft(),
-                    scroll_top = grid.elements.scroll_body.scrollTop(),
-                    x = event.pageX - grid_offset.left + (event.pageX > fixed_width ? scroll_left : 0),
-                    y = event.pageY - grid_offset.top + scroll_top - grid.meta.header_height,
-                    regions = [], rectangle = {};
-                auto_scroll(event, scroll_top, scroll_left, start);
-                rectangle.top_left = nearest_cell(Math.min(start.x, x), Math.min(start.y, y));
-                rectangle.bottom_right = nearest_cell(Math.max(start.x, x), Math.max(start.y, y));
-                rectangle.width = rectangle.bottom_right.right - rectangle.top_left.left;
-                rectangle.height = rectangle.bottom_right.bottom - rectangle.top_left.top;
-                if (rectangle.top_left.left < fixed_width) regions.push({ // fixed overlay
-                    position: {top: rectangle.top_left.top, left: rectangle.top_left.left - 1},
-                    dimensions: {
-                        height: rectangle.height + 1,
-                        width: (rectangle.width + rectangle.top_left.left > fixed_width ?
-                            fixed_width - rectangle.top_left.left : rectangle.width) + 1
-                    },
-                    fixed: true
-                });
-                if (rectangle.bottom_right.right > fixed_width) regions.push({ // scroll overlay
-                    position: {
-                        top: rectangle.top_left.top,
-                        left: (regions[0] ? 0 : rectangle.top_left.left - fixed_width) - 1
-                    },
-                    dimensions: {
-                        height: rectangle.height + 1,
-                        width: (regions[0] ? rectangle.width - regions[0].dimensions.width : rectangle.width) + 1
-                    },
-                    fixed: false
-                });
-                render(regions, rectangle);
-            };
+            var mousemove = (function () {
+                var resolution = 4, counter = 0; // only accept 1/resolution of the mouse moves, we have too many
+                return function (start, event) {
+                    event.preventDefault();
+                    if (counter++ % resolution) return;
+                    if (counter > 8) counter = 1;
+                    var scroll_left = grid.elements.scroll_body.scrollLeft(),
+                        scroll_top = grid.elements.scroll_body.scrollTop(),
+                        x = event.pageX - grid_offset.left + (event.pageX > fixed_width ? scroll_left : 0),
+                        y = event.pageY - grid_offset.top + scroll_top - grid.meta.header_height,
+                        regions = [], rectangle = {};
+                    auto_scroll(event, scroll_top, scroll_left, start);
+                    rectangle.top_left = nearest_cell(Math.min(start.x, x), Math.min(start.y, y));
+                    rectangle.bottom_right = nearest_cell(Math.max(start.x, x), Math.max(start.y, y));
+                    rectangle.width = rectangle.bottom_right.right - rectangle.top_left.left;
+                    rectangle.height = rectangle.bottom_right.bottom - rectangle.top_left.top;
+                    if (rectangle.top_left.left < fixed_width) regions.push({ // fixed overlay
+                        position: {top: rectangle.top_left.top, left: rectangle.top_left.left - 1},
+                        dimensions: {
+                            height: rectangle.height + 1,
+                            width: (rectangle.width + rectangle.top_left.left > fixed_width ?
+                                fixed_width - rectangle.top_left.left : rectangle.width) + 1
+                        },
+                        fixed: true
+                    });
+                    if (rectangle.bottom_right.right > fixed_width) regions.push({ // scroll overlay
+                        position: {
+                            top: rectangle.top_left.top,
+                            left: (regions[0] ? 0 : rectangle.top_left.left - fixed_width) - 1
+                        },
+                        dimensions: {
+                            height: rectangle.height + 1,
+                            width: (regions[0] ? rectangle.width - regions[0].dimensions.width : rectangle.width) + 1
+                        },
+                        fixed: false
+                    });
+                    render(regions, rectangle);
+                }
+            })();
             var nearest_cell = function (x, y) {
                 var top, bottom, lcv, scan = grid.meta.columns.scan.all, len = scan.length;
                 for (lcv = 0; lcv < len; lcv += 1) if (scan[lcv] > x) break;

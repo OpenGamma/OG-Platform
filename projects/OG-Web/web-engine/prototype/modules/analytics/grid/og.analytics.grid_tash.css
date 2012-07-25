@@ -25,3 +25,4 @@
     {{prefix}} .OG-g .c{{index}} {left: {{left}}px; right: {{right}}px;}
 {{/each}}
 {{id}} .OG-g .sp {position: absolute; top: 3px; right: 2px;}
+{{id}} .OG-g .fsp {position: absolute; top: 3px; right: 2px;}

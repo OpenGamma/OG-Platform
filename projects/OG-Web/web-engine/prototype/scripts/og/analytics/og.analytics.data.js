@@ -14,8 +14,8 @@ $.register_module({
                 grid_type = config.type, depgraph = !!config.depgraph,
                 fixed_set = {portfolio: 'Portfolio', primitives: 'Primitives'};
             var data_handler = function (result) {
-                if (!events.data.length) return; // if a tree falls, etc.
                 if (result.error) return og.dev.warn(result.message);
+                if (!events.data.length || !result.data) return; // if a tree falls or there's no tree, etc.
                 fire('data', result.data);
             };
             var data_setup = function () {
@@ -51,9 +51,7 @@ $.register_module({
                 fire('meta', meta);
                 if (!subscribed) return data_setup();
             };
-            var grid_setup = function (result) {
-                return api[grid_type].grid.get({id: view_id, update: initialize});
-            };
+            var grid_setup = function (result) {return api[grid_type].grid.get({id: view_id, update: initialize});};
             var initialize = function () {
                 (view_id ? grid_setup() : api.put(config).pipe(view_handler)).pipe(grid_handler);
             };

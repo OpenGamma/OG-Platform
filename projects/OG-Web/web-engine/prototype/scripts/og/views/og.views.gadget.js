@@ -15,6 +15,7 @@ $.register_module({
                 // TODO this is a global ... remove it!
                 grid = new og.analytics.Grid({
                     selector: content,
+                    sparklines: false,
                     source: {
                         type: 'portfolio',
                         depgraph: false,
