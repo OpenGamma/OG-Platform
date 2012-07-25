@@ -40,7 +40,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionUtils;
+import com.opengamma.financial.analytics.model.irfutureoption.FutureOptionUtils;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBFuturePriceCurveDefinitionSource;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBFuturePriceCurveSpecificationSource;
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveDefinition;
@@ -170,7 +170,7 @@ public class FuturePriceCurveFunction extends AbstractFunction {
           if (inputs.getValue(requirement) != null) {
             futurePrice = (Double) inputs.getValue(requirement);
             if (futurePrice != null) {
-              final Double ttm = IRFutureOptionUtils.getFutureTtm(xNum.intValue(), valDate);
+              final Double ttm = FutureOptionUtils.getFutureTtm(xNum.intValue(), valDate);
               xList.add(ttm);
               prices.add(futurePrice);
             }

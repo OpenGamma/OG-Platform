@@ -58,7 +58,7 @@ public class CurrencyMatrixFudgeBuilder implements FudgeBuilder<CurrencyMatrix> 
 
   private static FudgeMsg mapToMessage(final FudgeMsgFactory factory, final Map<String, MutableFudgeMsg> map) {
     final MutableFudgeMsg msg = factory.newMessage();
-    for (Map.Entry<String, MutableFudgeMsg> entry : map.entrySet()) {
+    for (final Map.Entry<String, MutableFudgeMsg> entry : map.entrySet()) {
       msg.add(entry.getKey(), null, FudgeWireType.SUB_MESSAGE, entry.getValue());
     }
     return msg;
@@ -75,9 +75,9 @@ public class CurrencyMatrixFudgeBuilder implements FudgeBuilder<CurrencyMatrix> 
     final Map<String, MutableFudgeMsg> fixedValues = new HashMap<String, MutableFudgeMsg>();
     final Map<String, MutableFudgeMsg> crossValues = new HashMap<String, MutableFudgeMsg>();
     final Map<String, MutableFudgeMsg> reqValues = new HashMap<String, MutableFudgeMsg>();
-    for (Currency sourceCurrency : sourceCurrencies) {
+    for (final Currency sourceCurrency : sourceCurrencies) {
       final String sourceISO = sourceCurrency.getCode();
-      for (Currency targetCurrency : targetCurrencies) {
+      for (final Currency targetCurrency : targetCurrencies) {
         final String targetISO = targetCurrency.getCode();
         final int cmp = sourceISO.compareTo(targetISO);
         if (cmp == 0) {
@@ -98,9 +98,8 @@ public class CurrencyMatrixFudgeBuilder implements FudgeBuilder<CurrencyMatrix> 
             } else {
               if (inverse.getReciprocal().equals(value)) {
                 continue;
-              } else {
-                suppressInverse = true;
               }
+              suppressInverse = true;
             }
           }
         } else {
@@ -161,10 +160,10 @@ public class CurrencyMatrixFudgeBuilder implements FudgeBuilder<CurrencyMatrix> 
 
     private void loadFixed(final FudgeMsg message) {
       final Map<Pair<Currency, Currency>, CurrencyMatrixValue> values = new HashMap<Pair<Currency, Currency>, CurrencyMatrixValue>();
-      for (FudgeField field : message) {
+      for (final FudgeField field : message) {
         final Currency source = Currency.of(field.getName());
         final FudgeMsg message2 = message.getFieldValue(FudgeMsg.class, field);
-        for (FudgeField field2 : message2) {
+        for (final FudgeField field2 : message2) {
           final Currency target = Currency.of(field2.getName());
           if (field2.getValue() instanceof Double) {
             final CurrencyMatrixValue value = CurrencyMatrixValue.of((Double) field2.getValue());
@@ -174,7 +173,7 @@ public class CurrencyMatrixFudgeBuilder implements FudgeBuilder<CurrencyMatrix> 
             values.remove(Pair.of(target, source));
           }
         }
-        for (Map.Entry<Pair<Currency, Currency>, CurrencyMatrixValue> valueEntry : values.entrySet()) {
+        for (final Map.Entry<Pair<Currency, Currency>, CurrencyMatrixValue> valueEntry : values.entrySet()) {
           addConversion(valueEntry.getKey().getFirst(), valueEntry.getKey().getSecond(), valueEntry.getValue());
         }
         values.clear();
@@ -183,9 +182,9 @@ public class CurrencyMatrixFudgeBuilder implements FudgeBuilder<CurrencyMatrix> 
 
     private void loadReq(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final Map<Pair<Currency, Currency>, CurrencyMatrixValue> values = new HashMap<Pair<Currency, Currency>, CurrencyMatrixValue>();
-      for (FudgeField field : message) {
+      for (final FudgeField field : message) {
         final Currency source = Currency.of(field.getName());
-        for (FudgeField field2 : message.getFieldValue(FudgeMsg.class, field)) {
+        for (final FudgeField field2 : message.getFieldValue(FudgeMsg.class, field)) {
           final Currency target = Currency.of(field2.getName());
           if (field2.getValue() instanceof FudgeMsg) {
             final CurrencyMatrixValue value = deserializer.fieldValueToObject(CurrencyMatrixValueRequirement.class, field2);
@@ -195,7 +194,7 @@ public class CurrencyMatrixFudgeBuilder implements FudgeBuilder<CurrencyMatrix> 
             values.remove(Pair.of(target, source));
           }
         }
-        for (Map.Entry<Pair<Currency, Currency>, CurrencyMatrixValue> valueEntry : values.entrySet()) {
+        for (final Map.Entry<Pair<Currency, Currency>, CurrencyMatrixValue> valueEntry : values.entrySet()) {
           addConversion(valueEntry.getKey().getFirst(), valueEntry.getKey().getSecond(), valueEntry.getValue());
         }
         values.clear();
@@ -204,9 +203,9 @@ public class CurrencyMatrixFudgeBuilder implements FudgeBuilder<CurrencyMatrix> 
 
     private void loadCross(final FudgeMsg message) {
       final Map<Pair<Currency, Currency>, CurrencyMatrixValue> values = new HashMap<Pair<Currency, Currency>, CurrencyMatrixValue>();
-      for (FudgeField field : message) {
+      for (final FudgeField field : message) {
         final CurrencyMatrixValue cross = CurrencyMatrixValue.of(Currency.of(field.getName()));
-        for (FudgeField field2 : (FudgeMsg) field.getValue()) {
+        for (final FudgeField field2 : (FudgeMsg) field.getValue()) {
           final Currency source = Currency.of(field2.getName());
           if (field2.getValue() instanceof FudgeMsg) {
             final Currency target = Currency.of(((FudgeMsg) field2.getValue()).iterator().next().getName());
@@ -217,7 +216,7 @@ public class CurrencyMatrixFudgeBuilder implements FudgeBuilder<CurrencyMatrix> 
             values.put(Pair.of(target, source), cross);
           }
         }
-        for (Map.Entry<Pair<Currency, Currency>, CurrencyMatrixValue> valueEntry : values.entrySet()) {
+        for (final Map.Entry<Pair<Currency, Currency>, CurrencyMatrixValue> valueEntry : values.entrySet()) {
           addConversion(valueEntry.getKey().getFirst(), valueEntry.getKey().getSecond(), valueEntry.getValue());
         }
         values.clear();

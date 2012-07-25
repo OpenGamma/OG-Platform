@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Sets;
-import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionUtils;
+import com.opengamma.financial.analytics.model.irfutureoption.FutureOptionUtils;
 import com.opengamma.util.OpenGammaClock;
 
 /**
@@ -113,7 +113,7 @@ public class BloombergIRFutureUtils {
       LOG.debug("We recommended that you ask QR to test behaviour of IRFutureOption Volatility Surface's Expiries for prefix {}", futurePrefix);
       // The reason being that we have hard coded the behaviour of 6 consecutive months, then quarterly thereafter..
     }    
-    LocalDate expiry  = IRFutureOptionUtils.getFutureOptionExpiry(nthFuture, curveDate);
+    LocalDate expiry  = FutureOptionUtils.getFutureOptionExpiry(nthFuture, curveDate);
     return getMonthYearCode(expiry, expiry.minusYears(10));    
   }
   
@@ -126,7 +126,7 @@ public class BloombergIRFutureUtils {
    */
   public static final String getQuarterlyExpiryMonthYearCode(final int nthQuarter, final LocalDate valuationDate, final LocalDate twoDigitYearDate) {
     Validate.isTrue(nthQuarter > 0, "nthFuture must be greater than 0.");
-    final LocalDate expiry = IRFutureOptionUtils.getQuarterlyExpiry(nthQuarter, valuationDate);
+    final LocalDate expiry = FutureOptionUtils.getQuarterlyExpiry(nthQuarter, valuationDate);
     return getMonthYearCode(expiry, twoDigitYearDate);
   }
   
@@ -139,7 +139,7 @@ public class BloombergIRFutureUtils {
    */
   public static final String getMonthlyExpiryMonthYearCode(final int nthMonth, final LocalDate valuationDate, final LocalDate twoDigitYearDate) {
     Validate.isTrue(nthMonth > 0, "nthFuture must be greater than 0.");
-    final LocalDate expiry = IRFutureOptionUtils.getMonthlyExpiry(nthMonth, valuationDate);
+    final LocalDate expiry = FutureOptionUtils.getMonthlyExpiry(nthMonth, valuationDate);
     return getMonthYearCode(expiry, twoDigitYearDate);
   }
   /**
