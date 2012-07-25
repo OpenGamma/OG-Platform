@@ -76,4 +76,5 @@ public final class BondFutureOptionPremiumTransactionBlackSurfaceMethod {
     final double txnGamma = securityGamma * transaction.getQuantity() * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional();
     return txnGamma;
   }
+
 }
