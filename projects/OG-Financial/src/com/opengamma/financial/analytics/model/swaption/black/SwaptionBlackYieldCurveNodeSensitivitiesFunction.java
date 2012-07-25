@@ -97,7 +97,7 @@ public class SwaptionBlackYieldCurveNodeSensitivitiesFunction extends SwaptionBl
     }
     String[] curveNames = curveCalculationConfig.getYieldCurveNames();
     if (curveNames.length == 1) {
-      curveNames = new String[] {curveNames[0], curveNames[0]};
+      curveNames = new String[] {curveNames[0], curveNames[0] };
     }
     final String curveCalculationMethod = curveCalculationConfig.getCalculationMethod();
     if (curveCalculationMethod.equals(FXImpliedYieldCurveFunction.FX_IMPLIED)) {
@@ -115,7 +115,7 @@ public class SwaptionBlackYieldCurveNodeSensitivitiesFunction extends SwaptionBl
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), properties);
     final BlackSwaptionParameters parameters = new BlackSwaptionParameters(volatilitySurface.getSurface(),
         SwaptionUtils.getSwapGenerator(security, definition, securitySource));
-    final YieldCurveBundle curves = YieldCurveFunctionUtils.getYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
+    final YieldCurveBundle curves = YieldCurveFunctionUtils.getYieldCurves(inputs, curveCalculationConfig);
     final YieldCurveBundle knownCurves = YieldCurveFunctionUtils.getFixedCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
     final YieldCurveWithBlackSwaptionBundle data = new YieldCurveWithBlackSwaptionBundle(parameters, curves);
     final YieldCurveWithBlackSwaptionBundle knownData = knownCurves == null ? null : new YieldCurveWithBlackSwaptionBundle(parameters, knownCurves);
