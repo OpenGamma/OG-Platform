@@ -7,12 +7,14 @@ package com.opengamma.financial.analytics.conversion;
 
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
@@ -23,7 +25,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class BondFutureOptionSecurityConverter {
+public class BondFutureOptionSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
   private final SecuritySource _securitySource;
   private final BondFutureSecurityConverter _underlyingConverter;
 
@@ -35,7 +37,8 @@ public class BondFutureOptionSecurityConverter {
     _securitySource = securitySource;
   }
 
-  public Object convert(final BondFutureOptionSecurity security) {
+  @Override
+  public InstrumentDefinition<?> visitBondFutureOptionSecurity(final BondFutureOptionSecurity security) {
     ArgumentChecker.notNull(security, "security");
     final ExternalId underlyingIdentifier = security.getUnderlyingId();
     final BondFutureSecurity underlyingSecurity = ((BondFutureSecurity) _securitySource.getSecurity(ExternalIdBundle.of(underlyingIdentifier)));
