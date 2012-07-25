@@ -176,6 +176,16 @@ public class BondFutureOptionPremiumSecurityBlackSurfaceMethodTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullSecurity17() {
+    METHOD.optionPriceVega(null, DATA);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullSecurity18() {
+    METHOD.optionPriceVega(null, (YieldCurveBundle) DATA);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData1() {
     METHOD.optionPriceFromFuturePrice(BOND_FUTURE_OPTION_DERIV_CALL, null, PRICE_FUTURE);
   }
@@ -256,6 +266,16 @@ public class BondFutureOptionPremiumSecurityBlackSurfaceMethodTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullData17() {
+    METHOD.optionPriceVega(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveBundle) null);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullData18() {
+    METHOD.optionPriceVega(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveBundle) null);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongDataType1() {
     METHOD.optionPriceFromFuturePrice(BOND_FUTURE_OPTION_DERIV_CALL, TestsDataSetsBlack.createCurvesBond(), PRICE_FUTURE);
   }
@@ -295,6 +315,11 @@ public class BondFutureOptionPremiumSecurityBlackSurfaceMethodTest {
     METHOD.optionPriceDelta(BOND_FUTURE_OPTION_DERIV_CALL, TestsDataSetsBlack.createCurvesBond());
   }
 
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testWrongDataType9() {
+    METHOD.optionPriceVega(BOND_FUTURE_OPTION_DERIV_CALL, TestsDataSetsBlack.createCurvesBond());
+  }
+
   @Test
   public void testBlackPriceFromFuturePrice() {
     final double callBlackPrice = BlackFormulaRepository.price(PRICE_FUTURE, STRIKE, OPTION_EXPIRY, DATA.getVolatility(OPTION_EXPIRY, STRIKE), true);
@@ -321,6 +346,9 @@ public class BondFutureOptionPremiumSecurityBlackSurfaceMethodTest {
     assertEquals(callBlackDelta, METHOD.optionPriceDelta(BOND_FUTURE_OPTION_DERIV_CALL, DATA), EPS);
     final double putBlackDelta = BlackFormulaRepository.delta(priceFuture, STRIKE, OPTION_EXPIRY, DATA.getVolatility(OPTION_EXPIRY, STRIKE), false);
     assertEquals(putBlackDelta, METHOD.optionPriceDelta(BOND_FUTURE_OPTION_DERIV_PUT, DATA), EPS);
+    final double blackVega = BlackFormulaRepository.vega(priceFuture, STRIKE, OPTION_EXPIRY, DATA.getVolatility(OPTION_EXPIRY, STRIKE));
+    assertEquals(blackVega, METHOD.optionPriceVega(BOND_FUTURE_OPTION_DERIV_CALL, DATA), EPS);
+    assertEquals(blackVega, METHOD.optionPriceVega(BOND_FUTURE_OPTION_DERIV_PUT, DATA), EPS);
     final double blackGamma = BlackFormulaRepository.gamma(priceFuture, STRIKE, OPTION_EXPIRY, DATA.getVolatility(OPTION_EXPIRY, STRIKE));
     assertEquals(blackGamma, METHOD.optionPriceGamma(BOND_FUTURE_OPTION_DERIV_CALL, DATA), EPS);
     assertEquals(blackGamma, METHOD.optionPriceGamma(BOND_FUTURE_OPTION_DERIV_PUT, DATA), EPS);
