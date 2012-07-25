@@ -95,7 +95,7 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
       throw new OpenGammaRuntimeException("Could not find curve calculation configuration named " + curveCalculationConfigName);
     }
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames(); //TODO
-    final YieldCurveBundle curves = YieldCurveFunctionUtils.getYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
+    final YieldCurveBundle curves = YieldCurveFunctionUtils.getYieldCurves(inputs, curveCalculationConfig);
     final Object volatilitySurfaceObject = inputs.getValue(getVolatilityRequirement(surfaceName, currency));
     if (volatilitySurfaceObject == null) {
       throw new OpenGammaRuntimeException("Could not get volatility surface");

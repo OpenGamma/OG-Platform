@@ -137,7 +137,7 @@ public abstract class SABRYCNSFunction extends AbstractFunction.NonCompiledInvok
     }
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
     final String curveCalculationMethod = curveCalculationConfig.getCalculationMethod();
-    final YieldCurveBundle curves = YieldCurveFunctionUtils.getYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
+    final YieldCurveBundle curves = YieldCurveFunctionUtils.getYieldCurves(inputs, curveCalculationConfig);
     final YieldCurveBundle knownCurves = YieldCurveFunctionUtils.getFixedCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
     final InterpolatedYieldCurveSpecificationWithSecurities curveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) curveSpecObject;
     final SABRInterestRateDataBundle data = getModelParameters(target, inputs, currency, dayCount, curves, desiredValue);

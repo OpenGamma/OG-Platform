@@ -119,7 +119,7 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
       throw new OpenGammaRuntimeException("Could not find curve calculation configuration named " + curveCalculationConfigName);
     }
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames(); //TODO
-    final YieldCurveBundle curves = YieldCurveFunctionUtils.getYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
+    final YieldCurveBundle curves = YieldCurveFunctionUtils.getYieldCurves(inputs, curveCalculationConfig);
     final SABRInterestRateDataBundle data = getModelParameters(target, inputs, currency, dayCount, curves, desiredValue);
     final InstrumentDerivative derivative = getConverter().convert(security, definition, now, curveNames, timeSeries);
     final Object result = getResult(derivative, data, desiredValue);
