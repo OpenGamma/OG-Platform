@@ -69,7 +69,7 @@ public final class BondFutureOptionPremiumTransactionBlackSurfaceMethod {
    * This is with respect to futures rate
    * @param transaction The future option transaction.
    * @param blackData The curve and Black volatility data.
-   * @return The present value curve sensitivity.
+   * @return The gamma.
    */
   public double presentValueGamma(final BondFutureOptionPremiumTransaction transaction, final YieldCurveWithBlackCubeBundle blackData) {
     ArgumentChecker.notNull(transaction, "transaction");
@@ -79,4 +79,18 @@ public final class BondFutureOptionPremiumTransactionBlackSurfaceMethod {
     return txnGamma;
   }
 
+  /**
+   * Computes the present value delta of a transaction.
+   * This is with respect to futures rate
+   * @param transaction The future option transaction.
+   * @param blackData The curve and Black volatility data.
+   * @return The delta.
+   */
+  public double presentValueDelta(final BondFutureOptionPremiumTransaction transaction, final YieldCurveWithBlackCubeBundle blackData) {
+    ArgumentChecker.notNull(transaction, "transaction");
+    ArgumentChecker.notNull(blackData, "Black data");
+    final double securityDelta = METHOD.optionPriceDelta(transaction.getUnderlyingOption(), blackData);
+    final double txnDelta = securityDelta * transaction.getQuantity() * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional();
+    return txnDelta;
+  }
 }
