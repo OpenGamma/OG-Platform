@@ -8,10 +8,11 @@ package com.opengamma.financial.analytics.model.cds;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.analytics.model.cds.date.Calendars;
-import com.opengamma.financial.analytics.model.cds.date.DateFunctions;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.FollowingBusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -30,120 +31,136 @@ import com.opengamma.util.time.DateUtils;
  */
 public class CDSSimpleCalculator {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(CDSSimpleCalculator.class);
+
   public static double calculate(CDSSecurity cds, BondSecurity bond, YieldAndDiscountCurve bondCcyCurve, YieldAndDiscountCurve cdsCcyCurve, YieldAndDiscountCurve riskyCurve, ZonedDateTime pricingDate)
     throws OpenGammaRuntimeException {
 
-    Calendars cdsCalendar = Calendars.EU;
+    BusinessDayConvention convention = new FollowingBusinessDayConvention();
+    Calendar calendar = new MondayToFridayCalendar("A");
+
+    return calculatePremiumLeg(cds, bond, bondCcyCurve, cdsCcyCurve, riskyCurve, pricingDate, calendar, convention)
+      - calculateDefaultLeg(cds, bond, bondCcyCurve, cdsCcyCurve, riskyCurve, pricingDate, calendar, convention);
+  }
+
+  private static double calculatePremiumLeg(CDSSecurity cds, BondSecurity bond, YieldAndDiscountCurve bondCcyCurve, YieldAndDiscountCurve cdsCcyCurve, YieldAndDiscountCurve riskyCurve,
+    ZonedDateTime pricingDate, Calendar calendar, BusinessDayConvention convention)
+    throws OpenGammaRuntimeException {
+
+    if (s_logger.isDebugEnabled()) {
+      s_logger.debug("Premium leg");
+      s_logger.debug("period, cdsPremiumDate, timeToCdsPremium, bondCcyRate, cdsCcyRate, riskyRate, "
+        + "bondCcyDiscountFactor, cdsCcyDiscountFactor, riskyDiscountFactor, "
+        + "bondCcyDiscountFactor2, cdsCcyDiscountFactor2, riskyDiscountFactor2, "
+        + "riskFreeDefaultProbability, expectedCashflow, discountedExpCashflow");
+    }
 
     // TODO: Move to TenorUtils class and use Tenor object in CDSSecurity
+    final ZonedDateTime cdsMaturity = cds.getMaturity();
     final Period cdsTenor = getTenor(cds.getPremiumFrequency());
-    final double interestCashflow = cds.getPremiumRate() * (cdsTenor.totalMonths() / 12.0 + cdsTenor.totalSecondsWith24HourDays() / DateUtils.SECONDS_PER_YEAR);
-    final double defaultPayoutCashflow = cds.getNotional() * (1.0 - cds.getRecoveryRate());
-    
-    final int numberOfCdsPremiumDates = DateFunctions.numberOfDates(cds.getMaturity(), getTenor(cds.getPremiumFrequency()), cdsCalendar, pricingDate);
-    final int numberOfBondPremiumDates = DateFunctions.numberOfDates(bond.getLastTradeDate().getExpiry(), getTenor(bond.getCouponFrequency()), cdsCalendar, pricingDate);
-    
-    double total = 0.0;
-    
-    System.out.println("Premium leg");
-    
-    System.out.println("period \t cdsPremiumDate \t timeToCdsPremium \t bondCcyRate \t\t cdsCcyRate \t\t riskyRate \t\t "
-      + "bondCcyDiscountFactor \t cdsCcyDiscountFactor \t riskyDiscountFactor \t "
-      + "bondCcyDiscountFactor2 cdsCcyDiscountFactor2 \t riskyDiscountFactor2 "
-      + "riskFreeDefaultProbability expectedCashflow \t discountedExpCashflow"
-    );
 
-    // Premium leg
+    final double interestCashflow = cds.getPremiumRate() * (cdsTenor.totalMonths() / 12.0 + cdsTenor.totalSecondsWith24HourDays() / DateUtils.SECONDS_PER_YEAR);
+    final int numberOfCdsPremiumDates = numberOfDates(pricingDate, cdsMaturity, cdsTenor, calendar, convention);
+
+    System.out.println(numberOfCdsPremiumDates);
+
+    double total = 0.0;
+
     for (int i = 1; i <= numberOfCdsPremiumDates; ++i) {
 
-      final ZonedDateTime cdsPremiumDate = cdsPremiumDate(i, numberOfCdsPremiumDates, cds.getMaturity(), getTenor(cds.getPremiumFrequency()));
+      final ZonedDateTime cdsPremiumDate = convention.adjustDate(calendar, cds.getMaturity().minus(cdsTenor.multipliedBy(numberOfCdsPremiumDates - i)));
       final double timeToCdsPremium = DateUtils.getDifferenceInYears(pricingDate, cdsPremiumDate);
-      
+
       final double bondCcyRate = bondCcyCurve.getInterestRate(timeToCdsPremium);
       final double cdsCcyRate = cdsCcyCurve.getInterestRate(timeToCdsPremium);
       final double riskyRate = riskyCurve.getInterestRate(timeToCdsPremium);
       final double bondCcyDiscountFactor = 1.0 / Math.pow((1.0 + bondCcyRate), timeToCdsPremium);
       final double cdsCcyDiscountFactor = 1.0 / Math.pow((1.0 + cdsCcyRate), timeToCdsPremium);
       final double riskyDiscountFactor = 1.0 / Math.pow((1.0 + riskyRate), timeToCdsPremium);
-      
+
       final double bondCcyDiscountFactor2 = bondCcyCurve.getDiscountFactor(timeToCdsPremium);
       final double cdsCcyDiscountFactor2 = cdsCcyCurve.getDiscountFactor(timeToCdsPremium);
       final double riskyDiscountFactor2 = riskyCurve.getDiscountFactor(timeToCdsPremium);
-            
+
       final double riskFreeDefaultProbability = (1.0 - (riskyDiscountFactor / bondCcyDiscountFactor)) / (1.0 - cds.getRecoveryRate());
-      
+
       final double expectedCashflow = interestCashflow * (1.0 - riskFreeDefaultProbability);
       final double discountedExpCashflow = expectedCashflow * cdsCcyDiscountFactor;
       total += discountedExpCashflow;
-      
-      System.out.println(i + "\t" + cdsPremiumDate.toString() + "\t" + timeToCdsPremium + "\t"
-        + bondCcyRate + "\t" + cdsCcyRate + "\t" + riskyRate + "\t"
-        + bondCcyDiscountFactor + "\t" + cdsCcyDiscountFactor + "\t" + riskyDiscountFactor + "\t"
-        + bondCcyDiscountFactor2 + "\t" + cdsCcyDiscountFactor2 + "\t" + riskyDiscountFactor2 + "\t"
-        + riskFreeDefaultProbability + "\t" + expectedCashflow + "\t" + discountedExpCashflow
-      );
-    }
-    
-    System.out.println("Default leg");
-    
-    // Default leg
-    final int defaultLegPeriods = cds.getMaturity().isAfter(bond.getLastTradeDate().getExpiry()) 
-      ? numberOfBondPremiumDates + 1
-      : numberOfBondPremiumDates;
-    
-    double previousRiskFreeDefaultProbability = 0.0;
-    
-    for (int i = 1; i <= defaultLegPeriods; ++i) {
-      
-      final ZonedDateTime bondPremiumDate = i <= numberOfBondPremiumDates
-        ? bondPremiumDate(i, numberOfBondPremiumDates, bond.getLastTradeDate().getExpiry(), getTenor(bond.getCouponFrequency()))
-        : cds.getMaturity();
-      final double timeToBondPremium = DateUtils.getDifferenceInYears(pricingDate, bondPremiumDate);
-      
-      final double bondCcyRate = bondCcyCurve.getInterestRate(timeToBondPremium);
-      final double cdsCcyRate = cdsCcyCurve.getInterestRate(timeToBondPremium);
-      final double riskyRate = riskyCurve.getInterestRate(timeToBondPremium);
-      final double bondCcyDiscountFactor = 1.0 / Math.pow((1.0 + bondCcyRate), timeToBondPremium);
-      final double cdsCcyDiscountFactor = 1.0 / Math.pow((1.0 + cdsCcyRate), timeToBondPremium);  
-      final double riskyDiscountFactor = 1.0 / Math.pow((1.0 + riskyRate), timeToBondPremium);
-      
-      final double bondCcyDiscountFactor2 = bondCcyCurve.getDiscountFactor(timeToBondPremium);
-      final double cdsCcyDiscountFactor2 = cdsCcyCurve.getDiscountFactor(timeToBondPremium);
-      final double riskyDiscountFactor2 = riskyCurve.getDiscountFactor(timeToBondPremium);
-       
-      final double riskFreeDefaultProbability = (1.0 - (riskyDiscountFactor / bondCcyDiscountFactor)) / (1.0 - cds.getRecoveryRate());
-      
-      final double expectedDefaultPayout = defaultPayoutCashflow * (riskFreeDefaultProbability - previousRiskFreeDefaultProbability);
-      final double discountedExpDefaultPayout = expectedDefaultPayout * cdsCcyDiscountFactor;
-      total -= discountedExpDefaultPayout;
 
-      previousRiskFreeDefaultProbability = riskFreeDefaultProbability;
-      
-      System.out.println(i + "\t" + bondPremiumDate.toString() + "\t" + timeToBondPremium + "\t"
-        + bondCcyRate + "\t" + cdsCcyRate + "\t" + riskyRate + "\t"
-        + bondCcyDiscountFactor + "\t" + cdsCcyDiscountFactor + "\t" + riskyDiscountFactor + "\t"
-        + bondCcyDiscountFactor2 + "\t" + cdsCcyDiscountFactor2 + "\t" + riskyDiscountFactor2 + "\t"
-        + riskFreeDefaultProbability + "\t" + expectedDefaultPayout + "\t" + discountedExpDefaultPayout
-      );
+      if (s_logger.isDebugEnabled()) {
+        s_logger.debug(i + "," + cdsPremiumDate.toString() + "," + timeToCdsPremium + ","
+          + bondCcyRate + "," + cdsCcyRate + "," + riskyRate + ","
+          + bondCcyDiscountFactor + "," + cdsCcyDiscountFactor + "," + riskyDiscountFactor + ","
+          + bondCcyDiscountFactor2 + "," + cdsCcyDiscountFactor2 + "," + riskyDiscountFactor2 + ","
+          + riskFreeDefaultProbability + "," + expectedCashflow + "," + discountedExpCashflow);
+      }
     }
 
     return total;
   }
 
-  private static ZonedDateTime cdsPremiumDate(int period, int numberOfCdsPremiumDates, ZonedDateTime cdsMaturity, Period cdsTerm) throws OpenGammaRuntimeException {
-      
-    BusinessDayConvention convention = new FollowingBusinessDayConvention();
-    Calendar calendar = new MondayToFridayCalendar("A");
-    
-    return convention.adjustDate(calendar, cdsMaturity.minus(cdsTerm.multipliedBy(numberOfCdsPremiumDates - period)));
-  }
+  private static double calculateDefaultLeg(CDSSecurity cds, BondSecurity bond, YieldAndDiscountCurve bondCcyCurve, YieldAndDiscountCurve cdsCcyCurve, YieldAndDiscountCurve riskyCurve,
+    ZonedDateTime pricingDate, Calendar calendar, BusinessDayConvention convention)
+    throws OpenGammaRuntimeException {
 
-  private static ZonedDateTime bondPremiumDate(int period, int numberOfBondPremiumDates, ZonedDateTime bondMaturity, Period bondTerm) {
+    if (s_logger.isDebugEnabled()) {
+      s_logger.debug("Default leg");
+      s_logger.debug("period, bondPremiumDate, timeToBondPremium, bondCcyRate, cdsCcyRate, riskyRate, "
+        + "bondCcyDiscountFactor, cdsCcyDiscountFactor, riskyDiscountFactor, "
+        + "bondCcyDiscountFactor2, cdsCcyDiscountFactor2, riskyDiscountFactor2, "
+        + "riskFreeDefaultProbability, expectedCashflow, discountedExpCashflow");
+    }
 
-    BusinessDayConvention convention = new FollowingBusinessDayConvention();
-    Calendar calendar = new MondayToFridayCalendar("A");
+    final ZonedDateTime cdsMaturity = cds.getMaturity();
+    final ZonedDateTime bondMaturity = bond.getLastTradeDate().getExpiry();
+    final Period bondTenor = getTenor(bond.getCouponFrequency());
 
-    return convention.adjustDate(calendar, bondMaturity.minus(bondTerm.multipliedBy(numberOfBondPremiumDates - period)));
+    final double defaultPayoutCashflow = cds.getNotional() * (1.0 - cds.getRecoveryRate());
+    final int numberOfBondPremiumDates = numberOfDates(pricingDate, bondMaturity, bondTenor, calendar, convention);
+    final int defaultLegPeriods = cdsMaturity.isAfter(bondMaturity)
+      ? numberOfBondPremiumDates + 1
+      : numberOfBondPremiumDates;
+
+    double total = 0.0;
+    double previousRiskFreeDefaultProbability = 0.0;
+
+    for (int i = 1; i <= defaultLegPeriods; ++i) {
+
+      final ZonedDateTime bondPremiumDate = i <= numberOfBondPremiumDates
+        ? convention.adjustDate(calendar, bondMaturity.minus(bondTenor.multipliedBy(numberOfBondPremiumDates - i)))
+        : cds.getMaturity();
+      final double timeToBondPremium = DateUtils.getDifferenceInYears(pricingDate, bondPremiumDate);
+
+      final double bondCcyRate = bondCcyCurve.getInterestRate(timeToBondPremium);
+      final double cdsCcyRate = cdsCcyCurve.getInterestRate(timeToBondPremium);
+      final double riskyRate = riskyCurve.getInterestRate(timeToBondPremium);
+      final double bondCcyDiscountFactor = 1.0 / Math.pow((1.0 + bondCcyRate), timeToBondPremium);
+      final double cdsCcyDiscountFactor = 1.0 / Math.pow((1.0 + cdsCcyRate), timeToBondPremium);
+      final double riskyDiscountFactor = 1.0 / Math.pow((1.0 + riskyRate), timeToBondPremium);
+
+      final double bondCcyDiscountFactor2 = bondCcyCurve.getDiscountFactor(timeToBondPremium);
+      final double cdsCcyDiscountFactor2 = cdsCcyCurve.getDiscountFactor(timeToBondPremium);
+      final double riskyDiscountFactor2 = riskyCurve.getDiscountFactor(timeToBondPremium);
+
+      final double riskFreeDefaultProbability = (1.0 - (riskyDiscountFactor / bondCcyDiscountFactor)) / (1.0 - cds.getRecoveryRate());
+
+      final double expectedDefaultPayout = defaultPayoutCashflow * (riskFreeDefaultProbability - previousRiskFreeDefaultProbability);
+      final double discountedExpDefaultPayout = expectedDefaultPayout * cdsCcyDiscountFactor;
+      total += discountedExpDefaultPayout;
+
+      previousRiskFreeDefaultProbability = riskFreeDefaultProbability;
+
+      if (s_logger.isDebugEnabled()) {
+        s_logger.debug(i + ", " + bondPremiumDate.toString() + ", " + timeToBondPremium + ", "
+          + bondCcyRate + ", " + cdsCcyRate + ", " + riskyRate + ", "
+          + bondCcyDiscountFactor + ", " + cdsCcyDiscountFactor + ", " + riskyDiscountFactor + ", "
+          + bondCcyDiscountFactor2 + ", " + cdsCcyDiscountFactor2 + ", " + riskyDiscountFactor2 + ", "
+          + riskFreeDefaultProbability + ", " + expectedDefaultPayout + ", " + discountedExpDefaultPayout);
+      }
+    }
+
+    return total;
   }
 
   // TODO: Should this method be available somewhere central?
@@ -155,6 +172,19 @@ public class CDSSimpleCalculator {
       return ((SimpleFrequency) freq).toPeriodFrequency().getPeriod();
     }
     throw new OpenGammaRuntimeException("Can only PeriodFrequency or SimpleFrequency; have " + freq.getClass());
+  }
+
+  // TODO: Should this be a central method somewhere like e.g. DateUtils
+  public static int numberOfDates(ZonedDateTime pricingDate, ZonedDateTime maturity, Period term, Calendar calendar, BusinessDayConvention convention)
+  {
+    ZonedDateTime paymentDate = maturity;
+    int periods = 0;
+
+    while (paymentDate.isAfter(pricingDate)) {
+      paymentDate = convention.adjustDate(calendar, maturity.minus(term.multipliedBy(++periods)));
+    }
+
+    return periods;
   }
 
 }

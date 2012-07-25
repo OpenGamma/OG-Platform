@@ -15,7 +15,6 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.financial.analytics.model.cds.date.Calendars;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
@@ -60,8 +59,6 @@ public class CDSSimpleCalculatorTest {
     
     bond.setLastTradeDate(new Expiry(ZonedDateTime.of(2016, 06, 20, 0, 0, 0, 0, TimeZone.UTC)));
     bond.setCouponFrequency(PeriodFrequency.ANNUAL);
-
-    Calendars cdsCalendar = Calendars.EU;
 
     final double[] timePoints = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
     final double[] cdsCcyPoints = {
