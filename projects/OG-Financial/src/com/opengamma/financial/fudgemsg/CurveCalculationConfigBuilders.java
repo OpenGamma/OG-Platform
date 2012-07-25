@@ -36,7 +36,6 @@ import com.opengamma.id.UniqueIdentifiable;
 
   @FudgeBuilderFor(MultiCurveCalculationConfig.class)
   public static final class MultiCurveCalculationConfigBuilder implements FudgeBuilder<MultiCurveCalculationConfig> {
-    private static final UniqueIdentifiable[] EMPTY_UNIQUE_ID_ARRAY = new UniqueIdentifiable[0];
     private static final String CONFIG_NAME_FIELD = "configurationName";
     private static final String YIELD_CURVE_NAMES_FIELD = "yieldCurveNames";
     private static final String ID_FIELD = "ids";
