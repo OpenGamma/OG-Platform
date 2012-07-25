@@ -243,7 +243,7 @@ public interface InstrumentDerivativeVisitor<S, T> {
 
   T visitSwap(Swap<?, ?> swap);
 
-  // -----     Futures     -----
+  // -----     Futures and future options   -----
 
   T visitBondFuture(BondFuture bondFuture, S data);
 
