@@ -21,11 +21,13 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
+import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 
 /**
  * 
  */
-public class BondFutureOptionBlackPV01Function extends BondFutureOptionCurveSpecificBlackFunction {
+public class BondFutureOptionBlackPV01Function extends BondFutureOptionBlackCurveSpecificFunction {
   private static final PV01Calculator CALCULATOR = new PV01Calculator(PresentValueCurveSensitivityBlackCalculator.getInstance());
 
   public BondFutureOptionBlackPV01Function() {
@@ -33,8 +35,8 @@ public class BondFutureOptionBlackPV01Function extends BondFutureOptionCurveSpec
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative bondFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec, final FunctionInputs inputs,
-      final Set<ValueRequirement> desiredValues) {
+  protected Set<ComputedValue> getResult(final InstrumentDerivative bondFutureOption, final YieldCurveWithBlackCubeBundle data, final MultiCurveCalculationConfig curveCalculationConfig,
+      final ValueSpecification spec, final FunctionInputs inputs, final Set<ValueRequirement> desiredValues, final BondFutureOptionSecurity security) {
     final String curveName = Iterables.getOnlyElement(desiredValues).getConstraint(ValuePropertyNames.CURVE);
     final Map<String, Double> pv01 = CALCULATOR.visit(bondFutureOption, data);
     if (!pv01.containsKey(curveName)) {
