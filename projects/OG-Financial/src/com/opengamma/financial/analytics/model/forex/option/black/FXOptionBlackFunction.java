@@ -41,7 +41,9 @@ import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
+import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -124,15 +126,10 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
     }
     final SmileDeltaTermStructureParametersStrikeInterpolation smiles = (SmileDeltaTermStructureParametersStrikeInterpolation) volatilitySurfaceObject;
     final FXMatrix fxMatrix = new FXMatrix(ccy1, ccy2, spot);
-    final ValueProperties.Builder properties = getResultProperties(putCurveName, callCurveName, putCurveConfig, callCurveConfig, surfaceName, interpolatorName,
-        leftExtrapolatorName, rightExtrapolatorName, target);
+    final ValueProperties.Builder properties = getResultProperties(target, desiredValue);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties.get());
     final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(fxMatrix, curveCurrency, yieldCurves, smiles, Pair.of(ccy1, ccy2));
-    try {
-      return getResult(fxOption, smileBundle, spec);
-    } catch (final Exception e) {
-      throw new OpenGammaRuntimeException("Could not get " + _valueRequirementName + " for " + security, e);
-    }
+    return getResult(fxOption, smileBundle, target, desiredValues, inputs, spec, executionContext);
   }
 
   @Override
@@ -147,9 +144,9 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
     }
     return target.getSecurity() instanceof FXOptionSecurity
         || target.getSecurity() instanceof FXBarrierOptionSecurity
-        //        || target.getSecurity() instanceof FXDigitalOptionSecurity
-        || target.getSecurity() instanceof NonDeliverableFXOptionSecurity;
-    //        || target.getSecurity() instanceof NonDeliverableFXDigitalOptionSecurity;
+        || target.getSecurity() instanceof FXDigitalOptionSecurity
+        || target.getSecurity() instanceof NonDeliverableFXOptionSecurity
+        || target.getSecurity() instanceof NonDeliverableFXDigitalOptionSecurity;
   }
 
   @Override
@@ -213,13 +210,13 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
 
   protected abstract ValueProperties.Builder getResultProperties(final ComputationTarget target);
 
-  protected abstract ValueProperties.Builder getResultProperties(final String putCurveName, final String callCurveName, final String putCurveCalculationConfig,
-      final String callCurveCalculationConfig, final String surfaceName, final String interpolatorName, final String leftExtrapolatorName,
-      final String rightExtrapolatorName, final ComputationTarget target);
+  protected abstract ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue);
 
-  protected abstract Set<ComputedValue> getResult(InstrumentDerivative forex, SmileDeltaTermStructureDataBundle data, ValueSpecification spec);
+  //TODO clumsy. Push the execute() method down into the functions and have getDerivative() and getData() methods
+  protected abstract Set<ComputedValue> getResult(final InstrumentDerivative forex, final SmileDeltaTermStructureDataBundle data, final ComputationTarget target,
+      final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext);
 
-  private static ValueRequirement getCurveRequirement(final String curveName, final Currency currency, final String curveCalculationConfigName) {
+  protected static ValueRequirement getCurveRequirement(final String curveName, final Currency currency, final String curveCalculationConfigName) {
     final ValueProperties.Builder properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, curveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName);

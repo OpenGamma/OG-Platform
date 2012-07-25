@@ -12,6 +12,7 @@ import org.apache.commons.lang.ArrayUtils;
 import com.opengamma.util.timeseries.AbstractMutableIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.AbstractMutableLongDoubleTimeSeries;
 import com.opengamma.util.timeseries.DateTimeConverter;
+import com.opengamma.util.timeseries.DoubleTimeSeriesOperators.UnaryOperator;
 import com.opengamma.util.timeseries.MutableDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.integer.FastMutableIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastMutableLongDoubleTimeSeries;
@@ -55,6 +56,11 @@ public interface MutableLocalDateDoubleTimeSeries extends LocalDateDoubleTimeSer
     }
 
     @Override
+    public LocalDateDoubleTimeSeries operate(final UnaryOperator operator) {
+      return (LocalDateDoubleTimeSeries) super.operate(operator);
+    }
+
+    @Override
     public MutableLocalDateDoubleTimeSeries newInstance(final LocalDate[] dateTimes, final Double[] values) {
       return newInstanceFast(dateTimes, ArrayUtils.toPrimitive(values));
     }
@@ -93,6 +99,11 @@ public interface MutableLocalDateDoubleTimeSeries extends LocalDateDoubleTimeSer
     @Override
     public LocalDateDoubleTimeSeries lag(final int lagCount) {
       return (LocalDateDoubleTimeSeries) super.lag(lagCount);
+    }
+
+    @Override
+    public LocalDateDoubleTimeSeries operate(final UnaryOperator operator) {
+      return (LocalDateDoubleTimeSeries) super.operate(operator);
     }
 
     @Override

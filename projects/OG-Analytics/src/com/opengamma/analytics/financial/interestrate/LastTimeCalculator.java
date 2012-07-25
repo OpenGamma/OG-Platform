@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.interestrate;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIbor;
@@ -186,4 +187,12 @@ public final class LastTimeCalculator extends AbstractInstrumentDerivativeVisito
   public Double visitDepositZero(final DepositZero deposit) {
     return deposit.getEndTime();
   }
+
+  // -----     Forex     -----
+
+  @Override
+  public Double visitForexSwap(final ForexSwap fx) {
+    return fx.getFarLeg().getPaymentTime();
+  }
+
 }

@@ -42,18 +42,17 @@ import com.opengamma.livedata.test.CollectingLiveDataListener;
 import com.opengamma.livedata.test.LiveDataClientTestUtils;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = "integration")
 public class CombiningBloombergLiveDataServerTest {
+
+  private static final UserPrincipal TEST_USER = UserPrincipal.getTestUser();
+
   private CombiningBloombergLiveDataServer _server;
-
   private JmsLiveDataClient _liveDataClient;
-
   private BloombergReferenceDataProvider _underlying;
-
   private UnitTestingReferenceDataProvider _unitTestingProvider;
-
-  private final static UserPrincipal TEST_USER = UserPrincipal.getTestUser();
 
   @BeforeMethod
   public void setUpClass() {
@@ -66,7 +65,6 @@ public class CombiningBloombergLiveDataServerTest {
     _unitTestingProvider.reset();
   }
 
-
   @AfterMethod
   public void tearDownClass() {
     BloombergLiveDataServerUtils.stopTestServer(_server);
@@ -74,6 +72,7 @@ public class CombiningBloombergLiveDataServerTest {
     _underlying.stop();
   }
 
+  //-------------------------------------------------------------------------
   @Test
   public void testFakeSubscribe() throws Exception {
     ExternalId broken = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "CZPFGQFC Curncy");
@@ -137,7 +136,7 @@ public class CombiningBloombergLiveDataServerTest {
     List<LiveDataValueUpdate> stronUpdates = listener.getValueUpdates(getLiveDataSpec(_liveDataClient, strong));
     assertEquals(allUpdates, stronUpdates);
   }
-  
+
   @Test(groups={"bbgSubscriptionTests"})
   public void testMixedSubscribe() throws Exception {
     ExternalId strong = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "GBP Curncy");
@@ -215,7 +214,7 @@ public class CombiningBloombergLiveDataServerTest {
     assertEquals(0, brokenUpdates.size());
     assertEquals(allUpdates.size(), brokenUpdates.size() + workingUpdates.size());
   }
-  
+
   @Test
   public void testExpiration() throws Exception {
     int period = 15000;
@@ -269,7 +268,7 @@ public class CombiningBloombergLiveDataServerTest {
      });
     return fakeSubs;
   }
-  
+
   private void subscribe(LiveDataClient liveDataClient, LiveDataListener listener, Collection<ExternalId> instruments) {
     Collection<LiveDataSpecification> specs = getLiveDataSpecs(liveDataClient, instruments);
     liveDataClient.subscribe(TEST_USER, specs, listener);
@@ -314,7 +313,7 @@ public class CombiningBloombergLiveDataServerTest {
     }
     assertFalse(_unitTestingProvider.hadToRejectRequests());
   }
-  
+
   public static class UnitTestingReferenceDataProvider implements ReferenceDataProvider {
     private final ReferenceDataProvider _underlying;
     private java.util.concurrent.atomic.AtomicBoolean _locked = new java.util.concurrent.atomic.AtomicBoolean();
@@ -345,6 +344,6 @@ public class CombiningBloombergLiveDataServerTest {
       assertFalse(_locked.get());
       return _underlying.getFields(securities, fields);
     }
-
   }
+
 }

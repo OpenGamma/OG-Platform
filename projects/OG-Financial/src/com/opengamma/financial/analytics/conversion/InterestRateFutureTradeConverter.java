@@ -29,6 +29,7 @@ public class InterestRateFutureTradeConverter {
     Validate.notNull(trade, "trade");
     Validate.isTrue(trade.getSecurity() instanceof InterestRateFutureSecurity, "Can only handle trades with security type InterestRateFutureSecurity");
     final InterestRateFutureDefinition securityDefinition = _securityConverter.visitInterestRateFutureSecurity((InterestRateFutureSecurity) trade.getSecurity());
+    // REVIEW: Setting this quantity to one so that we don't double-count the number of trades when the position scaling takes place
     final int quantity = 1;
     final ZonedDateTime tradeDate = trade.getTradeDate().atTime(trade.getTradeTime()).atZoneSameInstant(TimeZone.UTC); //TODO get the real time zone
     final double tradePrice = trade.getPremium() == null ? 0 : trade.getPremium(); //TODO remove the default value and throw an exception

@@ -75,7 +75,7 @@ public class LocalVolatilityPDEGreekCalculator {
   public LocalVolatilityPDEGreekCalculator(final ForwardCurve forwardCurve, final double[] expiries, final double[][] strikes, final double[][] impliedVols,
       final boolean isCall) {
 
-    _marketData = new StandardSmileSurfaceDataBundle(forwardCurve, expiries, strikes, impliedVols, isCall);
+    _marketData = new StandardSmileSurfaceDataBundle(forwardCurve, expiries, strikes, impliedVols);
 
     Validate.notNull(forwardCurve, "null forward curve");
     Validate.notNull(expiries, "null expiries");

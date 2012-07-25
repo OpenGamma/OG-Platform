@@ -9,17 +9,6 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.finitedifference.BoundaryCondition;
-import com.opengamma.analytics.financial.model.finitedifference.CoupledFiniteDifference;
-import com.opengamma.analytics.financial.model.finitedifference.CoupledPDEDataBundle;
-import com.opengamma.analytics.financial.model.finitedifference.DirichletBoundaryCondition;
-import com.opengamma.analytics.financial.model.finitedifference.ExponentialMeshing;
-import com.opengamma.analytics.financial.model.finitedifference.HyperbolicMeshing;
-import com.opengamma.analytics.financial.model.finitedifference.MarkovChain;
-import com.opengamma.analytics.financial.model.finitedifference.MeshingFunction;
-import com.opengamma.analytics.financial.model.finitedifference.NeumannBoundaryCondition;
-import com.opengamma.analytics.financial.model.finitedifference.PDEGrid1D;
-import com.opengamma.analytics.financial.model.finitedifference.PDEResults1D;
 import com.opengamma.analytics.financial.model.finitedifference.applications.CoupledPDEDataBundleProvider;
 import com.opengamma.analytics.financial.model.finitedifference.applications.TwoStateMarkovChainDataBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
@@ -37,7 +26,7 @@ import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
  */
 @SuppressWarnings("unused")
 public class CoupledFiniteDifferenceTest {
-  
+
   private static final CoupledPDEDataBundleProvider PDE_DATA_PROVIDER = new CoupledPDEDataBundleProvider();
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
   private static BoundaryCondition LOWER;
@@ -48,7 +37,7 @@ public class CoupledFiniteDifferenceTest {
   private static final double STRIKE;
   private static final double T = 5.0;
   private static final double RATE = 0.0; //TODO this is not working properly with non-zero rate. Why?
-  private static final YieldAndDiscountCurve YIELD_CURVE = new YieldCurve(ConstantDoublesCurve.from(RATE));
+  private static final YieldAndDiscountCurve YIELD_CURVE = YieldCurve.from(ConstantDoublesCurve.from(RATE));
   private static final double VOL1 = 0.15;//0.2;
   private static final double VOL2 = 0.70;
 
@@ -75,7 +64,7 @@ public class CoupledFiniteDifferenceTest {
     final double lambda21 = 0.0;
 
     TwoStateMarkovChainDataBundle chainData = new TwoStateMarkovChainDataBundle(VOL1, VOL2, lambda12, lambda21, 0.5);
-    CoupledPDEDataBundle[] pdeData = PDE_DATA_PROVIDER.getCoupledBackwardsPair(FORWARD, STRIKE ,T, chainData);
+    CoupledPDEDataBundle[] pdeData = PDE_DATA_PROVIDER.getCoupledBackwardsPair(FORWARD, STRIKE, T, chainData);
     final int timeNodes = 20;
     final int spaceNodes = 150;
     final double lowerMoneyness = 0.4;
@@ -134,7 +123,7 @@ public class CoupledFiniteDifferenceTest {
     final double lambda21 = 0.5;
 
     TwoStateMarkovChainDataBundle chainData = new TwoStateMarkovChainDataBundle(VOL1, VOL1, lambda12, lambda21, 0.5);
-    CoupledPDEDataBundle[] pdeData = PDE_DATA_PROVIDER.getCoupledBackwardsPair(FORWARD, STRIKE ,T, chainData);
+    CoupledPDEDataBundle[] pdeData = PDE_DATA_PROVIDER.getCoupledBackwardsPair(FORWARD, STRIKE, T, chainData);
     final int timeNodes = 20;
     final int spaceNodes = 150;
     final double lowerMoneyness = 0.4;
@@ -178,7 +167,7 @@ public class CoupledFiniteDifferenceTest {
       } catch (final Exception e) {
         impVol2 = 0.0;
       }
-         //  System.out.println(spot + "\t" + price1 + "\t" + price2 + "\t" + impVol1 + "\t" + impVol2);
+      //  System.out.println(spot + "\t" + price1 + "\t" + price2 + "\t" + impVol1 + "\t" + impVol2);
       if (moneyness >= lowerMoneyness && moneyness <= upperMoneyness) {
         assertEquals(impVol1, impVol2, 1e-8);
         assertEquals(VOL1, impVol1, 2e-3);
@@ -219,7 +208,7 @@ public class CoupledFiniteDifferenceTest {
     final double lambda21 = 2.0;
 
     TwoStateMarkovChainDataBundle chainData = new TwoStateMarkovChainDataBundle(VOL1, VOL2, lambda12, lambda21, 1.0);
-    CoupledPDEDataBundle[] pdeData = PDE_DATA_PROVIDER.getCoupledBackwardsPair(FORWARD, STRIKE ,T, chainData);
+    CoupledPDEDataBundle[] pdeData = PDE_DATA_PROVIDER.getCoupledBackwardsPair(FORWARD, STRIKE, T, chainData);
     final int timeNodes = 20;
     final int spaceNodes = 150;
     final double lowerMoneyness = 0.3;
@@ -277,7 +266,7 @@ public class CoupledFiniteDifferenceTest {
       } catch (final Exception e) {
         impVol_mc = 0.0;
       }
-    //   System.out.println(spot + "\t" + price1 + "\t" + price2 + "\t" + impVol1 + "\t" + impVol2 + "\t" + delta + "\t" + gamma);
+      //   System.out.println(spot + "\t" + price1 + "\t" + price2 + "\t" + impVol1 + "\t" + impVol2 + "\t" + delta + "\t" + gamma);
       if (moneyness >= lowerMoneyness && moneyness <= upperMoneyness) {
         assertEquals(impVol_mc, impVol1, 1e-2);
       }

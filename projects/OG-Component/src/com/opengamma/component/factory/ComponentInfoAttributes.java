@@ -21,6 +21,18 @@ public final class ComponentInfoAttributes {
    */
   public static final String UNIQUE_ID_SCHEME = "uniqueIdScheme";
   /**
+   * The attribute name for the level.
+   * The level of a component represents how much aggregation has occurred.
+   * A database level component would have level=1, whereas one that combines
+   * it with a second database would have level=2.
+   */
+  public static final String LEVEL = "level";
+  /**
+   * The attribute name for the remote client Java class name.
+   * The Java class name that can be used to create a client for this component.
+   */
+  public static final String REMOTE_CLIENT_JAVA = "remoteClientJava";
+  /**
    * The attribute name for the JMS broker.
    */
   public static final String JMS_BROKER_URI = "jmsBrokerUri";

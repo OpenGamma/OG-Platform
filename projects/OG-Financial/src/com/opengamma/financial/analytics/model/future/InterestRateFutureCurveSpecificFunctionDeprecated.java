@@ -17,7 +17,6 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.region.RegionSource;
@@ -35,15 +34,17 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.InterestRateFutureSecurityConverter;
 import com.opengamma.financial.analytics.conversion.InterestRateFutureTradeConverter;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -67,15 +68,16 @@ public abstract class InterestRateFutureCurveSpecificFunctionDeprecated extends 
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
+    final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     _converter = new InterestRateFutureTradeConverter(new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource));
-    _dataConverter = new FixedIncomeConverterDataProvider(conventionSource);
+    _dataConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
   }
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
-    final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
+    final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
     final Trade trade = target.getTrade();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String forwardCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
@@ -90,7 +92,7 @@ public abstract class InterestRateFutureCurveSpecificFunctionDeprecated extends 
     }
     final InterpolatedYieldCurveSpecificationWithSecurities curveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) curveSpecObject;
     final InstrumentDefinition<InstrumentDerivative> irFutureDefinition = _converter.convert(trade);
-    final InstrumentDerivative irFuture = _dataConverter.convert(trade.getSecurity(), irFutureDefinition, now, new String[] {fundingCurveName, forwardCurveName}, dataSource);
+    final InstrumentDerivative irFuture = _dataConverter.convert(trade.getSecurity(), irFutureDefinition, now, new String[] {fundingCurveName, forwardCurveName }, timeSeries);
     final ValueSpecification spec = new ValueSpecification(_valueRequirement, target.toSpecification(),
         createValueProperties(target, curveName, forwardCurveName, fundingCurveName, curveCalculationMethod));
     return getResults(irFuture, curveName, curveSpec, data, spec);
@@ -152,6 +154,13 @@ public abstract class InterestRateFutureCurveSpecificFunctionDeprecated extends 
     requirements.add(getCurveRequirement(target, forwardCurveName, forwardCurveName, fundingCurveName, calculationMethod));
     requirements.add(getCurveRequirement(target, fundingCurveName, forwardCurveName, fundingCurveName, calculationMethod));
     requirements.add(getCurveSpecRequirement(target, curveName));
+    final Trade trade = target.getTrade();
+    final Set<ValueRequirement> timeSeriesRequirement = _dataConverter.getConversionTimeSeriesRequirements(trade.getSecurity(), _converter.convert(trade),
+        new String[] {fundingCurveName, forwardCurveName });
+    if (timeSeriesRequirement == null) {
+      return null;
+    }
+    requirements.addAll(timeSeriesRequirement);
     return requirements;
   }
 
@@ -184,7 +193,7 @@ public abstract class InterestRateFutureCurveSpecificFunctionDeprecated extends 
     }
     final YieldAndDiscountCurve forwardCurve = (YieldAndDiscountCurve) forwardCurveObject;
     final YieldAndDiscountCurve fundingCurve = fundingCurveObject == null ? forwardCurve : (YieldAndDiscountCurve) fundingCurveObject;
-    return new YieldCurveBundle(new String[] {fundingCurveName, forwardCurveName}, new YieldAndDiscountCurve[] {fundingCurve, forwardCurve});
+    return new YieldCurveBundle(new String[] {fundingCurveName, forwardCurveName }, new YieldAndDiscountCurve[] {fundingCurve, forwardCurve });
   }
 
   private ValueProperties createValueProperties(final ComputationTarget target) {

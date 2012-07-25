@@ -24,7 +24,10 @@ import com.opengamma.util.ArgumentChecker;
  * Reference data request receiver.
  */
 public class ReferenceDataProviderRequestReceiver implements FudgeRequestReceiver {
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ReferenceDataProviderRequestReceiver.class);
+
   private ReferenceDataProvider _underlying;
   
   /**

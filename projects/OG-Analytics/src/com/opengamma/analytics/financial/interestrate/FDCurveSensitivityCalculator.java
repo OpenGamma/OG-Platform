@@ -11,13 +11,10 @@ import java.util.List;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.method.PricingMethod;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountAddZeroSpreadCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.math.curve.AddCurveSpreadFunction;
-import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
-import com.opengamma.analytics.math.curve.SpreadDoublesCurve;
-import com.opengamma.analytics.math.curve.SubtractCurveSpreadFunction;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -141,15 +138,10 @@ public abstract class FDCurveSensitivityCalculator {
       }
     };
 
-    FunctionalDoublesCurve blipCurve = FunctionalDoublesCurve.from(blip);
+    YieldAndDiscountCurve blipCurve = YieldCurve.from(new FunctionalDoublesCurve(blip));
     YieldAndDiscountCurve originalCurve = curves.getCurve(curveName);
-
-    @SuppressWarnings("rawtypes")
-    Curve[] curveSet = new Curve[] {originalCurve.getCurve(), blipCurve};
-    @SuppressWarnings("unchecked")
-    YieldAndDiscountCurve upCurve = new YieldCurve(SpreadDoublesCurve.from(new AddCurveSpreadFunction(), curveSet));
-    @SuppressWarnings("unchecked")
-    YieldAndDiscountCurve downCurve = new YieldCurve(SpreadDoublesCurve.from(new SubtractCurveSpreadFunction(), curveSet));
+    YieldAndDiscountCurve upCurve = new YieldAndDiscountAddZeroSpreadCurve("UpCurve", false, originalCurve, blipCurve);
+    YieldAndDiscountCurve downCurve = new YieldAndDiscountAddZeroSpreadCurve("DownCurve", true, originalCurve, blipCurve);
 
     curves.replaceCurve(curveName, upCurve);
     double up = calculator.visit(ird, curves);
@@ -171,15 +163,10 @@ public abstract class FDCurveSensitivityCalculator {
       }
     };
 
-    FunctionalDoublesCurve blipCurve = FunctionalDoublesCurve.from(blip);
+    YieldAndDiscountCurve blipCurve = YieldCurve.from(new FunctionalDoublesCurve(blip));
     YieldAndDiscountCurve originalCurve = curves.getCurve(curveName);
-
-    @SuppressWarnings("rawtypes")
-    Curve[] curveSet = new Curve[] {originalCurve.getCurve(), blipCurve};
-    @SuppressWarnings("unchecked")
-    YieldAndDiscountCurve upCurve = new YieldCurve(SpreadDoublesCurve.from(new AddCurveSpreadFunction(), curveSet));
-    @SuppressWarnings("unchecked")
-    YieldAndDiscountCurve downCurve = new YieldCurve(SpreadDoublesCurve.from(new SubtractCurveSpreadFunction(), curveSet));
+    YieldAndDiscountCurve upCurve = new YieldAndDiscountAddZeroSpreadCurve("UpCurve", false, originalCurve, blipCurve);
+    YieldAndDiscountCurve downCurve = new YieldAndDiscountAddZeroSpreadCurve("DownCurve", true, originalCurve, blipCurve);
 
     curves.replaceCurve(curveName, upCurve);
     double up = method.presentValue(ird, curves).getAmount();

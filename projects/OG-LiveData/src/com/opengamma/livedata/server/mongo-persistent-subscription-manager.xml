@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+  xmlns:tx="http://www.springframework.org/schema/tx"
+  xsi:schemaLocation="
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+      http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd
+      http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
+
+  <!-- Persistent subscriptions -->
+  <bean id="mongoConnector" class="com.opengamma.util.mongo.MongoConnectorFactoryBean">
+    <property name="name" value="PersistentSubscription" />
+    <property name="host" value="${mongodb.host}" />
+    <property name="port" value="${mongodb.port}" />
+    <property name="databaseName" value="${mongodb.db.name}" />
+  </bean>
+
+  <bean id="persistentSubscriptionManager" class="com.opengamma.livedata.server.MongoDBPersistentSubscriptionManager"
+    depends-on="liveDataServer" init-method="start">
+    <constructor-arg index="0" ref="liveDataServer"/>
+    <constructor-arg index="1" ref="mongoConnector"/>
+  </bean>
+
+  <bean id="persistentSubscriptionManagerMBean" class="com.opengamma.livedata.server.PersistentSubscriptionManagerMBean">
+    <constructor-arg ref="persistentSubscriptionManager"/>
+  </bean>
+
+</beans>

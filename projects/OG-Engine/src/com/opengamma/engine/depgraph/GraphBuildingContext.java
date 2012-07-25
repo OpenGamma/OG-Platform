@@ -155,44 +155,7 @@ import com.opengamma.util.tuple.Pair;
     if ((dependent != null) && dependent.hasParent(requirement)) {
       dependent.setRecursionDetected();
       s_logger.debug("Can't introduce a ValueRequirement loop");
-      return new ResolvedValueProducer() {
-
-        private int _refCount = 1;
-
-        @Override
-        public Cancelable addCallback(final GraphBuildingContext context, final ResolvedValueCallback callback) {
-          context.failed(callback, requirement, recursiveRequirement(requirement));
-          return null;
-        }
-
-        @Override
-        public String toString() {
-          return "ResolvedValueProducer[" + requirement + "]";
-        }
-
-        @Override
-        public synchronized void addRef() {
-          assert _refCount > 0;
-          _refCount++;
-        }
-
-        @Override
-        public synchronized int release(final GraphBuildingContext context) {
-          assert _refCount > 0;
-          return --_refCount;
-        }
-
-        @Override
-        public boolean hasActiveCallbacks() {
-          return false;
-        }
-
-        @Override
-        public ValueRequirement getValueRequirement() {
-          return requirement;
-        }
-
-      };
+      return new NullResolvedValueProducer(requirement, recursiveRequirement(requirement));
     }
     RequirementResolver resolver = null;
     final ResolveTask[] tasks = getTasksResolving(requirement);
@@ -441,6 +404,14 @@ import com.opengamma.util.tuple.Pair;
       return NullResolutionFailure.INSTANCE;
     } else {
       return ResolutionFailureImpl.marketDataMissing(valueRequirement);
+    }
+  }
+
+  public ResolutionFailure suppressed(final ValueRequirement valueRequirement) {
+    if (getBuilder().isDisableFailureReporting()) {
+      return NullResolutionFailure.INSTANCE;
+    } else {
+      return ResolutionFailureImpl.suppressed(valueRequirement);
     }
   }
 

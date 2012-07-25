@@ -7,32 +7,29 @@ package com.opengamma.financial.analytics.model.pnl;
 
 import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.time.calendar.Period;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
-import com.opengamma.id.ExternalIdBundle;
 
 /**
  * 
  */
 public class PositionExchangeTradedDailyPnLFunction extends AbstractTradeOrDailyPositionPnLFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(PositionExchangeTradedDailyPnLFunction.class);
-  private static final long MAX_DAYS_OLD = 70;
+
+  private static final int MAX_DAYS_OLD = 70;
   
   /**
    * @param resolutionKey the resolution key, not-null
@@ -45,6 +42,9 @@ public class PositionExchangeTradedDailyPnLFunction extends AbstractTradeOrDaily
 
   @Override
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
+    if (!super.canApplyTo(context, target)) {
+      return false;
+    }
     Security security = target.getPositionOrTrade().getSecurity();
     if (security instanceof FXForwardSecurity || security instanceof FXOptionSecurity || security instanceof FXBarrierOptionSecurity || security instanceof FXDigitalOptionSecurity) {
       return false;
@@ -68,15 +68,13 @@ public class PositionExchangeTradedDailyPnLFunction extends AbstractTradeOrDaily
   }
 
   @Override
-  protected HistoricalTimeSeries getMarkToMarketSeries(HistoricalTimeSeriesSource historicalSource, String fieldName, ExternalIdBundle bundle, String resolutionKey, LocalDate tradeDate) {
-    LocalDate from = tradeDate.minusDays(MAX_DAYS_OLD);
-    HistoricalTimeSeries hts = historicalSource.getHistoricalTimeSeries(fieldName, bundle, resolutionKey,
-                                                    from, true, tradeDate, true);
-    if (hts == null || hts.getTimeSeries() == null) {
-      s_logger.debug("Could not get identifier / mark to market series pair for security {} for {} using {} from {} to {}",
-                    new Object[] {bundle, fieldName, resolutionKey, from, tradeDate});
-    }
-    return hts;
+  protected DateConstraint getTimeSeriesStartDate(final PositionOrTrade positionOrTrade) {
+    return DateConstraint.VALUATION_TIME.minus(Period.ofDays(MAX_DAYS_OLD + 1)); // yesterday - MAX_DAYS_OLD
+  }
+
+  @Override
+  protected DateConstraint getTimeSeriesEndDate(final PositionOrTrade positionOrTrade) {
+    return DateConstraint.VALUATION_TIME.yesterday();
   }
 
   @Override

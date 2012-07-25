@@ -20,6 +20,7 @@ import org.apache.commons.lang.ArrayUtils;
 
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.value.ComputedValue;
@@ -58,7 +59,10 @@ public class YieldCurveNodeSensitivitiesHelper {
       final DoubleMatrix1D sensitivitiesForCurve, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec,
       final ValueSpecification resultSpec) {
     final int n = sensitivitiesForCurve.getNumberOfElements();
-    final Double[] keys = curve.getCurve().getXData();
+    if (!(curve instanceof YieldCurve)) {
+      throw new IllegalArgumentException("Can only handle YieldCurve");
+    }
+    final Double[] keys = ((YieldCurve) curve).getCurve().getXData();
     final double[] values = new double[n];
     final Object[] labels = YieldCurveLabelGenerator.getLabels(curveSpec);
     DoubleLabelledMatrix1D labelledMatrix = new DoubleLabelledMatrix1D(keys, labels, values);
@@ -77,10 +81,13 @@ public class YieldCurveNodeSensitivitiesHelper {
       if (curveName.equals(name)) {
         break;
       }
-      startIndex += bundle.getCurve(name).getCurve().size(); //TODO won't work for functional curves
+      if (!(bundle.getCurve(name) instanceof YieldCurve)) { //TODO: make it more generic
+        throw new IllegalArgumentException("Can only handle YieldCurve");
+      }
+      startIndex += ((YieldCurve) bundle.getCurve(name)).getCurve().size();
     }
     final YieldAndDiscountCurve curve = bundle.getCurve(curveName);
-    final Double[] keys = curve.getCurve().getXData();
+    final Double[] keys = ((YieldCurve) curve).getCurve().getXData();
     final double[] values = new double[nSensitivities];
     final Object[] labels = YieldCurveLabelGenerator.getLabels(curveSpec);
     for (int i = 0; i < nSensitivities; i++) {
@@ -117,7 +124,10 @@ public class YieldCurveNodeSensitivitiesHelper {
     final Double[] keys = new Double[length];
     final Object[] labels = new Object[length];
     final double[] values = new double[length];
-    final Double[] xData = curves.getCurve(curveNames[0]).getCurve().getXData();
+    if (!(curves.getCurve(curveNames[0]) instanceof YieldCurve)) { //TODO: make it more generic
+      throw new IllegalArgumentException("Can only handle YieldCurve");
+    }
+    final Double[] xData = ((YieldCurve) curves.getCurve(curveNames[0])).getCurve().getXData();
     for (int i = 0; i < length; i++) {
       keys[i] = xData[i];
       labels[i] = curveInstrumentProvider.getInstrument(localNow, tenors[i]);
@@ -143,8 +153,11 @@ public class YieldCurveNodeSensitivitiesHelper {
   public static Set<ComputedValue> getSensitivitiesForMultipleCurves(final String forwardCurveName, final String fundingCurveName,
       final ValueSpecification forwardResultSpecification, final ValueSpecification fundingResultSpecification, final YieldCurveBundle bundle,
       final DoubleMatrix1D sensitivitiesForCurves, final Map<String, InterpolatedYieldCurveSpecificationWithSecurities> curveSpecs) {
-    final int nForward = bundle.getCurve(forwardCurveName).getCurve().size();
-    final int nFunding = bundle.getCurve(fundingCurveName).getCurve().size();
+    if (!(bundle.getCurve(forwardCurveName) instanceof YieldCurve)) { //TODO: make it more generic
+      throw new IllegalArgumentException("Can only handle YieldCurve");
+    }
+    final int nForward = ((YieldCurve) bundle.getCurve(forwardCurveName)).getCurve().size();
+    final int nFunding = ((YieldCurve) bundle.getCurve(fundingCurveName)).getCurve().size();
     final Map<String, DoubleMatrix1D> sensitivities = new HashMap<String, DoubleMatrix1D>();
     sensitivities.put(fundingCurveName, new DoubleMatrix1D(Arrays.copyOfRange(sensitivitiesForCurves.toArray(), 0, nFunding)));
     sensitivities.put(forwardCurveName, new DoubleMatrix1D(Arrays.copyOfRange(sensitivitiesForCurves.toArray(), nFunding, nForward + nFunding)));

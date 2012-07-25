@@ -81,7 +81,7 @@ public class AbstractExceptionMapper {
    * @param exception  the exception, not null
    */
   protected void logRestfulError(final Throwable exception) {
-    s_logger.warn("RESTful web-service exception caught and tunnelled to client: {}", exception.getMessage());
+    s_logger.warn("RESTful web-service exception caught and tunnelled to client:", exception);
   }
 
 }

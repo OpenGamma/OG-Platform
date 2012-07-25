@@ -21,7 +21,12 @@ public enum NotCalculatedSentinel implements MissingInput {
   /**
    * Placeholder for functions that were executed but failed to produce one or more results.
    */
-  EVALUATION_ERROR("Evaluation error");
+  EVALUATION_ERROR("Evaluation error"),
+
+  /**
+   * Placeholder for functions that weren't executed because of blacklist suppression or a failure on a previous cycle.
+   */
+  SUPPRESSED("Suppressed");
 
   private final String _reason;
 

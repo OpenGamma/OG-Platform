@@ -39,7 +39,7 @@ public class InterestRateFutureDefaultValuesFunction extends DefaultPropertyFunc
   private final Map<String, String> _currencyAndCurveConfigNames;
 
   public InterestRateFutureDefaultValuesFunction(final String priority, final String... currencyAndCurveConfigNames) {
-    super(ComputationTargetType.SECURITY, true);
+    super(ComputationTargetType.TRADE, true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(currencyAndCurveConfigNames, "currency and curve config names");
     final int nPairs = currencyAndCurveConfigNames.length;
@@ -60,10 +60,7 @@ public class InterestRateFutureDefaultValuesFunction extends DefaultPropertyFunc
       return false;
     }
     final String currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode();
-    if (_currencyAndCurveConfigNames.containsKey(currency)) {
-      return true;
-    }
-    return false;
+    return _currencyAndCurveConfigNames.containsKey(currency);
   }
 
   @Override
@@ -76,7 +73,7 @@ public class InterestRateFutureDefaultValuesFunction extends DefaultPropertyFunc
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
     if (ValuePropertyNames.CURVE_CALCULATION_CONFIG.equals(propertyName)) {
-      final String currencyName = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
+      final String currencyName = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode();
       final String configName = _currencyAndCurveConfigNames.get(currencyName);
       if (configName == null) {
         s_logger.error("Could not get config for currency " + currencyName + "; should never happen");

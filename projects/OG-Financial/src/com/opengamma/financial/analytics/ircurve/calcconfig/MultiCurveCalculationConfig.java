@@ -76,7 +76,10 @@ public class MultiCurveCalculationConfig {
   }
 
   public String[] getCurveExposureForInstrument(final String yieldCurveName, final StripInstrumentType instrumentType) {
-    return _curveExposuresForInstruments.get(yieldCurveName).getExposuresForInstrument(instrumentType);
+    if (_curveExposuresForInstruments.containsKey(yieldCurveName)) {
+      return _curveExposuresForInstruments.get(yieldCurveName).getExposuresForInstrument(instrumentType);
+    }
+    throw new IllegalArgumentException("Could not get instrument exposures for curve named " + yieldCurveName + " in config " + _calculationConfigName);
   }
 
   public LinkedHashMap<String, String[]> getExogenousConfigData() {

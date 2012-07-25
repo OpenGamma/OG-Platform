@@ -37,7 +37,7 @@ import com.opengamma.util.tuple.DoublesPair;
 public class PractitionerBlackScholesVolatilitySurfaceModelTest {
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
   private static final PractitionerBlackScholesVolatilitySurfaceModel MODEL = new PractitionerBlackScholesVolatilitySurfaceModel();
-  private static final YieldAndDiscountCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(0.04));
+  private static final YieldAndDiscountCurve CURVE = YieldCurve.from(ConstantDoublesCurve.from(0.04));
   private static final double B = 0.03;
   private static final double SPOT = 100;
   private static final boolean IS_CALL = true;

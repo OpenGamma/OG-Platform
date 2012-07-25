@@ -32,7 +32,7 @@ import com.opengamma.util.time.Expiry;
 public class FourierOptionModelTest {
   private static final HashSet<Greek> GREEKS = Sets.newHashSet(Greek.FAIR_PRICE);
   private static final double R = 0.005;
-  private static final YieldCurve YIELD_CURVE = new YieldCurve(ConstantDoublesCurve.from(R));
+  private static final YieldCurve YIELD_CURVE = YieldCurve.from(ConstantDoublesCurve.from(R));
   private static final double BLACK_VOL = 0.34;
   private static final VolatilitySurface VOLATILITY_SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(BLACK_VOL));
   private static final double FORWARD = 100;

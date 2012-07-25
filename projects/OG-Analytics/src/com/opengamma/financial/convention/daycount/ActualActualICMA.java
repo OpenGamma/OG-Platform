@@ -28,20 +28,10 @@ public class ActualActualICMA extends ActualTypeDayCount {
     throw new NotImplementedException("Cannot get daycount fraction; need information about the coupon and payment frequency");
   }
 
-  //  @Override
-  //  public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
-  //    throw new NotImplementedException("Cannot get daycount fraction; need information about the coupon and payment frequency");
-  //  }
-
   @Override
   public double getAccruedInterest(final LocalDate previousCouponDate, final LocalDate date, final LocalDate nextCouponDate, final double coupon, final double paymentsPerYear) {
     return getAccruedInterest(previousCouponDate, date, nextCouponDate, coupon, paymentsPerYear, StubType.NONE);
   }
-
-  //  @Override
-  //  public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final double paymentsPerYear) {
-  //    return getAccruedInterest(previousCouponDate, date, nextCouponDate, coupon, paymentsPerYear, StubType.NONE);
-  //  }
 
   public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final double paymentsPerYear,
       final StubType stubType) {

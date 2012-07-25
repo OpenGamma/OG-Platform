@@ -28,7 +28,7 @@ import com.opengamma.util.time.Expiry;
 public class RelativeOutperformanceOptionModelTest {
   private static final double S1 = 130;
   private static final double S2 = 100;
-  private static final YieldAndDiscountCurve R = new YieldCurve(ConstantDoublesCurve.from(0.07));
+  private static final YieldAndDiscountCurve R = YieldCurve.from(ConstantDoublesCurve.from(0.07));
   private static final double B1 = 0.05;
   private static final double B2 = 0.03;
   private static final VolatilitySurface SIGMA1 = new VolatilitySurface(ConstantDoublesSurface.from(0.3));

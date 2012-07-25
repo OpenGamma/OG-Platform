@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.view.calcnode;
 
-import java.util.Collection;
 
 /**
  * Interface for an implementation that can specify certain capabilities for jobs so that
@@ -15,14 +14,12 @@ import java.util.Collection;
 public interface CapabilityRequirementsProvider {
 
   /**
-   * Returns the {@link CapabilityRequirements} object for the job. The object
-   * will never be modified by the caller so the same instance can be returned for multiple
-   * jobs.
+   * Returns the {@link CapabilityRequirements} object for the job. The object will never be modified by the caller so the same instance can be returned for multiple jobs.
    * 
-   * @param jobs job details
+   * @param job job details
    * @return the requirements, not null.
    */
-  CapabilityRequirements getCapabilityRequirements(Collection<CalculationJob> jobs);
+  CapabilityRequirements getCapabilityRequirements(CalculationJob job);
 
 }
 

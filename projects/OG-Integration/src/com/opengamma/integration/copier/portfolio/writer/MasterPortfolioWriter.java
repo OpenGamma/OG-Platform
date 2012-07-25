@@ -179,13 +179,15 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       }
     } else {
       for (ManageableSecurity foundSecurity : searchResult.getSecurities()) {
-        List<BeanDifference<?>> differences;
-        try {
-          differences = _beanCompare.compare(foundSecurity, security);
-        } catch (Exception e) {
-          throw new OpenGammaRuntimeException("Error comparing securities with ID bundle " + security.getExternalIdBundle(), e);
+        List<BeanDifference<?>> differences = null;
+        if (foundSecurity.getClass().equals(security.getClass())) {
+          try {
+            differences = _beanCompare.compare(foundSecurity, security);
+          } catch (Exception e) {
+            throw new OpenGammaRuntimeException("Error comparing securities with ID bundle " + security.getExternalIdBundle(), e);
+          }
         }
-        if (differences.size() == 1 && differences.get(0).getProperty().propertyType() == UniqueId.class) {
+        if (differences != null && differences.size() == 1 && differences.get(0).getProperty().propertyType() == UniqueId.class) {
           // It's already there, don't update or add it
           return foundSecurity;
         } else {

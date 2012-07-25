@@ -24,8 +24,8 @@ import com.opengamma.util.time.DateUtils;
  * 
  */
 public class SABRDataBundleTest {
-  private static final YieldCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(0.03));
-  private static final YieldCurve OTHER_CURVE = new YieldCurve(ConstantDoublesCurve.from(0.035));
+  private static final YieldCurve CURVE = YieldCurve.from(ConstantDoublesCurve.from(0.03));
+  private static final YieldCurve OTHER_CURVE = YieldCurve.from(ConstantDoublesCurve.from(0.035));
   private static final double B = 0.01;
   private static final double OTHER_B = 0.02;
   private static final VolatilitySurface SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(0.4));

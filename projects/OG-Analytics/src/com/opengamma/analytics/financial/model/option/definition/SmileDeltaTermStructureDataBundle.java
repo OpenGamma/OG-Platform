@@ -10,7 +10,6 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
-import com.opengamma.analytics.financial.forex.method.YieldCurveWithFXBundle;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
@@ -18,7 +17,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Class describing the data required to price instruments with the volatility delta and time dependent.
  */
-public class SmileDeltaTermStructureDataBundle extends YieldCurveWithFXBundle {
+public class SmileDeltaTermStructureDataBundle extends YieldCurveBundle {
 
   /**
    * The smile parameters for one currency pair.
@@ -39,7 +38,7 @@ public class SmileDeltaTermStructureDataBundle extends YieldCurveWithFXBundle {
    */
   public SmileDeltaTermStructureDataBundle(final FXMatrix fxRates, final Map<String, Currency> curveCurrency, final YieldCurveBundle ycBundle,
       final SmileDeltaTermStructureParametersStrikeInterpolation smile, Pair<Currency, Currency> currencyPair) {
-    super(fxRates, curveCurrency, ycBundle);
+    super(ycBundle.getCurvesMap(), fxRates, curveCurrency);
     Validate.notNull(smile, "Smile parameters");
     //TODO: check rate is available for currency pair.
     _smile = smile;

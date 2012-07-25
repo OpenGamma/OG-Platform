@@ -333,6 +333,14 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
         // could be that even though subscription to the JMS topic (phase 1) succeeded, snapshot (phase 2) for some reason failed.
         // since phase 1 already validated everything, this should mainly happen when user permissions are modified 
         // in the sub-second interval between phases 1 and 2!
+        
+        // Not so. In fact for a system like Bloomberg, because of the lag in subscription, the LiveDataServer
+        // may in fact think that you can successfully subscribe, but then when the snapshot is requested we detect
+        // that it's not a valid code. So this is the time that we've actually poked the underlying data provider
+        // to check.
+        
+        // In addition, it may be that for a FireHose server we didn't have the full SoW on the initial request
+        // but now we do.
         if (response.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS) {
           
           handle.addSnapshotOnHold(response.getSnapshot());

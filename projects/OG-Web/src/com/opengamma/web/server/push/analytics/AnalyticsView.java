@@ -5,7 +5,7 @@
  */
 package com.opengamma.web.server.push.analytics;
 
-import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 
@@ -21,15 +21,11 @@ public interface AnalyticsView {
 
   void updateStructure(CompiledViewDefinition compiledViewDefinition);
 
-  void updateResults(ViewComputationResultModel fullResult);
-
-  void updateResults(ViewComputationResultModel fullResult, ViewCycle viewCycle);
-
-  boolean isViewCycleRequired();
+  void updateResults(ViewResultModel results, ViewCycle viewCycle);
 
 // -------- main grid --------
 
-  AnalyticsGridStructure getGridStructure(GridType gridType);
+  GridStructure getGridStructure(GridType gridType);
 
   void createViewport(GridType gridType, String viewportId, String dataId, ViewportSpecification viewportSpec);
 
@@ -52,7 +48,7 @@ public interface AnalyticsView {
 
   void closeDependencyGraph(GridType gridType, String graphId);
 
-  AnalyticsGridStructure getGridStructure(GridType gridType, String graphId);
+  GridStructure getGridStructure(GridType gridType, String graphId);
 
   void createViewport(GridType gridType, String graphId, String viewportId, String dataId, ViewportSpecification viewportSpec);
 

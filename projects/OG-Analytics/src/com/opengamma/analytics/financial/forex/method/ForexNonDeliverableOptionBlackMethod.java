@@ -135,7 +135,7 @@ public final class ForexNonDeliverableOptionBlackMethod implements ForexPricingM
    * @param curves The curve and fx data.
    * @return The forward rate.
    */
-  public double forwardForexRate(final ForexNonDeliverableOption ndo, final YieldCurveWithFXBundle curves) {
+  public double forwardForexRate(final ForexNonDeliverableOption ndo, final YieldCurveBundle curves) {
     ForexNonDeliverableForwardDiscountingMethod method = ForexNonDeliverableForwardDiscountingMethod.getInstance();
     return method.forwardForexRate(ndo.getUnderlyingNDF(), curves);
   }

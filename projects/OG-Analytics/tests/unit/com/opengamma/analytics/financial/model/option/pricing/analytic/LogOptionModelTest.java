@@ -33,7 +33,7 @@ public class LogOptionModelTest {
   private static final Set<Greek> REQUIRED_GREEKS = Collections.singleton(Greek.FAIR_PRICE);
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2009, 1, 1);
   private static final Expiry EXPIRY = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 0.75));
-  private static final YieldAndDiscountCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(0.08));
+  private static final YieldAndDiscountCurve CURVE = YieldCurve.from(ConstantDoublesCurve.from(0.08));
   private static final double B = 0.04;
   private static final double SPOT = 100;
   private static final double EPS = 1e-4;

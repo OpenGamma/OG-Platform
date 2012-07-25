@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.forex.calculator;
 
+import com.opengamma.analytics.financial.calculator.PresentValueMCACalculator;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableOption;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionDigital;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionSingleBarrier;
@@ -19,7 +20,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Calculator of the present value for Forex derivatives in the Black (Garman-Kohlhagen) world. The volatilities are given by delta-smile descriptions.
  */
-public final class PresentValueBlackForexCalculator extends PresentValueForexCalculator {
+public final class PresentValueBlackForexCalculator extends PresentValueMCACalculator {
 
   /**
    * The unique instance of the calculator.

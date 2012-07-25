@@ -51,7 +51,7 @@ public class ExternalSchemes {
   public static final ExternalScheme BLOOMBERG_BUID = ExternalScheme.of("BLOOMBERG_BUID");
   /**
    * Identification scheme for weak Bloomberg BUIDs.
-   * A weak ID permits the underlying market data to return old data. 
+   * A weak ID permits the underlying market data to return old data.
    */
   public static final ExternalScheme BLOOMBERG_BUID_WEAK = ExternalScheme.of("BLOOMBERG_BUID_WEAK");
   /**
@@ -60,7 +60,7 @@ public class ExternalSchemes {
   public static final ExternalScheme BLOOMBERG_TICKER = ExternalScheme.of("BLOOMBERG_TICKER");
   /**
    * Identification scheme for weak Bloomberg tickers.
-   * A weak ID permits the underlying market data to return old data. 
+   * A weak ID permits the underlying market data to return old data.
    */
   public static final ExternalScheme BLOOMBERG_TICKER_WEAK = ExternalScheme.of("BLOOMBERG_TICKER_WEAK");
   /**
@@ -114,7 +114,7 @@ public class ExternalSchemes {
    * Identification scheme for the tz database time-zone standard.
    */
   public static final ExternalScheme TZDB_TIME_ZONE = ExternalScheme.of("TZDB_TIME_ZONE");
-  
+
   /**
    * Identification scheme for financial activity.
    * This currently tends to be the country code, but can be more complex.
@@ -126,8 +126,8 @@ public class ExternalSchemes {
    * Identification scheme for the MIC exchange code ISO standard.
    */
   public static final ExternalScheme ISO_MIC = ExternalScheme.of("ISO_MIC");
-  
-  
+
+
   /**
    * Restricted constructor.
    */
@@ -234,6 +234,22 @@ public class ExternalSchemes {
   }
 
   /**
+   * Creates a Synthetic ticker.
+   * <p>
+   * This is the ticker used mainly by OG-Examples
+   * 
+   * @param ticker  the OG-Synthetic ticker, not null
+   * @return the security identifier, not null
+   */
+  public static ExternalId syntheticSecurityId(final String ticker) {
+    ArgumentChecker.notNull(ticker, "code");
+    if (ticker.length() == 0) {
+      throw new IllegalArgumentException("Ticker is invalid: " + ticker);
+    }
+    return ExternalId.of(OG_SYNTHETIC_TICKER, ticker);
+  }
+
+  /**
    * Creates a Bloomberg ticker coupon maturity identifier.
    * <p>
    * This is the ticker combined with a coupon and a maturity supplied by Bloomberg.
@@ -265,15 +281,15 @@ public class ExternalSchemes {
     Double couponDbl;
     try {
       couponDbl = Double.parseDouble(coupon);
-    } catch (NumberFormatException ex) {
+    } catch (final NumberFormatException ex) {
       throw new IllegalArgumentException("Coupon must be a valid double, ticker=" + tickerWithoutSector + ", coupon=" + coupon, ex);
     }
     if (s_logger.isDebugEnabled()) {
       try {
         LocalDate.parse(maturity, DateTimeFormatters.pattern("MM/dd/YY"));
-      } catch (UnsupportedOperationException uoe) {
+      } catch (final UnsupportedOperationException uoe) {
         s_logger.warn("Problem parsing maturity " + maturity + " ticker=" + tickerWithoutSector + ", coupon=" + coupon);
-      } catch (CalendricalException ce) {
+      } catch (final CalendricalException ce) {
         s_logger.warn("Problem parsing maturity " + maturity + " ticker=" + tickerWithoutSector + ", coupon=" + coupon);
       }
     }
@@ -313,7 +329,24 @@ public class ExternalSchemes {
     }
     return ExternalId.of(ACTIVFEED_TICKER, ticker);
   }
-  
+
+  /**
+   * Creates a Tullett-Prebon ticker.
+   * <p>
+   * This is the ticker used by Tullett-Prebon.
+   * An example is {@code ASIRSUSD20Y30S03L}.
+   * 
+   * @param ticker The Tullett-Prebon ticker, not null
+   * @return The security identifier, not null
+   */
+  public static ExternalId tullettPrebonSecurityId(final String ticker) {
+    ArgumentChecker.notNull(ticker, "ticker");
+    if (ticker.length() == 0) {
+      throw new IllegalArgumentException("Ticker is invalid: " + ticker);
+    }
+    return ExternalId.of(SURF, ticker);
+  }
+
   // -------------------------- METHODS FOR REGIONS ---------------------------
 
   /**
@@ -322,7 +355,7 @@ public class ExternalSchemes {
    * @param code  the code, not null
    * @return the region identifier, not null
    */
-  public static ExternalId financialRegionId(String code) {
+  public static ExternalId financialRegionId(final String code) {
     ArgumentChecker.notNull(code, "code");
     if (code.matches("[A-Z+]+") == false) {
       throw new IllegalArgumentException("Code is invalid: " + code);
@@ -338,7 +371,7 @@ public class ExternalSchemes {
    * @param zone  the time-zone, not null
    * @return the region identifier, not null
    */
-  public static ExternalId timeZoneRegionId(TimeZone zone) {
+  public static ExternalId timeZoneRegionId(final TimeZone zone) {
     ArgumentChecker.notNull(zone, "zone");
     return ExternalId.of(ExternalSchemes.TZDB_TIME_ZONE, zone.getID());
   }
@@ -352,7 +385,7 @@ public class ExternalSchemes {
    * @param locode  the Copp Clark LOCODE, not null
    * @return the region identifier, not null
    */
-  public static ExternalId coppClarkRegionId(String locode) {
+  public static ExternalId coppClarkRegionId(final String locode) {
     ArgumentChecker.notNull(locode, "locode");
     if (locode.matches("[A-Z]{2}[A-Z0-9]{3}") == false) {
       throw new IllegalArgumentException("Copp Clark LOCODE is invalid: " + locode);
@@ -368,7 +401,7 @@ public class ExternalSchemes {
    * @param locode  the UN/LOCODE, not null
    * @return the region identifier, not null
    */
-  public static ExternalId unLocode20102RegionId(String locode) {
+  public static ExternalId unLocode20102RegionId(final String locode) {
     ArgumentChecker.notNull(locode, "locode");
     if (locode.matches("[A-Z]{2}[A-Z0-9]{3}") == false) {
       throw new IllegalArgumentException("UN/LOCODE is invalid: " + locode);
@@ -384,7 +417,7 @@ public class ExternalSchemes {
    * @param currency  the currency, not null
    * @return the region identifier, not null
    */
-  public static ExternalId currencyRegionId(Currency currency) {
+  public static ExternalId currencyRegionId(final Currency currency) {
     ArgumentChecker.notNull(currency, "currency");
     return ExternalId.of(ExternalSchemes.ISO_CURRENCY_ALPHA3, currency.getCode());
   }
@@ -397,7 +430,7 @@ public class ExternalSchemes {
    * @param country  the country, not null
    * @return the region identifier, not null
    */
-  public static ExternalId countryRegionId(Country country) {
+  public static ExternalId countryRegionId(final Country country) {
     ArgumentChecker.notNull(country, "country");
     return ExternalId.of(ExternalSchemes.ISO_COUNTRY_ALPHA2, country.getCode());
   }
@@ -411,12 +444,12 @@ public class ExternalSchemes {
    * @param code  the code, not null
    * @return the region identifier, not null
    */
-  public static ExternalId isoMicExchangeId(String code) {
+  public static ExternalId isoMicExchangeId(final String code) {
     ArgumentChecker.notNull(code, "code");
     if (code.matches("[A-Z0-9]{4}([-][A-Z0-9]{3})?") == false) {
       throw new IllegalArgumentException("ISO MIC code is invalid: " + code);
     }
     return ExternalId.of(ExternalSchemes.ISO_MIC, code);
   }
-  
+
 }

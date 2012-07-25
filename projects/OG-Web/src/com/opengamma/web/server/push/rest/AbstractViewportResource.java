@@ -7,17 +7,17 @@ package com.opengamma.web.server.push.rest;
 
 import java.util.List;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.server.push.analytics.ViewportResults;
 import com.opengamma.web.server.push.analytics.AnalyticsView;
+import com.opengamma.web.server.push.analytics.ViewportResults;
 import com.opengamma.web.server.push.analytics.ViewportSpecification;
 
 /**
@@ -38,9 +38,11 @@ public abstract class AbstractViewportResource {
     _viewportId = viewportId;
   }
 
-  @POST
-  public void update(List<Integer> rows, List<Integer> columns) {
-    update(new ViewportSpecification(rows, columns));
+  @PUT
+  public void update(@FormParam("rows") List<Integer> rows,
+                     @FormParam("columns") List<Integer> columns,
+                     @FormParam("expanded") boolean expanded) {
+    update(new ViewportSpecification(rows, columns, expanded));
   }
 
   public abstract void update(ViewportSpecification viewportSpecification);

@@ -34,7 +34,7 @@ import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
  * 
  */
 public class FloatingStrikeLookbackOptionModelTest {
-  private static final YieldAndDiscountCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(0.1));
+  private static final YieldAndDiscountCurve CURVE = YieldCurve.from(ConstantDoublesCurve.from(0.1));
   private static final double B = 0.04;
   private static final VolatilitySurface SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(0.3));
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 7, 1);

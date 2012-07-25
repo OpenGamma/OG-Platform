@@ -9,16 +9,6 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.curve.AddCurveSpreadFunction;
-import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
-import com.opengamma.analytics.math.curve.Curve;
-import com.opengamma.analytics.math.curve.CurveSpreadFunction;
-import com.opengamma.analytics.math.curve.DivideCurveSpreadFunction;
-import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
-import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.analytics.math.curve.MultiplyCurveSpreadFunction;
-import com.opengamma.analytics.math.curve.NodalDoublesCurve;
-import com.opengamma.analytics.math.curve.SubtractCurveSpreadFunction;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
@@ -34,8 +24,6 @@ public class CurveSpreadFunctionTest {
   private static final double[] X = new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9};
   private static final double[] Y1 = new double[] {2, 4, 6, 8, 10, 12, 14, 16, 18};
   private static final double[] Y2 = new double[] {1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1};
-  private static final NodalDoublesCurve NODAL1 = NodalDoublesCurve.fromSorted(X, Y1);
-  private static final NodalDoublesCurve NODAL2 = NodalDoublesCurve.fromSorted(X, Y2);
   private static final InterpolatedDoublesCurve INTERPOLATED1 = InterpolatedDoublesCurve.fromSorted(X, Y1, new LinearInterpolator1D());
   private static final InterpolatedDoublesCurve INTERPOLATED2 = InterpolatedDoublesCurve.fromSorted(X, Y2, new LinearInterpolator1D());
   private static final ConstantDoublesCurve CONSTANT1 = ConstantDoublesCurve.from(2);
@@ -109,36 +97,6 @@ public class CurveSpreadFunctionTest {
     assertEquals(DIVIDE.getOperationName(), "/");
     assertEquals(MULTIPLY.getOperationName(), "*");
     assertEquals(SUBTRACT.getOperationName(), "-");
-  }
-
-  @SuppressWarnings("unchecked")
-  @Test
-  public void testNodal() {
-    final Curve<Double, Double>[] curves = new Curve[] {NODAL1, NODAL2};
-    Function<Double, Double> f = ADD.evaluate(curves);
-    try {
-      f.evaluate(1.1);
-    } catch (final IllegalArgumentException e) {
-    }
-    assertEquals(f.evaluate(3.), Y1[2] + Y2[2], 0);
-    f = DIVIDE.evaluate(curves);
-    try {
-      f.evaluate(1.1);
-    } catch (final IllegalArgumentException e) {
-    }
-    assertEquals(f.evaluate(3.), Y1[2] / Y2[2], 0);
-    f = MULTIPLY.evaluate(curves);
-    try {
-      f.evaluate(1.1);
-    } catch (final IllegalArgumentException e) {
-    }
-    assertEquals(f.evaluate(3.), Y1[2] * Y2[2], 0);
-    f = SUBTRACT.evaluate(curves);
-    try {
-      f.evaluate(1.1);
-    } catch (final IllegalArgumentException e) {
-    }
-    assertEquals(f.evaluate(3.), Y1[2] - Y2[2], 0);
   }
 
   @SuppressWarnings("unchecked")

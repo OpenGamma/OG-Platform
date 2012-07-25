@@ -11,7 +11,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.interestrate.HullWhiteTwoFactorInterestRateModel;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteTwoFactorDataBundle;
 import com.opengamma.analytics.financial.model.volatility.curve.VolatilityCurve;
@@ -30,7 +29,7 @@ public class HullWhiteTwoFactorInterestRateModelTest {
   private static final ZonedDateTime TODAY = DateUtils.getUTCDate(2010, 8, 1);
   private static final ZonedDateTime START = DateUtils.getDateOffsetWithYearFraction(TODAY, T1);
   private static final ZonedDateTime MATURITY = DateUtils.getDateOffsetWithYearFraction(START, T2);
-  private static final YieldCurve R = new YieldCurve(ConstantDoublesCurve.from(RATE));
+  private static final YieldCurve R = YieldCurve.from(ConstantDoublesCurve.from(RATE));
   private static final VolatilityCurve VOL1 = new VolatilityCurve(ConstantDoublesCurve.from(SIGMA1));
   private static final VolatilityCurve VOL2 = new VolatilityCurve(ConstantDoublesCurve.from(SIGMA2));
   private static final double SPEED1 = 0.2;
@@ -58,10 +57,10 @@ public class HullWhiteTwoFactorInterestRateModelTest {
 
   @Test
   public void test() {
-    HullWhiteTwoFactorDataBundle data = new HullWhiteTwoFactorDataBundle(R, new VolatilityCurve(ConstantDoublesCurve.from(0)), VOL2, TODAY, SPEED1, SPEED2, U, new YieldCurve(
-        ConstantDoublesCurve.from(F)), RHO);
+    HullWhiteTwoFactorDataBundle data = new HullWhiteTwoFactorDataBundle(R, new VolatilityCurve(ConstantDoublesCurve.from(0)), VOL2, TODAY, SPEED1, SPEED2, U, YieldCurve.from(ConstantDoublesCurve
+        .from(F)), RHO);
     assertEquals(MODEL.getDiscountBondFunction(START, MATURITY).evaluate(data), 0, EPS);
-    data = new HullWhiteTwoFactorDataBundle(R, VOL1, VOL2, TODAY, SPEED1, SPEED2, U, new YieldCurve(ConstantDoublesCurve.from(F)), RHO);
+    data = new HullWhiteTwoFactorDataBundle(R, VOL1, VOL2, TODAY, SPEED1, SPEED2, U, YieldCurve.from(ConstantDoublesCurve.from(F)), RHO);
     assertEquals(MODEL.getDiscountBondFunction(START, START).evaluate(data), 1, EPS);
   }
 }

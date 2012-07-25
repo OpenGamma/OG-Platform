@@ -13,7 +13,11 @@ import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackVolat
 import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilityNodeSensitivityDataBundle;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionExecutionContext;
+import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
@@ -30,8 +34,9 @@ public class FXOptionBlackVegaMatrixFunction extends FXOptionBlackSingleValuedFu
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
-    final PresentValueForexBlackVolatilityNodeSensitivityDataBundle result = CALCULATOR.visit(fxOption, data);
+  protected Set<ComputedValue> getResult(final InstrumentDerivative forex, final SmileDeltaTermStructureDataBundle data, final ComputationTarget target,
+      final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
+    final PresentValueForexBlackVolatilityNodeSensitivityDataBundle result = CALCULATOR.visit(forex, data);
     final double[] expiries = result.getExpiries().getData();
     final double[] delta = result.getDelta().getData();
     final double[][] vega = result.getVega().getData();

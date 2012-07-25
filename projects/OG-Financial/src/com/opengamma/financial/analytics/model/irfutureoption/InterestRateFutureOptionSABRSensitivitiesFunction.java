@@ -88,6 +88,11 @@ public class InterestRateFutureOptionSABRSensitivitiesFunction extends InterestR
     }
     requirements.add(getCurveRequirement(target, forwardCurveName, forwardCurveName, fundingCurveName, curveCalculationMethodName));
     requirements.add(getCurveRequirement(target, fundingCurveName, forwardCurveName, fundingCurveName, curveCalculationMethodName));
+    final Set<ValueRequirement> timeSeriesRequirements = getTimeSeriesRequirements(target, fundingCurveName, forwardCurveName);
+    if (timeSeriesRequirements == null) {
+      return null;
+    }
+    requirements.addAll(timeSeriesRequirements);
     return requirements;
   }
   private DoubleLabelledMatrix2D getMatrix(final Map<DoublesPair, Double> map) {

@@ -23,6 +23,7 @@ import java.util.Set;
 import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.core.change.ChangeManager;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,9 +33,9 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
-import com.bloomberglp.blpapi.SessionOptions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.bbg.BloombergIdentifierProvider;
 import com.opengamma.bbg.BloombergReferenceDataProvider;
@@ -67,8 +68,9 @@ import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Test BloombergHistoricalLoader.
+ * Test.
  */
+@Test(groups = "integration")
 public class BloombergHistoricalLoaderTest extends DbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergHistoricalLoaderTest.class);
@@ -92,8 +94,8 @@ public class BloombergHistoricalLoaderTest extends DbTest {
    */
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public BloombergHistoricalLoaderTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
-    s_logger.debug("running test for database = {} version = {}", databaseType, databaseVersion);
+    super(databaseType, databaseVersion, databaseVersion);
+    s_logger.debug("running test for database = {}", databaseType);
   }
 
   @BeforeMethod
@@ -106,8 +108,8 @@ public class BloombergHistoricalLoaderTest extends DbTest {
     PositionMaster positionMaster = setUpPositionMaster(transactionManager);
     _positionMaster = positionMaster;
     
-    SessionOptions options = BloombergTestUtils.getSessionOptions();
-    BloombergReferenceDataProvider dataProvider = new BloombergReferenceDataProvider(options);
+    BloombergConnector connector = BloombergTestUtils.getBloombergConnector();
+    BloombergReferenceDataProvider dataProvider = new BloombergReferenceDataProvider(connector);
     dataProvider.start();
     
     BloombergIdentifierProvider idProvider = new BloombergIdentifierProvider(dataProvider);
@@ -449,6 +451,10 @@ public class BloombergHistoricalLoaderTest extends DbTest {
       throw new UnsupportedOperationException();
     }
 
+    @Override
+    public ChangeManager changeManager() {
+      throw new UnsupportedOperationException();
+    }
   }
 
   private List<Pair<HistoricalTimeSeriesInfoDocument, HistoricalTimeSeries>> addAndTestTimeSeries() {
@@ -495,7 +501,7 @@ public class BloombergHistoricalLoaderTest extends DbTest {
     }
     return result;
   }
-  
+
   private LocalDateDoubleTimeSeries makeRandomTimeSeries(LocalDate start, LocalDate end) {
     MapLocalDateDoubleTimeSeries tsMap = new MapLocalDateDoubleTimeSeries();
     LocalDate current = start;

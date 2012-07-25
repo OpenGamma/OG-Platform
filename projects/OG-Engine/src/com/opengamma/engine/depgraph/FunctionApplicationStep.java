@@ -480,6 +480,17 @@ import com.opengamma.util.tuple.Triple;
 
     private boolean pushResult(final GraphBuildingContext context, final FunctionApplicationWorker substituteWorker, final Map<ValueSpecification, ValueRequirement> inputs,
         final ValueSpecification resolvedOutput, final Set<ValueSpecification> resolvedOutputs, final boolean lastWorkerResult) {
+      if (context.getCompilationContext().getGraphBuildingBlacklist().isBlacklisted(getFunction(), resolvedOutput.getTargetSpecification(), inputs.keySet(), resolvedOutputs)) {
+        s_logger.info("Result {} for {} suppressed by blacklist", resolvedOutput, getValueRequirement());
+        final ResolutionFailure failure = functionApplication(context).requirements(inputs).suppressed();
+        if (substituteWorker != null) {
+          substituteWorker.storeFailure(failure);
+          substituteWorker.finished(context);
+          context.discardTaskProducing(resolvedOutput, getTask());
+        }
+        getWorker().storeFailure(failure);
+        return false;
+      }
       final ResolvedValue result = createResult(resolvedOutput, getFunction(), inputs.keySet(), resolvedOutputs);
       s_logger.info("Result {} for {}", result, getValueRequirement());
       context.declareProduction(result);

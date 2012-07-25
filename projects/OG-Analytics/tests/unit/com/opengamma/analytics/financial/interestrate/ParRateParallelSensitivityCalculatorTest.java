@@ -46,8 +46,8 @@ public class ParRateParallelSensitivityCalculatorTest {
   private final static ParRateParallelSensitivityCalculator PRPSC = ParRateParallelSensitivityCalculator.getInstance();
   private final static ParRateCalculator PRC = ParRateCalculator.getInstance();
 
-  private final static YieldAndDiscountCurve FUNDING_CURVE = new YieldCurve(FunctionalDoublesCurve.from(new MyFunction(-0.04, 0.007, 0.1, 0.05)));
-  private final static YieldAndDiscountCurve LIBOR_CURVE = new YieldCurve(FunctionalDoublesCurve.from(new MyFunction(-0.04, 0.006, 0.11, 0.055)));
+  private final static YieldAndDiscountCurve FUNDING_CURVE = YieldCurve.from(FunctionalDoublesCurve.from(new MyFunction(-0.04, 0.007, 0.1, 0.05)));
+  private final static YieldAndDiscountCurve LIBOR_CURVE = YieldCurve.from(FunctionalDoublesCurve.from(new MyFunction(-0.04, 0.006, 0.11, 0.055)));
   private final static double EPS = 1e-6;
 
   private static final String FUNDING_CURVE_NAME = "funding curve";

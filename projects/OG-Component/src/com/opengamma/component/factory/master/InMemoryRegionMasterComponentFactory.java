@@ -31,6 +31,7 @@ import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.region.impl.DataRegionMasterResource;
 import com.opengamma.master.region.impl.InMemoryRegionMaster;
 import com.opengamma.master.region.impl.RegionFileReader;
+import com.opengamma.master.region.impl.RemoteRegionMaster;
 import com.opengamma.util.jms.JmsConnector;
 
 /**
@@ -85,6 +86,8 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
     RegionFileReader.createPopulated(master);
     
     // register
+    info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteRegionMaster.class);
     info.addAttribute(ComponentInfoAttributes.UNIQUE_ID_SCHEME, scheme);
     repo.registerComponent(info, master);
     

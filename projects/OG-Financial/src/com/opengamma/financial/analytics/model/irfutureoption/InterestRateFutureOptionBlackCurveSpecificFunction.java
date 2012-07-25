@@ -24,10 +24,9 @@ import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithB
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.core.config.ConfigSource;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.core.position.impl.SimpleTrade;
+import com.opengamma.core.position.Trade;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
@@ -52,10 +51,13 @@ import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculatio
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -79,16 +81,17 @@ public abstract class InterestRateFutureOptionBlackCurveSpecificFunction extends
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     _converter = new InterestRateFutureOptionTradeConverter(new InterestRateFutureOptionSecurityConverter(holidaySource, conventionSource, regionSource, securitySource));
-    _dataConverter = new FixedIncomeConverterDataProvider(conventionSource);
+    _dataConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
   }
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
-    final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
-    final SimpleTrade trade = (SimpleTrade) target.getTrade();
+    final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
+    final Trade trade = target.getTrade();
     final IRFutureOptionSecurity security = (IRFutureOptionSecurity) trade.getSecurity();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
@@ -113,7 +116,7 @@ public abstract class InterestRateFutureOptionBlackCurveSpecificFunction extends
       throw new OpenGammaRuntimeException("Expecting an InterpolatedDoublesSurface; got " + volatilitySurface.getSurface().getClass());
     }
     final InstrumentDefinition<?> irFutureOptionDefinition = _converter.convert(trade);
-    final InstrumentDerivative irFutureOption = _dataConverter.convert(security, irFutureOptionDefinition, now, curveNames, dataSource);
+    final InstrumentDerivative irFutureOption = _dataConverter.convert(security, irFutureOptionDefinition, now, curveNames, timeSeries);
     final ValueProperties properties = getResultProperties(currency.getCode(), curveCalculationConfigName, surfaceName, curveName);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties);
     final YieldCurveWithBlackCubeBundle data = new YieldCurveWithBlackCubeBundle(volatilitySurface.getSurface(), curves);
@@ -163,7 +166,7 @@ public abstract class InterestRateFutureOptionBlackCurveSpecificFunction extends
       s_logger.error("Could not find curve calculation configuration named " + curveCalculationConfigName);
       return null;
     }
-    final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
+    final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
     if (!currency.equals(curveCalculationConfig.getUniqueId())) {
       s_logger.error("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getUniqueId());
     }
@@ -177,6 +180,11 @@ public abstract class InterestRateFutureOptionBlackCurveSpecificFunction extends
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
     requirements.add(getVolatilityRequirement(surfaceName, currency));
+    final Set<ValueRequirement> tsRequirements = _dataConverter.getConversionTimeSeriesRequirements(target.getTrade().getSecurity(), _converter.convert(target.getTrade()), curveNames);
+    if (tsRequirements == null) {
+      return null;
+    }
+    requirements.addAll(tsRequirements);
     return requirements;
   }
 

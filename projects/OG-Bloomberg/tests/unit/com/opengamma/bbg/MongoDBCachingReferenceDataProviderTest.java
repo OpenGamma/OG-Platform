@@ -16,47 +16,46 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.fudgemsg.FudgeMsg;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.opengamma.bbg.test.BloombergLiveDataServerUtils;
 import com.opengamma.bbg.test.MongoCachedReferenceData;
+import com.opengamma.bbg.util.MockReferenceDataProvider;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * NOTE: This test will make real bloomberg queries, so run it sparingly.
- *
- * @author kirk
+ * Test.
  */
+@Test(groups = "unit")
 public class MongoDBCachingReferenceDataProviderTest {
-  
+
   private static final String CISCO_TICKER = "CSCO US Equity";
   private static final String FIELD_ID_ISIN = "ID_ISIN";
   private static final String FIELD_ID_CUSIP = "ID_CUSIP";
   private static final String FIELD_TICKER = "TICKER";
   private static final String FIELD_ID_BB_UNIQUE = "ID_BB_UNIQUE";
   private static final String AAPL_TICKER = "AAPL US Equity";
-  
+
+  private MockReferenceDataProvider _underlyingProvider;
   private UnitTestingReferenceDataProvider _unitProvider = null;
   private MongoDBCachingReferenceDataProvider _mongoProvider = null;
-  private BloombergReferenceDataProvider _underlying;
-  
+
   @BeforeMethod
   public void setupMongoDBCaching() {
-    _underlying = BloombergLiveDataServerUtils.getUnderlyingProvider();
-    _unitProvider = new UnitTestingReferenceDataProvider(_underlying);
+    _underlyingProvider = new MockReferenceDataProvider();
+    _unitProvider = new UnitTestingReferenceDataProvider(_underlyingProvider);
     boolean clearData = true; // This is why we make real queries
     _mongoProvider = MongoCachedReferenceData.makeMongoProvider(_unitProvider, MongoDBCachingReferenceDataProviderTest.class, clearData);
   }
-  
-  @AfterMethod
-  public void terminateMongoDBCaching() {
-    _underlying.stop();
-  }
-  
+
+  //-------------------------------------------------------------------------
   @Test
   public void numberOfReturnedFields() {
+    _underlyingProvider.addExpectedField(FIELD_ID_BB_UNIQUE);
+    _underlyingProvider.addExpectedField(FIELD_TICKER);
+    _underlyingProvider.addResult(AAPL_TICKER, FIELD_ID_BB_UNIQUE, "BUID");
+    _underlyingProvider.addResult(AAPL_TICKER, FIELD_TICKER, "TICKER");
+    
     MongoDBCachingReferenceDataProvider provider = _mongoProvider;
     
     Set<String> fields = new TreeSet<String>();
@@ -87,6 +86,11 @@ public class MongoDBCachingReferenceDataProviderTest {
 
   @Test
   public void singleSecurityEscalatingFields() {
+    _underlyingProvider.addResult(AAPL_TICKER, FIELD_ID_BB_UNIQUE, "BUID");
+    _underlyingProvider.addResult(AAPL_TICKER, FIELD_TICKER, "TICKER");
+    _underlyingProvider.addResult(AAPL_TICKER, FIELD_ID_CUSIP, "CUSIP");
+    _underlyingProvider.addResult(AAPL_TICKER, FIELD_ID_ISIN, "ISIN");
+    
     MongoDBCachingReferenceDataProvider provider = _mongoProvider;
     
     Set<String> fields = new TreeSet<String>();
@@ -115,9 +119,17 @@ public class MongoDBCachingReferenceDataProviderTest {
     assertNotNull(result);
     assertNotNull(result.getResult(securityDes));
   }
-  
+
   @Test
   public void fieldNotAvailable() {
+    _underlyingProvider.addResult(AAPL_TICKER, FIELD_ID_BB_UNIQUE, "BUID");
+    _underlyingProvider.addResult(AAPL_TICKER, "INVALID_FIELD1", null);
+    _underlyingProvider.addResult(AAPL_TICKER, "INVALID_FIELD2", null);
+    _underlyingProvider.addResult(AAPL_TICKER, "INVALID_FIELD3", null);
+    _underlyingProvider.addResult(CISCO_TICKER, FIELD_ID_BB_UNIQUE, "BUID");
+    _underlyingProvider.addResult(CISCO_TICKER, "INVALID_FIELD1", null);
+    _underlyingProvider.addResult(CISCO_TICKER, "INVALID_FIELD2", null);
+    _underlyingProvider.addResult(CISCO_TICKER, "INVALID_FIELD3", null);
     
     MongoDBCachingReferenceDataProvider provider = _mongoProvider;
     
@@ -153,10 +165,12 @@ public class MongoDBCachingReferenceDataProviderTest {
     assertEquals(ciscoResult.getSecurity(), ciscoCachedResult.getSecurity());
     assertEquals(ciscoResult.getFieldData(), ciscoCachedResult.getFieldData());
   }
-  
+
   @Test
   public void securityNotAvailable() {
- MongoDBCachingReferenceDataProvider provider = _mongoProvider;
+    _underlyingProvider.addResult("INVALID", FIELD_ID_BB_UNIQUE, null);
+    
+     MongoDBCachingReferenceDataProvider provider = _mongoProvider;
     String invalidSec = "INVALID";
     
     Set<String> fields = new TreeSet<String>();
@@ -175,10 +189,18 @@ public class MongoDBCachingReferenceDataProviderTest {
     assertNotNull(result);
     assertNotNull(result.getResult(invalidSec));
   }
-  
-  
+
   @Test
   public void multipleSecuritiesSameEscalatingFields() {
+    _underlyingProvider.addResult(AAPL_TICKER, FIELD_ID_BB_UNIQUE, "A");
+    _underlyingProvider.addResult(AAPL_TICKER, FIELD_TICKER, "B");
+    _underlyingProvider.addResult(AAPL_TICKER, FIELD_ID_CUSIP, "C");
+    _underlyingProvider.addResult(AAPL_TICKER, FIELD_ID_ISIN, "D");
+    _underlyingProvider.addResult(CISCO_TICKER, FIELD_ID_BB_UNIQUE, "A");
+    _underlyingProvider.addResult(CISCO_TICKER, FIELD_TICKER, "B");
+    _underlyingProvider.addResult(CISCO_TICKER, FIELD_ID_CUSIP, "C");
+    _underlyingProvider.addResult(CISCO_TICKER, FIELD_ID_ISIN, "D");
+    
     MongoDBCachingReferenceDataProvider provider = _mongoProvider;
     
     Set<String> fields = new TreeSet<String>();
@@ -213,7 +235,7 @@ public class MongoDBCachingReferenceDataProviderTest {
     result = provider.getFields(bothSecurities, fields);
     assertNotNull(result);
   }
-  
+
   public static class UnitTestingReferenceDataProvider implements ReferenceDataProvider {
     private final ReferenceDataProvider _underlying;
     private List<Pair<Set<String>, Set<String>>> _acceptableRequests =
@@ -239,6 +261,6 @@ public class MongoDBCachingReferenceDataProviderTest {
       assertTrue(_acceptableRequests.contains(request));
       return _underlying.getFields(securities, fields);
     }
-    
   }
+
 }

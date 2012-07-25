@@ -26,8 +26,8 @@ import com.opengamma.util.time.DateUtils;
  * 
  */
 public class FXVannaVolgaVolatilityCurveModelTest {
-  private static final YieldAndDiscountCurve DOMESTIC = new DiscountCurve(ConstantDoublesCurve.from(0.9902752));
-  private static final YieldAndDiscountCurve FOREIGN = new DiscountCurve(ConstantDoublesCurve.from(0.9945049));
+  private static final YieldAndDiscountCurve DOMESTIC = DiscountCurve.from(ConstantDoublesCurve.from(0.9902752));
+  private static final YieldAndDiscountCurve FOREIGN = DiscountCurve.from(ConstantDoublesCurve.from(0.9945049));
   private static final double SPOT = 1.205;
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 7, 1);
   private static final ZonedDateTime MATURITY = DateUtils.getDateOffsetWithYearFraction(DATE, 94. / 365);

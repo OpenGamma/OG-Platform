@@ -87,16 +87,11 @@ public class ForexForwardConstantSpreadThetaFunction extends FXForwardMultiValue
       allCurveNames = new String[] {fullCallCurveName, fullPutCurveName};
     }
     final YieldCurveBundle yieldCurves = new YieldCurveBundle(allCurveNames, curves);
-    final ValueProperties.Builder properties = getResultProperties(payCurveName, receiveCurveName, payCurveConfig, receiveCurveConfig, target);
+    final ValueProperties.Builder properties = getResultProperties(target, desiredValue);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.VALUE_THETA, target.toSpecification(), properties.get());
     final ConstantSpreadHorizonThetaCalculator calculator = ConstantSpreadHorizonThetaCalculator.getInstance();
     final MultipleCurrencyAmount theta = calculator.getTheta(definition, now, allCurveNames, yieldCurves, DAYS_TO_MOVE_FORWARD);
     return Collections.singleton(new ComputedValue(spec, theta));
-  }
-
-  @Override
-  protected Set<ComputedValue> getResult(final Forex fxForward, final YieldCurveBundle data, final ValueSpecification spec) {
-    throw new NotImplementedException("Should never get here");
   }
 
   @Override
@@ -107,10 +102,15 @@ public class ForexForwardConstantSpreadThetaFunction extends FXForwardMultiValue
   }
 
   @Override
-  protected ValueProperties.Builder getResultProperties(final String payCurveName, final String receiveCurveName, final String payCurveCalculationConfig, final String receiveCurveCalculationConfig,
-      final ComputationTarget target) {
-    final ValueProperties.Builder properties = super.getResultProperties(payCurveName, receiveCurveName, payCurveCalculationConfig, receiveCurveCalculationConfig, target);
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
+    final ValueProperties.Builder properties = super.getResultProperties(target, desiredValue);
     properties.with(InterestRateFutureConstantSpreadThetaFunction.PROPERTY_THETA_CALCULATION_METHOD, InterestRateFutureConstantSpreadThetaFunction.THETA_CONSTANT_SPREAD);
     return properties;
+  }
+
+  @Override
+  protected Set<ComputedValue> getResult(final Forex fxForward, final YieldCurveBundle data, final ComputationTarget target, final Set<ValueRequirement> desiredValues, final FunctionInputs inputs,
+      final ValueSpecification spec, final FunctionExecutionContext executionContext) {
+    throw new NotImplementedException("Should never get here");
   }
 }

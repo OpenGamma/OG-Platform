@@ -24,6 +24,7 @@ import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.change.JmsChangeManager;
 import com.opengamma.master.position.PositionMaster;
+import com.opengamma.master.position.impl.RemotePositionMaster;
 import com.opengamma.masterdb.position.DataDbPositionMasterResource;
 import com.opengamma.masterdb.position.DbPositionMaster;
 import com.opengamma.util.db.DbConnector;
@@ -95,6 +96,8 @@ public class DbPositionMasterComponentFactory extends AbstractComponentFactory {
     }
     
     // register
+    info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemotePositionMaster.class);
     info.addAttribute(ComponentInfoAttributes.UNIQUE_ID_SCHEME, master.getUniqueIdScheme());
     repo.registerComponent(info, master);
     

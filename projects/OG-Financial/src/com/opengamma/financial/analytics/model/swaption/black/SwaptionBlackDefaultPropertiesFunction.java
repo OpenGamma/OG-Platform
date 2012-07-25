@@ -46,7 +46,7 @@ public class SwaptionBlackDefaultPropertiesFunction extends DefaultPropertyFunct
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(currencyCurveConfigAndSurfaceNames, "currency, curve config and surface names");
     final int nPairs = currencyCurveConfigAndSurfaceNames.length;
-    ArgumentChecker.isTrue(nPairs % 3 == 0, "Must have one curve config name per currency");
+    ArgumentChecker.isTrue(nPairs % 3 == 0, "Must have one curve config and surface name per currency");
     _priority = PriorityClass.valueOf(priority);
     _currencyCurveConfigAndSurfaceNames = new HashMap<String, Pair<String, String>>();
     for (int i = 0; i < currencyCurveConfigAndSurfaceNames.length; i += 3) {

@@ -284,12 +284,34 @@ public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
   }
 
   /**
+   * Computes the Theta (derivative with respect to the time) using the forward driftless theta in the Black formula. The theta is not scaled.
+   * Reference on driftless theta: The complete guide to Option Pricing Formula (2007), E. G. Haug, Mc Graw Hill, p. 67, equation (2.43)
+   * @param optionForex The Forex option.
+   * @param curves The yield curve bundle.
+   * @return The theta. In the same currency as present value.
+   */
+  public CurrencyAmount thetaTheoretical(final ForexOptionVanilla optionForex, final YieldCurveBundle curves) {
+    ArgumentChecker.notNull(curves, "Curves");
+    ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Yield curve bundle should contain smile data");
+    final SmileDeltaTermStructureDataBundle smile = (SmileDeltaTermStructureDataBundle) curves;
+    final double dfDomestic = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency2().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
+    final double dfForeign = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
+    final double spot = smile.getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
+    final double forward = spot * dfForeign / dfDomestic;
+    final double volatility = smile.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
+    final double sign = (optionForex.isLong() ? 1.0 : -1.0);
+    final double theta = BlackFormulaRepository.theta(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility) * sign
+        * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount());
+    return CurrencyAmount.of(optionForex.getUnderlyingForex().getCurrency2(), theta);
+  }
+
+  /**
    * Computes the forward exchange rate associated to the Forex option (1 Cyy1 = fwd Cyy2).
    * @param optionForex The Forex option.
    * @param curves The curve and fx data.
    * @return The forward rate.
    */
-  public double forwardForexRate(final ForexOptionVanilla optionForex, final YieldCurveWithFXBundle curves) {
+  public double forwardForexRate(final ForexOptionVanilla optionForex, final YieldCurveBundle curves) {
     ForexDiscountingMethod methodForex = ForexDiscountingMethod.getInstance();
     return methodForex.forwardForexRate(optionForex.getUnderlyingForex(), curves);
   }

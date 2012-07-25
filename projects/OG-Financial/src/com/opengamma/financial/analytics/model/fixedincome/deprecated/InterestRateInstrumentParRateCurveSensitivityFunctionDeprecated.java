@@ -18,10 +18,12 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
+import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentParRateCurveSensitivityFunction;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see InterestRateInstrumentParRateCurveSensitivityFunction
  */
 @Deprecated
 public class InterestRateInstrumentParRateCurveSensitivityFunctionDeprecated extends InterestRateInstrumentCurveSpecificFunctionDeprecated {

@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Defines a general curve <i>(x, y)</i> class. The <i>x</i> and <i>y</i> data can be any type. The curves are named; if a name is not provided then a unique
@@ -18,6 +19,7 @@ import com.opengamma.analytics.math.function.Function1D;
  * @param <U> The type of the <i>y</i> data
  */
 public abstract class Curve<T extends Comparable<T>, U> {
+
   private static final AtomicLong ATOMIC = new AtomicLong();
   private final String _name;
 
@@ -33,6 +35,7 @@ public abstract class Curve<T extends Comparable<T>, U> {
    * @param name The name of the curve
    */
   public Curve(final String name) {
+    ArgumentChecker.notNull(name, "Name");
     _name = name;
   }
 

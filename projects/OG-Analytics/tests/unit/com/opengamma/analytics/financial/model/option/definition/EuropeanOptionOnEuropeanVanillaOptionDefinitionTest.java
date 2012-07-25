@@ -31,7 +31,7 @@ public class EuropeanOptionOnEuropeanVanillaOptionDefinitionTest {
   private static final Expiry EXPIRY = new Expiry(DateUtils.getUTCDate(2011, 6, 1));
   private static final EuropeanVanillaOptionDefinition UNDERLYING = new EuropeanVanillaOptionDefinition(UNDERLYING_STRIKE, UNDERLYING_EXPIRY, true);
   private static final EuropeanOptionOnEuropeanVanillaOptionDefinition OPTION = new EuropeanOptionOnEuropeanVanillaOptionDefinition(STRIKE, EXPIRY, true, UNDERLYING);
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.)), 0, new VolatilitySurface(ConstantDoublesSurface.from(0.)), SPOT,
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(YieldCurve.from(ConstantDoublesCurve.from(0.)), 0, new VolatilitySurface(ConstantDoublesSurface.from(0.)), SPOT,
       DateUtils.getUTCDate(2010, 7, 1));
 
   @Test(expectedExceptions = IllegalArgumentException.class)

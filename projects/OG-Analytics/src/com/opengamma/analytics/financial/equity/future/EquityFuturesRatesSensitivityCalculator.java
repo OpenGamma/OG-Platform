@@ -13,24 +13,24 @@ import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Lists;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
-import com.opengamma.analytics.financial.interestrate.NodeSensitivityCalculator;
+import com.opengamma.analytics.financial.interestrate.NodeYieldSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueNodeSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
  */
-public final class EquityFuturesRatesSensitivityCalculator {  
+public final class EquityFuturesRatesSensitivityCalculator {
   private static final double SHIFT = 0.01;
   private static final EquityFuturesRatesSensitivityCalculator s_instance = new EquityFuturesRatesSensitivityCalculator();
-  
+
   public static EquityFuturesRatesSensitivityCalculator getInstance() {
     return s_instance;
   }
-  
+
   private EquityFuturesRatesSensitivityCalculator() {
   }
 
@@ -45,22 +45,25 @@ public final class EquityFuturesRatesSensitivityCalculator {
   public DoubleMatrix1D calcDeltaBucketed(final EquityFuture future, final EquityFutureDataBundle dataBundle) {
     Validate.notNull(future, "null future");
     Validate.notNull(dataBundle, "null data bundle");
-    final YieldAndDiscountCurve discCrv = dataBundle.getFundingCurve();
+    if (!(dataBundle.getFundingCurve() instanceof YieldCurve)) {
+      throw new IllegalArgumentException("Can only handle YieldCurve");
+    }
+    final YieldCurve discCrv = (YieldCurve) dataBundle.getFundingCurve();
     final String discCrvName = discCrv.getCurve().getName();
     final YieldCurveBundle interpolatedCurves = new YieldCurveBundle();
     interpolatedCurves.setCurve(discCrvName, discCrv);
     final double settlement = future.getTimeToSettlement();
     final EquityFuturesPresentValueCalculator pricer = EquityFuturesPresentValueCalculator.getInstance();
-    EquityFutureDataBundle bumpedMarket = new EquityFutureDataBundle(dataBundle.getFundingCurve().withSingleShift(settlement, SHIFT), dataBundle.getMarketPrice(), 
+    EquityFutureDataBundle bumpedMarket = new EquityFutureDataBundle(discCrv.withSingleShift(settlement, SHIFT), dataBundle.getMarketPrice(),
         dataBundle.getSpotValue(), dataBundle.getDividendYield(), dataBundle.getCostOfCarry());
     final double pvUp = pricer.visit(future, bumpedMarket);
-    bumpedMarket = new EquityFutureDataBundle(dataBundle.getFundingCurve().withSingleShift(settlement, -SHIFT), dataBundle.getMarketPrice(), 
+    bumpedMarket = new EquityFutureDataBundle(discCrv.withSingleShift(settlement, -SHIFT), dataBundle.getMarketPrice(),
         dataBundle.getSpotValue(), dataBundle.getDividendYield(), dataBundle.getCostOfCarry());
     final double pvDown = pricer.visit(future, bumpedMarket);
     final double sensitivity = (pvUp - pvDown) / (2.0 * SHIFT);
     final Map<String, List<DoublesPair>> curveSensitivities = new HashMap<String, List<DoublesPair>>();
     curveSensitivities.put(discCrvName, Lists.newArrayList(new DoublesPair(settlement, sensitivity)));
-    final NodeSensitivityCalculator distributor = PresentValueNodeSensitivityCalculator.getDefaultInstance();
+    final NodeYieldSensitivityCalculator distributor = PresentValueNodeSensitivityCalculator.getDefaultInstance();
     return distributor.curveToNodeSensitivities(curveSensitivities, interpolatedCurves);
   }
 

@@ -14,7 +14,7 @@ import org.testng.annotations.Test;
 
 import cern.jet.random.engine.MersenneTwister64;
 
-import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
+import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.analytics.financial.equity.variance.pricing.RealizedVariance;
 import com.opengamma.analytics.financial.equity.variance.pricing.VarianceSwapStaticReplication;
@@ -32,7 +32,6 @@ import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribut
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
@@ -67,7 +66,7 @@ public class VarianceSwapPresentValueTest {
 
   private static final InterpolatedDoublesSurface SURFACE = new InterpolatedDoublesSurface(EXPIRIES, STRIKES, VOLS, new GridInterpolator2D(INTERPOLATOR_1D_EXPIRY, INTERPOLATOR_1D_STRIKE));
   private static final BlackVolatilitySurfaceStrike VOL_SURFACE = new BlackVolatilitySurfaceStrike(SURFACE);
-  private static final EquityOptionDataBundle MARKET = new EquityOptionDataBundle(VOL_SURFACE, DISCOUNT, FORWARD_CURVE);
+  private static final StaticReplicationDataBundle MARKET = new StaticReplicationDataBundle(VOL_SURFACE, DISCOUNT, FORWARD_CURVE);
 
   // The derivative
   final double varStrike = 0.05;
@@ -105,22 +104,9 @@ public class VarianceSwapPresentValueTest {
   public void onFirstObsDateWithOneObs() {
 
     final double pv = PRICER.presentValue(swapStartsNow, MARKET);
-    final double variance = PRICER.impliedVariance(swapStartsNow, MARKET);
+    final double variance = PRICER.expectedVariance(swapStartsNow, MARKET);
     final double pvOfHedge = swapStartsNow.getVarNotional() * (variance - swapStartsNow.getVarStrike()) * MARKET.getDiscountCurve().getDiscountFactor(expiry5);
     assertEquals(pv, pvOfHedge, TOLERATED);
-  }
-
-  @Test
-  /**
-   * A few days before observations begin is the same as the day when they do => No convexity modelled for a couple days forward.
-   * Compare to swapForwardStarting below
-   **/
-  public void swapStartsTomorrow() {
-
-    final double pvStartsObsTomorrow = PRICER.presentValue(swapStartsTomorrow, MARKET);
-    final double pvStartsObsToday = PRICER.presentValue(swapStartsNow, MARKET);
-
-    assertEquals(pvStartsObsTomorrow, pvStartsObsToday, TOLERATED);
   }
 
   @Test
@@ -216,17 +202,4 @@ public class VarianceSwapPresentValueTest {
     assertEquals(0.0, pv, TOLERATED);
   }
 
-  @Test
-  /**
-   * As valuation date approaches expiry, computation of ImpliedVariance remains robust.
-   * In particular, failures don't occur while fitting the left tail of the terminal distribution with a shiftedLognormal..
-   * FIXME CASE: shiftedLognormal fitting fails if the prices at cutoff and spread points are zero. => Reparameterise strike based on delta so that strikes come in as time to expiry approaches
-   */
-  public void successFittingLeftTailAsExpiryApproaches() {
-
-    final VarianceSwap swapEndsTomorrow = new VarianceSwap(-4.996, tPlusOne, tPlusOne, varStrike, varNotional, Currency.EUR, annualization, nObs, 0, obs, obsWeight);
-    final double pvExtrapFlat = PRICER.presentValue(swapEndsTomorrow, MARKET);
-    final double pvFitShiftedLn = PRICER.presentValue(swapEndsTomorrow, MARKET, new DoublesPair(0.1 * SPOT, 0.11 * SPOT));
-    assertEquals(pvExtrapFlat, pvFitShiftedLn, 1e-8);
-  }
 }

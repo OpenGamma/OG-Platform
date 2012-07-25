@@ -27,7 +27,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.bloomberglp.blpapi.SessionOptions;
 import com.opengamma.bbg.test.BloombergTestUtils;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
@@ -37,8 +36,9 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
- * Test BloombergHistoricalTimeSeriesSource.
+ * Test.
  */
+@Test(groups = "integration")
 public class BloombergHistoricalTimeSeriesSourceTest {
   
   private HistoricalTimeSeriesSource _source;
@@ -47,32 +47,26 @@ public class BloombergHistoricalTimeSeriesSourceTest {
   private static final String DEFAULT_DATA_SOURCE = BLOOMBERG_DATA_SOURCE_NAME;
   private static final String PX_LAST = "PX_LAST";
 
-  /**
-   * @throws java.lang.Exception
-   */
   @BeforeMethod
   public void setUp() throws Exception {
-    SessionOptions options = BloombergTestUtils.getSessionOptions();
-    BloombergHistoricalTimeSeriesSource source = new BloombergHistoricalTimeSeriesSource(options);
+    BloombergConnector connector = BloombergTestUtils.getBloombergConnector();
+    BloombergHistoricalTimeSeriesSource source = new BloombergHistoricalTimeSeriesSource(connector);
     
     source.start();
     _source = source;
   }
 
-  /**
-   * @throws java.lang.Exception
-   */
   @AfterMethod
   public void tearDown() throws Exception {
-    BloombergHistoricalTimeSeriesSource dataProvider = (BloombergHistoricalTimeSeriesSource)_source;
+    BloombergHistoricalTimeSeriesSource dataProvider = (BloombergHistoricalTimeSeriesSource) _source;
     if (dataProvider != null) {
       dataProvider.stop();
     }
     _source = null;
   }
-  
-  @Test
-  (expectedExceptions=java.lang.IllegalArgumentException.class)
+
+  //-------------------------------------------------------------------------
+  @Test(expectedExceptions=java.lang.IllegalArgumentException.class)
   public void getHistoricalWithInvalidDates() throws Exception {
     //endDate before startDate
     LocalDate startDate = LocalDate.of(2009, 11, 04);
@@ -89,7 +83,7 @@ public class BloombergHistoricalTimeSeriesSourceTest {
     assertNotNull(hts.getTimeSeries());
     assertEquals(1, hts.getTimeSeries().size());
   }
-  
+
   @Test
   public void getSeriesMap() throws Exception {
     LocalDate startDate = LocalDate.of(2009, 10, 04);
@@ -100,7 +94,7 @@ public class BloombergHistoricalTimeSeriesSourceTest {
     assertNotNull(hts);
     assertFalse(hts.getTimeSeries().isEmpty());
   }
-  
+
   private ExternalIdBundle getTestBundle() {
     return ExternalIdBundle.of(
         ExternalId.of("BLOOMBERG_BUID", "EQ0010121400001000"), ExternalId.of("BLOOMBERG_TICKER", "C US Equity"),
@@ -132,7 +126,7 @@ public class BloombergHistoricalTimeSeriesSourceTest {
           hts.getTimeSeries()); 
     }
   }
-  
+
   @Test
   public void getHistoricalTimeSeriesWithZeroMaxPoints() throws Exception {    
     LocalDate endDate = LocalDate.of(2012, 03, 07);
@@ -150,7 +144,7 @@ public class BloombergHistoricalTimeSeriesSourceTest {
     // does it contain the expected data points?
     assertEquals(reference.getTimeSeries(), hts.getTimeSeries()); 
   }
-  
+
   @Test
   public void getHistoricalTimeSeriesWithPositiveMaxPoints() throws Exception {
     LocalDate endDate = LocalDate.of(2012, 03, 07);
@@ -164,7 +158,7 @@ public class BloombergHistoricalTimeSeriesSourceTest {
       }
     }
   }
-  
+
   @Test
   public void getHistoricalTimeSeriesWithDates() throws Exception {
     LocalDate startDate = LocalDate.of(2009, 10, 29);
@@ -189,18 +183,13 @@ public class BloombergHistoricalTimeSeriesSourceTest {
 
   //-------------------------------------------------------------------------
   private class BHDPgetHistoricalTimeSeriesWithDates implements Callable<LocalDateDoubleTimeSeries> {
-
     private ExternalIdBundle _secDes;
     private String _dataSource;
     private String _provider;
     private String _field;
     private LocalDate _startDate;
     private LocalDate _endDate;
-    /**
-     * @param secDes
-     * @param startDate
-     * @param endDate
-     */
+    
     public BHDPgetHistoricalTimeSeriesWithDates(ExternalIdBundle secDes, String dataSource, String dataProvider, String field, LocalDate startDate, LocalDate endDate) {
       assertNotNull(secDes);
       assertNotNull(startDate);

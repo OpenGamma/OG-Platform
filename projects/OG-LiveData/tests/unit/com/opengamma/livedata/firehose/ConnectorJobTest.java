@@ -23,15 +23,14 @@ import org.testng.annotations.Test;
 import com.opengamma.util.test.Timeout;
 
 /**
- * Tests the {@link AbstractConnectorJob} class
+ * Tests.
  */
-@Test
+@Test(groups = {"unit", "slow"})
 public class ConnectorJobTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ConnectorJobTest.class);
 
   private static final class JobImpl extends AbstractConnectorJob<Integer> {
-
     private int _prepareConnection;
     private int _establishConnection;
     private int _endConnection;
@@ -41,7 +40,6 @@ public class ConnectorJobTest {
         @Override
         public RecordStream<Integer> newInstance(final InputStream input) {
           return new RecordStream<Integer>() {
-
             private int _count;
 
             @Override
@@ -80,7 +78,6 @@ public class ConnectorJobTest {
   }
 
   private static class CallbackImpl implements AbstractConnectorJob.Callback<Integer> {
-
     private int _disconnected;
     private int _received;
     private int _connected;

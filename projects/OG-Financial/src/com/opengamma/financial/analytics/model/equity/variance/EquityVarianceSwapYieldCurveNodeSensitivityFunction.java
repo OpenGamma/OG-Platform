@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.model.equity.variance;
 import java.util.Set;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
+import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.variance.VarianceSwapSensitivityCalculator;
 import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
@@ -42,7 +42,7 @@ public class EquityVarianceSwapYieldCurveNodeSensitivityFunction extends EquityV
   }
 
   @Override
-  protected Set<ComputedValue> computeValues(final ComputationTarget target, final FunctionInputs inputs, final VarianceSwap derivative, final EquityOptionDataBundle market) {
+  protected Set<ComputedValue> computeValues(final ComputationTarget target, final FunctionInputs inputs, final VarianceSwap derivative, final StaticReplicationDataBundle market) {
     final DoubleMatrix1D sensitivities = CALCULATOR.calcDeltaBucketed(derivative, market);
     final Object curveSpecObject = inputs.getValue(getCurveSpecRequirement(derivative.getCurrency()));
     if (curveSpecObject == null) {

@@ -18,8 +18,9 @@ import com.opengamma.livedata.server.LiveDataServerMBean;
  */
 public class BloombergLiveDataServerMBean extends LiveDataServerMBean {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergLiveDataServerMBean.class);
-  
+
   private final BloombergLiveDataServer _server;
 
   public BloombergLiveDataServerMBean(BloombergLiveDataServer server) {

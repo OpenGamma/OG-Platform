@@ -28,7 +28,7 @@ import com.opengamma.util.time.Expiry;
 public class ProductOptionModelTest {
   private static final double S1 = 100;
   private static final double S2 = 105;
-  private static final YieldAndDiscountCurve R = new YieldCurve(ConstantDoublesCurve.from(0.07));
+  private static final YieldAndDiscountCurve R = YieldCurve.from(ConstantDoublesCurve.from(0.07));
   private static final double B1 = 0.02;
   private static final double B2 = 0.05;
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 7, 1);

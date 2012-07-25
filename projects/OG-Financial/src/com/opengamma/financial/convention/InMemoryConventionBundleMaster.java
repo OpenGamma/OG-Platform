@@ -19,6 +19,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * An in-memory, statically initialized master for convention bundles and their meta-data.
@@ -412,6 +413,20 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   //TODO all of the conventions named treasury need to be changed
   private void addSECorporateBondConvention() {
     _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "SE_CORPORATE_BOND_CONVENTION")), "SE_CORPORATE_BOND_CONVENTION", true, true, 4, 3, true);
+  }
+  
+  /**
+   * Creates a simple name security Id.
+   * <p>
+   * @param securityId  the simple name security id, not null
+   * @return the security identifier, not null
+   */
+  public static ExternalId simpleNameSecurityId(final String securityId) {
+    ArgumentChecker.notNull(securityId, "code");
+    if (securityId.length() == 0) {
+      throw new IllegalArgumentException("SecurityId is invalid: " + securityId);
+    }
+    return ExternalId.of(SIMPLE_NAME_SCHEME, securityId);
   }
 
 }

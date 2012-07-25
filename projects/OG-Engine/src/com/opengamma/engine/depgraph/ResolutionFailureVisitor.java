@@ -118,4 +118,10 @@ public abstract class ResolutionFailureVisitor<T> {
     return null;
   }
 
+  protected synchronized T visitBlacklistSuppressed(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
+      final Map<ValueSpecification, ValueRequirement> requirements) {
+    s_logger.info("Function blacklist prevented resolution of {}", valueRequirement);
+    return null;
+  }
+
 }

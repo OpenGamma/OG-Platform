@@ -25,18 +25,18 @@ import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = "unit")
 public class EHCachingDistributionSpecificationResolverTest {
-  
+
   @AfterMethod
   public void cleanUp() {
     EHCacheUtils.clearAll();
   }
-  
-  @Test
+
+  //-------------------------------------------------------------------------
   public void testCaching() {
-    
     ExternalId id = ExternalId.of("foo", "bar");
     
     LiveDataSpecification request = new LiveDataSpecification(

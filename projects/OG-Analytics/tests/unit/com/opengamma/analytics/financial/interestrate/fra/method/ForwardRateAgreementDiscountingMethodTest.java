@@ -153,7 +153,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
       nodeTimesForward[i + 1] = timeForward[i];
       yieldsForward[i + 1] = curveForward.getInterestRate(nodeTimesForward[i + 1]);
     }
-    final YieldAndDiscountCurve tempCurveForward = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimesForward, yieldsForward, new LinearInterpolator1D()));
+    final YieldAndDiscountCurve tempCurveForward = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(nodeTimesForward, yieldsForward, new LinearInterpolator1D()));
     final List<DoublesPair> sensiForwardForward = prsFra.getSensitivities().get(CURVE_NAME_1[1]);
     final List<DoublesPair> sensiPvForward = pvsFra.getSensitivities().get(CURVE_NAME_1[1]);
     final double[] sensiForwardForwardFD = new double[nbForwardDate];
@@ -183,7 +183,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
     yieldsFunding[0] = curveFunding.getInterestRate(0.0);
     nodeTimesFunding[1] = FRA.getPaymentTime();
     yieldsFunding[1] = curveFunding.getInterestRate(nodeTimesFunding[1]);
-    final YieldAndDiscountCurve tempCurveFunding = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimesFunding, yieldsFunding, new LinearInterpolator1D()));
+    final YieldAndDiscountCurve tempCurveFunding = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(nodeTimesFunding, yieldsFunding, new LinearInterpolator1D()));
     final List<DoublesPair> tempFunding = pvsFra.getSensitivities().get(CURVE_NAME_1[0]);
     final YieldAndDiscountCurve bumpedCurve = tempCurveFunding.withSingleShift(nodeTimesFunding[1], deltaShift);
     final YieldCurveBundle curvesBumped = new YieldCurveBundle();
@@ -218,7 +218,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
       nodeTimesForward[i + 1] = timeForward[i];
       yieldsForward[i + 1] = curveForward.getInterestRate(nodeTimesForward[i + 1]);
     }
-    final YieldAndDiscountCurve tempCurveForward = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimesForward, yieldsForward, new LinearInterpolator1D()));
+    final YieldAndDiscountCurve tempCurveForward = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(nodeTimesForward, yieldsForward, new LinearInterpolator1D()));
     final double[] sensiPvForwardFD = new double[nbForwardDate];
     for (int i = 0; i < nbForwardDate; i++) {
       final YieldAndDiscountCurve bumpedCurveForward = tempCurveForward.withSingleShift(nodeTimesForward[i + 1], deltaShift);
@@ -245,7 +245,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
     yieldsFunding[0] = curveFunding.getInterestRate(0.0);
     nodeTimesFunding[1] = FRA.getPaymentTime();
     yieldsFunding[1] = curveFunding.getInterestRate(nodeTimesFunding[1]);
-    final YieldAndDiscountCurve tempCurveFunding = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimesFunding, yieldsFunding, new LinearInterpolator1D()));
+    final YieldAndDiscountCurve tempCurveFunding = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(nodeTimesFunding, yieldsFunding, new LinearInterpolator1D()));
     final YieldAndDiscountCurve bumpedCurve = tempCurveFunding.withSingleShift(nodeTimesFunding[1], deltaShift);
     final YieldCurveBundle curvesBumped = new YieldCurveBundle();
     curvesBumped.addAll(curves);
@@ -270,8 +270,10 @@ public class ForwardRateAgreementDiscountingMethodTest {
     assertEquals("FRA discounting: present value calculator vs method", pvcsCalculator, pvcsMethod.getSensitivities());
   }
 
+  @Test
   public void parSpread() {
-    final double parSpread = FRA_METHOD.parSpread(FRA, CURVES_2);
+    ForwardRateAgreement fra2 = (ForwardRateAgreement) FRA_DEFINITION.toDerivative(REFERENCE_DATE, CURVE_NAME_2);
+    final double parSpread = FRA_METHOD.parSpread(fra2, CURVES_2);
     ForwardRateAgreementDefinition fra0Definition = new ForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, FIXING_DATE, INDEX,
         FRA_RATE + parSpread);
     ForwardRateAgreement fra0 = (ForwardRateAgreement) fra0Definition.toDerivative(REFERENCE_DATE, CURVE_NAME_2);
@@ -279,9 +281,11 @@ public class ForwardRateAgreementDiscountingMethodTest {
     assertEquals("FRA discounting: par spread", pv0, 0, TOLERANCE_PV);
   }
 
+  @Test
   public void parSpreadMethodVsCalculator() {
-    final double parSpreadMethod = FRA_METHOD.parSpread(FRA, CURVES_2);
-    final double parSpreadCalculator = PSC.visit(FRA, CURVES_2);
+    ForwardRateAgreement fra2 = (ForwardRateAgreement) FRA_DEFINITION.toDerivative(REFERENCE_DATE, CURVE_NAME_2);
+    final double parSpreadMethod = FRA_METHOD.parSpread(fra2, CURVES_2);
+    final double parSpreadCalculator = PSC.visit(fra2, CURVES_2);
     assertEquals("FRA discounting: par spread", parSpreadMethod, parSpreadCalculator, TOLERANCE_RATE);
   }
 
@@ -305,7 +309,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
     yields[0] = curveToBump.getInterestRate(0.0);
     yields[1] = curveToBump.getInterestRate(nodeTimesExtended[1]);
     yields[2] = curveToBump.getInterestRate(nodeTimesExtended[2]);
-    final YieldAndDiscountCurve curveNode = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimesExtended, yields, new LinearInterpolator1D()));
+    final YieldAndDiscountCurve curveNode = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(nodeTimesExtended, yields, new LinearInterpolator1D()));
     for (int loopnode = 0; loopnode < nbNode; loopnode++) {
       final YieldAndDiscountCurve curveBumped = curveNode.withSingleShift(nodeTimesExtended[loopnode + 1], deltaShift);
       CURVES_2.replaceCurve(CURVE_NAME_2[1], curveBumped);

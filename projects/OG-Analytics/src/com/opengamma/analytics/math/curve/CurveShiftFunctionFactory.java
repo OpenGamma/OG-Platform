@@ -18,8 +18,6 @@ public class CurveShiftFunctionFactory {
   public static final FunctionalCurveShiftFunction FUNCTIONAL = new FunctionalCurveShiftFunction();
   /** Shift function for {@link InterpolatedDoublesCurve} */
   public static final InterpolatedCurveShiftFunction INTERPOLATED = new InterpolatedCurveShiftFunction();
-  /** Shift function for {@link NodalDoublesCurve} */
-  public static final NodalCurveShiftFunction NODAL = new NodalCurveShiftFunction();
   /** Shift function for {@link SpreadDoublesCurve} */
   public static final SpreadCurveShiftFunction SPREAD = new SpreadCurveShiftFunction();
   private static final Map<Class<?>, CurveShiftFunction<?>> s_instances = new HashMap<Class<?>, CurveShiftFunction<?>>();
@@ -28,7 +26,6 @@ public class CurveShiftFunctionFactory {
     s_instances.put(ConstantCurveShiftFunction.class, CONSTANT);
     s_instances.put(FunctionalCurveShiftFunction.class, FUNCTIONAL);
     s_instances.put(InterpolatedCurveShiftFunction.class, INTERPOLATED);
-    s_instances.put(NodalCurveShiftFunction.class, NODAL);
     s_instances.put(SpreadCurveShiftFunction.class, SPREAD);
   }
 
@@ -53,7 +50,7 @@ public class CurveShiftFunctionFactory {
    * @return A shifted curve with automatically-generated name
    * @throws IllegalArgumentException If the curve type is not constant, functional, interpolated, nodal or spread
    */
-  public static Curve<Double, Double> getShiftedCurve(final Curve<Double, Double> curve, final double shift) {
+  public static DoublesCurve getShiftedCurve(final Curve<Double, Double> curve, final double shift) {
     if (curve instanceof ConstantDoublesCurve) {
       return CONSTANT.evaluate((ConstantDoublesCurve) curve, shift);
     }
@@ -62,9 +59,6 @@ public class CurveShiftFunctionFactory {
     }
     if (curve instanceof InterpolatedDoublesCurve) {
       return INTERPOLATED.evaluate((InterpolatedDoublesCurve) curve, shift);
-    }
-    if (curve instanceof NodalDoublesCurve) {
-      return NODAL.evaluate((NodalDoublesCurve) curve, shift);
     }
     if (curve instanceof SpreadDoublesCurve) {
       return SPREAD.evaluate((SpreadDoublesCurve) curve, shift);
@@ -80,7 +74,7 @@ public class CurveShiftFunctionFactory {
    * @return A shifted curve with automatically-generated name
    * @throws IllegalArgumentException If the curve type is not constant, functional, interpolated, nodal or spread
    */
-  public static Curve<Double, Double> getShiftedCurve(final Curve<Double, Double> curve, final double x, final double shift) {
+  public static DoublesCurve getShiftedCurve(final Curve<Double, Double> curve, final double x, final double shift) {
     if (curve instanceof ConstantDoublesCurve) {
       return CONSTANT.evaluate((ConstantDoublesCurve) curve, x, shift);
     }
@@ -89,9 +83,6 @@ public class CurveShiftFunctionFactory {
     }
     if (curve instanceof InterpolatedDoublesCurve) {
       return INTERPOLATED.evaluate((InterpolatedDoublesCurve) curve, x, shift);
-    }
-    if (curve instanceof NodalDoublesCurve) {
-      return NODAL.evaluate((NodalDoublesCurve) curve, x, shift);
     }
     if (curve instanceof SpreadDoublesCurve) {
       return SPREAD.evaluate((SpreadDoublesCurve) curve, x, shift);
@@ -107,7 +98,7 @@ public class CurveShiftFunctionFactory {
    * @return A shifted curve with automatically-generated name
    * @throws IllegalArgumentException If the curve type is not constant, functional, interpolated, nodal or spread
    */
-  public static Curve<Double, Double> getShiftedCurve(final Curve<Double, Double> curve, final double[] x, final double[] y) {
+  public static DoublesCurve getShiftedCurve(final Curve<Double, Double> curve, final double[] x, final double[] y) {
     if (curve instanceof ConstantDoublesCurve) {
       return CONSTANT.evaluate((ConstantDoublesCurve) curve, x, y);
     }
@@ -116,9 +107,6 @@ public class CurveShiftFunctionFactory {
     }
     if (curve instanceof InterpolatedDoublesCurve) {
       return INTERPOLATED.evaluate((InterpolatedDoublesCurve) curve, x, y);
-    }
-    if (curve instanceof NodalDoublesCurve) {
-      return NODAL.evaluate((NodalDoublesCurve) curve, x, y);
     }
     if (curve instanceof SpreadDoublesCurve) {
       return SPREAD.evaluate((SpreadDoublesCurve) curve, x, y);
@@ -134,7 +122,7 @@ public class CurveShiftFunctionFactory {
    * @return A shifted curve 
    * @throws IllegalArgumentException If the curve type is not constant, functional, interpolated, nodal or spread
    */
-  public static Curve<Double, Double> getShiftedCurve(final Curve<Double, Double> curve, final double shift, final String newName) {
+  public static DoublesCurve getShiftedCurve(final Curve<Double, Double> curve, final double shift, final String newName) {
     if (curve instanceof ConstantDoublesCurve) {
       return CONSTANT.evaluate((ConstantDoublesCurve) curve, shift, newName);
     }
@@ -143,9 +131,6 @@ public class CurveShiftFunctionFactory {
     }
     if (curve instanceof InterpolatedDoublesCurve) {
       return INTERPOLATED.evaluate((InterpolatedDoublesCurve) curve, shift, newName);
-    }
-    if (curve instanceof NodalDoublesCurve) {
-      return NODAL.evaluate((NodalDoublesCurve) curve, shift, newName);
     }
     if (curve instanceof SpreadDoublesCurve) {
       return SPREAD.evaluate((SpreadDoublesCurve) curve, shift, newName);
@@ -162,7 +147,7 @@ public class CurveShiftFunctionFactory {
    * @return A shifted curve 
    * @throws IllegalArgumentException If the curve type is not constant, functional, interpolated, nodal or spread
    */
-  public static Curve<Double, Double> getShiftedCurve(final Curve<Double, Double> curve, final double x, final double shift, final String newName) {
+  public static DoublesCurve getShiftedCurve(final Curve<Double, Double> curve, final double x, final double shift, final String newName) {
     if (curve instanceof ConstantDoublesCurve) {
       return CONSTANT.evaluate((ConstantDoublesCurve) curve, x, shift, newName);
     }
@@ -171,9 +156,6 @@ public class CurveShiftFunctionFactory {
     }
     if (curve instanceof InterpolatedDoublesCurve) {
       return INTERPOLATED.evaluate((InterpolatedDoublesCurve) curve, x, shift, newName);
-    }
-    if (curve instanceof NodalDoublesCurve) {
-      return NODAL.evaluate((NodalDoublesCurve) curve, x, shift, newName);
     }
     if (curve instanceof SpreadDoublesCurve) {
       return SPREAD.evaluate((SpreadDoublesCurve) curve, x, shift, newName);
@@ -190,7 +172,7 @@ public class CurveShiftFunctionFactory {
    * @return A shifted curve 
    * @throws IllegalArgumentException If the curve type is not constant, functional, interpolated, nodal or spread
    */
-  public static Curve<Double, Double> getShiftedCurve(final Curve<Double, Double> curve, final double[] x, final double[] y, final String newName) {
+  public static DoublesCurve getShiftedCurve(final Curve<Double, Double> curve, final double[] x, final double[] y, final String newName) {
     if (curve instanceof ConstantDoublesCurve) {
       return CONSTANT.evaluate((ConstantDoublesCurve) curve, x, y, newName);
     }
@@ -199,9 +181,6 @@ public class CurveShiftFunctionFactory {
     }
     if (curve instanceof InterpolatedDoublesCurve) {
       return INTERPOLATED.evaluate((InterpolatedDoublesCurve) curve, x, y, newName);
-    }
-    if (curve instanceof NodalDoublesCurve) {
-      return NODAL.evaluate((NodalDoublesCurve) curve, x, y, newName);
     }
     if (curve instanceof SpreadDoublesCurve) {
       return SPREAD.evaluate((SpreadDoublesCurve) curve, x, y, newName);

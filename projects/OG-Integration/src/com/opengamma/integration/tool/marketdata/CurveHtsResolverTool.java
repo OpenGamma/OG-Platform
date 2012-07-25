@@ -134,7 +134,11 @@ public class CurveHtsResolverTool extends AbstractTool {
         if (convention != null) {
           ExternalId initialRate = convention.getSwapFloatingLegInitialRate();
           ConventionBundle realIdConvention = cbs.getConventionBundle(initialRate);
-          externalInitialRateId.add(realIdConvention.getIdentifiers().getExternalId(ExternalSchemes.BLOOMBERG_TICKER));
+          if (realIdConvention != null) {
+            externalInitialRateId.add(realIdConvention.getIdentifiers().getExternalId(ExternalSchemes.BLOOMBERG_TICKER));
+          } else {
+            s_logger.error("No convention for {}", initialRate.toString());
+          }
         } else {
           s_logger.warn("No convention for {} product", product);
         }

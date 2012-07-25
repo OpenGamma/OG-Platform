@@ -31,6 +31,7 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
+import com.opengamma.engine.function.NoOpFunction;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -124,47 +125,53 @@ public class RepositoryFactoryTest {
   }
 
   public void emptyConfiguration() {
-    RepositoryConfiguration configuration = new RepositoryConfiguration();
-    InMemoryFunctionRepository repo = RepositoryFactory.constructRepository(configuration);
+    final RepositoryConfiguration configuration = new RepositoryConfiguration();
+    final InMemoryFunctionRepository repo = RepositoryFactory.constructRepository(configuration);
     assertNotNull(repo);
-    assertTrue(repo.getAllFunctions().isEmpty());
+    assertEquals(repo.getAllFunctions().size(), 1);
+    final FunctionDefinition definition = repo.getAllFunctions().iterator().next();
+    assertTrue(definition instanceof NoOpFunction);
+    assertNotNull(definition.getUniqueId());
   }
 
   public void singleConfigurationNoArgs() {
-    RepositoryConfiguration configuration = new RepositoryConfiguration();
+    final RepositoryConfiguration configuration = new RepositoryConfiguration();
     configuration.addFunctions(new StaticFunctionConfiguration(MockEmptyFunction.class.getName()));
-    InMemoryFunctionRepository repo = RepositoryFactory.constructRepository(configuration);
+    final InMemoryFunctionRepository repo = RepositoryFactory.constructRepository(configuration);
     assertNotNull(repo);
-
-    Collection<FunctionDefinition> definitions = repo.getAllFunctions();
+    final Collection<FunctionDefinition> definitions = repo.getAllFunctions();
     assertNotNull(definitions);
-    assertEquals(1, definitions.size());
-    FunctionDefinition definition = definitions.iterator().next();
-    assertTrue(definition instanceof MockEmptyFunction);
-    assertNotNull(definition.getUniqueId());
-
+    assertEquals(2, definitions.size());
+    FunctionDefinition definition = null;
+    for (FunctionDefinition d : definitions) {
+      if (d instanceof MockEmptyFunction) {
+        assertNotNull(d.getUniqueId());
+        definition = d;
+      }
+    }
+    assertNotNull(definition);
     final CompiledFunctionService cfs = new CompiledFunctionService(repo, new CachingFunctionRepositoryCompiler(), new FunctionCompilationContext());
     cfs.initialize();
     final CompiledFunctionRepository compiledRepo = cfs.compileFunctionRepository(System.currentTimeMillis());
     assertNotNull(compiledRepo.getDefinition(definition.getUniqueId()));
-    FunctionInvoker invoker = compiledRepo.getInvoker(definition.getUniqueId());
+    final FunctionInvoker invoker = compiledRepo.getInvoker(definition.getUniqueId());
     assertNotNull(invoker);
     assertTrue(invoker instanceof MockEmptyFunction);
     assertSame(definition, invoker);
   }
 
   public void twoConfigurationsWithArgs() {
-    RepositoryConfiguration configuration = new RepositoryConfiguration();
+    final RepositoryConfiguration configuration = new RepositoryConfiguration();
     configuration.addFunctions(new ParameterizedFunctionConfiguration(MockSingleArgumentFunction.class.getName(), Collections.singleton("foo")));
     configuration.addFunctions(new ParameterizedFunctionConfiguration(MockMultiArgumentFunctionArrayForm.class.getName(), Lists.newArrayList(
         "foo1", "foo2")));
     configuration.addFunctions(new ParameterizedFunctionConfiguration(MockMultiArgumentFunctionIndividualParameterForm.class.getName(), Lists.newArrayList("bar1", "bar2")));
-    InMemoryFunctionRepository repo = RepositoryFactory.constructRepository(configuration);
+    final InMemoryFunctionRepository repo = RepositoryFactory.constructRepository(configuration);
     assertNotNull(repo);
 
-    Collection<FunctionDefinition> definitions = repo.getAllFunctions();
+    final Collection<FunctionDefinition> definitions = repo.getAllFunctions();
     assertNotNull(definitions);
-    assertEquals(3, definitions.size());
+    assertEquals(4, definitions.size());
     for (FunctionDefinition definition : definitions) {
       if (definition instanceof MockSingleArgumentFunction) {
         MockSingleArgumentFunction single = (MockSingleArgumentFunction) definition;
@@ -176,6 +183,8 @@ public class RepositoryFactoryTest {
         MockMultiArgumentFunctionIndividualParameterForm multi = (MockMultiArgumentFunctionIndividualParameterForm) definition;
         assertEquals("bar1", multi.getParam1());
         assertEquals("bar2", multi.getParam2());
+      } else if (definition instanceof NoOpFunction) {
+        // Ignore
       } else {
         Assert.fail("Unexpected type of definition " + definition);
       }

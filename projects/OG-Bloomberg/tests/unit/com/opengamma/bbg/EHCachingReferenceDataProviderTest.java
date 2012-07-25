@@ -17,40 +17,36 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.fudgemsg.FudgeMsg;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.opengamma.bbg.test.BloombergLiveDataServerUtils;
+import com.opengamma.bbg.util.MockReferenceDataProvider;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = "unit")
 public class EHCachingReferenceDataProviderTest {
-  
+
   private static final String CISCO_TICKER = "CSCO US Equity";
   private static final String FIELD_ID_ISIN = "ID_ISIN";
   private static final String FIELD_ID_CUSIP = "ID_CUSIP";
   private static final String FIELD_TICKER = "TICKER";
   private static final String FIELD_ID_BB_UNIQUE = "ID_BB_UNIQUE";
   private static final String AAPL_TICKER = "AAPL US Equity";
-  
-  private CachingReferenceDataProvider _underlyingProvider = null;
+
+  private MockReferenceDataProvider _underlyingProvider = null;
   private UnitTestingReferenceDataProvider _unitProvider = null;
   private EHCachingReferenceDataProvider _cachingProvider = null;
-  private BloombergReferenceDataProvider _bloombergReferenceDataProvider;
 
   @BeforeMethod
   public void setUp(Method m) {
     EHCacheUtils.clearAll();
     
-    _underlyingProvider = BloombergLiveDataServerUtils.getCachingReferenceDataProvider(m);
-    _bloombergReferenceDataProvider = (BloombergReferenceDataProvider) _underlyingProvider.getUnderlying();
-    _bloombergReferenceDataProvider.start();
-    
+    _underlyingProvider = new MockReferenceDataProvider();
     _unitProvider = new UnitTestingReferenceDataProvider(_underlyingProvider);
     _cachingProvider = new EHCachingReferenceDataProvider(
         _unitProvider, 
@@ -58,14 +54,14 @@ public class EHCachingReferenceDataProviderTest {
         OpenGammaFudgeContext.getInstance());
   }
 
-  @AfterMethod
-  public void cleanUp() {
-    _bloombergReferenceDataProvider.stop();
-  }
-
   //-------------------------------------------------------------------------
   @Test
   public void numberOfReturnedFields() {
+    _underlyingProvider.addExpectedField(FIELD_ID_BB_UNIQUE);
+    _underlyingProvider.addExpectedField(FIELD_TICKER);
+    _underlyingProvider.addResult(AAPL_TICKER, FIELD_ID_BB_UNIQUE, "BUID");
+    _underlyingProvider.addResult(AAPL_TICKER, FIELD_TICKER, "TICKER");
+    
     EHCachingReferenceDataProvider provider = _cachingProvider;
     
     Set<String> fields = new TreeSet<String>();
@@ -96,6 +92,11 @@ public class EHCachingReferenceDataProviderTest {
 
   @Test
   public void singleSecurityEscalatingFields() {
+    _underlyingProvider.addResult(AAPL_TICKER, FIELD_ID_BB_UNIQUE, "BUID");
+    _underlyingProvider.addResult(AAPL_TICKER, FIELD_TICKER, "TICKER");
+    _underlyingProvider.addResult(AAPL_TICKER, FIELD_ID_CUSIP, "CUSIP");
+    _underlyingProvider.addResult(AAPL_TICKER, FIELD_ID_ISIN, "ISIN");
+    
     EHCachingReferenceDataProvider provider = _cachingProvider;
     
     Set<String> fields = new TreeSet<String>();
@@ -124,9 +125,17 @@ public class EHCachingReferenceDataProviderTest {
     assertNotNull(result);
     assertNotNull(result.getResult(securityDes));
   }
-  
+
   @Test
   public void fieldNotAvailable() {
+    _underlyingProvider.addResult(AAPL_TICKER, FIELD_ID_BB_UNIQUE, "BUID");
+    _underlyingProvider.addResult(AAPL_TICKER, "INVALID_FIELD1", null);
+    _underlyingProvider.addResult(AAPL_TICKER, "INVALID_FIELD2", null);
+    _underlyingProvider.addResult(AAPL_TICKER, "INVALID_FIELD3", null);
+    _underlyingProvider.addResult(CISCO_TICKER, FIELD_ID_BB_UNIQUE, "BUID");
+    _underlyingProvider.addResult(CISCO_TICKER, "INVALID_FIELD1", null);
+    _underlyingProvider.addResult(CISCO_TICKER, "INVALID_FIELD2", null);
+    _underlyingProvider.addResult(CISCO_TICKER, "INVALID_FIELD3", null);
     
     EHCachingReferenceDataProvider provider = _cachingProvider;
     
@@ -162,9 +171,11 @@ public class EHCachingReferenceDataProviderTest {
     assertEquals(ciscoResult.getSecurity(), ciscoCachedResult.getSecurity());
     assertEquals(ciscoResult.getFieldData(), ciscoCachedResult.getFieldData());
   }
-  
+
   @Test
   public void securityNotAvailable() {
+    _underlyingProvider.addResult("INVALID", FIELD_ID_BB_UNIQUE, null);
+    
     EHCachingReferenceDataProvider provider = _cachingProvider;
     String invalidSec = "INVALID";
     
@@ -184,10 +195,18 @@ public class EHCachingReferenceDataProviderTest {
     assertNotNull(result);
     assertNotNull(result.getResult(invalidSec));
   }
-  
-  
+
   @Test
   public void multipleSecuritiesSameEscalatingFields() {
+    _underlyingProvider.addResult(AAPL_TICKER, FIELD_ID_BB_UNIQUE, "A");
+    _underlyingProvider.addResult(AAPL_TICKER, FIELD_TICKER, "B");
+    _underlyingProvider.addResult(AAPL_TICKER, FIELD_ID_CUSIP, "C");
+    _underlyingProvider.addResult(AAPL_TICKER, FIELD_ID_ISIN, "D");
+    _underlyingProvider.addResult(CISCO_TICKER, FIELD_ID_BB_UNIQUE, "A");
+    _underlyingProvider.addResult(CISCO_TICKER, FIELD_TICKER, "B");
+    _underlyingProvider.addResult(CISCO_TICKER, FIELD_ID_CUSIP, "C");
+    _underlyingProvider.addResult(CISCO_TICKER, FIELD_ID_ISIN, "D");
+    
     EHCachingReferenceDataProvider provider = _cachingProvider;
     
     Set<String> fields = new TreeSet<String>();

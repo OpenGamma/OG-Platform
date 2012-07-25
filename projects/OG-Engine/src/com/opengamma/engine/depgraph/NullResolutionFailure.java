@@ -57,6 +57,11 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   @Override
+  protected ResolutionFailure suppressed() {
+    return this;
+  }
+
+  @Override
   protected ResolutionFailure assertValueRequirement(final ValueRequirement valueRequirement) {
     return ResolutionFailureImpl.couldNotResolve(valueRequirement);
   }

@@ -11,7 +11,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.interestrate.VasicekInterestRateModel;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.interestrate.definition.VasicekDataBundle;
 import com.opengamma.analytics.financial.model.volatility.curve.VolatilityCurve;
@@ -45,7 +44,7 @@ public class VasicekInterestRateModelTest {
 
   @Test
   public void test() {
-    final YieldCurve shortRate = new YieldCurve(ConstantDoublesCurve.from(0.05));
+    final YieldCurve shortRate = YieldCurve.from(ConstantDoublesCurve.from(0.05));
     final double longRate = 0.06;
     final double speed = 0.01;
     final VolatilityCurve sigma = new VolatilityCurve(ConstantDoublesCurve.from(0.01));

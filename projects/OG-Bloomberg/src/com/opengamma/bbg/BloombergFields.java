@@ -36,4 +36,5 @@ public interface BloombergFields {
    * The Current Market Cap.
    */
   String CURRENT_MARKET_CAP_FIELD = "CUR_MKT_CAP";
+
 }

@@ -2,7 +2,14 @@
 <#setting number_format="0.#####">
 {
     "template_data": {
-    <#switch security.securityType>
+     <#if securityAttributes??>
+      "attributes": {
+      <#list securityAttributes?keys as key>
+        <#assign value = securityAttributes[key]> "${key}" : "${value}"<#if key_has_next>,</#if>
+      </#list>
+      },
+    </#if>
+   <#switch security.securityType>
       <#case "FRA">
         "amount":"${security.amount}",
         "currency":"${security.currency}",
@@ -55,26 +62,42 @@
         "dayCount":"${security.dayCount.conventionName}",
         "guaranteeType":"${security.guaranteeType}",
         "businessDayConvention":"${security.businessDayConvention}",
-        "announcementDate":"${security.announcementDate}",
-        "interestAccrualDate": {
-            "date": "${security.interestAccrualDate.toLocalDate()}",
-            "zone": "${security.interestAccrualDate.zone}"
-        },
-        "settlementDate": {
-            "date": "${security.settlementDate.toLocalDate()}",
-            "zone": "${security.settlementDate.zone}"
-        },
-        "firstCouponDate": {
-            "date": "${security.firstCouponDate.toLocalDate()}",
-            "zone": "${security.firstCouponDate.zone}"
-        },
+        <#if security.announcementDate?has_content>
+          "announcementDate": "${security.announcementDate.toLocalDate()}",
+        <#else>
+          "announcementDate": "-",
+        </#if>
+        <#if security.interestAccrualDate?has_content>
+          "interestAccrualDate": {
+              "date": "${security.interestAccrualDate.toLocalDate()}",
+              "zone": "${security.interestAccrualDate.zone}"
+          },
+        <#else>
+          "interestAccrualDate": "null",
+        </#if>
+        <#if security.settlementDate?has_content>
+          "settlementDate": {
+              "date": "${security.settlementDate.toLocalDate()}",
+              "zone": "${security.settlementDate.zone}"
+          },
+        <#else>
+          "settlementDate": "null",
+        </#if>
+        <#if security.firstCouponDate?has_content>
+          "firstCouponDate": {
+              "date": "${security.firstCouponDate.toLocalDate()}",
+              "zone": "${security.firstCouponDate.zone}"
+          },
+        <#else>
+          "firstCouponDate": "null",
+        </#if>
         "issuancePrice":"${security.issuancePrice}",
         "totalAmountIssued":"${security.totalAmountIssued}",
         "minimumAmount":"${security.minimumAmount}",
         "minimumIncrement":"${security.minimumIncrement}",
         "parAmount":"${security.parAmount}",
         "redemptionValue":"${security.redemptionValue}",
-      <#break>
+        <#break>
       <#case "FUTURE">
         "expirydate": {
             "datetime": "${security.expiry.expiry.toOffsetDateTime()}",
@@ -84,7 +107,7 @@
         "tradingExchange":"${security.tradingExchange}",
         "settlementExchange":"${security.settlementExchange}",
         "redemptionValue":"${security.currency}",
-
+        "unitAmount": ${security.unitAmount},
         <#if futureSecurityType == "BondFuture">
             "firstDeliveryDate":"${security.firstDeliveryDate}",
             "lastDeliveryDate":"${security.lastDeliveryDate}",
@@ -147,15 +170,6 @@
             "zone": "${security.maturityDate.zone}"
         },
         "counterparty":"${security.counterparty}",
-        <#if securityAttributes??>
-        "attributes":{
-          <#list securityAttributes?keys as key>
-            <#assign value = securityAttributes[key]>
-              "${key}" : "${value}"
-            <#if key_has_next>,</#if>
-          </#list>
-        },
-        </#if>
         "payLeg":{
           "dayCount":"${security.payLeg.dayCount.conventionName}",
 	        "frequency":"${security.payLeg.frequency.conventionName}",
@@ -426,15 +440,6 @@
         "currency":"${securityEntryData.currency}",
         "maturityDate":"${securityEntryData.maturityDate}",
         "factorSetId":"${securityEntryData.factorSetId}",
-        <#if securityAttributes??>
-          "attributes":{
-            <#list securityAttributes?keys as key>
-              <#assign value = securityAttributes[key]>
-                "${key}" : "${value}"
-              <#if key_has_next>,</#if>
-            </#list>
-          },
-        </#if>
         <#if factorExposuresList??>
           "factors":[
             <#list factorExposuresList as factorExposure>
@@ -455,15 +460,6 @@
         </#if>
       <#break>
       <#case "EXTERNAL_SENSITIVITY_RISK_FACTORS">
-        <#if securityAttributes??>
-          "attributes":{
-            <#list securityAttributes?keys as key>
-              <#assign value = securityAttributes[key]>
-                "${key}" : "${value}"
-              <#if key_has_next>,</#if>
-            </#list>
-          },
-        </#if>
         "factors":[
           <#list factorExposuresList as factorExposure>
             {

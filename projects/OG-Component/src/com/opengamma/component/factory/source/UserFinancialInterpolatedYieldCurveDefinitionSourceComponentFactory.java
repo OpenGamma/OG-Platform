@@ -25,6 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.analytics.ircurve.AggregatingInterpolatedYieldCurveDefinitionSource;
 import com.opengamma.financial.analytics.ircurve.ConfigDBInterpolatedYieldCurveDefinitionSource;
@@ -34,6 +35,8 @@ import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitio
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionSource;
 import com.opengamma.financial.analytics.ircurve.rest.DataInterpolatedYieldCurveDefinitionMasterResource;
 import com.opengamma.financial.analytics.ircurve.rest.DataInterpolatedYieldCurveDefinitionSourceResource;
+import com.opengamma.financial.analytics.ircurve.rest.RemoteInterpolatedYieldCurveDefinitionMaster;
+import com.opengamma.financial.analytics.ircurve.rest.RemoteInterpolatedYieldCurveDefinitionSource;
 
 /**
  * Component factory for the yield curve definition source.
@@ -88,6 +91,8 @@ public class UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory
     
     // register
     ComponentInfo info = new ComponentInfo(InterpolatedYieldCurveDefinitionSource.class, getClassifier());
+    info.addAttribute(ComponentInfoAttributes.LEVEL, 2);
+    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteInterpolatedYieldCurveDefinitionSource.class);
     repo.registerComponent(info, source);
     
     if (isPublishRest()) {
@@ -102,6 +107,8 @@ public class UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory
     }
     if (getUnderlyingClassifier() != null) {
       ComponentInfo info = new ComponentInfo(InterpolatedYieldCurveDefinitionSource.class, getUnderlyingClassifier());
+      info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+      info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteInterpolatedYieldCurveDefinitionSource.class);
       repo.registerComponent(info, source);
       
       if (isPublishRest()) {
@@ -117,8 +124,12 @@ public class UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory
     }
     InMemoryInterpolatedYieldCurveDefinitionMaster masterAndSource = new InMemoryInterpolatedYieldCurveDefinitionMaster();
     ComponentInfo infoMaster = new ComponentInfo(InterpolatedYieldCurveDefinitionMaster.class, getUserClassifier());
+    infoMaster.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+    infoMaster.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteInterpolatedYieldCurveDefinitionMaster.class);
     repo.registerComponent(infoMaster, masterAndSource);
     ComponentInfo infoSource = new ComponentInfo(InterpolatedYieldCurveDefinitionSource.class, getUserClassifier());
+    infoSource.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+    infoSource.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteInterpolatedYieldCurveDefinitionSource.class);
     repo.registerComponent(infoSource, masterAndSource);
     
     if (isPublishRest()) {

@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.model.interestrate.curve;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.math.curve.Curve;
+import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 
@@ -21,13 +21,13 @@ public class PriceIndexCurve {
   /**
    * The price index curve.
    */
-  private final Curve<Double, Double> _curve;
+  private final DoublesCurve _curve;
 
   /**
    * Constructor from a curve object.
    * @param curve The curve.
    */
-  public PriceIndexCurve(final Curve<Double, Double> curve) {
+  public PriceIndexCurve(final DoublesCurve curve) {
     Validate.notNull(curve, "curve");
     _curve = curve;
   }
@@ -61,7 +61,7 @@ public class PriceIndexCurve {
    * Gets the underlying curve object.
    * @return The curve.
    */
-  public Curve<Double, Double> getCurve() {
+  public DoublesCurve getCurve() {
     return _curve;
   }
 

@@ -5,23 +5,32 @@
  */
 package com.opengamma.livedata.msg;
 
+import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
 
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.livedata.LiveDataSpecification;
 
 /**
- * This class is primarily here to allow us to eliminate the dummy classes.
+ * Test.
  */
+@Test(groups = "unit")
 public class LiveDataSubscriptionResponseTest {
 
-  @Test
   public void simpleConstruction() {
-    new LiveDataSubscriptionResponse(new LiveDataSpecification("Foo"),
+    LiveDataSpecification lds = new LiveDataSpecification("Foo", ExternalId.of("A", "B"));
+    LiveDataSubscriptionResponse ldsr = new LiveDataSubscriptionResponse(lds,
         LiveDataSubscriptionResult.SUCCESS,
         null,
-        new LiveDataSpecification("Foo"),
+        lds,
         null,
         null);
+    assertEquals("Foo", lds.getNormalizationRuleSetId());
+    assertEquals(ExternalIdBundle.of("A", "B"), lds.getIdentifiers());
+    assertEquals(LiveDataSubscriptionResult.SUCCESS, ldsr.getSubscriptionResult());
+    assertEquals(lds, ldsr.getRequestedSpecification());
   }
 
 }

@@ -14,6 +14,7 @@ import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.calc.EngineResourceReference;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.engine.view.client.ViewResultMode;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
@@ -32,6 +33,8 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
   private final ViewClient _viewClient;
   private final AggregatedViewDefinition _aggregatedViewDef;
   private final ViewExecutionOptions _executionOptions;
+
+  private EngineResourceReference<? extends ViewCycle> _cycleReference = EmptyViewCycle.REFERENCE;
 
   public AnalyticsViewClientConnection(ViewRequest viewRequest,
                                        ViewClient viewClient,
@@ -63,24 +66,21 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
 
   @Override
   public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
-    if (_viewClient.isViewCycleAccessSupported()) {
-      EngineResourceReference<? extends ViewCycle> cycleReference = null;
-      try {
-        cycleReference = _viewClient.createCycleReference(fullResult.getViewCycleId());
-        _view.updateResults(fullResult, cycleReference.get());
-      } finally {
-        if (cycleReference != null) {
-          cycleReference.release();
-        }
-      }
+    _cycleReference.release();
+    EngineResourceReference<? extends ViewCycle> cycleReference = _viewClient.createCycleReference(fullResult.getViewCycleId());
+    if (cycleReference == null) {
+      // this shouldn't happen if everything in the engine is working as it should
+      _cycleReference = EmptyViewCycle.REFERENCE;
     } else {
-      _view.updateResults(fullResult);
+      _cycleReference = cycleReference;
     }
-    _viewClient.setViewCycleAccessSupported(_view.isViewCycleRequired());
+    _view.updateResults(fullResult, _cycleReference.get());
   }
 
   /* package */ void start() {
     _viewClient.setResultListener(this);
+    _viewClient.setViewCycleAccessSupported(true);
+    _viewClient.setFragmentResultMode(ViewResultMode.FULL_THEN_DELTA);
     try {
       _viewClient.attachToViewProcess(_aggregatedViewDef.getUniqueId(), _executionOptions);
     } catch (Exception e) {
@@ -93,6 +93,7 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
     try {
       _viewClient.detachFromViewProcess();
     } finally {
+      _cycleReference.release();
       _aggregatedViewDef.close();
     }
   }
@@ -108,7 +109,7 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
 
     private final AggregatedViewDefinitionManager _aggregatedViewDefManager;
     private final UniqueId _baseViewDefId;
-    private final String _aggregatorName;
+    private final List<String> _aggregatorNames;
     private final UniqueId _id;
 
     private AggregatedViewDefinition(AggregatedViewDefinitionManager aggregatedViewDefManager, ViewRequest viewRequest) {
@@ -116,15 +117,9 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
       ArgumentChecker.notNull(viewRequest, "viewRequest");
       _aggregatedViewDefManager = aggregatedViewDefManager;
       _baseViewDefId = viewRequest.getViewDefinitionId();
-      List<String> aggregators = viewRequest.getAggregators();
-      if (!aggregators.isEmpty()) {
-        // TODO support multiple aggregtors
-        _aggregatorName = aggregators.get(0);
-      } else {
-        _aggregatorName = null;
-      }
+      _aggregatorNames = viewRequest.getAggregators();
       try {
-        _id = _aggregatedViewDefManager.getViewDefinitionId(_baseViewDefId, _aggregatorName);
+        _id = _aggregatedViewDefManager.getViewDefinitionId(_baseViewDefId, _aggregatorNames);
       } catch (Exception e) {
         close();
         throw new OpenGammaRuntimeException("Failed to get aggregated view definition", e);
@@ -136,7 +131,7 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
     }
 
     private void close() {
-      _aggregatedViewDefManager.releaseViewDefinition(_baseViewDefId, _aggregatorName);
+      _aggregatedViewDefManager.releaseViewDefinition(_baseViewDefId, _aggregatorNames);
     }
   }
 }

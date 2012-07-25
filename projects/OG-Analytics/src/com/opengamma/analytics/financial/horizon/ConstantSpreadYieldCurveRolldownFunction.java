@@ -28,7 +28,10 @@ public final class ConstantSpreadYieldCurveRolldownFunction implements RolldownF
   @Override
   public YieldAndDiscountCurve rollDown(final YieldAndDiscountCurve yieldCurve, final double time) {
     ArgumentChecker.notNull(yieldCurve, "yield curve");
-    final Curve<Double, Double> curve = yieldCurve.getCurve();
+    if (!(yieldCurve instanceof YieldCurve)) {
+      throw new IllegalArgumentException("Can only handle YieldCurve");
+    }
+    final Curve<Double, Double> curve = ((YieldCurve) yieldCurve).getCurve();
     final Function1D<Double, Double> shiftedFunction = new Function1D<Double, Double>() {
 
       @Override
@@ -37,7 +40,7 @@ public final class ConstantSpreadYieldCurveRolldownFunction implements RolldownF
       }
 
     };
-    return new YieldCurve(FunctionalDoublesCurve.from(shiftedFunction));
+    return YieldCurve.from(FunctionalDoublesCurve.from(shiftedFunction));
   }
 
 }

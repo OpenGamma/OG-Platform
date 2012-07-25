@@ -5,6 +5,8 @@
  */
 package com.opengamma.master.historicaltimeseries.impl;
 
+import javax.time.calendar.LocalDate;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +22,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
@@ -38,6 +41,10 @@ public class HistoricalTimeSeriesMasterUtils {
 
   /**
    * Updates an existing time-series in the master.
+   * If the time series provided has overlaps with the existing time series, the old
+   * versions of intersecting points will be corrected to the new ones.
+   * After that, points later than the existing latest point of the time series will
+   * be appended.
    * 
    * @param description  a description of the time-series for display purposes, not null
    * @param dataSource  the data source, not null
@@ -158,4 +165,22 @@ public class HistoricalTimeSeriesMasterUtils {
     }
   }
   
+  /**
+   * Adds or updates a time-series in the master.  Will not "erase" any existing point, just
+   * used to add a new point.
+   * 
+   * @param description  a description of the time-series for display purposes, not null
+   * @param dataSource  the data source, not null
+   * @param dataProvider  the data provider, not null
+   * @param dataField  the data field, not null
+   * @param observationTime  the descriptive observation time key, e.g. LONDON_CLOSE, not null
+   * @param externalIdBundle  the external identifiers with which the time-series is associated, not null
+   * @param timeSeries  the time-series, not null
+   * @return the unique identifier of the time-series
+   */
+  public UniqueId writeTimeSeriesPoint(String description, String dataSource, String dataProvider, String dataField,
+      String observationTime, ExternalIdBundle externalIdBundle, LocalDate date, double value) {
+    LocalDateDoubleTimeSeries ts = new ListLocalDateDoubleTimeSeries(new LocalDate[] {date}, new double[] {value});
+    return writeTimeSeries(description, dataSource, dataProvider, dataField, observationTime, externalIdBundle, ts);
+  }
 }

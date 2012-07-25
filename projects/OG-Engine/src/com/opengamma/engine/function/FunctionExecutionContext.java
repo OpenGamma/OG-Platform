@@ -171,7 +171,6 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
     put(PORTFOLIO_STRUCTURE_NAME, portfolioStructure);
   }
 
-  //-------------------------------------------------------------------------
   /**
    * Gets the source of securities cast to a specific type.
    * 

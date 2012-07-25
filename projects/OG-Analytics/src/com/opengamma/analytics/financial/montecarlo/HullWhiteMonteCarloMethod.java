@@ -333,8 +333,8 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
   /**
    * Construct the discount factors on the simulated paths from the random variables and the model constants.
    * @param initDiscountFactor The initial discount factors.
-   * @param y The correlated random variables.
-   * @param h The H parameters.
+   * @param y The correlated random variables. jump/path
+   * @param h The H parameters. jump/cf
    * @param h2 The H^2 parameters.
    * @param gamma The gamma parameters.
    * @return The discount factor paths (path/jump/cf).

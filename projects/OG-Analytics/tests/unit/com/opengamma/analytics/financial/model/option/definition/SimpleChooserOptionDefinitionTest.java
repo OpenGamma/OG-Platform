@@ -44,7 +44,7 @@ public class SimpleChooserOptionDefinitionTest {
   private static final OptionDefinition VANILLA_CALL = new EuropeanVanillaOptionDefinition(STRIKE, UNDERLYING_EXPIRY, true);
   private static final OptionDefinition VANILLA_PUT = new EuropeanVanillaOptionDefinition(STRIKE, UNDERLYING_EXPIRY, false);
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> MODEL = new BlackScholesMertonModel();
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.06)), 0., new VolatilitySurface(ConstantDoublesSurface.from(0.15)),
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(YieldCurve.from(ConstantDoublesCurve.from(0.06)), 0., new VolatilitySurface(ConstantDoublesSurface.from(0.15)),
       STRIKE, DATE);
   private static final Set<Greek> PRICE = Sets.newHashSet(Greek.FAIR_PRICE);
   private static final double EPS = 1e-15;

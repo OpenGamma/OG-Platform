@@ -11,9 +11,22 @@ import java.util.Set;
 import com.google.common.collect.Sets;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
+import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
-import com.opengamma.financial.security.future.*;
+import com.opengamma.financial.security.future.AgricultureFutureSecurity;
+import com.opengamma.financial.security.future.BondFutureDeliverable;
+import com.opengamma.financial.security.future.BondFutureSecurity;
+import com.opengamma.financial.security.future.EnergyFutureSecurity;
+import com.opengamma.financial.security.future.EquityFutureSecurity;
+import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
+import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.future.IndexFutureSecurity;
+import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.financial.security.future.MetalFutureSecurity;
+import com.opengamma.financial.security.future.StockFutureSecurity;
+import com.opengamma.financial.security.option.BondFutureOptionSecurity;
+import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
@@ -43,7 +56,12 @@ public final class UnderlyingIdentifierCollector {
       public Void visitGovernmentBondSecurity(GovernmentBondSecurity security) {
         return null;
       }
-      
+
+      @Override
+      public Void visitCorporateBondSecurity(CorporateBondSecurity security) {
+        return null;
+      }
+
       @Override
       public Void visitAgricultureFutureSecurity(AgricultureFutureSecurity security) {
         return null;
@@ -156,6 +174,23 @@ public final class UnderlyingIdentifierCollector {
         return null;
       }
 
+      @Override
+      public Void visitCommodityFutureOptionSecurity(CommodityFutureOptionSecurity security) {
+        ExternalId underlyingIdentifier = security.getUnderlyingId();
+        if (underlyingIdentifier != null) {
+          _underlyings.add(ExternalIdBundle.of(underlyingIdentifier));
+        }
+        return null;
+      }
+
+      @Override
+      public Void visitBondFutureOptionSecurity(BondFutureOptionSecurity security) {
+        ExternalId underlyingIdentifier = security.getUnderlyingId();
+        if (underlyingIdentifier != null) {
+          _underlyings.add(ExternalIdBundle.of(underlyingIdentifier));
+        }
+        return null;
+      }
     };
     _financialSecurityVisitor = underlyingIdentifierCollector;
   }

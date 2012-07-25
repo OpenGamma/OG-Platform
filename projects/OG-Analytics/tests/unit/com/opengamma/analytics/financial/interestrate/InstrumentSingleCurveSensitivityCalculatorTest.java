@@ -22,18 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.InstrumentSensitivityCalculator;
-import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderFunction;
-import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderJacobian;
-import com.opengamma.analytics.financial.interestrate.ParRateCalculator;
-import com.opengamma.analytics.financial.interestrate.ParRateCurveSensitivityCalculator;
-import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
-import com.opengamma.analytics.financial.interestrate.PresentValueCouponSensitivityCalculator;
-import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityCalculator;
-import com.opengamma.analytics.financial.interestrate.PresentValueNodeSensitivityCalculator;
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.math.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.analytics.math.function.Function1D;
@@ -317,7 +305,7 @@ public class InstrumentSingleCurveSensitivityCalculatorTest extends YieldCurveFi
         }
         index++;
       }
-    }    
+    }
     final double[] rates = new double[nNodes];
     for (int i = 0; i < nNodes; i++) {
       rates[i] = 0.04;
@@ -325,7 +313,7 @@ public class InstrumentSingleCurveSensitivityCalculatorTest extends YieldCurveFi
     rates[0] = 0.02;
     final DoubleMatrix1D startPosition = new DoubleMatrix1D(rates);
     final YieldCurveFittingTestDataBundle data = getYieldCurveFittingTestDataBundle(instruments, null, curveNames, curveKnots, INTERPOLATOR,
-        calculator, sensitivityCalculator, marketValues, startPosition, null, false);
+        calculator, sensitivityCalculator, marketValues, startPosition, null, false, FX_MATRIX);
     return data;
   }
 

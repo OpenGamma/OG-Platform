@@ -33,7 +33,7 @@ public class LogOptionDefinitionTest {
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 5, 1);
   private static final Expiry EXPIRY = new Expiry(DATE);
   private static final LogOptionDefinition DEFINITION = new LogOptionDefinition(STRIKE, EXPIRY);
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.05)), 0.05, new VolatilitySurface(ConstantDoublesSurface.from(0.1)),
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(YieldCurve.from(ConstantDoublesCurve.from(0.05)), 0.05, new VolatilitySurface(ConstantDoublesSurface.from(0.1)),
       STRIKE, DATE);
 
   @Test(expectedExceptions = IllegalArgumentException.class)

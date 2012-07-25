@@ -5,9 +5,7 @@
  */
 package com.opengamma.web.server.push.analytics;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.opengamma.DataNotFoundException;
@@ -15,48 +13,37 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  *
+ * @param <V> The type of viewport created and used by this grid.
  */
-/* package */ abstract class AnalyticsGrid {
+/* package */ abstract class AnalyticsGrid<V extends AnalyticsViewport> {
 
-  protected final AnalyticsGridStructure _gridStructure;
+  protected final Map<String, V> _viewports = new HashMap<String, V>();
 
-  protected final Map<String, AnalyticsViewport> _viewports = new HashMap<String, AnalyticsViewport>();
   private final String _gridId;
 
-  protected AnalyticsGrid(AnalyticsGridStructure gridStructure, String gridId) {
-    ArgumentChecker.notNull(gridStructure, "gridStructure");
+  protected AnalyticsGrid(String gridId) {
     ArgumentChecker.notNull(gridId, "gridId");
-    _gridStructure = gridStructure;
     _gridId = gridId;
   }
 
-  public AnalyticsGridStructure getGridStructure() {
-    return _gridStructure;
-  }
+  public abstract Object getGridStructure();
 
-  protected AnalyticsViewport getViewport(String viewportId) {
-    AnalyticsViewport viewport = _viewports.get(viewportId);
+  protected V getViewport(String viewportId) {
+    V viewport = _viewports.get(viewportId);
     if (viewport == null) {
       throw new DataNotFoundException("No viewport found with ID " + viewportId);
     }
     return viewport;
   }
 
-  /* package */ String createViewport(String viewportId,
-                                      String dataId,
-                                      ViewportSpecification viewportSpecification,
-                                      AnalyticsHistory history) {
+  /* package */ void createViewport(String viewportId, String dataId, ViewportSpecification viewportSpecification) {
     if (_viewports.containsKey(viewportId)) {
       throw new IllegalArgumentException("Viewport ID " + viewportId + " is already in use");
     }
-    _viewports.put(viewportId, createViewport(_gridStructure, viewportSpecification, history, dataId));
-    return viewportId;
+    _viewports.put(viewportId, createViewport(viewportSpecification, dataId));
   }
 
-  protected abstract AnalyticsViewport createViewport(AnalyticsGridStructure gridStructure,
-                                                      ViewportSpecification viewportSpecification,
-                                                      AnalyticsHistory history,
-                                                      String dataId);
+  protected abstract V createViewport(ViewportSpecification viewportSpecification, String dataId);
 
   /* package */ void deleteViewport(String viewportId) {
     AnalyticsViewport viewport = _viewports.remove(viewportId);
@@ -71,13 +58,5 @@ import com.opengamma.util.ArgumentChecker;
 
   /* package */ String getGridId() {
     return _gridId;
-  }
-
-  /* package */ List<String> getViewportDataIds() {
-    List<String> dataIds = new ArrayList<String>();
-    for (AnalyticsViewport viewport : _viewports.values()) {
-      dataIds.add(viewport.getDataId());
-    }
-    return dataIds;
   }
 }

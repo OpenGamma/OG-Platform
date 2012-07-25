@@ -104,9 +104,12 @@ public abstract class SwaptionBlackCurveSpecificFunction extends AbstractFunctio
     if (curveCalculationConfig == null) {
       throw new OpenGammaRuntimeException("Could not find curve calculation configuration named " + curveCalculationConfigName);
     }
-    final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
+    String[] curveNames = curveCalculationConfig.getYieldCurveNames();
     final String curveCalculationMethod = curveCalculationConfig.getCalculationMethod();
     final InstrumentDefinition<?> definition = security.accept(_visitor);
+    if (curveNames.length == 1) {
+      curveNames = new String[] {curveNames[0], curveNames[0]};
+    }
     final InstrumentDerivative swaption = definition.toDerivative(now, curveNames); //TODO
     final ValueProperties properties = getResultProperties(currency.getCode(), curveCalculationConfigName, surfaceName, curveName);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties);

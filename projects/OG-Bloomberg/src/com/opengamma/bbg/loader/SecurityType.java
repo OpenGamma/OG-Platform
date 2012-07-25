@@ -128,5 +128,9 @@ public enum SecurityType {
   /**
    * Commodity Future Option
    */
-  COMMODITY_FUTURE_OPTION
+  COMMODITY_FUTURE_OPTION,
+  /**
+   * Bond Future Option
+   */
+  BOND_FUTURE_OPTION
 }

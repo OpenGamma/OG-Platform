@@ -50,19 +50,17 @@ import com.opengamma.web.server.push.ConnectionManagerImpl;
 import com.opengamma.web.server.push.LongPollingConnectionManager;
 import com.opengamma.web.server.push.MasterChangeManager;
 import com.opengamma.web.server.push.WebPushServletContextUtils;
+import com.opengamma.web.server.push.analytics.AnalyticsColumnsJsonWriter;
 import com.opengamma.web.server.push.analytics.AnalyticsViewManager;
-import com.opengamma.web.server.push.grid.PushLiveResultsService;
-import com.opengamma.web.server.push.reports.CsvReportGenerator;
-import com.opengamma.web.server.push.reports.ReportFactory;
-import com.opengamma.web.server.push.reports.ReportGenerator;
+import com.opengamma.web.server.push.analytics.formatting.ResultsFormatter;
 import com.opengamma.web.server.push.rest.AggregatorNamesResource;
 import com.opengamma.web.server.push.rest.MarketDataSnapshotListResource;
 import com.opengamma.web.server.push.rest.MasterType;
-import com.opengamma.web.server.push.rest.ViewDefinitionEntriesResource;
-import com.opengamma.web.server.push.rest.ViewportsResource;
 import com.opengamma.web.server.push.rest.ViewsResource;
-import com.opengamma.web.server.push.rest.json.AnalyticsGridStructureMessageBodyWriter;
-import com.opengamma.web.server.push.rest.json.DependencyGraphRequestMessageBodyReader;
+import com.opengamma.web.server.push.rest.json.AnalyticsColumnGroupsMessageBodyWriter;
+import com.opengamma.web.server.push.rest.json.DependencyGraphGridStructureMessageBodyWriter;
+import com.opengamma.web.server.push.rest.json.PortfolioGridStructureMessageBodyWriter;
+import com.opengamma.web.server.push.rest.json.PrimitivesGridStructureMessageBodyWriter;
 import com.opengamma.web.server.push.rest.json.ViewportResultsMessageBodyWriter;
 
 /**
@@ -160,15 +158,10 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
-    PushLiveResultsService liveResults = buildLiveResults();
     final LongPollingConnectionManager longPolling = buildLongPolling();
-    ReportFactory reportFactory = buildReportFactory();
     ChangeManager changeMgr = buildChangeManager();
     MasterChangeManager masterChangeMgr = buildMasterChangeManager();
-    
     final ConnectionManagerImpl connectionMgr = new ConnectionManagerImpl(changeMgr, masterChangeMgr, longPolling);
-    ViewportsResource viewportsResource = new ViewportsResource(connectionMgr, reportFactory);
-    ViewDefinitionEntriesResource viewDefinitionResource = new ViewDefinitionEntriesResource(getViewDefinitionRepository());
     AggregatorNamesResource aggregatorsResource = new AggregatorNamesResource(getPortfolioAggregationFunctions().getMappedFunctions().keySet());
     MarketDataSnapshotListResource snapshotResource = new MarketDataSnapshotListResource(getMarketDataSnapshotMaster());
 
@@ -182,16 +175,19 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
         getPortfolioAggregationFunctions().getMappedFunctions());
     AnalyticsViewManager analyticsViewManager = new AnalyticsViewManager(getViewProcessor(),
                                                                          aggregatedViewDefManager,
-                                                                         getMarketDataSnapshotMaster());
+                                                                         getMarketDataSnapshotMaster(),
+                                                                         getComputationTargetResolver());
+    ResultsFormatter resultsFormatter = new ResultsFormatter();
+    AnalyticsColumnsJsonWriter columnWriter = new AnalyticsColumnsJsonWriter(resultsFormatter);
 
-    repo.getRestComponents().publishResource(viewportsResource);
-    repo.getRestComponents().publishResource(viewDefinitionResource);
     repo.getRestComponents().publishResource(aggregatorsResource);
     repo.getRestComponents().publishResource(snapshotResource);
     repo.getRestComponents().publishResource(new ViewsResource(analyticsViewManager, connectionMgr));
-    repo.getRestComponents().publishHelper(new DependencyGraphRequestMessageBodyReader());
-    repo.getRestComponents().publishHelper(new AnalyticsGridStructureMessageBodyWriter());
-    repo.getRestComponents().publishHelper(new ViewportResultsMessageBodyWriter());
+    repo.getRestComponents().publishHelper(new PrimitivesGridStructureMessageBodyWriter(columnWriter));
+    repo.getRestComponents().publishHelper(new PortfolioGridStructureMessageBodyWriter(columnWriter));
+    repo.getRestComponents().publishHelper(new DependencyGraphGridStructureMessageBodyWriter(columnWriter));
+    repo.getRestComponents().publishHelper(new AnalyticsColumnGroupsMessageBodyWriter(columnWriter));
+    repo.getRestComponents().publishHelper(new ViewportResultsMessageBodyWriter(resultsFormatter));
 
     // these items need to be available to the servlet, but aren't important enough to be published components
     repo.registerServletContextAware(new ServletContextAware() {
@@ -203,29 +199,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     });
   }
 
-  protected PushLiveResultsService buildLiveResults() {
-    PushLiveResultsService liveResults = new PushLiveResultsService(
-        getViewProcessor(),
-        getPositionSource(),
-        getSecuritySource(),
-        getComputationTargetResolver(),
-        getUserPortfolioMaster(),
-        getUserPositionMaster(),
-        getUserViewDefinitionRepository(),
-        getUser(),
-        getFudgeContext(),
-        getPortfolioAggregationFunctions());
-    return liveResults;
-  }
-
   protected LongPollingConnectionManager buildLongPolling() {
     return new LongPollingConnectionManager();
-  }
-
-  protected ReportFactory buildReportFactory() {
-    Map<String, ReportGenerator> generators = new HashMap<String, ReportGenerator>();
-    generators.put("csv", new CsvReportGenerator());
-    return new ReportFactory(generators);
   }
 
   protected ChangeManager buildChangeManager() {

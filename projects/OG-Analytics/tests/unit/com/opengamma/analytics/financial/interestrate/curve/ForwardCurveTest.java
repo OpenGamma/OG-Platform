@@ -28,7 +28,7 @@ public class ForwardCurveTest {
   private static final DoubleQuadraticInterpolator1D INTERPOLATOR_1D = new DoubleQuadraticInterpolator1D();
   private static final CombinedInterpolatorExtrapolator EXTRAPOLATOR_1D = new CombinedInterpolatorExtrapolator(INTERPOLATOR_1D, new FlatExtrapolator1D());
   private static double DRIFT = 0.05;
-  private static final double[] EXPIRIES = new double[] {0.0, 7. / 365, 14 / 365., 21 / 365., 1 / 12., 3 / 12., 0.5, 0.75, 1, 5, 10 };
+  private static final double[] EXPIRIES = new double[] {0.0, 7. / 365, 14 / 365., 21 / 365., 1 / 12., 3 / 12., 0.5, 0.75, 1, 5, 10};
   private static final double SPOT = 1.34;
   private static final double[] FORWARDS;
   private static final ForwardCurve FORWARD_CURVE;
@@ -85,8 +85,8 @@ public class ForwardCurveTest {
   public void testTwoCurves() {
     final double rate = 0.05;
     final double cc = 0.02;
-    final YieldAndDiscountCurve r = new YieldCurve(ConstantDoublesCurve.from(rate));
-    final YieldAndDiscountCurve q = new YieldCurve(ConstantDoublesCurve.from(cc));
+    final YieldAndDiscountCurve r = YieldCurve.from(ConstantDoublesCurve.from(rate));
+    final YieldAndDiscountCurve q = YieldCurve.from(ConstantDoublesCurve.from(cc));
     final ForwardCurve fc = new ForwardCurveYieldImplied(SPOT, r, q);
     final double t = 5.67;
     assertEquals(SPOT * Math.exp(t * (rate - cc)), fc.getForward(t), 1e-9);

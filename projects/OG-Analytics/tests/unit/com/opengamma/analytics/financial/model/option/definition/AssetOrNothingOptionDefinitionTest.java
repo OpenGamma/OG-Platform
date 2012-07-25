@@ -28,7 +28,7 @@ public class AssetOrNothingOptionDefinitionTest {
   private static final Expiry EXPIRY = new Expiry(DateUtils.getUTCDate(2010, 8, 1));
   private static final AssetOrNothingOptionDefinition CALL = new AssetOrNothingOptionDefinition(STRIKE, EXPIRY, true);
   private static final AssetOrNothingOptionDefinition PUT = new AssetOrNothingOptionDefinition(STRIKE, EXPIRY, false);
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.01)), 0, new VolatilitySurface(ConstantDoublesSurface.from(0.1)),
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(YieldCurve.from(ConstantDoublesCurve.from(0.01)), 0, new VolatilitySurface(ConstantDoublesSurface.from(0.1)),
       STRIKE, DateUtils.getUTCDate(2010, 7, 1));
 
   @Test(expectedExceptions = IllegalArgumentException.class)

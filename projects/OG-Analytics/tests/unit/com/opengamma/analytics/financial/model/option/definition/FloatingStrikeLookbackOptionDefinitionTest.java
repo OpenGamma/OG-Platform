@@ -40,9 +40,9 @@ public class FloatingStrikeLookbackOptionDefinitionTest {
       SPOT});
   private static final DoubleTimeSeries<?> LOW_TS = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_DDMMYYYY, new int[] {20100529, 20100530, 20100531}, new double[] {SPOT, SPOT - DIFF,
       SPOT});
-  private static final StandardOptionWithSpotTimeSeriesDataBundle HIGH_DATA = new StandardOptionWithSpotTimeSeriesDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.1)), 0.05,
+  private static final StandardOptionWithSpotTimeSeriesDataBundle HIGH_DATA = new StandardOptionWithSpotTimeSeriesDataBundle(YieldCurve.from(ConstantDoublesCurve.from(0.1)), 0.05,
       new VolatilitySurface(ConstantDoublesSurface.from(0.2)), SPOT, DateUtils.getUTCDate(2010, 6, 1), HIGH_TS);
-  private static final StandardOptionWithSpotTimeSeriesDataBundle LOW_DATA = new StandardOptionWithSpotTimeSeriesDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.1)), 0.05,
+  private static final StandardOptionWithSpotTimeSeriesDataBundle LOW_DATA = new StandardOptionWithSpotTimeSeriesDataBundle(YieldCurve.from(ConstantDoublesCurve.from(0.1)), 0.05,
       new VolatilitySurface(ConstantDoublesSurface.from(0.2)), SPOT, DateUtils.getUTCDate(2010, 6, 1), LOW_TS);
 
   @Test(expectedExceptions = IllegalArgumentException.class)

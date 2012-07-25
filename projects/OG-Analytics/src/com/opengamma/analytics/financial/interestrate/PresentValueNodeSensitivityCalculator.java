@@ -17,7 +17,8 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * 
  */
-public class PresentValueNodeSensitivityCalculator extends NodeSensitivityCalculator {
+public class PresentValueNodeSensitivityCalculator extends NodeYieldSensitivityCalculator {
+
   private static final PresentValueNodeSensitivityCalculator DEFAULT_INSTANCE = new PresentValueNodeSensitivityCalculator();
 
   public static PresentValueNodeSensitivityCalculator getDefaultInstance() {

@@ -7,7 +7,6 @@ package com.opengamma.component.factory.master;
 
 import java.lang.reflect.Constructor;
 import java.net.URI;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -22,8 +21,6 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.batch.BatchMaster;
-import com.opengamma.batch.rest.RemoteBatchMaster;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.ComponentServer;
@@ -32,26 +29,6 @@ import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.component.rest.RemoteComponentServer;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.JmsChangeManager;
-import com.opengamma.engine.view.calcnode.stats.FunctionCostsMaster;
-import com.opengamma.engine.view.calcnode.stats.RemoteFunctionCostsMaster;
-import com.opengamma.master.config.ConfigMaster;
-import com.opengamma.master.config.impl.RemoteConfigMaster;
-import com.opengamma.master.exchange.ExchangeMaster;
-import com.opengamma.master.exchange.impl.RemoteExchangeMaster;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
-import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesMaster;
-import com.opengamma.master.holiday.HolidayMaster;
-import com.opengamma.master.holiday.impl.RemoteHolidayMaster;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
-import com.opengamma.master.marketdatasnapshot.impl.RemoteMarketDataSnapshotMaster;
-import com.opengamma.master.portfolio.PortfolioMaster;
-import com.opengamma.master.portfolio.impl.RemotePortfolioMaster;
-import com.opengamma.master.position.PositionMaster;
-import com.opengamma.master.position.impl.RemotePositionMaster;
-import com.opengamma.master.region.RegionMaster;
-import com.opengamma.master.region.impl.RemoteRegionMaster;
-import com.opengamma.master.security.SecurityMaster;
-import com.opengamma.master.security.impl.RemoteSecurityMaster;
 import com.opengamma.util.ReflectionUtils;
 import com.opengamma.util.jms.JmsConnector;
 
@@ -60,24 +37,6 @@ import com.opengamma.util.jms.JmsConnector;
  */
 @BeanDefinition
 public class RemoteMastersComponentFactory extends AbstractComponentFactory {
-
-  /**
-   * The remote wrappers.
-   */
-  private final Map<Class<?>, Class<?>> _remoteWrappers = new HashMap<Class<?>, Class<?>>();
-  {
-    _remoteWrappers.put(BatchMaster.class, RemoteBatchMaster.class);
-    _remoteWrappers.put(ConfigMaster.class, RemoteConfigMaster.class);
-    _remoteWrappers.put(ExchangeMaster.class, RemoteExchangeMaster.class);
-    _remoteWrappers.put(FunctionCostsMaster.class, RemoteFunctionCostsMaster.class);
-    _remoteWrappers.put(HistoricalTimeSeriesMaster.class, RemoteHistoricalTimeSeriesMaster.class);
-    _remoteWrappers.put(HolidayMaster.class, RemoteHolidayMaster.class);
-    _remoteWrappers.put(MarketDataSnapshotMaster.class, RemoteMarketDataSnapshotMaster.class);
-    _remoteWrappers.put(PortfolioMaster.class, RemotePortfolioMaster.class);
-    _remoteWrappers.put(PositionMaster.class, RemotePositionMaster.class);
-    _remoteWrappers.put(RegionMaster.class, RemoteRegionMaster.class);
-    _remoteWrappers.put(SecurityMaster.class, RemoteSecurityMaster.class);
-  }
 
   /**
    * The remote URI.
@@ -113,8 +72,11 @@ public class RemoteMastersComponentFactory extends AbstractComponentFactory {
    */
   protected void initComponent(ComponentRepository repo, ComponentInfo info) {
     URI componentUri = info.getUri();
-    Class<?> remoteType = _remoteWrappers.get(info.getType());
-    if (remoteType != null) {
+    
+    if (info.getAttributes().containsKey(ComponentInfoAttributes.REMOTE_CLIENT_JAVA) && 
+        info.getAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA).endsWith("Master")) {
+      String remoteTypeStr = info.getAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA);
+      Class<?> remoteType = ReflectionUtils.loadClass(remoteTypeStr);
       String jmsBrokerUri = info.getAttributes().get(ComponentInfoAttributes.JMS_BROKER_URI);
       String jmsTopic = info.getAttributes().get(ComponentInfoAttributes.JMS_CHANGE_MANAGER_TOPIC);
       Object target;

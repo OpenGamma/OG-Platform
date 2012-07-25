@@ -11,19 +11,6 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.finitedifference.BoundaryCondition;
-import com.opengamma.analytics.financial.model.finitedifference.CoupledFiniteDifference;
-import com.opengamma.analytics.financial.model.finitedifference.CoupledPDEDataBundle;
-import com.opengamma.analytics.financial.model.finitedifference.DirichletBoundaryCondition;
-import com.opengamma.analytics.financial.model.finitedifference.ExponentialMeshing;
-import com.opengamma.analytics.financial.model.finitedifference.HyperbolicMeshing;
-import com.opengamma.analytics.financial.model.finitedifference.MarkovChain;
-import com.opengamma.analytics.financial.model.finitedifference.MarkovChainSmallTimeApprox;
-import com.opengamma.analytics.financial.model.finitedifference.MeshingFunction;
-import com.opengamma.analytics.financial.model.finitedifference.NeumannBoundaryCondition;
-import com.opengamma.analytics.financial.model.finitedifference.PDEFullResults1D;
-import com.opengamma.analytics.financial.model.finitedifference.PDEGrid1D;
-import com.opengamma.analytics.financial.model.finitedifference.PDEResults1D;
 import com.opengamma.analytics.financial.model.finitedifference.applications.CoupledPDEDataBundleProvider;
 import com.opengamma.analytics.financial.model.finitedifference.applications.TwoStateMarkovChainDataBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
@@ -52,7 +39,7 @@ public class CoupledForwardFiniteDifferenceTest {
   private static final double T = 5.0;
   private static final double RATE = 0.04;
   private static final ForwardCurve FORWARD = new ForwardCurve(SPOT, RATE);
-  private static final YieldAndDiscountCurve YIELD_CURVE = new YieldCurve(ConstantDoublesCurve.from(RATE));
+  private static final YieldAndDiscountCurve YIELD_CURVE = YieldCurve.from(ConstantDoublesCurve.from(RATE));
   private static final double VOL1 = 0.15;
   private static final double VOL2 = 0.70;
   private static final double LAMBDA12 = 0.3;
@@ -100,7 +87,7 @@ public class CoupledForwardFiniteDifferenceTest {
 
   }
 
-  @Test(enabled=false)
+  @Test(enabled = false)
   public void testMCSmile() {
     final int timeNodes = 51;
     final int spaceNodes = 151;

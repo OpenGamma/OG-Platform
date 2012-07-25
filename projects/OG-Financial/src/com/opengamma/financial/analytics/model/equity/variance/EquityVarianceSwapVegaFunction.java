@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
+import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.variance.VarianceSwapSensitivityCalculator;
 import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.analytics.math.surface.NodalDoublesSurface;
@@ -36,7 +36,7 @@ public class EquityVarianceSwapVegaFunction extends EquityVarianceSwapFunction {
   }
 
   @Override
-  protected Set<ComputedValue> computeValues(final ComputationTarget target, final FunctionInputs inputs, final VarianceSwap derivative, final EquityOptionDataBundle market) {
+  protected Set<ComputedValue> computeValues(final ComputationTarget target, final FunctionInputs inputs, final VarianceSwap derivative, final StaticReplicationDataBundle market) {
     final NodalDoublesSurface vegaSurface = CALCULATOR.calcBlackVegaForEntireSurface(derivative, market);
     final Double[] xValues = vegaSurface.getXData();
     final Double[] yValues = vegaSurface.getYData();

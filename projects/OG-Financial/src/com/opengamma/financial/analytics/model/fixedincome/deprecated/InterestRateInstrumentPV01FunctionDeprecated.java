@@ -17,9 +17,11 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
+import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentPV01Function;
 
 /**
- * 
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see InterestRateInstrumentPV01Function
  */
 @Deprecated
 public class InterestRateInstrumentPV01FunctionDeprecated extends InterestRateInstrumentCurveSpecificFunctionDeprecated {

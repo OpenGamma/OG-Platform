@@ -29,7 +29,7 @@ import com.opengamma.util.time.Expiry;
  */
 public class CashOrNothingOptionModelTest {
   private static final double R = 0.06;
-  private static final YieldAndDiscountCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(R));
+  private static final YieldAndDiscountCurve CURVE = YieldCurve.from(ConstantDoublesCurve.from(R));
   private static final double B = 0;
   private static final VolatilitySurface SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(0.35));
   private static final double SPOT = 100;

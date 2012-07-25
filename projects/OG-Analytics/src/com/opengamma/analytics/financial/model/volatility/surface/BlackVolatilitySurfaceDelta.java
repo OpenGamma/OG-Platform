@@ -9,7 +9,6 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
-import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.BisectionSingleRootFinder;
 import com.opengamma.analytics.math.rootfinding.BracketRoot;
 import com.opengamma.analytics.math.surface.Surface;
@@ -46,35 +45,8 @@ public class BlackVolatilitySurfaceDelta extends BlackVolatilitySurface<Delta> {
    */
   @Override
   public double getVolatility(final double t, final double k) {
-    final double fwd = _fc.getForward(t);
-    final boolean isCall = k >= fwd;
-    final double omega = isCall ? 0 : 1;
 
-    final Function1D<Double, Double> func = new Function1D<Double, Double>() {
-      @Override
-      public Double evaluate(final Double delta) {
-        final double sigma = getVolatilityForDelta(t, omega + delta);
-        return BlackFormulaRepository.delta(fwd, k, t, sigma, isCall) - delta;
-      }
-    };
-
-    final double deltaApprox = BlackFormulaRepository.delta(fwd, k, t, getVolatilityForDelta(t, 0.5), isCall);
-    double l, h;
-    double minDelta;
-    double maxDelta;
-    if (isCall) {
-      l = Math.max(0.0, deltaApprox - 0.2);
-      h = Math.min(1.0, deltaApprox + 0.2);
-      minDelta = 0.0;
-      maxDelta = 1.0;
-    } else {
-      l = Math.max(-1.0, deltaApprox - 0.2);
-      h = Math.min(0.0, deltaApprox + 0.2);
-      minDelta = -1.0;
-      maxDelta = 0.0;
-    }
-    final double[] range = BRACKETER.getBracketedPoints(func, l, h, minDelta, maxDelta);
-    final double delta = omega + ROOT_FINDER.getRoot(func, range[0], range[1]);
+    final double delta = BlackVolatilitySurfaceConverter.deltaForStrike(k, this, t);
     return getVolatilityForDelta(t, delta);
   }
 

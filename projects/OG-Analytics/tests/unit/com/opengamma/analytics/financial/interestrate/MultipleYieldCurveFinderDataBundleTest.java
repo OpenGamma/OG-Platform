@@ -16,9 +16,7 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderDataBundle;
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -44,6 +42,7 @@ public class MultipleYieldCurveFinderDataBundleTest {
   private static final Interpolator1D INTERPOLATOR1 = new LinearInterpolator1D();
   private static final Interpolator1D INTERPOLATOR2 = new LogLinearInterpolator1D();
   private static final MultipleYieldCurveFinderDataBundle DATA;
+  private static final FXMatrix FX_MATRIX = new FXMatrix(Currency.USD);
 
   static {
     final int n = 10;
@@ -65,58 +64,58 @@ public class MultipleYieldCurveFinderDataBundleTest {
     INTERPOLATORS.put(CURVE_NAME1, INTERPOLATOR1);
     NODES.put(CURVE_NAME2, TIMES2);
     INTERPOLATORS.put(CURVE_NAME2, INTERPOLATOR2);
-    DATA = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, INTERPOLATORS, false);
+    DATA = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, INTERPOLATORS, false, FX_MATRIX);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDerivatives() {
-    new MultipleYieldCurveFinderDataBundle(null, PAR_RATES, null, NODES, INTERPOLATORS, false);
+    new MultipleYieldCurveFinderDataBundle(null, PAR_RATES, null, NODES, INTERPOLATORS, false, FX_MATRIX);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullParRates() {
-    new MultipleYieldCurveFinderDataBundle(null, null, null, NODES, INTERPOLATORS, false);
+    new MultipleYieldCurveFinderDataBundle(null, null, null, NODES, INTERPOLATORS, false, FX_MATRIX);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullNodes() {
-    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, null, INTERPOLATORS, false);
+    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, null, INTERPOLATORS, false, FX_MATRIX);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolators() {
-    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, null, false);
+    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, null, false, FX_MATRIX);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLengthParRates() {
-    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, new double[] {0.01}, null, NODES, INTERPOLATORS, false);
+    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, new double[] {0.01}, null, NODES, INTERPOLATORS, false, FX_MATRIX);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNameClash() {
     final YieldCurveBundle bundle = new YieldCurveBundle();
-    final YieldAndDiscountCurve curve = new YieldCurve(ConstantDoublesCurve.from(0.05));
+    final YieldAndDiscountCurve curve = YieldCurve.from(ConstantDoublesCurve.from(0.05));
     bundle.setCurve(CURVE_NAME1, curve);
-    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, bundle, NODES, INTERPOLATORS, false);
+    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, bundle, NODES, INTERPOLATORS, false, FX_MATRIX);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyDerivatives() {
-    new MultipleYieldCurveFinderDataBundle(new ArrayList<InstrumentDerivative>(), PAR_RATES, null, NODES, INTERPOLATORS, false);
+    new MultipleYieldCurveFinderDataBundle(new ArrayList<InstrumentDerivative>(), PAR_RATES, null, NODES, INTERPOLATORS, false, FX_MATRIX);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testCurveAlreadyPresent() {
     new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, new YieldCurveBundle(Collections.<String, YieldAndDiscountCurve> singletonMap(CURVE_NAME1,
-        new YieldCurve(ConstantDoublesCurve.from(2.)))), NODES, INTERPOLATORS, false);
+        YieldCurve.from(ConstantDoublesCurve.from(2.)))), NODES, INTERPOLATORS, false, FX_MATRIX);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongSize1() {
     final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<String, Interpolator1D>();
     interpolators.put(CURVE_NAME2, INTERPOLATOR1);
-    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, interpolators, false);
+    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, interpolators, false, FX_MATRIX);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -124,7 +123,7 @@ public class MultipleYieldCurveFinderDataBundleTest {
     final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<String, Interpolator1D>();
     interpolators.put(CURVE_NAME2, INTERPOLATOR1);
     interpolators.put(CURVE_NAME1, INTERPOLATOR2);
-    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, interpolators, false);
+    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, interpolators, false, FX_MATRIX);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -132,7 +131,7 @@ public class MultipleYieldCurveFinderDataBundleTest {
     final LinkedHashMap<String, double[]> nodes = new LinkedHashMap<String, double[]>();
     nodes.put(CURVE_NAME1, TIMES1);
     nodes.put(CURVE_NAME2, null);
-    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, nodes, INTERPOLATORS, false);
+    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, nodes, INTERPOLATORS, false, FX_MATRIX);
 
   }
 
@@ -141,7 +140,7 @@ public class MultipleYieldCurveFinderDataBundleTest {
     final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<String, Interpolator1D>();
     interpolators.put(CURVE_NAME2, INTERPOLATOR1);
     interpolators.put(CURVE_NAME1, null);
-    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, interpolators, false);
+    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, interpolators, false, FX_MATRIX);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -187,29 +186,29 @@ public class MultipleYieldCurveFinderDataBundleTest {
 
   @Test
   public void testEqualsAndHashCode() {
-    MultipleYieldCurveFinderDataBundle other = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, INTERPOLATORS, false);
+    MultipleYieldCurveFinderDataBundle other = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, INTERPOLATORS, false, FX_MATRIX);
     assertEquals(DATA, other);
     assertEquals(DATA.hashCode(), other.hashCode());
     final List<InstrumentDerivative> derivatives = new ArrayList<InstrumentDerivative>(DERIVATIVES);
     derivatives.set(0, new Cash(CUR, 0, 1000, 1, 0.05, 1000, CURVE_NAME1));
-    other = new MultipleYieldCurveFinderDataBundle(derivatives, PAR_RATES, null, NODES, INTERPOLATORS, false);
+    other = new MultipleYieldCurveFinderDataBundle(derivatives, PAR_RATES, null, NODES, INTERPOLATORS, false, FX_MATRIX);
     assertFalse(other.equals(DATA));
-    other = new MultipleYieldCurveFinderDataBundle(derivatives, new double[PAR_RATES.length], null, NODES, INTERPOLATORS, false);
+    other = new MultipleYieldCurveFinderDataBundle(derivatives, new double[PAR_RATES.length], null, NODES, INTERPOLATORS, false, FX_MATRIX);
     assertFalse(other.equals(DATA));
     final YieldCurveBundle knownCurves = new YieldCurveBundle();
-    other = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, knownCurves, NODES, INTERPOLATORS, false);
+    other = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, knownCurves, NODES, INTERPOLATORS, false, FX_MATRIX);
     assertFalse(other.equals(DATA));
     final LinkedHashMap<String, double[]> nodes = new LinkedHashMap<String, double[]>();
     nodes.put(CURVE_NAME1, TIMES1);
     nodes.put(CURVE_NAME2, TIMES1);
-    other = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, nodes, INTERPOLATORS, false);
+    other = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, nodes, INTERPOLATORS, false, FX_MATRIX);
     assertFalse(other.equals(DATA));
     final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<String, Interpolator1D>();
     interpolators.put(CURVE_NAME1, INTERPOLATOR1);
     interpolators.put(CURVE_NAME2, INTERPOLATOR1);
-    other = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, interpolators, false);
+    other = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, interpolators, false, FX_MATRIX);
     assertFalse(other.equals(DATA));
-    other = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, INTERPOLATORS, true);
+    other = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, INTERPOLATORS, true, FX_MATRIX);
     assertFalse(other.equals(DATA));
   }
 }

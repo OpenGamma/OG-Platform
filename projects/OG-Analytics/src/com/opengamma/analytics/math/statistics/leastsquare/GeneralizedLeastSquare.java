@@ -130,8 +130,8 @@ public class GeneralizedLeastSquare {
   }
 
   /**
-   * Specialist method used mainly for solving multidimensional P-spline problems where the basis functions (B-splines) span a N-dimension space, and the weights sit on an N-dimension grid and are
-   * treated as a N-order tensor rather than a vector, so k-order differencing is done for each tensor index while varying the other indices.
+   * Specialist method used mainly for solving multidimensional P-spline problems where the basis functions (B-splines) span a N-dimension space, and the weights sit on an N-dimension
+   *  grid and are treated as a N-order tensor rather than a vector, so k-order differencing is done for each tensor index while varying the other indices.
    * @param <T> The type of the independent variables (e.g. Double, double[], DoubleMatrix1D etc)
    * @param x independent variables
    * @param y dependent (scalar) variables

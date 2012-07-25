@@ -12,7 +12,6 @@ import org.apache.commons.lang.NotImplementedException;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -47,7 +46,7 @@ public class PaymentTest {
     MyPayment other = new MyPayment(CCY, PAYMENT_TIME, NAME);
     assertEquals(PAYMENT, other);
     assertEquals(PAYMENT.hashCode(), other.hashCode());
-    assertEquals("\n Currency=CAD, Payment time=0.5, Funding curve=A", PAYMENT.toString());
+    assertEquals("Currency=CAD, Payment time=0.5, Funding curve=A", PAYMENT.toString());
     other = new MyPayment(Currency.AUD, PAYMENT_TIME, NAME);
     assertFalse(other.equals(PAYMENT));
     other = new MyPayment(CCY, PAYMENT_TIME + 1, NAME);

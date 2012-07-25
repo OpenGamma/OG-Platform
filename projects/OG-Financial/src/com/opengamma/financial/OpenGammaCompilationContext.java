@@ -18,6 +18,7 @@ import com.opengamma.financial.analytics.ircurve.calcconfig.CurveCalculationConf
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.currency.CurrencyMatrixSource;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 
 /**
  * Utility methods to pull standard objects out of a {@link FunctionCompilationContext}.
@@ -36,6 +37,7 @@ public final class OpenGammaCompilationContext {
   private static final String SECURITY_SOURCE_NAME = "securitySource";
   private static final String CURVE_CALCULATION_CONFIG_NAME = "curveCalculationConfigurationSource";
   private static final String HISTORICAL_TIME_SERIES_SOURCE = "historicalTimeSeriesSource";
+  private static final String HISTORICAL_TIME_SERIES_RESOLVER = "historicalTimeSeriesResolver";
 
   /**
    * Restricted constructor.
@@ -196,4 +198,13 @@ public final class OpenGammaCompilationContext {
   public static void setHistoricalTimeSeriesSource(final FunctionCompilationContext compilationContext, final HistoricalTimeSeriesSource historicalTimeSeriesSource) {
     set(compilationContext, HISTORICAL_TIME_SERIES_SOURCE, historicalTimeSeriesSource);
   }
+
+  public static HistoricalTimeSeriesResolver getHistoricalTimeSeriesResolver(final FunctionCompilationContext compilationContext) {
+    return get(compilationContext, HISTORICAL_TIME_SERIES_RESOLVER);
+  }
+
+  public static void setHistoricalTimeSeriesResolver(final FunctionCompilationContext compilationContext, final HistoricalTimeSeriesResolver historicalTimeSeriesResolver) {
+    set(compilationContext, HISTORICAL_TIME_SERIES_RESOLVER, historicalTimeSeriesResolver);
+  }
+
 }
