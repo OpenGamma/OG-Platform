@@ -20,7 +20,12 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.LocalTime;
 import javax.time.calendar.MonthOfYear;
+import javax.time.calendar.OffsetTime;
+import javax.time.calendar.TimeZone;
+import javax.time.calendar.ZoneOffset;
+import javax.time.calendar.ZonedDateTime;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeMsg;
@@ -146,6 +151,19 @@ public class BloombergDataUtilsTest {
       buf.append(System.getProperty("line.separator"));
     }
     return buf.toString();
+  }
+  
+  @Test
+  public void testFutureBundleToGenericFutureTicker() {
+    ZonedDateTime now = ZonedDateTime.of(2012, 8, 25, 14, 32, 00, 00, TimeZone.of("Europe/London"));
+    ExternalId testInput1 = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "EDZ2 Comdty");
+    ExternalId expectedOutput1 = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "ED2 Comdty");
+    ExternalId actualOutput1 = BloombergDataUtils.futureBundleToGenericFutureTicker(testInput1.toBundle(), now, OffsetTime.of(15, 00, ZoneOffset.ofHours(1)), TimeZone.of("Europe/London"));
+    assertEquals(expectedOutput1, actualOutput1);
+    ExternalId testInput2 = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "EDZ1 Comdty");
+    ExternalId expectedOutput2 = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "ED37 Comdty");
+    ExternalId actualOutput2 = BloombergDataUtils.futureBundleToGenericFutureTicker(testInput2.toBundle(), now, OffsetTime.of(15, 00, ZoneOffset.ofHours(1)), TimeZone.of("Europe/London"));
+    assertEquals(expectedOutput2, actualOutput2);
   }
 
 }
