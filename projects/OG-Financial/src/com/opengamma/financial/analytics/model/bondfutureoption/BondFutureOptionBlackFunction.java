@@ -116,10 +116,10 @@ public abstract class BondFutureOptionBlackFunction extends AbstractFunction.Non
     }
     final InstrumentDefinition<?> irFutureOptionDefinition = _converter.convert(trade);
     final InstrumentDerivative bondFutureOption = _dataConverter.convert(security, irFutureOptionDefinition, now, curveNames, timeSeries);
-    final ValueProperties properties = getResultProperties(currency.getCode(), curveCalculationConfigName, surfaceName);
+    final ValueProperties properties = getResultProperties(desiredValue, security);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties);
     final YieldCurveWithBlackCubeBundle data = new YieldCurveWithBlackCubeBundle(volatilitySurface.getSurface(), curves);
-    return getResult(bondFutureOption, data, spec);
+    return getResult(bondFutureOption, data, spec, inputs, desiredValues);
   }
 
   @Override
@@ -178,9 +178,10 @@ public abstract class BondFutureOptionBlackFunction extends AbstractFunction.Non
     return requirements;
   }
 
-  protected abstract Set<ComputedValue> getResult(final InstrumentDerivative bondFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec);
+  protected abstract Set<ComputedValue> getResult(final InstrumentDerivative bondFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec,
+      final FunctionInputs inputs, final Set<ValueRequirement> desiredValue);
 
-  private ValueProperties getResultProperties(final String currency) {
+  protected ValueProperties getResultProperties(final String currency) {
     return createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
@@ -188,7 +189,10 @@ public abstract class BondFutureOptionBlackFunction extends AbstractFunction.Non
         .with(ValuePropertyNames.CURRENCY, currency).get();
   }
 
-  private ValueProperties getResultProperties(final String currency, final String curveCalculationConfig, final String surfaceName) {
+  protected ValueProperties getResultProperties(final ValueRequirement desiredValue, final BondFutureOptionSecurity security) {
+    final String curveCalculationConfig = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
+    final String currency = security.getCurrency().getCode();
     return createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
@@ -199,11 +203,11 @@ public abstract class BondFutureOptionBlackFunction extends AbstractFunction.Non
   private ValueRequirement getVolatilityRequirement(final String surface, final Currency currency) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.SURFACE, surface)
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION).get();
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.BOND_FUTURE_OPTION).get();
     return new ValueRequirement(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties);
   }
 
-  public static String getFutureOptionPrefix(final ComputationTarget target) {
+  private String getFutureOptionPrefix(final ComputationTarget target) {
     final ExternalIdBundle secId = target.getTrade().getSecurity().getExternalIdBundle();
     final String ticker = secId.getValue(ExternalSchemes.BLOOMBERG_TICKER);
     if (ticker != null) {
