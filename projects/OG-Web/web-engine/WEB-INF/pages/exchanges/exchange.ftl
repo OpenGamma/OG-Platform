@@ -24,6 +24,9 @@
 <#list exchange.externalIdBundle.externalIds as item>
     <@rowout label="Key">${item.scheme.name} - ${item.value}</@rowout>
 </#list>
+<#if exchange.timeZone?has_content>
+    <@rowout label="Time Zone">${exchange.timeZone}</@rowout>
+</#if>
 </@subsection>
 </@section>
 

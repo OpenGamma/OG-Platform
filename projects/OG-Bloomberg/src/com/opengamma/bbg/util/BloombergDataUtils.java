@@ -30,8 +30,15 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.time.calendar.DateAdjuster;
+import javax.time.calendar.DateAdjusters;
+import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
+import javax.time.calendar.OffsetTime;
+import javax.time.calendar.Period;
+import javax.time.calendar.TimeZone;
+import javax.time.calendar.ZonedDateTime;
 import javax.time.calendar.format.CalendricalParseException;
 import javax.time.calendar.format.DateTimeFormatter;
 import javax.time.calendar.format.DateTimeFormatters;
@@ -108,6 +115,8 @@ public final class BloombergDataUtils {
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergDataUtils.class);
   
   private static final Pattern s_bloombergTickerPattern = buildPattern();
+  
+  private static final DateAdjuster s_dayOfMonth = DateAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY);
 
   /**
    * The standard fields required for Bloomberg data, as a list.
@@ -780,6 +789,72 @@ public final class BloombergDataUtils {
     } else {
       throw new OpenGammaRuntimeException("Could not map RIC onto BBG code");
     }
+  }
+  
+  public ExternalId futureBundleToGenericFutureTicker(ExternalIdBundle bundle, ZonedDateTime now, OffsetTime futureExpiryTime, TimeZone futureExpiryTimeZone) {
+    ZonedDateTime nextExpiry = s_dayOfMonth.adjustDate(now.toLocalDate()).atTime(now.toLocalTime()).atZone(now.getZone());
+    ExternalId bbgTicker = bundle.getExternalId(ExternalSchemes.BLOOMBERG_TICKER);
+    if (bbgTicker == null) {
+      throw new OpenGammaRuntimeException("Could not find a Bloomberg Ticker in the supplied bundle " + bundle.toString());
+    }
+    String code = bbgTicker.getValue();
+    String marketSector = splitTickerAtMarketSector(code).getSecond();
+    try {
+      String typeCode;
+      char monthCode;
+      int year;
+      if (code.length() > 4 && code.charAt(4) == ' ') {
+        // four letter futures code
+        typeCode = code.substring(0, 2);
+        monthCode = code.charAt(2);
+        year = Integer.parseInt(code.substring(3, 4));
+        
+        int thisYear = now.getYear();
+        if ((thisYear % 10) > year) {
+          year = ((thisYear / 10) * 10) + 10 + year;
+        } else if ((thisYear % 10) == year) {
+          // This code assumes that the code is for this year, so constructs a trial date using the year and month and adjusts it forward to the expiry
+          // note we're not taking into account exchange closing time here.
+          LocalDate nextExpiryIfThisYear = s_dayOfMonth.adjustDate(LocalDate.of(((thisYear % 10) + year), s_monthCode.inverse().get(monthCode), 1)); 
+          if (now.isAfter(nextExpiryIfThisYear.atTime(futureExpiryTime).atZoneSimilarLocal(futureExpiryTimeZone))) {
+            year = ((thisYear / 10) * 10) + 10 + year;
+          } else {
+            year = (thisYear % 10) + year;
+          }
+        } else {
+          year = (thisYear % 10) + year;
+        }
+      } else if (code.length() > 5 && code.charAt(5) == ' ') {
+        // five letter futures code
+        typeCode = code.substring(0, 2);
+        monthCode = code.charAt(2);
+        s_logger.warn("Parsing retired futures code format {}", code);
+        year = Integer.parseInt(code.substring(3, 5));
+        if (year > 70) { // 58 year time bomb and ticking...
+          year += 1900;
+        } else {
+          year += 2000;
+        }
+      } else {
+        s_logger.warn("Unknown futures code format {}", code);
+        return null;
+      }
+      // phew.
+      // now we generate the expiry of the future from the code:
+      // Again, note that we're not taking into account exchange trading hours.
+      ZonedDateTime expiry = s_dayOfMonth.adjustDate(LocalDate.of(year, s_monthCode.inverse().get(monthCode), 1)).atTime(futureExpiryTime).atZoneSimilarLocal(futureExpiryTimeZone);
+      int quarters = (Period.monthsBetween(expiry, nextExpiry).getMonths() / 3);
+      int genericFutureNumber = quarters + 1;
+      StringBuilder sb = new StringBuilder();
+      sb.append(typeCode);
+      sb.append(genericFutureNumber);
+      sb.append(" ");
+      sb.append(marketSector);
+      return ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, sb.toString());
+    } catch (NumberFormatException nfe) {
+      s_logger.error("Could not parse futures code {}", code);
+    }
+    return null;
   }
    
 }

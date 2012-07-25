@@ -5,7 +5,7 @@
         "object_id": "${exchange.uniqueId.objectId}",
         "version_id": "${exchange.uniqueId.version}"
         <#if deleted>
-        "deleted": "${exchangeDoc.versionToInstant}",
+        ,"deleted": "${exchangeDoc.versionToInstant}"
         </#if>
     },
     "regionKey": {
@@ -20,5 +20,8 @@
         "Key": "${item.scheme.name} - ${item.value}"<#if item_has_next>,</#if>
         </#list>
     }
+    <#if exchange.timeZone?has_content>
+    ,"timeZone": "${exchange.timeZone}"
+    </#if>
 }
 </#escape>
