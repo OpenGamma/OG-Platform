@@ -119,7 +119,7 @@ public abstract class BondFutureOptionBlackFunction extends AbstractFunction.Non
     final ValueProperties properties = getResultProperties(desiredValue, security);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties);
     final YieldCurveWithBlackCubeBundle data = new YieldCurveWithBlackCubeBundle(volatilitySurface.getSurface(), curves);
-    return getResult(bondFutureOption, data, spec, inputs, desiredValues);
+    return getResult(bondFutureOption, data, curveCalculationConfig, spec, inputs, desiredValues, security);
   }
 
   @Override
@@ -178,8 +178,8 @@ public abstract class BondFutureOptionBlackFunction extends AbstractFunction.Non
     return requirements;
   }
 
-  protected abstract Set<ComputedValue> getResult(final InstrumentDerivative bondFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec,
-      final FunctionInputs inputs, final Set<ValueRequirement> desiredValue);
+  protected abstract Set<ComputedValue> getResult(final InstrumentDerivative bondFutureOption, final YieldCurveWithBlackCubeBundle data, MultiCurveCalculationConfig curveCalculationConfig,
+      final ValueSpecification spec, final FunctionInputs inputs, final Set<ValueRequirement> desiredValue, final BondFutureOptionSecurity security);
 
   protected ValueProperties getResultProperties(final String currency) {
     return createValueProperties()

@@ -34,7 +34,7 @@ public class IRFutureOptionUtils {
     final LocalDate previousMonday = expiry.minusDays(2); //TODO this should take a calendar and do two business days, and should use a convention for the number of days
     return TimeCalculator.getTimeBetween(today, previousMonday);
   }
- 
+
   /**
    * Compute time between now and future or future option's settlement date, 
    * typically two business days before the third wednesday of the expiry month. 
@@ -47,30 +47,29 @@ public class IRFutureOptionUtils {
     final LocalDate previousMonday = expiry.minusDays(2); //TODO this should take a calendar and do two business days, and should use a convention for the number of days
     return TimeCalculator.getTimeBetween(today, previousMonday);
   }
+
   public static LocalDate getFutureOptionExpiry(final int nthFuture, final LocalDate valDate) {
     Validate.isTrue(nthFuture > 0, "nthFuture must be greater than 0.");
     if (nthFuture <= 6) { // We look for expiries in the first 6 serial months after curveDate
       return getMonthlyExpiry(nthFuture, valDate);
-    } else {  // And for Quarterly expiries thereafter
-      final int nthExpiryAfterSixMonths = nthFuture - 6;
-      final LocalDate sixMonthsForward = valDate.plusMonths(6);
-      return getQuarterlyExpiry(nthExpiryAfterSixMonths, sixMonthsForward);
-    }
+    }   // And for Quarterly expiries thereafter
+    final int nthExpiryAfterSixMonths = nthFuture - 6;
+    final LocalDate sixMonthsForward = valDate.plusMonths(6);
+    return getQuarterlyExpiry(nthExpiryAfterSixMonths, sixMonthsForward);
   }
- 
+
   public static LocalDate getMonthlyExpiry(final int nthMonth, final LocalDate valDate) {
     Validate.isTrue(nthMonth > 0, "nthFuture must be greater than 0.");
     LocalDate expiry = valDate.with(THIRD_WED_ADJUSTER); // Compute the 3rd Wednesday of valuationDate's month
     if (!expiry.isAfter(valDate)) { // If it is not strictly after valuationDate...
       expiry = (valDate.plusMonths(1)).with(THIRD_WED_ADJUSTER);  // nextExpiry is third Wednesday of next month
     }
-    if (nthMonth > 1) { 
+    if (nthMonth > 1) {
       expiry = (expiry.plusMonths(nthMonth - 1)).with(THIRD_WED_ADJUSTER);
     }
     return expiry;
   }
-   
-   
+
   public static LocalDate getQuarterlyExpiry(final int nthFuture, final LocalDate valDate) {
     Validate.isTrue(nthFuture > 0, "nthFuture must be greater than 0.");
     LocalDate expiry = valDate.with(NEXT_EXPIRY_ADJUSTER);
