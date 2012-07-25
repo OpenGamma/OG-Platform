@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.curve;
+package com.opengamma.analytics.financial.curve;
 
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountAddZeroSpreadCurve;
@@ -15,7 +15,7 @@ import com.opengamma.util.ArgumentChecker;
  * (operation on the continuously-compounded zero-coupon rates): an existing curve and a new curve. 
  * The generated curve is a YieldAndDiscountAddZeroSpreadCurve.
  */
-public class GeneratorCurveAddYieldExisiting implements GeneratorCurve {
+public class GeneratorCurveAddYieldExisiting extends GeneratorCurve {
 
   /**
    * The generator for the new curve.

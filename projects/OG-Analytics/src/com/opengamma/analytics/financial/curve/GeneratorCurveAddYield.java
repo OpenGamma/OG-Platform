@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.curve;
+package com.opengamma.analytics.financial.curve;
 
 import java.util.Arrays;
 
@@ -17,7 +17,7 @@ import com.opengamma.util.ArgumentChecker;
  * (operation on the continuously-compounded zero-coupon rates)  produced by the array of generators. 
  * The generated curve is a YieldAndDiscountAddZeroSpreadCurve.
  */
-public class GeneratorCurveAddYield implements GeneratorCurve {
+public class GeneratorCurveAddYield extends GeneratorCurve {
 
   /**
    * The array of generators describing the different parts of the spread curve.

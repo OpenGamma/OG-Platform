@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.curve;
+package com.opengamma.analytics.financial.curve;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,32 +12,31 @@ import java.util.Set;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * For an instrument, computes the sensitivity of a value (often the present value or a par spread) to the parameters used in the curve.
+ * For an instrument, computes the sensitivity of a value to the parameters used in the curve.
  * The meaning of "parameters" will depend of the way the curve is stored (interpolated yield, function parameters, etc.) and also on the way 
  * the parameters sensitivities are aggregated (the same parameter can be used in several curves).
  */
-public abstract class AbstractParameterSensitivityCalculator {
+public abstract class AbstractParameterSensitivityBlockCalculator {
 
   /**
    * The sensitivity calculator to compute the sensitivity of the value with respect to the zero-coupon continuously compounded rates at different times.
    */
-  private final InstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> _curveSensitivityCalculator;
+  private final InstrumentDerivativeVisitor<YieldCurveBundle, MultipleCurrencyInterestRateCurveSensitivity> _curveSensitivityCalculator;
 
   /**
    * The constructor from a curve sensitivity calculator.
    * @param curveSensitivityCalculator The calculator.
    */
-  public AbstractParameterSensitivityCalculator(InstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> curveSensitivityCalculator) {
+  public AbstractParameterSensitivityBlockCalculator(InstrumentDerivativeVisitor<YieldCurveBundle, MultipleCurrencyInterestRateCurveSensitivity> curveSensitivityCalculator) {
     ArgumentChecker.notNull(curveSensitivityCalculator, "Sensitivity calculator");
     _curveSensitivityCalculator = curveSensitivityCalculator;
   }
@@ -51,18 +50,11 @@ public abstract class AbstractParameterSensitivityCalculator {
    * The sensitivity with respect to the curves in the fixedCurves list will not be part of the output total sensitivity. Not null.
    * @return The sensitivity (as a DoubleMatrix1D).
    */
-  public DoubleMatrix1D calculateSensitivity(final InstrumentDerivative instrument, final Set<String> fixedCurves, final YieldCurveBundle bundle) {
+  public ParameterSensitivity calculateSensitivity(final InstrumentDerivative instrument, final Set<String> fixedCurves, final YieldCurveBundle bundle) {
     Validate.notNull(instrument, "null InterestRateDerivative");
     Validate.notNull(fixedCurves, "null set of fixed curves.");
     Validate.notNull(bundle, "null bundle");
-    //    final YieldCurveBundle allCurves = sensitivityCurves.copy();
-    //    if (fixedCurves != null) {
-    //      for (final String name : sensitivityCurves.getAllNames()) {
-    //        Validate.isTrue(!fixedCurves.containsName(name), "Fixed curves contain a name that is also in the sensitivity curves");
-    //      }
-    //      allCurves.addAll(fixedCurves);
-    //    }
-    final InterestRateCurveSensitivity sensitivity = _curveSensitivityCalculator.visit(instrument, bundle);
+    final MultipleCurrencyInterestRateCurveSensitivity sensitivity = _curveSensitivityCalculator.visit(instrument, bundle);
     return pointToParameterSensitivity(sensitivity, fixedCurves, bundle);
   }
 
@@ -74,15 +66,15 @@ public abstract class AbstractParameterSensitivityCalculator {
    * @param bundle The curve bundle with all the curves with respect to which the sensitivity should be computed. Not null.
    * @return The sensitivity (as a DoubleMatrix1D).
    */
-  public abstract DoubleMatrix1D pointToParameterSensitivity(final InterestRateCurveSensitivity sensitivity, final Set<String> fixedCurves, final YieldCurveBundle bundle);
+  public abstract ParameterSensitivity pointToParameterSensitivity(final MultipleCurrencyInterestRateCurveSensitivity sensitivity, final Set<String> fixedCurves, final YieldCurveBundle bundle);
 
   /**
    * Computes the sensitivity with respect to the parameters from the point sensitivities to only one curve.
    * @param sensitivity The point sensitivity with respect to the given curve.
    * @param curve The curve.
-   * @return The sensitivity (as a list of doubles).
+   * @return The sensitivity (as an array).
    */
-  public List<Double> pointToParameterSensitivity(final List<DoublesPair> sensitivity, final YieldAndDiscountCurve curve) {
+  public Double[] pointToParameterSensitivity(final List<DoublesPair> sensitivity, final YieldAndDiscountCurve curve) {
     final List<Double> result = new ArrayList<Double>();
     if (sensitivity != null && sensitivity.size() > 0) {
       final double[][] sensitivityYP = new double[sensitivity.size()][];
@@ -104,7 +96,7 @@ public abstract class AbstractParameterSensitivityCalculator {
         result.add(0.0);
       }
     }
-    return result;
+    return result.toArray(new Double[0]);
   }
 
   @Override
@@ -126,7 +118,7 @@ public abstract class AbstractParameterSensitivityCalculator {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    AbstractParameterSensitivityCalculator other = (AbstractParameterSensitivityCalculator) obj;
+    AbstractParameterSensitivityBlockCalculator other = (AbstractParameterSensitivityBlockCalculator) obj;
     return ObjectUtils.equals(_curveSensitivityCalculator, other._curveSensitivityCalculator);
   }
 

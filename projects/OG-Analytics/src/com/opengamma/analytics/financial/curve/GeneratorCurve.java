@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.curve;
+package com.opengamma.analytics.financial.curve;
 
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -11,13 +11,13 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 /**
  * Interface for describing and generating curves in curve construction process.
  */
-public interface GeneratorCurve {
+public abstract class GeneratorCurve {
 
   /**
    * Returns the number of parameters expected to generate the curve.
    * @return The number of parameters.
    */
-  int getNumberOfParameter();
+  public abstract int getNumberOfParameter();
 
   /**
    * Generate a curve using the parameters of a vector.
@@ -25,7 +25,7 @@ public interface GeneratorCurve {
    * @param parameters The parameters.
    * @return The curve.
    */
-  YieldAndDiscountCurve generateCurve(final String name, final double[] parameters);
+  abstract YieldAndDiscountCurve generateCurve(final String name, final double[] parameters);
 
   /**
    * Generate a curve using the parameters of a vector and an existing bundle. The existing bundle will be required if the generated curve depends on previous curves.
@@ -34,6 +34,17 @@ public interface GeneratorCurve {
    * @param parameters The parameters.
    * @return The curve.
    */
-  YieldAndDiscountCurve generateCurve(final String name, final YieldCurveBundle bundle, final double[] parameters);
+  abstract YieldAndDiscountCurve generateCurve(final String name, final YieldCurveBundle bundle, final double[] parameters);
+
+  /**
+   * Some generators require a two stage process. The generator with the general description (like interpolated) and 
+   * a specific one with all the details (like the node times for the interpolated). 
+   * The method create the specific generator from the generic one.
+   * @param data The additional data.
+   * @return The final generator.
+   */
+  public GeneratorCurve finalGenerator(Object data) {
+    return this;
+  }
 
 }

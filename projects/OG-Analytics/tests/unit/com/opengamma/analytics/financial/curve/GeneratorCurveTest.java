@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.curve;
+package com.opengamma.analytics.financial.curve;
 
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -20,6 +20,9 @@ import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolat
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 
+/**
+ * Tests the different curve generators types.
+ */
 public class GeneratorCurveTest {
 
   private static final String CURVE_NAME_1 = "EUR Discounting";
@@ -29,7 +32,7 @@ public class GeneratorCurveTest {
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   private static final double[] NODES = new double[] {0.01, 0.50, 1.00, 2.00, 5.05, 10.0};
   private static final double[] YIELD = new double[] {0.02, 0.02, 0.03, 0.01, 0.02, 0.01};
-  private static final GeneratorCurveYieldInterpolated GENERATOR_YIELD_INTERPOLATED = new GeneratorCurveYieldInterpolated(NODES, LINEAR_FLAT);
+  private static final GeneratorCurveYieldInterpolatedNode GENERATOR_YIELD_INTERPOLATED = new GeneratorCurveYieldInterpolatedNode(NODES, LINEAR_FLAT);
 
   private static final double CST = 0.0050;
   private static final GeneratorCurveYieldConstant GENERATOR_YIELD_CONSTANT = new GeneratorCurveYieldConstant();
@@ -47,12 +50,12 @@ public class GeneratorCurveTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullYieldNodes() {
-    new GeneratorCurveYieldInterpolated(null, LINEAR_FLAT);
+    new GeneratorCurveYieldInterpolatedNode(null, LINEAR_FLAT);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullYieldInterpolator() {
-    new GeneratorCurveYieldInterpolated(NODES, null);
+    new GeneratorCurveYieldInterpolatedNode(NODES, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

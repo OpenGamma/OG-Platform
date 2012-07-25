@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.curve;
+package com.opengamma.analytics.financial.curve;
 
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -14,7 +14,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Store the details and generate the required curve. The curve is constant on the rate (continuously compounded).
  */
-public class GeneratorCurveYieldConstant implements GeneratorCurve {
+public class GeneratorCurveYieldConstant extends GeneratorCurve {
 
   @Override
   public int getNumberOfParameter() {
