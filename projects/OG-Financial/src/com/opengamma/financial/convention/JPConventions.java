@@ -39,8 +39,7 @@ public class JPConventions {
     final ExternalId jp = ExternalSchemes.financialRegionId("JP");
 
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
-    
-    //TODO looked at BSYM and the codes seem right but need to check
+
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY00O/N Index"), simpleNameSecurityId("JPY LIBOR O/N")), "JPY LIBOR O/N", act360,
         following, Period.ofDays(1), 0, false, jp);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY00S/N Index"), simpleNameSecurityId("JPY LIBOR S/N")), "JPY LIBOR S/N", act360,
@@ -55,13 +54,13 @@ public class JPConventions {
         following, Period.ofMonths(1), 2, false, jp);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0002M Index"), simpleNameSecurityId("JPY LIBOR 2m")), "JPY LIBOR 2m", act360,
         following, Period.ofMonths(2), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0003M Index"), simpleNameSecurityId("JPY LIBOR 3m")), "JPY LIBOR 3m", act360, 
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0003M Index"), simpleNameSecurityId("JPY LIBOR 3m")), "JPY LIBOR 3m", act360,
         following, Period.ofMonths(3), 2, false, jp);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0004M Index"), simpleNameSecurityId("JPY LIBOR 4m")), "JPY LIBOR 4m", act360,
         following, Period.ofMonths(4), 2, false, jp);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0005M Index"), simpleNameSecurityId("JPY LIBOR 5m")), "JPY LIBOR 5m", act360,
         following, Period.ofMonths(5), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0006M Index"), simpleNameSecurityId("JPY LIBOR 6m")), "JPY LIBOR 6m", act360, 
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0006M Index"), simpleNameSecurityId("JPY LIBOR 6m")), "JPY LIBOR 6m", act360,
         following, Period.ofMonths(6), 2, false, jp);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0007M Index"), simpleNameSecurityId("JPY LIBOR 7m")), "JPY LIBOR 7m", act360,
         following, Period.ofMonths(7), 2, false, jp);
@@ -73,7 +72,7 @@ public class JPConventions {
         following, Period.ofMonths(10), 2, false, jp);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0011M Index"), simpleNameSecurityId("JPY LIBOR 11m")), "JPY LIBOR 11m", act360,
         following, Period.ofMonths(11), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0012M Index"), simpleNameSecurityId("JPY LIBOR 12m")), "JPY LIBOR 12m", act360, 
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0012M Index"), simpleNameSecurityId("JPY LIBOR 12m")), "JPY LIBOR 12m", act360,
         following, Period.ofMonths(12), 2, false, jp);
 
     //TODO need to check that these are right for deposit rates
@@ -145,7 +144,7 @@ public class JPConventions {
         act365, modified, annual, 2, simpleNameSecurityId("JPY TONAR"), jp, true, publicationLag);
 
     utils
-        .addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("JPY_OIS_CASH")), "JPY_OIS_CASH", act365, following, null, 2, false, null);
+    .addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("JPY_OIS_CASH")), "JPY_OIS_CASH", act365, following, null, 2, false, null);
 
     //TODO check this
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("JPY_IBOR_INDEX")), "JPY_IBOR_INDEX", act360, following, 2, false);

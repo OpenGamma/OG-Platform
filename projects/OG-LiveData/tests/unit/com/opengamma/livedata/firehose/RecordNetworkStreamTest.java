@@ -17,11 +17,11 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.transport.socket.AbstractServerSocketProcess;
 
 /**
- * Tests the {@link RecordSurfStream} class.
+ * Test.
  */
-@Test
+@Test(groups = "unit")
 public class RecordNetworkStreamTest {
-  
+
   public void testCreateFile () {
     final AbstractServerSocketProcess server = new NetworkConnectorJobTest.Server();
     server.start ();
@@ -41,5 +41,5 @@ public class RecordNetworkStreamTest {
       server.stop ();
     }
   }
-  
+
 }

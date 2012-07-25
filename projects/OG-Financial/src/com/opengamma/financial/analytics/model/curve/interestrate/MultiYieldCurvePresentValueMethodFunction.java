@@ -26,6 +26,7 @@ import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -78,6 +79,7 @@ import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -170,7 +172,9 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
     final boolean useFiniteDifference = Boolean.parseBoolean(useFiniteDifferenceName);
     final Decomposition<?> decomposition = DecompositionFactory.getDecomposition(decompositionName);
     final Set<ComputedValue> results = new HashSet<ComputedValue>();
-    final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, marketValues.toDoubleArray(), knownCurves, curveNodes, interpolators, useFiniteDifference);
+    final Currency currency = Currency.of(targetSpec.getUniqueId().getValue());
+    final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, marketValues.toDoubleArray(), knownCurves, curveNodes, interpolators, useFiniteDifference,
+        new FXMatrix(currency));
     final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(absoluteTolerance, relativeTolerance, iterations, decomposition);
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MultipleYieldCurveFinderFunction(data, PV_CALCULATOR);
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MultipleYieldCurveFinderJacobian(data, PV_SENSITIVITY_CALCULATOR);

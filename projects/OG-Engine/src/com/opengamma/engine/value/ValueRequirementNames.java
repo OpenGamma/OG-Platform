@@ -199,6 +199,10 @@ public final class ValueRequirementNames {
    * A volatility surface specification
    */
   public static final String VOLATILITY_SURFACE_SPEC = "VolatilitySurfaceSpecification";
+  /**
+   * The bundle of historical time series objects for elements of a volatility surface.
+   */
+  public static final String VOLATILITY_SURFACE_HISTORICAL_TIME_SERIES = "Volatility Surface Historical Time Series";
 
   ///// Cubes
 
@@ -1163,12 +1167,20 @@ public final class ValueRequirementNames {
    */
   public static final String EXTERNAL_CONDITIONAL_HISTORICAL_VAR = CONDITIONAL_HISTORICAL_VAR + EXTERNAL_SUFFIX;
   /**
+   * External value of {@link #DV01}
+   */
+  public static final String EXTERNAL_DV01 = DV01 + EXTERNAL_SUFFIX;
+  /**
    * External value of {@link #HISTORICAL_VAR_STDDEV}
    */
   public static final String EXTERNAL_HISTORICAL_VAR_STDDEV = HISTORICAL_VAR_STDDEV + EXTERNAL_SUFFIX;
   /**
-   * External value of {@link #DV01}
+   * External value of {@link #PRESENT_VALUE}.
    */
-  public static final String EXTERNAL_DV01 = DV01 + EXTERNAL_SUFFIX;
+  public static final String EXTERNAL_PRESENT_VALUE = PRESENT_VALUE + EXTERNAL_SUFFIX;
+  /**
+   * External position quantity.
+   */
+  public static final String EXTERNAL_QUANTITY = "Quantity" + EXTERNAL_SUFFIX;
   
 }

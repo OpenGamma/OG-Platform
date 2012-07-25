@@ -21,9 +21,11 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.impl.DataMarketDataSnapshotSourceResource;
 import com.opengamma.core.marketdatasnapshot.impl.DelegatingSnapshotSource;
+import com.opengamma.core.marketdatasnapshot.impl.RemoteMarketDataSnapshotSource;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.impl.MasterSnapshotSource;
 
@@ -53,6 +55,9 @@ public class MarketDataSnapshotSourceComponentFactory extends AbstractComponentF
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
     ComponentInfo info = new ComponentInfo(MarketDataSnapshotSource.class, getClassifier());
+    info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteMarketDataSnapshotSource.class);
+    
     MarketDataSnapshotSource source = new MasterSnapshotSource(getMarketDataSnapshotMaster());
     source = new DelegatingSnapshotSource(source);
     

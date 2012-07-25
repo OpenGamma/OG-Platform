@@ -7,7 +7,6 @@ package com.opengamma.component.factory.source;
 
 import java.lang.reflect.Constructor;
 import java.net.URI;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -29,26 +28,6 @@ import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.component.rest.RemoteComponentServer;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.JmsChangeManager;
-import com.opengamma.core.exchange.ExchangeSource;
-import com.opengamma.core.exchange.impl.RemoteExchangeSource;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.historicaltimeseries.impl.RemoteHistoricalTimeSeriesSource;
-import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.holiday.impl.RemoteHolidaySource;
-import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
-import com.opengamma.core.marketdatasnapshot.impl.RemoteMarketDataSnapshotSource;
-import com.opengamma.core.position.PositionSource;
-import com.opengamma.core.position.impl.RemotePositionSource;
-import com.opengamma.core.region.RegionSource;
-import com.opengamma.core.region.impl.RemoteRegionSource;
-import com.opengamma.core.security.SecuritySource;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
-import com.opengamma.financial.currency.CurrencyMatrixSource;
-import com.opengamma.financial.currency.CurrencyPairsSource;
-import com.opengamma.financial.currency.rest.RemoteCurrencyMatrixSource;
-import com.opengamma.financial.currency.rest.RemoteCurrencyPairsSource;
-import com.opengamma.financial.function.rest.RemoteRepositoryConfigurationSource;
-import com.opengamma.financial.security.RemoteFinancialSecuritySource;
 import com.opengamma.util.ReflectionUtils;
 import com.opengamma.util.jms.JmsConnector;
 
@@ -57,23 +36,6 @@ import com.opengamma.util.jms.JmsConnector;
  */
 @BeanDefinition
 public class RemoteSourcesComponentFactory extends AbstractComponentFactory {
-
-  /**
-   * The remote wrappers.
-   */
-  private final Map<Class<?>, Class<?>> _remoteWrappers = new HashMap<Class<?>, Class<?>>();
-  {
-    _remoteWrappers.put(CurrencyMatrixSource.class, RemoteCurrencyMatrixSource.class);
-    _remoteWrappers.put(CurrencyPairsSource.class, RemoteCurrencyPairsSource.class);
-    _remoteWrappers.put(ExchangeSource.class, RemoteExchangeSource.class);
-    _remoteWrappers.put(HistoricalTimeSeriesSource.class, RemoteHistoricalTimeSeriesSource.class);
-    _remoteWrappers.put(HolidaySource.class, RemoteHolidaySource.class);
-    _remoteWrappers.put(MarketDataSnapshotSource.class, RemoteMarketDataSnapshotSource.class);
-    _remoteWrappers.put(RegionSource.class, RemoteRegionSource.class);
-    _remoteWrappers.put(RepositoryConfigurationSource.class, RemoteRepositoryConfigurationSource.class);
-    _remoteWrappers.put(PositionSource.class, RemotePositionSource.class);
-    _remoteWrappers.put(SecuritySource.class, RemoteFinancialSecuritySource.class);
-  }
 
   /**
    * The remote URI.
@@ -109,8 +71,10 @@ public class RemoteSourcesComponentFactory extends AbstractComponentFactory {
    */
   protected void initComponent(ComponentRepository repo, ComponentInfo info) {
     URI componentUri = info.getUri();
-    Class<?> remoteType = _remoteWrappers.get(info.getType());
-    if (remoteType != null) {
+    if (info.getAttributes().containsKey(ComponentInfoAttributes.REMOTE_CLIENT_JAVA) && 
+        info.getAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA).endsWith("Source")) {
+      String remoteTypeStr = info.getAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA);
+      Class<?> remoteType = ReflectionUtils.loadClass(remoteTypeStr);
       String jmsTopic = info.getAttributes().get(ComponentInfoAttributes.JMS_CHANGE_MANAGER_TOPIC);
       Object target;
       if (jmsTopic != null) {

@@ -8,9 +8,11 @@ package com.opengamma.analytics.financial.interestrate;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
+import java.util.HashSet;
+
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.interestrate.curve.ParameterSensitivityCalculator;
+import com.opengamma.analytics.financial.curve.ParameterSensitivityCalculator;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 
 public class ParSpreadRateParameterSensitivityTest extends ParameterSensitivityCalculatorTest {
@@ -49,7 +51,7 @@ public class ParSpreadRateParameterSensitivityTest extends ParameterSensitivityC
   @Test
   public void testParSpreadRate() {
     final InstrumentDerivativeVisitor<YieldCurveBundle, Double> valueCalculator = ParSpreadRateCalculator.getInstance();
-    final DoubleMatrix1D result = NODE_CALCULATOR.calculateSensitivity(SWAP, null, CURVE_BUNDLE_YIELD);
+    final DoubleMatrix1D result = NODE_CALCULATOR.calculateSensitivity(SWAP, new HashSet<String>(), CURVE_BUNDLE_YIELD);
     final DoubleMatrix1D fdresult = finiteDiffNodeSensitivitiesYield(SWAP, valueCalculator, null, CURVE_BUNDLE_YIELD);
     assertArrayEquals(result.getData(), fdresult.getData(), TOLERANCE_SENSI);
   }

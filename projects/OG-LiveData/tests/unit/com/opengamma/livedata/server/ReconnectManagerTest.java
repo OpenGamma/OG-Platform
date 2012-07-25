@@ -13,13 +13,13 @@ import org.testng.annotations.Test;
 import com.opengamma.id.ExternalScheme;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = "unit")
 public class ReconnectManagerTest {
-  
+
   @Test
   public void reconnection() throws Exception {
-    
     MockLiveDataServer server = new MockLiveDataServer(ExternalScheme.of("BLOOMBERG_BUID"));
     ReconnectManager manager = new ReconnectManager(server, 20);
     
@@ -54,7 +54,6 @@ public class ReconnectManagerTest {
     assertEquals(1, server.getNumDisconnections());
     assertEquals(2, server.getNumConnections());
     assertEquals(2, server.getActualSubscriptions().size());
-    
   }
 
 }

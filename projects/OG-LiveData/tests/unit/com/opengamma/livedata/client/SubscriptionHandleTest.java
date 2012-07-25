@@ -19,13 +19,13 @@ import com.opengamma.livedata.msg.SubscriptionType;
 import com.opengamma.livedata.test.CollectingLiveDataListener;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = "unit")
 public class SubscriptionHandleTest {
-  
+
   private final UserPrincipal _user = new UserPrincipal("kirk", "127.0.0.1");
 
-  @Test
   public void equalsDifferentRequestedSpecification() {
     LiveDataSpecification requestedSpecification =
       new LiveDataSpecification(
@@ -37,7 +37,6 @@ public class SubscriptionHandleTest {
     assertFalse(handle1.equals(handle2));
   }
 
-  @Test
   public void hashCodeDifferentRequestedSpecification() {
     LiveDataSpecification requestedSpecification =
       new LiveDataSpecification(
@@ -48,8 +47,7 @@ public class SubscriptionHandleTest {
     SubscriptionHandle handle2 = new SubscriptionHandle(_user, SubscriptionType.NON_PERSISTENT, requestedSpecification, listener);
     assertFalse(handle1.hashCode() == handle2.hashCode());
   }
-  
-  @Test
+
   public void releaseTicks() {
     LiveDataSpecification spec =
       new LiveDataSpecification(
@@ -68,8 +66,7 @@ public class SubscriptionHandleTest {
     assertEquals(501, listener.getValueUpdates().get(0).getSequenceNumber());
     assertEquals(502, listener.getValueUpdates().get(1).getSequenceNumber());
   }
-  
-  @Test
+
   public void releaseTicksServerRestart() {
     LiveDataSpecification spec =
       new LiveDataSpecification(
@@ -90,8 +87,7 @@ public class SubscriptionHandleTest {
     assertEquals(0, listener.getValueUpdates().get(0).getSequenceNumber());
     assertEquals(1, listener.getValueUpdates().get(1).getSequenceNumber());
   }
-  
-  @Test
+
   public void releaseTicksMultipleServerRestarts() {
     LiveDataSpecification spec =
       new LiveDataSpecification(
@@ -114,4 +110,5 @@ public class SubscriptionHandleTest {
     assertEquals(0, listener.getValueUpdates().get(0).getSequenceNumber());
     assertEquals(1, listener.getValueUpdates().get(1).getSequenceNumber());
   }
+
 }

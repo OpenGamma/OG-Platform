@@ -7,6 +7,9 @@ package com.opengamma.analytics.financial.interestrate;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.calculator.PresentValueCurveSensitivityMCSCalculator;
+import com.opengamma.analytics.financial.calculator.PresentValueMCACalculator;
+import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZero;
 import com.opengamma.analytics.financial.interestrate.cash.method.CashDiscountingMethod;
@@ -18,6 +21,7 @@ import com.opengamma.analytics.financial.interestrate.future.method.InterestRate
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * Compute the sensitivity of the spread to the curve; the spread is the number to be added to the rate of the instrument for which the present value of the instrument is zero.
@@ -47,8 +51,8 @@ public final class ParSpreadRateCurveSensitivityCalculator extends AbstractInstr
   /**
    * The methods and calculators.
    */
-  private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
-  private static final PresentValueCurveSensitivityCalculator PVCSC = PresentValueCurveSensitivityCalculator.getInstance();
+  private static final PresentValueMCACalculator PVMCC = PresentValueMCACalculator.getInstance();
+  private static final PresentValueCurveSensitivityMCSCalculator PVCSMCC = PresentValueCurveSensitivityMCSCalculator.getInstance();
   private static final PresentValueBasisPointCalculator PVBPC = PresentValueBasisPointCalculator.getInstance();
   private static final PresentValueBasisPointCurveSensitivityCalculator PVBPCSC = PresentValueBasisPointCurveSensitivityCalculator.getInstance();
   private static final CashDiscountingMethod METHOD_DEPOSIT = CashDiscountingMethod.getInstance();
@@ -75,13 +79,15 @@ public final class ParSpreadRateCurveSensitivityCalculator extends AbstractInstr
 
   @Override
   public InterestRateCurveSensitivity visitSwap(final Swap<?, ?> swap, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(swap);
-    ArgumentChecker.isTrue(swap.getFirstLeg().getCurrency().equals(swap.getSecondLeg().getCurrency()), "Both legs should have the same currency");
-    InterestRateCurveSensitivity pvcs = new InterestRateCurveSensitivity(PVCSC.visit(swap, curves));
+    ArgumentChecker.notNull(curves, "Curves");
+    ArgumentChecker.notNull(swap, "Swap");
+    final Currency ccy1 = swap.getFirstLeg().getCurrency();
+    MultipleCurrencyInterestRateCurveSensitivity pvcsmc = PVCSMCC.visit(swap, curves);
+    InterestRateCurveSensitivity pvcs = pvcsmc.convert(ccy1, curves.getFxRates());
     InterestRateCurveSensitivity pvbpcs = PVBPCSC.visit(swap.getFirstLeg(), curves);
     double pvbp = PVBPC.visit(swap.getFirstLeg(), curves);
-    double pv = PVC.visit(swap, curves);
+    double pv = curves.convert(PVMCC.visit(swap, curves), ccy1).getAmount();
+    // Implementation note: Total pv in currency 1.
     return pvcs.multiply(-1.0 / pvbp).plus(pvbpcs.multiply(pv / (pvbp * pvbp)));
   }
 

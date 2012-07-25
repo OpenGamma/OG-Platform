@@ -46,7 +46,7 @@ public final class ReflectionUtils {
     try {
       return (Class<T>) ClassUtils.forName(className, null);
     } catch (ClassNotFoundException ex) {
-      throw new OpenGammaRuntimeException(ex.getMessage(), ex);
+      throw new OpenGammaRuntimeException("Class not found: " + className, ex);
     }
   }
 
@@ -70,7 +70,7 @@ public final class ReflectionUtils {
       try {
         return (Class<T>) ClassUtils.forName(className, fallbackClassLoader);
       } catch (ClassNotFoundException ex2) {
-        throw new OpenGammaRuntimeException(ex.getMessage(), ex2);
+        throw new OpenGammaRuntimeException("Class not found: " + className, ex2);
       }
     }
   }

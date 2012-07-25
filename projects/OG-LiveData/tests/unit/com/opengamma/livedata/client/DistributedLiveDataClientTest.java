@@ -34,8 +34,9 @@ import com.opengamma.livedata.test.LiveDataClientTestUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = "unit")
 public class DistributedLiveDataClientTest {
 
   public static final ExternalScheme TEST_IDENTIFICATION_SCHEME = ExternalScheme.of("bar");
@@ -44,12 +45,11 @@ public class DistributedLiveDataClientTest {
   private static String TEST_ID_1 = "id1";
   private static String TEST_ID_2 = "id2";
   private static UserPrincipal TEST_USER = new UserPrincipal("alice", "127.0.0.1");
-  
+
   private MockLiveDataServer _server;
   private DistributedLiveDataClient _client;
-  
   private MutableFudgeMsg[] _testMsgs; 
-  
+
   @BeforeMethod
   public void initialize() {
     MutableFudgeMsg testMsg1 = OpenGammaFudgeContext.getInstance().newMessage();
@@ -69,23 +69,22 @@ public class DistributedLiveDataClientTest {
     _server = new MockLiveDataServer(TEST_IDENTIFICATION_SCHEME, uniqueId2TestMsg);
     _client = LiveDataClientTestUtils.getInMemoryConduitClient(_server);
   }
-  
+
   @AfterMethod
   public void closeClient() {
     _client.close();
   }
 
-  @Test
+  //-------------------------------------------------------------------------
   public void connectionToMarketDataApiDown() {
     // don't start server
     
     LiveDataSubscriptionResponse response = _client.snapshot(TEST_USER, TEST_LIVE_DATA_SPEC, 1000);
     assertNotNull(response);
     assertEquals(LiveDataSubscriptionResult.INTERNAL_ERROR, response.getSubscriptionResult());
-    assertEquals("Connection to market data API down", response.getUserMessage());
+    assertEquals(true, response.getUserMessage().contains("Connection to market data API down"));
   }
-  
-  @Test
+
   public void singleSnapshot() {
     _server.start();
     
@@ -96,8 +95,7 @@ public class DistributedLiveDataClientTest {
     assertEquals(0, response.getSnapshot().getSequenceNumber());
     assertEquals(_testMsgs[0], response.getSnapshot().getFields());
   }
-  
-  @Test
+
   public void multipleSnapshots() {
     _server.start();
     
@@ -123,8 +121,7 @@ public class DistributedLiveDataClientTest {
       }
     }
   }
-  
-  @Test
+
   public void singleSubscribe() {
     _server.start();
     
@@ -145,8 +142,7 @@ public class DistributedLiveDataClientTest {
     assertEquals(2, listener.getValueUpdates().size());
     assertEquals(_testMsgs[0], listener.getValueUpdates().get(1).getFields());
   }
-  
-  @Test
+
   public void multipleSubscribes() {
     _server.start();
     
@@ -181,8 +177,7 @@ public class DistributedLiveDataClientTest {
       }
     }
   }
-  
-  @Test
+
   public void subscribeUnsubscribeCycle() {
     _server.start();
     

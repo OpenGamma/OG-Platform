@@ -377,7 +377,7 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
     }
     final DoubleMatrix1D startPosition = new DoubleMatrix1D(rates);
     final YieldCurveFittingTestDataBundle data = getYieldCurveFittingTestDataBundle(instruments, null, CURVE_NAMES, curveKnots, INTERPOLATOR, calculator,
-        sensitivityCalculator, marketValuesArray, startPosition, null, false);
+        sensitivityCalculator, marketValuesArray, startPosition, null, false, FX_MATRIX);
     return data;
   }
 

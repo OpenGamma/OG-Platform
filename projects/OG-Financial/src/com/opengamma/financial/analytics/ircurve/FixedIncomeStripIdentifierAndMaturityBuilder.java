@@ -328,7 +328,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     }
     final Double rate = marketValues.get(swapIdentifier);
     if (rate == null) {
-      throw new OpenGammaRuntimeException("rate was null on " + strip + " from " + spec);
+      throw new OpenGammaRuntimeException("No market data for " + swapIdentifier);
     }
     final double fixedRate = rate;
     final FloatingInterestRateLeg iborLeg = new FloatingInterestRateLeg(swapConvention.getSwapFloatingLegDayCount(), swapConvention.getSwapFloatingLegFrequency(),

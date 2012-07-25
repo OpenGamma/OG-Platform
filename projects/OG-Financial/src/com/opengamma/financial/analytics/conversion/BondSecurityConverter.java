@@ -13,6 +13,7 @@ import org.apache.commons.lang.NotImplementedException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.region.RegionSource;
@@ -90,19 +91,26 @@ public class BondSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
     final ZonedDateTime maturityDate = security.getLastTradeDate().getExpiry();
     final double rate = security.getCouponRate() / 100;
     final DayCount dayCount = security.getDayCount();
-    if (convention.getBondSettlementDays(firstAccrualDate, maturityDate) == null) {
-      throw new OpenGammaRuntimeException("Could not get bond settlement days from " + conventionName);
-    }
-    final int settlementDays = convention.getBondSettlementDays(firstAccrualDate, maturityDate);
     final BusinessDayConvention businessDay = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     if (convention.isEOMConvention() == null) {
       throw new OpenGammaRuntimeException("Could not get EOM convention information from " + conventionName);
     }
     final boolean isEOM = convention.isEOMConvention();
     final YieldConvention yieldConvention = security.getYieldConvention();
-    final Period paymentPeriod = getTenor(security.getCouponFrequency());
-    return BondFixedSecurityDefinition.from(currency, maturityDate, firstAccrualDate, paymentPeriod, rate, settlementDays, calendar, dayCount, businessDay,
-        yieldConvention, isEOM);
+    if (security.getCouponType().equals("NONE") || security.getCouponType().equals("ZERO COUPON")) { //TODO find where string is
+      return new PaymentFixedDefinition(currency, maturityDate, 1);
+    }
+    try {
+      if (convention.getBondSettlementDays(firstAccrualDate, maturityDate) == null) {
+        throw new OpenGammaRuntimeException("Could not get bond settlement days from " + conventionName);
+      }
+      final int settlementDays = convention.getBondSettlementDays(firstAccrualDate, maturityDate);
+      final Period paymentPeriod = getTenor(security.getCouponFrequency());
+      return BondFixedSecurityDefinition.from(currency, maturityDate, firstAccrualDate, paymentPeriod, rate, settlementDays, calendar, dayCount, businessDay,
+          yieldConvention, isEOM);
+    } catch(final NullPointerException e){
+      throw e;
+    }
   }
 
   @Override

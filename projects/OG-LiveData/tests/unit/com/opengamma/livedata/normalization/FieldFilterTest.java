@@ -18,11 +18,11 @@ import com.opengamma.livedata.server.FieldHistoryStore;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = "unit")
 public class FieldFilterTest {
-  
-  @Test
+
   public void normalCase() {
     Set<String> fieldsToAccept = new HashSet<String>();
     fieldsToAccept.add("Foo");    
@@ -39,8 +39,7 @@ public class FieldFilterTest {
     assertEquals(2.0, normalized.getDouble("Bar"), 0.0001);
     assertNull(normalized.getByName("Baz"));
   }
-  
-  @Test
+
   public void extinguishmentWithNonEmptyFieldsToAccept() {
     Set<String> fieldsToAccept = new HashSet<String>();
     fieldsToAccept.add("Foo");    
@@ -53,8 +52,7 @@ public class FieldFilterTest {
     MutableFudgeMsg normalized = filter.apply(msg, "123", new FieldHistoryStore());
     assertNull(normalized);
   }
-  
-  @Test
+
   public void extinguishmentWithEmptyFieldsToAccept() {
     Set<String> fieldsToAccept = new HashSet<String>();
     FieldFilter filter = new FieldFilter(fieldsToAccept);
@@ -65,5 +63,5 @@ public class FieldFilterTest {
     MutableFudgeMsg normalized = filter.apply(msg, "123", new FieldHistoryStore());
     assertNull(normalized);
   }
-  
+
 }

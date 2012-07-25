@@ -13,9 +13,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
-import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionPremiumSecurityDefinition;
-import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionPremiumTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.iborindex.IndexIborTestsMaster;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumSecurity;
@@ -39,7 +36,7 @@ public class InterestRateFutureOptionPremiumTransactionDefinitionTest {
   private static final ZonedDateTime LAST_TRADING_DATE = ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, -IBOR_INDEX.getSpotLag(), CALENDAR);
   private static final double NOTIONAL = 1000000.0; // 1m
   private static final double FUTURE_FACTOR = 0.25;
-  private static final double REFERENCE_PRICE = 0.0; // TODO - CASE - Future refactor - 0.0 Refence Price here
+  //  private static final double REFERENCE_PRICE = 0.0; // TODO - CASE - Future refactor - 0.0 Refence Price here
   private static final String NAME = "EDU2";
   private static final double STRIKE = 0.9895;
   private static final InterestRateFutureDefinition EDU2 = new InterestRateFutureDefinition(LAST_TRADING_DATE, STRIKE, LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, 1, NAME);

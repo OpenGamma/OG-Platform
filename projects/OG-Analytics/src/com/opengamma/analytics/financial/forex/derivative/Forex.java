@@ -83,6 +83,11 @@ public class Forex implements InstrumentDerivative {
   }
 
   @Override
+  public String toString() {
+    return _paymentCurrency1.toString() + "\n" + _paymentCurrency2.toString();
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;

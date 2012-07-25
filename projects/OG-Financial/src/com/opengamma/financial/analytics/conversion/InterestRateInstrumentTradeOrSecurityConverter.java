@@ -33,12 +33,12 @@ public class InterestRateInstrumentTradeOrSecurityConverter {
   private final InterestRateFutureOptionTradeConverter _interestRateFutureOptionTradeConverter;
 
   public InterestRateInstrumentTradeOrSecurityConverter(final HolidaySource holidaySource, final ConventionBundleSource conventionSource, final RegionSource regionSource,
-                                                        final SecuritySource securitySource, final boolean forCurves) {
+      final SecuritySource securitySource, final boolean forCurves) {
     Validate.notNull(holidaySource, "holiday source");
     Validate.notNull(conventionSource, "convention source");
     Validate.notNull(regionSource, "region source");
     Validate.notNull(securitySource, "security source");
-    final CashSecurityConverter cashConverter = new CashSecurityConverter();
+    final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, regionSource);
     final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, regionSource, conventionSource);
     final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, regionSource, forCurves);
     final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
@@ -48,12 +48,12 @@ public class InterestRateInstrumentTradeOrSecurityConverter {
 
     final ZeroDepositConverter zeroDepositConverter = new ZeroDepositConverter(conventionSource);
     _securityVisitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
-      .cashSecurityVisitor(cashConverter)
-      .fraSecurityVisitor(fraConverter)
-      .swapSecurityVisitor(swapConverter)
-      .interestRateFutureSecurityVisitor(irFutureConverter)
-      .bondSecurityVisitor(bondConverter)
-      .periodicZeroDepositSecurityVisitor(zeroDepositConverter).create();
+        .cashSecurityVisitor(cashConverter)
+        .fraSecurityVisitor(fraConverter)
+        .swapSecurityVisitor(swapConverter)
+        .interestRateFutureSecurityVisitor(irFutureConverter)
+        .bondSecurityVisitor(bondConverter)
+        .periodicZeroDepositSecurityVisitor(zeroDepositConverter).create();
     _bondTradeConverter = new BondTradeConverter(bondConverter);
     _bondFutureConverter = new BondFutureTradeConverter(bondFutureConverter);
     _interestRateFutureTradeConverter = new InterestRateFutureTradeConverter(irFutureConverter);

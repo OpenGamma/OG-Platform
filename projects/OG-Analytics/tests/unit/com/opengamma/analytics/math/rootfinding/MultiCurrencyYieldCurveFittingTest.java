@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.ParRateCalculator;
@@ -67,6 +68,7 @@ public class MultiCurrencyYieldCurveFittingTest extends YieldCurveFittingSetup {
   private static final double SPOT_FX = 1. / 76.335;
   private static final CurrencyAmount DOMESTIC_NOTIONAL = CurrencyAmount.of(DOMESTIC_CCY, 1);
   private static final CurrencyAmount FOREIGN_NOTIONAL = CurrencyAmount.of(FOREIGN_CCY, DOMESTIC_NOTIONAL.getAmount() / SPOT_FX);
+  private static final FXMatrix MY_FX_MATRIX = new FXMatrix(DOMESTIC_CCY, FOREIGN_CCY, SPOT_FX);
 
   protected static final Function1D<Double, Double> DOMESTIC_DISCOUNT_CURVE = new Function1D<Double, Double>() {
 
@@ -295,7 +297,7 @@ public class MultiCurrencyYieldCurveFittingTest extends YieldCurveFittingSetup {
 
 
     final YieldCurveFittingTestDataBundle data = getYieldCurveFittingTestDataBundle(instruments, null, curveNames, curveKnots, extrapolator, calculator,
-        sensitivityCalculator, marketValues, startPosition, yields, false);
+        sensitivityCalculator, marketValues, startPosition, yields, false, MY_FX_MATRIX);
 
     return data;
   }

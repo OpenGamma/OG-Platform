@@ -740,12 +740,18 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     if (!snapshots.isEmpty()) {
       try {
         responses.addAll(snapshot(snapshots));
-      } catch (Exception e) {
+      } catch (Exception ex) {
+        s_logger.error("Error obtaining snapshots for {}: {}", snapshots, ex.getMessage());
+        if (s_logger.isDebugEnabled()) {
+          s_logger.debug("Underlying exception in snapshot error " + snapshots, ex);
+        }
+        // REVIEW kirk 2012-07-20 -- This doesn't really look like an InternalError,
+        // but we have no way to discriminate in the response from doSnapshot at the moment.
         for (LiveDataSpecification requestedSpecification : snapshots) {
           responses.add(getErrorResponse(
               requestedSpecification, 
               LiveDataSubscriptionResult.INTERNAL_ERROR,
-              e.getMessage()));
+              "Problem obtaining snapshot: " + ex.getMessage()));
         }
       }
     }

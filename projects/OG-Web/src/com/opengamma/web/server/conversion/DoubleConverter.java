@@ -47,6 +47,7 @@ public class DoubleConverter implements ResultConverter<Object> {
     // Pricing
     addConversion(ValueRequirementNames.PRESENT_VALUE, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     addConversion(ValueRequirementNames.VALUE, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
+    addConversion(ValueRequirementNames.DV01, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     addConversion(ValueRequirementNames.PV01, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     addConversion(ValueRequirementNames.PAR_RATE, DoubleValueDecimalPlaceFormatter.NON_CCY_6DP);
     addConversion(ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT, DoubleValueDecimalPlaceFormatter.NON_CCY_6DP);

@@ -16,12 +16,12 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.forex.calculator.PresentValueMarketQuoteSensitivityForexCalculator;
+import com.opengamma.analytics.financial.calculator.MarketQuoteSensitivityCalculator;
+import com.opengamma.analytics.financial.curve.ParameterSensitivityCalculator;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityIRSCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.interestrate.curve.ParameterSensitivityCalculator;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.core.config.ConfigSource;
@@ -55,8 +55,8 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class FXForwardYCNSFunction extends FXForwardSingleValuedFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(FXForwardYCNSFunction.class);
-  private static final PresentValueMarketQuoteSensitivityForexCalculator CALCULATOR =
-      new PresentValueMarketQuoteSensitivityForexCalculator(new ParameterSensitivityCalculator(PresentValueCurveSensitivityIRSCalculator.getInstance()));
+  private static final MarketQuoteSensitivityCalculator CALCULATOR =
+      new MarketQuoteSensitivityCalculator(new ParameterSensitivityCalculator(PresentValueCurveSensitivityIRSCalculator.getInstance()));
 
   public FXForwardYCNSFunction() {
     super(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
@@ -100,7 +100,9 @@ public class FXForwardYCNSFunction extends FXForwardSingleValuedFunction {
     final InterpolatedYieldCurveSpecificationWithSecurities curveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) curveSpecObject;
     final MultipleCurrencyInterestRateCurveSensitivity curveSensitivities = (MultipleCurrencyInterestRateCurveSensitivity) curveSensitivitiesObject;
     final Map<String, List<DoublesPair>> sensitivitiesForCurrency = curveSensitivities.getSensitivity(Currency.of(curveCurrency)).getSensitivities();
-    return getResult(inputs, resultCurveConfigName, calculationMethod, fullCurveName, data, curveSpec, sensitivitiesForCurrency, spec);
+    final YieldCurveBundle dataForCurrency = new YieldCurveBundle();
+    dataForCurrency.setCurve(fullCurveName, data.getCurve(fullCurveName));
+    return getResult(inputs, resultCurveConfigName, calculationMethod, fullCurveName, dataForCurrency, curveSpec, sensitivitiesForCurrency, spec);
   }
 
   @Override
@@ -274,7 +276,7 @@ public class FXForwardYCNSFunction extends FXForwardSingleValuedFunction {
   }
 
   private static Set<ComputedValue> getResult(final FunctionInputs inputs, final String curveCalculationConfig, final String calculationMethod,
-      final String fullCurveName, final YieldCurveBundle interpolatedCurves, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec,
+      final String fullCurveName, final YieldCurveBundle interpolatedCurveForCurrency, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec,
       final Map<String, List<DoublesPair>> sensitivitiesForCurrency, final ValueSpecification spec) {
     final Object jacobianObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE_JACOBIAN);
     if (jacobianObject == null) {
@@ -283,15 +285,15 @@ public class FXForwardYCNSFunction extends FXForwardSingleValuedFunction {
     final double[][] array = FunctionUtils.decodeJacobian(jacobianObject);
     final DoubleMatrix2D jacobian = new DoubleMatrix2D(array);
     if (calculationMethod.equals(MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING)) {
-      final DoubleMatrix1D result = CALCULATOR.calculateFromParRate(sensitivitiesForCurrency, interpolatedCurves, jacobian);
-      return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(fullCurveName, interpolatedCurves, result, curveSpec, spec);
+      final DoubleMatrix1D result = CALCULATOR.calculateFromParRate(sensitivitiesForCurrency, interpolatedCurveForCurrency, jacobian);
+      return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(fullCurveName, interpolatedCurveForCurrency, result, curveSpec, spec);
     }
     final Object couponSensitivityObject = inputs.getValue(ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY);
     if (couponSensitivityObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY);
     }
     final DoubleMatrix1D couponSensitivity = (DoubleMatrix1D) couponSensitivityObject;
-    final DoubleMatrix1D result = CALCULATOR.calculateFromPresentValue(sensitivitiesForCurrency, interpolatedCurves, couponSensitivity, jacobian);
-    return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(fullCurveName, interpolatedCurves, result, curveSpec, spec);
+    final DoubleMatrix1D result = CALCULATOR.calculateFromPresentValue(sensitivitiesForCurrency, interpolatedCurveForCurrency, couponSensitivity, jacobian);
+    return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(fullCurveName, interpolatedCurveForCurrency, result, curveSpec, spec);
   }
 }

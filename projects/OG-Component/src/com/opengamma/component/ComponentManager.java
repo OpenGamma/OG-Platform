@@ -409,10 +409,11 @@ public class ComponentManager {
    * @throws Exception allowing throwing of a checked exception
    */
   protected void setPropertyMergedProperties(Bean bean, MetaProperty<?> mp) throws Exception {
+    final String desc = MANAGER_PROPERTIES + " for " + mp;
     final ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
     Properties props = new Properties();
     props.putAll(getProperties());
-    props.store(out, MANAGER_PROPERTIES + " for " + mp);
+    props.store(out, desc);
     out.close();
     Resource resource = new AbstractResource() {
       @Override
@@ -426,6 +427,10 @@ public class ComponentManager {
       @Override
       public InputStream getInputStream() throws IOException {
         return new ByteArrayInputStream(out.toByteArray());
+      }
+      @Override
+      public String toString() {
+        return desc;
       }
     };
     mp.set(bean, resource);

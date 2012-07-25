@@ -275,9 +275,7 @@ public class PresentValueCurveSensitivityCalculator extends AbstractInstrumentDe
 
   @Override
   public Map<String, List<DoublesPair>> visitCouponOIS(final CouponOIS payment, final YieldCurveBundle data) {
-
     final Map<String, List<DoublesPair>> result = METHOD_OIS.presentValueCurveSensitivity(payment, data).getSensitivities();
-
     return result;
   }
 

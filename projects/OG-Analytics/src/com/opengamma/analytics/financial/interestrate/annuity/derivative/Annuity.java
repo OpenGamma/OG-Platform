@@ -48,6 +48,7 @@ public class Annuity<P extends Payment> implements InstrumentDerivative {
     _isPayer = (amount < 0);
   }
 
+  @SuppressWarnings("unchecked")
   public Annuity(final List<? extends P> payments, final Class<P> pType, final boolean isPayer) {
     Validate.noNullElements(payments);
     Validate.notNull(pType);
@@ -145,7 +146,7 @@ public class Annuity<P extends Payment> implements InstrumentDerivative {
   public String toString() {
     String result = "Annuity:";
     for (final P payment : _payments) {
-      result += payment.toString();
+      result += payment.toString() + "\n";
     }
     return result;
   }

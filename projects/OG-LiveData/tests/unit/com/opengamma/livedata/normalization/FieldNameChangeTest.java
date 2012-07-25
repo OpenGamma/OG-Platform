@@ -15,10 +15,11 @@ import com.opengamma.livedata.server.FieldHistoryStore;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = "unit")
 public class FieldNameChangeTest {
-  
+
   @Test
   public void fieldNameChange() {
     FieldNameChange nameChange = new FieldNameChange("Foo", "Bar");

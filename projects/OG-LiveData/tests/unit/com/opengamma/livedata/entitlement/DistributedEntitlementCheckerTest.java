@@ -20,11 +20,10 @@ import com.opengamma.transport.InMemoryByteArrayRequestConduit;
 /**
  * Integration test between {@link DistributedEntitlementChecker} and {@link EntitlementServer}.
  */
+@Test(groups = "unit")
 public class DistributedEntitlementCheckerTest {
 
-  @Test
   public void testRequestResponse() {
-    
     PermissiveLiveDataEntitlementChecker delegate = new PermissiveLiveDataEntitlementChecker();
     EntitlementServer server = new EntitlementServer(delegate); 
     

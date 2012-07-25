@@ -5,6 +5,13 @@
  */
 package com.opengamma.analytics.financial.interestrate.future.method;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
@@ -13,25 +20,28 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang.Validate;
-
 /**
  * Method to compute the price for an interest rate future with discounting (like a forward).
  * No convexity adjustment is done.
  */
 public final class InterestRateFutureDiscountingMethod extends InterestRateFutureMethod {
 
+  /**
+   * The unique instance of the calculator.
+   */
   private static final InterestRateFutureDiscountingMethod INSTANCE = new InterestRateFutureDiscountingMethod();
 
+  /**
+   * Gets the calculator instance.
+   * @return The calculator.
+   */
   public static InterestRateFutureDiscountingMethod getInstance() {
     return INSTANCE;
   }
 
+  /**
+   * Constructor.
+   */
   private InterestRateFutureDiscountingMethod() {
   }
 

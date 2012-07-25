@@ -5,7 +5,11 @@
  */
 package com.opengamma.financial.aggregation;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.SecuritySource;
@@ -26,10 +30,31 @@ import com.opengamma.financial.security.forward.AgricultureForwardSecurity;
 import com.opengamma.financial.security.forward.EnergyForwardSecurity;
 import com.opengamma.financial.security.forward.MetalForwardSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
-import com.opengamma.financial.security.future.*;
+import com.opengamma.financial.security.future.AgricultureFutureSecurity;
+import com.opengamma.financial.security.future.BondFutureSecurity;
+import com.opengamma.financial.security.future.EnergyFutureSecurity;
+import com.opengamma.financial.security.future.EquityFutureSecurity;
+import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
+import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.future.IndexFutureSecurity;
+import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.financial.security.future.MetalFutureSecurity;
+import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
-import com.opengamma.financial.security.option.*;
+import com.opengamma.financial.security.option.BondFutureOptionSecurity;
+import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
+import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
+import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
+import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
+import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
+import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.CompareUtils;
@@ -144,6 +169,11 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
 
         @Override
         public String visitCommodityFutureOptionSecurity(CommodityFutureOptionSecurity commodityFutureOptionSecurity) {
+          return position.getQuantity().longValue() < 0 ? SHORT : LONG;
+        }
+
+        @Override
+        public String visitBondFutureOptionSecurity(BondFutureOptionSecurity bondFutureOptionSecurity) {
           return position.getQuantity().longValue() < 0 ? SHORT : LONG;
         }
 

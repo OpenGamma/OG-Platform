@@ -16,12 +16,12 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.forex.calculator.PresentValueMarketQuoteSensitivityForexCalculator;
+import com.opengamma.analytics.financial.calculator.MarketQuoteSensitivityCalculator;
+import com.opengamma.analytics.financial.curve.ParameterSensitivityCalculator;
 import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityIRSCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.interestrate.curve.ParameterSensitivityCalculator;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
@@ -56,8 +56,8 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(FXOptionBlackYCNSFunction.class);
-  private static final PresentValueMarketQuoteSensitivityForexCalculator CALCULATOR =
-      new PresentValueMarketQuoteSensitivityForexCalculator(new ParameterSensitivityCalculator(PresentValueCurveSensitivityIRSCalculator.getInstance()));
+  private static final MarketQuoteSensitivityCalculator CALCULATOR =
+      new MarketQuoteSensitivityCalculator(new ParameterSensitivityCalculator(PresentValueCurveSensitivityIRSCalculator.getInstance()));
 
   public FXOptionBlackYCNSFunction() {
     super(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
