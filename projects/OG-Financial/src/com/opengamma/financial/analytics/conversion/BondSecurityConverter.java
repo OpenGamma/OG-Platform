@@ -100,17 +100,13 @@ public class BondSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
     if (security.getCouponType().equals("NONE") || security.getCouponType().equals("ZERO COUPON")) { //TODO find where string is
       return new PaymentFixedDefinition(currency, maturityDate, 1);
     }
-    try {
-      if (convention.getBondSettlementDays(firstAccrualDate, maturityDate) == null) {
-        throw new OpenGammaRuntimeException("Could not get bond settlement days from " + conventionName);
-      }
-      final int settlementDays = convention.getBondSettlementDays(firstAccrualDate, maturityDate);
-      final Period paymentPeriod = getTenor(security.getCouponFrequency());
-      return BondFixedSecurityDefinition.from(currency, maturityDate, firstAccrualDate, paymentPeriod, rate, settlementDays, calendar, dayCount, businessDay,
-          yieldConvention, isEOM);
-    } catch(final NullPointerException e){
-      throw e;
+    if (convention.getBondSettlementDays(firstAccrualDate, maturityDate) == null) {
+      throw new OpenGammaRuntimeException("Could not get bond settlement days from " + conventionName);
     }
+    final int settlementDays = convention.getBondSettlementDays(firstAccrualDate, maturityDate);
+    final Period paymentPeriod = getTenor(security.getCouponFrequency());
+    return BondFixedSecurityDefinition.from(currency, maturityDate, firstAccrualDate, paymentPeriod, rate, settlementDays, calendar, dayCount, businessDay,
+        yieldConvention, isEOM);
   }
 
   @Override
