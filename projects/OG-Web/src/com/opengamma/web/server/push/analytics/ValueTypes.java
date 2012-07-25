@@ -30,8 +30,7 @@ public class ValueTypes {
   static {
     BufferedReader reader = null;
     try {
-      reader = new BufferedReader(new InputStreamReader(ValueTypes.class.getResourceAsStream(
-          "ValueRequirementTypes.txt")));
+      reader = new BufferedReader(new InputStreamReader(ValueTypes.class.getResourceAsStream("ValueTypes.txt")));
       String line;
       Pattern pattern = Pattern.compile("'(.*)' (.*)");
       while ((line = reader.readLine()) != null) {
@@ -70,7 +69,7 @@ public class ValueTypes {
       }
     }
     System.out.println("#valueReqs=" + reqTypes.size());
-    BufferedReader reader = new BufferedReader(new InputStreamReader(ValueRequirementTypes.class.getResourceAsStream("ValueRequirementTypes.txt")));
+    BufferedReader reader = new BufferedReader(new InputStreamReader(ValueRequirementTypes.class.getResourceAsStream("ValueTypes.txt")));
     String line;
     Pattern pattern = Pattern.compile("'(.*)' (.*)");
     while ((line = reader.readLine()) != null) {

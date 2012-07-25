@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.irfutureoption;
+package com.opengamma.financial.analytics.model.bondfutureoption;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -42,9 +42,9 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.analytics.conversion.BondFutureOptionSecurityConverter;
+import com.opengamma.financial.analytics.conversion.BondFutureOptionTradeConverter;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
-import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionSecurityConverter;
-import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionTradeConverter;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
@@ -55,22 +55,22 @@ import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Base class for a range of functions computing values on an IRFuturesOption using the Black Model
+ * 
  */
-public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunction.NonCompiledInvoker {
+public abstract class BondFutureOptionBlackFunction extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(FuturePriceCurveFunction.class);
   private final String _valueRequirementName;
-  private InterestRateFutureOptionTradeConverter _converter;
+  private BondFutureOptionTradeConverter _converter;
   private FixedIncomeConverterDataProvider _dataConverter;
 
-  public InterestRateFutureOptionBlackFunction(final String valueRequirementName) {
+  public BondFutureOptionBlackFunction(final String valueRequirementName) {
     ArgumentChecker.notNull(valueRequirementName, "value requirement name");
     _valueRequirementName = valueRequirementName;
   }
@@ -82,7 +82,7 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
-    _converter = new InterestRateFutureOptionTradeConverter(new InterestRateFutureOptionSecurityConverter(holidaySource, conventionSource, regionSource, securitySource));
+    _converter = new BondFutureOptionTradeConverter(new BondFutureOptionSecurityConverter(holidaySource, conventionSource, regionSource, securitySource));
     _dataConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
   }
 
@@ -92,7 +92,7 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
     final Trade trade = target.getTrade();
-    final IRFutureOptionSecurity security = (IRFutureOptionSecurity) trade.getSecurity();
+    final BondFutureOptionSecurity security = (BondFutureOptionSecurity) trade.getSecurity();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
     final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
@@ -115,11 +115,11 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
       throw new OpenGammaRuntimeException("Expecting an InterpolatedDoublesSurface; got " + volatilitySurface.getSurface().getClass());
     }
     final InstrumentDefinition<?> irFutureOptionDefinition = _converter.convert(trade);
-    final InstrumentDerivative irFutureOption = _dataConverter.convert(security, irFutureOptionDefinition, now, curveNames, timeSeries);
+    final InstrumentDerivative bondFutureOption = _dataConverter.convert(security, irFutureOptionDefinition, now, curveNames, timeSeries);
     final ValueProperties properties = getResultProperties(currency.getCode(), curveCalculationConfigName, surfaceName);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties);
     final YieldCurveWithBlackCubeBundle data = new YieldCurveWithBlackCubeBundle(volatilitySurface.getSurface(), curves);
-    return getResult(irFutureOption, data, spec);
+    return getResult(bondFutureOption, data, spec);
   }
 
   @Override
@@ -132,7 +132,7 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
     if (target.getType() != ComputationTargetType.TRADE) {
       return false;
     }
-    return target.getTrade().getSecurity() instanceof IRFutureOptionSecurity;
+    return target.getTrade().getSecurity() instanceof BondFutureOptionSecurity;
   }
 
   @Override
@@ -146,7 +146,6 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
     final ValueProperties constraints = desiredValue.getConstraints();
     final Set<String> surfaceNames = constraints.getValues(ValuePropertyNames.SURFACE);
     if (surfaceNames == null || surfaceNames.size() != 1) {
-      s_logger.info("Could not find {} requirement. Looking for a default..", ValuePropertyNames.SURFACE);
       return null;
     }
     final Set<String> curveCalculationConfigNames = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
@@ -179,7 +178,7 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
     return requirements;
   }
 
-  protected abstract Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec);
+  protected abstract Set<ComputedValue> getResult(final InstrumentDerivative bondFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec);
 
   private ValueProperties getResultProperties(final String currency) {
     return createValueProperties()
@@ -204,17 +203,14 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
     return new ValueRequirement(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties);
   }
 
-  /* The volatility surface name is constructed from the given name and the futureOption prefix
-      TODO REFACTOR LOGIC to permit other schemes and future options */
   public static String getFutureOptionPrefix(final ComputationTarget target) {
-
     final ExternalIdBundle secId = target.getTrade().getSecurity().getExternalIdBundle();
     final String ticker = secId.getValue(ExternalSchemes.BLOOMBERG_TICKER);
     if (ticker != null) {
       final String prefix = ticker.substring(0, 2);
       return prefix;
     }
-    throw new OpenGammaRuntimeException("Could not determine whether option was Standard (OPT) or MidCurve (MIDCURVE).");
+    throw new OpenGammaRuntimeException("Could not find option ticker");
   }
 
 }

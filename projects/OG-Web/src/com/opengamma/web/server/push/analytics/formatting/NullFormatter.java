@@ -10,15 +10,20 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  *
  */
-/* package */ class NullFormatter extends NoHistoryFormatter<Object> {
+/* package */ class NullFormatter implements Formatter<Object> {
 
   @Override
-  public String formatForDisplay(Object value, ValueSpecification valueSpec) {
+  public String formatForDisplay(Object nullValue, ValueSpecification valueSpec) {
     return null;
   }
 
   @Override
-  public Object formatForExpandedDisplay(Object value, ValueSpecification valueSpec) {
+  public Object formatForExpandedDisplay(Object nullValue, ValueSpecification valueSpec) {
+    return null;
+  }
+
+  @Override
+  public Object formatForHistory(Object nullHistoryValue, ValueSpecification valueSpec) {
     return null;
   }
 

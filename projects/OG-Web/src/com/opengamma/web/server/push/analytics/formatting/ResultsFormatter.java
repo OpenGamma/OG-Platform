@@ -81,7 +81,11 @@ public class ResultsFormatter {
       return getFormatterForType(value.getClass());
     } else {
       Class<?> type = ValueTypes.getTypeForValueName(valueSpec.getValueName());
-      return getFormatterForType(type);
+      if (type != null) {
+        return getFormatterForType(type);
+      } else {
+        return getFormatterForType(value.getClass());
+      }
     }
   }
 
