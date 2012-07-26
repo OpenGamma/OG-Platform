@@ -9,6 +9,7 @@ package com.opengamma.analytics.financial.interestrate;
  * 
  */
 public abstract class InterestRate {
+
   private final double _rate;
 
   public InterestRate(final double rate) {
