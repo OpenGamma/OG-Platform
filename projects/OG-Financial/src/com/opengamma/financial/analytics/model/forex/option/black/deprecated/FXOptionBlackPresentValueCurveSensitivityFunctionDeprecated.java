@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.model.forex.option.black.deprecated;
 import java.util.Collections;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.forex.calculator.PresentValueCurveSensitivityBlackForexCalculator;
+import com.opengamma.analytics.financial.forex.calculator.PresentValueCurveSensitivityBlackSmileForexCalculator;
 import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
@@ -23,7 +23,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 @Deprecated
 public class FXOptionBlackPresentValueCurveSensitivityFunctionDeprecated extends FXOptionBlackSingleValuedFunctionDeprecated {
-  private static final PresentValueCurveSensitivityBlackForexCalculator CALCULATOR = PresentValueCurveSensitivityBlackForexCalculator.getInstance();
+  private static final PresentValueCurveSensitivityBlackSmileForexCalculator CALCULATOR = PresentValueCurveSensitivityBlackSmileForexCalculator.getInstance();
 
   public FXOptionBlackPresentValueCurveSensitivityFunctionDeprecated() {
     super(ValueRequirementNames.FX_CURVE_SENSITIVITIES);

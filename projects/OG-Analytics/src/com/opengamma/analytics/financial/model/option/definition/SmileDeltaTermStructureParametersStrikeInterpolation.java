@@ -67,11 +67,11 @@ public class SmileDeltaTermStructureParametersStrikeInterpolation extends SmileD
    * @param delta The delta at which the volatilities are given. Must be positive and sorted in ascending order. The put will have as delta the opposite of the numbers.
    * Common to all time to expiration.
    * @param volatility The volatilities at each delta.
-   * @param interpolator The interpolator used in the strike dimension.
+   * @param interpolatorStrike The interpolator used in the strike dimension.
    */
-  public SmileDeltaTermStructureParametersStrikeInterpolation(final double[] timeToExpiration, final double[] delta, final double[][] volatility, final Interpolator1D interpolator) {
+  public SmileDeltaTermStructureParametersStrikeInterpolation(final double[] timeToExpiration, final double[] delta, final double[][] volatility, final Interpolator1D interpolatorStrike) {
     super(timeToExpiration, delta, volatility);
-    _interpolatorStrike = interpolator;
+    _interpolatorStrike = interpolatorStrike;
   }
 
   /**

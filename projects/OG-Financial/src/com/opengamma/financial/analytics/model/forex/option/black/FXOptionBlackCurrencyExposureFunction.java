@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.model.forex.option.black;
 import java.util.Collections;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.forex.calculator.CurrencyExposureBlackForexCalculator;
+import com.opengamma.analytics.financial.forex.calculator.CurrencyExposureBlackSmileForexCalculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.engine.ComputationTarget;
@@ -24,7 +24,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  * 
  */
 public class FXOptionBlackCurrencyExposureFunction extends FXOptionBlackMultiValuedFunction {
-  private static final CurrencyExposureBlackForexCalculator CALCULATOR = CurrencyExposureBlackForexCalculator.getInstance();
+  private static final CurrencyExposureBlackSmileForexCalculator CALCULATOR = CurrencyExposureBlackSmileForexCalculator.getInstance();
 
   public FXOptionBlackCurrencyExposureFunction() {
     super(ValueRequirementNames.FX_CURRENCY_EXPOSURE);
