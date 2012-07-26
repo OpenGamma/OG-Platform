@@ -19,6 +19,9 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.json.JSONObject;
+
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.push.analytics.AnalyticsView;
 import com.opengamma.web.server.push.analytics.GridStructure;
@@ -66,11 +69,12 @@ public abstract class AbstractGridResource {
     URI viewportUri = uriInfo.getAbsolutePathBuilder().path(viewportId).build();
     URI dataUri = uriInfo.getAbsolutePathBuilder().path(viewportId).path(AbstractViewportResource.class, "getData").build();
     String dataId = dataUri.getPath();
-    createViewport(viewportId, dataId, viewportSpecification);
-    return Response.status(Response.Status.CREATED).header(HttpHeaders.LOCATION, viewportUri).build();
+    long version = createViewport(viewportId, dataId, viewportSpecification);
+    String json = new JSONObject(ImmutableMap.of(AbstractViewportResource.VERSION, version)).toString();
+    return Response.status(Response.Status.CREATED).header(HttpHeaders.LOCATION, viewportUri).entity(json).build();
   }
 
-  public abstract void createViewport(String viewportId, String dataId, ViewportSpecification viewportSpec);
+  public abstract long createViewport(String viewportId, String dataId, ViewportSpecification viewportSpec);
 
   @Path("viewports/{viewportId}")
   public abstract AbstractViewportResource getViewport(@PathParam("viewportId") String viewportId);

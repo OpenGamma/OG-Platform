@@ -27,9 +27,9 @@ public interface AnalyticsView {
 
   GridStructure getGridStructure(GridType gridType);
 
-  void createViewport(GridType gridType, String viewportId, String dataId, ViewportSpecification viewportSpec);
+  long createViewport(GridType gridType, String viewportId, String dataId, ViewportSpecification viewportSpec);
 
-  void updateViewport(GridType gridType, String viewportId, ViewportSpecification viewportSpec);
+  long updateViewport(GridType gridType, String viewportId, ViewportSpecification viewportSpec);
 
   void deleteViewport(GridType gridType, String viewportId);
 
@@ -50,9 +50,9 @@ public interface AnalyticsView {
 
   GridStructure getGridStructure(GridType gridType, String graphId);
 
-  void createViewport(GridType gridType, String graphId, String viewportId, String dataId, ViewportSpecification viewportSpec);
+  long createViewport(GridType gridType, String graphId, String viewportId, String dataId, ViewportSpecification viewportSpec);
 
-  void updateViewport(GridType gridType, String graphId, String viewportId, ViewportSpecification viewportSpec);
+  long updateViewport(GridType gridType, String graphId, String viewportId, ViewportSpecification viewportSpec);
 
   void deleteViewport(GridType gridType, String graphId, String viewportId);
 

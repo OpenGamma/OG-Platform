@@ -17,21 +17,23 @@ import com.opengamma.util.ArgumentChecker;
 public class ViewportResults {
 
   private static final Cell s_emptyCell = new Cell(null, null, null);
-  //private static final Cell s_emtpyCellWithHistory = new Cell(null, null, Collections.emptyList());
 
   private final List<List<Cell>> _allResults;
   private final AnalyticsColumnGroups _columns;
   private final ViewportSpecification _viewportSpec;
+  private final long _version;
 
   /* package */ ViewportResults(List<List<Cell>> allResults,
                                 ViewportSpecification viewportSpec,
-                                AnalyticsColumnGroups columns) {
+                                AnalyticsColumnGroups columns,
+                                long version) {
     ArgumentChecker.notNull(allResults, "allResults");
     ArgumentChecker.notNull(columns, "columns");
     ArgumentChecker.notNull(viewportSpec, "viewportSpec");
     _allResults = allResults;
     _viewportSpec = viewportSpec;
     _columns = columns;
+    _version = version;
   }
 
   public List<List<Cell>> getResults() {
@@ -40,6 +42,10 @@ public class ViewportResults {
 
   public boolean isExpanded() {
     return _viewportSpec.isExpanded();
+  }
+
+  public long getVersion() {
+    return _version;
   }
 
   /**
@@ -51,15 +57,6 @@ public class ViewportResults {
   public Class<?> getColumnType(int viewportColIndex) {
     Integer gridColIndex = _viewportSpec.getGridColumnIndex(viewportColIndex);
     return _columns.getColumn(gridColIndex).getType();
-  }
-
-  @Override
-  public String toString() {
-    return "ViewportResults [" +
-        "_allResults=" + _allResults +
-        ", _columns=" + _columns +
-        ", _viewportSpec=" + _viewportSpec +
-        "]";
   }
 
   public static Cell stringCell(String value) {
@@ -75,9 +72,15 @@ public class ViewportResults {
     return s_emptyCell;
   }
 
-  /*public static Cell emptyCellWithHistory() {
-    return s_emtpyCellWithHistory;
-  }*/
+  @Override
+  public String toString() {
+    return "ViewportResults [" +
+        "_allResults=" + _allResults +
+        ", _columns=" + _columns +
+        ", _viewportSpec=" + _viewportSpec +
+        ", _version=" + _version +
+        "]";
+  }
 
   public static class Cell {
 

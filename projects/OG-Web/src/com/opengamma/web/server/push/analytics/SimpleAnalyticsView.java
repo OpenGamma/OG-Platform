@@ -88,17 +88,19 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public void createViewport(GridType gridType, String viewportId, String dataId, ViewportSpecification viewportSpec) {
-    getGrid(gridType).createViewport(viewportId, dataId, viewportSpec);
+  public long createViewport(GridType gridType, String viewportId, String dataId, ViewportSpecification viewportSpec) {
+    long version = getGrid(gridType).createViewport(viewportId, dataId, viewportSpec);
     _listener.gridDataChanged(dataId);
     s_logger.debug("Created viewport ID {} for the {} grid from {}", new Object[]{viewportId, gridType, viewportSpec});
+    return version;
   }
 
   @Override
-  public void updateViewport(GridType gridType, String viewportId, ViewportSpecification viewportSpec) {
+  public long updateViewport(GridType gridType, String viewportId, ViewportSpecification viewportSpec) {
     s_logger.debug("Updating viewport {} for {} grid to {}", new Object[]{viewportId, gridType, viewportSpec});
-    getGrid(gridType).updateViewport(viewportId, viewportSpec);
+    long version = getGrid(gridType).updateViewport(viewportId, viewportSpec);
     _listener.gridDataChanged(getGrid(gridType).getViewport(viewportId).getDataId());
+    return version;
   }
 
   @Override
@@ -133,17 +135,19 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public void createViewport(GridType gridType, String graphId, String viewportId, String dataId, ViewportSpecification viewportSpec) {
-    getGrid(gridType).createViewport(graphId, viewportId, dataId, viewportSpec);
+  public long createViewport(GridType gridType, String graphId, String viewportId, String dataId, ViewportSpecification viewportSpec) {
+    long version = getGrid(gridType).createViewport(graphId, viewportId, dataId, viewportSpec);
     s_logger.debug("Created viewport ID {} for dependency graph {} of the {} grid using {}", new Object[]{viewportId, graphId, gridType, viewportSpec});
     _listener.gridDataChanged(dataId);
+    return version;
   }
 
   @Override
-  public void updateViewport(GridType gridType, String graphId, String viewportId, ViewportSpecification viewportSpec) {
+  public long updateViewport(GridType gridType, String graphId, String viewportId, ViewportSpecification viewportSpec) {
     s_logger.debug("Updating viewport for dependency graph {} of the {} grid using {}", new Object[]{graphId, gridType, viewportSpec});
-    getGrid(gridType).updateViewport(graphId, viewportId, viewportSpec);
+    long version = getGrid(gridType).updateViewport(graphId, viewportId, viewportSpec);
     _listener.gridDataChanged(getGrid(gridType).getViewport(viewportId).getDataId());
+    return version;
   }
 
   @Override
