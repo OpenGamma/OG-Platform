@@ -112,15 +112,10 @@ public class ExampleViewsPopulator extends AbstractExampleTool {
     viewDefinition.setMaxDeltaCalculationPeriod(30000L);
 
     final ViewCalculationConfiguration defaultCalc = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
-    addValueRequirements(defaultCalc, EquitySecurity.SECURITY_TYPE,
-        new String[] {
-        ValueRequirementNames.FAIR_VALUE,
-        ValueRequirementNames.CAPM_BETA,
-        ValueRequirementNames.HISTORICAL_VAR,
-        ValueRequirementNames.SHARPE_RATIO,
-        ValueRequirementNames.TREYNOR_RATIO,
-        ValueRequirementNames.JENSENS_ALPHA,
-        ValueRequirementNames.TOTAL_RISK_ALPHA});
+    addValueRequirements(defaultCalc, EquitySecurity.SECURITY_TYPE, 
+        new String[] {ValueRequirementNames.FAIR_VALUE, ValueRequirementNames.CAPM_BETA, ValueRequirementNames.HISTORICAL_VAR,
+          ValueRequirementNames.SHARPE_RATIO, ValueRequirementNames.TREYNOR_RATIO, ValueRequirementNames.JENSENS_ALPHA, 
+          ValueRequirementNames.TOTAL_RISK_ALPHA });
     defaultCalc.addPortfolioRequirement(EquitySecurity.SECURITY_TYPE, ValueRequirementNames.PNL, ValueProperties.with(ValuePropertyNames.CURRENCY, Currency.USD.getCode()).get());
     viewDefinition.addViewCalculationConfiguration(defaultCalc);
     return viewDefinition;

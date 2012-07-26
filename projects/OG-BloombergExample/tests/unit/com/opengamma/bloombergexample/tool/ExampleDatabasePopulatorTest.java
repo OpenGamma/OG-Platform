@@ -12,9 +12,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.bloombergexample.DBTestUtils;
 import com.opengamma.bloombergexample.loader.ExampleEquityPortfolioLoader;
-import com.opengamma.bloombergexample.loader.ExampleMixedPortfolioLoader;
 import com.opengamma.bloombergexample.loader.ExampleMultiCurrencySwapPortfolioLoader;
-import com.opengamma.bloombergexample.loader.ExampleSwapPortfolioLoader;
 import com.opengamma.component.tool.ToolContextUtils;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.portfolio.PortfolioMaster;
@@ -47,9 +45,7 @@ public class ExampleDatabasePopulatorTest {
       
       ToolContext toolContext = getToolContext();
       try {
-        assertMixedPortfolio(toolContext);
         assertEquityPortfolio(toolContext);
-        assertSwapPortfolio(toolContext);
         assertMultiCurrencySwapPortfolio(toolContext);
         
       } finally {
@@ -66,19 +62,9 @@ public class ExampleDatabasePopulatorTest {
     assertPortfolio(portfolioMaster, ExampleMultiCurrencySwapPortfolioLoader.PORTFOLIO_NAME);
   }
 
-  private void assertSwapPortfolio(ToolContext toolContext) {
-    PortfolioMaster portfolioMaster = toolContext.getPortfolioMaster();
-    assertPortfolio(portfolioMaster, ExampleSwapPortfolioLoader.PORTFOLIO_NAME);
-  }
-
   private void assertEquityPortfolio(ToolContext toolContext) {
     PortfolioMaster portfolioMaster = toolContext.getPortfolioMaster();
     assertPortfolio(portfolioMaster, ExampleEquityPortfolioLoader.PORTFOLIO_NAME);
-  }
-
-  private void assertMixedPortfolio(ToolContext toolContext) {
-    PortfolioMaster portfolioMaster = toolContext.getPortfolioMaster();
-    assertPortfolio(portfolioMaster, ExampleMixedPortfolioLoader.PORTFOLIO_NAME);
   }
 
   private void assertPortfolio(PortfolioMaster portfolioMaster, String portfolioName) {
