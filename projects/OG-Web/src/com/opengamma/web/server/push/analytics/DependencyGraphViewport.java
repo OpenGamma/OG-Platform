@@ -40,7 +40,7 @@ public class DependencyGraphViewport extends AnalyticsViewport {
     update(viewportSpec, cycle, cache);
   }
 
-  /* package */ void update(ViewportSpecification viewportSpec, ViewCycle cycle, ResultsCache cache) {
+  /* package */ long update(ViewportSpecification viewportSpec, ViewCycle cycle, ResultsCache cache) {
     ArgumentChecker.notNull(viewportSpec, "viewportSpec");
     ArgumentChecker.notNull(cycle, "cycle");
     ArgumentChecker.notNull(cache, "cache");
@@ -51,6 +51,7 @@ public class DependencyGraphViewport extends AnalyticsViewport {
     _viewportSpec = viewportSpec;
     _viewportValueSpecs = _gridStructure.getValueSpecificationsForRows(_viewportSpec.getRows());
     updateResults(cycle, cache);
+    return ++_version;
   }
 
   /* package */ String updateResults(ViewCycle cycle, ResultsCache cache) {
@@ -67,7 +68,7 @@ public class DependencyGraphViewport extends AnalyticsViewport {
     }
     List<List<ViewportResults.Cell>> gridResults =
     _gridStructure.createResultsForViewport(_viewportSpec, resultsMap, cache, _calcConfigName);
-    _latestResults = new ViewportResults(gridResults, _viewportSpec, _gridStructure.getColumnStructure());
+    _latestResults = new ViewportResults(gridResults, _viewportSpec, _gridStructure.getColumnStructure(), _version);
     // TODO return null if nothing was updated
     return _dataId;
   }
