@@ -98,7 +98,7 @@ public class YieldCurveFunctionUtils {
   }
 
   //TODO won't work if curves have different currencies
-  public static YieldCurveBundle getYieldCurves(final FunctionInputs inputs, final MultiCurveCalculationConfig curveConfig, final ConfigDBCurveCalculationConfigSource configSource) {
+  public static YieldCurveBundle getYieldCurves(final FunctionInputs inputs, final MultiCurveCalculationConfig curveConfig) {
     final YieldCurveBundle curves = new YieldCurveBundle();
     final String[] curveNames = curveConfig.getYieldCurveNames();
     final UniqueIdentifiable id = curveConfig.getUniqueId();
@@ -122,7 +122,7 @@ public class YieldCurveFunctionUtils {
       final LinkedHashMap<String, String[]> exogenousCurves = curveConfig.getExogenousConfigData();
       for (final Map.Entry<String, String[]> entry : exogenousCurves.entrySet()) {
         final MultiCurveCalculationConfig config = configSource.getConfig(entry.getKey());
-        curves.addAll(getYieldCurves(inputs, config, configSource));
+        curves.addAll(getYieldCurves(inputs, config));
       }
       return curves;
     }

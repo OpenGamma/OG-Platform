@@ -93,4 +93,18 @@ public final class BondFutureOptionPremiumTransactionBlackSurfaceMethod {
     final double txnDelta = securityDelta * transaction.getQuantity() * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional();
     return txnDelta;
   }
+
+  /**
+   * Computes the present value vega of a transaction.
+   * @param transaction The future option transaction.
+   * @param blackData The curve and Black volatility data.
+   * @return The delta.
+   */
+  public double presentValueVega(final BondFutureOptionPremiumTransaction transaction, final YieldCurveWithBlackCubeBundle blackData) {
+    ArgumentChecker.notNull(transaction, "transaction");
+    ArgumentChecker.notNull(blackData, "Black data");
+    final double securityVega = METHOD.optionPriceVega(transaction.getUnderlyingOption(), blackData);
+    final double txnVega = securityVega * transaction.getQuantity() * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional();
+    return txnVega;
+  }
 }

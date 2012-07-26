@@ -26,10 +26,10 @@ import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 /**
  * 
  */
-public abstract class BondFutureOptionCurveSpecificBlackFunction extends BondFutureOptionBlackFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(BondFutureOptionCurveSpecificBlackFunction.class);
+public abstract class BondFutureOptionBlackCurveSpecificFunction extends BondFutureOptionBlackFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(BondFutureOptionBlackCurveSpecificFunction.class);
 
-  public BondFutureOptionCurveSpecificBlackFunction(final String valueRequirementName) {
+  public BondFutureOptionBlackCurveSpecificFunction(final String valueRequirementName) {
     super(valueRequirementName);
   }
 

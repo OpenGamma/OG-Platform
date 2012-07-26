@@ -167,11 +167,8 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
     final double volatility = blackData.getVolatility(security.getExpirationTime(), security.getStrike());
     final BlackFunctionData dataBlack = new BlackFunctionData(priceFuture, 1.0, volatility);
 
-    // TODO This is overkill. We only need one value, but it provides extra calculations while doing testing
-    final double[] firstDerivs = new double[3];
-    final double[][] secondDerivs = new double[3][3];
-    BLACK_FUNCTION.getPriceAdjoint2(option, dataBlack, firstDerivs, secondDerivs);
-    return firstDerivs[0];
+    final double[] firstDerivs = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
+    return firstDerivs[1];
   }
 
   /**
@@ -218,6 +215,38 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
   public double optionPriceGamma(final BondFutureOptionPremiumSecurity security, final YieldCurveBundle curves) {
     ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackCubeBundle, "Yield curve bundle should contain Black cube");
     return optionPriceGamma(security, (YieldCurveWithBlackCubeBundle) curves);
+  }
+
+  /**
+   * Computes the option's value vega, the first derivative of the security price wrt implied vol. 
+   * @param security The future option security, not null
+   * @param blackData The curve and Black volatility data, not null
+   * @return The security value delta.
+   */
+  public double optionPriceVega(final BondFutureOptionPremiumSecurity security, final YieldCurveWithBlackCubeBundle blackData) {
+    ArgumentChecker.notNull(security, "security");
+    ArgumentChecker.notNull(blackData, "YieldCurveWithBlackCubeBundle was unexpectedly null");
+    // Forward sweep
+    final double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), blackData);
+    final double strike = security.getStrike();
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, security.getExpirationTime(), security.isCall());
+
+    final double volatility = blackData.getVolatility(security.getExpirationTime(), security.getStrike());
+    final BlackFunctionData dataBlack = new BlackFunctionData(priceFuture, 1.0, volatility);
+
+    final double[] firstDerivs = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
+    return firstDerivs[2];
+  }
+
+  /**
+   * Computes the option's value delta, the first derivative of the security price wrt underlying futures rate. 
+   * @param security The future option security, not null
+   * @param curves The curve and Black volatility data, not null
+   * @return The security value delta.
+   */
+  public double optionPriceVega(final BondFutureOptionPremiumSecurity security, final YieldCurveBundle curves) {
+    ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackCubeBundle, "Yield curve bundle should contain Black cube");
+    return optionPriceVega(security, (YieldCurveWithBlackCubeBundle) curves);
   }
 
   /**

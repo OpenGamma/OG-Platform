@@ -108,12 +108,12 @@ public abstract class SwaptionBlackCurveSpecificFunction extends AbstractFunctio
     final String curveCalculationMethod = curveCalculationConfig.getCalculationMethod();
     final InstrumentDefinition<?> definition = security.accept(_visitor);
     if (curveNames.length == 1) {
-      curveNames = new String[] {curveNames[0], curveNames[0]};
+      curveNames = new String[] {curveNames[0], curveNames[0] };
     }
     final InstrumentDerivative swaption = definition.toDerivative(now, curveNames); //TODO
     final ValueProperties properties = getResultProperties(currency.getCode(), curveCalculationConfigName, surfaceName, curveName);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties);
-    final YieldCurveBundle curves = YieldCurveFunctionUtils.getYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
+    final YieldCurveBundle curves = YieldCurveFunctionUtils.getYieldCurves(inputs, curveCalculationConfig);
     final BlackSwaptionParameters parameters = new BlackSwaptionParameters(volatilitySurface.getSurface(),
         SwaptionUtils.getSwapGenerator(security, definition, securitySource));
     final YieldCurveWithBlackSwaptionBundle data = new YieldCurveWithBlackSwaptionBundle(parameters, curves);

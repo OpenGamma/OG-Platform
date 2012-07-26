@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.PresentValueBlackGammaCalculator;
+import com.opengamma.analytics.financial.interestrate.PresentValueBlackVegaCalculator;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
@@ -22,11 +22,11 @@ import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 /**
  * 
  */
-public class BondFutureOptionBlackGammaFunction extends BondFutureOptionBlackFunction {
-  private static final PresentValueBlackGammaCalculator CALCULATOR = PresentValueBlackGammaCalculator.getInstance();
+public class BondFutureOptionBlackVegaFunction extends BondFutureOptionBlackFunction {
+  private static final PresentValueBlackVegaCalculator CALCULATOR = PresentValueBlackVegaCalculator.getInstance();
 
-  public BondFutureOptionBlackGammaFunction() {
-    super(ValueRequirementNames.VALUE_GAMMA);
+  public BondFutureOptionBlackVegaFunction() {
+    super(ValueRequirementNames.VALUE_DELTA);
   }
 
   @Override

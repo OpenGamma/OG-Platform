@@ -63,7 +63,6 @@ import com.opengamma.util.money.Currency;
 public abstract class InterestRateFutureOptionSABRFunction extends AbstractFunction.NonCompiledInvoker {
   /** String labelling the surface fitting method */
   public static final String SURFACE_FITTING_NAME = "SABR";
-  @SuppressWarnings("unchecked")
   private static final VolatilityFunctionProvider<SABRFormulaData> SABR_FUNCTION = (VolatilityFunctionProvider<SABRFormulaData>) VolatilityFunctionFactory
       .getCalculator(VolatilityFunctionFactory.HAGAN);
   private InterestRateFutureOptionTradeConverter _converter;
@@ -104,7 +103,6 @@ public abstract class InterestRateFutureOptionSABRFunction extends AbstractFunct
     }
     final SABRInterestRateDataBundle data = new SABRInterestRateDataBundle(getModelParameters(target, inputs, dayCount, surfaceName),
         getYieldCurves(target, inputs, forwardCurveName, fundingCurveName, curveCalculationMethod));
-    @SuppressWarnings("unchecked")
     final InstrumentDefinition<InstrumentDerivative> irFutureOptionDefinition = (InstrumentDefinition<InstrumentDerivative>) _converter.convert(trade);
     final InstrumentDerivative irFutureOption = _dataConverter.convert(trade.getSecurity(), irFutureOptionDefinition, now, new String[] {fundingCurveName, forwardCurveName }, timeSeries);
     return computeValues(irFutureOption, data, target, inputs, forwardCurveName, fundingCurveName, surfaceName, curveCalculationMethod);
