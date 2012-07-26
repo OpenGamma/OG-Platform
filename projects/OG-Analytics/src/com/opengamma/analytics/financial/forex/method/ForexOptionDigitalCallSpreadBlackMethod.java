@@ -28,7 +28,7 @@ public class ForexOptionDigitalCallSpreadBlackMethod extends ForexOptionDigitalC
    * @param spread The relative spread used in the call-spread pricing. The call spread strikes are (for an original strike K), K*(1-spread) and K*(1+spread).
    */
   public ForexOptionDigitalCallSpreadBlackMethod(final double spread) {
-    super(ForexOptionVanillaBlackMethod.getInstance(), spread);
+    super(ForexOptionVanillaBlackSmileMethod.getInstance(), spread);
   }
 
   /**
@@ -56,8 +56,8 @@ public class ForexOptionDigitalCallSpreadBlackMethod extends ForexOptionDigitalC
     Validate.isTrue(smile.checkCurrencies(optionDigital.getCurrency1(), optionDigital.getCurrency2()), "Option currencies not compatible with smile data");
     ForexOptionVanilla[] callSpread = callSpread(optionDigital, getSpread());
     // Spread value
-    CurrencyAmount gammaM = ((ForexOptionVanillaBlackMethod) getBaseMethod()).gamma(callSpread[0], smile, optionDigital.payDomestic());
-    CurrencyAmount gammaP = ((ForexOptionVanillaBlackMethod) getBaseMethod()).gamma(callSpread[1], smile, optionDigital.payDomestic());
+    CurrencyAmount gammaM = ((ForexOptionVanillaBlackSmileMethod) getBaseMethod()).gamma(callSpread[0], smile, optionDigital.payDomestic());
+    CurrencyAmount gammaP = ((ForexOptionVanillaBlackSmileMethod) getBaseMethod()).gamma(callSpread[1], smile, optionDigital.payDomestic());
     return gammaM.plus(gammaP);
   }
 
@@ -76,8 +76,8 @@ public class ForexOptionDigitalCallSpreadBlackMethod extends ForexOptionDigitalC
     Validate.isTrue(smile.checkCurrencies(optionDigital.getCurrency1(), optionDigital.getCurrency2()), "Option currencies not compatible with smile data");
     ForexOptionVanilla[] callSpread = callSpread(optionDigital, getSpread());
     // Spread value
-    CurrencyAmount gammaM = ((ForexOptionVanillaBlackMethod) getBaseMethod()).gammaSpot(callSpread[0], smile, optionDigital.payDomestic());
-    CurrencyAmount gammaP = ((ForexOptionVanillaBlackMethod) getBaseMethod()).gammaSpot(callSpread[1], smile, optionDigital.payDomestic());
+    CurrencyAmount gammaM = ((ForexOptionVanillaBlackSmileMethod) getBaseMethod()).gammaSpot(callSpread[0], smile, optionDigital.payDomestic());
+    CurrencyAmount gammaP = ((ForexOptionVanillaBlackSmileMethod) getBaseMethod()).gammaSpot(callSpread[1], smile, optionDigital.payDomestic());
     return gammaM.plus(gammaP);
   }
 
@@ -94,8 +94,8 @@ public class ForexOptionDigitalCallSpreadBlackMethod extends ForexOptionDigitalC
     Validate.isTrue(smile.checkCurrencies(optionDigital.getCurrency1(), optionDigital.getCurrency2()), "Option currencies not compatible with smile data");
     ForexOptionVanilla[] callSpread = callSpread(optionDigital, getSpread());
     // Spread value
-    PresentValueForexBlackVolatilitySensitivity pvbsM = ((ForexOptionVanillaBlackMethod) getBaseMethod()).presentValueBlackVolatilitySensitivity(callSpread[0], smile);
-    PresentValueForexBlackVolatilitySensitivity pvbsP = ((ForexOptionVanillaBlackMethod) getBaseMethod()).presentValueBlackVolatilitySensitivity(callSpread[1], smile);
+    PresentValueForexBlackVolatilitySensitivity pvbsM = ((ForexOptionVanillaBlackSmileMethod) getBaseMethod()).presentValueBlackVolatilitySensitivity(callSpread[0], smile);
+    PresentValueForexBlackVolatilitySensitivity pvbsP = ((ForexOptionVanillaBlackSmileMethod) getBaseMethod()).presentValueBlackVolatilitySensitivity(callSpread[1], smile);
     return pvbsM.plus(pvbsP);
   }
 

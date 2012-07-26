@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.model.forex.option.black;
 import java.util.Collections;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.forex.calculator.PresentValueCurveSensitivityBlackForexCalculator;
+import com.opengamma.analytics.financial.forex.calculator.PresentValueCurveSensitivityBlackSmileForexCalculator;
 import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
@@ -25,7 +25,7 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 public class FXOptionBlackPresentValueCurveSensitivityFunction extends FXOptionBlackMultiValuedFunction {
-  private static final PresentValueCurveSensitivityBlackForexCalculator CALCULATOR = PresentValueCurveSensitivityBlackForexCalculator.getInstance();
+  private static final PresentValueCurveSensitivityBlackSmileForexCalculator CALCULATOR = PresentValueCurveSensitivityBlackSmileForexCalculator.getInstance();
 
   public FXOptionBlackPresentValueCurveSensitivityFunction() {
     super(ValueRequirementNames.FX_CURVE_SENSITIVITIES);

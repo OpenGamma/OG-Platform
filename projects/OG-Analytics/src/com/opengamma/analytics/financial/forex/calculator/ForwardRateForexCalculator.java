@@ -12,7 +12,7 @@ import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.analytics.financial.forex.method.ForexDiscountingMethod;
 import com.opengamma.analytics.financial.forex.method.ForexNonDeliverableForwardDiscountingMethod;
 import com.opengamma.analytics.financial.forex.method.ForexNonDeliverableOptionBlackMethod;
-import com.opengamma.analytics.financial.forex.method.ForexOptionVanillaBlackMethod;
+import com.opengamma.analytics.financial.forex.method.ForexOptionVanillaBlackSmileMethod;
 import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 
@@ -45,7 +45,7 @@ public class ForwardRateForexCalculator extends AbstractInstrumentDerivativeVisi
    */
   private static final ForexDiscountingMethod METHOD_FOREX = ForexDiscountingMethod.getInstance();
   private static final ForexNonDeliverableForwardDiscountingMethod METHOD_NDF = ForexNonDeliverableForwardDiscountingMethod.getInstance();
-  private static final ForexOptionVanillaBlackMethod METHOD_FXOPTION = ForexOptionVanillaBlackMethod.getInstance();
+  private static final ForexOptionVanillaBlackSmileMethod METHOD_FXOPTION = ForexOptionVanillaBlackSmileMethod.getInstance();
   private static final ForexNonDeliverableOptionBlackMethod METHOD_NDO = ForexNonDeliverableOptionBlackMethod.getInstance();
 
   @Override

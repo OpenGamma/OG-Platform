@@ -73,7 +73,7 @@ public class ForexOptionDigitalCallSpreadMethodTest {
   private static final Map<String, Currency> CURVE_CURRENCY = TestsDataSetsForex.curveCurrency();
   private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE = new SmileDeltaTermStructureDataBundle(FX_MATRIX, CURVE_CURRENCY, CURVES, SMILE_TERM, Pair.of(EUR, USD));
   private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE_FLAT = new SmileDeltaTermStructureDataBundle(FX_MATRIX, CURVE_CURRENCY, CURVES, SMILE_TERM_FLAT, Pair.of(EUR, USD));
-  private static final ForexOptionVanillaBlackMethod METHOD_VANILLA_BLACK = ForexOptionVanillaBlackMethod.getInstance();
+  private static final ForexOptionVanillaBlackSmileMethod METHOD_VANILLA_BLACK = ForexOptionVanillaBlackSmileMethod.getInstance();
   private static final ForexOptionDigitalBlackMethod METHOD_DIGITAL_BLACK = ForexOptionDigitalBlackMethod.getInstance();
   private static final double STANDARD_SPREAD = 0.0001;
   private static final ForexOptionDigitalCallSpreadBlackMethod METHOD_DIGITAL_SPREAD = new ForexOptionDigitalCallSpreadBlackMethod(STANDARD_SPREAD);

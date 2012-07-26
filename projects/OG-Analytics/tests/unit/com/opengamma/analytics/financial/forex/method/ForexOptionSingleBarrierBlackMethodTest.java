@@ -16,9 +16,9 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.annotations.Test;
 import org.testng.internal.junit.ArrayAsserts;
 
-import com.opengamma.analytics.financial.forex.calculator.CurrencyExposureBlackForexCalculator;
-import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackForexCalculator;
-import com.opengamma.analytics.financial.forex.calculator.PresentValueCurveSensitivityBlackForexCalculator;
+import com.opengamma.analytics.financial.forex.calculator.CurrencyExposureBlackSmileForexCalculator;
+import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackSmileForexCalculator;
+import com.opengamma.analytics.financial.forex.calculator.PresentValueCurveSensitivityBlackSmileForexCalculator;
 import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackVolatilityQuoteSensitivityForexCalculator;
 import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackVolatilitySensitivityBlackForexCalculator;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
@@ -27,7 +27,7 @@ import com.opengamma.analytics.financial.forex.derivative.ForexOptionSingleBarri
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.forex.method.ForexOptionSingleBarrierBlackMethod;
-import com.opengamma.analytics.financial.forex.method.ForexOptionVanillaBlackMethod;
+import com.opengamma.analytics.financial.forex.method.ForexOptionVanillaBlackSmileMethod;
 import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilitySensitivity;
 import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilityNodeSensitivityDataBundle;
@@ -93,7 +93,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
   private static final String[] CURVES_NAME = CURVES.getAllNames().toArray(new String[0]);
   private static final Map<String, Currency> CURVE_CURRENCY = TestsDataSetsForex.curveCurrency();
   private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE = new SmileDeltaTermStructureDataBundle(FX_MATRIX, CURVE_CURRENCY, CURVES, SMILE_TERM, Pair.of(CUR_1, CUR_2));
-  private static final ForexOptionVanillaBlackMethod METHOD_VANILLA = ForexOptionVanillaBlackMethod.getInstance();
+  private static final ForexOptionVanillaBlackSmileMethod METHOD_VANILLA = ForexOptionVanillaBlackSmileMethod.getInstance();
   private static final ForexOptionSingleBarrierBlackMethod METHOD_BARRIER = ForexOptionSingleBarrierBlackMethod.getInstance();
   private static final BlackBarrierPriceFunction BLACK_BARRIER_FUNCTION = BlackBarrierPriceFunction.getInstance();
   // Option
@@ -113,10 +113,10 @@ public class ForexOptionSingleBarrierBlackMethodTest {
   private static final ForexOptionVanilla VANILLA_SHORT = VANILLA_SHORT_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final ForexOptionSingleBarrier BARRIER_SHORT = new ForexOptionSingleBarrier(VANILLA_SHORT, BARRIER, REBATE);
 
-  private static final PresentValueBlackForexCalculator PVC_BLACK = PresentValueBlackForexCalculator.getInstance();
-  private static final PresentValueCurveSensitivityBlackForexCalculator PVCSC_BLACK = PresentValueCurveSensitivityBlackForexCalculator.getInstance();
+  private static final PresentValueBlackSmileForexCalculator PVC_BLACK = PresentValueBlackSmileForexCalculator.getInstance();
+  private static final PresentValueCurveSensitivityBlackSmileForexCalculator PVCSC_BLACK = PresentValueCurveSensitivityBlackSmileForexCalculator.getInstance();
   private static final PresentValueBlackVolatilitySensitivityBlackForexCalculator PVVSC_BLACK = PresentValueBlackVolatilitySensitivityBlackForexCalculator.getInstance();
-  private static final CurrencyExposureBlackForexCalculator CEC_BLACK = CurrencyExposureBlackForexCalculator.getInstance();
+  private static final CurrencyExposureBlackSmileForexCalculator CEC_BLACK = CurrencyExposureBlackSmileForexCalculator.getInstance();
 
   @Test
   /**
