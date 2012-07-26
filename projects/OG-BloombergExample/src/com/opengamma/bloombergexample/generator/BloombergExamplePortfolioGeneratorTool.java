@@ -15,7 +15,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Portfolio generator for Bloomberg exmaples.
  */
-public class PortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
+public class BloombergExamplePortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
 
   protected void configureChain(final SecurityGenerator<?> securityGenerator) {
     super.configureChain(securityGenerator);
