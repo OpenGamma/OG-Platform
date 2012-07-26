@@ -40,11 +40,10 @@ public class DependencyGraphStructureBuilder {
                                          ValueSpecification root,
                                          String calcConfigName,
                                          ComputationTargetResolver targetResolver) {
-    // TODO see [PLAT-XXXX] this is a bit nasty but should work as long as the engine and web are running in the same process
+    // TODO see [PLAT-2478] this is a bit nasty but will work as long as the engine and web are running in the same VM
     if (!(compiledViewDef instanceof CompiledViewDefinitionWithGraphs)) {
       s_logger.warn("Compiled view definition is not an instance of CompiledViewDefinitionWithGraphs, class={}." +
                         " Dependency graphs not supported");
-      // TODO create empty() factory method
       _structure = new DependencyGraphGridStructure(AnalyticsNode.emptyRoot(),
                                                     Collections.<DependencyGraphGridStructure.Row>emptyList(),
                                                     targetResolver);
