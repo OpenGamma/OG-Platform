@@ -57,15 +57,15 @@ public class MainGridViewport extends AnalyticsViewport {
       }
       allResults.add(rowResults);
     }
+    _latestResults = new ViewportResults(allResults, _viewportSpec, _gridStructure.getColumnStructure(), _version);
     if (updated) {
-      _latestResults = new ViewportResults(allResults, _viewportSpec, _gridStructure.getColumnStructure());
       return _dataId;
     } else {
       return null;
     }
   }
 
-  public void update(ViewportSpecification viewportSpec, ResultsCache cache) {
+  public long update(ViewportSpecification viewportSpec, ResultsCache cache) {
     ArgumentChecker.notNull(viewportSpec, "viewportSpec");
     ArgumentChecker.notNull(cache, "cache");
     if (!viewportSpec.isValidFor(_gridStructure)) {
@@ -74,5 +74,6 @@ public class MainGridViewport extends AnalyticsViewport {
     }
     _viewportSpec = viewportSpec;
     updateResults(cache);
+    return ++_version;
   }
 }

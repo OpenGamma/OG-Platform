@@ -20,14 +20,16 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
-import org.json.JSONArray;
+import org.json.JSONObject;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.push.analytics.ViewportResults;
 import com.opengamma.web.server.push.analytics.formatting.ResultsFormatter;
+import com.opengamma.web.server.push.rest.AbstractViewportResource;
 
 /**
  *
@@ -39,6 +41,7 @@ public class ViewportResultsMessageBodyWriter implements MessageBodyWriter<Viewp
   private static final String VALUE_KEY = "v";
   private static final String HISTORY_KEY = "h";
   private static final String TYPE_KEY = "t";
+  private static final String DATA = "data";
 
   private final ResultsFormatter _formatter;
 
@@ -110,6 +113,8 @@ public class ViewportResultsMessageBodyWriter implements MessageBodyWriter<Viewp
       }
       allResults.add(rowResults);
     }
-    entityStream.write(new JSONArray(allResults).toString().getBytes());
+    ImmutableMap<String, Object> resultsMap = ImmutableMap.of(AbstractViewportResource.VERSION, results.getVersion(),
+                                                              DATA, allResults);
+    entityStream.write(new JSONObject(resultsMap).toString().getBytes());
   }
 }

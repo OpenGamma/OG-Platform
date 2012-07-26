@@ -99,8 +99,8 @@ import com.opengamma.util.tuple.Pair;
     _depGraphs.put(graphId, grid);
   }
 
-  /* package */ void updateViewport(String viewportId, ViewportSpecification viewportSpecification) {
-    getViewport(viewportId).update(viewportSpecification, _cache);
+  /* package */ long updateViewport(String viewportId, ViewportSpecification viewportSpecification) {
+    return getViewport(viewportId).update(viewportSpecification, _cache);
   }
 
   /* package */ List<String> updateResults(ResultsCache cache, ViewCycle cycle) {
@@ -127,17 +127,17 @@ import com.opengamma.util.tuple.Pair;
     return getDependencyGraph(graphId).getGridStructure();
   }
 
-  /* package */ void createViewport(String graphId,
+  /* package */ long createViewport(String graphId,
                                     String viewportId,
                                     String dataId,
                                     ViewportSpecification viewportSpecification) {
-    getDependencyGraph(graphId).createViewport(viewportId, dataId, viewportSpecification);
+    return getDependencyGraph(graphId).createViewport(viewportId, dataId, viewportSpecification);
   }
 
-  /* package */ void updateViewport(String graphId,
+  /* package */ long updateViewport(String graphId,
                                     String viewportId,
                                     ViewportSpecification viewportSpec) {
-    getDependencyGraph(graphId).updateViewport(viewportId, viewportSpec, _cycle, _cache);
+    return getDependencyGraph(graphId).updateViewport(viewportId, viewportSpec, _cycle, _cache);
   }
 
   /* package */ void deleteViewport(String graphId, String viewportId) {

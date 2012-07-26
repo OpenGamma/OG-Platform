@@ -36,11 +36,13 @@ import com.opengamma.util.ArgumentChecker;
     return viewport;
   }
 
-  /* package */ void createViewport(String viewportId, String dataId, ViewportSpecification viewportSpecification) {
+  /* package */ long createViewport(String viewportId, String dataId, ViewportSpecification viewportSpecification) {
     if (_viewports.containsKey(viewportId)) {
       throw new IllegalArgumentException("Viewport ID " + viewportId + " is already in use");
     }
-    _viewports.put(viewportId, createViewport(viewportSpecification, dataId));
+    V viewport = createViewport(viewportSpecification, dataId);
+    _viewports.put(viewportId, viewport);
+    return viewport.getVersion();
   }
 
   protected abstract V createViewport(ViewportSpecification viewportSpecification, String dataId);
