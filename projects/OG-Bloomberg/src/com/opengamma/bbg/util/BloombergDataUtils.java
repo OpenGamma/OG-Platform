@@ -31,8 +31,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.time.calendar.DateAdjuster;
-import javax.time.calendar.DateAdjusters;
-import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
 import javax.time.calendar.OffsetTime;
