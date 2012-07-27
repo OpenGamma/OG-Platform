@@ -27,7 +27,7 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveMarketDataFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveSpecificationFunction;
 import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurveDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurveFunction;
-import com.opengamma.financial.analytics.model.curve.future.FuturePriceCurveFunction;
+import com.opengamma.financial.analytics.model.curve.future.IRFuturePriceCurveFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurveParRateMethodFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePresentValueMethodFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.YieldCurveDefaults;
@@ -112,7 +112,7 @@ public class ExampleCurveFunctionConfiguration extends SingletonFactoryBean<Repo
   }
 
   private void addFutureCurveFunction(final List<FunctionConfiguration> configs) {
-    configs.add(new StaticFunctionConfiguration(FuturePriceCurveFunction.class.getName()));
+    configs.add(new StaticFunctionConfiguration(IRFuturePriceCurveFunction.class.getName()));
   }
 
   //-------------------------------------------------------------------------
