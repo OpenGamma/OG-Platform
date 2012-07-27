@@ -77,7 +77,12 @@ import com.opengamma.financial.analytics.model.bond.BondZSpreadFromMarketCleanPr
 import com.opengamma.financial.analytics.model.bond.BondZSpreadPresentValueSensitivityFromCurveCleanPriceFunction;
 import com.opengamma.financial.analytics.model.bond.BondZSpreadPresentValueSensitivityFromMarketCleanPriceFunction;
 import com.opengamma.financial.analytics.model.bond.NelsonSiegelSvenssonBondCurveFunction;
+import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackDeltaFunction;
+import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackGammaFunction;
+import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackPV01Function;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackPresentValueFunction;
+import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackVegaFunction;
+import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackYCNSFunction;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.curve.interestrate.InterpolatedYieldCurveDefaults;
 import com.opengamma.financial.analytics.model.curve.interestrate.InterpolatedYieldCurveFunction;
@@ -969,6 +974,11 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   
   private static void addBondFutureOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(BondFutureOptionBlackPresentValueFunction.class));
+    functionConfigs.add(functionConfiguration(BondFutureOptionBlackDeltaFunction.class));
+    functionConfigs.add(functionConfiguration(BondFutureOptionBlackGammaFunction.class));
+    functionConfigs.add(functionConfiguration(BondFutureOptionBlackPV01Function.class));
+    functionConfigs.add(functionConfiguration(BondFutureOptionBlackYCNSFunction.class));
+    functionConfigs.add(functionConfiguration(BondFutureOptionBlackVegaFunction.class));
   }
 
   private static void addLocalVolatilityCalculatorsOld(final List<FunctionConfiguration> functionConfigs) {
