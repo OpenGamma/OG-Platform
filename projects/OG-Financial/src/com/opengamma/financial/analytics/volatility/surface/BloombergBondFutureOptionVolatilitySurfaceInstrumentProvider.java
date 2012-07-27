@@ -16,11 +16,14 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 
 /**
- * Provides ExternalId's for bond future options used to build the Volatility Surface
+ * 
  */
 public class BloombergBondFutureOptionVolatilitySurfaceInstrumentProvider extends BloombergFutureOptionVolatilitySurfaceInstrumentProvider {
   private static final ExternalScheme SCHEME = ExternalSchemes.BLOOMBERG_TICKER_WEAK;
-  private static final DecimalFormat FORMATTER = new DecimalFormat("###");
+  private static final DecimalFormat FORMATTER = new DecimalFormat("###.##");
+  static {
+    FORMATTER.setMinimumFractionDigits(2);
+  }
 
   /**
    * @param futureOptionPrefix the prefix to the resulting code
