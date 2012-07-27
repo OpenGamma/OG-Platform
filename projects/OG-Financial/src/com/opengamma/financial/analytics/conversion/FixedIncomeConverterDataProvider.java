@@ -372,14 +372,11 @@ public class FixedIncomeConverterDataProvider {
       Validate.notNull(security, "security");
       final SwapLeg payLeg = security.getPayLeg();
       final SwapLeg receiveLeg = security.getReceiveLeg();
-      final ZonedDateTime swapStartDate = security.getEffectiveDate();
-      final ZonedDateTime swapStartLocalDate = ZonedDateTime.of(swapStartDate.toLocalDate(), LocalTime.of(0, 0), TimeZone.UTC);
+      final ZonedDateTime fixingSeriesStartDate = security.getEffectiveDate().isBefore(now) ? security.getEffectiveDate() : now;
+      final ZonedDateTime fixingSeriesStartLocalDate = ZonedDateTime.of(fixingSeriesStartDate.toLocalDate(), LocalTime.of(0, 0), TimeZone.UTC);
       final boolean includeCurrentDatesFixing = true;
-      final DoubleTimeSeries<ZonedDateTime> payLegTS = getIndexTimeSeries(InterestRateInstrumentType.getInstrumentTypeFromSecurity(security), payLeg, swapStartLocalDate, now,
-          includeCurrentDatesFixing,
-          timeSeries);
-      final DoubleTimeSeries<ZonedDateTime> receiveLegTS = getIndexTimeSeries(InterestRateInstrumentType.getInstrumentTypeFromSecurity(security), receiveLeg, swapStartLocalDate, now,
-          includeCurrentDatesFixing, timeSeries);
+      final DoubleTimeSeries<ZonedDateTime> payLegTS = getIndexTimeSeries(payLeg, fixingSeriesStartLocalDate, now, includeCurrentDatesFixing, timeSeries);
+      final DoubleTimeSeries<ZonedDateTime> receiveLegTS = getIndexTimeSeries(receiveLeg, fixingSeriesStartLocalDate, now, includeCurrentDatesFixing, timeSeries);
       if (payLegTS != null) {
         if (receiveLegTS != null) {
           try {
@@ -488,7 +485,7 @@ public class FixedIncomeConverterDataProvider {
     return null;
   }
 
-  private DoubleTimeSeries<ZonedDateTime> getIndexTimeSeries(final InterestRateInstrumentType type, final SwapLeg leg, final ZonedDateTime swapEffectiveDate, final ZonedDateTime now,
+  private DoubleTimeSeries<ZonedDateTime> getIndexTimeSeries(final SwapLeg leg, final ZonedDateTime swapEffectiveDate, final ZonedDateTime now,
       final boolean includeEndDate, final HistoricalTimeSeriesBundle timeSeries) {
     if (leg instanceof FloatingInterestRateLeg) {
       final FloatingInterestRateLeg floatingLeg = (FloatingInterestRateLeg) leg;

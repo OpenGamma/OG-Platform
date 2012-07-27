@@ -69,7 +69,7 @@ public abstract class BondFutureOptionBlackCurveSpecificFunction extends BondFut
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
         .withAny(ValuePropertyNames.SURFACE)
         .withAny(ValuePropertyNames.CURVE)
-        .withAny(ValuePropertyNames.CURVE_CURRENCY)
+        .with(ValuePropertyNames.CURVE_CURRENCY, currency)
         .with(ValuePropertyNames.CURRENCY, currency).get();
   }
 
