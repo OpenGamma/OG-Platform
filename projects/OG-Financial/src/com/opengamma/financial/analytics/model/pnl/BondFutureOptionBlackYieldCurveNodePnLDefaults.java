@@ -1,9 +1,9 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.bondfutureoption;
+package com.opengamma.financial.analytics.model.pnl;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -28,26 +28,27 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public class BondFutureOptionDefaults extends DefaultPropertyFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(BondFutureOptionDefaults.class);
-  private static final String[] s_valueRequirements = new String[] {
-    ValueRequirementNames.PRESENT_VALUE,
-    ValueRequirementNames.VALUE_VEGA,
-    ValueRequirementNames.VALUE_DELTA,
-    ValueRequirementNames.PV01,
-    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-    ValueRequirementNames.VALUE_GAMMA,
-    ValueRequirementNames.IMPLIED_VOLATILITY,
-  };
+public class BondFutureOptionBlackYieldCurveNodePnLDefaults extends DefaultPropertyFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(BondFutureOptionBlackYieldCurveNodePnLDefaults.class);
+  private final String _samplingPeriod;
+  private final String _scheduleCalculator;
+  private final String _samplingFunction;
   private final PriorityClass _priority;
   private final HashMap<String, Pair<String, String>> _currencyCurveConfigAndSurfaceNames;
 
-  public BondFutureOptionDefaults(final String priority, final String... currencyCurveConfigAndSurfaceNames) {
-    super(ComputationTargetType.TRADE, true);
+  public BondFutureOptionBlackYieldCurveNodePnLDefaults(final String samplingPeriod, final String scheduleCalculator, final String samplingFunction, final String priority,
+      final String... currencyCurveConfigAndSurfaceNames) {
+    super(ComputationTargetType.POSITION, true);
+    ArgumentChecker.notNull(samplingPeriod, "sampling period");
+    ArgumentChecker.notNull(scheduleCalculator, "schedule calculator");
+    ArgumentChecker.notNull(samplingFunction, "sampling function");
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(currencyCurveConfigAndSurfaceNames, "currency, curve config and surface names");
     final int nPairs = currencyCurveConfigAndSurfaceNames.length;
     ArgumentChecker.isTrue(nPairs % 3 == 0, "Must have one curve config name per currency");
+    _samplingPeriod = samplingPeriod;
+    _scheduleCalculator = scheduleCalculator;
+    _samplingFunction = samplingFunction;
     _priority = PriorityClass.valueOf(priority);
     _currencyCurveConfigAndSurfaceNames = new HashMap<String, Pair<String, String>>();
     for (int i = 0; i < currencyCurveConfigAndSurfaceNames.length; i += 3) {
@@ -58,25 +59,36 @@ public class BondFutureOptionDefaults extends DefaultPropertyFunction {
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (!(target.getTrade().getSecurity() instanceof BondFutureOptionSecurity)) {
+    if (!(target.getPositionOrTrade().getSecurity() instanceof BondFutureOptionSecurity)) {
       return false;
     }
-    final BondFutureOptionSecurity bondFutureOption = (BondFutureOptionSecurity) target.getTrade().getSecurity();
+    final BondFutureOptionSecurity bondFutureOption = (BondFutureOptionSecurity) target.getPositionOrTrade().getSecurity();
     final String currency = bondFutureOption.getCurrency().getCode();
     return _currencyCurveConfigAndSurfaceNames.containsKey(currency);
   }
 
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
-    for (final String valueRequirement : s_valueRequirements) {
-      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.SURFACE);
-      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-    }
+    defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.SURFACE);
+    defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.SAMPLING_PERIOD);
+    defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.SCHEDULE_CALCULATOR);
+    defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.SAMPLING_FUNCTION);
   }
 
   @Override
-  protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    final String currencyName = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode();
+  protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue,
+      final String propertyName) {
+    if (ValuePropertyNames.SAMPLING_PERIOD.equals(propertyName)) {
+      return Collections.singleton(_samplingPeriod);
+    }
+    if (ValuePropertyNames.SCHEDULE_CALCULATOR.equals(propertyName)) {
+      return Collections.singleton(_scheduleCalculator);
+    }
+    if (ValuePropertyNames.SAMPLING_FUNCTION.equals(propertyName)) {
+      return Collections.singleton(_samplingFunction);
+    }
+    final String currencyName = FinancialSecurityUtils.getCurrency(target.getPositionOrTrade().getSecurity()).getCode();
     if (!_currencyCurveConfigAndSurfaceNames.containsKey(currencyName)) {
       s_logger.error("Could not config and surface names for currency " + currencyName + "; should never happen");
       return null;
@@ -98,6 +110,7 @@ public class BondFutureOptionDefaults extends DefaultPropertyFunction {
 
   @Override
   public String getMutualExclusionGroup() {
-    return OpenGammaFunctionExclusions.FUTURE_OPTION_BLACK;
+    return OpenGammaFunctionExclusions.PNL_SERIES;
   }
+
 }
