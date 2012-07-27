@@ -12,12 +12,12 @@ import javax.time.calendar.LocalDate;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 
 /**
- *  Provider of Interest Rate Future Instrument ID's.
- *  Tied closely to BloombergIRFutureInstrumentProviderUtils.
+ * 
  */
 public class BloombergBondFuturePriceCurveInstrumentProvider implements FuturePriceCurveInstrumentProvider<Number> {
 
@@ -32,8 +32,8 @@ public class BloombergBondFuturePriceCurveInstrumentProvider implements FuturePr
   private final String _tickerScheme;
 
   /**
-   * @param futurePrefix Two character string representing future type. e.g ED, ER, IR (See WIR in BBG)
-   * @param postfix Generally, "Comdty" 
+   * @param futurePrefix Two character string representing future type. e.g US
+   * @param postfix the postfix
    * @param dataFieldName Expecting MarketDataRequirementNames.MARKET_VALUE
    * @param tickerScheme Expecting BLOOMBERG_TICKER_WEAK or BLOOMBERG_TICKER
    */
@@ -48,10 +48,10 @@ public class BloombergBondFuturePriceCurveInstrumentProvider implements FuturePr
     _tickerScheme = tickerScheme;
   }
 
-  /** If a 4th argument is not provided, constructor uses as its ExternalScheme 
-   * @param futurePrefix Two character string representing future type
-   * @param postfix The postfix
-   * @param dataFieldName Expecting MarketDataRequirementNames.MARKET_PRICE 
+  /**
+   * @param futurePrefix Two character string representing future type. e.g US
+   * @param postfix the postfix
+   * @param dataFieldName Expecting MarketDataRequirementNames.MARKET_VALUE
    */
   public BloombergBondFuturePriceCurveInstrumentProvider(final String futurePrefix, final String postfix, final String dataFieldName) {
     Validate.notNull(futurePrefix, "future option prefix");
@@ -60,7 +60,7 @@ public class BloombergBondFuturePriceCurveInstrumentProvider implements FuturePr
     _futurePrefix = futurePrefix;
     _postfix = postfix;
     _dataFieldName = dataFieldName;
-    _tickerScheme = "BLOOMBERG_TICKER_WEAK";
+    _tickerScheme = ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName();
   }
 
   @Override
@@ -73,17 +73,13 @@ public class BloombergBondFuturePriceCurveInstrumentProvider implements FuturePr
    * Provides ExternalID for Bloomberg ticker, eg RXZ3 Comdty,
    * given a reference date and an integer offset, the n'th subsequent future
    * The format is _futurePrefix + month + year + _postfix
-   * <p>
-   * Note that midcurve options are written on underlying futures that expire some number of quarters after the option's expiry.
-   * The logic of this is based on the _futurePrefix.
-   * <p>
    * @param futureNumber n'th future following curve date
    * @param curveDate date of curve validity; valuation date
    */
   public ExternalId getInstrument(final Number futureNumber, final LocalDate curveDate) {
     final StringBuffer ticker = new StringBuffer();
     ticker.append(_futurePrefix);
-    ticker.append(BloombergIRFutureUtils.getQuarterlyExpiryCodeForFutures(_futurePrefix, futureNumber.intValue(), curveDate));
+    ticker.append(BloombergFutureUtils.getQuarterlyExpiryCodeForFutures(_futurePrefix, futureNumber.intValue(), curveDate));
     ticker.append(" ");
     ticker.append(_postfix);
     return ExternalId.of(ExternalScheme.of(_tickerScheme), ticker.toString());
