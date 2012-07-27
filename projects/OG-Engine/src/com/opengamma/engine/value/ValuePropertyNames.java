@@ -223,6 +223,10 @@ public final class ValuePropertyNames {
    */
   public static final String SHIFT = "Shift";
 
+  /**
+   * 
+   */
+  public static final String VALUE_AGGREGATION = "ValueAggregation";
 
 
 }
