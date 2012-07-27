@@ -10,7 +10,12 @@ import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 
 /**
- *
+ * <p>This is the top level object of the back-end of the the analytics user interface. A view displays analytics data
+ * for a view definition and a set of market data (e.g. live, historical etc). A view manages two grids of data, one
+ * displaying the portfolio analytics and the other displaying primitives (e.g. curves, surfaces). Each of these grids
+ * can have any number of viewports which represent the portion of the grid that the user is viewing.</p>
+ * <p>Each top level grid can have also have any number of dependency graph grids which show how the data in
+ * a grid cell is calculated.</p>
  */
 public interface AnalyticsView {
 
@@ -19,20 +24,77 @@ public interface AnalyticsView {
     PRIMITIVES
   }
 
+  /**
+   * Updates the grid structures when the view definition compliles and its struture is available.
+   * @param compiledViewDefinition The compiled view definition whose data will be displayed in the grids
+   */
   void updateStructure(CompiledViewDefinition compiledViewDefinition);
 
+  /**
+   * Updates the data in the grids when a cycle completes in the calculation engine.
+   * @param results The results of the calculation cycle.
+   * @param viewCycle Data associated with the calculation cycle.
+   */
   void updateResults(ViewResultModel results, ViewCycle viewCycle);
 
 // -------- main grid --------
 
+  /**
+   * Returns the row and column structure of one of the top level grids.
+   * @param gridType Specifies which grid structure is required.
+   * @return The row and column structure of the specified grid.
+   */
   GridStructure getGridStructure(GridType gridType);
 
+  /**
+   * Creates a viewport for one of the top level grids. A viewport represents the visible portion of the grid. Any
+   * grid cells that are scrolled off the screen are not part of the viewport. The client only receives data for
+   * cells in the viewport and only receives notification of new data if data in the viewport changes. If the only data
+   * that changes in a calculation cycle is not part of a viewport then no update needs to be sent to the client.
+   * There can be any number of viewports for each grid.
+   * @param gridType Specifies the grid.
+   * @param viewportId A unique ID for the viewport. The server makes no assumptions about its format other
+   * than the fact that it must be unique for each viewport in a view.
+   * @param dataId A unique ID for the viewport's data - this is the value that is sent to the client with notification
+   * that new data is available for the viewport. The server makes no assumptions about its format other
+   * than the fact that it must be unique for each viewport in a view.
+   * @param viewportSpec Defines the rows and columns in the viewport and whether the viewport's data should be
+   * expanded or a summary for data types which can't fit in a cell, e.g. vectors, matrices, curves.
+   * @return The version of the viewport. This allows the client to ensure that data received for the viewport
+   * corresponds to the current viewport structure. If the client makes an asynchronous request for data and the
+   * viewport structure changes at the same time then there is a race condition and it is possible the client could
+   * display the old viewport's data in the updated viewport. The viewport version allows this situation to be detected
+   * and avoided.
+   */
   long createViewport(GridType gridType, String viewportId, String dataId, ViewportSpecification viewportSpec);
 
+  /**
+   * Updates a viewport. A viewport will be updated when the user scrolls the grid.
+   * @param gridType Specifies the grid
+   * @param viewportId ID of the viewport
+   * @param viewportSpec Defines the rows and columns in the viewport and whether the viewport's data should be
+   * expanded or a summary for data types which can't fit in a cell, e.g. vectors, matrices, curves.
+   * @return The version of the viewport. This allows the client to ensure that data received for the viewport
+   * corresponds to the current viewport structure. If the client makes an asynchronous request for data and the
+   * viewport structure changes at the same time then there is a race condition and it is possible the client could
+   * display the old viewport's data in the updated viewport. The viewport version allows this situation to be detected
+   * and avoided.
+   */
   long updateViewport(GridType gridType, String viewportId, ViewportSpecification viewportSpec);
 
+  /**
+   * Deletes a viewport.
+   * @param gridType Specifies the grid
+   * @param viewportId ID of the viewport
+   */
   void deleteViewport(GridType gridType, String viewportId);
 
+  /**
+   * Returns the current data for a viewport.
+   * @param gridType Specifies the grid
+   * @param viewportId ID of the viewport
+   * @return The current data for the viewport.
+   */
   ViewportResults getData(GridType gridType, String viewportId);
 
   // -------- dependency graph grids --------
