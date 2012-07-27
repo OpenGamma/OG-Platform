@@ -104,9 +104,9 @@ public class CDSSimpleCalculatorTest {
         0.05268070877392120000
     };
 
-    final YieldCurve cdsCcyYieldCurve = new YieldCurve(InterpolatedDoublesCurve.fromSorted(timePoints, cdsCcyPoints, new LinearInterpolator1D()));
-    final YieldCurve bondCcyYieldCurve = new YieldCurve(InterpolatedDoublesCurve.fromSorted(timePoints, bondCcyPoints, new LinearInterpolator1D()));
-    final YieldCurve riskyCurve = new YieldCurve(InterpolatedDoublesCurve.fromSorted(timePoints, riskyPoints, new LinearInterpolator1D()));
+    final YieldCurve cdsCcyYieldCurve = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(timePoints, cdsCcyPoints, new LinearInterpolator1D()));
+    final YieldCurve bondCcyYieldCurve = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(timePoints, bondCcyPoints, new LinearInterpolator1D()));
+    final YieldCurve riskyCurve = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(timePoints, riskyPoints, new LinearInterpolator1D()));
 
     final double result = CDSSimpleCalculator.calculate(cds, bond, cdsCcyYieldCurve, bondCcyYieldCurve, riskyCurve, pricingDate);
     

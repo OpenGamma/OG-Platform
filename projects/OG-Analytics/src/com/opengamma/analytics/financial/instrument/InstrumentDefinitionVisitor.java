@@ -249,6 +249,10 @@ public interface InstrumentDefinitionVisitor<T, U> {
   U visitBondCapitalIndexedTransaction(BondCapitalIndexedTransactionDefinition<?> bond, T data);
 
   U visitBondCapitalIndexedTransaction(BondCapitalIndexedTransactionDefinition<?> bond);
+  
+  U visitCDSDefinition(CDSDefinition cds, T data);
+  
+  U visitCDSDefinition(CDSDefinition cds);
 
   // -----     Forex     -----
 
