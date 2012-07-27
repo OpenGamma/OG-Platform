@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.irfutureoption;
+package com.opengamma.financial.analytics.model.bondfutureoption;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,15 +21,15 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * 
  */
-public class InterestRateFutureOptionBlackDefaultPropertiesFunction extends DefaultPropertyFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionBlackDefaultPropertiesFunction.class);
+public class BondFutureOptionDefaults extends DefaultPropertyFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(BondFutureOptionDefaults.class);
   private static final String[] s_valueRequirements = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.VALUE_VEGA,
@@ -37,16 +37,11 @@ public class InterestRateFutureOptionBlackDefaultPropertiesFunction extends Defa
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
     ValueRequirementNames.VALUE_GAMMA,
     ValueRequirementNames.IMPLIED_VOLATILITY,
-    ValueRequirementNames.SECURITY_MODEL_PRICE,
-    ValueRequirementNames.UNDERLYING_MODEL_PRICE,
-    ValueRequirementNames.DAILY_PRICE,
-    ValueRequirementNames.VALUE_THETA
   };
   private final PriorityClass _priority;
   private final HashMap<String, Pair<String, String>> _currencyCurveConfigAndSurfaceNames;
 
-  public InterestRateFutureOptionBlackDefaultPropertiesFunction(final String priority,
-      final String... currencyCurveConfigAndSurfaceNames) {
+  public BondFutureOptionDefaults(final String priority, final String... currencyCurveConfigAndSurfaceNames) {
     super(ComputationTargetType.TRADE, true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(currencyCurveConfigAndSurfaceNames, "currency, curve config and surface names");
@@ -62,11 +57,11 @@ public class InterestRateFutureOptionBlackDefaultPropertiesFunction extends Defa
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (!(target.getTrade().getSecurity() instanceof IRFutureOptionSecurity)) {
+    if (!(target.getTrade().getSecurity() instanceof BondFutureOptionSecurity)) {
       return false;
     }
-    final IRFutureOptionSecurity irFutureOption = (IRFutureOptionSecurity) target.getTrade().getSecurity();
-    final String currency = irFutureOption.getCurrency().getCode();
+    final BondFutureOptionSecurity bondFutureOption = (BondFutureOptionSecurity) target.getTrade().getSecurity();
+    final String currency = bondFutureOption.getCurrency().getCode();
     return _currencyCurveConfigAndSurfaceNames.containsKey(currency);
   }
 

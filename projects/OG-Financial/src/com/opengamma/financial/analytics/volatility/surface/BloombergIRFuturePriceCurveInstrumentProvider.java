@@ -87,7 +87,7 @@ public class BloombergIRFuturePriceCurveInstrumentProvider implements FuturePric
     if ("0R".equals(_futurePrefix)) {
       nQuartersDelay = 4;
     }
-    ticker.append(BloombergIRFutureUtils.getQuarterlyExpiryCodeForFutures(_futurePrefix, futureNumber.intValue() + nQuartersDelay, curveDate));
+    ticker.append(BloombergFutureUtils.getQuarterlyExpiryCodeForFutures(_futurePrefix, futureNumber.intValue() + nQuartersDelay, curveDate));
     ticker.append(" ");
     ticker.append(_postfix);
     return ExternalId.of(ExternalScheme.of(_tickerScheme), ticker.toString());

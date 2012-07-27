@@ -13,13 +13,13 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.ExternalId;
 
 /**
- * Provides ExternalId's for FutureOptions used to build the Volatility Surface  
+ * Provides ExternalId's for FutureOptions used to build the Volatility Surface
  */
 public abstract class BloombergFutureOptionVolatilitySurfaceInstrumentProvider implements CallPutSurfaceInstrumentProvider<Number, Double> {
-  
+
   private final String _futureOptionPrefix;
   private final String _postfix;
-  private final String _dataFieldName; 
+  private final String _dataFieldName;
   private final Double _useCallAboveStrike;
 
   /**
@@ -40,20 +40,20 @@ public abstract class BloombergFutureOptionVolatilitySurfaceInstrumentProvider i
   }
 
   @Override
-  /** 
-   * Primary method of class builds up a single Bloomberg ticker 
+  /**
+   * Primary method of class builds up a single Bloomberg ticker
    * @return Ticker ID
    * @param futureOptionNumber n'th future after surfaceDate
    * @param strike absolute value of strike
    * @param surfaceDate valuation date
    */
   public abstract ExternalId getInstrument(final Number futureOptionNumber, final Double strike, final LocalDate surfaceDate);
-  
+
   @Override
   public ExternalId getInstrument(final Number futureOptionNumber, final Double strike) {
-    throw new OpenGammaRuntimeException("Need a surface date to create an interest rate future option surface");
+    throw new OpenGammaRuntimeException("Need a surface date to create an future option surface");
   }
-  
+
   public String getFutureOptionPrefix() {
     return _futureOptionPrefix;
   }

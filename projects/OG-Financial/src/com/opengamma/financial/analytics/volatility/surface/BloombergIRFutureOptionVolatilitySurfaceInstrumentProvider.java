@@ -47,7 +47,7 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider extends 
     Validate.notNull(futureOptionNumber, "futureOptionNumber");
     final StringBuffer ticker = new StringBuffer();
     ticker.append(getFutureOptionPrefix());
-    ticker.append(BloombergIRFutureUtils.getExpiryCodeForFutureOptions(getFutureOptionPrefix(), futureOptionNumber.intValue(), surfaceDate));
+    ticker.append(BloombergFutureUtils.getExpiryCodeForFutureOptions(getFutureOptionPrefix(), futureOptionNumber.intValue(), surfaceDate));
     ticker.append(strike > useCallAboveStrike() ? "C " : "P ");
     ticker.append(FORMATTER.format(strike));
     ticker.append(" ");
