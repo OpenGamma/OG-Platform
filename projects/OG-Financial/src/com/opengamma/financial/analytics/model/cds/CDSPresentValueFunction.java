@@ -133,6 +133,7 @@ public class CDSPresentValueFunction extends AbstractFunction.NonCompiledInvoker
     final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
     final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
+    final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
     
     // Time point to price for
     final ZonedDateTime pricingDate = executionContext.getValuationClock().zonedDateTime();
@@ -161,7 +162,7 @@ public class CDSPresentValueFunction extends AbstractFunction.NonCompiledInvoker
     final YieldCurve creditCurve = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(timePoints, riskyRates, new LinearInterpolator1D()));
     
     // Convert security in to format suitable for pricing
-    final CDSSecurityConverter converter = new CDSSecurityConverter(securitySource, holidaySource, conventionSource);
+    final CDSSecurityConverter converter = new CDSSecurityConverter(securitySource, holidaySource, conventionSource, regionSource);
     final CDSDefinition cdsDefinition = (CDSDefinition) cds.accept(converter);
     final CDSDerivative cdsDerivative = cdsDefinition.toDerivative(pricingDate, cdsCcyCurve.getName(), bondCcyCurve.getName(), creditCurve.getName());
     
