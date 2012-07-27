@@ -49,7 +49,6 @@ import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalcula
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
-import com.opengamma.financial.analytics.model.curve.future.FuturePriceCurveFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
@@ -65,7 +64,7 @@ import com.opengamma.util.money.Currency;
  * Base class for a range of functions computing values on an IRFuturesOption using the Black Model
  */
 public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunction.NonCompiledInvoker {
-  private static final Logger s_logger = LoggerFactory.getLogger(FuturePriceCurveFunction.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionBlackFunction.class);
   private final String _valueRequirementName;
   private InterestRateFutureOptionTradeConverter _converter;
   private FixedIncomeConverterDataProvider _dataConverter;
