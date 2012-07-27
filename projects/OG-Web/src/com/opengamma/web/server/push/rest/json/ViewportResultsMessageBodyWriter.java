@@ -29,7 +29,6 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.push.analytics.ViewportResults;
 import com.opengamma.web.server.push.analytics.formatting.ResultsFormatter;
-import com.opengamma.web.server.push.rest.AbstractViewportResource;
 
 /**
  *
@@ -113,7 +112,7 @@ public class ViewportResultsMessageBodyWriter implements MessageBodyWriter<Viewp
       }
       allResults.add(rowResults);
     }
-    ImmutableMap<String, Object> resultsMap = ImmutableMap.of(AbstractViewportResource.VERSION, results.getVersion(),
+    ImmutableMap<String, Object> resultsMap = ImmutableMap.of(ViewportVersionMessageBodyWriter.VERSION, results.getVersion(),
                                                               DATA, allResults);
     entityStream.write(new JSONObject(resultsMap).toString().getBytes());
   }

@@ -17,31 +17,27 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
-import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.server.push.analytics.AnalyticsColumnGroups;
-import com.opengamma.web.server.push.analytics.AnalyticsColumnsJsonWriter;
+import org.json.JSONObject;
+
+import com.google.common.collect.ImmutableMap;
+import com.opengamma.web.server.push.rest.ViewportVersion;
 
 /**
  *
  */
 @Provider
 @Produces(MediaType.APPLICATION_JSON)
-/* package */ public class AnalyticsColumnGroupsMessageBodyWriter implements MessageBodyWriter<AnalyticsColumnGroups> {
+public class ViewportVersionMessageBodyWriter implements MessageBodyWriter<ViewportVersion> {
 
-  private final AnalyticsColumnsJsonWriter _writer;
-
-  public AnalyticsColumnGroupsMessageBodyWriter(AnalyticsColumnsJsonWriter writer) {
-    ArgumentChecker.notNull(writer, "writer");
-    _writer = writer;
-  }
+  public static final String VERSION = "version";
 
   @Override
   public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-    return type.equals(AnalyticsColumnGroups.class);
+    return type.equals(ViewportVersion.class);
   }
 
   @Override
-  public long getSize(AnalyticsColumnGroups analyticsColumnGroups,
+  public long getSize(ViewportVersion version,
                       Class<?> type,
                       Type genericType,
                       Annotation[] annotations,
@@ -50,14 +46,14 @@ import com.opengamma.web.server.push.analytics.AnalyticsColumnsJsonWriter;
   }
 
   @Override
-  public void writeTo(AnalyticsColumnGroups analyticsColumnGroups,
+  public void writeTo(ViewportVersion version,
                       Class<?> type,
                       Type genericType,
                       Annotation[] annotations,
                       MediaType mediaType,
                       MultivaluedMap<String, Object> httpHeaders,
                       OutputStream entityStream) throws IOException, WebApplicationException {
-    String json = _writer.getJson(analyticsColumnGroups.getGroups());
-    entityStream.write(json.getBytes());
+    ImmutableMap<String, Long> map = ImmutableMap.of(VERSION, version.getVersion());
+    entityStream.write(new JSONObject(map).toString().getBytes());
   }
 }
