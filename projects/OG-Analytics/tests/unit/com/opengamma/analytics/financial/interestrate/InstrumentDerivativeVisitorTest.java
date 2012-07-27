@@ -38,6 +38,7 @@ import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbor;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZero;
+import com.opengamma.analytics.financial.interestrate.cds.CDSDerivative;
 import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
@@ -724,6 +725,16 @@ public class InstrumentDerivativeVisitorTest {
 
     @Override
     public Class<?> visitAnnuityCouponIborSpread(AnnuityCouponIborSpread annuity) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitCDSDerivative(CDSDerivative cds, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitCDSDerivative(CDSDerivative cds) {
       return null;
     }
 

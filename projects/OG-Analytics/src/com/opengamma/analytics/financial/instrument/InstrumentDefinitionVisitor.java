@@ -25,6 +25,7 @@ import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositCounterpartDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositIborDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositZeroDefinition;
+import com.opengamma.analytics.financial.instrument.cds.CDSDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
