@@ -247,21 +247,21 @@ public final class ForexNonDeliverableOptionBlackMethod implements ForexPricingM
     final String deliveryCurveName = optionForex.getUnderlyingNDF().getDiscountingCurve2Name();
     final String nonDeliveryCurveName = optionForex.getUnderlyingNDF().getDiscountingCurve1Name();
     final PresentValueForexBlackVolatilitySensitivity pointSensitivity = presentValueBlackVolatilitySensitivity(optionForex, smile); // In ccy2
-    final double[][] nodeWeight = new double[smile.getSmile().getNumberExpiration()][smile.getSmile().getNumberStrike()];
+    final double[][] nodeWeight = new double[smile.getVolatilityData().getNumberExpiration()][smile.getVolatilityData().getNumberStrike()];
     final double dfDelivery = smile.getCurve(deliveryCurveName).getDiscountFactor(paymentTime);
     final double dfNonDelivery = smile.getCurve(nonDeliveryCurveName).getDiscountFactor(paymentTime);
     final double spot = smile.getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
     final double forward = spot * dfNonDelivery / dfDelivery;
     smile.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), expiryTime, strike, forward, nodeWeight);
     final DoublesPair point = DoublesPair.of(expiryTime, (optionForex.getCurrency1() == smile.getCurrencyPair().getFirst()) ? strike : 1.0 / strike);
-    final double[][] vega = new double[smile.getSmile().getNumberExpiration()][smile.getSmile().getNumberStrike()];
-    for (int loopexp = 0; loopexp < smile.getSmile().getNumberExpiration(); loopexp++) {
-      for (int loopstrike = 0; loopstrike < smile.getSmile().getNumberStrike(); loopstrike++) {
+    final double[][] vega = new double[smile.getVolatilityData().getNumberExpiration()][smile.getVolatilityData().getNumberStrike()];
+    for (int loopexp = 0; loopexp < smile.getVolatilityData().getNumberExpiration(); loopexp++) {
+      for (int loopstrike = 0; loopstrike < smile.getVolatilityData().getNumberStrike(); loopstrike++) {
         vega[loopexp][loopstrike] = nodeWeight[loopexp][loopstrike] * pointSensitivity.getVega().getMap().get(point);
       }
     }
-    return new PresentValueForexBlackVolatilityNodeSensitivityDataBundle(optionForex.getCurrency1(), optionForex.getCurrency2(), new DoubleMatrix1D(smile.getSmile().getTimeToExpiration()),
-        new DoubleMatrix1D(smile.getSmile().getDeltaFull()), new DoubleMatrix2D(vega));
+    return new PresentValueForexBlackVolatilityNodeSensitivityDataBundle(optionForex.getCurrency1(), optionForex.getCurrency2(), new DoubleMatrix1D(smile.getVolatilityData().getTimeToExpiration()),
+        new DoubleMatrix1D(smile.getVolatilityData().getDeltaFull()), new DoubleMatrix2D(vega));
   }
 
 }

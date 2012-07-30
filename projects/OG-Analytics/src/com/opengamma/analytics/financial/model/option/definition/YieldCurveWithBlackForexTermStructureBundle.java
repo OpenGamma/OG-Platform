@@ -5,8 +5,11 @@
  */
 package com.opengamma.analytics.financial.model.option.definition;
 
+import java.util.Map;
+
 import org.apache.commons.lang.ObjectUtils;
 
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -16,39 +19,40 @@ import com.opengamma.util.tuple.Pair;
  * Class describing a yield curve bundle with Black term structure volatility for Forex options.
  */
 public class YieldCurveWithBlackForexTermStructureBundle extends YieldCurveBundle {
+  private final BlackForexTermStructureParameters _termStructure;
+  private final Pair<Currency, Currency> _currencyPair;
 
   /**
-   * The Black volatility term structure. Not null.
+   * Constructor from the smile parameters and the curves.
+   * @param fxRates The FX cross rate matrix.
+   * @param curveCurrency A map linking each curve in the bundle to its currency.
+   * @param bundle The curves bundle.
+   * @param termStructure The term structure parameters.
+   * @param currencyPair The currency pair for which the smile is valid.
    */
-  private final BlackForexTermStructureParameters _parameters;
-
-  /**
-   * Constructor from Black term structure parameters and an existing bundle. 
-   * A new map is created for the bundle and only the curve and Forex data are copied.
-   * @param parameters The Black volatility term structure. Not null.
-   * @param bundle A yield curve bundle.
-   */
-  public YieldCurveWithBlackForexTermStructureBundle(BlackForexTermStructureParameters parameters, final YieldCurveBundle bundle) {
-    super(bundle);
-    ArgumentChecker.notNull(parameters, "Black volatility parameters");
-    this._parameters = parameters;
+  public YieldCurveWithBlackForexTermStructureBundle(final FXMatrix fxRates, final Map<String, Currency> curveCurrency, final YieldCurveBundle bundle,
+      final BlackForexTermStructureParameters termStructure, final Pair<Currency, Currency> currencyPair) {
+    super(bundle.getCurvesMap(), fxRates, curveCurrency);
+    ArgumentChecker.notNull(termStructure, "Black term structure");
+    _termStructure = termStructure;
+    _currencyPair = currencyPair;
   }
 
   @Override
   /**
-   * Create a new copy of the bundle using a new map and the same curve and curve names. The same BlackSwaptionParameters is used.
+   * Create a shallow copy of the bundle using a new map and the same curve and curve names.
    * @return The bundle.
    */
   public YieldCurveWithBlackForexTermStructureBundle copy() {
-    return new YieldCurveWithBlackForexTermStructureBundle(_parameters, this);
+    return new YieldCurveWithBlackForexTermStructureBundle(getFxRates(), getCcyMap(), this, _termStructure, _currencyPair);
   }
 
   /**
-   * Gets the Black volatility term structure.
-   * @return The surface.
+   * Gets the underlying volatility data.
+   * @return The underlying volatility data
    */
-  public BlackForexTermStructureParameters getBlackParameters() {
-    return _parameters;
+  public BlackForexTermStructureParameters getVolatilityData() {
+    return _termStructure;
   }
 
   /**
@@ -56,8 +60,8 @@ public class YieldCurveWithBlackForexTermStructureBundle extends YieldCurveBundl
    * @param time The time.
    * @return The volatility.
    */
-  public double getVolatility(double time) {
-    return _parameters.getVolatility(time);
+  public double getVolatility(final double time) {
+    return _termStructure.getVolatility(time);
   }
 
   /**
@@ -65,7 +69,7 @@ public class YieldCurveWithBlackForexTermStructureBundle extends YieldCurveBundl
    * @return The pair.
    */
   public Pair<Currency, Currency> getCurrencyPair() {
-    return _parameters.getCurrencyPair();
+    return _termStructure.getCurrencyPair();
   }
 
   /**
@@ -74,11 +78,11 @@ public class YieldCurveWithBlackForexTermStructureBundle extends YieldCurveBundl
    * @param ccy2 The other currency.
    * @return True if the currencies match the pair (in any order) and False otherwise.
    */
-  public boolean checkCurrencies(Currency ccy1, Currency ccy2) {
-    if ((ccy1 == _parameters.getCurrencyPair().getFirst()) && (ccy2 == _parameters.getCurrencyPair().getSecond())) {
+  public boolean checkCurrencies(final Currency ccy1, final Currency ccy2) {
+    if ((ccy1 == _termStructure.getCurrencyPair().getFirst()) && (ccy2 == _termStructure.getCurrencyPair().getSecond())) {
       return true;
     }
-    if ((ccy2 == _parameters.getCurrencyPair().getFirst()) && (ccy1 == _parameters.getCurrencyPair().getSecond())) {
+    if ((ccy2 == _termStructure.getCurrencyPair().getFirst()) && (ccy1 == _termStructure.getCurrencyPair().getSecond())) {
       return true;
     }
     return false;
@@ -88,12 +92,12 @@ public class YieldCurveWithBlackForexTermStructureBundle extends YieldCurveBundl
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + _parameters.hashCode();
+    result = prime * result + _termStructure.hashCode();
     return result;
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -103,8 +107,8 @@ public class YieldCurveWithBlackForexTermStructureBundle extends YieldCurveBundl
     if (getClass() != obj.getClass()) {
       return false;
     }
-    YieldCurveWithBlackForexTermStructureBundle other = (YieldCurveWithBlackForexTermStructureBundle) obj;
-    if (!ObjectUtils.equals(_parameters, other._parameters)) {
+    final YieldCurveWithBlackForexTermStructureBundle other = (YieldCurveWithBlackForexTermStructureBundle) obj;
+    if (!ObjectUtils.equals(_termStructure, other._termStructure)) {
       return false;
     }
     return true;

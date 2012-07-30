@@ -418,7 +418,7 @@ public final class ForexOptionVanillaBlackTermStructureMethod implements ForexPr
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(black, "Smile");
     Validate.isTrue(black.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
-    int nbParameters = black.getBlackParameters().getVolatilityCurve().size();
+    int nbParameters = black.getVolatilityData().getVolatilityCurve().size();
     final double df = black.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency2().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
     final double spot = black.getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
     final double forward = spot * black.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime())
@@ -427,7 +427,7 @@ public final class ForexOptionVanillaBlackTermStructureMethod implements ForexPr
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, df, volatility);
     final double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(optionForex, dataBlack);
     final double volatilitySensitivityValue = priceAdjoint[2] * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()) * (optionForex.isLong() ? 1.0 : -1.0);
-    final Double[] parameterSensitivity = black.getBlackParameters().getVolatilityParameterSensitivity(optionForex.getTimeToExpiry());
+    final Double[] parameterSensitivity = black.getVolatilityData().getVolatilityParameterSensitivity(optionForex.getTimeToExpiry());
     final double[] vega = new double[nbParameters];
     for (int loopparam = 0; loopparam < nbParameters; loopparam++) {
       vega[loopparam] = parameterSensitivity[loopparam] * volatilitySensitivityValue;
