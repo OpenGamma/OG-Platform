@@ -99,7 +99,7 @@ public class CalculationJobItemFudgeBuilder implements FudgeBuilder<CalculationJ
     if (field != null) {
       computationTargetSpecification = targets.get(((Number) field.getValue()).intValue());
     } else {
-      computationTargetSpecification = ComputationTargetSpecificationFudgeBuilder.buildObjectImpl(message);
+      computationTargetSpecification = ComputationTargetSpecificationFudgeBuilder.buildObjectImpl(deserializer, message);
       if (targets != null) {
         targets.put(targets.size(), computationTargetSpecification);
       }
