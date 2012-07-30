@@ -68,7 +68,7 @@ public class FXMatrix {
   public FXMatrix(final Currency ccy1, final Currency ccy2, final double fxRate) {
     _currencies = new LinkedHashMap<Currency, Integer>();
     _fxRates = new double[0][0];
-    this.addCurrency(ccy1, ccy2, fxRate);
+    addCurrency(ccy1, ccy2, fxRate);
   }
 
   /**
@@ -145,17 +145,18 @@ public class FXMatrix {
 
   /**
    * Convert a multiple currency amount into a amount in a given currency.
-   * @param amount The multiple currency amount.
+   * @param amount The multiple currency amount, not null
    * @param ccy The currency for the conversion.
    * @return The amount.
    */
   public CurrencyAmount convert(final MultipleCurrencyAmount amount, final Currency ccy) {
-    double convertion = 0;
+    ArgumentChecker.notNull(amount, "amount");
+    double conversion = 0;
     final CurrencyAmount[] ca = amount.getCurrencyAmounts();
     for (final CurrencyAmount element : ca) {
-      convertion += element.getAmount() * getFxRate(element.getCurrency(), ccy);
+      conversion += element.getAmount() * getFxRate(element.getCurrency(), ccy);
     }
-    return CurrencyAmount.of(ccy, convertion);
+    return CurrencyAmount.of(ccy, conversion);
   }
 
   /**

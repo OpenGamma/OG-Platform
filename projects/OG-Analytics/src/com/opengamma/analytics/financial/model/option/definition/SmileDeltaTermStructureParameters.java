@@ -30,7 +30,7 @@ public class SmileDeltaTermStructureParameters {
   /**
    * The interpolator/extrapolator used in the expiry dimension.
    */
-  private final Interpolator1D _interpolatorExpiry;
+  private final Interpolator1D _timeInterpolator;
 
   /**
    * The default interpolator: time square (total variance) with flat extrapolation.
@@ -50,17 +50,20 @@ public class SmileDeltaTermStructureParameters {
     for (int loopexp = 0; loopexp < nbExp; loopexp++) {
       _timeToExpiration[loopexp] = _volatilityTerm[loopexp].getTimeToExpiry();
     }
-    _interpolatorExpiry = DEFAULT_INTERPOLATOR_EXPIRY;
+    _timeInterpolator = DEFAULT_INTERPOLATOR_EXPIRY;
   }
 
   /**
    * Constructor from market data.
-   * @param timeToExpiration The time to expiration of each volatility smile.
+   * @param timeToExpiration The time to expiration of each volatility smile, not null
    * @param delta The delta at which the volatilities are given. Must be positive and sorted in ascending order. The put will have as delta the opposite of the numbers.
-   * Common to all time to expiration.
-   * @param volatility The volatilities at each delta.
+   * Common to all time to expiration. Not null
+   * @param volatility The volatilities at each delta, not null
    */
   public SmileDeltaTermStructureParameters(final double[] timeToExpiration, final double[] delta, final double[][] volatility) {
+    ArgumentChecker.notNull(timeToExpiration, "time to expiry");
+    ArgumentChecker.notNull(delta, "delta");
+    ArgumentChecker.notNull(volatility, "volatility");
     final int nbExp = timeToExpiration.length;
     ArgumentChecker.isTrue(volatility.length == nbExp, "Volatility length should be coherent with time to expiration length");
     ArgumentChecker.isTrue(volatility[0].length == 2 * delta.length + 1, "Risk volatility size should be coherent with time to delta length");
@@ -69,7 +72,8 @@ public class SmileDeltaTermStructureParameters {
     for (int loopexp = 0; loopexp < nbExp; loopexp++) {
       _volatilityTerm[loopexp] = new SmileDeltaParameters(timeToExpiration[loopexp], delta, volatility[loopexp]);
     }
-    _interpolatorExpiry = DEFAULT_INTERPOLATOR_EXPIRY;
+    _timeInterpolator = DEFAULT_INTERPOLATOR_EXPIRY;
+    ArgumentChecker.isTrue(_volatilityTerm[0].getVolatility().length > 1, "Need more than one volatility value to perform interpolation");
   }
 
   /**
@@ -86,15 +90,21 @@ public class SmileDeltaTermStructureParameters {
 
   /**
    * Constructor from market data.
-   * @param timeToExpiration The time to expiration of each volatility smile.
-   * @param delta The delta at which the volatilities are given. Common to all time to expiration.
-   * @param atm The ATM volatilities for each time to expiration. The length should be equal to the length of timeToExpiration.
-   * @param riskReversal The risk reversal figures.
-   * @param strangle The strangle figures.
-   * @param interpolatorExpiry The interpolator to be used in the time dimension.
+   * @param timeToExpiration The time to expiration of each volatility smile, not null
+   * @param delta The delta at which the volatilities are given. Common to all time to expiration. Not null
+   * @param atm The ATM volatilities for each time to expiration. The length should be equal to the length of timeToExpiration. Not null
+   * @param riskReversal The risk reversal figures, not null.
+   * @param strangle The strangle figures, not null.
+   * @param timeInterpolator The interpolator to be used in the time dimension, not null.
    */
   public SmileDeltaTermStructureParameters(final double[] timeToExpiration, final double[] delta, final double[] atm, final double[][] riskReversal, final double[][] strangle,
-      final Interpolator1D interpolatorExpiry) {
+      final Interpolator1D timeInterpolator) {
+    ArgumentChecker.notNull(timeToExpiration, "time to expiry");
+    ArgumentChecker.notNull(delta, "delta");
+    ArgumentChecker.notNull(atm, "ATM");
+    ArgumentChecker.notNull(riskReversal, "risk reversal");
+    ArgumentChecker.notNull(strangle, "strangle");
+    ArgumentChecker.notNull(timeInterpolator, "time interpolator");
     final int nbExp = timeToExpiration.length;
     ArgumentChecker.isTrue(atm.length == nbExp, "ATM length should be coherent with time to expiration length");
     ArgumentChecker.isTrue(riskReversal.length == nbExp, "Risk reversal length should be coherent with time to expiration length");
@@ -106,7 +116,8 @@ public class SmileDeltaTermStructureParameters {
     for (int loopexp = 0; loopexp < nbExp; loopexp++) {
       _volatilityTerm[loopexp] = new SmileDeltaParameters(timeToExpiration[loopexp], atm[loopexp], delta, riskReversal[loopexp], strangle[loopexp]);
     }
-    _interpolatorExpiry = interpolatorExpiry;
+    _timeInterpolator = timeInterpolator;
+    ArgumentChecker.isTrue(_volatilityTerm[0].getVolatility().length > 1, "Need more than one volatility value to perform interpolation");
   }
 
   /**
@@ -114,19 +125,18 @@ public class SmileDeltaTermStructureParameters {
    * @param time The time to expiration.
    * @return The smile.
    */
-  public SmileDeltaParameters smile(final double time) {
+  public SmileDeltaParameters getSmileForTime(final double time) {
     final int nbVol = _volatilityTerm[0].getVolatility().length;
-    ArgumentChecker.isTrue(nbVol > 1, "Need more than one volatility value to perform interpolation");
     final int nbTime = _timeToExpiration.length;
     ArgumentChecker.isTrue(nbTime > 1, "Need more than one time value to perform interpolation");
-    double[] volatilityT = new double[nbVol];
+    final double[] volatilityT = new double[nbVol];
     for (int loopvol = 0; loopvol < nbVol; loopvol++) {
-      double[] volDelta = new double[nbTime];
+      final double[] volDelta = new double[nbTime];
       for (int looptime = 0; looptime < nbTime; looptime++) {
         volDelta[looptime] = _volatilityTerm[looptime].getVolatility()[loopvol];
       }
       final ArrayInterpolator1DDataBundle interpData = new ArrayInterpolator1DDataBundle(_timeToExpiration, volDelta, true);
-      volatilityT[loopvol] = _interpolatorExpiry.interpolate(interpData, time);
+      volatilityT[loopvol] = _timeInterpolator.interpolate(interpData, time);
     }
     final SmileDeltaParameters smile = new SmileDeltaParameters(time, _volatilityTerm[0].getDelta(), volatilityT);
     return smile;
@@ -136,28 +146,28 @@ public class SmileDeltaTermStructureParameters {
    * Get the smile at a given time and the sensitivities with respect to the volatilities.
    * @param time The time to expiration.
    * @param volatilityAtTimeSensitivity The sensitivity to the volatilities of the smile at the given time.
-   * @param volatilitySensitivity The array is changed by the method. The array should have the correct size (nbExpiry x nbVolatility). 
+   * @param volatilitySensitivity The array is changed by the method. The array should have the correct size (nbExpiry x nbVolatility).
    * After the methods, it contains the volatility sensitivity to the data points.
    * @return The smile
    */
-  public SmileDeltaParameters smile(final double time, final double[] volatilityAtTimeSensitivity, final double[][] volatilitySensitivity) {
+  public SmileDeltaParameters getSmileAndSensitivitiesForTime(final double time, final double[] volatilityAtTimeSensitivity, final double[][] volatilitySensitivity) {
     final int nbVol = _volatilityTerm[0].getVolatility().length;
     ArgumentChecker.isTrue(volatilityAtTimeSensitivity.length == nbVol, "Sensitivity with incorrect size");
     ArgumentChecker.isTrue(nbVol > 1, "Need more than one volatility value to perform interpolation");
     final int nbTime = _timeToExpiration.length;
     ArgumentChecker.isTrue(nbTime > 1, "Need more than one time value to perform interpolation");
-    double[] volatilityT = new double[nbVol];
+    final double[] volatilityT = new double[nbVol];
     for (int loopvol = 0; loopvol < nbVol; loopvol++) {
-      double[] volDelta = new double[nbTime];
+      final double[] volDelta = new double[nbTime];
       for (int looptime = 0; looptime < nbTime; looptime++) {
         volDelta[looptime] = _volatilityTerm[looptime].getVolatility()[loopvol];
       }
       final ArrayInterpolator1DDataBundle interpData = new ArrayInterpolator1DDataBundle(_timeToExpiration, volDelta, true);
-      double[] volatilitySensitivityVol = _interpolatorExpiry.getNodeSensitivitiesForValue(interpData, time);
+      final double[] volatilitySensitivityVol = _timeInterpolator.getNodeSensitivitiesForValue(interpData, time);
       for (int looptime = 0; looptime < nbTime; looptime++) {
         volatilitySensitivity[looptime][loopvol] = volatilitySensitivityVol[looptime] * volatilityAtTimeSensitivity[loopvol];
       }
-      volatilityT[loopvol] = _interpolatorExpiry.interpolate(interpData, time);
+      volatilityT[loopvol] = _timeInterpolator.interpolate(interpData, time);
     }
     final SmileDeltaParameters smile = new SmileDeltaParameters(time, _volatilityTerm[0].getDelta(), volatilityT);
     return smile;

@@ -28,6 +28,7 @@ public class YieldCurveWithBlackForexTermStructureBundle extends YieldCurveBundl
   public YieldCurveWithBlackForexTermStructureBundle(final YieldCurveBundle ycBundle, final BlackForexTermStructureParameters termStructure, final Pair<Currency, Currency> currencyPair) {
     super(ycBundle);
     ArgumentChecker.notNull(termStructure, "Black term structure");
+    ArgumentChecker.notNull(currencyPair, "currency pair");
     _termStructure = termStructure;
     _currencyPair = currencyPair;
   }
@@ -50,20 +51,11 @@ public class YieldCurveWithBlackForexTermStructureBundle extends YieldCurveBundl
   }
 
   /**
-   * Returns the volatility for a given time to expiration.
-   * @param time The time.
-   * @return The volatility.
-   */
-  public double getVolatility(final double time) {
-    return _termStructure.getVolatility(time);
-  }
-
-  /**
    * Returns the currency pair for which the Forex volatility data is valid.
    * @return The pair.
    */
   public Pair<Currency, Currency> getCurrencyPair() {
-    return _termStructure.getCurrencyPair();
+    return _currencyPair;
   }
 
   /**
@@ -73,10 +65,10 @@ public class YieldCurveWithBlackForexTermStructureBundle extends YieldCurveBundl
    * @return True if the currencies match the pair (in any order) and False otherwise.
    */
   public boolean checkCurrencies(final Currency ccy1, final Currency ccy2) {
-    if ((ccy1 == _termStructure.getCurrencyPair().getFirst()) && (ccy2 == _termStructure.getCurrencyPair().getSecond())) {
+    if ((ccy1.equals(_currencyPair.getFirst())) && ccy2.equals(_currencyPair.getSecond())) {
       return true;
     }
-    if ((ccy2 == _termStructure.getCurrencyPair().getFirst()) && (ccy1 == _termStructure.getCurrencyPair().getSecond())) {
+    if ((ccy2.equals(_currencyPair.getFirst())) && ccy1.equals(_currencyPair.getSecond())) {
       return true;
     }
     return false;

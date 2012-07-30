@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.model.option.definition;
 
+import java.util.Collection;
+
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
@@ -35,6 +37,12 @@ public class SmileDeltaTermStructureDataBundle extends YieldCurveBundle {
   public SmileDeltaTermStructureDataBundle(final YieldCurveBundle ycBundle, final SmileDeltaTermStructureParametersStrikeInterpolation smile, final Pair<Currency, Currency> currencyPair) {
     super(ycBundle);
     ArgumentChecker.notNull(smile, "Smile parameters");
+    ArgumentChecker.notNull(currencyPair, "currency pair");
+    final Collection<Currency> currencies = getCcyMap().values();
+    final Currency firstCurrency = currencyPair.getFirst();
+    final Currency secondCurrency = currencyPair.getSecond();
+    ArgumentChecker.isTrue(currencies.contains(firstCurrency), "Curve currency map does not contain currency {}", firstCurrency);
+    ArgumentChecker.isTrue(currencies.contains(secondCurrency), "Curve currency map does not contain currency {}", secondCurrency);
     //TODO: check rate is available for currency pair.
     _smile = smile;
     _currencyPair = currencyPair;
@@ -77,8 +85,7 @@ public class SmileDeltaTermStructureDataBundle extends YieldCurveBundle {
     if ((ccy2 == _currencyPair.getFirst()) && (ccy1 == _currencyPair.getSecond())) {
       return _smile.getVolatility(time, 1.0 / strike, 1.0 / forward);
     }
-    Validate.isTrue(false, "Currencies not compatible with smile data");
-    return 0.0;
+    throw new IllegalArgumentException("Currencies not compatible with smile data; asked for " + ccy1 + " and " + ccy2 + ", have " + getCcyMap().values());
   }
 
   /**
@@ -110,10 +117,10 @@ public class SmileDeltaTermStructureDataBundle extends YieldCurveBundle {
    * @return True if the currencies match the pair (in any order) and False otherwise.
    */
   public boolean checkCurrencies(final Currency ccy1, final Currency ccy2) {
-    if ((ccy1 == _currencyPair.getFirst()) && (ccy2 == _currencyPair.getSecond())) {
+    if ((ccy1.equals(_currencyPair.getFirst())) && ccy2.equals(_currencyPair.getSecond())) {
       return true;
     }
-    if ((ccy2 == _currencyPair.getFirst()) && (ccy1 == _currencyPair.getSecond())) {
+    if ((ccy2.equals(_currencyPair.getFirst())) && ccy1.equals(_currencyPair.getSecond())) {
       return true;
     }
     return false;

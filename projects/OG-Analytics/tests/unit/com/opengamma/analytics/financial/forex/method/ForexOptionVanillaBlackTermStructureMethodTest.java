@@ -82,7 +82,7 @@ public class ForexOptionVanillaBlackTermStructureMethodTest {
   private static final YieldCurveBundle CURVES_FX = new YieldCurveBundle(CURVES.getCurvesMap(), FX_MATRIX, CURVE_CURRENCY);
   private static final String[] CURVES_NAME = TestsDataSetsForex.curveNames();
   private static final ObjectsPair<Currency, Currency> CCY = new ObjectsPair<Currency, Currency>(EUR, USD);
-  private static final BlackForexTermStructureParameters BLACK_TS_VOL = new BlackForexTermStructureParameters(TERM_STRUCTURE_VOL, CCY);
+  private static final BlackForexTermStructureParameters BLACK_TS_VOL = new BlackForexTermStructureParameters(TERM_STRUCTURE_VOL);
   private static final YieldCurveWithBlackForexTermStructureBundle BUNDLE_BLACK_TS = new YieldCurveWithBlackForexTermStructureBundle(CURVES, BLACK_TS_VOL, CURRENCY_PAIR);
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
   private static final ForexOptionVanillaBlackTermStructureMethod METHOD_BLACK_TS = ForexOptionVanillaBlackTermStructureMethod.getInstance();
@@ -139,7 +139,8 @@ public class ForexOptionVanillaBlackTermStructureMethodTest {
     final MultipleCurrencyAmount pvCall = METHOD_BLACK_TS.presentValue(CALL_LONG, BUNDLE_BLACK_TS);
     final MultipleCurrencyAmount pvPut = METHOD_BLACK_TS.presentValue(PUT_SHORT, BUNDLE_BLACK_TS);
     final MultipleCurrencyAmount pvForward = PVC_BLACK_TS.visit(FX, CURVES_FX);
-    assertEquals("Forex vanilla option: present value put/call parity", BUNDLE_BLACK_TS.convert(pvForward, EUR).getAmount(), BUNDLE_BLACK_TS.convert(pvCall.plus(pvPut), EUR).getAmount(), TOLERANCE_PV);
+    assertEquals("Forex vanilla option: present value put/call parity", BUNDLE_BLACK_TS.getFxRates().convert(pvForward, EUR).getAmount(),
+        BUNDLE_BLACK_TS.getFxRates().convert(pvCall.plus(pvPut), EUR).getAmount(), TOLERANCE_PV);
   }
 
   @Test

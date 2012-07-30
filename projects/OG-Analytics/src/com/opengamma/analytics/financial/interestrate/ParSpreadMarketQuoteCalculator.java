@@ -22,7 +22,7 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 
 /**
- * Compute the spread to be added to the market standard quote of the instrument for which the present value of the instrument is zero. 
+ * Compute the spread to be added to the market standard quote of the instrument for which the present value of the instrument is zero.
  * The notion of "market quote" will depend of each instrument.
  */
 public final class ParSpreadMarketQuoteCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
@@ -76,7 +76,7 @@ public final class ParSpreadMarketQuoteCalculator extends AbstractInstrumentDeri
 
   /**
    * For swaps the ParSpread is the spread to be added on each coupon of the first leg to obtain a present value of zero.
-   * It is computed as the opposite of the present value of the swap in currency of the first leg divided by the present value of a basis point 
+   * It is computed as the opposite of the present value of the swap in currency of the first leg divided by the present value of a basis point
    * of the first leg (as computed by the PresentValueBasisPointCalculator).
    * @param swap The swap.
    * @param curves The yield curve bundle.
@@ -86,7 +86,7 @@ public final class ParSpreadMarketQuoteCalculator extends AbstractInstrumentDeri
   public Double visitSwap(final Swap<?, ?> swap, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(swap);
-    return -curves.convert(PVMCC.visit(swap, curves), swap.getFirstLeg().getCurrency()).getAmount() / PVBPC.visit(swap.getFirstLeg(), curves);
+    return -curves.getFxRates().convert(PVMCC.visit(swap, curves), swap.getFirstLeg().getCurrency()).getAmount() / PVBPC.visit(swap.getFirstLeg(), curves);
   }
 
   @Override

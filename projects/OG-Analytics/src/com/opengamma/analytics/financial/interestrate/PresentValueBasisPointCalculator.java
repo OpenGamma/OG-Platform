@@ -26,8 +26,8 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Computes the present value change when the rate/market quote changes by 1 (it is not rescaled to 1 basis point). 
- * The meaning of "rate/market quote" will change for each instrument. 
+ * Computes the present value change when the rate/market quote changes by 1 (it is not rescaled to 1 basis point).
+ * The meaning of "rate/market quote" will change for each instrument.
  * For Coupon, FRA and Deposit the result is the discounted accrual factor multiplied by the notional.
  * For PaymentFixed, it is 0 (there is no rate).
  * For annuities, it is the sum of pvbp of all payments.
@@ -155,8 +155,8 @@ public final class PresentValueBasisPointCalculator extends AbstractInstrumentDe
   @Override
   public Double visitForexSwap(final ForexSwap derivative, final YieldCurveBundle curves) {
     final YieldAndDiscountCurve dsc2 = curves.getCurve(derivative.getFarLeg().getPaymentCurrency2().getFundingCurveName());
-    double pvPtCcy2 = dsc2.getDiscountFactor(derivative.getFarLeg().getPaymentTime()) * -derivative.getFarLeg().getPaymentCurrency1().getAmount();
-    return curves.getFxRate(derivative.getFarLeg().getCurrency2(), derivative.getFarLeg().getCurrency1()) * pvPtCcy2;
+    final double pvPtCcy2 = dsc2.getDiscountFactor(derivative.getFarLeg().getPaymentTime()) * -derivative.getFarLeg().getPaymentCurrency1().getAmount();
+    return curves.getFxRates().getFxRate(derivative.getFarLeg().getCurrency2(), derivative.getFarLeg().getCurrency1()) * pvPtCcy2;
   }
 
 }

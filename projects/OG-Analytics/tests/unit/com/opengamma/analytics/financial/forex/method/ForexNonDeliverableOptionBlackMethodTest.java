@@ -124,7 +124,7 @@ public class ForexNonDeliverableOptionBlackMethodTest {
   public void currencyExposureVsPresentValue() {
     final MultipleCurrencyAmount pv = METHOD_NDO.presentValue(NDO, SMILE_BUNDLE);
     final MultipleCurrencyAmount ce = METHOD_NDO.currencyExposure(NDO, SMILE_BUNDLE);
-    final double usdKrw = CURVES.getFxRate(USD, KRW);
+    final double usdKrw = CURVES.getFxRates().getFxRate(USD, KRW);
     assertEquals("Forex vanilla option: currency exposure vs present value", ce.getAmount(USD) + ce.getAmount(KRW) / usdKrw, pv.getAmount(USD), 1E-2);
   }
 
