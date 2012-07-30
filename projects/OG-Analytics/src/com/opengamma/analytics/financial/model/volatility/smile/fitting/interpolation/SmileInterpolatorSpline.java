@@ -5,16 +5,18 @@
  */
 package com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation;
 
-import org.apache.commons.lang.ObjectUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.opengamma.analytics.math.differentiation.ScalarFirstOrderDifferentiator;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.util.ArgumentChecker;
+
+import java.util.Arrays;
+
+import org.apache.commons.lang.ObjectUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Fits a set of implied volatilities at given strikes by interpolating log-moneyness (ln(strike/forward)) against implied volatility using the supplied interpolator (the default
@@ -81,16 +83,20 @@ public class SmileInterpolatorSpline implements GeneralSmileInterpolator {
     double gradL = dSigmaDx.evaluate(kL);
     double gradH = dSigmaDx.evaluate(kH);
 
-    // Low strike extrapolation // TODO Review 
-    final double[] shiftLnVolLow;
-    shiftLnVolLow = TAIL_FITTER.fitVolatilityAndGrad(forward, kL, volL, gradL, expiry);
-
     // High strike extrapolation
-    final double[] shiftLnVolHigh;
-    shiftLnVolHigh = TAIL_FITTER.fitVolatilityAndGrad(forward, kH, volH, gradH, expiry);
+    double[] highShiftAndVol;
+    try {
+      highShiftAndVol = TAIL_FITTER.fitVolatilityAndGrad(forward, kH, volH, gradH, expiry);
+    } catch (Exception e) {
+      highShiftAndVol = TAIL_FITTER.fitVolatilityAndGrad(forward, strikes[n - 2], impliedVols[n - 2], dSigmaDx.evaluate(strikes[n - 2]), expiry);
+    }
+    final double[] shiftLnVolHigh = highShiftAndVol;
+
+    // Low strike extrapolation // TODO Review 
+    final double[] shiftLnVolLow = findLowerShiftedLognormalParams(forward, strikes, impliedVols, dSigmaDx, expiry, TAIL_FITTER);
 
     // Resulting Functional Vol Surface
-    return new Function1D<Double, Double>() {
+    Function1D<Double, Double> volSmileFunction = new Function1D<Double, Double>() {
       @Override
       public Double evaluate(final Double k) {
         if (k < kL) {
@@ -103,6 +109,24 @@ public class SmileInterpolatorSpline implements GeneralSmileInterpolator {
       }
     };
 
+    //    for (int k = 0; k < 2000; k = k + 100) {
+    //      System.out.println(k + "," + volSmileFunction.evaluate((double) k));
+    //    }
+
+    return volSmileFunction;
+  }
+
+  private double[] findLowerShiftedLognormalParams(double forward, double[] strikes, double[] vols, Function1D<Double, Double> dSigmaDx, double expiry,
+      ShiftedLogNormalTailExtrapolationFitter fitter) {
+    double[] shiftAndVol;
+    try {
+      shiftAndVol = fitter.fitVolatilityAndGrad(forward, strikes[0], vols[0], dSigmaDx.evaluate(strikes[0]), expiry);
+    } catch (Exception e) {
+      LOG.error("Extrapolation - Caught " + e + "\nExpiry = " + expiry + "- failed to fit left tail to " + strikes[0] + ". Check volatilities. Using next strike in domain");
+      return findLowerShiftedLognormalParams(forward, Arrays.copyOfRange(strikes, 1, strikes.length), Arrays.copyOfRange(vols, 1, vols.length), dSigmaDx, expiry, fitter);
+
+    }
+    return shiftAndVol;
   }
 
   public Interpolator1D getInterpolator() {
