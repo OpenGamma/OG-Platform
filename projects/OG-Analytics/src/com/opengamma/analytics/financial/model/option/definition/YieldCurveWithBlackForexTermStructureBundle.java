@@ -5,11 +5,8 @@
  */
 package com.opengamma.analytics.financial.model.option.definition;
 
-import java.util.Map;
-
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -24,15 +21,12 @@ public class YieldCurveWithBlackForexTermStructureBundle extends YieldCurveBundl
 
   /**
    * Constructor from the smile parameters and the curves.
-   * @param fxRates The FX cross rate matrix.
-   * @param curveCurrency A map linking each curve in the bundle to its currency.
-   * @param bundle The curves bundle.
+   * @param ycBundle The curves bundle.
    * @param termStructure The term structure parameters.
    * @param currencyPair The currency pair for which the smile is valid.
    */
-  public YieldCurveWithBlackForexTermStructureBundle(final FXMatrix fxRates, final Map<String, Currency> curveCurrency, final YieldCurveBundle bundle,
-      final BlackForexTermStructureParameters termStructure, final Pair<Currency, Currency> currencyPair) {
-    super(bundle.getCurvesMap(), fxRates, curveCurrency);
+  public YieldCurveWithBlackForexTermStructureBundle(final YieldCurveBundle ycBundle, final BlackForexTermStructureParameters termStructure, final Pair<Currency, Currency> currencyPair) {
+    super(ycBundle);
     ArgumentChecker.notNull(termStructure, "Black term structure");
     _termStructure = termStructure;
     _currencyPair = currencyPair;
@@ -44,7 +38,7 @@ public class YieldCurveWithBlackForexTermStructureBundle extends YieldCurveBundl
    * @return The bundle.
    */
   public YieldCurveWithBlackForexTermStructureBundle copy() {
-    return new YieldCurveWithBlackForexTermStructureBundle(getFxRates(), getCcyMap(), this, _termStructure, _currencyPair);
+    return new YieldCurveWithBlackForexTermStructureBundle(this, _termStructure, _currencyPair);
   }
 
   /**

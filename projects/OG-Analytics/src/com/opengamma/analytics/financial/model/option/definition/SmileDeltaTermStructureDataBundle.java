@@ -5,11 +5,8 @@
  */
 package com.opengamma.analytics.financial.model.option.definition;
 
-import java.util.Map;
-
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -31,15 +28,12 @@ public class SmileDeltaTermStructureDataBundle extends YieldCurveBundle {
 
   /**
    * Constructor from the smile parameters and the curves.
-   * @param fxRates The FX cross rate matrix.
-   * @param curveCurrency A map linking each curve in the bundle to its currency.
    * @param ycBundle The curves bundle.
    * @param smile The smile parameters.
    * @param currencyPair The currency pair for which the smile is valid.
    */
-  public SmileDeltaTermStructureDataBundle(final FXMatrix fxRates, final Map<String, Currency> curveCurrency, final YieldCurveBundle ycBundle,
-      final SmileDeltaTermStructureParametersStrikeInterpolation smile, final Pair<Currency, Currency> currencyPair) {
-    super(ycBundle.getCurvesMap(), fxRates, curveCurrency);
+  public SmileDeltaTermStructureDataBundle(final YieldCurveBundle ycBundle, final SmileDeltaTermStructureParametersStrikeInterpolation smile, final Pair<Currency, Currency> currencyPair) {
+    super(ycBundle);
     ArgumentChecker.notNull(smile, "Smile parameters");
     //TODO: check rate is available for currency pair.
     _smile = smile;
@@ -52,7 +46,7 @@ public class SmileDeltaTermStructureDataBundle extends YieldCurveBundle {
    * @return The bundle.
    */
   public SmileDeltaTermStructureDataBundle copy() {
-    return new SmileDeltaTermStructureDataBundle(getFxRates(), getCcyMap(), this, _smile, _currencyPair);
+    return new SmileDeltaTermStructureDataBundle(this, _smile, _currencyPair);
   }
 
   /**

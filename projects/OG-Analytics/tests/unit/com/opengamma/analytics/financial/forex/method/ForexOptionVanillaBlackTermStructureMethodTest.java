@@ -83,7 +83,7 @@ public class ForexOptionVanillaBlackTermStructureMethodTest {
   private static final String[] CURVES_NAME = TestsDataSetsForex.curveNames();
   private static final ObjectsPair<Currency, Currency> CCY = new ObjectsPair<Currency, Currency>(EUR, USD);
   private static final BlackForexTermStructureParameters BLACK_TS_VOL = new BlackForexTermStructureParameters(TERM_STRUCTURE_VOL, CCY);
-  private static final YieldCurveWithBlackForexTermStructureBundle BUNDLE_BLACK_TS = new YieldCurveWithBlackForexTermStructureBundle(FX_MATRIX, CURVE_CURRENCY, CURVES, BLACK_TS_VOL, CURRENCY_PAIR);
+  private static final YieldCurveWithBlackForexTermStructureBundle BUNDLE_BLACK_TS = new YieldCurveWithBlackForexTermStructureBundle(CURVES, BLACK_TS_VOL, CURRENCY_PAIR);
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
   private static final ForexOptionVanillaBlackTermStructureMethod METHOD_BLACK_TS = ForexOptionVanillaBlackTermStructureMethod.getInstance();
   private static final PresentValueBlackTermStructureForexCalculator PVC_BLACK_TS = PresentValueBlackTermStructureForexCalculator.getInstance();
@@ -97,7 +97,7 @@ public class ForexOptionVanillaBlackTermStructureMethodTest {
   private static final double[][] STRANGLE_FLAT = new double[][] { {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}};
   private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM_FLAT = new SmileDeltaTermStructureParametersStrikeInterpolation(TIME_TO_EXPIRY, DELTA, VOL, RISK_REVERSAL_FLAT,
       STRANGLE_FLAT, LINEAR_FLAT, LINEAR_FLAT);
-  private static final SmileDeltaTermStructureDataBundle BUNDLE_SMILE = new SmileDeltaTermStructureDataBundle(FX_MATRIX, CURVE_CURRENCY, CURVES, SMILE_TERM_FLAT, CCY);
+  private static final SmileDeltaTermStructureDataBundle BUNDLE_SMILE = new SmileDeltaTermStructureDataBundle(CURVES, SMILE_TERM_FLAT, CCY);
 
   // Some options
   private static final double STRIKE = 1.45;

@@ -72,7 +72,7 @@ public final class ForexOptionVanillaVannaVolgaMethod implements ForexPricingMet
     final double dfForeign = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
     final double spot = smile.getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
     final double forward = spot * dfForeign / dfDomestic;
-    SmileDeltaParameters smileAtTime = smile.smile(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry());
+    SmileDeltaParameters smileAtTime = smile.getSmile(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry());
     double[] strikesVV = smileAtTime.getStrike(forward);
     double[] volVV = smileAtTime.getVolatility();
     double volATM = volVV[1];
@@ -117,7 +117,7 @@ public final class ForexOptionVanillaVannaVolgaMethod implements ForexPricingMet
     final double dfForeign = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
     final double spot = smile.getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
     final double forward = spot * dfForeign / dfDomestic;
-    SmileDeltaParameters smileAtTime = smile.smile(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry());
+    SmileDeltaParameters smileAtTime = smile.getSmile(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry());
     double[] strikesVV = smileAtTime.getStrike(forward);
     double[] volVV = smileAtTime.getVolatility();
     double volATM = volVV[1];
@@ -173,7 +173,7 @@ public final class ForexOptionVanillaVannaVolgaMethod implements ForexPricingMet
     final double dfForeign = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
     final double spot = smile.getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
     final double forward = spot * dfForeign / dfDomestic;
-    SmileDeltaParameters smileAtTime = smile.smile(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry());
+    SmileDeltaParameters smileAtTime = smile.getSmile(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry());
     double[] strikesVV = smileAtTime.getStrike(forward);
     double[] volVV = smileAtTime.getVolatility();
     double volATM = volVV[1];
@@ -221,7 +221,7 @@ public final class ForexOptionVanillaVannaVolgaMethod implements ForexPricingMet
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smile, "Smile");
     Validate.isTrue(smile.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
-    SmileDeltaParameters smileAtTime = smile.smile(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry());
+    SmileDeltaParameters smileAtTime = smile.getSmile(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry());
     final double payTime = optionForex.getUnderlyingForex().getPaymentTime();
     final String domesticCurveName = optionForex.getUnderlyingForex().getPaymentCurrency2().getFundingCurveName();
     final String foreignCurveName = optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName();

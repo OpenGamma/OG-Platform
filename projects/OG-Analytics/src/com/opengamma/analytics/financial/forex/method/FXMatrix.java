@@ -10,7 +10,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -108,8 +107,8 @@ public class FXMatrix {
       _fxRates[0][1] = 1.0 / fxRate;
       _nbCurrencies = 2;
     } else {
-      Validate.isTrue(_currencies.containsKey(ccyReference), "Reference currency not in the FX matrix");
-      Validate.isTrue(!_currencies.containsKey(ccyToAdd), "New currency already in the FX matrix");
+      ArgumentChecker.isTrue(_currencies.containsKey(ccyReference), "Reference currency {} not in the FX matrix", ccyReference);
+      ArgumentChecker.isTrue(!_currencies.containsKey(ccyToAdd), "New currency {} already in the FX matrix", ccyToAdd);
       _currencies.put(ccyToAdd, _nbCurrencies);
       _nbCurrencies++;
       final double[][] fxRatesNew = new double[_nbCurrencies][_nbCurrencies];
