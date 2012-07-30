@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.equity.futures;
@@ -22,6 +22,7 @@ import com.opengamma.analytics.financial.equity.future.pricing.EquityFuturePrice
 import com.opengamma.analytics.financial.equity.future.pricing.EquityFuturesPricer;
 import com.opengamma.analytics.financial.equity.future.pricing.EquityFuturesPricingMethod;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -102,14 +103,14 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
    * @param target The HbComputationTargetSpecification is a TradeImpl
    */
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
-    final SimpleTrade trade = (SimpleTrade) target.getTrade();
+    final Trade trade = target.getTrade();
     final EquityFutureSecurity security = (EquityFutureSecurity) trade.getSecurity();
     final ZonedDateTime valuationTime = executionContext.getValuationClock().zonedDateTime();
+    // Get reference price
     final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
     final Double lastMarginPrice = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle()).getTimeSeries().getLatestValue();
-    trade.setPremium(lastMarginPrice); // TODO !!! Issue of futures and margining
-    // Build the analytic's version of the security - the derivative    
-    final EquityFutureDefinition definition = _financialToAnalyticConverter.visitEquityFutureTrade(trade);
+    // Build the analytic's version of the security - the derivative
+    final EquityFutureDefinition definition = _financialToAnalyticConverter.visitEquityFutureTrade(trade, lastMarginPrice);
     final EquityFuture derivative = definition.toDerivative(valuationTime);
     // Build the DataBundle it requires
     final EquityFutureDataBundle dataBundle;
@@ -139,10 +140,10 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
 
   /**
    * Given _valueRequirement and _pricingMethod supplied, this calls to OG-Analytics.
-   * 
+   *
    * @return Call to the Analytics to get the value required
    */
-  private Set<ComputedValue> getComputedValue(EquityFuture derivative, EquityFutureDataBundle bundle, SimpleTrade trade) {
+  private Set<ComputedValue> getComputedValue(EquityFuture derivative, EquityFutureDataBundle bundle, Trade trade) {
 
     final double nContracts = trade.getQuantity().doubleValue();
     final double valueItself;
@@ -175,7 +176,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
     if (target.getType() != ComputationTargetType.TRADE) {
       return false;
     }
-    return target.getTrade().getSecurity() instanceof com.opengamma.financial.security.future.EquityFutureSecurity;
+    return target.getTrade().getSecurity() instanceof EquityFutureSecurity;
   }
 
   @Override
@@ -308,7 +309,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
 
   /**
    * Create a ValueSpecification, the meta data for the value itself.
-   * 
+   *
    * @param equityFuture
    * @param equityFutureSecurity The OG_Financial Security
    */
