@@ -105,7 +105,7 @@ public class BloombergHistoricalLoaderTest extends DbTest {
     
     _master = setUpTimeSeriesMaster(transactionManager);
     _historicalTimeSeriesSource = new TestBulkHistoricalTimeSeriesProvider();
-    PositionMaster positionMaster = setUpPositionMaster(transactionManager);
+    PositionMaster positionMaster = setUpPositionMaster();
     _positionMaster = positionMaster;
     
     BloombergConnector connector = BloombergTestUtils.getBloombergConnector();
@@ -119,7 +119,7 @@ public class BloombergHistoricalLoaderTest extends DbTest {
     _loader = loader;
   }
 
-  private PositionMaster setUpPositionMaster(DataSourceTransactionManager transactionManager) {
+  private PositionMaster setUpPositionMaster() {
     DbConnector dbConnector = getDbConnector();
     DbPositionMaster positionMaster = new DbPositionMaster(dbConnector);
     return positionMaster;
