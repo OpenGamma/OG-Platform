@@ -70,7 +70,7 @@ public class BondFutureOptionLoader extends SecurityLoader {
   /**
    * The valid Bloomberg security types for Interest Rate Future Option
    */
-  public static final Set<String> VALID_SECURITY_TYPES = ImmutableSet.of(BloombergConstants.BLOOMBERG_BOND_FUTURE_TYPE, BloombergConstants.BLOOMBERG_FINANCIAL_COMMODITY_FUTURE_TYPE);
+  public static final Set<String> VALID_SECURITY_TYPES = ImmutableSet.of(BloombergConstants.BLOOMBERG_BOND_FUTURE_TYPE);
 
   /**
    * Creates an instance.

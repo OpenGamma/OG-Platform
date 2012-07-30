@@ -95,7 +95,9 @@ public class BloombergRateClassifier {
       case CASH:
       case FRA:
       case INTEREST_RATE_FUTURE:
+      case BOND_FUTURE:
       case IR_FUTURE_OPTION:
+      case BOND_FUTURE_OPTION:
       case RATE:
       case SWAP:
       case VOLATILITY_QUOTE:
