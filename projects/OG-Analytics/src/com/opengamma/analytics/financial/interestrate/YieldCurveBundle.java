@@ -49,7 +49,24 @@ public class YieldCurveBundle {
   /**
    * Constructor from existing currency map and existing fxMatrix. A new curve map is created. The currency map and FXMatrix are directly used.
    * @param fxMatrix The FXMatrix.
-   * @param curveCurrency The map of currencies.
+   * @param curveCurrency The map of currency names to currency
+   * @param curvesMap The map of curve names to curve
+   */
+  public YieldCurveBundle(final FXMatrix fxMatrix, final Map<String, Currency> curveCurrency, final Map<String, ? extends YieldAndDiscountCurve> curvesMap) {
+    _curves = new LinkedHashMap<String, YieldAndDiscountCurve>();
+    if (curvesMap != null) {
+      Validate.noNullElements(curvesMap.keySet());
+      Validate.noNullElements(curvesMap.values());
+      _curves.putAll(curvesMap);
+    }
+    _curveCurrency = curveCurrency;
+    _fxMatrix = fxMatrix;
+  }
+
+  /**
+   * Constructor from existing currency map and existing fxMatrix. A new curve map is created. The currency map and FXMatrix are directly used.
+   * @param fxMatrix The FXMatrix.
+   * @param curveCurrency The map of currency names to currency
    */
   public YieldCurveBundle(final FXMatrix fxMatrix, final Map<String, Currency> curveCurrency) {
     _curves = new LinkedHashMap<String, YieldAndDiscountCurve>();
@@ -71,7 +88,7 @@ public class YieldCurveBundle {
   }
 
   /**
-   * Constructor from an array of names and curves. The two arrays should have the same length. 
+   * Constructor from an array of names and curves. The two arrays should have the same length.
    * The names and curves are linked in the order of the arrays.
    * @param names The names.
    * @param curves The curves.
@@ -102,7 +119,7 @@ public class YieldCurveBundle {
   }
 
   /**
-   * Constructor from an array of names and curves. The two arrays should have the same length. 
+   * Constructor from an array of names and curves. The two arrays should have the same length.
    * The names and curves are linked in the order of the arrays.
    * @param names The names.
    * @param curves The curves.
@@ -127,7 +144,7 @@ public class YieldCurveBundle {
    * Constructor from a bundle. A new map is created.
    * @param bundle A bundle.
    */
-  public YieldCurveBundle(YieldCurveBundle bundle) {
+  public YieldCurveBundle(final YieldCurveBundle bundle) {
     Validate.notNull(bundle);
     _curves = new LinkedHashMap<String, YieldAndDiscountCurve>(bundle._curves);
     _curveCurrency = new HashMap<String, Currency>(bundle._curveCurrency);
@@ -143,10 +160,10 @@ public class YieldCurveBundle {
   }
 
   /**
-   * Add a new curve to the bundle. 
+   * Add a new curve to the bundle.
    * @param name The curve name.
    * @param curve The curve.
-   * @throws IllegalArgumentException if curve name already present 
+   * @throws IllegalArgumentException if curve name already present
    */
   public void setCurve(final String name, final YieldAndDiscountCurve curve) {
     Validate.notNull(name, "name");
@@ -161,7 +178,7 @@ public class YieldCurveBundle {
    * Replace an existing curve with a new one.
    * @param name The curve name.
    * @param curve The curve.
-   *  @throws IllegalArgumentException if curve name NOT already present 
+   *  @throws IllegalArgumentException if curve name NOT already present
    */
   public void replaceCurve(final String name, final YieldAndDiscountCurve curve) {
     Validate.notNull(name, "name");
@@ -221,7 +238,7 @@ public class YieldCurveBundle {
    * @return The currency.
    */
   public Currency getCurveCurrency(final String curveName) {
-    Currency ccy = _curveCurrency.get(curveName);
+    final Currency ccy = _curveCurrency.get(curveName);
     if (ccy == null) {
       throw new IllegalArgumentException("Named yield curve not in map: " + curveName);
     }

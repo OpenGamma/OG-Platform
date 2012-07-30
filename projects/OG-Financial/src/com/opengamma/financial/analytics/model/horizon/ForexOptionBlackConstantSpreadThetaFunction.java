@@ -114,7 +114,8 @@ public class ForexOptionBlackConstantSpreadThetaFunction extends FXOptionBlackMu
     final FXMatrix fxMatrix = new FXMatrix(ccy1, ccy2, spot);
     final ValueProperties.Builder properties = getResultProperties(target, desiredValue);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.VALUE_THETA, target.toSpecification(), properties.get());
-    final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(fxMatrix, curveCurrency, yieldCurves, smiles, Pair.of(ccy1, ccy2));
+    final YieldCurveBundle curvesWithFX = new YieldCurveBundle(fxMatrix, curveCurrency, yieldCurves.getCurvesMap());
+    final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(curvesWithFX, smiles, Pair.of(ccy1, ccy2));
     final ConstantSpreadHorizonThetaCalculator calculator = ConstantSpreadHorizonThetaCalculator.getInstance();
     if (security instanceof FXOptionSecurity) {
       final ForexOptionVanillaDefinition definition = (ForexOptionVanillaDefinition) security.accept(VISITOR);
