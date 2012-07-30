@@ -26,6 +26,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergIdentifierProvider;
 import com.opengamma.bbg.component.BloombergTimeSeriesUpdateTool;
 import com.opengamma.bbg.loader.BloombergHistoricalLoader;
+import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
 import com.opengamma.bbg.tool.BloombergToolContext;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.ConfigSource;
@@ -213,11 +214,10 @@ public class CurveHtsResolverTool extends AbstractTool {
       throw new OpenGammaRuntimeException("The " + BloombergTimeSeriesUpdateTool.class.getSimpleName() +
         " requires a tool context which implements " + BloombergToolContext.class.getName());
     }
-    BloombergHistoricalLoader loader = new BloombergHistoricalLoader(
+    BloombergHistoricalTimeSeriesLoader loader = new BloombergHistoricalTimeSeriesLoader(
       getToolContext().getHistoricalTimeSeriesMaster(),
       ((BloombergToolContext) getToolContext()).getBloombergHistoricalTimeSeriesSource(),
       new BloombergIdentifierProvider(((BloombergToolContext) getToolContext()).getBloombergReferenceDataProvider()));
-    loader.setReload(true);
 
     for (Set<ExternalId> externalIds : externalIdSets) {
       if (externalIds.size() > 0) {

@@ -44,8 +44,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import au.com.bytecode.opencsv.CSVReader;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -58,37 +56,30 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ExternalIdBundleWithDates;
-import com.opengamma.id.ExternalIdSearch;
-import com.opengamma.id.ExternalIdSearchType;
 import com.opengamma.id.ExternalIdWithDates;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.ExternalIdResolver;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesGetFilter;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.MapUtils;
-import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.PlatformConfigUtils;
-import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Loads time-series information from Bloomberg.
+ * Tool to load time-series information from Bloomberg.
  * <p>
  * This loads missing historical time-series data from Bloomberg.
  */
-public class BloombergHistoricalLoader implements HistoricalTimeSeriesLoader {
+public class BloombergHistoricalLoader {
 
   /** The spring configuration. */
   public static final String CONTEXT_CONFIGURATION_PATH = "/com/opengamma/bbg/loader/bloomberg-historical-loader-context.xml";
@@ -110,7 +101,7 @@ public class BloombergHistoricalLoader implements HistoricalTimeSeriesLoader {
   private final HistoricalTimeSeriesMaster _timeSeriesMaster;
   private final HistoricalTimeSeriesSource _bbgHistoricalTimeSeriesSource;
   private PositionMaster _positionMaster;
-  private final ExternalIdResolver _bbgIdentifierProvider;
+  private final BloombergHistoricalTimeSeriesLoader _loader;
 
   private boolean _updateDb;
   private LocalDate _startDate;
@@ -125,15 +116,15 @@ public class BloombergHistoricalLoader implements HistoricalTimeSeriesLoader {
 
   private List<ExternalIdBundle> _errors = new ArrayList<ExternalIdBundle>();
 
-  public BloombergHistoricalLoader(final HistoricalTimeSeriesMaster timeSeriesMaster, 
-      final HistoricalTimeSeriesSource bbgHistoricalTimeSeriesSource, 
-      final ExternalIdResolver bbgIdentifierProvider) {
-    ArgumentChecker.notNull(timeSeriesMaster, "timeSeriesDS");
-    ArgumentChecker.notNull(bbgHistoricalTimeSeriesSource, "bbgHistoricalTimeSeriesSource");
-    ArgumentChecker.notNull(bbgIdentifierProvider, "identifierProvider");
-    _timeSeriesMaster = timeSeriesMaster;
-    _bbgHistoricalTimeSeriesSource = bbgHistoricalTimeSeriesSource;
-    _bbgIdentifierProvider = bbgIdentifierProvider;
+  public BloombergHistoricalLoader(final HistoricalTimeSeriesMaster htsMaster, 
+      final HistoricalTimeSeriesSource underlyingHtsProvider, 
+      final ExternalIdResolver identifierProvider) {
+    ArgumentChecker.notNull(htsMaster, "htsMaster");
+    ArgumentChecker.notNull(underlyingHtsProvider, "underlyingHtsProvider");
+    ArgumentChecker.notNull(identifierProvider, "identifierProvider");
+    _timeSeriesMaster = htsMaster;
+    _bbgHistoricalTimeSeriesSource = underlyingHtsProvider;
+    _loader = new BloombergHistoricalTimeSeriesLoader(htsMaster, underlyingHtsProvider, identifierProvider);
   }
 
   /**
@@ -318,7 +309,7 @@ public class BloombergHistoricalLoader implements HistoricalTimeSeriesLoader {
     }
     for (String dataProvider : _dataProviders) {
       for (String dataField : _dataFields) {
-        addTimeSeries(identifiers, dataProvider, dataField, startDate, endDate);
+        _loader.addTimeSeries(identifiers, dataProvider, dataField, startDate, endDate);
       }
     }
   }
@@ -356,7 +347,7 @@ public class BloombergHistoricalLoader implements HistoricalTimeSeriesLoader {
       String dataProvider = providerFieldRequests.getKey().getFirst();
       String dataField = providerFieldRequests.getKey().getSecond();
       Set<ExternalId> identifiers = providerFieldRequests.getValue();
-      addTimeSeries(identifiers, dataProvider, dataField, startDate, endDate);
+      _loader.addTimeSeries(identifiers, dataProvider, dataField, startDate, endDate);
     }
   }
   
@@ -549,7 +540,7 @@ public class BloombergHistoricalLoader implements HistoricalTimeSeriesLoader {
           String dataField = fieldIdentifiers.getKey();
           Set<ExternalIdBundle> identifiers = fieldIdentifiers.getValue();
           
-          String bbgDataProvider = getBloombergDataProvider(dataProvider);
+          String bbgDataProvider = BloombergDataUtils.resolveDataProvider(dataProvider);
           Map<ExternalIdBundle, HistoricalTimeSeries> bbgLoadedTS = getTimeSeries(dataField, startDate, endDate, bbgDataProvider, identifiers);
           if (bbgLoadedTS.size() < identifiers.size()) {
             s_logger.error("Failed to load time series for {}", Sets.difference(identifiers, bbgLoadedTS.keySet()));
@@ -898,198 +889,11 @@ public class BloombergHistoricalLoader implements HistoricalTimeSeriesLoader {
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public Map<ExternalId, UniqueId> addTimeSeries(
-      Set<ExternalId> identifiers, String dataProvider, String dataField, LocalDate startDate, LocalDate endDate) {
-    ArgumentChecker.notEmpty(identifiers, "identifiers");
-    ArgumentChecker.notNull(dataField, "dataField");
-    if (startDate == null) {
-      startDate = DEFAULT_START_DATE;
-    }
-    if (endDate == null) {
-      endDate = DateUtils.previousWeekDay();
-    }
-    
-    // finds the time-series that need loading
-    Map<ExternalId, UniqueId> result = new HashMap<ExternalId, UniqueId>();
-    Set<ExternalId> missingTimeseries = findTimeSeries(identifiers, dataField, dataProvider, result);
-    
-    // batch in groups of 100 to avoid out-of-memory issues
-    for (List<ExternalId> partition : Iterables.partition(missingTimeseries, 100)) {
-      Set<ExternalId> subSet = Sets.newHashSet(partition);
-      fetchTimeSeries(subSet, dataField, dataProvider, startDate, endDate, result);
-    }
-    return result;
-  }
-
-  /**
-   * Finds those time-series that are not in the database.
-   * 
-   * @param identifiers  the identifiers to lookup, not null
-   * @param dataField  the data field, not null
-   * @param dataProvider  the data provider, not null
-   * @param result  the result map of identifiers, updated if already in database, not null
-   * @return the missing identifiers, not null
-   */
-  private Set<ExternalId> findTimeSeries(
-      Set<ExternalId> identifiers, String dataField, String dataProvider, Map<ExternalId, UniqueId> result) {
-    HistoricalTimeSeriesInfoSearchRequest searchRequest = new HistoricalTimeSeriesInfoSearchRequest();
-    searchRequest.addExternalIds(identifiers);
-    searchRequest.setDataField(dataField);
-    searchRequest.setDataProvider(dataProvider);
-    searchRequest.setDataSource(BLOOMBERG_DATA_SOURCE_NAME);
-    HistoricalTimeSeriesInfoSearchResult searchResult = _timeSeriesMaster.search(searchRequest);
-    
-    Set<ExternalId> missing = new HashSet<ExternalId>(identifiers);
-    for (HistoricalTimeSeriesInfoDocument doc : searchResult.getDocuments()) {
-      Set<ExternalId> intersection = Sets.intersection(doc.getInfo().getExternalIdBundle().toBundle().getExternalIds(), identifiers).immutableCopy();
-      if (intersection.size() == 1) {
-        ExternalId identifier = intersection.iterator().next();
-        missing.remove(identifier);
-        result.put(identifier, doc.getUniqueId());
-      } else {
-        throw new OpenGammaRuntimeException("Unable to match single identifier: " + doc.getInfo().getExternalIdBundle());
-      }
-    }
-    return missing;
-  }
-
-  /**
-   * Fetches the time-series from Bloomberg and stores them in the master.
-   * 
-   * @param identifiers  the identifiers to fetch, not null
-   * @param dataField  the data field, not null
-   * @param dataProvider  the data provider, not null
-   * @param startDate  the start date to load, not null
-   * @param endDate  the end date to load, not null
-   * @param result  the result map of identifiers, updated if already in database, not null
-   */
-  private void fetchTimeSeries(
-      final Set<ExternalId> identifiers, final String dataField, final String dataProvider, final LocalDate startDate, final LocalDate endDate, final Map<ExternalId, UniqueId> result) {
-    
-    Map<ExternalIdBundleWithDates, ExternalId> withDates2ExternalId = new HashMap<ExternalIdBundleWithDates, ExternalId>();
-    Map<ExternalIdBundle, ExternalIdBundleWithDates> bundle2WithDates = new HashMap<ExternalIdBundle, ExternalIdBundleWithDates>();
-    
-    // lookup full set of identifiers
-    Map<ExternalId, ExternalIdBundleWithDates> externalId2WithDates = _bbgIdentifierProvider.getExternalIds(identifiers);
-    
-    for (Entry<ExternalId, ExternalIdBundleWithDates> entry : externalId2WithDates.entrySet()) {
-      ExternalId requestIdentifier = entry.getKey();
-      ExternalIdBundleWithDates bundle = entry.getValue();
-      bundle = BloombergDataUtils.addTwoDigitYearCode(bundle);
-      bundle2WithDates.put(bundle.toBundle(), bundle);
-      withDates2ExternalId.put(bundle, requestIdentifier);
-    }
-    
-    // fetch from Bloomberg and store to master
-    if (!bundle2WithDates.isEmpty()) {
-      String bbgDataProvider = getBloombergDataProvider(dataProvider);
-      int identifiersSize = bundle2WithDates.keySet().size();
-      System.out.printf("Loading %d ts  dataField: %s dataProvider: %s startDate: %s endDate: %s\n", identifiersSize, dataField, dataProvider, startDate, endDate);
-      OperationTimer timer = new OperationTimer(s_logger, " loading " + identifiersSize + " timeseries from Bloomberg");
-      Map<ExternalIdBundle, HistoricalTimeSeries> tsMap = getTimeSeries(dataField, startDate, endDate, bbgDataProvider, bundle2WithDates.keySet());
-      timer.finished();
-      
-      timer = new OperationTimer(s_logger, " storing " + identifiersSize + " timeseries from Bloomberg");
-      storeTimeSeries(tsMap, dataField, bbgDataProvider, withDates2ExternalId, bundle2WithDates, result);
-      timer.finished();
-    }
-  }
-
   private Map<ExternalIdBundle, HistoricalTimeSeries> getTimeSeries(
       final String dataField, final LocalDate startDate, final LocalDate endDate, String bbgDataProvider, Set<ExternalIdBundle> identifierSet) {
     s_logger.debug("Loading time series {} ({}-{}) {}: {}", new Object[] {dataField, startDate, endDate, bbgDataProvider, identifierSet});
     return _bbgHistoricalTimeSeriesSource.getHistoricalTimeSeries(
         identifierSet, BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME, bbgDataProvider, dataField, startDate, true, endDate, true);
-  }
-
-  /**
-   * Stores the time-series in the master.
-   * 
-   * @param tsMap  the map of Bloomberg time-series, not null
-   * @param dataField  the data field, not null
-   * @param dataProvider  the data provider, not null
-   * @param bundleToIdentifier  the lookup map, not null
-   * @param identifiersToBundleWithDates  the lookup map, not null
-   * @param result  the result map of identifiers, updated if already in database, not null
-   */
-  private void storeTimeSeries(
-      Map<ExternalIdBundle, HistoricalTimeSeries> tsMap, String dataField, String dataProvider,
-      Map<ExternalIdBundleWithDates, ExternalId> bundleToIdentifier,
-      Map<ExternalIdBundle, ExternalIdBundleWithDates> identifiersToBundleWithDates,
-      Map<ExternalId, UniqueId> result) {
-    // Add timeseries to data store
-    for (Entry<ExternalIdBundle, HistoricalTimeSeries> entry : tsMap.entrySet()) {
-      ExternalIdBundle identifers = entry.getKey();
-      LocalDateDoubleTimeSeries timeSeries = entry.getValue().getTimeSeries();
-      if (timeSeries != null && !timeSeries.isEmpty()) {
-        ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
-        ExternalIdBundleWithDates bundleWithDates = identifiersToBundleWithDates.get(identifers);
-        info.setExternalIdBundle(bundleWithDates);
-        info.setDataField(dataField);
-        info.setDataSource(BLOOMBERG_DATA_SOURCE_NAME);
-        ExternalIdBundle bundle = bundleWithDates.toBundle(LocalDate.now(OpenGammaClock.getInstance()));
-        String idStr = Objects.firstNonNull(
-            bundle.getValue(ExternalSchemes.BLOOMBERG_TICKER),
-            Objects.firstNonNull(
-              bundle.getExternalId(ExternalSchemes.BLOOMBERG_BUID),
-              bundle.getExternalIds().iterator().next())).toString();
-        info.setName(dataField + " " + idStr);
-        info.setDataProvider(BloombergDataUtils.resolveDataProvider(dataProvider));
-        info.setObservationTime(BloombergDataUtils.resolveObservationTime(dataProvider));
-        
-        // get time-series creating if necessary
-        HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
-        request.setDataField(info.getDataField());
-        request.setDataSource(info.getDataSource());
-        request.setDataProvider(info.getDataProvider());
-        request.setObservationTime(info.getObservationTime());
-        request.setExternalIdSearch(new ExternalIdSearch(info.getExternalIdBundle().toBundle(), ExternalIdSearchType.EXACT));
-        HistoricalTimeSeriesInfoSearchResult searchResult = _timeSeriesMaster.search(request);
-        if (searchResult.getDocuments().size() == 0) {
-          // add new
-          HistoricalTimeSeriesInfoDocument doc = _timeSeriesMaster.add(new HistoricalTimeSeriesInfoDocument(info));
-          UniqueId uniqueId = _timeSeriesMaster.updateTimeSeriesDataPoints(doc.getInfo().getTimeSeriesObjectId(), timeSeries);
-          result.put(bundleToIdentifier.get(bundleWithDates), uniqueId);
-        } else {
-          // update existing
-          HistoricalTimeSeriesInfoDocument doc = searchResult.getDocuments().get(0);
-          HistoricalTimeSeries existingSeries = _timeSeriesMaster.getTimeSeries(doc.getInfo().getTimeSeriesObjectId(), VersionCorrection.LATEST, HistoricalTimeSeriesGetFilter.ofLatestPoint());
-          if (existingSeries.getTimeSeries().size() > 0) {
-            LocalDate latestTime = existingSeries.getTimeSeries().getLatestTime();
-            timeSeries = timeSeries.subSeries(latestTime, false, timeSeries.getLatestTime(), true);
-          }
-          UniqueId uniqueId = existingSeries.getUniqueId();
-          if (timeSeries.size() > 0) {
-            uniqueId = _timeSeriesMaster.updateTimeSeriesDataPoints(doc.getInfo().getTimeSeriesObjectId(), timeSeries);
-          }
-          result.put(bundleToIdentifier.get(bundleWithDates), uniqueId);
-        }
-        
-      } else {
-        s_logger.warn("Empty historical data returned for {}", identifers);
-      }
-    }
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public boolean updateTimeSeries(final UniqueId uniqueId) {
-    ArgumentChecker.notNull(uniqueId, "uniqueId");
-    
-    HistoricalTimeSeriesInfoDocument doc = _timeSeriesMaster.get(uniqueId);
-    ManageableHistoricalTimeSeriesInfo info = doc.getInfo();
-    ExternalIdBundle identifierBundle = info.getExternalIdBundle().toBundle();
-    String dataSource = info.getDataSource();
-    String dataProvider = info.getDataProvider();
-    String dataField = info.getDataField();
-    HistoricalTimeSeries bbgSeries = _bbgHistoricalTimeSeriesSource.getHistoricalTimeSeries(identifierBundle, dataSource, getBloombergDataProvider(dataProvider), dataField);
-    if (bbgSeries == null) {
-      return false;
-    }
-    LocalDateDoubleTimeSeries timeSeries = bbgSeries.getTimeSeries();
-    _timeSeriesMaster.correctTimeSeriesDataPoints(doc.getInfo().getTimeSeriesObjectId(), timeSeries);
-    return true;
   }
 
 }

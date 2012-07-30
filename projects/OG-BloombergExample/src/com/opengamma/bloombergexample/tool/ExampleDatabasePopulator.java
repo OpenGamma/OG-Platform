@@ -12,9 +12,6 @@ import java.util.Set;
 
 import javax.time.calendar.LocalDate;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
@@ -22,7 +19,7 @@ import com.opengamma.bbg.BloombergIdentifierProvider;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.component.BloombergTimeSeriesUpdateTool;
 import com.opengamma.bbg.loader.BloombergBulkSecurityLoader;
-import com.opengamma.bbg.loader.BloombergHistoricalLoader;
+import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
 import com.opengamma.bbg.loader.BloombergSecurityLoader;
 import com.opengamma.bbg.tool.BloombergToolContext;
 import com.opengamma.bloombergexample.generator.BloombergExamplePortfolioGeneratorTool;
@@ -56,8 +53,6 @@ import com.opengamma.util.money.Currency;
 @Scriptable
 public class ExampleDatabasePopulator extends AbstractExampleTool {
   
-  private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabasePopulator.class);
-
   /**
    * The name of the generated example FX portfolio.
    */
@@ -160,11 +155,10 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
       throw new OpenGammaRuntimeException("The " + BloombergTimeSeriesUpdateTool.class.getSimpleName() +
         " requires a tool context which implements " + BloombergToolContext.class.getName());
     }
-    BloombergHistoricalLoader loader = new BloombergHistoricalLoader(
+    BloombergHistoricalTimeSeriesLoader loader = new BloombergHistoricalTimeSeriesLoader(
       getToolContext().getHistoricalTimeSeriesMaster(),
       ((BloombergToolContext) getToolContext()).getBloombergHistoricalTimeSeriesSource(),
       new BloombergIdentifierProvider(((BloombergToolContext) getToolContext()).getBloombergReferenceDataProvider()));
-    loader.setReload(true);
 
     Collection<EquitySecurity> securities = readEquitySecurities();
     for (final EquitySecurity security : securities) {
