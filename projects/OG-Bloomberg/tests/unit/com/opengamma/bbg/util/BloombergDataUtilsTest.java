@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalTime;
 import javax.time.calendar.MonthOfYear;
 import javax.time.calendar.OffsetTime;
 import javax.time.calendar.TimeZone;
@@ -164,6 +163,15 @@ public class BloombergDataUtilsTest {
     ExternalId expectedOutput2 = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "ED37 Comdty");
     ExternalId actualOutput2 = BloombergDataUtils.futureBundleToGenericFutureTicker(testInput2.toBundle(), now, OffsetTime.of(15, 00, ZoneOffset.ofHours(1)), TimeZone.of("Europe/London"));
     assertEquals(expectedOutput2, actualOutput2);
+  }
+
+  public void test_resolveObservationTime() {
+    assertEquals("UNKNOWN", BloombergDataUtils.resolveObservationTime(null));
+    assertEquals("UNKNOWN", BloombergDataUtils.resolveObservationTime("UNKNOWN"));
+    assertEquals("UNKNOWN", BloombergDataUtils.resolveObservationTime("FOO"));
+    assertEquals("LONDON_CLOSE", BloombergDataUtils.resolveObservationTime("CMPL"));
+    assertEquals("NEWYORK_CLOSE", BloombergDataUtils.resolveObservationTime("CMPN"));
+    assertEquals("TOKYO_CLOSE", BloombergDataUtils.resolveObservationTime("CMPT"));
   }
 
 }
