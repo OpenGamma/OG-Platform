@@ -33,7 +33,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -107,13 +106,6 @@ public class BloombergHistoricalLoader implements HistoricalTimeSeriesLoader {
   private static final String UNIQUE_ID_OPTION = "unique";
   private static final String CSV_OPTION = "csv";
   private static final LocalDate DEFAULT_START_DATE = LocalDate.of(1900, MonthOfYear.JANUARY, 1);
-
-  private static final String[][] NON_EXCHANGE_DATA_PROVIDER_ARRAY = new String[][] {
-    {"CMPL", "LONDON_CLOSE"}, {"CMPT", "TOKYO_CLOSE"}, {"CMPN", "NEWYORK_CLOSE"}
-  };
-  private static final Map<String, String> s_observationTimeMap = buildNonExchangeDataMap();
-  private static final String UNKNOWN_PROVIDER = "UNKNOWN";
-  private static final String UNKNOWN_OBSERVATION_TIME = "UNKNOWN";
 
   private final HistoricalTimeSeriesMaster _timeSeriesMaster;
   private final HistoricalTimeSeriesSource _bbgHistoricalTimeSeriesSource;
@@ -322,7 +314,7 @@ public class BloombergHistoricalLoader implements HistoricalTimeSeriesLoader {
     LocalDate startDate = _startDate == null ? DEFAULT_START_DATE : _startDate;
     LocalDate endDate = _endDate == null ? DateUtils.previousWeekDay() : _endDate;
     if (_dataProviders.isEmpty()) {
-      _dataProviders.add(UNKNOWN_PROVIDER);
+      _dataProviders.add(BloombergDataUtils.UNKNOWN_DATA_PROVIDER);
     }
     for (String dataProvider : _dataProviders) {
       for (String dataField : _dataFields) {
@@ -386,7 +378,7 @@ public class BloombergHistoricalLoader implements HistoricalTimeSeriesLoader {
             String idValue = line[3];
             if (StringUtils.isBlank(provider)) {
               // Perfectly fine - we'll resolve the provider later
-              provider = UNKNOWN_PROVIDER;
+              provider = BloombergDataUtils.UNKNOWN_DATA_PROVIDER;
             }
             if (StringUtils.isBlank(field)) {
               s_logger.warn("Blank field value found in CSV file {} for identifier {}. This line will be ignored.", file, idValue);
@@ -416,24 +408,6 @@ public class BloombergHistoricalLoader implements HistoricalTimeSeriesLoader {
       System.out.println(total);
     }
     return result;
-  }
-
-  /**
-   * Resolves data provider to observation time
-   * 
-   * @param dataProvider the data provider
-   * @return the corresponding observation time for the given data provider
-   */
-  public static String resolveObservationTime(final String dataProvider) {
-    if (dataProvider == null) {
-      return UNKNOWN_OBSERVATION_TIME;
-    }
-    String observationTime = UNKNOWN_OBSERVATION_TIME;
-    String nonExchange = s_observationTimeMap.get(dataProvider);
-    if (nonExchange != null) {
-      observationTime = nonExchange;
-    }
-    return observationTime;
   }
 
   //-------------------------------------------------------------------------
@@ -617,7 +591,7 @@ public class BloombergHistoricalLoader implements HistoricalTimeSeriesLoader {
   }
 
   private String getBloombergDataProvider(String requestDataProvider) {
-    return (requestDataProvider == null || requestDataProvider.equals(UNKNOWN_PROVIDER)) ? null : requestDataProvider;
+    return (requestDataProvider == null || requestDataProvider.equals(BloombergDataUtils.UNKNOWN_DATA_PROVIDER)) ? null : requestDataProvider;
   }
 
   //-------------------------------------------------------------------------
@@ -914,11 +888,6 @@ public class BloombergHistoricalLoader implements HistoricalTimeSeriesLoader {
       return true;
     }
   }
-    
-  @SuppressWarnings("unchecked")
-  private static Map<String, String> buildNonExchangeDataMap() {
-    return Collections.unmodifiableMap(ArrayUtils.toMap(NON_EXCHANGE_DATA_PROVIDER_ARRAY));
-  }
 
   /**
    * Gets the errors field.
@@ -1066,14 +1035,8 @@ public class BloombergHistoricalLoader implements HistoricalTimeSeriesLoader {
               bundle.getExternalId(ExternalSchemes.BLOOMBERG_BUID),
               bundle.getExternalIds().iterator().next())).toString();
         info.setName(dataField + " " + idStr);
-        if (dataProvider == null) {
-          info.setDataProvider(UNKNOWN_PROVIDER);
-          info.setObservationTime(UNKNOWN_OBSERVATION_TIME);
-        } else {
-          info.setDataProvider(dataProvider);
-          String derivedObservationTime = resolveObservationTime(dataProvider);
-          info.setObservationTime(derivedObservationTime);
-        }
+        info.setDataProvider(BloombergDataUtils.resolveDataProvider(dataProvider));
+        info.setObservationTime(BloombergDataUtils.resolveObservationTime(dataProvider));
         
         // get time-series creating if necessary
         HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
