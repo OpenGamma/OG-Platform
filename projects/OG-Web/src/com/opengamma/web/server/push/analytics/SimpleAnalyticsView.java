@@ -119,7 +119,7 @@ import com.opengamma.util.ArgumentChecker;
   public void openDependencyGraph(GridType gridType, String graphId, String gridId, int row, int col) {
     s_logger.debug("Opening dependency graph for cell ({}, {}) of the {} grid", new Object[]{row, col, gridType});
     getGrid(gridType).openDependencyGraph(graphId, gridId, row, col, _compiledViewDefinition);
-    _listener.gridDataChanged(getGrid(gridType).getDependencyGraph(graphId).getGridId());
+    _listener.gridStructureChanged(getGrid(gridType).getDependencyGraph(graphId).getGridId());
   }
 
   @Override

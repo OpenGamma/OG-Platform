@@ -106,17 +106,87 @@ public interface AnalyticsView {
   // i.e. specify the target spec
   // for now send a version ID to the client so it can tell the data is stale? or have the client supply the ID of the
   // structure and perform that logic on the server?
+
+  /**
+   * Opens a grid showing the dependency graph of calculations for a cell in one of the main grids.
+   * @param gridType Specifies which of the main grids
+   * @param graphId A unique ID for the dependency graph grid. The server makes no assumptions about its format other
+   * than the fact that it must be unique for each dependency graph grid in a view.
+   * @param gridId A unique ID for the grid's structure - this is the value that is sent to the client with notification
+   * that the structure has changed. The server makes no assumptions about its format other than the fact that it
+   * must be unique for each grid in a view.
+   * @param row The row of the cell whose dependency graph should be opened
+   * @param col The column of the cell whose dependency graph should be opened
+   */
   void openDependencyGraph(GridType gridType, String graphId, String gridId, int row, int col);
 
+  /**
+   * Closes a depdency graph.
+   * @param gridType Specifies which of the main grids the dependency graph grid belongs to
+   * @param graphId The ID of the grid
+   */
   void closeDependencyGraph(GridType gridType, String graphId);
 
+  /**
+   * Returns the grid structure for a dependency graph grid.
+   * @param gridType Specifies which of the main grids the dependency graph grid belongs to
+   * @param graphId The ID of the grid
+   * @return The row and column structure of the grid
+   */
   GridStructure getGridStructure(GridType gridType, String graphId);
 
+  /**
+   * Creates a viewport for a dependency graph grid. A viewport represents the visible portion of the grid. Any
+   * grid cells that are scrolled off the screen are not part of the viewport. The client only receives data for
+   * cells in the viewport and only receives notification of new data if data in the viewport changes. If the only data
+   * that changes in a calculation cycle is not part of a viewport then no update needs to be sent to the client.
+   * There can be any number of viewports for each grid.
+   * @param gridType Specifies which of the main grids the dependency graph grid belongs to
+   * @param graphId The ID of the grid
+   * @param viewportId A unique ID for the viewport. The server makes no assumptions about its format other
+   * than the fact that it must be unique for each viewport in a view.
+   * @param dataId A unique ID for the viewport's data - this is the value that is sent to the client with notification
+   * that new data is available for the viewport. The server makes no assumptions about its format other
+   * than the fact that it must be unique for each viewport in a view.
+   * @param viewportSpec Defines the rows and columns in the viewport and whether the viewport's data should be
+   * expanded or a summary for data types which can't fit in a cell, e.g. vectors, matrices, curves.
+   * @return The version of the viewport. This allows the client to ensure that data received for the viewport
+   * corresponds to the current viewport structure. If the client makes an asynchronous request for data and the
+   * viewport structure changes at the same time then there is a race condition and it is possible the client could
+   * display the old viewport's data in the updated viewport. The viewport version allows this situation to be detected
+   * and avoided.
+   */
   long createViewport(GridType gridType, String graphId, String viewportId, String dataId, ViewportSpecification viewportSpec);
 
+
+  /**
+   * Updates a viewport of a dependency graph grid. A viewport will be updated when the user scrolls the grid.
+   * @param gridType Specifies which of the main grids the dependency graph grid belongs to
+   * @param graphId The ID of the grid
+   * @param viewportId ID of the viewport
+   * @param viewportSpec Defines the rows and columns in the viewport and whether the viewport's data should be
+   * expanded or a summary for data types which can't fit in a cell, e.g. vectors, matrices, curves.
+   * @return The version of the viewport. This allows the client to ensure that data received for the viewport
+   * corresponds to the current viewport structure. If the client makes an asynchronous request for data and the
+   * viewport structure changes at the same time then there is a race condition and it is possible the client could
+   * display the old viewport's data in the updated viewport. The viewport version allows this situation to be detected
+   * and avoided.
+   */
   long updateViewport(GridType gridType, String graphId, String viewportId, ViewportSpecification viewportSpec);
 
+  /**
+   * Deletes a viewport from a dependency graph grid.
+   * @param gridType Specifies which of the main grids the dependency graph grid belongs to
+   * @param viewportId ID of the viewport
+   */
   void deleteViewport(GridType gridType, String graphId, String viewportId);
 
+  /**
+   * Returns the current data for a viewport of a dependency graph grid.
+   * @param gridType Specifies which of the main grids the dependency graph grid belongs to
+   * @param graphId The ID of the grid
+   * @param viewportId ID of the viewport
+   * @return The current data for the viewport.
+   */
   ViewportResults getData(GridType gridType, String graphId, String viewportId);
 }
