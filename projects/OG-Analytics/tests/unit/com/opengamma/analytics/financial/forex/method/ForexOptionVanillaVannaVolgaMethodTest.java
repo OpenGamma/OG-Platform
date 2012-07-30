@@ -252,7 +252,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
     final ForexOptionVanillaDefinition forexOptionSpotDefinition = new ForexOptionVanillaDefinition(forexUnderlyingSpotDefinition, optionExpiry, isCall, isLong);
     final ForexOptionVanilla forexOptionSpot = forexOptionSpotDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final double forward = METHOD_BLACK.forwardForexRate(forexOptionSpot, SMILE_BUNDLE_STRIKE_INT);
-    final SmileDeltaParameters smileTime = SMILE_TERM.smile(forexOptionSpot.getTimeToExpiry());
+    final SmileDeltaParameters smileTime = SMILE_TERM.getSmileForTime(forexOptionSpot.getTimeToExpiry());
     final double[] strikes = smileTime.getStrike(forward);
     final int nbStrike = strikes.length;
     final ForexOptionVanilla[] forexOption = new ForexOptionVanilla[nbStrike];
@@ -439,7 +439,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
     }
 
     final double forward = METHOD_BLACK.forwardForexRate(forexOption[0], SMILE_BUNDLE_STRIKE_INT);
-    final SmileDeltaParameters smileTime = SMILE_TERM.smile(forexOption[0].getTimeToExpiry());
+    final SmileDeltaParameters smileTime = SMILE_TERM.getSmileForTime(forexOption[0].getTimeToExpiry());
     final double[] strikesVV = smileTime.getStrike(forward);
 
     final PresentValueForexBlackVolatilitySensitivity[] vegaObject = new PresentValueForexBlackVolatilitySensitivity[nbStrike + 1];
@@ -471,7 +471,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
     final ForexOptionVanilla forexOptionSpot = forexOptionSpotDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final double forward = METHOD_BLACK.forwardForexRate(forexOptionSpot, SMILE_BUNDLE_STRIKE_INT);
 
-    final SmileDeltaParameters smileTime = SMILE_TERM.smile(forexOptionSpot.getTimeToExpiry());
+    final SmileDeltaParameters smileTime = SMILE_TERM.getSmileForTime(forexOptionSpot.getTimeToExpiry());
 
     final double[] strikes = smileTime.getStrike(forward);
     final int nbStrike = strikes.length;

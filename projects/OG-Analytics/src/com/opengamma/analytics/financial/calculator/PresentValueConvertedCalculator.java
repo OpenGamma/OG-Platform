@@ -32,7 +32,7 @@ public class PresentValueConvertedCalculator extends AbstractInstrumentDerivativ
    * @param currency The currency in which the present value should be converted.
    * @param pvCalculator The present value calculator (with MultiCurrencyAmount output).
    */
-  public PresentValueConvertedCalculator(Currency currency, AbstractInstrumentDerivativeVisitor<YieldCurveBundle, MultipleCurrencyAmount> pvCalculator) {
+  public PresentValueConvertedCalculator(final Currency currency, final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, MultipleCurrencyAmount> pvCalculator) {
     super();
     _currency = currency;
     _pvCalculator = pvCalculator;
@@ -42,7 +42,7 @@ public class PresentValueConvertedCalculator extends AbstractInstrumentDerivativ
   public Double visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(derivative);
-    return curves.convert(_pvCalculator.visit(derivative, curves), _currency).getAmount();
+    return curves.getFxRates().convert(_pvCalculator.visit(derivative, curves), _currency).getAmount();
   }
 
 }

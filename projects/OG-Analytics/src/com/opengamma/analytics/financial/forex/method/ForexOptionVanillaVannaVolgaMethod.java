@@ -70,22 +70,22 @@ public final class ForexOptionVanillaVannaVolgaMethod implements ForexPricingMet
     Validate.isTrue(smile.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
     final double dfDomestic = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency2().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
     final double dfForeign = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
-    final double spot = smile.getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
+    final double spot = smile.getFxRates().getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
     final double forward = spot * dfForeign / dfDomestic;
-    SmileDeltaParameters smileAtTime = smile.getSmile(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry());
-    double[] strikesVV = smileAtTime.getStrike(forward);
-    double[] volVV = smileAtTime.getVolatility();
-    double volATM = volVV[1];
-    double[] priceVVATM = new double[3];
-    double[] priceVVsmile = new double[3];
+    final SmileDeltaParameters smileAtTime = smile.getSmile(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry());
+    final double[] strikesVV = smileAtTime.getStrike(forward);
+    final double[] volVV = smileAtTime.getVolatility();
+    final double volATM = volVV[1];
+    final double[] priceVVATM = new double[3];
+    final double[] priceVVsmile = new double[3];
     final BlackFunctionData dataBlackATM = new BlackFunctionData(forward, dfDomestic, volATM);
     for (int loopvv = 0; loopvv < 3; loopvv = loopvv + 2) { // Implementation note: The adjustment for K2 is 0
       final BlackFunctionData dataBlackSmile = new BlackFunctionData(forward, dfDomestic, volVV[loopvv]);
-      EuropeanVanillaOption optionVV = new EuropeanVanillaOption(strikesVV[loopvv], optionForex.getTimeToExpiry(), true);
+      final EuropeanVanillaOption optionVV = new EuropeanVanillaOption(strikesVV[loopvv], optionForex.getTimeToExpiry(), true);
       priceVVATM[loopvv] = BLACK_FUNCTION.getPriceFunction(optionVV).evaluate(dataBlackATM);
       priceVVsmile[loopvv] = BLACK_FUNCTION.getPriceFunction(optionVV).evaluate(dataBlackSmile);
     }
-    double priceFlat = BLACK_FUNCTION.getPriceFunction(optionForex).evaluate(dataBlackATM);
+    final double priceFlat = BLACK_FUNCTION.getPriceFunction(optionForex).evaluate(dataBlackATM);
     final double[] x = vannaVolgaWeights(optionForex, forward, dfDomestic, strikesVV, volVV);
     double price = priceFlat;
     for (int loopvv = 0; loopvv < 3; loopvv = loopvv + 2) {
@@ -115,22 +115,22 @@ public final class ForexOptionVanillaVannaVolgaMethod implements ForexPricingMet
     Validate.isTrue(smile.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
     final double dfDomestic = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency2().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
     final double dfForeign = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
-    final double spot = smile.getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
+    final double spot = smile.getFxRates().getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
     final double forward = spot * dfForeign / dfDomestic;
-    SmileDeltaParameters smileAtTime = smile.getSmile(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry());
-    double[] strikesVV = smileAtTime.getStrike(forward);
-    double[] volVV = smileAtTime.getVolatility();
-    double volATM = volVV[1];
-    double[][] priceVVATM = new double[3][];
-    double[][] priceVVsmile = new double[3][];
+    final SmileDeltaParameters smileAtTime = smile.getSmile(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry());
+    final double[] strikesVV = smileAtTime.getStrike(forward);
+    final double[] volVV = smileAtTime.getVolatility();
+    final double volATM = volVV[1];
+    final double[][] priceVVATM = new double[3][];
+    final double[][] priceVVsmile = new double[3][];
     final BlackFunctionData dataBlackATM = new BlackFunctionData(forward, dfDomestic, volATM);
     for (int loopvv = 0; loopvv < 3; loopvv = loopvv + 2) { // Implementation note: The adjustment for K2 is 0
       final BlackFunctionData dataBlackSmile = new BlackFunctionData(forward, dfDomestic, volVV[loopvv]);
-      EuropeanVanillaOption optionVV = new EuropeanVanillaOption(strikesVV[loopvv], optionForex.getTimeToExpiry(), true);
+      final EuropeanVanillaOption optionVV = new EuropeanVanillaOption(strikesVV[loopvv], optionForex.getTimeToExpiry(), true);
       priceVVATM[loopvv] = BLACK_FUNCTION.getPriceAdjoint(optionVV, dataBlackATM);
       priceVVsmile[loopvv] = BLACK_FUNCTION.getPriceAdjoint(optionVV, dataBlackSmile);
     }
-    double[] priceFlat = BLACK_FUNCTION.getPriceAdjoint(optionForex, dataBlackATM);
+    final double[] priceFlat = BLACK_FUNCTION.getPriceAdjoint(optionForex, dataBlackATM);
     final double[] x = vannaVolgaWeights(optionForex, forward, dfDomestic, strikesVV, volVV);
     double price = priceFlat[0];
     for (int loopvv = 0; loopvv < 3; loopvv = loopvv + 2) {
@@ -160,7 +160,7 @@ public final class ForexOptionVanillaVannaVolgaMethod implements ForexPricingMet
   }
 
   /**
-   * Computes the volatility sensitivity of the vanilla option to the reference volatilities. 
+   * Computes the volatility sensitivity of the vanilla option to the reference volatilities.
    * @param optionForex The Forex option.
    * @param smile The curve and smile data.
    * @return The volatility sensitivity. The sensitivity figures are, like the present value, in the domestic currency (currency 2).
@@ -171,36 +171,36 @@ public final class ForexOptionVanillaVannaVolgaMethod implements ForexPricingMet
     Validate.isTrue(smile.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
     final double dfDomestic = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency2().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
     final double dfForeign = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
-    final double spot = smile.getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
+    final double spot = smile.getFxRates().getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
     final double forward = spot * dfForeign / dfDomestic;
-    SmileDeltaParameters smileAtTime = smile.getSmile(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry());
-    double[] strikesVV = smileAtTime.getStrike(forward);
-    double[] volVV = smileAtTime.getVolatility();
-    double volATM = volVV[1];
-    double[] priceVVATM = new double[3];
-    double[] priceVVsmile = new double[3];
-    double[] vegaSmile = new double[3];
+    final SmileDeltaParameters smileAtTime = smile.getSmile(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry());
+    final double[] strikesVV = smileAtTime.getStrike(forward);
+    final double[] volVV = smileAtTime.getVolatility();
+    final double volATM = volVV[1];
+    final double[] priceVVATM = new double[3];
+    final double[] priceVVsmile = new double[3];
+    final double[] vegaSmile = new double[3];
     final BlackFunctionData dataBlackATM = new BlackFunctionData(forward, dfDomestic, volATM);
     for (int loopvv = 0; loopvv < 3; loopvv = loopvv + 2) { // Implementation note: The adjustment for K2 is 0
       final BlackFunctionData dataBlackSmile = new BlackFunctionData(forward, dfDomestic, volVV[loopvv]);
-      EuropeanVanillaOption optionVV = new EuropeanVanillaOption(strikesVV[loopvv], optionForex.getTimeToExpiry(), true);
+      final EuropeanVanillaOption optionVV = new EuropeanVanillaOption(strikesVV[loopvv], optionForex.getTimeToExpiry(), true);
       priceVVATM[loopvv] = BLACK_FUNCTION.getPriceFunction(optionVV).evaluate(dataBlackATM);
       priceVVsmile[loopvv] = BLACK_FUNCTION.getPriceFunction(optionVV).evaluate(dataBlackSmile);
       vegaSmile[loopvv] = BLACK_FUNCTION.getVegaFunction(optionVV).evaluate(dataBlackSmile);
     }
-    double priceFlat = BLACK_FUNCTION.getPriceFunction(optionForex).evaluate(dataBlackATM);
-    double[] vega = new double[3];
+    final double priceFlat = BLACK_FUNCTION.getPriceFunction(optionForex).evaluate(dataBlackATM);
+    final double[] vega = new double[3];
     final double[] x = vannaVolgaWeights(optionForex, forward, dfDomestic, strikesVV, volVV, vega);
     double price = priceFlat;
     for (int loopvv = 0; loopvv < 3; loopvv = loopvv + 2) {
       price += x[loopvv] * (priceVVsmile[loopvv] - priceVVATM[loopvv]);
     }
     price *= Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()) * (optionForex.isLong() ? 1.0 : -1.0);
-    double[] vegaReference = new double[3];
+    final double[] vegaReference = new double[3];
     vegaReference[0] = x[0] * vegaSmile[0];
     vegaReference[2] = x[2] * vegaSmile[2];
     vegaReference[1] = vega[1] - x[0] * vega[0] - x[2] * vega[2];
-    SurfaceValue result = new SurfaceValue();
+    final SurfaceValue result = new SurfaceValue();
     for (int loopvv = 0; loopvv < 3; loopvv++) {
       final DoublesPair point = DoublesPair.of(optionForex.getTimeToExpiry(), strikesVV[loopvv]);
       result.add(point, vegaReference[loopvv] * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()) * (optionForex.isLong() ? 1.0 : -1.0));
@@ -212,7 +212,7 @@ public final class ForexOptionVanillaVannaVolgaMethod implements ForexPricingMet
   }
 
   /**
-   * Computes the curve sensitivity of the option present value. The sensitivity of the volatility and the weights on the forward (and on the curves) is not taken into account. 
+   * Computes the curve sensitivity of the option present value. The sensitivity of the volatility and the weights on the forward (and on the curves) is not taken into account.
    * @param optionForex The Forex option.
    * @param smile The smile data.
    * @return The curve sensitivity.
@@ -221,44 +221,44 @@ public final class ForexOptionVanillaVannaVolgaMethod implements ForexPricingMet
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smile, "Smile");
     Validate.isTrue(smile.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
-    SmileDeltaParameters smileAtTime = smile.getSmile(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry());
+    final SmileDeltaParameters smileAtTime = smile.getSmile(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry());
     final double payTime = optionForex.getUnderlyingForex().getPaymentTime();
     final String domesticCurveName = optionForex.getUnderlyingForex().getPaymentCurrency2().getFundingCurveName();
     final String foreignCurveName = optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName();
     // Forward sweep
     final double dfDomestic = smile.getCurve(domesticCurveName).getDiscountFactor(payTime);
     final double dfForeign = smile.getCurve(foreignCurveName).getDiscountFactor(payTime);
-    final double spot = smile.getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
+    final double spot = smile.getFxRates().getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
     final double forward = spot * dfForeign / dfDomestic;
-    double[] strikesVV = smileAtTime.getStrike(forward);
-    double[] volVV = smileAtTime.getVolatility();
-    double volATM = volVV[1];
-    double[][] priceVVAdjATM = new double[3][];
-    double[][] priceVVAdjsmile = new double[3][];
+    final double[] strikesVV = smileAtTime.getStrike(forward);
+    final double[] volVV = smileAtTime.getVolatility();
+    final double volATM = volVV[1];
+    final double[][] priceVVAdjATM = new double[3][];
+    final double[][] priceVVAdjsmile = new double[3][];
     final BlackFunctionData dataBlackATM = new BlackFunctionData(forward, dfDomestic, volATM);
     for (int loopvv = 0; loopvv < 3; loopvv = loopvv + 2) { // Implementation note: The adjustment for K2 is 0
       final BlackFunctionData dataBlackSmile = new BlackFunctionData(forward, dfDomestic, volVV[loopvv]);
-      EuropeanVanillaOption optionVV = new EuropeanVanillaOption(strikesVV[loopvv], optionForex.getTimeToExpiry(), true);
+      final EuropeanVanillaOption optionVV = new EuropeanVanillaOption(strikesVV[loopvv], optionForex.getTimeToExpiry(), true);
       priceVVAdjATM[loopvv] = BLACK_FUNCTION.getPriceAdjoint(optionVV, dataBlackATM);
       priceVVAdjsmile[loopvv] = BLACK_FUNCTION.getPriceAdjoint(optionVV, dataBlackSmile);
     }
-    double[] priceFlat = BLACK_FUNCTION.getPriceAdjoint(optionForex, dataBlackATM);
+    final double[] priceFlat = BLACK_FUNCTION.getPriceAdjoint(optionForex, dataBlackATM);
     final double[] x = vannaVolgaWeights(optionForex, forward, dfDomestic, strikesVV, volVV);
-    double factor = Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()) * (optionForex.isLong() ? 1.0 : -1.0);
+    final double factor = Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()) * (optionForex.isLong() ? 1.0 : -1.0);
     double pv = priceFlat[0];
     for (int loopvv = 0; loopvv < 3; loopvv = loopvv + 2) {
       pv += x[loopvv] * (priceVVAdjsmile[loopvv][0] - priceVVAdjATM[loopvv][0]);
     }
     pv *= factor;
     // Backward sweep
-    double pvBar = 1.0;
-    double[] priceVVATMBar = new double[3];
-    double[] priceVVsmileBar = new double[3];
+    final double pvBar = 1.0;
+    final double[] priceVVATMBar = new double[3];
+    final double[] priceVVsmileBar = new double[3];
     for (int loopvv = 0; loopvv < 3; loopvv = loopvv + 2) {
       priceVVATMBar[loopvv] = -x[loopvv] * factor * pvBar;
       priceVVsmileBar[loopvv] = x[loopvv] * factor * pvBar;
     }
-    double priceFlatBar = factor * pvBar;
+    final double priceFlatBar = factor * pvBar;
     double forwardBar = priceFlat[1] * priceFlatBar;
     double dfDomesticBar = priceFlat[0] / dfDomestic * priceFlatBar;
     for (int loopvv = 0; loopvv < 3; loopvv = loopvv + 2) {
@@ -268,7 +268,7 @@ public final class ForexOptionVanillaVannaVolgaMethod implements ForexPricingMet
       dfDomesticBar += priceVVAdjsmile[loopvv][0] / dfDomestic * priceVVsmileBar[loopvv];
     }
     dfDomesticBar += -spot * dfForeign / (dfDomestic * dfDomestic) * forwardBar;
-    double dfForeignBar = spot / dfDomestic * forwardBar;
+    final double dfForeignBar = spot / dfDomestic * forwardBar;
     final double rForeignBar = -payTime * dfForeign * dfForeignBar;
     final double rDomesticBar = -payTime * dfDomestic * dfDomesticBar;
     // Sensitivity object
@@ -286,15 +286,15 @@ public final class ForexOptionVanillaVannaVolgaMethod implements ForexPricingMet
   }
 
   @Override
-  public MultipleCurrencyInterestRateCurveSensitivity presentValueCurveSensitivity(InstrumentDerivative instrument, YieldCurveBundle curves) {
+  public MultipleCurrencyInterestRateCurveSensitivity presentValueCurveSensitivity(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof ForexOptionVanilla, "Vanilla Forex option");
     Validate.isTrue(curves instanceof SmileDeltaTermStructureVannaVolgaDataBundle, "Smile delta data bundle required");
     return presentValueCurveSensitivity((ForexOptionVanilla) instrument, (SmileDeltaTermStructureVannaVolgaDataBundle) curves);
   }
 
   /**
-   * Computes the weights used for adjustment in the vanna-volga method. 
-   * The weight for the second adjustment (corresponding to ATM strike) is not computed as the adjustment itself is 0 for that strike in our implementation. 
+   * Computes the weights used for adjustment in the vanna-volga method.
+   * The weight for the second adjustment (corresponding to ATM strike) is not computed as the adjustment itself is 0 for that strike in our implementation.
    * @param optionForex The option.
    * @param forward The forward FX rate.
    * @param dfDomestic The discounting factor to the payment date in the domestic currency.
@@ -302,13 +302,13 @@ public final class ForexOptionVanillaVannaVolgaMethod implements ForexPricingMet
    * @param volatilitiesReference The volatilities at the reference strikes.
    * @return The weights.
    */
-  public double[] vannaVolgaWeights(final ForexOptionVanilla optionForex, double forward, double dfDomestic, double[] strikesReference, double[] volatilitiesReference) {
+  public double[] vannaVolgaWeights(final ForexOptionVanilla optionForex, final double forward, final double dfDomestic, final double[] strikesReference, final double[] volatilitiesReference) {
     return vannaVolgaWeights(optionForex, forward, dfDomestic, strikesReference, volatilitiesReference, new double[3]);
   }
 
   /**
-   * Computes the weights used for adjustment in the vanna-volga method. 
-   * The weight for the second adjustment (corresponding to ATM strike) is not computed as the adjustment itself is 0 for that strike in our implementation. 
+   * Computes the weights used for adjustment in the vanna-volga method.
+   * The weight for the second adjustment (corresponding to ATM strike) is not computed as the adjustment itself is 0 for that strike in our implementation.
    * @param optionForex The option.
    * @param forward The forward FX rate.
    * @param dfDomestic The discounting factor to the payment date in the domestic currency.
@@ -317,15 +317,15 @@ public final class ForexOptionVanillaVannaVolgaMethod implements ForexPricingMet
    * @param vega The vega using the base volatility at the reference points (index 0 and 2) and at the strike (index 1). The array is changed with the method call.
    * @return The weights.
    */
-  public double[] vannaVolgaWeights(final ForexOptionVanilla optionForex, double forward, double dfDomestic, double[] strikesReference, double[] volatilitiesReference, double[] vega) {
-    double strike = optionForex.getStrike();
-    double volATM = volatilitiesReference[1]; // The reference volatility is the "middle" one, which is often ATM.
+  public double[] vannaVolgaWeights(final ForexOptionVanilla optionForex, final double forward, final double dfDomestic, final double[] strikesReference, final double[] volatilitiesReference, final double[] vega) {
+    final double strike = optionForex.getStrike();
+    final double volATM = volatilitiesReference[1]; // The reference volatility is the "middle" one, which is often ATM.
     final BlackFunctionData dataBlackATM = new BlackFunctionData(forward, dfDomestic, volATM);
     for (int loopvv = 0; loopvv < 3; loopvv = loopvv + 2) { // Implementation note: The adjustment for K2 is 0
-      EuropeanVanillaOption optionVV = new EuropeanVanillaOption(strikesReference[loopvv], optionForex.getTimeToExpiry(), true);
+      final EuropeanVanillaOption optionVV = new EuropeanVanillaOption(strikesReference[loopvv], optionForex.getTimeToExpiry(), true);
       vega[loopvv] = BLACK_FUNCTION.getVegaFunction(optionVV).evaluate(dataBlackATM);
     }
-    double vegaFlat = BLACK_FUNCTION.getVegaFunction(optionForex).evaluate(dataBlackATM);
+    final double vegaFlat = BLACK_FUNCTION.getVegaFunction(optionForex).evaluate(dataBlackATM);
     vega[1] = vegaFlat;
     final double lnk21 = Math.log(strikesReference[1] / strikesReference[0]);
     final double lnk31 = Math.log(strikesReference[2] / strikesReference[0]);

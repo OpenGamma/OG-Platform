@@ -65,7 +65,7 @@ public class PresentValueCurveSensitivityConvertedCurveCurrencyCalculator extend
         if (curves.getCcyMap().get(curve).equals(ccy)) { // Identical currencies: no changes
           result = result.plus(curve, pvcs.getSensitivities().get(curve));
         } else { // Different currencies: exchange rate multiplication.
-          final double fxRate = curves.getFxRate(curves.getCcyMap().get(curve), ccy);
+          final double fxRate = curves.getFxRates().getFxRate(curves.getCcyMap().get(curve), ccy);
           result = result.plus(curve, InterestRateCurveSensitivityUtils.multiplySensitivity(pvcs.getSensitivities().get(curve), fxRate));
         }
       }

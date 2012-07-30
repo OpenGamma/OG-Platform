@@ -88,7 +88,7 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
       amount = Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount());
       omega = optionForex.isCall() ? -1.0 : 1.0;
     }
-    final double spot = smile.getFxRate(foreignCcy, domesticCcy);
+    final double spot = smile.getFxRates().getFxRate(foreignCcy, domesticCcy);
     final double forward = spot * dfForeign / dfDomestic;
     final double volatility = smile.getVolatility(foreignCcy, domesticCcy, optionForex.getExpirationTime(), strike, forward);
     final double sigmaRootT = volatility * Math.sqrt(expiry);
@@ -140,7 +140,7 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
       amount = Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount());
       omega = optionForex.isCall() ? -1.0 : 1.0;
     }
-    final double spot = smile.getFxRate(foreignCcy, domesticCcy);
+    final double spot = smile.getFxRates().getFxRate(foreignCcy, domesticCcy);
     final double forward = spot * dfForeign / dfDomestic;
     final double volatility = smile.getVolatility(foreignCcy, domesticCcy, optionForex.getExpirationTime(), strike, forward);
     final double sigmaRootT = volatility * Math.sqrt(expiry);
@@ -202,7 +202,7 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
     }
     final double dfDomestic = smile.getCurve(domesticCurveName).getDiscountFactor(payTime);
     final double dfForeign = smile.getCurve(foreignCurveName).getDiscountFactor(payTime);
-    final double spot = smile.getFxRate(foreignCcy, domesticCcy);
+    final double spot = smile.getFxRates().getFxRate(foreignCcy, domesticCcy);
     final double forward = spot * dfForeign / dfDomestic;
     final double volatility = smile.getVolatility(foreignCcy, domesticCcy, optionForex.getExpirationTime(), strike, forward);
     final double sigmaRootT = volatility * Math.sqrt(expiry);
@@ -283,7 +283,7 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
     }
     final double dfDomestic = smile.getCurve(domesticCurveName).getDiscountFactor(payTime);
     final double dfForeign = smile.getCurve(foreignCurveName).getDiscountFactor(payTime);
-    final double spot = smile.getFxRate(foreignCcy, domesticCcy);
+    final double spot = smile.getFxRates().getFxRate(foreignCcy, domesticCcy);
     final double forward = spot * dfForeign / dfDomestic;
     final double volatility = smile.getVolatility(foreignCcy, domesticCcy, optionForex.getExpirationTime(), strike, forward);
     final double sigmaRootT = volatility * Math.sqrt(expiry);
@@ -349,7 +349,7 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
     }
     final double dfDomestic = smile.getCurve(domesticCurveName).getDiscountFactor(payTime);
     final double dfForeign = smile.getCurve(foreignCurveName).getDiscountFactor(payTime);
-    final double spot = smile.getFxRate(foreignCcy, domesticCcy);
+    final double spot = smile.getFxRates().getFxRate(foreignCcy, domesticCcy);
     final double forward = spot * dfForeign / dfDomestic;
     smile.getVolatility(foreignCcy, domesticCcy, expiry, strike, forward, nodeWeight);
     final DoublesPair point = DoublesPair.of(optionForex.getExpirationTime(), (foreignCcy == smile.getCurrencyPair().getFirst()) ? strike : 1.0 / strike);
