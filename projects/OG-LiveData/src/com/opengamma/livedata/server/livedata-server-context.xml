@@ -163,20 +163,6 @@
   <alias name="standardCacheManager" alias="cacheManager"/>
   <alias name="standardMBeanServer" alias="mbeanServer"/>
 
-  <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-    <property name="staticMethod" value="net.sf.ehcache.management.ManagementService.registerMBeans"/>
-    <property name="arguments">
-      <list>
-        <ref bean="cacheManager" />
-        <ref bean="mbeanServer" />
-        <value>true</value>
-        <value>true</value>
-        <value>true</value>
-        <value>true</value>
-      </list>
-    </property>
-  </bean>
-
   <bean id="serverMBean" class="com.opengamma.livedata.server.LiveDataServerMBean">
     <constructor-arg ref="liveDataServer"/>
   </bean>
