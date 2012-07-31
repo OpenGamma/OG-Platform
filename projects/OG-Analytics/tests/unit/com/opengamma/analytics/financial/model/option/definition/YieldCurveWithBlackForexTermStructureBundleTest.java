@@ -5,10 +5,14 @@
  */
 package com.opengamma.analytics.financial.model.option.definition;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.forex.method.TestsDataSetsForex;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -45,4 +49,22 @@ public class YieldCurveWithBlackForexTermStructureBundleTest {
     new YieldCurveWithBlackForexTermStructureBundle(CURVES, VOLS, null);
   }
 
+  @Test
+  public void testObject() {
+    assertEquals(VOLS, FX_DATA.getVolatilityData());
+    YieldCurveWithBlackForexTermStructureBundle other = new YieldCurveWithBlackForexTermStructureBundle(CURVES, VOLS, CCYS);
+    assertEquals(other, FX_DATA);
+    assertEquals(other.hashCode(), FX_DATA.hashCode());
+    final YieldCurveBundle otherCurves = new YieldCurveBundle();
+    final YieldAndDiscountCurve curve = CURVES.getCurve(CURVES.getAllNames().iterator().next());
+    for (final String name : CURVES.getAllNames()) {
+      otherCurves.setCurve(name, curve);
+    }
+    other = new YieldCurveWithBlackForexTermStructureBundle(otherCurves, VOLS, CCYS);
+    assertFalse(FX_DATA.equals(other));
+    other = new YieldCurveWithBlackForexTermStructureBundle(CURVES, new BlackForexTermStructureParameters(InterpolatedDoublesCurve.fromSorted(NODES, VOL, LINEAR_FLAT)), CCYS);
+    assertFalse(FX_DATA.equals(other));
+    other = new YieldCurveWithBlackForexTermStructureBundle(CURVES, VOLS, Pair.of(Currency.USD, Currency.GBP));
+    assertFalse(FX_DATA.equals(other));
+  }
 }

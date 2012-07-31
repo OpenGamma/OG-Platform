@@ -5,6 +5,9 @@
  */
 package com.opengamma.analytics.financial.model.option.definition;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+
 import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
@@ -47,5 +50,19 @@ public class SmileDeltaTermStructureDataBundleTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCcys() {
     new SmileDeltaTermStructureDataBundle(CURVES, SMILES, null);
+  }
+
+  @Test
+  public void testObject() {
+    assertEquals(FX_DATA.getVolatilityData(), SMILES);
+    SmileDeltaTermStructureDataBundle other = new SmileDeltaTermStructureDataBundle(CURVES, SMILES, CCYS);
+    assertEquals(FX_DATA, other);
+    assertEquals(FX_DATA.hashCode(), other.hashCode());
+    other = new SmileDeltaTermStructureDataBundle(TestsDataSetsForex.createCurvesForex(), SMILES, CCYS);
+    assertFalse(FX_DATA.equals(other));
+    other = new SmileDeltaTermStructureDataBundle(CURVES, TestsDataSetsForex.smile5points(REFERENCE_DATE, 1), CCYS);
+    assertFalse(FX_DATA.equals(other));
+    other = new SmileDeltaTermStructureDataBundle(CURVES, SMILES, Pair.of(Currency.USD, Currency.GBP));
+    assertFalse(FX_DATA.equals(other));
   }
 }

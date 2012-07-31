@@ -5,6 +5,9 @@
  */
 package com.opengamma.analytics.financial.model.option.definition;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+
 import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
@@ -32,6 +35,7 @@ public class SmileDeltaTermStructureVannaVolgaDataBundleTest {
   private static final Pair<Currency, Currency> CCYS = Pair.of(Currency.USD, Currency.EUR);
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 13);
   private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILES = TestsDataSetsForex.smile3points(REFERENCE_DATE, Interpolator1DFactory.LINEAR_INSTANCE);
+  private static final SmileDeltaTermStructureVannaVolgaDataBundle FX_DATA = new SmileDeltaTermStructureVannaVolgaDataBundle(CURVES, SMILES, CCYS);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurves() {
@@ -46,5 +50,19 @@ public class SmileDeltaTermStructureVannaVolgaDataBundleTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCcys() {
     new SmileDeltaTermStructureVannaVolgaDataBundle(CURVES, SMILES, null);
+  }
+
+  @Test
+  public void testObject() {
+    assertEquals(FX_DATA.getSmile(), SMILES);
+    SmileDeltaTermStructureVannaVolgaDataBundle other = new SmileDeltaTermStructureVannaVolgaDataBundle(CURVES, SMILES, CCYS);
+    assertEquals(FX_DATA, other);
+    assertEquals(FX_DATA.hashCode(), other.hashCode());
+    other = new SmileDeltaTermStructureVannaVolgaDataBundle(TestsDataSetsForex.createCurvesForex(), SMILES, CCYS);
+    assertFalse(FX_DATA.equals(other));
+    other = new SmileDeltaTermStructureVannaVolgaDataBundle(CURVES, TestsDataSetsForex.smile3points(REFERENCE_DATE, Interpolator1DFactory.LOG_LINEAR_INSTANCE), CCYS);
+    assertFalse(FX_DATA.equals(other));
+    other = new SmileDeltaTermStructureVannaVolgaDataBundle(CURVES, SMILES, Pair.of(Currency.USD, Currency.GBP));
+    assertFalse(FX_DATA.equals(other));
   }
 }

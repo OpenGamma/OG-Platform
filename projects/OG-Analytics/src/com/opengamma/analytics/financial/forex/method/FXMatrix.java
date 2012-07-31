@@ -188,8 +188,7 @@ public class FXMatrix {
     final int prime = 31;
     int result = 1;
     result = prime * result + _currencies.hashCode();
-    result = prime * result + Arrays.hashCode(_fxRates);
-    result = prime * result + _nbCurrencies;
+    result = prime * result + Arrays.deepHashCode(_fxRates);
     return result;
   }
 
@@ -209,9 +208,6 @@ public class FXMatrix {
       return false;
     }
     if (!Arrays.deepEquals(_fxRates, other._fxRates)) {
-      return false;
-    }
-    if (_nbCurrencies != other._nbCurrencies) {
       return false;
     }
     return true;

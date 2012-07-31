@@ -79,6 +79,7 @@ public class YieldCurveWithBlackForexTermStructureBundle extends YieldCurveBundl
     final int prime = 31;
     int result = super.hashCode();
     result = prime * result + _termStructure.hashCode();
+    result = prime * result + _currencyPair.hashCode();
     return result;
   }
 
@@ -95,6 +96,9 @@ public class YieldCurveWithBlackForexTermStructureBundle extends YieldCurveBundl
     }
     final YieldCurveWithBlackForexTermStructureBundle other = (YieldCurveWithBlackForexTermStructureBundle) obj;
     if (!ObjectUtils.equals(_termStructure, other._termStructure)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_currencyPair, other._currencyPair)) {
       return false;
     }
     return true;

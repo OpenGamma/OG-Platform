@@ -267,7 +267,9 @@ public class YieldCurveBundle {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
+    result = prime * result + _curveCurrency.hashCode();
     result = prime * result + _curves.hashCode();
+    result = prime * result + _fxMatrix.hashCode();
     return result;
   }
 
@@ -283,7 +285,17 @@ public class YieldCurveBundle {
       return false;
     }
     final YieldCurveBundle other = (YieldCurveBundle) obj;
-    return ObjectUtils.equals(_curves, other._curves);
+    if (!ObjectUtils.equals(_curveCurrency, other._curveCurrency)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_curves, other._curves)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_fxMatrix, other._fxMatrix)) {
+      return false;
+    }
+    return true;
   }
+
 
 }
