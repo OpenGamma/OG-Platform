@@ -12,7 +12,7 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.util.ArgumentChecker;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
@@ -55,6 +55,7 @@ public class SmileInterpolatorSpline implements GeneralSmileInterpolator {
     final double volH = impliedVols[n - 1];
 
     final double[] x = new double[n];
+
     for (int i = 0; i < n; i++) {
       x[i] = Math.log(strikes[i] / forward);
     }
@@ -78,31 +79,22 @@ public class SmileInterpolatorSpline implements GeneralSmileInterpolator {
       }
     };
 
-    final Function1D<Double, Double> dSigmaDx = DIFFERENTIATOR.differentiate(interpFunc, domain);
+    final Function1D<Double, Double> fnDSigmaDx = DIFFERENTIATOR.differentiate(interpFunc, domain);
 
-    double gradL = dSigmaDx.evaluate(kL);
-    double gradH = dSigmaDx.evaluate(kH);
+    // High strike extrapolation  
+    final ArrayList<Double> highParamsShiftVolStrike = TAIL_FITTER.fitVolatilityAndGradRecursively(forward, strikes, impliedVols, fnDSigmaDx, expiry, false);
 
-    // High strike extrapolation
-    double[] highShiftAndVol;
-    try {
-      highShiftAndVol = TAIL_FITTER.fitVolatilityAndGrad(forward, kH, volH, gradH, expiry);
-    } catch (Exception e) {
-      highShiftAndVol = TAIL_FITTER.fitVolatilityAndGrad(forward, strikes[n - 2], impliedVols[n - 2], dSigmaDx.evaluate(strikes[n - 2]), expiry);
-    }
-    final double[] shiftLnVolHigh = highShiftAndVol;
-
-    // Low strike extrapolation // TODO Review 
-    final double[] shiftLnVolLow = findLowerShiftedLognormalParams(forward, strikes, impliedVols, dSigmaDx, expiry, TAIL_FITTER);
+    // Low strike extrapolation  
+    final ArrayList<Double> lowParamsShiftVolStrike = TAIL_FITTER.fitVolatilityAndGradRecursively(forward, strikes, impliedVols, fnDSigmaDx, expiry, true);
 
     // Resulting Functional Vol Surface
     Function1D<Double, Double> volSmileFunction = new Function1D<Double, Double>() {
       @Override
       public Double evaluate(final Double k) {
-        if (k < kL) {
-          return ShiftedLogNormalTailExtrapolation.impliedVolatility(forward, k, expiry, shiftLnVolLow[0], shiftLnVolLow[1]);
-        } else if (k > kH) {
-          return ShiftedLogNormalTailExtrapolation.impliedVolatility(forward, k, expiry, shiftLnVolHigh[0], shiftLnVolHigh[1]);
+        if (k < lowParamsShiftVolStrike.get(2)) {
+          return ShiftedLogNormalTailExtrapolation.impliedVolatility(forward, k, expiry, lowParamsShiftVolStrike.get(0), lowParamsShiftVolStrike.get(1));
+        } else if (k > highParamsShiftVolStrike.get(2)) {
+          return ShiftedLogNormalTailExtrapolation.impliedVolatility(forward, k, expiry, highParamsShiftVolStrike.get(0), highParamsShiftVolStrike.get(1));
         } else {
           return interpFunc.evaluate(k);
         }
@@ -114,19 +106,6 @@ public class SmileInterpolatorSpline implements GeneralSmileInterpolator {
     //    }
 
     return volSmileFunction;
-  }
-
-  private double[] findLowerShiftedLognormalParams(double forward, double[] strikes, double[] vols, Function1D<Double, Double> dSigmaDx, double expiry,
-      ShiftedLogNormalTailExtrapolationFitter fitter) {
-    double[] shiftAndVol;
-    try {
-      shiftAndVol = fitter.fitVolatilityAndGrad(forward, strikes[0], vols[0], dSigmaDx.evaluate(strikes[0]), expiry);
-    } catch (Exception e) {
-      LOG.error("Extrapolation - Caught " + e + "\nExpiry = " + expiry + "- failed to fit left tail to " + strikes[0] + ". Check volatilities. Using next strike in domain");
-      return findLowerShiftedLognormalParams(forward, Arrays.copyOfRange(strikes, 1, strikes.length), Arrays.copyOfRange(vols, 1, vols.length), dSigmaDx, expiry, fitter);
-
-    }
-    return shiftAndVol;
   }
 
   public Interpolator1D getInterpolator() {
