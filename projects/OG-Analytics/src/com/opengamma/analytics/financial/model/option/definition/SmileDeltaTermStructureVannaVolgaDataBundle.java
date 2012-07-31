@@ -5,9 +5,9 @@
  */
 package com.opengamma.analytics.financial.model.option.definition;
 
-import java.util.Map;
+import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -29,17 +29,15 @@ public class SmileDeltaTermStructureVannaVolgaDataBundle extends YieldCurveBundl
 
   /**
    * Constructor from the smile parameters and the curves.
-   * @param fxRates The FX cross rate matrix.
-   * @param curveCurrency A map linking each curve in the bundle to its currency.
-   * @param ycBundle The curves bundle.
-   * @param smile The smile parameters.
-   * @param currencyPair The currency pair for which the smile is valid.
+   * @param ycBundle The curves bundle, not null
+   * @param smile The smile parameters, not null
+   * @param currencyPair The currency pair for which the smile is valid, not null
    */
-  public SmileDeltaTermStructureVannaVolgaDataBundle(final FXMatrix fxRates, final Map<String, Currency> curveCurrency, final YieldCurveBundle ycBundle, final SmileDeltaTermStructureParameters smile,
-      Pair<Currency, Currency> currencyPair) {
-    super(ycBundle.getCurvesMap(), fxRates, curveCurrency);
+  public SmileDeltaTermStructureVannaVolgaDataBundle(final YieldCurveBundle ycBundle, final SmileDeltaTermStructureParameters smile, final Pair<Currency, Currency> currencyPair) {
+    super(ycBundle);
     ArgumentChecker.notNull(smile, "Smile parameters");
-    ArgumentChecker.isTrue(smile.getNumberStrike() == 3, "Vanna-volga methods works only with three strikes");
+    ArgumentChecker.isTrue(smile.getNumberStrike() == 3, "Vanna-volga methods work only with three strikes");
+    ArgumentChecker.notNull(currencyPair, "currency pair");
     //TODO: check rate is available for currency pair.
     _smile = smile;
     _currencyPair = currencyPair;
@@ -47,11 +45,14 @@ public class SmileDeltaTermStructureVannaVolgaDataBundle extends YieldCurveBundl
 
   @Override
   /**
-   * Create a new copy of the bundle using a new map and the same curve and curve names. The same FXMatrix is used.
+   * Create a  copy of the bundle.
    * @return The bundle.
    */
   public SmileDeltaTermStructureVannaVolgaDataBundle copy() {
-    return new SmileDeltaTermStructureVannaVolgaDataBundle(getFxRates(), getCcyMap(), this, _smile, _currencyPair);
+    final YieldCurveBundle curves = super.copy();
+    final SmileDeltaTermStructureParameters smile = _smile.copy();
+    final Pair<Currency, Currency> currencyPair = Pair.of(_currencyPair.getFirst(), _currencyPair.getSecond());
+    return new SmileDeltaTermStructureVannaVolgaDataBundle(curves, smile, currencyPair);
   }
 
   /**
@@ -67,19 +68,18 @@ public class SmileDeltaTermStructureVannaVolgaDataBundle extends YieldCurveBundl
   }
 
   /**
-   * Get the volatility at a given time/strike/forward taking the currency pair order in account. See {@link SmileDeltaTermStructureParametersStrikeInterpolation} for the interpolation/extrapolation. 
+   * Get the volatility at a given time/strike/forward taking the currency pair order in account. See {@link SmileDeltaTermStructureParametersStrikeInterpolation} for the interpolation/extrapolation.
    * @param ccy1 The first currency.
    * @param ccy2 The second currency.
    * @param time The time to expiration.
    * @return The volatility.
    */
-  public SmileDeltaParameters smile(final Currency ccy1, final Currency ccy2, double time) {
-    SmileDeltaParameters smile = _smile.smile(time);
+  public SmileDeltaParameters getSmile(final Currency ccy1, final Currency ccy2, final double time) {
+    final SmileDeltaParameters smile = _smile.getSmileForTime(time);
     if ((ccy1 == _currencyPair.getFirst()) && (ccy2 == _currencyPair.getSecond())) {
       return smile;
     }
-    // TODO: develop the approach when the currency pair is in the inverse order: delta is different
-    return null;
+    throw new NotImplementedException("Currency pair is not in expected order " + _currencyPair.toString());
   }
 
   /**
@@ -88,14 +88,45 @@ public class SmileDeltaTermStructureVannaVolgaDataBundle extends YieldCurveBundl
    * @param ccy2 The other currency.
    * @return True if the currencies match the pair (in any order) and False otherwise.
    */
-  public boolean checkCurrencies(Currency ccy1, Currency ccy2) {
-    if ((ccy1 == _currencyPair.getFirst()) && (ccy2 == _currencyPair.getSecond())) {
+  public boolean checkCurrencies(final Currency ccy1, final Currency ccy2) {
+    if ((ccy1.equals(_currencyPair.getFirst())) && ccy2.equals(_currencyPair.getSecond())) {
       return true;
     }
-    if ((ccy2 == _currencyPair.getFirst()) && (ccy1 == _currencyPair.getSecond())) {
+    if ((ccy2.equals(_currencyPair.getFirst())) && ccy1.equals(_currencyPair.getSecond())) {
       return true;
     }
     return false;
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + _currencyPair.hashCode();
+    result = prime * result + _smile.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final SmileDeltaTermStructureVannaVolgaDataBundle other = (SmileDeltaTermStructureVannaVolgaDataBundle) obj;
+    if (!ObjectUtils.equals(_currencyPair, other._currencyPair)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_smile, other._smile)) {
+      return false;
+    }
+    return true;
+  }
+
 
 }

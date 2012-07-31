@@ -24,7 +24,7 @@ public class SmileDeltaTermStructureParametersStrikeInterpolation extends SmileD
   /**
    * The interpolator/extrapolator used in the strike dimension.
    */
-  private final Interpolator1D _interpolatorStrike;
+  private final Interpolator1D _strikeInterpolator;
 
   /**
    * The default interpolator: linear with flat extrapolation.
@@ -47,7 +47,7 @@ public class SmileDeltaTermStructureParametersStrikeInterpolation extends SmileD
    */
   public SmileDeltaTermStructureParametersStrikeInterpolation(final SmileDeltaParameters[] volatilityTerm, final Interpolator1D interpolator) {
     super(volatilityTerm);
-    _interpolatorStrike = interpolator;
+    _strikeInterpolator = interpolator;
   }
 
   /**
@@ -67,11 +67,11 @@ public class SmileDeltaTermStructureParametersStrikeInterpolation extends SmileD
    * @param delta The delta at which the volatilities are given. Must be positive and sorted in ascending order. The put will have as delta the opposite of the numbers.
    * Common to all time to expiration.
    * @param volatility The volatilities at each delta.
-   * @param interpolator The interpolator used in the strike dimension.
+   * @param strikeInterpolator The interpolator used in the strike dimension.
    */
-  public SmileDeltaTermStructureParametersStrikeInterpolation(final double[] timeToExpiration, final double[] delta, final double[][] volatility, final Interpolator1D interpolator) {
+  public SmileDeltaTermStructureParametersStrikeInterpolation(final double[] timeToExpiration, final double[] delta, final double[][] volatility, final Interpolator1D strikeInterpolator) {
     super(timeToExpiration, delta, volatility);
-    _interpolatorStrike = interpolator;
+    _strikeInterpolator = strikeInterpolator;
   }
 
   /**
@@ -93,12 +93,13 @@ public class SmileDeltaTermStructureParametersStrikeInterpolation extends SmileD
    * @param atm The ATM volatilities for each time to expiration. The length should be equal to the length of timeToExpiration.
    * @param riskReversal The risk reversal figures.
    * @param strangle The strangle figures.
-   * @param interpolatorStrike The interpolator used in the strike dimension.
+   * @param strikeInterpolator The interpolator used in the strike dimension.
    */
   public SmileDeltaTermStructureParametersStrikeInterpolation(final double[] timeToExpiration, final double[] delta, final double[] atm, final double[][] riskReversal, final double[][] strangle,
-      final Interpolator1D interpolatorStrike) {
+      final Interpolator1D strikeInterpolator) {
     super(timeToExpiration, delta, atm, riskReversal, strangle);
-    _interpolatorStrike = interpolatorStrike;
+    ArgumentChecker.notNull(strikeInterpolator, "strike interpolator");
+    _strikeInterpolator = strikeInterpolator;
   }
 
   /**
@@ -108,13 +109,22 @@ public class SmileDeltaTermStructureParametersStrikeInterpolation extends SmileD
    * @param atm The ATM volatilities for each time to expiration. The length should be equal to the length of timeToExpiration.
    * @param riskReversal The risk reversal figures.
    * @param strangle The strangle figures.
-   * @param interpolatorStrike The interpolator used in the strike dimension.
+   * @param strikeInterpolator The interpolator used in the strike dimension.
    * @param interpolatorTime The interpolator used in the time dimension.
    */
   public SmileDeltaTermStructureParametersStrikeInterpolation(final double[] timeToExpiration, final double[] delta, final double[] atm, final double[][] riskReversal, final double[][] strangle,
-      final Interpolator1D interpolatorStrike, final Interpolator1D interpolatorTime) {
+      final Interpolator1D strikeInterpolator, final Interpolator1D interpolatorTime) {
     super(timeToExpiration, delta, atm, riskReversal, strangle, interpolatorTime);
-    _interpolatorStrike = interpolatorStrike;
+    _strikeInterpolator = strikeInterpolator;
+  }
+
+  /**
+   * Create a copy of the bundle
+   * @return A copy of the bundle
+   */
+  @Override
+  public SmileDeltaTermStructureParametersStrikeInterpolation copy() {
+    return new SmileDeltaTermStructureParametersStrikeInterpolation(getVolatilityTerm(), getStrikeInterpolator());
   }
 
   /**
@@ -127,10 +137,10 @@ public class SmileDeltaTermStructureParametersStrikeInterpolation extends SmileD
    */
   public double getVolatility(final double time, final double strike, final double forward) {
     ArgumentChecker.isTrue(time >= 0, "Positive time");
-    final SmileDeltaParameters smile = smile(time);
+    final SmileDeltaParameters smile = getSmileForTime(time);
     final double[] strikes = smile.getStrike(forward);
-    final Interpolator1DDataBundle volatilityInterpolation = _interpolatorStrike.getDataBundle(strikes, smile.getVolatility());
-    final double volatility = _interpolatorStrike.interpolate(volatilityInterpolation, strike);
+    final Interpolator1DDataBundle volatilityInterpolation = _strikeInterpolator.getDataBundle(strikes, smile.getVolatility());
+    final double volatility = _strikeInterpolator.interpolate(volatilityInterpolation, strike);
     return volatility;
   }
 
@@ -139,30 +149,31 @@ public class SmileDeltaTermStructureParametersStrikeInterpolation extends SmileD
    * @param time The time to expiration.
    * @param strike The strike.
    * @param forward The forward.
-   * @param bucketSensitivity The array is changed by the method. The array should have the correct size (nbExpiry x nbVolatility). 
+   * @param bucketSensitivity The array is changed by the method. The array should have the correct size (nbExpiry x nbVolatility).
    * After the methods, it contains the volatility sensitivity to the data points.
    * Only the lines of impacted dates are changed. The input data on the other lines will not be changed.
    * @return The volatility.
    */
   public double getVolatility(final double time, final double strike, final double forward, final double[][] bucketSensitivity) {
     ArgumentChecker.isTrue(time >= 0, "Positive time");
-    SmileDeltaParameters smile = smile(time);
+    SmileDeltaParameters smile = getSmileForTime(time);
     final double[] strikes = smile.getStrike(forward);
-    final Interpolator1DDataBundle volatilityInterpolation = _interpolatorStrike.getDataBundle(strikes, smile.getVolatility());
-    final double volatility = _interpolatorStrike.interpolate(volatilityInterpolation, strike);
+    final Interpolator1DDataBundle volatilityInterpolation = _strikeInterpolator.getDataBundle(strikes, smile.getVolatility());
+    final double volatility = _strikeInterpolator.interpolate(volatilityInterpolation, strike);
     // Backward sweep
-    final double[] smileVolatilityBar = _interpolatorStrike.getNodeSensitivitiesForValue(volatilityInterpolation, strike);
-    smile = smile(time, smileVolatilityBar, bucketSensitivity);
+    final double[] smileVolatilityBar = _strikeInterpolator.getNodeSensitivitiesForValue(volatilityInterpolation, strike);
+    smile = getSmileAndSensitivitiesForTime(time, smileVolatilityBar, bucketSensitivity);
     return volatility;
   }
 
   /**
    * Get the volatility from a triple.
-   * @param tsf The Time, Strike, Forward triple.
+   * @param tsf The Time, Strike, Forward triple, not null
    * @return The volatility.
    */
   @Override
   public Double getVolatility(final Triple<Double, Double, Double> tsf) {
+    ArgumentChecker.notNull(tsf, "time/strike/forward triple");
     return getVolatility(tsf.getFirst(), tsf.getSecond(), tsf.getThird());
   }
 
@@ -170,20 +181,20 @@ public class SmileDeltaTermStructureParametersStrikeInterpolation extends SmileD
    * Gets the interpolator
    * @return The interpolator
    */
-  public Interpolator1D getInterpolator() {
-    return _interpolatorStrike;
+  public Interpolator1D getStrikeInterpolator() {
+    return _strikeInterpolator;
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + _interpolatorStrike.hashCode();
+    result = prime * result + _strikeInterpolator.hashCode();
     return result;
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -193,8 +204,8 @@ public class SmileDeltaTermStructureParametersStrikeInterpolation extends SmileD
     if (getClass() != obj.getClass()) {
       return false;
     }
-    SmileDeltaTermStructureParametersStrikeInterpolation other = (SmileDeltaTermStructureParametersStrikeInterpolation) obj;
-    if (!ObjectUtils.equals(_interpolatorStrike, other._interpolatorStrike)) {
+    final SmileDeltaTermStructureParametersStrikeInterpolation other = (SmileDeltaTermStructureParametersStrikeInterpolation) obj;
+    if (!ObjectUtils.equals(_strikeInterpolator, other._strikeInterpolator)) {
       return false;
     }
     return true;

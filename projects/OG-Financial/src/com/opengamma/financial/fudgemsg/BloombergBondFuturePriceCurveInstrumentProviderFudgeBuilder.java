@@ -13,7 +13,6 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.analytics.volatility.surface.BloombergBondFuturePriceCurveInstrumentProvider;
-import com.opengamma.financial.analytics.volatility.surface.BloombergIRFuturePriceCurveInstrumentProvider;
 
 /**
  * 
@@ -24,7 +23,7 @@ public class BloombergBondFuturePriceCurveInstrumentProviderFudgeBuilder impleme
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final BloombergBondFuturePriceCurveInstrumentProvider object) {
     final MutableFudgeMsg message = serializer.newMessage();
-    FudgeSerializer.addClassHeader(message, BloombergIRFuturePriceCurveInstrumentProvider.class);
+    FudgeSerializer.addClassHeader(message, BloombergBondFuturePriceCurveInstrumentProvider.class);
     message.add("futurePrefix", object.getFuturePrefix());
     message.add("postfix", object.getPostfix());
     message.add("dataFieldName", object.getDataFieldName());

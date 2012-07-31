@@ -31,8 +31,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.time.calendar.DateAdjuster;
-import javax.time.calendar.DateAdjusters;
-import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
 import javax.time.calendar.OffsetTime;
@@ -59,6 +57,7 @@ import com.bloomberglp.blpapi.Schema.Datatype;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -182,6 +181,20 @@ public final class BloombergDataUtils {
     s_monthCode.put(MonthOfYear.NOVEMBER, "X");
     s_monthCode.put(MonthOfYear.DECEMBER, "Z");
   }
+
+  /**
+   * The observation time map.
+   */
+  private static final Map<String, String> OBSERVATION_TIME_MAP =
+      ImmutableMap.<String, String>builder().put("CMPL", "LONDON_CLOSE").put("CMPT", "TOKYO_CLOSE").put("CMPN", "NEWYORK_CLOSE").build();
+  /**
+   * The unknown data provider.
+   */
+  public static final String UNKNOWN_DATA_PROVIDER = "UNKNOWN";
+  /**
+   * The unknown observation time.
+   */
+  public static final String UNKNOWN_OBSERVATION_TIME = "UNKNOWN";
 
   /**
    * Restricted constructor.
@@ -862,5 +875,31 @@ public final class BloombergDataUtils {
     }
     return null;
   }
-   
+
+
+  //-------------------------------------------------------------------------
+  /**
+   * Resolves the data provider name.
+   * 
+   * @param dataProvider  the data provider, null returns the unknown value
+   * @return the resolver data provider, not null
+   */
+  public static String resolveDataProvider(String dataProvider) {
+    return (dataProvider == null ? UNKNOWN_DATA_PROVIDER : dataProvider);
+  }
+
+  /**
+   * Resolves the data provider to provide an observation time.
+   * 
+   * @param dataProvider  the data provider, null returns the unknown value
+   * @return the corresponding observation time for the given data provider
+   */
+  public static String resolveObservationTime(final String dataProvider) {
+    if (dataProvider == null) {
+      return UNKNOWN_OBSERVATION_TIME;
+    }
+    String observationTime = OBSERVATION_TIME_MAP.get(dataProvider);
+    return (observationTime == null ? UNKNOWN_OBSERVATION_TIME : observationTime);
+  }
+
 }

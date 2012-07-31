@@ -7,30 +7,28 @@ package com.opengamma.bloombergexample.tool;
 
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import javax.time.calendar.LocalDate;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
+import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergIdentifierProvider;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.component.BloombergTimeSeriesUpdateTool;
 import com.opengamma.bbg.loader.BloombergBulkSecurityLoader;
-import com.opengamma.bbg.loader.BloombergHistoricalLoader;
+import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
 import com.opengamma.bbg.loader.BloombergSecurityLoader;
 import com.opengamma.bbg.tool.BloombergToolContext;
-import com.opengamma.bloombergexample.generator.PortfolioGeneratorTool;
+import com.opengamma.bloombergexample.generator.BloombergExamplePortfolioGeneratorTool;
 import com.opengamma.bloombergexample.loader.CurveNodeHistoricalDataLoader;
 import com.opengamma.bloombergexample.loader.DemoEquityOptionCollarPortfolioLoader;
 import com.opengamma.bloombergexample.loader.ExampleEquityPortfolioLoader;
-import com.opengamma.bloombergexample.loader.ExampleMixedPortfolioLoader;
 import com.opengamma.bloombergexample.loader.ExampleMultiCurrencySwapPortfolioLoader;
-import com.opengamma.bloombergexample.loader.ExampleSwapPortfolioLoader;
 import com.opengamma.bloombergexample.loader.ExampleTimeSeriesRatingLoader;
 import com.opengamma.bloombergexample.loader.ExampleViewsPopulator;
-import com.opengamma.bloombergexample.loader.PortfolioLoaderHelper;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.volatility.surface.FXOptionVolatilitySurfaceConfigPopulator;
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
@@ -40,7 +38,10 @@ import com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider;
 import com.opengamma.financial.timeseries.exchange.ExchangeDataProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.SecuritySearchRequest;
+import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.generate.scripts.Scriptable;
 import com.opengamma.util.money.Currency;
 
@@ -51,16 +52,22 @@ import com.opengamma.util.money.Currency;
  */
 @Scriptable
 public class ExampleDatabasePopulator extends AbstractExampleTool {
-
+  
   /**
    * The name of the generated example FX portfolio.
    */
-  public static final String EXAMPLE_FX_PORTFOLIO = "Example FX Portfolio";
+  public static final String FX_PORTFOLIO_NAME = "FX Portfolio";
+  
+  /**
+   * The name of the multi-currency swap portfolio.
+   */
+  public static final String MULTI_CURRENCY_SWAP_PORTFOLIO_NAME = "Multi-currency Swap Portfolio";
   
   /**
    * The currencies.
    */
-  private static final Set<Currency> s_currencies = Sets.newHashSet(Currency.USD, Currency.GBP, Currency.EUR, Currency.JPY, Currency.CHF, Currency.AUD, Currency.CAD);
+  private static final Currency[] s_currencies = new Currency[] {Currency.USD, Currency.GBP, Currency.EUR, Currency.JPY, Currency.CHF, Currency.AUD, Currency.CAD};
+  
 
   //-------------------------------------------------------------------------
 
@@ -93,22 +100,19 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
     loadEquityPortfolio();
     loadHistoricalData(_curveNodesExternalIds, _initialRateExternalIds, eurUsdId);
     loadVolSurfaceData();
-    loadSwapPortfolio();
     loadFXPortfolio();
     loadMultiCurrencySwapPortfolio();
-    //loadLiborRawSecurities();
-    //loadMixedPortfolio();
     loadEquityOptionPortfolio();
     loadViews();       
   }
   
-  private PortfolioGeneratorTool portfolioGeneratorTool() {
-    final PortfolioGeneratorTool tool = new PortfolioGeneratorTool();
+  private BloombergExamplePortfolioGeneratorTool portfolioGeneratorTool() {
+    final BloombergExamplePortfolioGeneratorTool tool = new BloombergExamplePortfolioGeneratorTool();
     tool.setCounterPartyGenerator(new StaticNameGenerator(AbstractPortfolioGeneratorTool.DEFAULT_COUNTER_PARTY));
     return tool;
   }
 
-  private void loadEquityOptionPortfolio(){
+  private void loadEquityOptionPortfolio() {
     DemoEquityOptionCollarPortfolioLoader loader = new DemoEquityOptionCollarPortfolioLoader();    
     loader.setNumOptions(2);
     loader.setNumMembers(8);
@@ -128,13 +132,6 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
 
   private void loadVolSurfaceData() {
     FXOptionVolatilitySurfaceConfigPopulator.populateVolatilitySurfaceConfigMaster(getToolContext().getConfigMaster());
-  }
-
-  private void loadMixedPortfolio() {
-    ExampleMixedPortfolioLoader mixedPortfolioLoader = new ExampleMixedPortfolioLoader();
-    System.out.println("Creating example mixed portfolio");
-    mixedPortfolioLoader.run(getToolContext());
-    System.out.println("Finished");
   }
 
   private void loadTimeSeriesRating() {
@@ -158,35 +155,40 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
       throw new OpenGammaRuntimeException("The " + BloombergTimeSeriesUpdateTool.class.getSimpleName() +
         " requires a tool context which implements " + BloombergToolContext.class.getName());
     }
-    BloombergHistoricalLoader loader = new BloombergHistoricalLoader(
+    BloombergHistoricalTimeSeriesLoader loader = new BloombergHistoricalTimeSeriesLoader(
       getToolContext().getHistoricalTimeSeriesMaster(),
       ((BloombergToolContext) getToolContext()).getBloombergHistoricalTimeSeriesSource(),
       new BloombergIdentifierProvider(((BloombergToolContext) getToolContext()).getBloombergReferenceDataProvider()));
-    loader.setReload(true);
 
     Collection<EquitySecurity> securities = readEquitySecurities();
     for (final EquitySecurity security : securities) {
-      loader.addTimeSeries(ImmutableSet.of(security.getExternalIdBundle().getExternalId(ExternalSchemes.BLOOMBERG_TICKER)), "CMPL", "PX_LAST", LocalDate.now().minusYears(1), null);
+      loader.addTimeSeries(ImmutableSet.of(security.getExternalIdBundle().getExternalId(ExternalSchemes.BLOOMBERG_TICKER)), "CMPL", "PX_LAST", LocalDate.now().minusYears(1), LocalDate.now());
     }
     for (Set<ExternalId> externalIds : externalIdSets) {
       if (externalIds.size() > 0) {
-        loader.addTimeSeries(externalIds, "CMPL", "PX_LAST", LocalDate.now().minusYears(1), null);
+        loader.addTimeSeries(externalIds, "CMPL", "PX_LAST", LocalDate.now().minusYears(1), LocalDate.now());
       }
     }
     System.out.println("Finished");
+  }
+
+  private Collection<EquitySecurity> readEquitySecurities() {
+    List<EquitySecurity> result = Lists.newArrayList();
+    SecurityMaster securityMaster = getToolContext().getSecurityMaster();
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.setSecurityType(EquitySecurity.SECURITY_TYPE);
+    SecuritySearchResult searchResult = securityMaster.search(request);
+    List<SecurityDocument> documents = searchResult.getDocuments();
+    for (SecurityDocument securityDocument : documents) {
+      result.add((EquitySecurity) securityDocument.getSecurity());
+    }
+    return result;
   }
 
   private void loadEquityPortfolio() {
     ExampleEquityPortfolioLoader equityLoader = new ExampleEquityPortfolioLoader();
     System.out.println("Creating example equity portfolio");
     equityLoader.run(getToolContext());
-    System.out.println("Finished");
-  }
-
-  private void loadSwapPortfolio() {
-    ExampleSwapPortfolioLoader swapLoader = new ExampleSwapPortfolioLoader();
-    System.out.println("Creating example swap portfolio");
-    swapLoader.run(getToolContext());
     System.out.println("Finished");
   }
 
@@ -199,13 +201,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
 
   private void loadFXPortfolio() {
     System.out.println("Creating FX portfolio");
-    portfolioGeneratorTool().run(getToolContext(), "Example FX Portfolio", "EuroDollarFX", true, getAllCurrencies().toArray(new Currency[] {}));
-    System.out.println("Finished");
-  }
-
-  private void loadLiborRawSecurities() {
-    System.out.println("Creating libor raw securities");
-    PortfolioLoaderHelper.persistLiborRawSecurities(getAllCurrencies(), getToolContext());
+    portfolioGeneratorTool().run(getToolContext(), FX_PORTFOLIO_NAME, "EuroDollarFX", true, s_currencies);
     System.out.println("Finished");
   }
 
@@ -215,9 +211,5 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
     populator.run(getToolContext());
     System.out.println("Finished");
   }
-
-  private static Set<Currency> getAllCurrencies() {
-    return s_currencies;
-  }
-
+  
 }

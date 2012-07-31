@@ -79,10 +79,10 @@ public class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> 
     return updatedIds;
   }
 
-  public void updateViewport(String viewportId,
+  public long updateViewport(String viewportId,
                              ViewportSpecification viewportSpec,
                              ViewCycle cycle,
                              ResultsCache cache) {
-    getViewport(viewportId).update(viewportSpec, cycle, cache);
+    return getViewport(viewportId).update(viewportSpec, cycle, cache);
   }
 }

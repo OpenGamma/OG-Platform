@@ -16,7 +16,7 @@ import org.springframework.util.StringUtils;
 
 import com.opengamma.bbg.BloombergIdentifierProvider;
 import com.opengamma.bbg.ReferenceDataProvider;
-import com.opengamma.bbg.loader.BloombergHistoricalLoader;
+import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
@@ -74,8 +74,8 @@ public class ResolvingPortfolioCopier implements PortfolioCopier {
     
     // Get bbg hts loader
     BloombergIdentifierProvider bbgIdentifierProvider = new BloombergIdentifierProvider(_bbgRefDataProvider);
-    BloombergHistoricalLoader bbgLoader = new BloombergHistoricalLoader(_htsMaster, _bbgHtsSource, bbgIdentifierProvider);
-
+    BloombergHistoricalTimeSeriesLoader bbgLoader = new BloombergHistoricalTimeSeriesLoader(_htsMaster, _bbgHtsSource, bbgIdentifierProvider);
+    
     ObjectsPair<ManageablePosition, ManageableSecurity[]> next;
 
     // Read in next row, checking for EOF
@@ -116,8 +116,8 @@ public class ResolvingPortfolioCopier implements PortfolioCopier {
     // Flush changes to portfolio master
     portfolioWriter.flush();
   }
-  
-  void resolveTimeSeries(BloombergHistoricalLoader bbgLoader, ManageableSecurity security, String[] dataFields, String dataProvider, PortfolioCopierVisitor visitor) {
+
+  void resolveTimeSeries(BloombergHistoricalTimeSeriesLoader bbgLoader, ManageableSecurity security, String[] dataFields, String dataProvider, PortfolioCopierVisitor visitor) {
     for (String dataField : dataFields) {
       Set<ExternalId> ids = new HashSet<ExternalId>();
       ids = security.getExternalIdBundle().getExternalIds();

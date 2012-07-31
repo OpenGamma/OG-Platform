@@ -39,13 +39,14 @@ public abstract class AbstractViewportResource {
   }
 
   @PUT
-  public void update(@FormParam("rows") List<Integer> rows,
-                     @FormParam("columns") List<Integer> columns,
-                     @FormParam("expanded") boolean expanded) {
-    update(new ViewportSpecification(rows, columns, expanded));
+  public ViewportVersion update(@FormParam("rows") List<Integer> rows,
+                                @FormParam("columns") List<Integer> columns,
+                                @FormParam("expanded") boolean expanded) {
+    long version = update(new ViewportSpecification(rows, columns, expanded));
+    return new ViewportVersion(version);
   }
 
-  public abstract void update(ViewportSpecification viewportSpecification);
+  public abstract long update(ViewportSpecification viewportSpecification);
 
   @DELETE
   public abstract void delete();

@@ -5,12 +5,12 @@
  */
 package com.opengamma.analytics.financial.model.option.definition;
 
-import java.util.Map;
+import java.util.Collection;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
@@ -30,16 +30,19 @@ public class SmileDeltaTermStructureDataBundle extends YieldCurveBundle {
 
   /**
    * Constructor from the smile parameters and the curves.
-   * @param fxRates The FX cross rate matrix.
-   * @param curveCurrency A map linking each curve in the bundle to its currency.
    * @param ycBundle The curves bundle.
    * @param smile The smile parameters.
    * @param currencyPair The currency pair for which the smile is valid.
    */
-  public SmileDeltaTermStructureDataBundle(final FXMatrix fxRates, final Map<String, Currency> curveCurrency, final YieldCurveBundle ycBundle,
-      final SmileDeltaTermStructureParametersStrikeInterpolation smile, Pair<Currency, Currency> currencyPair) {
-    super(ycBundle.getCurvesMap(), fxRates, curveCurrency);
-    Validate.notNull(smile, "Smile parameters");
+  public SmileDeltaTermStructureDataBundle(final YieldCurveBundle ycBundle, final SmileDeltaTermStructureParametersStrikeInterpolation smile, final Pair<Currency, Currency> currencyPair) {
+    super(ycBundle);
+    ArgumentChecker.notNull(smile, "Smile parameters");
+    ArgumentChecker.notNull(currencyPair, "currency pair");
+    final Collection<Currency> currencies = getCurrencyMap().values();
+    final Currency firstCurrency = currencyPair.getFirst();
+    final Currency secondCurrency = currencyPair.getSecond();
+    ArgumentChecker.isTrue(currencies.contains(firstCurrency), "Curve currency map does not contain currency {}; have {}", firstCurrency, currencies);
+    ArgumentChecker.isTrue(currencies.contains(secondCurrency), "Curve currency map does not contain currency {}, have {}", secondCurrency, currencies);
     //TODO: check rate is available for currency pair.
     _smile = smile;
     _currencyPair = currencyPair;
@@ -47,18 +50,21 @@ public class SmileDeltaTermStructureDataBundle extends YieldCurveBundle {
 
   @Override
   /**
-   * Create a new copy of the bundle using a new map and the same curve and curve names. The same FXMatrix is used.
+   * Create a copy of the bundle
    * @return The bundle.
    */
   public SmileDeltaTermStructureDataBundle copy() {
-    return new SmileDeltaTermStructureDataBundle(getFxRates(), getCcyMap(), this, _smile, _currencyPair);
+    final YieldCurveBundle curves = super.copy();
+    final SmileDeltaTermStructureParametersStrikeInterpolation smile = _smile.copy();
+    final Pair<Currency, Currency> currencyPair = Pair.of(_currencyPair.getFirst(), _currencyPair.getSecond());
+    return new SmileDeltaTermStructureDataBundle(curves, smile, currencyPair);
   }
 
   /**
-   * Gets the smile parameters.
-   * @return The smile parameters.
+   * Gets the underlying volatility data.
+   * @return The underlying volatility data.
    */
-  public SmileDeltaTermStructureParametersStrikeInterpolation getSmile() {
+  public SmileDeltaTermStructureParametersStrikeInterpolation getVolatilityData() {
     return _smile;
   }
 
@@ -67,61 +73,50 @@ public class SmileDeltaTermStructureDataBundle extends YieldCurveBundle {
   }
 
   /**
-   * Get the volatility at a given time/strike/forward taking the currency pair order in account. See {@link SmileDeltaTermStructureParametersStrikeInterpolation} for the interpolation/extrapolation. 
-   * @param ccy1 The first currency.
-   * @param ccy2 The second currency.
-   * @param time The time to expiration.
-   * @param strike The strike.
-   * @param forward The forward.
-   * @return The volatility.
-   */
-  public double getVolatility(final Currency ccy1, final Currency ccy2, double time, double strike, double forward) {
-    if ((ccy1 == _currencyPair.getFirst()) && (ccy2 == _currencyPair.getSecond())) {
-      return _smile.getVolatility(time, strike, forward);
-    }
-    if ((ccy2 == _currencyPair.getFirst()) && (ccy1 == _currencyPair.getSecond())) {
-      return _smile.getVolatility(time, 1.0 / strike, 1.0 / forward);
-    }
-    Validate.isTrue(false, "Currencies not compatible with smile data");
-    return 0.0;
-  }
-
-  /**
-   * Computes the volatility and the volatility sensitivity with respect to the volatility data points.
-   * @param ccy1 The first currency.
-   * @param ccy2 The second currency.
-   * @param time The time to expiration.
-   * @param strike The strike.
-   * @param forward The forward.
-   * @param bucketSensitivity The array is changed by the method. The array should have the correct size. After the methods, it contains the volatility sensitivity to the data points. 
-   * Only the lines of impacted dates are changed. The input data on the other lines will not be changed.
-   * @return The volatility.
-   */
-  public double getVolatility(final Currency ccy1, final Currency ccy2, double time, double strike, double forward, double[][] bucketSensitivity) {
-    if ((ccy1 == _currencyPair.getFirst()) && (ccy2 == _currencyPair.getSecond())) {
-      return _smile.getVolatility(time, strike, forward, bucketSensitivity);
-    }
-    if ((ccy2 == _currencyPair.getFirst()) && (ccy1 == _currencyPair.getSecond())) {
-      return _smile.getVolatility(time, 1.0 / strike, 1.0 / forward, bucketSensitivity);
-    }
-    Validate.isTrue(false, "Currencies not compatible with smile data");
-    return 0.0;
-  }
-
-  /**
    * Check that two given currencies are compatible with the data currency pair.
    * @param ccy1 One currency.
    * @param ccy2 The other currency.
    * @return True if the currencies match the pair (in any order) and False otherwise.
    */
-  public boolean checkCurrencies(Currency ccy1, Currency ccy2) {
-    if ((ccy1 == _currencyPair.getFirst()) && (ccy2 == _currencyPair.getSecond())) {
+  public boolean checkCurrencies(final Currency ccy1, final Currency ccy2) {
+    if ((ccy1.equals(_currencyPair.getFirst())) && ccy2.equals(_currencyPair.getSecond())) {
       return true;
     }
-    if ((ccy2 == _currencyPair.getFirst()) && (ccy1 == _currencyPair.getSecond())) {
+    if ((ccy2.equals(_currencyPair.getFirst())) && ccy1.equals(_currencyPair.getSecond())) {
       return true;
     }
     return false;
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + _currencyPair.hashCode();
+    result = prime * result + _smile.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final SmileDeltaTermStructureDataBundle other = (SmileDeltaTermStructureDataBundle) obj;
+    if (!ObjectUtils.equals(_currencyPair, other._currencyPair)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_smile, other._smile)) {
+      return false;
+    }
+    return true;
+  }
+
 
 }

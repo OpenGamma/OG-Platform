@@ -17,9 +17,9 @@ import com.opengamma.util.functional.Function2;
 import com.opengamma.util.money.Currency;
 
 /**
- * Utility for generating a portfolio of securities.
+ * Utility for generating a portfolio of securities with OG_SYNTHETIC_TICKER tickers.
  */
-public class PortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
+public class SyntheticPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
 
   protected void configureChain(final SecurityGenerator<?> securityGenerator) {
     super.configureChain(securityGenerator);
@@ -36,7 +36,7 @@ public class PortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
   public static void main(final String[] args) { // CSIGNORE
     (new AbstractExampleTool() {
 
-      private final PortfolioGeneratorTool _instance = new PortfolioGeneratorTool();
+      private final SyntheticPortfolioGeneratorTool _instance = new SyntheticPortfolioGeneratorTool();
 
       @Override
       protected Options createOptions(boolean mandatoryConfigArg) {
@@ -53,7 +53,7 @@ public class PortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
 
       @Override
       protected Class<?> getEntryPointClass() {
-        return PortfolioGeneratorTool.class;
+        return SyntheticPortfolioGeneratorTool.class;
       }
 
     }).initAndRun(args);

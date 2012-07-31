@@ -15,9 +15,10 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+
+import org.apache.http.HttpHeaders;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.push.analytics.AnalyticsView;
@@ -66,11 +67,12 @@ public abstract class AbstractGridResource {
     URI viewportUri = uriInfo.getAbsolutePathBuilder().path(viewportId).build();
     URI dataUri = uriInfo.getAbsolutePathBuilder().path(viewportId).path(AbstractViewportResource.class, "getData").build();
     String dataId = dataUri.getPath();
-    createViewport(viewportId, dataId, viewportSpecification);
-    return Response.status(Response.Status.CREATED).header(HttpHeaders.LOCATION, viewportUri).build();
+    long version = createViewport(viewportId, dataId, viewportSpecification);
+    ViewportVersion viewportVersion = new ViewportVersion(version);
+    return Response.status(Response.Status.CREATED).entity(viewportVersion).header(HttpHeaders.LOCATION, viewportUri).build();
   }
 
-  public abstract void createViewport(String viewportId, String dataId, ViewportSpecification viewportSpec);
+  public abstract long createViewport(String viewportId, String dataId, ViewportSpecification viewportSpec);
 
   @Path("viewports/{viewportId}")
   public abstract AbstractViewportResource getViewport(@PathParam("viewportId") String viewportId);

@@ -83,7 +83,8 @@ public class BloombergHistoricalLoaderTest extends DbTest {
   private static final String LCLOSE_OBSERVATION_TIME = "LCLOSE";
 
   private HistoricalTimeSeriesMaster _master;
-  private BloombergHistoricalLoader _loader;
+  private BloombergHistoricalLoader _tool;
+  private BloombergHistoricalTimeSeriesLoader _loader;
   private TestBulkHistoricalTimeSeriesProvider _historicalTimeSeriesSource;
   private PositionMaster _positionMaster;
 
@@ -105,7 +106,7 @@ public class BloombergHistoricalLoaderTest extends DbTest {
     
     _master = setUpTimeSeriesMaster(transactionManager);
     _historicalTimeSeriesSource = new TestBulkHistoricalTimeSeriesProvider();
-    PositionMaster positionMaster = setUpPositionMaster(transactionManager);
+    PositionMaster positionMaster = setUpPositionMaster();
     _positionMaster = positionMaster;
     
     BloombergConnector connector = BloombergTestUtils.getBloombergConnector();
@@ -114,12 +115,13 @@ public class BloombergHistoricalLoaderTest extends DbTest {
     
     BloombergIdentifierProvider idProvider = new BloombergIdentifierProvider(dataProvider);
     
-    BloombergHistoricalLoader loader = new BloombergHistoricalLoader(_master, _historicalTimeSeriesSource, idProvider);
-    loader.setPositionMaster(_positionMaster);
-    _loader = loader;
+    BloombergHistoricalLoader tool = new BloombergHistoricalLoader(_master, _historicalTimeSeriesSource, idProvider);
+    tool.setPositionMaster(_positionMaster);
+    _tool = tool;
+    _loader = new BloombergHistoricalTimeSeriesLoader(_master, _historicalTimeSeriesSource, idProvider);
   }
 
-  private PositionMaster setUpPositionMaster(DataSourceTransactionManager transactionManager) {
+  private PositionMaster setUpPositionMaster() {
     DbConnector dbConnector = getDbConnector();
     DbPositionMaster positionMaster = new DbPositionMaster(dbConnector);
     return positionMaster;
@@ -140,8 +142,8 @@ public class BloombergHistoricalLoaderTest extends DbTest {
   @Test
   public void updateDB() throws Exception {
     List<Pair<HistoricalTimeSeriesInfoDocument, HistoricalTimeSeries>> timeseriesDocs = addAndTestTimeSeries();
-    _loader.setUpdateDb(true);
-    _loader.run();
+    _tool.setUpdateDb(true);
+    _tool.run();
     LocalDate previousWeekDay = DateUtils.previousWeekDay();
     for (Pair<HistoricalTimeSeriesInfoDocument, HistoricalTimeSeries> original : timeseriesDocs) {
       HistoricalTimeSeriesInfoDocument latestDoc = _master.get(original.getFirst().getObjectId(), VersionCorrection.LATEST);
@@ -164,12 +166,12 @@ public class BloombergHistoricalLoaderTest extends DbTest {
   @Test
   public void loadGivenDates() throws Exception {
     List<Pair<HistoricalTimeSeriesInfoDocument, HistoricalTimeSeries>> timeseriesDocs = addAndTestTimeSeries();
-    _loader.setUpdateDb(true);
+    _tool.setUpdateDb(true);
     LocalDate previousWeekDay = DateUtils.previousWeekDay();
-    _loader.setStartDate(previousWeekDay);
+    _tool.setStartDate(previousWeekDay);
     LocalDate endDate = previousWeekDay.plusDays(7);
-    _loader.setEndDate(endDate);
-    _loader.run();
+    _tool.setEndDate(endDate);
+    _tool.run();
     for (Pair<HistoricalTimeSeriesInfoDocument, HistoricalTimeSeries> original : timeseriesDocs) {
       HistoricalTimeSeries latestHTS = _master.getTimeSeries(original.getSecond().getUniqueId(), VersionCorrection.LATEST);
       assertNotNull(latestHTS);
@@ -183,29 +185,16 @@ public class BloombergHistoricalLoaderTest extends DbTest {
   }
 
   @Test
-  public void updateTimeSeries() throws Exception {
-    List<Pair<HistoricalTimeSeriesInfoDocument, HistoricalTimeSeries>> timeseriesDocs = addAndTestTimeSeries();
-    assertNotNull(timeseriesDocs);
-    assertFalse(timeseriesDocs.isEmpty());
-    HistoricalTimeSeries previousTS = _master.getTimeSeries(timeseriesDocs.get(0).getSecond().getUniqueId());
-    previousTS.getUniqueId();
-    assertTrue(_loader.updateTimeSeries(previousTS.getUniqueId()));
-    HistoricalTimeSeries updatedTS = _master.getTimeSeries(previousTS.getUniqueId(), VersionCorrection.LATEST);
-    assertTrue(!previousTS.getUniqueId().equals(updatedTS.getUniqueId()));
-    assertTrue(!previousTS.getTimeSeries().equals(updatedTS.getTimeSeries()));
-  }
-
-  @Test
   public void reload() throws Exception {
     List<Pair<HistoricalTimeSeriesInfoDocument, HistoricalTimeSeries>> timeseriesDocs = addAndTestTimeSeries();
-    _loader.setReload(true);
+    _tool.setReload(true);
     LocalDate previousWeekDay = DateUtils.previousWeekDay();
     // dont need to set startDate for reload, but setting it for testing
-    _loader.setStartDate(previousWeekDay);
+    _tool.setStartDate(previousWeekDay);
     LocalDate endDate = previousWeekDay.plusDays(7);
     // do not need to set endDate for reload, but setting it for testing
-    _loader.setEndDate(endDate);
-    _loader.run();
+    _tool.setEndDate(endDate);
+    _tool.run();
     for (Pair<HistoricalTimeSeriesInfoDocument, HistoricalTimeSeries> original : timeseriesDocs) {
       HistoricalTimeSeries latestHTS = _master.getTimeSeries(original.getSecond().getUniqueId(), VersionCorrection.LATEST);
       assertNotNull(latestHTS);
@@ -224,29 +213,29 @@ public class BloombergHistoricalLoaderTest extends DbTest {
   @Test
   public void loadInputFile() throws Exception {
     String inputFile = BloombergHistoricalLoaderTest.class.getResource(SECURITIES_FILE_NAME).getPath();
-    _loader.setFiles(Collections.singletonList(inputFile));
+    _tool.setFiles(Collections.singletonList(inputFile));
     String[] dataFields = new String[] {"PX_LAST", "VOLUME"};
-    _loader.setDataFields(Arrays.asList(dataFields));
-    _loader.setDataProviders(Collections.singleton("CMPL"));
+    _tool.setDataFields(Arrays.asList(dataFields));
+    _tool.setDataProviders(Collections.singleton("CMPL"));
     LocalDate end = DateUtils.previousWeekDay();
     LocalDate start = end.minusDays(7);
     //set dates
-    _loader.setStartDate(start);
-    _loader.setEndDate(end);
-    _loader.run();
+    _tool.setStartDate(start);
+    _tool.setEndDate(end);
+    _tool.run();
 
     List<String> readLines = FileUtils.readLines(new File(inputFile));
     List<ExternalId> identifiers = new ArrayList<ExternalId>();
     for (String line : readLines) {
-      if (_loader.isBbgUniqueId()) {
+      if (_tool.isBbgUniqueId()) {
         identifiers.add(ExternalSchemes.bloombergBuidSecurityId(line.trim()));
       } else {
         identifiers.add(ExternalSchemes.bloombergTickerSecurityId(line.trim()));
       }
     }
 
-    for (String dataProvider : _loader.getDataProviders()) {
-      for (String dataField : _loader.getDataFields()) {
+    for (String dataProvider : _tool.getDataProviders()) {
+      for (String dataField : _tool.getDataFields()) {
         for (ExternalId identifier : identifiers) {
           HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest(identifier);
           request.setDataField(dataField);
@@ -517,6 +506,21 @@ public class BloombergHistoricalLoaderTest extends DbTest {
 
   private boolean isWeekday(LocalDate day) {
     return (day.getDayOfWeek() != DayOfWeek.SATURDAY && day.getDayOfWeek() != DayOfWeek.SUNDAY);
+  }
+
+  //-------------------------------------------------------------------------
+  // this test should be in another class, but shares a lot of setup
+  @Test
+  public void updateTimeSeries() throws Exception {
+    List<Pair<HistoricalTimeSeriesInfoDocument, HistoricalTimeSeries>> timeseriesDocs = addAndTestTimeSeries();
+    assertNotNull(timeseriesDocs);
+    assertFalse(timeseriesDocs.isEmpty());
+    HistoricalTimeSeries previousTS = _master.getTimeSeries(timeseriesDocs.get(0).getSecond().getUniqueId());
+    previousTS.getUniqueId();
+    assertTrue(_loader.updateTimeSeries(previousTS.getUniqueId()));
+    HistoricalTimeSeries updatedTS = _master.getTimeSeries(previousTS.getUniqueId(), VersionCorrection.LATEST);
+    assertTrue(!previousTS.getUniqueId().equals(updatedTS.getUniqueId()));
+    assertTrue(!previousTS.getTimeSeries().equals(updatedTS.getTimeSeries()));
   }
 
 }

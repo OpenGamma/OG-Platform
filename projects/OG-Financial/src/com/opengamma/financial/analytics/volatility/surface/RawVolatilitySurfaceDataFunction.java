@@ -148,7 +148,6 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
         throw new OpenGammaRuntimeException("Instrument type was null");
       }
       final VolatilitySurfaceDefinition<Object, Object> definition = getSurfaceDefinition(target, surfaceName, instrumentType);
-      //TODO should be calling something that provides volatility surface market data
       final VolatilitySurfaceSpecification specification = getSurfaceSpecification(target, surfaceName, instrumentType);
       return buildDataRequirements(specification, definition, _now, surfaceName, instrumentType);
     }
@@ -213,7 +212,7 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
             yList.add(y);
             volatilityValues.put(Pair.of(x, y), volatility);
           } else {
-            s_logger.debug("Missing value {}", identifier.toString());
+            s_logger.info("Missing value {}", identifier.toString());
           }
         }
       }

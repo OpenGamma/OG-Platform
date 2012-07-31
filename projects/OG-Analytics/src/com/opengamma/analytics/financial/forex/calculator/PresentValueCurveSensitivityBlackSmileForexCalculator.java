@@ -13,7 +13,7 @@ import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.analytics.financial.forex.method.ForexNonDeliverableOptionBlackMethod;
 import com.opengamma.analytics.financial.forex.method.ForexOptionDigitalBlackMethod;
 import com.opengamma.analytics.financial.forex.method.ForexOptionSingleBarrierBlackMethod;
-import com.opengamma.analytics.financial.forex.method.ForexOptionVanillaBlackMethod;
+import com.opengamma.analytics.financial.forex.method.ForexOptionVanillaBlackSmileMethod;
 import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 
@@ -21,31 +21,31 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
  * Calculator of the present value for Forex derivatives in the Black (Garman-Kohlhagen) world. The volatilities are given by delta-smile descriptions.
  * To compute the curve sensitivity, the Black volatility is kept constant; the volatility is not recomputed for curve and forward changes.
  */
-public class PresentValueCurveSensitivityBlackForexCalculator extends PresentValueCurveSensitivityMCSCalculator {
+public class PresentValueCurveSensitivityBlackSmileForexCalculator extends PresentValueCurveSensitivityMCSCalculator {
 
   /**
    * The unique instance of the calculator.
    */
-  private static final PresentValueCurveSensitivityBlackForexCalculator s_instance = new PresentValueCurveSensitivityBlackForexCalculator();
+  private static final PresentValueCurveSensitivityBlackSmileForexCalculator s_instance = new PresentValueCurveSensitivityBlackSmileForexCalculator();
 
   /**
    * Gets the calculator instance.
    * @return The calculator.
    */
-  public static PresentValueCurveSensitivityBlackForexCalculator getInstance() {
+  public static PresentValueCurveSensitivityBlackSmileForexCalculator getInstance() {
     return s_instance;
   }
 
   /**
    * Constructor.
    */
-  PresentValueCurveSensitivityBlackForexCalculator() {
+  PresentValueCurveSensitivityBlackSmileForexCalculator() {
   }
 
   /**
    * The methods used by the different instruments.
    */
-  private static final ForexOptionVanillaBlackMethod METHOD_FXOPTION = ForexOptionVanillaBlackMethod.getInstance();
+  private static final ForexOptionVanillaBlackSmileMethod METHOD_FXOPTION = ForexOptionVanillaBlackSmileMethod.getInstance();
   private static final ForexOptionSingleBarrierBlackMethod METHOD_FXOPTIONBARRIER = ForexOptionSingleBarrierBlackMethod.getInstance();
   private static final ForexNonDeliverableOptionBlackMethod METHOD_NDO = ForexNonDeliverableOptionBlackMethod.getInstance();
   private static final ForexOptionDigitalBlackMethod METHOD_FXOPTIONDIGITAL = ForexOptionDigitalBlackMethod.getInstance();

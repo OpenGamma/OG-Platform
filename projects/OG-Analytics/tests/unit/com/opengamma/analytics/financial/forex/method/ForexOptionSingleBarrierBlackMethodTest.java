@@ -8,37 +8,29 @@ package com.opengamma.analytics.financial.forex.method;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
-import java.util.Map;
-
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 import org.testng.internal.junit.ArrayAsserts;
 
-import com.opengamma.analytics.financial.forex.calculator.CurrencyExposureBlackForexCalculator;
-import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackForexCalculator;
-import com.opengamma.analytics.financial.forex.calculator.PresentValueCurveSensitivityBlackForexCalculator;
+import com.opengamma.analytics.financial.forex.calculator.CurrencyExposureBlackSmileForexCalculator;
+import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackSmileForexCalculator;
 import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackVolatilityQuoteSensitivityForexCalculator;
 import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackVolatilitySensitivityBlackForexCalculator;
+import com.opengamma.analytics.financial.forex.calculator.PresentValueCurveSensitivityBlackSmileForexCalculator;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexOptionVanillaDefinition;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
-import com.opengamma.analytics.financial.forex.method.FXMatrix;
-import com.opengamma.analytics.financial.forex.method.ForexOptionSingleBarrierBlackMethod;
-import com.opengamma.analytics.financial.forex.method.ForexOptionVanillaBlackMethod;
-import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
-import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilitySensitivity;
-import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilityNodeSensitivityDataBundle;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.option.definition.Barrier;
-import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
-import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.analytics.financial.model.option.definition.Barrier.BarrierType;
 import com.opengamma.analytics.financial.model.option.definition.Barrier.KnockType;
 import com.opengamma.analytics.financial.model.option.definition.Barrier.ObservationType;
+import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
+import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackBarrierPriceFunction;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
@@ -81,7 +73,6 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     }
   }
   private static final double SPOT = 1.40;
-  private static final FXMatrix FX_MATRIX = new FXMatrix(CUR_1, CUR_2, SPOT);
   private static final double[] ATM = {0.175, 0.185, 0.18, 0.17, 0.16};
   private static final double[] DELTA = new double[] {0.10, 0.25};
   private static final double[][] RISK_REVERSAL = new double[][] { {-0.010, -0.0050}, {-0.011, -0.0060}, {-0.012, -0.0070}, {-0.013, -0.0080}, {-0.014, -0.0090}};
@@ -91,9 +82,8 @@ public class ForexOptionSingleBarrierBlackMethodTest {
   // Methods and curves
   private static final YieldCurveBundle CURVES = TestsDataSetsForex.createCurvesForex();
   private static final String[] CURVES_NAME = CURVES.getAllNames().toArray(new String[0]);
-  private static final Map<String, Currency> CURVE_CURRENCY = TestsDataSetsForex.curveCurrency();
-  private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE = new SmileDeltaTermStructureDataBundle(FX_MATRIX, CURVE_CURRENCY, CURVES, SMILE_TERM, Pair.of(CUR_1, CUR_2));
-  private static final ForexOptionVanillaBlackMethod METHOD_VANILLA = ForexOptionVanillaBlackMethod.getInstance();
+  private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE = new SmileDeltaTermStructureDataBundle(CURVES, SMILE_TERM, Pair.of(CUR_1, CUR_2));
+  private static final ForexOptionVanillaBlackSmileMethod METHOD_VANILLA = ForexOptionVanillaBlackSmileMethod.getInstance();
   private static final ForexOptionSingleBarrierBlackMethod METHOD_BARRIER = ForexOptionSingleBarrierBlackMethod.getInstance();
   private static final BlackBarrierPriceFunction BLACK_BARRIER_FUNCTION = BlackBarrierPriceFunction.getInstance();
   // Option
@@ -113,10 +103,10 @@ public class ForexOptionSingleBarrierBlackMethodTest {
   private static final ForexOptionVanilla VANILLA_SHORT = VANILLA_SHORT_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final ForexOptionSingleBarrier BARRIER_SHORT = new ForexOptionSingleBarrier(VANILLA_SHORT, BARRIER, REBATE);
 
-  private static final PresentValueBlackForexCalculator PVC_BLACK = PresentValueBlackForexCalculator.getInstance();
-  private static final PresentValueCurveSensitivityBlackForexCalculator PVCSC_BLACK = PresentValueCurveSensitivityBlackForexCalculator.getInstance();
+  private static final PresentValueBlackSmileForexCalculator PVC_BLACK = PresentValueBlackSmileForexCalculator.getInstance();
+  private static final PresentValueCurveSensitivityBlackSmileForexCalculator PVCSC_BLACK = PresentValueCurveSensitivityBlackSmileForexCalculator.getInstance();
   private static final PresentValueBlackVolatilitySensitivityBlackForexCalculator PVVSC_BLACK = PresentValueBlackVolatilitySensitivityBlackForexCalculator.getInstance();
-  private static final CurrencyExposureBlackForexCalculator CEC_BLACK = CurrencyExposureBlackForexCalculator.getInstance();
+  private static final CurrencyExposureBlackSmileForexCalculator CEC_BLACK = CurrencyExposureBlackSmileForexCalculator.getInstance();
 
   @Test
   /**
@@ -184,7 +174,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
 
   @Test
   /**
-   * Tests the currency exposure vs a finite difference computation. The computation is with fixed Black volatility (Black world). 
+   * Tests the currency exposure vs a finite difference computation. The computation is with fixed Black volatility (Black world).
    * The volatility used in the shifted price is flat with the volatility equal to the volatility used for the original price.
    */
   public void currencyExposure() {
@@ -201,7 +191,8 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     final double[][] sFlat = new double[][] { {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}};
     final SmileDeltaTermStructureParametersStrikeInterpolation smileTermFlat = new SmileDeltaTermStructureParametersStrikeInterpolation(TIME_TO_EXPIRY, DELTA, atmFlat, rrFlat, sFlat);
     final FXMatrix fxMatrixShift = new FXMatrix(CUR_1, CUR_2, SPOT + shiftSpotEURUSD);
-    final SmileDeltaTermStructureDataBundle smileBumpedSpot = new SmileDeltaTermStructureDataBundle(fxMatrixShift, CURVE_CURRENCY, CURVES, smileTermFlat, Pair.of(CUR_1, CUR_2));
+    final YieldCurveBundle curvesShiftedFX = new YieldCurveBundle(fxMatrixShift, CURVES.getCurrencyMap(), CURVES.getCurvesMap());
+    final SmileDeltaTermStructureDataBundle smileBumpedSpot = new SmileDeltaTermStructureDataBundle(curvesShiftedFX, smileTermFlat, Pair.of(CUR_1, CUR_2));
     final MultipleCurrencyAmount pvBumpedSpot = METHOD_BARRIER.presentValue(OPTION_BARRIER, smileBumpedSpot);
     final double ceDomesticFD = (pvBumpedSpot.getAmount(CUR_2) - pv.getAmount(CUR_2));
     assertEquals("Barrier currency exposure: domestic currency", ceDomesticFD, ce.getAmount(CUR_1) * shiftSpotEURUSD, 2.0E-4);
@@ -363,9 +354,9 @@ public class ForexOptionSingleBarrierBlackMethodTest {
    */
   public void volatilityQuoteSensitivity() {
     final PresentValueForexBlackVolatilityNodeSensitivityDataBundle sensiStrike = METHOD_BARRIER.presentValueBlackVolatilityNodeSensitivity(OPTION_BARRIER, SMILE_BUNDLE);
-    double[][] sensiQuote = METHOD_BARRIER.presentValueBlackVolatilityNodeSensitivity(OPTION_BARRIER, SMILE_BUNDLE).quoteSensitivity().getVega();
-    double[][] sensiStrikeData = sensiStrike.getVega().getData();
-    double[] atm = new double[sensiQuote.length];
+    final double[][] sensiQuote = METHOD_BARRIER.presentValueBlackVolatilityNodeSensitivity(OPTION_BARRIER, SMILE_BUNDLE).quoteSensitivity().getVega();
+    final double[][] sensiStrikeData = sensiStrike.getVega().getData();
+    final double[] atm = new double[sensiQuote.length];
     for (int loopexp = 0; loopexp < sensiQuote.length; loopexp++) {
       for (int loopdelta = 0; loopdelta < DELTA.length; loopdelta++) {
         assertEquals("Forex vanilla option: vega quote - RR", sensiQuote[loopexp][1 + loopdelta], -0.5 * sensiStrikeData[loopexp][loopdelta] + 0.5
@@ -384,8 +375,8 @@ public class ForexOptionSingleBarrierBlackMethodTest {
    * Tests present value volatility quote sensitivity: method vs calculator.
    */
   public void volatilityQuoteSensitivityMethodVsCalculator() {
-    double[][] sensiMethod = METHOD_BARRIER.presentValueBlackVolatilityNodeSensitivity(OPTION_BARRIER, SMILE_BUNDLE).quoteSensitivity().getVega();
-    double[][] sensiCalculator = PresentValueBlackVolatilityQuoteSensitivityForexCalculator.getInstance().visit(OPTION_BARRIER, SMILE_BUNDLE).getVega();
+    final double[][] sensiMethod = METHOD_BARRIER.presentValueBlackVolatilityNodeSensitivity(OPTION_BARRIER, SMILE_BUNDLE).quoteSensitivity().getVega();
+    final double[][] sensiCalculator = PresentValueBlackVolatilityQuoteSensitivityForexCalculator.getInstance().visit(OPTION_BARRIER, SMILE_BUNDLE).getVega();
     for (int loopexp = 0; loopexp < NB_EXP; loopexp++) {
       ArrayAsserts.assertArrayEquals("Forex option - quote sensitivity", sensiMethod[loopexp], sensiCalculator[loopexp], 1.0E-10);
     }

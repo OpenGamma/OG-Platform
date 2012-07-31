@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.opengamma.examples.generator.PortfolioGeneratorTool;
+import com.opengamma.examples.generator.SyntheticPortfolioGeneratorTool;
 import com.opengamma.examples.loader.ExampleCurveAndSurfaceDefinitionLoader;
 import com.opengamma.examples.loader.ExampleCurveConfigurationLoader;
 import com.opengamma.examples.loader.ExampleEquityPortfolioLoader;
@@ -201,8 +201,8 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
     }
   }
 
-  private PortfolioGeneratorTool portfolioGeneratorTool() {
-    final PortfolioGeneratorTool tool = new PortfolioGeneratorTool();
+  private SyntheticPortfolioGeneratorTool portfolioGeneratorTool() {
+    final SyntheticPortfolioGeneratorTool tool = new SyntheticPortfolioGeneratorTool();
     tool.setCounterPartyGenerator(new StaticNameGenerator(AbstractPortfolioGeneratorTool.DEFAULT_COUNTER_PARTY));
     return tool;
   }

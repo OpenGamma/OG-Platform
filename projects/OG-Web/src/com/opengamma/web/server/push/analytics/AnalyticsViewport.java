@@ -8,8 +8,7 @@ package com.opengamma.web.server.push.analytics;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * TODO turn this into an interface? there's hardly anything left
- * TODO does there even need to be an interface?
+ *
  */
 /* package */ abstract class AnalyticsViewport {
 
@@ -17,12 +16,12 @@ import com.opengamma.util.ArgumentChecker;
 
   protected ViewportSpecification _viewportSpec;
   protected ViewportResults _latestResults;
+  protected long _version;
 
   /* package */ AnalyticsViewport(String dataId) {
     ArgumentChecker.notNull(dataId, "dataId");
     _dataId = dataId;
   }
-
 
   /* package */ ViewportResults getData() {
     return _latestResults;
@@ -30,5 +29,9 @@ import com.opengamma.util.ArgumentChecker;
 
   /* package */ String getDataId() {
     return _dataId;
+  }
+
+  /* package */ long getVersion() {
+    return _version;
   }
 }

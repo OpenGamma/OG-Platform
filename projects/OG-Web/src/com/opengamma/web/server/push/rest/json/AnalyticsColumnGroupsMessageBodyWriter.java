@@ -10,10 +10,12 @@ import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
+import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
+import javax.ws.rs.ext.Provider;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.push.analytics.AnalyticsColumnGroups;
@@ -22,6 +24,8 @@ import com.opengamma.web.server.push.analytics.AnalyticsColumnsJsonWriter;
 /**
  *
  */
+@Provider
+@Produces(MediaType.APPLICATION_JSON)
 /* package */ public class AnalyticsColumnGroupsMessageBodyWriter implements MessageBodyWriter<AnalyticsColumnGroups> {
 
   private final AnalyticsColumnsJsonWriter _writer;

@@ -102,6 +102,6 @@ public class InterestRateFutureOptionBlackDefaultPropertiesFunction extends Defa
 
   @Override
   public String getMutualExclusionGroup() {
-    return OpenGammaFunctionExclusions.IR_FUTURE_OPTION_BLACK;
+    return OpenGammaFunctionExclusions.FUTURE_OPTION_BLACK;
   }
 }

@@ -10,7 +10,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -69,7 +68,7 @@ public class FXMatrix {
   public FXMatrix(final Currency ccy1, final Currency ccy2, final double fxRate) {
     _currencies = new LinkedHashMap<Currency, Integer>();
     _fxRates = new double[0][0];
-    this.addCurrency(ccy1, ccy2, fxRate);
+    addCurrency(ccy1, ccy2, fxRate);
   }
 
   /**
@@ -108,8 +107,8 @@ public class FXMatrix {
       _fxRates[0][1] = 1.0 / fxRate;
       _nbCurrencies = 2;
     } else {
-      Validate.isTrue(_currencies.containsKey(ccyReference), "Reference currency not in the FX matrix");
-      Validate.isTrue(!_currencies.containsKey(ccyToAdd), "New currency already in the FX matrix");
+      ArgumentChecker.isTrue(_currencies.containsKey(ccyReference), "Reference currency {} not in the FX matrix", ccyReference);
+      ArgumentChecker.isTrue(!_currencies.containsKey(ccyToAdd), "New currency {} already in the FX matrix", ccyToAdd);
       _currencies.put(ccyToAdd, _nbCurrencies);
       _nbCurrencies++;
       final double[][] fxRatesNew = new double[_nbCurrencies][_nbCurrencies];
@@ -146,17 +145,18 @@ public class FXMatrix {
 
   /**
    * Convert a multiple currency amount into a amount in a given currency.
-   * @param amount The multiple currency amount.
+   * @param amount The multiple currency amount, not null
    * @param ccy The currency for the conversion.
    * @return The amount.
    */
   public CurrencyAmount convert(final MultipleCurrencyAmount amount, final Currency ccy) {
-    double convertion = 0;
+    ArgumentChecker.notNull(amount, "amount");
+    double conversion = 0;
     final CurrencyAmount[] ca = amount.getCurrencyAmounts();
     for (final CurrencyAmount element : ca) {
-      convertion += element.getAmount() * getFxRate(element.getCurrency(), ccy);
+      conversion += element.getAmount() * getFxRate(element.getCurrency(), ccy);
     }
-    return CurrencyAmount.of(ccy, convertion);
+    return CurrencyAmount.of(ccy, conversion);
   }
 
   /**
@@ -188,8 +188,7 @@ public class FXMatrix {
     final int prime = 31;
     int result = 1;
     result = prime * result + _currencies.hashCode();
-    result = prime * result + Arrays.hashCode(_fxRates);
-    result = prime * result + _nbCurrencies;
+    result = prime * result + Arrays.deepHashCode(_fxRates);
     return result;
   }
 
@@ -209,9 +208,6 @@ public class FXMatrix {
       return false;
     }
     if (!Arrays.deepEquals(_fxRates, other._fxRates)) {
-      return false;
-    }
-    if (_nbCurrencies != other._nbCurrencies) {
       return false;
     }
     return true;

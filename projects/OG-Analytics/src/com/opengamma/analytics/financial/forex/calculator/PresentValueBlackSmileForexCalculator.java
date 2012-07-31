@@ -13,38 +13,38 @@ import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.analytics.financial.forex.method.ForexNonDeliverableOptionBlackMethod;
 import com.opengamma.analytics.financial.forex.method.ForexOptionDigitalBlackMethod;
 import com.opengamma.analytics.financial.forex.method.ForexOptionSingleBarrierBlackMethod;
-import com.opengamma.analytics.financial.forex.method.ForexOptionVanillaBlackMethod;
+import com.opengamma.analytics.financial.forex.method.ForexOptionVanillaBlackSmileMethod;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Calculator of the present value for Forex derivatives in the Black (Garman-Kohlhagen) world. The volatilities are given by delta-smile descriptions.
  */
-public final class PresentValueBlackForexCalculator extends PresentValueMCACalculator {
+public final class PresentValueBlackSmileForexCalculator extends PresentValueMCACalculator {
 
   /**
    * The unique instance of the calculator.
    */
-  private static final PresentValueBlackForexCalculator s_instance = new PresentValueBlackForexCalculator();
+  private static final PresentValueBlackSmileForexCalculator s_instance = new PresentValueBlackSmileForexCalculator();
 
   /**
    * Get the unique calculator instance.
    * @return The instance.
    */
-  public static PresentValueBlackForexCalculator getInstance() {
+  public static PresentValueBlackSmileForexCalculator getInstance() {
     return s_instance;
   }
 
   /**
    * Private constructor.
    */
-  private PresentValueBlackForexCalculator() {
+  private PresentValueBlackSmileForexCalculator() {
   }
 
   /**
    * The methods used by the different instruments.
    */
-  private static final ForexOptionVanillaBlackMethod METHOD_FXOPTION = ForexOptionVanillaBlackMethod.getInstance();
+  private static final ForexOptionVanillaBlackSmileMethod METHOD_FXOPTION = ForexOptionVanillaBlackSmileMethod.getInstance();
   private static final ForexOptionSingleBarrierBlackMethod METHOD_FXOPTIONBARRIER = ForexOptionSingleBarrierBlackMethod.getInstance();
   private static final ForexNonDeliverableOptionBlackMethod METHOD_NDO = ForexNonDeliverableOptionBlackMethod.getInstance();
   private static final ForexOptionDigitalBlackMethod METHOD_FXOPTIONDIGITAL = ForexOptionDigitalBlackMethod.getInstance();

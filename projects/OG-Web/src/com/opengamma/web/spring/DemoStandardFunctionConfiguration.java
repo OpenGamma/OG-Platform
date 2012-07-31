@@ -77,6 +77,12 @@ import com.opengamma.financial.analytics.model.bond.BondZSpreadFromMarketCleanPr
 import com.opengamma.financial.analytics.model.bond.BondZSpreadPresentValueSensitivityFromCurveCleanPriceFunction;
 import com.opengamma.financial.analytics.model.bond.BondZSpreadPresentValueSensitivityFromMarketCleanPriceFunction;
 import com.opengamma.financial.analytics.model.bond.NelsonSiegelSvenssonBondCurveFunction;
+import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackDeltaFunction;
+import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackGammaFunction;
+import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackPV01Function;
+import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackPresentValueFunction;
+import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackVegaFunction;
+import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackYCNSFunction;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.curve.interestrate.InterpolatedYieldCurveDefaults;
 import com.opengamma.financial.analytics.model.curve.interestrate.InterpolatedYieldCurveFunction;
@@ -576,6 +582,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addForexForwardCalculators(functionConfigs);
     addInterestRateFutureCalculators(functionConfigs);
     addInterestRateFutureOptionCalculators(functionConfigs);
+    addBondFutureOptionCalculators(functionConfigs);
     addEquityDerivativesCalculators(functionConfigs);
     addBlackCalculators(functionConfigs);
     addLocalVolatilityCalculatorsOld(functionConfigs);
@@ -963,6 +970,15 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionMarketUnderlyingPriceFunction.class));
     //functionConfigs.add(functionConfiguration(HestonFourierIRFutureSurfaceFittingFunction.class, "USD", "DEFAULT"));
     //functionConfigs.add(functionConfiguration(InterestRateFutureOptionHestonPresentValueFunction.class, "FORWARD_3M", "FUNDING", "DEFAULT"));
+  }
+  
+  private static void addBondFutureOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(BondFutureOptionBlackPresentValueFunction.class));
+    functionConfigs.add(functionConfiguration(BondFutureOptionBlackDeltaFunction.class));
+    functionConfigs.add(functionConfiguration(BondFutureOptionBlackGammaFunction.class));
+    functionConfigs.add(functionConfiguration(BondFutureOptionBlackPV01Function.class));
+    functionConfigs.add(functionConfiguration(BondFutureOptionBlackYCNSFunction.class));
+    functionConfigs.add(functionConfiguration(BondFutureOptionBlackVegaFunction.class));
   }
 
   private static void addLocalVolatilityCalculatorsOld(final List<FunctionConfiguration> functionConfigs) {

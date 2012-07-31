@@ -25,7 +25,7 @@ import com.opengamma.bbg.BloombergSecuritySource;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.RemoteReferenceDataProviderFactoryBean;
 import com.opengamma.bbg.loader.BloombergBulkSecurityLoader;
-import com.opengamma.bbg.loader.BloombergHistoricalLoader;
+import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
 import com.opengamma.bbg.loader.BloombergSecurityLoader;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
@@ -129,12 +129,12 @@ public class BbgLoadersComponentFactory extends AbstractComponentFactory {
 
   protected HistoricalTimeSeriesLoader initHistoricalTimeSeriesLoader(ComponentRepository repo, ReferenceDataProvider refData, HistoricalTimeSeriesSource bbgHtsSource) {
     ExternalIdResolver idProvider = new BloombergIdentifierProvider(refData);
-    HistoricalTimeSeriesLoader htsLoader = new BloombergHistoricalLoader(getHistoricalTimeSeriesMaster(), bbgHtsSource, idProvider);
+    HistoricalTimeSeriesLoader htsLoader = new BloombergHistoricalTimeSeriesLoader(getHistoricalTimeSeriesMaster(), bbgHtsSource, idProvider);
     ComponentInfo info = new ComponentInfo(HistoricalTimeSeriesLoader.class, "standard");
     repo.registerComponent(info, htsLoader);
     return htsLoader;
   }
-  
+
   private void initBloombergSecuritySource(ComponentRepository repo, ReferenceDataProvider refData) {
     BloombergSecuritySource bloombergSecuritySource = new BloombergSecuritySource(refData, new DefaultExchangeDataProvider());
     ComponentInfo info = new ComponentInfo(BloombergSecuritySource.class, "bbg");

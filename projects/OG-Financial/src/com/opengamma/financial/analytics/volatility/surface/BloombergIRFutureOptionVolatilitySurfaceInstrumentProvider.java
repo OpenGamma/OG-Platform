@@ -16,12 +16,14 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 
 /**
- * Provides ExternalId's for IRFutureOptions used to build the Volatility Surface  
+ * Provides ExternalId's for IRFutureOptions used to build the Volatility Surface
  */
 public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider extends BloombergFutureOptionVolatilitySurfaceInstrumentProvider {
   private static final ExternalScheme SCHEME = ExternalSchemes.BLOOMBERG_TICKER_WEAK;
   private static final DecimalFormat FORMATTER = new DecimalFormat("##.###");
-  static { FORMATTER.setMinimumFractionDigits(3); }
+  static {
+    FORMATTER.setMinimumFractionDigits(3);
+  }
 
   /**
    * @param futureOptionPrefix the prefix to the resulting code
@@ -47,7 +49,7 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider extends 
     Validate.notNull(futureOptionNumber, "futureOptionNumber");
     final StringBuffer ticker = new StringBuffer();
     ticker.append(getFutureOptionPrefix());
-    ticker.append(BloombergIRFutureUtils.getExpiryCodeForFutureOptions(getFutureOptionPrefix(), futureOptionNumber.intValue(), surfaceDate));
+    ticker.append(BloombergFutureUtils.getExpiryCodeForFutureOptions(getFutureOptionPrefix(), futureOptionNumber.intValue(), surfaceDate));
     ticker.append(strike > useCallAboveStrike() ? "C " : "P ");
     ticker.append(FORMATTER.format(strike));
     ticker.append(" ");

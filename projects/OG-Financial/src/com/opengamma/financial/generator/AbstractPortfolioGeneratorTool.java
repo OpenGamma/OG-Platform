@@ -151,6 +151,7 @@ public abstract class AbstractPortfolioGeneratorTool {
       securityGenerator.setExchangeMaster(getToolContext().getExchangeMaster());
       securityGenerator.setRegionSource(getToolContext().getRegionSource());
       securityGenerator.setSecurityMaster(getToolContext().getSecurityMaster());
+      securityGenerator.setHistoricalTimeSeriesMaster(getToolContext().getHistoricalTimeSeriesMaster());
     }
     configureChain(securityGenerator);
   }

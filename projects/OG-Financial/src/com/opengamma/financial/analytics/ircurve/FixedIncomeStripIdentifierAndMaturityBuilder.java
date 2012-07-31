@@ -119,7 +119,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
           // TODO: jim 17-Aug-2010 -- we need to sort out the zoned date time related to the expiry.
           final FutureSecurity futureSecurity = getFuture(strip);
           if (futureSecurity == null) {
-            throw new OpenGammaRuntimeException("Could not resolve future curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
+            throw new OpenGammaRuntimeException("Security source did not contain future curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
           }
           maturity = futureSecurity.getExpiry().getExpiry();
           security = futureSecurity;

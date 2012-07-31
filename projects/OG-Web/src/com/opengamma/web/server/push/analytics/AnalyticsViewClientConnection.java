@@ -25,7 +25,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.AggregatedViewDefinitionManager;
 
 /**
- *
+ * Connects the engine to an {@link AnalyticsView}. Contains the logic for setting up a {@link ViewClient},
+ * connecting it to a view process, handling events from the engine and forwarding data to the {@code ViewClient}.
  */
 /* package */ class AnalyticsViewClientConnection extends AbstractViewResultListener {
 
@@ -67,6 +68,9 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
   @Override
   public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
     _cycleReference.release();
+    // always retain a reference to the most recent cycle so the dependency graphs are available at all times.
+    // without this it would be necessary to wait at least one cycle before it would be possible to access the graphs.
+    // this allows dependency graphs grids to be opened and populated without any delay
     EngineResourceReference<? extends ViewCycle> cycleReference = _viewClient.createCycleReference(fullResult.getViewCycleId());
     if (cycleReference == null) {
       // this shouldn't happen if everything in the engine is working as it should
@@ -77,6 +81,9 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
     _view.updateResults(fullResult, _cycleReference.get());
   }
 
+  /**
+   * Connects to the engine in order to start receiving results. This should only be called once.
+   */
   /* package */ void start() {
     _viewClient.setResultListener(this);
     _viewClient.setViewCycleAccessSupported(true);
@@ -89,6 +96,9 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
     }
   }
 
+  /**
+   * Disconects from the engine and releases all resources. This should only be called once.
+   */
   /* package */ void close() {
     try {
       _viewClient.detachFromViewProcess();
@@ -98,6 +108,9 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
     }
   }
 
+  /**
+   * @return The view to which this object sends data received from the engine.
+   */
   /* package */ AnalyticsView getView() {
     return _view;
   }

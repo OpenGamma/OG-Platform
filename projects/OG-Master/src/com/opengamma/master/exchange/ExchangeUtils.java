@@ -1,6 +1,5 @@
 package com.opengamma.master.exchange;
 
-import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalTime;
 import javax.time.calendar.TimeZone;
@@ -18,7 +17,7 @@ import com.opengamma.util.tuple.Pair;
 public class ExchangeUtils {
   private static final Logger s_logger = LoggerFactory.getLogger(ExchangeUtils.class);
   /**
-   * 
+   * THIS IS NOT READY FOR PRIME TIME YET
    * @param exchangeSource a source of exchanges, we assume it provides ManageableExchanges
    * @param isoMic an external id with the ISO MIC code of the exchange
    * @param today the date today (to allow for changes in opening hours over time)
@@ -30,10 +29,12 @@ public class ExchangeUtils {
     if (exchange != null) {
       for (ManageableExchangeDetail detail : exchange.getDetail()) {
         if (detail.getPhaseName().equals("Trading") && 
-            (detail.getCalendarStart().equals(today) || detail.getCalendarStart().isBefore(today)) &&
-            (detail.getCalendarEnd().equals(today) || detail.getCalendarEnd().isAfter(today))) {
+            (detail.getCalendarStart() == null || detail.getCalendarStart().equals(today) || detail.getCalendarStart().isBefore(today)) &&
+            (detail.getCalendarEnd() == null || detail.getCalendarEnd().equals(today) || detail.getCalendarEnd().isAfter(today))) {
           LocalTime endTime = detail.getPhaseEnd();
-          return Pair.of(endTime, exchange.getTimeZone());
+          if (endTime != null) {
+            return Pair.of(endTime, exchange.getTimeZone());
+          }
         }
       }
       s_logger.warn("Couldn't find exchagne close time for {}, defaulting to supplied default", isoMic);

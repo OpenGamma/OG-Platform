@@ -26,7 +26,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Compute the sensitivity of the spread to the curve; the spread is the number to be added to the market standard quote of the instrument for which the present value of the instrument is zero. 
+ * Compute the sensitivity of the spread to the curve; the spread is the number to be added to the market standard quote of the instrument for which the present value of the instrument is zero.
  * The notion of "spread" will depend of each instrument.
  */
 public final class ParSpreadMarketQuoteCurveSensitivityCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> {
@@ -85,11 +85,11 @@ public final class ParSpreadMarketQuoteCurveSensitivityCalculator extends Abstra
     ArgumentChecker.notNull(curves, "Curves");
     ArgumentChecker.notNull(swap, "Swap");
     final Currency ccy1 = swap.getFirstLeg().getCurrency();
-    MultipleCurrencyInterestRateCurveSensitivity pvcsmc = PVCSMCC.visit(swap, curves);
-    InterestRateCurveSensitivity pvcs = pvcsmc.convert(ccy1, curves.getFxRates());
-    InterestRateCurveSensitivity pvbpcs = PVBPCSC.visit(swap.getFirstLeg(), curves);
-    double pvbp = PVBPC.visit(swap.getFirstLeg(), curves);
-    double pv = curves.convert(PVMCC.visit(swap, curves), ccy1).getAmount();
+    final MultipleCurrencyInterestRateCurveSensitivity pvcsmc = PVCSMCC.visit(swap, curves);
+    final InterestRateCurveSensitivity pvcs = pvcsmc.convert(ccy1, curves.getFxRates());
+    final InterestRateCurveSensitivity pvbpcs = PVBPCSC.visit(swap.getFirstLeg(), curves);
+    final double pvbp = PVBPC.visit(swap.getFirstLeg(), curves);
+    final double pv = curves.getFxRates().convert(PVMCC.visit(swap, curves), ccy1).getAmount();
     // Implementation note: Total pv in currency 1.
     return pvcs.multiply(-1.0 / pvbp).plus(pvbpcs.multiply(pv / (pvbp * pvbp)));
   }
