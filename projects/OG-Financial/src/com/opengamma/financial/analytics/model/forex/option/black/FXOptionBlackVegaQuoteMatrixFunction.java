@@ -42,7 +42,7 @@ public class FXOptionBlackVegaQuoteMatrixFunction extends FXOptionBlackSingleVal
       final PresentValueForexBlackVolatilityQuoteSensitivityDataBundle result = CALCULATOR.visit(forex, (SmileDeltaTermStructureDataBundle) data);
       return Collections.singleton(new ComputedValue(spec, VegaMatrixHelper.getVegaFXQuoteMatrixInStandardForm(result)));
     }
-    throw new OpenGammaRuntimeException("Can only calculated vega quote matrix for surfaces with smiles");
+    throw new OpenGammaRuntimeException("Can only calculate vega quote matrix for surfaces with smiles");
   }
 
   @Override

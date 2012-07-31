@@ -78,8 +78,8 @@ public class ForexFlatWithTermStructureVolatilitySurfaceFunction extends ForexVo
         Double volatility = fxVolatilitySurface.getVolatility(tenor, y);
         if (volatility != null) {
           volatility *= shiftMultiplier;
+          volsList.add(volatility);
         }
-        volsList.add(volatility);
       }
       timesList.add(t);
     }
