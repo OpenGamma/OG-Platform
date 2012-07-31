@@ -48,13 +48,15 @@ $.register_module({
                 $(document)
                     .on('mouseup' + namespace, clean_up)
                     .on('mousemove' + namespace, (function (x, y, handler) { // run it manually once and return it
-                        return (handler = function (event) {mousemove({x: x, y: y}, event);})(event), handler;
+                        handler = function (event, reset) {mousemove({x: x, y: y}, event, reset);};
+                        return handler(event, true), handler;
                     })(x, y));
             };
             var mousemove = (function () {
-                var resolution = 4, counter = 0; // only accept 1/resolution of the mouse moves, we have too many
-                return function (start, event) {
+                var resolution = 6, counter = 0; // only accept 1/resolution of the mouse moves, we have too many
+                return function (start, event, reset) {
                     event.preventDefault();
+                    if (reset) counter = 0;
                     if (counter++ % resolution) return;
                     if (counter > 8) counter = 1;
                     var scroll_left = grid.elements.scroll_body.scrollLeft(),

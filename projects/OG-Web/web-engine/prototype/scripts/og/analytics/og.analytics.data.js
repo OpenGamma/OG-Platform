@@ -39,7 +39,7 @@ $.register_module({
                 if (result.error)
                     return (view_id = viewport_id = subscribed = null), og.dev.warn(result.message), initialize();
                 if (!result.data[SETS].length) return;
-                meta.rows = result.data[ROOT] ? result.data[ROOT][1] + 1 : result.data[ROWS];
+                meta.rows = meta.data_rows = result.data[ROOT] ? result.data[ROOT][1] + 1 : result.data[ROWS];
                 meta.structure = result.data[ROOT] || [];
                 meta.columns.fixed = [{
                     name: fixed_set[grid_type], columns: result.data[SETS][0].columns
@@ -70,7 +70,6 @@ $.register_module({
             data.viewport = function (new_viewport) {
                 var viewports = api[grid_type].viewports;
                 viewport = new_viewport;
-                if (viewport.rows === 'all') viewport.rows = [0, meta.rows];
                 if (!viewport_id) return;
                 data.busy(true);
                 viewports

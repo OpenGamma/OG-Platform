@@ -28,9 +28,9 @@
     background: #fff;
 }
 
-.OG-g-h-scroll,
+.OG-g-h-scroll {overflow: hidden}
 .OG-g-b-fixed {
-    overflow: hidden;
+    overflow-y: auto; overflow-x: hidden
 }
 
 .OG-g-b-scroll {
