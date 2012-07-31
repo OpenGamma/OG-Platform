@@ -187,7 +187,7 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractExampleTool
 
     // get the identifier for the swap rate for the maturity we're interested in (assuming the fixed rate will be =~ swap rate)
     Double fixedRate = getFixedRate(random, ccy, tradeDate, maturity);
-    Double notional = (double) random.nextInt(100000) * 1000;
+    Double notional = (double) (random.nextInt(99999) + 1) * 1000;
     boolean isPayFixed = random.nextBoolean();
 
     ConventionBundle swapConvention = getSwapConventionBundle(ccy);
