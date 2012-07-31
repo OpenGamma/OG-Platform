@@ -20,7 +20,8 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.security.fx.FXUtils;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
@@ -37,12 +38,16 @@ public class FXOptionBlackPresentValueFunction extends FXOptionBlackSingleValued
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative forex, final ForexOptionDataBundle<?> data, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
+    final MultipleCurrencyAmount result;
     if (data instanceof YieldCurveWithBlackForexTermStructureBundle) {
-      final MultipleCurrencyAmount result = FLAT_CALCULATOR.visit(forex, data);
-      return Collections.singleton(new ComputedValue(spec, FXUtils.getMultipleCurrencyAmountAsMatrix(result)));
+      result = FLAT_CALCULATOR.visit(forex, data);
+    } else {
+      result = SMILE_CALCULATOR.visit(forex, data);
     }
-    final MultipleCurrencyAmount result = SMILE_CALCULATOR.visit(forex, data);
-    return Collections.singleton(new ComputedValue(spec, FXUtils.getMultipleCurrencyAmountAsMatrix(result)));
+    ArgumentChecker.isTrue(result.size() == 1, "result size must be one; have {}", result.size());
+    final CurrencyAmount ca = result.getCurrencyAmounts()[0];
+    final double amount = ca.getAmount();
+    return Collections.singleton(new ComputedValue(spec, amount));
   }
 
 }
