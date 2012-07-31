@@ -12,10 +12,8 @@ import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.Sets;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.analytics.financial.model.option.definition.OptionDefinition;
@@ -49,8 +47,6 @@ import com.opengamma.util.time.Expiry;
  * 
  */
 public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends AbstractFunction.NonCompiledInvoker {
-
-  private static final Logger s_logger = LoggerFactory.getLogger(BlackScholesMertonImpliedVolatilitySurfaceFunction.class);
 
   private final BlackScholesMertonImpliedVolatilitySurfaceModel _volatilitySurfaceModel;
 
@@ -91,8 +87,8 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     }
     final String curveName = curveNames.iterator().next();
     final EquityOptionSecurity optionSec = (EquityOptionSecurity) target.getSecurity();
-    SecuritySource securityMaster = context.getSecuritySource();
-    Security underlying = securityMaster.getSecurity(ExternalIdBundle.of(optionSec.getUnderlyingId()));
+    final SecuritySource securityMaster = context.getSecuritySource();
+    final Security underlying = securityMaster.getSecurity(ExternalIdBundle.of(optionSec.getUnderlyingId()));
     final ValueRequirement optionMarketDataReq = getPriceRequirement(optionSec.getUniqueId());
     final ValueRequirement underlyingMarketDataReq = getPriceRequirement(underlying.getUniqueId());
     final ValueRequirement discountCurveReq = getDiscountCurveMarketDataRequirement(optionSec.getCurrency().getUniqueId(), curveName);
@@ -107,7 +103,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     String curveName = null;
-    for (ValueSpecification input : inputs.keySet()) {
+    for (final ValueSpecification input : inputs.keySet()) {
       if (ValueRequirementNames.YIELD_CURVE.equals(input.getValueName())) {
         curveName = input.getProperty(ValuePropertyNames.CURVE);
       }
@@ -122,8 +118,8 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     final ZonedDateTime today = executionContext.getValuationClock().zonedDateTime();
     final EquityOptionSecurity optionSec = (EquityOptionSecurity) target.getSecurity();
 
-    SecuritySource secMaster = executionContext.getSecuritySource();
-    Security underlying = secMaster.getSecurity(ExternalIdBundle.of(optionSec.getUnderlyingId()));
+    final SecuritySource secMaster = executionContext.getSecuritySource();
+    final Security underlying = secMaster.getSecurity(ExternalIdBundle.of(optionSec.getUnderlyingId()));
 
     // Get inputs:
     final ValueRequirement optionPriceReq = getPriceRequirement(optionSec.getUniqueId());
@@ -134,10 +130,10 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     final YieldAndDiscountCurve discountCurve = (YieldAndDiscountCurve) inputs.getValue(ValueRequirementNames.YIELD_CURVE);
     // TODO cost-of-carry model
     if (optionPrice == null) {
-      s_logger.warn("No market value for option price");
+      throw new OpenGammaRuntimeException("No market value for option price");
     }
     if (underlyingPrice == null) {
-      s_logger.warn("No market value for underlying price");
+      throw new OpenGammaRuntimeException("No market value for underlying price");
     }
 
     // Perform the calculation:
@@ -148,10 +144,10 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     final Map<OptionDefinition, Double> prices = new HashMap<OptionDefinition, Double>();
     prices.put(europeanVanillaOptionDefinition, optionPrice);
     final VolatilitySurface volatilitySurface = _volatilitySurfaceModel.getSurface(prices, new StandardOptionDataBundle(discountCurve, b, null, underlyingPrice, today));
-    
+
     //This is so cheap no need to check desired values
     final double impliedVol = volatilitySurface.getVolatility(0.0, 0.0); //This surface is constant
-    
+
     // Package the result
     final ValueProperties.Builder properties = createValueProperties(optionSec);
     properties.with(ValuePropertyNames.CURVE, desiredValues.iterator().next().getConstraint(ValuePropertyNames.CURVE));
@@ -166,11 +162,11 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     return createValueProperties().with(ValuePropertyNames.CURRENCY, targetSecurity.getCurrency().getCode());
   }
 
-  protected ValueSpecification createVolSurfaceResultSpecification(final ComputationTargetSpecification target, ValueProperties.Builder props) {
+  protected ValueSpecification createVolSurfaceResultSpecification(final ComputationTargetSpecification target, final ValueProperties.Builder props) {
     return new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE, target, props.get());
   }
 
-  protected ValueSpecification createImpliedVolResultSpecification(final ComputationTargetSpecification target, ValueProperties.Builder props) {
+  protected ValueSpecification createImpliedVolResultSpecification(final ComputationTargetSpecification target, final ValueProperties.Builder props) {
     return new ValueSpecification(ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY, target, props.get());
   }
 
