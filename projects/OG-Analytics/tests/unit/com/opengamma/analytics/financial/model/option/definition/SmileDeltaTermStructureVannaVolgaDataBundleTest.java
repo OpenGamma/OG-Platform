@@ -14,7 +14,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.forex.method.TestsDataSetsForex;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
@@ -31,7 +30,6 @@ public class SmileDeltaTermStructureVannaVolgaDataBundleTest {
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   private static final double[] NODES = new double[] {0.01, 0.50, 1.00, 2.01, 5.00};
   private static final double[] VOL = new double[] {0.20, 0.25, 0.20, 0.15, 0.20};
-  private static final InterpolatedDoublesCurve TERM_STRUCTURE_VOL = InterpolatedDoublesCurve.fromSorted(NODES, VOL, LINEAR_FLAT);
   private static final Pair<Currency, Currency> CCYS = Pair.of(Currency.USD, Currency.EUR);
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 13);
   private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILES = TestsDataSetsForex.smile3points(REFERENCE_DATE, Interpolator1DFactory.LINEAR_INSTANCE);
@@ -54,7 +52,7 @@ public class SmileDeltaTermStructureVannaVolgaDataBundleTest {
 
   //  @Test
   public void testObject() {
-    assertEquals(FX_DATA.getSmile(), SMILES);
+    assertEquals(FX_DATA.getVolatilityModel(), SMILES);
     SmileDeltaTermStructureVannaVolgaDataBundle other = new SmileDeltaTermStructureVannaVolgaDataBundle(CURVES, SMILES, CCYS);
     assertEquals(FX_DATA, other);
     assertEquals(FX_DATA.hashCode(), other.hashCode());

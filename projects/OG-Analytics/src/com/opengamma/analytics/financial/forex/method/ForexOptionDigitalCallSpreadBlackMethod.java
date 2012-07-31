@@ -12,6 +12,7 @@ import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
+import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
@@ -128,18 +129,19 @@ public class ForexOptionDigitalCallSpreadBlackMethod extends ForexOptionDigitalC
     final double spot = smile.getFxRates().getFxRate(optionDigital.getCurrency1(), optionDigital.getCurrency2());
     final double forward = spot * smile.getCurve(optionDigital.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionDigital.getUnderlyingForex().getPaymentTime())
         / df;
-    final double[][] vega = new double[smile.getVolatilityData().getNumberExpiration()][smile.getVolatilityData().getNumberStrike()];
+    final SmileDeltaTermStructureParametersStrikeInterpolation volatilityModel = smile.getVolatilityModel();
+    final double[][] vega = new double[volatilityModel.getNumberExpiration()][volatilityModel.getNumberStrike()];
     for (final DoublesPair point : pointSensitivity.getVega().getMap().keySet()) {
-      final double[][] nodeWeight = new double[smile.getVolatilityData().getNumberExpiration()][smile.getVolatilityData().getNumberStrike()];
+      final double[][] nodeWeight = new double[volatilityModel.getNumberExpiration()][volatilityModel.getNumberStrike()];
       FXVolatilityUtils.getVolatility(smile, optionDigital.getCurrency1(), optionDigital.getCurrency2(), optionDigital.getExpirationTime(), point.second, forward, nodeWeight);
-      for (int loopexp = 0; loopexp < smile.getVolatilityData().getNumberExpiration(); loopexp++) {
-        for (int loopstrike = 0; loopstrike < smile.getVolatilityData().getNumberStrike(); loopstrike++) {
+      for (int loopexp = 0; loopexp < volatilityModel.getNumberExpiration(); loopexp++) {
+        for (int loopstrike = 0; loopstrike < volatilityModel.getNumberStrike(); loopstrike++) {
           vega[loopexp][loopstrike] += nodeWeight[loopexp][loopstrike] * pointSensitivity.getVega().getMap().get(point);
         }
       }
     }
-    return new PresentValueForexBlackVolatilityNodeSensitivityDataBundle(optionDigital.getUnderlyingForex().getCurrency1(), optionDigital.getUnderlyingForex().getCurrency2(), new DoubleMatrix1D(smile
-        .getVolatilityData().getTimeToExpiration()), new DoubleMatrix1D(smile.getVolatilityData().getDeltaFull()), new DoubleMatrix2D(vega));
+    return new PresentValueForexBlackVolatilityNodeSensitivityDataBundle(optionDigital.getUnderlyingForex().getCurrency1(), optionDigital.getUnderlyingForex().getCurrency2(),
+        new DoubleMatrix1D(volatilityModel.getTimeToExpiration()), new DoubleMatrix1D(volatilityModel.getDeltaFull()), new DoubleMatrix2D(vega));
   }
 
 }

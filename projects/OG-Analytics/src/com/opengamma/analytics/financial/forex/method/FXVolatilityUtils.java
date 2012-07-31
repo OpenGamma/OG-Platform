@@ -21,7 +21,7 @@ public class FXVolatilityUtils {
     ArgumentChecker.notNull(ccy2, "ccy2");
     ArgumentChecker.notNull(data, "data");
     final Pair<Currency, Currency> currencyPair = data.getCurrencyPair();
-    final SmileDeltaTermStructureParametersStrikeInterpolation smile = data.getVolatilityData();
+    final SmileDeltaTermStructureParametersStrikeInterpolation smile = data.getVolatilityModel();
     if ((ccy1 == currencyPair.getFirst()) && (ccy2 == currencyPair.getSecond())) {
       return smile.getVolatility(time, strike, forward);
     }
@@ -37,7 +37,7 @@ public class FXVolatilityUtils {
     ArgumentChecker.notNull(ccy2, "ccy2");
     ArgumentChecker.notNull(data, "data");
     final Pair<Currency, Currency> currencyPair = data.getCurrencyPair();
-    final SmileDeltaTermStructureParametersStrikeInterpolation smile = data.getVolatilityData();
+    final SmileDeltaTermStructureParametersStrikeInterpolation smile = data.getVolatilityModel();
     if ((ccy1 == currencyPair.getFirst()) && (ccy2 == currencyPair.getSecond())) {
       return smile.getVolatility(time, strike, forward, bucketSensitivity);
     }
