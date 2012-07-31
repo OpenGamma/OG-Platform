@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.model.option.definition;
 
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.ArgumentChecker;
@@ -93,5 +94,36 @@ public class SmileDeltaTermStructureVannaVolgaDataBundle extends YieldCurveBundl
     }
     return false;
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + _currencyPair.hashCode();
+    result = prime * result + _smile.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final SmileDeltaTermStructureVannaVolgaDataBundle other = (SmileDeltaTermStructureVannaVolgaDataBundle) obj;
+    if (!ObjectUtils.equals(_currencyPair, other._currencyPair)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_smile, other._smile)) {
+      return false;
+    }
+    return true;
+  }
+
 
 }

@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.model.option.definition;
 
 import java.util.Collection;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
@@ -41,8 +42,8 @@ public class SmileDeltaTermStructureDataBundle extends YieldCurveBundle {
     final Collection<Currency> currencies = getCcyMap().values();
     final Currency firstCurrency = currencyPair.getFirst();
     final Currency secondCurrency = currencyPair.getSecond();
-    ArgumentChecker.isTrue(currencies.contains(firstCurrency), "Curve currency map does not contain currency {}", firstCurrency);
-    ArgumentChecker.isTrue(currencies.contains(secondCurrency), "Curve currency map does not contain currency {}", secondCurrency);
+    ArgumentChecker.isTrue(currencies.contains(firstCurrency), "Curve currency map does not contain currency {}; have {}", firstCurrency, currencies);
+    ArgumentChecker.isTrue(currencies.contains(secondCurrency), "Curve currency map does not contain currency {}, have {}", secondCurrency, currencies);
     //TODO: check rate is available for currency pair.
     _smile = smile;
     _currencyPair = currencyPair;
@@ -125,5 +126,36 @@ public class SmileDeltaTermStructureDataBundle extends YieldCurveBundle {
     }
     return false;
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + _currencyPair.hashCode();
+    result = prime * result + _smile.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final SmileDeltaTermStructureDataBundle other = (SmileDeltaTermStructureDataBundle) obj;
+    if (!ObjectUtils.equals(_currencyPair, other._currencyPair)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_smile, other._smile)) {
+      return false;
+    }
+    return true;
+  }
+
 
 }
