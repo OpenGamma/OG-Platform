@@ -54,7 +54,8 @@ public class SmileDeltaTermStructureDataBundleTest {
 
   @Test
   public void testObject() {
-    assertEquals(FX_DATA.getVolatilityData(), SMILES);
+    assertEquals(FX_DATA.getVolatilityModel(), SMILES);
+    assertEquals(FX_DATA.getCurrencyPair(), CCYS);
     SmileDeltaTermStructureDataBundle other = new SmileDeltaTermStructureDataBundle(CURVES, SMILES, CCYS);
     assertEquals(FX_DATA, other);
     assertEquals(FX_DATA.hashCode(), other.hashCode());

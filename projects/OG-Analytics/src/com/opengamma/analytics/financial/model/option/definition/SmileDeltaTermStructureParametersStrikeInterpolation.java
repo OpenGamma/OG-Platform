@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.model.option.definition;
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.analytics.financial.model.volatility.VolatilityModel;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
@@ -19,7 +18,7 @@ import com.opengamma.util.tuple.Triple;
  * Class describing the data required to describe a delta and expiration dependent smile from ATM, risk reversal and strangle as used in Forex market.
  * The delta used is the delta with respect to forward.
  */
-public class SmileDeltaTermStructureParametersStrikeInterpolation extends SmileDeltaTermStructureParameters implements VolatilityModel<Triple<Double, Double, Double>> {
+public class SmileDeltaTermStructureParametersStrikeInterpolation extends SmileDeltaTermStructureParameters {
 
   /**
    * The interpolator/extrapolator used in the strike dimension.

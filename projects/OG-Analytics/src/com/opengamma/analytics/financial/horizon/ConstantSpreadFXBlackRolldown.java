@@ -29,7 +29,7 @@ public final class ConstantSpreadFXBlackRolldown implements RolldownFunction<Smi
   public SmileDeltaTermStructureDataBundle rollDown(final SmileDeltaTermStructureDataBundle data, final double shiftTime) {
     final YieldCurveBundle shiftedCurves = CURVES_ROLLDOWN.rollDown(data, shiftTime);
     final Pair<Currency, Currency> currencyPair = data.getCurrencyPair();
-    final SmileDeltaTermStructureParametersStrikeInterpolation volatilityData = data.getVolatilityData();
+    final SmileDeltaTermStructureParametersStrikeInterpolation volatilityData = data.getVolatilityModel();
     final SmileDeltaTermStructureParametersStrikeInterpolation smile = new SmileDeltaTermStructureParametersStrikeInterpolation(volatilityData.getVolatilityTerm(),
         volatilityData.getStrikeInterpolator()) {
 
