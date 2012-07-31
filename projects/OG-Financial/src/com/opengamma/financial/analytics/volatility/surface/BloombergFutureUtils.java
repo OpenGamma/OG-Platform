@@ -100,16 +100,16 @@ public class BloombergFutureUtils {
   }
 
   /**
-   * Produces the month-year string required to build ExternalId for Bloomberg ticker of IRFutureSecurity
+   * Produces the month-year string required to build ExternalId for Bloomberg ticker of BondFutureSecurity
    * @param futurePrefix 2 character string of future (eg US, FV)
    * @param nthFuture The n'th future following valuation date
    * @param curveDate Date curve is valid; valuation date
-   * @return e.g. M10 (for June 2010) or Z3 (for December 2013), both valid as of valuationDate 2012/04/10
+   * @return e.g. M1 (for June 2010) or Z3 (for December 2013)
    */
   public static final String getExpiryCodeForBondFutureOptions(final String futurePrefix, final int nthFuture, final LocalDate curveDate) {
-    final LocalDate expiry  = FutureOptionUtils.getFutureOptionExpiry(nthFuture, curveDate);
     final StringBuilder futureCode = new StringBuilder();
-    futureCode.append(MONTH_CODE.get(expiry.getMonthOfYear().previous()));
+    final LocalDate expiry  = FutureOptionUtils.getQuarterlyExpiry(nthFuture, curveDate);
+    futureCode.append(MONTH_CODE.get(expiry.getMonthOfYear()));
     final int yearsNum = expiry.getYear() % 10;
     futureCode.append(Integer.toString(yearsNum));
     return futureCode.toString();
@@ -129,7 +129,7 @@ public class BloombergFutureUtils {
       LOG.debug("We recommended that you ask QR to test behaviour of IRFutureOption Volatility Surface's Expiries for prefix {}", futurePrefix);
       // The reason being that we have hard coded the behaviour of 6 consecutive months, then quarterly thereafter..
     }
-    final LocalDate expiry  = FutureOptionUtils.getFutureOptionExpiry(nthFuture, curveDate);
+    final LocalDate expiry  = FutureOptionUtils.getFutureOptionWithSerialOptionsExpiry(nthFuture, curveDate);
     return getMonthYearCode(expiry, expiry.minusYears(10));
   }
 

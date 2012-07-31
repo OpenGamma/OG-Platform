@@ -15,7 +15,7 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
 
 /**
- * {@code DatAdjuster} that finds the next Expiry in Interest Rate Futures Options. 
+ * {@code DatAdjuster} that finds the next Expiry in Interest Rate Futures Options.
  * This is the 3rd Wednesday of the next IMM Future Expiry Month.
  */
 public class NextExpiryAdjuster implements DateAdjuster {
@@ -34,9 +34,8 @@ public class NextExpiryAdjuster implements DateAdjuster {
     if (_futureQuarters.contains(date.getMonthOfYear()) &&
         date.with(s_dayOfMonth).isAfter(date)) { // in a quarter
       return date.with(s_dayOfMonth);
-    } else {
-      return date.with(s_nextQuarterAdjuster).with(s_dayOfMonth);
     }
+    return date.with(s_nextQuarterAdjuster).with(s_dayOfMonth);
   }
 
 }
