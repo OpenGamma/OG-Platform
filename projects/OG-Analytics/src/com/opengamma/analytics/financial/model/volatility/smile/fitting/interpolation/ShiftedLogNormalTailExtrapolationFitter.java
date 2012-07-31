@@ -24,14 +24,19 @@ import com.opengamma.analytics.math.rootfinding.newton.NewtonDefaultVectorRootFi
 import com.opengamma.analytics.math.rootfinding.newton.NewtonVectorRootFinder;
 import com.opengamma.util.ArgumentChecker;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.BitSet;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Fit a shifted log-normal model to two pieces of information from the tail of the smile (i.e. two prices/vols or a price and gradient) 
  */
 public class ShiftedLogNormalTailExtrapolationFitter {
 
-  // private static final Logger LOG = LoggerFactory.getLogger(ShiftedLogNormalTailExtrapolationFitter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ShiftedLogNormalTailExtrapolationFitter.class);
   private static final ScalarFirstOrderDifferentiator DIFFERENTIATOR = new ScalarFirstOrderDifferentiator();
   //Review R White - this was changed from   BroydenVectorRootFinder (with default parameters to get test roundTripTest to work for all values)
   private static final NewtonVectorRootFinder ROOTFINDER = new NewtonDefaultVectorRootFinder(1e-8, 1e-8, 500);
@@ -203,6 +208,74 @@ public class ShiftedLogNormalTailExtrapolationFitter {
     Function1D<Double, Double> smileGrad = DIFFERENTIATOR.differentiate(smile);
     final double dVol = smileGrad.evaluate(strike);
     return fitVolatilityAndGrad(forward, strike, vol, dVol, timeToExpiry);
+  }
+
+  /**
+   * Calls fitVolatilityAndGrad. If this fails, it will retry from the nearest strike within the domain, and continue to do this until success is found
+   * @param forward forward
+   * @param strikes array of strikes
+   * @param vols array of vols at strikes
+   * @param dSigmaDx Function1D<Double, Double> that produces the vol gradient at given strike
+   * @param expiry option expiry
+   * @param lowTail True if fitting extrapolation model to low strikes, false if fitting to high strike tail.
+   * @return 3-element array containing: [0] mu = ln(shiftedForward / originalForward) [1] theta = new ln volatility to use [2] new extapolation boundary
+   */
+  public ArrayList<Double> fitVolatilityAndGradRecursively(double forward, double[] strikes, double[] vols, final Function1D<Double, Double> dSigmaDx, final double expiry, final boolean lowTail) {
+    final int n = strikes.length;
+    ArgumentChecker.isTrue(vols.length == n, "Lengths of strikes and vols unexpectedly differ!");
+    double[] shiftAndVol;
+    final int endIdx = lowTail ? 0 : n - 1;
+    try {
+      shiftAndVol = fitVolatilityAndGrad(forward, strikes[endIdx], vols[endIdx], dSigmaDx.evaluate(strikes[endIdx]), expiry);
+    } catch (Exception e) {
+      LOG.error("Extrapolation - Expiry = " + expiry + "- failed to fit tail to " + strikes[endIdx] + ". Trying next strike. Caught " + e);
+      if (lowTail) {
+        return fitVolatilityAndGradRecursively(forward, Arrays.copyOfRange(strikes, 1, n), Arrays.copyOfRange(vols, 1, n), dSigmaDx, expiry, lowTail);
+      } else {
+        return fitVolatilityAndGradRecursively(forward, Arrays.copyOfRange(strikes, 0, n - 1), Arrays.copyOfRange(vols, 0, n - 1), dSigmaDx, expiry, lowTail);
+      }
+    }
+    LOG.error("Extrapolating from strike, " + strikes[endIdx] + ", with shifted forward, " + forward * Math.exp(shiftAndVol[0]) + ", and vol, " + shiftAndVol[1]);
+    ArrayList<Double> listShiftVolStrike = new ArrayList<Double>();
+    listShiftVolStrike.add(0, shiftAndVol[0]); // mu = ln(shiftedForward / originalForward)
+    listShiftVolStrike.add(1, shiftAndVol[1]); // theta = new ln volatility to use
+    listShiftVolStrike.add(2, strikes[endIdx]); // new extapolation boundary
+    return listShiftVolStrike;
+  }
+
+  /**
+   * Calls fitVolatilityAndGrad. If this fails, it will retry from the nearest strike within the domain, and continue to do this until success is found
+   * @param forward forward
+   * @param strikes array of strikes
+   * @param vols array of vols at strikes
+   * @param dSigmaDx array of vol gradients at strikes
+   * @param expiry option expiry
+   * @param lowTail True if fitting extrapolation model to low strikes, false if fitting to high strike tail.
+   * @return 3-element array containing: [0] mu = ln(shiftedForward / originalForward) [1] theta = new ln volatility to use [2] new extapolation boundary
+   */
+  public ArrayList<Double> fitVolatilityAndGradRecursively(final double forward, final double[] strikes, final double[] vols, final double[] dSigmaDx, double expiry, final boolean lowTail) {
+    final int n = strikes.length;
+    ArgumentChecker.isTrue(vols.length == n, "Lengths of strikes and vols unexpectedly differ!");
+    ArgumentChecker.isTrue(dSigmaDx.length == n, "Lengths of slopes and vols unexpectedly differ!");
+
+    double[] shiftAndVol;
+    final int endIdx = lowTail ? 0 : n - 1;
+    try {
+      shiftAndVol = fitVolatilityAndGrad(forward, strikes[endIdx], vols[endIdx], dSigmaDx[endIdx], expiry);
+    } catch (Exception e) {
+      LOG.error("Extrapolation - Expiry = " + expiry + "- failed to fit tail to " + strikes[endIdx] + ". Trying next strike. Caught " + e);
+      if (lowTail) {
+        return fitVolatilityAndGradRecursively(forward, Arrays.copyOfRange(strikes, 1, n), Arrays.copyOfRange(vols, 1, n), Arrays.copyOfRange(dSigmaDx, 1, n), expiry, lowTail);
+      } else {
+        return fitVolatilityAndGradRecursively(forward, Arrays.copyOfRange(strikes, 0, n - 1), Arrays.copyOfRange(vols, 0, n - 1), Arrays.copyOfRange(dSigmaDx, 0, n - 1), expiry, lowTail);
+      }
+    }
+    LOG.error("Extrapolating from strike, " + strikes[endIdx] + ", with shifted forward, " + forward * Math.exp(shiftAndVol[0]) + ", and vol, " + shiftAndVol[1]);
+    final ArrayList<Double> listShiftVolStrike = new ArrayList<Double>();
+    listShiftVolStrike.add(0, shiftAndVol[0]); // mu = ln(shiftedForward / originalForward)
+    listShiftVolStrike.add(1, shiftAndVol[1]); // theta = new ln volatility to use
+    listShiftVolStrike.add(2, strikes[endIdx]); // new extapolation boundary
+    return listShiftVolStrike;
   }
 
   private Function1D<DoubleMatrix1D, DoubleMatrix1D> getPriceDifferenceFunc(final double forward, final double[] strike, final double[] prices, final double timeToExpiry, final boolean isCall) {
