@@ -5,6 +5,8 @@
  */
 package com.opengamma.master;
 
+import java.util.List;
+
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -79,6 +81,7 @@ public interface AbstractMaster<D extends AbstractDocument> {
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
   D update(D document);
+  // TODO: deprecate
 
   /**
    * Removes a document from the data store.
@@ -93,6 +96,7 @@ public interface AbstractMaster<D extends AbstractDocument> {
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
   void remove(final UniqueId uniqueId);
+  // TODO: AbstractMaster remove() should take an ObjectIdentifiable
 
   /**
    * Corrects a document in the data store.
@@ -112,5 +116,121 @@ public interface AbstractMaster<D extends AbstractDocument> {
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
   D correct(D document);
+  // TODO: deprecate
+
+  //-------------------------------------------------------------------------
+  /**
+   * Replaces a single version of the document in the data store.
+   * <p>
+   * This applies a correction that replaces a single version in the data store
+   * with the specified list.
+   * <p>
+   * The versioning will be taken from the "version from" instant in each specified document.
+   * The "version to" instant and "correction" instants will be ignored on input.
+   * If the "version from" instant is null, the latest instant is used.
+   * No two versioned documents may have the same "version from" instant.
+   * The versions must all be within the version range of the original version being replaced.
+   * <p>
+   * If the list is empty, the previous version will have its version range extended.
+   * The unique identifier must specify a version of the document that is active when
+   * queried with the {@link VersionCorrection latest correction instant}.
+   * The unique identifier in each specified document will be ignored on input.
+   * 
+   * @param uniqueId  the unique identifier to replace, not null
+   * @param replacementDocuments  the replacement documents, not null
+   * @return the list of versioned documents matching the input list, not null
+   * @throws IllegalArgumentException if the request is invalid
+   * @throws DataNotFoundException if there is no document with the object identifier
+   */
+  List<D> replaceVersion(UniqueId uniqueId, List<D> replacementDocuments);
+
+  /**
+   * Replaces all the versions of the document in the data store.
+   * <p>
+   * This applies a correction that replaces all the versions in the data store
+   * with the specified list.
+   * <p>
+   * The versioning will be taken from the "version from" instant in each specified document.
+   * The "version to" instant and "correction" instants will be ignored on input.
+   * If the "version from" instant is null, the latest instant is used.
+   * No two versioned documents may have the same "version from" instant.
+   * <p>
+   * If the list is empty, this is equivalent to {@link #remove}.
+   * If the object identifier is a {@link UniqueId}, then it must specify a version of the
+   * document that is active when queried with the {@link VersionCorrection latest correction instant}.
+   * The unique identifier in each specified document will be ignored on input.
+   * 
+   * @param objectId  the object identifier of the document to replace, not null
+   * @param replacementDocuments  the replacement documents, not null
+   * @return the list of unique identifiers matching the input list, not null
+   * @throws IllegalArgumentException if the request is invalid
+   * @throws DataNotFoundException if there is no document with the object identifier
+   */
+  List<UniqueId> replaceAllVersions(ObjectIdentifiable objectId, List<D> replacementDocuments);
+
+  //-------------------------------------------------------------------------
+  // convenience methods
+  /**
+   * Replaces a single version of the document in the data store.
+   * <p>
+   * This applies a correction that replaces a single version in the data store
+   * with the specified list.
+   * This is equivalent to calling {@link #replace(UniqueId, List)} with a single
+   * element list of the specified document.
+   * <p>
+   * The document must contain the unique identifier to be replaced.
+   * The document "version" and "correction" instants will be ignored on input.
+   * The unique identifier must specify a version of the document that is active when
+   * queried with the {@link VersionCorrection latest correction instant}.
+   * 
+   * @param replacementDocument  the replacement document, not null
+   * @return the list of unique identifiers matching the input list, not null
+   * @throws IllegalArgumentException if the request is invalid
+   * @throws DataNotFoundException if there is no document with the object identifier
+   */
+  D replaceVersion(D replacementDocument);
+  // NOTE: this is the same as the current correct() method, which should be deprecated, then deleted
+
+  /**
+   * Removes a single version of the document from the data store.
+   * <p>
+   * This applies a correction that replaces a single version in the data store
+   * with the specified list.
+   * This is equivalent to calling {@link #replace(UniqueId, List)} with a single
+   * element list of the specified document.
+   * <p>
+   * The unique identifier must specify a version of the document that is active when
+   * queried with the {@link VersionCorrection latest correction instant}.
+   * 
+   * @param uniqueId  the unique identifier to remove, not null
+   * @throws IllegalArgumentException if the request is invalid
+   * @throws DataNotFoundException if there is no document with that unique identifier
+   */
+  void removeVersion(UniqueId uniqueId);
+
+  /**
+   * Adds a new version of the document to the data store.
+   * <p>
+   * This applies a correction that adds the specified document to the data store.
+   * <p>
+   * The versioning will be taken from the "version from" instant in the specified document.
+   * The "version to" instant and "correction" instants will be ignored on input.
+   * No two active versioned documents in the data store may have the same "version from" instant.
+   * If the "version from" instant is null, the latest instant is used which would
+   * be equivalent to calling {@link #update(D)}.
+   * <p>
+   * If the object identifier is a {@link UniqueId}, then it must specify a version of the
+   * document that is active when queried with the {@link VersionCorrection latest correction instant}.
+   * 
+   * @param objectId  the object identifier of the document to add a version to, not null
+   * @param documentToAdd  the document, not null
+   * @return the current state of the document, may be an update of the input document, not null
+   * @throws IllegalArgumentException if the request is invalid
+   * @throws DataNotFoundException if there is no document with that unique identifier
+   */
+  D addVersion(ObjectIdentifiable objectId, D documentToAdd);
+  // if "version from" is non-null this is equivalent to a search to find the active document
+  // for the "version from" instant and using replaceVersion() with a list of two documents
+  // if "version from" is null this is equivalent to update(), but update() can hopefully be deprecated
 
 }
