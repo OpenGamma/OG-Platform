@@ -80,8 +80,8 @@ public class SmileDeltaTermStructureParameters implements VolatilityModel<Triple
     ArgumentChecker.notNull(delta, "delta");
     ArgumentChecker.notNull(volatility, "volatility");
     final int nbExp = timeToExpiration.length;
-    ArgumentChecker.isTrue(volatility.length == nbExp, "Volatility length should be coherent with time to expiration length");
-    ArgumentChecker.isTrue(volatility[0].length == 2 * delta.length + 1, "Risk volatility size should be coherent with time to delta length");
+    ArgumentChecker.isTrue(volatility.length == nbExp, "Volatility array length {} should be equal to the number of expiries {}", volatility.length, nbExp);
+    ArgumentChecker.isTrue(volatility[0].length == 2 * delta.length + 1, "Volatility array {} should be equal to (2 * number of deltas) + 1, have {}", volatility[0].length, 2 * delta.length + 1);
     _timeToExpiration = timeToExpiration;
     _volatilityTerm = new SmileDeltaParameters[nbExp];
     for (int loopexp = 0; loopexp < nbExp; loopexp++) {

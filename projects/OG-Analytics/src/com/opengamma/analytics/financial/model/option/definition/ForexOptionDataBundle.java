@@ -16,7 +16,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ * @param <T> The type of the volatility model
  */
 public abstract class ForexOptionDataBundle<T extends VolatilityModel<?>> extends YieldCurveBundle {
   /**
