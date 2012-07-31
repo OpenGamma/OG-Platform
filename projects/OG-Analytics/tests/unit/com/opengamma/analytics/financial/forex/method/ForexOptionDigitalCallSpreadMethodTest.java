@@ -271,8 +271,8 @@ public class ForexOptionDigitalCallSpreadMethodTest {
     final double shift = 0.000005;
     final FXMatrix fxMatrix = new FXMatrix(EUR, USD, SPOT);
     final FXMatrix fxMatrixP = new FXMatrix(EUR, USD, SPOT + shift);
-    final YieldCurveBundle curves = new YieldCurveBundle(fxMatrix, CURVES.getCcyMap(), CURVES.getCurvesMap());
-    final YieldCurveBundle curvesP = new YieldCurveBundle(fxMatrixP, CURVES.getCcyMap(), CURVES.getCurvesMap());
+    final YieldCurveBundle curves = new YieldCurveBundle(fxMatrix, CURVES.getCurrencyMap(), CURVES.getCurvesMap());
+    final YieldCurveBundle curvesP = new YieldCurveBundle(fxMatrixP, CURVES.getCurrencyMap(), CURVES.getCurvesMap());
     final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(curves, SMILE_TERM_FLAT, Pair.of(EUR, USD));
     final SmileDeltaTermStructureDataBundle smileBundleP = new SmileDeltaTermStructureDataBundle(curvesP, SMILE_TERM_FLAT, Pair.of(EUR, USD));
     final MultipleCurrencyAmount ce = METHOD_DIGITAL_SPREAD.currencyExposure(FOREX_DIGITAL_CALL_FOR, smileBundle);

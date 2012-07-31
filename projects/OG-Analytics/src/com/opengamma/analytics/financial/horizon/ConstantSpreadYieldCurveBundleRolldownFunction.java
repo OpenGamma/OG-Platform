@@ -25,7 +25,7 @@ public final class ConstantSpreadYieldCurveBundleRolldownFunction implements Rol
 
   @Override
   public YieldCurveBundle rollDown(final YieldCurveBundle data, final double time) {
-    final YieldCurveBundle shiftedCurves = new YieldCurveBundle(data.getFxRates(), data.getCcyMap());
+    final YieldCurveBundle shiftedCurves = new YieldCurveBundle(data.getFxRates(), data.getCurrencyMap());
     for (final String name : data.getAllNames()) {
       shiftedCurves.setCurve(name, CURVE_ROLLDOWN.rollDown(data.getCurve(name), time));
     }

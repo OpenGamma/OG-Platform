@@ -131,7 +131,7 @@ public class ForexOptionDigitalCallSpreadBlackMethod extends ForexOptionDigitalC
     final double[][] vega = new double[smile.getVolatilityData().getNumberExpiration()][smile.getVolatilityData().getNumberStrike()];
     for (final DoublesPair point : pointSensitivity.getVega().getMap().keySet()) {
       final double[][] nodeWeight = new double[smile.getVolatilityData().getNumberExpiration()][smile.getVolatilityData().getNumberStrike()];
-      smile.getVolatility(optionDigital.getCurrency1(), optionDigital.getCurrency2(), optionDigital.getExpirationTime(), point.second, forward, nodeWeight);
+      FXVolatilityUtils.getVolatility(smile, optionDigital.getCurrency1(), optionDigital.getCurrency2(), optionDigital.getExpirationTime(), point.second, forward, nodeWeight);
       for (int loopexp = 0; loopexp < smile.getVolatilityData().getNumberExpiration(); loopexp++) {
         for (int loopstrike = 0; loopstrike < smile.getVolatilityData().getNumberStrike(); loopstrike++) {
           vega[loopexp][loopstrike] += nodeWeight[loopexp][loopstrike] * pointSensitivity.getVega().getMap().get(point);

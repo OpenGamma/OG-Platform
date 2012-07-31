@@ -35,11 +35,14 @@ public class YieldCurveWithBlackForexTermStructureBundle extends YieldCurveBundl
 
   @Override
   /**
-   * Create a shallow copy of the bundle using a new map and the same curve and curve names.
+   * Create a copy of the bundle.
    * @return The bundle.
    */
   public YieldCurveWithBlackForexTermStructureBundle copy() {
-    return new YieldCurveWithBlackForexTermStructureBundle(this, _termStructure, _currencyPair);
+    final YieldCurveBundle curves = super.copy();
+    final BlackForexTermStructureParameters termStructure = new BlackForexTermStructureParameters(_termStructure.getVolatilityCurve());
+    final Pair<Currency, Currency> currencyPair = Pair.of(_currencyPair.getFirst(), _currencyPair.getSecond());
+    return new YieldCurveWithBlackForexTermStructureBundle(curves, termStructure, currencyPair);
   }
 
   /**

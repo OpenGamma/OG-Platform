@@ -191,7 +191,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     final double[][] sFlat = new double[][] { {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}};
     final SmileDeltaTermStructureParametersStrikeInterpolation smileTermFlat = new SmileDeltaTermStructureParametersStrikeInterpolation(TIME_TO_EXPIRY, DELTA, atmFlat, rrFlat, sFlat);
     final FXMatrix fxMatrixShift = new FXMatrix(CUR_1, CUR_2, SPOT + shiftSpotEURUSD);
-    final YieldCurveBundle curvesShiftedFX = new YieldCurveBundle(fxMatrixShift, CURVES.getCcyMap(), CURVES.getCurvesMap());
+    final YieldCurveBundle curvesShiftedFX = new YieldCurveBundle(fxMatrixShift, CURVES.getCurrencyMap(), CURVES.getCurvesMap());
     final SmileDeltaTermStructureDataBundle smileBumpedSpot = new SmileDeltaTermStructureDataBundle(curvesShiftedFX, smileTermFlat, Pair.of(CUR_1, CUR_2));
     final MultipleCurrencyAmount pvBumpedSpot = METHOD_BARRIER.presentValue(OPTION_BARRIER, smileBumpedSpot);
     final double ceDomesticFD = (pvBumpedSpot.getAmount(CUR_2) - pv.getAmount(CUR_2));

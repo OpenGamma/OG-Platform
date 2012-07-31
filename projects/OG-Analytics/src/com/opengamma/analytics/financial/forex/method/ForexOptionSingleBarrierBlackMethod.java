@@ -71,8 +71,8 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
     final double foreignAmount = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency1().getAmount();
     final double rebateByForeignUnit = optionForex.getRebate() / Math.abs(foreignAmount);
     final double sign = (optionForex.getUnderlyingOption().isLong() ? 1.0 : -1.0);
-    final double volatility = smile.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getUnderlyingOption().getTimeToExpiry(), optionForex.getUnderlyingOption()
-        .getStrike(), forward);
+    final double volatility = FXVolatilityUtils.getVolatility(smile, optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getUnderlyingOption().getTimeToExpiry(),
+        optionForex.getUnderlyingOption().getStrike(), forward);
     double price = BLACK_FUNCTION.getPrice(optionForex.getUnderlyingOption(), optionForex.getBarrier(), rebateByForeignUnit, spot, rateForeign, rateDomestic, volatility);
     price *= Math.abs(foreignAmount) * sign;
     final CurrencyAmount priceCurrency = CurrencyAmount.of(optionForex.getUnderlyingOption().getUnderlyingForex().getCurrency2(), price);
@@ -104,8 +104,8 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
     final double foreignAmount = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency1().getAmount();
     final double rebateByForeignUnit = optionForex.getRebate() / Math.abs(foreignAmount);
     final double sign = (optionForex.getUnderlyingOption().isLong() ? 1.0 : -1.0);
-    final double volatility = smile.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getUnderlyingOption().getTimeToExpiry(), optionForex.getUnderlyingOption()
-        .getStrike(), forward);
+    final double volatility = FXVolatilityUtils.getVolatility(smile, optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getUnderlyingOption().getTimeToExpiry(),
+        optionForex.getUnderlyingOption().getStrike(), forward);
     final double[] priceDerivatives = new double[5];
     double price = BLACK_FUNCTION.getPriceAdjoint(optionForex.getUnderlyingOption(), optionForex.getBarrier(), rebateByForeignUnit, spot, rateForeign, rateDomestic, volatility, priceDerivatives);
     price *= Math.abs(foreignAmount) * sign;
@@ -147,8 +147,8 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
     final double foreignAmount = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency1().getAmount();
     final double rebateByForeignUnit = optionForex.getRebate() / Math.abs(foreignAmount);
     final double sign = (optionForex.getUnderlyingOption().isLong() ? 1.0 : -1.0);
-    final double volatility = smile.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getUnderlyingOption().getTimeToExpiry(), optionForex.getUnderlyingOption()
-        .getStrike(), forward);
+    final double volatility = FXVolatilityUtils.getVolatility(smile, optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getUnderlyingOption().getTimeToExpiry(),
+        optionForex.getUnderlyingOption().getStrike(), forward);
     final double[] priceDerivatives = new double[5];
     BLACK_FUNCTION.getPriceAdjoint(optionForex.getUnderlyingOption(), optionForex.getBarrier(), rebateByForeignUnit, spot, rateForeign, rateDomestic, volatility, priceDerivatives);
     // Backward sweep
@@ -201,8 +201,8 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
     final double foreignAmount = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency1().getAmount();
     final double rebateByForeignUnit = optionForex.getRebate() / Math.abs(foreignAmount);
     final double sign = (optionForex.getUnderlyingOption().isLong() ? 1.0 : -1.0);
-    final double volatility = smile.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getUnderlyingOption().getTimeToExpiry(), optionForex.getUnderlyingOption()
-        .getStrike(), forward);
+    final double volatility = FXVolatilityUtils.getVolatility(smile, optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getUnderlyingOption().getTimeToExpiry(),
+        optionForex.getUnderlyingOption().getStrike(), forward);
     final double[] priceDerivatives = new double[5];
     BLACK_FUNCTION.getPriceAdjoint(optionForex.getUnderlyingOption(), optionForex.getBarrier(), rebateByForeignUnit, spot, rateForeign, rateDomestic, volatility, priceDerivatives);
     final double volatilitySensitivityValue = priceDerivatives[4] * Math.abs(foreignAmount) * sign;
