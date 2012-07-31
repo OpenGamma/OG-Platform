@@ -653,7 +653,7 @@ public class ForexOptionDigitalCallSpreadMethodTest {
     final double forward = SPOT * dfForeign / dfDomestic;
     final double[] volBlack = new double[nbStrike + 1];
     for (int loopstrike = 0; loopstrike <= nbStrike; loopstrike++) {
-      volBlack[loopstrike] = smileBundle.getVolatility(EUR, USD, forexOptionDigital[loopstrike].getExpirationTime(), strike[loopstrike], forward);
+      volBlack[loopstrike] = FXVolatilityUtils.getVolatility(smileBundle, EUR, USD, forexOptionDigital[loopstrike].getExpirationTime(), strike[loopstrike], forward);
     }
     final double[] density = new double[nbStrike - 1];
     for (int loopstrike = 0; loopstrike < nbStrike - 1; loopstrike++) {
