@@ -45,11 +45,14 @@ public class SmileDeltaTermStructureVannaVolgaDataBundle extends YieldCurveBundl
 
   @Override
   /**
-   * Create a new copy of the bundle using a new map and the same curve and curve names. The same FXMatrix is used.
+   * Create a  copy of the bundle.
    * @return The bundle.
    */
   public SmileDeltaTermStructureVannaVolgaDataBundle copy() {
-    return new SmileDeltaTermStructureVannaVolgaDataBundle(this, _smile, _currencyPair);
+    final YieldCurveBundle curves = super.copy();
+    final SmileDeltaTermStructureParameters smile = _smile.copy();
+    final Pair<Currency, Currency> currencyPair = Pair.of(_currencyPair.getFirst(), _currencyPair.getSecond());
+    return new SmileDeltaTermStructureVannaVolgaDataBundle(curves, smile, currencyPair);
   }
 
   /**

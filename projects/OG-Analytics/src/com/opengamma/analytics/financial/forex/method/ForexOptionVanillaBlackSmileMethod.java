@@ -73,7 +73,7 @@ public final class ForexOptionVanillaBlackSmileMethod implements ForexPricingMet
     final double dfForeign = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
     final double spot = smile.getFxRates().getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
     final double forward = spot * dfForeign / dfDomestic;
-    final double volatility = smile.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
+    final double volatility = FXVolatilityUtils.getVolatility(smile, optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, dfDomestic, volatility);
     final Function1D<BlackFunctionData, Double> func = BLACK_FUNCTION.getPriceFunction(optionForex);
     final double price = func.evaluate(dataBlack) * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()) * (optionForex.isLong() ? 1.0 : -1.0);
@@ -104,7 +104,7 @@ public final class ForexOptionVanillaBlackSmileMethod implements ForexPricingMet
     final double dfForeign = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
     final double spot = smile.getFxRates().getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
     final double forward = spot * dfForeign / dfDomestic;
-    final double volatility = smile.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
+    final double volatility = FXVolatilityUtils.getVolatility(smile, optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
     return volatility;
   }
 
@@ -122,7 +122,7 @@ public final class ForexOptionVanillaBlackSmileMethod implements ForexPricingMet
     final double dfForeign = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
     final double spot = smile.getFxRates().getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
     final double forward = spot * dfForeign / dfDomestic;
-    final double volatility = smile.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
+    final double volatility = FXVolatilityUtils.getVolatility(smile, optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, dfDomestic, volatility);
     final double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(optionForex, dataBlack);
     final double sign = (optionForex.isLong() ? 1.0 : -1.0);
@@ -159,7 +159,7 @@ public final class ForexOptionVanillaBlackSmileMethod implements ForexPricingMet
     final double dfForeign = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
     final double spot = smile.getFxRates().getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
     final double forward = spot * dfForeign / dfDomestic;
-    final double volatility = smile.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
+    final double volatility = FXVolatilityUtils.getVolatility(smile, optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
     final double sign = (optionForex.isLong() ? 1.0 : -1.0);
     final double deltaDirect = BlackFormulaRepository.delta(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility, optionForex.isCall()) * dfForeign * sign;
     if (directQuote) {
@@ -186,7 +186,7 @@ public final class ForexOptionVanillaBlackSmileMethod implements ForexPricingMet
     final double dfForeign = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
     final double spot = smile.getFxRates().getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
     final double forward = spot * dfForeign / dfDomestic;
-    final double volatility = smile.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
+    final double volatility = FXVolatilityUtils.getVolatility(smile, optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
     final double sign = (optionForex.isLong() ? 1.0 : -1.0);
     final double deltaDirect = BlackFormulaRepository.delta(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility, optionForex.isCall()) * dfForeign * sign;
     if (directQuote) {
@@ -213,7 +213,7 @@ public final class ForexOptionVanillaBlackSmileMethod implements ForexPricingMet
     final double dfForeign = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
     final double spot = smile.getFxRates().getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
     final double forward = spot * dfForeign / dfDomestic;
-    final double volatility = smile.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
+    final double volatility = FXVolatilityUtils.getVolatility(smile, optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
     final double sign = (optionForex.isLong() ? 1.0 : -1.0);
     final double gammaDirect = BlackFormulaRepository.gamma(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility) * (dfForeign * dfForeign) / dfDomestic * sign;
     if (directQuote) {
@@ -241,7 +241,7 @@ public final class ForexOptionVanillaBlackSmileMethod implements ForexPricingMet
     final double dfForeign = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
     final double spot = smile.getFxRates().getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
     final double forward = spot * dfForeign / dfDomestic;
-    final double volatility = smile.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
+    final double volatility = FXVolatilityUtils.getVolatility(smile, optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
     final double sign = (optionForex.isLong() ? 1.0 : -1.0);
     final double gammaDirect = BlackFormulaRepository.gamma(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility) * (dfForeign * dfForeign) / dfDomestic * sign;
     if (directQuote) {
@@ -298,7 +298,7 @@ public final class ForexOptionVanillaBlackSmileMethod implements ForexPricingMet
     final double dfForeign = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
     final double spot = smile.getFxRates().getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
     final double forward = spot * dfForeign / dfDomestic;
-    final double volatility = smile.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
+    final double volatility = FXVolatilityUtils.getVolatility(smile, optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
     final double sign = (optionForex.isLong() ? 1.0 : -1.0);
     final double theta = BlackFormulaRepository.theta(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility) * sign
         * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount());
@@ -335,7 +335,7 @@ public final class ForexOptionVanillaBlackSmileMethod implements ForexPricingMet
     final double dfDomestic = smile.getCurve(domesticCurveName).getDiscountFactor(payTime);
     final double dfForeign = smile.getCurve(foreignCurveName).getDiscountFactor(payTime);
     final double forward = spot * dfForeign / dfDomestic;
-    final double volatility = smile.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
+    final double volatility = FXVolatilityUtils.getVolatility(smile, optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
     final double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(optionForex, dataBlack);
     // Backward sweep
@@ -388,7 +388,7 @@ public final class ForexOptionVanillaBlackSmileMethod implements ForexPricingMet
     final double spot = smile.getFxRates().getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
     final double forward = spot * smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime())
         / df;
-    final double volatility = smile.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
+    final double volatility = FXVolatilityUtils.getVolatility(smile, optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, df, volatility);
     final double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(optionForex, dataBlack);
     final double volatilitySensitivityValue = priceAdjoint[2] * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()) * (optionForex.isLong() ? 1.0 : -1.0);
@@ -430,7 +430,7 @@ public final class ForexOptionVanillaBlackSmileMethod implements ForexPricingMet
     final double spot = smile.getFxRates().getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
     final double forward = spot * smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime())
         / df;
-    smile.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward, nodeWeight);
+    FXVolatilityUtils.getVolatility(smile, optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward, nodeWeight);
     final DoublesPair point = DoublesPair.of(optionForex.getTimeToExpiry(),
         (optionForex.getCurrency1() == smile.getCurrencyPair().getFirst()) ? optionForex.getStrike() : 1.0 / optionForex.getStrike());
     final double[][] vega = new double[smile.getVolatilityData().getNumberExpiration()][smile.getVolatilityData().getNumberStrike()];

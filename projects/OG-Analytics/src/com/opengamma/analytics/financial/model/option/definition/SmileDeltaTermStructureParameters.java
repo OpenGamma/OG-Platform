@@ -7,6 +7,8 @@ package com.opengamma.analytics.financial.model.option.definition;
 
 import java.util.Arrays;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
@@ -43,14 +45,24 @@ public class SmileDeltaTermStructureParameters {
    * @param volatilityTerm The volatility description at the different expiration.
    */
   public SmileDeltaTermStructureParameters(final SmileDeltaParameters[] volatilityTerm) {
+    this(volatilityTerm, DEFAULT_INTERPOLATOR_EXPIRY);
+  }
+
+  /**
+   * Constructor from volatility term structure.
+   * @param volatilityTerm The volatility description at the different expiration.
+   * @param interpolator The time interpolator
+   */
+  public SmileDeltaTermStructureParameters(final SmileDeltaParameters[] volatilityTerm, final Interpolator1D interpolator) {
     ArgumentChecker.notNull(volatilityTerm, "Volatility term structure");
+    ArgumentChecker.notNull(interpolator, "interpolator");
     _volatilityTerm = volatilityTerm;
     final int nbExp = volatilityTerm.length;
     _timeToExpiration = new double[nbExp];
     for (int loopexp = 0; loopexp < nbExp; loopexp++) {
       _timeToExpiration[loopexp] = _volatilityTerm[loopexp].getTimeToExpiry();
     }
-    _timeInterpolator = DEFAULT_INTERPOLATOR_EXPIRY;
+    _timeInterpolator = interpolator;
   }
 
   /**
@@ -118,6 +130,10 @@ public class SmileDeltaTermStructureParameters {
     }
     _timeInterpolator = timeInterpolator;
     ArgumentChecker.isTrue(_volatilityTerm[0].getVolatility().length > 1, "Need more than one volatility value to perform interpolation");
+  }
+
+  public SmileDeltaTermStructureParameters copy() {
+    return new SmileDeltaTermStructureParameters(getVolatilityTerm(), getTimeInterpolator());
   }
 
   /**
@@ -190,6 +206,14 @@ public class SmileDeltaTermStructureParameters {
   }
 
   /**
+   * Gets the time interpolator
+   * @return The time interpolator
+   */
+  public Interpolator1D getTimeInterpolator() {
+    return _timeInterpolator;
+  }
+
+  /**
    * Gets the volatility smiles from delta.
    * @return The volatility smiles.
    */
@@ -234,6 +258,7 @@ public class SmileDeltaTermStructureParameters {
     int result = 1;
     result = prime * result + Arrays.hashCode(_timeToExpiration);
     result = prime * result + Arrays.hashCode(_volatilityTerm);
+    result = prime * result + _timeInterpolator.hashCode();
     return result;
   }
 
@@ -253,6 +278,9 @@ public class SmileDeltaTermStructureParameters {
       return false;
     }
     if (!Arrays.equals(_volatilityTerm, other._volatilityTerm)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_timeInterpolator, other._timeInterpolator)) {
       return false;
     }
     return true;

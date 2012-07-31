@@ -119,6 +119,15 @@ public class SmileDeltaTermStructureParametersStrikeInterpolation extends SmileD
   }
 
   /**
+   * Create a copy of the bundle
+   * @return A copy of the bundle
+   */
+  @Override
+  public SmileDeltaTermStructureParametersStrikeInterpolation copy() {
+    return new SmileDeltaTermStructureParametersStrikeInterpolation(getVolatilityTerm(), getStrikeInterpolator());
+  }
+
+  /**
    * Get the volatility at a given time/strike/forward from the term structure. The volatility at a given delta are interpolated linearly on the total variance (s^2*t) and extrapolated flat.
    * The volatility are then linearly interpolated in the strike dimension and extrapolated flat.
    * @param time The time to expiry.
@@ -172,7 +181,7 @@ public class SmileDeltaTermStructureParametersStrikeInterpolation extends SmileD
    * Gets the interpolator
    * @return The interpolator
    */
-  public Interpolator1D getInterpolator() {
+  public Interpolator1D getStrikeInterpolator() {
     return _strikeInterpolator;
   }
 

@@ -67,4 +67,10 @@ public class YieldCurveWithBlackForexTermStructureBundleTest {
     other = new YieldCurveWithBlackForexTermStructureBundle(CURVES, VOLS, Pair.of(Currency.USD, Currency.GBP));
     assertFalse(FX_DATA.equals(other));
   }
+
+  @Test
+  public void testCopy() {
+    assertFalse(FX_DATA == FX_DATA.copy());
+    assertEquals(FX_DATA, FX_DATA.copy());
+  }
 }
