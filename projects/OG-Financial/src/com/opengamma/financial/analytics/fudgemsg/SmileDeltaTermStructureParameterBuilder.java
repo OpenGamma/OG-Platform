@@ -54,7 +54,7 @@ public class SmileDeltaTermStructureParameterBuilder extends AbstractFudgeBuilde
     serializer.addToMessage(message, T_DATA_FIELD_NAME, null, t);
     serializer.addToMessage(message, DELTA_DATA_FIELD_NAME, null, delta);
     serializer.addToMessage(message, VOLATILITY_DATA_FIELD_NAME, null, volatility);
-    serializer.addToMessage(message, INTERPOLATOR_NAME, null, object.getInterpolator());
+    serializer.addToMessage(message, INTERPOLATOR_NAME, null, object.getStrikeInterpolator());
   }
 
 }
