@@ -5,8 +5,6 @@
  */
 package com.opengamma.analytics.financial.horizon;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParametersStrikeInterpolation;
@@ -31,33 +29,21 @@ public final class ConstantSpreadFXBlackRolldown implements RolldownFunction<Smi
   public SmileDeltaTermStructureDataBundle rollDown(final SmileDeltaTermStructureDataBundle data, final double shiftTime) {
     final YieldCurveBundle shiftedCurves = CURVES_ROLLDOWN.rollDown(data, shiftTime);
     final Pair<Currency, Currency> currencyPair = data.getCurrencyPair();
-    final SmileDeltaTermStructureParametersStrikeInterpolation smile = data.getVolatilityData();
-    return new SmileDeltaTermStructureDataBundle(shiftedCurves, smile, currencyPair) {
+    final SmileDeltaTermStructureParametersStrikeInterpolation volatilityData = data.getVolatilityData();
+    final SmileDeltaTermStructureParametersStrikeInterpolation smile = new SmileDeltaTermStructureParametersStrikeInterpolation(volatilityData.getVolatilityTerm(),
+        volatilityData.getStrikeInterpolator()) {
 
       @Override
-      public double getVolatility(final Currency ccy1, final Currency ccy2, final double time, final double strike, final double forward) {
-        if ((ccy1 == currencyPair.getFirst()) && (ccy2 == currencyPair.getSecond())) {
-          return smile.getVolatility(time + shiftTime, strike, forward);
-        }
-        if ((ccy2 == currencyPair.getFirst()) && (ccy1 == currencyPair.getSecond())) {
-          return smile.getVolatility(time + shiftTime, 1.0 / strike, 1.0 / forward);
-        }
-        Validate.isTrue(false, "Currencies not compatible with smile data");
-        return 0.0;
+      public double getVolatility(final double time, final double strike, final double forward) {
+        return volatilityData.getVolatility(time + shiftTime, strike, forward);
       }
 
       @Override
-      public double getVolatility(final Currency ccy1, final Currency ccy2, final double time, final double strike, final double forward, final double[][] bucketSensitivity) {
-        if ((ccy1 == currencyPair.getFirst()) && (ccy2 == currencyPair.getSecond())) {
-          return smile.getVolatility(time + shiftTime, strike, forward, bucketSensitivity);
-        }
-        if ((ccy2 == currencyPair.getFirst()) && (ccy1 == currencyPair.getSecond())) {
-          return smile.getVolatility(time + shiftTime, 1.0 / strike, 1.0 / forward, bucketSensitivity);
-        }
-        Validate.isTrue(false, "Currencies not compatible with smile data");
-        return 0.0;
+      public double getVolatility(final double time, final double strike, final double forward, final double[][] bucketSensitivity) {
+        return volatilityData.getVolatility(time + shiftTime, strike, forward, bucketSensitivity);
       }
     };
+    return new SmileDeltaTermStructureDataBundle(shiftedCurves, smile, currencyPair);
   }
 
 }
