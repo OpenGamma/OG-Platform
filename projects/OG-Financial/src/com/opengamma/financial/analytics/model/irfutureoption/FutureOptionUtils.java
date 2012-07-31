@@ -23,21 +23,21 @@ public class FutureOptionUtils {
   private static final DateAdjuster THIRD_WED_ADJUSTER = DateAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY);
 
   /**
-   * Compute time between now and future or future option's settlement date, 
-   * typically two business days before the third Wednesday of the expiry month. 
+   * Compute time between now and future or future option's settlement date,
+   * typically two business days before the third Wednesday of the expiry month.
    * @param n nth Future after now
    * @param today Valuation Date
    * @return OG-Analytic Time in years between now and the future's settlement date
    */
   public static Double getFutureOptionTtm(final int n, final LocalDate today) {
-    final LocalDate expiry = getFutureOptionExpiry(n, today);
+    final LocalDate expiry = getFutureOptionWithSerialOptionsExpiry(n, today);
     final LocalDate previousMonday = expiry.minusDays(2); //TODO this should take a calendar and do two business days, and should use a convention for the number of days
     return TimeCalculator.getTimeBetween(today, previousMonday);
   }
 
   /**
-   * Compute time between now and future or future option's settlement date, 
-   * typically two business days before the third Wednesday of the expiry month. 
+   * Compute time between now and future or future option's settlement date,
+   * typically two business days before the third Wednesday of the expiry month.
    * @param n nth Future after now
    * @param today Valuation Date
    * @return OG-Analytic Time in years between now and the future's settlement date
@@ -48,7 +48,7 @@ public class FutureOptionUtils {
     return TimeCalculator.getTimeBetween(today, previousMonday);
   }
 
-  public static LocalDate getFutureOptionExpiry(final int nthFuture, final LocalDate valDate) {
+  public static LocalDate getFutureOptionWithSerialOptionsExpiry(final int nthFuture, final LocalDate valDate) {
     Validate.isTrue(nthFuture > 0, "nthFuture must be greater than 0.");
     if (nthFuture <= 6) { // We look for expiries in the first 6 serial months after curveDate
       return getMonthlyExpiry(nthFuture, valDate);
