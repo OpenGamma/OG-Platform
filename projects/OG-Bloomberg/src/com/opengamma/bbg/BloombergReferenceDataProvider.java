@@ -36,7 +36,6 @@ import com.bloomberglp.blpapi.Service;
 import com.google.common.base.CharMatcher;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.referencedata.statistics.BloombergReferenceDataStatistics;
-import com.opengamma.bbg.referencedata.statistics.NullBloombergReferenceDataStatistics;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.util.ArgumentChecker;
 
@@ -65,12 +64,12 @@ public class BloombergReferenceDataProvider extends AbstractBloombergStaticDataP
   /**
    * Creates an instance.
    * <p>
-   * This will not gather statistics on usage.
+   * This will use the statistics tool in the connector.
    * 
    * @param bloombergConnector  the Bloomberg connector, not null
    */
   public BloombergReferenceDataProvider(BloombergConnector bloombergConnector) {
-    this(bloombergConnector, NullBloombergReferenceDataStatistics.INSTANCE);
+    this(bloombergConnector, bloombergConnector.getReferenceDataStatistics());
   }
 
   /**
