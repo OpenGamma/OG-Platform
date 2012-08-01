@@ -9,6 +9,7 @@ import java.util.Collection;
 
 import org.apache.commons.lang.ObjectUtils;
 
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.volatility.VolatilityModel;
 import com.opengamma.util.ArgumentChecker;
@@ -35,7 +36,8 @@ public abstract class ForexOptionDataBundle<T extends VolatilityModel<?>> extend
     final Collection<Currency> currencies = getCurrencyMap().values();
     final Currency firstCurrency = currencyPair.getFirst();
     final Currency secondCurrency = currencyPair.getSecond();
-    //TODO: check rate is available for currency pair.
+    final FXMatrix fxMatrix = curves.getFxRates();
+    ArgumentChecker.isTrue(fxMatrix.containsPair(firstCurrency, secondCurrency), "FX matrix does not contain rates for {} and {}", firstCurrency, secondCurrency);
     ArgumentChecker.isTrue(currencies.contains(firstCurrency), "Curve currency map does not contain currency {}; have {}", firstCurrency, currencies);
     ArgumentChecker.isTrue(currencies.contains(secondCurrency), "Curve currency map does not contain currency {}, have {}", secondCurrency, currencies);
     _volatilityModel = volatilityModel;
@@ -84,6 +86,10 @@ public abstract class ForexOptionDataBundle<T extends VolatilityModel<?>> extend
   protected YieldCurveBundle getCurvesCopy() {
     return super.copy();
   }
+
+  public abstract ForexOptionDataBundle<T> with(YieldCurveBundle ycBundle);
+
+  public abstract ForexOptionDataBundle<T> with(T volatilityModel);
 
   @Override
   public int hashCode() {

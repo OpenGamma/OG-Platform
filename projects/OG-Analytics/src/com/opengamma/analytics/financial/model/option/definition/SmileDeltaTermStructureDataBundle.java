@@ -14,6 +14,10 @@ import com.opengamma.util.tuple.Pair;
  */
 public class SmileDeltaTermStructureDataBundle extends ForexOptionDataBundle<SmileDeltaTermStructureParametersStrikeInterpolation> {
 
+  public static SmileDeltaTermStructureDataBundle from(final YieldCurveBundle ycBundle, final SmileDeltaTermStructureParametersStrikeInterpolation smile, final Pair<Currency, Currency> currencyPair) {
+    return new SmileDeltaTermStructureDataBundle(ycBundle, smile, currencyPair);
+  }
+
   /**
    * Constructor from the smile parameters and the curves.
    * @param ycBundle The curves bundle.
@@ -31,4 +35,15 @@ public class SmileDeltaTermStructureDataBundle extends ForexOptionDataBundle<Smi
     final Pair<Currency, Currency> currencyPair = Pair.of(getCurrencyPair().getFirst(), getCurrencyPair().getSecond());
     return new SmileDeltaTermStructureDataBundle(curves, smile, currencyPair);
   }
+
+  @Override
+  public SmileDeltaTermStructureDataBundle with(final YieldCurveBundle ycBundle) {
+    return new SmileDeltaTermStructureDataBundle(ycBundle, getVolatilityModel(), getCurrencyPair());
+  }
+
+  @Override
+  public SmileDeltaTermStructureDataBundle with(final SmileDeltaTermStructureParametersStrikeInterpolation volatilityModel) {
+    return new SmileDeltaTermStructureDataBundle(this, volatilityModel, getCurrencyPair());
+  }
+
 }

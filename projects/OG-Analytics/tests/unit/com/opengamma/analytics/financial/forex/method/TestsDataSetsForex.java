@@ -5,6 +5,10 @@
  */
 package com.opengamma.analytics.financial.forex.method;
 
+import static com.opengamma.util.money.Currency.EUR;
+import static com.opengamma.util.money.Currency.GBP;
+import static com.opengamma.util.money.Currency.USD;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,15 +38,15 @@ public class TestsDataSetsForex {
   private static final String DISCOUNTING_USD = "Discounting USD";
   private static final String DISCOUNTING_GBP = "Discounting GBP";
   private static final String DISCOUNTING_KRW = "Discounting KRW";
-  private static final Currency EUR = Currency.EUR;
-  private static final Currency USD = Currency.USD;
   private static final double EUR_USD = 1.40;
   private static final double KRW_USD = 1111.11;
+  private static final double GBP_USD = 0.6;
   private static final FXMatrix FX_MATRIX;
 
   static {
     FX_MATRIX = new FXMatrix(EUR, USD, EUR_USD);
     FX_MATRIX.addCurrency(KRW, USD, KRW_USD);
+    FX_MATRIX.addCurrency(GBP, USD, GBP_USD);
   }
 
 

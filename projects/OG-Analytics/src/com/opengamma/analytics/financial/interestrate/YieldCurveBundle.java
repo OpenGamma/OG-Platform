@@ -45,7 +45,7 @@ public class YieldCurveBundle {
   }
 
   /**
-   * Constructor from existing currency map and existing fxMatrix. A new curve map is created. The currency map and FXMatrix are directly used.
+   * Constructor from existing currency map and existing fxMatrix.
    * @param fxMatrix The FXMatrix.
    * @param curveCurrency The map of currency names to currency
    * @param curvesMap The map of curve names to curve
@@ -59,12 +59,12 @@ public class YieldCurveBundle {
       ArgumentChecker.noNulls(curvesMap.values(), "curve map entry set");
       _curves.putAll(curvesMap);
     }
-    _curveCurrency = curveCurrency;
-    _fxMatrix = fxMatrix;
+    _curveCurrency = new HashMap<String, Currency>(curveCurrency);
+    _fxMatrix = new FXMatrix(fxMatrix);
   }
 
   /**
-   * Constructor from existing currency map and existing fxMatrix. A new curve map is created.
+   * Constructor from existing currency map and existing fxMatrix.
    * @param fxMatrix The FXMatrix.
    * @param curveCurrency The map of currency names to currency
    */
