@@ -52,12 +52,21 @@ public class YieldCurveWithBlackForexTermStructureBundleTest {
     new YieldCurveWithBlackForexTermStructureBundle(CURVES, VOLS, null);
   }
 
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testBadCurrencyPair() {
+    new YieldCurveWithBlackForexTermStructureBundle(CURVES, VOLS, Pair.of(Currency.AUD, Currency.SEK));
+  }
+
   @Test
   public void testObject() {
     assertEquals(VOLS, FX_DATA.getVolatilityModel());
     YieldCurveWithBlackForexTermStructureBundle other = new YieldCurveWithBlackForexTermStructureBundle(CURVES, VOLS, CCYS);
     assertEquals(other, FX_DATA);
     assertEquals(other.hashCode(), FX_DATA.hashCode());
+    other = YieldCurveWithBlackForexTermStructureBundle.from(CURVES, VOLS, CCYS);
+    assertEquals(FX_DATA, other);
+    assertEquals(FX_DATA.hashCode(), other.hashCode());
     final Map<String, YieldAndDiscountCurve> otherCurves = new HashMap<String, YieldAndDiscountCurve>();
     final YieldAndDiscountCurve curve = CURVES.getCurve(CURVES.getAllNames().iterator().next());
     for (final String name : CURVES.getAllNames()) {
@@ -75,5 +84,17 @@ public class YieldCurveWithBlackForexTermStructureBundleTest {
   public void testCopy() {
     assertFalse(FX_DATA == FX_DATA.copy());
     assertEquals(FX_DATA, FX_DATA.copy());
+  }
+
+  @Test
+  public void testBuilders() {
+    final YieldCurveWithBlackForexTermStructureBundle fxData = new YieldCurveWithBlackForexTermStructureBundle(CURVES, VOLS, CCYS);
+    assertEquals(FX_DATA, fxData);
+    YieldCurveWithBlackForexTermStructureBundle other = fxData.with(TestsDataSetsForex.createCurvesForex());
+    assertEquals(FX_DATA, fxData);
+    assertFalse(other.equals(fxData));
+    other = FX_DATA.with(new BlackForexTermStructureParameters(InterpolatedDoublesCurve.fromSorted(NODES, VOL, LINEAR_FLAT)));
+    assertEquals(FX_DATA, fxData);
+    assertFalse(other.equals(fxData));
   }
 }

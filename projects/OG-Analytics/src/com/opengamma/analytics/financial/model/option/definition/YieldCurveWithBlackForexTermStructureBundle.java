@@ -14,6 +14,10 @@ import com.opengamma.util.tuple.Pair;
  */
 public class YieldCurveWithBlackForexTermStructureBundle extends ForexOptionDataBundle<BlackForexTermStructureParameters> {
 
+  public static YieldCurveWithBlackForexTermStructureBundle from(final YieldCurveBundle ycBundle, final BlackForexTermStructureParameters termStructure, final Pair<Currency, Currency> currencyPair) {
+    return new YieldCurveWithBlackForexTermStructureBundle(ycBundle, termStructure, currencyPair);
+  }
+
   /**
    * Constructor from the smile parameters and the curves.
    * @param ycBundle The curves bundle.
@@ -30,6 +34,16 @@ public class YieldCurveWithBlackForexTermStructureBundle extends ForexOptionData
     final BlackForexTermStructureParameters termStructure = new BlackForexTermStructureParameters(getVolatilityModel().getVolatilityCurve());
     final Pair<Currency, Currency> currencyPair = Pair.of(getCurrencyPair().getFirst(), getCurrencyPair().getSecond());
     return new YieldCurveWithBlackForexTermStructureBundle(curves, termStructure, currencyPair);
+  }
+
+  @Override
+  public YieldCurveWithBlackForexTermStructureBundle with(final YieldCurveBundle ycBundle) {
+    return new YieldCurveWithBlackForexTermStructureBundle(ycBundle, getVolatilityModel(), getCurrencyPair());
+  }
+
+  @Override
+  public YieldCurveWithBlackForexTermStructureBundle with(final BlackForexTermStructureParameters volatilityModel) {
+    return new YieldCurveWithBlackForexTermStructureBundle(this, volatilityModel, getCurrencyPair());
   }
 
 }
