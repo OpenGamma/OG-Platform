@@ -14,8 +14,6 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.time.calendar.Period;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,9 +24,6 @@ import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolat
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.function.AbstractFunction;
-import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
@@ -40,11 +35,8 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;
-import com.opengamma.financial.analytics.volatility.surface.DefaultVolatilitySurfaceShiftFunction;
-import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubePropertyNames;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubeQuoteType;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceShiftFunction;
-import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
@@ -52,10 +44,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public class ForexStrangleRiskReversalVolatilitySurfaceFunction extends AbstractFunction.NonCompiledInvoker {
-  /**
-   * 
-   */
+public class ForexStrangleRiskReversalVolatilitySurfaceFunction extends ForexVolatilitySurfaceFunction {
   private static final SmileDeltaParameters[] EMPTY_ARRAY = new SmileDeltaParameters[0];
   private static final Logger s_logger = LoggerFactory.getLogger(ForexStrangleRiskReversalVolatilitySurfaceFunction.class);
 
@@ -125,9 +114,11 @@ public class ForexStrangleRiskReversalVolatilitySurfaceFunction extends Abstract
     }
     final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
     final SmileDeltaTermStructureParametersStrikeInterpolation smiles = new SmileDeltaTermStructureParametersStrikeInterpolation(smile.toArray(EMPTY_ARRAY), interpolator);
-    final ValueProperties.Builder resultProperties = createValueProperties().with(ValuePropertyNames.SURFACE, surfaceName)
+    final ValueProperties.Builder resultProperties = createValueProperties()
+        .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
-        .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorName).with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
+        .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorName)
+        .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
         .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName);
     if (shifts != null) {
       resultProperties.with(VolatilitySurfaceShiftFunction.SHIFT, shifts);
@@ -137,73 +128,8 @@ public class ForexStrangleRiskReversalVolatilitySurfaceFunction extends Abstract
   }
 
   @Override
-  public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PRIMITIVE;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.PRIMITIVE) {
-      return false;
-    }
-    if (target.getUniqueId() == null) {
-      s_logger.error("Target unique id was null; {}", target);
-      return false;
-    }
-    return UnorderedCurrencyPair.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
-  }
-
-  @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> surfaceNames = constraints.getValues(ValuePropertyNames.SURFACE);
-    if (surfaceNames == null || surfaceNames.size() != 1) {
-      throw new OpenGammaRuntimeException("Need one surface name; have " + surfaceNames);
-    }
-    final Set<String> interpolatorNames = constraints.getValues(InterpolatedDataProperties.X_INTERPOLATOR_NAME);
-    if (interpolatorNames == null || interpolatorNames.size() != 1) {
-      return null;
-    }
-    final Set<String> leftExtrapolatorNames = constraints.getValues(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
-    if (leftExtrapolatorNames == null || leftExtrapolatorNames.size() != 1) {
-      return null;
-    }
-    final Set<String> rightExtrapolatorNames = constraints.getValues(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
-    if (rightExtrapolatorNames == null || rightExtrapolatorNames.size() != 1) {
-      return null;
-    }
-    final String surfaceName = surfaceNames.iterator().next();
-    return Collections.<ValueRequirement>singleton(getDataRequirement(surfaceName, target));
-  }
-
-  @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties.Builder resultProperties = createValueProperties().withAny(ValuePropertyNames.SURFACE)
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX).withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
-        .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME).withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
-    if (context.getViewCalculationConfiguration() != null) {
-      final Set<String> shifts = context.getViewCalculationConfiguration().getDefaultProperties()
-          .getValues(DefaultVolatilitySurfaceShiftFunction.VOLATILITY_SURFACE_SHIFT);
-      if ((shifts != null) && (shifts.size() == 1)) {
-        resultProperties.with(VolatilitySurfaceShiftFunction.SHIFT, shifts.iterator().next());
-      }
-    }
-    return Collections.<ValueSpecification>singleton(new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, target.toSpecification(),
-        resultProperties.get()));
-  }
-
-  private double getTime(final Tenor tenor) {
-    final Period period = tenor.getPeriod();
-    if (period.getYears() != 0) {
-      return period.getYears();
-    }
-    if (period.getMonths() != 0) {
-      return ((double) period.getMonths()) / 12;
-    }
-    if (period.getDays() != 0) {
-      return ((double) period.getDays()) / 365;
-    }
-    throw new OpenGammaRuntimeException("Should never happen");
+  protected String getVolatilitySurfaceQuoteType() {
+    return SurfaceAndCubeQuoteType.MARKET_STRANGLE_RISK_REVERSAL;
   }
 
   private Number[] getDeltaValues(final Pair<Number, FXVolQuoteType>[] quotes) {
@@ -214,10 +140,4 @@ public class ForexStrangleRiskReversalVolatilitySurfaceFunction extends Abstract
     return values.toArray((Number[]) Array.newInstance(Number.class, values.size()));
   }
 
-  private ValueRequirement getDataRequirement(final String surfaceName, final ComputationTarget target) {
-    return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target.toSpecification(), ValueProperties.builder()
-        .with(ValuePropertyNames.SURFACE, surfaceName).with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
-        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, SurfaceAndCubeQuoteType.MARKET_STRANGLE_RISK_REVERSAL)
-        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, SurfaceAndCubePropertyNames.VOLATILITY_QUOTE).get());
-  }
 }

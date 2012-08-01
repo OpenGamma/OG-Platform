@@ -17,6 +17,7 @@ import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
 import com.opengamma.engine.function.config.StaticFunctionConfiguration;
 import com.opengamma.financial.analytics.model.volatility.surface.ForexCallDeltaVolatilitySurfaceFunction;
+import com.opengamma.financial.analytics.model.volatility.surface.ForexFlatWithTermStructureVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.ForexStrangleRiskReversalVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.InterpolatedVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.volatility.VolatilitySurfaceSpecificationFunction;
@@ -78,6 +79,7 @@ public class DemoSurfaceFunctionConfiguration extends SingletonFactoryBean<Repos
     addConfigFor(configs, EquityOptionVolatilitySurfaceDataFunction.class.getName());
     addConfigFor(configs, ForexStrangleRiskReversalVolatilitySurfaceFunction.class.getName());
     addConfigFor(configs, ForexCallDeltaVolatilitySurfaceFunction.class.getName());
+    addConfigFor(configs, ForexFlatWithTermStructureVolatilitySurfaceFunction.class.getName());
     addConfigFor(configs, SwaptionATMVolatilitySurfaceDataFunction.class.getName());
     addConfigFor(configs, InterpolatedVolatilitySurfaceFunction.class.getName());
     configs.add(new ParameterizedFunctionConfiguration(InterpolatedVolatilitySurfaceDefaultPropertiesFunction.class.getName(),

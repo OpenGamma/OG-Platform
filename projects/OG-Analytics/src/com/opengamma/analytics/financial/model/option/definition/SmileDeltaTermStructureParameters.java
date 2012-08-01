@@ -7,19 +7,22 @@ package com.opengamma.analytics.financial.model.option.definition;
 
 import java.util.Arrays;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.ObjectUtils;
 
+import com.opengamma.analytics.financial.model.volatility.VolatilityModel;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Triple;
 
 /**
  * Class describing the a term structure of smiles from ATM, risk reversal and strangle as used in Forex market.
  * The delta used is the delta with respect to forward.
  */
-public class SmileDeltaTermStructureParameters {
+public class SmileDeltaTermStructureParameters implements VolatilityModel<Triple<Double, Double, Double>> {
 
   /**
    * The time to expiration in the term structure.
@@ -77,8 +80,8 @@ public class SmileDeltaTermStructureParameters {
     ArgumentChecker.notNull(delta, "delta");
     ArgumentChecker.notNull(volatility, "volatility");
     final int nbExp = timeToExpiration.length;
-    ArgumentChecker.isTrue(volatility.length == nbExp, "Volatility length should be coherent with time to expiration length");
-    ArgumentChecker.isTrue(volatility[0].length == 2 * delta.length + 1, "Risk volatility size should be coherent with time to delta length");
+    ArgumentChecker.isTrue(volatility.length == nbExp, "Volatility array length {} should be equal to the number of expiries {}", volatility.length, nbExp);
+    ArgumentChecker.isTrue(volatility[0].length == 2 * delta.length + 1, "Volatility array {} should be equal to (2 * number of deltas) + 1, have {}", volatility[0].length, 2 * delta.length + 1);
     _timeToExpiration = timeToExpiration;
     _volatilityTerm = new SmileDeltaParameters[nbExp];
     for (int loopexp = 0; loopexp < nbExp; loopexp++) {
@@ -250,6 +253,16 @@ public class SmileDeltaTermStructureParameters {
     }
     result[nbDelta] = 0.50;
     return result;
+  }
+
+  /**
+   * Get the volatility from a triple.
+   * @param tsf The Time, Strike, Forward triple, not null
+   * @return The volatility.
+   */
+  @Override
+  public Double getVolatility(final Triple<Double, Double, Double> tsf) {
+    throw new NotImplementedException();
   }
 
   @Override

@@ -14,22 +14,21 @@ import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
 
 /**
- * Hold the valid range of X and Y for a surface.  E.g. VolatilitySurfaceDefinition<Tenor, Double> (tenor vs strike, z is volatility), where Tenors go from 1YR..10YR, 
+ * Hold the valid range of X and Y for a surface.  E.g. VolatilitySurfaceDefinition<Tenor, Double> (tenor vs strike, z is volatility), where Tenors go from 1YR..10YR,
  * strikes from 220.0d to 240.0d with deltas of 5
  * @param <X> Type of the x-data
  * @param <Y> Type of the y-data
  */
 public class VolatilitySurfaceDefinition<X, Y> {
-  private String _name;
-  private UniqueIdentifiable _target;
-  private X[] _xs;
-  private Y[] _ys;
+  private final String _name;
+  private final UniqueIdentifiable _target;
+  private final X[] _xs;
+  private final Y[] _ys;
 
   public VolatilitySurfaceDefinition(final String name, final UniqueIdentifiable target, final X[] xs, final Y[] ys) {
     Validate.notNull(name, "Name");
     Validate.notNull(target, "Target");
     Validate.notNull(xs, "xs");
-    Validate.notNull(ys, "ys");
     _name = name;
     _target = target;
     _xs = xs;
@@ -72,9 +71,9 @@ public class VolatilitySurfaceDefinition<X, Y> {
     }
     final VolatilitySurfaceDefinition<?, ?> other = (VolatilitySurfaceDefinition<?, ?>) o;
     return other.getTarget().equals(getTarget()) &&
-           other.getName().equals(getName()) &&
-           Arrays.equals(other.getXs(), getXs()) &&
-           Arrays.equals(other.getYs(), getYs());
+        other.getName().equals(getName()) &&
+        Arrays.equals(other.getXs(), getXs()) &&
+        Arrays.equals(other.getYs(), getYs());
   }
 
   @Override

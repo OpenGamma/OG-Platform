@@ -88,7 +88,7 @@ import com.opengamma.util.money.Currency;
  */
 @Test
 public class DefaultPropertyFunctionsTest {
-  
+
   public class TradeScalingFunction extends PropertyPreservingFunction {
 
     @Override
@@ -202,11 +202,11 @@ public class DefaultPropertyFunctionsTest {
     @Override
     public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
       final Set<String> forwardCurves = desiredValue.getConstraints().getValues("ForwardCurve");
-      if (forwardCurves.isEmpty()) {
+      if (forwardCurves == null || forwardCurves.isEmpty()) {
         return null;
       }
       final Set<String> fundingCurves = desiredValue.getConstraints().getValues("FundingCurve");
-      if (fundingCurves.isEmpty()) {
+      if (fundingCurves == null || fundingCurves.isEmpty()) {
         return null;
       }
       // Two curves have been requested
@@ -320,7 +320,7 @@ public class DefaultPropertyFunctionsTest {
 
   private PortfolioNode getPortfolioNode(final PositionSource positions, final String name) {
     final Portfolio portfolio = positions.getPortfolio(UniqueId.of("Portfolio", "Test"));
-    for (PortfolioNode node : portfolio.getRootNode().getChildNodes()) {
+    for (final PortfolioNode node : portfolio.getRootNode().getChildNodes()) {
       if (name.equals(node.getName())) {
         return node;
       }

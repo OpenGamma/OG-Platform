@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.model.option.definition;
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.analytics.financial.model.volatility.VolatilityModel;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
@@ -19,7 +18,7 @@ import com.opengamma.util.tuple.Triple;
  * Class describing the data required to describe a delta and expiration dependent smile from ATM, risk reversal and strangle as used in Forex market.
  * The delta used is the delta with respect to forward.
  */
-public class SmileDeltaTermStructureParametersStrikeInterpolation extends SmileDeltaTermStructureParameters implements VolatilityModel<Triple<Double, Double, Double>> {
+public class SmileDeltaTermStructureParametersStrikeInterpolation extends SmileDeltaTermStructureParameters {
 
   /**
    * The interpolator/extrapolator used in the strike dimension.
@@ -43,11 +42,23 @@ public class SmileDeltaTermStructureParametersStrikeInterpolation extends SmileD
   /**
    * Constructor from volatility term structure.
    * @param volatilityTerm The volatility description at the different expiration.
-   * @param interpolator The interpolator used in the strike dimension.
+   * @param strikeInterpolator The interpolator used in the strike dimension.
    */
-  public SmileDeltaTermStructureParametersStrikeInterpolation(final SmileDeltaParameters[] volatilityTerm, final Interpolator1D interpolator) {
+  public SmileDeltaTermStructureParametersStrikeInterpolation(final SmileDeltaParameters[] volatilityTerm, final Interpolator1D strikeInterpolator) {
     super(volatilityTerm);
-    _strikeInterpolator = interpolator;
+    _strikeInterpolator = strikeInterpolator;
+  }
+
+  /**
+   * Constructor from volatility term structure.
+   * @param volatilityTerm The volatility description at the different expiration.
+   * @param strikeInterpolator The interpolator used in the strike dimension.
+   * @param timeInterpolator The interpolator used in the time dimension.
+   */
+  public SmileDeltaTermStructureParametersStrikeInterpolation(final SmileDeltaParameters[] volatilityTerm, final Interpolator1D strikeInterpolator, final Interpolator1D timeInterpolator) {
+    super(volatilityTerm, timeInterpolator);
+    ArgumentChecker.notNull(strikeInterpolator, "strike interpolator");
+    _strikeInterpolator = strikeInterpolator;
   }
 
   /**
@@ -71,6 +82,7 @@ public class SmileDeltaTermStructureParametersStrikeInterpolation extends SmileD
    */
   public SmileDeltaTermStructureParametersStrikeInterpolation(final double[] timeToExpiration, final double[] delta, final double[][] volatility, final Interpolator1D strikeInterpolator) {
     super(timeToExpiration, delta, volatility);
+    ArgumentChecker.notNull(strikeInterpolator, "strike interpolator");
     _strikeInterpolator = strikeInterpolator;
   }
 
@@ -110,11 +122,12 @@ public class SmileDeltaTermStructureParametersStrikeInterpolation extends SmileD
    * @param riskReversal The risk reversal figures.
    * @param strangle The strangle figures.
    * @param strikeInterpolator The interpolator used in the strike dimension.
-   * @param interpolatorTime The interpolator used in the time dimension.
+   * @param timeInterpolator The interpolator used in the time dimension.
    */
   public SmileDeltaTermStructureParametersStrikeInterpolation(final double[] timeToExpiration, final double[] delta, final double[] atm, final double[][] riskReversal, final double[][] strangle,
-      final Interpolator1D strikeInterpolator, final Interpolator1D interpolatorTime) {
-    super(timeToExpiration, delta, atm, riskReversal, strangle, interpolatorTime);
+      final Interpolator1D strikeInterpolator, final Interpolator1D timeInterpolator) {
+    super(timeToExpiration, delta, atm, riskReversal, strangle, timeInterpolator);
+    ArgumentChecker.notNull(strikeInterpolator, "strike interpolator");
     _strikeInterpolator = strikeInterpolator;
   }
 
@@ -124,7 +137,7 @@ public class SmileDeltaTermStructureParametersStrikeInterpolation extends SmileD
    */
   @Override
   public SmileDeltaTermStructureParametersStrikeInterpolation copy() {
-    return new SmileDeltaTermStructureParametersStrikeInterpolation(getVolatilityTerm(), getStrikeInterpolator());
+    return new SmileDeltaTermStructureParametersStrikeInterpolation(getVolatilityTerm(), getStrikeInterpolator(), getTimeInterpolator());
   }
 
   /**
