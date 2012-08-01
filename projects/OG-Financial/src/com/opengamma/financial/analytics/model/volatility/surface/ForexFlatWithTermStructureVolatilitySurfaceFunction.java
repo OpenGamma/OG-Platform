@@ -13,7 +13,7 @@ import java.util.Set;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.model.option.definition.BlackForexTermStructureParameters;
+import com.opengamma.analytics.financial.model.volatility.curve.BlackForexTermStructureParameters;
 import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;

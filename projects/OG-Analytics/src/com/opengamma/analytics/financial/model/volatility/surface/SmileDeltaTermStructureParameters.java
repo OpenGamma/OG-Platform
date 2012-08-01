@@ -3,14 +3,17 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.model.option.definition;
+package com.opengamma.analytics.financial.model.volatility.surface;
 
 import java.util.Arrays;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.analytics.financial.model.volatility.VolatilityModel;
+import com.opengamma.analytics.financial.model.option.definition.SmileDeltaParameters;
+import com.opengamma.analytics.financial.model.volatility.SmileAndBucketedSensitivities;
+import com.opengamma.analytics.financial.model.volatility.VolatilityAndBucketedSensitivities;
+import com.opengamma.analytics.financial.model.volatility.VolatilityAndBucketedSensitivitiesModel;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
@@ -22,7 +25,7 @@ import com.opengamma.util.tuple.Triple;
  * Class describing the a term structure of smiles from ATM, risk reversal and strangle as used in Forex market.
  * The delta used is the delta with respect to forward.
  */
-public class SmileDeltaTermStructureParameters implements VolatilityModel<Triple<Double, Double, Double>> {
+public class SmileDeltaTermStructureParameters implements VolatilityAndBucketedSensitivitiesModel<Triple<Double, Double, Double>> {
 
   /**
    * The time to expiration in the term structure.
@@ -165,17 +168,17 @@ public class SmileDeltaTermStructureParameters implements VolatilityModel<Triple
    * Get the smile at a given time and the sensitivities with respect to the volatilities.
    * @param time The time to expiration.
    * @param volatilityAtTimeSensitivity The sensitivity to the volatilities of the smile at the given time.
-   * @param volatilitySensitivity The array is changed by the method. The array should have the correct size (nbExpiry x nbVolatility).
    * After the methods, it contains the volatility sensitivity to the data points.
    * @return The smile
    */
-  public SmileDeltaParameters getSmileAndSensitivitiesForTime(final double time, final double[] volatilityAtTimeSensitivity, final double[][] volatilitySensitivity) {
+  public SmileAndBucketedSensitivities getSmileAndSensitivitiesForTime(final double time, final double[] volatilityAtTimeSensitivity) {
     final int nbVol = _volatilityTerm[0].getVolatility().length;
     ArgumentChecker.isTrue(volatilityAtTimeSensitivity.length == nbVol, "Sensitivity with incorrect size");
     ArgumentChecker.isTrue(nbVol > 1, "Need more than one volatility value to perform interpolation");
     final int nbTime = _timeToExpiration.length;
     ArgumentChecker.isTrue(nbTime > 1, "Need more than one time value to perform interpolation");
     final double[] volatilityT = new double[nbVol];
+    final double[][] volatilitySensitivity = new double[nbTime][nbVol];
     for (int loopvol = 0; loopvol < nbVol; loopvol++) {
       final double[] volDelta = new double[nbTime];
       for (int looptime = 0; looptime < nbTime; looptime++) {
@@ -189,7 +192,7 @@ public class SmileDeltaTermStructureParameters implements VolatilityModel<Triple
       volatilityT[loopvol] = _timeInterpolator.interpolate(interpData, time);
     }
     final SmileDeltaParameters smile = new SmileDeltaParameters(time, _volatilityTerm[0].getDelta(), volatilityT);
-    return smile;
+    return new SmileAndBucketedSensitivities(smile, volatilitySensitivity);
   }
 
   /**
@@ -262,6 +265,11 @@ public class SmileDeltaTermStructureParameters implements VolatilityModel<Triple
    */
   @Override
   public Double getVolatility(final Triple<Double, Double, Double> tsf) {
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public VolatilityAndBucketedSensitivities getVolatilityAndSensitivities(final Triple<Double, Double, Double> tsf) {
     throw new NotImplementedException();
   }
 

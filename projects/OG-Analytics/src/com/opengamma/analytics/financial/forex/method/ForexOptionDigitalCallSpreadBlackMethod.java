@@ -12,7 +12,8 @@ import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
-import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParametersStrikeInterpolation;
+import com.opengamma.analytics.financial.model.volatility.VolatilityAndBucketedSensitivities;
+import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
@@ -132,8 +133,9 @@ public class ForexOptionDigitalCallSpreadBlackMethod extends ForexOptionDigitalC
     final SmileDeltaTermStructureParametersStrikeInterpolation volatilityModel = smile.getVolatilityModel();
     final double[][] vega = new double[volatilityModel.getNumberExpiration()][volatilityModel.getNumberStrike()];
     for (final DoublesPair point : pointSensitivity.getVega().getMap().keySet()) {
-      final double[][] nodeWeight = new double[volatilityModel.getNumberExpiration()][volatilityModel.getNumberStrike()];
-      FXVolatilityUtils.getVolatility(smile, optionDigital.getCurrency1(), optionDigital.getCurrency2(), optionDigital.getExpirationTime(), point.second, forward, nodeWeight);
+      final VolatilityAndBucketedSensitivities volAndSensitivities = FXVolatilityUtils.getVolatilityAndSensitivities(smile, optionDigital.getCurrency1(), optionDigital.getCurrency2(),
+          optionDigital.getExpirationTime(), point.second, forward);
+      final double[][] nodeWeight = volAndSensitivities.getBucketedSensitivities();
       for (int loopexp = 0; loopexp < volatilityModel.getNumberExpiration(); loopexp++) {
         for (int loopstrike = 0; loopstrike < volatilityModel.getNumberStrike(); loopstrike++) {
           vega[loopexp][loopstrike] += nodeWeight[loopexp][loopstrike] * pointSensitivity.getVega().getMap().get(point);

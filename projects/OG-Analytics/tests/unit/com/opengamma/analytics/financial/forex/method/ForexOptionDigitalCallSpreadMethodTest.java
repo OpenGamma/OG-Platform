@@ -31,7 +31,8 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
-import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParametersStrikeInterpolation;
+import com.opengamma.analytics.financial.model.volatility.VolatilityAndBucketedSensitivities;
+import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -570,10 +571,10 @@ public class ForexOptionDigitalCallSpreadMethodTest {
     final PresentValueForexBlackVolatilitySensitivity pointSensitivity = METHOD_DIGITAL_SPREAD.presentValueBlackVolatilitySensitivity(FOREX_DIGITAL_CALL_DOM, SMILE_BUNDLE);
     final double df = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(TimeCalculator.getTimeBetween(REFERENCE_DATE, OPTION_PAY_DATE));
     final double forward = SPOT * CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(TimeCalculator.getTimeBetween(REFERENCE_DATE, OPTION_PAY_DATE)) / df;
-    final double[][] nodeWeightM = new double[SMILE_TERM.getNumberExpiration()][SMILE_TERM.getNumberStrike()];
-    final double[][] nodeWeightP = new double[SMILE_TERM.getNumberExpiration()][SMILE_TERM.getNumberStrike()];
-    SMILE_TERM.getVolatility(FOREX_DIGITAL_CALL_DOM.getExpirationTime(), strikeM, forward, nodeWeightM);
-    SMILE_TERM.getVolatility(FOREX_DIGITAL_CALL_DOM.getExpirationTime(), strikeP, forward, nodeWeightP);
+    final VolatilityAndBucketedSensitivities volAndSensitivitiesDown = SMILE_TERM.getVolatilityAndSensitivities(FOREX_DIGITAL_CALL_DOM.getExpirationTime(), strikeM, forward);
+    final VolatilityAndBucketedSensitivities volAndSensitivitiesUp = SMILE_TERM.getVolatilityAndSensitivities(FOREX_DIGITAL_CALL_DOM.getExpirationTime(), strikeP, forward);
+    final double[][] nodeWeightM = volAndSensitivitiesDown.getBucketedSensitivities();
+    final double[][] nodeWeightP = volAndSensitivitiesUp.getBucketedSensitivities();
     final DoublesPair pointM = DoublesPair.of(FOREX_DIGITAL_CALL_DOM.getExpirationTime(), strikeM);
     final DoublesPair pointP = DoublesPair.of(FOREX_DIGITAL_CALL_DOM.getExpirationTime(), strikeP);
     for (int loopexp = 0; loopexp < SMILE_TERM.getNumberExpiration(); loopexp++) {

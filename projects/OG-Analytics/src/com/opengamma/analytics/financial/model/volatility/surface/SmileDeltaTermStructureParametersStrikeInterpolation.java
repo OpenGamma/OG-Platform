@@ -3,10 +3,13 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.model.option.definition;
+package com.opengamma.analytics.financial.model.volatility.surface;
 
 import org.apache.commons.lang.ObjectUtils;
 
+import com.opengamma.analytics.financial.model.option.definition.SmileDeltaParameters;
+import com.opengamma.analytics.financial.model.volatility.SmileAndBucketedSensitivities;
+import com.opengamma.analytics.financial.model.volatility.VolatilityAndBucketedSensitivities;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
@@ -162,21 +165,20 @@ public class SmileDeltaTermStructureParametersStrikeInterpolation extends SmileD
    * @param time The time to expiration.
    * @param strike The strike.
    * @param forward The forward.
-   * @param bucketSensitivity The array is changed by the method. The array should have the correct size (nbExpiry x nbVolatility).
    * After the methods, it contains the volatility sensitivity to the data points.
    * Only the lines of impacted dates are changed. The input data on the other lines will not be changed.
    * @return The volatility.
    */
-  public double getVolatility(final double time, final double strike, final double forward, final double[][] bucketSensitivity) {
+  public VolatilityAndBucketedSensitivities getVolatilityAndSensitivities(final double time, final double strike, final double forward) {
     ArgumentChecker.isTrue(time >= 0, "Positive time");
-    SmileDeltaParameters smile = getSmileForTime(time);
+    final SmileDeltaParameters smile = getSmileForTime(time);
     final double[] strikes = smile.getStrike(forward);
     final Interpolator1DDataBundle volatilityInterpolation = _strikeInterpolator.getDataBundle(strikes, smile.getVolatility());
     final double volatility = _strikeInterpolator.interpolate(volatilityInterpolation, strike);
     // Backward sweep
     final double[] smileVolatilityBar = _strikeInterpolator.getNodeSensitivitiesForValue(volatilityInterpolation, strike);
-    smile = getSmileAndSensitivitiesForTime(time, smileVolatilityBar, bucketSensitivity);
-    return volatility;
+    final SmileAndBucketedSensitivities smileAndSensitivities = getSmileAndSensitivitiesForTime(time, smileVolatilityBar);
+    return new VolatilityAndBucketedSensitivities(volatility, smileAndSensitivities.getBucketedSensitivities());
   }
 
   /**
@@ -190,6 +192,11 @@ public class SmileDeltaTermStructureParametersStrikeInterpolation extends SmileD
     return getVolatility(tsf.getFirst(), tsf.getSecond(), tsf.getThird());
   }
 
+  @Override
+  public VolatilityAndBucketedSensitivities getVolatilityAndSensitivities(final Triple<Double, Double, Double> tsf) {
+    ArgumentChecker.notNull(tsf,  "time/strike/forward triple");
+    return getVolatilityAndSensitivities(tsf.getFirst(), tsf.getSecond(), tsf.getThird());
+  }
   /**
    * Gets the interpolator
    * @return The interpolator
