@@ -3,12 +3,14 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.model.option.definition;
+package com.opengamma.analytics.financial.model.volatility.surface;
 
 import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.model.option.definition.SmileDeltaParameters;
+import com.opengamma.analytics.financial.model.volatility.VolatilityAndBucketedSensitivities;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
@@ -174,10 +176,10 @@ public class SmileDeltaTermStructureParametersStrikeInterpolationTest {
     final double shift = 0.00001;
     for (int looptest = 0; looptest < nbTest; looptest++) {
       final double vol = SMILE_TERM.getVolatility(timeToExpiration[looptest], strike[looptest], forward);
-      final double[][] bucketSensi = new double[TIME_TO_EXPIRY.length][2 * DELTA.length + 1];
       final double[][] bucketTest = new double[TIME_TO_EXPIRY.length][2 * DELTA.length + 1];
-      final double volComputed = SMILE_TERM.getVolatility(timeToExpiration[looptest], strike[looptest], forward, bucketSensi);
-      assertEquals("Smile by delta term structure: volatility adjoint", vol, volComputed, 1.0E-10);
+      final VolatilityAndBucketedSensitivities volComputed = SMILE_TERM.getVolatilityAndSensitivities(timeToExpiration[looptest], strike[looptest], forward);
+      final double[][] bucketSensi = volComputed.getBucketedSensitivities();
+      assertEquals("Smile by delta term structure: volatility adjoint", vol, volComputed.getVolatility(), 1.0E-10);
       final SmileDeltaParameters[] volData = new SmileDeltaParameters[TIME_TO_EXPIRY.length];
       final double[] volBumped = new double[2 * DELTA.length + 1];
       for (int loopexp = 0; loopexp < TIME_TO_EXPIRY.length; loopexp++) {
@@ -187,7 +189,7 @@ public class SmileDeltaTermStructureParametersStrikeInterpolationTest {
           volBumped[loopsmile] += shift;
           volData[loopexp] = new SmileDeltaParameters(TIME_TO_EXPIRY[loopexp], DELTA, volBumped);
           final SmileDeltaTermStructureParametersStrikeInterpolation smileTermBumped = new SmileDeltaTermStructureParametersStrikeInterpolation(volData, INTERPOLATOR_STRIKE);
-          bucketTest[loopexp][loopsmile] = (smileTermBumped.getVolatility(timeToExpiration[looptest], strike[looptest], forward) - volComputed) / shift;
+          bucketTest[loopexp][loopsmile] = (smileTermBumped.getVolatility(timeToExpiration[looptest], strike[looptest], forward) - volComputed.getVolatility()) / shift;
           // FIXME: the strike sensitivity to volatility is missing. To be corrected when [PLAT-1396] is fixed.
           assertEquals("Smile by delta term structure: (test: " + looptest + ") volatility bucket sensitivity " + loopexp + " - " + loopsmile, bucketTest[loopexp][loopsmile],
               bucketSensi[loopexp][loopsmile], tolerance[looptest]);

@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.horizon;
 
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
-import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParametersStrikeInterpolation;
+import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
@@ -38,10 +38,10 @@ public final class ConstantSpreadFXBlackRolldown implements RolldownFunction<Smi
         return volatilityData.getVolatility(time + shiftTime, strike, forward);
       }
 
-      @Override
-      public double getVolatility(final double time, final double strike, final double forward, final double[][] bucketSensitivity) {
-        return volatilityData.getVolatility(time + shiftTime, strike, forward, bucketSensitivity);
-      }
+      //      @Override
+      //      public double getVolatility(final double time, final double strike, final double forward, final double[][] bucketSensitivity) {
+      //        return volatilityData.getVolatility(time + shiftTime, strike, forward, bucketSensitivity);
+      //      }
     };
     return new SmileDeltaTermStructureDataBundle(shiftedCurves, smile, currencyPair);
   }
