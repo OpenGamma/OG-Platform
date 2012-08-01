@@ -73,7 +73,8 @@ public class MainGridViewport extends AnalyticsViewport {
                                              viewportSpec + ", grid: " + _gridStructure);
     }
     _viewportSpec = viewportSpec;
+    _version++;
     updateResults(cache);
-    return ++_version;
+    return _version;
   }
 }
