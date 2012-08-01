@@ -177,7 +177,7 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
       
       Map<String, ExternalIdBundle> reverseBundleMap = Maps.newHashMap();
       Request request = createRequest(externalIdBundle, dataProvider, dataField, dateRange, reverseBundleMap);
-      _statistics.gotFields(reverseBundleMap.keySet(), Collections.singleton(dataField));
+      _statistics.recordStatistics(reverseBundleMap.keySet(), Collections.singleton(dataField));
       BlockingQueue<Element> responseElements = callBloomberg(request);
       return extractTimeSeries(externalIdBundle, dataField, reverseBundleMap, responseElements);
     }

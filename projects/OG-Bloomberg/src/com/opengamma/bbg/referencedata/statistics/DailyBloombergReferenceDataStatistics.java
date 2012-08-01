@@ -35,10 +35,10 @@ public class DailyBloombergReferenceDataStatistics implements BloombergReference
   private final TreeMap<LocalDate, MapBloombergReferenceDataStatistics> _dailyTimeStatistics = new TreeMap<LocalDate, MapBloombergReferenceDataStatistics>();
 
   @Override
-  public void gotFields(Set<String> securities, Set<String> fields) {
-    _allTimeStatistics.gotFields(securities, fields);
+  public void recordStatistics(Set<String> securities, Set<String> fields) {
+    _allTimeStatistics.recordStatistics(securities, fields);
     MapBloombergReferenceDataStatistics todaysStats = getTodaysStats();
-    todaysStats.gotFields(securities, fields);
+    todaysStats.recordStatistics(securities, fields);
   }
 
   public Snapshot getAllTimeSnapshot() {

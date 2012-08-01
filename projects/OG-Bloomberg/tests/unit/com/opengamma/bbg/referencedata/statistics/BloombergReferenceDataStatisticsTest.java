@@ -23,7 +23,7 @@ public class BloombergReferenceDataStatisticsTest {
   @Test(groups = "unit")
   public void singleTest() {
     MapBloombergReferenceDataStatistics stats = new MapBloombergReferenceDataStatistics();
-    stats.gotFields(Collections.singleton("1"), Collections.singleton("A"));
+    stats.recordStatistics(Collections.singleton("1"), Collections.singleton("A"));
     assertEquals(1, stats.getTotalGetsCount());
     Snapshot snap1 = stats.getSnapshot();
     assertEquals(1, snap1.getLookupsByField().size());
@@ -32,7 +32,7 @@ public class BloombergReferenceDataStatisticsTest {
     assertEquals(1, snap1.getLookupsByField().get(0).getFirst().longValue());
     assertEquals(1, snap1.getLookupsBySecurity().get(0).getFirst().longValue());
 
-    stats.gotFields(Collections.singleton("1"), Collections.singleton("A"));
+    stats.recordStatistics(Collections.singleton("1"), Collections.singleton("A"));
     assertEquals(2, stats.getTotalGetsCount());
     Snapshot snap2 = stats.getSnapshot();
     assertEquals(1, snap2.getLookupsByField().size());
@@ -46,7 +46,7 @@ public class BloombergReferenceDataStatisticsTest {
   @Test(groups = "unit")
   public void multiTest() {
     MapBloombergReferenceDataStatistics stats = new MapBloombergReferenceDataStatistics();
-    stats.gotFields(Collections.singleton("1"), Collections.singleton("A"));
+    stats.recordStatistics(Collections.singleton("1"), Collections.singleton("A"));
     assertEquals(1, stats.getTotalGetsCount());
     Snapshot snap1 = stats.getSnapshot();
     assertEquals(1, snap1.getLookupsByField().size());
@@ -55,7 +55,7 @@ public class BloombergReferenceDataStatisticsTest {
     assertEquals(1, snap1.getLookupsByField().get(0).getFirst().longValue());
     assertEquals(1, snap1.getLookupsBySecurity().get(0).getFirst().longValue());
 
-    stats.gotFields(Sets.newHashSet("1", "2"), Collections.singleton("B"));
+    stats.recordStatistics(Sets.newHashSet("1", "2"), Collections.singleton("B"));
     assertEquals(3, stats.getTotalGetsCount());
     Snapshot snap2 = stats.getSnapshot();
     assertEquals(2, snap2.getLookupsByField().size());
@@ -171,7 +171,7 @@ public class BloombergReferenceDataStatisticsTest {
   private static final Set<String> fields = getInts(100);
 
   private MapBloombergReferenceDataStatistics incrementBigStats(MapBloombergReferenceDataStatistics stats) {
-    stats.gotFields(securities, fields);
+    stats.recordStatistics(securities, fields);
     return stats;
   }
 

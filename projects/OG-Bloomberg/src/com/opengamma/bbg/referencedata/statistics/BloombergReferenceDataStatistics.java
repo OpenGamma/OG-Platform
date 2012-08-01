@@ -18,6 +18,6 @@ public interface BloombergReferenceDataStatistics {
    * @param identifiers  the identifiers, such as securities, not null
    * @param fields  the fields read, not null
    */
-  void gotFields(Set<String> identifiers, Set<String> fields);
+  void recordStatistics(Set<String> identifiers, Set<String> fields);
 
 }

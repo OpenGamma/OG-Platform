@@ -128,7 +128,7 @@ public class BloombergReferenceDataProvider extends AbstractBloombergStaticDataP
     validateSecurities(securityKeys);
     
     ensureStarted();
-    _statistics.gotFields(securityKeys, fields);
+    _statistics.recordStatistics(securityKeys, fields);
     s_logger.info("Requesting fields {} for securities {}", fields, securityKeys);
   }
 

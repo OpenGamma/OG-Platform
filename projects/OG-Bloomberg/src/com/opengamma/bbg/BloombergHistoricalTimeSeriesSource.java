@@ -203,7 +203,7 @@ public class BloombergHistoricalTimeSeriesSource extends AbstractBloombergStatic
     ExternalId dsid = BloombergDomainIdentifierResolver.resolvePreferredIdentifier(identifiers);
     String bbgKey = BloombergDomainIdentifierResolver.toBloombergKeyWithDataProvider(dsid, dataProvider);
     Request request = composeRequest(bbgKey, dataSource, dataProvider, field, startDate, endDate, maxPoints);
-    _statistics.gotFields(Collections.singleton(bbgKey), Collections.singleton(field));
+    _statistics.recordStatistics(Collections.singleton(bbgKey), Collections.singleton(field));
     LocalDateDoubleTimeSeries timeSeries = processRequest(bbgKey, request, field);
     return new SimpleHistoricalTimeSeries(UID_SUPPLIER.get(), timeSeries);
   }
@@ -517,7 +517,7 @@ public class BloombergHistoricalTimeSeriesSource extends AbstractBloombergStatic
     request.set("endDate", printYYYYMMDD(end));
     request.set("adjustmentSplit", true);
     
-    _statistics.gotFields(bbgSecDomainMap.keySet(), Collections.singleton(dataField));
+    _statistics.recordStatistics(bbgSecDomainMap.keySet(), Collections.singleton(dataField));
     CorrelationID cid = submitBloombergRequest(request);
     BlockingQueue<Element> resultElements = getResultElement(cid);
     if (resultElements == null || resultElements.isEmpty()) {
