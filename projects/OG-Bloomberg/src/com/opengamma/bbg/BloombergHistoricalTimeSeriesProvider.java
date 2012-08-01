@@ -39,7 +39,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.referencedata.statistics.BloombergReferenceDataStatistics;
-import com.opengamma.bbg.referencedata.statistics.NullBloombergReferenceDataStatistics;
 import com.opengamma.bbg.util.BloombergDomainIdentifierResolver;
 import com.opengamma.financial.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetResult;
 import com.opengamma.financial.provider.historicaltimeseries.impl.AbstractHistoricalTimeSeriesProvider;
@@ -68,12 +67,14 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
   private final BloombergHistoricalTimeSeriesProviderImpl _impl;
 
   /**
-   * Creates an instance with no statistics gathering.
+   * Creates an instance.
+   * <p>
+   * This will use the statistics tool in the connector.
    * 
    * @param bloombergConnector  the Bloomberg connector, not null
    */
   public BloombergHistoricalTimeSeriesProvider(BloombergConnector bloombergConnector) {
-    this(bloombergConnector, NullBloombergReferenceDataStatistics.INSTANCE);
+    this(bloombergConnector, bloombergConnector.getReferenceDataStatistics());
   }
 
   /**
