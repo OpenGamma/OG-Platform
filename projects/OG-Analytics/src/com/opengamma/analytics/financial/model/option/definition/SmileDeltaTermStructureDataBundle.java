@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.model.option.definition;
 
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
@@ -13,6 +14,10 @@ import com.opengamma.util.tuple.Pair;
  * Class describing the data required to price instruments with the volatility delta and time dependent.
  */
 public class SmileDeltaTermStructureDataBundle extends ForexOptionDataBundle<SmileDeltaTermStructureParametersStrikeInterpolation> {
+
+  public static SmileDeltaTermStructureDataBundle from(final YieldCurveBundle ycBundle, final SmileDeltaTermStructureParametersStrikeInterpolation smile, final Pair<Currency, Currency> currencyPair) {
+    return new SmileDeltaTermStructureDataBundle(ycBundle, smile, currencyPair);
+  }
 
   /**
    * Constructor from the smile parameters and the curves.
@@ -31,4 +36,15 @@ public class SmileDeltaTermStructureDataBundle extends ForexOptionDataBundle<Smi
     final Pair<Currency, Currency> currencyPair = Pair.of(getCurrencyPair().getFirst(), getCurrencyPair().getSecond());
     return new SmileDeltaTermStructureDataBundle(curves, smile, currencyPair);
   }
+
+  @Override
+  public SmileDeltaTermStructureDataBundle with(final YieldCurveBundle ycBundle) {
+    return new SmileDeltaTermStructureDataBundle(ycBundle, getVolatilityModel(), getCurrencyPair());
+  }
+
+  @Override
+  public SmileDeltaTermStructureDataBundle with(final SmileDeltaTermStructureParametersStrikeInterpolation volatilityModel) {
+    return new SmileDeltaTermStructureDataBundle(this, volatilityModel, getCurrencyPair());
+  }
+
 }

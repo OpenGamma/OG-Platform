@@ -11,10 +11,10 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.opengamma.analytics.financial.model.option.definition.BlackForexTermStructureParameters;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaParameters;
-import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParameters;
-import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParametersStrikeInterpolation;
+import com.opengamma.analytics.financial.model.volatility.curve.BlackForexTermStructureParameters;
+import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParameters;
+import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 

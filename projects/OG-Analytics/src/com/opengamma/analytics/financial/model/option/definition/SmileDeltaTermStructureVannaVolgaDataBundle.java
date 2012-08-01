@@ -8,6 +8,8 @@ package com.opengamma.analytics.financial.model.option.definition;
 import org.apache.commons.lang.NotImplementedException;
 
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParameters;
+import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
@@ -17,6 +19,9 @@ import com.opengamma.util.tuple.Pair;
  */
 public class SmileDeltaTermStructureVannaVolgaDataBundle extends ForexOptionDataBundle<SmileDeltaTermStructureParameters> {
 
+  public static SmileDeltaTermStructureVannaVolgaDataBundle from(final YieldCurveBundle ycBundle, final SmileDeltaTermStructureParameters smile, final Pair<Currency, Currency> currencyPair) {
+    return new SmileDeltaTermStructureVannaVolgaDataBundle(ycBundle, smile, currencyPair);
+  }
   /**
    * Constructor from the smile parameters and the curves.
    * @param ycBundle The curves bundle, not null
@@ -53,6 +58,16 @@ public class SmileDeltaTermStructureVannaVolgaDataBundle extends ForexOptionData
       return smile;
     }
     throw new NotImplementedException("Currency pair is not in expected order " + getCurrencyPair().toString());
+  }
+
+  @Override
+  public SmileDeltaTermStructureVannaVolgaDataBundle with(final YieldCurveBundle ycBundle) {
+    return new SmileDeltaTermStructureVannaVolgaDataBundle(ycBundle, getVolatilityModel(), getCurrencyPair());
+  }
+
+  @Override
+  public SmileDeltaTermStructureVannaVolgaDataBundle with(final SmileDeltaTermStructureParameters volatilityModel) {
+    return new SmileDeltaTermStructureVannaVolgaDataBundle(this, volatilityModel, getCurrencyPair());
   }
 
 }

@@ -38,46 +38,6 @@ public final class SurfaceConverter {
     return INSTANCE;
   }
 
-  //  Surface<Double, Double, Double> deltaToLogMoneyness(final Surface<Double, Double, Double> deltaSurf) {
-  //    final Function<Double, Double> surFunc = new Function<Double, Double>() {
-  //      @SuppressWarnings("synthetic-access")
-  //      @Override
-  //      public Double evaluate(final Double... tx) {
-  //        final double t = tx[0];
-  //        final double x = tx[1];
-  //        Validate.isTrue(t >= 0, "Must have t >= 0.0");
-  //        final double rootT = Math.sqrt(t);
-  //
-  //        final Function1D<Double, Double> func = new Function1D<Double, Double>() {
-  //          @Override
-  //          public Double evaluate(final Double delta) {
-  //            final double sigma = deltaSurf.getZValue(t, delta);
-  //            final double d1 = (-x + sigma * sigma * t / 2) / sigma / rootT;
-  //            return NORMAL.getCDF(d1) - delta;
-  //          }
-  //        };
-  //
-  //        final double deltaAprox = func.evaluate(0.5) + 0.5;
-  //        final double l, u;
-  //        if (deltaAprox < 0.1) {
-  //          l = deltaAprox;
-  //          u = 0.1;
-  //        } else if (deltaAprox > 0.9) {
-  //          l = 0.9;
-  //          u = deltaAprox;
-  //        } else {
-  //          l = deltaAprox - 0.1;
-  //          u = deltaAprox + 0.1;
-  //        }
-  //
-  //        final double[] range = BRACKETER.getBracketedPoints(func, l, u, 0.0, 1.0);
-  //        final double logMoneyness = ROOT_FINDER.getRoot(func, range[0], range[1]);
-  //        return deltaSurf.getZValue(t, logMoneyness);
-  //      }
-  //    };
-  //    return FunctionalDoublesSurface.from(surFunc);
-  //  }
-
   Surface<Double, Double, Double> deltaToLogMoneyness(final Surface<Double, Double, Double> deltaSurf) {
     final Function<Double, Double> surFunc = new Function<Double, Double>() {
       @SuppressWarnings("synthetic-access")
@@ -87,7 +47,7 @@ public final class SurfaceConverter {
         final double x = tx[1];
         Validate.isTrue(t >= 0, "Must have t >= 0.0");
 
-        //find the delta that gives the required log-moneyness (x) at time t 
+        //find the delta that gives the required log-moneyness (x) at time t
         final double delta = getDeltaForLogMoneyness(x, deltaSurf, t);
         return deltaSurf.getZValue(t, delta);
       }
@@ -159,7 +119,7 @@ public final class SurfaceConverter {
         Validate.isTrue(t >= 0, "Must have t >= 0.0");
         Validate.isTrue(delta > 0 && delta < 1.0, "Delta not in range (0,1)");
 
-        //find the log-moneyness that gives the required Black delta at the given time 
+        //find the log-moneyness that gives the required Black delta at the given time
         final double x = getlogMoneynessForDelta(delta, logMoneynessSurf, t);
         return logMoneynessSurf.getZValue(t, x);
       }
@@ -301,7 +261,7 @@ public final class SurfaceConverter {
       }
     };
 
-    double xEst = func.evaluate(0.0);
+    final double xEst = func.evaluate(0.0);
 
     double l, u;
     double xMin, xMax;
@@ -318,10 +278,10 @@ public final class SurfaceConverter {
     }
 
     try {
-      double[] bracket = BRACKETER.getBracketedPoints(func, l, u, xMin, xMax);
-      double x = ROOT_FINDER.getRoot(func, bracket[0], bracket[1]);
+      final double[] bracket = BRACKETER.getBracketedPoints(func, l, u, xMin, xMax);
+      final double x = ROOT_FINDER.getRoot(func, bracket[0], bracket[1]);
       return x;
-    } catch (MathException e) {
+    } catch (final MathException e) {
       String error = "Cannot find a log-moneyness corresponding to a delta of " + delta;
       if (delta < 0.05) {
         error += " It is possible that the smile exhibits arbitrable for very high strikes. Check that the call price is always decreasing in strike. ";
@@ -342,6 +302,7 @@ public final class SurfaceConverter {
     final Function1D<Double, Double> func = new Function1D<Double, Double>() {
       @Override
       public Double evaluate(final Double d1) {
+        @SuppressWarnings("synthetic-access")
         final double delta = NORMAL.getCDF(d1);
         if (delta == 1.0 || delta == 0.0) {
           return -d1;
@@ -349,13 +310,13 @@ public final class SurfaceConverter {
         try {
           final double sigma = deltaSurface.getZValue(t, delta);
           return (-x + sigma * sigma * t / 2) / sigma / rootT - d1;
-        } catch (MathException e) {
+        } catch (final MathException e) {
           return -d1;
         }
       }
     };
 
-    double dEst = func.evaluate(0.0);
+    final double dEst = func.evaluate(0.0);
     double l, u;
     if (dEst < 0.0) {
       l = 1.25 * dEst;
@@ -365,8 +326,8 @@ public final class SurfaceConverter {
       u = 1.25 * dEst;
     }
 
-    double[] bracket = BRACKETER.getBracketedPoints(func, l, u);
-    Double d1 = ROOT_FINDER.getRoot(func, bracket[0], bracket[1]);
+    final double[] bracket = BRACKETER.getBracketedPoints(func, l, u);
+    final Double d1 = ROOT_FINDER.getRoot(func, bracket[0], bracket[1]);
 
     return NORMAL.getCDF(d1);
   }
