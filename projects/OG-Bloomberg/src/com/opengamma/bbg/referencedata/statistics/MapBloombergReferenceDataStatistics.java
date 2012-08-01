@@ -19,7 +19,7 @@ public class MapBloombergReferenceDataStatistics implements BloombergReferenceDa
   private final Map<String, Long> _getsPerSecurity = new HashMap<String, Long>();
   private final Map<String, Long> _getsPerField = new HashMap<String, Long>();
 
-  public synchronized void gotFields(Set<String> securities, Set<String> fields) {
+  public synchronized void recordStatistics(Set<String> securities, Set<String> fields) {
     incrementInterned(_getsPerSecurity, securities, fields.size());
     incrementInterned(_getsPerField, fields, securities.size());
   }
