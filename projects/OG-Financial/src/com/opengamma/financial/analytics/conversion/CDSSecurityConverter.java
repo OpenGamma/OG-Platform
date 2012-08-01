@@ -68,7 +68,7 @@ public class CDSSecurityConverter extends FinancialSecurityVisitorAdapter<Instru
       throw new OpenGammaRuntimeException("No security found with identifiers " + cds.getUnderlying());
     }
     
-    final String conventionName = "TODO: Find correct convention name";
+    final String conventionName = "TODO: Find correct convention name"; // TODO: find correct convention name
     final ConventionBundle conventions = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, conventionName));
     if (conventions == null) {
       throw new OpenGammaRuntimeException("Convention called " + conventionName + " was null");
@@ -109,7 +109,7 @@ public class CDSSecurityConverter extends FinancialSecurityVisitorAdapter<Instru
     
     AnnuityPaymentFixedDefinition possibleDefaultPayments = new AnnuityPaymentFixedDefinition(possibleDefaultPayouts);
     
-    return new CDSDefinition(premiumPayments, possibleDefaultPayments, cds.getRecoveryRate());
+    return new CDSDefinition(premiumPayments, possibleDefaultPayments, cds.getMaturity(), cds.getRecoveryRate());
   }
 
 }

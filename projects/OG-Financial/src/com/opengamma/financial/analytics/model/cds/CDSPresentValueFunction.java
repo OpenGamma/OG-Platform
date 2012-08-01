@@ -9,11 +9,13 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.analytics.financial.credit.cds.CDSDerivative;
+import com.opengamma.analytics.financial.credit.cds.CDSSimpleMethod;
 import com.opengamma.analytics.financial.instrument.cds.CDSDefinition;
-import com.opengamma.analytics.financial.interestrate.cds.CDSDerivative;
+import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.interestrate.method.PricingMethod;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
@@ -39,6 +41,7 @@ import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.async.AsynchronousExecution;
+import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * CDSPresentValueFunction currently contains initial work on CDS model only
@@ -156,30 +159,46 @@ public class CDSPresentValueFunction extends AbstractFunction.NonCompiledInvoker
     
     // TODO: Get credit curve for issuer
     final double[] timePoints = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
-    final double[] riskyRates = {
-      0.01482679544756000000, 0.01482679544756000000, 0.02277108240490950000, 0.02969454114090150000, 0.03548377040735590000, 0.04023357875426090000,
-      0.04389623486790170000, 0.04683365687667970000, 0.04901816538208170000, 0.05099033851262700000, 0.05268070877392120000, 0.05268070877392120000
+    final double[] creditSpreads = {
+      0.008094573225337830000000000000,
+      0.008094573225337830000000000000,
+      0.008472028609360500000000000000,
+      0.008833186263998250000000000000,
+      0.009178825884456880000000000000,
+      0.009509688657093270000000000000,
+      0.009826479094981490000000000000,
+      0.010129866801184300000000000000,
+      0.010420488160288400000000000000,
+      0.010698947959110100000000000000,
+      0.010965820937831700000000000000,
+      0.010965820937831700000000000000
     };
-    final YieldCurve creditCurve = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(timePoints, riskyRates, new LinearInterpolator1D()));
+    final YieldCurve spreadCurve = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(timePoints, creditSpreads, new LinearInterpolator1D()));
+    
+    final YieldCurveBundle curveBundle = new YieldCurveBundle();
+    curveBundle.setCurve(cdsCcyCurve.getName(), cdsCcyCurve);
+    curveBundle.setCurve(bondCcyCurve.getName(), bondCcyCurve);
+    curveBundle.setCurve(spreadCurve.getName(), spreadCurve);
     
     // Convert security in to format suitable for pricing
     final CDSSecurityConverter converter = new CDSSecurityConverter(securitySource, holidaySource, conventionSource, regionSource);
     final CDSDefinition cdsDefinition = (CDSDefinition) cds.accept(converter);
-    final CDSDerivative cdsDerivative = cdsDefinition.toDerivative(pricingDate, cdsCcyCurve.getName(), bondCcyCurve.getName(), creditCurve.getName());
+    final CDSDerivative cdsDerivative = cdsDefinition.toDerivative(pricingDate, cdsCcyCurve.getName(), bondCcyCurve.getName(), spreadCurve.getName());
     
     // Go price!
-    final double result = CDSSimpleCalculator.calculate(cdsDerivative, cdsCcyCurve, bondCcyCurve, creditCurve);
+    final PricingMethod method = new CDSSimpleMethod();
+    final CurrencyAmount result = method.presentValue(cdsDerivative, curveBundle);
     
     // Package the result
     final ComputedValue marketPriceValue = new ComputedValue(
       new ValueSpecification(
         new ValueRequirement(
           ValueRequirementNames.PRESENT_VALUE, ComputationTargetType.SECURITY, cds.getUniqueId(),
-          ValueProperties.with(ValuePropertyNames.CURRENCY, cds.getCurrency().getCode()).get()
+          ValueProperties.with(ValuePropertyNames.CURRENCY, result.getCurrency().getCode()).get()
         ),
         getUniqueId()
       ),
-      result
+      result.getAmount()
     );
 
     return Collections.<ComputedValue>singleton(marketPriceValue);

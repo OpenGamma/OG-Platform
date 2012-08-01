@@ -3,62 +3,58 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.cds;
+package com.opengamma.analytics.financial.credit.cds;
 
-import javax.time.calendar.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import javax.time.calendar.Period;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
+import com.opengamma.analytics.financial.instrument.annuity.AnnuityPaymentFixedDefinition;
+import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
+import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
-import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.businessday.FollowingBusinessDayConvention;
+import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.convention.daycount.ActualActualISDA;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
-import com.opengamma.financial.convention.yield.SimpleYieldConvention;
-import com.opengamma.financial.security.bond.GovernmentBondSecurity;
-import com.opengamma.financial.security.cds.CDSSecurity;
-import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.Expiry;
+import com.opengamma.util.money.CurrencyAmount;
 
-public class CDSSimpleCalculatorTest {
+
+public class CDSSimpleMethodTest {
 
   @Test
   public void testCalculation() {
     
     final ZonedDateTime pricingDate = ZonedDateTime.of(2010, 12, 31, 0, 0, 0, 0, TimeZone.UTC);
     
-    final CDSSecurity cds = new CDSSecurity(
-      1.0, /* notional */
-      0.6, /* recovery rate */
-      0.0025, /* premium rate */
-      Currency.GBP, /* currency */
-      ZonedDateTime.of(2020, 12, 20, 0, 0, 0, 0, TimeZone.UTC), /* maturity */
-      ZonedDateTime.now(), /* first premium date */
-      SimpleFrequency.QUARTERLY, /* premium frequency */
-      ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "US912828KY53-A") /* underlying */
-    );
+    double notional = 1.0;
+    double recoveryRate = 0.6;
+    double spread = 0.0025;
+    Currency currency = Currency.GBP;
+    ZonedDateTime effective = ZonedDateTime.of(2011, 3, 21, 0, 0, 0, 0, TimeZone.UTC);
+    ZonedDateTime maturity = ZonedDateTime.of(2020, 12, 20, 0, 0, 0, 0, TimeZone.UTC);
+    Frequency premiumFrequency = SimpleFrequency.QUARTERLY;
     
-    final GovernmentBondSecurity bond = new GovernmentBondSecurity(
-      "US TREASURY N/B", "Sovereign", "US", "US GOVERNMENT", 
-      Currency.USD, SimpleYieldConvention.US_STREET, 
-      new Expiry(ZonedDateTime.of(2016, 06, 20, 0, 0, 0, 0, TimeZone.UTC)), /* last trade date, i.e. maturity, last coupon */
-      "FIXED", 2.625, 
-      SimpleFrequency.ANNUAL, /* term */
-      DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"), 
-      ZonedDateTime.of(LocalDateTime.of(2009, 5, 30, 18, 0), TimeZone.UTC), 
-      ZonedDateTime.of(LocalDateTime.of(2011, 5, 28, 11, 0), TimeZone.UTC), 
-      ZonedDateTime.of(LocalDateTime.of(2009, 12, 31, 11, 0), TimeZone.UTC), 
-      99.651404, 3.8075E10, 100.0, 100.0, 100.0, 100.0);
-    bond.addExternalId(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "US912828KY53-A"));
-    bond.setName("T 2 5/8 06/30/14 A");
-    
-    bond.setLastTradeDate(new Expiry(ZonedDateTime.of(2016, 06, 20, 0, 0, 0, 0, TimeZone.UTC)));
-    bond.setCouponFrequency(PeriodFrequency.ANNUAL);
+    ZonedDateTime bondMaturity = ZonedDateTime.of(2016, 6, 20, 0, 0, 0, 0, TimeZone.UTC);
+    PeriodFrequency bondPremiumFrequency = PeriodFrequency.ANNUAL;
 
     final double[] timePoints = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
     final double[] cdsCcyPoints = {
@@ -89,29 +85,79 @@ public class CDSSimpleCalculatorTest {
         0.04171488783608950000,
         0.04171488783608950000
     };
-    final double[] riskyPoints = {
-        0.01482679544756000000,
-        0.01482679544756000000,
-        0.02277108240490950000,
-        0.02969454114090150000,
-        0.03548377040735590000,
-        0.04023357875426090000,
-        0.04389623486790170000,
-        0.04683365687667970000,
-        0.04901816538208170000,
-        0.05099033851262700000,
-        0.05268070877392120000,
-        0.05268070877392120000
+    final double[] spreadPoints = {
+      0.008094573225337830000000000000,
+      0.008094573225337830000000000000,
+      0.008472028609360500000000000000,
+      0.008833186263998250000000000000,
+      0.009178825884456880000000000000,
+      0.009509688657093270000000000000,
+      0.009826479094981490000000000000,
+      0.010129866801184300000000000000,
+      0.010420488160288400000000000000,
+      0.010698947959110100000000000000,
+      0.010965820937831700000000000000,
+      0.010965820937831700000000000000
     };
 
     final YieldCurve cdsCcyYieldCurve = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(timePoints, cdsCcyPoints, new LinearInterpolator1D()));
     final YieldCurve bondCcyYieldCurve = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(timePoints, bondCcyPoints, new LinearInterpolator1D()));
-    final YieldCurve riskyCurve = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(timePoints, riskyPoints, new LinearInterpolator1D()));
-
-    final double result = CDSSimpleCalculator.calculate(cds, bond, cdsCcyYieldCurve, bondCcyYieldCurve, riskyCurve, pricingDate);
+    final YieldCurve spreadCurve = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(timePoints, spreadPoints, new LinearInterpolator1D()));
     
-    System.out.println( result );
+    YieldCurveBundle curveBundle = new YieldCurveBundle();
+    curveBundle.setCurve("CDS_CCY", cdsCcyYieldCurve);
+    curveBundle.setCurve("BOND_CCY", bondCcyYieldCurve);
+    curveBundle.setCurve("SPREAD", spreadCurve);
+    
+    Calendar calendar = new MondayToFridayCalendar("TestCalendar");
+    DayCount dayCount = new ActualActualISDA();
+    BusinessDayConvention convention = new FollowingBusinessDayConvention();
+    boolean isEOM = false;
+    
+    final AnnuityCouponFixed premiums = AnnuityCouponFixedDefinition.from(currency, effective, maturity, premiumFrequency, calendar, dayCount, convention, isEOM, notional, spread, false).toDerivative(pricingDate, "CDS_CCY");
+    
+    List<ZonedDateTime> possibleDefaultDates = scheduleDatesInRange( maturity, bondPremiumFrequency.getPeriod(), pricingDate, bondMaturity, calendar, convention);
+    
+    PaymentFixedDefinition[] defaultPayments = new PaymentFixedDefinition[ possibleDefaultDates.size()];
+    
+    for(int i = 0; i < defaultPayments.length; ++i) {
+      defaultPayments[i] = new PaymentFixedDefinition(currency, possibleDefaultDates.get(i), notional * (1.0 - recoveryRate));
+    }
+    
+    final AnnuityPaymentFixed payouts = (new AnnuityPaymentFixedDefinition(defaultPayments)).toDerivative(pricingDate, "CDS_CCY");
+
+    
+    final CDSDerivative cds = new CDSDerivative(
+      "CDS_CCY", "BOND_CCY", "SPREAD",
+      premiums, payouts,
+      TimeCalculator.getTimeBetween(pricingDate, maturity),
+      recoveryRate);
+
+    final CDSSimpleMethod method = new CDSSimpleMethod();
+    final CurrencyAmount result = method.presentValue(cds, curveBundle);
+    
+    System.out.println( result.getAmount() );
     
   }
+  
+public static List<ZonedDateTime> scheduleDatesInRange(ZonedDateTime maturity, Period schedulePeriod, ZonedDateTime earliest, ZonedDateTime latest,
+Calendar calendar, BusinessDayConvention convention) {
+
+  List<ZonedDateTime> datesInRange = new ArrayList<ZonedDateTime>();
+  ZonedDateTime scheduleDate = maturity;
+  int periods = 0;
+  
+  while (scheduleDate.isAfter(latest)) {
+    scheduleDate = convention.adjustDate(calendar, maturity.minus(schedulePeriod.multipliedBy(++periods)));
+  }
+  
+  while (!scheduleDate.isBefore(earliest)) {
+    datesInRange.add(scheduleDate);
+    scheduleDate = convention.adjustDate(calendar, maturity.minus(schedulePeriod.multipliedBy(++periods)));
+  }
+  
+  Collections.reverse(datesInRange);
+  return datesInRange;
+}
 
 }
