@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
+import javax.time.calendar.ZonedDateTime;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
@@ -15,6 +17,7 @@ import com.opengamma.analytics.financial.instrument.cds.CDSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
+import com.opengamma.analytics.financial.schedule.ScheduleFactory;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -69,47 +72,68 @@ public class CDSSecurityConverter extends FinancialSecurityVisitorAdapter<Instru
     }
     
     final String conventionName = "TODO: Find correct convention name"; // TODO: find correct convention name
-    final ConventionBundle conventions = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, conventionName));
-    if (conventions == null) {
+    final ConventionBundle conventionBundle = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, conventionName));
+    if (conventionBundle == null) {
       throw new OpenGammaRuntimeException("Convention called " + conventionName + " was null");
     }
     
     Calendar calendar = CalendarUtils.getCalendar(_holidaySource, cds.getCurrency(), bond.getCurrency());
-    DayCount dayCount = conventions.getDayCount();
-    BusinessDayConvention bdConvention = conventions.getBusinessDayConvention();
-    boolean isEOM = conventions.isEOMConvention();
+    DayCount dayCount = conventionBundle.getDayCount();
+    BusinessDayConvention convention = conventionBundle.getBusinessDayConvention();
+    boolean isEOM = conventionBundle.isEOMConvention();
     boolean isPayer = false;
     
     // TODO: Is settlement date the same as first premium date?
-    AnnuityCouponFixedDefinition premiumPayments = AnnuityCouponFixedDefinition.from(
+    final AnnuityCouponFixedDefinition premiumPayments = AnnuityCouponFixedDefinition.from(
       cds.getCurrency(), cds.getFirstPremiumDate(), cds.getMaturity(), cds.getPremiumFrequency(),
-      calendar, dayCount, bdConvention, isEOM,
+      calendar, dayCount, convention, isEOM,
       cds.getNotional(), cds.getPremiumRate(), isPayer
     );
     
-    final double defaultPayoutAmmount = cds.getNotional() * (1.0 - cds.getRecoveryRate());
-    BondSecurityDefinition<PaymentDefinition, CouponDefinition> bondDefinition = (BondSecurityDefinition<PaymentDefinition, CouponDefinition>) bond.accept(_bondConverter);
-    AnnuityDefinition<CouponDefinition> bondCoupons = bondDefinition.getCoupon();
+    final AnnuityPaymentFixedDefinition defaultPayments = cds.getUnderlying() != null ? possibleDefaultPayments(cds, bond, calendar, convention) : null;
     
-    // TODO: verify
-    boolean includeCdsMaturityDate = cds.getMaturity().isAfter(bondCoupons.getNthPayment(bondCoupons.getNumberOfPayments()-1).getPaymentDate());
+    return new CDSDefinition(premiumPayments, defaultPayments, cds.getMaturity(), cds.getRecoveryRate());
+  }
+  
+  
+  // Build a fixed payment annuity representing possible default payouts
+  // Payout dates are coupon dates on the underlying bond that fall within the effective period of the CDS
+  // If the CDS extends beyond the maturity of the bond, the CDS maturity date is included as an extra possible default date
+  private AnnuityPaymentFixedDefinition possibleDefaultPayments(CDSSecurity cds, BondSecurity bond, Calendar calendar, BusinessDayConvention convention) {
+    
+    final double payoutAmmount = cds.getNotional() * (1.0 - cds.getRecoveryRate());
+    
+    // Extract the bond coupon schedule by converting the bond security object
+    @SuppressWarnings("unchecked")
+    final BondSecurityDefinition<PaymentDefinition, CouponDefinition> bondDefinition = (BondSecurityDefinition<PaymentDefinition, CouponDefinition>) bond.accept(_bondConverter);
+    final AnnuityDefinition<CouponDefinition> bondCoupons = bondDefinition.getCoupon();
+    
+    int coveredCouponDates = 0;
 
-    PaymentFixedDefinition[] possibleDefaultPayouts = new PaymentFixedDefinition[ includeCdsMaturityDate
-      ? bondCoupons.getNumberOfPayments()
-      : bondCoupons.getNumberOfPayments() + 1
-    ];
-    
-    for (int i = 0; i < bondCoupons.getNumberOfPayments(); ++i) {
-      possibleDefaultPayouts[i] = new PaymentFixedDefinition(cds.getCurrency(), bondCoupons.getNthPayment(i).getPaymentDate(), defaultPayoutAmmount);
+    for (CouponDefinition coupon: bondCoupons.getPayments()) {
+      if (!coupon.getPaymentDate().isBefore(cds.getFirstPremiumDate()) && !coupon.getPaymentDate().isAfter(cds.getMaturity())) {
+        ++coveredCouponDates;
+      }
     }
     
-    if (includeCdsMaturityDate)  {
-      possibleDefaultPayouts[possibleDefaultPayouts.length-1] =  new PaymentFixedDefinition(cds.getCurrency(), cds.getMaturity(), defaultPayoutAmmount);
+    if (cds.getMaturity().isAfter(bond.getLastTradeDate().getExpiry())) {
+      ++coveredCouponDates;
     }
     
-    AnnuityPaymentFixedDefinition possibleDefaultPayments = new AnnuityPaymentFixedDefinition(possibleDefaultPayouts);
+    PaymentFixedDefinition[] payouts = new PaymentFixedDefinition[coveredCouponDates];
+    int i = 0;
     
-    return new CDSDefinition(premiumPayments, possibleDefaultPayments, cds.getMaturity(), cds.getRecoveryRate());
+    for (CouponDefinition coupon: bondCoupons.getPayments()) {
+      if (!coupon.getPaymentDate().isBefore(cds.getFirstPremiumDate()) && !coupon.getPaymentDate().isAfter(cds.getMaturity())) {
+        payouts[i++] = new PaymentFixedDefinition(cds.getCurrency(), coupon.getPaymentDate(), payoutAmmount);
+      }
+    }
+    
+    if (cds.getMaturity().isAfter(bond.getLastTradeDate().getExpiry())) {
+      payouts[i++] = new PaymentFixedDefinition(cds.getCurrency(), convention.adjustDate(calendar, cds.getMaturity()), payoutAmmount);
+    }
+    
+    return new AnnuityPaymentFixedDefinition(payouts);
   }
 
 }
