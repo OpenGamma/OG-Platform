@@ -358,6 +358,7 @@
   </bundle>
   <bundle id="og_gadget.js">
       <bundle idref="lib.js" />
+      <fragment>/scripts/lib/fonts/helvetiker/helvetiker_regular.typeface.js</fragment>
       <bundle idref="core.js" />
       <bundle idref="api.js" />
       <bundle idref="util.js" />
