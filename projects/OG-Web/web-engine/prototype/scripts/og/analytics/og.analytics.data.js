@@ -9,14 +9,14 @@ $.register_module({
         var module = this, counter = 1, api = og.api.rest.views;
         return function (config) {
             var data = this, events = {meta: [], data: []}, id = 'data_' + counter++, meta, cols,
-                viewport = null, view_id = config.view, viewport_id, subscribed = false,
+                viewport = null, view_id = config.view, viewport_id, viewport_version, subscribed = false,
                 ROOT = 'rootNode', SETS = 'columnSets', ROWS = 'rowCount',
                 grid_type = config.type, depgraph = !!config.depgraph,
                 fixed_set = {portfolio: 'Portfolio', primitives: 'Primitives'};
             var data_handler = function (result) {
                 if (result.error) return og.dev.warn(result.message);
                 if (!events.data.length || !result.data) return; // if a tree falls or there's no tree, etc.
-                fire('data', result.data);
+                if (result.data.version === viewport_version) return fire('data', result.data.data);
             };
             var data_setup = function () {
                 if (!viewport) return;
@@ -26,8 +26,8 @@ $.register_module({
                     view_id: view_id, viewport_id: viewport_id, update: data_setup
                 }) : viewports.put({view_id: view_id, rows: viewport.rows, columns: viewport.cols})
                     .pipe(function (result) {
-                        return viewports
-                            .get({view_id: view_id, viewport_id: viewport_id = result.meta.id, update: data_setup});
+                        (viewport_id = result.meta.id), (viewport_version = result.data.version);
+                        return viewports.get({view_id: view_id, viewport_id: viewport_id, update: data_setup});
                     })
                 ).pipe(data_handler);
             };
@@ -74,7 +74,7 @@ $.register_module({
                 data.busy(true);
                 viewports
                     .put({view_id: view_id, viewport_id: viewport_id, rows: viewport.rows, columns: viewport.cols})
-                    .pipe(function (result) {data.busy(false);})
+                    .pipe(function (result) {(viewport_version = result.data.version), data.busy(false);})
             };
             initialize();
         };

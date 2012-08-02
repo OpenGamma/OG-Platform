@@ -86,25 +86,29 @@ $.register_module({
             elements.scroll_body = $(grid.id + ' .OG-g-b-scroll');
             elements.scroll_head = $(grid.id + ' .OG-g-h-scroll');
             elements.fixed_head = $(grid.id + ' .OG-g-h-fixed');
-            elements.fixed_body.on('scroll', (function (timeout) {
-                return function (event) { // sync scroll instantaneously and set viewport after scroll stops
-                    if (!$(event.target).is(elements.fixed_body)) return;
-                    grid.dataman.busy(true);
-                    elements.scroll_body.scrollTop(elements.fixed_body.scrollTop());
-                    timeout = clearTimeout(timeout) ||
-                        setTimeout(function () {set_viewport(grid, function () {grid.dataman.busy(false);})}, 200);
-                }
-            })(null));
-            elements.scroll_body.on('scroll', (function (timeout) {
-                return function (event) { // sync scroll instantaneously and set viewport after scroll stops
-                    if (!$(event.target).is(elements.scroll_body)) return;
-                    grid.dataman.busy(true);
-                    elements.scroll_head.scrollLeft(elements.scroll_body.scrollLeft());
-                    elements.fixed_body.scrollTop(elements.scroll_body.scrollTop());
-                    timeout = clearTimeout(timeout) ||
-                        setTimeout(function () {set_viewport(grid, function () {grid.dataman.busy(false);})}, 200);
-                }
-            })(null));
+            (function () {
+                var started, pause = 200,
+                    jump = function () {set_viewport(grid, function () {grid.dataman.busy(false);}), started = null;};
+                elements.fixed_body.on('scroll', (function (timeout) {
+                    return function (event) { // sync scroll instantaneously and set viewport after scroll stops
+                        if (!started && $(event.target).is(elements.fixed_body)) started = 'fixed';
+                        if (started !== 'fixed') return clearTimeout(timeout);
+                        grid.dataman.busy(true);
+                        elements.scroll_body.scrollTop(elements.fixed_body.scrollTop());
+                        timeout = clearTimeout(timeout) || setTimeout(jump, pause);
+                    }
+                })(null));
+                elements.scroll_body.on('scroll', (function (timeout) {
+                    return function (event) { // sync scroll instantaneously and set viewport after scroll stops
+                        if (!started && $(event.target).is(elements.scroll_body)) started = 'scroll';
+                        if (started !== 'scroll') return clearTimeout(timeout);
+                        grid.dataman.busy(true);
+                        elements.scroll_head.scrollLeft(elements.scroll_body.scrollLeft());
+                        elements.fixed_body.scrollTop(elements.scroll_body.scrollTop());
+                        timeout = clearTimeout(timeout) || setTimeout(jump, pause);
+                    }
+                })(null));
+            })();
             grid.selector = new og.analytics.Selector(grid);
             og.common.gadgets.manager.register({alive: grid.alive, resize: grid.resize});
             elements.empty = false;
