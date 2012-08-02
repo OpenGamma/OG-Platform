@@ -8,6 +8,7 @@ $.register_module({
     obj: function () {
         var webgl = Detector.webgl ? true : false, util = {}, matlib = {}, tmp_data, prefix = 'surface_', counter = 1,
             settings = {
+                axis_offset: 1.5,
                 floating_height: 5,         // how high the top surface floats over the bottom grid
                 font_face_2d: 'Arial',      // 2D text font
                 font_face_3d: 'helvetiker', // 3D text font (glyphs for 3D fonts need to be loaded separatly)
@@ -20,6 +21,10 @@ $.register_module({
                 log: true,          // default value for log checkbox
                 precision_lbl: 2,   // floating point presions for labels
                 precision_hud: 3,   // floating point presions for vol display
+                slice_handle_color: '0xbbbbbb',
+                slice_handle_color_hover: '0x999999',
+                slice_bar_color: '0xe7e7e7',
+                slice_bar_color_active: '0xffbd00',
                 smile_distance: 50, // distance away from the surface
                 snap_distance: 3,   // mouse proximity to vertices before an interaction is approved
                 surface_x: 100,     // width
@@ -117,6 +122,7 @@ $.register_module({
             if (!webgl) return matlib.canvas.flat(color);
             return new THREE.MeshBasicMaterial({color: color, wireframe: false});
         };
+        matlib.particles = function () {return new THREE.ParticleBasicMaterial({color: '0xbbbbbb', size: 1});};
         matlib.phong = function (color) {
             if (!webgl) return matlib.canvas.flat(color);
             return new THREE.MeshPhongMaterial({
@@ -176,7 +182,7 @@ $.register_module({
             config.zs_labels = tmp_data[config.id].zs_labels;
             config.zs_label = tmp_data[config.id].zs_label;
             var gadget = this, alive = prefix + counter++, $selector = $(config.selector), width, height,
-                sel_offset = $selector.offset(), // needed to calculate mouse coordinates for raycasting
+                sel_offset, // needed to calculate mouse coordinates for raycasting
                 hud = {}, smile = {}, surface = {}, slice = {}, char_geometries = {},
                 animation_group = new THREE.Object3D(), // everything in animation_group rotates on mouse drag
                 hover_group,          // THREE.Object3D that gets created on hover and destroyed afterward
@@ -188,6 +194,7 @@ $.register_module({
                 ys, adjusted_vol, adjusted_xs, adjusted_ys, adjusted_zs, // gadget.init_data calculates these values
                 vol_max = Math.max.apply(null, config.vol), vol_min = Math.min.apply(null, config.vol),
                 renderer, camera, scene, backlight, keylight, filllight, projector = new THREE.Projector();
+            setTimeout(function () {sel_offset = $selector.offset();});
             /**
              * Constructor for a plane with correct x / y vertex position spacing
              * @param {String} type 'surface', 'smilex' or 'smiley'
@@ -246,6 +253,23 @@ $.register_module({
                 geometry = new THREE.TextGeometry(str, options);
                 geometry.computeBoundingBox();
                 return char_geometries[str] = geometry;
+            };
+            var Handle = function () {
+                var geo = new THREE.CubeGeometry(3, 1.2, 3, 2, 0, 0);
+                geo.vertices // move middle vertices out to a point
+                    .filter(function (val) {return (val.x === 0 && val.z === -1.5)})
+                    .forEach(function (vertex) {vertex.z = -2.9});
+                return new THREE.Mesh(geo, matlib.phong(settings.slice_handle_color));
+            };
+            var SliceBar = function (orientation) {
+                var geo = new THREE.CubeGeometry(settings['surface_' + orientation], 1, 2, 0, 0),
+                    mesh = new THREE.Mesh(geo, matlib.phong(settings.slice_bar_color));
+                if (orientation === 'x') mesh.position.z = settings.surface_z / 2 + 1.5 + settings.axis_offset;
+                if (orientation === 'z') {
+                    mesh.position.x = -(settings.surface_x / 2) - 1.5 - settings.axis_offset;
+                    mesh.rotation.y = -Math.PI * 0.5;
+                }
+                return mesh;
             };
             /**
              * Constructor for 3D text
@@ -319,42 +343,6 @@ $.register_module({
              */
             gadget.alive = function () {return !!$('.' + alive).length;};
             /**
-             * Test if the cursor is over a mesh
-             * @event {Object} mouse event object
-             * @meshes {Array} meshes array of meshes to test
-             * @return {Object} THREE.Ray intersects object
-             */
-            gadget.intersects = function (event, meshes) {
-                var mouse = {x: 0, y: 0}, vector, ray;
-                mouse.x = ((event.clientX - sel_offset.left) / width) * 2 - 1;
-                mouse.y = -((event.clientY - sel_offset.top) / height) * 2 + 1;
-                vector = new THREE.Vector3(mouse.x, mouse.y, 0.5);
-                projector.unprojectVector(vector, camera);
-                ray = new THREE.Ray(camera.position, vector.subSelf(camera.position).normalize());
-                return ray.intersectObjects(meshes);
-            };
-            /**
-             * Setup animation_group rotations for next frame
-             */
-            gadget.rotation = function () {
-                var mousedown = false, sx = 0, sy = 0;
-                $selector
-                    .on('mousedown', function (event) {
-                        mousedown = true, sx = event.clientX, sy = event.clientY;
-                        $(document).on('mouseup.gadget.animate', function () {
-                            mousedown = false;
-                            $(document).off('mouseup.gadget.animate');
-                        });
-                    })
-                    .on('mousemove.gadget.animate', function (event) {
-                        if (!mousedown) return;
-                        var dx = event.clientX - sx, dy = event.clientY - sy;
-                        animation_group.rotation.y += dx * 0.01;
-                        animation_group.rotation.x += dy * 0.01;
-                        sx += dx, sy += dy;
-                    });
-            };
-            /**
              * Creates floor
              * @return {THREE.Object3D}
              */
@@ -389,6 +377,150 @@ $.register_module({
                         arr.push((+vol_min + (i * increment)).toFixed(settings.precision_lbl));
                     return arr;
                 }());
+            };
+            /**
+             * Test if the cursor is over a mesh
+             * @event {Object} mouse event object
+             * @meshes {Array} meshes array of meshes to test
+             * @return {Object} THREE.Ray intersects object
+             */
+            gadget.intersects = function (event, meshes) {
+                var mouse = {x: 0, y: 0}, vector, ray;
+                mouse.x = ((event.clientX - sel_offset.left) / width) * 2 - 1;
+                mouse.y = -((event.clientY - sel_offset.top) / height) * 2 + 1;
+                vector = new THREE.Vector3(mouse.x, mouse.y, 0.5);
+                projector.unprojectVector(vector, camera);
+                ray = new THREE.Ray(camera.position, vector.subSelf(camera.position).normalize());
+                return ray.intersectObjects(meshes);
+            };
+            gadget.interactive = function () {
+                var imeshes = gadget.interactive_meshes.meshes,
+                    surface_hittest, handle_hittest, // store the return value of successful raycasts
+                    mousedown = false, sx = 0, sy = 0, mouse_x = null, mouse_y = null,
+                    hit_handle = false, rotation_enabled = true, slice_enabled = false;
+                /**
+                 * Populate surface_hittest and handle_hittest
+                 * Trigger rotate_world and slice_handle_drag events
+                 */
+                $selector.on('mousemove.gadget.interactive', function (event) {
+                    event.preventDefault();
+                    var xlft = gadget.intersects(event, [imeshes.lft_x_handle]),
+                        xrgt = gadget.intersects(event, [imeshes.rgt_x_handle]),
+                        zlft = gadget.intersects(event, [imeshes.lft_z_handle]),
+                        zrgt = gadget.intersects(event, [imeshes.rgt_z_handle]);
+                    /**
+                     * slice handle interactions
+                     */
+                    hit_handle = false;
+                    if (xlft.length) handle_hittest = xlft, handle_hittest[0].lbl = 'lft_x_handle', hit_handle = true;
+                    if (xrgt.length) handle_hittest = xrgt, handle_hittest[0].lbl = 'rgt_x_handle', hit_handle = true;
+                    if (zlft.length) handle_hittest = zlft, handle_hittest[0].lbl = 'lft_z_handle', hit_handle = true;
+                    if (zrgt.length) handle_hittest = zrgt, handle_hittest[0].lbl = 'rgt_z_handle', hit_handle = true;
+                    hit_handle ? $selector.trigger('handle_over') : $selector.trigger('handle_out');
+                    /**
+                     * surface interaction
+                     */
+                    surface_hittest = gadget.intersects(event, [imeshes.surface]);
+                    if (surface_hittest.length > 0) $selector.trigger('surface_over', surface_hittest);
+                    else $selector.trigger('surface_out');
+                    /**
+                     * original mouse x & y
+                     */
+                    mouse_x = event.clientX;
+                    mouse_y = event.clientY;
+                    /**
+                     * Trigger custom events
+                     */
+                    if (mousedown && rotation_enabled) $selector.trigger('rotate_world', event);
+                    if (mousedown && slice_enabled) $selector.trigger('slice_handle_drag', event);
+                });
+                $selector.on('mousedown.gadget.interactive', function (event) {
+                    event.preventDefault();
+                    mousedown = true, sx = event.clientX, sy = event.clientY;
+                    if (hit_handle) $selector.trigger('slice_handle_click');
+                    $(document).on('mouseup.gadget.interactive', function () {
+                        rotation_enabled = true;
+                        slice_enabled = false;
+                        mousedown = false;
+                        $(document).off('mouse.gadget.interactive');
+                    });
+                });
+                $selector.on('surface_over', function (event, intersects) {
+                    var faces = 'abcd', i, index, vertex, vertex_world_position,
+                        intersected_obj = $.isArray(intersects) ? intersects[0] : intersects,
+                        object = intersected_obj.object, point = intersected_obj.point;
+                    for (i = 0; i < 4; i++) { // loop through vertices
+                        index = intersected_obj.face[faces.charAt(i)];
+                        vertex = object.geometry.vertices[index];
+                        vertex_world_position = object.matrixWorld.multiplyVector3(vertex.clone());
+                        if (vertex_world_position.distanceTo(point) < settings.snap_distance) {
+                            surface.hover(vertex, index, object);
+                        }
+                    }
+                });
+                $selector.on('surface_out', function () {
+                    if (hover_group) surface_top_group.remove(hover_group);
+                    vertex_sphere.visible = false;
+                    hud.set_volatility();
+                });
+                $selector.on('handle_over', function () {
+                    slice.reset_handle_material();
+                    handle_hittest[0].object.material = matlib.phong(settings.slice_handle_color_hover);
+                    $selector.css({cursor: 'pointer'});
+                });
+                $selector.on('handle_out', function () {
+                    slice.reset_handle_material();
+                    $selector.css({cursor: 'default'});
+                });
+                $selector.on('slice_handle_click', function () {
+                    slice_enabled = true;
+                    rotation_enabled = false;
+                });
+                /**
+                 * Move the drag handles and update the bar
+                 */
+                $selector.on('slice_handle_drag', function (event, original_event) {
+                    var handle_lbl = handle_hittest[0].lbl, axis = handle_lbl.replace(/^.*_([xz])_.*$/, '$1'),
+                        particles = slice[axis + '_particles'];
+                    slice.reset_handle_material();
+                    handle_hittest[0].object.material = matlib.phong(settings.slice_handle_color_hover);
+                    /**
+                     * move handles along particles
+                     */
+                    (function () {
+                        var intersects = gadget.intersects(original_event, [slice.intersection_plane]),
+                            vertices = particles.geometry.vertices, vertex, vertex_world_position,
+                            i = vertices.length, dist = [] /* distances from raycast/plane intersection & particles */;
+                        while (i--) {
+                            vertex = vertices[i];
+                            vertex_world_position = particles.matrixWorld.multiplyVector3(vertices[i].clone());
+                            dist[i] = vertex_world_position.distanceTo(intersects[0].point);
+                        }
+                        slice[handle_lbl].position[axis] = vertices[dist.indexOf(Math.min.apply(null, dist))].x;
+                    }());
+                    /**
+                     * update resize bars
+                     */
+                    (function () {
+                        var vertices, bar_lbl = axis + '_bar',
+                            lx = slice['lft_' + axis + '_handle'].position[axis],
+                            rx = slice['rgt_' + axis + '_handle'].position[axis];
+                        surface_bottom_group.remove(slice[bar_lbl]);
+                        slice[bar_lbl] = new SliceBar(axis);
+                        vertices = slice[bar_lbl].geometry.vertices;
+                        vertices[0].x = vertices[1].x = vertices[2].x = vertices[3].x = Math.max.apply(null, [lx, rx]);
+                        vertices[4].x = vertices[5].x = vertices[6].x = vertices[7].x = Math.min.apply(null, [lx, rx]);
+                        if (!(Math.abs(lx) + Math.abs(rx) === settings['surface_' + axis])) // change color
+                            slice[bar_lbl].material = matlib.phong(settings.slice_bar_color_active);
+                        surface_bottom_group.add(slice[bar_lbl]);
+                    }());
+                });
+                $selector.on('rotate_world', function () {
+                    var dx = mouse_x - sx, dy = mouse_y - sy;
+                    animation_group.rotation.y += dx * 0.01;
+                    animation_group.rotation.x += dy * 0.01;
+                    sx += dx, sy += dy;
+                });
             };
             /**
              * Keeps a tally of meshes that need to support raycasting
@@ -433,7 +565,6 @@ $.register_module({
                 renderer = webgl ? new THREE.WebGLRenderer({antialias: true}) : new THREE.CanvasRenderer();
                 renderer.setSize(width, height);
                 $selector.html(renderer.domElement).find('canvas').css({position: 'relative'});
-                gadget.rotation();
                 hud.load();
                 return gadget;
             };
@@ -514,13 +645,86 @@ $.register_module({
                 ctx.fillStyle = gradient;
                 ctx.fillRect(0, 0, 10, hud.vol_canvas_height);
             };
+            slice.load = function () {
+                var plane = new THREE.PlaneGeometry(5000, 5000, 0, 0);
+                slice.intersection_plane = new THREE.Mesh(plane, matlib.wire('0xcccccc'));
+                surface_bottom_group.add(slice.intersection_plane);
+                slice.x();
+                slice.z();
+            };
+            slice.reset_handle_material = function () {
+                slice.lft_x_handle.material = matlib.phong(settings.slice_handle_color);
+                slice.rgt_x_handle.material = matlib.phong(settings.slice_handle_color);
+                slice.lft_z_handle.material = matlib.phong(settings.slice_handle_color);
+                slice.rgt_z_handle.material = matlib.phong(settings.slice_handle_color);
+            };
             slice.x = function () {
-                var cube = new THREE.CubeGeometry(3, 3, 3, 0, 0, 0),
-                    mesh = new THREE.Mesh(cube, matlib.phong('0xcccccc'));
-                mesh.position.x = -(settings.surface_x / 2 - 1.5);
-                mesh.position.z = settings.surface_z / 2 + 1.5;
-                surface_bottom_group.add(mesh);
-                gadget.interactive_meshes.add('drag', mesh);
+                var xpos = (settings.surface_x / 2), zpos = settings.surface_z / 2 + 1.5 + settings.axis_offset;
+                /**
+                 * handles
+                 */
+                slice.lft_x_handle = new Handle();
+                slice.lft_x_handle.position.x = -xpos;
+                slice.lft_x_handle.position.z = zpos;
+                slice.rgt_x_handle = new Handle();
+                slice.rgt_x_handle.position.x = xpos;
+                slice.rgt_x_handle.position.z = zpos;
+                surface_bottom_group.add(slice.lft_x_handle);
+                surface_bottom_group.add(slice.rgt_x_handle);
+                gadget.interactive_meshes.add('lft_x_handle', slice.lft_x_handle);
+                gadget.interactive_meshes.add('rgt_x_handle', slice.rgt_x_handle);
+                /**
+                 * particle guide
+                 * (dotted lines that guide the slice handles)
+                 */
+                (function () {
+                    var geo = new THREE.Geometry(), num_vertices = adjusted_xs.length;
+                    while (num_vertices--) geo.vertices.push(new THREE.Vector3(adjusted_xs[num_vertices], 0, 0));
+                    slice.x_particles = new THREE.ParticleSystem(geo, matlib.particles());
+                    slice.x_particles.position.x += 0.1;
+                    slice.x_particles.position.z = zpos;
+                    surface_bottom_group.add(slice.x_particles);
+                }());
+                /**
+                 * slice bar
+                 */
+                slice.x_bar = new SliceBar('x');
+                surface_bottom_group.add(slice.x_bar);
+            };
+            slice.z = function () {
+                var xpos = (settings.surface_x / 2) + 1.5 + settings.axis_offset, zpos = settings.surface_z / 2;
+                /**
+                 * handles
+                 */
+                slice.lft_z_handle = new Handle();
+                slice.lft_z_handle.position.x = -xpos;
+                slice.lft_z_handle.position.z = -zpos;
+                slice.lft_z_handle.rotation.y = -Math.PI * .5;
+                slice.rgt_z_handle = new Handle();
+                slice.rgt_z_handle.position.x = -xpos;
+                slice.rgt_z_handle.position.z = zpos;
+                slice.rgt_z_handle.rotation.y = -Math.PI * .5;
+                surface_bottom_group.add(slice.lft_z_handle);
+                surface_bottom_group.add(slice.rgt_z_handle);
+                gadget.interactive_meshes.add('lft_z_handle', slice.lft_z_handle);
+                gadget.interactive_meshes.add('rgt_z_handle', slice.rgt_z_handle);
+                /**
+                 * particle guide
+                 * (dotted lines that guide the slice handles)
+                 */
+                (function () {
+                    var geo = new THREE.Geometry(), num_vertices = adjusted_zs.length;
+                    while (num_vertices--) geo.vertices.push(new THREE.Vector3(adjusted_zs[num_vertices], 0, 0));
+                    slice.z_particles = new THREE.ParticleSystem(geo, matlib.particles());
+                    slice.z_particles.rotation.y = -Math.PI * 0.5;
+                    slice.z_particles.position.x = -xpos;
+                    surface_bottom_group.add(slice.z_particles);
+                }());
+                /**
+                 * slice bar
+                 */
+                slice.z_bar = new SliceBar('z');
+                surface_bottom_group.add(slice.z_bar);
             };
             /**
              * Create x smile plane and axis
@@ -595,8 +799,8 @@ $.register_module({
                     z = {axis: 'z', spacing: adjusted_zs, labels: config.zs_labels || config.zs, label: config.zs_label},
                     x_axis = surface.create_axis(x),
                     z_axis = surface.create_axis(z);
-                x_axis.position.z = settings.surface_z / 2;
-                z_axis.position.x = -settings.surface_x / 2;
+                x_axis.position.z = settings.surface_z / 2 + settings.axis_offset;
+                z_axis.position.x = -settings.surface_x / 2 - settings.axis_offset;
                 z_axis.rotation.y = -Math.PI * .5;
                 group.add(x_axis);
                 group.add(z_axis);
@@ -832,10 +1036,10 @@ $.register_module({
                         group.rotation.x = -Math.PI * .5;
                         if (val === 'x') {
                             group.position.x = vertices[0][val] - offset;
-                            group.position.z = (settings.surface_z / 2) + 13;
+                            group.position.z = (settings.surface_z / 2) + 12 + settings.axis_offset;
                         }
                         if (val === 'z') {
-                            group.position.x = -((settings.surface_x / 2) + 12);
+                            group.position.x = -((settings.surface_x / 2) + 12) - settings.axis_offset;
                             group.position.z = vertices[0][val] - offset;
                             group.rotation.z = -Math.PI * .5;
                         }
@@ -843,40 +1047,6 @@ $.register_module({
                     });
                 }());
                 surface_top_group.add(hover_group);
-            };
-            /**
-             * On mouse move determin if the mouse position, translated to 3D space, is within settings.snap_distance
-             * from any vertex on the surface, if so, call surface.hover, otherwise remove the hover group
-             */
-            surface.interactive = function () {
-                slice.x();
-                $selector.on('mousemove.surface.interactive', function (event) {
-                    event.preventDefault();
-                    (function () { // surface
-                        var intersects = gadget.intersects(event, [gadget.interactive_meshes.meshes.surface]),
-                            object, point, faces = 'abcd', i, index, vertex, vertex_world_position, intersected;
-                        if (intersects.length > 0) { // intersecting at least one object
-                            point = intersects[0].point, object = intersects[0].object;
-                            for (i = 0; i < 4; i++) { // loop through vertices
-                                index = intersects[0].face[faces.charAt(i)];
-                                vertex = object.geometry.vertices[index];
-                                vertex_world_position = object.matrixWorld.multiplyVector3(vertex.clone());
-                                if (vertex_world_position.distanceTo(point) < settings.snap_distance) {
-                                    surface.hover(vertex, index, object);
-                                }
-                            }
-                        } else { // not intersecting
-                            if (hover_group) surface_top_group.remove(hover_group);
-                            vertex_sphere.visible = false;
-                            intersected = null;
-                            hud.set_volatility();
-                        }
-                    }());
-                    (function () { // test cube
-                        var intersects = gadget.intersects(event, [gadget.interactive_meshes.meshes.drag]);
-                        if (intersects.length) console.log(intersects);
-                    }());
-                });
             };
             surface.vertex_sphere = function () {
                 var sphere = new THREE.Mesh(
@@ -887,7 +1057,7 @@ $.register_module({
             };
             if (!config.child) og.common.gadgets.manager.register(surface);
             gadget.load();
-            if (webgl) surface.interactive();
+            if (webgl) gadget.interactive(), slice.load();
             (function animate() {
                 requestAnimationFrame(animate);
                 renderer.render(scene, camera);
