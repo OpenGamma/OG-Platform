@@ -29,7 +29,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.FollowingBusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.financial.convention.daycount.ActualActualISDA;
+import com.opengamma.financial.convention.daycount.ActualThreeSixtyFive;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
@@ -49,7 +49,7 @@ public class CDSSimpleMethodTest {
     double recoveryRate = 0.6;
     double spread = 0.0025;
     Currency currency = Currency.GBP;
-    ZonedDateTime effective = pricingDate;
+    ZonedDateTime effective = ZonedDateTime.of(2010,  12, 20, 0, 0, 0, 0, TimeZone.UTC);
     ZonedDateTime maturity = ZonedDateTime.of(2020, 12, 20, 0, 0, 0, 0, TimeZone.UTC);
     Frequency premiumFrequency = SimpleFrequency.QUARTERLY;
     
@@ -99,7 +99,7 @@ public class CDSSimpleMethodTest {
       0.010965820937831700000000000000,
       0.010965820937831700000000000000
     };
-
+    
     final YieldCurve cdsCcyYieldCurve = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(timePoints, cdsCcyPoints, new LinearInterpolator1D()));
     final YieldCurve bondCcyYieldCurve = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(timePoints, bondCcyPoints, new LinearInterpolator1D()));
     final YieldCurve spreadCurve = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(timePoints, spreadPoints, new LinearInterpolator1D()));
@@ -110,7 +110,7 @@ public class CDSSimpleMethodTest {
     curveBundle.setCurve("SPREAD", spreadCurve);
     
     Calendar calendar = new MondayToFridayCalendar("TestCalendar");
-    DayCount dayCount = new ActualActualISDA();
+    DayCount dayCount = new ActualThreeSixtyFive();
     BusinessDayConvention convention = new FollowingBusinessDayConvention();
     boolean isEOM = false;
     
@@ -119,7 +119,7 @@ public class CDSSimpleMethodTest {
     
     List<ZonedDateTime> possibleDefaultDates = scheduleDatesInRange( bondMaturity, bondPremiumFrequency.getPeriod(), pricingDate, maturity, calendar, convention);
     if(maturity.isAfter(bondMaturity)) {
-      possibleDefaultDates.add(maturity);
+      possibleDefaultDates.add(convention.adjustDate(calendar, maturity));
     }
     
     PaymentFixedDefinition[] defaultPayments = new PaymentFixedDefinition[ possibleDefaultDates.size()];
