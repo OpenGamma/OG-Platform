@@ -193,7 +193,8 @@ $.register_module({
                 x_segments = config.xs.length - 1, z_segments = config.zs.length - 1, y_segments = settings.y_segments,
                 ys, adjusted_vol, adjusted_xs, adjusted_ys, adjusted_zs, // gadget.init_data calculates these values
                 vol_max = Math.max.apply(null, config.vol), vol_min = Math.min.apply(null, config.vol),
-                renderer, camera, scene, backlight, keylight, filllight, projector = new THREE.Projector();
+                renderer, camera, scene, backlight, keylight, filllight, projector = new THREE.Projector(),
+                stats, debug = true;
             setTimeout(function () {sel_offset = $selector.offset();});
             /**
              * Constructor for a plane with correct x / y vertex position spacing
@@ -566,6 +567,13 @@ $.register_module({
                 renderer.setSize(width, height);
                 $selector.html(renderer.domElement).find('canvas').css({position: 'relative'});
                 hud.load();
+                // stats
+                if (debug) {
+                    stats = new Stats();
+                    stats.domElement.style.position = 'absolute';
+                    stats.domElement.style.top = '40px';
+                    $(stats.domElement).appendTo($selector);
+                }
                 return gadget;
             };
             gadget.resize = function () {
@@ -1061,6 +1069,7 @@ $.register_module({
             (function animate() {
                 requestAnimationFrame(animate);
                 renderer.render(scene, camera);
+                if (debug) stats.update();
             }());
         }
     }
