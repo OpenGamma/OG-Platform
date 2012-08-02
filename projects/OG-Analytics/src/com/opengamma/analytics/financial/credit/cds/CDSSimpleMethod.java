@@ -37,14 +37,23 @@ public class CDSSimpleMethod implements PricingMethod {
     return CurrencyAmount.of(cds.getPremium().getCurrency(), calculate(cds, cdsCcyCurve, bondCcyCurve, spreadCurve));
   }
   
+  /**
+   * Build the credit curve from the bond curve and the spread curve
+   * 
+   * @param bondCcyCurve
+   * @param spreadCurve
+   * @returnThe combined curve
+   */
+  private static YieldAndDiscountAddZeroSpreadCurve buildCreditCurve(YieldAndDiscountCurve bondCcyCurve, YieldAndDiscountCurve spreadCurve) {
+    return new YieldAndDiscountAddZeroSpreadCurve("CREDIT CURVE", false, bondCcyCurve, spreadCurve);
+  }
+  
   public static double calculate(CDSDerivative cds, YieldAndDiscountCurve cdsCcyCurve, YieldAndDiscountCurve bondCcyCurve, YieldAndDiscountCurve spreadCurve) {
-    
-    YieldAndDiscountCurve creditCurve = new YieldAndDiscountAddZeroSpreadCurve("CREDIT CURVE", false, bondCcyCurve, spreadCurve);
-    
+    YieldAndDiscountCurve creditCurve = buildCreditCurve(bondCcyCurve, spreadCurve);
     return calculatePremiumLeg(cds, cdsCcyCurve, bondCcyCurve, creditCurve) - calculateDefaultLeg(cds, cdsCcyCurve, bondCcyCurve, creditCurve);
   }
   
-  private static double calculatePremiumLeg(CDSDerivative cds, YieldAndDiscountCurve cdsCcyCurve, YieldAndDiscountCurve bondCcyCurve, YieldAndDiscountCurve creditCurve) {
+  public static double calculatePremiumLeg(CDSDerivative cds, YieldAndDiscountCurve cdsCcyCurve, YieldAndDiscountCurve bondCcyCurve, YieldAndDiscountCurve creditCurve) {
     
     final CouponFixed[] premiumPayments = cds.getPremium().getPayments();
     final double oneMinusRecoveryRate = 1.0 - cds.getRecoveryRate();
@@ -56,12 +65,17 @@ public class CDSSimpleMethod implements PricingMethod {
       final double probabilityOfDefault = (1.0 - (creditCurve.getDiscountFactor(t) / bondCcyCurve.getDiscountFactor(t))) / oneMinusRecoveryRate;
       final double discountedExpectedCashflow = premiumPayments[i].getAmount() * (1.0 - probabilityOfDefault) * cdsCcyCurve.getDiscountFactor(t);
       total += discountedExpectedCashflow;
+      if (s_logger.isDebugEnabled()) {
+        s_logger.debug("Period = " + i + ", t = " + t + ", probabilityOfDefault = " + probabilityOfDefault + ", discountedExpectedCashflow = " + discountedExpectedCashflow);
+      }
     }
-    
+    if (s_logger.isDebugEnabled()) {
+      s_logger.debug("total = " + total);
+    }
     return total;
   }
   
-  private static double calculateDefaultLeg(CDSDerivative cds, YieldAndDiscountCurve cdsCcyCurve, YieldAndDiscountCurve bondCcyCurve, YieldAndDiscountCurve creditCurve) {
+  public static double calculateDefaultLeg(CDSDerivative cds, YieldAndDiscountCurve cdsCcyCurve, YieldAndDiscountCurve bondCcyCurve, YieldAndDiscountCurve creditCurve) {
     
     final PaymentFixed[] possibleDefaultPayments = cds.getPayout().getPayments();
     final double oneMinusRecoveryRate = 1.0 - cds.getRecoveryRate();
@@ -74,10 +88,14 @@ public class CDSSimpleMethod implements PricingMethod {
       final double probabilityOfDefault = (1.0 - (creditCurve.getDiscountFactor(t) / bondCcyCurve.getDiscountFactor(t))) / oneMinusRecoveryRate;
       final double discountedExpectedCashflow = possibleDefaultPayments[i].getAmount() * (probabilityOfDefault - probabilityOfPriorDefault) * cdsCcyCurve.getDiscountFactor(t);
       total += discountedExpectedCashflow;
-      
+      if (s_logger.isDebugEnabled()) {
+        s_logger.debug("Period = " + i + ", t = " + t + ", probabilityOfDefault = " + probabilityOfDefault + ", discountedExpectedCashflow = " + discountedExpectedCashflow);
+      }
       probabilityOfPriorDefault = probabilityOfDefault;
     }
-    
+    if (s_logger.isDebugEnabled()) {
+      s_logger.debug("total = " + total);
+    }
     return total;
   }
   

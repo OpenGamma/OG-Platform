@@ -49,7 +49,7 @@ public class CDSSimpleMethodTest {
     double recoveryRate = 0.6;
     double spread = 0.0025;
     Currency currency = Currency.GBP;
-    ZonedDateTime effective = ZonedDateTime.of(2011, 3, 21, 0, 0, 0, 0, TimeZone.UTC);
+    ZonedDateTime effective = pricingDate;
     ZonedDateTime maturity = ZonedDateTime.of(2020, 12, 20, 0, 0, 0, 0, TimeZone.UTC);
     Frequency premiumFrequency = SimpleFrequency.QUARTERLY;
     
@@ -114,9 +114,13 @@ public class CDSSimpleMethodTest {
     BusinessDayConvention convention = new FollowingBusinessDayConvention();
     boolean isEOM = false;
     
-    final AnnuityCouponFixed premiums = AnnuityCouponFixedDefinition.from(currency, effective, maturity, premiumFrequency, calendar, dayCount, convention, isEOM, notional, spread, false).toDerivative(pricingDate, "CDS_CCY");
+    final AnnuityCouponFixedDefinition premiumDefinition = AnnuityCouponFixedDefinition.from(currency, effective, maturity, premiumFrequency, calendar, dayCount, convention, isEOM, notional, spread, false);
+    final AnnuityCouponFixed premiums = premiumDefinition.toDerivative(pricingDate, "CDS_CCY");
     
-    List<ZonedDateTime> possibleDefaultDates = scheduleDatesInRange( maturity, bondPremiumFrequency.getPeriod(), pricingDate, bondMaturity, calendar, convention);
+    List<ZonedDateTime> possibleDefaultDates = scheduleDatesInRange( bondMaturity, bondPremiumFrequency.getPeriod(), pricingDate, maturity, calendar, convention);
+    if(maturity.isAfter(bondMaturity)) {
+      possibleDefaultDates.add(maturity);
+    }
     
     PaymentFixedDefinition[] defaultPayments = new PaymentFixedDefinition[ possibleDefaultDates.size()];
     
