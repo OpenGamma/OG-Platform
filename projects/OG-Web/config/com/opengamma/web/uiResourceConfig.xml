@@ -221,6 +221,7 @@
     <fragment>/scripts/lib/jquery/jquery.awesometable.js</fragment>
     <fragment>/scripts/lib/three/three.js</fragment>
     <fragment>/scripts/lib/three/detector.js</fragment>
+    <fragment>/scripts/lib/stats.js</fragment>
   </bundle>
   <bundle id="core.js">
       <fragment>/scripts/og/common/og.common.core.js</fragment>
