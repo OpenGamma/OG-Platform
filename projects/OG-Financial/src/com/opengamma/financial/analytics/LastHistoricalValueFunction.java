@@ -62,6 +62,9 @@ public class LastHistoricalValueFunction extends AbstractFunction.NonCompiledInv
     final HistoricalTimeSeriesResolver resolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     final String fieldName = s_marketDataRequirementNamesMap.get(_requirementName);
     final HistoricalTimeSeriesResolutionResult timeSeries = resolver.resolve(target.getSecurity().getExternalIdBundle(), null, null, null, fieldName, null);
+    if (timeSeries == null) {
+      return null;
+    }
     return Collections.singleton(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, fieldName,
         DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)), true, DateConstraint.VALUATION_TIME.yesterday(), true));
   }
