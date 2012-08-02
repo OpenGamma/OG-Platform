@@ -68,6 +68,7 @@ $.register_module({
                                 type = gadgets[index].type;
                             switch (type) {
                                 case 'timeseries': url = prefix + type + ':' + id; break;
+                                case 'surface': url = prefix + type + ':' + id; break;
                                 case 'grid': url = prefix + type + ':' + id; break;
                             }
                             if (!dropped) {
@@ -248,7 +249,7 @@ $.register_module({
                     return gadgets;
                 };
                 arr = typeof data === 'string' ? generate_arr(data) : data;
-                new_gadgets = arr.map(function (obj) {
+                new_gadgets = arr.map(function (obj, i) {
                     var id, gadget_class = 'OG-gadget-' + (id = counter++), gadget,
                         gadget_selector = panel_container + ' .' + gadget_class,
                         options = $.extend(true, obj.options || {}, {selector: gadget_selector}),
@@ -257,7 +258,7 @@ $.register_module({
                     $(panel_container)
                         .append('<div class="' + gadget_class + '" />')
                         .find('.' + gadget_class)
-                        .css({height: '100%'});
+                        .css({height: '100%', display: i === arr.length - 1 ? 'block' : 'none'});
                     gadgets.push(gadget = {id: id, config: obj, type: type, gadget: new constructor(options)});
                     return gadget;
                 });
