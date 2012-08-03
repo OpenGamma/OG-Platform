@@ -11,6 +11,7 @@ import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.cds.CDSDerivative;
 import com.opengamma.analytics.financial.credit.cds.CDSSimpleMethod;
 import com.opengamma.analytics.financial.instrument.cds.CDSDefinition;
@@ -61,9 +62,16 @@ public class CDSPresentValueFunction extends AbstractFunction.NonCompiledInvoker
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
+    
+    // Only CDS securities associated with a particular underlying bond can be priced by this method
     if (target.getSecurity() instanceof CDSSecurity) {
-      return true;
+      CDSSecurity cds = (CDSSecurity) target.getSecurity();
+      
+      if (cds.getUnderlying() != null) {
+        return true;
+      }
     }
+    
     return false;
   }
   
@@ -76,7 +84,7 @@ public class CDSPresentValueFunction extends AbstractFunction.NonCompiledInvoker
       final BondSecurity bond = (BondSecurity) context.getSecuritySource().getSecurity(bundle);
 
       if (bond == null) {
-        ; // TODO: handle error
+        throw new OpenGammaRuntimeException("Failed to retrieve underlying security");
       }
 
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
@@ -102,6 +110,15 @@ public class CDSPresentValueFunction extends AbstractFunction.NonCompiledInvoker
           .with("FundingCurve", "SECONDARY")
           .with("ForwardCurve", "SECONDARY")
           .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, "ParRate")
+          .get()
+      ));
+      
+      requirements.add(new ValueRequirement(
+        ValueRequirementNames.YIELD_CURVE,
+        ComputationTargetType.PRIMITIVE,
+        cds.getCurrency().getUniqueId(),
+        ValueProperties
+          .with(ValuePropertyNames.CURVE, "CDS_" + bond.getIssuerName())
           .get()
       ));
 
@@ -145,6 +162,10 @@ public class CDSPresentValueFunction extends AbstractFunction.NonCompiledInvoker
     // Security being priced
     final CDSSecurity cds = (CDSSecurity) target.getSecurity();
     final BondSecurity bond = (BondSecurity) securitySource.getSecurity(ExternalIdBundle.of(cds.getUnderlying()));
+    
+    if (bond == null) {
+      throw new OpenGammaRuntimeException("Failed to retrieve underlying security");
+    }
 
     // Curves
     final YieldCurve cdsCcyCurve = (YieldCurve) inputs.getValue(new ValueRequirement(
@@ -157,23 +178,10 @@ public class CDSPresentValueFunction extends AbstractFunction.NonCompiledInvoker
       ValueProperties.with(ValuePropertyNames.CURVE, "SECONDARY").with("FundingCurve", "SECONDARY").with("ForwardCurve", "SECONDARY").with(ValuePropertyNames.CURVE_CALCULATION_METHOD, "ParRate").get()
     ));
     
-    // TODO: Get credit curve for issuer
-    final double[] timePoints = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
-    final double[] creditSpreads = {
-      0.008094573225337830000000000000,
-      0.008094573225337830000000000000,
-      0.008472028609360500000000000000,
-      0.008833186263998250000000000000,
-      0.009178825884456880000000000000,
-      0.009509688657093270000000000000,
-      0.009826479094981490000000000000,
-      0.010129866801184300000000000000,
-      0.010420488160288400000000000000,
-      0.010698947959110100000000000000,
-      0.010965820937831700000000000000,
-      0.010965820937831700000000000000
-    };
-    final YieldCurve spreadCurve = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(timePoints, creditSpreads, new LinearInterpolator1D()));
+    final YieldCurve spreadCurve = (YieldCurve) inputs.getValue(new ValueRequirement(
+      ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, cds.getCurrency().getUniqueId(),
+      ValueProperties.with(ValuePropertyNames.CURVE, "CDS_" + bond.getIssuerName()).get()
+    ));
     
     final YieldCurveBundle curveBundle = new YieldCurveBundle();
     curveBundle.setCurve(cdsCcyCurve.getName(), cdsCcyCurve);

@@ -45,7 +45,7 @@ public class CDSSimpleMethod implements PricingMethod {
    * @returnThe combined curve
    */
   private static YieldAndDiscountAddZeroSpreadCurve buildCreditCurve(YieldAndDiscountCurve bondCcyCurve, YieldAndDiscountCurve spreadCurve) {
-    return new YieldAndDiscountAddZeroSpreadCurve("CREDIT CURVE", false, bondCcyCurve, spreadCurve);
+    return new YieldAndDiscountAddZeroSpreadCurve(bondCcyCurve.getName() + "_" + spreadCurve.getName(), false, bondCcyCurve, spreadCurve);
   }
   
   public static double calculate(CDSDerivative cds, YieldAndDiscountCurve cdsCcyCurve, YieldAndDiscountCurve bondCcyCurve, YieldAndDiscountCurve spreadCurve) {
