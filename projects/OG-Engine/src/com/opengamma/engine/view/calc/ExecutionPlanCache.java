@@ -12,7 +12,6 @@ import java.util.Set;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -151,7 +150,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 
   public ExecutionPlanCache(final CacheManager manager, final int cacheSize) {
     if (cacheSize > 0) {
-      EHCacheUtils.addCache(manager, CACHE_NAME, cacheSize, MemoryStoreEvictionPolicy.LRU, false, null, true, 1800, 300, false, 0, null);
+      EHCacheUtils.addCache(manager, CACHE_NAME);
       _cache = EHCacheUtils.getCacheFromManager(manager, CACHE_NAME);
     } else {
       _cache = null;

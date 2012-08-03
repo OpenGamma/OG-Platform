@@ -10,7 +10,6 @@ import java.util.Collections;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +33,6 @@ public class BloombergRateClassifier {
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergRateClassifier.class);
 
   private static final String CACHE_KEY = "bbg-classifier-cache";
-  private static final int CACHE_SIZE = 10000;
   
   private final SecurityTypeResolver _securityTypeResolver;
   private final Cache _cache;
@@ -49,7 +47,7 @@ public class BloombergRateClassifier {
     ArgumentChecker.notNull(referenceDataProvider, "referenceDataProvider");
     ArgumentChecker.notNull(cacheManager, "cacheManager");
     _securityTypeResolver = new BloombergSecurityTypeResolver(referenceDataProvider);
-    EHCacheUtils.addCache(cacheManager, CACHE_KEY, CACHE_SIZE, MemoryStoreEvictionPolicy.LRU, false, null, true, 0, 0, false, 0, null);
+    EHCacheUtils.addCache(cacheManager, CACHE_KEY);
     _cache = EHCacheUtils.getCacheFromManager(cacheManager, CACHE_KEY);
   }
   

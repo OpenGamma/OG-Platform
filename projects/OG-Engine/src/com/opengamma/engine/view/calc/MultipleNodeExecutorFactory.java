@@ -10,14 +10,11 @@ import org.springframework.beans.factory.InitializingBean;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.view.calcnode.stats.FunctionCosts;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
  * 
  */
 public class MultipleNodeExecutorFactory implements DependencyGraphExecutorFactory<DependencyGraph>, InitializingBean {
-  
-  private static final int DEFAULT_EXECUTION_PLAN_CACHE = 100;
 
   private ExecutionPlanCache _executionPlanCache;
   private int _minimumJobItems = 1;
@@ -91,10 +88,6 @@ public class MultipleNodeExecutorFactory implements DependencyGraphExecutorFacto
     return _functionCosts;
   }
 
-  public void setCacheSize(final int size) {
-    _executionPlanCache = new ExecutionPlanCache(EHCacheUtils.createCacheManager(), size);
-  }
-
   @Override
   public MultipleNodeExecutor createExecutor(final SingleComputationCycle cycle) {
     ArgumentChecker.notNull(cycle, "cycle");
@@ -116,9 +109,6 @@ public class MultipleNodeExecutorFactory implements DependencyGraphExecutorFacto
   public void afterPropertiesSet() {
     if (getFunctionCosts() == null) {
       setFunctionCosts(new FunctionCosts());
-    }
-    if (_executionPlanCache == null) {
-      setCacheSize(DEFAULT_EXECUTION_PLAN_CACHE);
     }
   }
 

@@ -18,6 +18,7 @@ import com.opengamma.bbg.livedata.faketicks.FakeSubscriptionSelector;
 import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
 import com.opengamma.livedata.server.AbstractLiveDataServer;
 import com.opengamma.livedata.server.CombiningLiveDataServer;
+import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
  * Test utilities for Bloomberg.
@@ -114,7 +115,7 @@ public class BloombergLiveDataServerUtils {
     CachingReferenceDataProvider cachingRefDataProvider = getCachingReferenceDataProvider(refDataProvider, testClass);
     BloombergLiveDataServer underlying = getTestServer(cachingRefDataProvider);
     
-    FakeSubscriptionBloombergLiveDataServer fakeServer = new FakeSubscriptionBloombergLiveDataServer(underlying);
+    FakeSubscriptionBloombergLiveDataServer fakeServer = new FakeSubscriptionBloombergLiveDataServer(underlying, EHCacheUtils.createCacheManager());
     fakeServer.start();
     
     CombiningBloombergLiveDataServer combinedServer = new CombiningBloombergLiveDataServer(fakeServer, underlying, subscriptionSelector);

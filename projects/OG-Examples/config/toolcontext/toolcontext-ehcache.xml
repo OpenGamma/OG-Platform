@@ -1,12 +1,12 @@
 <ehcache>
-  <diskStore path="java.io.tmpdir"/>
+  <!-- Don't cache anything on disk in tools -->
   <defaultCache
     maxElementsInMemory="10000"
     eternal="false"
     timeToIdleSeconds="86400"
     timeToLiveSeconds="86400"
-    overflowToDisk="true"
-    maxElementsOnDisk="10000000"
+    overflowToDisk="false"
+    maxElementsOnDisk="1"
     diskPersistent="false"
     diskExpiryThreadIntervalSeconds="120"
     memoryStoreEvictionPolicy="LRU"

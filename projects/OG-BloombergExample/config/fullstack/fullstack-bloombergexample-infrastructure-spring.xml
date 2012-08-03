@@ -145,6 +145,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
   <!-- ================================================================== -->
   <bean id="standardCacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
     <property name="shared" value="true"/>
+    <property name="configLocation" value="${ehcache.configFile}" />
   </bean>
   <alias name="standardCacheManager" alias="cfgCacheManager"/>
   <alias name="standardCacheManager" alias="exgCacheManager"/>
