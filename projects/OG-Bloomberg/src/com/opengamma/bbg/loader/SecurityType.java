@@ -36,6 +36,10 @@ public enum SecurityType {
    */
   CASH,
   /**
+   * Credit Default Swap
+   */
+  CREDIT_DEFAULT_SWAP,
+  /**
    * 
    */
   ENERGY_FUTURE,

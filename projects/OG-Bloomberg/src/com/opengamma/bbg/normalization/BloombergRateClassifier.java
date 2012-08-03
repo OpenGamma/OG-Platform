@@ -93,6 +93,7 @@ public class BloombergRateClassifier {
         return 10000;
       case BILL:
       case CASH:
+      case CREDIT_DEFAULT_SWAP:
       case FRA:
       case INTEREST_RATE_FUTURE:
       case BOND_FUTURE:
