@@ -214,6 +214,8 @@ $.register_module({
                     mesh.position.x = -(settings.surface_x / 2) - 1.5 - settings.axis_offset;
                     mesh.rotation.y = -Math.PI * 0.5;
                 }
+                mesh.matrixAutoUpdate = false;
+                mesh.updateMatrix();
                 return mesh;
             };
             /**
@@ -235,6 +237,8 @@ $.register_module({
                         mesh = new THREE.Mesh(text, matlib.get_material('phong', color));
                     mesh.position.x = xpos + (val === '.' ? 5 : 0);                                   // space before
                     xpos = xpos + ((THREE.FontUtils.drawText(val).offset)) + (val === '.' ? 10 : 15); // space after
+                    mesh.matrixAutoUpdate = false;
+                    mesh.updateMatrix();
                     object.add(mesh);
                 });
                 return object;
@@ -277,11 +281,13 @@ $.register_module({
              * @return {THREE.Object3D}
              */
             var Tube = function (points, color) {
-                var object = new THREE.Object3D(), i = points.length - 1, line, tube;
+                var object = new THREE.Object3D(), i = points.length - 1, line, tube, mesh;
                 while (i--) {
                     line = new THREE.LineCurve3(points[i], points[i+1]);
                     tube = new THREE.TubeGeometry(line, 1, 0.2, 4, false, false);
-                    object.add(new THREE.Mesh(tube, matlib.get_material('flat', color)));
+                    mesh = new THREE.Mesh(tube, matlib.get_material('flat', color));
+                    mesh.matrixAutoUpdate = false;
+                    object.add(mesh);
                 }
                 return object;
             };
@@ -663,8 +669,11 @@ $.register_module({
                 return new THREE.MeshPhongMaterial({shading: THREE.FlatShading, vertexColors: THREE.VertexColors})
             };
             slice.load = function () {
-                var plane = new THREE.PlaneGeometry(5000, 5000, 0, 0);
-                slice.intersection_plane = new THREE.Mesh(plane, matlib.get_material('wire', '0xcccccc'));
+                var plane = new THREE.PlaneGeometry(5000, 5000, 0, 0),
+                    mesh = new THREE.Mesh(plane, matlib.get_material('wire', '0xcccccc'));
+                mesh.matrixAutoUpdate = false;
+                mesh.updateMatrix();
+                slice.intersection_plane = mesh;
                 surface_bottom_group.add(slice.intersection_plane);
                 slice.x();
                 slice.z();
@@ -754,6 +763,8 @@ $.register_module({
                     mesh.rotation.x = Math.PI * 0.5;
                     mesh.position.y = settings.surface_y;
                     mesh.position.z = -((settings.surface_z / 2) + settings.smile_distance);
+                    mesh.matrixAutoUpdate = false;
+                    mesh.updateMatrix();
                     obj.add(mesh);
                 }());
                 (function () { // axis
@@ -777,6 +788,8 @@ $.register_module({
                         mesh = THREE.SceneUtils.createMultiMaterialObject(plane, material);
                     mesh.position.x = (settings.surface_x / 2) + settings.smile_distance;
                     mesh.rotation.z = Math.PI * 0.5;
+                    mesh.matrixAutoUpdate = false;
+                    mesh.updateMatrix();
                     obj.add(mesh);
                 }());
                 (function () { // axis
@@ -797,11 +810,13 @@ $.register_module({
                 (function () { // x shadow
                     var z = settings.surface_z / 2 + settings.smile_distance, half_width = settings.surface_x / 2,
                         shadow = new Tube([{x: -half_width, y: 0, z: -z}, {x: half_width, y: 0, z: -z}], '0xaaaaaa');
+                    shadow.matrixAutoUpdate = false;
                     obj.add(shadow);
                 }());
                 (function () { // z shadow
                     var x = settings.surface_x / 2 + settings.smile_distance, half_width = settings.surface_z / 2,
                         shadow = new Tube([{x: x, y: 0, z: -half_width}, {x: x, y: 0, z: half_width}], '0xaaaaaa');
+                    shadow.matrixAutoUpdate = false;
                     obj.add(shadow);
                 }());
                 return obj;
@@ -854,6 +869,8 @@ $.register_module({
                             value.position.y = 0.1;
                             value.position.z = 12;
                         }
+                        value.matrixAutoUpdate = false;
+                        value.updateMatrix();
                         mesh.add(value);
                     }
                 }());
@@ -865,6 +882,8 @@ $.register_module({
                     label.position.x = -(axis_len / 2) -3;
                     label.position.y = 1;
                     label.position.z = 25;
+                    label.matrixAutoUpdate = false;
+                    label.updateMatrix();
                     mesh.add(label);
                 }());
                 (function () { // axis ticks
@@ -895,6 +914,8 @@ $.register_module({
                     } else {
                         axis.position.z = 5;
                     }
+                    axis.matrixAutoUpdate = false;
+                    axis.updateMatrix();
                     mesh.add(axis);
                 }());
                 return mesh;
@@ -907,6 +928,7 @@ $.register_module({
                 var plane = new Plane('surface'),
                     mesh = THREE.SceneUtils.createMultiMaterialObject(plane, matlib.get_material('compound_grid_wire'));
                 mesh.overdraw = true;
+                mesh.matrixAutoUpdate = false;
                 return mesh;
             };
             /**
@@ -962,7 +984,12 @@ $.register_module({
                 // apply surface materials,
                 // actualy duplicates the geometry and adds each material separatyle, returns the group
                 group = THREE.SceneUtils.createMultiMaterialObject(plane, matlib.get_material('compound_surface'));
-                group.children.forEach(function (mesh) {mesh.doubleSided = true;});
+                group.matrixAutoUpdate = false;
+                group.updateMatrix();
+                group.children.forEach(function (mesh) {
+                    mesh.doubleSided = true;
+                    mesh.matrixAutoUpdate = false;
+                });
                 gadget.interactive_meshes.add('surface', group.children[0]);
                 return group;
             };
@@ -977,6 +1004,7 @@ $.register_module({
                 if (hover_group) surface_top_group.remove(hover_group);
                 hover_group = new THREE.Object3D();
                 vertex_sphere.position.copy(vertex);
+                vertex_sphere.updateMatrix();
                 vertex_sphere.visible = true;
                 (function () {
                     // [xz]from & [xz]to are the start and end vertex indexes for a vertex row or column
@@ -997,6 +1025,10 @@ $.register_module({
                             zlines = new Tube(zvertices, color), ylines = new Tube(yvertices, color);
                         zlines.position.x = Math.abs(zvertices[0].x - settings.surface_x / 2) + settings.smile_distance;
                         ylines.position.x = settings.surface_x / 2 + settings.smile_distance;
+                        zlines.matrixAutoUpdate = false;
+                        ylines.matrixAutoUpdate = false;
+                        zlines.updateMatrix();
+                        ylines.updateMatrix();
                         hover_group.add(zlines);
                         hover_group.add(ylines);
                     }());
@@ -1006,17 +1038,26 @@ $.register_module({
                             xlines = new Tube(xvertices, color), ylines = new Tube(yvertices, color);
                         xlines.position.z = -((settings.surface_z / 2) + xvertices[0].z + settings.smile_distance);
                         ylines.position.z = -(settings.surface_z / 2) - settings.smile_distance;
+                        xlines.matrixAutoUpdate = false;
+                        ylines.matrixAutoUpdate = false;
+                        xlines.updateMatrix();
+                        ylines.updateMatrix();
                         hover_group.add(xlines);
                         hover_group.add(ylines);
                     }());
                     // bottom grid, x and z lines
                     (function () {
+                        var xlines, zlines;
                         xvertices_bottom.push(xvertices[0].clone(), xvertices[xvertices.length-1].clone());
                         xvertices_bottom[0].y = xvertices_bottom[1].y = -settings.floating_height;
                         zvertices_bottom.push(zvertices[0].clone(), zvertices[zvertices.length-1].clone());
                         zvertices_bottom[0].y = zvertices_bottom[1].y = -settings.floating_height;
-                        hover_group.add(new Tube(xvertices_bottom, color));
-                        hover_group.add(new Tube(zvertices_bottom, color));
+                        xlines = new Tube(xvertices_bottom, color);
+                        zlines = new Tube(zvertices_bottom, color);
+                        xlines.matrixAutoUpdate = false;
+                        zlines.matrixAutoUpdate = false;
+                        hover_group.add(xlines);
+                        hover_group.add(zlines);
                     }());
                     // surface labels
                     ['x', 'z'].forEach(function (val) {
@@ -1030,6 +1071,7 @@ $.register_module({
                         // create label
                         offset = ((width / 2) * scale) + (width * 0.05); // half the width * scale + a relative offset
                         lbl = new Text3D(txt, color);
+                        lbl.matrixAutoUpdate = false;
                         vertices = val === 'x' ? zvertices : xvertices;
                         group.add(lbl);
                         // create box
@@ -1044,6 +1086,8 @@ $.register_module({
                             mesh.geometry.vertices.filter(function (val) {
                                 return (val.x === 0 && val.y === height / 2)
                             }).forEach(function (vertex) {vertex.y = height});
+                            mesh.matrixAutoUpdate = false;
+                            mesh.updateMatrix();
                             group.add(mesh);
                         }());
                         // position / rotation
@@ -1059,6 +1103,10 @@ $.register_module({
                             group.position.z = vertices[0][val] - offset;
                             group.rotation.z = -Math.PI * .5;
                         }
+                        group.matrixAutoUpdate = false;
+                        group.updateMatrix();
+                        hover_group.matrixAutoUpdate = false;
+                        hover_group.updateMatrix();
                         hover_group.add(group);
                     });
                 }());
@@ -1068,6 +1116,7 @@ $.register_module({
                 var sphere = new THREE.Mesh(
                     new THREE.SphereGeometry(1.5, 10, 10), matlib.get_material('phong', settings.interactive_color_nix)
                 );
+                sphere.matrixAutoUpdate = false;
                 sphere.visible = false;
                 return sphere;
             };
