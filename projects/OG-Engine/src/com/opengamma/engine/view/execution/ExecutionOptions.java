@@ -99,8 +99,7 @@ public class ExecutionOptions implements ViewExecutionOptions {
    * @return the execution sequence, not null
    */
   public static ViewExecutionOptions infinite(MarketDataSpecification marketDataSpec, EnumSet<ViewExecutionFlags> flags) {
-    ViewCycleExecutionOptions defaultExecutionOptions = new ViewCycleExecutionOptions();
-    defaultExecutionOptions.setMarketDataSpecification(marketDataSpec);
+    ViewCycleExecutionOptions defaultExecutionOptions = new ViewCycleExecutionOptions(marketDataSpec);
     return of(new InfiniteViewCycleExecutionSequence(), defaultExecutionOptions, flags);
   }
   
@@ -114,8 +113,7 @@ public class ExecutionOptions implements ViewExecutionOptions {
    * @return the execution sequence, not null
    */
   public static ViewExecutionOptions infinite(MarketDataSpecification marketDataSpec, EnumSet<ViewExecutionFlags> flags, VersionCorrection versionCorrection) {
-    ViewCycleExecutionOptions defaultExecutionOptions = new ViewCycleExecutionOptions();
-    defaultExecutionOptions.setMarketDataSpecification(marketDataSpec);
+    ViewCycleExecutionOptions defaultExecutionOptions = new ViewCycleExecutionOptions(marketDataSpec);
     return of(new InfiniteViewCycleExecutionSequence(), defaultExecutionOptions, flags, versionCorrection);
   }
 
@@ -130,10 +128,7 @@ public class ExecutionOptions implements ViewExecutionOptions {
    * @return the execution sequence, not null
    */
   public static ViewExecutionOptions batch(InstantProvider valuationTimeProvider, MarketDataSpecification marketDataSpec, ViewCycleExecutionOptions defaultCycleOptions) {
-    ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions(marketDataSpec);
-    if (valuationTimeProvider != null) {
-      cycleOptions.setValuationTime(valuationTimeProvider);
-    }
+    ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions(valuationTimeProvider, marketDataSpec);
     ViewCycleExecutionSequence sequence = new ArbitraryViewCycleExecutionSequence(Arrays.asList(cycleOptions));
     return of(sequence, defaultCycleOptions, ExecutionFlags.none().batch().runAsFastAsPossible().awaitMarketData().get());
   }
@@ -173,10 +168,7 @@ public class ExecutionOptions implements ViewExecutionOptions {
   public static ViewExecutionOptions singleCycle(InstantProvider valuationTimeProvider, MarketDataSpecification marketDataSpec, EnumSet<ViewExecutionFlags> flags) {
     ArgumentChecker.notNull(marketDataSpec, "marketDataSpec");
     ArgumentChecker.notNull(flags, "flags");
-    ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions(marketDataSpec);
-    if (valuationTimeProvider != null) {
-      cycleOptions.setValuationTime(valuationTimeProvider);
-    }
+    ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions(valuationTimeProvider, marketDataSpec);
     ViewCycleExecutionSequence sequence = new ArbitraryViewCycleExecutionSequence(Arrays.asList(cycleOptions));
     return of(sequence, flags);
   }
