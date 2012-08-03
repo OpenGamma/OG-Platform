@@ -8,8 +8,6 @@ package com.opengamma.util.ehcache;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.event.RegisteredEventListeners;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
@@ -39,6 +37,9 @@ public final class EHCacheUtils {
 
   /**
    * Adds a cache to the cache manager if necessary.
+   * <p>
+   * The cache configuration is loaded from the manager's configuration, or the default is used.
+   * 
    * @param manager  the cache manager, not null
    * @param cache  the cache, not null
    */
@@ -56,6 +57,9 @@ public final class EHCacheUtils {
 
   /**
    * Adds a cache to the cache manager if necessary.
+   * <p>
+   * The cache configuration is loaded from the manager's configuration, or the default is used.
+   * 
    * @param manager  the cache manager, not null
    * @param name  the cache name, not null
    */
@@ -63,42 +67,6 @@ public final class EHCacheUtils {
     if (!manager.cacheExists(name)) {
       try {
         manager.addCache(name);
-      } catch (Exception ex) {
-        throw new OpenGammaRuntimeException("Unable to create cache " + name, ex);
-      }
-    }
-  }
-
-  /**
-   * Adds a cache to the cache manager if necessary.
-   * @param manager  the cache manager, not null
-   * @param name  the cache name, not null
-   * @param maxElementsInMemory  the maximum elements in memory
-   * @param memoryStoreEvictionPolicy  the eviction policy
-   * @param overflowToDisk  whether to overflow to disk
-   * @param diskStorePath  the path on disk
-   * @param eternal  eternal
-   * @param timeToLiveSeconds  the time to live in seconds
-   * @param timeToIdleSeconds  the time to idle in seconds
-   * @param diskPersistent  whether the disk is persistent
-   * @param diskExpiryThreadIntervalSeconds  the expiry interval in seconds
-   * @param registeredEventListeners  the listeners
-   */
-  public static void addCache(CacheManager manager, String name,
-      int maxElementsInMemory,
-      MemoryStoreEvictionPolicy memoryStoreEvictionPolicy,
-      boolean overflowToDisk, String diskStorePath, boolean eternal,
-      long timeToLiveSeconds, long timeToIdleSeconds, boolean diskPersistent,
-      long diskExpiryThreadIntervalSeconds,
-      RegisteredEventListeners registeredEventListeners) {
-    ArgumentChecker.notNull(manager, "manager");
-    ArgumentChecker.notNull(name, "name");
-    if (!manager.cacheExists(name)) {
-      try {
-        manager.addCache(new Cache(name, maxElementsInMemory,
-            memoryStoreEvictionPolicy, overflowToDisk, diskStorePath, eternal,
-            timeToLiveSeconds, timeToIdleSeconds, diskPersistent,
-            diskExpiryThreadIntervalSeconds, registeredEventListeners));
       } catch (Exception ex) {
         throw new OpenGammaRuntimeException("Unable to create cache " + name, ex);
       }
