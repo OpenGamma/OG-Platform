@@ -148,12 +148,17 @@ import com.opengamma.util.ehcache.EHCacheUtils;
    */
   private final Map<DependencyGraph, DependencyGraphKey> _identityLookup = new MapMaker().weakKeys().makeMap();
 
-  public ExecutionPlanCache(final CacheManager manager, final int cacheSize) {
-    if (cacheSize > 0) {
+  /**
+   * Constructs an instance.
+   * 
+   * @param manager  the cache manager from which to obtain the execution plan cache, null not to use caching.
+   */
+  public ExecutionPlanCache(final CacheManager manager) {
+    if (manager == null) {
+      _cache = null;
+    } else {
       EHCacheUtils.addCache(manager, CACHE_NAME);
       _cache = EHCacheUtils.getCacheFromManager(manager, CACHE_NAME);
-    } else {
-      _cache = null;
     }
   }
 

@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.view.calc;
 
+import net.sf.ehcache.CacheManager;
+
 import org.springframework.beans.factory.InitializingBean;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
@@ -16,6 +18,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class MultipleNodeExecutorFactory implements DependencyGraphExecutorFactory<DependencyGraph>, InitializingBean {
 
+  private CacheManager _cacheManager;
   private ExecutionPlanCache _executionPlanCache;
   private int _minimumJobItems = 1;
   private int _maximumJobItems = Integer.MAX_VALUE;
@@ -23,6 +26,14 @@ public class MultipleNodeExecutorFactory implements DependencyGraphExecutorFacto
   private long _maximumJobCost = Long.MAX_VALUE;
   private int _maximumConcurrency = Integer.MAX_VALUE;
   private FunctionCosts _functionCosts;
+  
+  public void setCacheManager(CacheManager cacheManager) {
+    _cacheManager = cacheManager;
+  }
+  
+  public CacheManager getCacheManager() {
+    return _cacheManager;
+  }
   
   protected ExecutionPlanCache getExecutionPlanCache() {
     return _executionPlanCache;
@@ -110,6 +121,7 @@ public class MultipleNodeExecutorFactory implements DependencyGraphExecutorFacto
     if (getFunctionCosts() == null) {
       setFunctionCosts(new FunctionCosts());
     }
+    _executionPlanCache = new ExecutionPlanCache(getCacheManager());
   }
 
 }
