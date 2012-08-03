@@ -13,7 +13,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * For a set of N-1 "fit" parameters, produces N "model" parameters that sum to one 
  */
 public class SumToOne {
   private static final double TOL = 1e-9;
@@ -22,11 +22,20 @@ public class SumToOne {
   private int[][] _set;
   private int _n;
 
+  /**
+   *For a set of N-1 "fit" parameters, produces N "model" parameters that sum to one 
+   * @param n The number of "model" parameters, N
+   */
   public SumToOne(final int n) {
     _set = getSet(n);
     _n = n;
   }
 
+  /**
+   * Transform from the N-1 "fit" parameters to the N "model" parameters 
+   * @param fitParms The N-1 "fit" parameters
+   * @return The N "model" parameters
+   */
   public double[] transform(final double[] fitParms) {
     ArgumentChecker.isTrue(fitParms.length == _n - 1, "length of fitParms is {}, but must be {} ", fitParms.length, _n - 1);
     double[] s2 = new double[_n - 1];
@@ -53,10 +62,20 @@ public class SumToOne {
     return res;
   }
 
+  /**
+   * Transform from the N-1 "fit" parameters to the N "model" parameters 
+   * @param fitParms The N-1 "fit" parameters
+   * @return The N "model" parameters
+   */
   public DoubleMatrix1D transform(final DoubleMatrix1D fitParms) {
     return new DoubleMatrix1D(transform(fitParms.getData()));
   }
 
+  /**
+   * Inverse transform from the N "model" parameters to the N-1 "fit" parameters. Used mainly to find the start position of a optimisation routine
+   * @param modelParms The N "model" parameters. <b>These must sum to one</b>
+   * @return The N-1 "fit" parameters
+   */
   public double[] inverseTransform(final double[] modelParms) {
     ArgumentChecker.isTrue(modelParms.length == _n, "length of modelParms is {}, but must be {} ", modelParms.length, _n);
 
@@ -78,10 +97,20 @@ public class SumToOne {
     return res;
   }
 
+  /**
+   * Inverse transform from the N "model" parameters to the N-1 "fit" parameters. Used mainly to find the start position of a optimisation routine
+   * @param modelParms The N "model" parameters. <b>These must sum to one</b>
+   * @return The N-1 "fit" parameters
+   */
   public DoubleMatrix1D inverseTransform(final DoubleMatrix1D modelParms) {
     return new DoubleMatrix1D(inverseTransform(modelParms.getData()));
   }
 
+  /**
+   * The N by N-1 Jacobian matrix between the N "model" parameters (that sum to one) and the N-1 "fit" parameters 
+   * @param fitParms  The N-1 "fit" parameters
+   * @return The N by N-1 Jacobian matrix
+   */
   public double[][] jacobian(final double[] fitParms) {
     ArgumentChecker.isTrue(fitParms.length == _n - 1, "length of fitParms is {}, but must be {} ", fitParms.length, _n - 1);
     double[] sin = new double[_n - 1];
@@ -117,6 +146,11 @@ public class SumToOne {
     return res;
   }
 
+  /**
+   * The N by N-1 Jacobian matrix between the N "model" parameters (that sum to one) and the N-1 "fit" parameters 
+   * @param fitParms  The N-1 "fit" parameters
+   * @return The N by N-1 Jacobian matrix
+   */
   public DoubleMatrix2D jacobian(final DoubleMatrix1D fitParms) {
     return new DoubleMatrix2D(jacobian(fitParms.getData()));
   }

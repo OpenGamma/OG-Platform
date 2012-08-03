@@ -333,4 +333,54 @@ public class ShiftedLogNormalTailExtrapolationTest {
       }
     }
   }
+
+  @Test(enabled = false)
+  public void failingTest() {
+    double f = 1332.6440427977093;
+    double k = 500.0;
+    double t = 0.06557377049180328;
+    double vol = 1.173565;
+    double volGrad = -0.002302809210959822 / 1.1;
+    ShiftedLogNormalTailExtrapolationFitter fitter = new ShiftedLogNormalTailExtrapolationFitter();
+
+    double[] res = fitter.fitVolatilityAndGrad(f, k, vol, volGrad, t);
+    System.out.println(res[0] + "\t" + res[1]);
+  }
+
+  @Test
+      (enabled = false)
+      public void printSeachSurfaceTest2() {
+    final double f = 1332.6440427977093;
+    final double k = 500.0;
+    final double t = 0.06557377049180328;
+    final double vol = 1.173565;
+    final double volGrad = -0.002302809210959822 / 1.0;
+    final double p = BlackFormulaRepository.price(f, k, t, vol, false);
+    final double dd = BlackFormulaRepository.dualDelta(f, k, t, vol, false) + BlackFormulaRepository.vega(f, k, t, vol) * volGrad;
+
+    System.out.println("ShiftedLogNormalTailExtrapolationTest");
+    Function<Double, Double> func = new Function<Double, Double>() {
+
+      @Override
+      public Double evaluate(Double... x) {
+        double mu = x[0];
+        double sigma = x[1];
+        //  double sigma = 0.8 * mu + s;
+        double p1 = Math.log(ShiftedLogNormalTailExtrapolation.price(f, k, t, false, mu, sigma) / p);
+        double p2 = Math.log(ShiftedLogNormalTailExtrapolation.dualDelta(f, k, t, false, mu, sigma) / dd);
+        double temp = p1 * p1 + p2 * p2;
+        return Double.isInfinite(temp) ? 1e6 : temp;
+      }
+    };
+    FunctionalDoublesSurface surf = FunctionalDoublesSurface.from(func);
+    PDEUtilityTools.printSurface("debug", surf, 250, 300, 70, 90.0, 200, 200);
+
+    double mu = 0.1;
+    double sigma = 0.1;
+
+    double r1 = ShiftedLogNormalTailExtrapolation.impliedVolatility(f, k, t, mu, sigma);
+    double r2 = ShiftedLogNormalTailExtrapolation.dVdK(f, k, t, mu, sigma);
+    System.out.println(r1 + "\t" + r2);
+  }
+
 }

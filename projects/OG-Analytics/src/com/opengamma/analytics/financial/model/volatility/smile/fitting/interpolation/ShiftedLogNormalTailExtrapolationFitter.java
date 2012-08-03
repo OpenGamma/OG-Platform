@@ -5,6 +5,13 @@
  */
 package com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.BitSet;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.math.differentiation.ScalarFirstOrderDifferentiator;
 import com.opengamma.analytics.math.differentiation.VectorFieldFirstOrderDifferentiator;
@@ -24,13 +31,6 @@ import com.opengamma.analytics.math.rootfinding.newton.NewtonDefaultVectorRootFi
 import com.opengamma.analytics.math.rootfinding.newton.NewtonVectorRootFinder;
 import com.opengamma.util.ArgumentChecker;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.BitSet;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Fit a shifted log-normal model to two pieces of information from the tail of the smile (i.e. two prices/vols or a price and gradient) 
  */
@@ -46,7 +46,7 @@ public class ShiftedLogNormalTailExtrapolationFitter {
   static {
     final ParameterLimitsTransform a = new NullTransform();
     final ParameterLimitsTransform b = new SingleRangeLimitTransform(0.0, LimitType.GREATER_THAN);
-    TRANSFORMS = new UncoupledParameterTransforms(new DoubleMatrix1D(0.0, 1.0), new ParameterLimitsTransform[] {a, b}, new BitSet());
+    TRANSFORMS = new UncoupledParameterTransforms(new DoubleMatrix1D(0.0, 1.0), new ParameterLimitsTransform[] {a, b }, new BitSet());
   }
 
   /**
@@ -165,34 +165,29 @@ public class ShiftedLogNormalTailExtrapolationFitter {
     final double blackDD = BlackFormulaRepository.dualDelta(forward, strike, timeToExpiry, vol, isCall);
     final double blackVega = BlackFormulaRepository.vega(forward, strike, timeToExpiry, vol);
     final double dd = blackDD + blackVega * volGrad;
-    if (isCall && dd >= 0.0) {
-      final double maxVolGrad = -blackDD / blackVega;
-      throw new IllegalArgumentException("At T = " + timeToExpiry + ", volatility smile is too steep - implies call prices that are not decreasing with strike. The maximum slope is " + maxVolGrad +
-          " but value given is " + volGrad);
-    }
-    if (!isCall && dd <= 0.0) {
-      final double minVolGrad = -blackDD / blackVega;
-      throw new IllegalArgumentException("At Expiry = " + timeToExpiry + ", Volatility smile slopes downward too quickly - implies put not increasing with strike. The minimum slope is  " +
-          minVolGrad +
-          " but value given is " + volGrad);
-    }
-    //
-    //    DoubleMatrix1D start = TRANSFORMS.transform(new DoubleMatrix1D(0.0, vol));
-    //    final Function1D<DoubleMatrix1D, DoubleMatrix1D> func = getVolGradDifferenceFunc(forward, strike, vol, volGrad, timeToExpiry);
-    //    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac = getVolGradJac(forward, strike, vol, volGrad, timeToExpiry);
-    //    NonLinearTransformFunction nltf = new NonLinearTransformFunction(func, jac, TRANSFORMS);
-    //
-    //    //The shifted log-normal model does not guarantee that call prices are below the forward and hence that the implied volatility exists. The root finding can fail (when 
-    //    //a genuine solution does exist) because the parameters have wandered into a region where the implied volatility does not exist. In this case the remedy is to fit for
-    //    //price and dual delta, which will give the correct answer (prices above the forward, while not economically possible, do not bother the root finder)
-    //    try {
-    //      return TRANSFORMS.inverseTransform(ROOTFINDER.getRoot(nltf.getFittingFunction(), nltf.getFittingJacobian(), start)).getData();
-    //    } catch (Exception e) {
 
-    final double price = BlackFormulaRepository.price(forward, strike, timeToExpiry, vol, isCall);
+    final double minGrad = (isCall ? -(1 + blackDD) : -blackDD) / blackVega;
+    final double maxGrad = (isCall ? -blackDD : 1 - blackDD) / blackVega;
 
-    return fitPriceAndGrad(forward, strike, price, dd, timeToExpiry, isCall);
-    // }
+    if (volGrad >= maxGrad || volGrad <= minGrad) {
+      throw new IllegalArgumentException("Volatility smile must be in range " + minGrad + " to " + maxGrad + ", but valur is " + volGrad);
+    }
+
+    DoubleMatrix1D start = TRANSFORMS.transform(new DoubleMatrix1D(0.0, vol));
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> func = getVolGradDifferenceFunc(forward, strike, vol, volGrad, timeToExpiry);
+    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac = getVolGradJac(forward, strike, vol, volGrad, timeToExpiry);
+    NonLinearTransformFunction nltf = new NonLinearTransformFunction(func, jac, TRANSFORMS);
+
+    //The shifted log-normal model does not guarantee that call prices are below the forward and hence that the implied volatility exists. The root finding can fail (when 
+    //a genuine solution does exist) because the parameters have wandered into a region where the implied volatility does not exist. In this case the remedy is to fit for
+    //price and dual delta, which will give the correct answer (prices above the forward, while not economically possible, do not bother the root finder)
+    try {
+      return TRANSFORMS.inverseTransform(ROOTFINDER.getRoot(nltf.getFittingFunction(), nltf.getFittingJacobian(), start)).getData();
+    } catch (Exception e) {
+      System.out.println("failed on vol/volGrad - trying price/priceGrad");
+      final double price = BlackFormulaRepository.price(forward, strike, timeToExpiry, vol, isCall);
+      return fitPriceAndGrad(forward, strike, price, dd, timeToExpiry, isCall);
+    }
   }
 
   /**
@@ -312,7 +307,7 @@ public class ShiftedLogNormalTailExtrapolationFitter {
         double j21 = BlackFormulaRepository.delta(fStar, strike[1], timeToExpiry, theta, isCall) * fStar / prices[1];
         double j22 = BlackFormulaRepository.vega(fStar, strike[1], timeToExpiry, theta) / prices[1];
 
-        DoubleMatrix2D modelParmJac = new DoubleMatrix2D(new double[][] { {j11, j12}, {j21, j22}});
+        DoubleMatrix2D modelParmJac = new DoubleMatrix2D(new double[][] { {j11, j12 }, {j21, j22 } });
         return modelParmJac;
         //        DoubleMatrix2D tranInvJac = TRANSFORMS.inverseJacobian(x);
         //
@@ -363,7 +358,7 @@ public class ShiftedLogNormalTailExtrapolationFitter {
         double j21 = BlackFormulaRepository.delta(fStar, strike[1], timeToExpiry, theta, isCall) * fStar / vega2;
         double j22 = BlackFormulaRepository.vega(fStar, strike[1], timeToExpiry, theta) / vega2;
 
-        return new DoubleMatrix2D(new double[][] { {j11, j12}, {j21, j22}});
+        return new DoubleMatrix2D(new double[][] { {j11, j12 }, {j21, j22 } });
       }
     };
   }
@@ -403,7 +398,7 @@ public class ShiftedLogNormalTailExtrapolationFitter {
         double j21 = scale2 * BlackFormulaRepository.crossGamma(fStar, strike, expiry, theta) * fStar;
         double j22 = scale2 * BlackFormulaRepository.dualVanna(fStar, strike, expiry, theta);
 
-        return new DoubleMatrix2D(new double[][] { {j11, j12}, {j21, j22}});
+        return new DoubleMatrix2D(new double[][] { {j11, j12 }, {j21, j22 } });
       }
     };
 
