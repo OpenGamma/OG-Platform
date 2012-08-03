@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.common.gadgets.surface',
     dependencies: ['og.common.gadgets.manager', 'og.api.text'],
     obj: function () {
-        var webgl = Detector.webgl ? true : false, util = {}, matlib = {}, tmp_data, prefix = 'surface_', counter = 1,
+        var webgl = Detector.webgl ? true : false, util = {}, tmp_data, prefix = 'surface_', counter = 1,
             settings = {
                 axis_offset: 1.5,
                 floating_height: 5,         // how high the top surface floats over the bottom grid
@@ -81,61 +81,6 @@ $.register_module({
             }
         };
         /**
-         * Material Library
-         */
-        matlib.canvas = {};
-        matlib.canvas.compound_surface = function () {
-            return [matlib.canvas.flat('0xbbbbbb'), matlib.canvas.wire('0xffffff')];
-        };
-        matlib.canvas.flat = function (color) {
-            return new THREE.MeshBasicMaterial({color: color, shading: THREE.FlatShading});
-        };
-        matlib.canvas.wire = function (color) {
-            return new THREE.MeshBasicMaterial({color: color || 0xcccccc, wireframe: true});
-        };
-        matlib.compound_grid_wire = function () {
-            return [
-                new THREE.MeshPhongMaterial({
-                    // color represents diffuse in THREE.MeshPhongMaterial
-                    ambient: 0x000000, color: 0xeeeeee, specular: 0xdddddd, emissive: 0x000000, shininess: 0
-                }),
-                matlib.wire(0xcccccc)
-            ]
-        };
-        matlib.compound_floor_wire = function () {
-            return [
-                new THREE.MeshPhongMaterial({
-                    ambient: 0x000000, color: 0xefefef, specular: 0xffffff, emissive: 0x000000, shininess: 10
-                }),
-                matlib.wire(0xcccccc)
-            ]
-        };
-        matlib.compound_surface = function () {
-            if (!webgl) return matlib.canvas.compound_surface();
-            return [matlib.vertex(), matlib.wire('0xffffff')]
-        };
-        matlib.wire = function (color) {
-            if (!webgl) return matlib.canvas.wire(color);
-            return new THREE.MeshBasicMaterial({color: color || 0x999999, wireframe: true});
-        };
-        matlib.flat = function (color) {
-            if (!webgl) return matlib.canvas.flat(color);
-            return new THREE.MeshBasicMaterial({color: color, wireframe: false});
-        };
-        matlib.particles = function () {return new THREE.ParticleBasicMaterial({color: '0xbbbbbb', size: 1});};
-        matlib.phong = function (color) {
-            if (!webgl) return matlib.canvas.flat(color);
-            return new THREE.MeshPhongMaterial({
-                ambient: 0x000000, color: color, specular: 0x999999, shininess: 50, shading: THREE.SmoothShading
-            });
-        };
-        matlib.texture = function (texture) {
-            return new THREE.MeshBasicMaterial({map: texture, color: 0xffffff, transparent: true});
-        };
-        matlib.vertex = function () {
-            return new THREE.MeshPhongMaterial({shading: THREE.FlatShading, vertexColors: THREE.VertexColors})
-        };
-        /**
          * Apply Natrual Log to each item in Array
          * @param {Array} arr
          * @returns {Array}
@@ -183,7 +128,7 @@ $.register_module({
             config.zs_label = tmp_data[config.id].zs_label;
             var gadget = this, alive = prefix + counter++, $selector = $(config.selector), width, height,
                 sel_offset, // needed to calculate mouse coordinates for raycasting
-                hud = {}, smile = {}, surface = {}, slice = {}, char_geometries = {},
+                hud = {}, matlib = {}, smile = {}, surface = {}, slice = {}, char_geometries = {},
                 animation_group = new THREE.Object3D(), // everything in animation_group rotates on mouse drag
                 hover_group,          // THREE.Object3D that gets created on hover and destroyed afterward
                 surface_top_group,    // actual surface and anything that needs to be at that y pos
@@ -195,7 +140,6 @@ $.register_module({
                 vol_max = Math.max.apply(null, config.vol), vol_min = Math.min.apply(null, config.vol),
                 renderer, camera, scene, backlight, keylight, filllight, projector = new THREE.Projector(),
                 stats, debug = true;
-            setTimeout(function () {sel_offset = $selector.offset();});
             /**
              * Constructor for a plane with correct x / y vertex position spacing
              * @param {String} type 'surface', 'smilex' or 'smiley'
@@ -260,11 +204,11 @@ $.register_module({
                 geo.vertices // move middle vertices out to a point
                     .filter(function (val) {return (val.x === 0 && val.z === -1.5)})
                     .forEach(function (vertex) {vertex.z = -2.9});
-                return new THREE.Mesh(geo, matlib.phong(settings.slice_handle_color));
+                return new THREE.Mesh(geo, matlib.get_material('phong', settings.slice_handle_color));
             };
             var SliceBar = function (orientation) {
                 var geo = new THREE.CubeGeometry(settings['surface_' + orientation], 1, 2, 0, 0),
-                    mesh = new THREE.Mesh(geo, matlib.phong(settings.slice_bar_color));
+                    mesh = new THREE.Mesh(geo, matlib.get_material('phong', settings.slice_bar_color));
                 if (orientation === 'x') mesh.position.z = settings.surface_z / 2 + 1.5 + settings.axis_offset;
                 if (orientation === 'z') {
                     mesh.position.x = -(settings.surface_x / 2) - 1.5 - settings.axis_offset;
@@ -283,10 +227,12 @@ $.register_module({
                     font: settings.font_face_3d, weight: 'normal', style: 'normal',
                     bevelEnabled: bevel || false, bevelSize: 0.6, bevelThickness: 0.6
                 };
-                if (preserve_kerning) return new THREE.Mesh(new CachedTextGeometry(str, options), matlib.phong(color));
+                if (preserve_kerning) return new THREE.Mesh(
+                    new CachedTextGeometry(str, options), matlib.get_material('phong', color)
+                );
                 str.split('').forEach(function (val) {
                     var text = new CachedTextGeometry(val, options),
-                        mesh = new THREE.Mesh(text, matlib.phong(color));
+                        mesh = new THREE.Mesh(text, matlib.get_material('phong', color));
                     mesh.position.x = xpos + (val === '.' ? 5 : 0);                                   // space before
                     xpos = xpos + ((THREE.FontUtils.drawText(val).offset)) + (val === '.' ? 10 : 15); // space after
                     object.add(mesh);
@@ -335,7 +281,7 @@ $.register_module({
                 while (i--) {
                     line = new THREE.LineCurve3(points[i], points[i+1]);
                     tube = new THREE.TubeGeometry(line, 1, 0.2, 4, false, false);
-                    object.add(new THREE.Mesh(tube, matlib.flat(color)));
+                    object.add(new THREE.Mesh(tube, matlib.get_material('flat', color)));
                 }
                 return object;
             };
@@ -349,7 +295,7 @@ $.register_module({
              */
             gadget.create_floor = function () {
                 var plane = new THREE.PlaneGeometry(5000, 5000, 100, 100), floor;
-                floor = THREE.SceneUtils.createMultiMaterialObject(plane, matlib.compound_floor_wire());
+                floor = THREE.SceneUtils.createMultiMaterialObject(plane, matlib.get_material('compound_floor_wire'));
                 floor.position.y = -0.01;
                 return floor;
             };
@@ -466,7 +412,7 @@ $.register_module({
                 });
                 $selector.on('handle_over', function () {
                     slice.reset_handle_material();
-                    handle_hittest[0].object.material = matlib.phong(settings.slice_handle_color_hover);
+                    handle_hittest[0].object.material = matlib.get_material('phong', settings.slice_handle_color_hover);
                     $selector.css({cursor: 'pointer'});
                 });
                 $selector.on('handle_out', function () {
@@ -484,7 +430,7 @@ $.register_module({
                     var handle_lbl = handle_hittest[0].lbl, axis = handle_lbl.replace(/^.*_([xz])_.*$/, '$1'),
                         particles = slice[axis + '_particles'];
                     slice.reset_handle_material();
-                    handle_hittest[0].object.material = matlib.phong(settings.slice_handle_color_hover);
+                    handle_hittest[0].object.material = matlib.get_material('phong', settings.slice_handle_color_hover);
                     /**
                      * move handles along particles
                      */
@@ -512,7 +458,7 @@ $.register_module({
                         vertices[0].x = vertices[1].x = vertices[2].x = vertices[3].x = Math.max.apply(null, [lx, rx]);
                         vertices[4].x = vertices[5].x = vertices[6].x = vertices[7].x = Math.min.apply(null, [lx, rx]);
                         if (!(Math.abs(lx) + Math.abs(rx) === settings['surface_' + axis])) // change color
-                            slice[bar_lbl].material = matlib.phong(settings.slice_bar_color_active);
+                            slice[bar_lbl].material = matlib.get_material('phong', settings.slice_bar_color_active);
                         surface_bottom_group.add(slice[bar_lbl]);
                     }());
                 });
@@ -537,6 +483,7 @@ $.register_module({
                 }
             };
             gadget.load = function () {
+                sel_offset = $selector.offset();
                 width = $selector.width(), height = $selector.height();
                 gadget.init_data();
                 vertex_sphere = surface.vertex_sphere();
@@ -653,18 +600,80 @@ $.register_module({
                 ctx.fillStyle = gradient;
                 ctx.fillRect(0, 0, 10, hud.vol_canvas_height);
             };
+            /**
+             * Material Library
+             */
+            matlib.canvas = {};
+            matlib.cache = {};
+            matlib.get_material = function (material, color) {
+                var name = material + '_' + color;
+                if (matlib.cache[name]) return matlib.cache[name];
+                matlib.cache[name] = matlib[material](color || void 0);
+                return matlib.cache[name];
+            };
+            matlib.canvas.compound_surface = function () {
+                return [matlib.canvas.flat('0xbbbbbb'), matlib.canvas.wire('0xffffff')];
+            };
+            matlib.canvas.flat = function (color) {
+                return new THREE.MeshBasicMaterial({color: color, shading: THREE.FlatShading});
+            };
+            matlib.canvas.wire = function (color) {
+                return new THREE.MeshBasicMaterial({color: color || 0xcccccc, wireframe: true});
+            };
+            matlib.compound_grid_wire = function () {
+                return [
+                    new THREE.MeshPhongMaterial({
+                        // color represents diffuse in THREE.MeshPhongMaterial
+                        ambient: 0x000000, color: 0xeeeeee, specular: 0xdddddd, emissive: 0x000000, shininess: 0
+                    }),
+                    matlib.wire(0xcccccc)
+                ]
+            };
+            matlib.compound_floor_wire = function () {
+                return [
+                    new THREE.MeshPhongMaterial({
+                        ambient: 0x000000, color: 0xefefef, specular: 0xffffff, emissive: 0x000000, shininess: 10
+                    }),
+                    matlib.wire(0xcccccc)
+                ]
+            };
+            matlib.compound_surface = function () {
+                if (!webgl) return matlib.canvas.compound_surface();
+                return [matlib.vertex(), matlib.wire('0xffffff')]
+            };
+            matlib.wire = function (color) {
+                if (!webgl) return matlib.canvas.wire(color);
+                return new THREE.MeshBasicMaterial({color: color || 0x999999, wireframe: true});
+            };
+            matlib.flat = function (color) {
+                if (!webgl) return matlib.canvas.flat(color);
+                return new THREE.MeshBasicMaterial({color: color, wireframe: false});
+            };
+            matlib.particles = function () {return new THREE.ParticleBasicMaterial({color: '0xbbbbbb', size: 1});};
+            matlib.phong = function (color) {
+                if (!webgl) return matlib.canvas.flat(color);
+                return new THREE.MeshPhongMaterial({
+                    ambient: 0x000000, color: color, specular: 0x999999, shininess: 50, shading: THREE.SmoothShading
+                });
+            };
+            matlib.texture = function (texture) {
+                return new THREE.MeshBasicMaterial({map: texture, color: 0xffffff, transparent: true});
+            };
+            matlib.vertex = function () {
+                return new THREE.MeshPhongMaterial({shading: THREE.FlatShading, vertexColors: THREE.VertexColors})
+            };
             slice.load = function () {
                 var plane = new THREE.PlaneGeometry(5000, 5000, 0, 0);
-                slice.intersection_plane = new THREE.Mesh(plane, matlib.wire('0xcccccc'));
+                slice.intersection_plane = new THREE.Mesh(plane, matlib.get_material('wire', '0xcccccc'));
                 surface_bottom_group.add(slice.intersection_plane);
                 slice.x();
                 slice.z();
             };
             slice.reset_handle_material = function () {
-                slice.lft_x_handle.material = matlib.phong(settings.slice_handle_color);
-                slice.rgt_x_handle.material = matlib.phong(settings.slice_handle_color);
-                slice.lft_z_handle.material = matlib.phong(settings.slice_handle_color);
-                slice.rgt_z_handle.material = matlib.phong(settings.slice_handle_color);
+                slice.lft_x_handle.material = matlib.get_material('phong', settings.slice_handle_color);
+                slice.rgt_x_handle.material = matlib.get_material('phong', settings.slice_handle_color);
+                slice.lft_z_handle.material = matlib.get_material('phong', settings.slice_handle_color);
+                slice.rgt_z_handle.material = matlib.get_material('phong', settings.slice_handle_color);
             };
             slice.x = function () {
                 var xpos = (settings.surface_x / 2), zpos = settings.surface_z / 2 + 1.5 + settings.axis_offset;
@@ -688,7 +697,7 @@ $.register_module({
                 (function () {
                     var geo = new THREE.Geometry(), num_vertices = adjusted_xs.length;
                     while (num_vertices--) geo.vertices.push(new THREE.Vector3(adjusted_xs[num_vertices], 0, 0));
-                    slice.x_particles = new THREE.ParticleSystem(geo, matlib.particles());
+                    slice.x_particles = new THREE.ParticleSystem(geo, matlib.get_material('particles'));
                     slice.x_particles.position.x += 0.1;
                     slice.x_particles.position.z = zpos;
                     surface_bottom_group.add(slice.x_particles);
@@ -723,7 +732,7 @@ $.register_module({
                 (function () {
                     var geo = new THREE.Geometry(), num_vertices = adjusted_zs.length;
                     while (num_vertices--) geo.vertices.push(new THREE.Vector3(adjusted_zs[num_vertices], 0, 0));
-                    slice.z_particles = new THREE.ParticleSystem(geo, matlib.particles());
+                    slice.z_particles = new THREE.ParticleSystem(geo, matlib.get_material('particles'));
                     slice.z_particles.rotation.y = -Math.PI * 0.5;
                     slice.z_particles.position.x = -xpos;
                     surface_bottom_group.add(slice.z_particles);
@@ -740,8 +749,8 @@ $.register_module({
             smile.x = function () {
                 var obj = new THREE.Object3D();
                 (function () { // plane
-                    var plane = new Plane('smilex'),
-                        mesh = THREE.SceneUtils.createMultiMaterialObject(plane, matlib.compound_grid_wire());
+                    var plane = new Plane('smilex'), material = matlib.get_material('compound_grid_wire'),
+                        mesh = THREE.SceneUtils.createMultiMaterialObject(plane, material);
                     mesh.rotation.x = Math.PI * 0.5;
                     mesh.position.y = settings.surface_y;
                     mesh.position.z = -((settings.surface_z / 2) + settings.smile_distance);
@@ -764,8 +773,8 @@ $.register_module({
             smile.z = function () {
                 var obj = new THREE.Object3D();
                 (function () { // plane
-                    var plane = new Plane('smiley'),
-                        mesh = THREE.SceneUtils.createMultiMaterialObject(plane, matlib.compound_grid_wire());
+                    var plane = new Plane('smiley'), material = matlib.get_material('compound_grid_wire'),
+                        mesh = THREE.SceneUtils.createMultiMaterialObject(plane, material);
                     mesh.position.x = (settings.surface_x / 2) + settings.smile_distance;
                     mesh.rotation.z = Math.PI * 0.5;
                     obj.add(mesh);
@@ -896,7 +905,7 @@ $.register_module({
              */
             surface.create_bottom_grid = function () {
                 var plane = new Plane('surface'),
-                    mesh = THREE.SceneUtils.createMultiMaterialObject(plane, matlib.compound_grid_wire());
+                    mesh = THREE.SceneUtils.createMultiMaterialObject(plane, matlib.get_material('compound_grid_wire'));
                 mesh.overdraw = true;
                 return mesh;
             };
@@ -952,7 +961,7 @@ $.register_module({
                 }());
                 // apply surface materials,
                 // actualy duplicates the geometry and adds each material separatyle, returns the group
-                group = THREE.SceneUtils.createMultiMaterialObject(plane, matlib.compound_surface());
+                group = THREE.SceneUtils.createMultiMaterialObject(plane, matlib.get_material('compound_surface'));
                 group.children.forEach(function (mesh) {mesh.doubleSided = true;});
                 gadget.interactive_meshes.add('surface', group.children[0]);
                 return group;
@@ -980,7 +989,6 @@ $.register_module({
                     for (x = xfrom; x < xto; x++) xvertices.push(object.geometry.vertices[x]);
                     for (z = zfrom; z < zto; z += x_segments + 1) zvertices.push(object.geometry.vertices[z]);
                     hud.set_volatility(config.vol[index]);
-                    // surface x and z lines
                     hover_group.add(new Tube(xvertices, color));
                     hover_group.add(new Tube(zvertices, color));
                     // smile z, z and y lines
@@ -1029,7 +1037,7 @@ $.register_module({
                             var txt_width = THREE.FontUtils.drawText(txt).offset, height = 60,
                                 box_width = txt_width * 3,
                                 box = new THREE.CubeGeometry(box_width, height, 4, 4, 0, 0),
-                                mesh = new THREE.Mesh(box, matlib.phong('0xdddddd'));
+                                mesh = new THREE.Mesh(box, matlib.get_material('phong', '0xdddddd'));
                             mesh.position.x = (box_width / 2) - (txt_width / 2);
                             mesh.position.y = 20;
                             // create the tail by moving the 2 center vertices closes to the surface
@@ -1058,12 +1066,12 @@ $.register_module({
             };
             surface.vertex_sphere = function () {
                 var sphere = new THREE.Mesh(
-                    new THREE.SphereGeometry(1.5, 10, 10), matlib.phong(settings.interactive_color_nix)
+                    new THREE.SphereGeometry(1.5, 10, 10), matlib.get_material('phong', settings.interactive_color_nix)
                 );
                 sphere.visible = false;
                 return sphere;
             };
-            if (!config.child) og.common.gadgets.manager.register(surface);
+            if (!config.child) og.common.gadgets.manager.register(gadget);
             gadget.load();
             if (webgl) gadget.interactive(), slice.load();
             (function animate() {
