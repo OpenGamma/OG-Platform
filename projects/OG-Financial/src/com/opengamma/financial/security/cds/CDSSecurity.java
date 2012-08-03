@@ -41,25 +41,25 @@ public class CDSSecurity extends FinancialSecurity {
   @PropertyDefinition
   private double _notional;
   
-  /** Recovery rate against underlying asset in a default event */
+  /** CDS spread (premium rate) */
+  @PropertyDefinition
+  private double _spread;
+  
+  /** Recovery rate of underlying asset */
   @PropertyDefinition
   private double _recoveryRate;
-  
-  /** Premium rate */
-  @PropertyDefinition
-  private double _premiumRate;
   
   /** Currency of the CDS */
   @PropertyDefinition(validate = "notNull")
   private Currency _currency;
   
+  /** protection start date */
+  @PropertyDefinition(validate = "notNull")
+  private ZonedDateTime _protectionStartDate;
+  
   /** Maturity date */
   @PropertyDefinition(validate = "notNull")
   private ZonedDateTime _maturity;
-  
-  /** First premium payment date */
-  @PropertyDefinition(validate = "notNull")
-  private ZonedDateTime _firstPremiumDate;
   
   /** Premium payment frequency */
   @PropertyDefinition(validate = "notNull")
@@ -67,24 +67,24 @@ public class CDSSecurity extends FinancialSecurity {
   
   /** Underlying bond */
   // TODO: Where to validate underlying is actually a bond?
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private ExternalId _underlying;
   
   CDSSecurity() {
     // For Fudge builder
   }
   
-  public CDSSecurity(double notional, double recoveryRate, double premiumRate,
-    Currency currency, ZonedDateTime maturity, ZonedDateTime firstPremiumDate,
+  public CDSSecurity(double notional, double recoveryRate, double spread,
+    Currency currency, ZonedDateTime maturity, ZonedDateTime protectionStartDate,
     Frequency premiumFrequency, ExternalId underlying) {
     
     super(SECURITY_TYPE);
     setNotional(notional);
     setRecoveryRate(recoveryRate);
-    setPremiumRate(premiumRate);
+    setSpread(spread);
     setCurrency(currency);
     setMaturity(maturity);
-    setFirstPremiumDate(firstPremiumDate);
+    setProtectionStartDate(protectionStartDate);
     setPremiumFrequency(premiumFrequency);
     setUnderlying(underlying);
   }
@@ -117,16 +117,16 @@ public class CDSSecurity extends FinancialSecurity {
     switch (propertyName.hashCode()) {
       case 1585636160:  // notional
         return getNotional();
+      case -895684237:  // spread
+        return getSpread();
       case 2002873877:  // recoveryRate
         return getRecoveryRate();
-      case 652118999:  // premiumRate
-        return getPremiumRate();
       case 575402001:  // currency
         return getCurrency();
+      case 973819991:  // protectionStartDate
+        return getProtectionStartDate();
       case 313843601:  // maturity
         return getMaturity();
-      case 2071819733:  // firstPremiumDate
-        return getFirstPremiumDate();
       case 146671813:  // premiumFrequency
         return getPremiumFrequency();
       case -1770633379:  // underlying
@@ -141,20 +141,20 @@ public class CDSSecurity extends FinancialSecurity {
       case 1585636160:  // notional
         setNotional((Double) newValue);
         return;
+      case -895684237:  // spread
+        setSpread((Double) newValue);
+        return;
       case 2002873877:  // recoveryRate
         setRecoveryRate((Double) newValue);
-        return;
-      case 652118999:  // premiumRate
-        setPremiumRate((Double) newValue);
         return;
       case 575402001:  // currency
         setCurrency((Currency) newValue);
         return;
+      case 973819991:  // protectionStartDate
+        setProtectionStartDate((ZonedDateTime) newValue);
+        return;
       case 313843601:  // maturity
         setMaturity((ZonedDateTime) newValue);
-        return;
-      case 2071819733:  // firstPremiumDate
-        setFirstPremiumDate((ZonedDateTime) newValue);
         return;
       case 146671813:  // premiumFrequency
         setPremiumFrequency((Frequency) newValue);
@@ -169,10 +169,9 @@ public class CDSSecurity extends FinancialSecurity {
   @Override
   protected void validate() {
     JodaBeanUtils.notNull(_currency, "currency");
+    JodaBeanUtils.notNull(_protectionStartDate, "protectionStartDate");
     JodaBeanUtils.notNull(_maturity, "maturity");
-    JodaBeanUtils.notNull(_firstPremiumDate, "firstPremiumDate");
     JodaBeanUtils.notNull(_premiumFrequency, "premiumFrequency");
-    JodaBeanUtils.notNull(_underlying, "underlying");
     super.validate();
   }
 
@@ -184,11 +183,11 @@ public class CDSSecurity extends FinancialSecurity {
     if (obj != null && obj.getClass() == this.getClass()) {
       CDSSecurity other = (CDSSecurity) obj;
       return JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
+          JodaBeanUtils.equal(getSpread(), other.getSpread()) &&
           JodaBeanUtils.equal(getRecoveryRate(), other.getRecoveryRate()) &&
-          JodaBeanUtils.equal(getPremiumRate(), other.getPremiumRate()) &&
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getProtectionStartDate(), other.getProtectionStartDate()) &&
           JodaBeanUtils.equal(getMaturity(), other.getMaturity()) &&
-          JodaBeanUtils.equal(getFirstPremiumDate(), other.getFirstPremiumDate()) &&
           JodaBeanUtils.equal(getPremiumFrequency(), other.getPremiumFrequency()) &&
           JodaBeanUtils.equal(getUnderlying(), other.getUnderlying()) &&
           super.equals(obj);
@@ -200,11 +199,11 @@ public class CDSSecurity extends FinancialSecurity {
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSpread());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRecoveryRate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPremiumRate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getProtectionStartDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMaturity());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstPremiumDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPremiumFrequency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlying());
     return hash ^ super.hashCode();
@@ -237,7 +236,32 @@ public class CDSSecurity extends FinancialSecurity {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets recovery rate against underlying asset in a default event
+   * Gets cDS spread (premium rate)
+   * @return the value of the property
+   */
+  public double getSpread() {
+    return _spread;
+  }
+
+  /**
+   * Sets cDS spread (premium rate)
+   * @param spread  the new value of the property
+   */
+  public void setSpread(double spread) {
+    this._spread = spread;
+  }
+
+  /**
+   * Gets the the {@code spread} property.
+   * @return the property, not null
+   */
+  public final Property<Double> spread() {
+    return metaBean().spread().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets recovery rate of underlying asset
    * @return the value of the property
    */
   public double getRecoveryRate() {
@@ -245,7 +269,7 @@ public class CDSSecurity extends FinancialSecurity {
   }
 
   /**
-   * Sets recovery rate against underlying asset in a default event
+   * Sets recovery rate of underlying asset
    * @param recoveryRate  the new value of the property
    */
   public void setRecoveryRate(double recoveryRate) {
@@ -258,31 +282,6 @@ public class CDSSecurity extends FinancialSecurity {
    */
   public final Property<Double> recoveryRate() {
     return metaBean().recoveryRate().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets premium rate
-   * @return the value of the property
-   */
-  public double getPremiumRate() {
-    return _premiumRate;
-  }
-
-  /**
-   * Sets premium rate
-   * @param premiumRate  the new value of the property
-   */
-  public void setPremiumRate(double premiumRate) {
-    this._premiumRate = premiumRate;
-  }
-
-  /**
-   * Gets the the {@code premiumRate} property.
-   * @return the property, not null
-   */
-  public final Property<Double> premiumRate() {
-    return metaBean().premiumRate().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -313,6 +312,32 @@ public class CDSSecurity extends FinancialSecurity {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets protection start date
+   * @return the value of the property, not null
+   */
+  public ZonedDateTime getProtectionStartDate() {
+    return _protectionStartDate;
+  }
+
+  /**
+   * Sets protection start date
+   * @param protectionStartDate  the new value of the property, not null
+   */
+  public void setProtectionStartDate(ZonedDateTime protectionStartDate) {
+    JodaBeanUtils.notNull(protectionStartDate, "protectionStartDate");
+    this._protectionStartDate = protectionStartDate;
+  }
+
+  /**
+   * Gets the the {@code protectionStartDate} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTime> protectionStartDate() {
+    return metaBean().protectionStartDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets maturity date
    * @return the value of the property, not null
    */
@@ -335,32 +360,6 @@ public class CDSSecurity extends FinancialSecurity {
    */
   public final Property<ZonedDateTime> maturity() {
     return metaBean().maturity().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets first premium payment date
-   * @return the value of the property, not null
-   */
-  public ZonedDateTime getFirstPremiumDate() {
-    return _firstPremiumDate;
-  }
-
-  /**
-   * Sets first premium payment date
-   * @param firstPremiumDate  the new value of the property, not null
-   */
-  public void setFirstPremiumDate(ZonedDateTime firstPremiumDate) {
-    JodaBeanUtils.notNull(firstPremiumDate, "firstPremiumDate");
-    this._firstPremiumDate = firstPremiumDate;
-  }
-
-  /**
-   * Gets the the {@code firstPremiumDate} property.
-   * @return the property, not null
-   */
-  public final Property<ZonedDateTime> firstPremiumDate() {
-    return metaBean().firstPremiumDate().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -392,7 +391,7 @@ public class CDSSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   /**
    * Gets the underlying.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public ExternalId getUnderlying() {
     return _underlying;
@@ -400,10 +399,9 @@ public class CDSSecurity extends FinancialSecurity {
 
   /**
    * Sets the underlying.
-   * @param underlying  the new value of the property, not null
+   * @param underlying  the new value of the property
    */
   public void setUnderlying(ExternalId underlying) {
-    JodaBeanUtils.notNull(underlying, "underlying");
     this._underlying = underlying;
   }
 
@@ -431,30 +429,30 @@ public class CDSSecurity extends FinancialSecurity {
     private final MetaProperty<Double> _notional = DirectMetaProperty.ofReadWrite(
         this, "notional", CDSSecurity.class, Double.TYPE);
     /**
+     * The meta-property for the {@code spread} property.
+     */
+    private final MetaProperty<Double> _spread = DirectMetaProperty.ofReadWrite(
+        this, "spread", CDSSecurity.class, Double.TYPE);
+    /**
      * The meta-property for the {@code recoveryRate} property.
      */
     private final MetaProperty<Double> _recoveryRate = DirectMetaProperty.ofReadWrite(
         this, "recoveryRate", CDSSecurity.class, Double.TYPE);
-    /**
-     * The meta-property for the {@code premiumRate} property.
-     */
-    private final MetaProperty<Double> _premiumRate = DirectMetaProperty.ofReadWrite(
-        this, "premiumRate", CDSSecurity.class, Double.TYPE);
     /**
      * The meta-property for the {@code currency} property.
      */
     private final MetaProperty<Currency> _currency = DirectMetaProperty.ofReadWrite(
         this, "currency", CDSSecurity.class, Currency.class);
     /**
+     * The meta-property for the {@code protectionStartDate} property.
+     */
+    private final MetaProperty<ZonedDateTime> _protectionStartDate = DirectMetaProperty.ofReadWrite(
+        this, "protectionStartDate", CDSSecurity.class, ZonedDateTime.class);
+    /**
      * The meta-property for the {@code maturity} property.
      */
     private final MetaProperty<ZonedDateTime> _maturity = DirectMetaProperty.ofReadWrite(
         this, "maturity", CDSSecurity.class, ZonedDateTime.class);
-    /**
-     * The meta-property for the {@code firstPremiumDate} property.
-     */
-    private final MetaProperty<ZonedDateTime> _firstPremiumDate = DirectMetaProperty.ofReadWrite(
-        this, "firstPremiumDate", CDSSecurity.class, ZonedDateTime.class);
     /**
      * The meta-property for the {@code premiumFrequency} property.
      */
@@ -471,11 +469,11 @@ public class CDSSecurity extends FinancialSecurity {
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "notional",
+        "spread",
         "recoveryRate",
-        "premiumRate",
         "currency",
+        "protectionStartDate",
         "maturity",
-        "firstPremiumDate",
         "premiumFrequency",
         "underlying");
 
@@ -490,16 +488,16 @@ public class CDSSecurity extends FinancialSecurity {
       switch (propertyName.hashCode()) {
         case 1585636160:  // notional
           return _notional;
+        case -895684237:  // spread
+          return _spread;
         case 2002873877:  // recoveryRate
           return _recoveryRate;
-        case 652118999:  // premiumRate
-          return _premiumRate;
         case 575402001:  // currency
           return _currency;
+        case 973819991:  // protectionStartDate
+          return _protectionStartDate;
         case 313843601:  // maturity
           return _maturity;
-        case 2071819733:  // firstPremiumDate
-          return _firstPremiumDate;
         case 146671813:  // premiumFrequency
           return _premiumFrequency;
         case -1770633379:  // underlying
@@ -533,19 +531,19 @@ public class CDSSecurity extends FinancialSecurity {
     }
 
     /**
+     * The meta-property for the {@code spread} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> spread() {
+      return _spread;
+    }
+
+    /**
      * The meta-property for the {@code recoveryRate} property.
      * @return the meta-property, not null
      */
     public final MetaProperty<Double> recoveryRate() {
       return _recoveryRate;
-    }
-
-    /**
-     * The meta-property for the {@code premiumRate} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Double> premiumRate() {
-      return _premiumRate;
     }
 
     /**
@@ -557,19 +555,19 @@ public class CDSSecurity extends FinancialSecurity {
     }
 
     /**
+     * The meta-property for the {@code protectionStartDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTime> protectionStartDate() {
+      return _protectionStartDate;
+    }
+
+    /**
      * The meta-property for the {@code maturity} property.
      * @return the meta-property, not null
      */
     public final MetaProperty<ZonedDateTime> maturity() {
       return _maturity;
-    }
-
-    /**
-     * The meta-property for the {@code firstPremiumDate} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<ZonedDateTime> firstPremiumDate() {
-      return _firstPremiumDate;
     }
 
     /**

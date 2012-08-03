@@ -25,20 +25,27 @@ import com.opengamma.analytics.util.time.TimeCalculator;
  */
 public class CDSDefinition implements InstrumentDefinition<CDSDerivative> {
   
-  private AnnuityCouponFixedDefinition _premium;
-  private AnnuityPaymentFixedDefinition _payout;
+  private final AnnuityCouponFixedDefinition _premium;
+  private final AnnuityPaymentFixedDefinition _payout;
   
-  private ZonedDateTime _maturity;
-  private double _recoveryRate;
+  private final ZonedDateTime _protectionStartDate;
+  private final ZonedDateTime _maturity;
   
-  public CDSDefinition(AnnuityCouponFixedDefinition premium, AnnuityPaymentFixedDefinition payout, ZonedDateTime maturity, double recoveryRate) {
+  private final double _notional;
+  private final double _spread;
+  private final double _recoveryRate;
+  
+  public CDSDefinition(AnnuityCouponFixedDefinition premium, AnnuityPaymentFixedDefinition payout,
+    ZonedDateTime protectionStartDate, ZonedDateTime maturity,
+    double notional, double spread, double recoveryRate) {
     _premium = premium;
     _payout = payout;
+    _protectionStartDate = protectionStartDate;
     _maturity = maturity;
+    _notional = notional;
+    _spread = spread;
     _recoveryRate = recoveryRate;
   }
-  
-  
 
   /**
    * @param pricingDate Pricing point to offset t values
@@ -61,7 +68,10 @@ public class CDSDefinition implements InstrumentDefinition<CDSDerivative> {
       cdsCcyCurveName, bondCcyCurveName, spreadCurveName,
       _premium.toDerivative(pricingDate, cdsCcyCurveName),
       _payout.toDerivative(pricingDate, cdsCcyCurveName),
+      TimeCalculator.getTimeBetween(pricingDate, _protectionStartDate),
       TimeCalculator.getTimeBetween(pricingDate, _maturity),
+      _notional,
+      _spread,
       _recoveryRate
     );
   }

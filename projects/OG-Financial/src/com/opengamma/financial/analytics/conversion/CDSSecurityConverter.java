@@ -80,19 +80,17 @@ public class CDSSecurityConverter extends FinancialSecurityVisitorAdapter<Instru
     Calendar calendar = CalendarUtils.getCalendar(_holidaySource, cds.getCurrency(), bond.getCurrency());
     DayCount dayCount = conventionBundle.getDayCount();
     BusinessDayConvention convention = conventionBundle.getBusinessDayConvention();
-    boolean isEOM = conventionBundle.isEOMConvention();
-    boolean isPayer = false;
     
     // TODO: Is settlement date the same as first premium date?
     final AnnuityCouponFixedDefinition premiumPayments = AnnuityCouponFixedDefinition.from(
-      cds.getCurrency(), cds.getFirstPremiumDate(), cds.getMaturity(), cds.getPremiumFrequency(),
-      calendar, dayCount, convention, isEOM,
-      cds.getNotional(), cds.getPremiumRate(), isPayer
+      cds.getCurrency(), cds.getProtectionStartDate(), cds.getMaturity(), cds.getPremiumFrequency(),
+      calendar, dayCount, convention, /* isEOM */ false,
+      cds.getNotional(), cds.getSpread(), /* isPayer */ false
     );
     
     final AnnuityPaymentFixedDefinition defaultPayments = cds.getUnderlying() != null ? possibleDefaultPayments(cds, bond, calendar, convention) : null;
     
-    return new CDSDefinition(premiumPayments, defaultPayments, cds.getMaturity(), cds.getRecoveryRate());
+    return new CDSDefinition(premiumPayments, defaultPayments, cds.getProtectionStartDate(), cds.getMaturity(), cds.getNotional(), cds.getSpread(), cds.getRecoveryRate());
   }
   
   
@@ -111,7 +109,7 @@ public class CDSSecurityConverter extends FinancialSecurityVisitorAdapter<Instru
     int coveredCouponDates = 0;
 
     for (CouponDefinition coupon: bondCoupons.getPayments()) {
-      if (!coupon.getPaymentDate().isBefore(cds.getFirstPremiumDate()) && !coupon.getPaymentDate().isAfter(cds.getMaturity())) {
+      if (!coupon.getPaymentDate().isBefore(cds.getProtectionStartDate()) && !coupon.getPaymentDate().isAfter(cds.getMaturity())) {
         ++coveredCouponDates;
       }
     }
@@ -124,7 +122,7 @@ public class CDSSecurityConverter extends FinancialSecurityVisitorAdapter<Instru
     int i = 0;
     
     for (CouponDefinition coupon: bondCoupons.getPayments()) {
-      if (!coupon.getPaymentDate().isBefore(cds.getFirstPremiumDate()) && !coupon.getPaymentDate().isAfter(cds.getMaturity())) {
+      if (!coupon.getPaymentDate().isBefore(cds.getProtectionStartDate()) && !coupon.getPaymentDate().isAfter(cds.getMaturity())) {
         payouts[i++] = new PaymentFixedDefinition(cds.getCurrency(), coupon.getPaymentDate(), payoutAmmount);
       }
     }

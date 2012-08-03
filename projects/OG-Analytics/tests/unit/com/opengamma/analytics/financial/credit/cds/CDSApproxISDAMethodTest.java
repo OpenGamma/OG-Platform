@@ -1,8 +1,3 @@
-/**
- * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
- * Please see distribution for license.
- */
 package com.opengamma.analytics.financial.credit.cds;
 
 import java.util.ArrayList;
@@ -13,7 +8,6 @@ import javax.time.calendar.Period;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
@@ -38,9 +32,11 @@ import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 
+public class CDSApproxISDAMethodTest {
 
-public class CDSSimpleMethodTest {
-
+  /**
+   * Test with the same data as the simple CDS method for comparison of the results
+   */
   @Test
   public void testCalculation() {
     
@@ -135,13 +131,13 @@ public class CDSSimpleMethodTest {
     final CDSDerivative cds = new CDSDerivative(
       "CDS_CCY", "BOND_CCY", "SPREAD",
       premiums, payouts,
-      TimeCalculator.getTimeBetween(protectionStartDate, maturity), TimeCalculator.getTimeBetween(pricingDate, maturity),
+      TimeCalculator.getTimeBetween(pricingDate, protectionStartDate), TimeCalculator.getTimeBetween(pricingDate, maturity),
       notional, spread, recoveryRate);
 
-    final CDSSimpleMethod method = new CDSSimpleMethod();
+    final CDSApproxISDAMethod method = new CDSApproxISDAMethod();
     final CurrencyAmount result = method.presentValue(cds, curveBundle);
     
-    Assert.assertEquals(result.getAmount(), -0.06281112880507082);
+    System.out.println( result.getAmount() );
     
   }
   
@@ -164,5 +160,4 @@ Calendar calendar, BusinessDayConvention convention) {
   Collections.reverse(datesInRange);
   return datesInRange;
 }
-
 }

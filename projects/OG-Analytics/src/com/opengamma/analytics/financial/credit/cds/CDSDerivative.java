@@ -19,25 +19,36 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
  */
 public class CDSDerivative implements InstrumentDerivative {
 
-  private String _cdsCcyCurveName;
-  private String _bondCcyCurveName;
-  private String _spreadCurveName;
+  private final String _cdsCcyCurveName;
+  private final String _bondCcyCurveName;
+  private final String _spreadCurveName;
   
-  private AnnuityCouponFixed _premium;
-  private AnnuityPaymentFixed _payout;
+  private final AnnuityCouponFixed _premium;
+  private final AnnuityPaymentFixed _payout;
 
-  private double _maturity;
-  private double _recoveryRate;
+  private final double _protectionStartTime;
+  private final double _maturity;
+  
+  private final double _notional;
+  private final double _spread;
+  private final double _recoveryRate;
 
   public CDSDerivative(final String cdsCcyCurveName, final String bondCcyCurveName, final String spreadCurveName,
     final AnnuityCouponFixed premium, final AnnuityPaymentFixed payout,
-    final double maturity, final double recoveryRate) {
+    final double protectionStartTime, final double maturity,
+    final double notional, final double spread, final double recoveryRate) {
     _cdsCcyCurveName = cdsCcyCurveName;
     _bondCcyCurveName = bondCcyCurveName;
     _spreadCurveName = spreadCurveName;
+    
     _premium = premium;
     _payout = payout;
+    
+    _protectionStartTime = protectionStartTime;
     _maturity = maturity;
+    
+    _notional = notional;
+    _spread = spread;
     _recoveryRate = recoveryRate;
   }
 
@@ -80,10 +91,22 @@ public class CDSDerivative implements InstrumentDerivative {
     return _payout;
   }
   
+  public double getProtectionStartTime() {
+    return _protectionStartTime;
+  }
+  
   public double getMaturity() {
     return _maturity;
   }
 
+  public double getNotional() {
+    return _notional;
+  }
+  
+  public double getSpread() {
+    return _spread;
+  }
+  
   public double getRecoveryRate() {
     return _recoveryRate;
   }

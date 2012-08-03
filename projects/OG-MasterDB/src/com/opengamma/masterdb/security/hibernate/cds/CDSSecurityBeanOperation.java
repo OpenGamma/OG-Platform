@@ -35,10 +35,10 @@ public final class CDSSecurityBeanOperation extends AbstractSecurityBeanOperatio
     final CDSSecurityBean bean = new CDSSecurityBean();
     bean.setNotional(security.getNotional());
     bean.setRecoveryRate(security.getRecoveryRate());
-    bean.setPremiumRate(security.getPremiumRate());
+    bean.setSpread(security.getSpread());
     bean.setCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getCode()));
     bean.setMaturity(dateTimeWithZoneToZonedDateTimeBean(security.getMaturity()));
-    bean.setFirstPremiumDate(dateTimeWithZoneToZonedDateTimeBean(security.getFirstPremiumDate()));
+    bean.setProtectionStartDate(dateTimeWithZoneToZonedDateTimeBean(security.getProtectionStartDate()));
     bean.setPremiumFrequency(secMasterSession.getOrCreateFrequencyBean(security.getPremiumFrequency().getConventionName()));
     bean.setUnderlying(externalIdToExternalIdBean(security.getUnderlying()));
     return bean;
@@ -49,10 +49,10 @@ public final class CDSSecurityBeanOperation extends AbstractSecurityBeanOperatio
     return new CDSSecurity(
       bean.getNotional(),
       bean.getRecoveryRate(),
-      bean.getPremiumRate(),
+      bean.getSpread(),
       currencyBeanToCurrency(bean.getCurrency()),
       zonedDateTimeBeanToDateTimeWithZone(bean.getMaturity()),
-      zonedDateTimeBeanToDateTimeWithZone(bean.getFirstPremiumDate()),
+      zonedDateTimeBeanToDateTimeWithZone(bean.getProtectionStartDate()),
       frequencyBeanToFrequency(bean.getPremiumFrequency()),
       externalIdBeanToExternalId(bean.getUnderlying())
     );
