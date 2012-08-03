@@ -5,21 +5,29 @@
  */
 package com.opengamma.engine.view.execution;
 
+import java.util.List;
+
+import javax.time.Instant;
+
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+
 /**
  * 
  */
 public abstract class MergingViewCycleExecutionSequence implements ViewCycleExecutionSequence {
 
   protected ViewCycleExecutionOptions merge(ViewCycleExecutionOptions nextCycle, ViewCycleExecutionOptions defaults) {
+    List<MarketDataSpecification> marketDataSpecifications = nextCycle.getMarketDataSpecifications();
+    Instant valuationTime = nextCycle.getValuationTime();
     if (defaults != null) {
-      if (nextCycle.getMarketDataSpecification() == null) {
-        nextCycle.setMarketDataSpecification(defaults.getMarketDataSpecification());
+      if (marketDataSpecifications.isEmpty()) {
+        marketDataSpecifications = defaults.getMarketDataSpecifications();
       }
-      if (nextCycle.getValuationTime() == null) {
-        nextCycle.setValuationTime(defaults.getValuationTime());
+      if (valuationTime == null) {
+        valuationTime = defaults.getValuationTime();
       }
     }
-    return nextCycle;
+    return new ViewCycleExecutionOptions(valuationTime, marketDataSpecifications);
   }
 
 }

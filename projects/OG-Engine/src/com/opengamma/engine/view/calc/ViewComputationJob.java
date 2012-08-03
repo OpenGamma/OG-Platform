@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,8 +32,9 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeListener;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraph;
+import com.opengamma.engine.marketdata.CompositeMarketDataProvider;
+import com.opengamma.engine.marketdata.CompositeMarketDataProviderFactory;
 import com.opengamma.engine.marketdata.MarketDataListener;
-import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
@@ -79,6 +81,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   private final EngineResourceManagerInternal<SingleComputationCycle> _cycleManager;
   private final ViewCycleTrigger _masterCycleTrigger;
   private final FixedTimeTrigger _compilationExpiryCycleTrigger;
+  private final CompositeMarketDataProviderFactory _compositeMarketDataProviderFactory;
   private final boolean _executeCycles;
 
   private int _cycleCount;
@@ -104,10 +107,12 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
    */
   private double _totalTimeNanos;
 
-  private MarketDataProvider _marketDataProvider;
+  private CompositeMarketDataProvider _marketDataProvider;
 
-  public ViewComputationJob(ViewProcessImpl viewProcess, ViewExecutionOptions executionOptions,
-      ViewProcessContext processContext, EngineResourceManagerInternal<SingleComputationCycle> cycleManager) {
+  public ViewComputationJob(ViewProcessImpl viewProcess,
+                            ViewExecutionOptions executionOptions,
+                            ViewProcessContext processContext,
+                            EngineResourceManagerInternal<SingleComputationCycle> cycleManager) {
     ArgumentChecker.notNull(viewProcess, "viewProcess");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
     ArgumentChecker.notNull(processContext, "processContext");
@@ -117,6 +122,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     _processContext = processContext;
     _cycleManager = cycleManager;
     _marketDataChanged = !executionOptions.getFlags().contains(ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER);
+    _compositeMarketDataProviderFactory = new CompositeMarketDataProviderFactory(_processContext.getMarketDataProviderResolver());
     _compilationExpiryCycleTrigger = new FixedTimeTrigger();
     _masterCycleTrigger = createViewCycleTrigger(executionOptions);
     _executeCycles = !getExecutionOptions().getFlags().contains(ViewExecutionFlags.COMPILE_ONLY);
@@ -201,25 +207,26 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       return;
     }
 
-    if (executionOptions.getMarketDataSpecification() == null) {
-      s_logger.error("No market data specification for cycle");
-      cycleExecutionFailed(executionOptions, new OpenGammaRuntimeException("No market data specification for cycle"));
+    if (executionOptions.getMarketDataSpecifications().isEmpty()) {
+      s_logger.error("No market data specifications for cycle");
+      cycleExecutionFailed(executionOptions, new OpenGammaRuntimeException("No market data specifications for cycle"));
       return;
     }
 
     MarketDataSnapshot marketDataSnapshot;
     try {
-      if (getMarketDataProvider() == null || !getMarketDataProvider().isCompatible(executionOptions.getMarketDataSpecification())) {
+      if (_marketDataProvider == null ||
+          !_marketDataProvider.getMarketDataSpecifications().equals(executionOptions.getMarketDataSpecifications())) {
         // A different market data provider is required. We support this because we can, but changing provider is not the
         // most efficient operation.
-        if (getMarketDataProvider() != null) {
+        if (_marketDataProvider != null) {
           s_logger.info("Replacing market data provider between cycles");
         }
-        replaceMarketDataProvider(executionOptions.getMarketDataSpecification());
+        replaceMarketDataProvider(executionOptions.getMarketDataSpecifications());
       }
 
       // Obtain the snapshot in case it is needed, but don't explicitly initialise it until the data is required
-      marketDataSnapshot = getMarketDataProvider().snapshot(executionOptions.getMarketDataSpecification());
+      marketDataSnapshot = _marketDataProvider.snapshot();
     } catch (Exception e) {
       s_logger.error("Error with market data provider", e);
       cycleExecutionFailed(executionOptions, new OpenGammaRuntimeException("Error with market data provider", e));
@@ -264,7 +271,8 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
         marketDataSnapshot.init();
       }
       if (executionOptions.getValuationTime() == null) {
-        executionOptions.setValuationTime(marketDataSnapshot.getSnapshotTime());
+        executionOptions = new ViewCycleExecutionOptions(marketDataSnapshot.getSnapshotTime(),
+                                                         executionOptions.getMarketDataSpecifications());
       }
     } catch (Exception e) {
       s_logger.error("Error initializing snapshot {}", marketDataSnapshot);
@@ -370,7 +378,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
 
   private void viewDefinitionCompiled(CompiledViewDefinitionWithGraphsImpl compiledViewDefinition) {
     try {
-      getViewProcess().viewDefinitionCompiled(compiledViewDefinition, getMarketDataProvider().getPermissionProvider());
+      getViewProcess().viewDefinitionCompiled(compiledViewDefinition, _marketDataProvider.getPermissionProvider());
     } catch (Exception vpe) {
       s_logger.error("Error notifying view process " + getViewProcess() + " of view definition compilation");
     }
@@ -588,7 +596,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     }
 
     try {
-      MarketDataAvailabilityProvider availabilityProvider = getMarketDataProvider().getAvailabilityProvider();
+      MarketDataAvailabilityProvider availabilityProvider = _marketDataProvider.getAvailabilityProvider();
       ViewCompilationServices compilationServices = getProcessContext().asCompilationServices(availabilityProvider);
       _compilationTask = ViewDefinitionCompiler.compileTask(_viewDefinition, compilationServices, valuationTime, versionCorrection);
       try {
@@ -612,7 +620,8 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     // cycle. In the predicted case, we trigger a cycle on expiry so that any new market data subscriptions are made
     // straight away.
     if (compiledViewDefinition.getValidTo() != null) {
-      Duration durationToExpiry = getMarketDataProvider().getRealTimeDuration(valuationTime, compiledViewDefinition.getValidTo());
+      Duration durationToExpiry = _marketDataProvider.getRealTimeDuration(valuationTime,
+                                                                          compiledViewDefinition.getValidTo());
       long expiryNanos = System.nanoTime() + durationToExpiry.toNanosLong();
       _compilationExpiryCycleTrigger.set(expiryNanos, ViewCycleTriggerResult.forceFull());
     } else {
@@ -692,11 +701,11 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   }
 
   //-------------------------------------------------------------------------
-  private void replaceMarketDataProvider(MarketDataSpecification marketDataSpec) {
+  private void replaceMarketDataProvider(List<MarketDataSpecification> marketDataSpecs) {
     removeMarketDataProvider();
     // A different market data provider may change the availability of market data, altering the dependency graph
     invalidateCachedCompiledViewDefinition();
-    setMarketDataProvider(marketDataSpec);
+    setMarketDataProvider(marketDataSpecs);
   }
 
   private void removeMarketDataProvider() {
@@ -708,14 +717,10 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     _marketDataProvider = null;
   }
 
-  private MarketDataProvider getMarketDataProvider() {
-    return _marketDataProvider;
-  }
-
-  private void setMarketDataProvider(MarketDataSpecification marketDataSpec) {
-    _marketDataProvider = getProcessContext().getMarketDataProviderResolver().resolve(marketDataSpec);
+  private void setMarketDataProvider(List<MarketDataSpecification> marketDataSpecs) {
+    _marketDataProvider = _compositeMarketDataProviderFactory.create(marketDataSpecs);
     if (_marketDataProvider == null) {
-      s_logger.error("Couldn't resolve {}", marketDataSpec);
+      s_logger.error("Couldn't resolve {}", marketDataSpecs);
     } else {
       _marketDataProvider.addListener(this);
     }
@@ -740,7 +745,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     final OperationTimer timer = new OperationTimer(s_logger, "Adding {} market data subscriptions", requiredSubscriptions.size());
     _pendingSubscriptions.addAll(requiredSubscriptions);
     _pendingSubscriptionLatch = new CountDownLatch(requiredSubscriptions.size());
-    getMarketDataProvider().subscribe(getViewDefinition().getMarketDataUser(), requiredSubscriptions);
+    _marketDataProvider.subscribe(getViewDefinition().getMarketDataUser(), requiredSubscriptions);
     _marketDataSubscriptions.addAll(requiredSubscriptions);
     try {
       if (!_pendingSubscriptionLatch.await(MARKET_DATA_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
@@ -772,7 +777,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
 
   private void removeMarketDataSubscriptions(final Collection<ValueRequirement> unusedSubscriptions) {
     final OperationTimer timer = new OperationTimer(s_logger, "Removing {} market data subscriptions", unusedSubscriptions.size());
-    getMarketDataProvider().unsubscribe(getViewDefinition().getMarketDataUser(), _marketDataSubscriptions);
+    _marketDataProvider.unsubscribe(getViewDefinition().getMarketDataUser(), _marketDataSubscriptions);
     _marketDataSubscriptions.removeAll(unusedSubscriptions);
     timer.finished();
   }
