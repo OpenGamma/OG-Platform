@@ -109,7 +109,7 @@ public class EHCachingMasterConfigSourceTest {
     when(_underlyingConfigMaster.search(request)).thenReturn(searchResult);
     assertSame(_cachingSource.getLatestByName(ExternalId.class, CONFIG_NAME), CONFIG);
     assertSame(_cachingSource.getLatestByName(ExternalId.class, CONFIG_NAME), CONFIG);
-    verify(_underlyingConfigMaster, times(2)).search(request);
+    verify(_underlyingConfigMaster, times(1)).search(request);
   }
   
   @SuppressWarnings("unchecked")
