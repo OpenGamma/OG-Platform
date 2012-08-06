@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.master.config.impl;
+package com.opengamma.core.config.impl;
 
 import static com.opengamma.util.ehcache.EHCacheUtils.get;
 import static com.opengamma.util.ehcache.EHCacheUtils.putException;

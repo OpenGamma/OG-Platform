@@ -26,9 +26,9 @@ import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.DataConfigSourceResource;
+import com.opengamma.core.config.impl.EHCachingConfigSource;
 import com.opengamma.core.config.impl.RemoteConfigSource;
 import com.opengamma.master.config.ConfigMaster;
-import com.opengamma.master.config.impl.EHCachingConfigSource;
 import com.opengamma.master.config.impl.MasterConfigSource;
 
 /**
