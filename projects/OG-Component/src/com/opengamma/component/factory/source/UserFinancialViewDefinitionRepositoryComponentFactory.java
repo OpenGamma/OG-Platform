@@ -33,7 +33,10 @@ import com.opengamma.financial.view.rest.RemoteViewDefinitionRepository;
 import com.opengamma.master.config.ConfigMaster;
 
 /**
- * Component factory providing the {@code ViewDefinitionRepository}.
+ * Component factory providing the view definition repository.
+ * <p>
+ * This factory creates view definition sources for the underlying and user masters
+ * as well as a combined source.
  */
 @BeanDefinition
 public class UserFinancialViewDefinitionRepositoryComponentFactory extends AbstractComponentFactory {
