@@ -134,8 +134,19 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
       return putException(key, ex, _configCache);
     }
   }
-  
-  
-  
 
+  @Override
+  public <T> T getLatestByName(Class<T> clazz, String name) {
+    final Object key = Arrays.asList(clazz, name);
+    final Element e = _configCache.get(key);
+    if (e != null) {
+      return get(e);
+    }
+    try {
+      return putValue(key, super.getLatestByName(clazz, name), _configCache);
+    } catch (RuntimeException ex) {
+      return putException(key, ex, _configCache);
+    }
+  }
+  
 }
