@@ -9,7 +9,12 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.joda.beans.*;
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -24,7 +29,9 @@ import com.opengamma.master.position.impl.DelegatingPositionMaster;
 import com.opengamma.master.position.impl.RemotePositionMaster;
 
 /**
- * Component factory for the position source.
+ * Component factory for the combined position master.
+ * <p>
+ * This factory creates a combined position master from an underlying and user master.
  */
 @BeanDefinition
 public class UserFinancialPositionMasterComponentFactory extends AbstractComponentFactory {
@@ -40,14 +47,14 @@ public class UserFinancialPositionMasterComponentFactory extends AbstractCompone
   @PropertyDefinition
   private boolean _publishRest = true; 
   /**
-   * The position master (underlying master).
+   * The underlying position master.
    */
   @PropertyDefinition(validate = "notNull")
   private PositionMaster _underlyingPositionMaster;
   /**
-   * The position master (user master).
+   * The user position master.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private PositionMaster _userPositionMaster;
 
   //-------------------------------------------------------------------------
@@ -124,6 +131,7 @@ public class UserFinancialPositionMasterComponentFactory extends AbstractCompone
   protected void validate() {
     JodaBeanUtils.notNull(_classifier, "classifier");
     JodaBeanUtils.notNull(_underlyingPositionMaster, "underlyingPositionMaster");
+    JodaBeanUtils.notNull(_userPositionMaster, "userPositionMaster");
     super.validate();
   }
 
@@ -206,7 +214,7 @@ public class UserFinancialPositionMasterComponentFactory extends AbstractCompone
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the position master (underlying master).
+   * Gets the underlying position master.
    * @return the value of the property, not null
    */
   public PositionMaster getUnderlyingPositionMaster() {
@@ -214,7 +222,7 @@ public class UserFinancialPositionMasterComponentFactory extends AbstractCompone
   }
 
   /**
-   * Sets the position master (underlying master).
+   * Sets the underlying position master.
    * @param underlyingPositionMaster  the new value of the property, not null
    */
   public void setUnderlyingPositionMaster(PositionMaster underlyingPositionMaster) {
@@ -232,18 +240,19 @@ public class UserFinancialPositionMasterComponentFactory extends AbstractCompone
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the position master (user master).
-   * @return the value of the property
+   * Gets the user position master.
+   * @return the value of the property, not null
    */
   public PositionMaster getUserPositionMaster() {
     return _userPositionMaster;
   }
 
   /**
-   * Sets the position master (user master).
-   * @param userPositionMaster  the new value of the property
+   * Sets the user position master.
+   * @param userPositionMaster  the new value of the property, not null
    */
   public void setUserPositionMaster(PositionMaster userPositionMaster) {
+    JodaBeanUtils.notNull(userPositionMaster, "userPositionMaster");
     this._userPositionMaster = userPositionMaster;
   }
 
