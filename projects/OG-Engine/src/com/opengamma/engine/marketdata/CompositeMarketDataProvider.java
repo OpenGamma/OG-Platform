@@ -81,7 +81,8 @@ public class CompositeMarketDataProvider {
     provider. but the interface of permission provider means it's not possible to know which ones have failed. also
     the requirement is resolved into a bundle inside the permission provider so that will be done repeatedly.
 
-    would be better if the permission provider interface returned a set of requirements for which the user has permission
+    would be better if the permission provider interface took a set of live data specs and returned a set of
+    requirements for which the user has permission
     */
   }
 
