@@ -31,6 +31,8 @@ public class EquityIndexVanillaBarrierOptionDefaultPropertiesFunction extends De
 
   private static final String[] s_valueNames = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
+    ValueRequirementNames.FORWARD,
+    ValueRequirementNames.SPOT,
     ValueRequirementNames.VEGA_QUOTE_MATRIX,
     ValueRequirementNames.VALUE_VEGA,
     ValueRequirementNames.IMPLIED_VOLATILITY,

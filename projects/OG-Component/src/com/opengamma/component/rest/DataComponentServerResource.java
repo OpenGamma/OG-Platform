@@ -21,14 +21,15 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.lang.math.NumberUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Ordering;
 import com.google.common.collect.TreeMultimap;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentServer;
+import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 import com.opengamma.web.FreemarkerOutputter;
@@ -40,6 +41,38 @@ import com.opengamma.web.FreemarkerOutputter;
  */
 @Path("components")
 public class DataComponentServerResource extends AbstractDataResource {
+
+  /**
+   * Sort classes by simple name.
+   */
+  private static final Comparator<Class<?>> ORDER_CLASS = new Comparator<Class<?>>() {
+    @Override
+    public int compare(Class<?> cls1, Class<?> cls2) {
+      return cls1.getSimpleName().compareTo(cls2.getSimpleName());
+    }
+  };
+  /**
+   * Sort classes by level, then classifier name.
+   */
+  private static final Comparator<ComponentInfo> ORDER_CLASSIFIER = new Comparator<ComponentInfo>() {
+    @Override
+    public int compare(ComponentInfo info1, ComponentInfo info2) {
+      int cmp = 0;
+      if (info1.getAttributes().containsKey(ComponentInfoAttributes.LEVEL) && info2.getAttributes().containsKey(ComponentInfoAttributes.LEVEL) == false) {
+        return -1;
+      }
+      if (info1.getAttributes().containsKey(ComponentInfoAttributes.LEVEL) == false && info2.getAttributes().containsKey(ComponentInfoAttributes.LEVEL)) {
+        return 1;
+      }
+      if (info1.getAttributes().containsKey(ComponentInfoAttributes.LEVEL) && info2.getAttributes().containsKey(ComponentInfoAttributes.LEVEL)) {
+        String str1 = info1.getAttribute(ComponentInfoAttributes.LEVEL);
+        String str2 = info2.getAttribute(ComponentInfoAttributes.LEVEL);
+        cmp = NumberUtils.toInt(str2) - NumberUtils.toInt(str1);  // reverse order
+      }
+      cmp = (cmp == 0 ? info1.getClassifier().compareTo(info2.getClassifier()) : cmp);
+      return cmp;
+    }
+  };
 
   /**
    * The local components.
@@ -98,13 +131,7 @@ public class DataComponentServerResource extends AbstractDataResource {
       server.getComponentInfos().add(component.getInfo());
     }
     server.setUri(uriInfo.getBaseUri());
-    Comparator<Class<?>> order = new Comparator<Class<?>>() {
-      @Override
-      public int compare(Class<?> cls1, Class<?> cls2) {
-        return cls1.getSimpleName().compareTo(cls2.getSimpleName());
-      }
-    };
-    Multimap<Class<?>, ComponentInfo> byType = TreeMultimap.create(order, Ordering.arbitrary());
+    Multimap<Class<?>, ComponentInfo> byType = TreeMultimap.create(ORDER_CLASS, ORDER_CLASSIFIER);
     for (ComponentInfo info : server.getComponentInfos()) {
       byType.put(info.getType(), info);
     }

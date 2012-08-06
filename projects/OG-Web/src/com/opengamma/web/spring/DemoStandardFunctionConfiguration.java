@@ -106,10 +106,12 @@ import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOpt
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionVegaMatrixFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionVommaFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexVanillaBarrierOptionDefaultPropertiesFunction;
+import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexVanillaBarrierOptionForwardValueFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexVanillaBarrierOptionPresentValueFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexVanillaBarrierOptionRhoFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexVanillaBarrierOptionSpotDeltaFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexVanillaBarrierOptionSpotGammaFunction;
+import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexVanillaBarrierOptionSpotIndexFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexVanillaBarrierOptionSpotVannaFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexVanillaBarrierOptionVegaFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexVanillaBarrierOptionVommaFunction;
@@ -171,9 +173,11 @@ import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackI
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackPV01Function;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackPresentValueCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackPresentValueFunction;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackVannaFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackVegaFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackVegaMatrixFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackVegaQuoteMatrixFunction;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackVommaFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackCurrencyExposureFunctionDeprecated;
 import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackPV01FunctionDeprecated;
 import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackPresentValueCurveSensitivityFunctionDeprecated;
@@ -861,6 +865,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(EquityIndexOptionDefaultPropertiesFunction.class, "BBG", "FUNDING", "Spline"));
 
     functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionPresentValueFunction.class));
+    functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionSpotIndexFunction.class));
+    functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionForwardValueFunction.class));
     functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionRhoFunction.class));
     functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionSpotDeltaFunction.class));
     functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionSpotGammaFunction.class));
@@ -911,6 +917,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(FXOptionBlackVegaQuoteMatrixFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackGammaFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackGammaSpotFunction.class));
+    functionConfigs.add(functionConfiguration(FXOptionBlackVannaFunction.class));
+    functionConfigs.add(functionConfiguration(FXOptionBlackVommaFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackPresentValueCurveSensitivityFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackPV01Function.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackImpliedVolatilityFunction.class));

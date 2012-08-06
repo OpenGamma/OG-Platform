@@ -8,6 +8,7 @@ package com.opengamma.util.ehcache;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
@@ -16,6 +17,8 @@ import com.opengamma.util.ArgumentChecker;
  * Utilities for working with EHCache.
  */
 public final class EHCacheUtils {
+  
+  private static final Object NULL = new Object();
 
   /**
    * Restrictive constructor.
@@ -95,5 +98,32 @@ public final class EHCacheUtils {
   public static void clearAll() {
     CacheManager.create().clearAll();
   }
+  
+  @SuppressWarnings("unchecked")
+  public static <T> T get(final Element e) {
+    final Object o = e.getObjectValue();
+    if (o == NULL) {
+      return null;
+    }
+    if (o instanceof RuntimeException) {
+      throw (RuntimeException) o;
+    }
+    return (T) o;
+  }
 
+  public static <T> T putValue(final Object key, final T value, final Cache cache) {
+    final Element e;
+    if (value == null) {
+      e = new Element(key, NULL);
+    } else {
+      e = new Element(key, value);
+    }
+    cache.put(e);
+    return value;
+  }
+
+  public static <T> T putException(final Object key, final RuntimeException e, final Cache cache) {
+    cache.put(new Element(key, e));
+    throw e;
+  }
 }

@@ -11,10 +11,13 @@ import java.util.Set;
  * A class which records interesting statistics about usage of bloomberg reference data
  */
 public interface BloombergReferenceDataStatistics {
+
   /**
-   * Requests the statistics to record the fact that some fields were read recently
-   * @param securities the securities
-   * @param fields the fields
+   * Records the fact that some Bloomberg fields were read.
+   * 
+   * @param identifiers  the identifiers, such as securities, not null
+   * @param fields  the fields read, not null
    */
-  void gotFields(Set<String> securities, Set<String> fields);
+  void recordStatistics(Set<String> identifiers, Set<String> fields);
+
 }

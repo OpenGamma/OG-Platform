@@ -5,8 +5,6 @@
  */
 package com.opengamma.analytics.financial.model.volatility;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.BisectionSingleRootFinder;
@@ -15,6 +13,8 @@ import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.lang.annotation.ExternalFunction;
 import com.opengamma.util.ArgumentChecker;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * This <b>SHOULD</b> be the repository for Black formulas - i.e. the price, common greeks (delta, gamma, vega) and implied volatility. Other
@@ -327,7 +327,7 @@ public abstract class BlackFormulaRepository {
   }
 
   /**
-   * The driftless vomma of an option, i.e. second order derivative of the option forward price with respect to the implied volatility.
+   * The driftless vomma (aka volga) of an option, i.e. second order derivative of the option forward price with respect to the implied volatility.
    * @param forward The forward value of the underlying
    * @param strike The Strike
    * @param timeToExpiry The time-to-expiry
@@ -349,6 +349,19 @@ public abstract class BlackFormulaRepository {
     final double d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
     final double d2 = d1 - sigmaRootT;
     return forward * NORMAL.getPDF(d1) * rootT * d1 * d2 / lognormalVol;
+  }
+
+  /**
+   * The driftless volga (aka vomma) of an option, i.e. second order derivative of the option forward price with respect to the implied volatility.
+   * @param forward The forward value of the underlying
+   * @param strike The Strike
+   * @param timeToExpiry The time-to-expiry
+   * @param lognormalVol The log-normal volatility
+   * @return The forward vomma
+   */
+  @ExternalFunction
+  public static double volga(final double forward, final double strike, final double timeToExpiry, final double lognormalVol) {
+    return vomma(forward, strike, timeToExpiry, lognormalVol);
   }
 
   /**
