@@ -11,6 +11,10 @@ package com.opengamma.engine.view.calcnode;
  */
 public enum InvocationResult {
   /**
+   * The invocation was not attempted because of a function blacklisting rule.
+   */
+  SUPPRESSED,
+  /**
    * The invocation was completely successful.
    */
   SUCCESS,

@@ -44,7 +44,7 @@ public class BondFutureOptionPremiumSecurityDefinition implements InstrumentDefi
    * @param underlyingFuture The underlying future security.
    * @param expirationDate The expiration date.
    * @param strike The option strike.
-   * @param isCall The cap (true) / floor (false) flag.
+   * @param isCall The call (true) / put (false) flag.
    */
   public BondFutureOptionPremiumSecurityDefinition(final BondFutureDefinition underlyingFuture, final ZonedDateTime expirationDate, final double strike, final boolean isCall) {
     Validate.notNull(underlyingFuture, "underlying future");
@@ -104,7 +104,7 @@ public class BondFutureOptionPremiumSecurityDefinition implements InstrumentDefi
   }
 
   @Override
-  public BondFutureOptionPremiumSecurity toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+  public BondFutureOptionPremiumSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     Validate.isTrue(!date.isAfter(_expirationDate), "Date is after expiration date");
     final Double referencePrice = 0.0; // FIXME Bond future should have a "Security" version, without transaction price.
     final BondFuture underlyingFuture = _underlyingFuture.toDerivative(date, referencePrice, yieldCurveNames);
@@ -113,12 +113,12 @@ public class BondFutureOptionPremiumSecurityDefinition implements InstrumentDefi
   }
 
   @Override
-  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     return visitor.visitBondFutureOptionPremiumSecurityDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitBondFutureOptionPremiumSecurityDefinition(this);
   }
 
@@ -136,7 +136,7 @@ public class BondFutureOptionPremiumSecurityDefinition implements InstrumentDefi
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -146,7 +146,7 @@ public class BondFutureOptionPremiumSecurityDefinition implements InstrumentDefi
     if (getClass() != obj.getClass()) {
       return false;
     }
-    BondFutureOptionPremiumSecurityDefinition other = (BondFutureOptionPremiumSecurityDefinition) obj;
+    final BondFutureOptionPremiumSecurityDefinition other = (BondFutureOptionPremiumSecurityDefinition) obj;
     if (!ObjectUtils.equals(_expirationDate, other._expirationDate)) {
       return false;
     }

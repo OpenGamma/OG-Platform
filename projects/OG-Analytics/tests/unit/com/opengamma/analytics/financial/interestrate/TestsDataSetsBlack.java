@@ -7,8 +7,11 @@ package com.opengamma.analytics.financial.interestrate;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.generator.GeneratorSwapTestsMaster;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.option.definition.BlackSwaptionParameters;
+import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
+import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
@@ -32,8 +35,9 @@ public class TestsDataSetsBlack {
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR6M = GENERATOR_SWAP_MASTER.getGenerator("EUR1YEURIBOR6M", CALENDAR);
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR3M = GENERATOR_SWAP_MASTER.getGenerator("EUR1YEURIBOR3M", CALENDAR);
 
-  private static final InterpolatedDoublesSurface BLACK_SURFACE = InterpolatedDoublesSurface.from(new double[] {0.5, 1.0, 5.0, 0.5, 1.0, 5.0}, new double[] {2, 2, 2, 10, 10, 10}, new double[] {0.35,
-      0.34, 0.25, 0.30, 0.25, 0.20}, INTERPOLATOR_2D);
+  private static final InterpolatedDoublesSurface BLACK_SURFACE = InterpolatedDoublesSurface.from(new double[] {0.5, 1.0, 5.0, 0.5, 1.0, 5.0 }, new double[] {2, 2, 2, 10, 10, 10 }, new double[] {
+      0.35,
+      0.34, 0.25, 0.30, 0.25, 0.20 }, INTERPOLATOR_2D);
   private static final BlackSwaptionParameters BLACK_SWAPTION_EUR6 = new BlackSwaptionParameters(BLACK_SURFACE, EUR1YEURIBOR6M);
   private static final BlackSwaptionParameters BLACK_SWAPTION_EUR3 = new BlackSwaptionParameters(BLACK_SURFACE, EUR1YEURIBOR3M);
 
@@ -49,8 +53,8 @@ public class TestsDataSetsBlack {
   }
 
   public static InterpolatedDoublesSurface createBlackSurfaceShift(final double shift) {
-    return InterpolatedDoublesSurface.from(new double[] {0.5, 1.0, 5.0, 0.5, 1.0, 5.0}, new double[] {2, 2, 2, 10, 10, 10}, new double[] {0.35 + shift, 0.34 + shift, 0.25 + shift, 0.30 + shift,
-        0.25 + shift, 0.20 + shift}, INTERPOLATOR_2D);
+    return InterpolatedDoublesSurface.from(new double[] {0.5, 1.0, 5.0, 0.5, 1.0, 5.0 }, new double[] {2, 2, 2, 10, 10, 10 }, new double[] {0.35 + shift, 0.34 + shift, 0.25 + shift, 0.30 + shift,
+        0.25 + shift, 0.20 + shift }, INTERPOLATOR_2D);
   }
 
   public static BlackSwaptionParameters createBlackSwaptionEUR6() {
@@ -67,7 +71,7 @@ public class TestsDataSetsBlack {
    * @return The surface.
    */
   public static BlackSwaptionParameters createBlackSwaptionEUR6Shift(final double shift) {
-    InterpolatedDoublesSurface surfaceShift = createBlackSurfaceShift(shift);
+    final InterpolatedDoublesSurface surfaceShift = createBlackSurfaceShift(shift);
     return new BlackSwaptionParameters(surfaceShift, EUR1YEURIBOR6M);
   }
 
@@ -78,9 +82,9 @@ public class TestsDataSetsBlack {
    * @return The surface.
    */
   public static BlackSwaptionParameters createBlackSwaptionEUR6Shift(final int index, final double shift) {
-    double[] vol = new double[] {0.35, 0.34, 0.25, 0.30, 0.25, 0.20};
+    final double[] vol = new double[] {0.35, 0.34, 0.25, 0.30, 0.25, 0.20 };
     vol[index] += shift;
-    InterpolatedDoublesSurface surfaceShift = InterpolatedDoublesSurface.from(new double[] {0.5, 1.0, 5.0, 0.5, 1.0, 5.0}, new double[] {2, 2, 2, 10, 10, 10}, vol, INTERPOLATOR_2D);
+    final InterpolatedDoublesSurface surfaceShift = InterpolatedDoublesSurface.from(new double[] {0.5, 1.0, 5.0, 0.5, 1.0, 5.0 }, new double[] {2, 2, 2, 10, 10, 10 }, vol, INTERPOLATOR_2D);
     return new BlackSwaptionParameters(surfaceShift, EUR1YEURIBOR6M);
   }
 
@@ -88,16 +92,16 @@ public class TestsDataSetsBlack {
     final String discountingCurvename = "EUR Discounting";
     final String forward3MCurveName = "Forward EURIBOR3M";
     final String forward6MCurveName = "Forward EURIBOR6M";
-    InterpolatedDoublesCurve dscC = new InterpolatedDoublesCurve(new double[] {0.05, 1.0, 2.0, 5.0, 10.0, 20.0}, new double[] {0.0050, 0.0100, 0.0150, 0.0200, 0.0200, 0.0300},
+    final InterpolatedDoublesCurve dscC = new InterpolatedDoublesCurve(new double[] {0.05, 1.0, 2.0, 5.0, 10.0, 20.0 }, new double[] {0.0050, 0.0100, 0.0150, 0.0200, 0.0200, 0.0300 },
         CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR), true, discountingCurvename);
-    InterpolatedDoublesCurve fwd3C = new InterpolatedDoublesCurve(new double[] {0.05, 1.0, 2.0, 5.0, 10.0, 25.0}, new double[] {0.0070, 0.0120, 0.0165, 0.0215, 0.0210, 0.0310},
+    final InterpolatedDoublesCurve fwd3C = new InterpolatedDoublesCurve(new double[] {0.05, 1.0, 2.0, 5.0, 10.0, 25.0 }, new double[] {0.0070, 0.0120, 0.0165, 0.0215, 0.0210, 0.0310 },
         CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR), true, forward3MCurveName);
-    InterpolatedDoublesCurve fwd6C = new InterpolatedDoublesCurve(new double[] {0.05, 1.0, 2.0, 5.0, 10.0, 30.0}, new double[] {0.0075, 0.0125, 0.0170, 0.0220, 0.0212, 0.0312},
+    final InterpolatedDoublesCurve fwd6C = new InterpolatedDoublesCurve(new double[] {0.05, 1.0, 2.0, 5.0, 10.0, 30.0 }, new double[] {0.0075, 0.0125, 0.0170, 0.0220, 0.0212, 0.0312 },
         CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR), true, forward6MCurveName);
     final YieldCurveBundle curves = new YieldCurveBundle();
-    curves.setCurve(discountingCurvename, new YieldCurve(dscC));
-    curves.setCurve(forward3MCurveName, new YieldCurve(fwd3C));
-    curves.setCurve(forward6MCurveName, new YieldCurve(fwd6C));
+    curves.setCurve(discountingCurvename, YieldCurve.from(dscC));
+    curves.setCurve(forward3MCurveName, YieldCurve.from(fwd3C));
+    curves.setCurve(forward6MCurveName, YieldCurve.from(fwd6C));
     return curves;
   }
 
@@ -105,24 +109,47 @@ public class TestsDataSetsBlack {
     final String discountingCurvename = "EUR Discounting";
     final String forward3MCurveName = "Forward EURIBOR3M";
     final String forward6MCurveName = "Forward EURIBOR6M";
-    return new String[] {discountingCurvename, forward3MCurveName, forward6MCurveName};
+    return new String[] {discountingCurvename, forward3MCurveName, forward6MCurveName };
   }
 
   public static YieldCurveBundle createCurvesUSD() {
     final String discountingCurvename = "USD Discounting";
     final String forward3MCurveName = "Forward USDLIBOR3M";
     final String forward6MCurveName = "Forward USDLIBOR6M";
-    InterpolatedDoublesCurve dscC = new InterpolatedDoublesCurve(new double[] {0.05, 1.0, 2.0, 5.0, 10.0, 20.0}, new double[] {0.0050, 0.0100, 0.0150, 0.0200, 0.0200, 0.0300},
+    final InterpolatedDoublesCurve dscC = new InterpolatedDoublesCurve(new double[] {0.05, 1.0, 2.0, 5.0, 10.0, 20.0 }, new double[] {0.0050, 0.0100, 0.0150, 0.0200, 0.0200, 0.0300 },
         CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR), true, discountingCurvename);
-    InterpolatedDoublesCurve fwd3C = new InterpolatedDoublesCurve(new double[] {0.05, 1.0, 2.0, 5.0, 10.0, 25.0}, new double[] {0.0070, 0.0120, 0.0165, 0.0215, 0.0210, 0.0310},
+    final InterpolatedDoublesCurve fwd3C = new InterpolatedDoublesCurve(new double[] {0.05, 1.0, 2.0, 5.0, 10.0, 25.0 }, new double[] {0.0070, 0.0120, 0.0165, 0.0215, 0.0210, 0.0310 },
         CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR), true, forward3MCurveName);
-    InterpolatedDoublesCurve fwd6C = new InterpolatedDoublesCurve(new double[] {0.05, 1.0, 2.0, 5.0, 10.0, 30.0}, new double[] {0.0075, 0.0125, 0.0170, 0.0220, 0.0212, 0.0312},
+    final InterpolatedDoublesCurve fwd6C = new InterpolatedDoublesCurve(new double[] {0.05, 1.0, 2.0, 5.0, 10.0, 30.0 }, new double[] {0.0075, 0.0125, 0.0170, 0.0220, 0.0212, 0.0312 },
         CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR), true, forward6MCurveName);
     final YieldCurveBundle curves = new YieldCurveBundle();
-    curves.setCurve(discountingCurvename, new YieldCurve(dscC));
-    curves.setCurve(forward3MCurveName, new YieldCurve(fwd3C));
-    curves.setCurve(forward6MCurveName, new YieldCurve(fwd6C));
+    curves.setCurve(discountingCurvename, YieldCurve.from(dscC));
+    curves.setCurve(forward3MCurveName, YieldCurve.from(fwd3C));
+    curves.setCurve(forward6MCurveName, YieldCurve.from(fwd6C));
     return curves;
+  }
+
+  /**
+   * Create a yield curve bundle with three curves. One called "Credit" with a constant rate of 5%, one called "Discounting" with a constant rate of 4%, 
+   * and one called "Forward" with a constant rate of 4.5%.
+   * @return The yield curve bundle.
+   */
+  public static YieldCurveBundle createCurvesBond() {
+    final String CREDIT_CURVE_NAME = "Credit";
+    final String DISCOUNTING_CURVE_NAME = "Repo";
+    final String FORWARD_CURVE_NAME = "Forward";
+    final YieldAndDiscountCurve CURVE_5 = YieldCurve.from(ConstantDoublesCurve.from(0.05));
+    final YieldAndDiscountCurve CURVE_4 = YieldCurve.from(ConstantDoublesCurve.from(0.04));
+    final YieldAndDiscountCurve CURVE_45 = YieldCurve.from(ConstantDoublesCurve.from(0.045));
+    final YieldCurveBundle curves = new YieldCurveBundle();
+    curves.setCurve(CREDIT_CURVE_NAME, CURVE_5);
+    curves.setCurve(DISCOUNTING_CURVE_NAME, CURVE_4);
+    curves.setCurve(FORWARD_CURVE_NAME, CURVE_45);
+    return curves;
+  }
+
+  public static YieldCurveWithBlackCubeBundle createCubesBondFutureOption() {
+    return new YieldCurveWithBlackCubeBundle(BLACK_SURFACE, createCurvesBond());
   }
 
 }

@@ -61,7 +61,7 @@ public class DataFinancialSecuritySourceResourceTest {
         YieldConventionFactory.INSTANCE.getYieldConvention("US Treasury equivalent"), new Expiry(ZonedDateTime.of(2011, 2, 1, 12, 0, 0, 0, TimeZone.UTC)), "", 200,
         SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), DayCountFactory.INSTANCE.getDayCount("Actual/Actual"),
         ZonedDateTime.of(2011, 2, 1, 12, 0, 0, 0, TimeZone.UTC), ZonedDateTime.of(2011, 2, 1, 12, 0, 0, 0, TimeZone.UTC),
-        ZonedDateTime.of(2011, 2, 1, 12, 0, 0, 0, TimeZone.UTC), 100, 100000000, 5000, 1000, 100, 100);
+        ZonedDateTime.of(2011, 2, 1, 12, 0, 0, 0, TimeZone.UTC), 100d, 100000000, 5000, 1000, 100, 100);
     target.setExternalIdBundle(ExternalIdBundle.of(ExternalId.of("A", "B")));
     Collection targetColl = ImmutableList.<Security>of(target);
     

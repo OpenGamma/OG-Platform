@@ -34,6 +34,27 @@ public final class CalculationNodeProcess {
 
   private static HttpClient s_httpClient;
 
+  /**
+   * A job item execution watchdog that can terminate the host process if one (or all) calculation threads hang.
+   */
+  public static class JobItemExecutionWatchdog extends MaximumJobItemExecutionWatchdog {
+
+    public JobItemExecutionWatchdog() {
+      setTimeoutAction(new Action() {
+        @Override
+        public void jobItemExecutionLimitExceeded(final CalculationJobItem jobItem, final Thread thread) {
+          s_logger.error("Starting graceful shutdown after thread {} hung on {}", thread, jobItem);
+          startGracefulShutdown();
+          if (!areThreadsAlive()) {
+            s_logger.error("Halting remote calc process", thread, jobItem);
+            System.exit(0);
+          }
+        }
+      });
+    }
+
+  }
+
   private CalculationNodeProcess() {
   }
 
@@ -115,6 +136,11 @@ public final class CalculationNodeProcess {
     }
   }
 
+  private static void startGracefulShutdown() {
+    s_logger.error("TODO: [PLAT-2351] start graceful shutdown");
+    // TODO: [PLAT-2351] stop accepting jobs and allow current ones to run to completion 
+  }
+
   /**
    * Starts a calculation node, retrieving configuration from the given URL
    * 
@@ -170,7 +196,8 @@ public final class CalculationNodeProcess {
             break;
           case 4:
             s_logger.error("No response from configuration at {}", url);
-            // TODO: be a bit more graceful - stop accepting jobs, allow current ones to run to completion, then disconnect 
+            startGracefulShutdown();
+            // TODO: wait for the graceful shutdown to complete (i.e. node goes idle)
             System.exit(0);
             break;
         }
@@ -181,7 +208,8 @@ public final class CalculationNodeProcess {
 
   /**
    * Starts a calculation node
-   * @param args the arguments, should contain one parameter - the configuration URL to use 
+   * 
+   * @param args the arguments, should contain one parameter - the configuration URL to use
    */
   public static void main(String[] args) { // CSIGNORE
     if (args.length != 1) {

@@ -31,7 +31,6 @@ import com.opengamma.analytics.financial.interestrate.payments.method.CouponOISD
 import com.opengamma.analytics.financial.interestrate.swap.derivative.CrossCurrencySwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.FixedFloatSwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.FloatingRateNote;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.OISSwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.TenorSwap;
 import com.opengamma.analytics.financial.interestrate.swap.method.SwapFixedCouponDiscountingMethod;
@@ -158,11 +157,6 @@ public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor
   public Double visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final double pvbp, final YieldCurveBundle curves) {
     final double pvSecond = -PVC.visit(swap.getSecondLeg(), curves) * Math.signum(swap.getSecondLeg().getNthPayment(0).getNotional());
     return -pvSecond / pvbp;
-  }
-
-  @Override
-  public Double visitOISSwap(final OISSwap swap, final YieldCurveBundle curves) {
-    return visitFixedCouponSwap(swap, curves);
   }
 
   /**

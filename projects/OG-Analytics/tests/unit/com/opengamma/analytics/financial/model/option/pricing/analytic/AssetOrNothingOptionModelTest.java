@@ -28,7 +28,7 @@ import com.opengamma.util.time.Expiry;
  */
 public class AssetOrNothingOptionModelTest {
   private static final double R = 0.07;
-  private static final YieldAndDiscountCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(R));
+  private static final YieldAndDiscountCurve CURVE = YieldCurve.from(ConstantDoublesCurve.from(R));
   private static final double B = 0.02;
   private static final VolatilitySurface SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(0.27));
   private static final double SPOT = 70;

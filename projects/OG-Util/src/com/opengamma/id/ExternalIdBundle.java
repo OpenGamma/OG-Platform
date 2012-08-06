@@ -20,7 +20,9 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableSortedSet;
+import com.google.common.collect.Sets;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
@@ -190,6 +192,36 @@ public final class ExternalIdBundle
       }
     }
     return null;
+  }
+
+  /**
+   * Returns all identifiers for a scheme.
+   * @param scheme The scheme, null returns an empty set
+   * @return All identifiers for the scheme, not null
+   */
+  public Set<ExternalId> getExternalIds(ExternalScheme scheme) {
+    Set<ExternalId> ids = Sets.newHashSet();
+    for (ExternalId id : _externalIds) {
+      if (Objects.equal(scheme, id.getScheme())) {
+        ids.add(id);
+      }
+    }
+    return ids;
+  }
+
+  /**
+   * Returns all identifiers for a scheme.
+   * @param scheme The scheme, null returns an empty set
+   * @return All values for the scheme, not null
+   */
+  public Set<String> getValues(ExternalScheme scheme) {
+    Set<String> values = Sets.newHashSet();
+    for (ExternalId id : _externalIds) {
+      if (Objects.equal(scheme, id.getScheme())) {
+        values.add(id.getValue());
+      }
+    }
+    return values;
   }
 
   /**

@@ -15,7 +15,7 @@ public class StaticCapabilityRequirementsProvider implements CapabilityRequireme
   private CapabilityRequirements _currentRequirements = new CapabilityRequirements();
 
   @Override
-  public CapabilityRequirements getCapabilityRequirements(final Collection<CalculationJob> jobs) {
+  public CapabilityRequirements getCapabilityRequirements(final CalculationJob job) {
     return _currentRequirements;
   }
 

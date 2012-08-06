@@ -20,7 +20,7 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
- * Class describing a Ibor+Spread for Ibor+Spread payments swap. Both legs are in the same currency.
+ * Class describing a Ibor+Spread for Ibor+Spread payments swap. The two legs should be in the same currency.
  */
 public class SwapIborIborDefinition extends SwapDefinition {
 
@@ -51,7 +51,7 @@ public class SwapIborIborDefinition extends SwapDefinition {
   }
 
   /**
-   * Builder from the settlement date and a generator.
+   * Builder from the settlement date and a generator. Both legs have the same notional.
    * @param settlementDate The settlement date.
    * @param tenor The swap tenor.
    * @param generator The Ibor/Ibor swap generator.
@@ -100,8 +100,8 @@ public class SwapIborIborDefinition extends SwapDefinition {
 
   @Override
   public Swap<Coupon, Coupon> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    final String[] firstLegCurveNames = new String[] {yieldCurveNames[0], yieldCurveNames[1]};
-    final String[] secondLegCurveNames = new String[] {yieldCurveNames[0], yieldCurveNames[2]};
+    final String[] firstLegCurveNames = new String[] {yieldCurveNames[0], yieldCurveNames[1] };
+    final String[] secondLegCurveNames = new String[] {yieldCurveNames[0], yieldCurveNames[2] };
     final Annuity<Coupon> firstLeg = getFirstLeg().toDerivative(date, firstLegCurveNames);
     final Annuity<Coupon> secondLeg = getSecondLeg().toDerivative(date, secondLegCurveNames);
     return new Swap<Coupon, Coupon>(firstLeg, secondLeg);
@@ -111,8 +111,8 @@ public class SwapIborIborDefinition extends SwapDefinition {
   public Swap<Coupon, Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime>[] indexDataTS, final String... yieldCurveNames) {
     Validate.notNull(indexDataTS, "index data time series array");
     Validate.isTrue(indexDataTS.length > 1, "index data time series must contain at least two elements");
-    final String[] firstLegCurveNames = new String[] {yieldCurveNames[0], yieldCurveNames[1]};
-    final String[] secondLegCurveNames = new String[] {yieldCurveNames[0], yieldCurveNames[2]};
+    final String[] firstLegCurveNames = new String[] {yieldCurveNames[0], yieldCurveNames[1] };
+    final String[] secondLegCurveNames = new String[] {yieldCurveNames[0], yieldCurveNames[2] };
     final Annuity<Coupon> firstLeg = getFirstLeg().toDerivative(date, indexDataTS[0], firstLegCurveNames);
     final Annuity<Coupon> secondLeg = getSecondLeg().toDerivative(date, indexDataTS[1], secondLegCurveNames);
     return new Swap<Coupon, Coupon>(firstLeg, secondLeg);

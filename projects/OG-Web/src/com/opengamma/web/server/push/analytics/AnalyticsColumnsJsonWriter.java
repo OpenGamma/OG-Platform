@@ -12,18 +12,27 @@ import org.json.JSONArray;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.web.server.push.analytics.formatting.ResultsFormatter;
 
 /**
  *
  */
 public class AnalyticsColumnsJsonWriter {
 
+  private final ResultsFormatter _formatter;
+
+  public AnalyticsColumnsJsonWriter(ResultsFormatter formatter) {
+    ArgumentChecker.notNull(formatter, "converters");
+    _formatter = formatter;
+  }
+
   /**
    * [{name: groupName, columns: [header: colHeader, description: colDescription]}, ...]
-   * @param columns Column groups to render to JSON.
-   * @return
+   * @param groups Column groups to render to JSON.
+   * @return groups as JSON
    */
-  public static String getJson(List<AnalyticsColumnGroup> groups) {
+  public String getJson(List<AnalyticsColumnGroup> groups) {
     List<Map<String, Object>> groupList = Lists.newArrayList();
     for (AnalyticsColumnGroup group : groups) {
       Map<String, Object> groupMap = Maps.newHashMap();
@@ -33,6 +42,9 @@ public class AnalyticsColumnsJsonWriter {
         Map<String, String> columnMap = Maps.newHashMap();
         columnMap.put("header", column.getHeader());
         columnMap.put("description", column.getDescription());
+        Class<?> columnType = column.getType();
+        String type = _formatter.getFormatType(columnType).name();
+        columnMap.put("type", type);
         columnList.add(columnMap);
       }
       groupMap.put("columns", columnList);

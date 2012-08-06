@@ -84,7 +84,7 @@ public abstract class Payment implements InstrumentDerivative {
 
   @Override
   public String toString() {
-    return "\n Currency=" + _currency + ", Payment time=" + _paymentTime + ", Funding curve=" + _fundingCurveName;
+    return "Currency=" + _currency + ", Payment time=" + _paymentTime + ", Funding curve=" + _fundingCurveName;
   }
 
   @Override

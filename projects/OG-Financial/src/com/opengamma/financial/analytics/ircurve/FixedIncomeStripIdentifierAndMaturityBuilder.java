@@ -84,7 +84,6 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
           TimeZone timeZone = region.getTimeZone();
           timeZone = ensureZone(timeZone);
           maturity = curveDate.plus(strip.getMaturity().getPeriod()).atTime(CASH_EXPIRY_TIME).atZone(timeZone);
-          //        maturity = cashSecurity.getMaturity();
           security = cashSecurity;
           break;
         case FRA_3M: {
@@ -120,7 +119,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
           // TODO: jim 17-Aug-2010 -- we need to sort out the zoned date time related to the expiry.
           final FutureSecurity futureSecurity = getFuture(strip);
           if (futureSecurity == null) {
-            throw new OpenGammaRuntimeException("Could not resolve future curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
+            throw new OpenGammaRuntimeException("Security source did not contain future curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
           }
           maturity = futureSecurity.getExpiry().getExpiry();
           security = futureSecurity;
@@ -295,6 +294,9 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     final Period startPeriod = endPeriod.minus(fraPeriod).normalized(); // TODO: check period >0?
     final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spotDate, startPeriod, businessDayConvention, calendar, eom);
     final ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(startDate, -iborConvention.getSettlementDays(), calendar);
+    if (marketValues.get(strip.getSecurity()) == null) {
+      throw new OpenGammaRuntimeException("Could not get market data for " + strip);
+    }
     return new FRASecurity(ccy, spec.getRegion(), startDate, endDate, marketValues.get(strip.getSecurity()), 1.0d, underlyingIdentifier, fixingDate);
   }
 
@@ -326,7 +328,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     }
     final Double rate = marketValues.get(swapIdentifier);
     if (rate == null) {
-      throw new OpenGammaRuntimeException("rate was null on " + strip + " from " + spec);
+      throw new OpenGammaRuntimeException("No market data for " + swapIdentifier);
     }
     final double fixedRate = rate;
     final FloatingInterestRateLeg iborLeg = new FloatingInterestRateLeg(swapConvention.getSwapFloatingLegDayCount(), swapConvention.getSwapFloatingLegFrequency(),
@@ -367,7 +369,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     final Frequency receiveFrequency = PeriodFrequency.of(fixedIncomeStrip.getReceiveTenor().getPeriod());
     final BusinessDayConvention receiveBusinessDayConvention = receiveConvention.getBusinessDayConvention();
     final FloatingRateType receiveFloatingRateType = getFloatingTypeFromIndexType(fixedIncomeStrip.getReceiveIndexType());
-    final double spread = marketValues.get(swapIdentifier); 
+    final double spread = marketValues.get(swapIdentifier);
     // Implementation note: By convention the spread is on the first leg (shorter tenor)
     final FloatingSpreadIRLeg payLeg = new FloatingSpreadIRLeg(payDayCount, payFrequency, payRegionIdentifier, payBusinessDayConvention, notional, false, payFloatingReferenceRateId,
         payFloatingRateType, spread);
@@ -401,8 +403,8 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     final SwapSecurity swap = new SwapSecurity(tradeDate, effectiveDate, maturityDate, counterparty, new FloatingInterestRateLeg(convention.getBasisSwapPayFloatingLegDayCount(),
         convention.getBasisSwapPayFloatingLegFrequency(), convention.getBasisSwapPayFloatingLegRegion(), convention.getBasisSwapPayFloatingLegBusinessDayConvention(), new InterestRateNotional(
             spec.getCurrency(), 1), false, payLegFloatRateBloombergTicker, FloatingRateType.IBOR), new FloatingSpreadIRLeg(convention.getBasisSwapReceiveFloatingLegDayCount(),
-              convention.getBasisSwapReceiveFloatingLegFrequency(), convention.getBasisSwapReceiveFloatingLegRegion(), convention.getBasisSwapReceiveFloatingLegBusinessDayConvention(),
-              new InterestRateNotional(spec.getCurrency(), 1), false, receiveLegFloatRateBloombergTicker, FloatingRateType.IBOR, spread));
+                convention.getBasisSwapReceiveFloatingLegFrequency(), convention.getBasisSwapReceiveFloatingLegRegion(), convention.getBasisSwapReceiveFloatingLegBusinessDayConvention(),
+                new InterestRateNotional(spec.getCurrency(), 1), false, receiveLegFloatRateBloombergTicker, FloatingRateType.IBOR, spread));
     swap.setExternalIdBundle(ExternalIdBundle.of(swapIdentifier));
     return swap;
   }
@@ -422,9 +424,10 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(curveDate, swapConvention.getSwapFixedLegSettlementDays(), calendar);
     final ZonedDateTime maturityDate = spotDate.plus(strip.getMaturity().getPeriod());
     final String counterparty = "";
-    final Double rate = marketValues.get(swapIdentifier);
+    Double rate = marketValues.get(swapIdentifier);
     if (rate == null) {
-      throw new OpenGammaRuntimeException("rate was null on " + strip + " from " + spec);
+      rate = 0.;
+      //throw new OpenGammaRuntimeException("rate was null on " + strip + " from " + spec);
     }
     final double fixedRate = rate;
     Frequency floatingFrequency;

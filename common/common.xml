@@ -299,6 +299,7 @@
 		</condition>
 		<property name="junit.logback.jvmarg" value="-Dcom.opengamma.ogbuild=0" />
 		<testng suitename="Ant tests for ${ant.project.name}" outputdir="${tests.junit.dir}"
+                        groups="${tests.testng.includedgroups}"
                         excludedgroups="${tests.testng.exludedgroups}" workingDir="${basedir}"
                         classpathref="testng.run.path" parallel="${tests.testng.parallel}"
                         threadCount="${tests.testng.threads}" timeOut="${tests.testng.timeout}">
@@ -496,7 +497,7 @@
     <taskdef name="scriptgen" classname="com.opengamma.util.generate.scripts.ScriptsGeneratorTask" classpath="${lib.path.jar.file}" />
       
     <scriptgen scriptDir="${dist.dir}/${dist.name}/scripts" projectName="${ant.project.name}">
-      <fileset dir="${dist.dir}/${dist.name}/lib/" includes="*.jar"/>
+    	<fileset dir="${dist.dir}/${dist.name}" includes="**/*.jar"/>
     </scriptgen>
     
     <chmod perm="+x">

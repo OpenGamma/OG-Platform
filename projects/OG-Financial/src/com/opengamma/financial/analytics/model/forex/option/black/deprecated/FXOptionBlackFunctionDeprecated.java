@@ -21,7 +21,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
-import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParametersStrikeInterpolation;
+import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -39,6 +39,7 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
@@ -144,7 +145,8 @@ public abstract class FXOptionBlackFunctionDeprecated extends AbstractFunction.N
     final ValueProperties.Builder properties = getResultProperties(putCurveName, putForwardCurveName, putCurveCalculationMethod, callCurveName, callForwardCurveName,
         callCurveCalculationMethod, surfaceName, interpolatorName, leftExtrapolatorName, rightExtrapolatorName, target);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties.get());
-    final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(fxMatrix, curveCurrency, yieldCurves, smiles, Pair.of(ccy1, ccy2));
+    final YieldCurveBundle curvesWithFX = new YieldCurveBundle(fxMatrix, curveCurrency, yieldCurves.getCurvesMap());
+    final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(curvesWithFX, smiles, Pair.of(ccy1, ccy2));
     return getResult(fxOption, smileBundle, spec);
   }
 

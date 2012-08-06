@@ -29,6 +29,8 @@ import com.opengamma.util.ArgumentChecker;
  * Tool for loading bloomberg security definitions in bulk.
  */
 public class BloombergBulkSecurityLoader {
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergBulkSecurityLoader.class);
   
   private final Set<SecurityType> _ignoredSecurityTypes;
@@ -68,6 +70,8 @@ public class BloombergBulkSecurityLoader {
     addLoader(mapBuilder, new IndexFutureLoader(_referenceDataProvider));
     addLoader(mapBuilder, new InterestRateFutureLoader(_referenceDataProvider));
     addLoader(mapBuilder, new IRFutureOptionLoader(_referenceDataProvider));
+    addLoader(mapBuilder, new BondFutureOptionLoader(_referenceDataProvider));
+    addLoader(mapBuilder, new CommodityFutureOptionLoader(_referenceDataProvider));
     addLoader(mapBuilder, new MetalFutureLoader(_referenceDataProvider));
     return mapBuilder.build();
   }

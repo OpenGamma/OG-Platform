@@ -41,7 +41,7 @@ public class AnalyticsNode {
   public static AnalyticsNode portoflioRoot(CompiledViewDefinition compiledViewDef) {
     Portfolio portfolio = compiledViewDef.getPortfolio();
     PortfolioNode root = portfolio.getRootNode();
-    return new Builder(root).getRoot();
+    return new PortfolioNodeBuilder(root).getRoot();
   }
 
   public static AnalyticsNode primitivesRoot(int primitivesTargetCount) {
@@ -75,13 +75,13 @@ public class AnalyticsNode {
     return "AnalyticsNode [_startRow=" + _startRow + ", _endRow=" + _endRow + ", children=" + children + "]";
   }
 
-  /* package */ static class Builder {
+  /* package */ static class PortfolioNodeBuilder {
 
     private final AnalyticsNode _root;
 
     private int _lastRow = 0;
 
-    /* package */ Builder(PortfolioNode root) {
+    /* package */ PortfolioNodeBuilder(PortfolioNode root) {
       _root = createNode(root);
     }
 

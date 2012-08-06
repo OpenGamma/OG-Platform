@@ -6,19 +6,21 @@
 package com.opengamma.financial.analytics.model.sabrcube;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
 
-import com.google.common.collect.Sets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -42,7 +44,12 @@ import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProv
 import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
 import com.opengamma.financial.analytics.conversion.SwaptionSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
+import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
+import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
+import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
 import com.opengamma.financial.analytics.model.volatility.VolatilityDataFittingDefaults;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
@@ -52,12 +59,14 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.money.Currency;
 
 /**
  *
  */
 public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
+  private static final Logger s_logger = LoggerFactory.getLogger(SABRFunction.class);
   /** String labelling the type of SABR calculation (with right extrapolation) */
   public static final String SABR_RIGHT_EXTRAPOLATION = "SABRRightExtrapolation";
   /** String labelling the type of SABR extrapolation (none) */
@@ -72,6 +81,7 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
+    final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     _securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, regionSource, false);
     final SwaptionSecurityConverter swaptionConverter = new SwaptionSecurityConverter(_securitySource, swapConverter);
@@ -79,18 +89,16 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
     final CapFloorCMSSpreadSecurityConverter capFloorCMSSpreadSecurityVisitor = new CapFloorCMSSpreadSecurityConverter(holidaySource, conventionSource, regionSource);
     _securityVisitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().swapSecurityVisitor(swapConverter).swaptionVisitor(swaptionConverter).capFloorVisitor(capFloorVisitor)
         .capFloorCMSSpreadVisitor(capFloorCMSSpreadSecurityVisitor).create();
-    _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource);
+    _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
   }
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
-    final String forwardCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
-    final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
+    final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final InstrumentDefinition<?> definition = security.accept(getVisitor());
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
@@ -103,8 +111,17 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
     if (dayCount == null) {
       throw new OpenGammaRuntimeException("Could not get daycount");
     }
-    final SABRInterestRateDataBundle data = getModelParameters(target, inputs, currency, dayCount, desiredValue);
-    final InstrumentDerivative derivative = getConverter().convert(security, definition, now, new String[] {fundingCurveName, forwardCurveName }, dataSource);
+    final String curveCalculationConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
+    final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
+    final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
+    if (curveCalculationConfig == null) {
+      throw new OpenGammaRuntimeException("Could not find curve calculation configuration named " + curveCalculationConfigName);
+    }
+    final String[] curveNames = curveCalculationConfig.getYieldCurveNames(); //TODO
+    final YieldCurveBundle curves = YieldCurveFunctionUtils.getYieldCurves(inputs, curveCalculationConfig);
+    final SABRInterestRateDataBundle data = getModelParameters(target, inputs, currency, dayCount, curves, desiredValue);
+    final InstrumentDerivative derivative = getConverter().convert(security, definition, now, curveNames, timeSeries);
     final Object result = getResult(derivative, data, desiredValue);
     final ValueProperties properties = getResultProperties(createValueProperties().get(), currency.getCode(), desiredValue);
     final ValueSpecification spec = new ValueSpecification(getValueRequirement(), target.toSpecification(), properties);
@@ -126,36 +143,44 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> forwardCurveNames = constraints.getValues(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
-    if (forwardCurveNames == null || forwardCurveNames.size() != 1) {
-      return null;
-    }
-    final Set<String> fundingCurveNames = constraints.getValues(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
-    if (fundingCurveNames == null || fundingCurveNames.size() != 1) {
-      return null;
-    }
     final Set<String> cubeNames = constraints.getValues(ValuePropertyNames.CUBE);
     if (cubeNames == null || cubeNames.size() != 1) {
-      return null;
-    }
-    final Set<String> curveCalculationMethods = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_METHOD);
-    if (curveCalculationMethods == null || curveCalculationMethods.size() != 1) {
       return null;
     }
     final Set<String> fittingMethods = constraints.getValues(VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD);
     if (fittingMethods == null || fittingMethods.size() != 1) {
       return null;
     }
-    final String forwardCurveName = forwardCurveNames.iterator().next();
-    final String fundingCurveName = fundingCurveNames.iterator().next();
-    final String cubeName = cubeNames.iterator().next();
-    final String curveCalculationMethod = curveCalculationMethods.iterator().next();
-    final String fittingMethod = fittingMethods.iterator().next();
+    final Set<String> curveCalculationConfigNames = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    if (curveCalculationConfigNames == null || curveCalculationConfigNames.size() != 1) {
+      return null;
+    }
+    final String curveCalculationConfigName = curveCalculationConfigNames.iterator().next();
+    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
+    final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
+    final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
+    if (curveCalculationConfig == null) {
+      s_logger.error("Could not find curve calculation configuration named " + curveCalculationConfigName);
+      return null;
+    }
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
-    final ValueRequirement forwardCurveRequirement = getCurveRequirement(forwardCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod, currency);
-    final ValueRequirement fundingCurveRequirement = getCurveRequirement(fundingCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod, currency);
-    final ValueRequirement cubeRequirement = getCubeRequirement(cubeName, currency, fittingMethod);
-    return Sets.newHashSet(forwardCurveRequirement, fundingCurveRequirement, cubeRequirement);
+    if (!currency.equals(curveCalculationConfig.getUniqueId())) {
+      s_logger.error("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getUniqueId());
+      return null;
+    }
+    final String cubeName = cubeNames.iterator().next();
+    final String fittingMethod = fittingMethods.iterator().next();
+    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
+    requirements.add(getCubeRequirement(cubeName, currency, fittingMethod));
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final Set<ValueRequirement> timeSeriesRequirements = getConverter()
+        .getConversionTimeSeriesRequirements(security, security.accept(getVisitor()), curveCalculationConfig.getYieldCurveNames()); //TODO
+    if (timeSeriesRequirements == null) {
+      return null;
+    }
+    requirements.addAll(timeSeriesRequirements);
+    return requirements;
   }
 
   protected abstract String getValueRequirement();
@@ -188,25 +213,8 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
     return _securitySource;
   }
 
-  protected YieldCurveBundle getYieldCurves(final FunctionInputs inputs, final Currency currency, final ValueRequirement desiredValue) {
-    final String forwardCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
-    final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
-    final String curveCalculationMethod = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_METHOD);
-    final Object forwardCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(currency, forwardCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod));
-    if (forwardCurveObject == null) {
-      throw new OpenGammaRuntimeException("Could not get forward curve");
-    }
-    final Object fundingCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(currency, fundingCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod));
-    if (fundingCurveObject == null) {
-      throw new OpenGammaRuntimeException("Could not get funding curve");
-    }
-    final YieldAndDiscountCurve forwardCurve = (YieldAndDiscountCurve) forwardCurveObject;
-    final YieldAndDiscountCurve fundingCurve = (YieldAndDiscountCurve) fundingCurveObject;
-    return new YieldCurveBundle(new String[] {fundingCurveName, forwardCurveName }, new YieldAndDiscountCurve[] {fundingCurve, forwardCurve });
-  }
-
   protected abstract SABRInterestRateDataBundle getModelParameters(final ComputationTarget target, final FunctionInputs inputs, final Currency currency,
-      final DayCount dayCount, final ValueRequirement desiredValue);
+      final DayCount dayCount, final YieldCurveBundle curves, final ValueRequirement desiredValue);
 
   protected abstract ValueProperties getResultProperties(final ValueProperties properties, final String currency);
 

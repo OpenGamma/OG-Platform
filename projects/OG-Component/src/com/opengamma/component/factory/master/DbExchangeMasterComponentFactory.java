@@ -25,6 +25,7 @@ import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.change.JmsChangeManager;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.exchange.impl.DataExchangeMasterResource;
+import com.opengamma.master.exchange.impl.RemoteExchangeMaster;
 import com.opengamma.masterdb.exchange.DbExchangeMaster;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.jms.JmsConnector;
@@ -95,6 +96,8 @@ public class DbExchangeMasterComponentFactory extends AbstractComponentFactory {
     }
     
     // register
+    info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteExchangeMaster.class);
     info.addAttribute(ComponentInfoAttributes.UNIQUE_ID_SCHEME, master.getUniqueIdScheme());
     repo.registerComponent(info, master);
     

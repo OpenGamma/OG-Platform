@@ -50,7 +50,7 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DbT
   protected OffsetDateTime _now;
 
   public AbstractDbHistoricalTimeSeriesMasterWorkerTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
+    super(databaseType, databaseVersion, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }
 

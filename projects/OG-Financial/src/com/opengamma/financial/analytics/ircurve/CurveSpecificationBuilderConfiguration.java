@@ -125,6 +125,20 @@ public class CurveSpecificationBuilderConfiguration {
     }
   }
 
+  private ExternalId getStaticSecurity(final Map<Tenor, CurveInstrumentProvider> instrumentMappers, final LocalDate curveDate, final FixedIncomeStrip strip) {
+    final Tenor tenor = strip.getCurveNodePointTime();
+    final Tenor payTenor = strip.getPayTenor();
+    final Tenor receiveTenor = strip.getReceiveTenor();
+    final IndexType payIndexType = strip.getPayIndexType();
+    final IndexType receiveIndexType = strip.getReceiveIndexType();
+    final CurveInstrumentProvider mapper = instrumentMappers.get(tenor);
+    if (mapper != null) {
+      return mapper.getInstrument(curveDate, tenor, payTenor, receiveTenor, payIndexType, receiveIndexType);
+    } else {
+      throw new OpenGammaRuntimeException("can't find instrument mapper definition for " + tenor);
+    }
+  }
+
   /**
    * Build a cash security identifier for a curve node point
    * @param curveDate the date of the start of the curve
@@ -193,14 +207,14 @@ public class CurveSpecificationBuilderConfiguration {
   /**
    * Build a Basis Swap security identifier for a curve node point
    * @param curveDate the date of the start of the curve
-   * @param tenor the time into the curve for this security
+   * @param strip the basis swap strip
    * @return identifier of the security to use
    */
-  public ExternalId getBasisSwapSecurity(final LocalDate curveDate, final Tenor tenor) {
+  public ExternalId getBasisSwapSecurity(final LocalDate curveDate, final FixedIncomeStrip strip) {
     if (_basisSwapInstrumentProviders == null) {
       throw new OpenGammaRuntimeException("Cannot get basis swap instrument provider");
     }
-    return getStaticSecurity(_basisSwapInstrumentProviders, curveDate, tenor);
+    return getStaticSecurity(_basisSwapInstrumentProviders, curveDate, strip);
   }
 
   /**

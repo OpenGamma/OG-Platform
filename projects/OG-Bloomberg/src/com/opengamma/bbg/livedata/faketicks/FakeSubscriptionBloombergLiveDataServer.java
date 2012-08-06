@@ -27,7 +27,6 @@ import javax.time.Duration;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
@@ -47,18 +46,16 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- * A live data server which fakes out Bloomberg  subscriptions for some tickers.
+ * A live data server which fakes out Bloomberg subscriptions for some tickers.
  * Other tickers will be subscribed as normal 
  */
 public class FakeSubscriptionBloombergLiveDataServer extends AbstractLiveDataServer {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(FakeSubscriptionBloombergLiveDataServer.class);
-  
-  private static final Duration PERIOD = Duration.ofStandardHours(24);
-  private static final long PERIOD_MILLIS = PERIOD.toMillisLong();
-  private static final long PERIOD_SECONDS = PERIOD.toSeconds().longValue();
-  
-  
+
+  private static final long PERIOD_MILLIS = Duration.ofStandardHours(24).toMillisLong();
+    
   private final ConcurrentMap<String, Object> _subscriptions = new ConcurrentHashMap<String, Object>();
 
   private final Cache _snapshotValues;
@@ -66,25 +63,14 @@ public class FakeSubscriptionBloombergLiveDataServer extends AbstractLiveDataSer
   private Timer _timer;
 
   private final BloombergLiveDataServer _underlying;
-  
-  /**
-   * @param underlying the underlying bloomberg server 
-   */
-  public FakeSubscriptionBloombergLiveDataServer(BloombergLiveDataServer underlying) {
-    this(underlying, EHCacheUtils.createCacheManager());
-    //TODO: should be spring injected, as should the rest of EHCache in live data
-  }
     
   public FakeSubscriptionBloombergLiveDataServer(BloombergLiveDataServer underlying, CacheManager cacheManager) { 
     _underlying = underlying;
     ArgumentChecker.notNull(underlying, "underlying");
     setDistributionSpecificationResolver(getDistributionSpecResolver(underlying.getDistributionSpecificationResolver()));
     
-    String diskStorePath = null; //This is ignored
-    
-    //TODO: should be set in ehcache.xml 
     String snapshotCacheName = "FakeSubscriptionBloombergLiveDataServer.SnapshotValues";
-    EHCacheUtils.addCache(cacheManager, snapshotCacheName, 10000, MemoryStoreEvictionPolicy.LRU, true, diskStorePath, false, PERIOD_SECONDS * 2, PERIOD_SECONDS * 2, true, 120, null);
+    EHCacheUtils.addCache(cacheManager, snapshotCacheName);
     _snapshotValues = EHCacheUtils.getCacheFromManager(cacheManager, snapshotCacheName);
   }
   
@@ -160,6 +146,9 @@ public class FakeSubscriptionBloombergLiveDataServer extends AbstractLiveDataSer
   }
   
   private static class CachedPerSecuritySnapshotResult implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+    
     private FudgeMsg _fieldData;
 
     private static class Inner implements Serializable {
@@ -217,9 +206,6 @@ public class FakeSubscriptionBloombergLiveDataServer extends AbstractLiveDataSer
     s_logger.info("Fake subscriptions to stopped");
     _timer = null;
   }
-
-
-
 
   @Override
   protected Map<String, Object> doSubscribe(Collection<String> uniqueIds) {

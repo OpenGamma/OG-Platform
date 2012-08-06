@@ -5,8 +5,8 @@
  */
 package com.opengamma.analytics.financial.equity.future;
 
-import com.opengamma.analytics.financial.equity.AbstractEquityDerivativeVisitor;
-import com.opengamma.analytics.financial.equity.EquityDerivative;
+import com.opengamma.analytics.financial.equity.AbstractDerivativeVisitor;
+import com.opengamma.analytics.financial.equity.Derivative;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
 import com.opengamma.analytics.financial.equity.future.pricing.EquityFutureMarkToMarket;
@@ -18,7 +18,7 @@ import org.apache.commons.lang.Validate;
 /**
  * Present value calculator for futures on Equity underlying assets
  */
-public final class EquityFuturesPresentValueCalculator extends AbstractEquityDerivativeVisitor<EquityFutureDataBundle, Double> {
+public final class EquityFuturesPresentValueCalculator extends AbstractDerivativeVisitor<EquityFutureDataBundle, Double> {
 
   private static final EquityFuturesPresentValueCalculator s_instance = new EquityFuturesPresentValueCalculator();
 
@@ -34,7 +34,7 @@ public final class EquityFuturesPresentValueCalculator extends AbstractEquityDer
   }
 
   @Override
-  public Double visit(final EquityDerivative derivative, final EquityFutureDataBundle dataBundle) {
+  public Double visit(final Derivative derivative, final EquityFutureDataBundle dataBundle) {
     Validate.notNull(derivative);
     Validate.notNull(dataBundle);
     Validate.notNull(dataBundle.getMarketPrice());
@@ -42,7 +42,7 @@ public final class EquityFuturesPresentValueCalculator extends AbstractEquityDer
   }
 
   @Override
-  public Double visit(final EquityDerivative derivative) {
+  public Double visit(final Derivative derivative) {
     Validate.notNull(derivative);
     return derivative.accept(this);
   }

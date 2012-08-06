@@ -60,7 +60,10 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
-    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final FXForwardSecurity security = (FXForwardSecurity) target.getSecurity();
+    if (now.isAfter(security.getForwardDate())) {
+      throw new OpenGammaRuntimeException("FX forward has expired");
+    }
     final Currency payCurrency = security.accept(ForexVisitors.getPayCurrencyVisitor());
     final Currency receiveCurrency = security.accept(ForexVisitors.getReceiveCurrencyVisitor());
     final InstrumentDefinition<?> definition = security.accept(VISITOR);
@@ -85,18 +88,16 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
       curves = new YieldAndDiscountCurve[] {receiveFundingCurve, payFundingCurve};
       allCurveNames = new String[] {fullReceiveCurveName, fullPayCurveName};
     }
-    try {
-      final Forex forex = (Forex) definition.toDerivative(now, allCurveNames);
-      final YieldCurveBundle yieldCurves = new YieldCurveBundle(allCurveNames, curves);
-      final ValueProperties.Builder properties = getResultProperties(payCurveName, receiveCurveName, payCurveConfig, receiveCurveConfig, target);
-      final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties.get());
-      return getResult(forex, yieldCurves, spec);
-    } catch (final IllegalArgumentException e) {
-      throw new OpenGammaRuntimeException("Exception for security " + security + "; reason: " + e.getMessage());
-    }
+    final Forex forex = (Forex) definition.toDerivative(now, allCurveNames);
+    final YieldCurveBundle yieldCurves = new YieldCurveBundle(allCurveNames, curves);
+    final ValueProperties.Builder properties = getResultProperties(target, desiredValue);
+    final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties.get());
+    return getResult(forex, yieldCurves, target, desiredValues, inputs, spec, executionContext);
   }
 
-  protected abstract Set<ComputedValue> getResult(final Forex fxForward, final YieldCurveBundle data, final ValueSpecification spec);
+  //TODO clumsy. Push the execute() method down into the functions and have getForward() and getData() methods
+  protected abstract Set<ComputedValue> getResult(final Forex fxForward, final YieldCurveBundle data, final ComputationTarget target, final Set<ValueRequirement> desiredValues,
+      final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext);
 
   @Override
   public ComputationTargetType getTargetType() {
@@ -150,14 +151,13 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
 
   protected abstract ValueProperties.Builder getResultProperties(final ComputationTarget target);
 
-  protected abstract ValueProperties.Builder getResultProperties(final String payCurveName, final String receiveCurveName, final String payCurveCalculationConfig,
-      final String receiveCurveCalculationConfig, final ComputationTarget target);
+  protected abstract ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue);
 
-  private static ValueRequirement getCurveRequirement(final String curveName, final Currency currency, final String curveCalculationConfigName) {
+  protected static ValueRequirement getCurveRequirement(final String curveName, final Currency currency, final String curveCalculationConfigName) {
     final ValueProperties.Builder properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, curveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName);
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties.get());
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, currency.getUniqueId(), properties.get());
   }
 
   protected static YieldAndDiscountCurve getCurve(final FunctionInputs inputs, final Currency currency, final String curveName, final String curveCalculationConfig) {

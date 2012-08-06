@@ -36,8 +36,6 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_SECURITY_TYP;
 import static com.opengamma.bbg.BloombergConstants.FIELD_SETTLE_DT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_TICKER;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ZERO_CPN;
-import static com.opengamma.bbg.BloombergConstants.MARKET_SECTOR_CORP;
-import static com.opengamma.bbg.BloombergConstants.MARKET_SECTOR_GOVT;
 import static com.opengamma.bbg.BloombergConstants.MARKET_SECTOR_MUNI;
 import static com.opengamma.bbg.util.BloombergDataUtils.isValidField;
 
@@ -144,6 +142,8 @@ public class BondLoader extends SecurityLoader {
       "UK GILT STOCK",
       "CANADIAN",
       "DOMESTIC");
+  
+  private static final String SOVEREIGN = "Sovereign";
 
   /**
    * Creates an instance.
@@ -168,26 +168,19 @@ public class BondLoader extends SecurityLoader {
     }
     return fieldData.getDouble(fieldName);
   }
-
-  private Integer validateAndGetIntegerField(FudgeMsg fieldData, String fieldName) {
+  
+  private Double validateAndGetNullableDoubleField(FudgeMsg fieldData, String fieldName) {
     if (!isValidField(fieldData.getString(fieldName))) {
-      s_logger.warn(fieldName + " is null, cannot construct bond security");
-      throw new OpenGammaRuntimeException(fieldName + " is null, cannot construct bond security");
+      return null;
+    }
+    return fieldData.getDouble(fieldName);
+  }
+  
+  private Integer validateAndGetNullableIntegerField(FudgeMsg fieldData, String fieldName) {
+    if (!isValidField(fieldData.getString(fieldName))) {
+      return null;
     }
     return fieldData.getInt(fieldName);
-  }
-
-  private ZonedDateTime validateAndGetDateField(FudgeMsg fieldData, String fieldName) {
-    if (!isValidField(fieldData.getString(fieldName))) {
-      s_logger.warn(fieldName + " is null, cannot construct bond security.  Value was " + fieldData.getString(fieldName));
-      throw new OpenGammaRuntimeException(fieldName + " is null, cannot construct bond security");
-    }
-    // These will need to be sorted out.
-    LocalTime expiryTime = LocalTime.of(17, 00);
-    TimeZone zone = TimeZone.UTC;
-    
-    LocalDate localDate = LocalDate.parse(fieldData.getString(fieldName));
-    return ZonedDateTime.of(localDate, expiryTime, zone);
   }
 
   private ZonedDateTime validateAndGetNullableDateField(FudgeMsg fieldData, String fieldName) {
@@ -235,8 +228,8 @@ public class BondLoader extends SecurityLoader {
       if ("Y".equals(zeroCoupon)) {
         couponFrequency = SimpleFrequency.NEVER;
       } else {
-        Integer couponFrequencyInt = validateAndGetIntegerField(fieldData, FIELD_CPN_FREQ);
-        couponFrequency = SimpleFrequencyFactory.INSTANCE.getFrequency(couponFrequencyInt);
+        Integer couponFrequencyInt = validateAndGetNullableIntegerField(fieldData, FIELD_CPN_FREQ);
+        couponFrequency = couponFrequencyInt != null ? SimpleFrequencyFactory.INSTANCE.getFrequency(couponFrequencyInt) : SimpleFrequency.NEVER;
       }
       String dayCountString = validateAndGetStringField(fieldData, FIELD_DAY_CNT_DES);
       // REVIEW: jim 27-Jan-2011 -- remove this and fix it properly.
@@ -244,9 +237,9 @@ public class BondLoader extends SecurityLoader {
         dayCountString = "Actual/Actual ICMA";
       }
       ZonedDateTime announcementDate = validateAndGetNullableDateField(fieldData, FIELD_ANNOUNCE_DT);
-      ZonedDateTime interestAccrualDate = validateAndGetDateField(fieldData, FIELD_INT_ACC_DT);
-      ZonedDateTime settlementDate = validateAndGetDateField(fieldData, FIELD_SETTLE_DT);
-      ZonedDateTime firstCouponDate = validateAndGetDateField(fieldData, FIELD_FIRST_CPN_DT);
+      ZonedDateTime interestAccrualDate = validateAndGetNullableDateField(fieldData, FIELD_INT_ACC_DT);
+      ZonedDateTime settlementDate = validateAndGetNullableDateField(fieldData, FIELD_SETTLE_DT);
+      ZonedDateTime firstCouponDate = validateAndGetNullableDateField(fieldData, FIELD_FIRST_CPN_DT);
       if (currencyStr.equals("GBP")) {
         if (announcementDate.toLocalDate().isAfter(LocalDate.of(1998, 11, 1)) && dayCountString.equals("ACT/ACT")) {
           dayCountString = "Actual/Actual ICMA";
@@ -258,7 +251,7 @@ public class BondLoader extends SecurityLoader {
       if (dayCount == null) {
         throw new OpenGammaRuntimeException("Could not find day count convention " + dayCountString);
       }
-      Double issuancePrice = validateAndGetDoubleField(fieldData, FIELD_ISSUE_PX);
+      Double issuancePrice = validateAndGetNullableDoubleField(fieldData, FIELD_ISSUE_PX);
       Double totalAmountIssued = validateAndGetDoubleField(fieldData, FIELD_AMT_ISSUED);
       Double minimumAmount = validateAndGetDoubleField(fieldData, FIELD_MIN_PIECE);
       Double minimumIncrement = validateAndGetDoubleField(fieldData, FIELD_MIN_INCREMENT);
@@ -270,16 +263,8 @@ public class BondLoader extends SecurityLoader {
       String des = validateAndGetStringField(fieldData, FIELD_SECURITY_DES);
       
       ManageableSecurity bondSecurity;
-      if (marketSector.equals(MARKET_SECTOR_GOVT)) {
+      if (issuerType.trim().equals(SOVEREIGN)) {
         bondSecurity = new GovernmentBondSecurity(issuerName, issuerType, issuerDomicile, market, currency,
-            yieldConvention, maturity, couponType, couponRate,
-            couponFrequency, dayCount, interestAccrualDate, settlementDate, firstCouponDate, issuancePrice,
-            totalAmountIssued, minimumAmount, minimumIncrement, parAmount,
-            redemptionValue);
-        ((BondSecurity) bondSecurity).setAnnouncementDate(announcementDate);
-        ((BondSecurity) bondSecurity).setGuaranteeType(guaranteeType);
-      } else if (marketSector.equals(MARKET_SECTOR_CORP)) {
-        bondSecurity = new CorporateBondSecurity(issuerName, issuerType, issuerDomicile, market, currency,
             yieldConvention, maturity, couponType, couponRate,
             couponFrequency, dayCount, interestAccrualDate, settlementDate, firstCouponDate, issuancePrice,
             totalAmountIssued, minimumAmount, minimumIncrement, parAmount,
@@ -296,7 +281,13 @@ public class BondLoader extends SecurityLoader {
         ((BondSecurity) bondSecurity).setGuaranteeType(guaranteeType);
         
       } else {
-        throw new OpenGammaRuntimeException("Unsupported bond (" + des + ") of market sector type " + marketSector);
+        bondSecurity = new CorporateBondSecurity(issuerName, issuerType, issuerDomicile, market, currency,
+            yieldConvention, maturity, couponType, couponRate,
+            couponFrequency, dayCount, interestAccrualDate, settlementDate, firstCouponDate, issuancePrice,
+            totalAmountIssued, minimumAmount, minimumIncrement, parAmount,
+            redemptionValue);
+        ((BondSecurity) bondSecurity).setAnnouncementDate(announcementDate);
+        ((BondSecurity) bondSecurity).setGuaranteeType(guaranteeType);
       }
       
       bondSecurity.setName(des.trim());

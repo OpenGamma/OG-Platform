@@ -8,8 +8,6 @@ package com.opengamma.bbg.loader;
 import java.util.Collection;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -28,10 +26,6 @@ import com.opengamma.util.PlatformConfigUtils.MarketDataSource;
  */
 public class BloombergIRFutureOptionLoader {
 
-  /** Logger. */
-  @SuppressWarnings("unused")
-  private static final Logger s_logger = LoggerFactory.getLogger(BloombergIRFutureOptionLoader.class);
-  
   /* package */static final String CONTEXT_CONFIGURATION_PATH = "/com/opengamma/bbg/loader/bloomberg-security-loader-context.xml";
 
   private static ConfigurableApplicationContext getApplicationContext() {

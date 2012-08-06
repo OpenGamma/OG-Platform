@@ -9,6 +9,7 @@ import java.util.Set;
 
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.RequirementBasedColumnKey;
 
 /**
@@ -18,14 +19,21 @@ public class AnalyticsColumn {
 
   private final String _header;
   private final String _description;
+  private final Class<?> _type;
 
-  public AnalyticsColumn(String header, String description) {
+  public AnalyticsColumn(String header, String description, Class<?> type) {
+    ArgumentChecker.notNull(header, "header");
     _header = header;
-    _description = description;
+    if (description != null) {
+      _description = description;
+    } else {
+      _description = header;
+    }
+    _type = type;
   }
 
-  public static AnalyticsColumn forKey(RequirementBasedColumnKey key) {
-    return new AnalyticsColumn(getHeader(key), getDescription(key.getValueProperties()));
+  public static AnalyticsColumn forKey(RequirementBasedColumnKey key, Class<?> columnType) {
+    return new AnalyticsColumn(createHeader(key), createDescription(key.getValueProperties()), columnType);
   }
 
   /* package */ String getHeader() {
@@ -36,7 +44,11 @@ public class AnalyticsColumn {
     return _description;
   }
 
-  private static String getHeader(RequirementBasedColumnKey columnKey) {
+  public Class<?> getType() {
+    return _type;
+  }
+
+  private static String createHeader(RequirementBasedColumnKey columnKey) {
     String header;
     String normalizedConfigName = columnKey.getCalcConfigName().toLowerCase().trim();
     if ("default".equals(normalizedConfigName) || "portfolio".equals(normalizedConfigName)) {
@@ -47,7 +59,7 @@ public class AnalyticsColumn {
     return header;
   }
 
-  private static String getDescription(ValueProperties constraints) {
+  private static String createDescription(ValueProperties constraints) {
     if (constraints.isEmpty()) {
       return "No constraints";
     }

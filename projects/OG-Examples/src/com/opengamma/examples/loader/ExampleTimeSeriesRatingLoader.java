@@ -15,7 +15,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.examples.marketdata.SimulatedHistoricalDataGenerator;
+import com.opengamma.examples.historical.SimulatedHistoricalDataGenerator;
 import com.opengamma.examples.tool.AbstractExampleTool;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;

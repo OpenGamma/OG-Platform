@@ -172,7 +172,6 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
       SecurityEntryData securityEntryData = OpenGammaFudgeContext.getInstance().fromFudgeMsg(SecurityEntryData.class, msg.getMessage());
 
       out.put("securityEntryData", securityEntryData);
-      out.put("securityAttributes", security.getAttributes());
       RawSecurity underlyingRawSecurity = (RawSecurity) getSecurity(securityEntryData.getFactorSetId());
       if (underlyingRawSecurity != null) {
         FudgeMsgEnvelope factorIdMsg = OpenGammaFudgeContext.getInstance().deserialize(underlyingRawSecurity.getRawData());

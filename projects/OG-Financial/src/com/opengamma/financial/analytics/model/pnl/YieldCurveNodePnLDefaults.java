@@ -40,17 +40,14 @@ public class YieldCurveNodePnLDefaults extends DefaultPropertyFunction {
   private final String _scheduleCalculator;
   private final String _samplingFunction;
   private final PriorityClass _priority;
-  private final boolean _includeIRFutures;
   private final Map<String, String> _currencyAndCurveConfigNames;
 
-  public YieldCurveNodePnLDefaults(final String samplingPeriod, final String scheduleCalculator, final String samplingFunction,
-      final String priority, final String includeIRFutures, final String... currencyAndCurveConfigNames) {
+  public YieldCurveNodePnLDefaults(final String samplingPeriod, final String scheduleCalculator, final String samplingFunction, final String priority, final String... currencyAndCurveConfigNames) {
     super(ComputationTargetType.POSITION, true);
     ArgumentChecker.notNull(samplingPeriod, "sampling period");
     ArgumentChecker.notNull(scheduleCalculator, "schedule calculator");
     ArgumentChecker.notNull(samplingFunction, "sampling function");
     ArgumentChecker.notNull(priority, "priority");
-    ArgumentChecker.notNull(includeIRFutures, "include IR futures field");
     ArgumentChecker.notNull(currencyAndCurveConfigNames, "currency and curve config names");
     final int nPairs = currencyAndCurveConfigNames.length;
     ArgumentChecker.isTrue(nPairs % 2 == 0, "Must have one curve config name per currency");
@@ -58,7 +55,6 @@ public class YieldCurveNodePnLDefaults extends DefaultPropertyFunction {
     _scheduleCalculator = scheduleCalculator;
     _samplingFunction = samplingFunction;
     _priority = PriorityClass.valueOf(priority);
-    _includeIRFutures = Boolean.parseBoolean(includeIRFutures);
     _currencyAndCurveConfigNames = new HashMap<String, String>();
     for (int i = 0; i < currencyAndCurveConfigNames.length; i += 2) {
       _currencyAndCurveConfigNames.put(currencyAndCurveConfigNames[i], currencyAndCurveConfigNames[i + 1]);
@@ -71,10 +67,14 @@ public class YieldCurveNodePnLDefaults extends DefaultPropertyFunction {
     if (!(security instanceof FinancialSecurity)) {
       return false;
     }
-    if (!_includeIRFutures && security instanceof InterestRateFutureSecurity) {
+    if (security instanceof InterestRateFutureSecurity) {
       return false;
     }
     if (FXUtils.isFXSecurity(security)) {
+      return false;
+    }
+    final String currencyName = FinancialSecurityUtils.getCurrency(security).getCode();
+    if (!_currencyAndCurveConfigNames.containsKey(currencyName)) {
       return false;
     }
     if (security instanceof SwapSecurity) {
@@ -88,14 +88,7 @@ public class YieldCurveNodePnLDefaults extends DefaultPropertyFunction {
         return false;
       }
     }
-    if (!InterestRateInstrumentType.isFixedIncomeInstrumentType((FinancialSecurity) security)) {
-      return false;
-    }
-    final String currencyName = FinancialSecurityUtils.getCurrency(security).getCode();
-    if (!_currencyAndCurveConfigNames.containsKey(currencyName)) {
-      return false;
-    }
-    return true;
+    return InterestRateInstrumentType.isFixedIncomeInstrumentType((FinancialSecurity) security);
   }
 
   @Override

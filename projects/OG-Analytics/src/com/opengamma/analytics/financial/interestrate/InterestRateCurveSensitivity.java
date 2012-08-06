@@ -45,6 +45,18 @@ public class InterestRateCurveSensitivity {
   }
 
   /**
+   * Builder from a curve name and a list of sensitivities.
+   * @param name The name.
+   * @param sensitivityCurve The sensitivity as a list.
+   * @return The interest rate curve sensitivity.
+   */
+  public static InterestRateCurveSensitivity from(String name, List<DoublesPair> sensitivityCurve) {
+    HashMap<String, List<DoublesPair>> ircs = new HashMap<String, List<DoublesPair>>();
+    ircs.put(name, sensitivityCurve);
+    return new InterestRateCurveSensitivity(ircs);
+  }
+
+  /**
    * Gets the sensitivity map.
    * @return The sensitivity map
    */

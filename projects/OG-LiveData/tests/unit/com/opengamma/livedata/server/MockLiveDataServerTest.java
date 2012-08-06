@@ -30,37 +30,37 @@ import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.livedata.server.distribution.MarketDataDistributor;
 
 /**
- * Test MockLiveDataServer.
+ * Test.
  */
+@Test(groups = "unit")
 public class MockLiveDataServerTest {
-  
+
   private ExternalScheme _domain;
   private MockLiveDataServer _server;
-  
+
   @BeforeMethod
   public void setUp() {
     _domain = ExternalScheme.of("test");
     _server = new MockLiveDataServer(_domain);
     _server.connect();
   }
-  
-  @Test
+
+  //-------------------------------------------------------------------------
   public void persistentSubscription() {
     getMethods("persistent", true);
   }
-  
-  @Test
+
   public void nonpersistentSubscription() {
     getMethods("nonpersistent", false);
   }
-  
+
   private LiveDataSpecification getSpec(String uniqueId) {
     LiveDataSpecification spec = new LiveDataSpecification(
         _server.getDefaultNormalizationRuleSetId(),
         ExternalId.of(_server.getUniqueIdDomain(), uniqueId));
     return spec;
   }
-  
+
   private void getMethods(String uniqueId, boolean persistent) {
     LiveDataSpecification spec = getSpec(uniqueId);    
     
@@ -106,7 +106,6 @@ public class MockLiveDataServerTest {
     assertNull(distributor.getExpiry());
   }
 
-  @Test
   public void subscribeUnsubscribeA() {
     _server.subscribe("nonpersistent", false);
     _server.subscribe("persistent", true);
@@ -120,8 +119,7 @@ public class MockLiveDataServerTest {
     assertFalse(_server.isSubscribedTo("nonpersistent"));
     assertFalse(_server.isSubscribedTo("persistent"));
   }
-  
-  @Test
+
   public void subscribeUnsubscribeB() {
     _server.subscribe("nonpersistent", false);
     _server.subscribe("persistent", true);
@@ -132,8 +130,7 @@ public class MockLiveDataServerTest {
     assertTrue(_server.unsubscribe(nonpersistent));
     assertTrue(_server.unsubscribe(persistent));  
   }
-  
-  @Test
+
   public void subscribeUnsubscribeC() {
     UserPrincipal user = new UserPrincipal("mark", "1.1.1.1");
     
@@ -157,8 +154,7 @@ public class MockLiveDataServerTest {
     
     assertTrue(_server.unsubscribe("testsub"));
   }
-  
-  @Test
+
   public void subscribeThenStopDistributor() {
     _server.subscribe("mysub", false);
     _server.subscribe("mysub", false);
@@ -197,8 +193,7 @@ public class MockLiveDataServerTest {
     assertEquals(requestedSpec.getIdentifiers().toString(), response.getResponses().get(0).getTickDistributionSpecification());
     assertEquals(null, response.getResponses().get(0).getUserMessage());
   }
-  
-  @Test
+
   public void snapshot() {
     UserPrincipal user = new UserPrincipal("mark", "1.1.1.1");
     
@@ -228,5 +223,5 @@ public class MockLiveDataServerTest {
     
     assertFalse(_server.unsubscribe("testsub"));
   }
-  
+
 }

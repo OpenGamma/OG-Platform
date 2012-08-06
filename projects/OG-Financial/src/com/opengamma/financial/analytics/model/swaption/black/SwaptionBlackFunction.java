@@ -94,8 +94,11 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
     if (curveCalculationConfig == null) {
       throw new OpenGammaRuntimeException("Could not find curve calculation configuration named " + curveCalculationConfigName);
     }
-    final String[] curveNames = curveCalculationConfig.getYieldCurveNames(); //TODO
-    final YieldCurveBundle curves = YieldCurveFunctionUtils.getYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
+    String[] curveNames = curveCalculationConfig.getYieldCurveNames(); //TODO
+    if (curveNames.length == 1) {
+      curveNames = new String[] {curveNames[0], curveNames[0]};
+    }
+    final YieldCurveBundle curves = YieldCurveFunctionUtils.getYieldCurves(inputs, curveCalculationConfig);
     final Object volatilitySurfaceObject = inputs.getValue(getVolatilityRequirement(surfaceName, currency));
     if (volatilitySurfaceObject == null) {
       throw new OpenGammaRuntimeException("Could not get volatility surface");
@@ -155,6 +158,7 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
     if (!currency.equals(curveCalculationConfig.getUniqueId())) {
       s_logger.error("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getUniqueId());
+      return null;
     }
     final String surfaceName = surfaceNames.iterator().next();
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();

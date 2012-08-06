@@ -195,7 +195,7 @@ public class InterpolatedYieldAndDiscountCurveFunction extends AbstractFunction 
             timeInYearsToRates.put(years, Math.exp(-price * years));
           }
         }
-        final YieldAndDiscountCurve curve = _isYieldCurve ? new YieldCurve(InterpolatedDoublesCurve.from(timeInYearsToRates, _interpolator)) : new DiscountCurve(InterpolatedDoublesCurve.from(
+        final YieldAndDiscountCurve curve = _isYieldCurve ? YieldCurve.from(InterpolatedDoublesCurve.from(timeInYearsToRates, _interpolator)) : DiscountCurve.from(InterpolatedDoublesCurve.from(
             timeInYearsToRates, _interpolator));
         final ComputedValue resultValue = new ComputedValue(_result, curve);
         final ComputedValue specValue = new ComputedValue(_specResult, specWithSecurities);

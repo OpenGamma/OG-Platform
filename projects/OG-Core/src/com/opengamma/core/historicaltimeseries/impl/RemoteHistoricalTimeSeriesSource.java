@@ -11,6 +11,8 @@ import java.util.Set;
 
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.core.change.BasicChangeManager;
+import com.opengamma.core.change.ChangeManager;
 import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
@@ -30,12 +32,30 @@ import com.opengamma.util.tuple.Pair;
 public class RemoteHistoricalTimeSeriesSource extends AbstractRemoteClient implements HistoricalTimeSeriesSource {
 
   /**
+   * The change manager.
+   */
+  private final ChangeManager _changeManager;
+
+
+  /**
    * Creates an instance.
-   * 
+   *
    * @param baseUri  the base target URI for all RESTful web services, not null
    */
   public RemoteHistoricalTimeSeriesSource(final URI baseUri) {
+    this(baseUri, new BasicChangeManager());
+  }
+
+  /**
+   * Creates an instance.
+   * 
+   * @param baseUri  the base target URI for all RESTful web services, not null
+   * @param changeManager  the change manager, not null
+   */
+  public RemoteHistoricalTimeSeriesSource(final URI baseUri, final ChangeManager changeManager) {
     super(baseUri);
+    ArgumentChecker.notNull(changeManager, "changeManager");
+    _changeManager = changeManager;
   }
 
   //-------------------------------------------------------------------------
@@ -291,6 +311,11 @@ public class RemoteHistoricalTimeSeriesSource extends AbstractRemoteClient imple
     } catch (UniformInterfaceException404NotFound ex) {
       return null;
     }
+  }
+
+  @Override
+  public ChangeManager changeManager() {
+    return _changeManager;
   }
 
 }

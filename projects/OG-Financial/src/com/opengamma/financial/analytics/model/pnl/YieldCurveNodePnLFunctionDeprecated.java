@@ -114,8 +114,8 @@ public class YieldCurveNodePnLFunctionDeprecated extends AbstractFunction.NonCom
     final Schedule scheduleCalculator = getScheduleCalculator(constraints.getValues(ValuePropertyNames.SCHEDULE_CALCULATOR));
     final TimeSeriesSamplingFunction samplingFunction = getSamplingFunction(constraints.getValues(ValuePropertyNames.SAMPLING_FUNCTION));
     final LocalDate[] schedule = HOLIDAY_REMOVER.getStrippedSchedule(scheduleCalculator.getSchedule(startDate, now, true, false), WEEKEND_CALENDAR); //REVIEW emcleod should "fromEnd" be hard-coded?
-    final DoubleTimeSeries<?> result = getPnLSeries(forwardCurveSpec, forwardCurveSensitivities, historicalSource, startDate, now, schedule, samplingFunction).add(
-        getPnLSeries(fundingCurveSpec, fundingCurveSensitivities, historicalSource, startDate, now, schedule, samplingFunction));
+    final DoubleTimeSeries<?> result = getPnLSeries(forwardCurveSpec, forwardCurveSensitivities, historicalSource, startDate, now, schedule, samplingFunction)
+        .add(getPnLSeries(fundingCurveSpec, fundingCurveSensitivities, historicalSource, startDate, now, schedule, samplingFunction));
     final ValueProperties resultProperties = getResultProperties(desiredValue, currencyString);
     final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), resultProperties);
     return Sets.newHashSet(new ComputedValue(resultSpec, result));

@@ -58,6 +58,10 @@ public final class ResolutionFailureImpl extends ResolutionFailure {
     return new ResolutionFailureImpl(valueRequirement).appendEvent(Status.MARKET_DATA_MISSING);
   }
 
+  protected static ResolutionFailure suppressed(final ValueRequirement valueRequirement) {
+    return new ResolutionFailureImpl(valueRequirement).suppressed();
+  }
+
   @Override
   protected ResolutionFailure additionalRequirement(final ValueRequirement valueRequirement, final ResolutionFailure failure) {
     return appendEvent(Status.ADDITIONAL_REQUIREMENT).requirement(valueRequirement, failure);
@@ -91,6 +95,11 @@ public final class ResolutionFailureImpl extends ResolutionFailure {
   @Override
   protected ResolutionFailure getRequirementsFailed() {
     return appendEvent(Status.GET_REQUIREMENTS_FAILED);
+  }
+
+  @Override
+  protected ResolutionFailure suppressed() {
+    return appendEvent(Status.SUPPRESSED);
   }
 
   @Override
@@ -190,6 +199,11 @@ public final class ResolutionFailureImpl extends ResolutionFailure {
               function = null;
             }
             result.add(visitor.visitRecursiveRequirement(getValueRequirement()));
+            break;
+          case SUPPRESSED:
+            assert function != null;
+            result.add(visitor.visitBlacklistSuppressed(getValueRequirement(), function, outputSpecification, satisfied));
+            function = null;
             break;
           case UNSATISFIED:
             if (function != null) {
@@ -307,6 +321,7 @@ public final class ResolutionFailureImpl extends ResolutionFailure {
                       case GET_RESULTS_FAILED:
                       case GET_REQUIREMENTS_FAILED:
                       case LATE_RESOLUTION_FAILURE:
+                      case SUPPRESSED:
                         // Discard any matching "new" event
                         newEvents.remove(eventThis);
                         continue scanStartEvent;

@@ -451,4 +451,15 @@ public class ExternalIdBundleTest {
     assertEquals("Bundle[" + _id11.toString() + ", " + _id12.toString() + "]", test.toString());
   }
 
+  public void test_getExeternalIds() {
+    ExternalIdBundle bundle = ExternalIdBundle.of(_id11, _id12, _id21, _id22);
+    Set<ExternalId> expected = Sets.newHashSet(_id11, _id12);
+    assertEquals(expected, bundle.getExternalIds(ExternalScheme.of("D1")));
+  }
+
+  public void test_getValues() {
+    ExternalIdBundle bundle = ExternalIdBundle.of(_id11, _id12, _id21, _id22);
+    Set<String> expected = Sets.newHashSet(_id11.getValue(), _id12.getValue());
+    assertEquals(expected, bundle.getValues(ExternalScheme.of("D1")));
+  }
 }

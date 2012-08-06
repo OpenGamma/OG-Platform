@@ -23,11 +23,13 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.DataFinancialSecuritySourceResource;
 import com.opengamma.financial.security.EHCachingFinancialSecuritySource;
 import com.opengamma.financial.security.FinancialSecuritySource;
 import com.opengamma.financial.security.MasterFinancialSecuritySource;
+import com.opengamma.financial.security.RemoteFinancialSecuritySource;
 import com.opengamma.master.security.SecurityMaster;
 
 /**
@@ -61,6 +63,9 @@ public class FinancialSecuritySourceComponentFactory extends AbstractComponentFa
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
     ComponentInfo info = new ComponentInfo(SecuritySource.class, getClassifier());
+    info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteFinancialSecuritySource.class);
+    
     FinancialSecuritySource source = new MasterFinancialSecuritySource(getSecurityMaster());
     if (getCacheManager() != null) {
       source = new EHCachingFinancialSecuritySource(source, getCacheManager());

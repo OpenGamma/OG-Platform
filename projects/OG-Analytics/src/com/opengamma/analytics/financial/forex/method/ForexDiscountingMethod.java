@@ -56,8 +56,8 @@ public final class ForexDiscountingMethod implements ForexPricingMethod {
    * @return The multi-currency present value.
    */
   public MultipleCurrencyAmount presentValue(final Forex fx, final YieldCurveBundle curves) {
-    CurrencyAmount pv1 = METHOD_PAY.presentValue(fx.getPaymentCurrency1(), curves);
-    CurrencyAmount pv2 = METHOD_PAY.presentValue(fx.getPaymentCurrency2(), curves);
+    final CurrencyAmount pv1 = METHOD_PAY.presentValue(fx.getPaymentCurrency1(), curves);
+    final CurrencyAmount pv2 = METHOD_PAY.presentValue(fx.getPaymentCurrency2(), curves);
     return MultipleCurrencyAmount.of(pv1, pv2);
   }
 
@@ -78,10 +78,10 @@ public final class ForexDiscountingMethod implements ForexPricingMethod {
    * @param curves The curve bundle (with FX rates).
    * @return The forward rate.
    */
-  public double forwardForexRate(final Forex fx, final YieldCurveWithFXBundle curves) {
+  public double forwardForexRate(final Forex fx, final YieldCurveBundle curves) {
     final double dfDomestic = curves.getCurve(fx.getPaymentCurrency2().getFundingCurveName()).getDiscountFactor(fx.getPaymentTime());
     final double dfForeign = curves.getCurve(fx.getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(fx.getPaymentTime());
-    final double spot = curves.getFxRate(fx.getCurrency1(), fx.getCurrency2());
+    final double spot = curves.getFxRates().getFxRate(fx.getCurrency1(), fx.getCurrency2());
     return spot * dfForeign / dfDomestic;
   }
 
@@ -92,8 +92,8 @@ public final class ForexDiscountingMethod implements ForexPricingMethod {
    * @return The sensitivity.
    */
   public MultipleCurrencyInterestRateCurveSensitivity presentValueCurveSensitivity(final Forex fx, final YieldCurveBundle curves) {
-    InterestRateCurveSensitivity result1 = new InterestRateCurveSensitivity(PVSC.visit(fx.getPaymentCurrency1(), curves));
-    InterestRateCurveSensitivity result2 = new InterestRateCurveSensitivity(PVSC.visit(fx.getPaymentCurrency2(), curves));
+    final InterestRateCurveSensitivity result1 = new InterestRateCurveSensitivity(PVSC.visit(fx.getPaymentCurrency1(), curves));
+    final InterestRateCurveSensitivity result2 = new InterestRateCurveSensitivity(PVSC.visit(fx.getPaymentCurrency2(), curves));
     MultipleCurrencyInterestRateCurveSensitivity result = MultipleCurrencyInterestRateCurveSensitivity.of(fx.getCurrency1(), result1);
     result = result.plus(fx.getCurrency2(), result2);
     return result;

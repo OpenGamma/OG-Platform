@@ -88,11 +88,11 @@ public final class FutureOptionExpiries {
     Validate.isTrue(nthFuture > 0, "nthFuture must be greater than 0.");
     if (nthFuture <= 6) { // We look for expiries in the first 6 serial months after curveDate
       return getMonthlyExpiry(nthFuture, valDate);
-    } else {  // And for Quarterly expiries thereafter
-      final int nthExpiryAfterSixMonths = nthFuture - 6;
-      final LocalDate sixMonthsForward = getMonthlyExpiry(6, valDate);
-      return getQuarterlyExpiry(nthExpiryAfterSixMonths, sixMonthsForward);
     }
+    // And for Quarterly expiries thereafter
+    final int nthExpiryAfterSixMonths = nthFuture - 6;
+    final LocalDate sixMonthsForward = getMonthlyExpiry(6, valDate);
+    return getQuarterlyExpiry(nthExpiryAfterSixMonths, sixMonthsForward);
   }
 
   public LocalDate getMonthlyExpiry(final int nthMonth, final LocalDate valDate) {

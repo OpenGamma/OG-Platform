@@ -30,7 +30,7 @@ import com.opengamma.util.time.Expiry;
  * 
  */
 public class JarrowRuddSkewnessKurtosisModelTest {
-  private static final YieldAndDiscountCurve R = new YieldCurve(ConstantDoublesCurve.from(0.05));
+  private static final YieldAndDiscountCurve R = YieldCurve.from(ConstantDoublesCurve.from(0.05));
   private static final double B = 0.02;
   private static final double SIGMA = 0.4;
   private static final double T = 0.5;

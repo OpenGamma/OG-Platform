@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.fudgemsg;
 
+import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
@@ -52,15 +53,16 @@ public class ComputationTargetSpecificationFudgeBuilder implements FudgeBuilder<
     return msg;
   }
 
-  protected static ComputationTargetSpecification buildObjectImpl(final FudgeMsg message) {
+  protected static ComputationTargetSpecification buildObjectImpl(final FudgeDeserializer deserializer, final FudgeMsg message) {
     final ComputationTargetType type = ComputationTargetType.valueOf(message.getString(TYPE_FIELD_NAME));
-    UniqueId uid = message.getValue(UniqueId.class, IDENTIFIER_FIELD_NAME);
+    FudgeField uniqueIdField = message.getByName(IDENTIFIER_FIELD_NAME);
+    UniqueId uid = uniqueIdField != null ? deserializer.fieldValueToObject(UniqueId.class, uniqueIdField) : null;
     return new ComputationTargetSpecification(type, uid);
   }
 
   @Override
   public ComputationTargetSpecification buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
-    return buildObjectImpl(message);
+    return buildObjectImpl(deserializer, message);
   }
 
 }

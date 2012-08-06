@@ -9,7 +9,6 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_SECURITY_TYPE;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -35,7 +34,7 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A security master based on the Bloomberg data source.
+ * A security source based on the Bloomberg data source.
  */
 public final class BloombergSecuritySource implements SecuritySource {
 
@@ -85,7 +84,7 @@ public final class BloombergSecuritySource implements SecuritySource {
     }
     return getSecurity(uniqueId.getValue());
   }
-  
+
   @Override
   public Security getSecurity(ObjectId objectId, VersionCorrection versionCorrection) {
     if (BLOOMBERG_SCHEME.equals(objectId.getScheme()) == false) {
@@ -103,7 +102,7 @@ public final class BloombergSecuritySource implements SecuritySource {
       return Collections.emptyList();
     }
   }
-  
+
   @Override
   public Collection<Security> getSecurities(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     return getSecurities(bundle);
@@ -122,12 +121,12 @@ public final class BloombergSecuritySource implements SecuritySource {
       return null;
     }
   }
-  
+
   @Override
   public Security getSecurity(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     return getSecurity(bundle);
   }
-  
+
   //-------------------------------------------------------------------------
   @Override
   public ChangeManager changeManager() {
@@ -137,6 +136,7 @@ public final class BloombergSecuritySource implements SecuritySource {
   //-------------------------------------------------------------------------
   /**
    * Gets the security type by id.
+   * 
    * @param securityID  the security id, null returns null
    * @return the security type, null if not found
    */
@@ -152,7 +152,7 @@ public final class BloombergSecuritySource implements SecuritySource {
 
   @Override
   public Map<UniqueId, Security> getSecurities(Collection<UniqueId> uniqueIds) {
-    final Map<UniqueId, Security> result = new HashMap<UniqueId, Security>();
+    final Map<UniqueId, Security> result = Maps.newHashMap();
     Map<ExternalIdBundle, UniqueId> uniqueIdMap = createBundle2UniqueIdMap(uniqueIds);
     Map<ExternalIdBundle, ManageableSecurity> securities = _bloombergBulkSecurityLoader.loadSecurity(uniqueIdMap.keySet());
     for (Entry<ExternalIdBundle, ManageableSecurity> entry : securities.entrySet()) {

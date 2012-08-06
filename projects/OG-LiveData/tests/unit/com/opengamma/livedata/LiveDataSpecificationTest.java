@@ -13,7 +13,7 @@ import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 /**
  * Test LiveDataSpecification.
  */
-@Test
+@Test(groups = "unit")
 public class LiveDataSpecificationTest extends AbstractFudgeBuilderTestCase {
 
   public void test_basic() {

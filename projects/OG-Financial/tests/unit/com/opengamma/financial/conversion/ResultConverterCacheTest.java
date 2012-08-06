@@ -41,7 +41,7 @@ public class ResultConverterCacheTest {
     assertNotNull(converter);
     assertTrue(converter instanceof TimeSeriesConverter);
     
-    converter = cache.getConverter(new DiscountCurve(new ConstantDoublesCurve(2.5)));
+    converter = cache.getConverter(DiscountCurve.from(new ConstantDoublesCurve(2.5)));
     assertNotNull(converter);
     assertTrue(converter instanceof YieldAndDiscountCurveConverter);
   }

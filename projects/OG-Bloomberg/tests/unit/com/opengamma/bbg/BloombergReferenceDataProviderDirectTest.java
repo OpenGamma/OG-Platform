@@ -24,12 +24,12 @@ import com.opengamma.bbg.util.BloombergDomainIdentifierResolver;
 import com.opengamma.id.ExternalId;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = "integration")
 public class BloombergReferenceDataProviderDirectTest extends BloombergReferenceDataProviderTestCase {
 
   private static final Set<String> VALID_EQUITY_TYPES = new TreeSet<String>();
-
   static {
     VALID_EQUITY_TYPES.add("Common Stock");
     VALID_EQUITY_TYPES.add("ADR");
@@ -43,7 +43,7 @@ public class BloombergReferenceDataProviderDirectTest extends BloombergReference
   protected ReferenceDataProvider createReferenceDataProvider(Class<?> c) throws Exception {
     return BloombergLiveDataServerUtils.getCachingReferenceDataProvider(c);
   }
-  
+
   @Override
   protected void stopProvider() {
     ReferenceDataProvider referenceDataProvider = getReferenceDataProvider();

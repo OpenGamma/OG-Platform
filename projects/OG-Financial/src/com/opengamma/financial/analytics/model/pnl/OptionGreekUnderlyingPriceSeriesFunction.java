@@ -13,11 +13,9 @@ import java.util.Set;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.greeks.Greek;
 import com.opengamma.analytics.financial.pnl.UnderlyingType;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.security.SecuritySource;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -28,7 +26,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.greeks.AvailableGreeks;
 import com.opengamma.financial.analytics.model.riskfactor.option.UnderlyingTimeSeriesProvider;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -62,13 +60,8 @@ public class OptionGreekUnderlyingPriceSeriesFunction extends AbstractFunction.N
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
-    final SecuritySource securitySource = executionContext.getSecuritySource();
-    final UnderlyingTimeSeriesProvider underlyingTimeSeriesProvider = new UnderlyingTimeSeriesProvider(historicalSource, _resolutionKey, securitySource);
-    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     //final Clock snapshotClock = executionContext.getValuationClock();
     //final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
-    final Greek greek = AvailableGreeks.getGreekForValueRequirementName(VALUE_REQUIREMENT_NAME);
     //final ValueRequirement desiredValue = desiredValues.iterator().next();
     //final Set<String> samplingPeriodName = desiredValue.getConstraints().getValues(ValuePropertyNames.SAMPLING_PERIOD);
     //final Set<String> scheduleCalculatorName = desiredValue.getConstraints().getValues(ValuePropertyNames.SCHEDULE_CALCULATOR);
@@ -81,10 +74,8 @@ public class OptionGreekUnderlyingPriceSeriesFunction extends AbstractFunction.N
     //final LocalDate[] schedule = scheduleCalculator.getSchedule(startDate, now, true, false); //REVIEW emcleod should "fromEnd" be hard-coded?
     final Set<ComputedValue> result = new HashSet<ComputedValue>();
     //    final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(greek.getUnderlying().getUnderlyings(), security), getUniqueId());
-    final DoubleTimeSeries<?> ts = underlyingTimeSeriesProvider.getSeries(greek, security);
-    if (ts == null) {
-      throw new OpenGammaRuntimeException("Could not get price series for security " + security);
-    }
+    final HistoricalTimeSeries hts = (HistoricalTimeSeries) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
+    final DoubleTimeSeries<?> ts = hts.getTimeSeries();
     //    final DoubleTimeSeries<?> resultTS;
     //    if (_scheduleCalculator != null && _samplingFunction != null) {
     //      final LocalDate[] schedule = _scheduleCalculator.getSchedule(_startDate, now, true, false); //REVIEW emcleod should "fromEnd" be hard-coded?
@@ -103,12 +94,14 @@ public class OptionGreekUnderlyingPriceSeriesFunction extends AbstractFunction.N
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getType() == ComputationTargetType.SECURITY;
+    return true;
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    return Collections.<ValueRequirement>emptySet();
+    final UnderlyingTimeSeriesProvider underlyingTimeSeriesProvider = new UnderlyingTimeSeriesProvider(OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context), _resolutionKey,
+        context.getSecuritySource());
+    return Collections.singleton(underlyingTimeSeriesProvider.getSeriesRequirement(AvailableGreeks.getGreekForValueRequirementName(VALUE_REQUIREMENT_NAME), (FinancialSecurity) target.getSecurity()));
   }
 
   @Override

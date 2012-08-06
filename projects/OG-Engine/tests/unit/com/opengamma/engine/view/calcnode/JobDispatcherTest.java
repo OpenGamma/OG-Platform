@@ -266,23 +266,34 @@ public class JobDispatcherTest {
   }
 
   @Test
-  public void testJobRetry() {
-    s_logger.info("testJobRetry");
+  public void testJobRetry_failure() {
+    s_logger.info("testJobRetry_failure");
     final JobDispatcher jobDispatcher = new JobDispatcher();
     final TestJobResultReceiver result = new TestJobResultReceiver();
+    final FailingJobInvoker failingInvoker = new FailingJobInvoker();
+    jobDispatcher.registerJobInvoker(failingInvoker);
     final CalculationJob job = createTestJob();
     jobDispatcher.dispatchJob(job, result);
-    assertNull(result.getResult());
+    CalculationJobResult jobResult = result.waitForResult(TIMEOUT);
+    assertNotNull(jobResult);
+    assertEquals(2, failingInvoker._failureCount); // once failed twice at one node, job is aborted
+    assertEquals(JobDispatcher.DEFAULT_JOB_FAILURE_NODE_ID, jobResult.getComputeNodeId());
+  }
+
+  @Test
+  public void testJobRetry_success() {
+    s_logger.info("testJobRetry_sucess");
+    final JobDispatcher jobDispatcher = new JobDispatcher();
+    final TestJobResultReceiver result = new TestJobResultReceiver();
     final FailingJobInvoker failingInvoker = new FailingJobInvoker();
     final TestJobInvoker workingInvoker = new TestJobInvoker("Test");
     jobDispatcher.registerJobInvoker(failingInvoker);
-    // The timeout below must be less than the timeout used to determine no-invokers available on retry
-    CalculationJobResult jobResult = result.waitForResult(TIMEOUT);
-    assertNull(jobResult);
     jobDispatcher.registerJobInvoker(workingInvoker);
-    jobResult = result.waitForResult(TIMEOUT);
+    final CalculationJob job = createTestJob();
+    jobDispatcher.dispatchJob(job, result);
+    CalculationJobResult jobResult = result.waitForResult(TIMEOUT);
     assertNotNull(jobResult);
-    assertEquals(1, failingInvoker._failureCount);
+    assertEquals(1, failingInvoker._failureCount); // fail once at this node, then retried on another
     assertEquals("Test", jobResult.getComputeNodeId());
     assertEquals(job.getSpecification(), jobResult.getSpecification());
   }

@@ -79,7 +79,7 @@ public class NetworkConnectorJob<T> extends AbstractConnectorJob<T> {
 
   }
 
-  protected NetworkConnectorJob(final AbstractConnectorJob.Callback<T> callback, final RecordStream.Factory<T> streamFactory, final InetAddress host, final int port) {
+  public NetworkConnectorJob(final AbstractConnectorJob.Callback<T> callback, final RecordStream.Factory<T> streamFactory, final InetAddress host, final int port) {
     super(callback, streamFactory, null);
     ArgumentChecker.notNull(host, "host");
     _host = host;

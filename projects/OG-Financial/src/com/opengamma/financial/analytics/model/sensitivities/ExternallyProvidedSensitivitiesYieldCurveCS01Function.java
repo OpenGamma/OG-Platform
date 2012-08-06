@@ -29,10 +29,7 @@ import com.opengamma.financial.analytics.LabelledMatrix1D;
 import com.opengamma.financial.analytics.StringLabelledMatrix1D;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
-import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
-import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.sensitivities.SecurityEntryData;
 import com.opengamma.master.security.RawSecurity;
 import com.opengamma.util.money.Currency;
@@ -70,7 +67,7 @@ public class ExternallyProvidedSensitivitiesYieldCurveCS01Function extends Abstr
 
   private ValueProperties.Builder createCurrencyValueProperties(final ComputationTarget target) {
     final Security security = target.getPosition().getSecurity();
-    if (security instanceof FXOptionSecurity || security instanceof FXBarrierOptionSecurity || security instanceof FXDigitalOptionSecurity || security instanceof FXForwardSecurity) {
+    if (FXUtils.isFXSecurity(security)) {
       return createValueProperties(); //TODO what to do in this case?
     }
     final Currency ccy = FinancialSecurityUtils.getCurrency(security);

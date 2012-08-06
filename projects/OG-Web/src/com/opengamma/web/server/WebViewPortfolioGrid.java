@@ -23,6 +23,8 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.id.UniqueId;
+import com.opengamma.web.server.conversion.DoubleValueFormatter;
+import com.opengamma.web.server.conversion.DoubleValueOptionalDecimalPlaceFormatter;
 import com.opengamma.web.server.conversion.ResultConverterCache;
 
 /**
@@ -64,7 +66,8 @@ public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
       Position position = row.getPosition();
       details.put("posId", position.getUniqueId());
       details.put("position", position.getSecurity().getName());
-      details.put("quantity", position.getQuantity().signum() == 0 ? "0" : position.getQuantity().toPlainString());
+      DoubleValueFormatter formatter = new DoubleValueOptionalDecimalPlaceFormatter();
+      details.put("quantity", position.getQuantity().signum() == 0 ? "0" : formatter.format(position.getQuantity()));
     } else {
       details.put("position", row.getAggregateName());
     }

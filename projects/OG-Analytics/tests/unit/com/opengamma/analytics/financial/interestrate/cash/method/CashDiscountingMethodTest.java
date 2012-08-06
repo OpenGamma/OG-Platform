@@ -264,7 +264,7 @@ public class CashDiscountingMethodTest {
     yields[0] = curveToBump.getInterestRate(0.0);
     yields[1] = curveToBump.getInterestRate(nodeTimesExtended[1]);
     yields[2] = curveToBump.getInterestRate(nodeTimesExtended[2]);
-    final YieldAndDiscountCurve curveNode = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimesExtended, yields, new LinearInterpolator1D()));
+    final YieldAndDiscountCurve curveNode = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(nodeTimesExtended, yields, new LinearInterpolator1D()));
     for (int loopnode = 0; loopnode < nbNode; loopnode++) {
       final YieldAndDiscountCurve curveBumped = curveNode.withSingleShift(nodeTimesExtended[loopnode + 1], deltaShift);
       CURVES.replaceCurve(CURVES_NAME[0], curveBumped);

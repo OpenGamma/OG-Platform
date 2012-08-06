@@ -23,8 +23,10 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.exchange.impl.DataExchangeSourceResource;
+import com.opengamma.core.exchange.impl.RemoteExchangeSource;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.exchange.impl.EHCachingExchangeSource;
 import com.opengamma.master.exchange.impl.MasterExchangeSource;
@@ -60,6 +62,9 @@ public class ExchangeSourceComponentFactory extends AbstractComponentFactory {
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
     ComponentInfo info = new ComponentInfo(ExchangeSource.class, getClassifier());
+    info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteExchangeSource.class);
+    
     ExchangeSource source = new MasterExchangeSource(getExchangeMaster());
     if (getCacheManager() != null) {
       source = new EHCachingExchangeSource(source, getCacheManager());

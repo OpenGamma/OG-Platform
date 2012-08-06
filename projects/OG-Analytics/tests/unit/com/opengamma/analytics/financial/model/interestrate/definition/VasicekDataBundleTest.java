@@ -13,7 +13,6 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.financial.model.interestrate.definition.VasicekDataBundle;
 import com.opengamma.analytics.financial.model.volatility.curve.VolatilityCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.time.DateUtils;
@@ -22,7 +21,7 @@ import com.opengamma.util.time.DateUtils;
  * 
  */
 public class VasicekDataBundleTest {
-  private static final YieldCurve SHORT_RATE = new YieldCurve(ConstantDoublesCurve.from(0.02));
+  private static final YieldCurve SHORT_RATE = YieldCurve.from(ConstantDoublesCurve.from(0.02));
   private static final double LONG_RATE = 0.05;
   private static final double SPEED = 0.1;
   private static final VolatilityCurve SIGMA = new VolatilityCurve(ConstantDoublesCurve.from(0.4));
@@ -66,7 +65,7 @@ public class VasicekDataBundleTest {
     VasicekDataBundle other = new VasicekDataBundle(SHORT_RATE, SIGMA, DATE, LONG_RATE, SPEED);
     assertEquals(other, DATA);
     assertEquals(other.hashCode(), DATA.hashCode());
-    other = new VasicekDataBundle(new YieldCurve(ConstantDoublesCurve.from(SHORT_RATE.getInterestRate(0.) + 1)), SIGMA, DATE, LONG_RATE, SPEED);
+    other = new VasicekDataBundle(YieldCurve.from(ConstantDoublesCurve.from(SHORT_RATE.getInterestRate(0.) + 1)), SIGMA, DATE, LONG_RATE, SPEED);
     assertFalse(other.equals(DATA));
     other = new VasicekDataBundle(SHORT_RATE, new VolatilityCurve(ConstantDoublesCurve.from(SIGMA.getVolatility(0.) + 0.2)), DATE, LONG_RATE, SPEED);
     assertFalse(other.equals(DATA));

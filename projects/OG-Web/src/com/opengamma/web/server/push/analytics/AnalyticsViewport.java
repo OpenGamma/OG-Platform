@@ -8,35 +8,30 @@ package com.opengamma.web.server.push.analytics;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * TODO turn this into an interface? there's hardly anything left
- * TODO does there even need to be an interface?
+ *
  */
 /* package */ abstract class AnalyticsViewport {
 
-  protected final AnalyticsGridStructure _gridStructure;
-  private final String _dataId;
+  protected final String _dataId;
 
   protected ViewportSpecification _viewportSpec;
   protected ViewportResults _latestResults;
+  protected long _version;
 
-  /* package */ AnalyticsViewport(AnalyticsGridStructure gridStructure,
-                                  ViewportSpecification viewportSpec,
-                                  AnalyticsHistory history,
-                                  String dataId) {
-    ArgumentChecker.notNull(gridStructure, "gridStructure");
-    ArgumentChecker.notNull(viewportSpec, "viewportSpec");
-    ArgumentChecker.notNull(history, "history");
+  /* package */ AnalyticsViewport(String dataId) {
     ArgumentChecker.notNull(dataId, "dataId");
-    _gridStructure = gridStructure;
     _dataId = dataId;
   }
-
 
   /* package */ ViewportResults getData() {
     return _latestResults;
   }
 
-  public String getDataId() {
+  /* package */ String getDataId() {
     return _dataId;
+  }
+
+  /* package */ long getVersion() {
+    return _version;
   }
 }

@@ -47,7 +47,7 @@ public class VanillaOptionCrossModelPricingTest {
   private static final double SPOT = 10;
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2009, 1, 1);
   private static final Expiry EXPIRY = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 0.5));
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.08)), 0.0, new VolatilitySurface(ConstantDoublesSurface.from(0.2)),
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(YieldCurve.from(ConstantDoublesCurve.from(0.08)), 0.0, new VolatilitySurface(ConstantDoublesSurface.from(0.2)),
       SPOT, DATE);
   private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> CRR = new CoxRossRubinsteinBinomialOptionModelDefinition();
   private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> LR = new LeisenReimerBinomialOptionModelDefinition();

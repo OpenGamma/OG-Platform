@@ -14,7 +14,7 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 /**
  * A curve that is defined by a function (i.e. <i>y = f(x)</i>, where <i>f(x)</i> is supplied)
  */
-public class FunctionalDoublesCurve extends Curve<Double, Double> {
+public class FunctionalDoublesCurve extends DoublesCurve {
 
   /**
    * 
@@ -82,6 +82,11 @@ public class FunctionalDoublesCurve extends Curve<Double, Double> {
     return _function.evaluate(x);
   }
 
+  @Override
+  public Double[] getYValueParameterSensitivity(Double x) {
+    throw new UnsupportedOperationException("Parameter sensitivity not supported yet for FunctionalDoublesCurve");
+  }
+
   /**
    * @return Not supported
    * @throws UnsupportedOperationException
@@ -97,7 +102,7 @@ public class FunctionalDoublesCurve extends Curve<Double, Double> {
    * @param interpolator An interpolator
    * @return An interpolated curve with values <i>(x, f(x))</i>
    */
-  public InterpolatedDoublesCurve toInterpolatedDoubleDoubleCurve(final double[] x, final Interpolator1D interpolator) {
+  public InterpolatedDoublesCurve toInterpolatedDoublesCurve(final double[] x, final Interpolator1D interpolator) {
     Validate.notNull(x, "x");
     Validate.notNull(interpolator);
     final int n = x.length;
@@ -106,21 +111,6 @@ public class FunctionalDoublesCurve extends Curve<Double, Double> {
       y[i] = _function.evaluate(x[i]);
     }
     return InterpolatedDoublesCurve.from(x, y, interpolator);
-  }
-
-  /**
-   * 
-   * @param x An array of x values
-   * @return A nodal curve with values <i>(x, f(x))</i>
-   */
-  public NodalDoublesCurve toNodalDoubleDoubleCurve(final double[] x) {
-    Validate.notNull(x, "x");
-    final int n = x.length;
-    final double[] y = new double[n];
-    for (int i = 0; i < n; i++) {
-      y[i] = _function.evaluate(x[i]);
-    }
-    return NodalDoublesCurve.from(x, y);
   }
 
   /**

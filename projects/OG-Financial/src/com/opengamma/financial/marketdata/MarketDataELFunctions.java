@@ -9,6 +9,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.analytics.math.curve.CurveShiftFunctionFactory;
+import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.Security;
 import com.opengamma.id.ExternalId;
@@ -56,8 +57,8 @@ public final class MarketDataELFunctions {
 
   public static Object pointShiftCurve(final Object curve, final double x, final double shift) {
     if (curve instanceof YieldCurve) {
-      final Curve<Double, Double> shifted = CurveShiftFunctionFactory.getShiftedCurve(((YieldCurve) curve).getCurve(), x, shift);
-      return new YieldCurve(shifted);
+      final DoublesCurve shifted = CurveShiftFunctionFactory.getShiftedCurve(((YieldCurve) curve).getCurve(), x, shift);
+      return YieldCurve.from(shifted);
     } else {
       throw new UnsupportedOperationException("Invalid curve - " + curve);
     }
@@ -65,8 +66,8 @@ public final class MarketDataELFunctions {
 
   public static Object parallelShiftCurve(final Object curve, final double shift) {
     if (curve instanceof YieldCurve) {
-      final Curve<Double, Double> shifted = CurveShiftFunctionFactory.getShiftedCurve(((YieldCurve) curve).getCurve(), shift);
-      return new YieldCurve(shifted);
+      final DoublesCurve shifted = CurveShiftFunctionFactory.getShiftedCurve(((YieldCurve) curve).getCurve(), shift);
+      return YieldCurve.from(shifted);
     } else {
       throw new UnsupportedOperationException("Invalid curve - " + curve);
     }

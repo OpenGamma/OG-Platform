@@ -52,7 +52,7 @@ public class TwoAssetAnalyticOptionModelTest {
   };
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 1, 1);
   private static final OptionDefinition OPTION = new EuropeanVanillaOptionDefinition(100, new Expiry(DATE), true);
-  private static final StandardTwoAssetOptionDataBundle DATA = new StandardTwoAssetOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.1)), 0, 0, new VolatilitySurface(
+  private static final StandardTwoAssetOptionDataBundle DATA = new StandardTwoAssetOptionDataBundle(YieldCurve.from(ConstantDoublesCurve.from(0.1)), 0, 0, new VolatilitySurface(
       ConstantDoublesSurface.from(0.1)), new VolatilitySurface(ConstantDoublesSurface.from(0.15)), 100, 90, 1, DATE);
   private static final Set<Greek> REQUIRED_GREEKS = Sets.newHashSet(Greek.FAIR_PRICE, Greek.DELTA, Greek.GAMMA);
 

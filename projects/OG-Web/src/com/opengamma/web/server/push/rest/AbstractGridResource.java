@@ -7,25 +7,22 @@ package com.opengamma.web.server.push.rest;
 
 import java.net.URI;
 import java.util.List;
-import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.http.HttpHeaders;
+
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.server.push.analytics.AnalyticsGridStructure;
 import com.opengamma.web.server.push.analytics.AnalyticsView;
+import com.opengamma.web.server.push.analytics.GridStructure;
 import com.opengamma.web.server.push.analytics.ViewportSpecification;
 
 /**
@@ -57,24 +54,25 @@ public abstract class AbstractGridResource {
    */
   @GET
   @Path("grid")
-  @Produces(MediaType.APPLICATION_JSON)
-  public abstract AnalyticsGridStructure getGridStructure();
+  public abstract GridStructure getGridStructure();
 
   @POST
   @Path("viewports")
   public Response createViewport(@Context UriInfo uriInfo,
                                  @FormParam("rows") List<Integer> rows,
-                                 @FormParam("columns") List<Integer> columns) {
-    ViewportSpecification viewportSpecification = new ViewportSpecification(rows, columns);
+                                 @FormParam("columns") List<Integer> columns,
+                                 @FormParam("expanded") boolean expanded) {
+    ViewportSpecification viewportSpecification = new ViewportSpecification(rows, columns, expanded);
     String viewportId = Long.toString(s_nextId.getAndIncrement());
     URI viewportUri = uriInfo.getAbsolutePathBuilder().path(viewportId).build();
     URI dataUri = uriInfo.getAbsolutePathBuilder().path(viewportId).path(AbstractViewportResource.class, "getData").build();
-    String dataId = dataUri.toString();
-    createViewport(viewportId, dataId, viewportSpecification);
-    return Response.status(Response.Status.CREATED).header(HttpHeaders.LOCATION, viewportUri).build();
+    String dataId = dataUri.getPath();
+    long version = createViewport(viewportId, dataId, viewportSpecification);
+    ViewportVersion viewportVersion = new ViewportVersion(version);
+    return Response.status(Response.Status.CREATED).entity(viewportVersion).header(HttpHeaders.LOCATION, viewportUri).build();
   }
 
-  public abstract void createViewport(String viewportId, String dataId, ViewportSpecification viewportSpec);
+  public abstract long createViewport(String viewportId, String dataId, ViewportSpecification viewportSpec);
 
   @Path("viewports/{viewportId}")
   public abstract AbstractViewportResource getViewport(@PathParam("viewportId") String viewportId);

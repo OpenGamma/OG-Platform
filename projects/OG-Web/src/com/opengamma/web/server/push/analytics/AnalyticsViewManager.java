@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
@@ -34,15 +35,18 @@ public class AnalyticsViewManager {
   private final ViewProcessor _viewProcessor;
   private final AggregatedViewDefinitionManager _aggregatedViewDefManager;
   private final MarketDataSnapshotMaster _snapshotMaster;
-  private final Map<String, AnalyticsViewClientConnection> _viewConnections =
-      new ConcurrentHashMap<String, AnalyticsViewClientConnection>();
+  private final Map<String, AnalyticsViewClientConnection> _viewConnections = new ConcurrentHashMap<String, AnalyticsViewClientConnection>();
+  private final ComputationTargetResolver _targetResolver;
 
   public AnalyticsViewManager(ViewProcessor viewProcessor,
                               AggregatedViewDefinitionManager aggregatedViewDefManager,
-                              MarketDataSnapshotMaster snapshotMaster) {
+                              MarketDataSnapshotMaster snapshotMaster,
+                              ComputationTargetResolver targetResolver) {
     ArgumentChecker.notNull(viewProcessor, "viewProcessor");
     ArgumentChecker.notNull(aggregatedViewDefManager, "aggregatedViewDefManager");
     ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
+    ArgumentChecker.notNull(targetResolver, "targetResolver");
+    _targetResolver = targetResolver;
     _viewProcessor = viewProcessor;
     _aggregatedViewDefManager = aggregatedViewDefManager;
     _snapshotMaster = snapshotMaster;
@@ -58,11 +62,12 @@ public class AnalyticsViewManager {
       throw new IllegalArgumentException("View ID " + viewId + " is already in use");
     }
     ViewClient viewClient = _viewProcessor.createViewClient(user);
-    SimpleAnalyticsView view = new SimpleAnalyticsView(listener, portfolioGridId, primitivesGridId);
+    SimpleAnalyticsView view = new SimpleAnalyticsView(listener, portfolioGridId, primitivesGridId, _targetResolver);
+    LockingAnalyticsView lockingView = new LockingAnalyticsView(view);
     NamedMarketDataSpecificationRepository marketDataSpecRepo = _viewProcessor.getNamedMarketDataSpecificationRepository();
     AnalyticsViewClientConnection connection = new AnalyticsViewClientConnection(request,
                                                                                  viewClient,
-                                                                                 view,
+                                                                                 lockingView,
                                                                                  marketDataSpecRepo,
                                                                                  _aggregatedViewDefManager,
                                                                                  _snapshotMaster);

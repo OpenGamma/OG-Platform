@@ -21,7 +21,6 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -37,7 +36,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.BondFutureSecurityConverter;
 import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
 import com.opengamma.financial.analytics.conversion.CashSecurityConverter;
@@ -48,6 +46,9 @@ import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
 import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveExposureHelper;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
+import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentFunction;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
@@ -55,9 +56,11 @@ import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 
 /**
- * 
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see InterestRateInstrumentFunction
  */
 @Deprecated
 public abstract class InterestRateInstrumentFunctionDeprecated extends AbstractFunction.NonCompiledInvoker {
@@ -81,15 +84,17 @@ public abstract class InterestRateInstrumentFunctionDeprecated extends AbstractF
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-    final CashSecurityConverter cashConverter = new CashSecurityConverter();
+    final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
+    final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, regionSource);
     final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, regionSource, conventionSource);
     final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, regionSource, false);
     final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
     final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
-    _visitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>> builder().cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter)
-        .swapSecurityVisitor(swapConverter).interestRateFutureSecurityVisitor(irFutureConverter).bondSecurityVisitor(bondConverter).create();
-    _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource);
+    _visitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter)
+        .swapSecurityVisitor(swapConverter).interestRateFutureSecurityVisitor(irFutureConverter).bondSecurityVisitor(bondConverter)
+        .bondFutureSecurityVisitor(bondFutureConverter).create();
+    _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
   }
 
   protected FinancialSecurityVisitor<InstrumentDefinition<?>> getVisitor() {
@@ -159,6 +164,13 @@ public abstract class InterestRateInstrumentFunctionDeprecated extends AbstractF
     final String fundingCurveName = fundingCurves.iterator().next();
     final String curveCalculationMethod = curveCalculationMethodNames.iterator().next();
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final Set<ValueRequirement> timeSeriesRequirements = _definitionConverter.getConversionTimeSeriesRequirements(security, security.accept(_visitor),
+        FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, fundingCurveName, forwardCurveName));
+    if (timeSeriesRequirements == null) {
+      return null;
+    }
+    requirements.addAll(timeSeriesRequirements);
     if (forwardCurveName.equals(fundingCurveName)) {
       requirements.add(getCurveRequirement(target, forwardCurveName, null, null, curveCalculationMethod));
       return requirements;
@@ -177,7 +189,7 @@ public abstract class InterestRateInstrumentFunctionDeprecated extends AbstractF
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
-    final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
+    final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String forwardCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
     final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
@@ -189,7 +201,7 @@ public abstract class InterestRateInstrumentFunctionDeprecated extends AbstractF
     }
     try {
       final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now,
-          FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, fundingCurveName, forwardCurveName), dataSource);
+          FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, fundingCurveName, forwardCurveName), timeSeries);
       final String currency = FinancialSecurityUtils.getCurrency(security).getCode();
       return getComputedValues(derivative, bundle, security, target, forwardCurveName, fundingCurveName, curveCalculationMethod, currency);
     } catch (final Exception ogre) {

@@ -29,7 +29,7 @@ public class SupershareOptionDefinitionTest {
   private static final double LOWER = 10;
   private static final double UPPER = 30;
   private static final double SPOT = 20;
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.1)), SPOT, new VolatilitySurface(ConstantDoublesSurface.from(0.2)), 20,
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(YieldCurve.from(ConstantDoublesCurve.from(0.1)), SPOT, new VolatilitySurface(ConstantDoublesSurface.from(0.2)), 20,
       DateUtils.getUTCDate(
           2009, 1, 1));
   private static final SupershareOptionDefinition OPTION = new SupershareOptionDefinition(EXPIRY, LOWER, UPPER);

@@ -23,9 +23,11 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.impl.DataPositionSourceResource;
 import com.opengamma.core.position.impl.EHCachingPositionSource;
+import com.opengamma.core.position.impl.RemotePositionSource;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.impl.MasterPositionSource;
@@ -66,6 +68,9 @@ public class PositionSourceComponentFactory extends AbstractComponentFactory {
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
     ComponentInfo info = new ComponentInfo(PositionSource.class, getClassifier());
+    info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemotePositionSource.class);
+    
     PositionSource source = new MasterPositionSource(getPortfolioMaster(), getPositionMaster());
     if (getCacheManager() != null) {
       source = new EHCachingPositionSource(source, getCacheManager());

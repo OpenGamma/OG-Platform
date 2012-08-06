@@ -5,7 +5,6 @@
  */
 package com.opengamma.analytics.financial.interestrate;
 
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.interestrate.definition.G2ppPiecewiseConstantParameters;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
@@ -27,8 +26,8 @@ public class TestsDataSetsG2pp {
     InterpolatedDoublesCurve fwd3C = new InterpolatedDoublesCurve(new double[] {0.0, 50.0}, new double[] {0.0500, 0.0500}, CombinedInterpolatorExtrapolatorFactory.getInterpolator(
         Interpolator1DFactory.LINEAR, Interpolator1DFactory.LINEAR_EXTRAPOLATOR), true, "Curve fwd3");
     final YieldCurveBundle curves = new YieldCurveBundle();
-    curves.setCurve(DISCOUNTING, new YieldCurve(dscC));
-    curves.setCurve(FORWARD3M, new YieldCurve(fwd3C));
+    curves.setCurve(DISCOUNTING, YieldCurve.from(dscC));
+    curves.setCurve(FORWARD3M, YieldCurve.from(fwd3C));
     return curves;
   }
 
@@ -38,8 +37,8 @@ public class TestsDataSetsG2pp {
     InterpolatedDoublesCurve fwd3C = new InterpolatedDoublesCurve(new double[] {0.0, 1.0, 2.0, 5.0, 10.0, 20.0, 50.0}, new double[] {0.0120, 0.0170, 0.0220, 0.0270, 0.0320, 0.0370, 0.0420},
         CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.LINEAR_EXTRAPOLATOR), true, "Curve fwd3");
     final YieldCurveBundle curves = new YieldCurveBundle();
-    curves.setCurve(DISCOUNTING, new YieldCurve(dscC));
-    curves.setCurve(FORWARD3M, new YieldCurve(fwd3C));
+    curves.setCurve(DISCOUNTING, YieldCurve.from(dscC));
+    curves.setCurve(FORWARD3M, YieldCurve.from(fwd3C));
     return curves;
   }
 

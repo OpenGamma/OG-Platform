@@ -16,11 +16,11 @@ import com.opengamma.livedata.server.FieldHistoryStore;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = "unit")
 public class RequiredFieldFilterTest {
 
-  @Test
   public void noRequiredFields() {
     RequiredFieldFilter filter = new RequiredFieldFilter();
     
@@ -34,7 +34,6 @@ public class RequiredFieldFilterTest {
     assertSame(normalized, msg);
   }
 
-  @Test
   public void requiredFieldsNotSatisfied() {
     RequiredFieldFilter filter = new RequiredFieldFilter("Foo", "Fibble");
     
@@ -47,7 +46,6 @@ public class RequiredFieldFilterTest {
     assertNull(normalized);
   }
 
-  @Test
   public void requiredFieldsSatisfied() {
     RequiredFieldFilter filter = new RequiredFieldFilter("Foo");
     
@@ -60,4 +58,5 @@ public class RequiredFieldFilterTest {
     assertNotNull(normalized);
     assertSame(normalized, msg);
   }
+
 }

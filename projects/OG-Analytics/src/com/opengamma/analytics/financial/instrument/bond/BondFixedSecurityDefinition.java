@@ -106,7 +106,7 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<PaymentF
   }
 
   /**
-   * Fixed coupon bond builder from standard financial details. The accrual dates are unadjusted; the payment dates are adjusted according to the business day convention. 
+   * Fixed coupon bond builder from standard financial details. The accrual dates are unadjusted; the payment dates are adjusted according to the business day convention.
    * The default notional 1 and default ex-coupon days 0 are used; if the first coupon is non-standard, it is short; the coupon dates are computed from the maturity.
    * @param currency The currency.
    * @param maturityDate The maturity date.
@@ -147,7 +147,7 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<PaymentF
   }
 
   /**
-   * Fixed coupon bond builder from standard financial details. The accrual dates are unadjusted; the payment dates are adjusted according to the business day convention. 
+   * Fixed coupon bond builder from standard financial details. The accrual dates are unadjusted; the payment dates are adjusted according to the business day convention.
    * The default ex-coupon days 0 is used; if the first coupon is non-standard, it is short; the coupon dates are computed from the maturity.
    * @param currency The currency.
    * @param maturityDate The maturity date.
@@ -195,7 +195,7 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<PaymentF
   }
 
   /**
-   * Fixed coupon bond builder from standard financial details. The accrual dates are unadjusted; the payment dates are adjusted according to the business day convention. 
+   * Fixed coupon bond builder from standard financial details. The accrual dates are unadjusted; the payment dates are adjusted according to the business day convention.
    * The default ex-coupon days 0 is used.
    * @param currency The currency.
    * @param maturityDate The maturity date.
@@ -222,7 +222,7 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<PaymentF
   }
 
   /**
-   * Fixed coupon bond builder from standard financial details. The accrual dates are unadjusted; the payment dates are adjusted according to the business day convention. 
+   * Fixed coupon bond builder from standard financial details. The accrual dates are unadjusted; the payment dates are adjusted according to the business day convention.
    * The default ex-coupon days 0 is used.
    * @param currency The currency.
    * @param maturityDate The maturity date.

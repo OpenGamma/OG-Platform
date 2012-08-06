@@ -21,8 +21,10 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.impl.DataHolidaySourceResource;
+import com.opengamma.core.holiday.impl.RemoteHolidaySource;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.impl.ConcurrentMapCachingMasterHolidaySource;
 
@@ -52,6 +54,9 @@ public class HolidaySourceComponentFactory extends AbstractComponentFactory {
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
     ComponentInfo info = new ComponentInfo(HolidaySource.class, getClassifier());
+    info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteHolidaySource.class);
+    
     HolidaySource source = new ConcurrentMapCachingMasterHolidaySource(getHolidayMaster());  // specialise cache
 //    HolidaySource source = new MasterHolidaySource(getHolidayMaster());
 //    if (getCacheManager() != null) {

@@ -18,9 +18,7 @@ import static com.opengamma.bbg.BloombergConstants.SECURITY_DATA;
 import static com.opengamma.bbg.BloombergConstants.SECURITY_ERROR;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,12 +39,14 @@ import com.bloomberglp.blpapi.Datetime;
 import com.bloomberglp.blpapi.Element;
 import com.bloomberglp.blpapi.Request;
 import com.bloomberglp.blpapi.Service;
-import com.bloomberglp.blpapi.SessionOptions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.referencedata.statistics.BloombergReferenceDataStatistics;
-import com.opengamma.bbg.referencedata.statistics.NullBloombergReferenceDataStatistics;
 import com.opengamma.bbg.util.BloombergDomainIdentifierResolver;
+import com.opengamma.core.change.BasicChangeManager;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
@@ -86,27 +86,67 @@ public class BloombergHistoricalTimeSeriesSource extends AbstractBloombergStatic
    * The Bloomberg service.
    */
   private Service _refDataService;
-
+  /**
+   * The statistics for Bloomberg access.
+   */
   private final BloombergReferenceDataStatistics _statistics;
-  
   /**
-   * Creates an instance with session options.
-   * 
-   * @param sessionOptions  the Bloomberg session options, not null
+   * The local change manager.
    */
-  public BloombergHistoricalTimeSeriesSource(SessionOptions sessionOptions) {
-    this(sessionOptions, NullBloombergReferenceDataStatistics.INSTANCE);
+  private final ChangeManager _changeManager;
+
+  @Override
+  public ChangeManager changeManager() {
+    return _changeManager;
   }
-  
+
   /**
-   * Creates an instance with session options.
+   * Creates an instance.
+   * <p>
+   * This will use the statistics tool in the connector.
    * 
-   * @param sessionOptions  the Bloomberg session options, not null
-   * @param statistics the statistics to collect
+   * @param bloombergConnector  the Bloomberg connector, not null
    */
-  public BloombergHistoricalTimeSeriesSource(SessionOptions sessionOptions, BloombergReferenceDataStatistics statistics) {
-    super(sessionOptions);
+  public BloombergHistoricalTimeSeriesSource(BloombergConnector bloombergConnector) {
+    this(bloombergConnector, bloombergConnector.getReferenceDataStatistics());
+  }
+
+  /**
+   * Creates an instance.
+   * <p>
+   * This will use the statistics tool in the connector.
+   * 
+   * @param bloombergConnector  the Bloomberg connector, not null
+   * @param changeManager  the change manager, not null
+   */
+  public BloombergHistoricalTimeSeriesSource(BloombergConnector bloombergConnector, ChangeManager changeManager) {
+    this(bloombergConnector, bloombergConnector.getReferenceDataStatistics(), changeManager);
+  }
+
+  /**
+   * Creates an instance with statistics gathering.
+   * 
+   * @param bloombergConnector  the Bloomberg connector, not null
+   * @param statistics  the statistics to collect, not null
+   */
+  public BloombergHistoricalTimeSeriesSource(BloombergConnector bloombergConnector, BloombergReferenceDataStatistics statistics) {
+    this(bloombergConnector, statistics, new BasicChangeManager());
+  }
+
+  /**
+   * Creates an instance with statistics gathering.
+   * 
+   * @param bloombergConnector  the Bloomberg connector, not null
+   * @param statistics  the statistics to collect, not null
+   * @param changeManager  the change manager, not null
+   */
+  public BloombergHistoricalTimeSeriesSource(
+      BloombergConnector bloombergConnector, BloombergReferenceDataStatistics statistics, ChangeManager changeManager) {
+    super(bloombergConnector);
+    ArgumentChecker.notNull(statistics, "statistics");
+    ArgumentChecker.notNull(changeManager, "changeManager");
     _statistics = statistics;
+    _changeManager = changeManager;
   }
 
   //-------------------------------------------------------------------------
@@ -117,15 +157,15 @@ public class BloombergHistoricalTimeSeriesSource extends AbstractBloombergStatic
 
   @Override
   protected void openServices() {
-    Service refDataService = openService(BloombergConstants.REF_DATA_SVC_NAME);
-    setRefDataService(refDataService);
+    _refDataService = openService(BloombergConstants.REF_DATA_SVC_NAME);
   }
 
-  private void setRefDataService(Service refDataService) {
-    _refDataService = refDataService;
-  }
-
-  private Service getRefDataService() {
+  /**
+   * Gets the Bloomberg reference data service.
+   * 
+   * @return the service, not null once started
+   */
+  protected Service getRefDataService() {
     return _refDataService;
   }
 
@@ -177,7 +217,7 @@ public class BloombergHistoricalTimeSeriesSource extends AbstractBloombergStatic
     ExternalId dsid = BloombergDomainIdentifierResolver.resolvePreferredIdentifier(identifiers);
     String bbgKey = BloombergDomainIdentifierResolver.toBloombergKeyWithDataProvider(dsid, dataProvider);
     Request request = composeRequest(bbgKey, dataSource, dataProvider, field, startDate, endDate, maxPoints);
-    _statistics.gotFields(Collections.singleton(bbgKey), Collections.singleton(field));
+    _statistics.recordStatistics(Collections.singleton(bbgKey), Collections.singleton(field));
     LocalDateDoubleTimeSeries timeSeries = processRequest(bbgKey, request, field);
     return new SimpleHistoricalTimeSeries(UID_SUPPLIER.get(), timeSeries);
   }
@@ -190,8 +230,8 @@ public class BloombergHistoricalTimeSeriesSource extends AbstractBloombergStatic
       s_logger.info("Unable to get HistoricalTimeSeries for {}", identifier);
       return null;
     }
-    List<LocalDate> dates = new ArrayList<LocalDate>();
-    List<Double> values = new ArrayList<Double>();
+    List<LocalDate> dates = Lists.newArrayList();
+    List<Double> values = Lists.newArrayList();
     for (Element resultElem : resultElements) {
       if (resultElem.hasElement(RESPONSE_ERROR)) {
         s_logger.warn("Response error");
@@ -470,7 +510,7 @@ public class BloombergHistoricalTimeSeriesSource extends AbstractBloombergStatic
       s_logger.info("Historical data request for empty identifier set");
       return Collections.emptyMap();
     }
-    Map<String, ExternalIdBundle> bbgSecDomainMap = new HashMap<String, ExternalIdBundle>();
+    Map<String, ExternalIdBundle> bbgSecDomainMap = Maps.newHashMap();
     Request request = getRefDataService().createRequest(BLOOMBERG_HISTORICAL_DATA_REQUEST);
     Element securitiesElem = request.getElement(BLOOMBERG_SECURITIES_REQUEST);
     for (ExternalIdBundle identifiers : identifierSet) {
@@ -491,7 +531,7 @@ public class BloombergHistoricalTimeSeriesSource extends AbstractBloombergStatic
     request.set("endDate", printYYYYMMDD(end));
     request.set("adjustmentSplit", true);
     
-    _statistics.gotFields(bbgSecDomainMap.keySet(), Collections.singleton(dataField));
+    _statistics.recordStatistics(bbgSecDomainMap.keySet(), Collections.singleton(dataField));
     CorrelationID cid = submitBloombergRequest(request);
     BlockingQueue<Element> resultElements = getResultElement(cid);
     if (resultElements == null || resultElements.isEmpty()) {
@@ -500,7 +540,7 @@ public class BloombergHistoricalTimeSeriesSource extends AbstractBloombergStatic
     }
     
     //REVIEW simon 2011/11/01: should this be deduped with the single case? 
-    Map<ExternalIdBundle, HistoricalTimeSeries> result = new HashMap<ExternalIdBundle, HistoricalTimeSeries>(); 
+    Map<ExternalIdBundle, HistoricalTimeSeries> result = Maps.newHashMap();
     for (Element resultElem : resultElements) {
       if (resultElem.hasElement(RESPONSE_ERROR)) {
         s_logger.warn("Response error");

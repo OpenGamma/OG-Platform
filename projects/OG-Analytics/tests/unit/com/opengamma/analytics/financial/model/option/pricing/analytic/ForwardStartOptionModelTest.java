@@ -32,7 +32,7 @@ import com.opengamma.util.time.Expiry;
 public class ForwardStartOptionModelTest {
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 7, 1);
   private static final double R = 0.08;
-  private static final YieldCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(R));
+  private static final YieldCurve CURVE = YieldCurve.from(ConstantDoublesCurve.from(R));
   private static final VolatilitySurface SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(0.3));
   private static final double B = 0.04;
   private static final double SPOT = 60;

@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.server.push.analytics;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
@@ -13,7 +14,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
 *
 */
-public class AnalyticsColumnGroup {
+/* package */ class AnalyticsColumnGroup {
 
   private final String _name;
   private final List<AnalyticsColumn> _columns;
@@ -38,6 +39,8 @@ public class AnalyticsColumnGroup {
   }
 
   @Override
-  public String toString() { return "AnalyticsColumnGroup [_name='" + _name + '\'' + ", _columns=" + _columns + "]";
+  public String toString() {
+    return "AnalyticsColumnGroup [_name='" + _name + '\'' + ", _columns=" + _columns + "]";
   }
 }
+

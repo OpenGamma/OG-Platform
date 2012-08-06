@@ -22,13 +22,13 @@ public class MultipleYieldCurveFinderFunction extends Function1D<DoubleMatrix1D,
     Validate.notNull(data, "data");
     Validate.notNull(calculator, "calculator");
     _calculator = calculator;
-    _data = data;   
+    _data = data;
     _curveBuilderFunction = new InterpolatedYieldCurveBuildingFunction(data.getUnknownCurveNodePoints(), data.getUnknownCurveInterpolators());
   }
 
   @Override
   public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
-    
+
     YieldCurveBundle curves = _curveBuilderFunction.evaluate(x);
 
     // set any known (i.e. fixed) curves
@@ -44,4 +44,5 @@ public class MultipleYieldCurveFinderFunction extends Function1D<DoubleMatrix1D,
 
     return new DoubleMatrix1D(res);
   }
+
 }

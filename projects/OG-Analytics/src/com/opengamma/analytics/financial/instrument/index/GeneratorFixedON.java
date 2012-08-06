@@ -6,10 +6,14 @@
 package com.opengamma.analytics.financial.instrument.index;
 
 import javax.time.calendar.Period;
+import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapFixedONDefinition;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -66,7 +70,8 @@ public class GeneratorFixedON extends Generator {
    * @param endOfMonth The flag indicating if the end-of-month rule is used (used for both legs).
    * @param spotLag The index spot lag in days between trade and settlement date (usually 2 or 0).
    */
-  public GeneratorFixedON(final String name, final IndexON index, final Period legsPeriod, final DayCount fixedLegDayCount, final BusinessDayConvention businessDayConvention, final boolean endOfMonth,
+  public GeneratorFixedON(final String name, final IndexON index, final Period legsPeriod, final DayCount fixedLegDayCount, final BusinessDayConvention businessDayConvention,
+      final boolean endOfMonth,
       final int spotLag) {
     super(name);
     Validate.notNull(legsPeriod, "Period");
@@ -95,7 +100,8 @@ public class GeneratorFixedON extends Generator {
    * @param spotLag The index spot lag in days between trade and settlement date (usually 2 or 0).
    * @param paymentLag The lag in days between the last ON fixing date and the coupon payment.
    */
-  public GeneratorFixedON(final String name, final IndexON index, final Period legsPeriod, final DayCount fixedLegDayCount, final BusinessDayConvention businessDayConvention, final boolean endOfMonth,
+  public GeneratorFixedON(final String name, final IndexON index, final Period legsPeriod, final DayCount fixedLegDayCount, final BusinessDayConvention businessDayConvention,
+      final boolean endOfMonth,
       final int spotLag, final int paymentLag) {
     super(name);
     Validate.notNull(legsPeriod, "Period");
@@ -191,6 +197,12 @@ public class GeneratorFixedON extends Generator {
    */
   public Calendar getCalendar() {
     return _index.getCalendar();
+  }
+
+  @Override
+  public InstrumentDefinition<?> generateInstrument(ZonedDateTime date, Period tenor, double fixedRate, double notional, Object... objects) {
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(date, _spotLag, _index.getCalendar());
+    return SwapFixedONDefinition.from(startDate, tenor, notional, this, fixedRate, true);
   }
 
   @Override

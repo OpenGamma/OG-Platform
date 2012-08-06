@@ -12,7 +12,13 @@ import java.util.List;
  */
 public interface AnalyticsViewListener {
 
+  void gridStructureChanged(String gridId);
+
   void gridStructureChanged(List<String> gridIds);
+
+  // TODO columnStructureChanged? rowStructureChanged?
+
+  void gridDataChanged(String dataId);
 
   void gridDataChanged(List<String> dataIds);
 }

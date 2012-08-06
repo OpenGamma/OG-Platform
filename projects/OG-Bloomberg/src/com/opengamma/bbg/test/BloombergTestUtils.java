@@ -15,11 +15,10 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeMsg;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.bloomberglp.blpapi.SessionOptions;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.BloombergReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.id.ExternalId;
@@ -30,10 +29,6 @@ import com.opengamma.util.test.TestProperties;
  */
 public class BloombergTestUtils {
 
-  /** Logger. */
-  @SuppressWarnings("unused")
-  private static final Logger s_logger = LoggerFactory.getLogger(BloombergTestUtils.class);
-
   /**
    * Restricted constructor.
    */
@@ -42,11 +37,20 @@ public class BloombergTestUtils {
 
   //-------------------------------------------------------------------------
   /**
-   * Setup the Bloomberg session options.
+   * Creates a Bloomberg connector for testing.
+   * 
+   * @return the connector, not null
+   */
+  public static BloombergConnector getBloombergConnector() {
+    return new BloombergConnector("Test", getSessionOptions());
+  }
+
+  /**
+   * Creates Bloomberg session options for testing.
    * 
    * @return the session options, not null
    */
-  public static SessionOptions getSessionOptions() {
+  private static SessionOptions getSessionOptions() {
     SessionOptions options = new SessionOptions();
     Properties properties = TestProperties.getTestProperties();
     String serverHost = properties.getProperty("bbgServer.host");
@@ -55,7 +59,6 @@ public class BloombergTestUtils {
     if (StringUtils.isBlank(serverHost)) {
       throw new OpenGammaRuntimeException("bbgServer.host is missing in tests.properties");
     }
-    
     if (StringUtils.isBlank(serverPort)) {
       throw new OpenGammaRuntimeException("bbgServer.port is missing in tests.properties");
     }
@@ -65,6 +68,7 @@ public class BloombergTestUtils {
     return options;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Creates a random tick.
    * 
@@ -117,12 +121,12 @@ public class BloombergTestUtils {
   }
 
   /**
-   * Gets an example equity option ticker.
+   * Gets an example equity option ticker directly from Bloomberg reference data.
    * 
    * @return the ticker, not null
    */
   public static String getSampleEquityOptionTicker() {
-    BloombergReferenceDataProvider rdp = new BloombergReferenceDataProvider(getSessionOptions());
+    BloombergReferenceDataProvider rdp = new BloombergReferenceDataProvider(getBloombergConnector());
     rdp.start();
     
     Set<ExternalId> options = BloombergDataUtils.getOptionChain(rdp, "AAPL US Equity");

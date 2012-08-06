@@ -282,27 +282,19 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     if (_executeCycles) {
       try {
         final SingleComputationCycle singleComputationCycle = cycleReference.get();
-        final Set<String> configurationNames = singleComputationCycle.getAllCalculationConfigurationNames();
-
         final HashMap<String, Collection<ComputationTargetSpecification>> configToComputationTargets = new HashMap<String, Collection<ComputationTargetSpecification>>();
-        for (String configName : configurationNames) {
-          final DependencyGraph dependencyGraph = singleComputationCycle.getExecutableDependencyGraph(configName);
-          configToComputationTargets.put(configName, dependencyGraph.getAllComputationTargets());
-        }
-
         final HashMap<String, Map<ValueSpecification, Set<ValueRequirement>>> configToTerminalOutputs = new HashMap<String, Map<ValueSpecification, Set<ValueRequirement>>>();
-        for (String configName : configurationNames) {
-          DependencyGraph dependencyGraph = singleComputationCycle.getExecutableDependencyGraph(configName);
-          configToTerminalOutputs.put(configName, dependencyGraph.getTerminalOutputs());
+        for (DependencyGraph graph : compiledViewDefinition.getAllDependencyGraphs()) {
+          configToComputationTargets.put(graph.getCalculationConfigurationName(), graph.getAllComputationTargets());
+          configToTerminalOutputs.put(graph.getCalculationConfigurationName(), graph.getTerminalOutputs());
         }
-
         cycleStarted(new DefaultViewCycleMetadata(
             cycleReference.get().getUniqueId(),
             marketDataSnapshot.getUniqueId(),
             compiledViewDefinition.getViewDefinition().getUniqueId(),
             versionCorrection,
             executionOptions.getValuationTime(),
-            configurationNames,
+            singleComputationCycle.getAllCalculationConfigurationNames(),
             configToComputationTargets,
             configToTerminalOutputs));
         executeViewCycle(cycleType, cycleReference, marketDataSnapshot, getViewProcess().getCalcJobResultExecutorService());

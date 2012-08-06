@@ -9,6 +9,8 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.equity.variance.pricing.AffineDividends;
+import com.opengamma.analytics.financial.equity.variance.pricing.EquityVarianceSwapBackwardsPurePDE;
 import com.opengamma.analytics.financial.model.finitedifference.BoundaryCondition;
 import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDE1DCoefficients;
 import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDE1DStandardCoefficients;
@@ -21,10 +23,14 @@ import com.opengamma.analytics.financial.model.finitedifference.PDEGrid1D;
 import com.opengamma.analytics.financial.model.finitedifference.PDEResults1D;
 import com.opengamma.analytics.financial.model.finitedifference.ThetaMethodFiniteDifference;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceConverter;
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceMoneyness;
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceStrike;
+import com.opengamma.analytics.financial.model.volatility.local.PureLocalVolatilitySurface;
+import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -87,9 +93,22 @@ public class LogPayoffTest {
     //      System.out.println(res.getSpaceValue(i) + "\t" + res.getFunctionValue(i));
     //    }
 
+    System.out.println("debug " + res.getFunctionValue(n / 2));
+
     double kVol = Math.sqrt(-2 * (res.getFunctionValue(n / 2) - Math.log(ft)) / EXPIRY);
     //  System.out.println("expected:" + FLAT_VOL + " actual:" + kVol);
     assertEquals(FLAT_VOL, kVol, 1e-6);
+
+    //test the new backwards local vol method for expected variance 
+    YieldAndDiscountCurve yieldCurve = new YieldCurve("test", ConstantDoublesCurve.from(DRIFT));
+    AffineDividends ad = AffineDividends.noDividends();
+
+    final EquityVarianceSwapBackwardsPurePDE backSolver = new EquityVarianceSwapBackwardsPurePDE();
+    final PureLocalVolatilitySurface plv = new PureLocalVolatilitySurface(ConstantDoublesSurface.from(FLAT_VOL));
+
+    double[] res2 = backSolver.expectedVariance(SPOT, yieldCurve, ad, EXPIRY, plv);
+    double kVol2 = Math.sqrt(res2[0] / EXPIRY);
+    assertEquals(FLAT_VOL, kVol2, 1e-6);
   }
 
   @Test
@@ -168,6 +187,7 @@ public class LogPayoffTest {
     double kVol = Math.sqrt(-2 * (elogS - Math.log(ft)) / EXPIRY);
     //  System.out.println("expected:" + expected + " actual:" + kVol);
     assertEquals(expected, kVol, 5e-4); //TODO Improve on 5bps error - local surface is (by construction) very smooth 
+
   }
 
 }

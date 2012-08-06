@@ -27,8 +27,8 @@ import com.opengamma.util.time.DateUtils;
 public class HullWhiteStochasticVolatilityModelDataBundleTest {
   private static final double R = 0.03;
   private static final double SIGMA = 0.3;
-  private static final YieldAndDiscountCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(R));
-  private static final YieldAndDiscountCurve OTHER_CURVE = new YieldCurve(ConstantDoublesCurve.from(0.2));
+  private static final YieldAndDiscountCurve CURVE = YieldCurve.from(ConstantDoublesCurve.from(R));
+  private static final YieldAndDiscountCurve OTHER_CURVE = YieldCurve.from(ConstantDoublesCurve.from(0.2));
   private static final VolatilitySurface SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(SIGMA));
   private static final VolatilitySurface OTHER_SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(0.25));
   private static final double B = 0.01;

@@ -257,7 +257,7 @@ public class NonLinearLeastSquare {
    * @param sigma Set of measurement errors
    * @param func The model as a function of its parameters only
    * @param startPos  Initial value of the parameters
-   * @param maxJumps A vector containing the maximum absolute allowed step in a particular direction in each iteration. Can be null, in which case on constant
+   * @param maxJumps A vector containing the maximum absolute allowed step in a particular direction in each iteration. Can be null, in which case no constant
    * on the step size is applied.
    * @return value of the fitted parameters
    */
@@ -324,7 +324,7 @@ public class NonLinearLeastSquare {
     final int nObs = observedValues.getNumberOfElements();
     final int nParms = startPos.getNumberOfElements();
     Validate.isTrue(nObs == sigma.getNumberOfElements(), "observedValues and sigma must be same length");
-    Validate.isTrue(nObs >= nParms, "must have data points greater or equal to number of parameters" + nObs + " " + nParms);
+    ArgumentChecker.isTrue(nObs >= nParms, "must have data points greater or equal to number of parameters. #date points = {}, #parameters = {}", nObs, nParms);
     ArgumentChecker.isTrue(constraints.evaluate(startPos), "The inital value of the parameters (startPos) is {} - this is not an allowed value", startPos);
     DoubleMatrix2D alpha;
     DecompositionResult decmp;
@@ -363,11 +363,6 @@ public class NonLinearLeastSquare {
         lambda = increaseLambda(lambda);
         continue;
       }
-
-      //debug
-      //      if (lambda > 1e20) {
-      //        System.out.println("lambda: " + lambda);
-      //      }
 
       newError = getError(func, observedValues, sigma, trialTheta);
       newChiSqr = getChiSqr(newError);
@@ -457,7 +452,7 @@ public class NonLinearLeastSquare {
           while (newChiSqr > oldChiSqr) {
             //if even a tiny move along the negative eigenvalue cannot improve chiSqr, then exit
             if (counter > 10 || Math.abs(newChiSqr - oldChiSqr) / (1 + oldChiSqr) < _eps) {
-              LOGGER.warn("Saddle point detected, but no improvment to chi^2 possible by moving away. It is recomended that a different starting point is used.");
+              LOGGER.warn("Saddle point detected, but no improvment to chi^2 possible by moving away. It is recommended that a different starting point is used.");
               return finish(newAlpha, decmp, oldChiSqr, jacobian, theta, sigma);
             }
             scale /= 2.0;

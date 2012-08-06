@@ -22,7 +22,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.analytics.conversion.SwapSecurityUtils;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
-import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.volatility.VolatilityDataFittingDefaults;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -48,8 +47,8 @@ public abstract class SABRRightExtrapolationFunction extends SABRFunction {
     final Security security = target.getSecurity();
     return security instanceof SwaptionSecurity
         || (security instanceof SwapSecurity && (SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_FIXED_CMS
-            || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_CMS_CMS
-            || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_IBOR_CMS))
+        || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_CMS_CMS
+        || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_IBOR_CMS))
         || security instanceof CapFloorSecurity;
   }
 
@@ -73,8 +72,7 @@ public abstract class SABRRightExtrapolationFunction extends SABRFunction {
 
   @Override
   protected SABRInterestRateDataBundle getModelParameters(final ComputationTarget target, final FunctionInputs inputs, final Currency currency,
-      final DayCount dayCount, final ValueRequirement desiredValue) {
-    final YieldCurveBundle yieldCurves = getYieldCurves(inputs, currency, desiredValue);
+      final DayCount dayCount, final YieldCurveBundle yieldCurves, final ValueRequirement desiredValue) {
     final String cubeName = desiredValue.getConstraint(ValuePropertyNames.CUBE);
     final String fittingMethod = desiredValue.getConstraint(VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD);
     final ValueRequirement surfacesRequirement = getCubeRequirement(cubeName, currency, fittingMethod);
@@ -95,10 +93,8 @@ public abstract class SABRRightExtrapolationFunction extends SABRFunction {
   protected ValueProperties getResultProperties(final ValueProperties properties, final String currency) {
     return properties.copy()
         .with(ValuePropertyNames.CURRENCY, currency)
-        .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
-        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
         .withAny(ValuePropertyNames.CUBE)
-        .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
+        .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
         .with(ValuePropertyNames.CALCULATION_METHOD, SABR_RIGHT_EXTRAPOLATION)
         .withAny(VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD)
         .with(VolatilityDataFittingDefaults.PROPERTY_VOLATILITY_MODEL, VolatilityDataFittingDefaults.SABR_FITTING)
@@ -108,19 +104,15 @@ public abstract class SABRRightExtrapolationFunction extends SABRFunction {
 
   @Override
   protected ValueProperties getResultProperties(final ValueProperties properties, final String currency, final ValueRequirement desiredValue) {
-    final String forwardCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
-    final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
     final String cubeName = desiredValue.getConstraint(ValuePropertyNames.CUBE);
-    final String curveCalculationMethod = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_METHOD);
+    final String curveCalculationConfig = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     final String fittingMethod = desiredValue.getConstraint(VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD);
     final String cutoff = desiredValue.getConstraint(PROPERTY_CUTOFF_STRIKE);
     final String mu = desiredValue.getConstraint(PROPERTY_TAIL_THICKNESS_PARAMETER);
     return properties.copy()
         .with(ValuePropertyNames.CURRENCY, currency)
-        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
-        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
         .with(ValuePropertyNames.CUBE, cubeName)
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod)
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
         .with(ValuePropertyNames.CALCULATION_METHOD, SABR_RIGHT_EXTRAPOLATION)
         .with(VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD, fittingMethod)
         .with(VolatilityDataFittingDefaults.PROPERTY_VOLATILITY_MODEL, VolatilityDataFittingDefaults.SABR_FITTING)

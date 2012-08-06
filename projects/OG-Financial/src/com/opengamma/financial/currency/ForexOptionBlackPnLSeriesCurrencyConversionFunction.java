@@ -10,7 +10,6 @@ import java.util.Set;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -33,7 +32,7 @@ public class ForexOptionBlackPnLSeriesCurrencyConversionFunction extends PnlSeri
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.POSITION) {
+    if (!super.canApplyTo(context, target)) {
       return false;
     }
     final Security security = target.getPositionOrTrade().getSecurity();

@@ -49,6 +49,7 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedC
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
@@ -78,7 +79,8 @@ public class SwapCalculatorTest {
   private static final SwapDefinition SWAP_IBOR_IBORSPREAD_DEFINITION = new SwapDefinition(AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR3M, true),
       AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR6M, SPREAD6, false));
 
-  private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves2();
+  private static final Currency USD = USDLIBOR3M.getCurrency();
+  private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves2(USD);
   private static final String[] CURVE_NAMES = TestsDataSetsSABR.curves2Names();
   private static final ParSpreadMarketQuoteCalculator PSC = ParSpreadMarketQuoteCalculator.getInstance();
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
@@ -87,11 +89,11 @@ public class SwapCalculatorTest {
   private static final ConstantSpreadYieldCurveBundleRolldownFunction CURVE_ROLLDOWN = ConstantSpreadYieldCurveBundleRolldownFunction.getInstance();
 
   private static final ArrayZonedDateTimeDoubleTimeSeries FIXING_TS_3 = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2012, 5, 10),
-      DateUtils.getUTCDate(2012, 5, 14), DateUtils.getUTCDate(2012, 5, 15), DateUtils.getUTCDate(2012, 5, 16), DateUtils.getUTCDate(2012, 8, 15), DateUtils.getUTCDate(2012, 11, 15)}, new double[] {
-      0.0080, 0.0090, 0.0100, 0.0110, 0.0140, 0.0160});
+      DateUtils.getUTCDate(2012, 5, 14), DateUtils.getUTCDate(2012, 5, 15), DateUtils.getUTCDate(2012, 5, 16), DateUtils.getUTCDate(2012, 8, 15), DateUtils.getUTCDate(2012, 11, 15) }, new double[] {
+      0.0080, 0.0090, 0.0100, 0.0110, 0.0140, 0.0160 });
   private static final ArrayZonedDateTimeDoubleTimeSeries FIXING_TS_6 = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2012, 5, 10),
-      DateUtils.getUTCDate(2012, 5, 15), DateUtils.getUTCDate(2012, 5, 16)}, new double[] {0.0095, 0.0120, 0.0130});
-  private static final ArrayZonedDateTimeDoubleTimeSeries[] FIXING_TS_3_6 = new ArrayZonedDateTimeDoubleTimeSeries[] {FIXING_TS_3, FIXING_TS_6};
+      DateUtils.getUTCDate(2012, 5, 15), DateUtils.getUTCDate(2012, 5, 16) }, new double[] {0.0095, 0.0120, 0.0130 });
+  private static final ArrayZonedDateTimeDoubleTimeSeries[] FIXING_TS_3_6 = new ArrayZonedDateTimeDoubleTimeSeries[] {FIXING_TS_3, FIXING_TS_6 };
   private static final ConstantSpreadHorizonThetaCalculator THETAC = ConstantSpreadHorizonThetaCalculator.getInstance();
 
   private static final double TOLERANCE_PV = 1.0E-2; // one cent out of 100m
@@ -151,7 +153,7 @@ public class SwapCalculatorTest {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 5, 14);
     @SuppressWarnings("unchecked")
     final Swap<? extends Payment, ? extends Payment> swap = new Swap<Payment, Payment>((Annuity<Payment>) SWAP_IBOR_IBORSPREAD_DEFINITION.getFirstLeg().toDerivative(referenceDate, CURVE_NAMES),
-        (Annuity<Payment>) SWAP_IBOR_IBORSPREAD_DEFINITION.getSecondLeg().toDerivative(referenceDate, new String[] {CURVE_NAMES[0], CURVE_NAMES[2]}));
+        (Annuity<Payment>) SWAP_IBOR_IBORSPREAD_DEFINITION.getSecondLeg().toDerivative(referenceDate, new String[] {CURVE_NAMES[0], CURVE_NAMES[2] }));
     final double parSpread = PSC.visit(swap, CURVES);
     final SwapIborIborDefinition swap0Definition = new SwapIborIborDefinition(AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR3M, parSpread, true),
         AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR6M, SPREAD6, false));
@@ -271,9 +273,9 @@ public class SwapCalculatorTest {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 5, 14);
     final MultipleCurrencyAmount theta = THETAC.getTheta(SWAP_FIXED_IBOR_DEFINITION, referenceDate, CURVE_NAMES, CURVES, FIXING_TS_3_6, 1);
     final SwapFixedCoupon<Coupon> swapToday = SWAP_FIXED_IBOR_DEFINITION.toDerivative(referenceDate, FIXING_TS_3_6, CURVE_NAMES);
-    final ArrayZonedDateTimeDoubleTimeSeries fixing3extended = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2012, 5, 14), DateUtils.getUTCDate(2012, 5, 15)},
-        new double[] {0.0090, 0.0090});
-    final ArrayZonedDateTimeDoubleTimeSeries[] fixing36 = new ArrayZonedDateTimeDoubleTimeSeries[] {fixing3extended, FIXING_TS_6};
+    final ArrayZonedDateTimeDoubleTimeSeries fixing3extended = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2012, 5, 14), DateUtils.getUTCDate(2012, 5, 15) },
+        new double[] {0.0090, 0.0090 });
+    final ArrayZonedDateTimeDoubleTimeSeries[] fixing36 = new ArrayZonedDateTimeDoubleTimeSeries[] {fixing3extended, FIXING_TS_6 };
     final SwapFixedCoupon<Coupon> swapTomorrow = SWAP_FIXED_IBOR_DEFINITION.toDerivative(referenceDate.plusDays(1), fixing36, CURVE_NAMES);
     final double pvToday = PVC.visit(swapToday, CURVES);
     final YieldCurveBundle tomorrowData = CURVE_ROLLDOWN.rollDown(CURVES, TimeCalculator.getTimeBetween(referenceDate, referenceDate.plusDays(1)));

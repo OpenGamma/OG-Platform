@@ -59,7 +59,7 @@ public class SABRFiniteDifferenceTest {
   private static final double DRIFT = 0.07;
   private static final double T = 5.0;
   private static final ForwardCurve FORWARD_CURVE;
-  private static final YieldAndDiscountCurve YIELD_CURVE = new YieldCurve(ConstantDoublesCurve.from(RATE));
+  private static final YieldAndDiscountCurve YIELD_CURVE = YieldCurve.from(ConstantDoublesCurve.from(RATE));
   private static final EuropeanVanillaOption OPTION;
   private static final ConvectionDiffusionPDE1DStandardCoefficients PDE;
 
@@ -564,8 +564,7 @@ public class SABRFiniteDifferenceTest {
       final double gammaBkd = INTERPOLATOR_1D.interpolate(dbGamma, forward);
 
       if (DEBUG) {
-        System.out.println(k + "\t" + deltaFwd + "\t" + deltaBkd + "\t" + gammaFwd + "\t" + gammaBkd + "\t" +
-            fixedSurfaceGamma + "\t" + surfaceDelta + "\t" + surfaceVanna + "\t" + surfaceGamma);
+        System.out.println(k + "\t" + deltaFwd + "\t" + deltaBkd + "\t" + gammaFwd + "\t" + gammaBkd + "\t" + fixedSurfaceGamma + "\t" + surfaceDelta + "\t" + surfaceVanna + "\t" + surfaceGamma);
       } else {
         assertEquals("testLocalVolDelta", gammaFwd, gammaBkd, 5e-1);//TODO still a large error here
       }

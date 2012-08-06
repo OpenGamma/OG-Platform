@@ -28,7 +28,7 @@ public class HullWhiteStochasticVolatilityModelTest {
   private static final AnalyticOptionModel<OptionDefinition, HullWhiteStochasticVolatilityModelDataBundle> MODEL = new HullWhiteStochasticVolatilityModel();
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2009, 1, 1);
   private static final Expiry EXPIRY = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 0.25));
-  private static final YieldAndDiscountCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(0.08));
+  private static final YieldAndDiscountCurve CURVE = YieldCurve.from(ConstantDoublesCurve.from(0.08));
   private static final double B = 0;
   private static final VolatilitySurface SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(Math.sqrt(0.09)));
   private static final double SPOT = 100;

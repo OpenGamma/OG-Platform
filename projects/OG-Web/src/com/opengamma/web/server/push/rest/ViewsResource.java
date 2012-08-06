@@ -50,7 +50,7 @@ public class ViewsResource {
 
   @Path("{viewId}")
   public ViewResource getView(@PathParam("viewId") String viewId) {
-    return new ViewResource(_viewManager.getView(viewId), _viewManager);
+    return new ViewResource(_viewManager.getView(viewId), _viewManager, viewId);
   }
 
   @POST
@@ -93,8 +93,8 @@ public class ViewsResource {
                             user,
                             listener,
                             viewId,
-                            portfolioGridUri.toString(),
-                            primitivesGridUri.toString());
+                            portfolioGridUri.getPath(),
+                            primitivesGridUri.getPath());
     URI uri = uriInfo.getAbsolutePathBuilder().path(viewId).build();
     return Response.status(Response.Status.CREATED).header(HttpHeaders.LOCATION, uri).build();
   }

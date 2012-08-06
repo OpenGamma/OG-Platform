@@ -37,7 +37,8 @@ public class BondTradeConverter {
       throw new OpenGammaRuntimeException("Can only handle fixed coupon bonds");
     }
     final BondFixedSecurityDefinition bond = (BondFixedSecurityDefinition) underlying;
-    final int quantity = trade.getQuantity().intValue();
+    final int quantity = 1; // trade.getQuantity().intValue();
+    // REVIEW: The quantity mechanism should be reviewed.
     final ZonedDateTime settlementDate = ZonedDateTime.of(trade.getTradeDate().atTime(trade.getTradeTime()), TimeZone.UTC); //TODO
     final double price = trade.getPremium().doubleValue();
     return new BondFixedTransactionDefinition(bond, quantity, settlementDate, price);

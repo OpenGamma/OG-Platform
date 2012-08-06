@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergIdentifierProvider;
-import com.opengamma.bbg.loader.BloombergHistoricalLoader;
+import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
 import com.opengamma.bbg.tool.BloombergToolContext;
 import com.opengamma.bloombergexample.tool.AbstractExampleTool;
 import com.opengamma.core.config.ConfigSource;
@@ -86,7 +86,7 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractExampleTool
   /**
    * The name of the portfolio.
    */
-  public static final String PORTFOLIO_NAME = "Example MultiCurrency Swap Portfolio";
+  public static final String PORTFOLIO_NAME = "MultiCurrency Swap Portfolio";
 
   /**
    * The scheme used for an identifier which is added to each swap created from the CSV file
@@ -104,12 +104,9 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractExampleTool
 
   static {
     s_currencies = new Currency[]{Currency.USD, Currency.GBP, Currency.EUR, Currency.JPY, Currency.CHF};
-    //Currency.AUD, Currency.SEK, Currency.NOK };
     s_tenors = new Tenor[]{Tenor.ONE_YEAR, Tenor.TWO_YEARS, Tenor.THREE_YEARS, Tenor.FIVE_YEARS,
       Tenor.ofYears(7), Tenor.ofYears(10), Tenor.ofYears(12), Tenor.ofYears(15), Tenor.ofYears(20)};
   }
-
-  //-------------------------------------------------------------------------
 
   /**
    * Main method to run the tool.
@@ -179,19 +176,18 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractExampleTool
       externalIds.add(swapRateForMaturityIdentifier);
     }
 
-    BloombergHistoricalLoader loader = new BloombergHistoricalLoader(
+    BloombergHistoricalTimeSeriesLoader loader = new BloombergHistoricalTimeSeriesLoader(
       getToolContext().getHistoricalTimeSeriesMaster(),
       ((BloombergToolContext) getToolContext()).getBloombergHistoricalTimeSeriesSource(),
       new BloombergIdentifierProvider(((BloombergToolContext) getToolContext()).getBloombergReferenceDataProvider()));
-    loader.setReload(true);
-    loader.addTimeSeries(externalIds, "CMPL", "PX_LAST", LocalDate.now().minusYears(1), null);
+    loader.addTimeSeries(externalIds, "CMPL", "PX_LAST", LocalDate.now().minusYears(1), LocalDate.now());
   }
 
   private SwapSecurity makeSwap(final SecureRandom random, final Currency ccy, final LocalDate tradeDate, final Tenor maturity) {
 
     // get the identifier for the swap rate for the maturity we're interested in (assuming the fixed rate will be =~ swap rate)
     Double fixedRate = getFixedRate(random, ccy, tradeDate, maturity);
-    Double notional = (double) random.nextInt(100000) * 1000;
+    Double notional = (double) (random.nextInt(99999) + 1) * 1000;
     boolean isPayFixed = random.nextBoolean();
 
     ConventionBundle swapConvention = getSwapConventionBundle(ccy);

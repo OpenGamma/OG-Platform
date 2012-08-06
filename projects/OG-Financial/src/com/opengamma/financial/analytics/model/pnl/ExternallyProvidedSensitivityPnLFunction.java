@@ -25,7 +25,6 @@ import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunction;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.analytics.financial.timeseries.util.TimeSeriesDifferenceOperator;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
@@ -41,7 +40,10 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.analytics.timeseries.DateConstraint;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.security.FinancialSecurityUtils;
@@ -50,6 +52,7 @@ import com.opengamma.financial.sensitivities.RawSecurityUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.security.RawSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -79,10 +82,9 @@ public class ExternallyProvidedSensitivityPnLFunction extends AbstractFunction.N
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();
     final RawSecurity security = (RawSecurity) position.getSecurity();
-    final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final SecuritySource secSource = executionContext.getSecuritySource();
     //final Clock snapshotClock = executionContext.getValuationClock();
-    final LocalDate now = MAGIC_DATE;  //snapshotClock.zonedDateTime().toLocalDate();
+    final LocalDate now = MAGIC_DATE; //snapshotClock.zonedDateTime().toLocalDate();
     final Currency currency = FinancialSecurityUtils.getCurrency(position.getSecurity());
     final String currencyString = currency.getCode();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
@@ -92,7 +94,8 @@ public class ExternallyProvidedSensitivityPnLFunction extends AbstractFunction.N
     final Schedule scheduleCalculator = getScheduleCalculator(constraints.getValues(ValuePropertyNames.SCHEDULE_CALCULATOR));
     final TimeSeriesSamplingFunction samplingFunction = getSamplingFunction(constraints.getValues(ValuePropertyNames.SAMPLING_FUNCTION));
     final LocalDate[] schedule = HOLIDAY_REMOVER.getStrippedSchedule(scheduleCalculator.getSchedule(startDate, now, true, false), WEEKEND_CALENDAR); //REVIEW emcleod should "fromEnd" be hard-coded?
-    DoubleTimeSeries<?> result = getPnLSeries(security, secSource, historicalSource, inputs, startDate, now, schedule, samplingFunction);
+    final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
+    DoubleTimeSeries<?> result = getPnLSeries(security, secSource, timeSeries, inputs, startDate, now, schedule, samplingFunction);
     result = result.multiply(position.getQuantity().doubleValue());
     final ValueProperties resultProperties = getResultProperties(desiredValue, currencyString);
     final ValueSpecification resultSpec = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, position, resultProperties), getUniqueId());
@@ -108,7 +111,9 @@ public class ExternallyProvidedSensitivityPnLFunction extends AbstractFunction.N
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final RawSecurity security = (RawSecurity) target.getPosition().getSecurity();
-    final Set<ValueRequirement> sensitivityRequirements = getSensitivityRequirements(context.getSecuritySource(), security);
+    final String samplingPeriod = desiredValue.getConstraint(ValuePropertyNames.SAMPLING_PERIOD);
+    final Set<ValueRequirement> sensitivityRequirements = getSensitivityRequirements(OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context), context.getSecuritySource(), security,
+        samplingPeriod);
     return sensitivityRequirements;
   }
 
@@ -160,14 +165,12 @@ public class ExternallyProvidedSensitivityPnLFunction extends AbstractFunction.N
     return TimeSeriesSamplingFunctionFactory.getFunction(samplingFunctionName);
   }
 
-  private DoubleTimeSeries<?> getPnLSeries(final RawSecurity security, final SecuritySource secSource,
-      final HistoricalTimeSeriesSource historicalSource, final FunctionInputs inputs, final LocalDate startDate, final LocalDate now, final LocalDate[] schedule,
-      final TimeSeriesSamplingFunction samplingFunction) {
+  private DoubleTimeSeries<?> getPnLSeries(final RawSecurity security, final SecuritySource secSource, final HistoricalTimeSeriesBundle timeSeries,
+      final FunctionInputs inputs, final LocalDate startDate, final LocalDate now, final LocalDate[] schedule, final TimeSeriesSamplingFunction samplingFunction) {
     DoubleTimeSeries<?> pnlSeries = null;
     final List<FactorExposureData> factors = RawSecurityUtils.decodeFactorExposureData(secSource, security);
     for (final FactorExposureData factor : factors) {
-      final ExternalIdBundle id = factor.getFactorExternalId().toBundle();
-      final HistoricalTimeSeries dbNodeTimeSeries = historicalSource.getHistoricalTimeSeries("PX_LAST", id, _resolutionKey, startDate, true, now, true);
+      final HistoricalTimeSeries dbNodeTimeSeries = timeSeries.get("PX_LAST", factor.getFactorExternalId());
       if (dbNodeTimeSeries == null || dbNodeTimeSeries.getTimeSeries().size() == 0) {
         //s_logger.warn("Could not identifier / price series pair for " + id + " for " + _resolutionKey + "/PX_LAST");
         //throw new OpenGammaRuntimeException("Could not identifier / price series pair for " + id + " for " + _resolutionKey + "/PX_LAST");
@@ -211,11 +214,12 @@ public class ExternallyProvidedSensitivityPnLFunction extends AbstractFunction.N
   //    }
   //  }
 
-  protected Set<ValueRequirement> getSensitivityRequirements(final SecuritySource secSource, final RawSecurity rawSecurity) {
+  protected Set<ValueRequirement> getSensitivityRequirements(final HistoricalTimeSeriesResolver resolver, final SecuritySource secSource, final RawSecurity rawSecurity, final String samplingPeriod) {
     final Set<ValueRequirement> requirements = Sets.newHashSet();
     final Collection<FactorExposureData> decodedSensitivities = RawSecurityUtils.decodeFactorExposureData(secSource, rawSecurity);
     for (final FactorExposureData exposureEntry : decodedSensitivities) {
       requirements.add(getSensitivityRequirement(exposureEntry.getExposureExternalId()));
+      requirements.add(getTimeSeriesRequirement(resolver, exposureEntry.getFactorExternalId().toBundle(), samplingPeriod));
     }
     return requirements;
   }
@@ -223,4 +227,10 @@ public class ExternallyProvidedSensitivityPnLFunction extends AbstractFunction.N
   protected ValueRequirement getSensitivityRequirement(final ExternalId externalId) {
     return new ValueRequirement(/*ExternalDataRequirementNames.SENSITIVITY*/"EXPOSURE", ComputationTargetType.PRIMITIVE, UniqueId.of(externalId.getScheme().getName(), externalId.getValue()));
   }
+
+  protected ValueRequirement getTimeSeriesRequirement(final HistoricalTimeSeriesResolver resolver, final ExternalIdBundle bundle, final String samplingPeriod) {
+    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(resolver.resolve(bundle, null, null, null, "PX_LAST", _resolutionKey), "PX_LAST",
+        DateConstraint.of(MAGIC_DATE.minus(Period.parse(samplingPeriod))), true, DateConstraint.of(MAGIC_DATE), true);
+  }
+
 }

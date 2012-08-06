@@ -49,7 +49,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionUtils;
+import com.opengamma.financial.analytics.model.irfutureoption.FutureOptionUtils;
 import com.opengamma.financial.analytics.model.volatility.surface.fitted.SurfaceFittedSmileDataPoints;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.id.UniqueId;
@@ -115,7 +115,7 @@ public class SABRNonLinearLeastSquaresIRFutureOptionSurfaceFittingFunction exten
     final Map<Double, List<Double>> dataPointsForStrip = new HashMap<Double, List<Double>>();
     final LocalDate valDate = now.toLocalDate();
     for (final Number x : xValues) {
-      final Double ttm = IRFutureOptionUtils.getFutureOptionTtm(x.intValue(), valDate);
+      final Double ttm = FutureOptionUtils.getFutureOptionTtm(x.intValue(), valDate);
       final List<Double> fittedPointsForStrip = new ArrayList<Double>();
       final List<ObjectsPair<Double, Double>> strip = volatilitySurfaceData.getYValuesForX(x);
       final DoubleArrayList errors = new DoubleArrayList();

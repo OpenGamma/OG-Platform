@@ -58,6 +58,8 @@
       <sourceFolder url="file://$MODULE_DIR$/config" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/tests/config" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/build" />
+      <excludeFolder url="file://$MODULE_DIR$/dist" />
+      <excludeFolder url="file://$MODULE_DIR$/lib" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="inheritedJdk" />

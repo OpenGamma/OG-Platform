@@ -41,7 +41,7 @@ public class FadeInOptionDefinitionTest {
       new double[] {SPOT, SPOT, SPOT, SPOT, SPOT});
   private static final DoubleTimeSeries<?> ONE_WITHIN_RANGE = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_DDMMYYYY, new int[] {20100501, 20100502, 20100503, 20100504, 20100505},
       new double[] {SPOT + 2 * DIFF, SPOT + 3 * DIFF, SPOT, SPOT - 1.5 * DIFF, SPOT - 4 * DIFF});
-  private static final YieldAndDiscountCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(0.06));
+  private static final YieldAndDiscountCurve CURVE = YieldCurve.from(ConstantDoublesCurve.from(0.06));
   private static final double B = 0.04;
   private static final VolatilitySurface SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(0.4));
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 5, 6);

@@ -15,9 +15,6 @@ import java.util.Set;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.id.ExternalSchemes;
@@ -42,14 +39,11 @@ import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
-
 /**
  * 
  */
 public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.NonCompiledInvoker {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(EquityOptionVolatilitySurfaceDataFunction.class);
-  
   @Override
   /**
    * {@inheritDoc} <p>
@@ -67,7 +61,7 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
     final String fullName = surfaceName + "_" + target.getUniqueId().getValue();  // e.g. FOO_DJX
 
     // 2. We (MAY) need the definition and the specification, to loop over axes, and to get inputs respectively.
-    final ConfigSource configSrc =  OpenGammaExecutionContext.getConfigSource(executionContext);
+    final ConfigSource configSrc = OpenGammaExecutionContext.getConfigSource(executionContext);
     final ConfigDBVolatilitySurfaceSpecificationSource specSrc = new ConfigDBVolatilitySurfaceSpecificationSource(configSrc);
     final VolatilitySurfaceSpecification specification = specSrc.getSpecification(fullName, InstrumentTypeProperties.EQUITY_OPTION);
 
@@ -83,8 +77,7 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
       throw new OpenGammaRuntimeException("Could not get volatility surface");
     }
     @SuppressWarnings("unchecked")
-    final
-    VolatilitySurfaceData<Number, Double> rawSurface = (VolatilitySurfaceData<Number, Double>) rawSurfaceObject;
+    final VolatilitySurfaceData<Number, Double> rawSurface = (VolatilitySurfaceData<Number, Double>) rawSurfaceObject;
 
     // 4. Remove empties, convert expiries from number to years, and scale vols
     final Map<Pair<Double, Double>, Double> volValues = new HashMap<Pair<Double, Double>, Double>();
@@ -124,26 +117,20 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
   @Override
   // TODO Review choice of target as BLOOMBERG_TICKER_WEAK~DJX. Seems arbitrary. Both are contained in the specification itself.
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != getTargetType()) {
-      return false;
-    }
     if (target.getUniqueId() == null) {
-      s_logger.error("Target unique id was null; {}", target);
       return false;
     }
     final String targetScheme = target.getUniqueId().getScheme();
     return (targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName()) ||
-        targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName()) ||
-        targetScheme.equalsIgnoreCase(Currency.OBJECT_SCHEME)
-        );
+        targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName()) || targetScheme.equalsIgnoreCase(Currency.OBJECT_SCHEME));
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, target.toSpecification(),
         createValueProperties().withAny(ValuePropertyNames.SURFACE)
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_OPTION)
-        .get());
+            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_OPTION)
+            .get());
     return Collections.singleton(spec);
   }
 

@@ -36,6 +36,10 @@ public enum SecurityType {
    */
   CASH,
   /**
+   * Credit Default Swap
+   */
+  CREDIT_DEFAULT_SWAP,
+  /**
    * 
    */
   ENERGY_FUTURE,
@@ -128,5 +132,9 @@ public enum SecurityType {
   /**
    * Commodity Future Option
    */
-  COMMODITY_FUTURE_OPTION
+  COMMODITY_FUTURE_OPTION,
+  /**
+   * Bond Future Option
+   */
+  BOND_FUTURE_OPTION
 }

@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.forex.calculator;
 
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
-import com.opengamma.analytics.financial.forex.method.ForexOptionVanillaBlackMethod;
+import com.opengamma.analytics.financial.forex.method.ForexOptionVanillaBlackSmileMethod;
 import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.money.CurrencyAmount;
@@ -38,7 +38,7 @@ public class GammaSpotBlackForexCalculator extends AbstractInstrumentDerivativeV
   /**
    * The methods used by the different instruments.
    */
-  private static final ForexOptionVanillaBlackMethod METHOD_FXOPTIONVANILLA = ForexOptionVanillaBlackMethod.getInstance();
+  private static final ForexOptionVanillaBlackSmileMethod METHOD_FXOPTIONVANILLA = ForexOptionVanillaBlackSmileMethod.getInstance();
 
   @Override
   public CurrencyAmount visitForexOptionVanilla(final ForexOptionVanilla derivative, final YieldCurveBundle data) {

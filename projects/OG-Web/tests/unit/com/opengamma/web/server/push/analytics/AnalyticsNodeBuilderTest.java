@@ -14,13 +14,13 @@ import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.core.position.impl.SimplePosition;
 
 /**
- * Tests that {@link AnalyticsNode.Builder} creates nodes that match a portfolio structure.
+ * Tests that {@link AnalyticsNode.PortfolioNodeBuilder} creates nodes that match a portfolio structure.
  */
 public class AnalyticsNodeBuilderTest {
 
   @Test
   public void emptyPortfolio() {
-    AnalyticsNode root = new AnalyticsNode.Builder(new SimplePortfolioNode()).getRoot();
+    AnalyticsNode root = new AnalyticsNode.PortfolioNodeBuilder(new SimplePortfolioNode()).getRoot();
     assertEquals(0, root.getStartRow());
     assertEquals(0, root.getEndRow());
     assertTrue(root.getChildren().isEmpty());
@@ -35,7 +35,7 @@ public class AnalyticsNodeBuilderTest {
     portfolioRoot.addPosition(new SimplePosition());
     portfolioRoot.addPosition(new SimplePosition());
 
-    AnalyticsNode root = new AnalyticsNode.Builder(portfolioRoot).getRoot();
+    AnalyticsNode root = new AnalyticsNode.PortfolioNodeBuilder(portfolioRoot).getRoot();
     assertEquals(0, root.getStartRow());
     assertEquals(5, root.getEndRow()); // 1 node for the root and one each for the positions
     assertTrue(root.getChildren().isEmpty());
@@ -51,7 +51,7 @@ public class AnalyticsNodeBuilderTest {
     portfolioRoot.addPosition(new SimplePosition());
     portfolioRoot.addPosition(new SimplePosition());
 
-    AnalyticsNode root = new AnalyticsNode.Builder(portfolioRoot).getRoot();
+    AnalyticsNode root = new AnalyticsNode.PortfolioNodeBuilder(portfolioRoot).getRoot();
     assertEquals(0, root.getStartRow());
     assertEquals(5, root.getEndRow());
     assertEquals(1, root.getChildren().size());
@@ -91,7 +91,7 @@ public class AnalyticsNodeBuilderTest {
     portfolioChild1.addChildNode(portfolioChild2);
     portfolioChild2.addChildNode(portfolioChild3);
 
-    AnalyticsNode root = new AnalyticsNode.Builder(portfolioRoot).getRoot();
+    AnalyticsNode root = new AnalyticsNode.PortfolioNodeBuilder(portfolioRoot).getRoot();
     assertEquals(0, root.getStartRow());
     assertEquals(10, root.getEndRow());
     assertEquals(1, root.getChildren().size());
@@ -127,7 +127,7 @@ public class AnalyticsNodeBuilderTest {
     portfolioRoot.addChildNode(portfolioChild2);
 
 
-    AnalyticsNode root = new AnalyticsNode.Builder(portfolioRoot).getRoot();
+    AnalyticsNode root = new AnalyticsNode.PortfolioNodeBuilder(portfolioRoot).getRoot();
     assertEquals(0, root.getStartRow());
     assertEquals(4, root.getEndRow());
     assertEquals(2, root.getChildren().size());

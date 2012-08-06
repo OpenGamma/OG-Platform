@@ -15,7 +15,6 @@ import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivi
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.method.PricingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
@@ -63,7 +62,7 @@ public final class CouponIborDiscountingMethod implements PricingMethod {
 
   @Override
   public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
-    Validate.isTrue(instrument instanceof CouponIborGearing, "Forward rate agreement");
+    Validate.isTrue(instrument instanceof CouponIbor, "Coupon Ibor");
     return presentValue(instrument, curves);
   }
 

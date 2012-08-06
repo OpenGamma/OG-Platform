@@ -6,11 +6,14 @@
 package com.opengamma.financial.security;
 
 import com.opengamma.financial.security.equity.EquitySecurity;
-import com.opengamma.financial.security.future.FutureSecurity;
-import com.opengamma.financial.security.option.*;
+import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
+import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 
 /**
- * This visitor returns true if the FinancialSecurity is market traded. 
+ * This visitor returns true if the FinancialSecurity is market traded.
  * In our context, this means that a MarketDataRequirementNames.MARKET_VALUE is available.
  * When "Security Market Price" is chosen in a View Configuration, (ValueRequirementNames.SECURITY_MARKET_PRICE)
  * SecurityMarketPriceFunction provides the price.
@@ -23,32 +26,32 @@ public class MarketSecurityVisitor extends FinancialSecurityVisitorSameValueAdap
 
 
   @Override
-  public Boolean visitEquitySecurity(EquitySecurity security) {
+  public Boolean visitEquitySecurity(final EquitySecurity security) {
     return true;
   }
 
   @Override
-  public Boolean visitEquityIndexOptionSecurity(EquityIndexOptionSecurity security) {
+  public Boolean visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
     return true;
   }
 
   @Override
-  public Boolean visitEquityOptionSecurity(EquityOptionSecurity security) {
+  public Boolean visitEquityOptionSecurity(final EquityOptionSecurity security) {
     return true;
   }
 
   @Override
-  public Boolean visitIRFutureOptionSecurity(IRFutureOptionSecurity security) {
+  public Boolean visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
     return true;
   }
 
   @Override
-  public Boolean visitCommodityFutureOptionSecurity(CommodityFutureOptionSecurity commodityFutureOptionSecurity) {
+  public Boolean visitCommodityFutureOptionSecurity(final CommodityFutureOptionSecurity commodityFutureOptionSecurity) {
     return true;
   }
 
   @Override
-  public Boolean visitEquityIndexDividendFutureOptionSecurity(EquityIndexDividendFutureOptionSecurity security) {
+  public Boolean visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity security) {
     return true;
   }
 }

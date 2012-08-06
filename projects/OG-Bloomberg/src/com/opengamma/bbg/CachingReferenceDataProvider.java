@@ -5,13 +5,17 @@
  */
 package com.opengamma.bbg;
 
-
 /**
- * Extension of the ReferenceDataProvider to indicate that caching is in place. This is
- * for the Live Data server that needs occasional access to the uncached data. 
+ * Extension of the ReferenceDataProvider to indicate that caching is in place.
+ * This is for the Live Data server that needs occasional access to the uncached data. 
  */
 public interface CachingReferenceDataProvider extends ReferenceDataProvider {
 
+  /**
+   * Gets the underlying reference data provider.
+   * 
+   * @return the underlying, not null
+   */
   ReferenceDataProvider getUnderlying();
-  
+
 }

@@ -26,6 +26,8 @@ import com.opengamma.util.ArgumentChecker;
  * @author yomi
  */
 public final class BloombergDomainIdentifierResolver {
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergDomainIdentifierResolver.class);
   private static final Map<ExternalScheme, String> DOMAIN_PREFERENCES = new LinkedHashMap<ExternalScheme, String>();
   

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 
@@ -43,21 +43,19 @@ public class JdbcSheetReader extends SheetReader {
   private List<Map<String, String>> _results;
   private Iterator<Map<String, String>> _iterator;
   private static final Logger s_logger = LoggerFactory.getLogger(JdbcSheetReader.class);
-  
+
   public JdbcSheetReader(DataSource dataSource, String query) {
-    init(dataSource, query, null);
+    init(dataSource, query);
   }
-  
-  public JdbcSheetReader(DataSource dataSource, String query, PreparedStatementSetter preparedStatementSetter) {
-    ArgumentChecker.notNull(preparedStatementSetter, "prepared statement setter");
-    init(dataSource, query, preparedStatementSetter);
-  }
-  
-  protected void init(DataSource dataSource, String query, PreparedStatementSetter preparedStatementSetter) {
+
+
+
+  protected void init(DataSource dataSource, String query) {
     ArgumentChecker.notNull(dataSource, "dataSource");
-    
+    ArgumentChecker.notEmpty(query, "query");
+
     _jdbcTemplate = new JdbcTemplate(dataSource);
-     
+
     ResultSetExtractor<List<Map<String, String>>> extractor = new ResultSetExtractor<List<Map<String, String>>>() {
       @Override
       public List<Map<String, String>> extractData(ResultSet rs) throws SQLException, DataAccessException {
@@ -68,7 +66,6 @@ public class JdbcSheetReader extends SheetReader {
         setColumns(columns);
         List<Map<String, String>> entries = new ArrayList<Map<String, String>>();
         while (rs.next()) {
-          s_logger.info("Read a row");
           String[] rawRow = new String[rs.getMetaData().getColumnCount()];
           for (int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
             rawRow[i] = rs.getString(i + 1);
@@ -88,14 +85,10 @@ public class JdbcSheetReader extends SheetReader {
         return entries;
       }
     };
-    if (preparedStatementSetter != null) {
-      _results = getJDBCTemplate().query(query, preparedStatementSetter, extractor);
-    } else {
-      _results = getJDBCTemplate().query(query, extractor);
-    }
+    _results = getJDBCTemplate().query(query, extractor);
     _iterator = _results.iterator();
   }
-  
+
   private JdbcTemplate getJDBCTemplate() {
     return _jdbcTemplate;
   }
@@ -103,7 +96,6 @@ public class JdbcSheetReader extends SheetReader {
   @Override
   public Map<String, String> loadNextRow() {
     if (_iterator.hasNext()) {
-      s_logger.info("Returned a row");
       return _iterator.next();
     } else {
       return null;

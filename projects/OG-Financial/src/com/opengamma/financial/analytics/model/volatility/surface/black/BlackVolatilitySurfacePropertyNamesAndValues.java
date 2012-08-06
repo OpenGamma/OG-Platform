@@ -62,6 +62,16 @@ public class BlackVolatilitySurfacePropertyNamesAndValues {
   /** Property name for the right spline extrapolator */
   public static final String PROPERTY_SPLINE_RIGHT_EXTRAPOLATOR = "SplineRightExtrapolator";
 
+  // Properties and values for the spline smile extrapolation, which uses ShiftedLogNormalTailExtrapolationFitter
+  /** Property name for the choice of whether to throw an exception if the extrapolator fails
+   *  to fit a ShiftedLognormal model to the vol and gradient of the last strike,
+   * or to toss the failing strike and try the next interior strikes until satisfied. */
+  public static final String PROPERTY_SPLINE_EXTRAPOLATOR_FAILURE = "SplineExtrapolatorFailure";
+  /** Selection *Quiet* will throw away a volatility if ShiftedLogNormalTailExtrapolationFitter fails and try the next nearest strike until it fits */
+  public static final String QUIET_SPLINE_EXTRAPOLATOR_FAILURE = "Quiet";
+  /**  Selection *Exception* puts the onus of shepherding the data on whoever provides marks */
+  public static final String EXCEPTION_SPLINE_EXTRAPOLATOR_FAILURE = "Exception";
+
   // Properties for mixed log normal interpolation
   /** Property name for the weighting function to be used in mixed log-normal interpolation */
   public static final String PROPERTY_MIXED_LOG_NORMAL_WEIGHTING_FUNCTION = "MixedLogNormalWeightingFunction";
@@ -75,4 +85,6 @@ public class BlackVolatilitySurfacePropertyNamesAndValues {
   public static final String PROPERTY_SABR_MODEL = "SABRModel";
   /** Property name for the weighting function to be used in SABR interpolation */
   public static final String PROPERTY_SABR_WEIGHTING_FUNCTION = "SABRWeightingFunction";
+
+
 }

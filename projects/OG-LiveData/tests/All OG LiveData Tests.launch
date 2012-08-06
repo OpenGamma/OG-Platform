@@ -15,6 +15,7 @@
 <listEntry value="com.opengamma.livedata"/>
 <listEntry value="com.opengamma.livedata.client"/>
 <listEntry value="com.opengamma.livedata.entitlement"/>
+<listEntry value="com.opengamma.livedata.firehose"/>
 <listEntry value="com.opengamma.livedata.msg"/>
 <listEntry value="com.opengamma.livedata.normalization"/>
 <listEntry value="com.opengamma.livedata.resolver"/>

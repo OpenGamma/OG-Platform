@@ -25,6 +25,7 @@ import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.change.JmsChangeManager;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.impl.DataHistoricalTimeSeriesMasterResource;
+import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesMaster;
 import com.opengamma.masterdb.historicaltimeseries.DbHistoricalTimeSeriesMaster;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.jms.JmsConnector;
@@ -95,6 +96,8 @@ public class DbHistoricalTimeSeriesMasterComponentFactory extends AbstractCompon
     }
     
     // register
+    info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteHistoricalTimeSeriesMaster.class);
     info.addAttribute(ComponentInfoAttributes.UNIQUE_ID_SCHEME, master.getUniqueIdScheme());
     repo.registerComponent(info, master);
     

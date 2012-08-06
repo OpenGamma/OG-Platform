@@ -47,6 +47,9 @@ public class ShiftedLogNormalTailExtrapolation {
     if (strike == 0) {
       return theta;
     }
+    if (mu == 0) {
+      return theta;
+    }
 
     double p = price(forward, strike, timeToExpiry, isCall, mu, theta);
     if (p <= 1e-100) { //TODO this is an arbitrary choice to switch to the approximation here 
@@ -74,8 +77,8 @@ public class ShiftedLogNormalTailExtrapolation {
       return volGuess;
     }
 
-    // return BlackFormulaRepository.impliedVolatility(p, forward, strike, timeToExpiry, volGuess);
     return BlackFormulaRepository.impliedVolatility(p, forward, strike, timeToExpiry, isCall);
+
   }
 
   /**
@@ -102,6 +105,9 @@ public class ShiftedLogNormalTailExtrapolation {
    * @return The smile gradient 
    */
   public static double dVdK(final double forward, final double strike, final double timeToExpiry, final double mu, final double theta) {
+    if (mu == 0.0) {
+      return 0.0;
+    }
     boolean isCall = strike >= forward;
     double vol = impliedVolatility(forward, strike, timeToExpiry, mu, theta);
     double dd = dualDelta(forward, strike, timeToExpiry, isCall, mu, theta);
@@ -111,6 +117,9 @@ public class ShiftedLogNormalTailExtrapolation {
   }
 
   protected static double dVdK(final double forward, final double strike, final double timeToExpiry, final double mu, final double theta, final double vol) {
+    if (mu == 0.0) {
+      return 0.0;
+    }
     boolean isCall = strike >= forward;
     double dd = dualDelta(forward, strike, timeToExpiry, isCall, mu, theta);
     double blackDD = BlackFormulaRepository.dualDelta(forward, strike, timeToExpiry, vol, isCall);

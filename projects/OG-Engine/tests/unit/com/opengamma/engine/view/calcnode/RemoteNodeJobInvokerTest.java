@@ -19,6 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
+import com.opengamma.engine.function.blacklist.DummyFunctionBlacklistMaintainer;
+import com.opengamma.engine.function.blacklist.DummyFunctionBlacklistQuery;
 import com.opengamma.engine.view.cache.InMemoryIdentifierMap;
 import com.opengamma.engine.view.calcnode.msg.Execute;
 import com.opengamma.engine.view.calcnode.msg.Ready;
@@ -43,9 +45,10 @@ public class RemoteNodeJobInvokerTest {
 
   public void simpleInvocation() {
     final JobDispatcher jobDispatcher = new JobDispatcher();
-    final Ready initialMessage = new Ready(1);
+    final Ready initialMessage = new Ready(1, "Test");
     final DirectFudgeConnection conduit = new DirectFudgeConnection(s_fudgeContext);
-    final RemoteNodeJobInvoker jobInvoker = new RemoteNodeJobInvoker(Executors.newCachedThreadPool(), initialMessage, conduit.getEnd1(), new InMemoryIdentifierMap(), new FunctionCosts ());
+    final RemoteNodeJobInvoker jobInvoker = new RemoteNodeJobInvoker(Executors.newCachedThreadPool(), initialMessage, conduit.getEnd1(), new InMemoryIdentifierMap(), new FunctionCosts(),
+        new DummyFunctionBlacklistQuery(), new DummyFunctionBlacklistMaintainer());
     jobDispatcher.registerJobInvoker(jobInvoker);
     final TestJobResultReceiver resultReceiver = new TestJobResultReceiver();
     final FudgeConnection remoteNode = conduit.getEnd2();
@@ -70,9 +73,10 @@ public class RemoteNodeJobInvokerTest {
 
   public void saturate() {
     final JobDispatcher jobDispatcher = new JobDispatcher();
-    final Ready initialMessage = new Ready(3);
+    final Ready initialMessage = new Ready(3, "Test");
     final DirectFudgeConnection conduit = new DirectFudgeConnection(s_fudgeContext);
-    final RemoteNodeJobInvoker jobInvoker = new RemoteNodeJobInvoker(Executors.newCachedThreadPool(), initialMessage, conduit.getEnd1(), new InMemoryIdentifierMap(), new FunctionCosts ());
+    final RemoteNodeJobInvoker jobInvoker = new RemoteNodeJobInvoker(Executors.newCachedThreadPool(), initialMessage, conduit.getEnd1(), new InMemoryIdentifierMap(), new FunctionCosts(),
+        new DummyFunctionBlacklistQuery(), new DummyFunctionBlacklistMaintainer());
     jobDispatcher.registerJobInvoker(jobInvoker);
     final FudgeConnection remoteNode = conduit.getEnd2();
     final Random rnd = new Random();

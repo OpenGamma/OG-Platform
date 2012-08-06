@@ -30,7 +30,6 @@ import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFact
 import com.opengamma.analytics.financial.timeseries.util.TimeSeriesDifferenceOperator;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -56,6 +55,9 @@ import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.curve.interestrate.FXImpliedYieldCurveFunction;
+import com.opengamma.financial.analytics.timeseries.DateConstraint;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -64,7 +66,6 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -85,7 +86,6 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();
     final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
-    final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final Clock snapshotClock = executionContext.getValuationClock();
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
     final Currency currency = FinancialSecurityUtils.getCurrency(position.getSecurity());
@@ -109,9 +109,15 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
         throw new OpenGammaRuntimeException("Could not get yield curve node sensitivities; " + ycnsRequirement);
       }
       final DoubleLabelledMatrix1D ycns = (DoubleLabelledMatrix1D) ycnsObject;
+      final ValueRequirement ychtsRequirement = getYCHTSRequirement(currency, yieldCurveName, samplingPeriod.toString());
+      final Object ychtsObject = inputs.getValue(ychtsRequirement);
+      if (ychtsObject == null) {
+        throw new OpenGammaRuntimeException("Could not get yield curve historical time series; " + ychtsRequirement);
+      }
+      final HistoricalTimeSeriesBundle ychts = (HistoricalTimeSeriesBundle) ychtsObject;
       final DoubleTimeSeries<?> pnLSeries;
       if (curveCalculationConfig.getCalculationMethod().equals(FXImpliedYieldCurveFunction.FX_IMPLIED)) {
-        pnLSeries = getPnLSeries(ycns, historicalSource, startDate, now, schedule, samplingFunction);
+        pnLSeries = getPnLSeries(ycns, ychts, schedule, samplingFunction);
       } else {
         final ValueRequirement curveSpecRequirement = getCurveSpecRequirement(currency, yieldCurveName);
         final Object curveSpecObject = inputs.getValue(curveSpecRequirement);
@@ -119,12 +125,12 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
           throw new OpenGammaRuntimeException("Could not get curve specification; " + curveSpecRequirement);
         }
         final InterpolatedYieldCurveSpecificationWithSecurities curveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) curveSpecObject;
-        pnLSeries = getPnLSeries(curveSpec, ycns, historicalSource, startDate, now, schedule, samplingFunction);
+        pnLSeries = getPnLSeries(curveSpec, ycns, ychts, schedule, samplingFunction);
       }
       if (result == null) {
         result = pnLSeries;
       } else {
-        result = result.add(result);
+        result = result.add(pnLSeries);
       }
     }
     if (result == null) {
@@ -185,6 +191,7 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
     if (periodNames == null || periodNames.size() != 1) {
       return null;
     }
+    final String samplingPeriod = periodNames.iterator().next();
     final Set<String> scheduleNames = constraints.getValues(ValuePropertyNames.SCHEDULE_CALCULATOR);
     if (scheduleNames == null || scheduleNames.size() != 1) {
       return null;
@@ -196,11 +203,8 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
     final String[] yieldCurveNames = curveCalculationConfig.getYieldCurveNames();
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     for (final String yieldCurveName : yieldCurveNames) {
-      final ValueRequirement ycns = getYCNSRequirement(currencyString, curveCalculationConfigName, yieldCurveName, target, constraints);
-      if (ycns == null) {
-        return null;
-      }
-      requirements.add(ycns);
+      requirements.add(getYCNSRequirement(currencyString, curveCalculationConfigName, yieldCurveName, target, constraints));
+      requirements.add(getYCHTSRequirement(currency, yieldCurveName, samplingPeriod));
       if (!curveCalculationConfig.getCalculationMethod().equals(FXImpliedYieldCurveFunction.FX_IMPLIED)) {
         requirements.add(getCurveSpecRequirement(currency, yieldCurveName));
       }
@@ -271,7 +275,7 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
   }
 
   private DoubleTimeSeries<?> getPnLSeries(final InterpolatedYieldCurveSpecificationWithSecurities spec, final DoubleLabelledMatrix1D curveSensitivities,
-      final HistoricalTimeSeriesSource historicalSource, final LocalDate startDate, final LocalDate now, final LocalDate[] schedule, final TimeSeriesSamplingFunction samplingFunction) {
+      final HistoricalTimeSeriesBundle timeSeriesBundle, final LocalDate[] schedule, final TimeSeriesSamplingFunction samplingFunction) {
     DoubleTimeSeries<?> pnlSeries = null;
     final int n = curveSensitivities.size();
     final Object[] labels = curveSensitivities.getLabels();
@@ -287,19 +291,15 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
       stripList.add(index, strip.getInstrumentType());
     }
     for (int i = 0; i < n; i++) {
-      final Object idObject = labels[i];
-      if (!(idObject instanceof ExternalId)) {
-        throw new OpenGammaRuntimeException("Yield curve node sensitivity label was not an external id; should never happen");
-      }
+      final ExternalId id = (ExternalId) labels[i];
       double sensitivity = values[i];
       if (stripList.get(i) == StripInstrumentType.FUTURE) {
         // TODO Temporary fix as sensitivity is to rate, but historical time series is to price (= 1 - rate)
         sensitivity *= -1;
       }
-      final ExternalIdBundle id = ExternalIdBundle.of((ExternalId) idObject);
-      final HistoricalTimeSeries dbNodeTimeSeries = historicalSource.getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, id, null, startDate, true, now, true);
+      final HistoricalTimeSeries dbNodeTimeSeries = timeSeriesBundle.get(MarketDataRequirementNames.MARKET_VALUE, id);
       if (dbNodeTimeSeries == null) {
-        throw new OpenGammaRuntimeException("Could not identifier / price series pair for " + id + " using the field " + MarketDataRequirementNames.MARKET_VALUE);
+        throw new OpenGammaRuntimeException("Could not identifier / price series pair for " + id);
       }
       DoubleTimeSeries<?> nodeTimeSeries = samplingFunction.getSampledTimeSeries(dbNodeTimeSeries.getTimeSeries(), schedule);
       nodeTimeSeries = DIFFERENCE.evaluate(nodeTimeSeries);
@@ -312,16 +312,16 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
     return pnlSeries;
   }
 
-  private DoubleTimeSeries<?> getPnLSeries(final DoubleLabelledMatrix1D curveSensitivities, final HistoricalTimeSeriesSource historicalSource, final LocalDate startDate,
-      final LocalDate now, final LocalDate[] schedule, final TimeSeriesSamplingFunction samplingFunction) {
+  private DoubleTimeSeries<?> getPnLSeries(final DoubleLabelledMatrix1D curveSensitivities, final HistoricalTimeSeriesBundle timeSeriesBundle, final LocalDate[] schedule,
+      final TimeSeriesSamplingFunction samplingFunction) {
     DoubleTimeSeries<?> pnlSeries = null;
     final Object[] labels = curveSensitivities.getLabels();
     final double[] values = curveSensitivities.getValues();
     for (int i = 0; i < labels.length; i++) {
-      final ExternalIdBundle id = ExternalIdBundle.of((ExternalId) labels[i]);
-      final HistoricalTimeSeries dbNodeTimeSeries = historicalSource.getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, id, null, startDate, true, now, true);
+      final ExternalId id = (ExternalId) labels[i];
+      final HistoricalTimeSeries dbNodeTimeSeries = timeSeriesBundle.get(MarketDataRequirementNames.MARKET_VALUE, id);
       if (dbNodeTimeSeries == null) {
-        throw new OpenGammaRuntimeException("Could not identifier / price series pair for " + id + " using the field " + MarketDataRequirementNames.MARKET_VALUE);
+        throw new OpenGammaRuntimeException("Could not identifier / price series pair for " + id);
       }
       DoubleTimeSeries<?> nodeTimeSeries = samplingFunction.getSampledTimeSeries(dbNodeTimeSeries.getTimeSeries(), schedule);
       nodeTimeSeries = DIFFERENCE.evaluate(nodeTimeSeries);
@@ -343,6 +343,11 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
         .with(ValuePropertyNames.CURVE, yieldCurveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName).get();
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, ComputationTargetType.SECURITY, uniqueId, properties);
+  }
+
+  private ValueRequirement getYCHTSRequirement(final Currency currency, final String yieldCurveName, final String samplingPeriod) {
+    return HistoricalTimeSeriesFunctionUtils.createYCHTSRequirement(currency, yieldCurveName, MarketDataRequirementNames.MARKET_VALUE, null, DateConstraint.VALUATION_TIME.minus(samplingPeriod), true,
+        DateConstraint.VALUATION_TIME, true);
   }
 
   private ValueRequirement getCurveSpecRequirement(final Currency currency, final String yieldCurveName) {

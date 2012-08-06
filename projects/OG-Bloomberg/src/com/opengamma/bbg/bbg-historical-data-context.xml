@@ -11,7 +11,7 @@
   </bean>
   
   <bean id="bbgHistoricalTimeSeriesSource" class="com.opengamma.bbg.BloombergHistoricalTimeSeriesSource" init-method="start">
-    <constructor-arg ref="sessionOptions" />
+    <constructor-arg ref="bloombergConnector" />
     <constructor-arg ref="bbgTimeSeriesStatistics" />
   </bean>
 

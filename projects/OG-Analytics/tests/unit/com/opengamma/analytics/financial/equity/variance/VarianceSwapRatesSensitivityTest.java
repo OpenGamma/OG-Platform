@@ -13,8 +13,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
-import com.opengamma.analytics.financial.equity.variance.VarianceSwapSensitivityCalculator;
+import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.analytics.financial.equity.variance.pricing.VarianceSwapStaticReplication;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
@@ -36,7 +35,7 @@ import com.opengamma.util.money.Currency;
  */
 public class VarianceSwapRatesSensitivityTest {
 
-  private static VarianceSwapSensitivityCalculator deltaCalculator = VarianceSwapSensitivityCalculator.getInstance();
+  private static final VarianceSwapSensitivityCalculator DELTA_CAL = VarianceSwapSensitivityCalculator.getInstance();
   // Tests ------------------------------------------
 
   /*
@@ -64,9 +63,9 @@ public class VarianceSwapRatesSensitivityTest {
 
     final double relShift = 0.01;
 
-    final double deltaSkew = deltaCalculator.calcForwardSensitivity(swap5y, MARKET, relShift);
-    final double deltaFlatLong = deltaCalculator.calcForwardSensitivity(swap10y, MARKET, relShift);
-    final double deltaFlatShort = deltaCalculator.calcForwardSensitivity(swap1y, MARKET, relShift);
+    final double deltaSkew = DELTA_CAL.calcForwardSensitivity(swap5y, MARKET, relShift);
+    final double deltaFlatLong = DELTA_CAL.calcForwardSensitivity(swap10y, MARKET, relShift);
+    final double deltaFlatShort = DELTA_CAL.calcForwardSensitivity(swap1y, MARKET, relShift);
 
     assertTrue(Math.abs(deltaSkew) > Math.abs(deltaFlatShort));
     assertTrue(Math.abs(deltaSkew) > Math.abs(deltaFlatLong));
@@ -82,13 +81,13 @@ public class VarianceSwapRatesSensitivityTest {
 
     final InterpolatedDoublesSurface DELTA_SURFACE = new InterpolatedDoublesSurface(EXPIRIES, CALLDELTAs, VOLS, new GridInterpolator2D(INTERPOLATOR_1D_LINEAR, INTERPOLATOR_1D_DBLQUAD));
     final BlackVolatilitySurfaceDelta DELTA_VOL_SURFACE = new BlackVolatilitySurfaceDelta(DELTA_SURFACE, FORWARD_CURVE);
-    final EquityOptionDataBundle DELTA_MARKET = new EquityOptionDataBundle(DELTA_VOL_SURFACE, FUNDING, FORWARD_CURVE);
+    final StaticReplicationDataBundle DELTA_MARKET = new StaticReplicationDataBundle(DELTA_VOL_SURFACE, FUNDING, FORWARD_CURVE);
 
     final double relShift = 0.1;
 
-    final double deltaSkew = deltaCalculator.calcForwardSensitivity(swap5y, DELTA_MARKET, relShift);
-    final double deltaFlatLong = deltaCalculator.calcForwardSensitivity(swap10y, DELTA_MARKET, relShift);
-    final double deltaFlatShort = deltaCalculator.calcForwardSensitivity(swap1y, DELTA_MARKET, relShift);
+    final double deltaSkew = DELTA_CAL.calcForwardSensitivity(swap5y, DELTA_MARKET, relShift);
+    final double deltaFlatLong = DELTA_CAL.calcForwardSensitivity(swap10y, DELTA_MARKET, relShift);
+    final double deltaFlatShort = DELTA_CAL.calcForwardSensitivity(swap1y, DELTA_MARKET, relShift);
 
     assertEquals(0.0, deltaSkew, TOLERATED);
     assertEquals(0.0, deltaFlatLong, TOLERATED);
@@ -100,11 +99,11 @@ public class VarianceSwapRatesSensitivityTest {
 
     final double relShift = 0.01;
 
-    final double delta = deltaCalculator.calcForwardSensitivity(swap5y, MARKET, relShift);
+    final double delta = DELTA_CAL.calcForwardSensitivity(swap5y, MARKET, relShift);
     final double pv = pricer_without_cutoff.presentValue(swap5y, MARKET);
     final double settlement = swap5y.getTimeToSettlement();
 
-    final double totalRateSens = deltaCalculator.calcDiscountRateSensitivity(swap5y, MARKET, relShift);
+    final double totalRateSens = DELTA_CAL.calcDiscountRateSensitivity(swap5y, MARKET, relShift);
     final double fwd = FORWARD_CURVE.getForward(settlement);
 
     assertEquals(totalRateSens, settlement * (delta * fwd - pv), TOLERATED);
@@ -114,7 +113,7 @@ public class VarianceSwapRatesSensitivityTest {
   @Test
   public void testDiscountRateSensitivityWithNoSkew() {
 
-    final double rateSens = deltaCalculator.calcDiscountRateSensitivity(swap10y, MARKET);
+    final double rateSens = DELTA_CAL.calcDiscountRateSensitivity(swap10y, MARKET);
     final double pv = pricer_without_cutoff.presentValue(swap10y, MARKET);
     final double settlement = swap10y.getTimeToSettlement();
 
@@ -124,8 +123,8 @@ public class VarianceSwapRatesSensitivityTest {
   @Test
   public void testPV01() {
 
-    final double rateSens = deltaCalculator.calcDiscountRateSensitivity(swapStartsNow, MARKET);
-    final double pv01 = deltaCalculator.calcPV01(swapStartsNow, MARKET);
+    final double rateSens = DELTA_CAL.calcDiscountRateSensitivity(swapStartsNow, MARKET);
+    final double pv01 = DELTA_CAL.calcPV01(swapStartsNow, MARKET);
 
     assertEquals(pv01 * 10000, rateSens, TOLERATED);
   }
@@ -133,10 +132,10 @@ public class VarianceSwapRatesSensitivityTest {
   @Test
   public void testBucketedDeltaVsPV01() {
 
-    final double rateSens = deltaCalculator.calcDiscountRateSensitivity(swapStartsNow, MARKET);
-    final DoubleMatrix1D deltaBuckets = deltaCalculator.calcDeltaBucketed(swapStartsNow, MARKET);
+    final double rateSens = DELTA_CAL.calcDiscountRateSensitivity(swapStartsNow, MARKET);
+    final DoubleMatrix1D deltaBuckets = DELTA_CAL.calcDeltaBucketed(swapStartsNow, MARKET);
     final int nDeltas = deltaBuckets.getNumberOfElements();
-    final int nYieldNodes = MARKET.getDiscountCurve().getCurve().size();
+    final int nYieldNodes = ((YieldCurve) MARKET.getDiscountCurve()).getCurve().size();
     assertEquals(nDeltas, nYieldNodes, TOLERATED);
 
     double bucketSum = 0.0;
@@ -154,7 +153,7 @@ public class VarianceSwapRatesSensitivityTest {
     final VarianceSwap swap = new VarianceSwap(tPlusOne, expiry, expiry, varStrike, varNotional, Currency.EUR, annualization, nObsExpected, noObsDisrupted, noObservations, noObsWeights);
     final double zcb = MARKET.getDiscountCurve().getDiscountFactor(swap.getTimeToSettlement());
 
-    final Double vegaParallel = deltaCalculator.calcBlackVegaParallel(swap, MARKET);
+    final Double vegaParallel = DELTA_CAL.calcBlackVegaParallel(swap, MARKET);
     final double theoreticalVega = 2 * sigma * zcb * swap.getVarNotional();
 
     assertEquals(theoreticalVega, vegaParallel, 0.01);
@@ -164,7 +163,7 @@ public class VarianceSwapRatesSensitivityTest {
   public void testBlackVegaForEntireSurface() {
 
     // Compute the surface
-    final NodalDoublesSurface vegaSurface = deltaCalculator.calcBlackVegaForEntireSurface(swapStartsNow, MARKET);
+    final NodalDoublesSurface vegaSurface = DELTA_CAL.calcBlackVegaForEntireSurface(swapStartsNow, MARKET);
     // Sum up each constituent
     final double[] vegaBuckets = vegaSurface.getZDataAsPrimitive();
     double sumVegaBuckets = 0.0;
@@ -173,7 +172,7 @@ public class VarianceSwapRatesSensitivityTest {
     }
 
     // Compute parallel vega, ie to a true parallel shift
-    final Double parallelVega = deltaCalculator.calcBlackVegaParallel(swapStartsNow, MARKET);
+    final Double parallelVega = DELTA_CAL.calcBlackVegaParallel(swapStartsNow, MARKET);
 
     assertEquals(parallelVega, sumVegaBuckets, 0.01);
   }
@@ -188,10 +187,10 @@ public class VarianceSwapRatesSensitivityTest {
 
     final InterpolatedDoublesSurface DELTA_SURFACE = new InterpolatedDoublesSurface(EXPIRIES, CALLDELTAs, VOLS, new GridInterpolator2D(INTERPOLATOR_1D_LINEAR, INTERPOLATOR_1D_DBLQUAD));
     final BlackVolatilitySurfaceDelta DELTA_VOL_SURFACE = new BlackVolatilitySurfaceDelta(DELTA_SURFACE, FORWARD_CURVE);
-    final EquityOptionDataBundle DELTA_MARKET = new EquityOptionDataBundle(DELTA_VOL_SURFACE, FUNDING, FORWARD_CURVE);
+    final StaticReplicationDataBundle DELTA_MARKET = new StaticReplicationDataBundle(DELTA_VOL_SURFACE, FUNDING, FORWARD_CURVE);
 
     // Compute the surface
-    final NodalDoublesSurface vegaSurface = deltaCalculator.calcBlackVegaForEntireSurface(swapStartsNow, DELTA_MARKET);
+    final NodalDoublesSurface vegaSurface = DELTA_CAL.calcBlackVegaForEntireSurface(swapStartsNow, DELTA_MARKET);
     // Sum up each constituent
     final double[] vegaBuckets = vegaSurface.getZDataAsPrimitive();
     double sumVegaBuckets = 0.0;
@@ -200,7 +199,7 @@ public class VarianceSwapRatesSensitivityTest {
     }
 
     // Compute parallel vega, ie to a true parallel shift
-    final Double parallelVega = deltaCalculator.calcBlackVegaParallel(swapStartsNow, DELTA_MARKET);
+    final Double parallelVega = DELTA_CAL.calcBlackVegaParallel(swapStartsNow, DELTA_MARKET);
 
     assertEquals(parallelVega, sumVegaBuckets, 0.033);
   }
@@ -217,38 +216,25 @@ public class VarianceSwapRatesSensitivityTest {
   private static final ForwardCurve FORWARD_CURVE = new ForwardCurve(SPOT, DRIFT);
   // private static final double FORWARD = 100;
 
-  private static final double[] EXPIRIES = new double[] {0.5, 0.5, 0.5, 0.5,
-    1.0, 1.0, 1.0, 1.0,
-    5.0, 5.0, 5.0, 5.0,
-    10.0, 10.0, 10.0, 10.0 };
-  private static final double[] STRIKES = new double[] {40, 80, 100, 120,
-    40, 80, 100, 120,
-    40, 80, 100, 120,
-    40, 80, 100, 120 };
-  private static final double[] CALLDELTAs = new double[] {0.9, 0.75, 0.5, 0.25,
-    0.9, 0.75, 0.5, 0.25,
-    0.9, 0.75, 0.5, 0.25,
-    0.9, 0.75, 0.5, 0.25 };
+  private static final double[] EXPIRIES = new double[] {0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0, 1.0, 5.0, 5.0, 5.0, 5.0, 10.0, 10.0, 10.0, 10.0 };
+  private static final double[] STRIKES = new double[] {40, 80, 100, 120, 40, 80, 100, 120, 40, 80, 100, 120, 40, 80, 100, 120 };
+  private static final double[] CALLDELTAs = new double[] {0.9, 0.75, 0.5, 0.25, 0.9, 0.75, 0.5, 0.25, 0.9, 0.75, 0.5, 0.25, 0.9, 0.75, 0.5, 0.25 };
 
-  private static final double[] VOLS = new double[] {0.28, 0.28, 0.28, 0.28,
-    0.25, 0.25, 0.25, 0.25,
-    0.26, 0.24, 0.23, 0.25,
-    0.20, 0.20, 0.20, 0.20 };
+  private static final double[] VOLS = new double[] {0.28, 0.28, 0.28, 0.28, 0.25, 0.25, 0.25, 0.25, 0.26, 0.24, 0.23, 0.25, 0.20, 0.20, 0.20, 0.20 };
 
-  private static final CombinedInterpolatorExtrapolator INTERPOLATOR_1D_DBLQUAD = getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC,
-      Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  private static final CombinedInterpolatorExtrapolator INTERPOLATOR_1D_DBLQUAD = getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
+      Interpolator1DFactory.FLAT_EXTRAPOLATOR);
 
-  final static CombinedInterpolatorExtrapolator INTERPOLATOR_1D_LINEAR = getInterpolator(Interpolator1DFactory.LINEAR,
-      Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  final static CombinedInterpolatorExtrapolator INTERPOLATOR_1D_LINEAR = getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
 
   private static final InterpolatedDoublesSurface SURFACE = new InterpolatedDoublesSurface(EXPIRIES, STRIKES, VOLS, new GridInterpolator2D(INTERPOLATOR_1D_LINEAR, INTERPOLATOR_1D_DBLQUAD));
   private static final BlackVolatilitySurfaceStrike VOL_SURFACE = new BlackVolatilitySurfaceStrike(SURFACE);
 
   private static double[] maturities = {0.5, 1.0, 5.0, 10.0, 20.0 };
   private static double[] rates = {0.02, 0.03, 0.05, 0.05, 0.04 };
-  private static final YieldCurve FUNDING = new YieldCurve(new InterpolatedDoublesCurve(maturities, rates, INTERPOLATOR_1D_DBLQUAD, true));
+  private static final YieldCurve FUNDING = YieldCurve.from(new InterpolatedDoublesCurve(maturities, rates, INTERPOLATOR_1D_DBLQUAD, true));
 
-  private static final EquityOptionDataBundle MARKET = new EquityOptionDataBundle(VOL_SURFACE, FUNDING, FORWARD_CURVE);
+  private static final StaticReplicationDataBundle MARKET = new StaticReplicationDataBundle(VOL_SURFACE, FUNDING, FORWARD_CURVE);
 
   // The derivative
   final double varStrike = 0.05;

@@ -19,10 +19,11 @@ import com.opengamma.analytics.math.function.Function;
  * For example, a simple spread curve could be <i>C = A - B</i>. As this curve is in the same hierarchy as the other curves, a spread curve can be 
  * defined on another spread curve, e.g. <i>E = C * D = D * (A - B)</i>.  
  */
-public class SpreadDoublesCurve extends Curve<Double, Double> {
+public class SpreadDoublesCurve extends DoublesCurve {
+
   private final CurveSpreadFunction _spreadFunction;
   private final Function<Double, Double> _f;
-  private final Curve<Double, Double>[] _curves;
+  private final DoublesCurve[] _curves;
 
   /**
    * Takes an array of curves that are to be operated on by the spread function. The name of the spread
@@ -31,7 +32,7 @@ public class SpreadDoublesCurve extends Curve<Double, Double> {
    * @param curves The curves, not null
    * @return The spread curve
    */
-  public static SpreadDoublesCurve from(final CurveSpreadFunction spreadFunction, final Curve<Double, Double>... curves) {
+  public static SpreadDoublesCurve from(final CurveSpreadFunction spreadFunction, final DoublesCurve... curves) {
     return new SpreadDoublesCurve(spreadFunction, curves);
   }
 
@@ -42,7 +43,7 @@ public class SpreadDoublesCurve extends Curve<Double, Double> {
    * @param curves The curves, not null
    * @return The spread curve
    */
-  public static SpreadDoublesCurve from(final CurveSpreadFunction spreadFunction, final String name, final Curve<Double, Double>... curves) {
+  public static SpreadDoublesCurve from(final CurveSpreadFunction spreadFunction, final String name, final DoublesCurve... curves) {
     return new SpreadDoublesCurve(spreadFunction, name, curves);
   }
 
@@ -50,7 +51,7 @@ public class SpreadDoublesCurve extends Curve<Double, Double> {
    * @param spreadFunction The spread function, not null
    * @param curves The curves, not null, contains more than one curve
    */
-  public SpreadDoublesCurve(final CurveSpreadFunction spreadFunction, final Curve<Double, Double>... curves) {
+  public SpreadDoublesCurve(final CurveSpreadFunction spreadFunction, final DoublesCurve... curves) {
     super();
     Validate.notNull(curves, "curves");
     Validate.isTrue(curves.length > 1, "curves");
@@ -66,7 +67,7 @@ public class SpreadDoublesCurve extends Curve<Double, Double> {
    * @param name The name of the curve
    * @param curves The curves, not null, contains more than one curve
    */
-  public SpreadDoublesCurve(final CurveSpreadFunction spreadFunction, final String name, final Curve<Double, Double>... curves) {
+  public SpreadDoublesCurve(final CurveSpreadFunction spreadFunction, final String name, final DoublesCurve... curves) {
     super(name);
     Validate.notNull(curves, "curves");
     Validate.isTrue(curves.length > 1, "curves");
@@ -121,7 +122,7 @@ public class SpreadDoublesCurve extends Curve<Double, Double> {
    * 
    * @return The underlying curves
    */
-  public Curve<Double, Double>[] getUnderlyingCurves() {
+  public DoublesCurve[] getUnderlyingCurves() {
     return _curves;
   }
 
@@ -149,13 +150,18 @@ public class SpreadDoublesCurve extends Curve<Double, Double> {
     return _f.evaluate(x);
   }
 
+  @Override
+  public Double[] getYValueParameterSensitivity(Double x) {
+    throw new UnsupportedOperationException("Parameter sensitivity not supported yet for SpreadDoublesCurve");
+  }
+
   /**
    * @return Not supported
    * @throws UnsupportedOperationException
    */
   @Override
   public int size() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException("Size not supported yet for SpreadDoublesCurve");
   }
 
   @Override

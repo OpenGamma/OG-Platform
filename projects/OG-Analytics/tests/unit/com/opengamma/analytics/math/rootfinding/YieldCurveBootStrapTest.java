@@ -25,6 +25,7 @@ import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
@@ -48,7 +49,6 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
-import com.opengamma.analytics.math.rootfinding.VectorRootFinder;
 import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.analytics.math.rootfinding.newton.NewtonDefaultVectorRootFinder;
 import com.opengamma.analytics.math.rootfinding.newton.NewtonVectorRootFinder;
@@ -65,7 +65,7 @@ import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
-Timings on Richard's mac pro from 24/08/2010 with 200 warm ups and 1000 benchmark cycles 
+Timings on Richard's mac pro from 24/08/2010 with 200 warm ups and 1000 benchmark cycles
 
 18:35:26.423 [main] INFO  c.o.m.r.YieldCurveBootStrapTest - 14947ms-processing 1000 cycles on default Newton, single curve
 18:36:39.163 [main] INFO  c.o.m.r.YieldCurveBootStrapTest - 60618ms-processing 1000 cycles on default Newton, single curve, finite difference
@@ -84,7 +84,7 @@ Timings on Richard's mac pro from 24/08/2010 with 200 warm ups and 1000 benchmar
 18:45:02.122 [main] INFO  c.o.m.r.YieldCurveBootStrapTest - 20385ms-processing 1000 cycles on Broyden, single curve, FD sensitivity
 18:45:09.954 [main] INFO  c.o.m.r.YieldCurveBootStrapTest - 6522ms-processing 1000 cycles on Broyden, double curve
 18:45:25.414 [main] INFO  c.o.m.r.YieldCurveBootStrapTest - 12884ms-processing 1000 cycles on Broyden, double curve, finite difference
-18:46:44.129 [main] INFO  c.o.m.r.YieldCurveBootStrapTest - 65560ms-processing 1000 cycles on Broyden, double curve FD sensitivity 
+18:46:44.129 [main] INFO  c.o.m.r.YieldCurveBootStrapTest - 65560ms-processing 1000 cycles on Broyden, double curve FD sensitivity
  */
 
 public class YieldCurveBootStrapTest {
@@ -130,6 +130,7 @@ public class YieldCurveBootStrapTest {
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
   private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
+  private static final FXMatrix FX_MATRIX = new FXMatrix(Currency.USD);
 
   static {
     final int[] payments = new int[] {1, 2, 3, 4, 6, 8, 10, 14, 20, 30, 40, 50, 60};
@@ -171,11 +172,13 @@ public class YieldCurveBootStrapTest {
     LinkedHashMap<String, double[]> unknownCurveNodes = new LinkedHashMap<String, double[]>();
     unknownCurveInterpolators.put(LIBOR_CURVE_NAME, EXTRAPOLATOR);
     unknownCurveNodes.put(LIBOR_CURVE_NAME, TIME_GRID);
-    MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(SINGLE_CURVE_INSTRUMENTS, SWAP_VALUES, null, unknownCurveNodes, unknownCurveInterpolators, false);
+    MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(SINGLE_CURVE_INSTRUMENTS, SWAP_VALUES, null, unknownCurveNodes,
+        unknownCurveInterpolators, false, FX_MATRIX);
     SINGLE_CURVE_FINDER = new MultipleYieldCurveFinderFunction(data, PAR_RATE_CALCULATOR);
     SINGLE_CURVE_JACOBIAN = new MultipleYieldCurveFinderJacobian(data, PAR_RATE_SENSITIVITY_CALCULATOR);
 
-    data = new MultipleYieldCurveFinderDataBundle(SINGLE_CURVE_INSTRUMENTS, new double[SINGLE_CURVE_INSTRUMENTS.size()], null, unknownCurveNodes, unknownCurveInterpolators, true);
+    data = new MultipleYieldCurveFinderDataBundle(SINGLE_CURVE_INSTRUMENTS, new double[SINGLE_CURVE_INSTRUMENTS.size()], null, unknownCurveNodes,
+        unknownCurveInterpolators, true, FX_MATRIX);
     SINGLE_CURVE_JACOBIAN_WITH_FD_INTERPOLATOR_SENSITIVITY = new MultipleYieldCurveFinderJacobian(data, PAR_RATE_SENSITIVITY_CALCULATOR);
 
     unknownCurveInterpolators = new LinkedHashMap<String, Interpolator1D>();
@@ -184,12 +187,14 @@ public class YieldCurveBootStrapTest {
     unknownCurveInterpolators.put(LIBOR_CURVE_NAME, EXTRAPOLATOR);
     unknownCurveNodes.put(FUNDING_CURVE_NAME, FUNDING_CURVE_TIMES);
     unknownCurveNodes.put(LIBOR_CURVE_NAME, LIBOR_CURVE_TIMES);
-    data = new MultipleYieldCurveFinderDataBundle(DOUBLE_CURVE_INSTRUMENTS, SWAP_VALUES, null, unknownCurveNodes, unknownCurveInterpolators, false);
+    data = new MultipleYieldCurveFinderDataBundle(DOUBLE_CURVE_INSTRUMENTS, SWAP_VALUES, null, unknownCurveNodes, unknownCurveInterpolators, false,
+        FX_MATRIX);
 
     DOUBLE_CURVE_FINDER = new MultipleYieldCurveFinderFunction(data, PAR_RATE_CALCULATOR);
     DOUBLE_CURVE_JACOBIAN = new MultipleYieldCurveFinderJacobian(data, PAR_RATE_SENSITIVITY_CALCULATOR);
 
-    data = new MultipleYieldCurveFinderDataBundle(DOUBLE_CURVE_INSTRUMENTS, SWAP_VALUES, null, unknownCurveNodes, unknownCurveInterpolators, true);
+    data = new MultipleYieldCurveFinderDataBundle(DOUBLE_CURVE_INSTRUMENTS, SWAP_VALUES, null, unknownCurveNodes, unknownCurveInterpolators, true,
+        FX_MATRIX);
     DOUBLE_CURVE_JACOBIAN_WITH_FD_INTERPOLATOR_SENSITIVITY = new MultipleYieldCurveFinderJacobian(data, PAR_RATE_SENSITIVITY_CALCULATOR);
 
     // There is at least one other root in the double curve finding problem (i.e. two curves that give the correct par rates but are different from the curves used to generate the par rates in the
@@ -358,7 +363,8 @@ public class YieldCurveBootStrapTest {
         final InstrumentDerivative ird = new FixedFloatSwap(newLeg, swap.getFloatingLeg());
         instruments.add(ird);
       }
-      final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(instruments, swapRates, null, unknownCurveNodes, unknownCurveInterpolators, false);
+      final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(instruments, swapRates, null, unknownCurveNodes,
+          unknownCurveInterpolators, false, FX_MATRIX);
       final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor = new MultipleYieldCurveFinderFunction(data, PAR_RATE_CALCULATOR);
       yieldCurveNodes = rootFinder.getRoot(functor, yieldCurveNodes);
       curve = makeYieldCurve(yieldCurveNodes.getData(), TIME_GRID, EXTRAPOLATOR);
@@ -400,7 +406,8 @@ public class YieldCurveBootStrapTest {
     final LinkedHashMap<String, double[]> unknownCurveNodes = new LinkedHashMap<String, double[]>();
     unknownCurveInterpolators.put(LIBOR_CURVE_NAME, EXTRAPOLATOR);
     unknownCurveNodes.put(LIBOR_CURVE_NAME, TIME_GRID);
-    final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(DOUBLE_CURVE_INSTRUMENTS, SWAP_VALUES, knownCurves, unknownCurveNodes, unknownCurveInterpolators, false);
+    final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(DOUBLE_CURVE_INSTRUMENTS, SWAP_VALUES, knownCurves, unknownCurveNodes,
+        unknownCurveInterpolators, false, FX_MATRIX);
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor = new MultipleYieldCurveFinderFunction(data, PAR_RATE_CALCULATOR);
 
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacCal = new MultipleYieldCurveFinderJacobian(data, PAR_RATE_SENSITIVITY_CALCULATOR);
@@ -423,7 +430,8 @@ public class YieldCurveBootStrapTest {
     final LinkedHashMap<String, double[]> unknownCurveNodes = new LinkedHashMap<String, double[]>();
     unknownCurveInterpolators.put(FUNDING_CURVE_NAME, EXTRAPOLATOR);
     unknownCurveNodes.put(FUNDING_CURVE_NAME, TIME_GRID);
-    final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(DOUBLE_CURVE_INSTRUMENTS, SWAP_VALUES, knownCurves, unknownCurveNodes, unknownCurveInterpolators, false);
+    final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(DOUBLE_CURVE_INSTRUMENTS, SWAP_VALUES, knownCurves, unknownCurveNodes,
+        unknownCurveInterpolators, false, FX_MATRIX);
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor = new MultipleYieldCurveFinderFunction(data, PAR_RATE_CALCULATOR);
 
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacCal = new MultipleYieldCurveFinderJacobian(data, PAR_RATE_SENSITIVITY_CALCULATOR);
@@ -443,7 +451,7 @@ public class YieldCurveBootStrapTest {
     if (n != times.length) {
       throw new IllegalArgumentException("rates and times different lengths");
     }
-    return new YieldCurve(InterpolatedDoublesCurve.from(times, yields, interpolator));
+    return YieldCurve.from(InterpolatedDoublesCurve.from(times, yields, interpolator));
   }
 
   protected static FixedFloatSwap setParSwapRate(final FixedFloatSwap swap, final double rate) {

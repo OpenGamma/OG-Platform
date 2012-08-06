@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.future;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.time.calendar.Clock;
@@ -19,10 +20,10 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.core.config.ConfigSource;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -34,16 +35,18 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.InterestRateFutureSecurityConverter;
 import com.opengamma.financial.analytics.conversion.InterestRateFutureTradeConverter;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -54,6 +57,7 @@ public abstract class InterestRateFutureFunction extends AbstractFunction.NonCom
   private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureFunction.class);
   private InterestRateFutureTradeConverter _converter;
   private FixedIncomeConverterDataProvider _dataConverter;
+  private ConfigDBCurveCalculationConfigSource _curveConfigSource;
   private final String _valueRequirement;
 
   public InterestRateFutureFunction(final String valueRequirement) {
@@ -66,29 +70,30 @@ public abstract class InterestRateFutureFunction extends AbstractFunction.NonCom
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
+    final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
+    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     _converter = new InterestRateFutureTradeConverter(new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource));
-    _dataConverter = new FixedIncomeConverterDataProvider(conventionSource);
+    _dataConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
+    _curveConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
   }
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
-    final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
+    final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
     final Trade trade = target.getTrade();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String curveCalculationConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-    final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
-    final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
-    final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
+    final MultiCurveCalculationConfig curveCalculationConfig = _curveConfigSource.getConfig(curveCalculationConfigName);
     if (curveCalculationConfig == null) {
       throw new OpenGammaRuntimeException("Could not find curve calculation configuration named " + curveCalculationConfigName);
     }
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
     final String[] yieldCurveNames = curveNames.length == 1 ? new String[] {curveNames[0], curveNames[0]} : curveNames;
-    final YieldCurveBundle data = YieldCurveFunctionUtils.getAllYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
+    final YieldCurveBundle data = YieldCurveFunctionUtils.getAllYieldCurves(inputs, curveCalculationConfig, _curveConfigSource);
     final InstrumentDefinition<InstrumentDerivative> irFutureDefinition = _converter.convert(trade);
-    final InstrumentDerivative irFuture = _dataConverter.convert(trade.getSecurity(), irFutureDefinition, now, yieldCurveNames, dataSource);
+    final InstrumentDerivative irFuture = _dataConverter.convert(trade.getSecurity(), irFutureDefinition, now, yieldCurveNames, timeSeries);
     final ValueSpecification spec = getSpecification(target, curveCalculationConfigName);
     return getResults(irFuture, data, spec);
   }
@@ -127,11 +132,22 @@ public abstract class InterestRateFutureFunction extends AbstractFunction.NonCom
       s_logger.error("Could not find curve calculation configuration named " + curveCalculationConfigName);
       return null;
     }
-    final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
+    final Trade trade = target.getTrade();
+    final Security security = trade.getSecurity();
+    final Currency currency = FinancialSecurityUtils.getCurrency(security);
     if (!currency.equals(curveCalculationConfig.getUniqueId())) {
       s_logger.error("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getUniqueId());
     }
-    return YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource);
+    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
+    final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
+    final String[] yieldCurveNames = curveNames.length == 1 ? new String[] {curveNames[0], curveNames[0] } : curveNames;
+    final Set<ValueRequirement> timeSeriesRequirements = _dataConverter.getConversionTimeSeriesRequirements(security, _converter.convert(trade), yieldCurveNames);
+    if (timeSeriesRequirements == null) {
+      return null;
+    }
+    requirements.addAll(timeSeriesRequirements);
+    return requirements;
   }
 
   private ValueSpecification getSpecification(final ComputationTarget target) {

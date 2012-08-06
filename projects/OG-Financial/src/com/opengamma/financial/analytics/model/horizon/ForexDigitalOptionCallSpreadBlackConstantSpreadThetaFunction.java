@@ -24,7 +24,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
-import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParametersStrikeInterpolation;
+import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -113,7 +113,8 @@ public class ForexDigitalOptionCallSpreadBlackConstantSpreadThetaFunction extend
     final ValueProperties.Builder properties = getResultProperties(putCurveName, callCurveName, putCurveConfig, callCurveConfig, surfaceName, interpolatorName,
         leftExtrapolatorName, rightExtrapolatorName, spread, target);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.VALUE_THETA, target.toSpecification(), properties.get());
-    final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(fxMatrix, curveCurrency, yieldCurves, smiles, Pair.of(ccy1, ccy2));
+    final YieldCurveBundle curvesWithFX = new YieldCurveBundle(fxMatrix, curveCurrency, yieldCurves.getCurvesMap());
+    final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(curvesWithFX, smiles, Pair.of(ccy1, ccy2));
     final ConstantSpreadHorizonThetaCalculator calculator = ConstantSpreadHorizonThetaCalculator.getInstance();
     final ForexOptionDigitalDefinition definition = (ForexOptionDigitalDefinition) security.accept(VISITOR);
     final MultipleCurrencyAmount theta = calculator.getTheta(definition, now, allCurveNames, smileBundle, new PresentValueCallSpreadBlackForexCalculator(Double.valueOf(spread)),

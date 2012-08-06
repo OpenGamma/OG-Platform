@@ -18,9 +18,9 @@ import org.testng.annotations.Test;
 import com.opengamma.id.ExternalScheme;
 
 /**
- * Tests the {@link FireHoseLiveDataServerMBean} class.
+ * Test.
  */
-@Test
+@Test(groups = "unit")
 public class FireHoseLiveDataServerMBeanTest {
 
   protected static FireHoseLiveDataServer createTestServer() {
@@ -46,7 +46,6 @@ public class FireHoseLiveDataServerMBeanTest {
       public boolean isStarted() {
         return false;
       }
-
     };
     final FireHoseLiveDataServer server = new FireHoseLiveDataServer(ExternalScheme.of("Test"), fireHose);
     server.start();

@@ -21,8 +21,8 @@ import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFor
 import com.opengamma.analytics.financial.model.volatility.smile.function.VolatilityFunctionFactory;
 import com.opengamma.analytics.financial.model.volatility.smile.function.VolatilityFunctionProvider;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -44,6 +44,8 @@ import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionSecu
 import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionTradeConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -52,6 +54,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -60,7 +63,6 @@ import com.opengamma.util.money.Currency;
 public abstract class InterestRateFutureOptionSABRFunction extends AbstractFunction.NonCompiledInvoker {
   /** String labelling the surface fitting method */
   public static final String SURFACE_FITTING_NAME = "SABR";
-  @SuppressWarnings("unchecked")
   private static final VolatilityFunctionProvider<SABRFormulaData> SABR_FUNCTION = (VolatilityFunctionProvider<SABRFormulaData>) VolatilityFunctionFactory
       .getCalculator(VolatilityFunctionFactory.HAGAN);
   private InterestRateFutureOptionTradeConverter _converter;
@@ -72,8 +74,9 @@ public abstract class InterestRateFutureOptionSABRFunction extends AbstractFunct
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     _converter = new InterestRateFutureOptionTradeConverter(new InterestRateFutureOptionSecurityConverter(holidaySource, conventionSource, regionSource, securitySource));
-    _dataConverter = new FixedIncomeConverterDataProvider(conventionSource);
+    _dataConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
   }
 
   @Override
@@ -81,7 +84,7 @@ public abstract class InterestRateFutureOptionSABRFunction extends AbstractFunct
     final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
-    final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
+    final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
     final SimpleTrade trade = (SimpleTrade) target.getTrade();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String forwardCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
@@ -100,9 +103,8 @@ public abstract class InterestRateFutureOptionSABRFunction extends AbstractFunct
     }
     final SABRInterestRateDataBundle data = new SABRInterestRateDataBundle(getModelParameters(target, inputs, dayCount, surfaceName),
         getYieldCurves(target, inputs, forwardCurveName, fundingCurveName, curveCalculationMethod));
-    @SuppressWarnings("unchecked")
     final InstrumentDefinition<InstrumentDerivative> irFutureOptionDefinition = (InstrumentDefinition<InstrumentDerivative>) _converter.convert(trade);
-    final InstrumentDerivative irFutureOption = _dataConverter.convert(trade.getSecurity(), irFutureOptionDefinition, now, new String[] {fundingCurveName, forwardCurveName }, dataSource);
+    final InstrumentDerivative irFutureOption = _dataConverter.convert(trade.getSecurity(), irFutureOptionDefinition, now, new String[] {fundingCurveName, forwardCurveName }, timeSeries);
     return computeValues(irFutureOption, data, target, inputs, forwardCurveName, fundingCurveName, surfaceName, curveCalculationMethod);
   }
 
@@ -135,6 +137,11 @@ public abstract class InterestRateFutureOptionSABRFunction extends AbstractFunct
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION).get();
     return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, currency, properties);
+  }
+
+  protected Set<ValueRequirement> getTimeSeriesRequirements(final ComputationTarget target, final String fundingCurveName, final String forwardCurveName) {
+    final Trade trade = target.getTrade();
+    return _dataConverter.getConversionTimeSeriesRequirements(trade.getSecurity(), _converter.convert(trade), new String[] {fundingCurveName, forwardCurveName });
   }
 
   protected YieldCurveBundle getYieldCurves(final ComputationTarget target, final FunctionInputs inputs, final String forwardCurveName,

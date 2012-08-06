@@ -25,14 +25,14 @@ import com.opengamma.transport.jms.JmsByteArrayRequestDispatcher;
 import com.opengamma.transport.jms.JmsByteArrayRequestSender;
 
 /**
- * 
+ * Test.
  */
-@Test
+@Test(groups = "integration")
 public class RemoteRefDataProviderWithActiveMQTest extends BloombergReferenceDataProviderTestCase {
 
   private ConfigurableApplicationContext _clientContext;
   private ConfigurableApplicationContext _serverContext;
-  
+
   private void setUpSpring() throws Exception {
     ConfigurableApplicationContext clientContext = new ClassPathXmlApplicationContext("/com/opengamma/bbg/test-client-remoteRefDataProvider-context.xml");
     clientContext.start();
@@ -41,7 +41,7 @@ public class RemoteRefDataProviderWithActiveMQTest extends BloombergReferenceDat
     serverContext.start();
     _serverContext = serverContext;
   }
-  
+
   private void tearDownSpring() throws Exception {
     if (_clientContext != null) {
       ConfigurableApplicationContext clientContext = _clientContext;
@@ -73,17 +73,13 @@ public class RemoteRefDataProviderWithActiveMQTest extends BloombergReferenceDat
     return remoteReferenceDataProvider;
   }
 
-  /**
-   * 
-   */
   private void assertServerSpringConfig() {
     PropertyPlaceholderConfigurer propConfigurer= (PropertyPlaceholderConfigurer)_serverContext.getBean("propertyConfigurer");
     assertNotNull(propConfigurer);
     
     BloombergReferenceDataProvider refDataProvider = (BloombergReferenceDataProvider)_serverContext.getBean("refDataProvider");
     assertNotNull(refDataProvider);
-    assertNotNull(refDataProvider.getSessionOptions());
-    assertNotNull(refDataProvider.getSessionOptions().getServerHost());
+    assertNotNull(refDataProvider.getBloombergConnector());
     
     CachingReferenceDataProvider cachingRefDataProvider = (CachingReferenceDataProvider)_serverContext.getBean("cachingRefDataProvider");
     assertNotNull(cachingRefDataProvider);
@@ -100,7 +96,6 @@ public class RemoteRefDataProviderWithActiveMQTest extends BloombergReferenceDat
     assertNotNull(jmsByteArrayRequestDispatcher);
     assertSame(requestDispatcher, jmsByteArrayRequestDispatcher.getUnderlying());
     
-    
     ActiveMQConnectionFactory factory = (ActiveMQConnectionFactory)_serverContext.getBean("jmsConnectionFactory");
     assertNotNull(factory);
     
@@ -110,12 +105,8 @@ public class RemoteRefDataProviderWithActiveMQTest extends BloombergReferenceDat
     assertSame(factory, jmsContainer.getConnectionFactory());
     assertEquals("refDataRequestQueue", jmsContainer.getDestinationName());
     assertFalse(jmsContainer.isPubSubDomain());
-    
   }
 
-  /**
-   * 
-   */
   private void assertClientSpringConfig() { 
     PropertyPlaceholderConfigurer propConfigurer= (PropertyPlaceholderConfigurer)_serverContext.getBean("propertyConfigurer");
     assertNotNull(propConfigurer);
@@ -142,5 +133,5 @@ public class RemoteRefDataProviderWithActiveMQTest extends BloombergReferenceDat
   protected void stopProvider() throws Exception {
     tearDownSpring();
   }
-  
+
 }

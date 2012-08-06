@@ -60,6 +60,7 @@ import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapIborIborDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapXCcyIborIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionBermudaFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
@@ -620,6 +621,18 @@ public class ForexDefinitionVisitorTest {
 
     @Override
     public String visitBondFutureOptionPremiumTransactionDefinition(BondFutureOptionPremiumTransactionDefinition bond) {
+      return null;
+    }
+
+    @Override
+    public String visitSwapXCcyIborIborDefinition(SwapXCcyIborIborDefinition swap, T data) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitSwapXCcyIborIborDefinition(SwapXCcyIborIborDefinition swap) {
+      // TODO Auto-generated method stub
       return null;
     }
 

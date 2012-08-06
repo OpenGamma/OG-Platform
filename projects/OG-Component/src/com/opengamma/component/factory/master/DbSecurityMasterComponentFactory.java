@@ -26,6 +26,7 @@ import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.change.JmsChangeManager;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.impl.RemoteSecurityMaster;
 import com.opengamma.masterdb.security.DataDbSecurityMasterResource;
 import com.opengamma.masterdb.security.DbSecurityMaster;
 import com.opengamma.masterdb.security.EHCachingSecurityMasterDetailProvider;
@@ -118,6 +119,8 @@ public class DbSecurityMasterComponentFactory extends AbstractComponentFactory {
     }
     
     // register
+    info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteSecurityMaster.class);
     info.addAttribute(ComponentInfoAttributes.UNIQUE_ID_SCHEME, master.getUniqueIdScheme());
     repo.registerComponent(info, master);
     

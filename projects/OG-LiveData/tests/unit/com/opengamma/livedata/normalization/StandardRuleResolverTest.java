@@ -14,10 +14,11 @@ import java.util.Collections;
 import org.testng.annotations.Test;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = "unit")
 public class StandardRuleResolverTest {
-  
+
   @Test
   public void resolve() {
     Collection<NormalizationRuleSet> supportedRules = Collections.singleton(StandardRules.getNoNormalization());    
@@ -29,5 +30,5 @@ public class StandardRuleResolverTest {
     rules = resolver.resolve("Nonexistent");
     assertNull(rules);
   }
-  
+
 }

@@ -77,8 +77,8 @@ public class DbBatchWriterTest extends DbTest {
   private ValueSpecification _specification;
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
-  public DbBatchWriterTest(String databaseType, final String databaseVersion) {
-    super(databaseType, databaseVersion);
+  public DbBatchWriterTest(String databaseType, String databaseVersion) {
+    super(databaseType, databaseVersion, databaseVersion);
   }
 
 

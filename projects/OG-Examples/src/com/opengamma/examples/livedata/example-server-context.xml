@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ 
+  Please see distribution for license.
+-->
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:aop="http://www.springframework.org/schema/aop"
+  xmlns:tx="http://www.springframework.org/schema/tx"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                      http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd
+                      http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
+
+  <import resource="classpath:/com/opengamma/livedata/server/livedata-server-context.xml"/>
+  <import resource="classpath:/com/opengamma/examples/livedata/example-server-private-context.xml"/>
+  
+  <alias name="exampleLiveDataServer" alias="liveDataServer"/>
+  <alias name="exampleDistributionSpecificationResolver" alias="distributionSpecificationResolver"/>
+  <alias name="exampleEntitlementChecker" alias="entitlementChecker"/>
+  <alias name="exampleServerMBean" alias="serverMBean"/>
+
+  <!-- copied from marketdata server infrastructure -->
+  <bean id="standardCacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+    <property name="shared" value="true"/>
+  </bean>
+  <bean id="standardMBeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean">
+    <property name="locateExistingServerIfPossible" value="true" />
+  </bean>
+
+</beans>

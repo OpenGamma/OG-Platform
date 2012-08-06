@@ -24,19 +24,47 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.PerSecurityReferenceDataResult;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.ReferenceDataResult;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * A reference data provider which uses reference data logged by {@link LoggingReferenceDataProvider} as its source of
- * data. Requests for data which is not in the log cannot be satisfied. 
+ * A reference data provider which uses reference data logged by {@link LoggingReferenceDataProvider}
+ * as its source of data. Requests for data which is not in the log cannot be satisfied. 
  */
 public class LoggedReferenceDataProvider implements ReferenceDataProvider {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(LoggedReferenceDataProvider.class); 
-  
+
+  /**
+   * The Fudge contxet.
+   */
   private final FudgeContext _fudgeContext;
+  /**
+   * The map of data by security key.
+   */
   private final Map<String, ? extends FudgeMsg> _data;
-  
+
+  /**
+   * Creates an instance that reads from a file.
+   * 
+   * @param fudgeContext  the Fudge context, not null
+   * @param inputFile  the input file, not null
+   */
   public LoggedReferenceDataProvider(FudgeContext fudgeContext, File inputFile) {
+    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
+    ArgumentChecker.notNull(inputFile, "inputFile");
+    _fudgeContext = fudgeContext;
+    _data = loadFile(fudgeContext, inputFile);
+    //logAvailableData(dataMap);
+  }
+
+  /**
+   * Loads the input file.
+   * 
+   * @param fudgeContext  the Fudge context, not null
+   * @param inputFile  the input file, not null
+   */
+  private static Map<String, ? extends FudgeMsg> loadFile(FudgeContext fudgeContext, File inputFile) {
     Map<String, MutableFudgeMsg> dataMap = new ConcurrentHashMap<String, MutableFudgeMsg>();
     FudgeMsgReader reader = null;
     try {
@@ -47,7 +75,7 @@ public class LoggedReferenceDataProvider implements ReferenceDataProvider {
         LoggedReferenceData loggedData = fudgeContext.fromFudgeMsg(LoggedReferenceData.class, msg);
         addDataToMap(fudgeContext, dataMap, loggedData);
       }
-    } catch (FileNotFoundException e) {
+    } catch (FileNotFoundException ex) {
       throw new OpenGammaRuntimeException("Cannot open " + inputFile + " for reading");
     } finally {
       if (reader != null) {
@@ -55,29 +83,48 @@ public class LoggedReferenceDataProvider implements ReferenceDataProvider {
       }
     }
     reflectTickersToBUIDs(dataMap);
-    //logAvailableData(dataMap);
-    
-    _fudgeContext = fudgeContext;
-    _data = dataMap;
+    return dataMap;
   }
 
-  private void logAvailableData(Map<String, MutableFudgeMsg> dataMap) {
-    if (!s_logger.isDebugEnabled()) {
-      return;
+  /**
+   * Add extra entries for BUIDs.
+   * 
+   * @param dataMap  the data map, not null
+   */
+  private static void reflectTickersToBUIDs(final Map<String, MutableFudgeMsg> dataMap) {
+    final Map<String, MutableFudgeMsg> extra = new HashMap<String, MutableFudgeMsg>();
+    for (Map.Entry<String, MutableFudgeMsg> entry : dataMap.entrySet()) {
+      final String buid = entry.getValue().getString("ID_BB_UNIQUE");
+      if (buid != null) {
+        extra.put("/buid/" + buid, entry.getValue());
+      }
     }
-    
-    StringBuilder sb = new StringBuilder("The following recorded reference data is available:\n");
-    for (Map.Entry<String, MutableFudgeMsg> dataEntry : dataMap.entrySet()) {
-      sb.append("\t").append(dataEntry.getKey()).append(": ").append(dataEntry.getValue()).append("\n");
-    }
-    s_logger.debug(sb.toString());
+    dataMap.putAll(extra);
   }
-  
-  private void addDataToMap(FudgeContext fudgeContext, Map<String, MutableFudgeMsg> map, LoggedReferenceData loggedData) {
-    MutableFudgeMsg securityData = map.get(loggedData.getSecurity());
+
+//  private void logAvailableData(Map<String, MutableFudgeMsg> dataMap) {
+//    if (!s_logger.isDebugEnabled()) {
+//      return;
+//    }
+//    StringBuilder sb = new StringBuilder("The following recorded reference data is available:\n");
+//    for (Map.Entry<String, MutableFudgeMsg> dataEntry : dataMap.entrySet()) {
+//      sb.append("\t").append(dataEntry.getKey()).append(": ").append(dataEntry.getValue()).append("\n");
+//    }
+//    s_logger.debug(sb.toString());
+//  }
+
+  /**
+   * Add data to the map.
+   * 
+   * @param fudgeContext  the Fudge context, not null
+   * @param dataMap  the data map, not null
+   * @param loggedData  the logged data, not null
+   */
+  private static void addDataToMap(FudgeContext fudgeContext, Map<String, MutableFudgeMsg> dataMap, LoggedReferenceData loggedData) {
+    MutableFudgeMsg securityData = dataMap.get(loggedData.getSecurity());
     if (securityData == null) {
       securityData = fudgeContext.newMessage();
-      map.put(loggedData.getSecurity(), securityData);
+      dataMap.put(loggedData.getSecurity(), securityData);
     }
     if (securityData.hasField(loggedData.getField())) {
       s_logger.warn("Skipping duplicate field " + loggedData.getField() + " for security " + loggedData.getSecurity());
@@ -85,15 +132,16 @@ public class LoggedReferenceDataProvider implements ReferenceDataProvider {
     }
     securityData.add(loggedData.getField(), loggedData.getValue());
   }
-  
+
+  //-------------------------------------------------------------------------
   @Override
-  public ReferenceDataResult getFields(Set<String> securities, Set<String> fields) {
+  public ReferenceDataResult getFields(Set<String> securityKeys, Set<String> fields) {
     ReferenceDataResult result = new ReferenceDataResult();
-    for (String security : securities) {
-      PerSecurityReferenceDataResult securityResult = new PerSecurityReferenceDataResult(security);
-      // Copy the requested fields across into a new message
+    for (String securityKey : securityKeys) {
+      // copy the requested fields across into a new message
+      PerSecurityReferenceDataResult securityResult = new PerSecurityReferenceDataResult(securityKey);
       MutableFudgeMsg fieldData = _fudgeContext.newMessage();
-      FudgeMsg allFieldData = _data.get(security);
+      FudgeMsg allFieldData = _data.get(securityKey);
       if (allFieldData != null) {
         for (String fieldName : fields) {
           Object fieldValue = allFieldData.getValue(fieldName);
@@ -104,17 +152,6 @@ public class LoggedReferenceDataProvider implements ReferenceDataProvider {
       result.addResult(securityResult);
     }
     return result;
-  }
-
-  private static void reflectTickersToBUIDs(final Map<String, MutableFudgeMsg> data) {
-    final Map<String, MutableFudgeMsg> extra = new HashMap<String, MutableFudgeMsg>();
-    for (Map.Entry<String, MutableFudgeMsg> entry : data.entrySet()) {
-      final String buid = entry.getValue().getString("ID_BB_UNIQUE");
-      if (buid != null) {
-        extra.put("/buid/" + buid, entry.getValue());
-      }
-    }
-    data.putAll(extra);
   }
 
 }

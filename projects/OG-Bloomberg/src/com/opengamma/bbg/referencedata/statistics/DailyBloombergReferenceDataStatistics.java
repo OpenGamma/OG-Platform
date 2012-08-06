@@ -18,42 +18,46 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.TimeZone;
 
 /**
- * A {@link BloombergReferenceDataStatistics} which stores statistics for several days into the past
+ * A {@link BloombergReferenceDataStatistics} which stores statistics for several days into the past.
  */
 public class DailyBloombergReferenceDataStatistics implements BloombergReferenceDataStatistics {
 
+  /**
+   * The number of days that the statistics should be kept.
+   */
   private static final int DAYS_TO_KEEP = 60;
+
   private final MapBloombergReferenceDataStatistics _allTimeStatistics = new MapBloombergReferenceDataStatistics();
   //TODO keep old snapshots, not old statistics?
   private final ReadWriteLock  _mapLock = new ReentrantReadWriteLock();
   private final Lock _mapReadLock = _mapLock.readLock();
   private final Lock _mapWriteLock = _mapLock.writeLock();
   private final TreeMap<LocalDate, MapBloombergReferenceDataStatistics> _dailyTimeStatistics = new TreeMap<LocalDate, MapBloombergReferenceDataStatistics>();
-  
+
   @Override
-  public void gotFields(Set<String> securities, Set<String> fields) {
-    _allTimeStatistics.gotFields(securities, fields);
+  public void recordStatistics(Set<String> securities, Set<String> fields) {
+    _allTimeStatistics.recordStatistics(securities, fields);
     MapBloombergReferenceDataStatistics todaysStats = getTodaysStats();
-    todaysStats.gotFields(securities, fields);
+    todaysStats.recordStatistics(securities, fields);
   }
 
   public Snapshot getAllTimeSnapshot() {
     return _allTimeStatistics.getSnapshot();
   }
+
   public MapBloombergReferenceDataStatistics getAllTimeStats() {
     return _allTimeStatistics;
   }
-  
+
   public Snapshot getTodaysSnapshot() {
     MapBloombergReferenceDataStatistics stats = getTodaysStats();
     return stats.getSnapshot();
   }
-  
+
   public TreeMap<LocalDate, Snapshot> getSnapshotsMap() {
     _mapReadLock.lock();
     try {
       TreeMap<LocalDate, Snapshot> ret = new TreeMap<LocalDate, Snapshot>();
-      
       for (Entry<LocalDate, MapBloombergReferenceDataStatistics> e : _dailyTimeStatistics.entrySet()) {
         ret.put(e.getKey(), e.getValue().getSnapshot());
       }
@@ -62,7 +66,7 @@ public class DailyBloombergReferenceDataStatistics implements BloombergReference
       _mapReadLock.unlock();
     }
   }
-  
+
   public MapBloombergReferenceDataStatistics getTodaysStats() {
     LocalDate today = getToday();
     MapBloombergReferenceDataStatistics todaysStats;
@@ -87,14 +91,13 @@ public class DailyBloombergReferenceDataStatistics implements BloombergReference
     }
     return todaysStats;
   }
-  
+
   private void trim(TreeMap<LocalDate, MapBloombergReferenceDataStatistics> dailyTimeStatistics) {
     int toRemove = dailyTimeStatistics.size() - DAYS_TO_KEEP;
     if (toRemove <= 0) {
       return;
     }
-    Iterator<Entry<LocalDate, MapBloombergReferenceDataStatistics>> iterator = dailyTimeStatistics.entrySet()
-        .iterator();
+    Iterator<Entry<LocalDate, MapBloombergReferenceDataStatistics>> iterator = dailyTimeStatistics.entrySet().iterator();
     for (int i = 0; i < toRemove; i++) {
       iterator.next();
       iterator.remove();
@@ -106,4 +109,5 @@ public class DailyBloombergReferenceDataStatistics implements BloombergReference
     Clock clock = Clock.system(TimeZone.UTC);
     return LocalDate.now(clock);
   }
+
 }

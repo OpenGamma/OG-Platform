@@ -62,6 +62,9 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.exchange.ExchangeMaster;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
+import com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSeriesResolver;
+import com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSeriesSelector;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityMaster;
@@ -109,6 +112,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
   private ConfigSource _configSource;
   private HolidaySource _holidaySource;
   private HistoricalTimeSeriesSource _historicalSource;
+  private HistoricalTimeSeriesMaster _htsMaster;
   private RegionSource _regionSource;
   private ExchangeMaster _exchangeMaster;
   private SecurityMaster _securityMaster;
@@ -183,6 +187,14 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
   public void setHistoricalSource(final HistoricalTimeSeriesSource historicalSource) {
     _historicalSource = historicalSource;
   }
+  
+  public HistoricalTimeSeriesMaster getHistoricalTimeSeriesMaster() {
+    return _htsMaster;
+  }
+  
+  public void setHistoricalTimeSeriesMaster(final HistoricalTimeSeriesMaster htsMaster) {
+    _htsMaster = htsMaster;
+  }
 
   public ExchangeMaster getExchangeMaster() {
     return _exchangeMaster;
@@ -250,6 +262,8 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     OpenGammaCompilationContext.setRegionSource(context, getRegionSource());
     OpenGammaCompilationContext.setConventionBundleSource(context, getConventionSource());
     OpenGammaCompilationContext.setSecuritySource(context, new MasterSecuritySource(getSecurityMaster()));
+    OpenGammaCompilationContext.setHistoricalTimeSeriesResolver(context, new DefaultHistoricalTimeSeriesResolver(new DefaultHistoricalTimeSeriesSelector(getConfigSource()), 
+        getHistoricalTimeSeriesMaster()));
     return context;
   }
 

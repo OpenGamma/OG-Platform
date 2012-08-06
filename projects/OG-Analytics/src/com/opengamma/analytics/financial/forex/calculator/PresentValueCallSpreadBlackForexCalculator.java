@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.forex.calculator;
 
+import com.opengamma.analytics.financial.calculator.PresentValueMCACalculator;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionDigital;
 import com.opengamma.analytics.financial.forex.method.ForexOptionDigitalCallSpreadBlackMethod;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
@@ -13,7 +14,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Calculator of the present value for Forex digital options using vanilla call spread with Black formula for underlying vanilla.
  */
-public final class PresentValueCallSpreadBlackForexCalculator extends PresentValueForexCalculator {
+public final class PresentValueCallSpreadBlackForexCalculator extends PresentValueMCACalculator {
 
   /**
    * The methods used by the different instruments.

@@ -11,6 +11,9 @@
   <p>
     <@rowout label="Name">${position.name}</@rowout>
     <@rowout label="Reference">${position.uniqueId.value}, version ${position.uniqueId.version}, <a href="${uris.positionVersions()}">view history</a></@rowout>
+    <#if position.providerId?has_content>
+        <@rowout label="Provider ID">${position.providerId}</@rowout>
+    </#if>
   </p>
 
 <#-- SUBSECTION Main data -->

@@ -146,13 +146,19 @@ public class FireHoseLiveDataServer extends AbstractLiveDataServer {
     s_logger.debug("Subscribing to {}", uniqueIds);
     final Map<String, Object> result = Maps.newHashMapWithExpectedSize(uniqueIds.size());
     for (String identifier : uniqueIds) {
+      result.put(identifier, new AtomicReference<FudgeMsg>());
+    }
+    return result;
+  }
+  
+  @Override
+  protected void subscriptionDone(Set<String> uniqueIds) {
+    for (String identifier : uniqueIds) {
       final FudgeMsg msg = getFireHose().getLatestValue(identifier);
       if (msg != null) {
         liveDataReceived(identifier, msg);
       }
-      result.put(identifier, new AtomicReference<FudgeMsg>());
     }
-    return result;
   }
 
   @Override

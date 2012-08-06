@@ -41,12 +41,10 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionUtils;
+import com.opengamma.financial.analytics.model.irfutureoption.FutureOptionUtils;
 import com.opengamma.util.CompareUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
-
-
 
 /**
  * 
@@ -109,10 +107,8 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
       final VolatilitySurfaceData<Double, Double> volSurface = getSurfaceFromPriceQuote(specification, surfaceData, futuresPrices, now, surfaceQuoteType);
       if (volSurface != null) {
         return Collections.singleton(new ComputedValue(spec, volSurface));
-      } else {
-        return Collections.emptySet();
       }
-
+      return Collections.emptySet();
     } else {
       throw new OpenGammaRuntimeException("Encountered an unexpected surfaceQuoteUnits. Valid values are found in SurfaceAndCubePropertyNames as VolatilityQuote or PriceQuote.");
     }
@@ -147,7 +143,8 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final Set<String> surfaceNames = desiredValue.getConstraints().getValues(ValuePropertyNames.SURFACE);
     if (surfaceNames == null || surfaceNames.size() != 1) {
-      throw new OpenGammaRuntimeException("Can only get a single surface; asked for " + surfaceNames);
+      s_logger.error("Can only get a single surface; asked for {}", surfaceNames);
+      return null;
     }
     final String surfaceName = surfaceNames.iterator().next();
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
@@ -155,7 +152,8 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
     final String fullSpecificationName = surfaceName + "_" + target.getUniqueId().getValue();
     final VolatilitySurfaceSpecification specification = source.getSpecification(fullSpecificationName, InstrumentTypeProperties.IR_FUTURE_OPTION);
     if (specification == null) {
-      throw new OpenGammaRuntimeException("Could not get volatility surface specification named " + fullSpecificationName);
+      s_logger.error("Could not get volatility surface specification named {}", fullSpecificationName);
+      return null;
     }
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     final ValueProperties surfaceProperties = ValueProperties.builder()
@@ -188,7 +186,7 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
     final DoubleArrayList kList = new DoubleArrayList();
     final LocalDate today = now.toLocalDate();
     for (final Number x : optionVolatilities.getXs()) {
-      final Double t = IRFutureOptionUtils.getFutureOptionTtm(x.intValue(), today);
+      final Double t = FutureOptionUtils.getFutureOptionTtm(x.intValue(), today);
       for (final Double y : optionVolatilities.getYs()) {
         final Double volatility = optionVolatilities.getVolatility(x, y);
         if (volatility != null) {
@@ -215,7 +213,7 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
     final LocalDate today = now.toLocalDate();
     for (final Number x : optionPrices.getXs()) {
       // Loop over option expiries
-      final Double optionTtm = IRFutureOptionUtils.getFutureOptionTtm(x.intValue(), today);
+      final Double optionTtm = FutureOptionUtils.getFutureOptionTtm(x.intValue(), today);
       // Get the corresponding future, which may not share the same expiries as the option itself
       final Double[] futureExpiries = futurePrices.getXData();
       final int nFutures = futureExpiries.length;
@@ -227,7 +225,7 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
       int i = 0;
       do {
         underlyingExpiry = futureExpiries[i++];
-      } while(underlyingExpiry < optionTtm && i < nFutures);
+      } while (underlyingExpiry < optionTtm && i < nFutures);
 
       if (underlyingExpiry < optionTtm) {
         s_logger.info("Requesting an option price where the underlying future price isn't available. "
