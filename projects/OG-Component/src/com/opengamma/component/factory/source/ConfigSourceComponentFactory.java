@@ -26,9 +26,9 @@ import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.DataConfigSourceResource;
-import com.opengamma.core.config.impl.EHCachingConfigSource;
 import com.opengamma.core.config.impl.RemoteConfigSource;
 import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.config.impl.EHCachingMasterConfigSource;
 import com.opengamma.master.config.impl.MasterConfigSource;
 
 /**
@@ -67,7 +67,7 @@ public class ConfigSourceComponentFactory extends AbstractComponentFactory {
     
     ConfigSource source = new MasterConfigSource(getConfigMaster());
     if (getCacheManager() != null) {
-      source = new EHCachingConfigSource(source, getCacheManager());
+      source = new EHCachingMasterConfigSource(getConfigMaster(), getCacheManager());
     }
     repo.registerComponent(info, source);
     
