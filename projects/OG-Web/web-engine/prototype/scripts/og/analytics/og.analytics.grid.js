@@ -184,6 +184,7 @@ $.register_module({
                 grid.elements.scroll_body.html(templates.row(row_data(grid, data, false)));
                 fire(grid, 'render');
                 grid.dataman.busy(false);
+                grid.elements.scroll_body.focus(); // focus on scroll body so arrow keys will work
             };
         })();
         var set_css = function (id, sets, offset) {

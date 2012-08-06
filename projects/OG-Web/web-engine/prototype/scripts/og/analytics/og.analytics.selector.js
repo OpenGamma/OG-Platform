@@ -107,7 +107,6 @@ $.register_module({
                     $('<div class="' + overlay.substring(1) + '" />').css(region.position).css(region.dimensions)
                         .appendTo(grid.elements[region.fixed ? 'fixed_body' : 'scroll_body']);
                 });
-                grid.elements.scroll_body.focus(); // focus on scroll body so arrow keys will work
             };
             (render.regions = null), (render.rectangle = null);
             selector.selection = function () {
