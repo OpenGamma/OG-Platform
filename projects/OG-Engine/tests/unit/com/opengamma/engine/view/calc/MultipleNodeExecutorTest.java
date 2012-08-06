@@ -40,7 +40,6 @@ import com.opengamma.engine.view.calcnode.JobResultReceiver;
 import com.opengamma.engine.view.calcnode.stats.FunctionCosts;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.async.Cancelable;
-import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
  * Tests the graph partitioning logic in MultipleNodeExecutor.
@@ -124,7 +123,7 @@ public class MultipleNodeExecutorTest {
   }
 
   private MultipleNodeExecutor createExecutor(final int minimum, final int maximum, final int concurrency) {
-    return new MultipleNodeExecutor(null, minimum, maximum, 0, Integer.MAX_VALUE, concurrency, new FunctionCosts(), new ExecutionPlanCache(EHCacheUtils.createCacheManager(), 0)) {
+    return new MultipleNodeExecutor(null, minimum, maximum, 0, Integer.MAX_VALUE, concurrency, new FunctionCosts(), new ExecutionPlanCache(null)) {
 
       @Override
       protected long getFunctionInitId() {

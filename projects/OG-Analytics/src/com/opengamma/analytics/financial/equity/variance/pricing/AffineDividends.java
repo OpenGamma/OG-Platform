@@ -20,6 +20,11 @@ public class AffineDividends {
   private final double[] _beta;
   private final int _n;
 
+  public static AffineDividends noDividends() {
+    double[] z = new double[0];
+    return new AffineDividends(z, z, z);
+  }
+
   public AffineDividends(final double[] tau, final double[] alpha, final double[] beta) {
     ArgumentChecker.notNull(tau, "null tau");
     ArgumentChecker.notNull(alpha, "null alpha");

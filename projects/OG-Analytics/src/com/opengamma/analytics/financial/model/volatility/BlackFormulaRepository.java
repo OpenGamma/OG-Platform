@@ -218,12 +218,12 @@ public abstract class BlackFormulaRepository {
   }
 
   /**
-   * The forward (i.e. driftless) theta
+   * The forward (i.e. driftless) theta 
    * @param forward The forward value of the underlying
    * @param strike The Strike
    * @param timeToExpiry The time-to-expiry
    * @param lognormalVol The log-normal volatility
-   * @return The forward gamma
+   * @return The forward theta
    */
   @ExternalFunction
   public static double theta(final double forward, final double strike, final double timeToExpiry, final double lognormalVol) {
