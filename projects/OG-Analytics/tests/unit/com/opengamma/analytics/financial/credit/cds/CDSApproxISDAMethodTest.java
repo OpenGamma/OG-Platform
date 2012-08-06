@@ -225,10 +225,10 @@ public class CDSApproxISDAMethodTest {
       TimeCalculator.getTimeBetween(pricingDate, ZonedDateTime.of(2010, 2, 12, 0, 0, 0, 0, TimeZone.UTC))
     };
     double[] flatSpreadCurveRates = {
-      0.815827074252063690000000000000,
-      0.815827074252063690000000000000,
-      0.815827074252063690000000000000,
-      0.815827074252063690000000000000
+      0.599999999999999980000000000000,
+      0.599999999999999980000000000000,
+      0.599999999999999980000000000000,
+      0.599999999999999980000000000000
     };
     double flatSpreadCurveRate = 0.815827074252063690000000000000;
 
@@ -349,10 +349,10 @@ public class CDSApproxISDAMethodTest {
       TimeCalculator.getTimeBetween(pricingDate, ZonedDateTime.of(2010, 2, 12, 0, 0, 0, 0, TimeZone.UTC))
     };
     double[] flatSpreadCurveRates = {
-      0.815827074252063690000000000000,
-      0.815827074252063690000000000000,
-      0.815827074252063690000000000000,
-      0.815827074252063690000000000000
+      0.599999999999999980000000000000,
+      0.599999999999999980000000000000,
+      0.599999999999999980000000000000,
+      0.599999999999999980000000000000
     };
     
     final YieldCurve cdsCcyYieldCurve = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(discountCurveTimePoints, discountCurveRates, new LinearInterpolator1D()));
@@ -366,12 +366,10 @@ public class CDSApproxISDAMethodTest {
     
     Double [] timePoints = CDSApproxISDAMethod.realTimePointsForCurves(cds, cdsCcyYieldCurve, spreadCurve);
     
-    // Test data is during a leap year
-    // If TimeCalculator is parameterised to use different DayCount classes, these numbers may need to be updated/computed accordingly
     Double [] expectedTimePoints = {
-      0.0 / 366.0,
-      2.0 / 366.0,
-      11.0 / 366.0 
+      0.0,
+      TimeCalculator.getTimeBetween(pricingDate, pricingDate.plusDays(2)),
+      TimeCalculator.getTimeBetween(pricingDate, pricingDate.plusDays(11))
     };
     
     Assert.assertEquals(timePoints, expectedTimePoints);

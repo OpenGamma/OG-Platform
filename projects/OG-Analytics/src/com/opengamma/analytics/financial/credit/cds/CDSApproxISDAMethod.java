@@ -11,6 +11,9 @@ import java.util.TreeSet;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.method.PricingMethod;
@@ -24,6 +27,8 @@ import com.opengamma.util.money.CurrencyAmount;
  * @author Martin Traverse & Niels Stchedroff (Riskcare)
  */
 public class CDSApproxISDAMethod implements PricingMethod {
+  
+  private static final Logger s_logger = LoggerFactory.getLogger(CDSApproxISDAMethod.class);
 
   @Override
   public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
@@ -48,7 +53,8 @@ public class CDSApproxISDAMethod implements PricingMethod {
 
   private double valuePremiumLeg(CDSDerivative cds, YieldAndDiscountCurve cdsCcyCurve, YieldAndDiscountCurve spreadCurve) {
 
-    double stepinDate = 0.0;
+    // TODO: Put the step in parameter somewhere sensible
+    double stepinDate = 7.0 / 365.0;
     double startDate = cds.getProtectionStartTime();
     double subStartDate = stepinDate > startDate ? stepinDate : startDate;
     
@@ -64,7 +70,8 @@ public class CDSApproxISDAMethod implements PricingMethod {
        exact integral
     */
 
-    double accRate = cds.getNotional() * cds.getSpread();
+    //System.out.println( cds.getMaturity() - cds.getProtectionStartTime() );
+    double accRate = cds.getNotional() * cds.getSpread() * 365.0/360.0;
 
     double today = 0.0;
     double startTime = Math.max(cds.getProtectionStartTime(), 0.0);
@@ -79,7 +86,7 @@ public class CDSApproxISDAMethod implements PricingMethod {
 
     double lambda;
     double fwdRate;
-    double lambdafwdRate;
+    double lambdaFwdRate;
     double valueForTimeStep;
 
     double value = 0.0;
@@ -98,15 +105,27 @@ public class CDSApproxISDAMethod implements PricingMethod {
 
       lambda = Math.log(spread0 / spread1) / dt;
       fwdRate = Math.log(discount0 / discount1) / dt;
-      lambdafwdRate = lambda + fwdRate + 1.0e-50;
+      lambdaFwdRate = lambda + fwdRate + 1.0e-50;
       valueForTimeStep = lambda * accRate * spread0 * discount0
-        * (((t0 + 1.0 / lambdafwdRate) / lambdafwdRate) - ((t1 + 1.0 / lambdafwdRate) / lambdafwdRate) * spread1 / spread0 * discount1 / discount0);
+        * (((t0 + 1.0 / lambdaFwdRate) / lambdaFwdRate) - ((t1 + 1.0 / lambdaFwdRate) / lambdaFwdRate) * spread1 / spread0 * discount1 / discount0);
 
       value += valueForTimeStep;
+      
+      if (s_logger.isDebugEnabled()) {
+        s_logger.debug(
+          "accRate=" + accRate + ", t0=" + t0 + ", t1=" + t1 + ", dt=" + dt +
+          ", spread0=" + spread0 + ", spread1=" + spread1 + ", discount0=" + discount0 + ", discount1=" + discount1 +
+          ", lambda=" + lambda + ", fwdRate=" + fwdRate + ", lambdaFwdRate=" + lambdaFwdRate + ", valueForTimeStep=" + valueForTimeStep
+        );
+      }
 
       t0 = t1;
       spread0 = spread1;
       discount0 = discount1;
+    }
+    
+    if (s_logger.isDebugEnabled()) {
+      s_logger.debug("Value for premium leg: " + value);
     }
 
     return value;
