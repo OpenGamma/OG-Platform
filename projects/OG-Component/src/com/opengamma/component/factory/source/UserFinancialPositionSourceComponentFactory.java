@@ -36,6 +36,9 @@ import com.opengamma.master.position.impl.MasterPositionSource;
 
 /**
  * Component factory for the position source.
+ * <p>
+ * This factory creates position sources for the underlying and user masters
+ * as well as a combined source.
  */
 @BeanDefinition
 public class UserFinancialPositionSourceComponentFactory extends AbstractComponentFactory {

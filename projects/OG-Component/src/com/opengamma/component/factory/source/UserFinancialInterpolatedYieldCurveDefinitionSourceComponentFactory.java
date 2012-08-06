@@ -40,6 +40,9 @@ import com.opengamma.financial.analytics.ircurve.rest.RemoteInterpolatedYieldCur
 
 /**
  * Component factory for the yield curve definition source.
+ * <p>
+ * This factory creates yield curve definition sources for the underlying and user masters
+ * as well as a combined source.
  */
 @BeanDefinition
 public class UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory extends AbstractComponentFactory {
