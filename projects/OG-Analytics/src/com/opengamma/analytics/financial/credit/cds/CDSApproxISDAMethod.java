@@ -192,7 +192,7 @@ public class CDSApproxISDAMethod implements PricingMethod {
     return value;
   }
 
-  private static Double[] realTimePointsForCurves(CDSDerivative cds, YieldAndDiscountCurve cdsCcyCurve, YieldAndDiscountCurve spreadCurve) {
+  public static Double[] realTimePointsForCurves(CDSDerivative cds, YieldAndDiscountCurve cdsCcyCurve, YieldAndDiscountCurve spreadCurve) {
 
     final Double[] cdsCcyCurveTimes = ((YieldCurve) cdsCcyCurve).getCurve().getXData();
     final Double[] spreadCurveTimes = ((YieldCurve) spreadCurve).getCurve().getXData();
@@ -207,6 +207,9 @@ public class CDSApproxISDAMethod implements PricingMethod {
     }
 
     final double startTime = Math.max(cds.getProtectionStartTime(), 0.0);
+    timePoints.add(startTime);
+    timePoints.add(cds.getMaturity());
+    
     final Set<Double> timePointsInRange = timePoints.subSet(startTime, true, cds.getMaturity(), true);
 
     return timePointsInRange.toArray(new Double[timePointsInRange.size()]);
