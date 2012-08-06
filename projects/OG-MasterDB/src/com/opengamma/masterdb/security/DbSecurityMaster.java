@@ -9,12 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -26,24 +21,10 @@ import org.springframework.jdbc.support.lob.LobHandler;
 
 import com.google.common.collect.Lists;
 import com.opengamma.elsql.ElSqlBundle;
-import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ExternalIdSearch;
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.security.ManageableSecurity;
-import com.opengamma.master.security.RawSecurity;
-import com.opengamma.master.security.SecurityDocument;
-import com.opengamma.master.security.SecurityHistoryRequest;
-import com.opengamma.master.security.SecurityHistoryResult;
-import com.opengamma.master.security.SecurityMaster;
-import com.opengamma.master.security.SecurityMetaDataRequest;
-import com.opengamma.master.security.SecurityMetaDataResult;
-import com.opengamma.master.security.SecuritySearchRequest;
-import com.opengamma.master.security.SecuritySearchResult;
-import com.opengamma.master.security.SecuritySearchSortOrder;
+import com.opengamma.id.*;
+import com.opengamma.master.AbstractHistoryRequest;
+import com.opengamma.master.AbstractHistoryResult;
+import com.opengamma.master.security.*;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
@@ -416,4 +397,14 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
     }
   }
 
+  @Override
+  public AbstractHistoryResult<SecurityDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
+    SecurityHistoryRequest historyRequest = new SecurityHistoryRequest();
+    historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
+    historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
+    historyRequest.setVersionsFromInstant(request.getVersionsFromInstant());
+    historyRequest.setVersionsToInstant(request.getVersionsToInstant());
+    historyRequest.setObjectId(request.getObjectId());
+    return history(historyRequest);
+  }
 }

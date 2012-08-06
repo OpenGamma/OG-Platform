@@ -6,9 +6,16 @@
 package com.opengamma.master.impl;
 
 import java.net.URI;
+import java.util.List;
 
+import com.google.common.collect.ImmutableList;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
+import com.opengamma.id.UniqueId;
+import com.opengamma.master.AbstractDocument;
+import com.opengamma.master.AbstractMaster;
+import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractRemoteClient;
 

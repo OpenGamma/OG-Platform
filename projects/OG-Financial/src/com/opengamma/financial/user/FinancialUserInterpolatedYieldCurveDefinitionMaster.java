@@ -1,9 +1,11 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.user;
+
+import java.util.List;
 
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionMaster;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinitionDocument;
@@ -24,7 +26,7 @@ public class FinancialUserInterpolatedYieldCurveDefinitionMaster extends Abstrac
 
   /**
    * Creates an instance.
-   * 
+   *
    * @param client  the client, not null
    * @param underlying  the underlying master, not null
    */
@@ -76,6 +78,41 @@ public class FinancialUserInterpolatedYieldCurveDefinitionMaster extends Abstrac
       created(document.getUniqueId());
     }
     return document;
+  }
+
+  @Override
+  public UniqueId addVersion(ObjectIdentifiable objectId, YieldCurveDefinitionDocument documentToAdd) {
+    documentToAdd = _underlying.add(documentToAdd);
+    if (documentToAdd.getUniqueId() != null) {
+      created(documentToAdd.getUniqueId());
+    }
+    return documentToAdd.getUniqueId();
+  }
+
+  @Override
+  public List<UniqueId> replaceVersion(UniqueId uniqueId, List<YieldCurveDefinitionDocument> replacementDocuments) {
+    return _underlying.replaceVersion(uniqueId, replacementDocuments);
+  }
+
+  @Override
+  public List<UniqueId> replaceAllVersions(ObjectIdentifiable objectId, List<YieldCurveDefinitionDocument> replacementDocuments) {
+    return _underlying.replaceAllVersions(objectId, replacementDocuments);
+  }
+
+  @Override
+  public List<UniqueId> replaceVersions(ObjectIdentifiable objectId, List<YieldCurveDefinitionDocument> replacementDocuments) {
+    return _underlying.replaceAllVersions(objectId, replacementDocuments);
+  }
+
+  @Override
+  public UniqueId replaceVersion(YieldCurveDefinitionDocument replacementDocument) {
+    return _underlying.replaceVersion(replacementDocument);
+  }
+
+  @Override
+  public void removeVersion(UniqueId uniqueId) {
+    _underlying.removeVersion(uniqueId);
+    deleted(uniqueId);
   }
 
 }

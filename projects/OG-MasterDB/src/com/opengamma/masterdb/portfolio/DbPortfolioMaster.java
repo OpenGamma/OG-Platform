@@ -8,14 +8,8 @@ package com.opengamma.masterdb.portfolio;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.time.Instant;
@@ -36,16 +30,9 @@ import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractHistoryRequest;
+import com.opengamma.master.AbstractHistoryResult;
 import com.opengamma.master.DocumentVisibility;
-import com.opengamma.master.portfolio.ManageablePortfolio;
-import com.opengamma.master.portfolio.ManageablePortfolioNode;
-import com.opengamma.master.portfolio.PortfolioDocument;
-import com.opengamma.master.portfolio.PortfolioHistoryRequest;
-import com.opengamma.master.portfolio.PortfolioHistoryResult;
-import com.opengamma.master.portfolio.PortfolioMaster;
-import com.opengamma.master.portfolio.PortfolioSearchRequest;
-import com.opengamma.master.portfolio.PortfolioSearchResult;
-import com.opengamma.master.portfolio.PortfolioSearchSortOrder;
+import com.opengamma.master.portfolio.*;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
@@ -471,4 +458,14 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     }
   }
 
+  @Override
+  public AbstractHistoryResult<PortfolioDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
+    PortfolioHistoryRequest historyRequest = new PortfolioHistoryRequest();
+    historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
+    historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
+    historyRequest.setVersionsFromInstant(request.getVersionsFromInstant());
+    historyRequest.setVersionsToInstant(request.getVersionsToInstant());
+    historyRequest.setObjectId(request.getObjectId());
+    return history(historyRequest);
+  }
 }

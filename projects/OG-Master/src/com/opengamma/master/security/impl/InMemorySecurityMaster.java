@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import javax.time.Instant;
 
@@ -19,20 +17,9 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.ChangeType;
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.ObjectIdSupplier;
-import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.security.ManageableSecurity;
-import com.opengamma.master.security.SecurityDocument;
-import com.opengamma.master.security.SecurityHistoryRequest;
-import com.opengamma.master.security.SecurityHistoryResult;
-import com.opengamma.master.security.SecurityMaster;
-import com.opengamma.master.security.SecurityMetaDataRequest;
-import com.opengamma.master.security.SecurityMetaDataResult;
-import com.opengamma.master.security.SecuritySearchRequest;
-import com.opengamma.master.security.SecuritySearchResult;
+import com.opengamma.id.*;
+import com.opengamma.master.SimpleAbstractInMemoryMaster;
+import com.opengamma.master.security.*;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.paging.Paging;
 
@@ -41,7 +28,7 @@ import com.opengamma.util.paging.Paging;
  * <p>
  * This security master does not support versioning of securities.
  */
-public class InMemorySecurityMaster implements SecurityMaster {
+public class InMemorySecurityMaster extends SimpleAbstractInMemoryMaster<SecurityDocument> implements SecurityMaster {
   // TODO: This is not hardened for production, as the data in the master can
   // be altered from outside as it is the same object
 
@@ -49,19 +36,6 @@ public class InMemorySecurityMaster implements SecurityMaster {
    * The default scheme used for each {@link ObjectId}.
    */
   public static final String DEFAULT_OID_SCHEME = "MemSec";
-
-  /**
-   * A cache of securities by identifier.
-   */
-  private final ConcurrentMap<ObjectId, SecurityDocument> _store = new ConcurrentHashMap<ObjectId, SecurityDocument>();
-  /**
-   * The supplied of identifiers.
-   */
-  private final Supplier<ObjectId> _objectIdSupplier;
-  /**
-   * The change manager.
-   */
-  private final ChangeManager _changeManager;
 
   /**
    * Creates an instance.
@@ -72,7 +46,7 @@ public class InMemorySecurityMaster implements SecurityMaster {
 
   /**
    * Creates an instance specifying the change manager.
-   * 
+   *
    * @param changeManager  the change manager, not null
    */
   public InMemorySecurityMaster(final ChangeManager changeManager) {
@@ -81,7 +55,7 @@ public class InMemorySecurityMaster implements SecurityMaster {
 
   /**
    * Creates an instance specifying the supplier of object identifiers.
-   * 
+   *
    * @param objectIdSupplier  the supplier of object identifiers, not null
    */
   public InMemorySecurityMaster(final Supplier<ObjectId> objectIdSupplier) {
@@ -90,15 +64,12 @@ public class InMemorySecurityMaster implements SecurityMaster {
 
   /**
    * Creates an instance specifying the supplier of object identifiers and change manager.
-   * 
+   *
    * @param objectIdSupplier  the supplier of object identifiers, not null
    * @param changeManager  the change manager, not null
    */
   public InMemorySecurityMaster(final Supplier<ObjectId> objectIdSupplier, final ChangeManager changeManager) {
-    ArgumentChecker.notNull(objectIdSupplier, "objectIdSupplier");
-    ArgumentChecker.notNull(changeManager, "changeManager");
-    _objectIdSupplier = objectIdSupplier;
-    _changeManager = changeManager;
+    super(objectIdSupplier, changeManager);
   }
 
   //-------------------------------------------------------------------------
@@ -155,7 +126,7 @@ public class InMemorySecurityMaster implements SecurityMaster {
   public SecurityDocument add(final SecurityDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getSecurity(), "document.security");
-    
+
     final ObjectId objectId = _objectIdSupplier.get();
     final UniqueId uniqueId = objectId.atVersion("");
     final ManageableSecurity security = document.getSecurity();
@@ -175,7 +146,7 @@ public class InMemorySecurityMaster implements SecurityMaster {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     ArgumentChecker.notNull(document.getSecurity(), "document.security");
-    
+
     final UniqueId uniqueId = document.getUniqueId();
     final Instant now = Instant.now();
     final SecurityDocument storedDocument = _store.get(uniqueId.getObjectId());
@@ -214,7 +185,7 @@ public class InMemorySecurityMaster implements SecurityMaster {
   public SecurityHistoryResult history(final SecurityHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
-    
+
     final SecurityHistoryResult result = new SecurityHistoryResult();
     final SecurityDocument doc = get(request.getObjectId(), VersionCorrection.LATEST);
     if (doc != null) {
@@ -224,10 +195,9 @@ public class InMemorySecurityMaster implements SecurityMaster {
     return result;
   }
 
-  //-------------------------------------------------------------------------
   @Override
-  public ChangeManager changeManager() {
-    return _changeManager;
+  protected void validateDocument(SecurityDocument document) {
+    ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getSecurity(), "document.security");
   }
-
 }

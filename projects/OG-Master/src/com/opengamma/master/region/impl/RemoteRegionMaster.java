@@ -6,28 +6,25 @@
 package com.opengamma.master.region.impl;
 
 import java.net.URI;
+import java.util.List;
 
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.impl.AbstractRemoteMaster;
-import com.opengamma.master.region.RegionDocument;
-import com.opengamma.master.region.RegionHistoryRequest;
-import com.opengamma.master.region.RegionHistoryResult;
-import com.opengamma.master.region.RegionMaster;
-import com.opengamma.master.region.RegionSearchRequest;
-import com.opengamma.master.region.RegionSearchResult;
+import com.opengamma.master.impl.AbstractRemoteDocumentMaster;
+import com.opengamma.master.region.*;
 import com.opengamma.util.ArgumentChecker;
+import com.sun.jersey.api.client.GenericType;
 
 /**
  * Provides access to a remote {@link RegionMaster}.
  */
-public class RemoteRegionMaster extends AbstractRemoteMaster implements RegionMaster {
+public class RemoteRegionMaster extends AbstractRemoteDocumentMaster<RegionDocument> implements RegionMaster {
 
   /**
    * Creates an instance.
-   * 
+   *
    * @param baseUri  the base target URI for all RESTful web services, not null
    */
   public RemoteRegionMaster(final URI baseUri) {
@@ -36,7 +33,7 @@ public class RemoteRegionMaster extends AbstractRemoteMaster implements RegionMa
 
   /**
    * Creates an instance.
-   * 
+   *
    * @param baseUri  the base target URI for all RESTful web services, not null
    * @param changeManager  the change manager, not null
    */
@@ -48,7 +45,7 @@ public class RemoteRegionMaster extends AbstractRemoteMaster implements RegionMa
   @Override
   public RegionSearchResult search(final RegionSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
-    
+
     URI uri = DataRegionMasterResource.uriSearch(getBaseUri());
     return accessRemote(uri).post(RegionSearchResult.class, request);
   }
@@ -57,9 +54,9 @@ public class RemoteRegionMaster extends AbstractRemoteMaster implements RegionMa
   @Override
   public RegionDocument get(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    
+
     if (uniqueId.isVersioned()) {
-      URI uri = DataRegionResource.uriVersion(getBaseUri(), uniqueId);
+      URI uri = (new DataRegionResource()).uriVersion(getBaseUri(), uniqueId);
       return accessRemote(uri).get(RegionDocument.class);
     } else {
       return get(uniqueId, VersionCorrection.LATEST);
@@ -70,8 +67,8 @@ public class RemoteRegionMaster extends AbstractRemoteMaster implements RegionMa
   @Override
   public RegionDocument get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
-    
-    URI uri = DataRegionResource.uri(getBaseUri(), objectId, versionCorrection);
+
+    URI uri = (new DataRegionResource()).uri(getBaseUri(), objectId, versionCorrection);
     return accessRemote(uri).get(RegionDocument.class);
   }
 
@@ -80,7 +77,7 @@ public class RemoteRegionMaster extends AbstractRemoteMaster implements RegionMa
   public RegionDocument add(final RegionDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getRegion(), "document.region");
-    
+
     URI uri = DataRegionMasterResource.uriAdd(getBaseUri());
     return accessRemote(uri).post(RegionDocument.class, document);
   }
@@ -91,8 +88,8 @@ public class RemoteRegionMaster extends AbstractRemoteMaster implements RegionMa
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getRegion(), "document.region");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
-    
-    URI uri = DataRegionResource.uri(getBaseUri(), document.getUniqueId(), null);
+
+    URI uri = (new DataRegionResource()).uri(getBaseUri(), document.getUniqueId(), null);
     return accessRemote(uri).post(RegionDocument.class, document);
   }
 
@@ -100,8 +97,8 @@ public class RemoteRegionMaster extends AbstractRemoteMaster implements RegionMa
   @Override
   public void remove(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    
-    URI uri = DataRegionResource.uri(getBaseUri(), uniqueId, null);
+
+    URI uri = (new DataRegionResource()).uri(getBaseUri(), uniqueId, null);
     accessRemote(uri).delete();
   }
 
@@ -110,8 +107,8 @@ public class RemoteRegionMaster extends AbstractRemoteMaster implements RegionMa
   public RegionHistoryResult history(final RegionHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
-    
-    URI uri = DataRegionResource.uriVersions(getBaseUri(), request.getObjectId(), request);
+
+    URI uri = (new DataRegionResource()).uriVersions(getBaseUri(), request.getObjectId(), request);
     return accessRemote(uri).get(RegionHistoryResult.class);
   }
 
@@ -121,9 +118,48 @@ public class RemoteRegionMaster extends AbstractRemoteMaster implements RegionMa
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getRegion(), "document.region");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
-    
-    URI uri = DataRegionResource.uriVersion(getBaseUri(), document.getUniqueId());
+
+    URI uri = (new DataRegionResource()).uriVersion(getBaseUri(), document.getUniqueId());
     return accessRemote(uri).post(RegionDocument.class, document);
   }
 
+  @Override
+  public List<UniqueId> replaceVersion(UniqueId uniqueId, List<RegionDocument> replacementDocuments) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
+    for (RegionDocument replacementDocument : replacementDocuments) {
+      ArgumentChecker.notNull(replacementDocument, "documentToAdd");
+      ArgumentChecker.notNull(replacementDocument.getRegion(), "document.region");
+    }
+    URI uri = (new DataRegionResource()).uriVersion(getBaseUri(), uniqueId);
+    return accessRemote(uri).put(new GenericType<List<UniqueId>>() {
+    }, replacementDocuments);
+  }
+
+  @Override
+  public List<UniqueId> replaceAllVersions(ObjectIdentifiable objectId, List<RegionDocument> replacementDocuments) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
+    for (RegionDocument replacementDocument : replacementDocuments) {
+      ArgumentChecker.notNull(replacementDocument, "documentToAdd");
+      ArgumentChecker.notNull(replacementDocument.getRegion(), "document.region");
+    }
+    URI uri = (new DataRegionResource()).uriAll(getBaseUri(), objectId, null);
+    return accessRemote(uri).put(new GenericType<List<UniqueId>>() {
+    }, replacementDocuments);
+  }
+
+
+  @Override
+  public List<UniqueId> replaceVersions(ObjectIdentifiable objectId, List<RegionDocument> replacementDocuments) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
+    for (RegionDocument replacementDocument : replacementDocuments) {
+      ArgumentChecker.notNull(replacementDocument, "documentToAdd");
+      ArgumentChecker.notNull(replacementDocument.getRegion(), "document.region");
+    }
+    URI uri = (new DataRegionResource()).uri(getBaseUri(), objectId, null);
+    return accessRemote(uri).put(new GenericType<List<UniqueId>>() {
+    }, replacementDocuments);
+  }
 }

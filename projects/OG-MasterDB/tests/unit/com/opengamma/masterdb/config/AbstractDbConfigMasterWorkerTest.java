@@ -5,12 +5,15 @@
  */
 package com.opengamma.masterdb.config;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.opengamma.util.db.DbDateUtils.MAX_SQL_TIMESTAMP;
 import static com.opengamma.util.db.DbDateUtils.toSqlTimestamp;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
 import java.sql.Types;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.time.Instant;
 import javax.time.TimeSource;
@@ -25,14 +28,11 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.*;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.masterdb.DbMasterTestUtils;
@@ -74,6 +74,36 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
   public void setUp() throws Exception {
     if (_readOnly == false) {
       init();
+    }
+  }
+
+  protected ObjectId setupTestData(Instant now) {
+    TimeSource origTimeSource = _cfgMaster.getTimeSource();
+    try {
+      _cfgMaster.setTimeSource(TimeSource.fixed(now));
+
+      String initialValue = "initial";
+      ConfigDocument<String> initialDoc = new ConfigDocument<String>(String.class);
+      initialDoc.setValue(initialValue);
+      _cfgMaster.add(initialDoc);
+
+      ObjectId baseOid = initialDoc.getObjectId();
+
+      //------------------------------------------------------------------------------------------------------------------
+      List<ConfigDocument<String>> firstReplacement = newArrayList();
+      for (int i = 0; i < 5; i++) {
+        String val = "setup_" + i;
+        ConfigDocument<String> doc = new ConfigDocument<String>(String.class);
+        doc.setValue(val);
+        doc.setVersionFromInstant(now.plus(i, TimeUnit.MINUTES));
+        firstReplacement.add(doc);
+      }
+      _cfgMaster.setTimeSource(TimeSource.fixed(now.plus(1, TimeUnit.HOURS)));
+      _cfgMaster.replaceVersions(baseOid, firstReplacement);
+
+      return baseOid;
+    } finally {
+      _cfgMaster.setTimeSource(origTimeSource);
     }
   }
 

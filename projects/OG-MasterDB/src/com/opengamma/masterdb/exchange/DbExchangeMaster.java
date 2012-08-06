@@ -25,20 +25,9 @@ import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.jdbc.support.lob.LobHandler;
 
 import com.opengamma.elsql.ElSqlBundle;
-import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdSearch;
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.exchange.ExchangeDocument;
-import com.opengamma.master.exchange.ExchangeHistoryRequest;
-import com.opengamma.master.exchange.ExchangeHistoryResult;
-import com.opengamma.master.exchange.ExchangeMaster;
-import com.opengamma.master.exchange.ExchangeSearchRequest;
-import com.opengamma.master.exchange.ExchangeSearchResult;
-import com.opengamma.master.exchange.ExchangeSearchSortOrder;
-import com.opengamma.master.exchange.ManageableExchange;
+import com.opengamma.id.*;
+import com.opengamma.master.AbstractHistoryRequest;
+import com.opengamma.master.exchange.*;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
@@ -277,5 +266,16 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
       _documents.add(doc);
     }
   }
+  
+  public ExchangeHistoryResult historyByVersionsCorrections(AbstractHistoryRequest request){
+    ExchangeHistoryRequest exchangeHistoryRequest = new ExchangeHistoryRequest();
+    exchangeHistoryRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
+    exchangeHistoryRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
+    exchangeHistoryRequest.setVersionsFromInstant(request.getVersionsFromInstant());
+    exchangeHistoryRequest.setVersionsToInstant(request.getVersionsToInstant());
+    exchangeHistoryRequest.setObjectId(request.getObjectId());
+    return history(exchangeHistoryRequest);
+  }
 
+  
 }

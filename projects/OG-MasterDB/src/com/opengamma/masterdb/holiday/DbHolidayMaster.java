@@ -23,23 +23,10 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.elsql.ElSqlBundle;
-import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdSearch;
-import com.opengamma.id.ExternalIdSearchType;
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.holiday.HolidayDocument;
-import com.opengamma.master.holiday.HolidayHistoryRequest;
-import com.opengamma.master.holiday.HolidayHistoryResult;
-import com.opengamma.master.holiday.HolidayMaster;
-import com.opengamma.master.holiday.HolidayMetaDataRequest;
-import com.opengamma.master.holiday.HolidayMetaDataResult;
-import com.opengamma.master.holiday.HolidaySearchRequest;
-import com.opengamma.master.holiday.HolidaySearchResult;
-import com.opengamma.master.holiday.HolidaySearchSortOrder;
-import com.opengamma.master.holiday.ManageableHoliday;
+import com.opengamma.id.*;
+import com.opengamma.master.AbstractHistoryRequest;
+import com.opengamma.master.AbstractHistoryResult;
+import com.opengamma.master.holiday.*;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
@@ -327,4 +314,14 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
     }
   }
 
+  @Override
+  public AbstractHistoryResult<HolidayDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
+    HolidayHistoryRequest historyRequest = new HolidayHistoryRequest();
+    historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
+    historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
+    historyRequest.setVersionsFromInstant(request.getVersionsFromInstant());
+    historyRequest.setVersionsToInstant(request.getVersionsToInstant());
+    historyRequest.setObjectId(request.getObjectId());
+    return history(historyRequest);
+  }
 }

@@ -23,23 +23,15 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.jdbc.support.lob.LobHandler;
 
-import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
-import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDataSnapshot;
-import com.opengamma.core.marketdatasnapshot.impl.ManageableVolatilityCubeSnapshot;
-import com.opengamma.core.marketdatasnapshot.impl.ManageableVolatilitySurfaceSnapshot;
-import com.opengamma.core.marketdatasnapshot.impl.ManageableYieldCurveSnapshot;
+import com.opengamma.core.marketdatasnapshot.impl.*;
 import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractHistoryRequest;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryResult;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
+import com.opengamma.master.AbstractHistoryResult;
+import com.opengamma.master.marketdatasnapshot.*;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
@@ -249,4 +241,14 @@ public class DbMarketDataSnapshotMaster
     }
   }
 
+  @Override
+  public AbstractHistoryResult<MarketDataSnapshotDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
+    MarketDataSnapshotHistoryRequest historyRequest = new MarketDataSnapshotHistoryRequest();
+    historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
+    historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
+    historyRequest.setVersionsFromInstant(request.getVersionsFromInstant());
+    historyRequest.setVersionsToInstant(request.getVersionsToInstant());
+    historyRequest.setObjectId(request.getObjectId());
+    return history(historyRequest);
+  }
 }

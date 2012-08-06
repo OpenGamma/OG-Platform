@@ -23,26 +23,10 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 
 import com.opengamma.DataDuplicationException;
 import com.opengamma.elsql.ElSqlBundle;
-import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundleWithDates;
-import com.opengamma.id.ExternalIdSearch;
-import com.opengamma.id.ExternalIdSearchType;
-import com.opengamma.id.ExternalIdWithDates;
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesGetFilter;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryRequest;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryResult;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoMetaDataRequest;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoMetaDataResult;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
-import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
-import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
+import com.opengamma.id.*;
+import com.opengamma.master.AbstractHistoryRequest;
+import com.opengamma.master.AbstractHistoryResult;
+import com.opengamma.master.historicaltimeseries.*;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
@@ -548,4 +532,14 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     }
   }
 
+  @Override
+  public AbstractHistoryResult<HistoricalTimeSeriesInfoDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
+    HistoricalTimeSeriesInfoHistoryRequest historyRequest = new HistoricalTimeSeriesInfoHistoryRequest();
+    historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
+    historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
+    historyRequest.setVersionsFromInstant(request.getVersionsFromInstant());
+    historyRequest.setVersionsToInstant(request.getVersionsToInstant());
+    historyRequest.setObjectId(request.getObjectId());
+    return history(historyRequest);
+  }
 }

@@ -5,15 +5,12 @@
  */
 package com.opengamma.language.client;
 
+import java.util.List;
+
 import com.opengamma.core.change.ChangeManager;
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.position.ManageableTrade;
-import com.opengamma.master.position.PositionDocument;
-import com.opengamma.master.position.PositionHistoryRequest;
-import com.opengamma.master.position.PositionHistoryResult;
-import com.opengamma.master.position.PositionMaster;
-import com.opengamma.master.position.PositionSearchRequest;
-import com.opengamma.master.position.PositionSearchResult;
+import com.opengamma.master.position.*;
 
 /**
  * A {@link PositionMaster} that combines the behavior of the masters

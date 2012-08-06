@@ -8,8 +8,6 @@ package com.opengamma.master.marketdatasnapshot.impl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import javax.time.Instant;
 
@@ -19,17 +17,9 @@ import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.ChangeType;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.ObjectIdSupplier;
-import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryResult;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
+import com.opengamma.id.*;
+import com.opengamma.master.SimpleAbstractInMemoryMaster;
+import com.opengamma.master.marketdatasnapshot.*;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.paging.Paging;
 
@@ -38,7 +28,7 @@ import com.opengamma.util.paging.Paging;
  * <p>
  * This snapshot master does not support versioning of snapshots.
  */
-public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
+public class InMemorySnapshotMaster extends SimpleAbstractInMemoryMaster<MarketDataSnapshotDocument> implements MarketDataSnapshotMaster {
   //TODO: This is not hardened for production, as the data in the master can
   // be altered from outside as it is the same object
 
@@ -47,18 +37,6 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
    */
   public static final String DEFAULT_OID_SCHEME = "MemSnap";
 
-  /**
-   * A cache of snapshots by identifier.
-   */
-  private final ConcurrentMap<ObjectId, MarketDataSnapshotDocument> _store = new ConcurrentHashMap<ObjectId, MarketDataSnapshotDocument>();
-  /**
-   * The supplied of identifiers.
-   */
-  private final Supplier<ObjectId> _objectIdSupplier;
-  /**
-   * The change manager.
-   */
-  private final ChangeManager _changeManager;
 
   /**
    * Creates an instance.
@@ -69,7 +47,7 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
 
   /**
    * Creates an instance specifying the change manager.
-   * 
+   *
    * @param changeManager  the change manager, not null
    */
   public InMemorySnapshotMaster(final ChangeManager changeManager) {
@@ -78,7 +56,7 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
 
   /**
    * Creates an instance specifying the supplier of object identifiers.
-   * 
+   *
    * @param objectIdSupplier  the supplier of object identifiers, not null
    */
   public InMemorySnapshotMaster(final Supplier<ObjectId> objectIdSupplier) {
@@ -87,15 +65,12 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
 
   /**
    * Creates an instance specifying the supplier of object identifiers and change manager.
-   * 
+   *
    * @param objectIdSupplier  the supplier of object identifiers, not null
    * @param changeManager  the change manager, not null
    */
   public InMemorySnapshotMaster(final Supplier<ObjectId> objectIdSupplier, final ChangeManager changeManager) {
-    ArgumentChecker.notNull(objectIdSupplier, "objectIdSupplier");
-    ArgumentChecker.notNull(changeManager, "changeManager");
-    _objectIdSupplier = objectIdSupplier;
-    _changeManager = changeManager;
+    super(objectIdSupplier, changeManager);
   }
 
   protected void validateScheme(final String scheme) {
@@ -224,10 +199,9 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
     return result;
   }
 
-  //-------------------------------------------------------------------------
   @Override
-  public ChangeManager changeManager() {
-    return _changeManager;
+  protected void validateDocument(MarketDataSnapshotDocument document) {
+    ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getSnapshot(), "document.snapshot");
   }
-
 }

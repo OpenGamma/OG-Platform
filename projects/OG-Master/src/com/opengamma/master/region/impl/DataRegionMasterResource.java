@@ -7,11 +7,7 @@ package com.opengamma.master.region.impl;
 
 import java.net.URI;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.HEAD;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
@@ -40,7 +36,7 @@ public class DataRegionMasterResource extends AbstractDataResource {
 
   /**
    * Creates the resource, exposing the underlying master over REST.
-   * 
+   *
    * @param regionMaster  the underlying region master, not null
    */
   public DataRegionMasterResource(final RegionMaster regionMaster) {
@@ -49,9 +45,10 @@ public class DataRegionMasterResource extends AbstractDataResource {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Gets the region master.
-   * 
+   *
    * @return the region master, not null
    */
   public RegionMaster getRegionMaster() {
@@ -82,7 +79,7 @@ public class DataRegionMasterResource extends AbstractDataResource {
   @Path("regions")
   public Response add(@Context UriInfo uriInfo, RegionDocument request) {
     RegionDocument result = getRegionMaster().add(request);
-    URI createdUri = DataRegionResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
+    URI createdUri = (new DataRegionResource()).uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
     return responseCreatedFudge(createdUri, result);
   }
 
@@ -94,9 +91,10 @@ public class DataRegionMasterResource extends AbstractDataResource {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Builds a URI.
-   * 
+   *
    * @param baseUri  the base URI, not null
    * @return the URI, not null
    */
@@ -107,7 +105,7 @@ public class DataRegionMasterResource extends AbstractDataResource {
 
   /**
    * Builds a URI.
-   * 
+   *
    * @param baseUri  the base URI, not null
    * @return the URI, not null
    */

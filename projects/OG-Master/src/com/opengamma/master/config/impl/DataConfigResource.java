@@ -6,13 +6,9 @@
 package com.opengamma.master.config.impl;
 
 import java.net.URI;
+import java.util.List;
 
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
@@ -46,8 +42,16 @@ public class DataConfigResource extends AbstractDataResource {
   private ObjectId _urlResourceId;
 
   /**
+   * Creates dummy resource for the purpose of url resolution.
+   *
+   */
+  DataConfigResource() {
+    _configsResource = null;
+  }
+
+  /**
    * Creates the resource.
-   * 
+   *
    * @param configsResource  the parent resource, not null
    * @param configId  the config unique identifier, not null
    */
@@ -59,9 +63,10 @@ public class DataConfigResource extends AbstractDataResource {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Gets the configs resource.
-   * 
+   *
    * @return the configs resource, not null
    */
   public DataConfigMasterResource getConfigsResource() {
@@ -70,7 +75,7 @@ public class DataConfigResource extends AbstractDataResource {
 
   /**
    * Gets the config identifier from the URL.
-   * 
+   *
    * @return the unique identifier, not null
    */
   public ObjectId getUrlConfigId() {
@@ -78,9 +83,10 @@ public class DataConfigResource extends AbstractDataResource {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Gets the config master.
-   * 
+   *
    * @return the config master, not null
    */
   public ConfigMaster getConfigMaster() {
@@ -101,7 +107,7 @@ public class DataConfigResource extends AbstractDataResource {
     }
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked" })  // necessary to stop Jersey issuing warnings due to <?>
+  @SuppressWarnings({"rawtypes", "unchecked"})  // necessary to stop Jersey issuing warnings due to <?>
   @POST
   public Response update(@Context UriInfo uriInfo, ConfigDocument request) {
     if (getUrlConfigId().equals(request.getUniqueId().getObjectId()) == false) {
@@ -143,12 +149,12 @@ public class DataConfigResource extends AbstractDataResource {
     }
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked" })  // necessary to stop Jersey issuing warnings due to <?>
+  @SuppressWarnings({"rawtypes", "unchecked"})  // necessary to stop Jersey issuing warnings due to <?>
   @POST
   @Path("versions/{versionId}")
   public Response correct(@Context UriInfo uriInfo, @PathParam("versionId") String versionId, ConfigDocument request) {
     UniqueId uniqueId = getUrlConfigId().atVersion(versionId);
-    if (uniqueId.equals(request.getUniqueId()) == false) {
+    if (!uniqueId.equals(request.getUniqueId())) {
       throw new IllegalArgumentException("Document uniqueId does not match URI");
     }
     ConfigDocument<?> result = getConfigMaster().correct(request);
@@ -156,10 +162,48 @@ public class DataConfigResource extends AbstractDataResource {
     return responseCreatedFudge(uri, result);
   }
 
+  @SuppressWarnings({"rawtypes", "unchecked"})  // necessary to stop Jersey issuing warnings due to <?>
+  @POST
+  @Path("versions/{versionId}")
+  public Response addVersion(@Context UriInfo uriInfo, @PathParam("versionId") String versionId, ConfigDocument<?> document) {
+    UniqueId uniqueId = getUrlConfigId().atVersion(versionId);
+    if (!uniqueId.equals(document.getUniqueId())) {
+      throw new IllegalArgumentException("Document uniqueId does not match URI");
+    }
+    ConfigDocument<?> result = getConfigMaster().correct(document);
+    URI uri = uriVersion(uriInfo.getBaseUri(), result.getUniqueId(), null);
+    return responseCreatedFudge(uri, result);
+  }
+
+  @SuppressWarnings({"rawtypes", "unchecked"})  // necessary to stop Jersey issuing warnings due to <?>
+  @PUT
+  @Path("versions/{versionId}")
+  public <T> Response replaceVersion(@PathParam("versionId") String versionId, List<ConfigDocument<T>> replacementDocuments) {
+    UniqueId uniqueId = getUrlConfigId().atVersion(versionId);
+
+    List<UniqueId> result = getConfigMaster().replaceVersion(uniqueId, replacementDocuments);
+    return responseOkFudge(result);
+  }
+
+  @PUT
+  public <T> Response replaceAllVersions(List<ConfigDocument<T>> replacementDocuments) {
+    ObjectId objectId = getUrlConfigId();
+    List<UniqueId> result = getConfigMaster().replaceAllVersions(objectId, replacementDocuments);
+    return responseOkFudge(result);
+  }
+
+  @DELETE
+  @Path("versions/{versionId}")
+  public void removeVersion(@PathParam("versionId") String versionId) {
+    UniqueId uniqueId = getUrlConfigId().atVersion(versionId);
+    getConfigMaster().removeVersion(uniqueId);
+  }
+
   //-------------------------------------------------------------------------
+
   /**
    * Builds a URI for the resource.
-   * 
+   *
    * @param baseUri  the base URI, not null
    * @param objectId  the object identifier, not null
    * @param vc  the version-correction locator, null for latest
@@ -179,8 +223,31 @@ public class DataConfigResource extends AbstractDataResource {
   }
 
   /**
+   * Builds a URI for the resource.
+   *
+   * @param baseUri  the base URI, not null
+   * @param objectId  the object identifier, not null
+   * @param vc  the version-correction locator, null for latest
+   * @param type  the config type, may be null
+   * @return the URI, not null
+   */
+  // TODO replace it with something better
+  @Deprecated
+  public static URI uriAll(URI baseUri, ObjectIdentifiable objectId, VersionCorrection vc, Class<?> type) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/configs/{configId}/all");
+    if (vc != null) {
+      bld.queryParam("versionAsOf", vc.getVersionAsOfString());
+      bld.queryParam("correctedTo", vc.getCorrectedToString());
+    }
+    if (type != null) {
+      bld.queryParam("type", type.getName());
+    }
+    return bld.build(objectId.getObjectId());
+  }
+
+  /**
    * Builds a URI for the versions of the resource.
-   * 
+   *
    * @param baseUri  the base URI, not null
    * @param objectId  the object identifier, not null
    * @param request  the search message, may be null
@@ -196,7 +263,7 @@ public class DataConfigResource extends AbstractDataResource {
 
   /**
    * Builds a URI for a specific version of the resource.
-   * 
+   *
    * @param baseUri  the base URI, not null
    * @param uniqueId  the unique identifier, not null
    * @param type  the config type, may be null

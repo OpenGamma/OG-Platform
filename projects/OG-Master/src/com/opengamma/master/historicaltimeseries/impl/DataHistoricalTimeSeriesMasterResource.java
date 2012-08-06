@@ -7,23 +7,14 @@ package com.opengamma.master.historicaltimeseries.impl;
 
 import java.net.URI;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.HEAD;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.id.ObjectId;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoMetaDataRequest;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoMetaDataResult;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
+import com.opengamma.master.historicaltimeseries.*;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 import com.opengamma.util.rest.RestUtils;
@@ -43,7 +34,7 @@ public class DataHistoricalTimeSeriesMasterResource extends AbstractDataResource
 
   /**
    * Creates the resource, exposing the underlying master over REST.
-   * 
+   *
    * @param infoMaster  the underlying info master, not null
    */
   public DataHistoricalTimeSeriesMasterResource(final HistoricalTimeSeriesMaster infoMaster) {
@@ -52,9 +43,10 @@ public class DataHistoricalTimeSeriesMasterResource extends AbstractDataResource
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Gets the info master.
-   * 
+   *
    * @return the info master, not null
    */
   public HistoricalTimeSeriesMaster getHistoricalTimeSeriesMaster() {
@@ -93,7 +85,7 @@ public class DataHistoricalTimeSeriesMasterResource extends AbstractDataResource
   @Path("infos")
   public Response add(@Context UriInfo uriInfo, HistoricalTimeSeriesInfoDocument request) {
     HistoricalTimeSeriesInfoDocument result = getHistoricalTimeSeriesMaster().add(request);
-    URI createdUri = DataHistoricalTimeSeriesResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
+    URI createdUri = (new DataHistoricalTimeSeriesResource()).uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
     return responseCreatedFudge(createdUri, result);
   }
 
@@ -111,9 +103,10 @@ public class DataHistoricalTimeSeriesMasterResource extends AbstractDataResource
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Builds a URI for info meta-data.
-   * 
+   *
    * @param baseUri  the base URI, not null
    * @param request  the request, may be null
    * @return the URI, not null
@@ -128,7 +121,7 @@ public class DataHistoricalTimeSeriesMasterResource extends AbstractDataResource
 
   /**
    * Builds a URI.
-   * 
+   *
    * @param baseUri  the base URI, not null
    * @return the URI, not null
    */
@@ -139,7 +132,7 @@ public class DataHistoricalTimeSeriesMasterResource extends AbstractDataResource
 
   /**
    * Builds a URI.
-   * 
+   *
    * @param baseUri  the base URI, not null
    * @return the URI, not null
    */

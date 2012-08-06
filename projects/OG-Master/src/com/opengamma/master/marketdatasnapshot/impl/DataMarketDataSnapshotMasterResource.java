@@ -7,11 +7,7 @@ package com.opengamma.master.marketdatasnapshot.impl;
 
 import java.net.URI;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.HEAD;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
@@ -41,7 +37,7 @@ public class DataMarketDataSnapshotMasterResource extends AbstractDataResource {
 
   /**
    * Creates the resource, exposing the underlying master over REST.
-   * 
+   *
    * @param snapshotMaster  the underlying snapshot master, not null
    */
   public DataMarketDataSnapshotMasterResource(final MarketDataSnapshotMaster snapshotMaster) {
@@ -50,9 +46,10 @@ public class DataMarketDataSnapshotMasterResource extends AbstractDataResource {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Gets the snapshot master.
-   * 
+   *
    * @return the snapshot master, not null
    */
   public MarketDataSnapshotMaster getMarketDataSnapshotMaster() {
@@ -83,7 +80,7 @@ public class DataMarketDataSnapshotMasterResource extends AbstractDataResource {
   @Path("snapshots")
   public Response add(@Context UriInfo uriInfo, MarketDataSnapshotDocument request) {
     MarketDataSnapshotDocument result = getMarketDataSnapshotMaster().add(request);
-    URI createdUri = DataMarketDataSnapshotResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
+    URI createdUri = (new DataMarketDataSnapshotResource()).uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
     return responseCreatedFudge(createdUri, result);
   }
 
@@ -98,11 +95,12 @@ public class DataMarketDataSnapshotMasterResource extends AbstractDataResource {
   public DataChangeManagerResource getChangeManager() {
     return new DataChangeManagerResource(getMarketDataSnapshotMaster().changeManager());
   }
-  
+
   //-------------------------------------------------------------------------
+
   /**
    * Builds a URI.
-   * 
+   *
    * @param baseUri  the base URI, not null
    * @return the URI, not null
    */
@@ -113,7 +111,7 @@ public class DataMarketDataSnapshotMasterResource extends AbstractDataResource {
 
   /**
    * Builds a URI.
-   * 
+   *
    * @param baseUri  the base URI, not null
    * @return the URI, not null
    */

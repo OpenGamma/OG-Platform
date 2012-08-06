@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.master.position.impl;
@@ -19,48 +19,27 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.ChangeType;
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.ObjectIdSupplier;
-import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.position.ManageablePosition;
-import com.opengamma.master.position.ManageableTrade;
-import com.opengamma.master.position.PositionDocument;
-import com.opengamma.master.position.PositionHistoryRequest;
-import com.opengamma.master.position.PositionHistoryResult;
-import com.opengamma.master.position.PositionMaster;
-import com.opengamma.master.position.PositionSearchRequest;
-import com.opengamma.master.position.PositionSearchResult;
+import com.opengamma.id.*;
+import com.opengamma.master.SimpleAbstractInMemoryMaster;
+import com.opengamma.master.position.*;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.paging.Paging;
 
 /**
  * An in-memory implementation of a position master.
  */
-public class InMemoryPositionMaster implements PositionMaster {
-  
+public class InMemoryPositionMaster extends SimpleAbstractInMemoryMaster<PositionDocument> implements PositionMaster {
+
   /**
    * The default scheme used for each {@link UniqueId}.
    */
   public static final String DEFAULT_OID_SCHEME = "MemPos";
 
   /**
-   * A cache of positions by identifier.
-   */
-  private final ConcurrentMap<ObjectId, PositionDocument> _storePositions = new ConcurrentHashMap<ObjectId, PositionDocument>();
-  /**
    * A cache of trades by identifier.
    */
   private final ConcurrentMap<ObjectId, ManageableTrade> _storeTrades = new ConcurrentHashMap<ObjectId, ManageableTrade>();
-  /**
-   * The supplier of identifiers.
-   */
-  private final Supplier<ObjectId> _objectIdSupplier;
-  /**
-   * The change manager.
-   */
-  private final ChangeManager _changeManager;
+
 
   /**
    * Creates an instance.
@@ -71,7 +50,7 @@ public class InMemoryPositionMaster implements PositionMaster {
 
   /**
    * Creates an instance specifying the change manager.
-   * 
+   *
    * @param changeManager  the change manager, not null
    */
   public InMemoryPositionMaster(final ChangeManager changeManager) {
@@ -80,7 +59,7 @@ public class InMemoryPositionMaster implements PositionMaster {
 
   /**
    * Creates an instance specifying the supplier of object identifiers.
-   * 
+   *
    * @param objectIdSupplier  the supplier of object identifiers, not null
    */
   public InMemoryPositionMaster(final Supplier<ObjectId> objectIdSupplier) {
@@ -89,15 +68,18 @@ public class InMemoryPositionMaster implements PositionMaster {
 
   /**
    * Creates an instance specifying the supplier of object identifiers and change manager.
-   * 
+   *
    * @param objectIdSupplier  the supplier of object identifiers, not null
    * @param changeManager  the change manager, not null
    */
   public InMemoryPositionMaster(final Supplier<ObjectId> objectIdSupplier, final ChangeManager changeManager) {
-    ArgumentChecker.notNull(objectIdSupplier, "objectIdSupplier");
-    ArgumentChecker.notNull(changeManager, "changeManager");
-    _objectIdSupplier = objectIdSupplier;
-    _changeManager = changeManager;
+    super(objectIdSupplier, changeManager);
+  }
+
+  @Override
+  protected void validateDocument(PositionDocument document) {
+    ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getPosition(), "document.position");
   }
 
   @Override
@@ -109,7 +91,7 @@ public class InMemoryPositionMaster implements PositionMaster {
   public PositionDocument get(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    final PositionDocument document = _storePositions.get(objectId.getObjectId());
+    final PositionDocument document = _store.get(objectId.getObjectId());
     if (document == null) {
       throw new DataNotFoundException("Position not found: " + objectId);
     }
@@ -126,15 +108,15 @@ public class InMemoryPositionMaster implements PositionMaster {
   public PositionDocument add(PositionDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getPosition(), "document.position");
-    
+
     final ObjectId objectId = _objectIdSupplier.get();
     final UniqueId uniqueId = objectId.atVersion("");
     final Instant now = Instant.now();
-    
+
     final PositionDocument clonedDoc = clonePositionDocument(document);
-    setDocumentID(document, clonedDoc, uniqueId);    
+    setDocumentID(document, clonedDoc, uniqueId);
     setVersionTimes(document, clonedDoc, now, null, now, null);
-    _storePositions.put(objectId, clonedDoc);
+    _store.put(objectId, clonedDoc);
     storeTrades(clonedDoc.getPosition().getTrades(), document.getPosition().getTrades(), uniqueId);
     _changeManager.entityChanged(ChangeType.ADDED, null, uniqueId, now);
     return document;
@@ -166,20 +148,20 @@ public class InMemoryPositionMaster implements PositionMaster {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     ArgumentChecker.notNull(document.getPosition(), "document.position");
-    
+
     final UniqueId uniqueId = document.getUniqueId();
     final Instant now = Instant.now();
-    final PositionDocument storedDocument = _storePositions.get(uniqueId.getObjectId());
+    final PositionDocument storedDocument = _store.get(uniqueId.getObjectId());
     if (storedDocument == null) {
       throw new DataNotFoundException("Position not found: " + uniqueId);
     }
-    
+
     final PositionDocument clonedDoc = clonePositionDocument(document);
     removeTrades(storedDocument.getPosition().getTrades());
-    
+
     setVersionTimes(document, clonedDoc, now, null, now, null);
-    
-    if (_storePositions.replace(uniqueId.getObjectId(), storedDocument, clonedDoc) == false) {
+
+    if (_store.replace(uniqueId.getObjectId(), storedDocument, clonedDoc) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }
     storeTrades(clonedDoc.getPosition().getTrades(), document.getPosition().getTrades(), uniqueId);
@@ -187,22 +169,22 @@ public class InMemoryPositionMaster implements PositionMaster {
     return document;
   }
 
-  private void setVersionTimes(PositionDocument document, final PositionDocument clonedDoc, 
-      final Instant versionFromInstant, final Instant versionToInstant, final Instant correctionFromInstant, final Instant correctionToInstant) {
-    
+  private void setVersionTimes(PositionDocument document, final PositionDocument clonedDoc,
+                               final Instant versionFromInstant, final Instant versionToInstant, final Instant correctionFromInstant, final Instant correctionToInstant) {
+
     clonedDoc.setVersionFromInstant(versionFromInstant);
     document.setVersionFromInstant(versionFromInstant);
-    
+
     clonedDoc.setVersionToInstant(versionToInstant);
     document.setVersionToInstant(versionToInstant);
-    
+
     clonedDoc.setCorrectionFromInstant(correctionFromInstant);
     document.setCorrectionFromInstant(correctionFromInstant);
-    
+
     clonedDoc.setCorrectionToInstant(correctionToInstant);
     document.setCorrectionToInstant(correctionToInstant);
   }
-  
+
   private void removeTrades(List<ManageableTrade> trades) {
     for (ManageableTrade trade : trades) {
       if (_storeTrades.remove(trade.getUniqueId().getObjectId()) == null) {
@@ -214,7 +196,7 @@ public class InMemoryPositionMaster implements PositionMaster {
   @Override
   public void remove(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    PositionDocument storedDocument = _storePositions.remove(uniqueId.getObjectId());
+    PositionDocument storedDocument = _store.remove(uniqueId.getObjectId());
     if (storedDocument == null) {
       throw new DataNotFoundException("Position not found: " + uniqueId);
     }
@@ -228,15 +210,10 @@ public class InMemoryPositionMaster implements PositionMaster {
   }
 
   @Override
-  public ChangeManager changeManager() {
-    return _changeManager;
-  }
-
-  @Override
   public PositionSearchResult search(PositionSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
     final List<PositionDocument> list = new ArrayList<PositionDocument>();
-    for (PositionDocument doc : _storePositions.values()) {
+    for (PositionDocument doc : _store.values()) {
       if (request.matches(doc)) {
         list.add(clonePositionDocument(doc));
       }

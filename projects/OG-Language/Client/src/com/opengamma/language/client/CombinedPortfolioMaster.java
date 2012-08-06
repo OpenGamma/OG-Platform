@@ -5,7 +5,10 @@
  */
 package com.opengamma.language.client;
 
+import java.util.List;
+
 import com.opengamma.core.change.ChangeManager;
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
@@ -86,6 +89,6 @@ public class CombinedPortfolioMaster extends CombinedMaster<PortfolioDocument, P
         return master.getNode(nodeId);
       }
     }).each(nodeId.getScheme());
-  }
+  }  
 
 }

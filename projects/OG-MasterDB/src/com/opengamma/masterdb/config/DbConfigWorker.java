@@ -26,20 +26,10 @@ import org.springframework.jdbc.support.lob.LobHandler;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.elsql.ElSqlBundle;
-import com.opengamma.id.IdUtils;
-import com.opengamma.id.MutableUniqueIdentifiable;
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.config.ConfigDocument;
-import com.opengamma.master.config.ConfigHistoryRequest;
-import com.opengamma.master.config.ConfigHistoryResult;
-import com.opengamma.master.config.ConfigMetaDataRequest;
-import com.opengamma.master.config.ConfigMetaDataResult;
-import com.opengamma.master.config.ConfigSearchRequest;
-import com.opengamma.master.config.ConfigSearchResult;
-import com.opengamma.master.config.ConfigSearchSortOrder;
+import com.opengamma.id.*;
+import com.opengamma.master.AbstractHistoryRequest;
+import com.opengamma.master.AbstractHistoryResult;
+import com.opengamma.master.config.*;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
@@ -229,7 +219,7 @@ import com.opengamma.util.paging.PagingRequest;
   @SuppressWarnings("unchecked")
   protected <T> ConfigHistoryResult<T> history(ConfigHistoryRequest<T> request) {
     ArgumentChecker.notNull(request, "request");
-    ArgumentChecker.notNull(request.getType(), "request.type");
+    //ArgumentChecker.notNull(request.getType(), "request.type");
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     checkScheme(request.getObjectId());
     s_logger.debug("history {}", request);
@@ -243,7 +233,7 @@ import com.opengamma.util.paging.PagingRequest;
     if (request.getPagingRequest().equals(PagingRequest.ALL)) {
       List<ConfigDocument<?>> queryResult = namedJdbc.query(sql[0], args, extractor);
       for (ConfigDocument<?> configDocument : queryResult) {
-        if (request.getType().isInstance(configDocument.getValue())) {
+        if (request.getType() == null || request.getType().isInstance(configDocument.getValue())) {
           result.getDocuments().add((ConfigDocument<T>) configDocument);
         }
       }
@@ -254,7 +244,7 @@ import com.opengamma.util.paging.PagingRequest;
       if (count > 0 && request.getPagingRequest().equals(PagingRequest.NONE) == false) {
         List<ConfigDocument<?>> queryResult = namedJdbc.query(sql[0], args, extractor);
         for (ConfigDocument<?> configDocument : queryResult) {
-          if (request.getType().isInstance(configDocument.getValue())) {
+          if (request.getType() == null || request.getType().isInstance(configDocument.getValue())) {
             result.getDocuments().add((ConfigDocument<T>) configDocument);
           }
         }
@@ -328,4 +318,16 @@ import com.opengamma.util.paging.PagingRequest;
     }
   }
 
+  @SuppressWarnings({"rawtypes", "unchecked" })
+  @Override
+  public AbstractHistoryResult<ConfigDocument<?>> historyByVersionsCorrections(AbstractHistoryRequest request) {    
+    ConfigHistoryRequest historyRequest = new ConfigHistoryRequest();
+    historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
+    historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
+    historyRequest.setVersionsFromInstant(request.getVersionsFromInstant());
+    historyRequest.setVersionsToInstant(request.getVersionsToInstant());
+    historyRequest.setObjectId(request.getObjectId());
+    return (AbstractHistoryResult) history(historyRequest);
+  }
+  
 }

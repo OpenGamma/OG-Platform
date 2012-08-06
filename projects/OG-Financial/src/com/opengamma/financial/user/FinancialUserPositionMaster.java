@@ -1,21 +1,17 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.user;
+
+import java.util.List;
 
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.position.ManageableTrade;
-import com.opengamma.master.position.PositionDocument;
-import com.opengamma.master.position.PositionHistoryRequest;
-import com.opengamma.master.position.PositionHistoryResult;
-import com.opengamma.master.position.PositionMaster;
-import com.opengamma.master.position.PositionSearchRequest;
-import com.opengamma.master.position.PositionSearchResult;
+import com.opengamma.master.position.*;
 
 /**
  * Wraps a position master to trap calls to record user based information to allow clean up and
@@ -30,7 +26,7 @@ public class FinancialUserPositionMaster extends AbstractFinancialUserService im
 
   /**
    * Creates an instance.
-   * 
+   *
    * @param client  the client, not null
    * @param underlying  the underlying master, not null
    */
@@ -94,6 +90,41 @@ public class FinancialUserPositionMaster extends AbstractFinancialUserService im
   @Override
   public ChangeManager changeManager() {
     return _underlying.changeManager();
+  }
+
+  @Override
+  public UniqueId addVersion(ObjectIdentifiable objectId, PositionDocument documentToAdd) {
+    documentToAdd = _underlying.add(documentToAdd);
+    if (documentToAdd.getUniqueId() != null) {
+      created(documentToAdd.getUniqueId());
+    }
+    return documentToAdd.getUniqueId();
+  }
+
+  @Override
+  public List<UniqueId> replaceVersion(UniqueId uniqueId, List<PositionDocument> replacementDocuments) {
+    return _underlying.replaceVersion(uniqueId, replacementDocuments);
+  }
+
+  @Override
+  public List<UniqueId> replaceAllVersions(ObjectIdentifiable objectId, List<PositionDocument> replacementDocuments) {
+    return _underlying.replaceAllVersions(objectId, replacementDocuments);
+  }
+
+  @Override
+  public List<UniqueId> replaceVersions(ObjectIdentifiable objectId, List<PositionDocument> replacementDocuments) {
+    return _underlying.replaceAllVersions(objectId, replacementDocuments);
+  }
+
+  @Override
+  public UniqueId replaceVersion(PositionDocument replacementDocument) {
+    return _underlying.replaceVersion(replacementDocument);
+  }
+
+  @Override
+  public void removeVersion(UniqueId uniqueId) {
+    _underlying.removeVersion(uniqueId);
+    deleted(uniqueId);
   }
 
 }

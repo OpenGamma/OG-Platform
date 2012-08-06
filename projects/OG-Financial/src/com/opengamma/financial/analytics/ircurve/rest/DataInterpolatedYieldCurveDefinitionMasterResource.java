@@ -1,17 +1,13 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.ircurve.rest;
 
 import java.net.URI;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.HEAD;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
@@ -38,7 +34,7 @@ public class DataInterpolatedYieldCurveDefinitionMasterResource extends Abstract
 
   /**
    * Creates the resource, exposing the underlying master over REST.
-   * 
+   *
    * @param master  the underlying master, not null
    */
   public DataInterpolatedYieldCurveDefinitionMasterResource(final InterpolatedYieldCurveDefinitionMaster master) {
@@ -47,9 +43,10 @@ public class DataInterpolatedYieldCurveDefinitionMasterResource extends Abstract
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Gets the master.
-   * 
+   *
    * @return the master, not null
    */
   public InterpolatedYieldCurveDefinitionMaster getInterpolatedYieldCurveDefinitionMaster() {
@@ -73,7 +70,7 @@ public class DataInterpolatedYieldCurveDefinitionMasterResource extends Abstract
   @Path("definitions")
   public Response add(@Context UriInfo uriInfo, YieldCurveDefinitionDocument document) {
     YieldCurveDefinitionDocument result = getInterpolatedYieldCurveDefinitionMaster().add(document);
-    URI createdUri = DataInterpolatedYieldCurveDefinitionResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
+    URI createdUri = (new DataInterpolatedYieldCurveDefinitionResource()).uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
     return responseCreatedFudge(createdUri, result);
   }
 
@@ -81,7 +78,7 @@ public class DataInterpolatedYieldCurveDefinitionMasterResource extends Abstract
   @Path("definitions/save")  // not the best URI
   public Response addOrUpdate(@Context UriInfo uriInfo, YieldCurveDefinitionDocument document) {
     YieldCurveDefinitionDocument result = getInterpolatedYieldCurveDefinitionMaster().addOrUpdate(document);
-    URI createdUri = DataInterpolatedYieldCurveDefinitionResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
+    URI createdUri = (new DataInterpolatedYieldCurveDefinitionResource()).uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
     return responseCreatedFudge(createdUri, result);
   }
 
@@ -93,9 +90,10 @@ public class DataInterpolatedYieldCurveDefinitionMasterResource extends Abstract
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Builds a URI.
-   * 
+   *
    * @param baseUri  the base URI, not null
    * @return the URI, not null
    */
@@ -106,7 +104,7 @@ public class DataInterpolatedYieldCurveDefinitionMasterResource extends Abstract
 
   /**
    * Builds a URI.
-   * 
+   *
    * @param baseUri  the base URI, not null
    * @return the URI, not null
    */

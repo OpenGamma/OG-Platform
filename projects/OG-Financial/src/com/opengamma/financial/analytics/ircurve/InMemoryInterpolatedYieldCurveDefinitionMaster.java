@@ -1,13 +1,11 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.ircurve;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import javax.time.Instant;
 import javax.time.InstantProvider;
@@ -21,6 +19,7 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.MasterUtils;
 import com.opengamma.master.VersionedSource;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -43,7 +42,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
   /**
    * The change manager.
    */
-  private final ChangeManager _changeManager = new BasicChangeManager();  // TODO
+  private final ChangeManager _changeManager = new BasicChangeManager();  // TODO make possible to pass the change manager in constructor
   /**
    * The unique id scheme
    */
@@ -61,9 +60,10 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Gets the scheme in use for unique identifier.
-   * 
+   *
    * @return the scheme, not null
    */
   public String getUniqueIdScheme() {
@@ -72,7 +72,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
 
   /**
    * Sets the scheme in use for unique identifier.
-   * 
+   *
    * @param scheme  the scheme for unique identifier, not null
    */
   public void setUniqueIdScheme(final String scheme) {
@@ -320,4 +320,135 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     return _changeManager;
   }
 
+
+  @Override
+  public List<UniqueId> replaceVersions(ObjectIdentifiable objectIdentifiable, List<YieldCurveDefinitionDocument> replacementDocuments) {
+    ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
+    ArgumentChecker.notNull(objectIdentifiable, "objectIdentifiable");
+
+    final Instant now = Instant.now();
+
+    for (YieldCurveDefinitionDocument replacementDocument : replacementDocuments) {
+      ArgumentChecker.notNull(replacementDocument, "document");
+      ArgumentChecker.notNull(replacementDocument.getYieldCurveDefinition(), "document.yieldCurveDefinition");
+      final Currency currency = replacementDocument.getYieldCurveDefinition().getCurrency();
+      final String name = replacementDocument.getYieldCurveDefinition().getName();
+      final UniqueId id = UniqueId.of(getUniqueIdScheme(), name + "_" + currency.getCode());
+      ArgumentChecker.isTrue(id.equals(objectIdentifiable), "Invalid object identifier");
+    }
+
+    YieldCurveDefinitionDocument storedDocument = get(objectIdentifiable, null);
+    if (storedDocument == null) {
+      throw new DataNotFoundException("Document not found: " + objectIdentifiable);
+    }
+    final Currency currency = storedDocument.getYieldCurveDefinition().getCurrency();
+    final String name = storedDocument.getYieldCurveDefinition().getName();
+    Pair<Currency, String> key = Pair.of(currency, name);
+
+
+    final TreeMap<Instant, YieldCurveDefinition> value = _definitions.get(key);
+    if (value == null) {
+      throw new DataNotFoundException("OID '" + objectIdentifiable + "' not found");
+    }
+    if (_sourceVersionCorrection.getVersionAsOf() != null) {
+      // Don't need to keep the old values before the one needed by "versionAsOfInstant"
+      final Instant oldestNeeded = value.floorKey(_sourceVersionCorrection.getVersionAsOf());
+      value.headMap(oldestNeeded).clear();
+    } else {
+      // Don't need any old values
+      value.clear();
+    }
+
+    Instant lowestCurrentVersionFrom = value.firstKey();
+
+    List<YieldCurveDefinitionDocument> orderedReplacementDocuments = MasterUtils.adjustVersionInstants(now, lowestCurrentVersionFrom, null, replacementDocuments);
+
+    final Instant lowestVersionFrom = orderedReplacementDocuments.get(0).getVersionFromInstant();
+    final Instant highestVersionTo = orderedReplacementDocuments.get(orderedReplacementDocuments.size() - 1).getVersionToInstant();
+
+    if (orderedReplacementDocuments.size() > 0) {
+      value.subMap(lowestVersionFrom, true, highestVersionTo, false).clear();
+    }
+
+    for (YieldCurveDefinitionDocument replacementDocument : orderedReplacementDocuments) {
+      value.put(replacementDocument.getVersionFromInstant(), replacementDocument.getYieldCurveDefinition());
+      changeManager().entityChanged(ChangeType.UPDATED, replacementDocument.getUniqueId(), replacementDocument.getUniqueId(), now);
+    }
+    return MasterUtils.mapToUniqueIDs(orderedReplacementDocuments);
+
+  }
+
+  @Override
+  public List<UniqueId> replaceAllVersions(ObjectIdentifiable objectIdentifiable, List<YieldCurveDefinitionDocument> replacementDocuments) {
+    ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
+    ArgumentChecker.notNull(objectIdentifiable, "objectIdentifiable");
+
+    final Instant now = Instant.now();
+
+    for (YieldCurveDefinitionDocument replacementDocument : replacementDocuments) {
+      ArgumentChecker.notNull(replacementDocument, "document");
+      ArgumentChecker.notNull(replacementDocument.getYieldCurveDefinition(), "document.yieldCurveDefinition");
+      final Currency currency = replacementDocument.getYieldCurveDefinition().getCurrency();
+      final String name = replacementDocument.getYieldCurveDefinition().getName();
+      final UniqueId id = UniqueId.of(getUniqueIdScheme(), name + "_" + currency.getCode());
+      ArgumentChecker.isTrue(id.equals(objectIdentifiable), "Invalid object identifier");
+    }
+
+    YieldCurveDefinitionDocument storedDocument = get(objectIdentifiable, null);
+    if (storedDocument == null) {
+      throw new DataNotFoundException("Document not found: " + objectIdentifiable);
+    }
+    final Currency currency = storedDocument.getYieldCurveDefinition().getCurrency();
+    final String name = storedDocument.getYieldCurveDefinition().getName();
+    Pair<Currency, String> key = Pair.of(currency, name);
+
+
+    final TreeMap<Instant, YieldCurveDefinition> value = _definitions.get(key);
+    if (value == null) {
+      throw new DataNotFoundException("OID '" + objectIdentifiable + "' not found");
+    }
+    value.clear();
+
+    List<YieldCurveDefinitionDocument> orderedReplacementDocuments = MasterUtils.adjustVersionInstants(now, null, null, replacementDocuments);
+
+    final Instant lowestVersionFrom = orderedReplacementDocuments.get(0).getVersionFromInstant();
+
+    ArgumentChecker.notNull(lowestVersionFrom, "You must define version from of the first document");
+
+    for (YieldCurveDefinitionDocument replacementDocument : orderedReplacementDocuments) {
+      value.put(replacementDocument.getVersionFromInstant(), replacementDocument.getYieldCurveDefinition());
+      changeManager().entityChanged(ChangeType.UPDATED, replacementDocument.getUniqueId(), replacementDocument.getUniqueId(), now);
+    }
+    return MasterUtils.mapToUniqueIDs(orderedReplacementDocuments);
+  }
+
+  @Override
+  public List<UniqueId> replaceVersion(UniqueId uniqueId, List<YieldCurveDefinitionDocument> replacementDocuments) {
+    return replaceVersions(uniqueId.getObjectId(), replacementDocuments);
+  }
+
+  @Override
+  public void removeVersion(final UniqueId uniqueId) {
+    replaceVersion(uniqueId, Collections.<YieldCurveDefinitionDocument>emptyList());
+  }
+
+  @Override
+  public UniqueId replaceVersion(YieldCurveDefinitionDocument replacementDocument) {
+    List<UniqueId> result = replaceVersion(replacementDocument.getUniqueId(), Collections.singletonList(replacementDocument));
+    if (result.isEmpty()) {
+      return null;
+    } else {
+      return result.get(0);
+    }
+  }
+
+  @Override
+  public UniqueId addVersion(ObjectIdentifiable objectId, YieldCurveDefinitionDocument documentToAdd) {
+    List<UniqueId> result = replaceVersions(objectId, Collections.singletonList(documentToAdd));
+    if (result.isEmpty()) {
+      return null;
+    } else {
+      return result.get(0);
+    }
+  }
 }

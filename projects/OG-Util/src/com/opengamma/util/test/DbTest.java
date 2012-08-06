@@ -36,9 +36,9 @@ public abstract class DbTest implements TableCreationCallback {
 
   static {
     DateUtils.initTimeZone();
-    addDbDialect("hsqldb", new HSQLDbDialect());
+    //addDbDialect("hsqldb", new HSQLDbDialect());
     addDbDialect("postgres", new PostgresDbDialect());
-    addDbDialect("sqlserver2008", new SqlServer2008DbDialect());
+    //addDbDialect("sqlserver2008", new SqlServer2008DbDialect());
   }
 
   static {

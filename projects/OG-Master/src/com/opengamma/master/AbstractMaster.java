@@ -127,11 +127,11 @@ public interface AbstractMaster<D extends AbstractDocument> {
    * <p>
    * The versioning will be taken from the "version from" instant in each specified document.
    * The "version to" instant and "correction" instants will be ignored on input.
-   * If the "version from" instant is null, the latest instant is used.
+   * If the "version from" instant is null, version from of the replaced document is used
    * No two versioned documents may have the same "version from" instant.
    * The versions must all be within the version range of the original version being replaced.
+   * The list can not be empty. 
    * <p>
-   * If the list is empty, the previous version will have its version range extended.
    * The unique identifier must specify a version of the document that is active when
    * queried with the {@link VersionCorrection latest correction instant}.
    * The unique identifier in each specified document will be ignored on input.
@@ -142,7 +142,7 @@ public interface AbstractMaster<D extends AbstractDocument> {
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with the object identifier
    */
-  List<D> replaceVersion(UniqueId uniqueId, List<D> replacementDocuments);
+  List<UniqueId> replaceVersion(UniqueId uniqueId, List<D> replacementDocuments);
 
   /**
    * Replaces all the versions of the document in the data store.
@@ -168,6 +168,9 @@ public interface AbstractMaster<D extends AbstractDocument> {
    */
   List<UniqueId> replaceAllVersions(ObjectIdentifiable objectId, List<D> replacementDocuments);
 
+  List<UniqueId> replaceVersions(ObjectIdentifiable objectId, List<D> replacementDocuments);
+  
+  
   //-------------------------------------------------------------------------
   // convenience methods
   /**
@@ -175,7 +178,7 @@ public interface AbstractMaster<D extends AbstractDocument> {
    * <p>
    * This applies a correction that replaces a single version in the data store
    * with the specified list.
-   * This is equivalent to calling {@link #replace(UniqueId, List)} with a single
+   * This is equivalent to calling {@link #replaceVersion(UniqueId, List)} with a single
    * element list of the specified document.
    * <p>
    * The document must contain the unique identifier to be replaced.
@@ -184,11 +187,11 @@ public interface AbstractMaster<D extends AbstractDocument> {
    * queried with the {@link VersionCorrection latest correction instant}.
    * 
    * @param replacementDocument  the replacement document, not null
-   * @return the list of unique identifiers matching the input list, not null
+   * @return the versioned document matching the input one, not null
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with the object identifier
    */
-  D replaceVersion(D replacementDocument);
+  UniqueId replaceVersion(D replacementDocument);
   // NOTE: this is the same as the current correct() method, which should be deprecated, then deleted
 
   /**
@@ -228,7 +231,7 @@ public interface AbstractMaster<D extends AbstractDocument> {
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
-  D addVersion(ObjectIdentifiable objectId, D documentToAdd);
+  UniqueId addVersion(ObjectIdentifiable objectId, D documentToAdd);
   // if "version from" is non-null this is equivalent to a search to find the active document
   // for the "version from" instant and using replaceVersion() with a list of two documents
   // if "version from" is null this is equivalent to update(), but update() can hopefully be deprecated

@@ -1,21 +1,17 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.user;
+
+import java.util.List;
 
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.portfolio.ManageablePortfolioNode;
-import com.opengamma.master.portfolio.PortfolioDocument;
-import com.opengamma.master.portfolio.PortfolioHistoryRequest;
-import com.opengamma.master.portfolio.PortfolioHistoryResult;
-import com.opengamma.master.portfolio.PortfolioMaster;
-import com.opengamma.master.portfolio.PortfolioSearchRequest;
-import com.opengamma.master.portfolio.PortfolioSearchResult;
+import com.opengamma.master.portfolio.*;
 
 /**
  * Wraps a portfolio master to trap calls to record user based information to allow clean up and
@@ -30,7 +26,7 @@ public class FinancialUserPortfolioMaster extends AbstractFinancialUserService i
 
   /**
    * Creates an instance.
-   * 
+   *
    * @param userName  the user name, not null
    * @param clientName  the client name, not null
    * @param tracker  the tracker, not null
@@ -43,7 +39,7 @@ public class FinancialUserPortfolioMaster extends AbstractFinancialUserService i
 
   /**
    * Creates an instance.
-   * 
+   *
    * @param client  the client, not null
    * @param underlying  the underlying master, not null
    */
@@ -109,4 +105,38 @@ public class FinancialUserPortfolioMaster extends AbstractFinancialUserService i
     return _underlying.changeManager();
   }
 
+  @Override
+  public UniqueId addVersion(ObjectIdentifiable objectId, PortfolioDocument documentToAdd) {
+    documentToAdd = _underlying.add(documentToAdd);
+    if (documentToAdd.getUniqueId() != null) {
+      created(documentToAdd.getUniqueId());
+    }
+    return documentToAdd.getUniqueId();
+  }
+
+  @Override
+  public List<UniqueId> replaceVersion(UniqueId uniqueId, List<PortfolioDocument> replacementDocuments) {
+    return _underlying.replaceVersion(uniqueId, replacementDocuments);
+  }
+
+  @Override
+  public List<UniqueId> replaceAllVersions(ObjectIdentifiable objectId, List<PortfolioDocument> replacementDocuments) {
+    return _underlying.replaceAllVersions(objectId, replacementDocuments);
+  }
+
+  @Override
+  public List<UniqueId> replaceVersions(ObjectIdentifiable objectId, List<PortfolioDocument> replacementDocuments) {
+    return _underlying.replaceVersions(objectId, replacementDocuments);
+  }
+
+  @Override
+  public UniqueId replaceVersion(PortfolioDocument replacementDocument) {
+    return _underlying.replaceVersion(replacementDocument);
+  }
+
+  @Override
+  public void removeVersion(UniqueId uniqueId) {
+    _underlying.removeVersion(uniqueId);
+    deleted(uniqueId);
+  }
 }

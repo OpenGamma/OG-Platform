@@ -66,7 +66,7 @@ public class DataHolidayMasterResourceTest {
   public void testFindHoliday() {
     DataHolidayResource test = _resource.findHoliday("Test~A");
     assertSame(_resource, test.getHolidaysResource());
-    assertEquals(ObjectId.of("Test", "A"), test.getUrlHolidayId());
+    assertEquals(ObjectId.of("Test", "A"), test.getUrlId());
   }
 
 }

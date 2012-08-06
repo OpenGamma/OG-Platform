@@ -5,6 +5,10 @@
  */
 package com.opengamma.masterdb.config;
 
+import static com.google.common.collect.Lists.newArrayList;
+
+import java.util.List;
+
 import javax.time.TimeSource;
 
 import com.opengamma.DataNotFoundException;
@@ -12,14 +16,7 @@ import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.config.ConfigDocument;
-import com.opengamma.master.config.ConfigHistoryRequest;
-import com.opengamma.master.config.ConfigHistoryResult;
-import com.opengamma.master.config.ConfigMaster;
-import com.opengamma.master.config.ConfigMetaDataRequest;
-import com.opengamma.master.config.ConfigMetaDataResult;
-import com.opengamma.master.config.ConfigSearchRequest;
-import com.opengamma.master.config.ConfigSearchResult;
+import com.opengamma.master.config.*;
 import com.opengamma.masterdb.AbstractDbMaster;
 import com.opengamma.util.db.DbConnector;
 
@@ -201,4 +198,45 @@ public class DbConfigMaster extends AbstractDbMaster implements ConfigMaster {
     return getClass().getSimpleName() + "[" + getUniqueIdScheme() + "]";
   }
 
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> UniqueId addVersion(ObjectIdentifiable objectId, ConfigDocument<T> documentToAdd) {
+    return _worker.addVersion(objectId, documentToAdd);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> List<UniqueId> replaceVersion(UniqueId uniqueId, List<ConfigDocument<T>> replacementDocuments) {
+    List<ConfigDocument<?>> convertedreplacementDocuments = newArrayList();
+    for (ConfigDocument<T> replacementDocument : replacementDocuments) {
+      convertedreplacementDocuments.add(replacementDocument);
+    }
+    return _worker.replaceVersion(uniqueId, convertedreplacementDocuments);
+  }
+
+  @Override
+  public <T> List<UniqueId> replaceVersions(ObjectIdentifiable objectId, List<ConfigDocument<T>> replacementDocuments) {
+    List<ConfigDocument<?>> convertedreplacementDocuments = newArrayList();
+    for (ConfigDocument<T> replacementDocument : replacementDocuments) {
+      convertedreplacementDocuments.add(replacementDocument);
+    }
+    return _worker.replaceVersions(objectId, convertedreplacementDocuments);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> List<UniqueId> replaceAllVersions(ObjectIdentifiable objectId, List<ConfigDocument<T>> replacementDocuments) {
+    return _worker.replaceAllVersions(objectId, (List) replacementDocuments);    
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> UniqueId replaceVersion(ConfigDocument<T> replacementDocument) {
+    return _worker.replaceVersion(replacementDocument);
+  }
+
+  @Override
+  public void removeVersion(UniqueId uniqueId) {
+    _worker.removeVersion(uniqueId);
+  }
 }
