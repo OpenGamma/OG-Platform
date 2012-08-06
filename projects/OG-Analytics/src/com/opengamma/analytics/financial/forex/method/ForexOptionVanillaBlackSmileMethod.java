@@ -5,13 +5,6 @@
  */
 package com.opengamma.analytics.financial.forex.method;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
@@ -30,6 +23,13 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * Pricing method for vanilla Forex option transactions with Black function and a volatility provider.
@@ -305,6 +305,60 @@ public final class ForexOptionVanillaBlackSmileMethod implements ForexPricingMet
     final double theta = BlackFormulaRepository.theta(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility) * sign
         * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount());
     return CurrencyAmount.of(optionForex.getUnderlyingForex().getCurrency2(), theta);
+  }
+
+  /**
+   * Computes the Vanna (2nd order cross-sensitivity of the present value to the spot fx and implied vol), 
+   * $\frac{\partial^2 (PV)}{\partial FX \partial \sigma}$ 
+   * @param optionForex The Forex option.
+   * @param curves The yield curve bundle.
+   * @return The Vanna. In the same currency as present value.
+   */
+
+  public CurrencyAmount vanna(final ForexOptionVanilla optionForex, final YieldCurveBundle curves) {
+    ArgumentChecker.notNull(curves, "Curves");
+    ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Yield curve bundle should contain smile data");
+    final SmileDeltaTermStructureDataBundle smile = (SmileDeltaTermStructureDataBundle) curves;
+    final double dfDomestic = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency2().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
+    final double dfForeign = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
+    final double spot = smile.getFxRates().getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
+    final double forward = spot * dfForeign / dfDomestic;
+    final double volatility = FXVolatilityUtils.getVolatility(smile, optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
+    final double sign = (optionForex.isLong() ? 1.0 : -1.0);
+    final double vanna = BlackFormulaRepository.vanna(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility)
+        * sign * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount());
+    return CurrencyAmount.of(optionForex.getUnderlyingForex().getCurrency2(), vanna);
+  }
+
+  /**
+   * Computes the Vomma (aka Volga) (2nd order sensitivity of the price to the implied vol)
+   * @param optionForex The Forex option.
+   * @param curves The yield curve bundle.
+   * @return The Volga. In the same currency as present value.
+   */
+  public CurrencyAmount vomma(final ForexOptionVanilla optionForex, final YieldCurveBundle curves) {
+    ArgumentChecker.notNull(curves, "Curves");
+    ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Yield curve bundle should contain smile data");
+    final SmileDeltaTermStructureDataBundle smile = (SmileDeltaTermStructureDataBundle) curves;
+    final double dfDomestic = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency2().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
+    final double dfForeign = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
+    final double spot = smile.getFxRates().getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
+    final double forward = spot * dfForeign / dfDomestic;
+    final double volatility = FXVolatilityUtils.getVolatility(smile, optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
+    final double sign = (optionForex.isLong() ? 1.0 : -1.0);
+    final double vomma = BlackFormulaRepository.vomma(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility) * sign
+        * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount());
+    return CurrencyAmount.of(optionForex.getUnderlyingForex().getCurrency2(), vomma);
+  }
+
+  /**
+   * Computes the Volga (aka Vomma) (2nd order sensitivity of the price to the implied vol)
+   * @param optionForex The Forex option.
+   * @param curves The yield curve bundle.
+   * @return The Volga. In the same currency as present value.
+   */
+  public CurrencyAmount volga(final ForexOptionVanilla optionForex, final YieldCurveBundle curves) {
+    return vomma(optionForex, curves);
   }
 
   /**
