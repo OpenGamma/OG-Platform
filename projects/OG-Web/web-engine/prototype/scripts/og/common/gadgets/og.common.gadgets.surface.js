@@ -135,6 +135,7 @@ $.register_module({
                 surface_bottom_group, // the bottom grid, axis etc
                 surface_group,        // full surface group, including axis
                 vertex_sphere,        // the sphere displayed on vertex hover
+                surface_plane,        // reference to the surface mesh
                 x_segments = config.xs.length - 1, z_segments = config.zs.length - 1, y_segments = settings.y_segments,
                 ys, adjusted_vol, adjusted_xs, adjusted_ys, adjusted_zs, // gadget.init_data calculates these values
                 vol_max = Math.max.apply(null, config.vol), vol_min = Math.min.apply(null, config.vol),
@@ -374,7 +375,8 @@ $.register_module({
                      * surface interaction
                      */
                     surface_hittest = gadget.intersects(event, [imeshes.surface]);
-                    if (surface_hittest.length > 0) $selector.trigger('surface_over', surface_hittest);
+                    if (surface_hittest.length > 0 && surface_hittest[0].face.materialIndex === 1)
+                        $selector.trigger('surface_over', surface_hittest);
                     else $selector.trigger('surface_out');
                     /**
                      * original mouse x & y
@@ -438,18 +440,25 @@ $.register_module({
                     slice.reset_handle_material();
                     handle_hittest[0].object.material = matlib.get_material('phong', settings.slice_handle_color_hover);
                     /**
+                     * recreate surface plane
+                     */
+                    surface_top_group.remove(surface_plane);
+                    surface_top_group.add(surface.create_surface_plane());
+                    /**
                      * move handles along particles
                      */
                     (function () {
                         var intersects = gadget.intersects(original_event, [slice.intersection_plane]),
-                            vertices = particles.geometry.vertices, vertex, vertex_world_position,
+                            vertices = particles.geometry.vertices, vertex, vertex_world_position, index,
                             i = vertices.length, dist = [] /* distances from raycast/plane intersection & particles */;
                         while (i--) {
                             vertex = vertices[i];
                             vertex_world_position = particles.matrixWorld.multiplyVector3(vertices[i].clone());
                             dist[i] = vertex_world_position.distanceTo(intersects[0].point);
                         }
-                        slice[handle_lbl].position[axis] = vertices[dist.indexOf(Math.min.apply(null, dist))].x;
+                        index = dist.indexOf(Math.min.apply(null, dist));
+                        slice[handle_lbl + '_position'] = index;
+                        slice[handle_lbl].position[axis] = vertices[index].x;
                     }());
                     /**
                      * update resize bars
@@ -618,7 +627,10 @@ $.register_module({
                 return matlib.cache[name];
             };
             matlib.canvas.compound_surface = function () {
-                return [matlib.canvas.flat('0xbbbbbb'), matlib.canvas.wire('0xffffff')];
+                return [matlib.canvas.flat('0xbbbbbb'), matlib.canvas.flat('0xbbbbbb')];
+            };
+            matlib.canvas.compound_surface_wire = function () {
+                return [matlib.canvas.wire('0xffffff')];
             };
             matlib.canvas.flat = function (color) {
                 return new THREE.MeshBasicMaterial({color: color, shading: THREE.FlatShading});
@@ -645,11 +657,18 @@ $.register_module({
             };
             matlib.compound_surface = function () {
                 if (!webgl) return matlib.canvas.compound_surface();
-                return [matlib.vertex(), matlib.wire('0xffffff')]
+                return [matlib.transparent(), matlib.vertex()]
+            };
+            matlib.compound_surface_wire = function () {
+                if (!webgl) return matlib.canvas.compound_surface_wire();
+                return [matlib.transparent(), matlib.wire('0xffffff')]
             };
             matlib.wire = function (color) {
                 if (!webgl) return matlib.canvas.wire(color);
                 return new THREE.MeshBasicMaterial({color: color || 0x999999, wireframe: true});
+            };
+            matlib.transparent = function () {
+                return new THREE.MeshBasicMaterial({opacity: 0, transparent: true});
             };
             matlib.flat = function (color) {
                 if (!webgl) return matlib.canvas.flat(color);
@@ -668,6 +687,10 @@ $.register_module({
             matlib.vertex = function () {
                 return new THREE.MeshPhongMaterial({shading: THREE.FlatShading, vertexColors: THREE.VertexColors})
             };
+            slice.lft_x_handle_position = x_segments;
+            slice.rgt_x_handle_position = 0;
+            slice.lft_z_handle_position = z_segments;
+            slice.rgt_z_handle_position = 0;
             slice.load = function () {
                 var plane = new THREE.PlaneGeometry(5000, 5000, 0, 0),
                     mesh = new THREE.Mesh(plane, matlib.get_material('wire', '0xcccccc'));
@@ -959,9 +982,10 @@ $.register_module({
              * @return {THREE.Object3D}
              */
             surface.create_surface_plane = function () {
-                var plane = new Plane('surface'), group, i;
+                var plane = new Plane('surface'), group = new THREE.Object3D(), i;
                 plane.verticesNeedUpdate = true;
                 for (i = 0; i < adjusted_vol.length; i++) {plane.vertices[i].y = adjusted_vol[i];} // extrude
+                var wire = THREE.GeometryUtils.clone(plane);
                 plane.computeCentroids();
                 plane.computeFaceNormals();
                 (function () { // apply heatmap
@@ -981,9 +1005,27 @@ $.register_module({
                         }
                     }
                 }());
-                // apply surface materials,
-                // actualy duplicates the geometry and adds each material separatyle, returns the group
-                group = THREE.SceneUtils.createMultiMaterialObject(plane, matlib.get_material('compound_surface'));
+                // apply surface materials
+                plane.materials = matlib.get_material('compound_surface');
+                wire.materials = matlib.get_material('compound_surface_wire');
+                (function () { // clip
+                    var row, i, x, l,
+                        zmin = Math.abs(slice.rgt_z_handle_position - z_segments) * x_segments,
+                        zmax = Math.abs(slice.lft_z_handle_position - z_segments) * x_segments - 1,
+                        xmin = Math.abs(slice.lft_x_handle_position - x_segments),
+                        xmax = Math.abs(slice.rgt_x_handle_position - x_segments);
+                    for (i = 0, x = 0, row = 0, l = plane.faces.length; i < l; i ++, x++) {
+                        var plane_face = plane.faces[i], wire_face = wire.faces[i];
+                        if (x === x_segments) x = 0, row++;
+                        if (
+                            (i < zmin) && (i > zmax) && // z slice
+                            (i > xmin + row * x_segments -1) && (i < xmax + row * x_segments)  // x slice
+                        ) plane_face.materialIndex = wire_face.materialIndex = 1;
+                        else plane_face.materialIndex = wire_face.materialIndex = 0;
+                    }
+                }());
+                group.add(new THREE.Mesh(plane, new THREE.MeshFaceMaterial()));
+                group.add(new THREE.Mesh(wire, new THREE.MeshFaceMaterial()));
                 group.matrixAutoUpdate = false;
                 group.updateMatrix();
                 group.children.forEach(function (mesh) {
@@ -991,7 +1033,7 @@ $.register_module({
                     mesh.matrixAutoUpdate = false;
                 });
                 gadget.interactive_meshes.add('surface', group.children[0]);
-                return group;
+                return surface_plane = group;
             };
             /**
              * Implements any valid hover interaction with the surface.
