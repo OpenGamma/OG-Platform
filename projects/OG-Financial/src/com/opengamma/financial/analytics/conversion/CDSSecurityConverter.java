@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
-import javax.time.calendar.ZonedDateTime;
-
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
@@ -17,7 +15,6 @@ import com.opengamma.analytics.financial.instrument.cds.CDSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
-import com.opengamma.analytics.financial.schedule.ScheduleFactory;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
