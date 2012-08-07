@@ -17,7 +17,7 @@
     
     this.renderCell = function($cell, value, row, dataContext, colDef, columnStructure, userConfig) {
       var summaryText = "Time-series";
-      if (!value.v) {
+      if (!value.v.summary) {
         summaryText += " (empty)";
       } else {
         summaryText += " (" + value.v.summary.from + " to " + value.v.summary.to + ")";
