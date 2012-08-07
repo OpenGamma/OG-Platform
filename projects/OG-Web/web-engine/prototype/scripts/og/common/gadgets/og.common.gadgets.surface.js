@@ -225,23 +225,22 @@ $.register_module({
              * @returns {THREE.TextGeometry}
              */
             var Text3D = function (str, color, preserve_kerning, bevel) {
-                var object = new THREE.Object3D(), xpos = 0, options = {
-                    size: settings.font_size, height: settings.font_height,
-                    font: settings.font_face_3d, weight: 'normal', style: 'normal',
-                    bevelEnabled: bevel || false, bevelSize: 0.6, bevelThickness: 0.6
-                };
-                if (preserve_kerning) return new THREE.Mesh(
-                    new CachedTextGeometry(str, options), matlib.get_material('phong', color)
-                );
+                var object, merged = new THREE.Geometry(), material = matlib.get_material('phong', color), xpos = 0,
+                    options = {
+                        size: settings.font_size, height: settings.font_height,
+                        font: settings.font_face_3d, weight: 'normal', style: 'normal',
+                        bevelEnabled: bevel || false, bevelSize: 0.6, bevelThickness: 0.6
+                    };
+                if (preserve_kerning) return new THREE.Mesh(new CachedTextGeometry(str, options), material);
                 str.split('').forEach(function (val) {
-                    var text = new CachedTextGeometry(val, options),
-                        mesh = new THREE.Mesh(text, matlib.get_material('phong', color));
+                    var text = new CachedTextGeometry(val, options), mesh = new THREE.Mesh(text, material);
                     mesh.position.x = xpos + (val === '.' ? 5 : 0);                                   // space before
                     xpos = xpos + ((THREE.FontUtils.drawText(val).offset)) + (val === '.' ? 10 : 15); // space after
-                    mesh.matrixAutoUpdate = false;
-                    mesh.updateMatrix();
-                    object.add(mesh);
+                    THREE.GeometryUtils.merge(merged, mesh);
                 });
+                merged.computeFaceNormals();
+                object = new THREE.Mesh(merged, material);
+                object.matrixAutoUpdate = false;
                 return object;
             };
             /**
