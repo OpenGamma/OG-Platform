@@ -165,6 +165,7 @@ import com.opengamma.financial.analytics.model.forex.forward.deprecated.FXForwar
 import com.opengamma.financial.analytics.model.forex.forward.deprecated.FXForwardPresentValueCurveSensitivityFunctionDeprecated;
 import com.opengamma.financial.analytics.model.forex.forward.deprecated.FXForwardPresentValueFunctionDeprecated;
 import com.opengamma.financial.analytics.model.forex.forward.deprecated.FXForwardYCNSFunctionDeprecated;
+import com.opengamma.financial.analytics.model.forex.option.black.BloombergFXOptionSpotRateFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackCurrencyExposureFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFXPresentValueFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackGammaFunction;
@@ -174,12 +175,12 @@ import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackP
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackPresentValueCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackPresentValueFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackTermStructureCurrencyExposureFunction;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackThetaFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackVannaFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackVegaFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackVegaMatrixFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackVegaQuoteMatrixFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackVommaFunction;
-import com.opengamma.financial.analytics.model.forex.option.black.BloombergFXOptionSpotRateFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackCurrencyExposureFunctionDeprecated;
 import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackPV01FunctionDeprecated;
 import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackPresentValueCurveSensitivityFunctionDeprecated;
@@ -379,9 +380,9 @@ import com.opengamma.financial.analytics.volatility.surface.DefaultVolatilitySur
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceShiftFunction;
 import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
+import com.opengamma.financial.currency.FXOptionBlackPnLSeriesCurrencyConversionFunction;
 import com.opengamma.financial.currency.FixedIncomeInstrumentPnLSeriesCurrencyConversionFunction;
 import com.opengamma.financial.currency.FixedIncomeInstrumentPnLSeriesCurrencyConversionFunctionDeprecated;
-import com.opengamma.financial.currency.FXOptionBlackPnLSeriesCurrencyConversionFunction;
 import com.opengamma.financial.currency.PortfolioNodeCurrencyConversionFunction;
 import com.opengamma.financial.currency.PortfolioNodeDefaultCurrencyFunction;
 import com.opengamma.financial.currency.PositionCurrencyConversionFunction;
@@ -473,7 +474,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.DAILY_PNL);
     //TODO PRESENT_VALUE_CURVE_SENSITIVITY
     addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_DELTA);
-    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_GAMMA);
+    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_THETA);
     addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_SPEED);
     addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_VOMMA);
     addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_VANNA);
@@ -720,7 +721,10 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addScalingFunction(functionConfigs, ValueRequirementNames.VEGA_QUOTE_CUBE);
     addScalingFunction(functionConfigs, ValueRequirementNames.VALUE_VEGA);
     addSummingFunction(functionConfigs, ValueRequirementNames.VALUE_VEGA);
+    addScalingFunction(functionConfigs, ValueRequirementNames.VALUE_THETA);
+    addSummingFunction(functionConfigs, ValueRequirementNames.VALUE_THETA);
     addScalingFunction(functionConfigs, ValueRequirementNames.VALUE_GAMMA);
+    addSummingFunction(functionConfigs, ValueRequirementNames.VALUE_GAMMA);
 
     addScalingFunction(functionConfigs, ValueRequirementNames.VALUE_DELTA);
     addScalingFunction(functionConfigs, ValueRequirementNames.VALUE_RHO);
@@ -736,7 +740,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.SPOT);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.FORWARD);
     addValueGreekAndSummingFunction(functionConfigs, ValueRequirementNames.VALUE_DELTA);
-    addValueGreekAndSummingFunction(functionConfigs, ValueRequirementNames.VALUE_GAMMA);
+    addValueGreekAndSummingFunction(functionConfigs, ValueRequirementNames.VALUE_THETA);
     addValueGreekAndSummingFunction(functionConfigs, ValueRequirementNames.VALUE_SPEED);
 
     addCurrencyConversionFunctions(functionConfigs);
@@ -921,6 +925,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(FXOptionBlackVegaQuoteMatrixFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackGammaFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackGammaSpotFunction.class));
+    functionConfigs.add(functionConfiguration(FXOptionBlackThetaFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackVannaFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackVommaFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackPresentValueCurveSensitivityFunction.class));
@@ -928,8 +933,15 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(FXOptionBlackImpliedVolatilityFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackTermStructureCurrencyExposureFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackDefaults.class, PriorityClass.ABOVE_NORMAL.name(), DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR, LINEAR_EXTRAPOLATOR,
-        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "EUR", "DefaultTwoCurveEURConfig", "Discounting", "DEFAULT",
-        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "CAD", "DefaultTwoCurveCADConfig", "Discounting", "DEFAULT"));
+        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "EUR", "DefaultTwoCurveEURConfig", "Discounting", "TULLETT",
+        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "CAD", "DefaultTwoCurveCADConfig", "Discounting", "TULLETT",
+        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "AUD", "DefaultTwoCurveAUDConfig", "Discounting", "TULLETT",        
+        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "CHF", "DefaultTwoCurveCHFConfig", "Discounting", "TULLETT",        
+        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "MXN", "DefaultCashCurveMXNConfig", "Cash", "TULLETT",        
+        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "JPY", "DefaultTwoCurveJPYConfig", "Discounting", "TULLETT",
+        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "NZD", "DefaultTwoCurveNZDConfig", "Discounting", "TULLETT",
+        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "HUF", "DefaultCashCurveHUFConfig", "Cash", "TULLETT",        
+        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "BRL", "DefaultCashCurveBRLConfig", "Cash", "TULLETT"));
   }
 
   private static void addDeprecatedForexOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
