@@ -208,7 +208,6 @@ public abstract class FXDigitalCallSpreadBlackFunction extends AbstractFunction.
     final ValueRequirement fxVolatilitySurface = getSurfaceRequirement(surfaceName, putCurrency, callCurrency, interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
     final ValueRequirement spotRequirement = security.accept(ForexVisitors.getSpotIdentifierVisitor());
     return Sets.newHashSet(putFundingCurve, callFundingCurve, fxVolatilitySurface, spotRequirement);
-
   }
 
   protected abstract ValueProperties.Builder getResultProperties(final ComputationTarget target);

@@ -53,11 +53,11 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public class ForexOptionBlackConstantSpreadThetaFunction extends FXOptionBlackMultiValuedFunction {
+public class FXOptionBlackConstantSpreadThetaFunction extends FXOptionBlackMultiValuedFunction {
   private static final ForexSecurityConverter VISITOR = new ForexSecurityConverter();
   private static final int DAYS_TO_MOVE_FORWARD = 1; // TODO Add to Value Properties
 
-  public ForexOptionBlackConstantSpreadThetaFunction() {
+  public FXOptionBlackConstantSpreadThetaFunction() {
     super(ValueRequirementNames.VALUE_THETA);
   }
 

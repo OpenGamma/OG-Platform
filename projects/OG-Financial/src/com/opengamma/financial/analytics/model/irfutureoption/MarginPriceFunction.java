@@ -9,31 +9,28 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.PresentValueBlackGammaCalculator;
+import com.opengamma.analytics.financial.interestrate.MarginPriceVisitor;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- * Function computes the gamma, second order derivative of position price with respect to the futures rate,
- * for InterestRateFutureOptions in the Black world.
+ * Provides the reference margin price,
+ * for futures, options and other exchange traded securities that are margined
  */
-public class InterestRateFutureOptionBlackGammaFunction extends InterestRateFutureOptionBlackFunction {
+public class MarginPriceFunction extends InterestRateFutureOptionBlackFunction {
 
-  /**
-   * The calculator to compute the gamma value.
-   */
-  private static final PresentValueBlackGammaCalculator CALCULATOR = PresentValueBlackGammaCalculator.getInstance();
+  private static MarginPriceVisitor s_priceVisitor = MarginPriceVisitor.getInstance();
 
-  public InterestRateFutureOptionBlackGammaFunction() {
-    super(ValueRequirementNames.VALUE_GAMMA);
+  public MarginPriceFunction() {
+    super(ValueRequirementNames.DAILY_PRICE);
   }
 
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec) {
-    final Double gamma = CALCULATOR.visit(irFutureOption, data);
-    return Collections.singleton(new ComputedValue(spec, gamma));
+    final Double price = irFutureOption.accept(s_priceVisitor, data);
+    return Collections.singleton(new ComputedValue(spec, price));
   }
 
 }

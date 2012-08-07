@@ -41,11 +41,11 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * 
  */
-public class ForexForwardConstantSpreadThetaFunction extends FXForwardMultiValuedFunction {
+public class FXForwardConstantSpreadThetaFunction extends FXForwardMultiValuedFunction {
   private static final ForexSecurityConverter VISITOR = new ForexSecurityConverter();
   private static final int DAYS_TO_MOVE_FORWARD = 1; // TODO Add to Value Properties
 
-  public ForexForwardConstantSpreadThetaFunction() {
+  public FXForwardConstantSpreadThetaFunction() {
     super(ValueRequirementNames.VALUE_THETA);
   }
 

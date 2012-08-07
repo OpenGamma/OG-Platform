@@ -8,13 +8,21 @@ package com.opengamma.financial.currency;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.model.pnl.YieldCurveNodePnLFunction;
+import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.financial.security.swap.SwapSecurity;
 
 /**
  * 
@@ -23,6 +31,35 @@ public class YCNSPnLSeriesCurrencyConversionFunction extends PnlSeriesCurrencyCo
 
   public YCNSPnLSeriesCurrencyConversionFunction(final String currencyMatrixName) {
     super(currencyMatrixName);
+  }
+
+  @Override
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    if (!super.canApplyTo(context, target)) {
+      return false;
+    }
+    if (target.getType() != ComputationTargetType.POSITION) {
+      return false;
+    }
+    final Security security = target.getPosition().getSecurity();
+    if (security instanceof InterestRateFutureSecurity || security instanceof IRFutureOptionSecurity) {
+      return false;
+    }
+    if (!(security instanceof FinancialSecurity)) {
+      return false;
+    }
+    if (security instanceof SwapSecurity) {
+      try {
+        final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security);
+        return type == InterestRateInstrumentType.SWAP_FIXED_IBOR ||
+            type == InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD ||
+            type == InterestRateInstrumentType.SWAP_IBOR_IBOR ||
+            type == InterestRateInstrumentType.SWAP_FIXED_OIS;
+      } catch (final OpenGammaRuntimeException ogre) {
+        return false;
+      }
+    }
+    return InterestRateInstrumentType.isFixedIncomeInstrumentType((FinancialSecurity) security);
   }
 
   @Override
@@ -40,8 +77,10 @@ public class YCNSPnLSeriesCurrencyConversionFunction extends PnlSeriesCurrencyCo
   @Override
   protected ValueSpecification getValueSpec(final ValueSpecification inputSpec, final String currencyCode) {
     final ValueProperties properties = inputSpec.getProperties().copy()
-        .withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, getUniqueId())
-        .withoutAny(ValuePropertyNames.CURRENCY).with(ValuePropertyNames.CURRENCY, currencyCode).get();
+        .withoutAny(ValuePropertyNames.FUNCTION)
+        .with(ValuePropertyNames.FUNCTION, getUniqueId())
+        .withoutAny(ValuePropertyNames.CURRENCY)
+        .with(ValuePropertyNames.CURRENCY, currencyCode).get();
     return new ValueSpecification(ValueRequirementNames.PNL_SERIES, inputSpec.getTargetSpecification(), properties);
   }
 }
