@@ -22,7 +22,9 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Provides access to a remote {@link HistoricalTimeSeriesProvider}.
+ * Provides access to a remote time-series provider.
+ * <p>
+ * This is a client that connects to a time-series provider at a remote URI.
  */
 public class RemoteHistoricalTimeSeriesProvider extends AbstractRemoteClient implements HistoricalTimeSeriesProvider {
 
@@ -44,7 +46,7 @@ public class RemoteHistoricalTimeSeriesProvider extends AbstractRemoteClient imp
     
     HistoricalTimeSeriesProviderGetRequest request = HistoricalTimeSeriesProviderGetRequest.createGet(externalIdBundle, dataSource, dataProvider, dataField, dateRange);
     HistoricalTimeSeriesProviderGetResult result = getHistoricalTimeSeries(request);
-    return result.getTimeSeries().get(externalIdBundle);
+    return result.getResultMap().get(externalIdBundle);
   }
 
   @Override
@@ -53,7 +55,7 @@ public class RemoteHistoricalTimeSeriesProvider extends AbstractRemoteClient imp
     
     HistoricalTimeSeriesProviderGetRequest request = HistoricalTimeSeriesProviderGetRequest.createGetLatest(externalIdBundle, dataSource, dataProvider, dataField, dateRange);
     HistoricalTimeSeriesProviderGetResult result = getHistoricalTimeSeries(request);
-    LocalDateDoubleTimeSeries series = result.getTimeSeries().get(externalIdBundle);
+    LocalDateDoubleTimeSeries series = result.getResultMap().get(externalIdBundle);
     if (series == null || series.isEmpty()) {
       return null;
     }
@@ -66,7 +68,7 @@ public class RemoteHistoricalTimeSeriesProvider extends AbstractRemoteClient imp
     
     HistoricalTimeSeriesProviderGetRequest request = HistoricalTimeSeriesProviderGetRequest.createGetBulk(externalIdBundleSet, dataSource, dataProvider, dataField, dateRange);
     HistoricalTimeSeriesProviderGetResult result = getHistoricalTimeSeries(request);
-    return result.getTimeSeries();
+    return result.getResultMap();
   }
 
   //-------------------------------------------------------------------------

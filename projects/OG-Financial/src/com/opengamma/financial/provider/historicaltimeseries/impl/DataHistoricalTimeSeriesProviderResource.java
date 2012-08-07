@@ -62,14 +62,14 @@ public class DataHistoricalTimeSeriesProviderResource extends AbstractDataResour
   }
 
   @HEAD
-  @Path("series")
+  @Path("htsGet")
   public Response status() {
-    // simple HEAD to quickly return, avoiding loading the whole database
+    // simple HEAD to quickly return
     return responseOk();
   }
 
   @POST  // should be a get, but query is too large
-  @Path("series")
+  @Path("htsGet")
   public Response getHistoricalTimeSeries(HistoricalTimeSeriesProviderGetRequest request) {
     HistoricalTimeSeriesProviderGetResult result = getHistoricalTimeSeriesProvider().getHistoricalTimeSeries(request);
     return responseOkFudge(result);
@@ -83,7 +83,7 @@ public class DataHistoricalTimeSeriesProviderResource extends AbstractDataResour
    * @return the URI, not null
    */
   public static URI uriGet(URI baseUri) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("series");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("htsGet");
     return bld.build();
   }
 

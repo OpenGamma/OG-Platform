@@ -7,7 +7,6 @@ package com.opengamma.financial.provider.historicaltimeseries;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,6 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
@@ -44,7 +44,7 @@ public class HistoricalTimeSeriesProviderGetRequest extends DirectBean {
    * The set of time-series external identifiers to get.
    */
   @PropertyDefinition
-  private final Set<ExternalIdBundle> _externalIdBundles = new HashSet<ExternalIdBundle>();
+  private final Set<ExternalIdBundle> _externalIdBundles = Sets.newHashSet();
   /**
    * The data source to use.
    */
@@ -82,7 +82,7 @@ public class HistoricalTimeSeriesProviderGetRequest extends DirectBean {
    * @param dataProvider  the data provider, not null
    * @param dataField  the dataField, not null
    * @param dateRange  the date range to obtain, not null
-   * @return the historical time-series, null if not found
+   * @return the request, not null
    */
   public static HistoricalTimeSeriesProviderGetRequest createGet(
       ExternalIdBundle externalIdBundle,
@@ -97,14 +97,14 @@ public class HistoricalTimeSeriesProviderGetRequest extends DirectBean {
   }
 
   /**
-   * Obtains an instance to get a single time-series.
+   * Obtains an instance to get the latest point of a single time-series.
    * 
    * @param externalIdBundle  the identifier bundle, not null
    * @param dataSource  the data source, not null
    * @param dataProvider  the data provider, not null
    * @param dataField  the dataField, not null
    * @param dateRange  the date range to obtain, not null
-   * @return the historical time-series, null if not found
+   * @return the request, not null
    */
   public static HistoricalTimeSeriesProviderGetRequest createGetLatest(
       ExternalIdBundle externalIdBundle,
@@ -120,17 +120,17 @@ public class HistoricalTimeSeriesProviderGetRequest extends DirectBean {
   }
 
   /**
-   * Obtains an instance to get a single time-series.
+   * Obtains an instance to get multiple time-series.
    * 
    * @param externalIdBundleSet  the identifier bundle set, not null
    * @param dataSource  the data source, not null
    * @param dataProvider  the data provider, not null
    * @param dataField  the dataField, not null
    * @param dateRange  the date range to obtain, not null
-   * @return the historical time-series, null if not found
+   * @return the request, not null
    */
   public static HistoricalTimeSeriesProviderGetRequest createGetBulk(
-      Set<ExternalIdBundle> externalIdBundleSet,
+      Iterable<ExternalIdBundle> externalIdBundleSet,
       String dataSource, String dataProvider, String dataField, LocalDateRange dateRange) {
     HistoricalTimeSeriesProviderGetRequest request = new HistoricalTimeSeriesProviderGetRequest();
     request.addExternalIds(externalIdBundleSet);

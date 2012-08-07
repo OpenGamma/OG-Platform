@@ -23,6 +23,9 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * Abstract implementation of a provider of time-series.
+ * <p>
+ * This provides default implementations of the interface methods that delegate to a
+ * protected method that subclasses must implement.
  */
 public abstract class AbstractHistoricalTimeSeriesProvider implements HistoricalTimeSeriesProvider {
 
@@ -55,7 +58,7 @@ public abstract class AbstractHistoricalTimeSeriesProvider implements Historical
     
     HistoricalTimeSeriesProviderGetRequest request = HistoricalTimeSeriesProviderGetRequest.createGet(externalIdBundle, dataSource, dataProvider, dataField, dateRange);
     HistoricalTimeSeriesProviderGetResult result = getHistoricalTimeSeries(request);
-    return result.getTimeSeries().get(externalIdBundle);
+    return result.getResultMap().get(externalIdBundle);
   }
 
   @Override
@@ -64,7 +67,7 @@ public abstract class AbstractHistoricalTimeSeriesProvider implements Historical
     
     HistoricalTimeSeriesProviderGetRequest request = HistoricalTimeSeriesProviderGetRequest.createGetLatest(externalIdBundle, dataSource, dataProvider, dataField, dateRange);
     HistoricalTimeSeriesProviderGetResult result = getHistoricalTimeSeries(request);
-    LocalDateDoubleTimeSeries series = result.getTimeSeries().get(externalIdBundle);
+    LocalDateDoubleTimeSeries series = result.getResultMap().get(externalIdBundle);
     if (series == null || series.isEmpty()) {
       return null;
     }
@@ -77,7 +80,7 @@ public abstract class AbstractHistoricalTimeSeriesProvider implements Historical
     
     HistoricalTimeSeriesProviderGetRequest request = HistoricalTimeSeriesProviderGetRequest.createGetBulk(externalIdBundleSet, dataSource, dataProvider, dataField, dateRange);
     HistoricalTimeSeriesProviderGetResult result = getHistoricalTimeSeries(request);
-    return result.getTimeSeries();
+    return result.getResultMap();
   }
 
   //-------------------------------------------------------------------------
@@ -101,22 +104,18 @@ public abstract class AbstractHistoricalTimeSeriesProvider implements Historical
     }
     
     // get time-series
-    return doBulkGet(request.getExternalIdBundles(), request.getDataProvider(),
-        request.getDataField(), dateRange, request.isLatestValueOnly());
+    return doBulkGet(request);
   }
 
   /**
    * Gets the time-series.
+   * <p>
+   * The data source is checked before this method is invoked.
    * 
-   * @param externalIdBundleSet  a set containing an identifier bundle for each time-series required, not null
-   * @param dataProvider  the data provider, not null
-   * @param dataField  the data field, not null
-   * @param dateRange  the date range to obtain, not null
-   * @param isLatestOnly  true to get the l
-   * @return a map of each supplied identifier bundle to the corresponding time-series, not null
+   * @param request  the request, with a non-empty set of identifiers, not null
+   * @return the result, not null
    */
-  protected abstract HistoricalTimeSeriesProviderGetResult doBulkGet(
-      Set<ExternalIdBundle> externalIdBundleSet, String dataProvider, String dataField, LocalDateRange dateRange, boolean isLatestOnly);
+  protected abstract HistoricalTimeSeriesProviderGetResult doBulkGet(HistoricalTimeSeriesProviderGetRequest request);
 
   //-------------------------------------------------------------------------
   /**
@@ -132,7 +131,7 @@ public abstract class AbstractHistoricalTimeSeriesProvider implements Historical
   protected HistoricalTimeSeriesProviderGetResult filterBulkDates(
       HistoricalTimeSeriesProviderGetResult result, LocalDateRange dateRange, boolean isLatestOnly) {
     
-    for (Map.Entry<ExternalIdBundle, LocalDateDoubleTimeSeries> entry : result.getTimeSeries().entrySet()) {
+    for (Map.Entry<ExternalIdBundle, LocalDateDoubleTimeSeries> entry : result.getResultMap().entrySet()) {
       entry.setValue(entry.getValue().subSeries(dateRange.getStartDateInclusive(), dateRange.getEndDateExclusive()));
       if (isLatestOnly && entry.getValue().size() > 0) {
         LocalDate date = entry.getValue().getLatestTime();

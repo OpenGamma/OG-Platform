@@ -19,8 +19,8 @@ import com.opengamma.util.tuple.Pair;
 /**
  * A provider of daily historical time-series.
  * <p>
- * The interface is implemented to access data provider of daily time-series information.
- * For example, major data providers provide historical time-series data, such as
+ * This provides access to a data source for daily time-series information.
+ * For example, major data sources provide historical time-series data, such as
  * the closing price or volume traded each day for an equity.
  * <p>
  * This interface has a minimal and simple API designed to be easy to implement on top
@@ -33,8 +33,10 @@ import com.opengamma.util.tuple.Pair;
 public interface HistoricalTimeSeriesProvider {
 
   /**
-   * Finds a time-series from identifierBundle, source, provider and field checking
-   * the validity of the identifierBundle by date.
+   * Gets a time-series from the underlying data source.
+   * <p>
+   * The time-series is specified by external identifier bundle.
+   * The other parameters restrict and validate the search.
    * <p>
    * This returns a subset of the data points filtered by the dates provided and limited to the 
    * specified maximum number of points:
@@ -47,13 +49,17 @@ public interface HistoricalTimeSeriesProvider {
    * @param dataField  the dataField, not null
    * @param dateRange  the date range to obtain, not null
    * @return the historical time-series, null if not found
+   * @throws RuntimeException if a problem occurs
    */
   LocalDateDoubleTimeSeries getHistoricalTimeSeries(
       ExternalIdBundle externalIdBundle,
       String dataSource, String dataProvider, String dataField, LocalDateRange dateRange);
 
   /**
-   * Returns the latest data point from the specified date range in the time series.
+   * Gets the latest data point from the underlying data source.
+   * <p>
+   * The time-series is specified by external identifier bundle.
+   * The other parameters restrict and validate the search.
    * 
    * @param externalIdBundle  the identifier bundle, not null
    * @param dataSource  the data source, not null
@@ -61,16 +67,20 @@ public interface HistoricalTimeSeriesProvider {
    * @param dataField  the dataField, not null
    * @param dateRange  the date range to obtain, not null
    * @return a pair containing the latest data point value and its date, null if not found
+   * @throws RuntimeException if a problem occurs
    */
   Pair<LocalDate, Double> getLatestDataPoint(
       ExternalIdBundle externalIdBundle,
       String dataSource, String dataProvider, String dataField, LocalDateRange dateRange);
 
   /**
-   * Finds multiple time-series for the same source, provider and field, with all data
-   * points between start and end date. 
+   * Gets multiple time-series from the underlying data source.
    * <p>
-   * This returns a subset of the data points filtered by the dates provided.
+   * The time-series are specified by external identifier bundles.
+   * The other parameters restrict and validate the search.
+   * <p>
+   * The result is keyed by the input bundles.
+   * A missing entry in the result occurs if the time-series information could not be found
    * 
    * @param externalIdBundleSet  a set containing an identifier bundle for each time-series required, not null
    * @param dataSource  the data source, not null
@@ -78,19 +88,21 @@ public interface HistoricalTimeSeriesProvider {
    * @param dataField  the data field, not null
    * @param dateRange  the date range to obtain, not null
    * @return a map of each supplied identifier bundle to the corresponding time-series, not null
+   * @throws RuntimeException if a problem occurs
    */
   Map<ExternalIdBundle, LocalDateDoubleTimeSeries> getHistoricalTimeSeries(
       Set<ExternalIdBundle> externalIdBundleSet,
       String dataSource, String dataProvider, String dataField, LocalDateRange dateRange);
 
   /**
-   * Gets one or more historical time-series from the data source.
+   * Gets one or more time-series from the underlying data source.
    * <p>
    * This is the underlying operation.
    * All other methods delegate to this one.
    * 
    * @param request  the request, not null
-   * @return the historical time-series result, null if not found
+   * @return the historical time-series result, not null
+   * @throws RuntimeException if a problem occurs
    */
   HistoricalTimeSeriesProviderGetResult getHistoricalTimeSeries(HistoricalTimeSeriesProviderGetRequest request);
 

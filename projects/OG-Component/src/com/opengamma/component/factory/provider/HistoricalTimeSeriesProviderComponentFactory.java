@@ -28,7 +28,8 @@ import com.opengamma.financial.provider.historicaltimeseries.impl.NoneFoundHisto
 import com.opengamma.financial.provider.historicaltimeseries.impl.RemoteHistoricalTimeSeriesProvider;
 
 /**
- * Component factory for the {@link HistoricalTimeSeriesProvider}.
+ * Component factory for the time-series provider.
+ * <p>
  * This implementation uses {@link NoneFoundHistoricalTimeSeriesProvider} and is intended
  * to be subclassed.
  */

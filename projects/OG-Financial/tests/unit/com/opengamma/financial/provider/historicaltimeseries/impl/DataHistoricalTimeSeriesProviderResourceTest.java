@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.provider.historicaltimeseries;
+package com.opengamma.financial.provider.historicaltimeseries.impl;
 
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
@@ -19,6 +19,9 @@ import javax.ws.rs.core.UriInfo;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
+import com.opengamma.financial.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetRequest;
+import com.opengamma.financial.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetResult;
 import com.opengamma.financial.provider.historicaltimeseries.impl.DataHistoricalTimeSeriesProviderResource;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.time.LocalDateRange;

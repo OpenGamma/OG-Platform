@@ -40,6 +40,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.referencedata.statistics.BloombergReferenceDataStatistics;
 import com.opengamma.bbg.util.BloombergDomainIdentifierResolver;
+import com.opengamma.financial.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetRequest;
 import com.opengamma.financial.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetResult;
 import com.opengamma.financial.provider.historicaltimeseries.impl.AbstractHistoricalTimeSeriesProvider;
 import com.opengamma.id.ExternalId;
@@ -90,12 +91,11 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
 
   //-------------------------------------------------------------------------
   @Override
-  protected HistoricalTimeSeriesProviderGetResult doBulkGet(
-      Set<ExternalIdBundle> externalIdBundleSet, String dataProvider, String dataField, LocalDateRange dateRange, boolean isLatestOnly) {
-    
-    Map<ExternalIdBundle, LocalDateDoubleTimeSeries> map = _impl.doBulkGet(externalIdBundleSet, dataProvider, dataField, dateRange);
+  protected HistoricalTimeSeriesProviderGetResult doBulkGet(HistoricalTimeSeriesProviderGetRequest request) {
+    Map<ExternalIdBundle, LocalDateDoubleTimeSeries> map = _impl.doBulkGet(
+        request.getExternalIdBundles(), request.getDataProvider(), request.getDataField(), request.getDateRange());
     HistoricalTimeSeriesProviderGetResult result = new HistoricalTimeSeriesProviderGetResult(map);
-    return filterBulkDates(result, dateRange, isLatestOnly);
+    return filterBulkDates(result, request.getDateRange(), request.isLatestValueOnly());
   }
 
   //-------------------------------------------------------------------------

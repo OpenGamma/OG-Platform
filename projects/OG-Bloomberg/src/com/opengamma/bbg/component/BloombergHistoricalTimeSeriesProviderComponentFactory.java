@@ -20,10 +20,9 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.BloombergHistoricalTimeSeriesProvider;
 import com.opengamma.component.factory.provider.HistoricalTimeSeriesProviderComponentFactory;
-import com.opengamma.financial.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
 
 /**
- * Component factory for the Bloomberg HTS provider, a {@link HistoricalTimeSeriesProvider} calling Bloomberg. 
+ * Component factory for the Bloomberg time-series provider.
  */
 @BeanDefinition
 public class BloombergHistoricalTimeSeriesProviderComponentFactory extends HistoricalTimeSeriesProviderComponentFactory {
