@@ -74,6 +74,10 @@ public final class ValueRequirementNames {
    */
   public static final String SPOT_RATE = "SpotRate";
   /**
+   * The spot rate for an FX option
+   */
+  public static final String SPOT_RATE_FOR_SECURITY = "Spot Rate For Security";
+  /**
    * The market price of the security underlying a trade or position.
    */
   public static final String SECURITY_MARKET_PRICE = "Security Market Price";
