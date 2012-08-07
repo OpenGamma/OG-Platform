@@ -939,8 +939,10 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         "USD", "DefaultTwoCurveUSDConfig", "Discounting", "CHF", "DefaultTwoCurveCHFConfig", "Discounting", "TULLETT",        
         "USD", "DefaultTwoCurveUSDConfig", "Discounting", "MXN", "DefaultCashCurveMXNConfig", "Cash", "TULLETT",        
         "USD", "DefaultTwoCurveUSDConfig", "Discounting", "JPY", "DefaultTwoCurveJPYConfig", "Discounting", "TULLETT",
+        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "GBP", "DefaultTwoCurveGBPConfig", "Discounting", "TULLETT",
         "USD", "DefaultTwoCurveUSDConfig", "Discounting", "NZD", "DefaultTwoCurveNZDConfig", "Discounting", "TULLETT",
-        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "HUF", "DefaultCashCurveHUFConfig", "Cash", "TULLETT",        
+        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "HUF", "DefaultCashCurveHUFConfig", "Cash", "TULLETT",
+        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "KRW", "DefaultCashCurveKRWConfig", "Cash", "TULLETT",        
         "USD", "DefaultTwoCurveUSDConfig", "Discounting", "BRL", "DefaultCashCurveBRLConfig", "Cash", "TULLETT"));
   }
 
