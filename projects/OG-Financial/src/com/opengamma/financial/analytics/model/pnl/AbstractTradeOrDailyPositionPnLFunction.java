@@ -16,7 +16,6 @@ import javax.time.calendar.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.position.PositionOrTrade;
@@ -29,6 +28,7 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -119,13 +119,15 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
     return Sets.newHashSet(result);
   }
 
-  private double getCostOfCarry(final Security security, LocalDate tradeDate, final HistoricalTimeSeries costOfCarry) {
-    final Double histCost = costOfCarry.getTimeSeries().getValue(tradeDate);
-    if (histCost == null) {
-      return 0.0d;
-    } else {
-      return histCost;
+  private double getCostOfCarry(final Security security, LocalDate tradeDate, final HistoricalTimeSeries costOfCarryTS) {
+    double result = 0.0d;
+    if (costOfCarryTS != null) {
+      final Double histCost = costOfCarryTS.getTimeSeries().getValue(tradeDate);
+      if (histCost != null) {
+        result = histCost;
+      } 
     }
+    return result;
   }
 
   @Override
@@ -139,10 +141,19 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
     final DateConstraint endDate = getTimeSeriesEndDate(positionOrTrade);
     final ValueRequirement markToMarketValue = getMarkToMarketSeriesRequirement(resolver, bundle, startDate, endDate);
     final ValueRequirement costOfCarryValue = getCostOfCarrySeriesRequirement(resolver, bundle, endDate);
-    if ((markToMarketValue == null) || (costOfCarryValue == null)) {
+    
+    if (markToMarketValue == null && costOfCarryValue == null) {
       return null;
     }
-    return ImmutableSet.of(securityValue, markToMarketValue, costOfCarryValue);
+    
+    final Set<ValueRequirement> requirements = Sets.newHashSet(securityValue);
+    if (markToMarketValue != null) {
+      requirements.add(markToMarketValue);
+    }
+    if (costOfCarryValue != null) {
+      requirements.add(costOfCarryValue);
+    }
+    return requirements;
   }
 
   protected ValueProperties getCurrencyProperty(Security security) {
@@ -205,9 +216,15 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
         }
       }
     }
-    return Collections.singleton(new ValueSpecification(getResultValueRequirementName(), target.toSpecification(), createValueProperties(target)
-        .with("MarkToMarketTimeSeries", uidMarkToMarket.toString())
-        .with("CostOfCarryTimeSeries", uidCostOfCarry.toString()).get()));
+    
+    Builder propertiesBuilder = createValueProperties(target);
+    if (uidMarkToMarket != null) {
+      propertiesBuilder.with("MarkToMarketTimeSeries", uidMarkToMarket.toString());
+    }
+    if (uidCostOfCarry != null) {
+      propertiesBuilder.with("CostOfCarryTimeSeries",  uidCostOfCarry.toString());
+    }
+    return Collections.singleton(new ValueSpecification(getResultValueRequirementName(), target.toSpecification(), propertiesBuilder.get()));
   }
 
 }
