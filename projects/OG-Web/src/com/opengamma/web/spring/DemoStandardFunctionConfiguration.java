@@ -173,11 +173,13 @@ import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackI
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackPV01Function;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackPresentValueCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackPresentValueFunction;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackTermStructureCurrencyExposureFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackVannaFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackVegaFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackVegaMatrixFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackVegaQuoteMatrixFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackVommaFunction;
+import com.opengamma.financial.analytics.model.forex.option.black.BloombergFXOptionSpotRateFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackCurrencyExposureFunctionDeprecated;
 import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackPV01FunctionDeprecated;
 import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackPresentValueCurveSensitivityFunctionDeprecated;
@@ -595,6 +597,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 
     addScalingFunction(functionConfigs, ValueRequirementNames.FAIR_VALUE);
 
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.SPOT_RATE_FOR_SECURITY);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.DELTA);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.DELTA_BLEED);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.STRIKE_DELTA);
@@ -909,6 +912,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 
   private static void addForexOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(BloombergForexSpotRateMarketDataFunction.class));
+    functionConfigs.add(functionConfiguration(BloombergFXOptionSpotRateFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackFXPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackCurrencyExposureFunction.class));
@@ -922,6 +926,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(FXOptionBlackPresentValueCurveSensitivityFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackPV01Function.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackImpliedVolatilityFunction.class));
+    functionConfigs.add(functionConfiguration(FXOptionBlackTermStructureCurrencyExposureFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackDefaults.class, PriorityClass.ABOVE_NORMAL.name(), DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR, LINEAR_EXTRAPOLATOR,
         "USD", "DefaultTwoCurveUSDConfig", "Discounting", "EUR", "DefaultTwoCurveEURConfig", "Discounting", "DEFAULT",
         "USD", "DefaultTwoCurveUSDConfig", "Discounting", "CAD", "DefaultTwoCurveCADConfig", "Discounting", "DEFAULT"));
