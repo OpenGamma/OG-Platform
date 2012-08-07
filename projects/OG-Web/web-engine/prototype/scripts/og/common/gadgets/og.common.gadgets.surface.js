@@ -465,19 +465,7 @@ $.register_module({
                     /**
                      * update resize bars
                      */
-                    (function () {
-                        var vertices, bar_lbl = axis + '_bar',
-                            lx = slice['lft_' + axis + '_handle'].position[axis],
-                            rx = slice['rgt_' + axis + '_handle'].position[axis];
-                        surface_bottom_group.remove(slice[bar_lbl]);
-                        slice[bar_lbl] = new SliceBar(axis);
-                        vertices = slice[bar_lbl].geometry.vertices;
-                        vertices[0].x = vertices[1].x = vertices[2].x = vertices[3].x = Math.max.apply(null, [lx, rx]);
-                        vertices[4].x = vertices[5].x = vertices[6].x = vertices[7].x = Math.min.apply(null, [lx, rx]);
-                        if (!(Math.abs(lx) + Math.abs(rx) === settings['surface_' + axis])) // change color
-                            slice[bar_lbl].material = matlib.get_material('phong', settings.slice_bar_color_active);
-                        surface_bottom_group.add(slice[bar_lbl]);
-                    }());
+                    slice.create_slice_bar(axis);
                 });
                 $selector.on('rotate_world', function () {
                     var dx = mouse_x - sx, dy = mouse_y - sy;
@@ -556,6 +544,7 @@ $.register_module({
             gadget.update = function () {
                 gadget.init_data();
                 animation_group.add(surface.create_surface());
+                slice.load();
             };
             /**
              * Loads 2D overlay display with form
@@ -704,26 +693,24 @@ $.register_module({
                 slice.z();
             };
             slice.reset_handle_material = function () {
-                slice.lft_x_handle.material = matlib.get_material('phong', settings.slice_handle_color);
-                slice.rgt_x_handle.material = matlib.get_material('phong', settings.slice_handle_color);
-                slice.lft_z_handle.material = matlib.get_material('phong', settings.slice_handle_color);
+                slice.lft_x_handle.material = slice.rgt_x_handle.material = slice.lft_z_handle.material =
                 slice.rgt_z_handle.material = matlib.get_material('phong', settings.slice_handle_color);
+            };
+            slice.create_slice_bar = function (axis) {
+                var vertices, bar_lbl = axis + '_bar',
+                    lx = slice['lft_' + axis + '_handle'].position[axis],
+                    rx = slice['rgt_' + axis + '_handle'].position[axis];
+                surface_bottom_group.remove(slice[bar_lbl]);
+                slice[bar_lbl] = new SliceBar(axis);
+                vertices = slice[bar_lbl].geometry.vertices;
+                vertices[0].x = vertices[1].x = vertices[2].x = vertices[3].x = Math.max.apply(null, [lx, rx]);
+                vertices[4].x = vertices[5].x = vertices[6].x = vertices[7].x = Math.min.apply(null, [lx, rx]);
+                if (!(Math.abs(lx) + Math.abs(rx) === settings['surface_' + axis])) // change color
+                    slice[bar_lbl].material = matlib.get_material('phong', settings.slice_bar_color_active);
+                surface_bottom_group.add(slice[bar_lbl]);
             };
             slice.x = function () {
                 var xpos = (settings.surface_x / 2), zpos = settings.surface_z / 2 + 1.5 + settings.axis_offset;
-                /**
-                 * handles
-                 */
-                slice.lft_x_handle = new Handle();
-                slice.lft_x_handle.position.x = -xpos;
-                slice.lft_x_handle.position.z = zpos;
-                slice.rgt_x_handle = new Handle();
-                slice.rgt_x_handle.position.x = xpos;
-                slice.rgt_x_handle.position.z = zpos;
-                surface_bottom_group.add(slice.lft_x_handle);
-                surface_bottom_group.add(slice.rgt_x_handle);
-                gadget.interactive_meshes.add('lft_x_handle', slice.lft_x_handle);
-                gadget.interactive_meshes.add('rgt_x_handle', slice.rgt_x_handle);
                 /**
                  * particle guide
                  * (dotted lines that guide the slice handles)
@@ -737,13 +724,39 @@ $.register_module({
                     surface_bottom_group.add(slice.x_particles);
                 }());
                 /**
+                 * handles
+                 */
+                slice.lft_x_handle = new Handle();
+                slice.lft_x_handle.position.x = -xpos;
+                slice.lft_x_handle.position.z = zpos;
+                slice.rgt_x_handle = new Handle();
+                slice.rgt_x_handle.position.x = xpos;
+                slice.rgt_x_handle.position.z = zpos;
+                surface_bottom_group.add(slice.lft_x_handle);
+                surface_bottom_group.add(slice.rgt_x_handle);
+                gadget.interactive_meshes.add('lft_x_handle', slice.lft_x_handle);
+                gadget.interactive_meshes.add('rgt_x_handle', slice.rgt_x_handle);
+                slice.lft_x_handle.position.x = slice.x_particles.geometry.vertices[slice.lft_x_handle_position].x;
+                slice.rgt_x_handle.position.x = slice.x_particles.geometry.vertices[slice.rgt_x_handle_position].x;
+                /**
                  * slice bar
                  */
-                slice.x_bar = new SliceBar('x');
-                surface_bottom_group.add(slice.x_bar);
+                slice.create_slice_bar('x');
             };
             slice.z = function () {
                 var xpos = (settings.surface_x / 2) + 1.5 + settings.axis_offset, zpos = settings.surface_z / 2;
+                /**
+                 * particle guide
+                 * (dotted lines that guide the slice handles)
+                 */
+                (function () {
+                    var geo = new THREE.Geometry(), num_vertices = adjusted_zs.length;
+                    while (num_vertices--) geo.vertices.push(new THREE.Vector3(adjusted_zs[num_vertices], 0, 0));
+                    slice.z_particles = new THREE.ParticleSystem(geo, matlib.get_material('particles'));
+                    slice.z_particles.rotation.y = -Math.PI * 0.5;
+                    slice.z_particles.position.x = -xpos;
+                    surface_bottom_group.add(slice.z_particles);
+                }());
                 /**
                  * handles
                  */
@@ -759,23 +772,12 @@ $.register_module({
                 surface_bottom_group.add(slice.rgt_z_handle);
                 gadget.interactive_meshes.add('lft_z_handle', slice.lft_z_handle);
                 gadget.interactive_meshes.add('rgt_z_handle', slice.rgt_z_handle);
-                /**
-                 * particle guide
-                 * (dotted lines that guide the slice handles)
-                 */
-                (function () {
-                    var geo = new THREE.Geometry(), num_vertices = adjusted_zs.length;
-                    while (num_vertices--) geo.vertices.push(new THREE.Vector3(adjusted_zs[num_vertices], 0, 0));
-                    slice.z_particles = new THREE.ParticleSystem(geo, matlib.get_material('particles'));
-                    slice.z_particles.rotation.y = -Math.PI * 0.5;
-                    slice.z_particles.position.x = -xpos;
-                    surface_bottom_group.add(slice.z_particles);
-                }());
+                slice.lft_z_handle.position.z = slice.z_particles.geometry.vertices[slice.lft_z_handle_position].x;
+                slice.rgt_z_handle.position.z = slice.z_particles.geometry.vertices[slice.rgt_z_handle_position].x;
                 /**
                  * slice bar
                  */
-                slice.z_bar = new SliceBar('z');
-                surface_bottom_group.add(slice.z_bar);
+                slice.create_slice_bar('z');
             };
             /**
              * Create x smile plane and axis
