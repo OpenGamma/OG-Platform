@@ -5,15 +5,11 @@
  */
 package com.opengamma.master.config.impl;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.testng.AssertJUnit.assertSame;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertSame;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.time.Instant;
 
@@ -24,15 +20,13 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.Lists;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.ObjectId;
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigDocument;
-import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.util.ehcache.EHCacheUtils;
-import com.opengamma.util.paging.PagingRequest;
 
 /**
  * Test {@link EHCachingMasterConfigSource}.
@@ -43,16 +37,14 @@ public class EHCachingMasterConfigSourceTest {
   private static final VersionCorrection VC = VersionCorrection.LATEST;
   private static final ExternalId CONFIG = ExternalId.of ("Test", "sec1");
   private static final String CONFIG_NAME = "Test";
-  private static final UniqueId UID = UniqueId.of("A", "B");
-  private static final ObjectId OID = ObjectId.of("A", "B");
   
-  private ConfigMaster _underlyingConfigMaster;
+  private UnitTestConfigMaster _underlyingConfigMaster;
   private EHCachingMasterConfigSource _cachingSource;
   
   private static final ConfigDocument<ExternalId> DOC;
   static {
     ConfigDocument<ExternalId> doc = new ConfigDocument<ExternalId>(ExternalId.class);
-    doc.setName("Test");
+    doc.setName(CONFIG_NAME);
     doc.setValue(CONFIG);
     DOC = doc;
   }
@@ -60,75 +52,89 @@ public class EHCachingMasterConfigSourceTest {
   @BeforeMethod
   public void setUp() throws Exception {
     EHCacheUtils.clearAll();
-    _underlyingConfigMaster = mock(ConfigMaster.class);
+    _underlyingConfigMaster = new UnitTestConfigMaster();
     CacheManager cm = EHCacheUtils.createCacheManager();
     _cachingSource = new EHCachingMasterConfigSource(_underlyingConfigMaster, cm);
   }
 
   public void getConfig_uniqueId() {
-    when(_underlyingConfigMaster.get(UID, ExternalId.class)).thenReturn(DOC);
-    assertSame(_cachingSource.getConfig(ExternalId.class, UID), CONFIG);
-    assertSame(_cachingSource.getConfig(ExternalId.class, UID), CONFIG);
-    verify(_underlyingConfigMaster, times(1)).get(UID, ExternalId.class);
+    UniqueId uniqueId = _underlyingConfigMaster.add(DOC).getUniqueId();
+    assertSame(_cachingSource.getConfig(ExternalId.class, uniqueId), CONFIG);
+    assertSame(_cachingSource.getConfig(ExternalId.class, uniqueId), CONFIG);
+    assertEquals(1, _underlyingConfigMaster.getCounter().get());
   }
   
   public void getConfig_objectId() {
-    when(_underlyingConfigMaster.get(OID, VC, ExternalId.class)).thenReturn(DOC);
-    assertSame(_cachingSource.getConfig(ExternalId.class, OID, VC), CONFIG);
-    assertSame(_cachingSource.getConfig(ExternalId.class, OID, VC), CONFIG);
-    verify(_underlyingConfigMaster, times(1)).get(OID, VC, ExternalId.class);
+    UniqueId uniqueId = _underlyingConfigMaster.add(DOC).getUniqueId();
+    assertSame(_cachingSource.getConfig(ExternalId.class, uniqueId.getObjectId(), VC), CONFIG);
+    assertSame(_cachingSource.getConfig(ExternalId.class, uniqueId.getObjectId(), VC), CONFIG);
+    assertEquals(2, _underlyingConfigMaster.getCounter().get());
   }
   
   public void getByName() {
     final Instant versionAsOf = Instant.now();
-    
-    ConfigSearchRequest<ExternalId> request = new ConfigSearchRequest<ExternalId>();
-    request.setPagingRequest(PagingRequest.ONE);
-    request.setVersionCorrection(VersionCorrection.ofVersionAsOf(versionAsOf));
-    request.setName(CONFIG_NAME);
-    request.setType(ExternalId.class);
-     
-    ConfigSearchResult<ExternalId> searchResult = new ConfigSearchResult<ExternalId>(Collections.singletonList(DOC));
-    
-    when(_underlyingConfigMaster.search(request)).thenReturn(searchResult);
+    _underlyingConfigMaster.add(DOC);
     assertSame(_cachingSource.getByName(ExternalId.class, CONFIG_NAME, versionAsOf), CONFIG);
     assertSame(_cachingSource.getByName(ExternalId.class, CONFIG_NAME, versionAsOf), CONFIG);
-    verify(_underlyingConfigMaster, times(1)).search(request);
+    assertEquals(1, _underlyingConfigMaster.getCounter().get());
   }
   
   public void getLatestByName() {
-    
-    ConfigSearchRequest<ExternalId> request = new ConfigSearchRequest<ExternalId>();
-    request.setPagingRequest(PagingRequest.ONE);
-    request.setVersionCorrection(VersionCorrection.ofVersionAsOf(null));
-    request.setName(CONFIG_NAME);
-    request.setType(ExternalId.class);
-        
-    ConfigSearchResult<ExternalId> searchResult = new ConfigSearchResult<ExternalId>(Collections.singletonList(DOC));
-    
-    when(_underlyingConfigMaster.search(request)).thenReturn(searchResult);
+    _underlyingConfigMaster.add(DOC);
     assertSame(_cachingSource.getLatestByName(ExternalId.class, CONFIG_NAME), CONFIG);
     assertSame(_cachingSource.getLatestByName(ExternalId.class, CONFIG_NAME), CONFIG);
-    verify(_underlyingConfigMaster, times(1)).search(request);
+    assertEquals(1, _underlyingConfigMaster.getCounter().get());
+  }
+
+  public void getConfigs() {
+    final Collection<ExternalId> configs = Lists.newArrayList(CONFIG, CONFIG);
+    _underlyingConfigMaster.add(DOC);
+    _underlyingConfigMaster.add(DOC);
+    
+    assertEquals(configs, _cachingSource.getConfigs(ExternalId.class, CONFIG_NAME, VC));
+    assertEquals(configs, _cachingSource.getConfigs(ExternalId.class, CONFIG_NAME, VC));
+    assertEquals(1, _underlyingConfigMaster.getCounter().get());
   }
   
-  @SuppressWarnings("unchecked")
-  public void getConfigs() {
+  public void getLatestByNameAfterUpdate() {
+    ConfigDocument<ExternalId> addedDoc = _underlyingConfigMaster.add(DOC);
+    assertSame(_cachingSource.getLatestByName(ExternalId.class, CONFIG_NAME), CONFIG);
+    assertSame(_cachingSource.getLatestByName(ExternalId.class, CONFIG_NAME), CONFIG);
+    assertEquals(1, _underlyingConfigMaster.getCounter().get());
     
-    final Collection<ExternalId> configs = Lists.newArrayList(CONFIG, CONFIG);
+    final ExternalId lastestConfig = ExternalId.of ("Test", "sec1");
+    addedDoc.setValue(lastestConfig);
+    _underlyingConfigMaster.update(addedDoc);
+    assertSame(_cachingSource.getLatestByName(ExternalId.class, CONFIG_NAME), lastestConfig);
+    assertSame(_cachingSource.getLatestByName(ExternalId.class, CONFIG_NAME), lastestConfig);
+    assertEquals(2, _underlyingConfigMaster.getCounter().get());
+  }
+  
+  private static class UnitTestConfigMaster extends InMemoryConfigMaster {
     
-    ConfigSearchRequest<ExternalId> request = new ConfigSearchRequest<ExternalId>();
-    request.setVersionCorrection(VC);
-    request.setName(CONFIG_NAME);
-    request.setType(ExternalId.class);
-    
-    ConfigSearchResult<ExternalId> searchResult = new ConfigSearchResult<ExternalId>();
-    searchResult.setDocuments(Lists.newArrayList(DOC, DOC));
-    
-    when(_underlyingConfigMaster.search(request)).thenReturn(searchResult);
-    assertEquals(configs, _cachingSource.getConfigs(ExternalId.class, CONFIG_NAME, VC));
-    assertEquals(configs, _cachingSource.getConfigs(ExternalId.class, CONFIG_NAME, VC));
-    verify(_underlyingConfigMaster, times(1)).search(request);
+    private AtomicLong _counter = new AtomicLong(0);
+
+    public AtomicLong getCounter() {
+      return _counter;
+    }
+
+    @Override
+    public ConfigDocument<?> get(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+      _counter.getAndIncrement();
+      return super.get(objectId, versionCorrection);
+    }
+
+    @Override
+    public <T> ConfigDocument<T> get(ObjectIdentifiable objectId, VersionCorrection versionCorrection, Class<T> clazz) {
+      _counter.getAndIncrement();
+      return super.get(objectId, versionCorrection, clazz);
+    }
+
+    @Override
+    public <T> ConfigSearchResult<T> search(ConfigSearchRequest<T> request) {
+      _counter.getAndIncrement();
+      return super.search(request);
+    }   
   }
   
 }
