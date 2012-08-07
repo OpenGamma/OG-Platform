@@ -49,11 +49,11 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public class ForexDigitalOptionCallSpreadBlackConstantSpreadThetaFunction extends FXDigitalCallSpreadBlackMultiValuedFunction {
+public class FXDigitalOptionCallSpreadBlackConstantSpreadThetaFunction extends FXDigitalCallSpreadBlackMultiValuedFunction {
   private static final ForexSecurityConverter VISITOR = new ForexSecurityConverter();
   private static final int DAYS_TO_MOVE_FORWARD = 1; // TODO Add to Value Properties
 
-  public ForexDigitalOptionCallSpreadBlackConstantSpreadThetaFunction() {
+  public FXDigitalOptionCallSpreadBlackConstantSpreadThetaFunction() {
     super(ValueRequirementNames.VALUE_THETA);
   }
 

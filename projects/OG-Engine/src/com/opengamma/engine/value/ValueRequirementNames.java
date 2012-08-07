@@ -152,7 +152,11 @@ public final class ValueRequirementNames {
    * FX forward curve property metadata
    */
   public static final String FX_FORWARD_CURVE_SPEC = "FXForwardCurveSpec";
-
+  /**
+   * Currency pairs property metadata
+   */
+  public static final String CURRENCY_PAIRS = "CurrencyPairs";
+  
   ///// Surfaces
 
   /**
