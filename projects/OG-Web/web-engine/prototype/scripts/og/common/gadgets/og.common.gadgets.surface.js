@@ -282,15 +282,17 @@ $.register_module({
              * @return {THREE.Object3D}
              */
             var Tube = function (points, color) {
-                var object = new THREE.Object3D(), i = points.length - 1, line, tube, mesh;
-                while (i--) {
-                    line = new THREE.LineCurve3(points[i], points[i+1]);
-                    tube = new THREE.TubeGeometry(line, 1, 0.2, 4, false, false);
-                    mesh = new THREE.Mesh(tube, matlib.get_material('flat', color));
-                    mesh.matrixAutoUpdate = false;
-                    object.add(mesh);
-                }
-                return object;
+                    var group, line, tube, i = points.length - 1,
+                        merged = new THREE.Geometry(), material = matlib.get_material('flat', color);
+                    while (i--) {
+                        line = new THREE.LineCurve3(points[i], points[i+1]);
+                        tube = new THREE.TubeGeometry(line, 1, 0.2, 4, false, false);
+                        THREE.GeometryUtils.merge(merged, tube);
+                        merged.computeFaceNormals();
+                        group = new THREE.Mesh(merged, material);
+                        group.matrixAutoUpdate = false;
+                    }
+                return group;
             };
             /**
              * Tells the resize manager if the gadget is still alive
@@ -1008,17 +1010,21 @@ $.register_module({
                 // apply surface materials
                 plane.materials = matlib.get_material('compound_surface');
                 wire.materials = matlib.get_material('compound_surface_wire');
-                (function () { // clip
+                (function () { // clip/slice
                     var row, i, x, l,
-                        zmin = Math.abs(slice.rgt_z_handle_position - z_segments) * x_segments,
-                        zmax = Math.abs(slice.lft_z_handle_position - z_segments) * x_segments - 1,
-                        xmin = Math.abs(slice.lft_x_handle_position - x_segments),
-                        xmax = Math.abs(slice.rgt_x_handle_position - x_segments);
-                    for (i = 0, x = 0, row = 0, l = plane.faces.length; i < l; i ++, x++) {
+                        zlft = Math.abs(slice.lft_z_handle_position - z_segments) * x_segments,
+                        zrgt = Math.abs(slice.rgt_z_handle_position - z_segments) * x_segments,
+                        xlft = Math.abs(slice.lft_x_handle_position - x_segments),
+                        xrgt = Math.abs(slice.rgt_x_handle_position - x_segments),
+                        zmin = Math.min.apply(null, [zlft, zrgt]),
+                        zmax = Math.max.apply(null, [zlft, zrgt]),
+                        xmin = Math.min.apply(null, [xlft, xrgt]),
+                        xmax = Math.max.apply(null, [xlft, xrgt]);
+                    for (i = 0, x = 0, row = 0, l = plane.faces.length; i < l; i++, x++) {
                         var plane_face = plane.faces[i], wire_face = wire.faces[i];
                         if (x === x_segments) x = 0, row++;
                         if (
-                            (i < zmin) && (i > zmax) && // z slice
+                            (i < zmax) && (i > zmin - 1) && // z slice
                             (i > xmin + row * x_segments -1) && (i < xmax + row * x_segments)  // x slice
                         ) plane_face.materialIndex = wire_face.materialIndex = 1;
                         else plane_face.materialIndex = wire_face.materialIndex = 0;
@@ -1059,8 +1065,19 @@ $.register_module({
                     for (x = xfrom; x < xto; x++) xvertices.push(object.geometry.vertices[x]);
                     for (z = zfrom; z < zto; z += x_segments + 1) zvertices.push(object.geometry.vertices[z]);
                     hud.set_volatility(config.vol[index]);
-                    hover_group.add(new Tube(xvertices, color));
-                    hover_group.add(new Tube(zvertices, color));
+                    // surface lines
+                    (function () {
+                        var xlft = x_segments - slice.lft_x_handle_position,
+                            xrgt = x_segments - slice.rgt_x_handle_position,
+                            zlft = z_segments - slice.lft_z_handle_position,
+                            zrgt = z_segments - slice.rgt_z_handle_position,
+                            zmin = Math.min.apply(null, [zlft, zrgt]),
+                            zmax = Math.max.apply(null, [zlft, zrgt]),
+                            xmin = Math.min.apply(null, [xlft, xrgt]),
+                            xmax = Math.max.apply(null, [xlft, xrgt]);
+                        hover_group.add(new Tube(xvertices.slice(xmin, xmax + 1), color));
+                        hover_group.add(new Tube(zvertices.slice(zmin, zmax + 1), color));
+                    }());
                     // smile z, z and y lines
                     (function () {
                         var yvertices = [{x: 0, y: 0, z: vertex.z}, {x: 0, y: settings.surface_y, z: vertex.z}],
