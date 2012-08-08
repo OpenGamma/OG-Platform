@@ -12,7 +12,7 @@
     <constructor-arg ref="bbgHistoricalTimeSeriesSource" />
     <constructor-arg>
       <bean class="com.opengamma.bbg.BloombergIdentifierProvider">
-        <constructor-arg ref="bbgReferenceDataProvider"/>
+        <constructor-arg ref="bloombergReferenceDataProvider"/>
       </bean>
     </constructor-arg>
     <property name="positionMaster" ref="dbPositionMaster" />
