@@ -7,7 +7,7 @@ package com.opengamma.financial.analytics.model.horizon;
 
 import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues.PROPERTY_DAYS_TO_MOVE_FORWARD;
 import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues.PROPERTY_THETA_CALCULATION_METHOD;
-import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues.THETA_CONSTANT_SPREAD_FORWARD_CURVE;
+import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues.THETA_CONSTANT_SPREAD_YIELD_CURVES;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,7 +22,7 @@ import org.apache.commons.lang.NotImplementedException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.definition.ForexOptionVanillaDefinition;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
-import com.opengamma.analytics.financial.interestrate.ForwardCurveThetaCalculator;
+import com.opengamma.analytics.financial.horizon.YieldCurvesConstantSpreadThetaCalculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -54,10 +54,11 @@ import com.opengamma.util.tuple.Pair;
 /**
  *
  */
-public class FXOptionBlackForwardCurvesThetaFunction extends FXOptionBlackMultiValuedFunction {
+public class FXOptionBlackYieldCurvesConstantSpreadThetaFunction extends FXOptionBlackMultiValuedFunction {
+  private static final YieldCurvesConstantSpreadThetaCalculator CALCULATOR = YieldCurvesConstantSpreadThetaCalculator.getInstance();
   private static final ForexSecurityConverter VISITOR = new ForexSecurityConverter();
 
-  public FXOptionBlackForwardCurvesThetaFunction() {
+  public FXOptionBlackYieldCurvesConstantSpreadThetaFunction() {
     super(ValueRequirementNames.VALUE_THETA);
   }
 
@@ -118,9 +119,8 @@ public class FXOptionBlackForwardCurvesThetaFunction extends FXOptionBlackMultiV
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.VALUE_THETA, target.toSpecification(), properties.get());
     final YieldCurveBundle curvesWithFX = new YieldCurveBundle(fxMatrix, curveCurrency, yieldCurves.getCurvesMap());
     final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(curvesWithFX, smiles, Pair.of(ccy1, ccy2));
-    final ForwardCurveThetaCalculator calculator = ForwardCurveThetaCalculator.getInstance();
     final ForexOptionVanillaDefinition definition = (ForexOptionVanillaDefinition) security.accept(VISITOR);
-    final MultipleCurrencyAmount theta = calculator.getTheta(definition, now, allCurveNames, smileBundle, Integer.parseInt(daysForward));
+    final MultipleCurrencyAmount theta = CALCULATOR.getTheta(definition, now, allCurveNames, smileBundle, Integer.parseInt(daysForward));
     return Collections.singleton(new ComputedValue(spec, theta));
   }
 
@@ -150,7 +150,7 @@ public class FXOptionBlackForwardCurvesThetaFunction extends FXOptionBlackMultiV
   @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
     final ValueProperties.Builder properties = super.getResultProperties(target);
-    properties.with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD_FORWARD_CURVE)
+    properties.with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD_YIELD_CURVES)
               .withAny(PROPERTY_DAYS_TO_MOVE_FORWARD);
     return properties;
   }
@@ -159,7 +159,7 @@ public class FXOptionBlackForwardCurvesThetaFunction extends FXOptionBlackMultiV
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
     final String daysForward = desiredValue.getConstraint(PROPERTY_DAYS_TO_MOVE_FORWARD);
     final ValueProperties.Builder properties = super.getResultProperties(target, desiredValue);
-    properties.with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD_FORWARD_CURVE)
+    properties.with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD_YIELD_CURVES)
               .with(PROPERTY_DAYS_TO_MOVE_FORWARD, daysForward);
     return properties;
   }

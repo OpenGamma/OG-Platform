@@ -7,7 +7,7 @@ package com.opengamma.financial.analytics.model.horizon;
 
 import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues.PROPERTY_DAYS_TO_MOVE_FORWARD;
 import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues.PROPERTY_THETA_CALCULATION_METHOD;
-import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues.THETA_CONSTANT_SPREAD;
+import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues.THETA_FORWARD_SLIDE_VOLATILITY_SURFACE;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -20,11 +20,9 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.NotImplementedException;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackSmileForexCalculator;
-import com.opengamma.analytics.financial.forex.definition.ForexOptionDigitalDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexOptionVanillaDefinition;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
-import com.opengamma.analytics.financial.horizon.ConstantSpreadHorizonThetaCalculator;
+import com.opengamma.analytics.financial.horizon.VolatilitySurfaceForwardSlideCalculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -48,7 +46,6 @@ import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackMultiValuedFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
-import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -57,11 +54,11 @@ import com.opengamma.util.tuple.Pair;
 /**
  *
  */
-public class FXOptionBlackConstantSpreadThetaFunction extends FXOptionBlackMultiValuedFunction {
-  private static final ConstantSpreadHorizonThetaCalculator CALCULATOR = ConstantSpreadHorizonThetaCalculator.getInstance();
+public class FXOptionBlackVolatilitySurfaceForwardSlideThetaFunction extends FXOptionBlackMultiValuedFunction {
+  private static final VolatilitySurfaceForwardSlideCalculator CALCULATOR = VolatilitySurfaceForwardSlideCalculator.getInstance();
   private static final ForexSecurityConverter VISITOR = new ForexSecurityConverter();
 
-  public FXOptionBlackConstantSpreadThetaFunction() {
+  public FXOptionBlackVolatilitySurfaceForwardSlideThetaFunction() {
     super(ValueRequirementNames.VALUE_THETA);
   }
 
@@ -122,16 +119,9 @@ public class FXOptionBlackConstantSpreadThetaFunction extends FXOptionBlackMulti
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.VALUE_THETA, target.toSpecification(), properties.get());
     final YieldCurveBundle curvesWithFX = new YieldCurveBundle(fxMatrix, curveCurrency, yieldCurves.getCurvesMap());
     final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(curvesWithFX, smiles, Pair.of(ccy1, ccy2));
-    if (security instanceof FXOptionSecurity) {
-      final ForexOptionVanillaDefinition definition = (ForexOptionVanillaDefinition) security.accept(VISITOR);
-      final MultipleCurrencyAmount theta = CALCULATOR.getTheta(definition, now, allCurveNames, smileBundle, Integer.parseInt(daysForward));
-      return Collections.singleton(new ComputedValue(spec, theta));
-    } else if (security instanceof FXDigitalOptionSecurity) {
-      final ForexOptionDigitalDefinition definition = (ForexOptionDigitalDefinition) security.accept(VISITOR);
-      final MultipleCurrencyAmount theta = CALCULATOR.getTheta(definition, now, allCurveNames, smileBundle, PresentValueBlackSmileForexCalculator.getInstance(), Integer.parseInt(daysForward));
-      return Collections.singleton(new ComputedValue(spec, theta));
-    }
-    throw new OpenGammaRuntimeException("Should never get here; canApplyTo specifies vanilla and digital options only");
+    final ForexOptionVanillaDefinition definition = (ForexOptionVanillaDefinition) security.accept(VISITOR);
+    final MultipleCurrencyAmount theta = CALCULATOR.getTheta(definition, now, allCurveNames, smileBundle, Integer.parseInt(daysForward));
+    return Collections.singleton(new ComputedValue(spec, theta));
   }
 
   @Override
@@ -139,8 +129,7 @@ public class FXOptionBlackConstantSpreadThetaFunction extends FXOptionBlackMulti
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
-    return target.getSecurity() instanceof FXOptionSecurity
-        || target.getSecurity() instanceof FXDigitalOptionSecurity;
+    return target.getSecurity() instanceof FXOptionSecurity;
   }
 
   @Override
@@ -161,7 +150,7 @@ public class FXOptionBlackConstantSpreadThetaFunction extends FXOptionBlackMulti
   @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
     final ValueProperties.Builder properties = super.getResultProperties(target);
-    properties.with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD)
+    properties.with(PROPERTY_THETA_CALCULATION_METHOD, THETA_FORWARD_SLIDE_VOLATILITY_SURFACE)
               .withAny(PROPERTY_DAYS_TO_MOVE_FORWARD);
     return properties;
   }
@@ -170,8 +159,8 @@ public class FXOptionBlackConstantSpreadThetaFunction extends FXOptionBlackMulti
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
     final String daysForward = desiredValue.getConstraint(PROPERTY_DAYS_TO_MOVE_FORWARD);
     final ValueProperties.Builder properties = super.getResultProperties(target, desiredValue);
-    properties.with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD);
-    properties.with(PROPERTY_DAYS_TO_MOVE_FORWARD, daysForward);
+    properties.with(PROPERTY_THETA_CALCULATION_METHOD, THETA_FORWARD_SLIDE_VOLATILITY_SURFACE)
+              .with(PROPERTY_DAYS_TO_MOVE_FORWARD, daysForward);
     return properties;
   }
 }

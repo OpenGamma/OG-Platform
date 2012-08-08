@@ -14,15 +14,15 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public final class ConstantSpreadFXBlackRolldown implements RolldownFunction<SmileDeltaTermStructureDataBundle> {
+public final class ConstantSpreadFXOptionBlackRolldown implements RolldownFunction<SmileDeltaTermStructureDataBundle> {
   private static final ConstantSpreadYieldCurveBundleRolldownFunction CURVES_ROLLDOWN = ConstantSpreadYieldCurveBundleRolldownFunction.getInstance();
-  private static final ConstantSpreadFXBlackRolldown INSTANCE = new ConstantSpreadFXBlackRolldown();
+  private static final ConstantSpreadFXOptionBlackRolldown INSTANCE = new ConstantSpreadFXOptionBlackRolldown();
 
-  public static ConstantSpreadFXBlackRolldown getInstance() {
+  public static ConstantSpreadFXOptionBlackRolldown getInstance() {
     return INSTANCE;
   }
 
-  private ConstantSpreadFXBlackRolldown() {
+  private ConstantSpreadFXOptionBlackRolldown() {
   }
 
   @Override
