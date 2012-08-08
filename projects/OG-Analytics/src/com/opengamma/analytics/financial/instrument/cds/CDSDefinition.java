@@ -25,7 +25,7 @@ import com.opengamma.analytics.util.time.TimeCalculator;
  */
 public class CDSDefinition implements InstrumentDefinition<CDSDerivative> {
   
-  private final AnnuityCouponFixedDefinition _premium;
+  private final CDSPremiumDefinition _premium;
   private final AnnuityPaymentFixedDefinition _payout;
   
   private final ZonedDateTime _protectionStartDate;
@@ -35,9 +35,11 @@ public class CDSDefinition implements InstrumentDefinition<CDSDerivative> {
   private final double _spread;
   private final double _recoveryRate;
   
-  public CDSDefinition(AnnuityCouponFixedDefinition premium, AnnuityPaymentFixedDefinition payout,
+  private final boolean _accrualOnDefault;
+  
+  public CDSDefinition(CDSPremiumDefinition premium, AnnuityPaymentFixedDefinition payout,
     ZonedDateTime protectionStartDate, ZonedDateTime maturity,
-    double notional, double spread, double recoveryRate) {
+    double notional, double spread, double recoveryRate, boolean accrualOnDefault) {
     _premium = premium;
     _payout = payout;
     _protectionStartDate = protectionStartDate;
@@ -45,6 +47,7 @@ public class CDSDefinition implements InstrumentDefinition<CDSDerivative> {
     _notional = notional;
     _spread = spread;
     _recoveryRate = recoveryRate;
+    _accrualOnDefault = accrualOnDefault;
   }
 
   /**
@@ -72,7 +75,8 @@ public class CDSDefinition implements InstrumentDefinition<CDSDerivative> {
       TimeCalculator.getTimeBetween(pricingDate, _maturity),
       _notional,
       _spread,
-      _recoveryRate
+      _recoveryRate,
+      _accrualOnDefault
     );
   }
 

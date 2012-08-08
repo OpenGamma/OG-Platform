@@ -12,6 +12,7 @@ import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityPaymentFixedDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.cds.CDSDefinition;
+import com.opengamma.analytics.financial.instrument.cds.CDSPremiumDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
@@ -38,6 +39,9 @@ import com.opengamma.util.ArgumentChecker;
  * @see CDSDefinition
  */
 public class CDSSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
+  
+  static private boolean ACCRUAL_ON_DEFAULT = true;
+  static private boolean PROTECT_START = true;
   
   private final SecuritySource _securitySource;
   private final HolidaySource _holidaySource;
@@ -78,16 +82,12 @@ public class CDSSecurityConverter extends FinancialSecurityVisitorAdapter<Instru
     DayCount dayCount = conventionBundle.getDayCount();
     BusinessDayConvention convention = conventionBundle.getBusinessDayConvention();
     
-    // TODO: Is settlement date the same as first premium date?
-    final AnnuityCouponFixedDefinition premiumPayments = AnnuityCouponFixedDefinition.from(
-      cds.getCurrency(), cds.getProtectionStartDate(), cds.getMaturity(), cds.getPremiumFrequency(),
-      calendar, dayCount, convention, /* isEOM */ false,
-      cds.getNotional(), cds.getSpread(), /* isPayer */ false
-    );
+    final CDSPremiumDefinition premiumPayments = CDSPremiumDefinition.fromISDA(cds.getCurrency(), cds.getProtectionStartDate(), cds.getMaturity(), cds.getPremiumFrequency(),
+      calendar, dayCount, convention, cds.getNotional(), cds.getSpread(), PROTECT_START);
     
     final AnnuityPaymentFixedDefinition defaultPayments = cds.getUnderlying() != null ? possibleDefaultPayments(cds, bond, calendar, convention) : null;
     
-    return new CDSDefinition(premiumPayments, defaultPayments, cds.getProtectionStartDate(), cds.getMaturity(), cds.getNotional(), cds.getSpread(), cds.getRecoveryRate());
+    return new CDSDefinition(premiumPayments, defaultPayments, cds.getProtectionStartDate(), cds.getMaturity(), cds.getNotional(), cds.getSpread(), cds.getRecoveryRate(), ACCRUAL_ON_DEFAULT);
   }
   
   

@@ -26,17 +26,32 @@ public class CDSDerivative implements InstrumentDerivative {
   private final AnnuityCouponFixed _premium;
   private final AnnuityPaymentFixed _payout;
 
-  private final double _protectionStartTime;
+  private final double _cdsStartTime;
   private final double _maturity;
   
   private final double _notional;
   private final double _spread;
   private final double _recoveryRate;
+  private final boolean _accrualOnDefault;
 
+  /**
+   * 
+   * @param cdsCcyCurveName
+   * @param bondCcyCurveName
+   * @param spreadCurveName
+   * @param premium
+   * @param payout
+   * @param protectionStartTime
+   * @param maturity
+   * @param notional
+   * @param spread
+   * @param recoveryRate
+   * @param accrualOnDefault
+   */
   public CDSDerivative(final String cdsCcyCurveName, final String bondCcyCurveName, final String spreadCurveName,
     final AnnuityCouponFixed premium, final AnnuityPaymentFixed payout,
     final double protectionStartTime, final double maturity,
-    final double notional, final double spread, final double recoveryRate) {
+    final double notional, final double spread, final double recoveryRate, boolean accrualOnDefault) {
     _cdsCcyCurveName = cdsCcyCurveName;
     _bondCcyCurveName = bondCcyCurveName;
     _spreadCurveName = spreadCurveName;
@@ -44,12 +59,14 @@ public class CDSDerivative implements InstrumentDerivative {
     _premium = premium;
     _payout = payout;
     
-    _protectionStartTime = protectionStartTime;
+    _cdsStartTime = protectionStartTime;
     _maturity = maturity;
     
     _notional = notional;
     _spread = spread;
     _recoveryRate = recoveryRate;
+    
+    _accrualOnDefault = accrualOnDefault;
   }
 
   @Override
@@ -91,8 +108,8 @@ public class CDSDerivative implements InstrumentDerivative {
     return _payout;
   }
   
-  public double getProtectionStartTime() {
-    return _protectionStartTime;
+  public double getCDSStartTime() {
+    return _cdsStartTime;
   }
   
   public double getMaturity() {
@@ -109,6 +126,10 @@ public class CDSDerivative implements InstrumentDerivative {
   
   public double getRecoveryRate() {
     return _recoveryRate;
+  }
+
+  public boolean getAccrualOnDefault() {
+    return _accrualOnDefault;
   }
 
 }
