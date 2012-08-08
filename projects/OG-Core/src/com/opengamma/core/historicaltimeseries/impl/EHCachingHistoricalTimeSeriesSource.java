@@ -265,7 +265,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     Element element = _dataCache.get(key);
     HistoricalTimeSeries hts;
     if (element != null) {
-      hts = (HistoricalTimeSeries) element.getValue();
+      hts = (HistoricalTimeSeries) element.getObjectValue();
       if (MISS.equals(hts)) {
         hts = null;
       }
@@ -273,7 +273,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       // If we have the full series cached computing a sub-series could be faster
       Element fullHtsElement = _dataCache.get(uniqueId);
       if (fullHtsElement != null) {
-        hts = getSubSeries((HistoricalTimeSeries) fullHtsElement.getValue(), start, includeStart, end, includeEnd, maxPoints);
+        hts = getSubSeries((HistoricalTimeSeries) fullHtsElement.getObjectValue(), start, includeStart, end, includeEnd, maxPoints);
       } else {
         if (maxPoints == null) {
           hts = _underlying.getHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd);
@@ -400,7 +400,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     Element element = _dataCache.get(key);
     HistoricalTimeSeries hts;
     if (element != null) {
-      hts = (HistoricalTimeSeries) element.getValue();
+      hts = (HistoricalTimeSeries) element.getObjectValue();
       if (MISS.equals(hts)) {
         hts = null;
       }
@@ -408,7 +408,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       // If we have the full series cached computing a sub-series could be faster
       Element fullHtsElement = _dataCache.get(seriesKey);
       if (fullHtsElement != null) {
-        hts = getSubSeries((HistoricalTimeSeries) fullHtsElement.getValue(), start, includeStart, end, includeEnd, maxPoints);
+        hts = getSubSeries((HistoricalTimeSeries) fullHtsElement.getObjectValue(), start, includeStart, end, includeEnd, maxPoints);
       } else {
         if (maxPoints == null) {
           hts = _underlying.getHistoricalTimeSeries(identifiers, currentDate, dataSource, dataProvider, dataField, 
@@ -597,7 +597,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     Element element = _dataCache.get(key);
     HistoricalTimeSeries hts;
     if (element != null) {
-      hts = (HistoricalTimeSeries) element.getValue();
+      hts = (HistoricalTimeSeries) element.getObjectValue();
       if (MISS.equals(hts)) {
         hts = null;
       }
@@ -605,7 +605,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       // If we have the full series cached computing a sub-series could be faster
       Element fullHtsElement = _dataCache.get(seriesKey);
       if (fullHtsElement != null) {
-        hts = getSubSeries((HistoricalTimeSeries) fullHtsElement.getValue(), start, includeStart, end, includeEnd, maxPoints);
+        hts = getSubSeries((HistoricalTimeSeries) fullHtsElement.getObjectValue(), start, includeStart, end, includeEnd, maxPoints);
       } else {
         if (maxPoints == null) {
           hts = _underlying.getHistoricalTimeSeries(dataField, identifierBundle, identifierValidityDate, resolutionKey, start, includeStart, end, includeEnd);
@@ -684,7 +684,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       return null;
     }
     s_logger.debug("Cache hit on {}", key);
-    return (HistoricalTimeSeries) element.getValue();
+    return (HistoricalTimeSeries) element.getObjectValue();
   }
 
   /**
@@ -700,7 +700,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       return null;
     }
     s_logger.debug("Cache hit on {}", uniqueId);
-    return (HistoricalTimeSeries) element.getValue();
+    return (HistoricalTimeSeries) element.getObjectValue();
   }
 
   /**
@@ -755,7 +755,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       _identifierBundleCache.put(new Element(uniqueId, idBundle));
       return idBundle;
     } else {
-      return (ExternalIdBundle) idBundleCacheElement.getValue();
+      return (ExternalIdBundle) idBundleCacheElement.getObjectValue();
     }
   }
 
