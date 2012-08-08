@@ -53,6 +53,12 @@ public final class TodayPaymentCalculator extends AbstractInstrumentDerivativeVi
     return INSTANCE;
   }
 
+  /**
+   * Primary constructor
+   * Note on negative timeLimits: toDerivative functions often drop past payments so using this calculator with timeLimits < -1dy may have unexpected impacts.
+   * @param timeLimit the horizon in years, either positive (forward looking) or negative (backward looking) in which the calculator returns payment amounts
+   * @return the calculator
+   */
   public static TodayPaymentCalculator getInstance(final double timeLimit) {
     return new TodayPaymentCalculator(timeLimit);
   }
@@ -63,8 +69,16 @@ public final class TodayPaymentCalculator extends AbstractInstrumentDerivativeVi
    * Constructor.
    */
   private TodayPaymentCalculator(final double timeLimit) {
-    //ArgumentChecker.isTrue(timeLimit > 0, "Time limit must be greater than zero; have {}", timeLimit);
     _timeLimit = timeLimit;
+  }
+
+  /**
+   * // We wish to add payments if they occur within the time horizon, which may be forward, or backward, in time
+   * @param paymentTime the payment time in question
+   * @return true if the payment is to be counted as happening within the time limit / horizon
+   */
+  private boolean isWithinLimit(final double paymentTime) {
+    return (Math.abs(paymentTime) < Math.abs(_timeLimit) && _timeLimit * paymentTime >= 0);
   }
 
   @Override
@@ -77,10 +91,10 @@ public final class TodayPaymentCalculator extends AbstractInstrumentDerivativeVi
   public MultipleCurrencyAmount visitCash(final Cash deposit) {
     ArgumentChecker.notNull(deposit, "instrument");
     MultipleCurrencyAmount cash = MultipleCurrencyAmount.of(deposit.getCurrency(), 0.0);
-    if (deposit.getStartTime() < _timeLimit) {
+    if (isWithinLimit(deposit.getStartTime())) {
       cash = cash.plus(deposit.getCurrency(), -deposit.getInitialAmount());
     }
-    if (deposit.getEndTime() < _timeLimit) {
+    if (isWithinLimit(deposit.getEndTime())) {
       cash = cash.plus(deposit.getCurrency(), deposit.getNotional() + deposit.getInterestAmount());
     }
     return cash;
@@ -90,10 +104,10 @@ public final class TodayPaymentCalculator extends AbstractInstrumentDerivativeVi
   public MultipleCurrencyAmount visitDepositZero(final DepositZero deposit) {
     ArgumentChecker.notNull(deposit, "instrument");
     MultipleCurrencyAmount cash = MultipleCurrencyAmount.of(deposit.getCurrency(), 0.0);
-    if (deposit.getStartTime() < _timeLimit) {
+    if (isWithinLimit(deposit.getStartTime())) {
       cash = cash.plus(deposit.getCurrency(), -deposit.getInitialAmount());
     }
-    if (deposit.getEndTime() < _timeLimit) {
+    if (isWithinLimit(deposit.getEndTime())) {
       cash = cash.plus(deposit.getCurrency(), deposit.getNotional() + deposit.getInterestAmount());
     }
     return cash;
@@ -121,10 +135,7 @@ public final class TodayPaymentCalculator extends AbstractInstrumentDerivativeVi
   public MultipleCurrencyAmount visitCouponFixed(final CouponFixed payment) {
     ArgumentChecker.notNull(payment, "instrument");
     MultipleCurrencyAmount cash = MultipleCurrencyAmount.of(payment.getCurrency(), 0.0);
-    final double paymentTime = payment.getPaymentTime();
-    // We wish to add payments if they occur within the time horizon, which may be forward, or backward, in time
-
-    if (Math.abs(paymentTime) < Math.abs(_timeLimit) && _timeLimit * paymentTime >= 0) {
+    if (isWithinLimit(payment.getPaymentTime())) {
       cash = cash.plus(payment.getCurrency(), payment.getAmount());
     }
     return cash;
@@ -134,7 +145,7 @@ public final class TodayPaymentCalculator extends AbstractInstrumentDerivativeVi
   public MultipleCurrencyAmount visitFixedPayment(final PaymentFixed payment) {
     ArgumentChecker.notNull(payment, "instrument");
     MultipleCurrencyAmount cash = MultipleCurrencyAmount.of(payment.getCurrency(), 0.0);
-    if (payment.getPaymentTime() < _timeLimit) {
+    if (isWithinLimit(payment.getPaymentTime())) {
       cash = cash.plus(payment.getCurrency(), payment.getAmount());
     }
     return cash;
