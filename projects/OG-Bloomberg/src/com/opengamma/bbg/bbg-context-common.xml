@@ -18,8 +18,8 @@
 
   <bean id="standardBloombergConnector" class="com.opengamma.bbg.BloombergConnectorFactoryBean">
     <property name="name" value="Common" />
-    <property name="host" value="${bbgServer.host}" />
-    <property name="port" value="${bbgServer.port}" />
+    <property name="host" value="${bloomberg.host}" />
+    <property name="port" value="${bloomberg.port}" />
   </bean>
 
 </beans>
