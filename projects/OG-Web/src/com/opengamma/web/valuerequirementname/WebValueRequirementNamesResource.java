@@ -17,6 +17,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.opengamma.util.ArgumentChecker;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONStringer;
@@ -35,11 +36,17 @@ public class WebValueRequirementNamesResource extends AbstractWebResource {
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(WebValueRequirementNamesResource.class);
 
+
   /**
    * The value requirement names.
    */
-  private static final Set<String> s_valueRequirementNames;
-  static {
+  private final Set<String> _valueRequirementNames;
+
+  /**
+   * Creates the resource.
+   */
+
+  public WebValueRequirementNamesResource() {
     final List<String> list = new ArrayList<String>();
     for (Field field : ValueRequirementNames.class.getDeclaredFields()) {
       try {
@@ -49,13 +56,25 @@ public class WebValueRequirementNamesResource extends AbstractWebResource {
       }
     }
     Collections.sort(list, String.CASE_INSENSITIVE_ORDER);
-    s_valueRequirementNames = new LinkedHashSet<String>(list);
+    _valueRequirementNames = new LinkedHashSet<String>(list);
   }
 
-  /**
-   * Creates the resource.
-   */
-  public WebValueRequirementNamesResource() {
+  public WebValueRequirementNamesResource(String[] valueRequirementNameClasses) {
+    ArgumentChecker.notEmpty(valueRequirementNameClasses, "valueRequirementNameClasses");
+
+    final List<String> list = new ArrayList<String>();
+
+    for (String className : valueRequirementNameClasses) {
+      try {
+        for (Field field : Class.forName(className).getDeclaredFields()) {
+            list.add((String) field.get(null));
+        }
+      } catch (Exception e) {
+        // Ignore
+      }
+    }
+    Collections.sort(list, String.CASE_INSENSITIVE_ORDER);
+    _valueRequirementNames = new LinkedHashSet<String>(list);
   }
 
   //-------------------------------------------------------------------------
@@ -67,7 +86,7 @@ public class WebValueRequirementNamesResource extends AbstractWebResource {
       result = new JSONStringer()
           .object()
           .key("types")
-          .value(new JSONArray(s_valueRequirementNames))
+          .value(new JSONArray(_valueRequirementNames))
           .endObject()
           .toString();
     } catch (JSONException ex) {
