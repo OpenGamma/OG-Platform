@@ -22,7 +22,7 @@
 	</bean>
 
 	<!-- Caching Reference Data Provider -->
-  <bean id="mongoConnector" class="com.opengamma.util.mongo.MongoConnectorFactoryBean">
+  <bean id="bloombergRefDataMongoConnector" class="com.opengamma.util.mongo.MongoConnectorFactoryBean">
     <property name="name" value="BloombergReferenceData" />
     <property name="host" value="${mongoServer.host}" />
     <property name="port" value="${mongoServer.port}" /> 	
@@ -32,7 +32,7 @@
 
   <bean id="cachingRefProvider" class="com.opengamma.bbg.MongoDBCachingReferenceDataProvider">
     <constructor-arg ref="refDataProvider" />
-    <constructor-arg ref="mongoConnector" />
+    <constructor-arg ref="bloombergRefDataMongoConnector" />
   </bean>
 
 </beans>
