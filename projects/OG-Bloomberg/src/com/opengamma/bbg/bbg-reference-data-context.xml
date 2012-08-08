@@ -12,13 +12,6 @@
 
   <import resource="classpath:/com/opengamma/bbg/bbg-context-common.xml"/>
 
-  <bean id="mongoConnector" class="com.opengamma.util.mongo.MongoConnectorFactoryBean">
-    <property name="name" value="BloombergReferenceData" />
-    <property name="host" value="${opengamma.mongo.host}" />
-    <property name="port" value="${opengamma.mongo.port}" /> 	
-    <property name="databaseName" value="${opengamma.bloomberg.reference.database}" />
-  </bean>
-
   <bean id="bbgReferenceDataStatistics" class="com.opengamma.bbg.referencedata.statistics.DailyBloombergReferenceDataStatistics" />
   <bean id="bbgReferenceDataStatisticsMBean" class="com.opengamma.bbg.referencedata.statistics.DailyBloombergReferenceDataStatisticsMBean">
     <constructor-arg ref="bbgReferenceDataStatistics" />
@@ -28,10 +21,10 @@
     <constructor-arg>
       <bean class="com.opengamma.bbg.referencedata.cache.MongoDBPermanentErrorCachingReferenceDataProvider" init-method="start">
         <constructor-arg ref="standardBloombergConnector" />
-        <constructor-arg ref="mongoConnector"/>
+        <constructor-arg ref="bloombergRefDataMongoConnector"/>
         <constructor-arg ref="bbgReferenceDataStatistics" />
       </bean>
     </constructor-arg>
-    <constructor-arg ref="mongoConnector"/>
+    <constructor-arg ref="bloombergRefDataMongoConnector"/>
   </bean>
 </beans>

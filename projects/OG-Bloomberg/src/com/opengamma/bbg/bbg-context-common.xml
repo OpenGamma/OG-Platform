@@ -15,13 +15,4 @@
     <value>classpath:server.properties</value>
     </property>
   </bean>
-
-  <bean id="standardBloombergConnector" class="com.opengamma.bbg.BloombergConnectorFactoryBean">
-    <property name="name" value="Common" />
-    <property name="host" value="${bloomberg.host}" />
-    <property name="port" value="${bloomberg.port}" />
-  </bean>
-
 </beans>
-	
-	
