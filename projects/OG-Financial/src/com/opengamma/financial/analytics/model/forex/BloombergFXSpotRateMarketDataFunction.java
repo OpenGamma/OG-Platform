@@ -19,7 +19,7 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
 /**
  * 
  */
-public class BloombergForexSpotRateMarketDataFunction extends AbstractForexSpotRateMarketDataFunction {
+public class BloombergFXSpotRateMarketDataFunction extends AbstractForexSpotRateMarketDataFunction {
 
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {

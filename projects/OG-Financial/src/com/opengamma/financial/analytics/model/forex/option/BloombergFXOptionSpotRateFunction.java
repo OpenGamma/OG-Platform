@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.forex.option.black;
+package com.opengamma.financial.analytics.model.forex.option;
 
 import java.util.Collections;
 import java.util.Set;
@@ -37,9 +37,12 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
  *
  */
 public class BloombergFXOptionSpotRateFunction extends AbstractFunction.NonCompiledInvoker {
-  private static final String PROPERTY_DATA_TYPE = "DataType";
-  private static final String LIVE = "Live";
-  private static final String LAST_CLOSE = "LastClose";
+  /** Property indicating the data type required */
+  public static final String PROPERTY_DATA_TYPE = "DataType";
+  /** Live FX spot rates for a security */
+  public static final String LIVE = "Live";
+  /** Last close FX spot rates for a security */
+  public static final String LAST_CLOSE = "LastClose";
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
