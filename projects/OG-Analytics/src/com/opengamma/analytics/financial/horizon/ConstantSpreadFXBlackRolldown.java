@@ -37,11 +37,6 @@ public final class ConstantSpreadFXBlackRolldown implements RolldownFunction<Smi
       public double getVolatility(final double time, final double strike, final double forward) {
         return volatilityData.getVolatility(time + shiftTime, strike, forward);
       }
-
-      //      @Override
-      //      public double getVolatility(final double time, final double strike, final double forward, final double[][] bucketSensitivity) {
-      //        return volatilityData.getVolatility(time + shiftTime, strike, forward, bucketSensitivity);
-      //      }
     };
     return new SmileDeltaTermStructureDataBundle(shiftedCurves, smile, currencyPair);
   }
