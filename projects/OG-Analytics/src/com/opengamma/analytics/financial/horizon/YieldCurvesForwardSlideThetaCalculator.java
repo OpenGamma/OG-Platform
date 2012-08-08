@@ -3,13 +3,15 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate;
+package com.opengamma.analytics.financial.horizon;
 
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackSmileForexCalculator;
 import com.opengamma.analytics.financial.forex.definition.ForexOptionVanillaDefinition;
-import com.opengamma.analytics.financial.horizon.ConstantSpreadYieldCurveBundleRolldownFunction;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.TodayPaymentCalculator;
+import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -17,16 +19,16 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * 
  */
-public final class ForwardCurveThetaCalculator {
+public final class YieldCurvesForwardSlideThetaCalculator {
   private static final ConstantSpreadYieldCurveBundleRolldownFunction CURVES_ROLLDOWN = ConstantSpreadYieldCurveBundleRolldownFunction.getInstance();
 
-  private static final ForwardCurveThetaCalculator INSTANCE = new ForwardCurveThetaCalculator();
+  private static final YieldCurvesForwardSlideThetaCalculator INSTANCE = new YieldCurvesForwardSlideThetaCalculator();
 
-  public static ForwardCurveThetaCalculator getInstance() {
+  public static YieldCurvesForwardSlideThetaCalculator getInstance() {
     return INSTANCE;
   }
 
-  private ForwardCurveThetaCalculator() {
+  private YieldCurvesForwardSlideThetaCalculator() {
   }
 
   public MultipleCurrencyAmount getTheta(final ForexOptionVanillaDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames,

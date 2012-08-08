@@ -50,7 +50,7 @@ public class BloombergFXSpotRatePercentageChangeFunction extends AbstractFunctio
     }
     final double live = (Double) liveObject;
     final double lastClose = (Double) lastCloseObject;
-    final String change = FORMAT.format(100 * (lastClose - live) / lastClose) + "%";
+    final String change = FORMAT.format(100 * (live - lastClose) / lastClose) + "%";
     return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.SPOT_FX_PERCENTAGE_CHANGE, target.toSpecification(), createValueProperties().get()), change));
   }
 

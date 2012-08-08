@@ -24,7 +24,7 @@ import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackSmile
 import com.opengamma.analytics.financial.forex.definition.ForexOptionDigitalDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexOptionVanillaDefinition;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
-import com.opengamma.analytics.financial.interestrate.ConstantSpreadHorizonThetaCalculator;
+import com.opengamma.analytics.financial.horizon.ConstantSpreadHorizonThetaCalculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -58,6 +58,7 @@ import com.opengamma.util.tuple.Pair;
  *
  */
 public class FXOptionBlackConstantSpreadThetaFunction extends FXOptionBlackMultiValuedFunction {
+  private static final ConstantSpreadHorizonThetaCalculator CALCULATOR = ConstantSpreadHorizonThetaCalculator.getInstance();
   private static final ForexSecurityConverter VISITOR = new ForexSecurityConverter();
 
   public FXOptionBlackConstantSpreadThetaFunction() {
@@ -121,15 +122,14 @@ public class FXOptionBlackConstantSpreadThetaFunction extends FXOptionBlackMulti
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.VALUE_THETA, target.toSpecification(), properties.get());
     final YieldCurveBundle curvesWithFX = new YieldCurveBundle(fxMatrix, curveCurrency, yieldCurves.getCurvesMap());
     final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(curvesWithFX, smiles, Pair.of(ccy1, ccy2));
-    final ConstantSpreadHorizonThetaCalculator calculator = ConstantSpreadHorizonThetaCalculator.getInstance();
     if (security instanceof FXOptionSecurity) {
       final ForexOptionVanillaDefinition definition = (ForexOptionVanillaDefinition) security.accept(VISITOR);
-      final MultipleCurrencyAmount theta = calculator.getTheta(definition, now, allCurveNames, smileBundle, Integer.parseInt(daysForward));
-      return Collections.singleton(new ComputedValue(spec, theta));
+      final MultipleCurrencyAmount theta = CALCULATOR.getTheta(definition, now, allCurveNames, smileBundle, Integer.parseInt(daysForward));
+      return Collections.singleton(new ComputedValue(spec, HorizonUtils.getNonZeroValue(theta)));
     } else if (security instanceof FXDigitalOptionSecurity) {
       final ForexOptionDigitalDefinition definition = (ForexOptionDigitalDefinition) security.accept(VISITOR);
-      final MultipleCurrencyAmount theta = calculator.getTheta(definition, now, allCurveNames, smileBundle, PresentValueBlackSmileForexCalculator.getInstance(), Integer.parseInt(daysForward));
-      return Collections.singleton(new ComputedValue(spec, theta));
+      final MultipleCurrencyAmount theta = CALCULATOR.getTheta(definition, now, allCurveNames, smileBundle, PresentValueBlackSmileForexCalculator.getInstance(), Integer.parseInt(daysForward));
+      return Collections.singleton(new ComputedValue(spec, HorizonUtils.getNonZeroValue(theta)));
     }
     throw new OpenGammaRuntimeException("Should never get here; canApplyTo specifies vanilla and digital options only");
   }

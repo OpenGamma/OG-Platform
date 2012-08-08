@@ -45,8 +45,7 @@ public class FXOptionBlackThetaFunction extends FXOptionBlackSingleValuedFunctio
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
     if (data instanceof SmileDeltaTermStructureDataBundle) {
       final CurrencyAmount result = CALCULATOR.visit(forex, data);
-      final double thetaValue = result.getAmount() / DAYS_PER_YEAR;
-      return Collections.singleton(new ComputedValue(spec, thetaValue));
+      return Collections.singleton(new ComputedValue(spec, result.getAmount() / DAYS_PER_YEAR));
     }
     throw new OpenGammaRuntimeException("Can only calculate theta for surfaces with smiles");
   }
