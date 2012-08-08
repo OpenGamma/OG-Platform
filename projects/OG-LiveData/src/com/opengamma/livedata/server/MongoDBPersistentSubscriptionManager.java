@@ -32,7 +32,7 @@ public class MongoDBPersistentSubscriptionManager extends AbstractPersistentSubs
   /**
    * The collection name.
    */
-  private static final String PERSISTENT_SUBSCRIPTION = "PersistentSubscription";
+  private static final String PERSISTENT_SUBSCRIPTION = "subscription";
 
   /**
    * The Mongo connector.

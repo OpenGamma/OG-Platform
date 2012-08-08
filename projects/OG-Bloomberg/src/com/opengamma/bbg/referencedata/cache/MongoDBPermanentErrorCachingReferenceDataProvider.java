@@ -18,7 +18,6 @@ import org.fudgemsg.MutableFudgeMsg;
 import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.PerSecurityReferenceDataResult;
 import com.opengamma.bbg.referencedata.statistics.BloombergReferenceDataStatistics;
-import com.opengamma.bbg.referencedata.statistics.NullBloombergReferenceDataStatistics;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.mongo.MongoConnector;
 
@@ -30,7 +29,7 @@ public class MongoDBPermanentErrorCachingReferenceDataProvider extends AbstractP
   /**
    * The Mongo collection name.
    */
-  private static final String PERMANENT_ERRORS = "PermanentErrors";
+  private static final String PERMANENT_ERRORS = "errors";
   /**
    * The Fudge field name.
    */

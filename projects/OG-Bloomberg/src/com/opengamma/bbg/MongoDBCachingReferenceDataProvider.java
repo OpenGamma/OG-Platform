@@ -26,7 +26,7 @@ public class MongoDBCachingReferenceDataProvider extends AbstractCachingReferenc
   /**
    * The Mongo collection name.
    */
-  public static final String REFERENCE_DATA = "ReferenceData";
+  public static final String REFERENCE_DATA = "refdata";
 
   /**
    * The cache.
