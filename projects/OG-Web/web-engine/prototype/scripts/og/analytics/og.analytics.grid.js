@@ -253,10 +253,8 @@ $.register_module({
             };
             meta.columns.scan.all = meta.columns.scan.fixed
                 .concat(meta.columns.scan.scroll.map(function (val) {return val + meta.columns.width.fixed;}));
-            meta.rows = meta.nodes.all.reduce(function (acc, val, idx) {
-                return acc - (meta.nodes[val] ? 0 : meta.nodes.ranges[idx]);
-            }, meta.data_rows);
-            meta.available = available(grid);
+            meta.available = available(grid)
+            meta.rows = meta.available.length;
             meta.viewport = {height: meta.rows * row_height, width: width - meta.columns.width.fixed};
             meta.visible_rows = Math.min(Math.ceil((height - header_height) / row_height), meta.rows);
             css = templates.css({
