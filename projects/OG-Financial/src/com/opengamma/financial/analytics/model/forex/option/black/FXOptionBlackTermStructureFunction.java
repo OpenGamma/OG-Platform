@@ -3,7 +3,12 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.forex.option.callspreadblack;
+package com.opengamma.financial.analytics.model.forex.option.black;
+
+import static com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction.CALL_CURVE;
+import static com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG;
+import static com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction.PUT_CURVE;
+import static com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -20,8 +25,11 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
+import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackForexTermStructureBundle;
+import com.opengamma.analytics.financial.model.volatility.curve.BlackForexTermStructureParameters;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -38,28 +46,29 @@ import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
-import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
+import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
+import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
+import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * 
  */
-public abstract class FXDigitalCallSpreadBlackFunction extends AbstractFunction.NonCompiledInvoker {
+public abstract class FXOptionBlackTermStructureFunction extends AbstractFunction.NonCompiledInvoker {
   /** The name of the calculation method */
-  public static final String CALL_SPREAD_BLACK_METHOD = "CallSpreadBlackMethod";
-  /** The name of the property that sets the value of the call spread */
-  public static final String PROPERTY_CALL_SPREAD_VALUE = "CallSpreadValue";
+  public static final String BLACK_TERM_STRUCTURE_METHOD = "BlackTermStructure";
   private static final ForexSecurityConverter VISITOR = new ForexSecurityConverter();
   private final String _valueRequirementName;
 
-  public FXDigitalCallSpreadBlackFunction(final String valueRequirementName) {
+  public FXOptionBlackTermStructureFunction(final String valueRequirementName) {
     ArgumentChecker.notNull(valueRequirementName, "value requirement name");
     _valueRequirementName = valueRequirementName;
   }
@@ -69,28 +78,20 @@ public abstract class FXDigitalCallSpreadBlackFunction extends AbstractFunction.
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final InstrumentDefinition<InstrumentDerivative> definition = (InstrumentDefinition<InstrumentDerivative>) security.accept(VISITOR);
+    final InstrumentDefinition<?> definition = security.accept(VISITOR);
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final String putCurveName = desiredValue.getConstraint(FXOptionBlackFunction.PUT_CURVE);
-    final String callCurveName = desiredValue.getConstraint(FXOptionBlackFunction.CALL_CURVE);
+    final String putCurveName = desiredValue.getConstraint(PUT_CURVE);
+    final String callCurveName = desiredValue.getConstraint(CALL_CURVE);
     final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
-    final String putCurveConfig = desiredValue.getConstraint(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG);
-    final String callCurveConfig = desiredValue.getConstraint(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG);
+    final String putCurveConfig = desiredValue.getConstraint(PUT_CURVE_CALC_CONFIG);
+    final String callCurveConfig = desiredValue.getConstraint(CALL_CURVE_CALC_CONFIG);
     final String interpolatorName = desiredValue.getConstraint(InterpolatedDataProperties.X_INTERPOLATOR_NAME);
     final String leftExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
     final String rightExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
-    final String spread = desiredValue.getConstraint(PROPERTY_CALL_SPREAD_VALUE);
-    final double spreadValue = Double.parseDouble(spread);
     final String fullPutCurveName = putCurveName + "_" + putCurrency.getCode();
     final String fullCallCurveName = callCurveName + "_" + callCurrency.getCode();
-    final String[] curveNames;
-    if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) { // To get Base/quote in market standard order.
-      curveNames = new String[] {fullPutCurveName, fullCallCurveName};
-    } else {
-      curveNames = new String[] {fullCallCurveName, fullPutCurveName};
-    }
     final YieldAndDiscountCurve putFundingCurve = getCurve(inputs, putCurrency, putCurveName, putCurveConfig);
     final YieldAndDiscountCurve callFundingCurve = getCurve(inputs, callCurrency, callCurveName, callCurveConfig);
     final YieldAndDiscountCurve[] curves;
@@ -111,7 +112,7 @@ public abstract class FXDigitalCallSpreadBlackFunction extends AbstractFunction.
       ccy1 = callCurrency;
       ccy2 = putCurrency;
     }
-    final InstrumentDerivative fxOption = definition.toDerivative(now, curveNames);
+    final InstrumentDerivative fxOption = definition.toDerivative(now, allCurveNames);
     final YieldCurveBundle yieldCurves = new YieldCurveBundle(allCurveNames, curves);
     final ValueRequirement spotRequirement = security.accept(ForexVisitors.getSpotIdentifierVisitor());
     final Object spotObject = inputs.getValue(spotRequirement);
@@ -119,19 +120,26 @@ public abstract class FXDigitalCallSpreadBlackFunction extends AbstractFunction.
       throw new OpenGammaRuntimeException("Could not get spot requirement " + spotRequirement);
     }
     final double spot = (Double) spotObject;
+    final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
     final ValueRequirement fxVolatilitySurfaceRequirement = getSurfaceRequirement(surfaceName, putCurrency, callCurrency, interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
     final Object volatilitySurfaceObject = inputs.getValue(fxVolatilitySurfaceRequirement);
     if (volatilitySurfaceObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + fxVolatilitySurfaceRequirement);
     }
-    final SmileDeltaTermStructureParametersStrikeInterpolation smiles = (SmileDeltaTermStructureParametersStrikeInterpolation) volatilitySurfaceObject;
     final FXMatrix fxMatrix = new FXMatrix(ccy1, ccy2, spot);
-    final ValueProperties.Builder properties = getResultProperties(putCurveName, callCurveName, putCurveConfig, callCurveConfig, surfaceName, interpolatorName,
-        leftExtrapolatorName, rightExtrapolatorName, spread, target);
+    final ValueProperties.Builder properties = getResultProperties(target, desiredValue);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties.get());
     final YieldCurveBundle curvesWithFX = new YieldCurveBundle(fxMatrix, curveCurrency, yieldCurves.getCurvesMap());
-    final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(curvesWithFX, smiles, Pair.of(ccy1, ccy2));
-    return getResult(fxOption, spreadValue, smileBundle, spec);
+    final ObjectsPair<Currency, Currency> currencyPair = Pair.of(ccy1, ccy2);
+    BlackForexTermStructureParameters termStructure;
+    if (volatilitySurfaceObject instanceof SmileDeltaTermStructureParametersStrikeInterpolation) {
+      final SmileDeltaTermStructureParametersStrikeInterpolation smiles = (SmileDeltaTermStructureParametersStrikeInterpolation) volatilitySurfaceObject;
+      termStructure = smiles.toTermStructureOnlyData(interpolator);
+    } else {
+      termStructure = (BlackForexTermStructureParameters) volatilitySurfaceObject;
+    }
+    final YieldCurveWithBlackForexTermStructureBundle flatData = new YieldCurveWithBlackForexTermStructureBundle(curvesWithFX, termStructure, currencyPair);
+    return getResult(fxOption, flatData, target, desiredValues, inputs, spec, executionContext);
   }
 
   @Override
@@ -144,7 +152,11 @@ public abstract class FXDigitalCallSpreadBlackFunction extends AbstractFunction.
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
-    return target.getSecurity() instanceof FXDigitalOptionSecurity || target.getSecurity() instanceof NonDeliverableFXDigitalOptionSecurity;
+    return target.getSecurity() instanceof FXOptionSecurity
+        || target.getSecurity() instanceof FXBarrierOptionSecurity
+        || target.getSecurity() instanceof FXDigitalOptionSecurity
+        || target.getSecurity() instanceof NonDeliverableFXOptionSecurity
+        || target.getSecurity() instanceof NonDeliverableFXDigitalOptionSecurity;
   }
 
   @Override
@@ -157,19 +169,19 @@ public abstract class FXDigitalCallSpreadBlackFunction extends AbstractFunction.
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> putCurveNames = constraints.getValues(FXOptionBlackFunction.PUT_CURVE);
+    final Set<String> putCurveNames = constraints.getValues(PUT_CURVE);
     if (putCurveNames == null || putCurveNames.size() != 1) {
       return null;
     }
-    final Set<String> callCurveNames = constraints.getValues(FXOptionBlackFunction.CALL_CURVE);
+    final Set<String> callCurveNames = constraints.getValues(CALL_CURVE);
     if (callCurveNames == null || callCurveNames.size() != 1) {
       return null;
     }
-    final Set<String> putCurveCalculationConfigs = constraints.getValues(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG);
+    final Set<String> putCurveCalculationConfigs = constraints.getValues(PUT_CURVE_CALC_CONFIG);
     if (putCurveCalculationConfigs == null || putCurveCalculationConfigs.size() != 1) {
       return null;
     }
-    final Set<String> callCurveCalculationConfigs = constraints.getValues(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG);
+    final Set<String> callCurveCalculationConfigs = constraints.getValues(CALL_CURVE_CALC_CONFIG);
     if (callCurveCalculationConfigs == null || callCurveCalculationConfigs.size() != 1) {
       return null;
     }
@@ -187,10 +199,6 @@ public abstract class FXDigitalCallSpreadBlackFunction extends AbstractFunction.
     }
     final Set<String> rightExtrapolatorNames = constraints.getValues(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
     if (rightExtrapolatorNames == null || rightExtrapolatorNames.size() != 1) {
-      return null;
-    }
-    final Set<String> spreads = constraints.getValues(PROPERTY_CALL_SPREAD_VALUE);
-    if (spreads == null || spreads.size() != 1) {
       return null;
     }
     final String putCurveName = putCurveNames.iterator().next();
@@ -212,21 +220,21 @@ public abstract class FXDigitalCallSpreadBlackFunction extends AbstractFunction.
 
   protected abstract ValueProperties.Builder getResultProperties(final ComputationTarget target);
 
-  protected abstract ValueProperties.Builder getResultProperties(final String putCurveName, final String callCurveName, final String putCurveCalculationConfig,
-      final String callCurveCalculationConfig, final String surfaceName, final String interpolatorName, final String leftExtrapolatorName,
-      final String rightExtrapolatorName, final String spread, final ComputationTarget target);
+  protected abstract ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue);
 
-  protected abstract Set<ComputedValue> getResult(final InstrumentDerivative fxDigital, final double spread, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec);
+  //TODO clumsy. Push the execute() method down into the functions and have getDerivative() and getData() methods
+  protected abstract Set<ComputedValue> getResult(final InstrumentDerivative forex, final YieldCurveWithBlackForexTermStructureBundle data, final ComputationTarget target,
+      final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext);
 
-  private static ValueRequirement getCurveRequirement(final String curveName, final Currency currency, final String curveCalculationConfigName) {
+  protected static ValueRequirement getCurveRequirement(final String curveName, final Currency currency, final String curveCalculationConfigName) {
     final ValueProperties.Builder properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, curveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName);
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties.get());
   }
 
-  protected static ValueRequirement getSurfaceRequirement(final String surfaceName, final Currency putCurrency, final Currency callCurrency, final String interpolatorName,
-      final String leftExtrapolatorName, final String rightExtrapolatorName) {
+  protected static ValueRequirement getSurfaceRequirement(final String surfaceName, final Currency putCurrency, final Currency callCurrency,
+      final String interpolatorName, final String leftExtrapolatorName, final String rightExtrapolatorName) {
     final ValueProperties surfaceProperties = ValueProperties.builder()
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)

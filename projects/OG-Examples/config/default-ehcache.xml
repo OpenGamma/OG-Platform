@@ -41,6 +41,20 @@
     diskExpiryThreadIntervalSeconds="0"
     memoryStoreEvictionPolicy="LRU"
     />
+
+  <!-- Config -->
+  <cache
+    name="config"
+    maxElementsInMemory="1000"
+    eternal="false"
+    timeToIdleSeconds="300"
+    timeToLiveSeconds="300"
+    overflowToDisk="false"
+    maxElementsOnDisk="1"
+    diskPersistent="false"
+    diskExpiryThreadIntervalSeconds="0"
+    memoryStoreEvictionPolicy="LRU"
+    />
     
   <!-- Historical Time-Series -->
   <cache

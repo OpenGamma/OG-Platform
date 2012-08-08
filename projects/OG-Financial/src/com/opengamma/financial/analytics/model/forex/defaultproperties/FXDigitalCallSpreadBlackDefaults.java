@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.forex.defaultproperties;
@@ -32,7 +32,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ *
  */
 public class FXDigitalCallSpreadBlackDefaults extends DefaultPropertyFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(FXDigitalCallSpreadBlackDefaults.class);
@@ -46,8 +46,7 @@ public class FXDigitalCallSpreadBlackDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.VEGA_QUOTE_MATRIX,
     ValueRequirementNames.FX_CURVE_SENSITIVITIES,
     ValueRequirementNames.PV01,
-    ValueRequirementNames.CALL_SPREAD_VALUE_VEGA,
-    ValueRequirementNames.VALUE_THETA
+    ValueRequirementNames.CALL_SPREAD_VALUE_VEGA
   };
   private final PriorityClass _priority;
   private final String _interpolatorName;

@@ -23,7 +23,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Dummy function for injecting default curve names into the dependency graph.
  * @deprecated Use the version of the function that does not refer to funding and forward curves
- * @see InterestRateFutureDefaultValuesFunction
+ * @see InterestRateFutureDefaults
  */
 @Deprecated
 public class InterestRateFutureDefaultValuesFunctionDeprecated extends DefaultPropertyFunction {

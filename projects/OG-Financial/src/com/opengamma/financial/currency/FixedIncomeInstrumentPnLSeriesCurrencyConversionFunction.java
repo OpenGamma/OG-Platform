@@ -39,8 +39,10 @@ public class FixedIncomeInstrumentPnLSeriesCurrencyConversionFunction extends Pn
   @Override
   protected ValueSpecification getValueSpec(final ValueSpecification inputSpec, final String currencyCode) {
     final ValueProperties properties = inputSpec.getProperties().copy()
-        .withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, getUniqueId())
-        .withoutAny(ValuePropertyNames.CURRENCY).with(ValuePropertyNames.CURRENCY, currencyCode).get();
+        .withoutAny(ValuePropertyNames.FUNCTION)
+        .with(ValuePropertyNames.FUNCTION, getUniqueId())
+        .withoutAny(ValuePropertyNames.CURRENCY)
+        .with(ValuePropertyNames.CURRENCY, currencyCode).get();
     return new ValueSpecification(ValueRequirementNames.PNL_SERIES, inputSpec.getTargetSpecification(), properties);
   }
 }

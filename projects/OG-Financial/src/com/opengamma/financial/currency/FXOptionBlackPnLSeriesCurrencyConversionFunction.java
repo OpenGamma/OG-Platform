@@ -24,9 +24,9 @@ import com.opengamma.financial.security.option.FXOptionSecurity;
 /**
  * 
  */
-public class ForexOptionBlackPnLSeriesCurrencyConversionFunction extends PnlSeriesCurrencyConversionFunction {
+public class FXOptionBlackPnLSeriesCurrencyConversionFunction extends PnlSeriesCurrencyConversionFunction {
 
-  public ForexOptionBlackPnLSeriesCurrencyConversionFunction(final String currencyMatrixName) {
+  public FXOptionBlackPnLSeriesCurrencyConversionFunction(final String currencyMatrixName) {
     super(currencyMatrixName);
   }
 

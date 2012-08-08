@@ -28,17 +28,17 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Dummy function for injecting default values into the dependency graph.
  */
-public class InterestRateFutureDefaultValuesFunction extends DefaultPropertyFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureDefaultValuesFunction.class);
+public class InterestRateFutureDefaults extends DefaultPropertyFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureDefaults.class);
   private static final String[] s_valueNames = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.PV01,
-    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-    ValueRequirementNames.VALUE_THETA};
+    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES
+  };
   private final PriorityClass _priority;
   private final Map<String, String> _currencyAndCurveConfigNames;
 
-  public InterestRateFutureDefaultValuesFunction(final String priority, final String... currencyAndCurveConfigNames) {
+  public InterestRateFutureDefaults(final String priority, final String... currencyAndCurveConfigNames) {
     super(ComputationTargetType.TRADE, true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(currencyAndCurveConfigNames, "currency and curve config names");

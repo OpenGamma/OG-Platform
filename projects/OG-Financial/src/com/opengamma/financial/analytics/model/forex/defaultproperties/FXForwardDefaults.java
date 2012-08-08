@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.forex.defaultproperties;
@@ -31,7 +31,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ *
  */
 public class FXForwardDefaults extends DefaultPropertyFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(FXForwardDefaults.class);
@@ -40,8 +40,7 @@ public class FXForwardDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.FX_CURRENCY_EXPOSURE,
     ValueRequirementNames.FX_CURVE_SENSITIVITIES,
     ValueRequirementNames.PV01,
-    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-    ValueRequirementNames.VALUE_THETA
+    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES
   };
   private final PriorityClass _priority;
   private final Map<String, Pair<String, String>> _currencyCurveConfigAndDiscountingCurveNames;

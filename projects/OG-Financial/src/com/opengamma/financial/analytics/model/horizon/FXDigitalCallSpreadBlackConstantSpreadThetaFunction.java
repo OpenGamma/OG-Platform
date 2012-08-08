@@ -1,9 +1,13 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.horizon;
+
+import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues.PROPERTY_DAYS_TO_MOVE_FORWARD;
+import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues.PROPERTY_THETA_CALCULATION_METHOD;
+import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues.THETA_CONSTANT_SPREAD;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,6 +30,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
@@ -47,13 +52,12 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ *
  */
-public class ForexDigitalOptionCallSpreadBlackConstantSpreadThetaFunction extends FXDigitalCallSpreadBlackMultiValuedFunction {
+public class FXDigitalCallSpreadBlackConstantSpreadThetaFunction extends FXDigitalCallSpreadBlackMultiValuedFunction {
   private static final ForexSecurityConverter VISITOR = new ForexSecurityConverter();
-  private static final int DAYS_TO_MOVE_FORWARD = 1; // TODO Add to Value Properties
 
-  public ForexDigitalOptionCallSpreadBlackConstantSpreadThetaFunction() {
+  public FXDigitalCallSpreadBlackConstantSpreadThetaFunction() {
     super(ValueRequirementNames.VALUE_THETA);
   }
 
@@ -74,6 +78,7 @@ public class ForexDigitalOptionCallSpreadBlackConstantSpreadThetaFunction extend
     final String leftExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
     final String rightExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
     final String spread = desiredValue.getConstraint(FXDigitalCallSpreadBlackFunction.PROPERTY_CALL_SPREAD_VALUE);
+    final String daysForward = desiredValue.getConstraint(PROPERTY_DAYS_TO_MOVE_FORWARD);
     final String fullPutCurveName = putCurveName + "_" + putCurrency.getCode();
     final String fullCallCurveName = callCurveName + "_" + callCurrency.getCode();
     final YieldAndDiscountCurve putFundingCurve = getCurve(inputs, putCurrency, putCurveName, putCurveConfig);
@@ -118,8 +123,17 @@ public class ForexDigitalOptionCallSpreadBlackConstantSpreadThetaFunction extend
     final ConstantSpreadHorizonThetaCalculator calculator = ConstantSpreadHorizonThetaCalculator.getInstance();
     final ForexOptionDigitalDefinition definition = (ForexOptionDigitalDefinition) security.accept(VISITOR);
     final MultipleCurrencyAmount theta = calculator.getTheta(definition, now, allCurveNames, smileBundle, new PresentValueCallSpreadBlackForexCalculator(Double.valueOf(spread)),
-        DAYS_TO_MOVE_FORWARD);
-    return Collections.singleton(new ComputedValue(spec, theta));
+        Integer.parseInt(daysForward));
+    return Collections.singleton(new ComputedValue(addDaysForwardProperty(spec, daysForward), theta));
+  }
+
+  @Override
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    final Set<String> daysForwardNames = desiredValue.getConstraints().getValues(PROPERTY_DAYS_TO_MOVE_FORWARD);
+    if (daysForwardNames == null || daysForwardNames.size() != 1) {
+      return null;
+    }
+    return super.getRequirements(context, target, desiredValue);
   }
 
   @Override
@@ -130,7 +144,8 @@ public class ForexDigitalOptionCallSpreadBlackConstantSpreadThetaFunction extend
   @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
     final ValueProperties.Builder properties = super.getResultProperties(target);
-    properties.with(InterestRateFutureConstantSpreadThetaFunction.PROPERTY_THETA_CALCULATION_METHOD, InterestRateFutureConstantSpreadThetaFunction.THETA_CONSTANT_SPREAD);
+    properties.with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD)
+              .withAny(PROPERTY_DAYS_TO_MOVE_FORWARD);
     return properties;
   }
 
@@ -139,7 +154,13 @@ public class ForexDigitalOptionCallSpreadBlackConstantSpreadThetaFunction extend
       final String surfaceName, final String interpolatorName, final String leftExtrapolatorName, final String rightExtrapolatorName, final String spread, final ComputationTarget target) {
     final ValueProperties.Builder properties = super.getResultProperties(putCurveName, callCurveName, putCurveConfig, callCurveConfig, surfaceName,
         interpolatorName, leftExtrapolatorName, rightExtrapolatorName, spread, target);
-    properties.with(InterestRateFutureConstantSpreadThetaFunction.PROPERTY_THETA_CALCULATION_METHOD, InterestRateFutureConstantSpreadThetaFunction.THETA_CONSTANT_SPREAD);
+    properties.with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD);
     return properties;
+  }
+
+  private ValueSpecification addDaysForwardProperty(final ValueSpecification spec, final String daysForward) {
+    final ValueProperties.Builder properties = spec.getProperties().copy();
+    properties.with(PROPERTY_DAYS_TO_MOVE_FORWARD, daysForward);
+    return new ValueSpecification(spec.getValueName(), spec.getTargetSpecification(), properties.get());
   }
 }

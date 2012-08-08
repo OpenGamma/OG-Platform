@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.irfutureoption;
@@ -26,10 +26,10 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ *
  */
-public class InterestRateFutureOptionBlackDefaultPropertiesFunction extends DefaultPropertyFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionBlackDefaultPropertiesFunction.class);
+public class InterestRateFutureOptionBlackDefaults extends DefaultPropertyFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionBlackDefaults.class);
   private static final String[] s_valueRequirements = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.VALUE_VEGA,
@@ -39,13 +39,12 @@ public class InterestRateFutureOptionBlackDefaultPropertiesFunction extends Defa
     ValueRequirementNames.IMPLIED_VOLATILITY,
     ValueRequirementNames.SECURITY_MODEL_PRICE,
     ValueRequirementNames.UNDERLYING_MODEL_PRICE,
-    ValueRequirementNames.DAILY_PRICE,
-    ValueRequirementNames.VALUE_THETA
+    ValueRequirementNames.DAILY_PRICE
   };
   private final PriorityClass _priority;
   private final HashMap<String, Pair<String, String>> _currencyCurveConfigAndSurfaceNames;
 
-  public InterestRateFutureOptionBlackDefaultPropertiesFunction(final String priority,
+  public InterestRateFutureOptionBlackDefaults(final String priority,
       final String... currencyCurveConfigAndSurfaceNames) {
     super(ComputationTargetType.TRADE, true);
     ArgumentChecker.notNull(priority, "priority");

@@ -74,6 +74,14 @@ public final class ValueRequirementNames {
    */
   public static final String SPOT_RATE = "SpotRate";
   /**
+   * The spot rate for an FX option
+   */
+  public static final String SPOT_RATE_FOR_SECURITY = "Spot Rate For Security";
+  /**
+   * The percentage change between the last close price and live
+   */
+  public static final String SPOT_FX_PERCENTAGE_CHANGE = "Spot FX % Change";
+  /**
    * The market price of the security underlying a trade or position.
    */
   public static final String SECURITY_MARKET_PRICE = "Security Market Price";
@@ -152,7 +160,11 @@ public final class ValueRequirementNames {
    * FX forward curve property metadata
    */
   public static final String FX_FORWARD_CURVE_SPEC = "FXForwardCurveSpec";
-
+  /**
+   * Currency pairs property metadata
+   */
+  public static final String CURRENCY_PAIRS = "CurrencyPairs";
+  
   ///// Surfaces
 
   /**
