@@ -63,7 +63,7 @@ public final class TodayPaymentCalculator extends AbstractInstrumentDerivativeVi
    * Constructor.
    */
   private TodayPaymentCalculator(final double timeLimit) {
-    ArgumentChecker.isTrue(timeLimit > 0, "Time limit must be greater than zero; have {}", timeLimit);
+    //ArgumentChecker.isTrue(timeLimit > 0, "Time limit must be greater than zero; have {}", timeLimit);
     _timeLimit = timeLimit;
   }
 
@@ -121,7 +121,10 @@ public final class TodayPaymentCalculator extends AbstractInstrumentDerivativeVi
   public MultipleCurrencyAmount visitCouponFixed(final CouponFixed payment) {
     ArgumentChecker.notNull(payment, "instrument");
     MultipleCurrencyAmount cash = MultipleCurrencyAmount.of(payment.getCurrency(), 0.0);
-    if (payment.getPaymentTime() < _timeLimit) {
+    final double paymentTime = payment.getPaymentTime();
+    // We wish to add payments if they occur within the time horizon, which may be forward, or backward, in time
+
+    if (Math.abs(paymentTime) < Math.abs(_timeLimit) && _timeLimit * paymentTime >= 0) {
       cash = cash.plus(payment.getCurrency(), payment.getAmount());
     }
     return cash;

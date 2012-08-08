@@ -101,14 +101,14 @@ public class ConstantSpreadHorizonThetaCalculatorIRFutureOptionTest {
   /**
    * Useful visualisation to check behaviour as we shift further out
    */
-  public void thetaIRFO_DifferentShifts() {
+  public void thetaIRFO_DifferentShifts() { // TODO Ensure we can go backwards
     final int nSteps = 10;
     final double[] thetas = new double[nSteps];
-    for (int i = 1; i <= nSteps; i++) {
+    for (int i = -1; i <= nSteps; i++) {
 
       MultipleCurrencyAmount theta = CALC.getTheta(OPTION_TRANSACTION, REFERENCE_DATE, CURVE_NAMES, BLACK_BUNDLE, TRADE_PRICE, i);
       thetas[i - 1] = theta.getAmount(CUR);
-      //      System.out.println(" , " + thetas[i - 1]);
+      //System.out.println(i + " , " + thetas[i - 1]);
     }
   }
 
