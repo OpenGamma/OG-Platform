@@ -36,6 +36,7 @@ public class WebValueRequirementNamesResource extends AbstractWebResource {
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(WebValueRequirementNamesResource.class);
 
+  private static final String VALUE_REQUIREMENT_NAME_CLASSES = "valueRequirementNameClasses";
 
   /**
    * The value requirement names.
@@ -60,7 +61,7 @@ public class WebValueRequirementNamesResource extends AbstractWebResource {
   }
 
   public WebValueRequirementNamesResource(String[] valueRequirementNameClasses) {
-    ArgumentChecker.notEmpty(valueRequirementNameClasses, "valueRequirementNameClasses");
+    ArgumentChecker.notEmpty(valueRequirementNameClasses, VALUE_REQUIREMENT_NAME_CLASSES);
 
     final List<String> list = new ArrayList<String>();
 
