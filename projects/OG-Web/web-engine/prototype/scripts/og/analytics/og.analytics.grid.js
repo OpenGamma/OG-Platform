@@ -14,6 +14,21 @@ $.register_module({
             })();
         if (window.parent !== window && window.parent.og.analytics && window.parent.og.analytics.Grid)
             return window.parent.og.analytics.Grid.partial(undefined, $); // if already compiled, use that
+        var available = (function () {
+            var unravel = function (nodes, arr, result) {
+                var start = arr[0], end = arr[1], children = arr[2];
+                if (!nodes[start]) return result.push(start), result;
+                result.push(start);
+                if (children.length)
+                    return children.map(function (child) {return unravel(nodes, child, result);}), result;
+                else
+                    while (++start < end) result.push(start);
+                return result;
+            };
+            return function (grid) {
+                return unravel(grid.meta.nodes, grid.meta.structure, []);
+            };
+        })();
         var background = function (sets, width, bg_color) {
             var height = row_height, pixels = [], lcv, fg_color = 'dadcdd',
                 columns = sets.reduce(function (acc, set) {return acc.concat(set.columns);}, []),
@@ -73,8 +88,18 @@ $.register_module({
             };
             grid.formatter = new og.analytics.Formatter(grid);
             grid.on('render', function () {
-                grid.elements.main.find('.node').addClass('collapse');
-            }).on('mousedown', tree.partial(grid));
+                grid.elements.main.find('.node').each(function (idx, val) {
+                    var $node = $(this);
+                    $node.addClass(grid.meta.nodes[$node.attr('data-row')] ? 'collapse' : 'expand');
+                });
+            }).on('mousedown', function (event) {
+                var $target = $(event.target), row;
+                if (!$target.is('.node')) return;
+                grid.meta.nodes[row = $target.attr('data-row')] = !grid.meta.nodes[row];
+                set_size(grid);
+                set_viewport(grid);
+                return false;
+            });
         };
         var init_elements = function (grid, config, elements) {
             (elements = grid.elements).style = $('<style type="text/css" />').appendTo('head');
@@ -162,13 +187,15 @@ $.register_module({
                 var meta = grid.meta, fixed_length = meta.fixed_length,
                     empty_result = {holder_height: meta.viewport.height + (fixed ? scrollbar_size : 0), rows: []},
                     result = {holder_height: empty_result.holder_height, rows: []},
-                    i, j, data_len = data.length, slice, slice_len, data_row, row, value, column, first, cells;
+                    i, j, data_len = data.length, slice, slice_len, data_row,
+                    grid_row, row, value, column, first, cells;
+                grid_row = meta.available.indexOf(meta.viewport.rows[0]);
                 for (i = 0; i < data_len; i += 1) {
                     row = data[i];
                     slice = fixed ? row.slice(0, fixed_length) : row.slice(fixed_length);
                     slice_len = slice.length;
                     data_row = meta.viewport.rows[i];
-                    result.rows.push({top: data_row * row_height, cells: (cells = [])});
+                    result.rows.push({top: grid_row++ * row_height, cells: (cells = [])});
                     for (j = 0; j < slice_len; j += 1) {
                         column = meta.viewport.cols[fixed ? j : fixed_length + j];
                         first = fixed && j === 0;
@@ -201,6 +228,7 @@ $.register_module({
             });
         };
         var set_size = function (grid, config) {
+            config = config || {};
             var meta = grid.meta, css, width = config.width || grid.elements.parent.width(),
                 height = config.height || grid.elements.parent.height(), columns = meta.columns, id = grid.id;
             meta.columns.width = {
@@ -225,6 +253,10 @@ $.register_module({
             };
             meta.columns.scan.all = meta.columns.scan.fixed
                 .concat(meta.columns.scan.scroll.map(function (val) {return val + meta.columns.width.fixed;}));
+            meta.rows = meta.nodes.all.reduce(function (acc, val, idx) {
+                return acc - (meta.nodes[val] ? 0 : meta.nodes.ranges[idx]);
+            }, meta.data_rows);
+            meta.available = available(grid);
             meta.viewport = {height: meta.rows * row_height, width: width - meta.columns.width.fixed};
             meta.visible_rows = Math.min(Math.ceil((height - header_height) / row_height), meta.rows);
             css = templates.css({
@@ -251,7 +283,7 @@ $.register_module({
                 scroll_cols = grid.meta.columns.scroll
                     .reduce(function (acc, set) {return acc.concat(set.columns);}, []);
             grid.meta.viewport.rows = [];
-            while (lcv < row_end) grid.meta.viewport.rows.push(lcv++);
+            while (lcv < row_end) grid.meta.viewport.rows.push(grid.meta.available[lcv++]);
             (grid.meta.viewport.cols = []), (lcv = 0);
             while (lcv < fixed_len) grid.meta.viewport.cols.push(lcv++);
             grid.meta.viewport.cols = grid.meta.viewport.cols.concat(scroll_cols.reduce(function (acc, col, idx) {
@@ -263,10 +295,6 @@ $.register_module({
             grid.dataman.viewport(grid.meta.viewport);
             if (handler) handler();
         };
-        var tree = function (grid, event) {
-            if (!$(event.target).is('.node')) return;
-            return false;
-        };
         var unravel_structure = (function () {
             var times = function (str, times) {
                 if (!times) return ''; else while (--times) str += str;
@@ -276,8 +304,9 @@ $.register_module({
                 var start = arr[0], end = arr[1], children = arr[2], str = '&nbsp;&nbsp;&nbsp;',
                     result = [{prefix: times(str, indent = indent || 0)}];
                 if (end > start) {
-                    result[0].prefix += '<span class="node"></span>&nbsp;';
+                    result[0].prefix += '<span data-row="' + start + '" class="node"></span>&nbsp;';
                     result[0].node = true;
+                    result[0].length = end - start;
                 }
                 if (children.length) return children.map(function (child) {return unravel(child, indent + 1);})
                     .forEach(function (child) {Array.prototype.push.apply(result, child);}), result;
@@ -286,8 +315,12 @@ $.register_module({
                 return result;
             };
             return function (grid, unraveled) {
-                grid.meta.nodes = (unraveled = unravel(grid.meta.structure))
-                    .reduce(function (acc, val, idx) {return (val.node && (acc[idx] = true)), acc;}, {});
+                var meta = grid.meta;
+                meta.nodes = (unraveled = unravel(meta.structure))
+                    .reduce(function (acc, val, idx) {
+                        if (val.node) (acc[idx] = true), (acc.all.push(idx)), (acc.ranges.push(val.length));
+                        return acc;
+                    }, {all: [], ranges: []});
                 grid.meta.unraveled = unraveled.pluck('prefix');
             };
         })();
