@@ -70,7 +70,7 @@ public class EHCachingInterpolatedYieldCurveDefinitionSource implements Interpol
     ObjectsPair<Currency, String> cacheKey = Pair.of(currency, name);
     Element e = _latestDefinitionCache.get(cacheKey);
     if (e != null) {
-      YieldCurveDefinition doc = (YieldCurveDefinition) e.getValue();
+      YieldCurveDefinition doc = (YieldCurveDefinition) e.getObjectValue();
       return doc;
     } else {
       YieldCurveDefinition doc = _underlying.getDefinition(currency, name);

@@ -76,7 +76,7 @@ public class EHCachingBundleCompressor implements BundleCompressor {
   public String compressBundle(Bundle bundle) {
     Element e = _bundleCache.get(bundle.getId());
     if (e != null) {
-      return (String) e.getValue();
+      return (String) e.getObjectValue();
     } else {
       String compressed = getUnderlying().compressBundle(bundle);
       if (compressed != null) {
