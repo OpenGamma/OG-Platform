@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.forex.option.black;
@@ -10,6 +10,8 @@ import java.util.Set;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -20,12 +22,19 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
- * 
+ *
  */
 public class BloombergFXOptionSpotRateFunction extends AbstractFunction.NonCompiledInvoker {
   private static final String PROPERTY_DATA_TYPE = "DataType";
@@ -54,7 +63,7 @@ public class BloombergFXOptionSpotRateFunction extends AbstractFunction.NonCompi
       }
       final double spot = (Double) spotObject;
       return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.SPOT_RATE_FOR_SECURITY, target.toSpecification(),
-          createValueProperties().with(PROPERTY_DATA_TYPE, LIVE).get()), spot));
+          createValueProperties().with(PROPERTY_DATA_TYPE, LAST_CLOSE).get()), spot));
     }
     throw new OpenGammaRuntimeException("Did not recognise property type " + dataType);
   }
@@ -90,16 +99,23 @@ public class BloombergFXOptionSpotRateFunction extends AbstractFunction.NonCompi
     if (dataType.equals(LIVE)) {
       return Collections.singleton(new ValueRequirement(ValueRequirementNames.SPOT_RATE, ComputationTargetType.PRIMITIVE, currencyPair.getUniqueId()));
     } else if (dataType.equals(LAST_CLOSE)) {
-      return Collections.singleton(new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, ComputationTargetType.PRIMITIVE, currencyPair.getUniqueId()));
+      final HistoricalTimeSeriesResolver htsResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
+      final ExternalId externalId = getBBGId(currencyPair);
+      final HistoricalTimeSeriesResolutionResult resolutionResult = htsResolver.resolve(ExternalIdBundle.of(externalId), null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
+      if (resolutionResult == null) {
+        return null;
+      }
+      final UniqueId htsId = resolutionResult.getHistoricalTimeSeriesInfo().getUniqueId();
+      return Collections.singleton(new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, ComputationTargetType.PRIMITIVE, htsId));
     }
     return null;
   }
 
-  //  private UniqueId getBBGId(final UnorderedCurrencyPair currencyPair) {
-  //    // Implementation note: the currency pair order in FX is given by FXUtils.
-  //    if (FXUtils.isInBaseQuoteOrder(currencyPair.getFirstCurrency(), currencyPair.getSecondCurrency())) {
-  //      return ExternalSchemes.bloombergTickerSecurityId(currencyPair.getFirstCurrency().getCode() + currencyPair.getSecondCurrency().getCode() + " Curncy");
-  //    }
-  //    return ExternalSchemes.bloombergTickerSecurityId(currencyPair.getSecondCurrency().getCode() + currencyPair.getFirstCurrency().getCode() + " Curncy");
-  //  }
+  private ExternalId getBBGId(final UnorderedCurrencyPair currencyPair) {
+    // Implementation note: the currency pair order in FX is given by FXUtils.
+    if (FXUtils.isInBaseQuoteOrder(currencyPair.getFirstCurrency(), currencyPair.getSecondCurrency())) {
+      return ExternalSchemes.bloombergTickerSecurityId(currencyPair.getFirstCurrency().getCode() + currencyPair.getSecondCurrency().getCode() + " Curncy");
+    }
+    return ExternalSchemes.bloombergTickerSecurityId(currencyPair.getSecondCurrency().getCode() + currencyPair.getFirstCurrency().getCode() + " Curncy");
+  }
 }
