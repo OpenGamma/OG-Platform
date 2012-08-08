@@ -153,7 +153,7 @@ public class CDSTestSetup {
       _isdaTestPricingDate = ZonedDateTime.of(2008, 2, 1, 0, 0, 0, 0, TimeZone.UTC);
   
       Currency currency = Currency.USD;
-      double notional = 1.0;
+      double notional = 1.0e7;
       double recoveryRate = 0.4;
       double spread = 7200.0/10000.0;
       ZonedDateTime cdsStartDate = ZonedDateTime.of(2008, 2, 8, 0, 0, 0, 0, TimeZone.UTC);
@@ -214,7 +214,6 @@ public class CDSTestSetup {
       };
       
       double ccRate = (new PeriodicInterestRate(0.81582707425206369, 1)).toContinuous().getRate();
-      System.out.println( ccRate );
       
       double[] flatSpreadCurveTimePoints = {
         0.0,
