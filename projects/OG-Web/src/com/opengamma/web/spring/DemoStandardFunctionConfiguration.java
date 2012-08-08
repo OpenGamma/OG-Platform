@@ -157,7 +157,7 @@ import com.opengamma.financial.analytics.model.fixedincome.deprecated.InterestRa
 import com.opengamma.financial.analytics.model.fixedincome.deprecated.InterestRateInstrumentParRateParallelCurveSensitivityFunctionDeprecated;
 import com.opengamma.financial.analytics.model.fixedincome.deprecated.InterestRateInstrumentPresentValueFunctionDeprecated;
 import com.opengamma.financial.analytics.model.fixedincome.deprecated.InterestRateInstrumentYieldCurveNodeSensitivitiesFunctionDeprecated;
-import com.opengamma.financial.analytics.model.forex.BloombergForexSpotRateMarketDataFunction;
+import com.opengamma.financial.analytics.model.forex.BloombergFXSpotRateMarketDataFunction;
 import com.opengamma.financial.analytics.model.forex.defaultproperties.FXForwardDefaultsDeprecated;
 import com.opengamma.financial.analytics.model.forex.defaultproperties.FXOptionBlackDefaults;
 import com.opengamma.financial.analytics.model.forex.defaultproperties.FXOptionBlackDefaultsDeprecated;
@@ -165,7 +165,8 @@ import com.opengamma.financial.analytics.model.forex.forward.deprecated.FXForwar
 import com.opengamma.financial.analytics.model.forex.forward.deprecated.FXForwardPresentValueCurveSensitivityFunctionDeprecated;
 import com.opengamma.financial.analytics.model.forex.forward.deprecated.FXForwardPresentValueFunctionDeprecated;
 import com.opengamma.financial.analytics.model.forex.forward.deprecated.FXForwardYCNSFunctionDeprecated;
-import com.opengamma.financial.analytics.model.forex.option.black.BloombergFXOptionSpotRateFunction;
+import com.opengamma.financial.analytics.model.forex.option.BloombergFXOptionSpotRateFunction;
+import com.opengamma.financial.analytics.model.forex.option.BloombergFXSpotRatePercentageChangeFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackCurrencyExposureFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFXPresentValueFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackGammaFunction;
@@ -603,6 +604,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addScalingFunction(functionConfigs, ValueRequirementNames.FAIR_VALUE);
 
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.SPOT_RATE_FOR_SECURITY);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.SPOT_FX_PERCENTAGE_CHANGE);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.DELTA);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.DELTA_BLEED);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.STRIKE_DELTA);
@@ -919,7 +921,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   }
 
   private static void addForexOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(BloombergForexSpotRateMarketDataFunction.class));
+    functionConfigs.add(functionConfiguration(BloombergFXSpotRateMarketDataFunction.class));
+    functionConfigs.add(functionConfiguration(BloombergFXSpotRatePercentageChangeFunction.class));
     functionConfigs.add(functionConfiguration(BloombergFXOptionSpotRateFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackFXPresentValueFunction.class));
@@ -966,7 +969,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   }
 
   private static void addDeprecatedForexOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(BloombergForexSpotRateMarketDataFunction.class));
+    functionConfigs.add(functionConfiguration(BloombergFXSpotRateMarketDataFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackPresentValueFunctionDeprecated.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackCurrencyExposureFunctionDeprecated.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackVegaFunctionDeprecated.class));
