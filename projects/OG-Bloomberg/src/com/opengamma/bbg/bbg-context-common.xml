@@ -16,7 +16,7 @@
     </property>
   </bean>
 
-  <bean id="bloombergConnector" class="com.opengamma.bbg.BloombergConnectorFactoryBean">
+  <bean id="standardBloombergConnector" class="com.opengamma.bbg.BloombergConnectorFactoryBean">
     <property name="name" value="Common" />
     <property name="host" value="${bbgServer.host}" />
     <property name="port" value="${bbgServer.port}" />
