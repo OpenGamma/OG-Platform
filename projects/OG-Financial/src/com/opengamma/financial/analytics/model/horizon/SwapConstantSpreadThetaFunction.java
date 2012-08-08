@@ -1,9 +1,13 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.horizon;
+
+import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues.PROPERTY_DAYS_TO_MOVE_FORWARD;
+import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues.PROPERTY_THETA_CALCULATION_METHOD;
+import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues.THETA_CONSTANT_SPREAD;
 
 import java.util.Collections;
 import java.util.Set;
@@ -59,11 +63,10 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
- * 
+ *
  */
 public class SwapConstantSpreadThetaFunction extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(SwapConstantSpreadThetaFunction.class);
-  private static final int DAYS_TO_MOVE_FORWARD = 1; // TODO Add to Value Properties
   private FinancialSecurityVisitor<InstrumentDefinition<?>> _visitor;
 
   @Override
@@ -82,6 +85,7 @@ public class SwapConstantSpreadThetaFunction extends AbstractFunction.NonCompile
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String curveCalculationConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    final String daysForward = desiredValue.getConstraint(PROPERTY_DAYS_TO_MOVE_FORWARD);
     final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
     final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
     final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
@@ -101,14 +105,14 @@ public class SwapConstantSpreadThetaFunction extends AbstractFunction.NonCompile
     final String currency = FinancialSecurityUtils.getCurrency(security).getCode();
     final ConstantSpreadHorizonThetaCalculator calculator = ConstantSpreadHorizonThetaCalculator.getInstance();
     if (definition instanceof SwapFixedIborDefinition) {
-      final MultipleCurrencyAmount theta = calculator.getTheta((SwapFixedIborDefinition) definition, now, curveNamesForSecurity, bundle, fixingSeries, DAYS_TO_MOVE_FORWARD);
-      return Collections.singleton(new ComputedValue(getResultSpec(target, curveCalculationConfigName, currency), theta));
+      final MultipleCurrencyAmount theta = calculator.getTheta((SwapFixedIborDefinition) definition, now, curveNamesForSecurity, bundle, fixingSeries, Integer.parseInt(daysForward));
+      return Collections.singleton(new ComputedValue(getResultSpec(target, curveCalculationConfigName, currency, daysForward), theta));
     } else if (definition instanceof SwapFixedONDefinition) {
-      final MultipleCurrencyAmount theta = calculator.getTheta((SwapFixedONDefinition) definition, now, curveNamesForSecurity, bundle, fixingSeries, DAYS_TO_MOVE_FORWARD);
-      return Collections.singleton(new ComputedValue(getResultSpec(target, curveCalculationConfigName, currency), theta));
+      final MultipleCurrencyAmount theta = calculator.getTheta((SwapFixedONDefinition) definition, now, curveNamesForSecurity, bundle, fixingSeries, Integer.parseInt(daysForward));
+      return Collections.singleton(new ComputedValue(getResultSpec(target, curveCalculationConfigName, currency, daysForward), theta));
     } else if (definition instanceof SwapFixedIborSpreadDefinition) {
-      final MultipleCurrencyAmount theta = calculator.getTheta((SwapFixedIborSpreadDefinition) definition, now, curveNamesForSecurity, bundle, fixingSeries, DAYS_TO_MOVE_FORWARD);
-      return Collections.singleton(new ComputedValue(getResultSpec(target, curveCalculationConfigName, currency), theta));
+      final MultipleCurrencyAmount theta = calculator.getTheta((SwapFixedIborSpreadDefinition) definition, now, curveNamesForSecurity, bundle, fixingSeries, Integer.parseInt(daysForward));
+      return Collections.singleton(new ComputedValue(getResultSpec(target, curveCalculationConfigName, currency, daysForward), theta));
     }
     throw new OpenGammaRuntimeException("Can only handle fixed / float ibor and ois swaps; have " + definition.getClass());
   }
@@ -137,6 +141,10 @@ public class SwapConstantSpreadThetaFunction extends AbstractFunction.NonCompile
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
+    final Set<String> daysForwardNames = desiredValue.getConstraints().getValues(PROPERTY_DAYS_TO_MOVE_FORWARD);
+    if (daysForwardNames == null || daysForwardNames.size() != 1) {
+      return null;
+    }
     final Set<String> curveCalculationConfigNames = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     if (curveCalculationConfigNames == null || curveCalculationConfigNames.size() != 1) {
       return null;
@@ -164,19 +172,21 @@ public class SwapConstantSpreadThetaFunction extends AbstractFunction.NonCompile
     final ValueProperties.Builder properties = createValueProperties()
         .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
         .with(ValuePropertyNames.CURRENCY, currency)
-        .with(InterestRateFutureConstantSpreadThetaFunction.PROPERTY_THETA_CALCULATION_METHOD, InterestRateFutureConstantSpreadThetaFunction.THETA_CONSTANT_SPREAD);
+        .with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD)
+        .withAny(PROPERTY_DAYS_TO_MOVE_FORWARD);
     return properties;
   }
 
-  private ValueProperties.Builder getResultProperties(final String currency, final String curveCalculationConfig) {
+  private ValueProperties.Builder getResultProperties(final String currency, final String curveCalculationConfig, final String daysForward) {
     final ValueProperties.Builder properties = createValueProperties()
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
         .with(ValuePropertyNames.CURRENCY, currency)
-        .with(InterestRateFutureConstantSpreadThetaFunction.PROPERTY_THETA_CALCULATION_METHOD, InterestRateFutureConstantSpreadThetaFunction.THETA_CONSTANT_SPREAD);
+        .with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD)
+        .with(PROPERTY_DAYS_TO_MOVE_FORWARD, daysForward);
     return properties;
   }
 
-  private ValueSpecification getResultSpec(final ComputationTarget target, final String curveCalculationConfig, final String currency) {
-    return new ValueSpecification(ValueRequirementNames.VALUE_THETA, target.toSpecification(), getResultProperties(currency, curveCalculationConfig).get());
+  private ValueSpecification getResultSpec(final ComputationTarget target, final String curveCalculationConfig, final String currency, final String daysForward) {
+    return new ValueSpecification(ValueRequirementNames.VALUE_THETA, target.toSpecification(), getResultProperties(currency, curveCalculationConfig, daysForward).get());
   }
 }

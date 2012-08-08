@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.fixedincome;
@@ -39,8 +39,7 @@ public class InterestRateInstrumentDefaultPropertiesFunction extends DefaultProp
     ValueRequirementNames.PAR_RATE_CURVE_SENSITIVITY,
     ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT,
     ValueRequirementNames.PV01,
-    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-    ValueRequirementNames.VALUE_THETA};
+    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES};
   private final PriorityClass _priority;
   private final boolean _includeIRFutures;
   private final Map<String, String> _currencyAndCurveConfigNames;
