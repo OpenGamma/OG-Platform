@@ -14,8 +14,8 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.horizon.ConstantSpreadHorizonThetaCalculator;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
-import com.opengamma.analytics.financial.interestrate.ConstantSpreadHorizonThetaCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;

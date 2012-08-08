@@ -13,11 +13,11 @@ import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.horizon.ConstantSpreadHorizonThetaCalculator;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedONDefinition;
-import com.opengamma.analytics.financial.interestrate.ConstantSpreadHorizonThetaCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;

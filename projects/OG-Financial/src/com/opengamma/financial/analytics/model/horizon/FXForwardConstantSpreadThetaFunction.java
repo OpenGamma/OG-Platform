@@ -21,7 +21,7 @@ import org.apache.commons.lang.NotImplementedException;
 
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
-import com.opengamma.analytics.financial.interestrate.ConstantSpreadHorizonThetaCalculator;
+import com.opengamma.analytics.financial.horizon.ConstantSpreadHorizonThetaCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.engine.ComputationTarget;

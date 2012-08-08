@@ -25,8 +25,8 @@ import com.opengamma.analytics.financial.forex.definition.ForexOptionVanillaDefi
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionDigital;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
-import com.opengamma.analytics.financial.horizon.ConstantSpreadFXBlackRolldown;
-import com.opengamma.analytics.financial.interestrate.ConstantSpreadHorizonThetaCalculator;
+import com.opengamma.analytics.financial.horizon.ConstantSpreadFXOptionBlackRolldown;
+import com.opengamma.analytics.financial.horizon.ConstantSpreadHorizonThetaCalculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
@@ -78,7 +78,7 @@ public class ForexOptionDigitalCallSpreadMethodTest {
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
   private static final PresentValueCallSpreadBlackForexCalculator PVC_CALLSPREAD = new PresentValueCallSpreadBlackForexCalculator(STANDARD_SPREAD);
   private static final ConstantSpreadHorizonThetaCalculator THETAC = ConstantSpreadHorizonThetaCalculator.getInstance();
-  private static final ConstantSpreadFXBlackRolldown FX_OPTION_ROLLDOWN = ConstantSpreadFXBlackRolldown.getInstance();
+  private static final ConstantSpreadFXOptionBlackRolldown FX_OPTION_ROLLDOWN = ConstantSpreadFXOptionBlackRolldown.getInstance();
   // option
   private static final double STRIKE = 1.45;
   private static final boolean IS_CALL = true;

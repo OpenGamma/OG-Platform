@@ -215,9 +215,12 @@ import com.opengamma.financial.analytics.model.future.InterestRateFuturePV01Func
 import com.opengamma.financial.analytics.model.future.InterestRateFuturePresentValueFunctionDeprecated;
 import com.opengamma.financial.analytics.model.future.InterestRateFutureYieldCurveNodeSensitivitiesFunctionDeprecated;
 import com.opengamma.financial.analytics.model.horizon.FXOptionBlackConstantSpreadThetaFunction;
-import com.opengamma.financial.analytics.model.horizon.FXOptionBlackForwardCurvesThetaFunction;
+import com.opengamma.financial.analytics.model.horizon.FXOptionBlackForwardSlideThetaFunction;
 import com.opengamma.financial.analytics.model.horizon.FXOptionBlackThetaDefaults;
-import com.opengamma.financial.analytics.model.horizon.FXOptionBlackVolatilitySurfaceThetaFunction;
+import com.opengamma.financial.analytics.model.horizon.FXOptionBlackVolatilitySurfaceConstantSpreadThetaFunction;
+import com.opengamma.financial.analytics.model.horizon.FXOptionBlackVolatilitySurfaceForwardSlideThetaFunction;
+import com.opengamma.financial.analytics.model.horizon.FXOptionBlackYieldCurvesConstantSpreadThetaFunction;
+import com.opengamma.financial.analytics.model.horizon.FXOptionBlackYieldCurvesForwardSlideThetaFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackDefaultPropertiesFunctionDeprecated;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackGammaFunctionDeprecated;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackImpliedVolatilityFunctionDeprecated;
@@ -596,7 +599,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addInterestRateFutureOptionCalculators(functionConfigs);
     addBondFutureOptionCalculators(functionConfigs);
     addEquityDerivativesCalculators(functionConfigs);
-    addBlackCalculators(functionConfigs);
+    addDeprecatedBlackCalculators(functionConfigs);
     addLocalVolatilityCalculatorsOld(functionConfigs);
     addLocalVolatilityCalculators(functionConfigs);
     addExternallyProvidedSensitivitiesFunctions(functionConfigs);
@@ -940,8 +943,11 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(FXOptionBlackImpliedVolatilityFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackTermStructureCurrencyExposureFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackConstantSpreadThetaFunction.class));
-    functionConfigs.add(functionConfiguration(FXOptionBlackVolatilitySurfaceThetaFunction.class));
-    functionConfigs.add(functionConfiguration(FXOptionBlackForwardCurvesThetaFunction.class));
+    functionConfigs.add(functionConfiguration(FXOptionBlackVolatilitySurfaceConstantSpreadThetaFunction.class));
+    functionConfigs.add(functionConfiguration(FXOptionBlackYieldCurvesConstantSpreadThetaFunction.class));
+    functionConfigs.add(functionConfiguration(FXOptionBlackForwardSlideThetaFunction.class));
+    functionConfigs.add(functionConfiguration(FXOptionBlackVolatilitySurfaceForwardSlideThetaFunction.class));
+    functionConfigs.add(functionConfiguration(FXOptionBlackYieldCurvesForwardSlideThetaFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackDefaults.class, PriorityClass.ABOVE_NORMAL.name(), DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR, LINEAR_EXTRAPOLATOR,
         "USD", "DefaultTwoCurveUSDConfig", "Discounting", "EUR", "DefaultTwoCurveEURConfig", "Discounting", "TULLETT",
         "USD", "DefaultTwoCurveUSDConfig", "Discounting", "CAD", "DefaultTwoCurveCADConfig", "Discounting", "TULLETT",
@@ -1458,7 +1464,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         "0.07", "10.0", "Linear", "FlatExtrapolator", "FlatExtrapolator", "Linear", "FlatExtrapolator", "FlatExtrapolator", "EUR", "GBP"));
   }
 
-  private static void addBlackCalculators(final List<FunctionConfiguration> functionConfigs) {
+  private static void addDeprecatedBlackCalculators(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackPresentValueFunctionDeprecated.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackVolatilitySensitivityFunctionDeprecated.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackImpliedVolatilityFunctionDeprecated.class));

@@ -23,7 +23,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.calculator.PresentValueCallSpreadBlackForexCalculator;
 import com.opengamma.analytics.financial.forex.definition.ForexOptionDigitalDefinition;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
-import com.opengamma.analytics.financial.interestrate.ConstantSpreadHorizonThetaCalculator;
+import com.opengamma.analytics.financial.horizon.ConstantSpreadHorizonThetaCalculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
