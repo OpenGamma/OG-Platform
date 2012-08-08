@@ -121,7 +121,7 @@ public class FXOptionBlackVolatilitySurfaceForwardSlideThetaFunction extends FXO
     final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(curvesWithFX, smiles, Pair.of(ccy1, ccy2));
     final ForexOptionVanillaDefinition definition = (ForexOptionVanillaDefinition) security.accept(VISITOR);
     final MultipleCurrencyAmount theta = CALCULATOR.getTheta(definition, now, allCurveNames, smileBundle, Integer.parseInt(daysForward));
-    return Collections.singleton(new ComputedValue(spec, theta));
+    return Collections.singleton(new ComputedValue(spec, HorizonUtils.getNonZeroValue(theta)));
   }
 
   @Override

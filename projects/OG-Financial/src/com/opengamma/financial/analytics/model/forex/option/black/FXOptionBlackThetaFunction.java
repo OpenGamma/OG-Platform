@@ -25,7 +25,6 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues;
 import com.opengamma.util.money.CurrencyAmount;
-import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * The function to compute the theoretical theta of Forex options in the Black model.
@@ -46,8 +45,7 @@ public class FXOptionBlackThetaFunction extends FXOptionBlackSingleValuedFunctio
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
     if (data instanceof SmileDeltaTermStructureDataBundle) {
       final CurrencyAmount result = CALCULATOR.visit(forex, data);
-      final double thetaValue = result.getAmount() / DAYS_PER_YEAR;
-      return Collections.singleton(new ComputedValue(spec, MultipleCurrencyAmount.of(Collections.singletonMap(result.getCurrency(), thetaValue))));
+      return Collections.singleton(new ComputedValue(spec, result.getAmount() / DAYS_PER_YEAR));
     }
     throw new OpenGammaRuntimeException("Can only calculate theta for surfaces with smiles");
   }

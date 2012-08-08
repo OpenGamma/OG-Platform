@@ -125,11 +125,11 @@ public class FXOptionBlackConstantSpreadThetaFunction extends FXOptionBlackMulti
     if (security instanceof FXOptionSecurity) {
       final ForexOptionVanillaDefinition definition = (ForexOptionVanillaDefinition) security.accept(VISITOR);
       final MultipleCurrencyAmount theta = CALCULATOR.getTheta(definition, now, allCurveNames, smileBundle, Integer.parseInt(daysForward));
-      return Collections.singleton(new ComputedValue(spec, theta));
+      return Collections.singleton(new ComputedValue(spec, HorizonUtils.getNonZeroValue(theta)));
     } else if (security instanceof FXDigitalOptionSecurity) {
       final ForexOptionDigitalDefinition definition = (ForexOptionDigitalDefinition) security.accept(VISITOR);
       final MultipleCurrencyAmount theta = CALCULATOR.getTheta(definition, now, allCurveNames, smileBundle, PresentValueBlackSmileForexCalculator.getInstance(), Integer.parseInt(daysForward));
-      return Collections.singleton(new ComputedValue(spec, theta));
+      return Collections.singleton(new ComputedValue(spec, HorizonUtils.getNonZeroValue(theta)));
     }
     throw new OpenGammaRuntimeException("Should never get here; canApplyTo specifies vanilla and digital options only");
   }
