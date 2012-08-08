@@ -1,9 +1,13 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.horizon;
+
+import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues.PROPERTY_DAYS_TO_MOVE_FORWARD;
+import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues.PROPERTY_THETA_CALCULATION_METHOD;
+import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues.THETA_CONSTANT_SPREAD;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,6 +25,7 @@ import com.opengamma.analytics.financial.interestrate.ConstantSpreadHorizonTheta
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
@@ -39,11 +44,10 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * 
+ *
  */
 public class FXForwardConstantSpreadThetaFunction extends FXForwardMultiValuedFunction {
   private static final ForexSecurityConverter VISITOR = new ForexSecurityConverter();
-  private static final int DAYS_TO_MOVE_FORWARD = 1; // TODO Add to Value Properties
 
   public FXForwardConstantSpreadThetaFunction() {
     super(ValueRequirementNames.VALUE_THETA);
@@ -70,6 +74,7 @@ public class FXForwardConstantSpreadThetaFunction extends FXForwardMultiValuedFu
     final String receiveCurveName = desiredValue.getConstraint(ValuePropertyNames.RECEIVE_CURVE);
     final String payCurveConfig = desiredValue.getConstraint(PAY_CURVE_CALC_CONFIG);
     final String receiveCurveConfig = desiredValue.getConstraint(RECEIVE_CURVE_CALC_CONFIG);
+    final String daysForward = desiredValue.getConstraint(PROPERTY_DAYS_TO_MOVE_FORWARD);
     final String fullPutCurveName = payCurveName + "_" + payCurrency.getCode();
     final String fullCallCurveName = receiveCurveName + "_" + receiveCurrency.getCode();
     final YieldAndDiscountCurve payFundingCurve = getCurve(inputs, payCurrency, payCurveName, payCurveConfig);
@@ -90,21 +95,31 @@ public class FXForwardConstantSpreadThetaFunction extends FXForwardMultiValuedFu
     final ValueProperties.Builder properties = getResultProperties(target, desiredValue);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.VALUE_THETA, target.toSpecification(), properties.get());
     final ConstantSpreadHorizonThetaCalculator calculator = ConstantSpreadHorizonThetaCalculator.getInstance();
-    final MultipleCurrencyAmount theta = calculator.getTheta(definition, now, allCurveNames, yieldCurves, DAYS_TO_MOVE_FORWARD);
-    return Collections.singleton(new ComputedValue(spec, theta));
+    final MultipleCurrencyAmount theta = calculator.getTheta(definition, now, allCurveNames, yieldCurves, Integer.parseInt(daysForward));
+    return Collections.singleton(new ComputedValue(addDaysForwardProperty(spec, daysForward), theta));
+  }
+
+  @Override
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    final Set<String> daysForwardNames = desiredValue.getConstraints().getValues(PROPERTY_DAYS_TO_MOVE_FORWARD);
+    if (daysForwardNames == null || daysForwardNames.size() != 1) {
+      return null;
+    }
+    return super.getRequirements(context, target, desiredValue);
   }
 
   @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
     final ValueProperties.Builder properties = super.getResultProperties(target);
-    properties.with(InterestRateFutureConstantSpreadThetaFunction.PROPERTY_THETA_CALCULATION_METHOD, InterestRateFutureConstantSpreadThetaFunction.THETA_CONSTANT_SPREAD);
+    properties.with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD);
     return properties;
   }
 
   @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties.Builder properties = super.getResultProperties(target, desiredValue);
-    properties.with(InterestRateFutureConstantSpreadThetaFunction.PROPERTY_THETA_CALCULATION_METHOD, InterestRateFutureConstantSpreadThetaFunction.THETA_CONSTANT_SPREAD);
+    properties.with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD)
+              .withAny(PROPERTY_DAYS_TO_MOVE_FORWARD);
     return properties;
   }
 
@@ -112,5 +127,11 @@ public class FXForwardConstantSpreadThetaFunction extends FXForwardMultiValuedFu
   protected Set<ComputedValue> getResult(final Forex fxForward, final YieldCurveBundle data, final ComputationTarget target, final Set<ValueRequirement> desiredValues, final FunctionInputs inputs,
       final ValueSpecification spec, final FunctionExecutionContext executionContext) {
     throw new NotImplementedException("Should never get here");
+  }
+
+  private ValueSpecification addDaysForwardProperty(final ValueSpecification spec, final String daysForward) {
+    final ValueProperties.Builder properties = spec.getProperties().copy();
+    properties.with(PROPERTY_DAYS_TO_MOVE_FORWARD, daysForward);
+    return new ValueSpecification(spec.getValueName(), spec.getTargetSpecification(), properties.get());
   }
 }

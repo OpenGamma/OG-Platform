@@ -21,7 +21,7 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * @deprecated Use the version of the function that does not refer to funding and forward curves
- * @see InterestRateFutureOptionBlackDefaultPropertiesFunction
+ * @see InterestRateFutureOptionBlackDefaults
  */
 @Deprecated
 public class InterestRateFutureOptionBlackDefaultPropertiesFunctionDeprecated extends DefaultPropertyFunction {
