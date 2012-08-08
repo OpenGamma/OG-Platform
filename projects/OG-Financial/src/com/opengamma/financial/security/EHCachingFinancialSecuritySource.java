@@ -182,9 +182,8 @@ public class EHCachingFinancialSecuritySource extends AbstractSecuritySource imp
     }
     Element e = _uidCache.get(uid);
     if (e != null) {
-      Serializable value = e.getValue();
-      if (value instanceof Security) {
-        result = (Security) value;
+      if (e.getObjectValue() instanceof Security) {
+        result = (Security) e.getObjectValue();
         s_logger.debug("retrieved security: {} from single-security-cache", result);
         final Security existing = _frontCache.putIfAbsent(uid, result);
         if (existing != null) {
@@ -193,7 +192,7 @@ public class EHCachingFinancialSecuritySource extends AbstractSecuritySource imp
           return result;
         }
       } else {
-        s_logger.warn("returned object {} from single-security-cache not a Security", value);
+        s_logger.warn("returned object {} from single-security-cache not a Security", e.getObjectValue());
         return null;
       }
     } else {
@@ -212,9 +211,8 @@ public class EHCachingFinancialSecuritySource extends AbstractSecuritySource imp
   private Map<VersionCorrection, Security> getObjectIdCacheEntry(final ObjectId objectId) {
     final Element e = _uidCache.get(objectId);
     if (e != null) {
-      Serializable value = e.getValue();
-      if (value instanceof Map<?, ?>) {
-        return (Map<VersionCorrection, Security>) value;
+      if (e.getObjectValue() instanceof Map<?, ?>) {
+        return (Map<VersionCorrection, Security>) e.getObjectValue();
       }
     }
     return null;
@@ -267,11 +265,10 @@ public class EHCachingFinancialSecuritySource extends AbstractSecuritySource imp
     Element e = _bundleCache.get(bundle);
     Collection<Security> result = new HashSet<Security>();
     if (e != null) {
-      Serializable value = e.getValue();
-      if (value instanceof Collection<?>) {
-        result.addAll((Collection<Security>) value);
+      if (e.getObjectValue() instanceof Collection<?>) {
+        result.addAll((Collection<Security>) e.getObjectValue());
       } else {
-        s_logger.warn("returned object {} from cache is not a Collection<Security>", value);
+        s_logger.warn("returned object {} from cache is not a Collection<Security>", e.getObjectValue());
       }
     } else {
       result = getUnderlying().getSecurities(bundle);
@@ -367,11 +364,10 @@ public class EHCachingFinancialSecuritySource extends AbstractSecuritySource imp
     Element e = _bondCache.get(issuerType);
     Collection<Security> result = new HashSet<Security>();
     if (e != null) {
-      Serializable value = e.getValue();
-      if (value instanceof Collection<?>) {
-        result.addAll((Collection<Security>) value);
+      if (e.getObjectValue() instanceof Collection<?>) {
+        result.addAll((Collection<Security>) e.getObjectValue());
       } else {
-        s_logger.warn("returned object {} from bond cache is not a Collection<Security>", value);
+        s_logger.warn("returned object {} from bond cache is not a Collection<Security>", e.getObjectValue());
       }
     } else {
       result = getUnderlying().getBondsWithIssuerName(issuerType);

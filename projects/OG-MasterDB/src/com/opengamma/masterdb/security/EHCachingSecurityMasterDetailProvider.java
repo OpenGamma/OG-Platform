@@ -60,7 +60,7 @@ public class EHCachingSecurityMasterDetailProvider implements SecurityMasterDeta
     
     Element e = _detailsCache.get(base.getUniqueId());
     if (e != null) {
-      cached = (ManageableSecurity) e.getValue();
+      cached = (ManageableSecurity) e.getObjectValue();
     } else {
       cached = _underlying.loadSecurityDetail(base);
       e = new Element(base.getUniqueId(), cached);
