@@ -55,9 +55,9 @@
 			if we don't
 		-->
 		<ivy:resolve file="${ivy.file}" log="quiet" />
-		<ivy:retrieve
+		<ivy:retrieve symlink="true"
 			pattern="${lib.dir}/[type]/[organization]/[module]/[artifact]-[revision].[ext]" />
-		<manifestclasspath property="lib.path.mf" jarfile="${lib.path.jar.file}">
+		<manifestclasspath property="lib.path.mf" maxParentLevels="254" jarfile="${lib.path.jar.file}">
 			<classpath refid="lib.path.id" />
 		</manifestclasspath>
 		<jar destfile="${lib.path.jar.file}">
