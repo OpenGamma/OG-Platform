@@ -1,19 +1,15 @@
 package com.opengamma.analytics.financial.credit.cds;
 
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.money.CurrencyAmount;
 
 public class CDSApproxISDAMethodTest extends CDSTestSetup {
 
-  /**
-   * Test with the same data as the simple CDS method for comparison of the results
-   */
+//  /**
+//   * Test with the same data as the simple CDS method for comparison of the results
+//   */
 //  @Test
 //  public void testComparisonWithSimpleCalculation() {
 //    final CDSApproxISDAMethod method = new CDSApproxISDAMethod();
@@ -24,27 +20,39 @@ public class CDSApproxISDAMethodTest extends CDSTestSetup {
 //  }
 
   /**
-   * Test against the same data as in the ISDA example (main.c)
+   * Test against the same data as in the ISDA example (main.c) with spread of 7200 bps
    */
   @Test
-  public void testPresentValue() {
+  public void testPresentValue7200() {
 
+    setupIsdaTestData(7200.0);
     final CDSApproxISDAMethod method = new CDSApproxISDAMethod();
     final CurrencyAmount result = method.presentValue(_isdaTestCDS, _isdaTestCurveBundle, _isdaTestPricingDate);
-    System.out.println(result);
+    Assert.assertEquals(result.getAmount(), -60016.98295364380500000000);
+  }
+  
+  /**
+   * Test against the same data as in the ISDA example (main.c) with spread of 3600 bps
+   */
+  @Test
+  public void testPresentValue3600() {
+
+    setupIsdaTestData(3600.0);
+    final CDSApproxISDAMethod method = new CDSApproxISDAMethod();
+    final CurrencyAmount result = method.presentValue(_isdaTestCDS, _isdaTestCurveBundle, _isdaTestPricingDate);
+    Assert.assertEquals(result.getAmount(), -10682.51917248596700000000);
   }
 
-//  @Test
-//  public void testRealTimePointsForCurves() {
-//
-//    final ZonedDateTime pricingDate = ZonedDateTime.of(2008, 2, 1, 0, 0, 0, 0, TimeZone.UTC);
-//    Double[] timePoints = CDSApproxISDAMethod.realTimePointsForCurves(_isdaTestCDS, _isdaTestCdsCcyYieldCurve, _isdaTestSpreadCurve);
-//    Double[] expectedTimePoints = {
-//      0.0,
-//      TimeCalculator.getTimeBetween(pricingDate, pricingDate.plusDays(2)),
-//      TimeCalculator.getTimeBetween(pricingDate, pricingDate.plusDays(11))
-//    };
-//
-//    Assert.assertEquals(timePoints, expectedTimePoints);
-//  }
+  
+  /**
+   * Test against the same data as in the ISDA example (main.c) with spread of 0 bps
+   */
+  @Test
+  public void testPresentValue0() {
+
+    setupIsdaTestData(0.0);
+    final CDSApproxISDAMethod method = new CDSApproxISDAMethod();
+    final CurrencyAmount result = method.presentValue(_isdaTestCDS, _isdaTestCurveBundle, _isdaTestPricingDate);
+    Assert.assertEquals(result.getAmount(), 38651.94460867186700000000);
+  }
 }

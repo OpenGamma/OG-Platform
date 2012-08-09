@@ -49,7 +49,6 @@ public class CDSTestSetup {
 
   @BeforeClass
   public static void setupBeforeClass() {
-    setupIsdaTestData();
     setupSimpleTestData();
   }
 
@@ -149,13 +148,13 @@ public class CDSTestSetup {
       notional, spread, recoveryRate, true);
   }
 
-  public static void setupIsdaTestData() {
+  public static void setupIsdaTestData(double spread) {
       _isdaTestPricingDate = ZonedDateTime.of(2008, 2, 1, 0, 0, 0, 0, TimeZone.UTC);
   
       Currency currency = Currency.USD;
       double notional = 1.0e7;
       double recoveryRate = 0.4;
-      double spread = 7200.0/10000.0;
+      spread = spread/10000.0;
       ZonedDateTime cdsStartDate = ZonedDateTime.of(2008, 2, 8, 0, 0, 0, 0, TimeZone.UTC);
       ZonedDateTime maturity = ZonedDateTime.of(2008, 2, 12, 0, 0, 0, 0, TimeZone.UTC);
       Frequency premiumFrequency = SimpleFrequency.QUARTERLY;
