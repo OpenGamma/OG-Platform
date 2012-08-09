@@ -97,7 +97,7 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
         request.getExternalIdBundles(), request.getDataProvider(), request.getDataField(),
         request.getDateRange(), request.getMaxPoints());
     HistoricalTimeSeriesProviderGetResult result = new HistoricalTimeSeriesProviderGetResult(map);
-    return filterBulkDates(result, request.getDateRange(), request.getMaxPoints());
+    return filterResult(result, request.getDateRange(), request.getMaxPoints());
   }
 
   //-------------------------------------------------------------------------

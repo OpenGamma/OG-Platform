@@ -50,7 +50,7 @@ public class HistoricalTimeSeriesProviderComponentFactory extends AbstractCompon
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
-    final HistoricalTimeSeriesProvider provider = initHistoricalTimeSeriesProvider();
+    final HistoricalTimeSeriesProvider provider = initHistoricalTimeSeriesProvider(repo);
     final ComponentInfo info = new ComponentInfo(HistoricalTimeSeriesProvider.class, getClassifier());
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
     info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteHistoricalTimeSeriesProvider.class);
@@ -66,9 +66,10 @@ public class HistoricalTimeSeriesProviderComponentFactory extends AbstractCompon
    * This implementation uses {@link NoneFoundHistoricalTimeSeriesProvider} and is intended
    * to be subclassed.
    * 
+   * @param repo  the component repository, only used to register secondary items like lifecycle, not null
    * @return the provider, not null
    */
-  protected HistoricalTimeSeriesProvider initHistoricalTimeSeriesProvider() {
+  protected HistoricalTimeSeriesProvider initHistoricalTimeSeriesProvider(ComponentRepository repo) {
     return new NoneFoundHistoricalTimeSeriesProvider();
   }
 

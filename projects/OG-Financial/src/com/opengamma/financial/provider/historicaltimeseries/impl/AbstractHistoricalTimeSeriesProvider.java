@@ -148,22 +148,40 @@ public abstract class AbstractHistoricalTimeSeriesProvider implements Historical
    * @param maxPoints  the maximum number of points required, negative back from the end date, null for all
    * @return the filtered map, not null
    */
-  protected HistoricalTimeSeriesProviderGetResult filterBulkDates(
+  protected HistoricalTimeSeriesProviderGetResult filterResult(
       HistoricalTimeSeriesProviderGetResult result, LocalDateRange dateRange, Integer maxPoints) {
     
     for (Map.Entry<ExternalIdBundle, LocalDateDoubleTimeSeries> entry : result.getResultMap().entrySet()) {
-      LocalDateDoubleTimeSeries ts = entry.getValue();
-      entry.setValue(ts.subSeries(dateRange.getStartDateInclusive(), dateRange.getEndDateExclusive()));
-      if (maxPoints != null && ts.size() > Math.abs(maxPoints)) {
-        if (maxPoints < 0) {
-          ts = ts.tail(-maxPoints);
-        } else {
-          ts = ts.head(maxPoints);
-        }
-        entry.setValue(ts);
+      LocalDateDoubleTimeSeries hts = entry.getValue();
+      if (hts != null) {
+        LocalDateDoubleTimeSeries filtered = filterResult(hts, dateRange, maxPoints);
+        entry.setValue(filtered);
       }
     }
     return result;
+  }
+
+  /**
+   * Filters the time-series.
+   * 
+   * @param hts  the time-series to filter, not null
+   * @param dateRange  the date range to filter by, not null
+   * @param maxPoints  the maximum number of points required, negative back from the end date, null for all
+   * @return the filtered time-series, not null
+   */
+  protected LocalDateDoubleTimeSeries filterResult(LocalDateDoubleTimeSeries hts, LocalDateRange dateRange, Integer maxPoints) {
+    // filter by dates
+    hts = hts.subSeries(dateRange.getStartDateInclusive(), dateRange.getEndDateExclusive());
+    
+    // filter by points
+    if (maxPoints != null && hts.size() > Math.abs(maxPoints)) {
+      if (maxPoints < 0) {
+        hts = hts.tail(-maxPoints);
+      } else {
+        hts = hts.head(maxPoints);
+      }
+    }
+    return hts;
   }
 
   //-------------------------------------------------------------------------
