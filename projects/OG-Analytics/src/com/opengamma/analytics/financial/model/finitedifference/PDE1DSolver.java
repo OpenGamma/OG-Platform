@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.model.finitedifference;
 
 /**
- * 
+ * @param <T> The type of the PDE coefficients
  */
 public interface PDE1DSolver<T extends PDE1DCoefficients> {
 
