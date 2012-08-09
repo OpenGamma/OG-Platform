@@ -44,8 +44,8 @@ public class MultipleYieldCurveFinderGeneratorDataBundle {
     ArgumentChecker.notNull(knownData, "Known data");
     ArgumentChecker.notNull(curveGenerators, "Curve generators");
     _instruments = instruments;
-    _knownData = knownData;
-    _buildingFunction = new CurveBuildingGeneratorFunction(curveGenerators);
+    _knownData = knownData; // TODO: do we need to store it; it is in building function.
+    _buildingFunction = new CurveBuildingGeneratorFunction(curveGenerators, knownData);
     _nbInstruments = instruments.length;
   }
 

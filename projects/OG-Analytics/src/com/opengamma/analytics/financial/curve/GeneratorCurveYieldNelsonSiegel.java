@@ -38,4 +38,11 @@ public class GeneratorCurveYieldNelsonSiegel extends GeneratorCurve {
     return generateCurve(name, parameters);
   }
 
+  @Override
+  public double[] initialGuess(double[] rates) {
+    double[] guess = rates.clone();
+    guess[3] = 2.0; //TODO: get a better guess?
+    return guess;
+  }
+
 }

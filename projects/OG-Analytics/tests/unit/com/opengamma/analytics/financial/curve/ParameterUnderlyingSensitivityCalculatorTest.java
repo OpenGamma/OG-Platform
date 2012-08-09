@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.curve;
 
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.FLAT_EXTRAPOLATOR;
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
-import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -18,8 +18,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.curve.ParameterSensitivityCalculator;
-import com.opengamma.analytics.financial.curve.ParameterUnderlyingSensitivityCalculator;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.generator.GeneratorSwapTestsMaster;
@@ -114,27 +112,17 @@ public abstract class ParameterUnderlyingSensitivityCalculatorTest {
     getCalculator().calculateSensitivity(SWAP, null, (YieldCurveBundle) null);
   }
 
-  //  @Test(expectedExceptions = IllegalArgumentException.class)
-  //  public void testWrongNames() {
-  //    getCalculator().calculateSensitivity(SWAP, new YieldCurveBundle(CURVE_BUNDLE_YIELD), CURVE_BUNDLE_YIELD);
-  //  }
-
   @Test
   /**
-   * Tests when the sensitivity to only one curve is computed (no underlying curve trickery).
+   * Tests when the sensitivity to only one curve is computed and not to the underlying (the underlying is fixed).
    */
   public void testWithNoUnderlying() {
-    //    final YieldCurveBundle fixedCurve = new YieldCurveBundle();
-    //    fixedCurve.setCurve(DISCOUNTING_CURVE_NAME, DISCOUNTING_CURVE_SPREAD);
-    //    final LinkedHashMap<String, YieldAndDiscountCurve> fittingCurveMap = new LinkedHashMap<String, YieldAndDiscountCurve>();
-    //    fittingCurveMap.put(FORWARD_CURVE_NAME, FORWARD_CURVE_SPREAD);
-    //    YieldCurveBundle fittingCurve = new YieldCurveBundle(fittingCurveMap);
-
     final Set<String> fixedCurve = new HashSet<String>();
     fixedCurve.add(DISCOUNTING_CURVE_NAME);
     final DoubleMatrix1D resultU = getCalculator().calculateSensitivity(SWAP, fixedCurve, CURVE_BUNDLE_SPREAD);
     final DoubleMatrix1D resultNoU = getNoUnderlyingCalculator().calculateSensitivity(SWAP, fixedCurve, CURVE_BUNDLE_SPREAD);
-    assertArrayEquals("Sensitivity to rates: YieldCurve", resultNoU.getData(), resultU.getData(), TOLERANCE_SENSI);
+    assertEquals("Sensitivity to rates: YieldCurve", resultNoU.getData()[resultNoU.getData().length - 1], resultU.getData()[0], TOLERANCE_SENSI);
+    // Implementation note: the sensitivity to the spread parameter is the last one (given by the order of construction).
   }
 
 }
