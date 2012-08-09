@@ -20,6 +20,8 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
 import com.opengamma.financial.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
+import com.opengamma.financial.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetRequest;
+import com.opengamma.financial.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetResult;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdSupplier;
@@ -70,7 +72,10 @@ public class BloombergHistoricalTimeSeriesSource implements HistoricalTimeSeries
     
     s_logger.info("Getting HistoricalTimeSeries for security {}", externalIdBundle);
     
-    LocalDateDoubleTimeSeries timeSeries = _provider.getHistoricalTimeSeries(externalIdBundle, dataSource, dataProvider, dataField, dateRange);
+    HistoricalTimeSeriesProviderGetRequest request = HistoricalTimeSeriesProviderGetRequest.createGet(externalIdBundle, dataSource, dataProvider, dataField, dateRange);
+    request.setMaxPoints(maxPoints);
+    HistoricalTimeSeriesProviderGetResult result = _provider.getHistoricalTimeSeries(request);
+    LocalDateDoubleTimeSeries timeSeries = result.getResultMap().get(externalIdBundle);
     if (timeSeries == null) {
       s_logger.info("Unable to get HistoricalTimeSeries for {}", externalIdBundle);
       return null;
@@ -130,7 +135,8 @@ public class BloombergHistoricalTimeSeriesSource implements HistoricalTimeSeries
       start = start.plusDays(1);
     }
     LocalDateRange dateRange = LocalDateRange.ofNullUnbounded(start, end, includeEnd);
-    return doGetHistoricalTimeSeries(identifiers, dataSource, dataProvider, dataField, dateRange, maxPoints);
+    Integer maxPointsVal = (maxPoints == 0 ? null : maxPoints);
+    return doGetHistoricalTimeSeries(identifiers, dataSource, dataProvider, dataField, dateRange, maxPointsVal);
   }
 
   @Override

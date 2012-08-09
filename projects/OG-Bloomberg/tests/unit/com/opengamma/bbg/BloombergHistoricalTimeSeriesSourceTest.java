@@ -10,7 +10,6 @@ import static com.opengamma.bbg.BloombergConstants.DATA_PROVIDER_UNKNOWN;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.fail;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -143,20 +142,6 @@ public class BloombergHistoricalTimeSeriesSourceTest {
     
     // does it contain the expected data points?
     assertEquals(reference.getTimeSeries(), hts.getTimeSeries()); 
-  }
-
-  @Test
-  public void getHistoricalTimeSeriesWithPositiveMaxPoints() throws Exception {
-    LocalDate endDate = LocalDate.of(2012, 03, 07);
-    LocalDate startDate = endDate.minusMonths(1);
-    for (int maxPoints : new int[] {1, 2, 3, 4, 5}) {
-      try {
-        _source.getHistoricalTimeSeries(_secDes,  DEFAULT_DATA_SOURCE, DEFAULT_DATA_PROVIDER, PX_LAST, startDate, true, endDate, true, maxPoints);
-        fail("positive maxPoints should not be allowed when fetching bloomberg timeseries");
-      } catch (UnsupportedOperationException ex) {
-        // expected
-      }
-    }
   }
 
   @Test
