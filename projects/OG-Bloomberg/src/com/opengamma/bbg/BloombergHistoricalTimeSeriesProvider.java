@@ -85,13 +85,14 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
    * @param statistics  the statistics to collect, not null
    */
   public BloombergHistoricalTimeSeriesProvider(BloombergConnector bloombergConnector, BloombergReferenceDataStatistics statistics) {
-    super(BLOOMBERG_DATA_SOURCE_NAME, DEFAULT_START_DATE);
+    super(BLOOMBERG_DATA_SOURCE_NAME);
     _impl = new BloombergHistoricalTimeSeriesProviderImpl(bloombergConnector, statistics);
   }
 
   //-------------------------------------------------------------------------
   @Override
   protected HistoricalTimeSeriesProviderGetResult doBulkGet(HistoricalTimeSeriesProviderGetRequest request) {
+    fixRequestDateRange(request, DEFAULT_START_DATE);
     Map<ExternalIdBundle, LocalDateDoubleTimeSeries> map = _impl.doBulkGet(
         request.getExternalIdBundles(), request.getDataProvider(), request.getDataField(),
         request.getDateRange(), request.getMaxPoints());

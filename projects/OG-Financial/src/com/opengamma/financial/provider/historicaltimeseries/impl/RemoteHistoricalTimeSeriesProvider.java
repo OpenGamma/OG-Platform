@@ -42,6 +42,15 @@ public class RemoteHistoricalTimeSeriesProvider extends AbstractRemoteClient imp
   // code copied from AbstractHistoricalTimeSeriesProvider due to lack of multiple inheritance
   @Override
   public LocalDateDoubleTimeSeries getHistoricalTimeSeries(
+      ExternalIdBundle externalIdBundle, String dataSource, String dataProvider, String dataField) {
+    
+    HistoricalTimeSeriesProviderGetRequest request = HistoricalTimeSeriesProviderGetRequest.createGet(externalIdBundle, dataSource, dataProvider, dataField);
+    HistoricalTimeSeriesProviderGetResult result = getHistoricalTimeSeries(request);
+    return result.getResultMap().get(externalIdBundle);
+  }
+
+  @Override
+  public LocalDateDoubleTimeSeries getHistoricalTimeSeries(
       ExternalIdBundle externalIdBundle, String dataSource, String dataProvider, String dataField, LocalDateRange dateRange) {
     
     HistoricalTimeSeriesProviderGetRequest request = HistoricalTimeSeriesProviderGetRequest.createGet(externalIdBundle, dataSource, dataProvider, dataField, dateRange);
@@ -51,9 +60,9 @@ public class RemoteHistoricalTimeSeriesProvider extends AbstractRemoteClient imp
 
   @Override
   public Pair<LocalDate, Double> getLatestDataPoint(
-      ExternalIdBundle externalIdBundle, String dataSource, String dataProvider, String dataField, LocalDateRange dateRange) {
+      ExternalIdBundle externalIdBundle, String dataSource, String dataProvider, String dataField) {
     
-    HistoricalTimeSeriesProviderGetRequest request = HistoricalTimeSeriesProviderGetRequest.createGetLatest(externalIdBundle, dataSource, dataProvider, dataField, dateRange);
+    HistoricalTimeSeriesProviderGetRequest request = HistoricalTimeSeriesProviderGetRequest.createGetLatest(externalIdBundle, dataSource, dataProvider, dataField);
     HistoricalTimeSeriesProviderGetResult result = getHistoricalTimeSeries(request);
     LocalDateDoubleTimeSeries series = result.getResultMap().get(externalIdBundle);
     if (series == null || series.isEmpty()) {

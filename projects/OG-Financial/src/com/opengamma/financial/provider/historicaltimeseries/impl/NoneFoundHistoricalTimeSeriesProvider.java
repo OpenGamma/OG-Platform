@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.provider.historicaltimeseries.impl;
 
-import javax.time.calendar.LocalDate;
-
 import com.opengamma.financial.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetRequest;
 import com.opengamma.financial.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetResult;
 
@@ -19,7 +17,6 @@ public class NoneFoundHistoricalTimeSeriesProvider extends AbstractHistoricalTim
    * Creates an instance.
    */
   public NoneFoundHistoricalTimeSeriesProvider() {
-    super(".*", LocalDate.MIN_DATE);
   }
 
   //-------------------------------------------------------------------------

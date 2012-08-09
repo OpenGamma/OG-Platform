@@ -78,6 +78,21 @@ public class HistoricalTimeSeriesProviderGetRequest extends DirectBean {
 
   //-------------------------------------------------------------------------
   /**
+   * Obtains an instance to get the whole of a single time-series.
+   * 
+   * @param externalIdBundle  the identifier bundle, not null
+   * @param dataSource  the data source, not null
+   * @param dataProvider  the data provider, not null
+   * @param dataField  the dataField, not null
+   * @return the request, not null
+   */
+  public static HistoricalTimeSeriesProviderGetRequest createGet(
+      ExternalIdBundle externalIdBundle,
+      String dataSource, String dataProvider, String dataField) {
+    return createGet(externalIdBundle, dataSource, dataProvider, dataField, LocalDateRange.ALL);
+  }
+
+  /**
    * Obtains an instance to get a single time-series.
    * 
    * @param externalIdBundle  the identifier bundle, not null
@@ -106,18 +121,16 @@ public class HistoricalTimeSeriesProviderGetRequest extends DirectBean {
    * @param dataSource  the data source, not null
    * @param dataProvider  the data provider, not null
    * @param dataField  the dataField, not null
-   * @param dateRange  the date range to obtain, not null
    * @return the request, not null
    */
   public static HistoricalTimeSeriesProviderGetRequest createGetLatest(
       ExternalIdBundle externalIdBundle,
-      String dataSource, String dataProvider, String dataField, LocalDateRange dateRange) {
+      String dataSource, String dataProvider, String dataField) {
     HistoricalTimeSeriesProviderGetRequest request = new HistoricalTimeSeriesProviderGetRequest();
     request.addExternalIds(externalIdBundle);
     request.setDataSource(dataSource);
     request.setDataProvider(dataProvider);
     request.setDataField(dataField);
-    request.setDateRange(dateRange);
     request.setMaxPoints(-1);
     return request;
   }

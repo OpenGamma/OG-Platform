@@ -33,15 +33,29 @@ import com.opengamma.util.tuple.Pair;
 public interface HistoricalTimeSeriesProvider {
 
   /**
+   * Gets the whole of a time-series from the underlying data source.
+   * <p>
+   * The time-series is specified by external identifier bundle.
+   * The other parameters restrict and validate the search.
+   * 
+   * @param externalIdBundle  the identifier bundle, not null
+   * @param dataSource  the data source, not null
+   * @param dataProvider  the data provider, not null
+   * @param dataField  the dataField, not null
+   * @return the historical time-series, null if not found
+   * @throws RuntimeException if a problem occurs
+   */
+  LocalDateDoubleTimeSeries getHistoricalTimeSeries(
+      ExternalIdBundle externalIdBundle,
+      String dataSource, String dataProvider, String dataField);
+
+  /**
    * Gets a time-series from the underlying data source.
    * <p>
    * The time-series is specified by external identifier bundle.
    * The other parameters restrict and validate the search.
    * <p>
-   * This returns a subset of the data points filtered by the dates provided and limited to the 
-   * specified maximum number of points:
-   * +ve maxPoints returns at most maxPoints data points counting forwards from the earliest date
-   * -ve maxPoints returns at most -maxPoints data points counting backwards from the latest date 
+   * This returns a subset of the data points filtered by the dates provided.
    * 
    * @param externalIdBundle  the identifier bundle, not null
    * @param dataSource  the data source, not null
@@ -65,13 +79,12 @@ public interface HistoricalTimeSeriesProvider {
    * @param dataSource  the data source, not null
    * @param dataProvider  the data provider, not null
    * @param dataField  the dataField, not null
-   * @param dateRange  the date range to obtain, not null
    * @return a pair containing the latest data point value and its date, null if not found
    * @throws RuntimeException if a problem occurs
    */
   Pair<LocalDate, Double> getLatestDataPoint(
       ExternalIdBundle externalIdBundle,
-      String dataSource, String dataProvider, String dataField, LocalDateRange dateRange);
+      String dataSource, String dataProvider, String dataField);
 
   /**
    * Gets multiple time-series from the underlying data source.

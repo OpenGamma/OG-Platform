@@ -32,25 +32,34 @@ public abstract class AbstractHistoricalTimeSeriesProvider implements Historical
    * The data source name.
    */
   private final String _dataSourceRegex;
+
   /**
-   * The earliest start date.
+   * Creates an instance suitable for any data source.
    */
-  private final LocalDate _earliestStartDate;
+  public AbstractHistoricalTimeSeriesProvider() {
+    _dataSourceRegex = ".*";
+  }
 
   /**
    * Creates an instance.
    * 
    * @param dataSourceRegex  the data source regex, not null
-   * @param earliestStartDate  the earliest start date, not null
    */
-  public AbstractHistoricalTimeSeriesProvider(String dataSourceRegex, LocalDate earliestStartDate) {
+  public AbstractHistoricalTimeSeriesProvider(String dataSourceRegex) {
     ArgumentChecker.notNull(dataSourceRegex, "dataSourceRegex");
-    ArgumentChecker.notNull(earliestStartDate, "earliestStartDate");
     _dataSourceRegex = dataSourceRegex;
-    _earliestStartDate = earliestStartDate;
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public LocalDateDoubleTimeSeries getHistoricalTimeSeries(
+      ExternalIdBundle externalIdBundle, String dataSource, String dataProvider, String dataField) {
+    
+    HistoricalTimeSeriesProviderGetRequest request = HistoricalTimeSeriesProviderGetRequest.createGet(externalIdBundle, dataSource, dataProvider, dataField);
+    HistoricalTimeSeriesProviderGetResult result = getHistoricalTimeSeries(request);
+    return result.getResultMap().get(externalIdBundle);
+  }
+
   @Override
   public LocalDateDoubleTimeSeries getHistoricalTimeSeries(
       ExternalIdBundle externalIdBundle, String dataSource, String dataProvider, String dataField, LocalDateRange dateRange) {
@@ -62,9 +71,9 @@ public abstract class AbstractHistoricalTimeSeriesProvider implements Historical
 
   @Override
   public Pair<LocalDate, Double> getLatestDataPoint(
-      ExternalIdBundle externalIdBundle, String dataSource, String dataProvider, String dataField, LocalDateRange dateRange) {
+      ExternalIdBundle externalIdBundle, String dataSource, String dataProvider, String dataField) {
     
-    HistoricalTimeSeriesProviderGetRequest request = HistoricalTimeSeriesProviderGetRequest.createGetLatest(externalIdBundle, dataSource, dataProvider, dataField, dateRange);
+    HistoricalTimeSeriesProviderGetRequest request = HistoricalTimeSeriesProviderGetRequest.createGetLatest(externalIdBundle, dataSource, dataProvider, dataField);
     HistoricalTimeSeriesProviderGetResult result = getHistoricalTimeSeries(request);
     LocalDateDoubleTimeSeries series = result.getResultMap().get(externalIdBundle);
     if (series == null || series.isEmpty()) {
@@ -82,7 +91,6 @@ public abstract class AbstractHistoricalTimeSeriesProvider implements Historical
     return result.getResultMap();
   }
 
-  //-------------------------------------------------------------------------
   @Override
   public HistoricalTimeSeriesProviderGetResult getHistoricalTimeSeries(HistoricalTimeSeriesProviderGetRequest request) {
     ArgumentChecker.notNull(request, "request");
@@ -93,45 +101,11 @@ public abstract class AbstractHistoricalTimeSeriesProvider implements Historical
       return new HistoricalTimeSeriesProviderGetResult();
     }
     
-    // fix dates
-    LocalDateRange dateRange = request.getDateRange();
-    if (dateRange.getStartDateInclusive().isBefore(_earliestStartDate)) {
-      dateRange = fixStartDate(dateRange);
-    }
-    if (dateRange.isEndDateMaximum()) {
-      dateRange = fixEndDate(dateRange);
-    }
-    
     // get time-series
     return doBulkGet(request);
   }
 
-  /**
-   * Fixes the start date.
-   * <p>
-   * This method is only invoked if the start date is before the earliest start date passed into the constructor.
-   * This implementation sets the start date to the earliest start date passed into the constructor.
-   * 
-   * @param dateRange  the date range to fix, not null
-   * @return the fixed range, not null
-   */
-  protected LocalDateRange fixStartDate(LocalDateRange dateRange) {
-    return dateRange.withStartDate(_earliestStartDate);
-  }
-
-  /**
-   * Fixes the end date.
-   * <p>
-   * This method is only invoked if the end date is unbounded.
-   * This implementation obtains the current date and chooses the previous Mon-Fri from it.
-   * 
-   * @param dateRange  the date range to fix, not null
-   * @return the fixed range, not null
-   */
-  protected LocalDateRange fixEndDate(LocalDateRange dateRange) {
-    return dateRange.withEndDate(DateUtils.previousWeekDay());
-  }
-
+  //-------------------------------------------------------------------------
   /**
    * Gets the time-series.
    * <p>
@@ -143,6 +117,27 @@ public abstract class AbstractHistoricalTimeSeriesProvider implements Historical
   protected abstract HistoricalTimeSeriesProviderGetResult doBulkGet(HistoricalTimeSeriesProviderGetRequest request);
 
   //-------------------------------------------------------------------------
+  /**
+   * Fixes the date range, sorting out unbounded values.
+   * <p>
+   * This method is used by subclasses to adjust the request.
+   * 
+   * @param request  the request to fix, not null
+   * @param earliestStartDate  the earliest start date to set to, not null
+   * @return the adjusted date range, not null
+   */
+  protected LocalDateRange fixRequestDateRange(HistoricalTimeSeriesProviderGetRequest request, LocalDate earliestStartDate) {
+    LocalDateRange dateRange = request.getDateRange();
+    if (dateRange.getStartDateInclusive().isBefore(earliestStartDate)) {
+      dateRange = dateRange.withStartDate(earliestStartDate);
+    }
+    if (dateRange.isEndDateMaximum()) {
+      dateRange = dateRange.withEndDate(DateUtils.previousWeekDay());
+    }
+    request.setDateRange(dateRange);
+    return dateRange;
+  }
+
   /**
    * Filters the resulting bulk data map by the date range.
    * <p>
@@ -169,6 +164,12 @@ public abstract class AbstractHistoricalTimeSeriesProvider implements Historical
       }
     }
     return result;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    return getClass().getSimpleName() + "[" + _dataSourceRegex + "]";
   }
 
 }
