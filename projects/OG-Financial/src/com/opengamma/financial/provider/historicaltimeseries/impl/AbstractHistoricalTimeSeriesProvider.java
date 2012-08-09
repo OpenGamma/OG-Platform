@@ -97,14 +97,40 @@ public abstract class AbstractHistoricalTimeSeriesProvider implements Historical
     // fix dates
     LocalDateRange dateRange = request.getDateRange();
     if (dateRange.getStartDateInclusive().isBefore(_earliestStartDate)) {
-      dateRange = dateRange.withStartDate(_earliestStartDate);
+      dateRange = fixStartDate(dateRange);
     }
-    if (dateRange.getEndDateExclusive().equals(LocalDate.MAX_DATE)) {
-      dateRange = dateRange.withEndDate(DateUtils.previousWeekDay());
+    if (dateRange.isEndDateMaximum()) {
+      dateRange = fixEndDate(dateRange);
     }
     
     // get time-series
     return doBulkGet(request);
+  }
+
+  /**
+   * Fixes the start date.
+   * <p>
+   * This method is only invoked if the start date is before the earliest start date passed into the constructor.
+   * This implementation sets the start date to the earliest start date passed into the constructor.
+   * 
+   * @param dateRange  the date range to fix, not null
+   * @return the fixed range, not null
+   */
+  protected LocalDateRange fixStartDate(LocalDateRange dateRange) {
+    return dateRange.withStartDate(_earliestStartDate);
+  }
+
+  /**
+   * Fixes the end date.
+   * <p>
+   * This method is only invoked if the end date is unbounded.
+   * This implementation obtains the current date and chooses the previous Mon-Fri from it.
+   * 
+   * @param dateRange  the date range to fix, not null
+   * @return the fixed range, not null
+   */
+  protected LocalDateRange fixEndDate(LocalDateRange dateRange) {
+    return dateRange.withEndDate(DateUtils.previousWeekDay());
   }
 
   /**
