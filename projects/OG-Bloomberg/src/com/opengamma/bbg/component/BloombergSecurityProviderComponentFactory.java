@@ -19,6 +19,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.bbg.BloombergSecurityProvider;
 import com.opengamma.bbg.ReferenceDataProvider;
+import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.provider.SecurityProviderComponentFactory;
 import com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider;
 import com.opengamma.financial.timeseries.exchange.ExchangeDataProvider;
@@ -36,18 +37,13 @@ public class BloombergSecurityProviderComponentFactory extends SecurityProviderC
   private ReferenceDataProvider _bloombergReferenceData;
 
   //-------------------------------------------------------------------------
-  /**
-   * Creates the provider.
-   * 
-   * @return the provider, not null
-   */
   @Override
-  protected BloombergSecurityProvider initSecurityProvider() {
-    ExchangeDataProvider exchangeDataProvider = initExchangeDataProvider();
+  protected BloombergSecurityProvider initSecurityProvider(ComponentRepository repo) {
+    ExchangeDataProvider exchangeDataProvider = initExchangeDataProvider(repo);
     return new BloombergSecurityProvider(getBloombergReferenceData(), exchangeDataProvider);
   }
 
-  protected ExchangeDataProvider initExchangeDataProvider() {
+  protected ExchangeDataProvider initExchangeDataProvider(ComponentRepository repo) {
     return new DefaultExchangeDataProvider();
   }
   

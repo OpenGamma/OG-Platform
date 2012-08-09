@@ -50,7 +50,7 @@ public class SecurityProviderComponentFactory extends AbstractComponentFactory {
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
-    final SecurityProvider provider = initSecurityProvider();
+    final SecurityProvider provider = initSecurityProvider(repo);
     final ComponentInfo info = new ComponentInfo(SecurityProvider.class, getClassifier());
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
     info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteSecurityProvider.class);
@@ -66,9 +66,10 @@ public class SecurityProviderComponentFactory extends AbstractComponentFactory {
    * This implementation uses {@link NoneFoundSecurityProvider} and is intended
    * to be subclassed.
    * 
+   * @param repo  the component repository, only used to register secondary items like lifecycle, not null
    * @return the provider, not null
    */
-  protected SecurityProvider initSecurityProvider() {
+  protected SecurityProvider initSecurityProvider(ComponentRepository repo) {
     return new NoneFoundSecurityProvider();
   }
 
