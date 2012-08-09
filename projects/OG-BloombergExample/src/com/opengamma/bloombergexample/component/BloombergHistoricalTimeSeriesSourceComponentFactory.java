@@ -23,12 +23,14 @@ import org.springframework.context.Lifecycle;
 
 import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.BloombergConnectorFactoryBean;
+import com.opengamma.bbg.BloombergHistoricalTimeSeriesProvider;
 import com.opengamma.bbg.BloombergHistoricalTimeSeriesSource;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.historicaltimeseries.impl.EHCachingHistoricalTimeSeriesSource;
+import com.opengamma.financial.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
 
 /**
  * Component factory for the Bloomberg time series provider.
@@ -62,7 +64,8 @@ public class BloombergHistoricalTimeSeriesSourceComponentFactory extends Abstrac
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
     BloombergConnectorFactoryBean factory = new BloombergConnectorFactoryBean("BloombergHistoricalTimeSeriesSourceComponentFactory", getServerHost(), getServerPort());
     BloombergConnector connector = factory.getObjectCreating();
-    HistoricalTimeSeriesSource htsSource = new BloombergHistoricalTimeSeriesSource(connector);
+    HistoricalTimeSeriesProvider htsProvider = new BloombergHistoricalTimeSeriesProvider(connector);
+    HistoricalTimeSeriesSource htsSource = new BloombergHistoricalTimeSeriesSource(htsProvider);
     if (getCacheManager() != null) {
       repo.registerLifecycle((Lifecycle) htsSource);
       htsSource = new EHCachingHistoricalTimeSeriesSource(htsSource, getCacheManager());

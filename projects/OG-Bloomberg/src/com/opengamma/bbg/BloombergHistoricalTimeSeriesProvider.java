@@ -215,6 +215,9 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
       request.set("endDate", dateRange.getEndDateInclusive().toString(DateTimeFormatters.basicIsoDate()));
       request.set("adjustmentSplit", true);
       request.set("returnEids", true);
+//      if (maxPoints != null && maxPoints <= 0) {
+//        request.set("maxDataPoints", -maxPoints);
+//      }
       return request;
     }
 

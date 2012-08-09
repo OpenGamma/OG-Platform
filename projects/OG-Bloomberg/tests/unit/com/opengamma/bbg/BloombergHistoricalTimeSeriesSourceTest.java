@@ -41,6 +41,7 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 @Test(groups = "integration")
 public class BloombergHistoricalTimeSeriesSourceTest {
   
+  private BloombergHistoricalTimeSeriesProvider _provider;
   private HistoricalTimeSeriesSource _source;
   private ExternalIdBundle _secDes = ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("IBM US Equity"));
   private static final String DEFAULT_DATA_PROVIDER = DATA_PROVIDER_UNKNOWN;
@@ -50,19 +51,18 @@ public class BloombergHistoricalTimeSeriesSourceTest {
   @BeforeMethod
   public void setUp() throws Exception {
     BloombergConnector connector = BloombergTestUtils.getBloombergConnector();
-    BloombergHistoricalTimeSeriesSource source = new BloombergHistoricalTimeSeriesSource(connector);
-    
-    source.start();
-    _source = source;
+    _provider = new BloombergHistoricalTimeSeriesProvider(connector);
+    _source = new BloombergHistoricalTimeSeriesSource(_provider);
+    _provider.start();
   }
 
   @AfterMethod
   public void tearDown() throws Exception {
-    BloombergHistoricalTimeSeriesSource dataProvider = (BloombergHistoricalTimeSeriesSource) _source;
-    if (dataProvider != null) {
-      dataProvider.stop();
+    if (_provider != null) {
+      _provider.stop();
     }
     _source = null;
+    _provider = null;
   }
 
   //-------------------------------------------------------------------------
