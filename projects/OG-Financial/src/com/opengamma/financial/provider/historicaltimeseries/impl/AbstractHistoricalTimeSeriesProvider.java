@@ -17,7 +17,6 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.LocalDateRange;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
@@ -151,18 +150,22 @@ public abstract class AbstractHistoricalTimeSeriesProvider implements Historical
    * 
    * @param result  the result to filter, not null
    * @param dateRange  the date range to filter by, not null
-   * @param isLatestOnly  whether to only return the latest point in the series
+   * @param maxPoints  the maximum number of points required, negative back from the end date, null for all
    * @return the filtered map, not null
    */
   protected HistoricalTimeSeriesProviderGetResult filterBulkDates(
-      HistoricalTimeSeriesProviderGetResult result, LocalDateRange dateRange, boolean isLatestOnly) {
+      HistoricalTimeSeriesProviderGetResult result, LocalDateRange dateRange, Integer maxPoints) {
     
     for (Map.Entry<ExternalIdBundle, LocalDateDoubleTimeSeries> entry : result.getResultMap().entrySet()) {
-      entry.setValue(entry.getValue().subSeries(dateRange.getStartDateInclusive(), dateRange.getEndDateExclusive()));
-      if (isLatestOnly && entry.getValue().size() > 0) {
-        LocalDate date = entry.getValue().getLatestTime();
-        double value = entry.getValue().getLatestValue();
-        entry.setValue(new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {date}, new double[] {value}));
+      LocalDateDoubleTimeSeries ts = entry.getValue();
+      entry.setValue(ts.subSeries(dateRange.getStartDateInclusive(), dateRange.getEndDateExclusive()));
+      if (maxPoints != null && ts.size() > Math.abs(maxPoints)) {
+        if (maxPoints < 0) {
+          ts = ts.tail(-maxPoints);
+        } else {
+          ts = ts.head(maxPoints);
+        }
+        entry.setValue(ts);
       }
     }
     return result;

@@ -67,11 +67,14 @@ public class HistoricalTimeSeriesProviderGetRequest extends DirectBean {
   @PropertyDefinition(validate = "notNull")
   private LocalDateRange _dateRange = LocalDateRange.ALL;
   /**
-   * The latest value only flag.
-   * Default value is false.
+   * The maximum number of points required, null to not filter.
+   * The points are limited by passing a negative number, representing the number
+   * of points back from the end of the date range.
+   * A positive number represents the number of points from the start of the range,
+   * however most implementations do not support this.
    */
   @PropertyDefinition
-  private boolean _latestValueOnly;
+  private Integer _maxPoints;
 
   //-------------------------------------------------------------------------
   /**
@@ -115,7 +118,7 @@ public class HistoricalTimeSeriesProviderGetRequest extends DirectBean {
     request.setDataProvider(dataProvider);
     request.setDataField(dataField);
     request.setDateRange(dateRange);
-    request.setLatestValueOnly(true);
+    request.setMaxPoints(-1);
     return request;
   }
 
@@ -214,8 +217,8 @@ public class HistoricalTimeSeriesProviderGetRequest extends DirectBean {
         return getDataField();
       case -261425617:  // dateRange
         return getDateRange();
-      case 2011110646:  // latestValueOnly
-        return isLatestValueOnly();
+      case -667790489:  // maxPoints
+        return getMaxPoints();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -239,8 +242,8 @@ public class HistoricalTimeSeriesProviderGetRequest extends DirectBean {
       case -261425617:  // dateRange
         setDateRange((LocalDateRange) newValue);
         return;
-      case 2011110646:  // latestValueOnly
-        setLatestValueOnly((Boolean) newValue);
+      case -667790489:  // maxPoints
+        setMaxPoints((Integer) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -267,7 +270,7 @@ public class HistoricalTimeSeriesProviderGetRequest extends DirectBean {
           JodaBeanUtils.equal(getDataProvider(), other.getDataProvider()) &&
           JodaBeanUtils.equal(getDataField(), other.getDataField()) &&
           JodaBeanUtils.equal(getDateRange(), other.getDateRange()) &&
-          JodaBeanUtils.equal(isLatestValueOnly(), other.isLatestValueOnly());
+          JodaBeanUtils.equal(getMaxPoints(), other.getMaxPoints());
     }
     return false;
   }
@@ -280,7 +283,7 @@ public class HistoricalTimeSeriesProviderGetRequest extends DirectBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getDataProvider());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDataField());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDateRange());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isLatestValueOnly());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMaxPoints());
     return hash;
   }
 
@@ -419,30 +422,39 @@ public class HistoricalTimeSeriesProviderGetRequest extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the latest value only flag.
-   * Default value is false.
+   * Gets the maximum number of points required, null to not filter.
+   * The points are limited by passing a negative number, representing the number
+   * of points back from the end of the date range.
+   * A positive number represents the number of points from the start of the range,
+   * however most implementations do not support this.
    * @return the value of the property
    */
-  public boolean isLatestValueOnly() {
-    return _latestValueOnly;
+  public Integer getMaxPoints() {
+    return _maxPoints;
   }
 
   /**
-   * Sets the latest value only flag.
-   * Default value is false.
-   * @param latestValueOnly  the new value of the property
+   * Sets the maximum number of points required, null to not filter.
+   * The points are limited by passing a negative number, representing the number
+   * of points back from the end of the date range.
+   * A positive number represents the number of points from the start of the range,
+   * however most implementations do not support this.
+   * @param maxPoints  the new value of the property
    */
-  public void setLatestValueOnly(boolean latestValueOnly) {
-    this._latestValueOnly = latestValueOnly;
+  public void setMaxPoints(Integer maxPoints) {
+    this._maxPoints = maxPoints;
   }
 
   /**
-   * Gets the the {@code latestValueOnly} property.
-   * Default value is false.
+   * Gets the the {@code maxPoints} property.
+   * The points are limited by passing a negative number, representing the number
+   * of points back from the end of the date range.
+   * A positive number represents the number of points from the start of the range,
+   * however most implementations do not support this.
    * @return the property, not null
    */
-  public final Property<Boolean> latestValueOnly() {
-    return metaBean().latestValueOnly().createProperty(this);
+  public final Property<Integer> maxPoints() {
+    return metaBean().maxPoints().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -482,10 +494,10 @@ public class HistoricalTimeSeriesProviderGetRequest extends DirectBean {
     private final MetaProperty<LocalDateRange> _dateRange = DirectMetaProperty.ofReadWrite(
         this, "dateRange", HistoricalTimeSeriesProviderGetRequest.class, LocalDateRange.class);
     /**
-     * The meta-property for the {@code latestValueOnly} property.
+     * The meta-property for the {@code maxPoints} property.
      */
-    private final MetaProperty<Boolean> _latestValueOnly = DirectMetaProperty.ofReadWrite(
-        this, "latestValueOnly", HistoricalTimeSeriesProviderGetRequest.class, Boolean.TYPE);
+    private final MetaProperty<Integer> _maxPoints = DirectMetaProperty.ofReadWrite(
+        this, "maxPoints", HistoricalTimeSeriesProviderGetRequest.class, Integer.class);
     /**
      * The meta-properties.
      */
@@ -496,7 +508,7 @@ public class HistoricalTimeSeriesProviderGetRequest extends DirectBean {
         "dataProvider",
         "dataField",
         "dateRange",
-        "latestValueOnly");
+        "maxPoints");
 
     /**
      * Restricted constructor.
@@ -517,8 +529,8 @@ public class HistoricalTimeSeriesProviderGetRequest extends DirectBean {
           return _dataField;
         case -261425617:  // dateRange
           return _dateRange;
-        case 2011110646:  // latestValueOnly
-          return _latestValueOnly;
+        case -667790489:  // maxPoints
+          return _maxPoints;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -580,11 +592,11 @@ public class HistoricalTimeSeriesProviderGetRequest extends DirectBean {
     }
 
     /**
-     * The meta-property for the {@code latestValueOnly} property.
+     * The meta-property for the {@code maxPoints} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Boolean> latestValueOnly() {
-      return _latestValueOnly;
+    public final MetaProperty<Integer> maxPoints() {
+      return _maxPoints;
     }
 
   }

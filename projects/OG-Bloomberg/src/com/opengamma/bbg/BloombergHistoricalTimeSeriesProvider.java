@@ -93,9 +93,10 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
   @Override
   protected HistoricalTimeSeriesProviderGetResult doBulkGet(HistoricalTimeSeriesProviderGetRequest request) {
     Map<ExternalIdBundle, LocalDateDoubleTimeSeries> map = _impl.doBulkGet(
-        request.getExternalIdBundles(), request.getDataProvider(), request.getDataField(), request.getDateRange());
+        request.getExternalIdBundles(), request.getDataProvider(), request.getDataField(),
+        request.getDateRange(), request.getMaxPoints());
     HistoricalTimeSeriesProviderGetResult result = new HistoricalTimeSeriesProviderGetResult(map);
-    return filterBulkDates(result, request.getDateRange(), request.isLatestValueOnly());
+    return filterBulkDates(result, request.getDateRange(), request.getMaxPoints());
   }
 
   //-------------------------------------------------------------------------
@@ -164,10 +165,11 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
      * @param dataProvider  the data provider, not null
      * @param dataField  the dataField, not null
      * @param dateRange  the date range to obtain, not null
+     * @param maxPoints  the maximum number of points required, negative back from the end date, null for all
      * @return a map of each supplied identifier bundle to the corresponding time-series, not null
      */
     Map<ExternalIdBundle, LocalDateDoubleTimeSeries> doBulkGet(
-        Set<ExternalIdBundle> externalIdBundle, String dataProvider, String dataField, LocalDateRange dateRange) {
+        Set<ExternalIdBundle> externalIdBundle, String dataProvider, String dataField, LocalDateRange dateRange, Integer maxPoints) {
       
       ensureStarted();
       s_logger.debug("Getting historical data for {}", externalIdBundle);
@@ -177,7 +179,7 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
       }
       
       Map<String, ExternalIdBundle> reverseBundleMap = Maps.newHashMap();
-      Request request = createRequest(externalIdBundle, dataProvider, dataField, dateRange, reverseBundleMap);
+      Request request = createRequest(externalIdBundle, dataProvider, dataField, dateRange, maxPoints, reverseBundleMap);
       _statistics.recordStatistics(reverseBundleMap.keySet(), Collections.singleton(dataField));
       BlockingQueue<Element> responseElements = callBloomberg(request);
       return extractTimeSeries(externalIdBundle, dataField, reverseBundleMap, responseElements);
@@ -189,7 +191,7 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
      */
     private Request createRequest(
         Set<ExternalIdBundle> externalIdBundle, String dataProvider, String dataField, LocalDateRange dateRange,
-        Map<String, ExternalIdBundle> reverseBundleMap) {
+        Integer maxPoints, Map<String, ExternalIdBundle> reverseBundleMap) {
       
       // create request
       Request request = _refDataService.createRequest(BLOOMBERG_HISTORICAL_DATA_REQUEST);
@@ -215,9 +217,9 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
       request.set("endDate", dateRange.getEndDateInclusive().toString(DateTimeFormatters.basicIsoDate()));
       request.set("adjustmentSplit", true);
       request.set("returnEids", true);
-//      if (maxPoints != null && maxPoints <= 0) {
-//        request.set("maxDataPoints", -maxPoints);
-//      }
+      if (maxPoints != null && maxPoints <= 0) {
+        request.set("maxDataPoints", -maxPoints);
+      }
       return request;
     }
 
