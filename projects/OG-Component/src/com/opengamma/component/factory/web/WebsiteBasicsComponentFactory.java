@@ -129,7 +129,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
     initBasics(repo);
     initMasters(repo);
-    initValueRequirementNames(repo, configuration.get("valueRequirementNameClasses"));
+    initValueRequirementNames(repo, configuration);
   }
 
   protected void initBasics(ComponentRepository repo) {
@@ -165,7 +165,10 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     repo.getRestComponents().publishResource(hts);
   }
 
-  protected void initValueRequirementNames(ComponentRepository repo, String valueRequirementNameClasses) {
+  protected void initValueRequirementNames(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
+    String valueRequirementNameClasses = configuration.get(WebValueRequirementNamesResource.VALUE_REQUIREMENT_NAME_CLASSES);
+    configuration.remove(WebValueRequirementNamesResource.VALUE_REQUIREMENT_NAME_CLASSES);
+
     if (valueRequirementNameClasses == null) {
       repo.getRestComponents().publishResource(new WebValueRequirementNamesResource());
     } else if (valueRequirementNameClasses.contains(",")) {
