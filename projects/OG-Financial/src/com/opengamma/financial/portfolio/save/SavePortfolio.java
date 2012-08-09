@@ -90,6 +90,7 @@ public class SavePortfolio {
     manageablePosition.setQuantity(position.getQuantity());
     final ExternalIdBundle securityKey = filterSecurityKey(position.getSecurityLink().getExternalId());
     manageablePosition.getSecurityLink().setExternalId(securityKey);
+    manageablePosition.setAttributes(position.getAttributes());
     final Collection<Trade> trades = position.getTrades();
     final List<ManageableTrade> manageableTrades = new ArrayList<ManageableTrade>(trades.size());
     for (Trade trade : trades) {
@@ -98,6 +99,7 @@ public class SavePortfolio {
       if (replacementKey != null) {
         mtrade.getSecurityLink().setExternalId(replacementKey);
       }
+      mtrade.setAttributes(trade.getAttributes());
       manageableTrades.add(mtrade);
     }
     manageablePosition.setTrades(manageableTrades);
