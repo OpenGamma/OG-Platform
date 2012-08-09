@@ -11,55 +11,65 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
 
 /**
- * InstrumentDerivative implementation for CDS securities
- * @author Martin Traverse
+ * Derivative implementation for CDS securities
+ * 
+ * @author Martin Traverse, Niels Stchedroff (Riskcare)
+ * 
  * @see CDSDefinition
  * @see CDSSecurity
  * @see InstrumentDerivative
  */
 public class CDSDerivative implements InstrumentDerivative {
 
-  private final String _cdsCcyCurveName;
-  private final String _bondCcyCurveName;
+  private final String _discountCurveName;
   private final String _spreadCurveName;
+  private final String _underlyingDiscountCurveName;
   
   private final AnnuityCouponFixed _premium;
   private final AnnuityPaymentFixed _payout;
 
-  private final double _cdsStartTime;
+  private final double _startTime;
   private final double _maturity;
   
   private final double _notional;
   private final double _spread;
   private final double _recoveryRate;
+  
   private final boolean _accrualOnDefault;
+  private final boolean _payOnDefault;
+  private final boolean _protectStart;
 
   /**
+   * Create an (immutable) CDS derivative object ready for pricing
    * 
-   * @param cdsCcyCurveName
-   * @param bondCcyCurveName
-   * @param spreadCurveName
-   * @param premium
-   * @param payout
-   * @param protectionStartTime
-   * @param maturity
-   * @param notional
-   * @param spread
-   * @param recoveryRate
-   * @param accrualOnDefault
+   * @param discountCurveName Name of the discount curve in the CDS currency (not null)
+   * @param spreadCurveName Name of the credit spread curve for the CDS (not null)
+   * @param underlyingDiscountCurveName Name of the discount curve in the currency of the underlying bond (may be null)
+   * @param premium Derivative object representing the premium payments (not null)
+   * @param payout Derivative object representing possible default payouts (may be null)
+   * @param startTime Protection start time of the CDS contract (relative to pricing point, may be in the past)
+   * @param maturity Maturity of the CDS contract (relative to pricing point)
+   * @param notional Notional of the CDS contract
+   * @param spread Spread (a.k.a. coupon rate) of the CDS contract
+   * @param recoveryRate Recovery rate against the underlying
+   * @param accrualOnDefault Whether, in the event of default, accrued interest must be paid for the current period up to the default date
+   * @param payOnDefault Whether protection payment is due on default (true) or at maturity (false)
+   * @param protectStart Whether the start date is protected (i.e. one extra day of protection)
    */
-  public CDSDerivative(final String cdsCcyCurveName, final String bondCcyCurveName, final String spreadCurveName,
+  public CDSDerivative(final String discountCurveName, final String spreadCurveName, final String underlyingDiscountCurveName,
     final AnnuityCouponFixed premium, final AnnuityPaymentFixed payout,
-    final double protectionStartTime, final double maturity,
-    final double notional, final double spread, final double recoveryRate, boolean accrualOnDefault) {
-    _cdsCcyCurveName = cdsCcyCurveName;
-    _bondCcyCurveName = bondCcyCurveName;
+    final double startTime, final double maturity,
+    final double notional, final double spread, final double recoveryRate,
+    final boolean accrualOnDefault, final boolean payOnDefault, final boolean protectStart) {
+    
+    _discountCurveName = discountCurveName;
     _spreadCurveName = spreadCurveName;
+    _underlyingDiscountCurveName = underlyingDiscountCurveName;
     
     _premium = premium;
     _payout = payout;
     
-    _cdsStartTime = protectionStartTime;
+    _startTime = startTime;
     _maturity = maturity;
     
     _notional = notional;
@@ -67,6 +77,8 @@ public class CDSDerivative implements InstrumentDerivative {
     _recoveryRate = recoveryRate;
     
     _accrualOnDefault = accrualOnDefault;
+    _payOnDefault = payOnDefault;
+    _protectStart = protectStart;
   }
 
   @Override
@@ -79,37 +91,28 @@ public class CDSDerivative implements InstrumentDerivative {
     return visitor.visitCDSDerivative(this);
   }
   
-  public String getCdsCcyCurveName() {
-    return _cdsCcyCurveName;
-  }
-  
-  public String getBondCcyCurveName() {
-    return _bondCcyCurveName;
+  public String getDiscountCurveName() {
+    return _discountCurveName;
   }
   
   public String getSpreadCurveName() {
     return _spreadCurveName;
   }
+  
+  public String getUnderlyingDiscountCurveName() {
+    return _underlyingDiscountCurveName;
+  }
 
-  /**
-   * 
-   * @return Annuity coupon series for premium payments
-   */
   public AnnuityCouponFixed getPremium() {
     return _premium;
   }
 
-  /**
-   * Returns a series of payouts describing the value that would be paid in the event of a default on each possible default date
-   * In reality a maximum of one of these payments will ever be made, payments should be multiplied by the default probability
-   * @return Annuity payment series for default payouts
-   */
   public AnnuityPaymentFixed getPayout() {
     return _payout;
   }
   
-  public double getCDSStartTime() {
-    return _cdsStartTime;
+  public double getStartTime() {
+    return _startTime;
   }
   
   public double getMaturity() {
@@ -128,8 +131,16 @@ public class CDSDerivative implements InstrumentDerivative {
     return _recoveryRate;
   }
 
-  public boolean getAccrualOnDefault() {
+  public boolean isAccrualOnDefault() {
     return _accrualOnDefault;
+  }
+
+  public boolean isPayOnDefault() {
+    return _payOnDefault;
+  }
+  
+  public boolean isProtectStart() {
+    return _protectStart;
   }
 
 }

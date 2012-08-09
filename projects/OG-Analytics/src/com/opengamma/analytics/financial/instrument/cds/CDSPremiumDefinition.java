@@ -5,7 +5,6 @@
  */
 package com.opengamma.analytics.financial.instrument.cds;
 
-import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
@@ -21,9 +20,10 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Definition for the premium payments annuity on a CDS
+ * Definition for the CDS premium payment
  * 
- * @author Martin Traverse & Niels Stchedroff (Riskcare)
+ * @author Martin Traverse, Niels Stchedroff (Riskcare)
+ * 
  * @see CDSDefinition
  * @see AnnuityCouponFixedDefinition
  */

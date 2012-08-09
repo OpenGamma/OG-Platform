@@ -191,7 +191,7 @@ public class CDSPresentValueFunction extends AbstractFunction.NonCompiledInvoker
     // Convert security in to format suitable for pricing
     final CDSSecurityConverter converter = new CDSSecurityConverter(securitySource, holidaySource, conventionSource, regionSource);
     final CDSDefinition cdsDefinition = (CDSDefinition) cds.accept(converter);
-    final CDSDerivative cdsDerivative = cdsDefinition.toDerivative(pricingDate, cdsCcyCurve.getName(), bondCcyCurve.getName(), spreadCurve.getName());
+    final CDSDerivative cdsDerivative = cdsDefinition.toDerivative(pricingDate, cdsCcyCurve.getName(), spreadCurve.getName(), bondCcyCurve.getName());
     
     // Go price!
     final PricingMethod method = new CDSSimpleMethod();

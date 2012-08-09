@@ -30,8 +30,8 @@ public class CDSSimpleMethod implements PricingMethod {
   public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
     
     CDSDerivative cds = (CDSDerivative) instrument;
-    YieldAndDiscountCurve cdsCcyCurve = curves.getCurve(cds.getCdsCcyCurveName());
-    YieldAndDiscountCurve bondCcyCurve = curves.getCurve(cds.getBondCcyCurveName());
+    YieldAndDiscountCurve cdsCcyCurve = curves.getCurve(cds.getDiscountCurveName());
+    YieldAndDiscountCurve bondCcyCurve = curves.getCurve(cds.getUnderlyingDiscountCurveName());
     YieldAndDiscountCurve spreadCurve = curves.getCurve(cds.getSpreadCurveName());
     
     return CurrencyAmount.of(cds.getPremium().getCurrency(), calculate(cds, cdsCcyCurve, bondCcyCurve, spreadCurve));
@@ -50,7 +50,7 @@ public class CDSSimpleMethod implements PricingMethod {
   
   public static double calculate(CDSDerivative cds, YieldAndDiscountCurve cdsCcyCurve, YieldAndDiscountCurve bondCcyCurve, YieldAndDiscountCurve spreadCurve) {
     YieldAndDiscountCurve creditCurve = buildCreditCurve(bondCcyCurve, spreadCurve);
-    return calculatePremiumLeg(cds, cdsCcyCurve, bondCcyCurve, creditCurve) - calculateDefaultLeg(cds, cdsCcyCurve, bondCcyCurve, creditCurve);
+    return calculateDefaultLeg(cds, cdsCcyCurve, bondCcyCurve, creditCurve) - calculatePremiumLeg(cds, cdsCcyCurve, bondCcyCurve, creditCurve);
   }
   
   public static double calculatePremiumLeg(CDSDerivative cds, YieldAndDiscountCurve cdsCcyCurve, YieldAndDiscountCurve bondCcyCurve, YieldAndDiscountCurve creditCurve) {

@@ -22,7 +22,7 @@ public class CDSSimpleMethodTest extends CDSTestSetup {
 
     final CurrencyAmount result = method.presentValue(_simpleTestCDS, _simpleTestCurveBundle);
 
-    Assert.assertEquals(result.getAmount(), -0.06281112880507082);
+    Assert.assertEquals(result.getAmount(), 0.06281112880507082);
 
   }
 }

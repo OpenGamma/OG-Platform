@@ -53,6 +53,7 @@ public class CDSTestSetup {
   }
 
   public static void setupSimpleTestData() {
+    
     _simpleTestPricingDate = ZonedDateTime.of(2010, 12, 31, 0, 0, 0, 0, TimeZone.UTC);
   
     double notional = 1.0;
@@ -122,9 +123,8 @@ public class CDSTestSetup {
     Calendar calendar = new MondayToFridayCalendar("TestCalendar");
     DayCount dayCount = new ActualThreeSixtyFive();
     BusinessDayConvention convention = new FollowingBusinessDayConvention();
-    boolean isEOM = false;
   
-    final AnnuityCouponFixedDefinition premiumDefinition = AnnuityCouponFixedDefinition.from(currency, protectionStartDate, maturity, premiumFrequency, calendar, dayCount, convention, isEOM, notional, spread, false);
+    final AnnuityCouponFixedDefinition premiumDefinition = AnnuityCouponFixedDefinition.from(currency, protectionStartDate, maturity, premiumFrequency, calendar, dayCount, convention, /*EOM*/ false, notional, spread, /*isPayer*/false);
     final AnnuityCouponFixed premiums = premiumDefinition.toDerivative(_simpleTestPricingDate, "CDS_CCY");
   
     List<ZonedDateTime> possibleDefaultDates = scheduleDatesInRange(bondMaturity, bondPremiumFrequency.getPeriod(), _simpleTestPricingDate, maturity, calendar, convention);
@@ -142,10 +142,10 @@ public class CDSTestSetup {
   
     
     _simpleTestCDS = new CDSDerivative(
-      "CDS_CCY", "BOND_CCY", "SPREAD",
+      "CDS_CCY", "SPREAD", "BOND_CCY",
       premiums, payouts,
       TimeCalculator.getTimeBetween(_simpleTestPricingDate, protectionStartDate), TimeCalculator.getTimeBetween(_simpleTestPricingDate, maturity),
-      notional, spread, recoveryRate, true);
+      notional, spread, recoveryRate, /*accrual on default*/ true, /*pay on default*/ true, /*protect start*/ false);
   }
 
   public static void setupIsdaTestData(double spread) {
@@ -252,10 +252,10 @@ public class CDSTestSetup {
       final AnnuityPaymentFixed payouts = null;
       
       _isdaTestCDS = new CDSDerivative(
-        "CDS_CCY", "BOND_CCY", "SPREAD",
+        "CDS_CCY", "SPREAD", /*bond CCY curve*/ null,
         premiums, payouts,
-        TimeCalculator.getTimeBetween(_isdaTestPricingDate, cdsStartDate), TimeCalculator.getTimeBetween(_isdaTestPricingDate, maturity),
-        notional, spread, recoveryRate, true);
+        TimeCalculator.getTimeBetween(_isdaTestPricingDate, cdsStartDate), TimeCalculator.getTimeBetween(_isdaTestPricingDate, maturity.plusDays(1)),
+        notional, spread, recoveryRate, /*accrual on default*/ true, /*pay on default*/ true, /*protect start*/ true);
     }
 
   public CDSTestSetup() {
