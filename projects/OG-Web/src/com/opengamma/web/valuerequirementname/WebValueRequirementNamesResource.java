@@ -17,6 +17,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,7 +37,7 @@ public class WebValueRequirementNamesResource extends AbstractWebResource {
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(WebValueRequirementNamesResource.class);
 
-  private static final String VALUE_REQUIREMENT_NAME_CLASSES = "valueRequirementNameClasses";
+  public static final String VALUE_REQUIREMENT_NAME_CLASSES = "valueRequirementNameClasses";
 
   /**
    * The value requirement names.
@@ -53,7 +54,7 @@ public class WebValueRequirementNamesResource extends AbstractWebResource {
       try {
         list.add((String) field.get(null));
       } catch (Exception e) {
-        // Ignore
+        s_logger.warn("Could not read in value requirement names: " + e.getMessage());
       }
     }
     Collections.sort(list, String.CASE_INSENSITIVE_ORDER);
@@ -61,17 +62,16 @@ public class WebValueRequirementNamesResource extends AbstractWebResource {
   }
 
   public WebValueRequirementNamesResource(String[] valueRequirementNameClasses) {
-    ArgumentChecker.notEmpty(valueRequirementNameClasses, VALUE_REQUIREMENT_NAME_CLASSES);
+    ArgumentChecker.notEmpty(valueRequirementNameClasses, "valueRequirementNameClasses");
 
     final List<String> list = new ArrayList<String>();
-
     for (String className : valueRequirementNameClasses) {
       try {
-        for (Field field : Class.forName(className).getDeclaredFields()) {
+        for (Field field : Class.forName(className.trim()).getDeclaredFields()) {
             list.add((String) field.get(null));
         }
       } catch (Exception e) {
-        // Ignore
+        s_logger.warn("Could not read in value requirement names: " + e.getMessage());
       }
     }
     Collections.sort(list, String.CASE_INSENSITIVE_ORDER);
