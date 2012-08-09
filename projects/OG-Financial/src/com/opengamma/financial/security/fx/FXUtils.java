@@ -35,7 +35,7 @@ public class FXUtils {
     //TODO get rid of all of this and use CurrencyPairs
     BASE_ORDER.put(Currency.EUR, 1);
     BASE_ORDER.put(Currency.GBP, 2);
-    BASE_ORDER.put(Currency.AUD, 4);
+    BASE_ORDER.put(Currency.AUD, 3);
     BASE_ORDER.put(Currency.NZD, 4);
     BASE_ORDER.put(Currency.USD, 5);
     BASE_ORDER.put(Currency.CHF, 6);
