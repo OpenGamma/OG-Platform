@@ -8,7 +8,6 @@ package com.opengamma.analytics.financial.horizon;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
-import com.opengamma.analytics.financial.horizon.ConstantSpreadHorizonThetaCalculator;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginTransactionDefinition;
@@ -80,7 +79,6 @@ public class ConstantSpreadHorizonThetaCalculatorIRFutureOptionTest {
   private static final double PRICE_ZERO = 0.0;
   private static final double PRICE_ONE = 0.1;
   private static final int ONE_DAY_FWD = 1;
-  private static final int TEN_DAY_FWD = 10;
 
   @Test
   /**
@@ -97,18 +95,16 @@ public class ConstantSpreadHorizonThetaCalculatorIRFutureOptionTest {
     assertEquals("InterestRateFutureOption Theta - sensitive to reference rate: ", 0.0, (theta1_0.getAmount(CUR) - theta1_1.getAmount(CUR)) / pvToday, 1e-15);
   }
 
-  @Test
+  @Test(expectedExceptions = IllegalArgumentException.class)
   /**
-   * Useful visualisation to check behaviour as we shift further out
+   * Was a useful visualisation to check behaviour as we shift further out. 
+   * Now confirms that getTheta will not handle shifts other than 1 and -1.
    */
   public void thetaIRFO_DifferentShifts() { // TODO Ensure we can go backwards
     final int nSteps = 10;
-    final double[] thetas = new double[nSteps];
     for (int i = -1; i <= nSteps; i++) {
-
       MultipleCurrencyAmount theta = CALC.getTheta(OPTION_TRANSACTION, REFERENCE_DATE, CURVE_NAMES, BLACK_BUNDLE, TRADE_PRICE, i);
-      thetas[i - 1] = theta.getAmount(CUR);
-      //System.out.println(i + " , " + thetas[i - 1]);
+      System.out.println(i + " , " + theta.getAmount(CUR));
     }
   }
 
@@ -128,7 +124,7 @@ public class ConstantSpreadHorizonThetaCalculatorIRFutureOptionTest {
    * TODO - Review this choice, and behaviour of TodayPaymentCalculator
    */
   public void thetaIRFO_AcrossExpiry() {
-    MultipleCurrencyAmount theta = CALC.getTheta(OPTION_TRANSACTION, EXPIRATION_DATE, CURVE_NAMES, BLACK_BUNDLE, TRADE_PRICE, TEN_DAY_FWD);
+    MultipleCurrencyAmount theta = CALC.getTheta(OPTION_TRANSACTION, EXPIRATION_DATE, CURVE_NAMES, BLACK_BUNDLE, TRADE_PRICE, ONE_DAY_FWD);
     InterestRateFutureOptionMarginTransaction derivAtExpiry = OPTION_TRANSACTION.toDerivative(EXPIRATION_DATE, TRADE_PRICE, CURVE_NAMES);
     final double valueAtExpiry = derivAtExpiry.accept(PresentValueBlackCalculator.getInstance(), BLACK_BUNDLE);
     assertEquals("InterestRateFutureOption Theta - Across Expiry: ", -1 * valueAtExpiry, theta.getAmount(CUR), 0);

@@ -5,15 +5,16 @@
  */
 package com.opengamma.analytics.financial.horizon;
 
-import javax.time.calendar.ZonedDateTime;
-
 import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackSmileForexCalculator;
 import com.opengamma.analytics.financial.forex.definition.ForexOptionVanillaDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.TodayPaymentCalculator;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+
+import javax.time.calendar.ZonedDateTime;
 
 /**
  * 
@@ -30,6 +31,7 @@ public final class VolatilitySurfaceForwardSlideCalculator {
 
   public MultipleCurrencyAmount getTheta(final ForexOptionVanillaDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames,
       final SmileDeltaTermStructureDataBundle data, final int daysForward) {
+    ArgumentChecker.isTrue(daysForward == 1 || daysForward == -1, "daysForward must be either 1 or -1"); // TODO: Update signature of function to take ForwardOrBack
     final InstrumentDerivative instrumentToday = definition.toDerivative(date, yieldCurveNames);
     final ZonedDateTime horizonDate = date.plusDays(daysForward);
     final double shiftTime = TimeCalculator.getTimeBetween(date, horizonDate);
@@ -40,7 +42,6 @@ public final class VolatilitySurfaceForwardSlideCalculator {
     final PresentValueBlackSmileForexCalculator pvCalculator = PresentValueBlackSmileForexCalculator.getInstance();
     return subtract(instrumentTomorrow.accept(pvCalculator, tomorrowData), instrumentToday.accept(pvCalculator, data)).plus(paymentToday);
   }
-
 
   private MultipleCurrencyAmount subtract(final MultipleCurrencyAmount a, final MultipleCurrencyAmount b) {
     return a.plus(b.multipliedBy(-1));

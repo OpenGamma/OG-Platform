@@ -82,6 +82,14 @@ public class FXOptionBlackConstantSpreadThetaFunction extends FXOptionBlackMulti
     final String leftExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
     final String rightExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
     final String daysForward = desiredValue.getConstraint(PROPERTY_DAYS_TO_MOVE_FORWARD);
+    final Integer daysFwdOrBackward;
+    if (daysForward.equalsIgnoreCase("-1")) {
+      daysFwdOrBackward = -1;
+    } else if (daysForward.equalsIgnoreCase("+1") || daysForward.equalsIgnoreCase("1")) {
+      daysFwdOrBackward = 1;
+    } else {
+      throw new OpenGammaRuntimeException("Property 'DaysForward' must be set to either 1 or -1.");
+    }
     final String fullPutCurveName = putCurveName + "_" + putCurrency.getCode();
     final String fullCallCurveName = callCurveName + "_" + callCurrency.getCode();
     final YieldAndDiscountCurve putFundingCurve = getCurve(inputs, putCurrency, putCurveName, putCurveConfig);
@@ -124,11 +132,11 @@ public class FXOptionBlackConstantSpreadThetaFunction extends FXOptionBlackMulti
     final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(curvesWithFX, smiles, Pair.of(ccy1, ccy2));
     if (security instanceof FXOptionSecurity) {
       final ForexOptionVanillaDefinition definition = (ForexOptionVanillaDefinition) security.accept(VISITOR);
-      final MultipleCurrencyAmount theta = CALCULATOR.getTheta(definition, now, allCurveNames, smileBundle, Integer.parseInt(daysForward));
+      final MultipleCurrencyAmount theta = CALCULATOR.getTheta(definition, now, allCurveNames, smileBundle, daysFwdOrBackward);
       return Collections.singleton(new ComputedValue(spec, HorizonUtils.getNonZeroValue(theta)));
     } else if (security instanceof FXDigitalOptionSecurity) {
       final ForexOptionDigitalDefinition definition = (ForexOptionDigitalDefinition) security.accept(VISITOR);
-      final MultipleCurrencyAmount theta = CALCULATOR.getTheta(definition, now, allCurveNames, smileBundle, PresentValueBlackSmileForexCalculator.getInstance(), Integer.parseInt(daysForward));
+      final MultipleCurrencyAmount theta = CALCULATOR.getTheta(definition, now, allCurveNames, smileBundle, PresentValueBlackSmileForexCalculator.getInstance(), daysFwdOrBackward);
       return Collections.singleton(new ComputedValue(spec, HorizonUtils.getNonZeroValue(theta)));
     }
     throw new OpenGammaRuntimeException("Should never get here; canApplyTo specifies vanilla and digital options only");
