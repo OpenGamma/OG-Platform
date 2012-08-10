@@ -17,17 +17,13 @@ $.register_module({
         var available = (function () {
             var unravel = function (nodes, arr, result) {
                 var start = arr[0], end = arr[1], children = arr[2];
-                if (!nodes[start]) return result.push(start), result;
                 result.push(start);
-                if (children.length)
-                    return children.map(function (child) {return unravel(nodes, child, result);}), result;
-                else
-                    while (++start < end) result.push(start);
+                if (!nodes[start]) return result;
+                if (children.length) return children.forEach(function (child) {unravel(nodes, child, result);}), result;
+                while (++start <= end) result.push(start);
                 return result;
             };
-            return function (grid) {
-                return unravel(grid.meta.nodes, grid.meta.structure, []);
-            };
+            return function (grid) {return unravel(grid.meta.nodes, grid.meta.structure, []);};
         })();
         var background = function (sets, width, bg_color) {
             var height = row_height, pixels = [], lcv, fg_color = 'dadcdd',
@@ -73,10 +69,12 @@ $.register_module({
         var init_data = function (grid, config) {
             grid.alive = function () {return grid.$(grid.id).length ? true : !grid.elements.style.remove();};
             grid.sparklines = !!config.sparklines;
+            grid.scrollbar_size = scrollbar_size;
             grid.elements = {empty: true};
             grid.id = '#analytics_grid_' + counter++;
             grid.meta = null;
             grid.resize = set_size.partial(grid, config);
+            grid.viewport = set_viewport.partial(grid);
             (grid.dataman = new og.analytics.Data(config.source))
                 .on('meta', init_grid, grid, config)
                 .on('data', render_rows, grid);
@@ -96,8 +94,7 @@ $.register_module({
                 var $target = $(event.target), row;
                 if (!$target.is('.node')) return;
                 grid.meta.nodes[row = $target.attr('data-row')] = !grid.meta.nodes[row];
-                set_size(grid);
-                set_viewport(grid);
+                grid.resize().selector.clear();
                 return false;
             });
         };
@@ -113,7 +110,7 @@ $.register_module({
             elements.fixed_head = $(grid.id + ' .OG-g-h-fixed');
             (function () {
                 var started, pause = 200,
-                    jump = function () {set_viewport(grid, function () {grid.dataman.busy(false);}), started = null;};
+                    jump = function () {grid.viewport(function () {grid.dataman.busy(false);}), started = null;};
                 elements.fixed_body.on('scroll', (function (timeout) {
                     return function (event) { // sync scroll instantaneously and set viewport after scroll stops
                         if (!started && $(event.target).is(elements.fixed_body)) started = 'fixed';
@@ -166,41 +163,31 @@ $.register_module({
                             return {index: (col_offset || 0) + index++, name: col.header, width: col.width};
                         });
                         return {
-                            name: set.name,
-                            index: idx + (set_offset || 0),
-                            width: columns.reduce(function (acc, col) {return acc + col.width;}, 0),
-                            columns: columns
+                            name: set.name, index: idx + (set_offset || 0), columns: columns,
+                            width: columns.reduce(function (acc, col) {return acc + col.width;}, 0)
                         };
                     })
                 };
             };
             return function (grid) {
-                var meta = grid.meta, columns = meta.columns, fixed_sets = meta.columns.fixed.length,
-                    fixed_html = templates.header(head_data(meta, columns.fixed)),
-                    scroll_html = templates.header(head_data(meta, columns.scroll, meta.fixed_length, fixed_sets));
-                grid.elements.fixed_head.html(fixed_html);
-                grid.elements.scroll_head.html(scroll_html);
+                var meta = grid.meta, columns = meta.columns, fixed_sets = meta.columns.fixed.length;
+                grid.elements.fixed_head.html(templates.header(head_data(meta, columns.fixed)));
+                grid.elements.scroll_head
+                    .html(templates.header(head_data(meta, columns.scroll, meta.fixed_length, fixed_sets)));
             };
         })();
         var render_rows = (function () {
             var row_data = function (grid, data, fixed) {
-                var meta = grid.meta, fixed_length = meta.fixed_length,
-                    empty_result = {holder_height: meta.viewport.height + (fixed ? scrollbar_size : 0), rows: []},
-                    result = {holder_height: empty_result.holder_height, rows: []},
-                    i, j, data_len = data.length, slice, slice_len, data_row,
-                    grid_row, row, value, column, first, cells;
-                grid_row = meta.available.indexOf(meta.viewport.rows[0]);
-                for (i = 0; i < data_len; i += 1) {
-                    row = data[i];
-                    slice = fixed ? row.slice(0, fixed_length) : row.slice(fixed_length);
-                    slice_len = slice.length;
-                    data_row = meta.viewport.rows[i];
+                var meta = grid.meta, fixed_length = meta.fixed_length, i, j, data_len = data.length, slice, slice_len,
+                    result = {holder_height: meta.viewport.height + (fixed ? scrollbar_size : 0), rows: []},
+                    data_row, grid_row, value, column, cells;
+                for (i = 0, grid_row = meta.available.indexOf(meta.viewport.rows[0]); i < data_len; i += 1) {
+                    slice = fixed ? data[i].slice(0, fixed_length) : data[i].slice(fixed_length);
                     result.rows.push({top: grid_row++ * row_height, cells: (cells = [])});
-                    for (j = 0; j < slice_len; j += 1) {
+                    for (j = 0, slice_len = slice.length, data_row = meta.viewport.rows[i]; j < slice_len; j += 1) {
                         column = meta.viewport.cols[fixed ? j : fixed_length + j];
-                        first = fixed && j === 0;
                         value = format(grid, slice[j], meta.columns.types[column]);
-                        cells.push({column: column, value: first ? grid.meta.unraveled[data_row] + value : value});
+                        cells.push({column: column, value: fixed && !j ? meta.unraveled[data_row] + value : value});
                     }
                 }
                 return result;
@@ -241,35 +228,32 @@ $.register_module({
             };
             meta.columns.scan = {
                 fixed: meta.columns.fixed.reduce(function (acc, set) {
-                    return set.columns.reduce(function (acc, col) {
-                        return acc.arr.push(acc.val += col.width), acc;
-                    }, acc);
+                    return set.columns
+                        .reduce(function (acc, col) {return acc.arr.push(acc.val += col.width), acc;}, acc);
                 }, {arr: [], val: 0}).arr,
                 scroll: meta.columns.scroll.reduce(function (acc, set) {
-                    return set.columns.reduce(function (acc, col) {
-                        return acc.arr.push(acc.val += col.width), acc;
-                    }, acc);
+                    return set.columns
+                        .reduce(function (acc, col) {return acc.arr.push(acc.val += col.width), acc;}, acc);
                 }, {arr: [], val: 0}).arr
             };
             meta.columns.scan.all = meta.columns.scan.fixed
                 .concat(meta.columns.scan.scroll.map(function (val) {return val + meta.columns.width.fixed;}));
-            meta.available = available(grid)
-            meta.rows = meta.available.length;
+            meta.rows = (meta.available = available(grid)).length;
             meta.viewport = {height: meta.rows * row_height, width: width - meta.columns.width.fixed};
             meta.visible_rows = Math.min(Math.ceil((height - header_height) / row_height), meta.rows);
             css = templates.css({
-                id: id, viewport_width: meta.viewport.width + scrollbar_size,
+                id: id, viewport_width: meta.viewport.width,
                 fixed_bg: background(columns.fixed, meta.columns.width.fixed, 'ecf5fa'),
                 scroll_bg: background(columns.scroll, meta.columns.width.scroll, 'ffffff'),
-                scroll_width: columns.width.scroll, fixed_width: columns.width.fixed,
-                scroll_left: columns.width.fixed - scrollbar_size,
+                scroll_width: columns.width.scroll, fixed_width: columns.width.fixed + scrollbar_size,
+                scroll_left: columns.width.fixed,
                 height: height - header_height, header_height: header_height, row_height: row_height,
                 columns: col_css(id, columns.fixed).concat(col_css(id, columns.scroll, meta.fixed_length)),
                 sets: set_css(id, columns.fixed).concat(set_css(id, columns.scroll, columns.fixed.length))
             });
-            set_viewport(grid);
-            if (grid.elements.style[0].styleSheet) return grid.elements.style[0].styleSheet.cssText = css; // IE
-            grid.elements.style[0].appendChild(document.createTextNode(css));
+            if (grid.elements.style[0].styleSheet) grid.elements.style[0].styleSheet.cssText = css; // IE
+            else grid.elements.style[0].appendChild(document.createTextNode(css));
+            return grid.viewport();
         };
         var set_viewport = function (grid, handler) {
             var top_position = grid.elements.scroll_body.scrollTop(),
@@ -292,29 +276,24 @@ $.register_module({
             }, {scan: 0, cols: []}).cols);
             grid.dataman.viewport(grid.meta.viewport);
             if (handler) handler();
+            return grid;
         };
         var unravel_structure = (function () {
-            var times = function (str, times) {
-                if (!times) return ''; else while (--times) str += str;
-                return str;
-            };
+            var times = function (str, rep) {var result = ''; if (rep) while (--rep) result += str; return result;};
             var unravel = function (arr, indent) {
-                var start = arr[0], end = arr[1], children = arr[2], str = '&nbsp;&nbsp;&nbsp;',
-                    result = [{prefix: times(str, indent = indent || 0)}];
-                if (end > start) {
-                    result[0].prefix += '<span data-row="' + start + '" class="node"></span>&nbsp;';
-                    result[0].node = true;
-                    result[0].length = end - start;
-                }
+                var start = arr[0], end = arr[1], children = arr[2], str = '&nbsp;&nbsp;&nbsp;', result = [], prefix;
+                result.push(end > start ? {
+                    prefix: times(str, indent + 1) + '<span data-row="' + start + '" class="node"></span>&nbsp;',
+                    node: true, length: end - start
+                } : {prefix: times(str, indent)});
                 if (children.length) return children.map(function (child) {return unravel(child, indent + 1);})
                     .forEach(function (child) {Array.prototype.push.apply(result, child);}), result;
-                indent += 1;
-                while (start++ < end) result.push({prefix: times(str, indent)});
+                prefix = times(str, indent + 2);
+                while (start++ < end) result.push({prefix: prefix});
                 return result;
             };
             return function (grid, unraveled) {
-                var meta = grid.meta;
-                meta.nodes = (unraveled = unravel(meta.structure))
+                grid.meta.nodes = (unraveled = unravel(grid.meta.structure, 0))
                     .reduce(function (acc, val, idx) {
                         if (val.node) (acc[idx] = true), (acc.all.push(idx)), (acc.ranges.push(val.length));
                         return acc;

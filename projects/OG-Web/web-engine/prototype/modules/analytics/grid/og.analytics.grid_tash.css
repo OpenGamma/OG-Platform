@@ -14,7 +14,7 @@
     {{id}} .OG-g-b-fixed .OG-g-rows {background: url({{fixed_bg}}); background-repeat: repeat-y;}
 {{/if}}
 {{id}} .OG-g-b-scroll .OG-g-row {width: {{scroll_width}}px}
-{{id}} .OG-g-b-fixed {width: {{fixed_width}}px; height: {{height}}px;}
+{{id}} .OG-g-b-fixed {width: {{fixed_width}}px; height: {{height}}px; overflow-y: scroll;}
 {{id}} .OG-g-h-fixed {width: {{fixed_width}}px}
 {{id}} .OG-g-b {top: {{header_height}}px}
 {{#if row_height}}{{id}} .OG-g-cell {height: {{row_height}}px;}{{/if}}

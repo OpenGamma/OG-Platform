@@ -8,7 +8,7 @@ $.register_module({
     obj: function () {
         var module = this, namespace = '.og_analytics_selector', overlay = '.OG-g-sel', cell = '.OG-g-cell';
         return function (grid) {
-            var selector = this, $ = grid.$, grid_offset, grid_width, grid_height, fixed_width;
+            var selector = this, $ = grid.$, grid_offset, grid_width, grid_height, fixed_width, scrollbar_size;
             var auto_scroll = function (event, scroll_top, scroll_left, start) {
                 var x = event.pageX - grid_offset.left, y = event.pageY - grid_offset.top, increment = 35,
                     interval = 100, scroll_body = grid.elements.scroll_body, over_fixed = x < fixed_width;
@@ -34,6 +34,7 @@ $.register_module({
                 grid_width = grid.elements.parent.width();
                 grid_height = grid.elements.parent.height();
                 fixed_width = grid.meta.columns.width.fixed;
+                scrollbar_size = grid.scrollbar_size;
                 $(grid.id + ' ' + overlay).remove();
             };
             var mousedown_observer = function (event) {
@@ -43,8 +44,7 @@ $.register_module({
                     y = event.pageY - grid_offset.top + grid.elements.scroll_body.scrollTop() - grid.meta.header_height;
                 if (!(($target = $(event.target)).is(cell) ? $target : $target.parents(cell + ':first'))
                     .length && !(is_overlay = $target.is(overlay))) return; // if the cursor is not over a cell, bail
-                if (is_overlay)
-                    return $(grid.id + ' ' + overlay).remove(), (render.regions = null), (render.rectangle = null);
+                if (is_overlay) return selector.clear();
                 $(document)
                     .on('mouseup' + namespace, clean_up)
                     .on('mousemove' + namespace, (function (x, y, handler) { // run it manually once and return it
@@ -85,7 +85,8 @@ $.register_module({
                         },
                         dimensions: {
                             height: rectangle.height + 1,
-                            width: (regions[0] ? rectangle.width - regions[0].dimensions.width : rectangle.width) + 1
+                            width: (regions[0] ?
+                                rectangle.width - regions[0].dimensions.width : rectangle.width) + 1
                         },
                         fixed: false
                     });
@@ -109,6 +110,9 @@ $.register_module({
                 });
             };
             (render.regions = null), (render.rectangle = null);
+            selector.clear = function () {
+                $(grid.id + ' ' + overlay).remove(), (render.regions = null), (render.rectangle = null);
+            };
             selector.selection = function () {
                 if (!render.rectangle) return null;
                 var bottom_right = render.rectangle.bottom_right,
