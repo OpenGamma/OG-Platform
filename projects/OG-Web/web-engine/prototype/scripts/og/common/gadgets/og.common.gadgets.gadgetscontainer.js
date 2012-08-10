@@ -268,6 +268,7 @@ $.register_module({
             container.del = function (obj) {
                 var id;
                 $(selector + ' .OG-gadget-container .OG-gadget-' + obj.id).remove();
+                gadgets[gadgets.length - 1].gadget.alive();
                 gadgets.splice(gadgets.indexOf(obj), 1);
                 id = gadgets.length
                     ? live_id === obj.id ? gadgets[gadgets.length - 1].id : live_id
@@ -275,10 +276,13 @@ $.register_module({
                 if (id) gadgets[extract_index(id)].gadget.resize();
                 update_tabs(id); // new active tab or empty
             };
-            container.alive = function () {return !!$(selector).length;};
+            container.alive = function () {
+                gadgets.forEach(function (obj) {obj.gadget.alive();});
+                return !!$(selector).length;
+            };
             container.resize = function () {
                 gadgets.forEach(function (obj) {
-                    if (obj.id === live_id) {
+                    if (obj.gadget.alive()) {
                         $(selector + ' .ui-layout-content').show();
                         update_tabs();
                         obj.gadget.resize();
