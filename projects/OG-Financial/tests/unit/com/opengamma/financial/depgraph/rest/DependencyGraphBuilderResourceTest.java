@@ -51,7 +51,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.ExternalScheme;
-import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
@@ -120,22 +119,22 @@ public class DependencyGraphBuilderResourceTest {
       }
 
       @Override
-      public void subscribe(UserPrincipal user, ValueRequirement valueRequirement) {
+      public void subscribe(ValueRequirement valueRequirement) {
         fail();
       }
 
       @Override
-      public void subscribe(UserPrincipal user, Set<ValueRequirement> valueRequirements) {
+      public void subscribe(Set<ValueRequirement> valueRequirements) {
         fail();
       }
 
       @Override
-      public void unsubscribe(UserPrincipal user, ValueRequirement valueRequirement) {
+      public void unsubscribe(ValueRequirement valueRequirement) {
         fail();
       }
 
       @Override
-      public void unsubscribe(UserPrincipal user, Set<ValueRequirement> valueRequirements) {
+      public void unsubscribe(Set<ValueRequirement> valueRequirements) {
         fail();
       }
 

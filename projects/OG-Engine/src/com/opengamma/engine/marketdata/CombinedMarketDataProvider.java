@@ -179,28 +179,28 @@ public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
   }
 
   @Override
-  public void subscribe(UserPrincipal user, ValueRequirement valueRequirement) {
-    subscribe(user, Collections.singleton(valueRequirement));
+  public void subscribe(ValueRequirement valueRequirement) {
+    subscribe(Collections.singleton(valueRequirement));
   }
 
   @Override
-  public void subscribe(UserPrincipal user, Set<ValueRequirement> valueRequirements) {
+  public void subscribe(Set<ValueRequirement> valueRequirements) {
     Map<MarketDataProvider, Set<ValueRequirement>> reqsByProvider = groupByProvider(valueRequirements);
     for (Entry<MarketDataProvider, Set<ValueRequirement>> entry : reqsByProvider.entrySet()) {
-      entry.getKey().subscribe(user, entry.getValue());
+      entry.getKey().subscribe(entry.getValue());
     }
   }
 
   @Override
-  public void unsubscribe(UserPrincipal user, ValueRequirement valueRequirement) {
-    unsubscribe(user, Collections.singleton(valueRequirement));
+  public void unsubscribe(ValueRequirement valueRequirement) {
+    unsubscribe(Collections.singleton(valueRequirement));
   }
 
   @Override
-  public void unsubscribe(UserPrincipal user, Set<ValueRequirement> valueRequirements) {
+  public void unsubscribe(Set<ValueRequirement> valueRequirements) {
     Map<MarketDataProvider, Set<ValueRequirement>> reqsByProvider = groupByProvider(valueRequirements);
     for (Entry<MarketDataProvider, Set<ValueRequirement>> entry : reqsByProvider.entrySet()) {
-      entry.getKey().unsubscribe(user, entry.getValue());
+      entry.getKey().unsubscribe(entry.getValue());
     }
   }
   

@@ -15,7 +15,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.time.Instant;
 
-import com.opengamma.id.UniqueId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +23,7 @@ import com.opengamma.engine.marketdata.InMemoryLKVMarketDataSnapshot;
 import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.id.UniqueId;
 
 /**
  * A {@link MarketDataSnapshot} for live data.
@@ -35,7 +35,7 @@ public class LiveMarketDataSnapshot extends AbstractMarketDataSnapshot {
   private final LiveMarketDataProvider _liveMarketDataProvider;
 
   public LiveMarketDataSnapshot(InMemoryLKVMarketDataSnapshot underlyingSnapshot,
-      LiveMarketDataProvider liveMarketDataProvider) {
+                                LiveMarketDataProvider liveMarketDataProvider) {
     _underlyingSnapshot = underlyingSnapshot;
     _liveMarketDataProvider = liveMarketDataProvider;
   }
@@ -84,7 +84,7 @@ public class LiveMarketDataSnapshot extends AbstractMarketDataSnapshot {
           }
         }
       };
-      getProvider().addListener(listener);
+      _liveMarketDataProvider.addListener(listener);
       try {
         _underlyingSnapshot.init(); // TODO We need something to query, but snapshotting twice is a bit overkill
         for (ValueRequirement requirement : valuesRequired) {
@@ -107,14 +107,10 @@ public class LiveMarketDataSnapshot extends AbstractMarketDataSnapshot {
           }
         }
       } finally {
-        getProvider().removeListener(listener);
+        _liveMarketDataProvider.removeListener(listener);
       }
     }
     _underlyingSnapshot.init(valuesRequired, timeout, unit);
-  }
-
-  private LiveMarketDataProvider getProvider() {
-    return _liveMarketDataProvider;
   }
 
   @Override

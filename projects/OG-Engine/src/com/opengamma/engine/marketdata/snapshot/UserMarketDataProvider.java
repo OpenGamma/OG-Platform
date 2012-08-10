@@ -25,7 +25,6 @@ import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.UniqueId;
-import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -81,23 +80,23 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
 
   //-------------------------------------------------------------------------
   @Override
-  public void subscribe(UserPrincipal user, ValueRequirement valueRequirement) {
-    subscribe(user, Collections.singleton(valueRequirement));
+  public void subscribe(ValueRequirement valueRequirement) {
+    subscribe(Collections.singleton(valueRequirement));
   }
 
   @Override
-  public void subscribe(UserPrincipal user, Set<ValueRequirement> valueRequirements) {
+  public void subscribe(Set<ValueRequirement> valueRequirements) {
     _listeningValueRequirements.addAll(valueRequirements);
     subscriptionSucceeded(valueRequirements);
   }
   
   @Override
-  public void unsubscribe(UserPrincipal user, ValueRequirement valueRequirement) {
-    unsubscribe(user, Collections.singleton(valueRequirement));
+  public void unsubscribe(ValueRequirement valueRequirement) {
+    unsubscribe(Collections.singleton(valueRequirement));
   }
 
   @Override
-  public void unsubscribe(UserPrincipal user, Set<ValueRequirement> valueRequirements) {
+  public void unsubscribe(Set<ValueRequirement> valueRequirements) {
     // TODO
   }
 

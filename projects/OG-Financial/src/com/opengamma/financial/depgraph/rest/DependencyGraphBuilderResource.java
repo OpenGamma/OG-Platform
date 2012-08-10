@@ -30,6 +30,8 @@ import com.opengamma.engine.fudgemsg.ResolutionFailureFudgeBuilder;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.resolver.DefaultCompiledFunctionResolver;
 import com.opengamma.engine.function.resolver.ResolutionRule;
+import com.opengamma.engine.marketdata.MarketDataProvider;
+import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueProperties;
@@ -37,6 +39,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueId;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.rest.AbstractDataResource;
 
 /**
@@ -69,13 +72,13 @@ public final class DependencyGraphBuilderResource extends AbstractDataResource {
   }
 
   protected DependencyGraphBuilderResource(final DependencyGraphBuilderResource copyFrom) {
-    _builderContext = copyFrom.getBuilderContext();
-    _fudgeContext = copyFrom.getFudgeContext();
-    _valuationTime = copyFrom.getValuationTime();
-    _calculationConfigurationName = copyFrom.getCalculationConfigurationName();
-    _defaultProperties = copyFrom.getDefaultProperties();
-    _requirements = new ArrayList<ValueRequirement>(copyFrom.getRequirements());
-    _marketData = copyFrom.getMarketData();
+    _builderContext = copyFrom._builderContext;
+    _fudgeContext = copyFrom._fudgeContext;
+    _valuationTime = copyFrom._valuationTime;
+    _calculationConfigurationName = copyFrom._calculationConfigurationName;
+    _defaultProperties = copyFrom._defaultProperties;
+    _requirements = new ArrayList<ValueRequirement>(copyFrom._requirements);
+    _marketData = copyFrom._marketData;
   }
 
   protected DependencyGraphBuilderResourceContextBean getBuilderContext() {
@@ -142,7 +145,7 @@ public final class DependencyGraphBuilderResource extends AbstractDataResource {
       constraints = ValueProperties.none();
     }
     final ValueRequirement requirement = new ValueRequirement(name, new ComputationTargetSpecification(ComputationTargetType.valueOf(targetType), UniqueId.parse(targetId)), constraints);
-    resource.getRequirements().add(requirement);
+    resource._requirements.add(requirement);
     return resource;
   }
 
@@ -155,24 +158,30 @@ public final class DependencyGraphBuilderResource extends AbstractDataResource {
 
   @GET
   public FudgeMsgEnvelope build() {
-    final DependencyGraphBuilder builder = getBuilderContext().getDependencyGraphBuilderFactory().newInstance();
-    builder.setCalculationConfigurationName(getCalculationConfigurationName());
-    final FunctionCompilationContext context = getBuilderContext().getFunctionCompilationContext().clone();
+    final DependencyGraphBuilder builder = _builderContext.getDependencyGraphBuilderFactory().newInstance();
+    builder.setCalculationConfigurationName(_calculationConfigurationName);
+    final FunctionCompilationContext context = _builderContext.getFunctionCompilationContext().clone();
     final ViewDefinition definition = new ViewDefinition("Mock View", "Test");
-    final ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(definition, getCalculationConfigurationName());
-    calcConfig.setDefaultProperties(getDefaultProperties());
+    final ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(definition, _calculationConfigurationName);
+    calcConfig.setDefaultProperties(_defaultProperties);
     context.setViewCalculationConfiguration(calcConfig);
     builder.setCompilationContext(context);
-    final Collection<ResolutionRule> rules = getBuilderContext().getFunctionResolver().compile(getValuationTime()).getAllResolutionRules();
+    final Collection<ResolutionRule> rules = _builderContext.getFunctionResolver().compile(_valuationTime).getAllResolutionRules();
     // TODO: allow transformation rules
     builder.setFunctionResolver(new DefaultCompiledFunctionResolver(context, rules));
-    builder.setFunctionExclusionGroups(getBuilderContext().getFunctionExclusionGroups());
-    builder.setMarketDataAvailabilityProvider(getBuilderContext().getMarketDataProviderResolver().resolve(getMarketData()).getAvailabilityProvider());
-    final FudgeContext fudgeContext = getFudgeContext();
-    final ResolutionFailureGatherer<MutableFudgeMsg> failures = new ResolutionFailureGatherer<MutableFudgeMsg>(new ResolutionFailureFudgeBuilder.Visitor(getFudgeContext()));
+    builder.setFunctionExclusionGroups(_builderContext.getFunctionExclusionGroups());
+    // TODO this isn't used. is this OK?
+    // TODO it's a bit nasty to build a MarketDataProvider just to get its availability provider
+    UserPrincipal marketDataUser = UserPrincipal.getLocalUser();
+    MarketDataProviderResolver resolver = _builderContext.getMarketDataProviderResolver();
+    MarketDataProvider marketDataProvider = resolver.resolve(marketDataUser, _marketData);
+    builder.setMarketDataAvailabilityProvider(marketDataProvider.getAvailabilityProvider());
+    final FudgeContext fudgeContext = _fudgeContext;
+    final ResolutionFailureGatherer<MutableFudgeMsg> failures = new ResolutionFailureGatherer<MutableFudgeMsg>(new ResolutionFailureFudgeBuilder.Visitor(
+        _fudgeContext));
     builder.setResolutionFailureVisitor(failures);
     builder.setDisableFailureReporting(false);
-    for (ValueRequirement requirement : getRequirements()) {
+    for (ValueRequirement requirement : _requirements) {
       builder.addTarget(requirement);
     }
     final FudgeSerializer serializer = new FudgeSerializer(fudgeContext);
