@@ -8,6 +8,7 @@ package com.opengamma.engine.marketdata;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.marketdata.spec.CombinedMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -25,11 +26,11 @@ public class CombinedMarketDataProviderFactory implements MarketDataProviderFact
   }
   
   @Override
-  public MarketDataProvider create(MarketDataSpecification marketDataSpec) {
+  public MarketDataProvider create(UserPrincipal user, MarketDataSpecification marketDataSpec) {
     ArgumentChecker.notNullInjected(_underlying, "underlying");
     CombinedMarketDataSpecification combinedMarketDataSpec = (CombinedMarketDataSpecification) marketDataSpec;
-    MarketDataProvider preferred = getUnderlying().resolve(combinedMarketDataSpec.getPreferredSpecification());
-    MarketDataProvider fallBack = getUnderlying().resolve(combinedMarketDataSpec.getFallbackSpecification());
+    MarketDataProvider preferred = getUnderlying().resolve(user, combinedMarketDataSpec.getPreferredSpecification());
+    MarketDataProvider fallBack = getUnderlying().resolve(user, combinedMarketDataSpec.getFallbackSpecification());
     return new CombinedMarketDataProvider(preferred, fallBack);
   }
   

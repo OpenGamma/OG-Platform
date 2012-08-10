@@ -5,10 +5,8 @@
  */
 package com.opengamma.engine.marketdata;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -16,7 +14,6 @@ import java.util.concurrent.CountDownLatch;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.livedata.UserPrincipal;
 
 /**
  * Mock {@link MarketDataProvider}
@@ -25,7 +22,6 @@ public class MockMarketDataProvider extends AbstractMarketDataProvider {
   
   private final String _name;
   private final boolean _subscriptionsSucceed;
-  private final List<ValueRequirement> _subscribed = new ArrayList<ValueRequirement>();
   private final CountDownLatch _responseLatch;
   private final Map<ValueRequirement, Object> _values = new HashMap<ValueRequirement, Object>();
   private int _queryCount;
@@ -39,13 +35,12 @@ public class MockMarketDataProvider extends AbstractMarketDataProvider {
 
   //-------------------------------------------------------------------------
   @Override
-  public void subscribe(UserPrincipal user, final ValueRequirement valueRequirement) {
-    subscribe(user, Collections.singleton(valueRequirement));
+  public void subscribe(final ValueRequirement valueRequirement) {
+    subscribe(Collections.singleton(valueRequirement));
   }
 
   @Override
-  public void subscribe(UserPrincipal user, final Set<ValueRequirement> valueRequirements) {
-    _subscribed.addAll(valueRequirements);
+  public void subscribe(final Set<ValueRequirement> valueRequirements) {
     Thread t = new Thread(new Runnable() {
       @Override
       public void run() {
@@ -61,11 +56,11 @@ public class MockMarketDataProvider extends AbstractMarketDataProvider {
   }
 
   @Override
-  public void unsubscribe(UserPrincipal user, ValueRequirement valueRequirement) {
+  public void unsubscribe(ValueRequirement valueRequirement) {
   }
 
   @Override
-  public void unsubscribe(UserPrincipal user, Set<ValueRequirement> valueRequirements) {
+  public void unsubscribe(Set<ValueRequirement> valueRequirements) {
   }
 
   @Override

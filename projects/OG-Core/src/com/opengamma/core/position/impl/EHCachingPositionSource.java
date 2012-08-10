@@ -159,7 +159,7 @@ public class EHCachingPositionSource implements PositionSource {
     }
     Element e = _portfolioCache.get(uniqueId);
     if (e != null) {
-      final Portfolio portfolio = (Portfolio) e.getValue();
+      final Portfolio portfolio = (Portfolio) e.getObjectValue();
       f = _frontCache.putIfAbsent(uniqueId, portfolio);
       if (f instanceof Portfolio) {
         return (Portfolio) f;
@@ -196,12 +196,12 @@ public class EHCachingPositionSource implements PositionSource {
     }
     Element e = _portfolioNodeCache.get(uniqueId);
     if (e != null) {
-      final PortfolioNode node = (PortfolioNode) e.getValue();
+      final PortfolioNode node = (PortfolioNode) e.getObjectValue();
       f = _frontCache.putIfAbsent(uniqueId, node);
       if (f instanceof PortfolioNode) {
         return (PortfolioNode) f;
       } else {
-        return (PortfolioNode) e.getValue();
+        return (PortfolioNode) e.getObjectValue();
       }
     } else {
       PortfolioNode node = getUnderlying().getPortfolioNode(uniqueId);
@@ -226,7 +226,7 @@ public class EHCachingPositionSource implements PositionSource {
     }
     Element e = _positionCache.get(uniqueId);
     if (e != null) {
-      final Position position = (Position) e.getValue();
+      final Position position = (Position) e.getObjectValue();
       f = _frontCache.putIfAbsent(uniqueId, position);
       if (f instanceof Position) {
         return (Position) f;
@@ -256,7 +256,7 @@ public class EHCachingPositionSource implements PositionSource {
     }
     Element e = _tradeCache.get(uniqueId);
     if (e != null) {
-      final Trade trade = (Trade) e.getValue();
+      final Trade trade = (Trade) e.getObjectValue();
       f = _frontCache.putIfAbsent(uniqueId, trade);
       if (f instanceof Trade) {
         return (Trade) f;

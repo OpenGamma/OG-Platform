@@ -36,9 +36,6 @@ public class LiveMarketDataProviderTest {
 
   private static final String _marketDataRequirement = MarketDataRequirementNames.MARKET_VALUE;
   
-  UserPrincipal TEST_USER = new UserPrincipal("kirk", "127.0.0.1");
-  UserPrincipal TEST_USER_2 = new UserPrincipal("alice", "127.0.0.1");
-  
   protected ValueRequirement constructRequirement(String ticker) {
     return new ValueRequirement(_marketDataRequirement, ComputationTargetType.PRIMITIVE, UniqueId.of("testdomain", ticker));
   }
@@ -53,14 +50,15 @@ public class LiveMarketDataProviderTest {
     availabilityProvider.addAvailableRequirement(test1Requirement);
     availabilityProvider.addAvailableRequirement(test2Requirement);
     availabilityProvider.addAvailableRequirement(test3Requirement);
-    LiveMarketDataProvider provider = new LiveMarketDataProvider(client, new MockSecuritySource(), availabilityProvider);
+    LiveMarketDataProvider provider =
+        new LiveMarketDataProvider(client, availabilityProvider, new MockSecuritySource(), UserPrincipal.getTestUser());
     
-    provider.subscribe(TEST_USER, test1Requirement);
-    provider.subscribe(TEST_USER, test2Requirement);
+    provider.subscribe(test1Requirement);
+    provider.subscribe(test2Requirement);
     
-    provider.subscribe(TEST_USER, test3Requirement);
-    provider.subscribe(TEST_USER, test3Requirement);
-    provider.subscribe(TEST_USER_2, test3Requirement);
+    provider.subscribe(test3Requirement);
+    provider.subscribe(test3Requirement);
+    provider.subscribe(test3Requirement);
     
     MutableFudgeMsg msg1 = new FudgeContext().newMessage();
     msg1.add(_marketDataRequirement, 52.07);
