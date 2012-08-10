@@ -47,42 +47,44 @@ public class CDSPremiumDefinition extends AnnuityCouponFixedDefinition {
    * @param protectStart
    * @return The fixed annuity.
    */
-  public static CDSPremiumDefinition fromISDA(final Currency currency, final ZonedDateTime cdsStartDate, final ZonedDateTime cdsMaturityDate, final Frequency frequency,
+  public static CDSPremiumDefinition fromISDA(final Currency currency, final ZonedDateTime startDate, final ZonedDateTime maturity, final Frequency frequency,
     final Calendar calendar, final DayCount dayCount, final BusinessDayConvention businessDay, final double notional, final double fixedRate, final boolean protectStart) {
     ArgumentChecker.notNull(currency, "currency");
-    ArgumentChecker.notNull(cdsStartDate, "cds start date");
-    ArgumentChecker.notNull(cdsMaturityDate, "cds maturity date");
+    ArgumentChecker.notNull(startDate, "CDS start date");
+    ArgumentChecker.notNull(maturity, "CDS maturity");
     ArgumentChecker.notNull(frequency, "frequency");
     ArgumentChecker.notNull(calendar, "calendar");
     ArgumentChecker.notNull(dayCount, "day count");
     ArgumentChecker.notNull(businessDay, "business day convention");
     ArgumentChecker.isTrue(!(dayCount instanceof ActualActualICMA) | !(dayCount instanceof ActualActualICMANormal), "Coupon per year required for Actua lActual ICMA");
     
-    final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(cdsStartDate, cdsMaturityDate, frequency,
+    final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(startDate, maturity, frequency,
       /* stub short */ true, /* from end */ true, businessDay, calendar, /* EOM */ false);
     
-    final ZonedDateTime maturityDate = protectStart ? cdsMaturityDate.plusDays(1) : cdsMaturityDate;
+    final ZonedDateTime maturityWithOffset = protectStart ? maturity.plusDays(1) : maturity;
     
     CouponFixedDefinition[] coupons = new CouponFixedDefinition[paymentDates.length];
     final int maturityIndex = coupons.length - 1;
     
     if (maturityIndex > 0) {
     
-      coupons[0] = new CouponFixedDefinition(currency, paymentDates[0], cdsStartDate, paymentDates[0],
-        dayCount.getDayCountFraction(cdsStartDate, paymentDates[0]), notional, fixedRate);
+      coupons[0] = new CouponFixedDefinition(currency, paymentDates[0], startDate, paymentDates[0],
+        dayCount.getDayCountFraction(startDate, paymentDates[0]), notional, fixedRate);
       
       for (int i = 1; i < maturityIndex; i++) {
         coupons[i] = new CouponFixedDefinition(currency, paymentDates[i], paymentDates[i - 1], paymentDates[i],
           dayCount.getDayCountFraction(paymentDates[i - 1], paymentDates[i]), notional, fixedRate);
       }
       
-      coupons[maturityIndex] =  new CouponFixedDefinition(currency, paymentDates[maturityIndex], paymentDates[maturityIndex - 1], maturityDate,
-        dayCount.getDayCountFraction(paymentDates[maturityIndex - 1], maturityDate), notional, fixedRate);
+      // TODO: extra time for protect start is included here, is this correct?
+      coupons[maturityIndex] =  new CouponFixedDefinition(currency, paymentDates[maturityIndex], paymentDates[maturityIndex - 1], maturity,
+        dayCount.getDayCountFraction(paymentDates[maturityIndex - 1], maturityWithOffset), notional, fixedRate);
       
     } else {
       
-      coupons[0] = new CouponFixedDefinition(currency, paymentDates[0], cdsStartDate, maturityDate,
-        dayCount.getDayCountFraction(cdsStartDate, maturityDate), notional, fixedRate);
+      // TODO: extra time for protect start is included here, is this correct?
+      coupons[0] = new CouponFixedDefinition(currency, paymentDates[0], startDate, maturity,
+        dayCount.getDayCountFraction(startDate, maturityWithOffset), notional, fixedRate);
     }
     
     return new CDSPremiumDefinition(coupons);

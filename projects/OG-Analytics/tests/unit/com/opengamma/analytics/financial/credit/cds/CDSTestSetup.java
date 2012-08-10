@@ -32,11 +32,25 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 public class CDSTestSetup {
   
   protected static DayCount s_act365 = new ActualThreeSixtyFive();
+  
+  public static double getTimeBetween(final ZonedDateTime date1, final ZonedDateTime date2) {
+
+    final ZonedDateTime rebasedDate2 = date2.withZoneSameInstant(date1.getZone());
+    final boolean timeIsNegative = date1.isAfter(rebasedDate2);
+
+    if (!timeIsNegative) {
+      return s_act365.getDayCountFraction(date1, rebasedDate2);
+    }
+    else {
+      return -1.0 * s_act365.getDayCountFraction(rebasedDate2, date1);
+    }
+  }
 
   protected static CDSDerivative _isdaTestCDS;
   protected static YieldCurveBundle _isdaTestCurveBundle;
@@ -45,7 +59,9 @@ public class CDSTestSetup {
   protected static YieldCurve _isdaTestSpreadCurve;
   protected static YieldCurve _isdaTestCdsCcyYieldCurve;
   protected static ZonedDateTime _simpleTestPricingDate;
+  protected static ZonedDateTime _simpleTestStepinDate;
   protected static ZonedDateTime _isdaTestPricingDate;
+  protected static ZonedDateTime _isdaTestStepinDate;
 
   @BeforeClass
   public static void setupBeforeClass() {
@@ -55,6 +71,7 @@ public class CDSTestSetup {
   public static void setupSimpleTestData() {
     
     _simpleTestPricingDate = ZonedDateTime.of(2010, 12, 31, 0, 0, 0, 0, TimeZone.UTC);
+    _simpleTestStepinDate = ZonedDateTime.of(2011, 1, 4, 0, 0, 0, 0, TimeZone.UTC);
   
     double notional = 1.0;
     double recoveryRate = 0.6;
@@ -150,6 +167,7 @@ public class CDSTestSetup {
 
   public static void setupIsdaTestData(double spread) {
       _isdaTestPricingDate = ZonedDateTime.of(2008, 2, 1, 0, 0, 0, 0, TimeZone.UTC);
+      _isdaTestStepinDate = ZonedDateTime.of(2008, 2, 9, 0, 0, 0, 0, TimeZone.UTC);
   
       Currency currency = Currency.USD;
       double notional = 1.0e7;
@@ -254,7 +272,7 @@ public class CDSTestSetup {
       _isdaTestCDS = new CDSDerivative(
         "CDS_CCY", "SPREAD", /*bond CCY curve*/ null,
         premiums, payouts,
-        TimeCalculator.getTimeBetween(_isdaTestPricingDate, cdsStartDate), TimeCalculator.getTimeBetween(_isdaTestPricingDate, maturity.plusDays(1)),
+        getTimeBetween(_isdaTestPricingDate, cdsStartDate), getTimeBetween(_isdaTestPricingDate, maturity),
         notional, spread, recoveryRate, /*accrual on default*/ true, /*pay on default*/ true, /*protect start*/ true);
     }
 

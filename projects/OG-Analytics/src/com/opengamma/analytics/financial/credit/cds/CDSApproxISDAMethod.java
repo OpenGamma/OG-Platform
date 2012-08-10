@@ -9,7 +9,6 @@ import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.slf4j.Logger;
@@ -42,33 +41,39 @@ public class CDSApproxISDAMethod implements PricingMethod {
     throw new RuntimeException("please pass in the pricing date");
   }
   
-  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves, ZonedDateTime pricingDate) {
+  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves, ZonedDateTime pricingDate, ZonedDateTime stepinDate) {
+    
     CDSDerivative cds = (CDSDerivative) instrument;
     YieldAndDiscountCurve discountCurve = curves.getCurve(cds.getDiscountCurveName());
     YieldAndDiscountCurve spreadCurve = curves.getCurve(cds.getSpreadCurveName());
 
-    return CurrencyAmount.of(cds.getPremium().getCurrency(), calculateUpfrontCharge(cds, discountCurve, spreadCurve, pricingDate));
+    return CurrencyAmount.of(cds.getPremium().getCurrency(), calculateUpfrontCharge(cds, discountCurve, spreadCurve, pricingDate, stepinDate));
   }
 
   /**
+   * Calculate the up-front charge of for a CDS. This is what would change hands if the contract were traded.
+   * and is effectively its PV.
    * 
+   * Step-in date is the date when ownership of protection is assumed and is normally taken as T+1, so a CDS traded
+   * on a particular day becomes effective the next day at 00:01. To value an new CDS contract with start date
+   * T >= 0, then step-in date = T+1. To value an existing contract at some point T, step-in date = T+1 again
+   * but now start date < 0.
    * 
-   * @param cds
-   * @param discountCurve
-   * @param spreadCurve
-   * @param pricingDate
-   * @return
+   * @param cds The CDS to be valued
+   * @param discountCurve The discount curve
+   * @param spreadCurve The credit spread curve
+   * @param pricingDate The pricing date
+   * @param stepinDate The step-in date
+   * @return PV of the CDS contract
    */
-  public double calculateUpfrontCharge(CDSDerivative cds, YieldAndDiscountCurve discountCurve, YieldAndDiscountCurve spreadCurve, ZonedDateTime pricingDate) {
+  public double calculateUpfrontCharge(CDSDerivative cds, YieldAndDiscountCurve discountCurve, YieldAndDiscountCurve spreadCurve, ZonedDateTime pricingDate, ZonedDateTime stepinDate) {
     
-    // TODO: fix the step in date
-    ZonedDateTime stepinDate = cds.getPremium().getNthPayment(0).getAccrualStartDate().plusDays(1);
+    if (stepinDate.isBefore(pricingDate)) {
+      throw new OpenGammaRuntimeException("Cannot value a CDS with step-in date before pricing date");
+    }
     
-    if (stepinDate.isBefore(pricingDate))
-      stepinDate = pricingDate.plusDays(1);
-    
-    final double defaultLeg = valueDefaultLeg(cds, stepinDate, discountCurve, spreadCurve, pricingDate);
-    final double premiumLeg = valuePremiumLeg(cds, stepinDate, discountCurve, spreadCurve, pricingDate);
+    final double defaultLeg = valueDefaultLeg(cds, discountCurve, spreadCurve, pricingDate, stepinDate);
+    final double premiumLeg = valuePremiumLeg(cds, discountCurve, spreadCurve, pricingDate, stepinDate);
     
     System.out.println("Default=" + defaultLeg + ", premium=" + premiumLeg);
     
@@ -76,87 +81,87 @@ public class CDSApproxISDAMethod implements PricingMethod {
   }
 
   /**
+   * Value the premium leg of a CDS taken from the step-in date.
    * 
-   * 
-   * @param cds
-   * @param discountCurve
-   * @param spreadCurve
-   * @param pricingDate
-   * @return
+   * @param cds The CDS contract being priced
+   * @param discountCurve The discount curve
+   * @param spreadCurve The credit spread curve
+   * @param pricingDate The pricing date
+   * @param stepinDate The step-in date
+   * @return PV of the CDS premium leg
    */
-  private double valuePremiumLeg(CDSDerivative cds, ZonedDateTime stepinDate, YieldAndDiscountCurve discountCurve, YieldAndDiscountCurve spreadCurve, ZonedDateTime pricingDate) {
+  private double valuePremiumLeg(CDSDerivative cds, YieldAndDiscountCurve discountCurve, YieldAndDiscountCurve spreadCurve, ZonedDateTime pricingDate, ZonedDateTime stepinDate) {
     
-    final CouponFixed[] premiumPayments = cds.getPremium().getPayments();
-    final int offset = cds.isProtectStart() ? -1 : 0;
+    // If the "protect start" flag is set, then the start date of the CDS is protected and observations are made at the start
+    // of the day rather than the end. This is modelled by shifting all period start/end dates one day forward,
+    // and adding one extra day's protection to the final period
     
-    // TODO: encode this in CDS class or check protectStart (which causes the extra day accrual on last period)
-    double maturity = s_act365.getDayCountFraction(pricingDate, premiumPayments[premiumPayments.length - 1].getAccrualEndDate());
+    final CouponFixed[] premiums = cds.getPremium().getPayments();
+    final int maturityIndex = premiums.length - 1;
+    final int offset = cds.isProtectStart() ? 1 : 0;
     
-    System.out.println( maturity );
-    
-    NavigableSet<Double> timeline = buildTimeLine(discountCurve, spreadCurve, cds.getStartTime(), maturity);
+    final ZonedDateTime startDate = premiums[0].getAccrualStartDate();
+    final ZonedDateTime maturityDate = premiums[premiums.length - 1].getAccrualEndDate().plusDays(offset);
+    final double startTime = getTimeBetween(pricingDate, startDate);
+    final double maturity = getTimeBetween(pricingDate, maturityDate);
+    final double offsetStepinTime = getTimeBetween(pricingDate, stepinDate.minusDays(offset));
+
+    // List of all time points for which real data points exist on the discount/spread curves, only need for accrual on default calculation
+    final NavigableSet<Double> timeline = cds.isAccrualOnDefault() ? buildTimeLine(discountCurve, spreadCurve, startTime, maturity) : null;
     
     CouponFixed payment;
-    ZonedDateTime accrualPeriodEnd;
-    
-    double ammount, survival, discount;
+    ZonedDateTime accrualPeriodStart, accrualPeriodEnd;
+    double periodStart, periodEnd;
+    double amount, survival, discount;
     double result = 0.0;
     
-    for (int i = 0; i < premiumPayments.length; i++) {
+    for (int i = 0; i < premiums.length; i++) {
       
-      payment = premiumPayments[i];
-      accrualPeriodEnd = payment.getAccrualEndDate();
+      // TODO: Use payment date != period end date for discount of final payment, since maturity is not adjusted for calendars
+      payment = premiums[i];
+      accrualPeriodEnd = i < maturityIndex ? payment.getAccrualEndDate() : maturityDate;
+      periodEnd = getTimeBetween(pricingDate, accrualPeriodEnd.minusDays(offset));
 
-      // TODO: Spread and discount curve must be continuous/act365
-      ammount = payment.getFixedRate() * payment.getPaymentYearFraction(); // unit notional
-      survival = spreadCurve.getDiscountFactor(s_act365.getDayCountFraction(pricingDate, accrualPeriodEnd.plusDays(offset)));
-      discount = discountCurve.getDiscountFactor(s_act365.getDayCountFraction(pricingDate, accrualPeriodEnd.plusDays(offset))); // TODO: Use pay date
+      amount = payment.getFixedRate() * payment.getPaymentYearFraction();
+      survival = spreadCurve.getDiscountFactor(periodEnd);
+      discount = discountCurve.getDiscountFactor(periodEnd);
+      result += amount * survival * discount;
       
       if (s_logger.isDebugEnabled()) {
         s_logger.debug("i=" + i + ", accrualEnd=" + accrualPeriodEnd + ", accrualTime=" + payment.getPaymentYearFraction());
-        s_logger.debug("ammount=" + ammount + ", survival=" + survival + ", discount=" + discount + ", pv=" + ammount * survival * discount);
+        s_logger.debug("ammount=" + amount + ", survival=" + survival + ", discount=" + discount + ", pv=" + amount * survival * discount);
       }
       
-      result += ammount * survival * discount;
-      
       if (cds.isAccrualOnDefault()) {
-        result += valuePremiumAccrualOnDefault(ammount, pricingDate, stepinDate.plusDays(offset),
-          payment.getAccrualStartDate().plusDays(offset), payment.getAccrualEndDate().plusDays(offset),
-          discountCurve, spreadCurve, timeline);
+        accrualPeriodStart = payment.getAccrualStartDate();
+        periodStart = getTimeBetween(pricingDate, accrualPeriodStart.minusDays(offset));
+        result += valuePremiumPeriodAccrualOnDefault(amount, periodStart, periodEnd, offsetStepinTime, discountCurve, spreadCurve, timeline);
       }
     }
     
     return result;
   }
-  
 
   /**
+   * Calculate the accrual-on-default portion of the PV for a specified accrual period.
    * 
-   * @param payment
-   * @param pricingDate
-   * @param stepinDate
-   * @param startDate
-   * @param endDate
-   * @param discountCurve
-   * @param spreadCurve
-   * @param fullTimeline
-   * @return
+   * @param amount Amount of premium that would be accrued over the entire period (in the case of no default)
+   * @param startTime Accrual period start time
+   * @param endTime Accrual period end time
+   * @param stepinTime Step-in time for the CDS contract
+   * @param discountCurve The discount curve
+   * @param spreadCurve The spread curve
+   * @param fullTimeline List of time points corresponding to real data points on the discount and spread curves
+   * @return Accrual-on-default portion of PV for the accrual period
    */
-  private double valuePremiumAccrualOnDefault(final double ammount, ZonedDateTime pricingDate, ZonedDateTime stepinDate, ZonedDateTime startDate, ZonedDateTime endDate,
+  private double valuePremiumPeriodAccrualOnDefault(final double amount, final double startTime, final double endTime, final double stepinTime,
     YieldAndDiscountCurve discountCurve, YieldAndDiscountCurve spreadCurve, NavigableSet<Double> fullTimeline) {
     
     final double today = 0.0;
-    final double startTime = startDate.isAfter(pricingDate) ? s_act365.getDayCountFraction(pricingDate, startDate) : -s_act365.getDayCountFraction(startDate, pricingDate);
-    final double endTime = s_act365.getDayCountFraction(pricingDate, endDate);
-    final double stepinTime = s_act365.getDayCountFraction(pricingDate, stepinDate);
     final double subStartTime = stepinTime > startTime ? stepinTime : startTime;
-    
-    // TODO: Handle startDate == endDate (divide by zero)
-    final double accrualRate = ammount / s_act365.getDayCountFraction(startDate, endDate);
+    final double accrualRate = amount / (endTime - startTime); // TODO: Handle startTime == endTime
     
     final Double[] timeline = truncateTimeLine(fullTimeline, startTime, endTime);
-    
-    System.out.println("pricingDate=" + pricingDate + ", startDate=" + startDate + ", endDate=" + endDate + ", stepinDate=" + stepinDate + ", accrualRate=" + accrualRate);
 
     double t0, t1, dt, spread0, spread1, discount0, discount1;
     double lambda, fwdRate, lambdaFwdRate, valueForTimeStep, value;
@@ -186,14 +191,6 @@ public class CDSApproxISDAMethod implements PricingMethod {
         * (((t0 + 1.0 / lambdaFwdRate) / lambdaFwdRate) - ((t1 + 1.0 / lambdaFwdRate) / lambdaFwdRate) * spread1 / spread0 * discount1 / discount0);
 
       value += valueForTimeStep;
-      
-      if (s_logger.isDebugEnabled()) {
-        s_logger.debug(
-          "accRate=" + accrualRate + ", t0=" + t0 + ", t1=" + t1 + ", dt=" + dt +
-          ", spread0=" + spread0 + ", spread1=" + spread1 + ", discount0=" + discount0 + ", discount1=" + discount1 +
-          ", lambda=" + lambda + ", fwdRate=" + fwdRate + ", lambdaFwdRate=" + lambdaFwdRate + ", valueForTimeStep=" + valueForTimeStep
-        );
-      }
 
       t0 = t1;
       spread0 = spread1;
@@ -203,63 +200,74 @@ public class CDSApproxISDAMethod implements PricingMethod {
     return value;
   }
 
-  private double valueDefaultLeg(CDSDerivative cds, ZonedDateTime stepinDate, YieldAndDiscountCurve discountCurve, YieldAndDiscountCurve spreadCurve, ZonedDateTime pricingDate) {
+  /**
+   * Value the default leg of a CDS taken from the step-in date.
+   * 
+   * @param cds The derivative object representing the CDS
+   * @param discountCurve The discount curve
+   * @param spreadCurve The credit spread curve
+   * @param pricingDate The pricing date
+   * @param stepinDate The step-in date
+   * @return PV of the CDS default leg
+   */
+  private double valueDefaultLeg(CDSDerivative cds, YieldAndDiscountCurve discountCurve, YieldAndDiscountCurve spreadCurve, ZonedDateTime pricingDate, ZonedDateTime stepinDate) {
 
-    // TODO: Offset uses observationStartOfDay, which is true precisely when protectStart is set on the CDS
-    final int offset = cds.isProtectStart() ? -1 : 0;
+    final CouponFixed[] premiums = cds.getPremium().getPayments();
+    final ZonedDateTime startDate = premiums[0].getAccrualStartDate();
+    final ZonedDateTime maturityDate = premiums[premiums.length - 1].getAccrualEndDate();
     
-    // TODO: Get CDS maturity
-    final ZonedDateTime cdsStartDate = cds.getPremium().getNthPayment(0).getAccrualStartDate();
-    final ZonedDateTime cdsEndDate = cds.getPremium().getNthPayment(cds.getPremium().getNumberOfPayments()-1).getAccrualEndDate().minusDays(1); //ZonedDateTime.of(2008, 2, 12, 0, 0, 0, 0, TimeZone.UTC);
+    final int offset = cds.isProtectStart() ? 1 : 0;
+    final ZonedDateTime offsetStepinDate = stepinDate.minusDays(offset);
+    final ZonedDateTime offsetPricingDate = pricingDate.minusDays(offset);
     
-    // Start date is the latest of CDS start date, step-in date and pricing date
-    final ZonedDateTime startDate =
-      stepinDate.isAfter(cdsStartDate)
-      ? stepinDate.isAfter(pricingDate)
-        ? stepinDate
-        : pricingDate
-      : cdsStartDate.isAfter(pricingDate)
-        ? cdsStartDate
-        : pricingDate;
+    final ZonedDateTime valuationStartDate =
+      startDate.isAfter(offsetStepinDate)
+      ? startDate.isAfter(offsetPricingDate)
+        ? startDate
+        : offsetPricingDate
+      : offsetStepinDate.isAfter(offsetPricingDate)
+        ? offsetStepinDate
+        : offsetPricingDate;
+    
+    final double valuationStartTime = getTimeBetween(pricingDate, valuationStartDate);
+    final double maturity = getTimeBetween(pricingDate, maturityDate);
+    final double recoveryRate = cds.getRecoveryRate();
     
     final double value = cds.isPayOnDefault()
-      ? valueDefaultLegPayOnDefault(cds, pricingDate, startDate.plusDays(offset), cdsEndDate, discountCurve, spreadCurve)
-      : valueDefaultLegPayOnMaturity();
+      ? valueDefaultLegPayOnDefault(recoveryRate, valuationStartTime, maturity, discountCurve, spreadCurve)
+      : valueDefaultLegPayOnMaturity(recoveryRate, valuationStartTime, maturity, discountCurve, spreadCurve);
     
     final double discount = 1.0; // TODO: verify assumptions about pricing date  -- cdsCcyCurve.getDiscountFactor(valueDate);
 
     return value / discount;
   }
 
-  private double valueDefaultLegPayOnDefault(final CDSDerivative cds, ZonedDateTime pricingDate, ZonedDateTime startDate, ZonedDateTime maturity,
+  /**
+   * Value the default leg, assuming any possible payout is received at the time of default.
+   * 
+   * @param recoveryRate Recovery rate of the CDS underlying asset
+   * @param startTime protection start time
+   * @param maturity CDS maturity
+   * @param discountCurve The discount curve
+   * @param spreadCurve The credit spread curve
+   * @return PV for the default leg
+   */
+  private double valueDefaultLegPayOnDefault(final double recoveryRate, final double startTime, final double maturity,
     YieldAndDiscountCurve discountCurve, YieldAndDiscountCurve spreadCurve) {
-
-    // CDS has already matured
-    if (pricingDate.isAfter(maturity)) {
+    
+    if (maturity < 0.0) {
       return 0.0;
     }
     
-    final double startTime = s_act365.getDayCountFraction(pricingDate, startDate); // cds.getStartTime(); //
-    final double endTime = s_act365.getDayCountFraction(pricingDate, maturity); // cds.getMaturity(); // 
-    
-    if (startTime != s_act365.getDayCountFraction(pricingDate, startDate) || endTime != s_act365.getDayCountFraction(pricingDate, maturity)) {
-      s_logger.debug("startTime: in cds = " + startTime + ", using act365 = " + s_act365.getDayCountFraction(pricingDate, startDate) + " (pricingDate=" + pricingDate + ")");
-      s_logger.debug("endTime: in cds = " + endTime + ", using act365 = " + s_act365.getDayCountFraction(pricingDate, maturity) + " (pricingDate=" + pricingDate + ")");
-    }
-    
-    // TODO: start and end times
-    NavigableSet<Double> fullTimeline = buildTimeLine(discountCurve, spreadCurve, startTime, endTime);
-    final Double[] timeline = truncateTimeLine(fullTimeline, startTime, endTime);
-
-    final double loss = 1.0 - cds.getRecoveryRate();
+    final double loss = 1.0 - recoveryRate;
+    final Double[] timeline = truncateTimeLine(buildTimeLine(discountCurve, spreadCurve, startTime, maturity), startTime, maturity);
 
     double dt, spread0, spread1, discount0, discount1;
     double lambda, fwdRate, valueForTimeStep, value;
     
-    // For t < 0, assume discount factor = 1 (MAT: I think this is how ISDA works, TODO: confirm)
-    spread1 = startTime > 0.0 ? spreadCurve.getDiscountFactor(startTime) : 1.0;
+    // TODO: handle startTime == -1 day
+    spread1 = spreadCurve.getDiscountFactor(startTime);
     discount1 = startTime > 0.0 ? discountCurve.getDiscountFactor(startTime) : 1.0;
-
     value = 0.0;
 
     for (int i = 1; i < timeline.length; ++i) {
@@ -267,9 +275,8 @@ public class CDSApproxISDAMethod implements PricingMethod {
       dt = timeline[i] - timeline[i - 1];
 
       spread0 = spread1;
-      spread1 = spreadCurve.getDiscountFactor(timeline[i]);
-
       discount0 = discount1;
+      spread1 = spreadCurve.getDiscountFactor(timeline[i]);
       discount1 = discountCurve.getDiscountFactor(timeline[i]);
 
       lambda = Math.log(spread0 / spread1) / dt;
@@ -282,14 +289,34 @@ public class CDSApproxISDAMethod implements PricingMethod {
     return value;
   }
   
-  private double valueDefaultLegPayOnMaturity() {
+  /**
+   * Value the default leg, assuming any possible payout is received at maturity.
+   * 
+   * @param recoveryRate Recovery rate of the CDS underlying asset
+   * @param startTime protection start time
+   * @param maturity CDS maturity
+   * @param discountCurve The discount curve
+   * @param spreadCurve The credit spread curve
+   * @return PV for the default leg
+   */
+  private double valueDefaultLegPayOnMaturity(final double recoveryRate, final double startTime, final double maturity,
+    YieldAndDiscountCurve discountCurve, YieldAndDiscountCurve spreadCurve) {
     
-    // TODO: implement me
-    return 0.0;
+    if (maturity < 0.0) {
+      return 0.0;
+    }
+    
+    // TODO: handle startTime == -1 day
+    final double loss = 1.0 - recoveryRate;
+    final double spread0 = spreadCurve.getDiscountFactor(startTime);
+    final double spread1 = spreadCurve.getDiscountFactor(maturity);
+    final double discount = discountCurve.getDiscountFactor(maturity);
+    
+    return (spread0 - spread1) * discount * loss;
   }
 
   /**
-   * Build a set of time points corresponding to data points on the discount and spread curve
+   * Build a set of time points corresponding to data points on the discount and spread curve.
    * 
    * @param discountCurve The discount curve
    * @param spreadCurve The spread curve
@@ -323,9 +350,40 @@ public class CDSApproxISDAMethod implements PricingMethod {
     return timePoints;
   }
   
-  public static Double[] truncateTimeLine(final NavigableSet<Double> timeLine, double startTime, double endTime) {
+  /**
+   * Truncate a time line to the range [startTime, endTime]. The start and end times are added
+   * to the list of time points in the time line if they do not already exist.
+   * 
+   * If endTime < startTime results are undefined
+   * 
+   * @param fullTimeLine The original time line to be truncated
+   * @param startTime The start time to truncate to
+   * @param endTime The end time to truncate to
+   * @return An array representing the time points in the truncated time line
+   */
+  public static Double[] truncateTimeLine(final NavigableSet<Double> fullTimeLine, double startTime, double endTime) {
     
-    final Set<Double> timePointsInRange = timeLine.subSet(startTime, true, endTime, true);
+    final Set<Double> timePointsInRange = fullTimeLine.subSet(startTime, true, endTime, true);
     return timePointsInRange.toArray(new Double[timePointsInRange.size()]);
+  }
+  
+  /**
+   * Return the fraction of a year between two dates according the the ACT365 convention.
+   * If date2 < date1 the result will be negative.
+   * 
+   * @param date1 The first date
+   * @param date2 The second date
+   * @return Real time value in years
+   */
+  public static double getTimeBetween(final ZonedDateTime date1, final ZonedDateTime date2) {
+
+    final ZonedDateTime rebasedDate2 = date2.withZoneSameInstant(date1.getZone());
+    final boolean timeIsNegative = date1.isAfter(rebasedDate2);
+
+    if (!timeIsNegative) {
+      return s_act365.getDayCountFraction(date1, rebasedDate2);
+    } else {
+      return -1.0 * s_act365.getDayCountFraction(rebasedDate2, date1);
+    }
   }
 }
