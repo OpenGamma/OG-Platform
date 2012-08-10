@@ -85,7 +85,7 @@ $.register_module({
          * @param {Array} arr
          * @returns {Array}
          */
-        util.log = function (arr) {return settings.log ? arr.map(function (val) {return Math.log(val);}) : arr;};
+        util.log = function (arr) {return arr.map(function (val) {return Math.log(val);});};
         /**
          * Scales an Array of numbers to a new range
          * @param {Array} arr Array to be scaled
@@ -128,7 +128,7 @@ $.register_module({
             config.zs_label = tmp_data[config.id].zs_label;
             var gadget = this, alive = prefix + counter++, $selector = $(config.selector), width, height,
                 sel_offset, // needed to calculate mouse coordinates for raycasting
-                hud = {}, matlib = {}, smile = {}, surface = {}, slice = {}, char_geometries = {},
+                hud = {}, matlib = {}, smile = {}, surface = {}, slice = {}, char_geometries = {}, local_settings = {},
                 animation_group = new THREE.Object3D(), // everything in animation_group rotates on mouse drag
                 hover_group,          // THREE.Object3D that gets created on hover and destroyed afterward
                 surface_group_top,    // actual surface and anything that needs to be at that y pos
@@ -143,6 +143,7 @@ $.register_module({
                 renderer, camera, scene, backlight, keylight, filllight, projector = new THREE.Projector(),
                 hover_buffer, slice_buffer, load_buffer, surface_buffer,
                 stats, debug = true;
+            local_settings.log = true;
             /**
              * Buffer constructor
              */
@@ -320,7 +321,11 @@ $.register_module({
             /**
              * Tells the resize manager if the gadget is still alive
              */
-            gadget.alive = function () {return !!$('.' + alive).length;};
+            gadget.alive = function () {
+                var live = !!$('.' + alive).length;
+                if (!live) load_buffer.clear(), console.log('clean up');
+                return live;
+            };
             /**
              * Creates floor
              * @return {THREE.Object3D}
@@ -338,8 +343,14 @@ $.register_module({
                 // adjusted data is the original data scaled to fit 2D grids width/length/height.
                 // It is used to set the distance between plane segments. Then the real data is used as the values
                 adjusted_vol = util.scale(config.vol, 0, settings.surface_y);
-                adjusted_xs = util.scale(util.log(config.xs), -(settings.surface_x / 2), settings.surface_x / 2);
-                adjusted_zs = util.scale(util.log(config.zs), -(settings.surface_z / 2), settings.surface_z / 2);
+                adjusted_xs = util.scale(
+                    local_settings.log ? util.log(config.xs) : config.xs,
+                    -(settings.surface_x / 2), settings.surface_x / 2
+                );
+                adjusted_zs = util.scale(
+                    local_settings.log ? util.log(config.zs) : config.zs,
+                    -(settings.surface_z / 2), settings.surface_z / 2
+                );
                 // config.ys doesnt exist, so we need to create adjusted_ys manualy out of the given
                 // vol plane range: 0 - settings.surface_y
                 adjusted_ys = (function () {
@@ -537,6 +548,7 @@ $.register_module({
                 animation_group.add(keylight);
                 animation_group.add(filllight);
                 animation_group.add(surface.create_surface());
+                load_buffer.add(animation_group);
                 scene = new THREE.Scene();
                 scene.add(animation_group);
                 scene.add(camera);
@@ -601,9 +613,9 @@ $.register_module({
             hud.form = function () {
                 $selector
                     .find('.og-options input')
-                    .prop('checked', settings.log)
+                    .prop('checked', local_settings.log)
                     .on('change', function () {
-                        settings.log = $(this).is(':checked');
+                        local_settings.log = $(this).is(':checked');
                         gadget.update();
                     });
             };
