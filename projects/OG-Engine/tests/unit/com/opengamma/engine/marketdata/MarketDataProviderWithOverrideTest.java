@@ -20,7 +20,6 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.UniqueId;
-import com.opengamma.livedata.UserPrincipal;
 
 /**
  * Tests {@link MarketDataProviderWithOverride}
@@ -37,7 +36,7 @@ public class MarketDataProviderWithOverrideTest {
     
     ValueRequirement req = getRequirement(1);
     
-    provider.subscribe(UserPrincipal.getLocalUser(), req);
+    provider.subscribe(req);
     p1.awaitSubscriptionResponses();
     p2.awaitSubscriptionResponses();
     
@@ -55,7 +54,7 @@ public class MarketDataProviderWithOverrideTest {
     
     ValueRequirement req = getRequirement(1);
     
-    provider.subscribe(UserPrincipal.getLocalUser(), req);
+    provider.subscribe(req);
     p1.awaitSubscriptionResponses();
     p2.awaitSubscriptionResponses();
     

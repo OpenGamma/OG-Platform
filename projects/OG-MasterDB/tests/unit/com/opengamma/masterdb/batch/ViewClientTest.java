@@ -59,7 +59,6 @@ import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
-import com.opengamma.livedata.UserPrincipal;
 
 public class ViewClientTest {
 
@@ -158,22 +157,22 @@ public class ViewClientTest {
     private final MarketDataPermissionProvider _permissionProvider = new PermissiveMarketDataPermissionProvider();
 
     @Override
-    public void subscribe(UserPrincipal user, ValueRequirement valueRequirement) {
-      subscribe(user, Collections.singleton(valueRequirement));
+    public void subscribe(ValueRequirement valueRequirement) {
+      subscribe( Collections.singleton(valueRequirement));
     }
 
     @Override
-    public void subscribe(UserPrincipal user, Set<ValueRequirement> valueRequirements) {
+    public void subscribe(Set<ValueRequirement> valueRequirements) {
       // No actual subscription to make, but we still need to acknowledge it.
       subscriptionSucceeded(valueRequirements);
     }
     
     @Override
-    public void unsubscribe(UserPrincipal user, ValueRequirement valueRequirement) {
+    public void unsubscribe(ValueRequirement valueRequirement) {
     }
 
     @Override
-    public void unsubscribe(UserPrincipal user, Set<ValueRequirement> valueRequirements) {
+    public void unsubscribe(Set<ValueRequirement> valueRequirements) {
     }
 
     //-----------------------------------------------------------------------

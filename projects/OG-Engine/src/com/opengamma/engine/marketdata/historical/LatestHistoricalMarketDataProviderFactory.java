@@ -11,6 +11,7 @@ import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataProviderFactory;
 import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -29,7 +30,8 @@ public class LatestHistoricalMarketDataProviderFactory implements MarketDataProv
   }
 
   @Override
-  public MarketDataProvider create(MarketDataSpecification marketDataSpec) {
+  public MarketDataProvider create(UserPrincipal marketDataUser,
+                                   MarketDataSpecification marketDataSpec) {
     HistoricalMarketDataSpecification historicalMarketDataSpec = (HistoricalMarketDataSpecification) marketDataSpec;
     return new LatestHistoricalMarketDataProvider(getTimeSeriesSource(), getSecuritySource(),
         historicalMarketDataSpec.getTimeSeriesResolverKey(), historicalMarketDataSpec.getTimeSeriesFieldResolverKey());

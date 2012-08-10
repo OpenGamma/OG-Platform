@@ -30,7 +30,6 @@ import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
@@ -73,12 +72,12 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
 
   //-------------------------------------------------------------------------
   @Override
-  public void subscribe(UserPrincipal user, ValueRequirement valueRequirement) {
-    subscribe(user, Collections.singleton(valueRequirement));
+  public void subscribe(ValueRequirement valueRequirement) {
+    subscribe(Collections.singleton(valueRequirement));
   }
 
   @Override
-  public void subscribe(UserPrincipal user, Set<ValueRequirement> valueRequirements) {
+  public void subscribe(Set<ValueRequirement> valueRequirements) {
     synchronized (_subscriptionIdBundleMap) {
       for (ValueRequirement requirement : valueRequirements) {
         Pair<ExternalIdBundle, Integer> existing = _subscriptionIdBundleMap.get(requirement);
@@ -94,12 +93,12 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
   }
   
   @Override
-  public void unsubscribe(UserPrincipal user, ValueRequirement valueRequirement) {
-    unsubscribe(user, Collections.singleton(valueRequirement));
+  public void unsubscribe(ValueRequirement valueRequirement) {
+    unsubscribe(Collections.singleton(valueRequirement));
   }
 
   @Override
-  public void unsubscribe(UserPrincipal user, Set<ValueRequirement> valueRequirements) {
+  public void unsubscribe(Set<ValueRequirement> valueRequirements) {
     synchronized (_subscriptionIdBundleMap) {
       for (ValueRequirement requirement : valueRequirements) {
         Pair<ExternalIdBundle, Integer> existing = _subscriptionIdBundleMap.get(requirement);

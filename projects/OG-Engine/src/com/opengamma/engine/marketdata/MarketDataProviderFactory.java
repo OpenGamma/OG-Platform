@@ -6,6 +6,7 @@
 package com.opengamma.engine.marketdata;
 
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -17,9 +18,13 @@ public interface MarketDataProviderFactory {
   /**
    * Creates a {@link MarketDataProvider} instance that is compatible with a given specification.
    * 
+   *
+   *
+   * @param marketDataUser
    * @param marketDataSpec  the market data specification, not null
    * @return a market data provider, not null
    */
-  MarketDataProvider create(MarketDataSpecification marketDataSpec);
+  MarketDataProvider create(UserPrincipal marketDataUser,
+                            MarketDataSpecification marketDataSpec);
 
 }

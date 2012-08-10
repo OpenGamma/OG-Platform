@@ -50,7 +50,8 @@ public class LiveMarketDataProviderFactoryBean extends SingletonFactoryBean<Mark
     ArgumentChecker.notNullInjected(getLiveDataClient(), "liveDataClient");
     ArgumentChecker.notNullInjected(getSecuritySource(), "securitySource");
     ArgumentChecker.notNullInjected(getAvailabilityProvider(), "availabilityProvider");
-    return new LiveMarketDataProvider(getLiveDataClient(), getSecuritySource(), getAvailabilityProvider());
+    //return new LiveMarketDataProvider(getLiveDataClient(), getAvailabilityProvider(), getSecuritySource());
+    throw new UnsupportedOperationException("LiveMarketDataProviders must be created for each view process");
   }
 
 }

@@ -6,6 +6,7 @@
 package com.opengamma.engine.marketdata;
 
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -21,7 +22,8 @@ public class SingletonMarketDataProviderFactory implements MarketDataProviderFac
   }
 
   @Override
-  public MarketDataProvider create(MarketDataSpecification marketDataSpec) {
+  public MarketDataProvider create(UserPrincipal marketDataUser,
+                                   MarketDataSpecification marketDataSpec) {
     return _instance;
   }
   

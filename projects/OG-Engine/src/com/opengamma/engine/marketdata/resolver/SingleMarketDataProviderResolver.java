@@ -9,6 +9,7 @@ import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataProviderFactory;
 import com.opengamma.engine.marketdata.SingletonMarketDataProviderFactory;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.livedata.UserPrincipal;
 
 /**
  * Implements {@link MarketDataProviderResolver} by using a single {@link MarketDataProviderFactory}.
@@ -26,8 +27,8 @@ public class SingleMarketDataProviderResolver implements MarketDataProviderResol
   }
   
   @Override
-  public MarketDataProvider resolve(MarketDataSpecification marketDataSpec) {
-    return _providerFactory.create(marketDataSpec);
+  public MarketDataProvider resolve(UserPrincipal user, MarketDataSpecification marketDataSpec) {
+    return _providerFactory.create(user, marketDataSpec);
   }
 
 }
