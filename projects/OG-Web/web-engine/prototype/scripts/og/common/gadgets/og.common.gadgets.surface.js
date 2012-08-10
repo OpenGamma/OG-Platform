@@ -9,6 +9,7 @@ $.register_module({
         var webgl = Detector.webgl ? true : false, util = {}, tmp_data, prefix = 'surface_', counter = 1,
             settings = {
                 axis_offset: 1.5,           // distance from surface
+                debug: true,
                 floating_height: 5,         // how high the top surface floats over the bottom grid
                 font_face_2d: 'Arial',      // 2D text font
                 font_face_3d: 'helvetiker', // 3D text font (glyphs for 3D fonts need to be loaded separatly)
@@ -18,7 +19,6 @@ $.register_module({
                 font_color_axis_labels: '0xcccccc',
                 interactive_color_nix: '0xff0000',
                 interactive_color_css: '#f00',
-                log: true,                  // default value for log checkbox
                 precision_lbl: 2,           // floating point presions for labels
                 precision_hud: 3,           // floating point presions for vol display
                 slice_handle_color: '0xbbbbbb',
@@ -30,6 +30,8 @@ $.register_module({
                 surface_x: 100,             // width
                 surface_z: 100,             // depth
                 surface_y: 40,              // the height range of the surface
+                texture_size: 512,
+                tick_length: 20,
                 y_segments: 10,             // number of segments to thin vol out to for smile planes
                 vertex_shading_hue_min: 180,// vertex shading hue range min value
                 vertex_shading_hue_max: 0   // vertex shading hue range max value
@@ -128,7 +130,8 @@ $.register_module({
             config.zs_label = tmp_data[config.id].zs_label;
             var gadget = this, alive = prefix + counter++, $selector = $(config.selector), width, height,
                 sel_offset, // needed to calculate mouse coordinates for raycasting
-                hud = {}, matlib = {}, smile = {}, surface = {}, slice = {}, char_geometries = {}, local_settings = {},
+                hud = {}, matlib = {}, smile = {}, surface = {}, slice = {}, char_geometries = {}, stats = {},
+                local_settings = {log: true, play: null, stopping: false}, timeout,
                 animation_group = new THREE.Object3D(), // everything in animation_group rotates on mouse drag
                 hover_group,          // THREE.Object3D that gets created on hover and destroyed afterward
                 surface_group_top,    // actual surface and anything that needs to be at that y pos
@@ -141,9 +144,7 @@ $.register_module({
                 ys, adjusted_vol, adjusted_xs, adjusted_ys, adjusted_zs, // gadget.init_data calculates these values
                 vol_max = Math.max.apply(null, config.vol), vol_min = Math.min.apply(null, config.vol),
                 renderer, camera, scene, backlight, keylight, filllight, projector = new THREE.Projector(),
-                hover_buffer, slice_buffer, load_buffer, surface_buffer,
-                stats, debug = true;
-            local_settings.log = true;
+                hover_buffer, slice_buffer, load_buffer, surface_buffer;
             /**
              * Buffer constructor
              */
@@ -158,6 +159,7 @@ $.register_module({
                     if (!custom && !buffer.arr.length) return;
                     (function dealobj (val) {
                         if ($.isArray(val)) val.forEach(function (val) {dealobj(val);});
+                        else if (val instanceof THREE.Texture) renderer.deallocateTexture(val);
                         else if (val instanceof THREE.ParticleSystem) renderer.deallocateObject(val);
                         else if (val instanceof THREE.Mesh) renderer.deallocateObject(val);
                         else if (val instanceof THREE.Object3D) renderer.deallocateObject(val), dealobj(val.children);
@@ -323,7 +325,7 @@ $.register_module({
              */
             gadget.alive = function () {
                 var live = !!$('.' + alive).length;
-                if (!live) load_buffer.clear(), console.log('clean up');
+                if (!live) load_buffer.clear();
                 return live;
             };
             /**
@@ -394,6 +396,8 @@ $.register_module({
                  */
                 $selector.on('mousemove.gadget.interactive', function (event) {
                     event.preventDefault();
+                    local_settings.play = true;
+                    local_settings.stopping = false;
                     var xlft = gadget.intersects(event, [imeshes.lft_x_handle]),
                         xrgt = gadget.intersects(event, [imeshes.rgt_x_handle]),
                         zlft = gadget.intersects(event, [imeshes.lft_z_handle]),
@@ -525,7 +529,6 @@ $.register_module({
                 }
             };
             gadget.load = function () {
-                console.log('load');
                 sel_offset = $selector.offset();
                 width = $selector.width(), height = $selector.height();
                 gadget.init_data();
@@ -564,17 +567,22 @@ $.register_module({
                 $selector.html(renderer.domElement).find('canvas').css({position: 'relative'});
                 hud.load();
                 // stats
-                if (debug) {
-                    stats = new Stats();
-                    stats.domElement.style.position = 'absolute';
-                    stats.domElement.style.top = '40px';
-                    $(stats.domElement).appendTo($selector);
+                if (settings.debug) {
+                    stats.loop = new Stats();
+                    stats.loop.domElement.style.position = 'absolute';
+                    stats.loop.domElement.style.top = '0';
+                    stats.loop.domElement.style.right = '0';
+                    $(stats.loop.domElement).appendTo($selector);
+                    stats.render = new Stats();
+                    stats.render.domElement.style.position = 'absolute';
+                    stats.render.domElement.style.top = '50px';
+                    stats.render.domElement.style.right = '0';
+                    $(stats.render.domElement).appendTo($selector);
                 }
                 if (webgl) gadget.interactive(), slice.load();
                 return gadget;
             };
             gadget.resize = function () {
-                console.log('resize');
                 width = $selector.width();
                 height = $selector.height();
                 sel_offset = $selector.offset();
@@ -588,7 +596,6 @@ $.register_module({
              * Updates without reloading everything
              */
             gadget.update = function () {
-                console.log('update');
                 gadget.init_data();
                 animation_group.add(surface.create_surface());
                 slice.load();
@@ -965,21 +972,22 @@ $.register_module({
                     var canvas = document.createElement('canvas'),
                         ctx = canvas.getContext('2d'),
                         plane = new THREE.PlaneGeometry(axis_len, 5, 0, 0),
-                        axis = new THREE.Mesh(plane, matlib.texture(new THREE.Texture(canvas))),
+                        axis = new THREE.Mesh(plane, matlib.texture(surface_buffer.add(new THREE.Texture(canvas)))),
+                        tick_stop_pos =  settings.tick_length + 0.5,
                         labels = util.thin(config.spacing.map(function (val) {
                             // if not y axis offset half. y planes start at 0, x and z start at minus half width
                             var offset = config.axis === 'y' ? 0 : axis_len / 2;
-                            return (val + offset) * 5
+                            return (val + offset) * (settings.texture_size / axis_len)
                         }), nth);
-                    canvas.width = axis_len * 5;
-                    canvas.height = 50;
+                    canvas.width = settings.texture_size;
+                    canvas.height = 32;
                     ctx.beginPath();
                     ctx.lineWidth = 2;
-                    for (i = 0; i < labels.length; i++) ctx.moveTo(labels[i] + 0.5, 25), ctx.lineTo(labels[i] + 0.5, 0);
-                    ctx.moveTo(0.5, 25.5);
+                    for (i = 0; i < labels.length; i++) ctx.moveTo(labels[i] + 0.5, tick_stop_pos), ctx.lineTo(labels[i] + 0.5, 0);
+                    ctx.moveTo(0.5, tick_stop_pos);
                     ctx.lineTo(0.5, 0.5);
                     ctx.lineTo(canvas.width - .5, 0.5);
-                    ctx.lineTo(canvas.width - .5, 25.5);
+                    ctx.lineTo(canvas.width - .5, tick_stop_pos);
                     ctx.stroke();
                     axis.material.map.needsUpdate = true;
                     axis.doubleSided = true;
@@ -1236,9 +1244,15 @@ $.register_module({
             if (!config.child) og.common.gadgets.manager.register(gadget);
             gadget.load();
             (function animate() {
+                if (settings.debug) stats.loop.update();
+                if (local_settings.play === null || local_settings.play) {
+                    renderer.render(scene, camera);
+                    if (settings.debug) stats.render.update();
+                    if (!local_settings.stopping)
+                        clearTimeout(timeout), timeout = setTimeout(function () {local_settings.play = false;}, 5000);
+                    local_settings.stopping = true;
+                }
                 requestAnimationFrame(animate);
-                renderer.render(scene, camera);
-                if (debug) stats.update();
             }());
         }
     }
