@@ -22,10 +22,10 @@ import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
-import com.opengamma.financial.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
-import com.opengamma.financial.provider.historicaltimeseries.impl.DataHistoricalTimeSeriesProviderResource;
-import com.opengamma.financial.provider.historicaltimeseries.impl.NoneFoundHistoricalTimeSeriesProvider;
-import com.opengamma.financial.provider.historicaltimeseries.impl.RemoteHistoricalTimeSeriesProvider;
+import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
+import com.opengamma.provider.historicaltimeseries.impl.DataHistoricalTimeSeriesProviderResource;
+import com.opengamma.provider.historicaltimeseries.impl.NoneFoundHistoricalTimeSeriesProvider;
+import com.opengamma.provider.historicaltimeseries.impl.RemoteHistoricalTimeSeriesProvider;
 
 /**
  * Component factory for the time-series provider.

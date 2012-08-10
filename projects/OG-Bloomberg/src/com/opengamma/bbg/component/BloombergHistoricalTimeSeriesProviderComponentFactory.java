@@ -23,8 +23,8 @@ import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.BloombergHistoricalTimeSeriesProvider;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.provider.HistoricalTimeSeriesProviderComponentFactory;
-import com.opengamma.financial.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
-import com.opengamma.financial.provider.historicaltimeseries.impl.EHCachingHistoricalTimeSeriesProvider;
+import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
+import com.opengamma.provider.historicaltimeseries.impl.EHCachingHistoricalTimeSeriesProvider;
 
 /**
  * Component factory for the Bloomberg time-series provider.

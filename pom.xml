@@ -18,6 +18,7 @@
     <module>projects/OG-Analytics</module>
     <module>projects/OG-Maths</module>
     <module>projects/OG-Core</module>
+    <module>projects/OG-Provider</module>
     <module>projects/OG-Master</module>
     <module>projects/OG-LiveData</module>
     <module>projects/OG-Engine</module>

@@ -22,10 +22,10 @@ import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
-import com.opengamma.financial.provider.security.SecurityProvider;
-import com.opengamma.financial.provider.security.impl.DataSecurityProviderResource;
-import com.opengamma.financial.provider.security.impl.NoneFoundSecurityProvider;
-import com.opengamma.financial.provider.security.impl.RemoteSecurityProvider;
+import com.opengamma.provider.security.SecurityProvider;
+import com.opengamma.provider.security.impl.DataSecurityProviderResource;
+import com.opengamma.provider.security.impl.NoneFoundSecurityProvider;
+import com.opengamma.provider.security.impl.RemoteSecurityProvider;
 
 /**
  * Component factory for the security provider.

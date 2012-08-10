@@ -10,12 +10,12 @@ import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME;
 import java.util.Map;
 
 import com.opengamma.bbg.loader.BloombergBulkSecurityLoader;
-import com.opengamma.financial.provider.security.SecurityProviderGetRequest;
-import com.opengamma.financial.provider.security.SecurityProviderGetResult;
-import com.opengamma.financial.provider.security.impl.AbstractSecurityProvider;
 import com.opengamma.financial.timeseries.exchange.ExchangeDataProvider;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.provider.security.SecurityProviderGetRequest;
+import com.opengamma.provider.security.SecurityProviderGetResult;
+import com.opengamma.provider.security.impl.AbstractSecurityProvider;
 
 /**
  * Provider of security information from the Bloomberg data source.

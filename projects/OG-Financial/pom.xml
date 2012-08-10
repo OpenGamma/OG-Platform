@@ -28,6 +28,11 @@
     </dependency>
     <dependency>
       <groupId>com.opengamma</groupId>
+      <artifactId>og-provider</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma</groupId>
       <artifactId>og-engine</artifactId>
       <version>${project.version}</version>
     </dependency>

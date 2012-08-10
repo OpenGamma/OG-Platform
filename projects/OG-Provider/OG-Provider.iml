@@ -16,9 +16,6 @@
         </propertiesSettings>
       </configuration>
     </facet>
-    <facet type="Clojure" name="Clojure">
-      <configuration />
-    </facet>
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/build/classes" />
@@ -28,14 +25,12 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/tests/unit" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/build" />
-      <excludeFolder url="file://$MODULE_DIR$/dist" />
-      <excludeFolder url="file://$MODULE_DIR$/lib" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="module" module-name="OG-Core" exported="" />
     <orderEntry type="module-library">
-      <library name="IvyIDEA-OG-Master-default">
+      <library name="IvyIDEA-OG-Provider-default">
         <CLASSES>
           <root url="jar://$USER_HOME$/.ivy2/cache/org.springframework/spring/jars/spring-transaction-3.0.4.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.springframework/spring/jars/spring-orm-3.0.4.jar!/" />

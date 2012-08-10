@@ -20,6 +20,7 @@ common/deploy.properties
 !/projects/OG-Master
 !/projects/OG-MasterDB
 !/projects/OG-Maths
+!/projects/OG-Provider
 !/projects/OG-Security
 !/projects/OG-Util
 !/projects/OG-Web
