@@ -3,12 +3,13 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.bbg;
+package com.opengamma.bbg.security;
 
 import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME;
 
 import java.util.Map;
 
+import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.loader.BloombergBulkSecurityLoader;
 import com.opengamma.financial.timeseries.exchange.ExchangeDataProvider;
 import com.opengamma.id.ExternalIdBundle;

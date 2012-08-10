@@ -17,8 +17,8 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.bbg.BloombergSecurityProvider;
 import com.opengamma.bbg.ReferenceDataProvider;
+import com.opengamma.bbg.security.BloombergSecurityProvider;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.provider.SecurityProviderComponentFactory;
 import com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider;

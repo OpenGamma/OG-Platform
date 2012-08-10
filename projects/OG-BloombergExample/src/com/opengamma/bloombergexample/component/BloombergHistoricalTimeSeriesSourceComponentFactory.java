@@ -23,8 +23,8 @@ import org.springframework.context.Lifecycle;
 
 import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.BloombergConnectorFactoryBean;
-import com.opengamma.bbg.BloombergHistoricalTimeSeriesProvider;
 import com.opengamma.bbg.BloombergHistoricalTimeSeriesSource;
+import com.opengamma.bbg.historicaltimeseries.BloombergHistoricalTimeSeriesProvider;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
