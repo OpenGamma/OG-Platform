@@ -267,8 +267,8 @@ $.register_module({
             };
             container.del = function (obj) {
                 var id;
-                $(selector + ' .OG-gadget-container .OG-gadget-' + obj.id).remove();
                 gadgets[gadgets.length - 1].gadget.alive();
+                $(selector + ' .OG-gadget-container .OG-gadget-' + obj.id).remove();
                 gadgets.splice(gadgets.indexOf(obj), 1);
                 id = gadgets.length
                     ? live_id === obj.id ? gadgets[gadgets.length - 1].id : live_id
