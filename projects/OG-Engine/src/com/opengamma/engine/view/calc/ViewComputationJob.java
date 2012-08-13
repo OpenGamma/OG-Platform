@@ -362,7 +362,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   private void cycleFragmentCompleted(ViewComputationResultModel result) {
 
     try {
-      getViewProcess().cycleFragmentCompleted(result, _viewDefinition);
+      getViewProcess().cycleFragmentCompleted(result, getViewDefinition());
     } catch (Exception e) {
       s_logger.error("Error notifying view process " + getViewProcess() + " of cycle fragment completion", e);
     }
@@ -622,7 +622,8 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     // cycle. In the predicted case, we trigger a cycle on expiry so that any new market data subscriptions are made
     // straight away.
     if (compiledViewDefinition.getValidTo() != null) {
-      Duration durationToExpiry = _marketDataProvider.getRealTimeDuration(valuationTime, compiledViewDefinition.getValidTo());
+      Duration durationToExpiry = _marketDataProvider.getRealTimeDuration(valuationTime,
+                                                                          compiledViewDefinition.getValidTo());
       long expiryNanos = System.nanoTime() + durationToExpiry.toNanosLong();
       _compilationExpiryCycleTrigger.set(expiryNanos, ViewCycleTriggerResult.forceFull());
     } else {
