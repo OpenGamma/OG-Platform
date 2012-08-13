@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
@@ -24,6 +25,7 @@ import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.livedata.server.FieldHistoryStore;
 import com.opengamma.livedata.server.LastKnownValueStore;
 import com.opengamma.livedata.server.LastKnownValueStoreProvider;
+import com.opengamma.transport.FudgeMessageSender;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -45,10 +47,14 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class CogdaDataDistributor implements Lifecycle {
   private static final Logger s_logger = LoggerFactory.getLogger(CogdaDataDistributor.class);
+  // Constructor injectors:
   private final String _externalIdScheme;
   private final LastKnownValueStoreProvider _lastKnownValueStoreProvider;
   private final Map<String, NormalizationRuleSet> _normalization;
   
+  private FudgeMessageSender _normalizedMessageSender;
+  
+  // Internal state:
   private final ConcurrentMap<LiveDataSpecification, LastKnownValueStore> _valueStores =
       new ConcurrentHashMap<LiveDataSpecification, LastKnownValueStore>();
   private final ConcurrentMap<LiveDataSpecification, FieldHistoryStore> _normalizationState =
@@ -66,6 +72,22 @@ public class CogdaDataDistributor implements Lifecycle {
     _normalization = Collections.unmodifiableMap(constructNormalizationRules(normalizationSchemes));
   }
   
+  /**
+   * Gets the normalizedMessageSender.
+   * @return the normalizedMessageSender
+   */
+  public FudgeMessageSender getNormalizedMessageSender() {
+    return _normalizedMessageSender;
+  }
+
+  /**
+   * Sets the normalizedMessageSender.
+   * @param normalizedMessageSender  the normalizedMessageSender
+   */
+  public void setNormalizedMessageSender(FudgeMessageSender normalizedMessageSender) {
+    _normalizedMessageSender = normalizedMessageSender;
+  }
+
   /**
    * @param normalizationSchemes
    * @return
@@ -191,7 +213,13 @@ public class CogdaDataDistributor implements Lifecycle {
    * @param normalizedFields Fully normalized field data for that specification
    */
   protected void distributeNormalizedUpdate(LiveDataSpecification ldspec, FudgeMsg normalizedFields) {
-    // TODO kirk 2012-07-23 -- This.
+    if (getNormalizedMessageSender() == null) {
+      // Nothing to do here.
+      return;
+    }
+    FudgeSerializer serializer = new FudgeSerializer(getNormalizedMessageSender().getFudgeContext());
+    FudgeMsg msg = CogdaLiveDataUpdateBeanBuilder.buildMessageStatic(serializer, new CogdaLiveDataUpdateBean(ldspec, normalizedFields));
+    getNormalizedMessageSender().send(msg);
   }
 
 }
