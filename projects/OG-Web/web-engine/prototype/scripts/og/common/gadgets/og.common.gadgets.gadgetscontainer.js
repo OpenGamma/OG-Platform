@@ -258,7 +258,10 @@ $.register_module({
                     $(panel_container)
                         .append('<div class="' + gadget_class + '" />')
                         .find('.' + gadget_class)
-                        .css({height: '100%', display: i === arr.length - 1 ? 'block' : 'none'});
+                        .css({
+                            position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
+                            display: i === arr.length - 1 ? 'block' : 'none'
+                        });
                     gadgets.push(gadget = {id: id, config: obj, type: type, gadget: new constructor(options)});
                     return gadget;
                 });
@@ -267,8 +270,8 @@ $.register_module({
             };
             container.del = function (obj) {
                 var id;
-                gadgets[gadgets.length - 1].gadget.alive();
                 $(selector + ' .OG-gadget-container .OG-gadget-' + obj.id).remove();
+                gadgets[gadgets.length - 1].gadget.alive();
                 gadgets.splice(gadgets.indexOf(obj), 1);
                 id = gadgets.length
                     ? live_id === obj.id ? gadgets[gadgets.length - 1].id : live_id
