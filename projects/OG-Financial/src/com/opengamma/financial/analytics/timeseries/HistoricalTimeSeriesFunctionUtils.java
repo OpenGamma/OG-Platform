@@ -39,6 +39,11 @@ public final class HistoricalTimeSeriesFunctionUtils {
   public static final String ADJUST_PROPERTY = "Adjust";
 
   /**
+   * Property describing the maximum age of a time-series point.
+   */
+  public static final String AGE_LIMIT_PROPERTY = "AgeLimit";
+  
+  /**
    * Property describing the "resolution key" used to resolve the time series for each instrument.
    */
   public static final String RESOLUTION_KEY_PROPERTY = "ResolutionKey";

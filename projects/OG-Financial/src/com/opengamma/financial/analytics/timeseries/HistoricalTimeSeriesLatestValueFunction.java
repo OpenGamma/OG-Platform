@@ -10,7 +10,9 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.Period;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -32,18 +34,20 @@ import com.opengamma.util.tuple.Pair;
  */
 public class HistoricalTimeSeriesLatestValueFunction extends AbstractFunction.NonCompiledInvoker {
 
-  @SuppressWarnings("unchecked")
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final HistoricalTimeSeriesSource timeSeriesSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    Object value = timeSeriesSource.getLatestDataPoint(target.getUniqueId());
-    if (value == null) {
+    final Pair<LocalDate, Double> latestDataPoint = timeSeriesSource.getLatestDataPoint(target.getUniqueId());
+    final Set<String> ageLimitConstraints = desiredValue.getConstraints().getValues(HistoricalTimeSeriesFunctionUtils.AGE_LIMIT_PROPERTY);
+    final Period ageLimit = ageLimitConstraints.isEmpty() ? null : Period.parse(Iterables.getOnlyElement(ageLimitConstraints));
+    final Object value;
+    if (latestDataPoint == null || (ageLimit != null && !ageLimit.minus(Period.between(latestDataPoint.getFirst(), executionContext.getValuationClock().dateTime())).isPositive())) {
       value = MissingMarketDataSentinel.getInstance();
     } else {
       final String adjusterString = desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.ADJUST_PROPERTY);
       final HistoricalTimeSeriesAdjustment htsa = HistoricalTimeSeriesAdjustment.parse(adjusterString);
-      value = htsa.adjust(((Pair<LocalDate, Double>) value).getValue());
+      value = htsa.adjust(latestDataPoint.getValue());
     }
     return Collections.singleton(new ComputedValue(new ValueSpecification(desiredValue.getValueName(), desiredValue.getTargetSpecification(), desiredValue.getConstraints()), value));
   }
@@ -62,7 +66,8 @@ public class HistoricalTimeSeriesLatestValueFunction extends AbstractFunction.No
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, target.toSpecification(), createValueProperties()
         .withAny(HistoricalTimeSeriesFunctionUtils.ADJUST_PROPERTY)
-        .withAny(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY).get()));
+        .withAny(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY)
+        .withAny(HistoricalTimeSeriesFunctionUtils.AGE_LIMIT_PROPERTY).get()));
   }
 
   @Override
