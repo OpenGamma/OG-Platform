@@ -50,8 +50,8 @@ import com.opengamma.util.tuple.ObjectsPair;
 public class MasterPortfolioWriter implements PortfolioWriter {
 
   private final PortfolioMaster _portfolioMaster;
-  private final PositionMaster _positionMaster;
-  private final SecurityMaster _securityMaster;
+  protected final PositionMaster _positionMaster;
+  protected final SecurityMaster _securityMaster;
   
   private PortfolioDocument _portfolioDocument;
   private ManageablePortfolioNode _currentNode;
@@ -67,6 +67,8 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   private boolean _mergePositions;
   private Map<ObjectId, ManageablePosition> _securityIdToPosition;
 
+  private boolean _keepCurrentPositions;
+
 
   public MasterPortfolioWriter(String portfolioName, PortfolioMaster portfolioMaster,
       PositionMaster positionMaster, SecurityMaster securityMaster, boolean overwrite) {
@@ -74,7 +76,14 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   }
 
   public MasterPortfolioWriter(String portfolioName, PortfolioMaster portfolioMaster,
-      PositionMaster positionMaster, SecurityMaster securityMaster, boolean overwrite, boolean mergePositions)  {
+      PositionMaster positionMaster, SecurityMaster securityMaster, boolean overwrite,
+      boolean mergePositions) {
+    this(portfolioName, portfolioMaster, positionMaster, securityMaster, overwrite, false, false);
+  }
+
+  public MasterPortfolioWriter(String portfolioName, PortfolioMaster portfolioMaster,
+      PositionMaster positionMaster, SecurityMaster securityMaster, boolean overwrite,
+      boolean mergePositions, boolean keepCurrentPositions)  {
 
     ArgumentChecker.notEmpty(portfolioName, "portfolioName");
     ArgumentChecker.notNull(portfolioMaster, "portfolioMaster");
@@ -83,6 +92,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
     _overwrite = overwrite;
     _mergePositions = mergePositions;
+    _keepCurrentPositions = keepCurrentPositions;
 
     _portfolioMaster = portfolioMaster;
     _positionMaster = positionMaster;
@@ -110,7 +120,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     ArgumentChecker.notNull(position, "position");
     ArgumentChecker.notNull(securities, "securities");
 
-        // Write securities
+    // Write securities
     List<ManageableSecurity> writtenSecurities = new ArrayList<ManageableSecurity>();
     for (ManageableSecurity security : securities) {
       ManageableSecurity writtenSecurity = writeSecurity(security);
@@ -247,20 +257,12 @@ public class MasterPortfolioWriter implements PortfolioWriter {
         }
       }
     }
+
     // Not found, so add it
     SecurityDocument addDoc = new SecurityDocument(security);
     SecurityDocument result = _securityMaster.add(addDoc);
     return result.getSecurity();
   }
-  
-  // This weak equals does not actually compare the security's fields, just the type, external ids and attributes :(
-  protected boolean weakEquals(ManageableSecurity sec1, ManageableSecurity sec2) {
-    return sec1.getName().equals(sec2.getName()) &&
-           sec1.getSecurityType().equals(sec2.getSecurityType()) &&
-           sec1.getExternalIdBundle().equals(sec2.getExternalIdBundle()) &&
-           sec1.getAttributes().equals(sec2.getAttributes());
-  }
-  
   
   @Override
   public String[] getCurrentPath() {
@@ -354,8 +356,6 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   
   protected void createPortfolio(String portfolioName) {
 
-    // Create a new root node
-    ManageablePortfolioNode rootNode = new ManageablePortfolioNode(portfolioName);
 
     // Check to see whether the portfolio already exists
     PortfolioSearchRequest portSearchRequest = new PortfolioSearchRequest();
@@ -366,6 +366,9 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       for (PortfolioDocument doc : portSearchResult.getDocuments()) {
         _portfolioMaster.remove(doc.getUniqueId());
       }
+      // Create a new root node
+      ManageablePortfolioNode rootNode = new ManageablePortfolioNode(portfolioName);
+
       ManageablePortfolio portfolio = new ManageablePortfolio(portfolioName, rootNode);
       _portfolioDocument = new PortfolioDocument();
       _portfolioDocument.setPortfolio(portfolio);
@@ -378,6 +381,9 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
       // If it doesn't, create it (add) 
       if (_portfolioDocument == null) {
+        // Create a new root node
+        ManageablePortfolioNode rootNode = new ManageablePortfolioNode(portfolioName);
+
         ManageablePortfolio portfolio = new ManageablePortfolio(portfolioName, rootNode);
         _portfolioDocument = new PortfolioDocument();
         _portfolioDocument.setPortfolio(portfolio);
@@ -385,11 +391,21 @@ public class MasterPortfolioWriter implements PortfolioWriter {
         _originalRoot = null;
         _originalNode = null;
         
-      // If it does, create a new version of the existing portfolio (update) with a new root node
+      // If it does, create a new version of the existing portfolio (update)
       } else {
         ManageablePortfolio portfolio = _portfolioDocument.getPortfolio();
         _originalRoot = portfolio.getRootNode();
         _originalNode = _originalRoot;
+
+        ManageablePortfolioNode rootNode;
+        if (_keepCurrentPositions) {
+          // Use the original root node
+          rootNode = _originalRoot;
+        } else {
+          // Create a new root node
+          rootNode = new ManageablePortfolioNode(portfolioName);
+        }
+
         portfolio.setRootNode(rootNode);
         _portfolioDocument.setPortfolio(portfolio);
         _portfolioDocument = _portfolioMaster.update(_portfolioDocument);
