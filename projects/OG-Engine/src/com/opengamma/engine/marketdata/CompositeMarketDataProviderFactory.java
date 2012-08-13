@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.livedata.UserPrincipal;
 
 /**
  *
@@ -21,7 +22,7 @@ public class CompositeMarketDataProviderFactory {
     _providerResolver = resolver;
   }
 
-  public CompositeMarketDataProvider create(List<MarketDataSpecification> specs) {
+  public CompositeMarketDataProvider create(UserPrincipal user, List<MarketDataSpecification> specs) {
     throw new UnsupportedOperationException();
   }
 }

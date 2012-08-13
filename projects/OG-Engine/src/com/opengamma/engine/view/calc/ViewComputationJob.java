@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -361,7 +362,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   private void cycleFragmentCompleted(ViewComputationResultModel result) {
 
     try {
-      getViewProcess().cycleFragmentCompleted(result, getViewDefinition());
+      getViewProcess().cycleFragmentCompleted(result, _viewDefinition);
     } catch (Exception e) {
       s_logger.error("Error notifying view process " + getViewProcess() + " of cycle fragment completion", e);
     }
@@ -480,7 +481,9 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     long durationNanos = cycleReference.get().getDuration().toNanosLong();
     _totalTimeNanos += durationNanos;
     _cycleCount += 1;
-    s_logger.info("Last latency was {} ms, Average latency is {} ms", durationNanos / NANOS_PER_MILLISECOND, (_totalTimeNanos / _cycleCount) / NANOS_PER_MILLISECOND);
+    s_logger.info("Last latency was {} ms, Average latency is {} ms",
+                  durationNanos / NANOS_PER_MILLISECOND,
+                  (_totalTimeNanos / _cycleCount) / NANOS_PER_MILLISECOND);
   }
 
   @Override
@@ -619,8 +622,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     // cycle. In the predicted case, we trigger a cycle on expiry so that any new market data subscriptions are made
     // straight away.
     if (compiledViewDefinition.getValidTo() != null) {
-      Duration durationToExpiry = _marketDataProvider.getRealTimeDuration(valuationTime,
-                                                                          compiledViewDefinition.getValidTo());
+      Duration durationToExpiry = _marketDataProvider.getRealTimeDuration(valuationTime, compiledViewDefinition.getValidTo());
       long expiryNanos = System.nanoTime() + durationToExpiry.toNanosLong();
       _compilationExpiryCycleTrigger.set(expiryNanos, ViewCycleTriggerResult.forceFull());
     } else {
@@ -717,7 +719,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   }
 
   private void setMarketDataProvider(List<MarketDataSpecification> marketDataSpecs) {
-    _marketDataProvider = _compositeMarketDataProviderFactory.create(marketDataSpecs);
+    _marketDataProvider = _compositeMarketDataProviderFactory.create(_viewDefinition.getMarketDataUser(), marketDataSpecs);
     if (_marketDataProvider == null) {
       s_logger.error("Couldn't resolve {}", marketDataSpecs);
     } else {
@@ -744,7 +746,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     final OperationTimer timer = new OperationTimer(s_logger, "Adding {} market data subscriptions", requiredSubscriptions.size());
     _pendingSubscriptions.addAll(requiredSubscriptions);
     _pendingSubscriptionLatch = new CountDownLatch(requiredSubscriptions.size());
-    _marketDataProvider.subscribe(getViewDefinition().getMarketDataUser(), requiredSubscriptions);
+    _marketDataProvider.subscribe(requiredSubscriptions);
     _marketDataSubscriptions.addAll(requiredSubscriptions);
     try {
       if (!_pendingSubscriptionLatch.await(MARKET_DATA_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
@@ -776,7 +778,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
 
   private void removeMarketDataSubscriptions(final Collection<ValueRequirement> unusedSubscriptions) {
     final OperationTimer timer = new OperationTimer(s_logger, "Removing {} market data subscriptions", unusedSubscriptions.size());
-    _marketDataProvider.unsubscribe(getViewDefinition().getMarketDataUser(), _marketDataSubscriptions);
+    _marketDataProvider.unsubscribe(_marketDataSubscriptions);
     _marketDataSubscriptions.removeAll(unusedSubscriptions);
     timer.finished();
   }

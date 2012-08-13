@@ -17,6 +17,12 @@ import com.opengamma.util.PublicSPI;
 @PublicSPI
 public interface MarketDataPermissionProvider {
 
-  boolean canAccessMarketData(UserPrincipal user, Set<ValueRequirement> requirements);
+  /**
+   * Checks whether has permission to view market data and returns the requirements
+   * @param user
+   * @param requirements
+   * @return
+   */
+  Set<ValueRequirement> checkMarketDataPermissions(UserPrincipal user, Set<ValueRequirement> requirements);
   
 }
