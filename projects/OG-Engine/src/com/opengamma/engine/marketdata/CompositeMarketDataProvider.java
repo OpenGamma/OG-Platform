@@ -32,12 +32,15 @@ public class CompositeMarketDataProvider {
   private final MarketDataAvailabilityProvider _availabilityProvider = new AvailabilityProvider();
   private final CopyOnWriteArraySet<MarketDataListener> _listeners = new CopyOnWriteArraySet<MarketDataListener>();
 
-  public CompositeMarketDataProvider(List<MarketDataSpecification> specs, MarketDataProviderResolver resolver) {
+  public CompositeMarketDataProvider(UserPrincipal user,
+                                     List<MarketDataSpecification> specs,
+                                     MarketDataProviderResolver resolver) {
+    ArgumentChecker.notNull(user, "user");
     ArgumentChecker.notNull(specs, "specs");
     ArgumentChecker.notNull(resolver, "resolver");
     _specs = ImmutableList.copyOf(specs);
     for (MarketDataSpecification spec : specs) {
-      MarketDataProvider provider = resolver.resolve(spec);
+      MarketDataProvider provider = resolver.resolve(user, spec);
       // TODO should _providers have exactly one entry per spec? which should be null if a provider can't be resolved?
       // that might simplify the operations that take multiple specs because each spec should only apply to the
       // corresponding resolver
@@ -52,7 +55,7 @@ public class CompositeMarketDataProvider {
     _listeners.remove(listener);
   }
 
-  public void subscribe(UserPrincipal user, Set<ValueRequirement> valueRequirements) {
+  public void subscribe(Set<ValueRequirement> valueRequirements) {
     /*
     for each requirement
       for each provider
@@ -63,9 +66,8 @@ public class CompositeMarketDataProvider {
     throw new UnsupportedOperationException("subscribe not implemented");
   }
 
-  public void unsubscribe(UserPrincipal user, Set<ValueRequirement> valueRequirements) {
-    // TODO implement unsubscribe()
-    throw new UnsupportedOperationException("unsubscribe not implemented");
+  public void unsubscribe(Set<ValueRequirement> valueRequirements) {
+    // TODO implement this
   }
 
   public MarketDataAvailabilityProvider getAvailabilityProvider() {
