@@ -9,7 +9,7 @@ $.register_module({
         var webgl = Detector.webgl ? true : false, util = {}, tmp_data, prefix = 'surface_', counter = 1,
             settings = {
                 axis_offset: 1.5,           // distance from surface
-                debug: true,
+                debug: false,
                 floating_height: 5,         // how high the top surface floats over the bottom grid
                 font_face_2d: 'Arial',      // 2D text font
                 font_face_3d: 'helvetiker', // 3D text font (glyphs for 3D fonts need to be loaded separatly)
@@ -144,7 +144,7 @@ $.register_module({
                 ys, adjusted_vol, adjusted_xs, adjusted_ys, adjusted_zs, // gadget.init_data calculates these values
                 vol_max = Math.max.apply(null, config.vol), vol_min = Math.min.apply(null, config.vol),
                 renderer, camera, scene, backlight, keylight, filllight, projector = new THREE.Projector(),
-                hover_buffer, slice_buffer, load_buffer, surface_buffer;
+                hover_buffer, slice_buffer, load_buffer, surface_buffer, animation_frame;
             /**
              * Buffer constructor
              */
@@ -162,7 +162,8 @@ $.register_module({
                         else if (val instanceof THREE.Texture) renderer.deallocateTexture(val);
                         else if (val instanceof THREE.ParticleSystem) renderer.deallocateObject(val);
                         else if (val instanceof THREE.Mesh) renderer.deallocateObject(val);
-                        else if (val instanceof THREE.Object3D) renderer.deallocateObject(val), dealobj(val.children);
+                        else if (val instanceof THREE.Object3D && webgl)
+                            renderer.deallocateObject(val), dealobj(val.children);
                     }(custom || buffer.arr));
                     if (!custom) buffer.arr = [];
                 };
@@ -325,7 +326,10 @@ $.register_module({
              */
             gadget.alive = function () {
                 var live = !!$('.' + alive).length;
-                if (!live) load_buffer.clear();
+                if (!live) {
+                    load_buffer.clear();
+                    cancelAnimationFrame(animation_frame);
+                }
                 return live;
             };
             /**
@@ -427,7 +431,13 @@ $.register_module({
                      * Trigger custom events
                      */
                     if (mousedown && rotation_enabled) $selector.trigger('rotate_world', event);
-                    if (mousedown && slice_enabled) $selector.trigger('slice_handle_drag', event);
+                    if (webgl && mousedown && slice_enabled) $selector.trigger('slice_handle_drag', event);
+                });
+                $selector.on('rotate_world', function () {
+                    var dx = mouse_x - sx, dy = mouse_y - sy;
+                    animation_group.rotation.y += dx * 0.01;
+                    animation_group.rotation.x += dy * 0.01;
+                    sx += dx, sy += dy;
                 });
                 $selector.on('mousedown.gadget.interactive', function (event) {
                     event.preventDefault();
@@ -440,6 +450,10 @@ $.register_module({
                         $(document).off('mouse.gadget.interactive');
                     });
                 });
+                /**
+                 * Only implement rotation for non webgl browsers
+                 */
+                if (!webgl) return;
                 $selector.on('surface_over', function (event, intersects) {
                     var faces = 'abcd', i, index, vertex, vertex_world_position,
                         intersected_obj = $.isArray(intersects) ? intersects[0] : intersects,
@@ -508,12 +522,6 @@ $.register_module({
                         }
                     }());
                 });
-                $selector.on('rotate_world', function () {
-                    var dx = mouse_x - sx, dy = mouse_y - sy;
-                    animation_group.rotation.y += dx * 0.01;
-                    animation_group.rotation.x += dy * 0.01;
-                    sx += dx, sy += dy;
-                });
             };
             /**
              * Keeps a tally of meshes that need to support raycasting
@@ -548,6 +556,7 @@ $.register_module({
                 // setup actors / groups & create scene
                 camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000); /* fov, aspect, near, far */
                 animation_group.add(backlight);
+                animation_group.add(backlight);
                 animation_group.add(keylight);
                 animation_group.add(filllight);
                 animation_group.add(surface.create_surface());
@@ -579,7 +588,8 @@ $.register_module({
                     stats.render.domElement.style.right = '0';
                     $(stats.render.domElement).appendTo($selector);
                 }
-                if (webgl) gadget.interactive(), slice.load();
+                gadget.interactive();
+                if (webgl) slice.load();
                 return gadget;
             };
             gadget.resize = function () {
@@ -598,7 +608,7 @@ $.register_module({
             gadget.update = function () {
                 gadget.init_data();
                 animation_group.add(surface.create_surface());
-                slice.load();
+                if (webgl) slice.load();
             };
             /**
              * Loads 2D overlay display with form
@@ -1252,7 +1262,7 @@ $.register_module({
                         clearTimeout(timeout), timeout = setTimeout(function () {local_settings.play = false;}, 5000);
                     local_settings.stopping = true;
                 }
-                requestAnimationFrame(animate);
+                animation_frame = requestAnimationFrame(animate);
             }());
         }
     }
