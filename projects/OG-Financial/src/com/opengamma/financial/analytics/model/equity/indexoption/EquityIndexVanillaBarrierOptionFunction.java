@@ -174,7 +174,7 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
 
     // parameters to model binary as call/put spread
     final double oh = overhedge;
-    final double width = strike * smoothingFullWidth;
+    final double width = strike * smoothingFullWidth; // we specify smoothing as relative value
     final double size; // = (barrier - strike ) / smoothingFullWidth;
 
     // There are four cases: UP and IN, UP and OUT, DOWN and IN, DOWN and OUT
@@ -197,7 +197,7 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
         if (barrier > strike) {
           throw new OpenGammaRuntimeException("Encountered a DOWN / PUT type of BarrierOption where barrier, " + barrier + ", is above strike, " + strike);
         }
-        size = (strike - barrier) / smoothingFullWidth;
+        size = (strike - barrier) / width;
         nearStrike = barrier + oh + 0.5 * width;
         farStrike = barrier + oh - 0.5 * width;
         break;
