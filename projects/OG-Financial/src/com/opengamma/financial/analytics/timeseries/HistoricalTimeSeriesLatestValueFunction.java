@@ -42,7 +42,7 @@ public class HistoricalTimeSeriesLatestValueFunction extends AbstractFunction.No
     final Set<String> ageLimitConstraints = desiredValue.getConstraints().getValues(HistoricalTimeSeriesFunctionUtils.AGE_LIMIT_PROPERTY);
     final Period ageLimit = ageLimitConstraints.isEmpty() ? null : Period.parse(Iterables.getOnlyElement(ageLimitConstraints));
     final Object value;
-    if (latestDataPoint == null || (ageLimit != null && !ageLimit.minus(Period.between(latestDataPoint.getFirst(), executionContext.getValuationClock().dateTime())).isPositive())) {
+    if (latestDataPoint == null || (ageLimit != null && !ageLimit.minus(Period.between(latestDataPoint.getFirst(), executionContext.getValuationClock().dateTime())).isPositiveOrZero())) {
       value = MissingMarketDataSentinel.getInstance();
     } else {
       final String adjusterString = desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.ADJUST_PROPERTY);
