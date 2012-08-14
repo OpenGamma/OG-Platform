@@ -993,7 +993,8 @@ $.register_module({
                     canvas.height = 32;
                     ctx.beginPath();
                     ctx.lineWidth = 2;
-                    for (i = 0; i < labels.length; i++) ctx.moveTo(labels[i] + 0.5, tick_stop_pos), ctx.lineTo(labels[i] + 0.5, 0);
+                    for (i = 0; i < labels.length; i++)
+                        ctx.moveTo(labels[i] + 0.5, tick_stop_pos), ctx.lineTo(labels[i] + 0.5, 0);
                     ctx.moveTo(0.5, tick_stop_pos);
                     ctx.lineTo(0.5, 0.5);
                     ctx.lineTo(canvas.width - .5, 0.5);
