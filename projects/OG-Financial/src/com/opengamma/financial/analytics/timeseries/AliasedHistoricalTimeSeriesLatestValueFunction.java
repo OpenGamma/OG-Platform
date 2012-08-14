@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics.timeseries;
 
+import javax.time.calendar.Period;
+
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -27,6 +29,23 @@ public class AliasedHistoricalTimeSeriesLatestValueFunction extends ValueRequire
     super(aliasedValueRequirementName,
         ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST,
         ValueProperties.with(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY, htsDataField).get(),
+        targetType);
+  }
+  
+  /**
+   * Constructs an instance
+   * 
+   * @param htsDataField  the historical time-series data field, not null
+   * @param ageLimit  the age limit for the latest value, not null
+   * @param aliasedValueRequirementName  the value requirement name under which to expose the output, not null
+   * @param targetType  the function target type, not null
+   */
+  public AliasedHistoricalTimeSeriesLatestValueFunction(String htsDataField, Period ageLimit, String aliasedValueRequirementName, ComputationTargetType targetType) {
+    super(aliasedValueRequirementName,
+        ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST,
+        ValueProperties
+            .with(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY, htsDataField)
+            .with(HistoricalTimeSeriesFunctionUtils.AGE_LIMIT_PROPERTY, ageLimit.toString()).get(),
         targetType);
   }
 
