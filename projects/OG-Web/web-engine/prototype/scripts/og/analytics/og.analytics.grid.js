@@ -26,17 +26,15 @@ $.register_module({
             return function (grid) {return unravel(grid.meta.nodes, grid.meta.structure, []);};
         })();
         var background = function (sets, width, bg_color) {
-            var height = row_height, pixels = [], lcv, fg_color = 'dadcdd',
-                columns = sets.reduce(function (acc, set) {return acc.concat(set.columns);}, []),
-                dots = columns
+            var columns = sets.reduce(function (acc, set) {return acc.concat(set.columns);}, []),
+                height = row_height, pixels = [], lcv, fg_color = 'dadcdd', dots = columns
                     .reduce(function (acc, col) {return acc.concat([[bg_color, col.width - 1], [fg_color, 1]]);}, []);
             for (lcv = 0; lcv < height - 1; lcv += 1) Array.prototype.push.apply(pixels, dots);
             pixels.push([fg_color, width]);
             return BMP.rle8(width, height, pixels);
         };
         var col_css = function (id, sets, offset) {
-            var partial_width = 0,
-                columns = sets.reduce(function (acc, set) {return acc.concat(set.columns);}, []),
+            var partial_width = 0, columns = sets.reduce(function (acc, set) {return acc.concat(set.columns);}, []),
                 total_width = columns.reduce(function (acc, val) {return val.width + acc;}, 0);
             return columns.map(function (val, idx) {
                 var css = {
@@ -69,7 +67,6 @@ $.register_module({
         var init_data = function (grid, config) {
             grid.alive = function () {return grid.$(grid.id).length ? true : !grid.elements.style.remove();};
             grid.sparklines = !!config.sparklines;
-            grid.scrollbar_size = scrollbar_size;
             grid.elements = {empty: true};
             grid.id = '#analytics_grid_' + counter++;
             grid.meta = null;
@@ -288,8 +285,7 @@ $.register_module({
                 } : {prefix: times(str, indent)});
                 if (children.length) return children.map(function (child) {return unravel(child, indent + 1);})
                     .forEach(function (child) {Array.prototype.push.apply(result, child);}), result;
-                prefix = times(str, indent + 2);
-                while (start++ < end) result.push({prefix: prefix});
+                while (start++ < end) result.push({prefix: prefix || (prefix = times(str, indent + 2))});
                 return result;
             };
             return function (grid, unraveled) {
