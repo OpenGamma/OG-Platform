@@ -39,7 +39,8 @@ public class InterestRateInstrumentDefaultPropertiesFunction extends DefaultProp
     ValueRequirementNames.PAR_RATE_CURVE_SENSITIVITY,
     ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT,
     ValueRequirementNames.PV01,
-    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES};
+    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
+    ValueRequirementNames.VALUE_THETA};
   private final PriorityClass _priority;
   private final boolean _includeIRFutures;
   private final Map<String, String> _currencyAndCurveConfigNames;
