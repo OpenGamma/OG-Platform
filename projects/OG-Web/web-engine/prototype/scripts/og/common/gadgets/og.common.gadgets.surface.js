@@ -1031,7 +1031,7 @@ $.register_module({
             surface.create_surface = function () {
                 if (surface_group) animation_group.remove(surface_group), surface_buffer.clear();
                 gadget.interactive_meshes.remove('surface');
-                surface_group = surface_buffer.add(new THREE.Object3D());
+                surface_group = new THREE.Object3D();
                 slice_group = slice_buffer.add(new THREE.Object3D());
                 surface_group_top = new THREE.Object3D();
                 surface_group_bottom = new THREE.Object3D();
@@ -1040,12 +1040,12 @@ $.register_module({
                 if (webgl) surface_group_top.add(smile.z());
                 if (webgl) animation_group.add(vertex_sphere);
                 if (webgl) surface_group_top.position.y = settings.floating_height;
-                if (webgl) surface_group_bottom.add(surface.create_bottom_grid());
-                if (webgl) surface_group_bottom.add(smile.shadows());
-                if (webgl) surface_group_bottom.add(gadget.create_floor());
+                if (webgl) surface_group_bottom.add(surface_buffer.add(surface.create_bottom_grid()));
+                if (webgl) surface_group_bottom.add(surface_buffer.add(smile.shadows()));
+                if (webgl) surface_group_bottom.add(surface_buffer.add(gadget.create_floor()));
                 if (webgl) surface_group_bottom.add(surface.create_axes());
-                surface_group.add(surface_group_top);
-                surface_group.add(slice_group);
+                surface_group.add(surface_buffer.add(surface_group_top));
+                surface_group.add(surface_buffer.add(slice_group));
                 if (webgl) surface_group.add(surface_group_bottom);
                 return surface_group;
             };
