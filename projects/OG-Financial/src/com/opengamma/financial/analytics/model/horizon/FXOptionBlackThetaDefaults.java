@@ -22,7 +22,7 @@ public class FXOptionBlackThetaDefaults extends FXOptionBlackDefaults {
   private final String _defaultNumberOfDays;
 
   public FXOptionBlackThetaDefaults(final String priority, final String defaultNumberOfDays, final String interpolatorName, final String leftExtrapolatorName,
-      final String rightExtrapolatorName, final String[] propertyValuesByCurrencies) {
+      final String rightExtrapolatorName, final String... propertyValuesByCurrencies) {
     super(priority, interpolatorName, leftExtrapolatorName, rightExtrapolatorName, propertyValuesByCurrencies);
     ArgumentChecker.notNull(defaultNumberOfDays, "default number of days");
     _defaultNumberOfDays = defaultNumberOfDays;

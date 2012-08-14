@@ -45,8 +45,9 @@ import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.analytics.model.forex.option.callspreadblack.FXDigitalCallSpreadBlackFunction;
 import com.opengamma.financial.analytics.model.forex.option.callspreadblack.FXDigitalCallSpreadBlackMultiValuedFunction;
+import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.Pair;
@@ -55,7 +56,6 @@ import com.opengamma.util.tuple.Pair;
  *
  */
 public class FXDigitalCallSpreadBlackConstantSpreadThetaFunction extends FXDigitalCallSpreadBlackMultiValuedFunction {
-  private static final ForexSecurityConverter VISITOR = new ForexSecurityConverter();
 
   public FXDigitalCallSpreadBlackConstantSpreadThetaFunction() {
     super(ValueRequirementNames.VALUE_THETA);
@@ -90,7 +90,16 @@ public class FXDigitalCallSpreadBlackConstantSpreadThetaFunction extends FXDigit
     final String[] allCurveNames;
     final Currency ccy1;
     final Currency ccy2;
-    if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) { // To get Base/quote in market standard order.
+    final Object baseQuotePairsObject = inputs.getValue(ValueRequirementNames.CURRENCY_PAIRS);
+    if (baseQuotePairsObject == null) {
+      throw new OpenGammaRuntimeException("Could not get base/quote pair data");
+    }
+    final CurrencyPairs baseQuotePairs = (CurrencyPairs) baseQuotePairsObject;
+    final CurrencyPair baseQuotePair = baseQuotePairs.getCurrencyPair(putCurrency, callCurrency);
+    if (baseQuotePair == null) {
+      throw new OpenGammaRuntimeException("Could not get base/quote pair for currency pair (" + putCurrency + ", " + callCurrency + ")");
+    }
+    if (baseQuotePair.getBase().equals(putCurrency)) { // To get Base/quote in market standard order.
       ccy1 = putCurrency;
       ccy2 = callCurrency;
       curves = new YieldAndDiscountCurve[] {putFundingCurve, callFundingCurve};
@@ -102,10 +111,9 @@ public class FXDigitalCallSpreadBlackConstantSpreadThetaFunction extends FXDigit
       ccy2 = putCurrency;
     }
     final YieldCurveBundle yieldCurves = new YieldCurveBundle(allCurveNames, curves);
-    final ValueRequirement spotRequirement = security.accept(ForexVisitors.getSpotIdentifierVisitor());
-    final Object spotObject = inputs.getValue(spotRequirement);
+    final Object spotObject = inputs.getValue(ValueRequirementNames.SPOT_RATE);
     if (spotObject == null) {
-      throw new OpenGammaRuntimeException("Could not get spot requirement " + spotRequirement);
+      throw new OpenGammaRuntimeException("Could not get spot requirement");
     }
     final double spot = (Double) spotObject;
     final ValueRequirement fxVolatilitySurfaceRequirement = getSurfaceRequirement(surfaceName, putCurrency, callCurrency, interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
@@ -121,7 +129,8 @@ public class FXDigitalCallSpreadBlackConstantSpreadThetaFunction extends FXDigit
     final YieldCurveBundle curvesWithFX = new YieldCurveBundle(fxMatrix, curveCurrency, yieldCurves.getCurvesMap());
     final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(curvesWithFX, smiles, Pair.of(ccy1, ccy2));
     final ConstantSpreadHorizonThetaCalculator calculator = ConstantSpreadHorizonThetaCalculator.getInstance();
-    final ForexOptionDigitalDefinition definition = (ForexOptionDigitalDefinition) security.accept(VISITOR);
+    final ForexSecurityConverter converter = new ForexSecurityConverter(baseQuotePairs);
+    final ForexOptionDigitalDefinition definition = (ForexOptionDigitalDefinition) security.accept(converter);
     final MultipleCurrencyAmount theta = calculator.getTheta(definition, now, allCurveNames, smileBundle, new PresentValueCallSpreadBlackForexCalculator(Double.valueOf(spread)),
         Integer.parseInt(daysForward));
     return Collections.singleton(new ComputedValue(addDaysForwardProperty(spec, daysForward), theta));

@@ -19,6 +19,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.NotImplementedException;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.horizon.ConstantSpreadHorizonThetaCalculator;
@@ -36,9 +37,10 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
 import com.opengamma.financial.analytics.model.forex.forward.FXForwardMultiValuedFunction;
+import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -47,7 +49,6 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  *
  */
 public class FXForwardConstantSpreadThetaFunction extends FXForwardMultiValuedFunction {
-  private static final ForexSecurityConverter VISITOR = new ForexSecurityConverter();
 
   public FXForwardConstantSpreadThetaFunction() {
     super(ValueRequirementNames.VALUE_THETA);
@@ -68,32 +69,42 @@ public class FXForwardConstantSpreadThetaFunction extends FXForwardMultiValuedFu
       payCurrency = ndf.getPayCurrency();
       receiveCurrency = ndf.getReceiveCurrency();
     }
-    final ForexDefinition definition = (ForexDefinition) security.accept(VISITOR);
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String payCurveName = desiredValue.getConstraint(ValuePropertyNames.PAY_CURVE);
     final String receiveCurveName = desiredValue.getConstraint(ValuePropertyNames.RECEIVE_CURVE);
     final String payCurveConfig = desiredValue.getConstraint(PAY_CURVE_CALC_CONFIG);
     final String receiveCurveConfig = desiredValue.getConstraint(RECEIVE_CURVE_CALC_CONFIG);
     final String daysForward = desiredValue.getConstraint(PROPERTY_DAYS_TO_MOVE_FORWARD);
-    final String fullPutCurveName = payCurveName + "_" + payCurrency.getCode();
-    final String fullCallCurveName = receiveCurveName + "_" + receiveCurrency.getCode();
+    final String fullPayCurveName = payCurveName + "_" + payCurrency.getCode();
+    final String fullReceiveCurveName = receiveCurveName + "_" + receiveCurrency.getCode();
     final YieldAndDiscountCurve payFundingCurve = getCurve(inputs, payCurrency, payCurveName, payCurveConfig);
     final YieldAndDiscountCurve receiveFundingCurve = getCurve(inputs, receiveCurrency, receiveCurveName, receiveCurveConfig);
     final YieldAndDiscountCurve[] curves;
     final Map<String, Currency> curveCurrency = new HashMap<String, Currency>();
-    curveCurrency.put(fullPutCurveName, payCurrency);
-    curveCurrency.put(fullCallCurveName, receiveCurrency);
+    curveCurrency.put(fullPayCurveName, payCurrency);
+    curveCurrency.put(fullReceiveCurveName, receiveCurrency);
     final String[] allCurveNames;
-    if (FXUtils.isInBaseQuoteOrder(payCurrency, receiveCurrency)) { // To get Base/quote in market standard order.
+    final Object baseQuotePairsObject = inputs.getValue(ValueRequirementNames.CURRENCY_PAIRS);
+    if (baseQuotePairsObject == null) {
+      throw new OpenGammaRuntimeException("Could not get base/quote pair data");
+    }
+    final CurrencyPairs baseQuotePairs = (CurrencyPairs) baseQuotePairsObject;
+    final CurrencyPair baseQuotePair = baseQuotePairs.getCurrencyPair(payCurrency, receiveCurrency);
+    if (baseQuotePair == null) {
+      throw new OpenGammaRuntimeException("Could not get base/quote pair for currency pair (" + payCurrency + ", " + receiveCurrency + ")");
+    }
+    if (baseQuotePair.getBase().equals(payCurrency)) { // To get Base/quote in market standard order.
       curves = new YieldAndDiscountCurve[] {payFundingCurve, receiveFundingCurve};
-      allCurveNames = new String[] {fullPutCurveName, fullCallCurveName};
+      allCurveNames = new String[] {fullPayCurveName, fullReceiveCurveName};
     } else {
       curves = new YieldAndDiscountCurve[] {receiveFundingCurve, payFundingCurve};
-      allCurveNames = new String[] {fullCallCurveName, fullPutCurveName};
+      allCurveNames = new String[] {fullReceiveCurveName, fullPayCurveName};
     }
+    final ForexSecurityConverter converter = new ForexSecurityConverter(baseQuotePairs);
+    final ForexDefinition definition = (ForexDefinition) security.accept(converter);
     final YieldCurveBundle yieldCurves = new YieldCurveBundle(allCurveNames, curves);
     final ValueProperties.Builder properties = getResultProperties(target, desiredValue);
-    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.VALUE_THETA, target.toSpecification(), properties.get());
+    final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties.get());
     final ConstantSpreadHorizonThetaCalculator calculator = ConstantSpreadHorizonThetaCalculator.getInstance();
     final MultipleCurrencyAmount theta = calculator.getTheta(definition, now, allCurveNames, yieldCurves, Integer.parseInt(daysForward));
     return Collections.singleton(new ComputedValue(addDaysForwardProperty(spec, daysForward), theta));
@@ -111,15 +122,17 @@ public class FXForwardConstantSpreadThetaFunction extends FXForwardMultiValuedFu
   @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
     final ValueProperties.Builder properties = super.getResultProperties(target);
-    properties.with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD);
+    properties.with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD)
+              .withAny(PROPERTY_DAYS_TO_MOVE_FORWARD);
     return properties;
   }
 
   @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
+    final String daysForward = desiredValue.getConstraint(PROPERTY_DAYS_TO_MOVE_FORWARD);
     final ValueProperties.Builder properties = super.getResultProperties(target, desiredValue);
     properties.with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD)
-              .withAny(PROPERTY_DAYS_TO_MOVE_FORWARD);
+              .with(PROPERTY_DAYS_TO_MOVE_FORWARD, daysForward);
     return properties;
   }
 

@@ -24,6 +24,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues;
+import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
@@ -63,11 +64,12 @@ public class FXOptionBlackThetaFunction extends FXOptionBlackSingleValuedFunctio
         .withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
         .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
         .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
-        .with(ValuePropertyNames.CURRENCY, getResultCurrency(target));
+        .withAny(ValuePropertyNames.CURRENCY);
+        //.with(ValuePropertyNames.CURRENCY, getResultCurrency(target));
   }
 
   @Override
-  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue, final CurrencyPair baseQuotePair) {
     final String putCurveName = desiredValue.getConstraint(PUT_CURVE);
     final String callCurveName = desiredValue.getConstraint(CALL_CURVE);
     final String putCurveConfig = desiredValue.getConstraint(PUT_CURVE_CALC_CONFIG);
@@ -87,6 +89,6 @@ public class FXOptionBlackThetaFunction extends FXOptionBlackSingleValuedFunctio
         .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorName)
         .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
         .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName)
-        .with(ValuePropertyNames.CURRENCY, getResultCurrency(target));
+        .with(ValuePropertyNames.CURRENCY, getResultCurrency(target, baseQuotePair));
   }
 }
