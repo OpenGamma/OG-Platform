@@ -11,9 +11,14 @@ import com.opengamma.analytics.financial.credit.cds.CDSDerivative;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityPaymentFixedDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.financial.convention.daycount.AccruedInterestCalculator;
 import com.opengamma.financial.convention.daycount.ActualThreeSixtyFive;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -39,7 +44,9 @@ public class CDSDefinition implements InstrumentDefinition<CDSDerivative> {
   
   private final boolean _accrualOnDefault;
   private final boolean _payOnDefault;
-  private final boolean _protectStart;;
+  private final boolean _protectStart;
+  
+  private final DayCount _dayCount;
   
   /**
    * Create an (immutable) CDS definition
@@ -58,7 +65,8 @@ public class CDSDefinition implements InstrumentDefinition<CDSDerivative> {
   public CDSDefinition(final CDSPremiumDefinition premium, final AnnuityPaymentFixedDefinition payout,
     final ZonedDateTime startDate, final ZonedDateTime maturity,
     final double notional, final double spread, final double recoveryRate,
-    final boolean accrualOnDefault, final boolean payOnDefault, final boolean protectStart) {
+    final boolean accrualOnDefault, final boolean payOnDefault, final boolean protectStart,
+    final DayCount dayCount) {
     
     ArgumentChecker.notNull(premium, "premium");
     ArgumentChecker.notNull(startDate, "start date");
@@ -74,6 +82,7 @@ public class CDSDefinition implements InstrumentDefinition<CDSDerivative> {
     _accrualOnDefault = accrualOnDefault;
     _payOnDefault = payOnDefault;
     _protectStart = protectStart;
+    _dayCount = dayCount;
   }
 
   /**
@@ -95,19 +104,48 @@ public class CDSDefinition implements InstrumentDefinition<CDSDerivative> {
     final String spreadCurveName = yieldCurveNames[1];
     final String underlyingDiscountCurveName = yieldCurveNames.length > 2 ? yieldCurveNames[2] : null;
     
-    DayCount dc = new ActualThreeSixtyFive();
+    //DayCount dc = new ActualThreeSixtyFive();
     
     // TODO: Time conversions all use TimeCalculator, which uses convention Actual / Actual ISDA
     // TODO: This is also embedded in the toDerivative methods for the annuity classes
     return new CDSDerivative(
       discountCurveName, spreadCurveName, underlyingDiscountCurveName,
       _premium.toDerivative(pricingDate, discountCurveName),
-      _payout.toDerivative(pricingDate, discountCurveName),
+      _payout == null ? null : _payout.toDerivative(pricingDate, discountCurveName),
       TimeCalculator.getTimeBetween(pricingDate, _startDate),
-      dc.getDayCountFraction(pricingDate, _maturity), //TimeCalculator.getTimeBetween(pricingDate, _maturity),
-      _notional, _spread, _recoveryRate,
+      TimeCalculator.getTimeBetween(pricingDate, _maturity),
+      _notional, _spread, _recoveryRate, accruedInterest(pricingDate),
       _accrualOnDefault, _payOnDefault, _protectStart
     );
+  }
+  
+  public double accruedInterest(final ZonedDateTime pricingDate) {
+
+    final ZonedDateTime stepinDate = pricingDate.plusDays(1);
+    
+    final int nCoupons = _premium.getNumberOfPayments();
+    int couponIndex = 0;
+    
+    for (int i = 0; i < nCoupons; i++) {
+      if (_premium.getNthPayment(i).getAccrualEndDate().isAfter(stepinDate)) {
+        couponIndex = i;
+        break;
+      }
+    }
+    
+    final CouponFixedDefinition currentPeriod = _premium.getNthPayment(couponIndex);
+    final ZonedDateTime previousAccrualDate = currentPeriod.getAccrualStartDate();
+    final ZonedDateTime nextAccrualDate = currentPeriod.getAccrualEndDate();
+    
+    
+    System.out.println("start date: " + previousAccrualDate);
+    System.out.println("today: " + pricingDate);
+    
+    return AccruedInterestCalculator.getAccruedInterest(
+      _dayCount, couponIndex, nCoupons, previousAccrualDate, stepinDate, nextAccrualDate, currentPeriod.getRate(), Math.round(1.0 / currentPeriod.getPaymentYearFraction()), /* isEOM */ false)
+      * currentPeriod.getNotional();
+    
+    // TODO: Are settlement days relevant here?
   }
 
   @Override

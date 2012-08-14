@@ -162,7 +162,7 @@ public class CDSTestSetup {
       "CDS_CCY", "SPREAD", "BOND_CCY",
       premiums, payouts,
       TimeCalculator.getTimeBetween(_simpleTestPricingDate, protectionStartDate), TimeCalculator.getTimeBetween(_simpleTestPricingDate, maturity),
-      notional, spread, recoveryRate, /*accrual on default*/ true, /*pay on default*/ true, /*protect start*/ false);
+      notional, spread, recoveryRate, 0.0, /*accrual on default*/ true, /*pay on default*/ true, /*protect start*/ false);
   }
 
   public static void setupIsdaTestData(double spread) {
@@ -253,19 +253,6 @@ public class CDSTestSetup {
   
       final CDSPremiumDefinition premiumDefinition = CDSPremiumDefinition.fromISDA(currency, cdsStartDate, maturity, premiumFrequency, calendar, dayCount, convention, notional, spread, protectStart);
       final AnnuityCouponFixed premiums = premiumDefinition.toDerivative(_isdaTestPricingDate, "CDS_CCY");
-
-  //    List<ZonedDateTime> possibleDefaultDates = scheduleDatesInRange(bondMaturity, bondPremiumFrequency.getPeriod(), pricingDate, maturity, calendar, convention);
-  //    if (maturity.isAfter(bondMaturity)) {
-  //      possibleDefaultDates.add(convention.adjustDate(calendar, maturity));
-  //    }
-  //
-  //    PaymentFixedDefinition[] defaultPayments = new PaymentFixedDefinition[possibleDefaultDates.size()];
-  //
-  //    for (int i = 0; i < defaultPayments.length; ++i) {
-  //      defaultPayments[i] = new PaymentFixedDefinition(currency, possibleDefaultDates.get(i), notional * (1.0 - recoveryRate));
-  //    }
-  //
-  //    final AnnuityPaymentFixed payouts = (new AnnuityPaymentFixedDefinition(defaultPayments)).toDerivative(pricingDate, "CDS_CCY");
   
       final AnnuityPaymentFixed payouts = null;
       
@@ -273,7 +260,7 @@ public class CDSTestSetup {
         "CDS_CCY", "SPREAD", /*bond CCY curve*/ null,
         premiums, payouts,
         getTimeBetween(_isdaTestPricingDate, cdsStartDate), getTimeBetween(_isdaTestPricingDate, maturity),
-        notional, spread, recoveryRate, /*accrual on default*/ true, /*pay on default*/ true, /*protect start*/ true);
+        notional, spread, recoveryRate, 0.0, /*accrual on default*/ true, /*pay on default*/ true, /*protect start*/ true);
     }
 
   public CDSTestSetup() {

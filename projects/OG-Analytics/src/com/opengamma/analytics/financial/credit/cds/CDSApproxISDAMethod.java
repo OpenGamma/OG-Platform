@@ -41,13 +41,13 @@ public class CDSApproxISDAMethod implements PricingMethod {
     throw new RuntimeException("please pass in the pricing date");
   }
   
-  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves, ZonedDateTime pricingDate, ZonedDateTime stepinDate) {
+  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves, ZonedDateTime pricingDate, ZonedDateTime stepinDate, boolean cleanPrice) {
     
     CDSDerivative cds = (CDSDerivative) instrument;
     YieldAndDiscountCurve discountCurve = curves.getCurve(cds.getDiscountCurveName());
     YieldAndDiscountCurve spreadCurve = curves.getCurve(cds.getSpreadCurveName());
 
-    return CurrencyAmount.of(cds.getPremium().getCurrency(), calculateUpfrontCharge(cds, discountCurve, spreadCurve, pricingDate, stepinDate));
+    return CurrencyAmount.of(cds.getPremium().getCurrency(), calculateUpfrontCharge(cds, discountCurve, spreadCurve, pricingDate, stepinDate, cleanPrice));
   }
 
   /**
@@ -66,18 +66,19 @@ public class CDSApproxISDAMethod implements PricingMethod {
    * @param stepinDate The step-in date
    * @return PV of the CDS contract
    */
-  public double calculateUpfrontCharge(CDSDerivative cds, YieldAndDiscountCurve discountCurve, YieldAndDiscountCurve spreadCurve, ZonedDateTime pricingDate, ZonedDateTime stepinDate) {
+  public double calculateUpfrontCharge(CDSDerivative cds, YieldAndDiscountCurve discountCurve, YieldAndDiscountCurve spreadCurve, ZonedDateTime pricingDate, ZonedDateTime stepinDate, boolean cleanPrice) {
     
     if (stepinDate.isBefore(pricingDate)) {
       throw new OpenGammaRuntimeException("Cannot value a CDS with step-in date before pricing date");
     }
     
-    final double defaultLeg = valueDefaultLeg(cds, discountCurve, spreadCurve, pricingDate, stepinDate);
-    final double premiumLeg = valuePremiumLeg(cds, discountCurve, spreadCurve, pricingDate, stepinDate);
+    final double contingentLeg = valueContingentLeg(cds, discountCurve, spreadCurve, pricingDate, stepinDate);
+    final double feeLeg = valueFeeLeg(cds, discountCurve, spreadCurve, pricingDate, stepinDate);
+    final double dirtyPrice = (contingentLeg - feeLeg) * cds.getNotional();
     
-    System.out.println("Default=" + defaultLeg + ", premium=" + premiumLeg);
+    System.out.println("contingent=" + contingentLeg + ", fee=" + feeLeg);
     
-    return (defaultLeg - premiumLeg) * cds.getNotional();
+    return cleanPrice ? dirtyPrice + cds.getAccruedInterest() : dirtyPrice;
   }
 
   /**
@@ -85,12 +86,12 @@ public class CDSApproxISDAMethod implements PricingMethod {
    * 
    * @param cds The CDS contract being priced
    * @param discountCurve The discount curve
-   * @param spreadCurve The credit spread curve
+   * @param hazardCurve Curve describing the hazard rate function
    * @param pricingDate The pricing date
    * @param stepinDate The step-in date
    * @return PV of the CDS premium leg
    */
-  private double valuePremiumLeg(CDSDerivative cds, YieldAndDiscountCurve discountCurve, YieldAndDiscountCurve spreadCurve, ZonedDateTime pricingDate, ZonedDateTime stepinDate) {
+  private double valueFeeLeg(CDSDerivative cds, YieldAndDiscountCurve discountCurve, YieldAndDiscountCurve hazardCurve, ZonedDateTime pricingDate, ZonedDateTime stepinDate) {
     
     // If the "protect start" flag is set, then the start date of the CDS is protected and observations are made at the start
     // of the day rather than the end. This is modelled by shifting all period start/end dates one day forward,
@@ -107,7 +108,9 @@ public class CDSApproxISDAMethod implements PricingMethod {
     final double offsetStepinTime = getTimeBetween(pricingDate, stepinDate.minusDays(offset));
 
     // List of all time points for which real data points exist on the discount/spread curves, only need for accrual on default calculation
-    final NavigableSet<Double> timeline = cds.isAccrualOnDefault() ? buildTimeLine(discountCurve, spreadCurve, startTime, maturity) : null;
+    final NavigableSet<Double> timeline = cds.isAccrualOnDefault() ? buildTimeLine(discountCurve, hazardCurve, startTime, maturity) : null;
+    
+    System.out.println(timeline.toString());
     
     CouponFixed payment;
     ZonedDateTime accrualPeriodStart, accrualPeriodEnd;
@@ -123,19 +126,20 @@ public class CDSApproxISDAMethod implements PricingMethod {
       periodEnd = getTimeBetween(pricingDate, accrualPeriodEnd.minusDays(offset));
 
       amount = payment.getFixedRate() * payment.getPaymentYearFraction();
-      survival = spreadCurve.getDiscountFactor(periodEnd);
+      survival = hazardCurve.getDiscountFactor(periodEnd);
       discount = discountCurve.getDiscountFactor(periodEnd);
       result += amount * survival * discount;
       
       if (s_logger.isDebugEnabled()) {
-        s_logger.debug("i=" + i + ", accrualEnd=" + accrualPeriodEnd + ", accrualTime=" + payment.getPaymentYearFraction());
+        s_logger.debug("i=" + i + ", accrualEnd=" + accrualPeriodEnd + ", t-value=" + periodEnd + ", accrualTime=" + payment.getPaymentYearFraction());
         s_logger.debug("ammount=" + amount + ", survival=" + survival + ", discount=" + discount + ", pv=" + amount * survival * discount);
       }
       
       if (cds.isAccrualOnDefault()) {
+        timeline.add(periodEnd);
         accrualPeriodStart = payment.getAccrualStartDate();
         periodStart = getTimeBetween(pricingDate, accrualPeriodStart.minusDays(offset));
-        result += valuePremiumPeriodAccrualOnDefault(amount, periodStart, periodEnd, offsetStepinTime, discountCurve, spreadCurve, timeline);
+        result += valueFeeLegAccrualOnDefault(amount, periodStart, periodEnd, offsetStepinTime, discountCurve, hazardCurve, timeline);
       }
     }
     
@@ -150,12 +154,12 @@ public class CDSApproxISDAMethod implements PricingMethod {
    * @param endTime Accrual period end time
    * @param stepinTime Step-in time for the CDS contract
    * @param discountCurve The discount curve
-   * @param spreadCurve The spread curve
+   * @param hazardCurve Curve describing the hazard rate function
    * @param fullTimeline List of time points corresponding to real data points on the discount and spread curves
    * @return Accrual-on-default portion of PV for the accrual period
    */
-  private double valuePremiumPeriodAccrualOnDefault(final double amount, final double startTime, final double endTime, final double stepinTime,
-    YieldAndDiscountCurve discountCurve, YieldAndDiscountCurve spreadCurve, NavigableSet<Double> fullTimeline) {
+  private double valueFeeLegAccrualOnDefault(final double amount, final double startTime, final double endTime, final double stepinTime,
+    YieldAndDiscountCurve discountCurve, YieldAndDiscountCurve hazardCurve, NavigableSet<Double> fullTimeline) {
     
     final double today = 0.0;
     final double subStartTime = stepinTime > startTime ? stepinTime : startTime;
@@ -163,11 +167,11 @@ public class CDSApproxISDAMethod implements PricingMethod {
     
     final Double[] timeline = truncateTimeLine(fullTimeline, startTime, endTime);
 
-    double t0, t1, dt, spread0, spread1, discount0, discount1;
+    double t0, t1, dt, survival0, survival1, discount0, discount1;
     double lambda, fwdRate, lambdaFwdRate, valueForTimeStep, value;
     
     t0 = subStartTime - startTime + (0.5 / 365.0);
-    spread0 = spreadCurve.getDiscountFactor(subStartTime);
+    survival0 = hazardCurve.getDiscountFactor(subStartTime);
     discount0 = discountCurve.getDiscountFactor(Math.max(today, subStartTime));
     
     value = 0.0;
@@ -181,36 +185,37 @@ public class CDSApproxISDAMethod implements PricingMethod {
       t1 = timeline[i] - startTime + (0.5 / 365.0);
       dt = t1 - t0;
       
-      spread1 = spreadCurve.getDiscountFactor(timeline[i]);
+      survival1 = hazardCurve.getDiscountFactor(timeline[i]);
       discount1 = discountCurve.getDiscountFactor(timeline[i]);
 
-      lambda = Math.log(spread0 / spread1) / dt;
+      lambda = Math.log(survival0 / survival1) / dt;
       fwdRate = Math.log(discount0 / discount1) / dt;
       lambdaFwdRate = lambda + fwdRate + 1.0e-50;
-      valueForTimeStep = lambda * accrualRate * spread0 * discount0
-        * (((t0 + 1.0 / lambdaFwdRate) / lambdaFwdRate) - ((t1 + 1.0 / lambdaFwdRate) / lambdaFwdRate) * spread1 / spread0 * discount1 / discount0);
+      valueForTimeStep = lambda * accrualRate * survival0 * discount0
+        * (((t0 + 1.0 / lambdaFwdRate) / lambdaFwdRate) - ((t1 + 1.0 / lambdaFwdRate) / lambdaFwdRate) * survival1 / survival0 * discount1 / discount0);
 
       value += valueForTimeStep;
 
       t0 = t1;
-      spread0 = spread1;
+      survival0 = survival1;
       discount0 = discount1;
     }
 
+    s_logger.debug("Accrual=" + value);
     return value;
   }
 
   /**
-   * Value the default leg of a CDS taken from the step-in date.
+   * Value the contingent leg of a CDS taken from the step-in date.
    * 
    * @param cds The derivative object representing the CDS
    * @param discountCurve The discount curve
-   * @param spreadCurve The credit spread curve
+   * @param hazardCurve Curve describing the hazard rate function
    * @param pricingDate The pricing date
    * @param stepinDate The step-in date
    * @return PV of the CDS default leg
    */
-  private double valueDefaultLeg(CDSDerivative cds, YieldAndDiscountCurve discountCurve, YieldAndDiscountCurve spreadCurve, ZonedDateTime pricingDate, ZonedDateTime stepinDate) {
+  private double valueContingentLeg(CDSDerivative cds, YieldAndDiscountCurve discountCurve, YieldAndDiscountCurve hazardCurve, ZonedDateTime pricingDate, ZonedDateTime stepinDate) {
 
     final CouponFixed[] premiums = cds.getPremium().getPayments();
     final ZonedDateTime startDate = premiums[0].getAccrualStartDate();
@@ -234,8 +239,8 @@ public class CDSApproxISDAMethod implements PricingMethod {
     final double recoveryRate = cds.getRecoveryRate();
     
     final double value = cds.isPayOnDefault()
-      ? valueDefaultLegPayOnDefault(recoveryRate, valuationStartTime, maturity, discountCurve, spreadCurve)
-      : valueDefaultLegPayOnMaturity(recoveryRate, valuationStartTime, maturity, discountCurve, spreadCurve);
+      ? valueContingentLegPayOnDefault(recoveryRate, valuationStartTime, maturity, discountCurve, hazardCurve)
+      : valueContingentLegPayOnMaturity(recoveryRate, valuationStartTime, maturity, discountCurve, hazardCurve);
     
     final double discount = 1.0; // TODO: verify assumptions about pricing date  -- cdsCcyCurve.getDiscountFactor(valueDate);
 
@@ -249,24 +254,24 @@ public class CDSApproxISDAMethod implements PricingMethod {
    * @param startTime protection start time
    * @param maturity CDS maturity
    * @param discountCurve The discount curve
-   * @param spreadCurve The credit spread curve
+   * @param hazardCurve Curve describing the hazard rate function
    * @return PV for the default leg
    */
-  private double valueDefaultLegPayOnDefault(final double recoveryRate, final double startTime, final double maturity,
-    YieldAndDiscountCurve discountCurve, YieldAndDiscountCurve spreadCurve) {
+  private double valueContingentLegPayOnDefault(final double recoveryRate, final double startTime, final double maturity,
+    YieldAndDiscountCurve discountCurve, YieldAndDiscountCurve hazardCurve) {
     
     if (maturity < 0.0) {
       return 0.0;
     }
     
     final double loss = 1.0 - recoveryRate;
-    final Double[] timeline = truncateTimeLine(buildTimeLine(discountCurve, spreadCurve, startTime, maturity), startTime, maturity);
+    final Double[] timeline = truncateTimeLine(buildTimeLine(discountCurve, hazardCurve, startTime, maturity), startTime, maturity);
 
-    double dt, spread0, spread1, discount0, discount1;
+    double dt, survival0, survival1, discount0, discount1;
     double lambda, fwdRate, valueForTimeStep, value;
     
     // TODO: handle startTime == -1 day
-    spread1 = spreadCurve.getDiscountFactor(startTime);
+    survival1 = hazardCurve.getDiscountFactor(startTime);
     discount1 = startTime > 0.0 ? discountCurve.getDiscountFactor(startTime) : 1.0;
     value = 0.0;
 
@@ -274,14 +279,14 @@ public class CDSApproxISDAMethod implements PricingMethod {
 
       dt = timeline[i] - timeline[i - 1];
 
-      spread0 = spread1;
+      survival0 = survival1;
       discount0 = discount1;
-      spread1 = spreadCurve.getDiscountFactor(timeline[i]);
+      survival1 = hazardCurve.getDiscountFactor(timeline[i]);
       discount1 = discountCurve.getDiscountFactor(timeline[i]);
 
-      lambda = Math.log(spread0 / spread1) / dt;
+      lambda = Math.log(survival0 / survival1) / dt;
       fwdRate = Math.log(discount0 / discount1) / dt;
-      valueForTimeStep = ((loss * lambda) / (lambda + fwdRate)) * (1.0 - Math.exp(-(lambda + fwdRate) * dt)) * spread0 * discount0;
+      valueForTimeStep = ((loss * lambda) / (lambda + fwdRate)) * (1.0 - Math.exp(-(lambda + fwdRate) * dt)) * survival0 * discount0;
 
       value += valueForTimeStep;
     }
@@ -296,11 +301,11 @@ public class CDSApproxISDAMethod implements PricingMethod {
    * @param startTime protection start time
    * @param maturity CDS maturity
    * @param discountCurve The discount curve
-   * @param spreadCurve The credit spread curve
+   * @param hazardCurve Curve describing the hazard rate function
    * @return PV for the default leg
    */
-  private double valueDefaultLegPayOnMaturity(final double recoveryRate, final double startTime, final double maturity,
-    YieldAndDiscountCurve discountCurve, YieldAndDiscountCurve spreadCurve) {
+  private double valueContingentLegPayOnMaturity(final double recoveryRate, final double startTime, final double maturity,
+    YieldAndDiscountCurve discountCurve, YieldAndDiscountCurve hazardCurve) {
     
     if (maturity < 0.0) {
       return 0.0;
@@ -308,11 +313,11 @@ public class CDSApproxISDAMethod implements PricingMethod {
     
     // TODO: handle startTime == -1 day
     final double loss = 1.0 - recoveryRate;
-    final double spread0 = spreadCurve.getDiscountFactor(startTime);
-    final double spread1 = spreadCurve.getDiscountFactor(maturity);
+    final double survival0 = hazardCurve.getDiscountFactor(startTime);
+    final double survival1 = hazardCurve.getDiscountFactor(maturity);
     final double discount = discountCurve.getDiscountFactor(maturity);
     
-    return (spread0 - spread1) * discount * loss;
+    return (survival0 - survival1) * discount * loss;
   }
 
   /**

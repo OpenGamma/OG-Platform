@@ -34,6 +34,7 @@ public class CDSDerivative implements InstrumentDerivative {
   private final double _notional;
   private final double _spread;
   private final double _recoveryRate;
+  private final double _accruedInterest;
   
   private final boolean _accrualOnDefault;
   private final boolean _payOnDefault;
@@ -52,6 +53,7 @@ public class CDSDerivative implements InstrumentDerivative {
    * @param notional Notional of the CDS contract
    * @param spread Spread (a.k.a. coupon rate) of the CDS contract
    * @param recoveryRate Recovery rate against the underlying
+   * @param accruedInterest Interest accrued at the settlement date; this is an amount in line with the notional
    * @param accrualOnDefault Whether, in the event of default, accrued interest must be paid for the current period up to the default date
    * @param payOnDefault Whether protection payment is due on default (true) or at maturity (false)
    * @param protectStart Whether the start date is protected (i.e. one extra day of protection)
@@ -59,7 +61,7 @@ public class CDSDerivative implements InstrumentDerivative {
   public CDSDerivative(final String discountCurveName, final String spreadCurveName, final String underlyingDiscountCurveName,
     final AnnuityCouponFixed premium, final AnnuityPaymentFixed payout,
     final double startTime, final double maturity,
-    final double notional, final double spread, final double recoveryRate,
+    final double notional, final double spread, final double recoveryRate, final double accruedInterest,
     final boolean accrualOnDefault, final boolean payOnDefault, final boolean protectStart) {
     
     _discountCurveName = discountCurveName;
@@ -75,6 +77,7 @@ public class CDSDerivative implements InstrumentDerivative {
     _notional = notional;
     _spread = spread;
     _recoveryRate = recoveryRate;
+    _accruedInterest = accruedInterest;
     
     _accrualOnDefault = accrualOnDefault;
     _payOnDefault = payOnDefault;
@@ -129,6 +132,10 @@ public class CDSDerivative implements InstrumentDerivative {
   
   public double getRecoveryRate() {
     return _recoveryRate;
+  }
+  
+  public double getAccruedInterest() {
+    return _accruedInterest;
   }
 
   public boolean isAccrualOnDefault() {

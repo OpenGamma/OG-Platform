@@ -93,7 +93,7 @@ public class CDSSecurityConverter extends FinancialSecurityVisitorAdapter<Instru
     return new CDSDefinition(
       premiumPayments, defaultPayments, cds.getProtectionStartDate(), cds.getMaturity(),
       cds.getNotional(), cds.getSpread(), cds.getRecoveryRate(),
-      ACCRUAL_ON_DEFAULT, PAY_ON_DEFAULT, PROTECT_START);
+      ACCRUAL_ON_DEFAULT, PAY_ON_DEFAULT, PROTECT_START, dayCount);
   }
     
   // Build a fixed payment annuity representing possible default payouts
