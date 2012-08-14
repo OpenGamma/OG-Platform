@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.forex.forward.deprecated;
@@ -32,7 +32,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
+import com.opengamma.financial.analytics.conversion.ForexSecurityConverterDeprecated;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.forex.forward.FXForwardFunction;
@@ -57,7 +57,7 @@ public abstract class FXForwardFunctionDeprecated extends AbstractFunction.NonCo
   public static final String PROPERTY_RECEIVE_FORWARD_CURVE = "ReceiveForwardCurve";
   /** The receive curve calculation method property */
   public static final String PROPERTY_RECEIVE_CURVE_CALCULATION_METHOD = "ReceiveCurveCalculationMethod";
-  private static final ForexSecurityConverter VISITOR = new ForexSecurityConverter();
+  private static final ForexSecurityConverterDeprecated VISITOR = new ForexSecurityConverterDeprecated();
   private final String _valueRequirementName;
 
   public FXForwardFunctionDeprecated(final String valueRequirementName) {

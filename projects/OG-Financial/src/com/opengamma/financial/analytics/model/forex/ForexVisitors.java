@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.forex;
@@ -21,7 +21,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
- * 
+ *
  */
 public class ForexVisitors {
   private static final FinancialSecurityVisitor<Currency> s_payCurrencyInstance = new PayCurrencyVisitor();

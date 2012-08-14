@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.forex.option.black.deprecated;
@@ -34,7 +34,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
+import com.opengamma.financial.analytics.conversion.ForexSecurityConverterDeprecated;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
@@ -72,7 +72,7 @@ public abstract class FXOptionBlackFunctionDeprecated extends AbstractFunction.N
   public static final String PROPERTY_CALL_FORWARD_CURVE = "CallForwardCurve";
   /** The property for the calculation method for the call currency curves */
   public static final String PROPERTY_CALL_CURVE_CALCULATION_METHOD = "CallCurveCalculationMethod";
-  private static final ForexSecurityConverter VISITOR = new ForexSecurityConverter();
+  private static final ForexSecurityConverterDeprecated VISITOR = new ForexSecurityConverterDeprecated();
   private final String _valueRequirementName;
 
   public FXOptionBlackFunctionDeprecated(final String valueRequirementName) {
