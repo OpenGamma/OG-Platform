@@ -37,7 +37,9 @@ public class HistoricalTimeSeriesLatestPositionProviderIdValueFunction extends A
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
       final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ComputedValue latestHtsValue = inputs.getComputedValue(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST);
-    return Collections.singleton(new ComputedValue(getSpecification(target, latestHtsValue.getSpecification()), latestHtsValue.getValue()));
+    final ValueRequirement desiredValue = desiredValues.iterator().next();
+    return Collections.singleton(new ComputedValue(
+        new ValueSpecification(desiredValue.getValueName(), desiredValue.getTargetSpecification(), desiredValue.getConstraints()), latestHtsValue.getValue()));
   }
 
   @Override
@@ -48,6 +50,15 @@ public class HistoricalTimeSeriesLatestPositionProviderIdValueFunction extends A
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     return getTargetType().equals(target.getType());
+  }
+  
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    final ValueProperties props = createValueProperties()
+        .withAny(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY)
+        .withAny(HistoricalTimeSeriesFunctionUtils.AGE_LIMIT_PROPERTY).get();
+    return Collections.singleton(new ValueSpecification(
+        new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, target.getPosition(), props), getUniqueId()));
   }
 
   @Override
@@ -70,25 +81,6 @@ public class HistoricalTimeSeriesLatestPositionProviderIdValueFunction extends A
     UniqueId htsId = resolutionResult.getHistoricalTimeSeriesInfo().getUniqueId();
     ValueRequirement valueRequirement = new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, htsId, desiredValue.getConstraints());
     return Collections.singleton(valueRequirement);
-  }
-
-  @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueSpecification spec = getSpecification(target);
-    return Collections.singleton(spec);
-  }
-
-  private ValueSpecification getSpecification(final ComputationTarget target) {
-    final ValueProperties props = createValueProperties().withAny(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY).get();
-    return new ValueSpecification(
-        new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, target.getPosition(), props), getUniqueId());
-  }
-  
-  private ValueSpecification getSpecification(final ComputationTarget target, final ValueSpecification inputSpec) {
-    final ValueProperties props = createValueProperties()
-        .with(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY, inputSpec.getProperty(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY)).get();
-    return new ValueSpecification(
-        new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, target.getPosition(), props), getUniqueId());
   }
 
 }

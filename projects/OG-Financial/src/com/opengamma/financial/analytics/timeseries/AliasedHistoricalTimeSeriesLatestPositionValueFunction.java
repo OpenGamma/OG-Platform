@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics.timeseries;
 
+import javax.time.calendar.Period;
+
 import com.opengamma.engine.ComputationTargetType;
 
 /**
@@ -21,6 +23,17 @@ public class AliasedHistoricalTimeSeriesLatestPositionValueFunction extends Alia
    */
   public AliasedHistoricalTimeSeriesLatestPositionValueFunction(String htsDataField, String aliasedValueRequirementName) {
     super(htsDataField, aliasedValueRequirementName, ComputationTargetType.POSITION);
+  }
+  
+  /**
+   * Constructs an instance
+   * 
+   * @param htsDataField  the historical time-series data field, not null
+   * @param ageLimit  the age limit for the latest value, not null
+   * @param aliasedValueRequirementName  the value requirement name under which to expose the output, not null
+   */
+  public AliasedHistoricalTimeSeriesLatestPositionValueFunction(String htsDataField, String ageLimit, String aliasedValueRequirementName) {
+    super(htsDataField, Period.parse(ageLimit), aliasedValueRequirementName, ComputationTargetType.POSITION);
   }
 
 }
