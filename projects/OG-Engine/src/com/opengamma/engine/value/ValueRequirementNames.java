@@ -97,7 +97,10 @@ public final class ValueRequirementNames {
    * The latest point from a historical time series of a quantity.
    */
   public static final String HISTORICAL_TIME_SERIES_LATEST = "Historical Time Series (latest value)";
-
+  /**
+   * A FX series for a security
+   */
+  public static final String HISTORICAL_FX_TIME_SERIES = "Historical FX Time Series";
   ///// Curves
 
   /**

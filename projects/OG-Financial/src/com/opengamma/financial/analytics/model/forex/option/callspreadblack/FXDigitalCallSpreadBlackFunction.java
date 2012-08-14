@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.forex.option.callspreadblack;
@@ -39,8 +39,9 @@ import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
+import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
@@ -49,14 +50,13 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ *
  */
 public abstract class FXDigitalCallSpreadBlackFunction extends AbstractFunction.NonCompiledInvoker {
   /** The name of the calculation method */
   public static final String CALL_SPREAD_BLACK_METHOD = "CallSpreadBlackMethod";
   /** The name of the property that sets the value of the call spread */
   public static final String PROPERTY_CALL_SPREAD_VALUE = "CallSpreadValue";
-  private static final ForexSecurityConverter VISITOR = new ForexSecurityConverter();
   private final String _valueRequirementName;
 
   public FXDigitalCallSpreadBlackFunction(final String valueRequirementName) {
@@ -69,7 +69,6 @@ public abstract class FXDigitalCallSpreadBlackFunction extends AbstractFunction.
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final InstrumentDefinition<InstrumentDerivative> definition = (InstrumentDefinition<InstrumentDerivative>) security.accept(VISITOR);
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
     final ValueRequirement desiredValue = desiredValues.iterator().next();
@@ -85,12 +84,6 @@ public abstract class FXDigitalCallSpreadBlackFunction extends AbstractFunction.
     final double spreadValue = Double.parseDouble(spread);
     final String fullPutCurveName = putCurveName + "_" + putCurrency.getCode();
     final String fullCallCurveName = callCurveName + "_" + callCurrency.getCode();
-    final String[] curveNames;
-    if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) { // To get Base/quote in market standard order.
-      curveNames = new String[] {fullPutCurveName, fullCallCurveName};
-    } else {
-      curveNames = new String[] {fullCallCurveName, fullPutCurveName};
-    }
     final YieldAndDiscountCurve putFundingCurve = getCurve(inputs, putCurrency, putCurveName, putCurveConfig);
     final YieldAndDiscountCurve callFundingCurve = getCurve(inputs, callCurrency, callCurveName, callCurveConfig);
     final YieldAndDiscountCurve[] curves;
@@ -100,7 +93,16 @@ public abstract class FXDigitalCallSpreadBlackFunction extends AbstractFunction.
     final String[] allCurveNames;
     final Currency ccy1;
     final Currency ccy2;
-    if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) { // To get Base/quote in market standard order.
+    final Object baseQuotePairsObject = inputs.getValue(ValueRequirementNames.CURRENCY_PAIRS);
+    if (baseQuotePairsObject == null) {
+      throw new OpenGammaRuntimeException("Could not get base/quote pair data");
+    }
+    final CurrencyPairs baseQuotePairs = (CurrencyPairs) baseQuotePairsObject;
+    final CurrencyPair baseQuotePair = baseQuotePairs.getCurrencyPair(putCurrency, callCurrency);
+    if (baseQuotePair == null) {
+      throw new OpenGammaRuntimeException("Could not get base/quote pair for currency pair (" + putCurrency + ", " + callCurrency + ")");
+    }
+    if (baseQuotePair.getBase().equals(putCurrency)) { // To get Base/quote in market standard order.
       ccy1 = putCurrency;
       ccy2 = callCurrency;
       curves = new YieldAndDiscountCurve[] {putFundingCurve, callFundingCurve};
@@ -111,12 +113,13 @@ public abstract class FXDigitalCallSpreadBlackFunction extends AbstractFunction.
       ccy1 = callCurrency;
       ccy2 = putCurrency;
     }
-    final InstrumentDerivative fxOption = definition.toDerivative(now, curveNames);
+    final ForexSecurityConverter converter = new ForexSecurityConverter(baseQuotePairs);
+    final InstrumentDefinition<InstrumentDerivative> definition = (InstrumentDefinition<InstrumentDerivative>) security.accept(converter);
+    final InstrumentDerivative fxOption = definition.toDerivative(now, allCurveNames);
     final YieldCurveBundle yieldCurves = new YieldCurveBundle(allCurveNames, curves);
-    final ValueRequirement spotRequirement = security.accept(ForexVisitors.getSpotIdentifierVisitor());
-    final Object spotObject = inputs.getValue(spotRequirement);
+    final Object spotObject = inputs.getValue(ValueRequirementNames.SPOT_RATE);
     if (spotObject == null) {
-      throw new OpenGammaRuntimeException("Could not get spot requirement " + spotRequirement);
+      throw new OpenGammaRuntimeException("Could not get spot requirement");
     }
     final double spot = (Double) spotObject;
     final ValueRequirement fxVolatilitySurfaceRequirement = getSurfaceRequirement(surfaceName, putCurrency, callCurrency, interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
@@ -206,8 +209,10 @@ public abstract class FXDigitalCallSpreadBlackFunction extends AbstractFunction.
     final ValueRequirement putFundingCurve = getCurveRequirement(putCurveName, putCurrency, putCurveCalculationConfig);
     final ValueRequirement callFundingCurve = getCurveRequirement(callCurveName, callCurrency, callCurveCalculationConfig);
     final ValueRequirement fxVolatilitySurface = getSurfaceRequirement(surfaceName, putCurrency, callCurrency, interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
-    final ValueRequirement spotRequirement = security.accept(ForexVisitors.getSpotIdentifierVisitor());
-    return Sets.newHashSet(putFundingCurve, callFundingCurve, fxVolatilitySurface, spotRequirement);
+    final UnorderedCurrencyPair currencyPair = UnorderedCurrencyPair.of(putCurrency, callCurrency);
+    final ValueRequirement spotRequirement = new ValueRequirement(ValueRequirementNames.SPOT_RATE, currencyPair);
+    final ValueRequirement pairQuoteRequirement = new ValueRequirement(ValueRequirementNames.CURRENCY_PAIRS, ComputationTargetType.PRIMITIVE, currencyPair.getUniqueId());
+    return Sets.newHashSet(putFundingCurve, callFundingCurve, fxVolatilitySurface, spotRequirement, pairQuoteRequirement);
   }
 
   protected abstract ValueProperties.Builder getResultProperties(final ComputationTarget target);

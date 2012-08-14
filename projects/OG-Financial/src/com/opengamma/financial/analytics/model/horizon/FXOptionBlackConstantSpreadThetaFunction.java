@@ -46,8 +46,9 @@ import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackMultiValuedFunction;
+import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.util.money.Currency;
@@ -59,7 +60,6 @@ import com.opengamma.util.tuple.Pair;
  */
 public class FXOptionBlackConstantSpreadThetaFunction extends FXOptionBlackMultiValuedFunction {
   private static final ConstantSpreadHorizonThetaCalculator CALCULATOR = ConstantSpreadHorizonThetaCalculator.getInstance();
-  private static final ForexSecurityConverter VISITOR = new ForexSecurityConverter();
 
   public FXOptionBlackConstantSpreadThetaFunction() {
     super(ValueRequirementNames.VALUE_THETA);
@@ -82,6 +82,24 @@ public class FXOptionBlackConstantSpreadThetaFunction extends FXOptionBlackMulti
     final String leftExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
     final String rightExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
     final String daysForward = desiredValue.getConstraint(PROPERTY_DAYS_TO_MOVE_FORWARD);
+    final Object baseQuotePairsObject = inputs.getValue(ValueRequirementNames.CURRENCY_PAIRS);
+    if (baseQuotePairsObject == null) {
+      throw new OpenGammaRuntimeException("Could not get base/quote pair data");
+    }
+    final CurrencyPairs baseQuotePairs = (CurrencyPairs) baseQuotePairsObject;
+    final CurrencyPair baseQuotePair = baseQuotePairs.getCurrencyPair(putCurrency, callCurrency);
+    if (baseQuotePair == null) {
+      throw new OpenGammaRuntimeException("Could not get base/quote pair for currency pair (" + putCurrency + ", " + callCurrency + ")");
+    }
+    final Integer daysFwdOrBackward;
+    if (daysForward.equalsIgnoreCase("-1")) {
+      daysFwdOrBackward = -1;
+    } else if (daysForward.equalsIgnoreCase("+1") || daysForward.equalsIgnoreCase("1")) {
+      daysFwdOrBackward = 1;
+    } else {
+      throw new OpenGammaRuntimeException("Property 'DaysForward' must be set to either 1 or -1.");
+    }
+    final ForexSecurityConverter converter = new ForexSecurityConverter(baseQuotePairs);
     final String fullPutCurveName = putCurveName + "_" + putCurrency.getCode();
     final String fullCallCurveName = callCurveName + "_" + callCurrency.getCode();
     final YieldAndDiscountCurve putFundingCurve = getCurve(inputs, putCurrency, putCurveName, putCurveConfig);
@@ -93,7 +111,7 @@ public class FXOptionBlackConstantSpreadThetaFunction extends FXOptionBlackMulti
     final String[] allCurveNames;
     final Currency ccy1;
     final Currency ccy2;
-    if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) { // To get Base/quote in market standard order.
+    if (baseQuotePair.getBase().equals(putCurrency)) { // To get Base/quote in market standard order.
       ccy1 = putCurrency;
       ccy2 = callCurrency;
       curves = new YieldAndDiscountCurve[] {putFundingCurve, callFundingCurve};
@@ -105,10 +123,9 @@ public class FXOptionBlackConstantSpreadThetaFunction extends FXOptionBlackMulti
       ccy2 = putCurrency;
     }
     final YieldCurveBundle yieldCurves = new YieldCurveBundle(allCurveNames, curves);
-    final ValueRequirement spotRequirement = security.accept(ForexVisitors.getSpotIdentifierVisitor());
-    final Object spotObject = inputs.getValue(spotRequirement);
+    final Object spotObject = inputs.getValue(ValueRequirementNames.SPOT_RATE);
     if (spotObject == null) {
-      throw new OpenGammaRuntimeException("Could not get spot requirement " + spotRequirement);
+      throw new OpenGammaRuntimeException("Could not get spot requirement");
     }
     final double spot = (Double) spotObject;
     final ValueRequirement fxVolatilitySurfaceRequirement = getSurfaceRequirement(surfaceName, putCurrency, callCurrency, interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
@@ -118,17 +135,17 @@ public class FXOptionBlackConstantSpreadThetaFunction extends FXOptionBlackMulti
     }
     final SmileDeltaTermStructureParametersStrikeInterpolation smiles = (SmileDeltaTermStructureParametersStrikeInterpolation) volatilitySurfaceObject;
     final FXMatrix fxMatrix = new FXMatrix(ccy1, ccy2, spot);
-    final ValueProperties.Builder properties = getResultProperties(target, desiredValue);
+    final ValueProperties.Builder properties = getResultProperties(target, desiredValue, baseQuotePair);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.VALUE_THETA, target.toSpecification(), properties.get());
     final YieldCurveBundle curvesWithFX = new YieldCurveBundle(fxMatrix, curveCurrency, yieldCurves.getCurvesMap());
     final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(curvesWithFX, smiles, Pair.of(ccy1, ccy2));
     if (security instanceof FXOptionSecurity) {
-      final ForexOptionVanillaDefinition definition = (ForexOptionVanillaDefinition) security.accept(VISITOR);
-      final MultipleCurrencyAmount theta = CALCULATOR.getTheta(definition, now, allCurveNames, smileBundle, Integer.parseInt(daysForward));
+      final ForexOptionVanillaDefinition definition = (ForexOptionVanillaDefinition) security.accept(converter);
+      final MultipleCurrencyAmount theta = CALCULATOR.getTheta(definition, now, allCurveNames, smileBundle, daysFwdOrBackward);
       return Collections.singleton(new ComputedValue(spec, HorizonUtils.getNonZeroValue(theta)));
     } else if (security instanceof FXDigitalOptionSecurity) {
-      final ForexOptionDigitalDefinition definition = (ForexOptionDigitalDefinition) security.accept(VISITOR);
-      final MultipleCurrencyAmount theta = CALCULATOR.getTheta(definition, now, allCurveNames, smileBundle, PresentValueBlackSmileForexCalculator.getInstance(), Integer.parseInt(daysForward));
+      final ForexOptionDigitalDefinition definition = (ForexOptionDigitalDefinition) security.accept(converter);
+      final MultipleCurrencyAmount theta = CALCULATOR.getTheta(definition, now, allCurveNames, smileBundle, PresentValueBlackSmileForexCalculator.getInstance(), daysFwdOrBackward);
       return Collections.singleton(new ComputedValue(spec, HorizonUtils.getNonZeroValue(theta)));
     }
     throw new OpenGammaRuntimeException("Should never get here; canApplyTo specifies vanilla and digital options only");
@@ -167,9 +184,9 @@ public class FXOptionBlackConstantSpreadThetaFunction extends FXOptionBlackMulti
   }
 
   @Override
-  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue, final CurrencyPair baseQuotePair) {
     final String daysForward = desiredValue.getConstraint(PROPERTY_DAYS_TO_MOVE_FORWARD);
-    final ValueProperties.Builder properties = super.getResultProperties(target, desiredValue);
+    final ValueProperties.Builder properties = super.getResultProperties(target, desiredValue, baseQuotePair);
     properties.with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD);
     properties.with(PROPERTY_DAYS_TO_MOVE_FORWARD, daysForward);
     return properties;

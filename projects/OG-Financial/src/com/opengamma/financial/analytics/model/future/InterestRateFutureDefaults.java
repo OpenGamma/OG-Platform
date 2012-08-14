@@ -33,7 +33,8 @@ public class InterestRateFutureDefaults extends DefaultPropertyFunction {
   private static final String[] s_valueNames = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.PV01,
-    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES
+    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
+    ValueRequirementNames.VALUE_THETA
   };
   private final PriorityClass _priority;
   private final Map<String, String> _currencyAndCurveConfigNames;

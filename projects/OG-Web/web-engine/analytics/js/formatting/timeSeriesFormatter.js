@@ -16,7 +16,12 @@
     this.customDetailIcon = 'ui-icon-image'
     
     this.renderCell = function($cell, value, row, dataContext, colDef, columnStructure, userConfig) {
-      var summaryText = "Time-series (" + value.v.summary.from + " to " + value.v.summary.to + ")";
+      var summaryText = "Time-series";
+      if (!value.v.summary) {
+        summaryText += " (empty)";
+      } else {
+        summaryText += " (" + value.v.summary.from + " to " + value.v.summary.to + ")";
+      }
       $cell.html("<span class='cell-value'>" + summaryText + "</span>");
     }
     

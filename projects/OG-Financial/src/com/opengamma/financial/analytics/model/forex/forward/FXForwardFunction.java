@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.forex.forward;
@@ -33,22 +33,23 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
+import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
- * 
+ *
  */
 public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvoker {
   /** Property name for the pay curve calculation configuration */
   public static final String PAY_CURVE_CALC_CONFIG = "PayCurveCalculationConfig";
   /** Property name for the receive curve calculation configuration */
   public static final String RECEIVE_CURVE_CALC_CONFIG = "ReceiveCurveCalculationConfig";
-  private static final ForexSecurityConverter VISITOR = new ForexSecurityConverter();
   private final String _valueRequirementName;
 
   public FXForwardFunction(final String valueRequirementName) {
@@ -66,7 +67,6 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
     }
     final Currency payCurrency = security.accept(ForexVisitors.getPayCurrencyVisitor());
     final Currency receiveCurrency = security.accept(ForexVisitors.getReceiveCurrencyVisitor());
-    final InstrumentDefinition<?> definition = security.accept(VISITOR);
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String payCurveName = desiredValue.getConstraint(ValuePropertyNames.PAY_CURVE);
     final String receiveCurveName = desiredValue.getConstraint(ValuePropertyNames.RECEIVE_CURVE);
@@ -81,13 +81,24 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
     curveCurrency.put(fullPayCurveName, payCurrency);
     curveCurrency.put(fullReceiveCurveName, receiveCurrency);
     final String[] allCurveNames;
-    if (FXUtils.isInBaseQuoteOrder(payCurrency, receiveCurrency)) { // To get Base/quote in market standard order.
+    final Object baseQuotePairsObject = inputs.getValue(ValueRequirementNames.CURRENCY_PAIRS);
+    if (baseQuotePairsObject == null) {
+      throw new OpenGammaRuntimeException("Could not get base/quote pair data");
+    }
+    final CurrencyPairs baseQuotePairs = (CurrencyPairs) baseQuotePairsObject;
+    final CurrencyPair baseQuotePair = baseQuotePairs.getCurrencyPair(payCurrency, receiveCurrency);
+    if (baseQuotePair == null) {
+      throw new OpenGammaRuntimeException("Could not get base/quote pair for currency pair (" + payCurrency + ", " + receiveCurrency + ")");
+    }
+    if (baseQuotePair.getBase().equals(payCurrency)) { // To get Base/quote in market standard order.
       curves = new YieldAndDiscountCurve[] {payFundingCurve, receiveFundingCurve};
       allCurveNames = new String[] {fullPayCurveName, fullReceiveCurveName};
     } else {
       curves = new YieldAndDiscountCurve[] {receiveFundingCurve, payFundingCurve};
       allCurveNames = new String[] {fullReceiveCurveName, fullPayCurveName};
     }
+    final ForexSecurityConverter converter = new ForexSecurityConverter(baseQuotePairs);
+    final InstrumentDefinition<?> definition = security.accept(converter);
     final Forex forex = (Forex) definition.toDerivative(now, allCurveNames);
     final YieldCurveBundle yieldCurves = new YieldCurveBundle(allCurveNames, curves);
     final ValueProperties.Builder properties = getResultProperties(target, desiredValue);
@@ -146,12 +157,18 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
     final Currency receiveCurrency = security.accept(ForexVisitors.getReceiveCurrencyVisitor());
     final ValueRequirement payFundingCurve = getCurveRequirement(payCurveName, payCurrency, payCurveCalculationConfig);
     final ValueRequirement receiveFundingCurve = getCurveRequirement(receiveCurveName, receiveCurrency, receiveCurveCalculationConfig);
-    return Sets.newHashSet(payFundingCurve, receiveFundingCurve);
+    final UnorderedCurrencyPair currencyPair = UnorderedCurrencyPair.of(payCurrency, receiveCurrency);
+    final ValueRequirement pairQuoteRequirement = new ValueRequirement(ValueRequirementNames.CURRENCY_PAIRS, ComputationTargetType.PRIMITIVE, currencyPair.getUniqueId());
+    return Sets.newHashSet(payFundingCurve, receiveFundingCurve, pairQuoteRequirement);
   }
 
   protected abstract ValueProperties.Builder getResultProperties(final ComputationTarget target);
 
   protected abstract ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue);
+
+  protected String getValueRequirementName() {
+    return _valueRequirementName;
+  }
 
   protected static ValueRequirement getCurveRequirement(final String curveName, final Currency currency, final String curveCalculationConfigName) {
     final ValueProperties.Builder properties = ValueProperties.builder()

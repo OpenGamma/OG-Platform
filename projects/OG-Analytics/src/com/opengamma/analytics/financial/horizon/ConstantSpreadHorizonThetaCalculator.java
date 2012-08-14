@@ -28,6 +28,7 @@ import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermS
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -46,7 +47,7 @@ import org.apache.commons.lang.Validate;
  * That is, the market moves in such a way that the discount rates or implied volatility requested 
  * for the same maturity DATE will be equal on both dates. <p>
  * 
- * Note that the time to maturity will differ by the daysForward provided in the constructor
+ * Note that the time to maturity will differ by the daysForward provided in the constructor // TODO Rethink daysForward as it is only safely handles 1/-1.
  */
 public final class ConstantSpreadHorizonThetaCalculator {
   private static final ConstantSpreadYieldCurveBundleRolldownFunction CURVE_ROLLDOWN = ConstantSpreadYieldCurveBundleRolldownFunction.getInstance();
@@ -65,6 +66,7 @@ public final class ConstantSpreadHorizonThetaCalculator {
 
   public MultipleCurrencyAmount getTheta(final SwapFixedIborDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames, final YieldCurveBundle data,
       final DoubleTimeSeries<ZonedDateTime>[] fixingSeries, final int daysForward) {
+    ArgumentChecker.isTrue(daysForward == 1 || daysForward == -1, "daysForward must be either 1 or -1");
     final InstrumentDerivative instrumentToday = definition.toDerivative(date, fixingSeries, yieldCurveNames);
     final ZonedDateTime horizonDate = date.plusDays(daysForward);
     final double shiftTime = TimeCalculator.getTimeBetween(date, horizonDate);
@@ -84,6 +86,7 @@ public final class ConstantSpreadHorizonThetaCalculator {
 
   public MultipleCurrencyAmount getTheta(final SwapFixedIborSpreadDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames, final YieldCurveBundle data,
       final DoubleTimeSeries<ZonedDateTime>[] fixingSeries, final int daysForward) {
+    ArgumentChecker.isTrue(daysForward == 1 || daysForward == -1, "daysForward must be either 1 or -1");
     final InstrumentDerivative instrumentToday = definition.toDerivative(date, fixingSeries, yieldCurveNames);
     final ZonedDateTime horizonDate = date.plusDays(daysForward);
     final double shiftTime = TimeCalculator.getTimeBetween(date, horizonDate);
@@ -103,6 +106,7 @@ public final class ConstantSpreadHorizonThetaCalculator {
 
   public MultipleCurrencyAmount getTheta(final SwapFixedONDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames, final YieldCurveBundle data,
       final DoubleTimeSeries<ZonedDateTime>[] fixingSeries, final int daysForward) {
+    ArgumentChecker.isTrue(daysForward == 1 || daysForward == -1, "daysForward must be either 1 or -1");
     final InstrumentDerivative instrumentToday = definition.toDerivative(date, fixingSeries, yieldCurveNames);
     final ZonedDateTime horizonDate = date.plusDays(daysForward);
     final double shiftTime = TimeCalculator.getTimeBetween(date, horizonDate);
@@ -122,6 +126,7 @@ public final class ConstantSpreadHorizonThetaCalculator {
 
   public MultipleCurrencyAmount getTheta(final SwaptionPhysicalFixedIborDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames,
       final YieldCurveWithBlackSwaptionBundle data, final int daysForward) {
+    ArgumentChecker.isTrue(daysForward == 1 || daysForward == -1, "daysForward must be either 1 or -1");
     final SwaptionPhysicalFixedIbor swaptionToday = definition.toDerivative(date, yieldCurveNames);
     final ZonedDateTime horizonDate = date.plusDays(daysForward);
     final double shiftTime = TimeCalculator.getTimeBetween(date, horizonDate);
@@ -140,6 +145,7 @@ public final class ConstantSpreadHorizonThetaCalculator {
 
   public MultipleCurrencyAmount getTheta(final SwaptionCashFixedIborDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames,
       final YieldCurveWithBlackSwaptionBundle data, final int daysForward) {
+    ArgumentChecker.isTrue(daysForward == 1 || daysForward == -1, "daysForward must be either 1 or -1");
     final SwaptionCashFixedIbor swaptionToday = definition.toDerivative(date, yieldCurveNames);
     final ZonedDateTime horizonDate = date.plusDays(daysForward);
     final double shiftTime = TimeCalculator.getTimeBetween(date, horizonDate);
@@ -158,6 +164,7 @@ public final class ConstantSpreadHorizonThetaCalculator {
 
   public MultipleCurrencyAmount getTheta(final InterestRateFutureDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames, final YieldCurveBundle data,
       final Double lastMarginPrice, final int daysForward) {
+    ArgumentChecker.isTrue(daysForward == 1 || daysForward == -1, "daysForward must be either 1 or -1");
     final InstrumentDerivative instrumentToday = definition.toDerivative(date, lastMarginPrice, yieldCurveNames);
     final ZonedDateTime horizonDate = date.plusDays(daysForward);
     final double shiftTime = TimeCalculator.getTimeBetween(date, horizonDate);
@@ -176,7 +183,7 @@ public final class ConstantSpreadHorizonThetaCalculator {
 
   public MultipleCurrencyAmount getTheta(final InterestRateFutureOptionMarginTransactionDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames,
       final YieldCurveWithBlackCubeBundle data, final Double lastMarginPrice, final int daysForward) {
-
+    ArgumentChecker.isTrue(daysForward == 1 || daysForward == -1, "daysForward must be either 1 or -1");
     final ZonedDateTime expiry = definition.getUnderlyingOption().getExpirationDate();
     Validate.isTrue(!date.isAfter(expiry), "Attempted to compute theta on expiry ir future option. date = " + date + ", expiry = " + expiry);
     final ZonedDateTime horizon = date.plusDays(daysForward);
@@ -212,6 +219,7 @@ public final class ConstantSpreadHorizonThetaCalculator {
 
   public MultipleCurrencyAmount getTheta(final ForexDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames, final YieldCurveBundle data,
       final int daysForward) {
+    ArgumentChecker.isTrue(daysForward == 1 || daysForward == -1, "daysForward must be either 1 or -1");
     final InstrumentDerivative instrumentToday = definition.toDerivative(date, yieldCurveNames);
     final ZonedDateTime horizonDate = date.plusDays(daysForward);
     final double shiftTime = TimeCalculator.getTimeBetween(date, horizonDate);
@@ -225,6 +233,7 @@ public final class ConstantSpreadHorizonThetaCalculator {
 
   public MultipleCurrencyAmount getTheta(final ForexOptionVanillaDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames,
       final SmileDeltaTermStructureDataBundle data, final int daysForward) {
+    ArgumentChecker.isTrue(daysForward == 1 || daysForward == -1, "daysForward must be either 1 or -1");
     final InstrumentDerivative instrumentToday = definition.toDerivative(date, yieldCurveNames);
     final ZonedDateTime horizonDate = date.plusDays(daysForward);
     final double shiftTime = TimeCalculator.getTimeBetween(date, horizonDate);
@@ -238,6 +247,7 @@ public final class ConstantSpreadHorizonThetaCalculator {
 
   public MultipleCurrencyAmount getTheta(final ForexOptionDigitalDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames, final SmileDeltaTermStructureDataBundle data,
       final PresentValueMCACalculator pvCalculator, final int daysForward) {
+    ArgumentChecker.isTrue(daysForward == 1 || daysForward == -1, "daysForward must be either 1 or -1");
     final InstrumentDerivative instrumentToday = definition.toDerivative(date, yieldCurveNames);
     final ZonedDateTime horizonDate = date.plusDays(daysForward);
     final double shiftTime = TimeCalculator.getTimeBetween(date, horizonDate);

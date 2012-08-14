@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics;
@@ -13,16 +13,19 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ *
  */
 public class CurrencyPairsDefaults extends DefaultPropertyFunction {
+  private final String _name;
 
-  public CurrencyPairsDefaults() {
+  public CurrencyPairsDefaults(final String name) {
     super(ComputationTargetType.PRIMITIVE, true);
+    ArgumentChecker.notNull(name, "name");
+    _name = name;
   }
 
   @Override
@@ -33,7 +36,7 @@ public class CurrencyPairsDefaults extends DefaultPropertyFunction {
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
     if (CurrencyPairsFunction.CURRENCY_PAIRS_NAME.equals(propertyName)) {
-      return Collections.singleton(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
+      return Collections.singleton(_name);
     }
     return null;
   }
