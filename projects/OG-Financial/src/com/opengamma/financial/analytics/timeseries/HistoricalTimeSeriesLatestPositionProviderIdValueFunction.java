@@ -6,8 +6,10 @@
 package com.opengamma.financial.analytics.timeseries;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -17,6 +19,7 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -83,4 +86,12 @@ public class HistoricalTimeSeriesLatestPositionProviderIdValueFunction extends A
     return Collections.singleton(valueRequirement);
   }
 
+  @Override
+  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
+    ValueSpecification inputSpec = Iterables.getOnlyElement(inputs.keySet());
+    ValueProperties properties = inputSpec.getProperties().copy().withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, getUniqueId()).get();
+    ValueSpecification outputSpec = new ValueSpecification(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, target.toSpecification(), properties);
+    return ImmutableSet.of(outputSpec);
+  }
+  
 }
