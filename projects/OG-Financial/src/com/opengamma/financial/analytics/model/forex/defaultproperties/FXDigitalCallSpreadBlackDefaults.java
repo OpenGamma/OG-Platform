@@ -46,7 +46,8 @@ public class FXDigitalCallSpreadBlackDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.VEGA_QUOTE_MATRIX,
     ValueRequirementNames.FX_CURVE_SENSITIVITIES,
     ValueRequirementNames.PV01,
-    ValueRequirementNames.CALL_SPREAD_VALUE_VEGA
+    ValueRequirementNames.CALL_SPREAD_VALUE_VEGA,
+    ValueRequirementNames.VALUE_THETA
   };
   private final PriorityClass _priority;
   private final String _interpolatorName;

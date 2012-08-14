@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.forex.option.black.deprecated;
@@ -35,8 +35,9 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
+import com.opengamma.financial.analytics.conversion.ForexSecurityConverterDeprecated;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackPV01Function;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
@@ -53,7 +54,7 @@ import com.opengamma.util.tuple.DoublesPair;
 public class FXOptionBlackPV01FunctionDeprecated extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(FXOptionBlackPV01FunctionDeprecated.class);
   private static final PV01ForexCalculator CALCULATOR = PV01ForexCalculator.getInstance();
-  private static final ForexSecurityConverter CONVERTER = new ForexSecurityConverter();
+  private static final ForexSecurityConverterDeprecated CONVERTER = new ForexSecurityConverterDeprecated();
 
   @Override
   public ComputationTargetType getTargetType() {

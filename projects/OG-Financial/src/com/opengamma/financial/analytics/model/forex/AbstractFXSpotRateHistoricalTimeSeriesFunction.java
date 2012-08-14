@@ -16,28 +16,33 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.money.UnorderedCurrencyPair;
+import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityUtils;
 
 /**
  *
  */
-public abstract class AbstractFXSpotRateMarketDataFunction extends AbstractFunction.NonCompiledInvoker {
-
-  private final ComputationTargetType _targetType = ComputationTargetType.PRIMITIVE;
+//TODO rename
+public abstract class AbstractFXSpotRateHistoricalTimeSeriesFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+    final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
+    final String desiredCurrency = desiredValue.getConstraint(ValuePropertyNames.CURRENCY);
     final ComputedValue inputValue = Iterables.getOnlyElement(inputs.getAllValues());
-    final ValueSpecification outputSpec = new ValueSpecification(ValueRequirementNames.SPOT_RATE, target.toSpecification(), createValueProperties().get());
+    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CURRENCY, desiredCurrency).get();
+    final ValueSpecification outputSpec = new ValueSpecification(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES, target.toSpecification(), properties);
     return ImmutableSet.of(new ComputedValue(outputSpec, inputValue.getValue()));
   }
 
   @Override
   public ComputationTargetType getTargetType() {
-    return _targetType;
+    return ComputationTargetType.SECURITY;
   }
 
   @Override
@@ -45,12 +50,21 @@ public abstract class AbstractFXSpotRateMarketDataFunction extends AbstractFunct
     if (target.getUniqueId() == null) {
       return false;
     }
-    return target.getType() == _targetType && target.getUniqueId().getScheme().equals(UnorderedCurrencyPair.OBJECT_SCHEME);
+    if (!(target.getSecurity() instanceof FinancialSecurity)) {
+      return false;
+    }
+    try {
+      FinancialSecurityUtils.getCurrency(target.getSecurity());
+      return true;
+    } catch (final UnsupportedOperationException e) {
+      return false;
+    }
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    return ImmutableSet.of(new ValueSpecification(ValueRequirementNames.SPOT_RATE, target.toSpecification(), createValueProperties().get()));
+    final ValueProperties properties = createValueProperties().withAny(ValuePropertyNames.CURRENCY).get();
+    return ImmutableSet.of(new ValueSpecification(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES, target.toSpecification(), properties));
   }
 
 }

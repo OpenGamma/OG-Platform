@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.forex.option.callspreadblack.deprecated;
@@ -41,7 +41,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
+import com.opengamma.financial.analytics.conversion.ForexSecurityConverterDeprecated;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
@@ -65,7 +65,7 @@ public abstract class FXDigitalCallSpreadBlackFunctionDeprecated extends Abstrac
   public static final String CALL_SPREAD_BLACK_METHOD = "CallSpreadBlackMethod";
   /** The name of the property that sets the value of the call spread */
   public static final String PROPERTY_CALL_SPREAD_VALUE = "CallSpreadValue";
-  private static final ForexSecurityConverter VISITOR = new ForexSecurityConverter();
+  private static final ForexSecurityConverterDeprecated VISITOR = new ForexSecurityConverterDeprecated();
   private final String _valueRequirementName;
 
   public FXDigitalCallSpreadBlackFunctionDeprecated(final String valueRequirementName) {
