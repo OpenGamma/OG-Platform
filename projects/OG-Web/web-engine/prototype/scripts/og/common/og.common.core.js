@@ -26,6 +26,7 @@
             live_data_root: '/jax/', html_root: '/prototype/modules/', data_root: '/prototype/',
             obj: function () {return default_obj;}
         };
+    if (!self.console) self.console = {log: $.noop};
     $.extend(default_obj, {warn: warn, log: log});
     /** @private */
     check_dependencies = function (module) {
