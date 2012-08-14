@@ -78,7 +78,7 @@ public class BloombergSecurityTypeResolver implements SecurityTypeResolver {
   
   //private static final Map<String, SecurityType> s_cdsTypes = Maps.newConcurrentMap();
   static {
-    addValidTypes(s_miscTypes, NonLoadedSecurityTypes.VALID_CDS_TYPES, SecurityType.CREDIT_DEFAULT_SWAP);
+    addValidTypes(s_swapTypes, NonLoadedSecurityTypes.VALID_CDS_TYPES, SecurityType.CREDIT_DEFAULT_SWAP);
   }
 
   private static final Set<String> BBG_FIELDS = Sets.newHashSet(BloombergConstants.FIELD_SECURITY_TYPE, BloombergConstants.FIELD_FUTURES_CATEGORY);
