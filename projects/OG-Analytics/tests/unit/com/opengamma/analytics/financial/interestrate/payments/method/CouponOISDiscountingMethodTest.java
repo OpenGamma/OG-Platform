@@ -134,11 +134,11 @@ public class CouponOISDiscountingMethodTest {
    */
   public void presentValueStarted() {
     final CurrencyAmount pv = METHOD_OIS.presentValue(EONIA_COUPON_STARTED, CURVES);
-    final double dfForwardStart = CURVES.getCurve(CURVES_NAMES[1]).getDiscountFactor(START_FIXING_TIME_2);
-    final double dfForwardEnd = CURVES.getCurve(CURVES_NAMES[1]).getDiscountFactor(END_FIXING_TIME_2);
+    final double dfRatioStart = CURVES.getCurve(CURVES_NAMES[1]).getDiscountFactor(START_FIXING_TIME_2);
+    final double dfRatioEnd = CURVES.getCurve(CURVES_NAMES[1]).getDiscountFactor(END_FIXING_TIME_2);
     final double dfPayment = CURVES.getCurve(CURVES_NAMES[0]).getDiscountFactor(PAYMENT_TIME_2);
-    final double forward = (dfForwardStart / dfForwardEnd - 1.0) / FIXING_YEAR_FRACTION_2;
-    final double pvExpected = forward * FIXING_YEAR_FRACTION_2 * NOTIONAL_WITH_ACCRUED * dfPayment;
+    final double dfRatio = dfRatioStart / dfRatioEnd;
+    final double pvExpected = (NOTIONAL_WITH_ACCRUED * dfRatio - NOTIONAL) * dfPayment;
     AssertJUnit.assertEquals("CouponOIS: Present value by discounting", pvExpected, pv.getAmount(), 1.0E-2);
   }
 
