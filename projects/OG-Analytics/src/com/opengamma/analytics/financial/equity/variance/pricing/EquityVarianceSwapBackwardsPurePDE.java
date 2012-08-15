@@ -19,7 +19,6 @@ import com.opengamma.analytics.financial.model.finitedifference.PDE1DDataBundle;
 import com.opengamma.analytics.financial.model.finitedifference.PDEGrid1D;
 import com.opengamma.analytics.financial.model.finitedifference.PDEResults1D;
 import com.opengamma.analytics.financial.model.finitedifference.ThetaMethodFiniteDifference;
-import com.opengamma.analytics.financial.model.finitedifference.applications.InitialConditionsProvider;
 import com.opengamma.analytics.financial.model.finitedifference.applications.PDE1DCoefficientsProvider;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -31,13 +30,12 @@ import com.opengamma.analytics.math.function.Function1D;
  * 
  */
 public class EquityVarianceSwapBackwardsPurePDE {
-  private static final double LAMBDA_T = 0.0;
+  private static final double LAMBDA_T = -4.0;
   private static final double LAMBDA_X = 0.1;
   private static final double SIGMA = 4.0;  //TODO changed from 6.0
 
   private static final double DEFAULT_THETA = 0.5;
   private static final PDE1DCoefficientsProvider PDE_PROVIDER = new PDE1DCoefficientsProvider();
-  private static final InitialConditionsProvider INITIAL_COND_PROVIDER = new InitialConditionsProvider();
 
   private final int _nTimeSteps;
   private final int _nSpaceSteps;
@@ -45,7 +43,7 @@ public class EquityVarianceSwapBackwardsPurePDE {
 
   public EquityVarianceSwapBackwardsPurePDE() {
     _nTimeSteps = 100;
-    _nSpaceSteps = 200;
+    _nSpaceSteps = 100;
     _solver = new ThetaMethodFiniteDifference(DEFAULT_THETA, false);
   }
 

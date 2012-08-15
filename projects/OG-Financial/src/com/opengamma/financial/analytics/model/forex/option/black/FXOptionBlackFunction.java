@@ -138,7 +138,7 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
     }
     final FXMatrix fxMatrix = new FXMatrix(ccy1, ccy2, spot);
     final ValueProperties.Builder properties = getResultProperties(target, desiredValue, baseQuotePair);
-    final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties.get());
+    final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties.get());
     final YieldCurveBundle curvesWithFX = new YieldCurveBundle(fxMatrix, curveCurrency, yieldCurves.getCurvesMap());
     final ObjectsPair<Currency, Currency> currencyPair = Pair.of(ccy1, ccy2);
     if (volatilitySurfaceObject instanceof SmileDeltaTermStructureParametersStrikeInterpolation) {
@@ -171,7 +171,7 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties.Builder properties = getResultProperties(target);
-    return Collections.singleton(new ValueSpecification(_valueRequirementName, target.toSpecification(), properties.get()));
+    return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties.get()));
   }
 
   @Override
@@ -237,10 +237,6 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
   protected abstract Set<ComputedValue> getResult(final InstrumentDerivative forex, final ForexOptionDataBundle<?> data, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext);
 
-  protected String getValueRequirementName() {
-    return _valueRequirementName;
-  }
-
   protected static ValueRequirement getCurveRequirement(final String curveName, final Currency currency, final String curveCalculationConfigName) {
     final ValueProperties.Builder properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, curveName)
@@ -262,11 +258,16 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
   }
 
   protected static YieldAndDiscountCurve getCurve(final FunctionInputs inputs, final Currency currency, final String curveName, final String curveCalculationConfig) {
+
     final Object curveObject = inputs.getValue(getCurveRequirement(curveName, currency, curveCalculationConfig));
     if (curveObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + curveName + " curve");
     }
     final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) curveObject;
     return curve;
+  }
+
+  protected final String getValueRequirementName() {
+    return _valueRequirementName;
   }
 }

@@ -6,8 +6,10 @@
 package com.opengamma.financial.analytics.timeseries;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -17,6 +19,7 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -37,7 +40,9 @@ public class HistoricalTimeSeriesLatestPositionProviderIdValueFunction extends A
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
       final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ComputedValue latestHtsValue = inputs.getComputedValue(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST);
-    return Collections.singleton(new ComputedValue(getSpecification(target, latestHtsValue.getSpecification()), latestHtsValue.getValue()));
+    final ValueRequirement desiredValue = desiredValues.iterator().next();
+    return Collections.singleton(new ComputedValue(
+        new ValueSpecification(desiredValue.getValueName(), desiredValue.getTargetSpecification(), desiredValue.getConstraints()), latestHtsValue.getValue()));
   }
 
   @Override
@@ -48,6 +53,15 @@ public class HistoricalTimeSeriesLatestPositionProviderIdValueFunction extends A
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     return getTargetType().equals(target.getType());
+  }
+  
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    final ValueProperties props = createValueProperties()
+        .withAny(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY)
+        .withAny(HistoricalTimeSeriesFunctionUtils.AGE_LIMIT_PROPERTY).get();
+    return Collections.singleton(new ValueSpecification(
+        new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, target.getPosition(), props), getUniqueId()));
   }
 
   @Override
@@ -73,22 +87,11 @@ public class HistoricalTimeSeriesLatestPositionProviderIdValueFunction extends A
   }
 
   @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueSpecification spec = getSpecification(target);
-    return Collections.singleton(spec);
-  }
-
-  private ValueSpecification getSpecification(final ComputationTarget target) {
-    final ValueProperties props = createValueProperties().withAny(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY).get();
-    return new ValueSpecification(
-        new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, target.getPosition(), props), getUniqueId());
+  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
+    ValueSpecification inputSpec = Iterables.getOnlyElement(inputs.keySet());
+    ValueProperties properties = inputSpec.getProperties().copy().withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, getUniqueId()).get();
+    ValueSpecification outputSpec = new ValueSpecification(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, target.toSpecification(), properties);
+    return ImmutableSet.of(outputSpec);
   }
   
-  private ValueSpecification getSpecification(final ComputationTarget target, final ValueSpecification inputSpec) {
-    final ValueProperties props = createValueProperties()
-        .with(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY, inputSpec.getProperty(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY)).get();
-    return new ValueSpecification(
-        new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, target.getPosition(), props), getUniqueId());
-  }
-
 }
