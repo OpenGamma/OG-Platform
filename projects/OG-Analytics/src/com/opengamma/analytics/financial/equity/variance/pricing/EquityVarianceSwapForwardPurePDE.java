@@ -31,7 +31,9 @@ import com.opengamma.util.ArgumentChecker;
 /**
    * Class to calculate the expected variance (NOT annualised) of an equity variance swap when a discount curve, affine dividends and a PURE local volatility surface is 
    * specified. See White (2012), Equity Variance Swap with Dividends, for details of the model 
- */
+   * TODO The parameters here (in particular those of the meshing functions) have been chosen to minimised the errors in VarianceSwapWithDividendsTest, and will not be the
+   * best choice of parameters in other situations 
+*/
 public class EquityVarianceSwapForwardPurePDE {
 
   private static final double DEFAULT_THETA = 0.5;
@@ -114,13 +116,13 @@ public class EquityVarianceSwapForwardPurePDE {
     double xH = 6;
     BoundaryCondition lower = new DirichletBoundaryCondition(1.0, xL);
     BoundaryCondition upper = new NeumannBoundaryCondition(0.0, xH, false);
-    final MeshingFunction spaceMesh = new HyperbolicMeshing(xL, xH, 1.0, _nSpaceSteps + 1, 0.05);
+    final MeshingFunction spaceMesh = new HyperbolicMeshing(xL, xH, 1.0, _nSpaceSteps + 1, 0.001); //0.05
     final MeshingFunction[] timeMeshes = new MeshingFunction[nDivsBeforeExpiry + 1];
     final PDEGrid1D[] grids = new PDEGrid1D[nDivsBeforeExpiry + 1];
     if (nDivsBeforeExpiry == 0) {
-      timeMeshes[0] = new ExponentialMeshing(0, expiry, _nTimeSteps, 0.0);
+      timeMeshes[0] = new ExponentialMeshing(0, expiry, _nTimeSteps, 5.0);
     } else {
-      timeMeshes[0] = new ExponentialMeshing(0, dividends.getTau(0), steps[0], 0.0);
+      timeMeshes[0] = new ExponentialMeshing(0, dividends.getTau(0), steps[0], 5.0);
       for (int i = 1; i < nDivsBeforeExpiry; i++) {
         timeMeshes[i] = new ExponentialMeshing(dividends.getTau(i - 1), dividends.getTau(i), steps[i], 0.0);
       }
