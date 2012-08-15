@@ -26,7 +26,7 @@ public class PositionExchangeTradedPnLFunction extends AbstractPositionPnLFuncti
     if (security instanceof FXForwardSecurity || security instanceof FXOptionSecurity || security instanceof FXBarrierOptionSecurity || security instanceof FXDigitalOptionSecurity) {
       return false;
     }
-    boolean value = (target.getType() == ComputationTargetType.POSITION && FinancialSecurityUtils.isExchangedTraded(security));
+    boolean value = (target.getType() == ComputationTargetType.POSITION && FinancialSecurityUtils.isExchangeTraded(security));
     return value;
   }
   

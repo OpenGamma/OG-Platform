@@ -5,7 +5,9 @@
  */
 package com.opengamma.financial.analytics.model.forex;
 
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import com.google.common.collect.Iterables;
@@ -35,37 +37,47 @@ import com.opengamma.util.money.Currency;
 /**
  *
  */
-public class BloombergFXSpotRateHistoricalTimeSeriesFunction extends AbstractFXSpotRateHistoricalTimeSeriesFunction {
+public class BloombergSecurityFXHistoricalTimeSeriesFunction extends AbstractSecurityFXHistoricalTimeSeriesFunction {
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final Currency securityCurrency = FinancialSecurityUtils.getCurrency(security);
+    final Collection<Currency> securityCurrencies = FinancialSecurityUtils.getCurrencies(security, getSecuritySource());
     final Set<String> resultCurrencies = constraints.getValues(ValuePropertyNames.CURRENCY);
     if (resultCurrencies != null && resultCurrencies.size() == 1) {
       final Currency desiredCurrency = Currency.of(Iterables.getOnlyElement(resultCurrencies));
-      if (desiredCurrency.equals(securityCurrency)) {
-        return null;
+      if (securityCurrencies.size() == 1) {
+        final Currency securityCurrency = Iterables.getOnlyElement(securityCurrencies);
+        return Collections.singleton(getHTSRequirement(context, desiredCurrency, securityCurrency));
       }
-      final HistoricalTimeSeriesResolver htsResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
-      final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-      final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
-      final CurrencyPairs baseQuotePairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
-      final CurrencyPair baseQuotePair = baseQuotePairs.getCurrencyPair(desiredCurrency, securityCurrency);
-      if (baseQuotePair == null) {
-        throw new OpenGammaRuntimeException("Could not get base/quote pair for currency pair (" + desiredCurrency + ", " + securityCurrency + ")");
+      final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+      for (final Currency securityCurrency : securityCurrencies) {
+        requirements.add(getHTSRequirement(context, desiredCurrency, securityCurrency));
       }
-      final ExternalId externalId = getBBGId(baseQuotePair);
-      final HistoricalTimeSeriesResolutionResult resolutionResult = htsResolver.resolve(ExternalIdBundle.of(externalId), null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
-      if (resolutionResult == null) {
-        return null;
-      }
-      final ValueRequirement tsRequirement =
-          HistoricalTimeSeriesFunctionUtils.createHTSRequirement(resolutionResult, MarketDataRequirementNames.MARKET_VALUE, DateConstraint.EARLIEST_START, true, DateConstraint.VALUATION_TIME, true);
-      return Collections.singleton(tsRequirement);
+      return requirements;
     }
     return null;
+  }
+
+  private ValueRequirement getHTSRequirement(final FunctionCompilationContext context, final Currency desiredCurrency, final Currency securityCurrency) {
+    if (desiredCurrency.equals(securityCurrency)) {
+      return null;
+    }
+    final HistoricalTimeSeriesResolver htsResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
+    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
+    final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
+    final CurrencyPairs baseQuotePairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
+    final CurrencyPair baseQuotePair = baseQuotePairs.getCurrencyPair(desiredCurrency, securityCurrency);
+    if (baseQuotePair == null) {
+      throw new OpenGammaRuntimeException("Could not get base/quote pair for currency pair (" + desiredCurrency + ", " + securityCurrency + ")");
+    }
+    final ExternalId externalId = getBBGId(baseQuotePair);
+    final HistoricalTimeSeriesResolutionResult resolutionResult = htsResolver.resolve(ExternalIdBundle.of(externalId), null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
+    if (resolutionResult == null) {
+      return null;
+    }
+    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(resolutionResult, MarketDataRequirementNames.MARKET_VALUE, DateConstraint.EARLIEST_START, true, DateConstraint.VALUATION_TIME, true);
   }
 
   private ExternalId getBBGId(final CurrencyPair baseQuotePair) {
