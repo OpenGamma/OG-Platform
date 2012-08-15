@@ -66,22 +66,18 @@ public class YieldCurveConstructionGeneratorTwoCurrenciesXCcyTest {
   @BeforeSuite
   static void initClass() {
     DEFINITIONS_DSC_1 = YieldCurveConstructionGeneratorTwoCurrenciesXCcyData.getDefinitions(YieldCurveConstructionGeneratorTwoCurrenciesXCcyData.DSC_1_MARKET_QUOTES,
-        YieldCurveConstructionGeneratorTwoCurrenciesXCcyData.DSC_1_GENERATORS, YieldCurveConstructionGeneratorTwoCurrenciesXCcyData.DSC_1_TENOR,
-        new Double[YieldCurveConstructionGeneratorTwoCurrenciesXCcyData.DSC_1_MARKET_QUOTES.length]);
+        YieldCurveConstructionGeneratorTwoCurrenciesXCcyData.DSC_1_GENERATORS, YieldCurveConstructionGeneratorTwoCurrenciesXCcyData.DSC_1_TENOR);
     DEFINITIONS_FWD_1 = YieldCurveConstructionGeneratorTwoCurrenciesXCcyData.getDefinitions(YieldCurveConstructionGeneratorTwoCurrenciesXCcyData.FWD_1_MARKET_QUOTES,
-        YieldCurveConstructionGeneratorTwoCurrenciesXCcyData.FWD_1_GENERATORS, YieldCurveConstructionGeneratorTwoCurrenciesXCcyData.FWD_1_TENOR,
-        new Double[YieldCurveConstructionGeneratorTwoCurrenciesXCcyData.FWD_1_MARKET_QUOTES.length]);
+        YieldCurveConstructionGeneratorTwoCurrenciesXCcyData.FWD_1_GENERATORS, YieldCurveConstructionGeneratorTwoCurrenciesXCcyData.FWD_1_TENOR);
     DEFINITIONS_DSC_2 = YieldCurveConstructionGeneratorTwoCurrenciesXCcyData.getDefinitions(YieldCurveConstructionGeneratorTwoCurrenciesXCcyData.DSC_2_MARKET_QUOTES,
-        YieldCurveConstructionGeneratorTwoCurrenciesXCcyData.DSC_2_GENERATORS, YieldCurveConstructionGeneratorTwoCurrenciesXCcyData.DSC_2_TENOR,
-        YieldCurveConstructionGeneratorTwoCurrenciesXCcyData.DSC_2_FX_RATE);
+        YieldCurveConstructionGeneratorTwoCurrenciesXCcyData.DSC_2_GENERATORS, YieldCurveConstructionGeneratorTwoCurrenciesXCcyData.DSC_2_TENOR);
     DEFINITIONS_FWD_2 = YieldCurveConstructionGeneratorTwoCurrenciesXCcyData.getDefinitions(YieldCurveConstructionGeneratorTwoCurrenciesXCcyData.FWD_2_MARKET_QUOTES,
-        YieldCurveConstructionGeneratorTwoCurrenciesXCcyData.FWD_2_GENERATORS, YieldCurveConstructionGeneratorTwoCurrenciesXCcyData.FWD_2_TENOR,
-        new Double[YieldCurveConstructionGeneratorTwoCurrenciesXCcyData.FWD_2_MARKET_QUOTES.length]);
+        YieldCurveConstructionGeneratorTwoCurrenciesXCcyData.FWD_2_GENERATORS, YieldCurveConstructionGeneratorTwoCurrenciesXCcyData.FWD_2_TENOR);
 
     CURVES_PRESENT_VALUE_WITH_TODAY = YieldCurveConstructionGeneratorTwoCurrenciesXCcyData.makeCurves(DEFINITIONS_DSC_1, DEFINITIONS_FWD_1, DEFINITIONS_DSC_2, DEFINITIONS_FWD_2,
         PV_CONVERTED_CALCULATOR, PVCS_CONVERTED_CALCULATOR, true, true);
     CURVES_PRESENT_VALUE_WITH_TODAY_2BLOCKS = YieldCurveConstructionGeneratorTwoCurrenciesXCcyData.makeCurves(DEFINITIONS_DSC_1, DEFINITIONS_FWD_1, DEFINITIONS_DSC_2, DEFINITIONS_FWD_2,
-            PV_CONVERTED_CALCULATOR, PVCS_CONVERTED_CALCULATOR, true, true);
+        PV_CONVERTED_CALCULATOR, PVCS_CONVERTED_CALCULATOR, true, true);
     CURVES_PAR_SPREAD_MQ_WITH_TODAY = YieldCurveConstructionGeneratorTwoCurrenciesXCcyData.makeCurves(DEFINITIONS_DSC_1, DEFINITIONS_FWD_1, DEFINITIONS_DSC_2, DEFINITIONS_FWD_2, PSMQ_CALCULATOR,
         PSMQCS_CALCULATOR, true, false);
     CURVES_PAR_SPREAD_MQ_WITH_TODAY_2BLOCKS = YieldCurveConstructionGeneratorTwoCurrenciesXCcyData.makeCurves2Blocks(DEFINITIONS_DSC_1, DEFINITIONS_FWD_1, DEFINITIONS_DSC_2, DEFINITIONS_FWD_2,
@@ -95,32 +91,32 @@ public class YieldCurveConstructionGeneratorTwoCurrenciesXCcyTest {
   }
 
   @Test
-	  public void curveConstructionTwoCurrenciesXCcy() {
-	    // Curve constructed with present value and today fixing
-	    curveConstructionTest(CURVES_PRESENT_VALUE_WITH_TODAY.getFirst(), true);
-      // Curve constructed in 2 blocks with present value and today fixing
-      curveConstructionTest(CURVES_PRESENT_VALUE_WITH_TODAY_2BLOCKS.getFirst(), true);
-	    // Curve constructed with par spread (market quote) and  today fixing
-	    curveConstructionTest(CURVES_PAR_SPREAD_MQ_WITH_TODAY.getFirst(), true);
-      // Curve constructed in 2 blocks with par spread (market quote) and today fixing
-      curveConstructionTest(CURVES_PAR_SPREAD_MQ_WITH_TODAY_2BLOCKS.getFirst(), true);
-      double[][] mqj1 = CURVES_PAR_SPREAD_MQ_WITH_TODAY.getSecond().getData();
-      double[][] mqj2 = CURVES_PAR_SPREAD_MQ_WITH_TODAY_2BLOCKS.getSecond().getData();
-      double[][] pvj1 = CURVES_PRESENT_VALUE_WITH_TODAY.getSecond().getData();
-      double[][] pvj2 = CURVES_PRESENT_VALUE_WITH_TODAY_2BLOCKS.getSecond().getData();
-      for(int loop1=0; loop1<mqj1.length; loop1++){
-        for(int loop2=0; loop2<mqj1[0].length; loop2++){
-          assertEquals("Curve construction 2 blocks: Jacobian -"+loop1+" - "+loop2, mqj1[loop1][loop2], mqj2[loop1][loop2], 1.0E-6);
-          assertEquals("Curve construction 2 blocks: Jacobian -"+loop1+" - "+loop2, pvj1[loop1][loop2], pvj2[loop1][loop2], 1.0E-6);
-        }
+  public void curveConstructionTwoCurrenciesXCcy() {
+    // Curve constructed with present value and today fixing
+    curveConstructionTest(CURVES_PRESENT_VALUE_WITH_TODAY.getFirst(), true);
+    // Curve constructed in 2 blocks with present value and today fixing
+    curveConstructionTest(CURVES_PRESENT_VALUE_WITH_TODAY_2BLOCKS.getFirst(), true);
+    // Curve constructed with par spread (market quote) and  today fixing
+    curveConstructionTest(CURVES_PAR_SPREAD_MQ_WITH_TODAY.getFirst(), true);
+    // Curve constructed in 2 blocks with par spread (market quote) and today fixing
+    curveConstructionTest(CURVES_PAR_SPREAD_MQ_WITH_TODAY_2BLOCKS.getFirst(), true);
+    double[][] mqj1 = CURVES_PAR_SPREAD_MQ_WITH_TODAY.getSecond().getData();
+    double[][] mqj2 = CURVES_PAR_SPREAD_MQ_WITH_TODAY_2BLOCKS.getSecond().getData();
+    double[][] pvj1 = CURVES_PRESENT_VALUE_WITH_TODAY.getSecond().getData();
+    double[][] pvj2 = CURVES_PRESENT_VALUE_WITH_TODAY_2BLOCKS.getSecond().getData();
+    for (int loop1 = 0; loop1 < mqj1.length; loop1++) {
+      for (int loop2 = 0; loop2 < mqj1[0].length; loop2++) {
+        assertEquals("Curve construction 2 blocks: Jacobian -" + loop1 + " - " + loop2, mqj1[loop1][loop2], mqj2[loop1][loop2], 1.0E-6);
+        assertEquals("Curve construction 2 blocks: Jacobian -" + loop1 + " - " + loop2, pvj1[loop1][loop2], pvj2[loop1][loop2], 1.0E-6);
       }
-	    // Curve constructed with present value and no today fixing
-	    curveConstructionTest(CURVES_PRESENT_VALUE_WITHOUT_TODAY.getFirst(), false);
-//	    // Curve constructed with par rate and no today fixing
-//	    curveConstructionTest(CURVES_PAR_SPREAD_RATE_WITHOUT_TODAY.getFirst(), false);
-	    // Curve constructed with par spread (market quote) and no today fixing
-	    curveConstructionTest(CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY.getFirst(), false);
-	  }
+    }
+    // Curve constructed with present value and no today fixing
+    curveConstructionTest(CURVES_PRESENT_VALUE_WITHOUT_TODAY.getFirst(), false);
+    //	    // Curve constructed with par rate and no today fixing
+    //	    curveConstructionTest(CURVES_PAR_SPREAD_RATE_WITHOUT_TODAY.getFirst(), false);
+    // Curve constructed with par spread (market quote) and no today fixing
+    curveConstructionTest(CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY.getFirst(), false);
+  }
 
   @SuppressWarnings({"unchecked"})
   public void curveConstructionTest(final YieldCurveBundle curves, final boolean withToday) {
@@ -198,8 +194,8 @@ public class YieldCurveConstructionGeneratorTwoCurrenciesXCcyTest {
       assertEquals("Curve construction: node dsc ccy2 - " + loopdsc2, 0, pv[nbDsc1 + nbFwd1 + loopdsc2], TOLERANCE_PV);
     }
     for (int loopfwd2 = 0; loopfwd2 < nbFwd2; loopfwd2++) {
-      pv[nbDsc1 + nbFwd1 + nbDsc2 + loopfwd2] = curves.getFxRates().convert(PV_CALCULATOR.visit(instruments.get(nbDsc1 + nbFwd1 + nbDsc2 + loopfwd2), curves), curves.getCurveCurrency(curveBundleName[1]))
-          .getAmount();
+      pv[nbDsc1 + nbFwd1 + nbDsc2 + loopfwd2] = curves.getFxRates()
+          .convert(PV_CALCULATOR.visit(instruments.get(nbDsc1 + nbFwd1 + nbDsc2 + loopfwd2), curves), curves.getCurveCurrency(curveBundleName[1])).getAmount();
       assertEquals("Curve construction: node fwd ccy2 - " + loopfwd2, 0, pv[nbDsc1 + nbFwd1 + nbDsc2 + loopfwd2], TOLERANCE_PV);
     }
   }

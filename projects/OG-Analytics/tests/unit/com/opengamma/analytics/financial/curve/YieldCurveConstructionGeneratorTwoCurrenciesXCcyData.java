@@ -140,7 +140,7 @@ public class YieldCurveConstructionGeneratorTwoCurrenciesXCcyData {
   public static final double[] DSC_1_MARKET_QUOTES = new double[] {0.0045, 0.0050, 0.0075, 0.0080, 0.0085, 0.0090, 0.0095, 0.0110, 0.0120, 0.0130, 0.0140, 0.0150, 0.0200};
   /** Generators for the dsc USD curve */
   public static final Generator[] DSC_1_GENERATORS = new Generator[] {GENERATOR_DEPOSIT_ON_1, GENERATOR_DEPOSIT_ON_1, GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1,
-    GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1};
+      GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1};
   /** Tenors for the dsc USD curve */
   public static final Period[] DSC_1_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(1), Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9),
       Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(10)};
@@ -153,23 +153,22 @@ public class YieldCurveConstructionGeneratorTwoCurrenciesXCcyData {
   public static final Period[] FWD_1_TENOR = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(5), Period.ofYears(10)};
 
   /** Market values for the dsc EUR curve */
-  public static final double[] DSC_2_MARKET_QUOTES = new double[] {0.0070, 0.0075, 0.0002 * FX_EURUSD, 0.0004 * FX_EURUSD, 0.0006 * FX_EURUSD, 0.0012 * FX_EURUSD, 0.0018 * FX_EURUSD,
-    0.0025 * FX_EURUSD, -0.0025, -0.0025, -0.0025, -0.0025, -0.0025};
+  public static final double[] DSC_2_MARKET_QUOTES = new double[] {0.0070, 0.0075, 0.0002, 0.0004, 0.0006, 0.0012, 0.0018, 0.0025, -0.0025, -0.0025, -0.0025, -0.0025, -0.0025};
   /** Generators for the dsc EUR curve */
   public static final Generator[] DSC_2_GENERATORS = new Generator[] {GENERATOR_DEPOSIT_ON_2, GENERATOR_DEPOSIT_ON_2, GENERATOR_FX, GENERATOR_FX, GENERATOR_FX, GENERATOR_FX, GENERATOR_FX,
-    GENERATOR_FX, GENERATOR_XCCY, GENERATOR_XCCY, GENERATOR_XCCY, GENERATOR_XCCY, GENERATOR_XCCY};
+      GENERATOR_FX, GENERATOR_XCCY, GENERATOR_XCCY, GENERATOR_XCCY, GENERATOR_XCCY, GENERATOR_XCCY};
   /** Tenors for the dsc EUR curve */
   public static final Period[] DSC_2_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(1), Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9),
       Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(10)};
-  /** FX rqtes for the dsc EUR curve */
-  public static final Double[] DSC_2_FX_RATE = new Double[] {FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD,
-    FX_EURUSD};
+  //  /** FX rqtes for the dsc EUR curve */
+  //  public static final Double[] DSC_2_FX_RATE = new Double[] {FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD,
+  //      FX_EURUSD};
 
   /** Market values for the Fwd 3M EUR curve */
   public static final double[] FWD_2_MARKET_QUOTES = new double[] {0.0075, 0.0100, 0.0185, 0.0195, 0.0205, 0.0215, 0.0225, 0.0250};
   /** Generators for the Fwd 3M USD curve */
   public static final Generator[] FWD_2_GENERATORS = new Generator[] {GENERATOR_DEPOSIT_2, EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M,
-    EUR1YEURIBOR3M};
+      EUR1YEURIBOR3M};
   /** Tenors for the Fwd 3M USD curve */
   public static final Period[] FWD_2_TENOR = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
       Period.ofYears(10)};
@@ -184,10 +183,10 @@ public class YieldCurveConstructionGeneratorTwoCurrenciesXCcyData {
   public static final List<InstrumentDefinition<?>> DEFINITIONS_FWD_2;
 
   static {
-    DEFINITIONS_DSC_1 = getDefinitions(DSC_1_MARKET_QUOTES, DSC_1_GENERATORS, DSC_1_TENOR, new Double[DSC_1_MARKET_QUOTES.length]);
-    DEFINITIONS_FWD_1 = getDefinitions(FWD_1_MARKET_QUOTES, FWD_1_GENERATORS, FWD_1_TENOR, new Double[FWD_1_MARKET_QUOTES.length]);
-    DEFINITIONS_DSC_2 = getDefinitions(DSC_2_MARKET_QUOTES, DSC_2_GENERATORS, DSC_2_TENOR, DSC_2_FX_RATE);
-    DEFINITIONS_FWD_2 = getDefinitions(FWD_2_MARKET_QUOTES, FWD_2_GENERATORS, FWD_2_TENOR, new Double[FWD_2_MARKET_QUOTES.length]);
+    DEFINITIONS_DSC_1 = getDefinitions(DSC_1_MARKET_QUOTES, DSC_1_GENERATORS, DSC_1_TENOR);
+    DEFINITIONS_FWD_1 = getDefinitions(FWD_1_MARKET_QUOTES, FWD_1_GENERATORS, FWD_1_TENOR);
+    DEFINITIONS_DSC_2 = getDefinitions(DSC_2_MARKET_QUOTES, DSC_2_GENERATORS, DSC_2_TENOR);
+    DEFINITIONS_FWD_2 = getDefinitions(FWD_2_MARKET_QUOTES, FWD_2_GENERATORS, FWD_2_TENOR);
     CCY_MAP.put(CURVE_NAME_DSC_1, CCY1);
     CCY_MAP.put(CURVE_NAME_FWD_1, CCY1);
     CCY_MAP.put(CURVE_NAME_DSC_2, CCY2);
@@ -208,10 +207,10 @@ public class YieldCurveConstructionGeneratorTwoCurrenciesXCcyData {
     FWD_2;
   }
 
-  public static List<InstrumentDefinition<?>> getDefinitions(final double[] marketQuotes, final Generator[] generators, final Period[] tenors, final Double[] other) {
+  public static List<InstrumentDefinition<?>> getDefinitions(final double[] marketQuotes, final Generator[] generators, final Period[] tenors) {
     final List<InstrumentDefinition<?>> definitions = new ArrayList<InstrumentDefinition<?>>();
     for (int loopmv = 0; loopmv < marketQuotes.length; loopmv++) {
-      definitions.add(generators[loopmv].generateInstrument(NOW, tenors[loopmv], marketQuotes[loopmv], NOTIONAL, other[loopmv]));
+      definitions.add(generators[loopmv].generateInstrument(NOW, tenors[loopmv], marketQuotes[loopmv], NOTIONAL, FX_MATRIX));
     }
     return definitions;
   }
@@ -232,7 +231,7 @@ public class YieldCurveConstructionGeneratorTwoCurrenciesXCcyData {
     return 0.01;
   }
 
-  @SuppressWarnings({"unchecked" })
+  @SuppressWarnings({"unchecked"})
   /**
    * The returned pair contains 1) the yield curve bundle and 2) the inverse Jacobian (derivative of the curve parameters with respect to the market quotes).
    */
@@ -351,7 +350,7 @@ public class YieldCurveConstructionGeneratorTwoCurrenciesXCcyData {
     return new ObjectsPair<YieldCurveBundle, DoubleMatrix2D>(bundle, inverseJacobian);
   }
 
-  @SuppressWarnings({"unchecked" })
+  @SuppressWarnings({"unchecked"})
   /**
    * Build the curves and returns a pair containing 
    * 1) the yield curve bundle (4 curves) and 
