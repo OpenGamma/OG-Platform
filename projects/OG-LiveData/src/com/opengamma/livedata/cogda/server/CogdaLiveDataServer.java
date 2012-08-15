@@ -36,6 +36,12 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  * The base server process for any Cogda Live Data Server.
  */
 public class CogdaLiveDataServer implements FudgeConnectionReceiver, Lifecycle {
+  /**
+   * The default port on which the server will listen for inbound connections.
+   */
+  public static final int DEFAULT_LISTEN_PORT = 11876;
+  private int _portNumber = DEFAULT_LISTEN_PORT;
+  
   private final ServerSocketFudgeConnectionReceiver _connectionReceiver;
   private final LastKnownValueStoreProvider _lastKnownValueStoreProvider;
   private final ConcurrentMap<LiveDataSpecification, LastKnownValueStore> _lastKnownValueStores =
@@ -55,7 +61,23 @@ public class CogdaLiveDataServer implements FudgeConnectionReceiver, Lifecycle {
     _lastKnownValueStoreProvider = lkvStoreProvider;
     _connectionReceiver = new ServerSocketFudgeConnectionReceiver(fudgeContext, this);
     _connectionReceiver.setLazyFudgeMsgReads(false);
-    _connectionReceiver.setPortNumber(11876);
+  }
+
+  /**
+   * Gets the portNumber.
+   * @return the portNumber
+   */
+  public int getPortNumber() {
+    return _portNumber;
+  }
+
+  /**
+   * Sets the portNumber. Defaults to {@link #DEFAULT_LISTEN_PORT}.
+   * This <b>must</b> be set <b>before</b> {@link #start()} is called.
+   * @param portNumber  the portNumber
+   */
+  public void setPortNumber(int portNumber) {
+    _portNumber = portNumber;
   }
 
   /**
@@ -78,6 +100,7 @@ public class CogdaLiveDataServer implements FudgeConnectionReceiver, Lifecycle {
 
   @Override
   public void start() {
+    _connectionReceiver.setPortNumber(getPortNumber());
     _connectionReceiver.start();
   }
 

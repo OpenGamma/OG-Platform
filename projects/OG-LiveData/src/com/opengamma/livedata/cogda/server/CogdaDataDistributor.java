@@ -20,6 +20,8 @@ import org.springframework.context.Lifecycle;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.LiveDataSpecification;
+import com.opengamma.livedata.LiveDataValueUpdateBean;
+import com.opengamma.livedata.LiveDataValueUpdateBeanFudgeBuilder;
 import com.opengamma.livedata.normalization.NormalizationRuleSet;
 import com.opengamma.livedata.server.FieldHistoryStore;
 import com.opengamma.livedata.server.LastKnownValueStore;
@@ -219,7 +221,8 @@ public abstract class CogdaDataDistributor implements Lifecycle {
       return;
     }
     FudgeSerializer serializer = new FudgeSerializer(getNormalizedMessageSender().getFudgeContext());
-    FudgeMsg msg = CogdaLiveDataUpdateBeanBuilder.buildMessageStatic(serializer, new CogdaLiveDataUpdateBean(ldspec, normalizedFields));
+    LiveDataValueUpdateBean updateBean = new LiveDataValueUpdateBean(0, ldspec, normalizedFields);
+    FudgeMsg msg = LiveDataValueUpdateBeanFudgeBuilder.toFudgeMsg(serializer, updateBean);
     getNormalizedMessageSender().send(msg);
   }
 
