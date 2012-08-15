@@ -5,7 +5,14 @@
  */
 package com.opengamma.analytics.financial.model.finitedifference.applications;
 
+import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.analytics.financial.model.finitedifference.PDEFullResults1D;
+import com.opengamma.analytics.financial.model.finitedifference.PDETerminalResults1D;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
@@ -14,12 +21,6 @@ import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.util.tuple.DoublesPair;
-
-import java.io.PrintStream;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.commons.lang.Validate;
 
 /**
  * 
@@ -47,6 +48,37 @@ public class PDEUtilityTools {
 
     final Map<Double, Interpolator1DDataBundle> dataBundle = GRID_INTERPOLATOR2D.getDataBundle(out);
     return dataBundle;
+  }
+
+  /**
+   * Take the terminal result for a forward PDE (i.e. forward option prices) and returns a map between strikes and implied volatilities 
+   * @param forwardCurve The forward curve
+   * @param expiry The expiry of this option strip 
+   * @param prices The results from the PDE solver 
+   * @param minK The minimum strike to return 
+   * @param maxK The maximum strike to return 
+   * @param isCall true for call 
+   * @return A map between strikes and implied volatilities 
+   */
+  public static Map<Double, Double> priceToImpliedVol(final ForwardCurve forwardCurve, final double expiry, final PDETerminalResults1D prices, final double minK, final double maxK,
+      final boolean isCall) {
+    final int n = prices.getNumberSpaceNodes();
+    final double fwd = forwardCurve.getForward(expiry);
+    final Map<Double, Double> out = new HashMap<Double, Double>(n);
+    for (int j = 0; j < n; j++) {
+      final double k = prices.getSpaceValue(j);
+      if (k >= minK && k <= maxK) {
+        final double price = prices.getFunctionValue(j);
+        try {
+          final double impVol = BlackFormulaRepository.impliedVolatility(price, 1.0, k, expiry, isCall);
+          if (Math.abs(impVol) > 1e-15) {
+            out.put(k, impVol);
+          }
+        } catch (final Exception e) {
+        }
+      }
+    }
+    return out;
   }
 
   /**

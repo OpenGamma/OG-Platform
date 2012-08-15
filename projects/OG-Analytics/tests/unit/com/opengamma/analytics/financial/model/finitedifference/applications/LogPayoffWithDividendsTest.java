@@ -9,6 +9,8 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.equity.variance.pricing.AffineDividends;
+import com.opengamma.analytics.financial.equity.variance.pricing.EquityDividendsCurvesBundle;
 import com.opengamma.analytics.financial.model.finitedifference.BoundaryCondition;
 import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDE1DCoefficients;
 import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDESolver;
@@ -21,8 +23,11 @@ import com.opengamma.analytics.financial.model.finitedifference.PDEResults1D;
 import com.opengamma.analytics.financial.model.finitedifference.PDETerminalResults1D;
 import com.opengamma.analytics.financial.model.finitedifference.ThetaMethodFiniteDifference;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceMoneyness;
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceStrike;
+import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -49,57 +54,22 @@ public class LogPayoffWithDividendsTest {
   private static final double VOL = 0.4;
   private static final double SPOT = 100.0;
   private static final double DRIFT = 0.1;//0.1;
+  private static final YieldAndDiscountCurve DISCOUNT_CURVE = new YieldCurve("yield curve", ConstantDoublesCurve.from(DRIFT));
+  private static final AffineDividends DIVIDENDS = new AffineDividends(new double[] {DIVIDEND_DATE }, new double[] {ALPHA }, new double[] {BETA });
+  private static final EquityDividendsCurvesBundle DIV_CURVES = new EquityDividendsCurvesBundle(SPOT, DISCOUNT_CURVE, DIVIDENDS);
   private static final LocalVolatilitySurfaceMoneyness PURE_LOCAL_VOL_FLAT;
   private static final LocalVolatilitySurfaceStrike LOCAL_VOL;
   private static final LocalVolatilitySurfaceStrike LOCAL_VOL_SPECIAL;
   private static final LocalVolatilitySurfaceStrike LOCAL_VOL_FLAT;
   private static final LocalVolatilitySurfaceMoneyness PURE_LOCAL_VOL;
 
-  private static final Function1D<Double, Double> R;
-  private static final Function1D<Double, Double> D;
-  private static final Function1D<Double, Double> F;
-
   private static final Function1D<Double, Double> PURE_LOG_PAY_OFF;
 
   static {
-    R = new Function1D<Double, Double>() {
-      @Override
-      public Double evaluate(Double t) {
-        double prod = Math.exp(t * DRIFT);
-        if (t >= DIVIDEND_DATE) {
-          prod *= (1 - BETA);
-        }
-        return prod;
-      }
-    };
-
-    D = new Function1D<Double, Double>() {
-      @Override
-      public Double evaluate(Double t) {
-        final double r_t = R.evaluate(t);
-        double sum = 0.0;
-        if (DIVIDEND_DATE > t) {
-          sum += ALPHA / R.evaluate(DIVIDEND_DATE);
-        }
-        return sum * r_t;
-      }
-    };
-
-    F = new Function1D<Double, Double>() {
-      @Override
-      public Double evaluate(Double t) {
-        final double r_t = R.evaluate(t);
-        double sum = 0.0;
-        if (DIVIDEND_DATE <= t) {
-          sum += ALPHA / R.evaluate(DIVIDEND_DATE);
-        }
-        return r_t * (SPOT - sum);
-      }
-    };
 
     PURE_LOG_PAY_OFF = new Function1D<Double, Double>() {
-      final double fT = F.evaluate(EXPIRY);
-      final double dT = D.evaluate(EXPIRY);
+      final double fT = DIV_CURVES.getF(EXPIRY);
+      final double dT = DIV_CURVES.getD(EXPIRY);
 
       @Override
       public Double evaluate(Double x) {
@@ -113,7 +83,7 @@ public class LogPayoffWithDividendsTest {
       public Double evaluate(Double... ts) {
         double t = ts[0];
         double s = ts[1];
-        double d = D.evaluate(t);
+        double d = DIV_CURVES.getD(t);
         if (s < d) {
           return 0.0;
         }
@@ -128,9 +98,9 @@ public class LogPayoffWithDividendsTest {
       public Double evaluate(Double... tf) {
         double t = tf[0];
         double f = tf[1];
-        double rtT = R.evaluate(t);
-        double dtT = D.evaluate(t);
-        double ftT = F.evaluate(t);
+        double rtT = DIV_CURVES.getR(t);
+        double dtT = DIV_CURVES.getD(t);
+        double ftT = DIV_CURVES.getF(t);
         //        if (f < d) {
         //          return 0.0;
         //        }
@@ -146,8 +116,8 @@ public class LogPayoffWithDividendsTest {
       public Double evaluate(Double... tx) {
         double t = tx[0];
         double x = tx[1];
-        double f = F.evaluate(t);
-        double d = D.evaluate(t);
+        double f = DIV_CURVES.getF(t);
+        double d = DIV_CURVES.getD(t);
         return VOL * ((f - d) * x + d) / (f - d) / x;
       }
     };
@@ -165,7 +135,7 @@ public class LogPayoffWithDividendsTest {
    */
   @Test
   public void backwardsLogPureSpotPDEtest() {
-    final double fT = F.evaluate(EXPIRY);
+    final double fT = DIV_CURVES.getF(EXPIRY);
     final double lnFT = Math.log(fT);
     double val = logContactPriceFromPureSpot(PURE_LOCAL_VOL_FLAT);
     assertEquals(PURE_VOL, Math.sqrt(-2 * (val - lnFT) / EXPIRY), 1e-6);
@@ -178,7 +148,7 @@ public class LogPayoffWithDividendsTest {
    */
   @Test
   public void backwardsLogSpotPDEtest() {
-    final double fT = F.evaluate(EXPIRY);
+    final double fT = DIV_CURVES.getF(EXPIRY);
     final double lnFT = Math.log(fT);
     double val = logContractPriceFromSpotPDE(LOCAL_VOL);
     assertEquals(PURE_VOL, Math.sqrt(-2 * (val - lnFT) / EXPIRY), 1e-4);
@@ -191,7 +161,7 @@ public class LogPayoffWithDividendsTest {
    */
   @Test
   public void backwardsPDETest() {
-    final double fT = F.evaluate(EXPIRY);
+    final double fT = DIV_CURVES.getF(EXPIRY);
     final double lnFT = Math.log(fT);
     double val1 = logContractPriceFromSpotPDE(LOCAL_VOL_FLAT);
     double val2 = logContactPriceFromPureSpot(PURE_LOCAL_VOL);
@@ -208,7 +178,7 @@ public class LogPayoffWithDividendsTest {
    */
   @Test
   public void backwardsDebugPDEtest() {
-    final double fT = F.evaluate(EXPIRY);
+    final double fT = DIV_CURVES.getF(EXPIRY);
     final double lnFT = Math.log(fT);
 
     final Function1D<Double, Double> payoff = new Function1D<Double, Double>() {
@@ -251,8 +221,10 @@ public class LogPayoffWithDividendsTest {
   }
 
   private double logContactPriceFromPureSpot(final LocalVolatilitySurfaceMoneyness lv) {
-    final double fT = F.evaluate(EXPIRY);
-    final double dT = D.evaluate(EXPIRY);
+
+    final double fT = DIV_CURVES.getF(EXPIRY);
+    final double dT = DIV_CURVES.getD(EXPIRY);
+
     final double dStar = dT / (fT - dT);
 
     ConvectionDiffusionPDE1DCoefficients pde = PDE_PROVIDER.getLogBackwardsLocalVol(EXPIRY, lv);
