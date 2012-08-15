@@ -85,7 +85,7 @@ public class SecurityDeleteTool extends AbstractTool {
 
     for (SecurityDocument securityDocument : securitySearchResult.getDocuments()) {
       if (getCommandLine().hasOption(WRITE_OPT)) {
-        getToolContext().getPositionMaster().remove(securityDocument.getUniqueId());
+        getToolContext().getSecurityMaster().remove(securityDocument.getUniqueId());
         s_logger.warn("Deleted " + securityDocument.getSecurity().getUniqueId() + 
             " (" + securityDocument.getSecurity().getName() + ")");
       } else {
