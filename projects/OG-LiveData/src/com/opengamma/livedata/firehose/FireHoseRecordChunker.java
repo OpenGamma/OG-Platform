@@ -14,7 +14,7 @@ import com.opengamma.transport.FudgeMessageSender;
  * stream into discrete messages, and then distribute onto an MOM system for later
  * processing into a full {@code FireHoseLiveData} object.
  */
-public class FireHoseRecordDistributor {
+public class FireHoseRecordChunker {
   
   /**
    * The destination for decoded messsages.

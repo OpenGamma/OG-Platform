@@ -21,7 +21,6 @@ import org.springframework.context.Lifecycle;
 import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.normalization.NormalizationRuleSet;
-import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.livedata.server.FieldHistoryStore;
 import com.opengamma.livedata.server.LastKnownValueStore;
 import com.opengamma.livedata.server.LastKnownValueStoreProvider;
@@ -45,13 +44,15 @@ import com.opengamma.util.ArgumentChecker;
  * In general, if not bootstrapping for the first time, the first and second ways should be
  * sufficient.
  */
-public class CogdaDataDistributor implements Lifecycle {
+public abstract class CogdaDataDistributor implements Lifecycle {
   private static final Logger s_logger = LoggerFactory.getLogger(CogdaDataDistributor.class);
   // Constructor injectors:
   private final String _externalIdScheme;
   private final LastKnownValueStoreProvider _lastKnownValueStoreProvider;
   private final Map<String, NormalizationRuleSet> _normalization;
   
+  // TODO kirk 2012-08-13 -- Have support for multiple senders, one per normalization
+  // rule. Otherwise there's way too much filtering. But that's a second-order effect.
   private FudgeMessageSender _normalizedMessageSender;
   
   // Internal state:
@@ -104,10 +105,7 @@ public class CogdaDataDistributor implements Lifecycle {
    * @param normalizationScheme name of the scheme to be generated.
    * @return                    the rule set for that scheme.
    */
-  protected NormalizationRuleSet constructNormalizationRuleSet(String normalizationScheme) {
-    // TODO kirk 2012-07-23 -- FIXME
-    return StandardRules.getNoNormalization();
-  }
+  protected abstract NormalizationRuleSet constructNormalizationRuleSet(String normalizationScheme);
 
   public void addDistribution(String uniqueIdentifier) {
     for (String normalizationScheme : _normalization.keySet()) {
@@ -198,11 +196,14 @@ public class CogdaDataDistributor implements Lifecycle {
       NormalizationRuleSet ruleSet = normalizationEntry.getValue();
       FudgeMsg normalizedFields = ruleSet.getNormalizedMessage(fields, id.getValue(), _normalizationState.get(ldspec));
       
-      // update the LKV store
-      lkvStore.updateFields(normalizedFields);
-      
-      // Blast them out.
-      distributeNormalizedUpdate(ldspec, normalizedFields);
+      // If nothing to update, this returns null.
+      if (normalizedFields != null) {
+        // update the LKV store
+        lkvStore.updateFields(normalizedFields);
+        
+        // Blast them out.
+        distributeNormalizedUpdate(ldspec, normalizedFields);
+      }
     }
   }
 
