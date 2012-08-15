@@ -114,7 +114,7 @@ public class YieldCurveConstructionGeneratorBlockFullTest {
   private static final GeneratorDepositON GENERATOR_DEPOSIT_ON_3 = new GeneratorDepositON("JPY Deposit ON", CCY_JPY, CALENDAR, DAY_COUNT_CASH_3);
   private static final GeneratorFixedON GENERATOR_OIS_1 = new GeneratorFixedON("USD1YFEDFUND", INDEX_ON_1, Period.ofMonths(12), DAY_COUNT_CASH, BDC, true, SPOT_LAG, SPOT_LAG);
   private static final GeneratorForexSwap GENERATOR_FX_EURUSD = new GeneratorForexSwap("EURUSD", CCY_EUR, CCY_USD, CALENDAR, SPOT_LAG, BDC, true);
-  private static final GeneratorForexSwap GENERATOR_FX_JPYEUR = new GeneratorForexSwap("JPYUSD", CCY_JPY, CCY_USD, CALENDAR, SPOT_LAG, BDC, true);
+  private static final GeneratorForexSwap GENERATOR_FX_USDJPY = new GeneratorForexSwap("USDJPY", CCY_USD, CCY_JPY, CALENDAR, SPOT_LAG, BDC, true);
   private static final GeneratorDeposit GENERATOR_DEPOSIT_USD = new GeneratorDeposit("USD Deposit", CCY_USD, CALENDAR, SPOT_LAG, DAY_COUNT_CASH, BDC, true);
   private static final GeneratorDeposit GENERATOR_DEPOSIT_EUR = new GeneratorDeposit("EUR Deposit", CCY_EUR, CALENDAR, SPOT_LAG, DAY_COUNT_CASH, BDC, true);
   private static final GeneratorDeposit GENERATOR_DEPOSIT_JPY = new GeneratorDeposit("JPY Deposit", CCY_JPY, CALENDAR, SPOT_LAG, DAY_COUNT_CASH, BDC, true);
@@ -216,17 +216,18 @@ public class YieldCurveConstructionGeneratorBlockFullTest {
       Period.ofYears(10)};
 
   /** Market values for the dsc EUR curve */
-  public static final double[] DSC_EUR_MARKET_QUOTES = new double[] {0.0010, 0.0010, 0.0004 * FX_EURUSD, 0.0009 * FX_EURUSD, 0.0015 * FX_EURUSD, 0.0035 * FX_EURUSD, 0.0050 * FX_EURUSD,
-      0.0060 * FX_EURUSD, -0.0050, -0.0050, -0.0050, -0.0045, -0.0040};
+  public static final double[] DSC_EUR_MARKET_QUOTES = new double[] {0.0010, 0.0010, 0.0004, 0.0009, 0.0015, 0.0035, 0.0050, 0.0060, -0.0050, -0.0050, -0.0050, -0.0045, -0.0040};
+  //  public static final double[] DSC_EUR_MARKET_QUOTES = new double[] {0.0010, 0.0010, 0.0004 * FX_EURUSD, 0.0009 * FX_EURUSD, 0.0015 * FX_EURUSD, 0.0035 * FX_EURUSD, 0.0050 * FX_EURUSD,
+  //    0.0060 * FX_EURUSD, -0.0050, -0.0050, -0.0050, -0.0045, -0.0040};
   /** Generators for the dsc EUR curve */
   public static final Generator[] DSC_EUR_GENERATORS = new Generator[] {GENERATOR_DEPOSIT_ON_2, GENERATOR_DEPOSIT_ON_2, GENERATOR_FX_EURUSD, GENERATOR_FX_EURUSD, GENERATOR_FX_EURUSD,
       GENERATOR_FX_EURUSD, GENERATOR_FX_EURUSD, GENERATOR_FX_EURUSD, EURIBOR3MUSDLIBOR3M, EURIBOR3MUSDLIBOR3M, EURIBOR3MUSDLIBOR3M, EURIBOR3MUSDLIBOR3M, EURIBOR3MUSDLIBOR3M};
   /** Tenors for the dsc EUR curve */
   public static final Period[] DSC_EUR_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(1), Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9),
       Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(10)};
-  /** FX rqtes for the dsc EUR curve */
-  public static final Double[] DSC_EUR_FX_RATE = new Double[] {FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD,
-      FX_EURUSD};
+  //  /** FX rqtes for the dsc EUR curve */
+  //  public static final Double[] DSC_EUR_FX_RATE = new Double[] {FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD,
+  //      FX_EURUSD};
 
   /** Market values for the Fwd 3M EUR curve */
   public static final double[] FWD_EUR_MARKET_QUOTES = new double[] {0.0045, 0.0045, 0.0045, 0.0045, 0.0050, 0.0060, 0.0085, 0.0160};
@@ -237,18 +238,17 @@ public class YieldCurveConstructionGeneratorBlockFullTest {
   public static final Period[] FWD_EUR_TENOR = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
       Period.ofYears(10)};
 
-  /** Market values for the dsc EUR curve */
-  public static final double[] DSC_JPY_MARKET_QUOTES = new double[] {0.0005, 0.0005, -0.0004 / FX_USDJPY, -0.0008 / FX_USDJPY, -0.0012 / FX_USDJPY, -0.0024 / FX_USDJPY, -0.0036 / FX_USDJPY,
-      -0.0048 / FX_USDJPY, -0.0030, -0.0040, -0.0040, -0.0045, -0.0050};
+  /** Market values for the dsc JPY curve */
+  public static final double[] DSC_JPY_MARKET_QUOTES = new double[] {0.0005, 0.0005, -0.0004, -0.0008, -0.0012, -0.0024, -0.0036, -0.0048, -0.0030, -0.0040, -0.0040, -0.0045, -0.0050};
   /** Generators for the dsc EUR curve */
-  public static final Generator[] DSC_JPY_GENERATORS = new Generator[] {GENERATOR_DEPOSIT_ON_3, GENERATOR_DEPOSIT_ON_3, GENERATOR_FX_JPYEUR, GENERATOR_FX_JPYEUR, GENERATOR_FX_JPYEUR,
-      GENERATOR_FX_JPYEUR, GENERATOR_FX_JPYEUR, GENERATOR_FX_JPYEUR, JPYLIBOR3MUSDLIBOR3M, JPYLIBOR3MUSDLIBOR3M, JPYLIBOR3MUSDLIBOR3M, JPYLIBOR3MUSDLIBOR3M, JPYLIBOR3MUSDLIBOR3M};
+  public static final Generator[] DSC_JPY_GENERATORS = new Generator[] {GENERATOR_DEPOSIT_ON_3, GENERATOR_DEPOSIT_ON_3, GENERATOR_FX_USDJPY, GENERATOR_FX_USDJPY, GENERATOR_FX_USDJPY,
+      GENERATOR_FX_USDJPY, GENERATOR_FX_USDJPY, GENERATOR_FX_USDJPY, JPYLIBOR3MUSDLIBOR3M, JPYLIBOR3MUSDLIBOR3M, JPYLIBOR3MUSDLIBOR3M, JPYLIBOR3MUSDLIBOR3M, JPYLIBOR3MUSDLIBOR3M};
   /** Tenors for the dsc EUR curve */
   public static final Period[] DSC_JPY_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(1), Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9),
       Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(10)};
-  /** FX rqtes for the dsc EUR curve */
-  public static final Double[] DSC_JPY_FX_RATE = new Double[] {1 / FX_USDJPY, 1 / FX_USDJPY, 1 / FX_USDJPY, 1 / FX_USDJPY, 1 / FX_USDJPY, 1 / FX_USDJPY, 1 / FX_USDJPY, 1 / FX_USDJPY, 1 / FX_USDJPY,
-      1 / FX_USDJPY, 1 / FX_USDJPY, 1 / FX_USDJPY, 1 / FX_USDJPY};
+  //  /** FX rqtes for the dsc EUR curve */
+  //  public static final Double[] DSC_JPY_FX_RATE = new Double[] {FX_USDJPY, FX_USDJPY, FX_USDJPY, FX_USDJPY, FX_USDJPY, FX_USDJPY, FX_USDJPY, FX_USDJPY, FX_USDJPY, FX_USDJPY, FX_USDJPY, FX_USDJPY,
+  //      FX_USDJPY};
 
   /** Market values for the Fwd 3M JPY curve */
   public static final double[] FWD3_JPY_MARKET_QUOTES = new double[] {0.0020, 0.0010, 0.0010, 0.0010, 0.0010, 0.0015, 0.0015, 0.0015};
@@ -281,7 +281,7 @@ public class YieldCurveConstructionGeneratorBlockFullTest {
   /** Standard JPY Forward 6M curve instrument definitions */
   public static final InstrumentDefinition<?>[] DEFINITIONS_FWD6_JPY;
   /** Units of curves */
-  public static final int[] NB_UNITS = new int[] {3, 3};
+  public static final int[] NB_UNITS = new int[] {3, 3, 1};
   public static final int NB_BLOCKS = NB_UNITS.length;
   public static final InstrumentDefinition<?>[][][][] DEFINITIONS_UNITS = new InstrumentDefinition<?>[NB_BLOCKS][][][];
   public static final GeneratorCurve[][][] GENERATORS_UNITS = new GeneratorCurve[NB_BLOCKS][][];
@@ -289,38 +289,44 @@ public class YieldCurveConstructionGeneratorBlockFullTest {
   public static final YieldCurveBundle KNOWN_DATA = new YieldCurveBundle(FX_MATRIX, CCY_MAP);
 
   static {
-    DEFINITIONS_DSC_USD = getDefinitions(DSC_1_MARKET_QUOTES, DSC_1_GENERATORS, DSC_1_TENOR, new Double[DSC_1_MARKET_QUOTES.length]);
-    DEFINITIONS_FWD3_USD = getDefinitions(FWD_1_MARKET_QUOTES, FWD_1_GENERATORS, FWD_1_TENOR, new Double[FWD_1_MARKET_QUOTES.length]);
-    DEFINITIONS_DSC_EUR = getDefinitions(DSC_EUR_MARKET_QUOTES, DSC_EUR_GENERATORS, DSC_EUR_TENOR, DSC_EUR_FX_RATE);
-    DEFINITIONS_FWD3_EUR = getDefinitions(FWD_EUR_MARKET_QUOTES, FWD_EUR_GENERATORS, FWD_EUR_TENOR, new Double[FWD_EUR_MARKET_QUOTES.length]);
-    DEFINITIONS_DSC_JPY = getDefinitions(DSC_JPY_MARKET_QUOTES, DSC_JPY_GENERATORS, DSC_JPY_TENOR, DSC_JPY_FX_RATE);
-    DEFINITIONS_FWD3_JPY = getDefinitions(FWD3_JPY_MARKET_QUOTES, FWD3_JPY_GENERATORS, FWD3_JPY_TENOR, new Double[FWD3_JPY_MARKET_QUOTES.length]);
-    DEFINITIONS_FWD6_JPY = getDefinitions(FWD6_JPY_MARKET_QUOTES, FWD6_JPY_GENERATORS, FWD6_JPY_TENOR, new Double[FWD6_JPY_MARKET_QUOTES.length]);
+    DEFINITIONS_DSC_USD = getDefinitions(DSC_1_MARKET_QUOTES, DSC_1_GENERATORS, DSC_1_TENOR);
+    DEFINITIONS_FWD3_USD = getDefinitions(FWD_1_MARKET_QUOTES, FWD_1_GENERATORS, FWD_1_TENOR);
+    DEFINITIONS_DSC_EUR = getDefinitions(DSC_EUR_MARKET_QUOTES, DSC_EUR_GENERATORS, DSC_EUR_TENOR);
+    DEFINITIONS_FWD3_EUR = getDefinitions(FWD_EUR_MARKET_QUOTES, FWD_EUR_GENERATORS, FWD_EUR_TENOR);
+    DEFINITIONS_DSC_JPY = getDefinitions(DSC_JPY_MARKET_QUOTES, DSC_JPY_GENERATORS, DSC_JPY_TENOR);
+    DEFINITIONS_FWD3_JPY = getDefinitions(FWD3_JPY_MARKET_QUOTES, FWD3_JPY_GENERATORS, FWD3_JPY_TENOR);
+    DEFINITIONS_FWD6_JPY = getDefinitions(FWD6_JPY_MARKET_QUOTES, FWD6_JPY_GENERATORS, FWD6_JPY_TENOR);
     DEFINITIONS_UNITS[0] = new InstrumentDefinition<?>[NB_UNITS[0]][][];
     DEFINITIONS_UNITS[1] = new InstrumentDefinition<?>[NB_UNITS[1]][][];
+    DEFINITIONS_UNITS[2] = new InstrumentDefinition<?>[NB_UNITS[2]][][];
     DEFINITIONS_UNITS[0][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD};
     DEFINITIONS_UNITS[0][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD};
     DEFINITIONS_UNITS[0][2] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_EUR, DEFINITIONS_FWD3_EUR};
     DEFINITIONS_UNITS[1][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD};
     DEFINITIONS_UNITS[1][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD};
     DEFINITIONS_UNITS[1][2] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_JPY, DEFINITIONS_FWD3_JPY, DEFINITIONS_FWD6_JPY};
+    DEFINITIONS_UNITS[2][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD, DEFINITIONS_FWD3_USD, DEFINITIONS_DSC_JPY, DEFINITIONS_FWD3_JPY, DEFINITIONS_FWD6_JPY};
     GeneratorCurve genInt = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR);
     GENERATORS_UNITS[0] = new GeneratorCurve[NB_UNITS[0]][];
     GENERATORS_UNITS[1] = new GeneratorCurve[NB_UNITS[1]][];
+    GENERATORS_UNITS[2] = new GeneratorCurve[NB_UNITS[2]][];
     GENERATORS_UNITS[0][0] = new GeneratorCurve[] {genInt};
     GENERATORS_UNITS[0][1] = new GeneratorCurve[] {genInt};
     GENERATORS_UNITS[0][2] = new GeneratorCurve[] {genInt, genInt};
     GENERATORS_UNITS[1][0] = new GeneratorCurve[] {genInt};
     GENERATORS_UNITS[1][1] = new GeneratorCurve[] {genInt};
     GENERATORS_UNITS[1][2] = new GeneratorCurve[] {genInt, genInt, genInt};
+    GENERATORS_UNITS[2][0] = new GeneratorCurve[] {genInt, genInt, genInt, genInt, genInt};
     NAMES_UNITS[0] = new String[NB_UNITS[0]][];
     NAMES_UNITS[1] = new String[NB_UNITS[1]][];
+    NAMES_UNITS[2] = new String[NB_UNITS[2]][];
     NAMES_UNITS[0][0] = new String[] {CURVE_NAME_DSC_USD};
     NAMES_UNITS[0][1] = new String[] {CURVE_NAME_FWD3_USD};
     NAMES_UNITS[0][2] = new String[] {CURVE_NAME_DSC_EUR, CURVE_NAME_FWD3_EUR};
     NAMES_UNITS[1][0] = new String[] {CURVE_NAME_DSC_USD};
     NAMES_UNITS[1][1] = new String[] {CURVE_NAME_FWD3_USD};
     NAMES_UNITS[1][2] = new String[] {CURVE_NAME_DSC_JPY, CURVE_NAME_FWD3_JPY, CURVE_NAME_FWD6_JPY};
+    NAMES_UNITS[2][0] = new String[] {CURVE_NAME_DSC_USD, CURVE_NAME_FWD3_USD, CURVE_NAME_DSC_JPY, CURVE_NAME_FWD3_JPY, CURVE_NAME_FWD6_JPY};
   }
 
   // Present Value
@@ -337,70 +343,67 @@ public class YieldCurveConstructionGeneratorBlockFullTest {
   private static Pair<YieldCurveBundle, CurveBuildingBlockBundle> CURVES_PAR_SPREAD_MQ_WITH_TODAY_BLOCK0;
   private static Pair<YieldCurveBundle, CurveBuildingBlockBundle> CURVES_PRESENT_VALUE_WITHOUT_TODAY_BLOCK0;
   private static Pair<YieldCurveBundle, CurveBuildingBlockBundle> CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK0;
-  private static Pair<YieldCurveBundle, CurveBuildingBlockBundle> CURVES_PAR_SPREAD_MQ_WITH_TODAY_BLOCK1;
-  private static Pair<YieldCurveBundle, CurveBuildingBlockBundle> CURVES_PAR_SPREAD_MQ_WITH_TODAY_TOTAL;
+  private static Pair<YieldCurveBundle, CurveBuildingBlockBundle> CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK1;
+  private static Pair<YieldCurveBundle, CurveBuildingBlockBundle> CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK2;
+  private static Pair<YieldCurveBundle, CurveBuildingBlockBundle> CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_TOTAL;
 
   private static final double TOLERANCE_PV = 1.0E-10;
 
   @BeforeSuite
   static void initClass() {
-    CURVES_PRESENT_VALUE_WITH_TODAY_BLOCK0 = makeCurves(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PV_CONVERTED_CALCULATOR, PVCS_CONVERTED_CALCULATOR, true);
-    CURVES_PAR_SPREAD_MQ_WITH_TODAY_BLOCK0 = makeCurves(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PSMQ_CALCULATOR, PSMQCS_CALCULATOR, true);
-    CURVES_PRESENT_VALUE_WITHOUT_TODAY_BLOCK0 = makeCurves(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PV_CONVERTED_CALCULATOR, PVCS_CONVERTED_CALCULATOR, false);
-    CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK0 = makeCurves(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PSMQ_CALCULATOR, PSMQCS_CALCULATOR, false);
-    CURVES_PAR_SPREAD_MQ_WITH_TODAY_BLOCK1 = makeCurves(DEFINITIONS_UNITS[1], GENERATORS_UNITS[1], NAMES_UNITS[1], KNOWN_DATA, PSMQ_CALCULATOR, PSMQCS_CALCULATOR, true);
-    YieldCurveBundle ycbTotal = CURVES_PAR_SPREAD_MQ_WITH_TODAY_BLOCK0.getFirst().copy();
-    ycbTotal.addAll(CURVES_PAR_SPREAD_MQ_WITH_TODAY_BLOCK1.getFirst());
+    CURVES_PRESENT_VALUE_WITH_TODAY_BLOCK0 = makeCurves(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PV_CONVERTED_CALCULATOR, PVCS_CONVERTED_CALCULATOR, true, 0);
+    CURVES_PAR_SPREAD_MQ_WITH_TODAY_BLOCK0 = makeCurves(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PSMQ_CALCULATOR, PSMQCS_CALCULATOR, true, 0);
+    CURVES_PRESENT_VALUE_WITHOUT_TODAY_BLOCK0 = makeCurves(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PV_CONVERTED_CALCULATOR, PVCS_CONVERTED_CALCULATOR, false, 0);
+    CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK0 = makeCurves(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PSMQ_CALCULATOR, PSMQCS_CALCULATOR, false, 0);
+    CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK1 = makeCurves(DEFINITIONS_UNITS[1], GENERATORS_UNITS[1], NAMES_UNITS[1], KNOWN_DATA, PSMQ_CALCULATOR, PSMQCS_CALCULATOR, false, 1);
+    CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK2 = makeCurves(DEFINITIONS_UNITS[2], GENERATORS_UNITS[2], NAMES_UNITS[2], KNOWN_DATA, PSMQ_CALCULATOR, PSMQCS_CALCULATOR, false, 2);
+    YieldCurveBundle ycbTotal = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK0.getFirst().copy();
+    ycbTotal.addAll(CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK1.getFirst());
     CurveBuildingBlockBundle cubTotal = new CurveBuildingBlockBundle();
-    cubTotal.addAll(CURVES_PAR_SPREAD_MQ_WITH_TODAY_BLOCK0.getSecond());
-    cubTotal.addAll(CURVES_PAR_SPREAD_MQ_WITH_TODAY_BLOCK1.getSecond());
-    CURVES_PAR_SPREAD_MQ_WITH_TODAY_TOTAL = new ObjectsPair<YieldCurveBundle, CurveBuildingBlockBundle>(ycbTotal, cubTotal);
+    cubTotal.addAll(CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK0.getSecond());
+    cubTotal.addAll(CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK1.getSecond());
+    CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_TOTAL = new ObjectsPair<YieldCurveBundle, CurveBuildingBlockBundle>(ycbTotal, cubTotal);
   }
 
   @Test
   public void curveConstructionGeneratorBlock0() {
     // Curve constructed with present value and today fixing
-    curveConstructionTest(NAMES_UNITS[0], DEFINITIONS_UNITS[0], CURVES_PRESENT_VALUE_WITH_TODAY_BLOCK0.getFirst(), true);
+    curveConstructionTest(NAMES_UNITS[0], DEFINITIONS_UNITS[0], CURVES_PRESENT_VALUE_WITH_TODAY_BLOCK0.getFirst(), true, 0);
     // Curve constructed with par spread (market quote) and  today fixing
-    curveConstructionTest(NAMES_UNITS[0], DEFINITIONS_UNITS[0], CURVES_PAR_SPREAD_MQ_WITH_TODAY_BLOCK0.getFirst(), true);
+    curveConstructionTest(NAMES_UNITS[0], DEFINITIONS_UNITS[0], CURVES_PAR_SPREAD_MQ_WITH_TODAY_BLOCK0.getFirst(), true, 0);
     // Curve constructed with present value and no today fixing
-    curveConstructionTest(NAMES_UNITS[0], DEFINITIONS_UNITS[0], CURVES_PRESENT_VALUE_WITHOUT_TODAY_BLOCK0.getFirst(), false);
+    curveConstructionTest(NAMES_UNITS[0], DEFINITIONS_UNITS[0], CURVES_PRESENT_VALUE_WITHOUT_TODAY_BLOCK0.getFirst(), false, 0);
     // Curve constructed with par spread (market quote) and no today fixing
-    curveConstructionTest(NAMES_UNITS[0], DEFINITIONS_UNITS[0], CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK0.getFirst(), false);
-  }
-
-  @Test
-  public void curveConstructionGeneratorBlock1() {
-    // Curve constructed with par spread (market quote) and  today fixing
-    curveConstructionTest(NAMES_UNITS[1], DEFINITIONS_UNITS[1], CURVES_PAR_SPREAD_MQ_WITH_TODAY_BLOCK1.getFirst(), true);
+    curveConstructionTest(NAMES_UNITS[0], DEFINITIONS_UNITS[0], CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK0.getFirst(), false, 0);
   }
 
   @Test
   public void curveConstructionGeneratorAllBlocks() {
     // Curve constructed with par spread (market quote) and  today fixing
-    curveConstructionTest(NAMES_UNITS[0], DEFINITIONS_UNITS[0], CURVES_PAR_SPREAD_MQ_WITH_TODAY_TOTAL.getFirst(), true);
-    curveConstructionTest(NAMES_UNITS[1], DEFINITIONS_UNITS[1], CURVES_PAR_SPREAD_MQ_WITH_TODAY_TOTAL.getFirst(), true);
+    curveConstructionTest(NAMES_UNITS[0], DEFINITIONS_UNITS[0], CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_TOTAL.getFirst(), false, 0);
+    curveConstructionTest(NAMES_UNITS[1], DEFINITIONS_UNITS[1], CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_TOTAL.getFirst(), false, 1);
+    curveConstructionTest(NAMES_UNITS[2], DEFINITIONS_UNITS[2], CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK2.getFirst(), false, 2);
   }
 
-  @Test(enabled = false)
+  @Test(enabled = true)
   public void curveSensitivity() {
     ZonedDateTime settleDate = ScheduleCalculator.getAdjustedDate(NOW, Period.ofMonths(6), GENERATOR_DEPOSIT_JPY);
     SwapXCcyIborIborDefinition swapJpyEurDefinition = SwapXCcyIborIborDefinition.from(settleDate, Period.ofYears(5), JPYLIBOR3MEURIBOR3M, 1000000000, 10000000, -0.0020, true);
     Swap<Payment, Payment> swapJpyEur = swapJpyEurDefinition.toDerivative(NOW, new String[] {CURVE_NAME_DSC_JPY, CURVE_NAME_FWD3_JPY, CURVE_NAME_DSC_EUR, CURVE_NAME_FWD3_EUR});
     ParameterSensitivityBlockCalculator psc = new ParameterSensitivityBlockCalculator(PVCS_CALCULATOR);
     @SuppressWarnings("unused")
-    ParameterSensitivity ps = psc.calculateSensitivity(swapJpyEur, new HashSet<String>(), CURVES_PAR_SPREAD_MQ_WITH_TODAY_TOTAL.getFirst());
+    ParameterSensitivity ps = psc.calculateSensitivity(swapJpyEur, new HashSet<String>(), CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_TOTAL.getFirst());
     MarketQuoteSensitivityBlockCalculator mqsc = new MarketQuoteSensitivityBlockCalculator(psc);
     @SuppressWarnings("unused")
-    ParameterSensitivity mqs = mqsc.fromInstrument(swapJpyEur, new HashSet<String>(), CURVES_PAR_SPREAD_MQ_WITH_TODAY_TOTAL.getFirst(), CURVES_PAR_SPREAD_MQ_WITH_TODAY_TOTAL.getSecond());
+    ParameterSensitivity mqs = mqsc.fromInstrument(swapJpyEur, new HashSet<String>(), CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_TOTAL.getFirst(), CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_TOTAL.getSecond());
     int t = 0;
     t++;
   }
 
-  public void curveConstructionTest(String[][] curveNames, final InstrumentDefinition<?>[][][] definitions, final YieldCurveBundle curves, final boolean withToday) {
+  public void curveConstructionTest(String[][] curveNames, final InstrumentDefinition<?>[][][] definitions, final YieldCurveBundle curves, final boolean withToday, int block) {
     int nbBlocks = definitions.length;
     for (int loopblock = 0; loopblock < nbBlocks; loopblock++) {
-      InstrumentDerivative[] instruments = convert(curveNames, definitions[loopblock], loopblock, withToday);
+      InstrumentDerivative[] instruments = convert(curveNames, definitions[loopblock], loopblock, withToday, block);
       double[] pv = new double[instruments.length];
       for (int loopins = 0; loopins < instruments.length; loopins++) {
         pv[loopins] = curves.getFxRates().convert(PV_CALCULATOR.visit(instruments[loopins], curves), CCY_USD).getAmount();
@@ -409,7 +412,7 @@ public class YieldCurveConstructionGeneratorBlockFullTest {
     }
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   public void performance() {
     long startTime, endTime;
     final int nbTest = 10;
@@ -417,6 +420,8 @@ public class YieldCurveConstructionGeneratorBlockFullTest {
     Pair<YieldCurveBundle, CurveBuildingBlockBundle> curvePresentValue;
     Pair<YieldCurveBundle, CurveBuildingBlockBundle> curveParSpreadMQ0;
     Pair<YieldCurveBundle, CurveBuildingBlockBundle> curveParSpreadMQ1;
+    @SuppressWarnings("unused")
+    Pair<YieldCurveBundle, CurveBuildingBlockBundle> curveParSpreadMQ2;
     @SuppressWarnings("unused")
     Pair<YieldCurveBundle, CurveBuildingBlockBundle> curveParSpreadMQT;
     int nbIns0 = DEFINITIONS_DSC_USD.length + DEFINITIONS_FWD3_USD.length + DEFINITIONS_DSC_EUR.length + DEFINITIONS_FWD3_EUR.length;
@@ -426,24 +431,40 @@ public class YieldCurveConstructionGeneratorBlockFullTest {
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      curvePresentValue = makeCurves(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PV_CONVERTED_CALCULATOR, PVCS_CONVERTED_CALCULATOR, true);
+      curvePresentValue = makeCurves(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PV_CONVERTED_CALCULATOR, PVCS_CONVERTED_CALCULATOR, true, 0);
     }
     endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " curve construction Full 4 curves, 2 ccy and " + nbIns0 + " instruments (with present value): " + (endTime - startTime) + " ms");
-    // Performance note: curve construction (with present value, 4 curves - 2 ccy and 42 instruments by units): 23-Jul-2012: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 1000 ms for 100 bundles.
+    System.out.println(nbTest + " curve construction Full (4 curves, 2 ccy and " + nbIns0 + " instruments in 3 units) - with present value: " + (endTime - startTime) + " ms");
+    // Performance note: curve construction (with present value, 4 curves - 2 ccy and 42 instruments by units): 23-Jul-2012: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: xx ms for 100 bundles.
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      curveParSpreadMQ0 = makeCurves(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PSMQ_CALCULATOR, PSMQCS_CALCULATOR, true);
+      curveParSpreadMQ0 = makeCurves(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PSMQ_CALCULATOR, PSMQCS_CALCULATOR, true, 0);
     }
     endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " curve construction Full 4 curves, 2 ccy and " + nbIns1 + " instruments (with par spread-market quote): " + (endTime - startTime) + " ms");
-    // Performance note: curve construction (with par spread/market quote), 4 curves - 2 ccy and 49 instruments by units): 23-Jul-2012: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 1175 ms for 100 bundles.
+    System.out.println(nbTest + " curve construction Full (4 curves, 2 ccy and " + nbIns0 + " instruments in 3 units)- with par spread-market quote: " + (endTime - startTime) + " ms");
+    // Performance note: curve construction (with par spread/market quote), 4 curves - 2 ccy and 49 instruments by units): 23-Jul-2012: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: x ms for 100 bundles.
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      curveParSpreadMQ0 = makeCurves(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PSMQ_CALCULATOR, PSMQCS_CALCULATOR, true);
-      curveParSpreadMQ1 = makeCurves(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PSMQ_CALCULATOR, PSMQCS_CALCULATOR, true);
+      curveParSpreadMQ1 = makeCurves(DEFINITIONS_UNITS[1], GENERATORS_UNITS[1], NAMES_UNITS[1], KNOWN_DATA, PSMQ_CALCULATOR, PSMQCS_CALCULATOR, true, 1);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " curve construction Full (5 curves, 2 ccy and " + nbIns1 + " instruments in 3 units) - with par spread-market quote: " + (endTime - startTime) + " ms");
+    // Performance note: curve construction (with par spread/market quote), 4 curves - 2 ccy and 49 instruments by units): 23-Jul-2012: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: x ms for 100 bundles.
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      curveParSpreadMQ2 = makeCurves(DEFINITIONS_UNITS[2], GENERATORS_UNITS[2], NAMES_UNITS[2], KNOWN_DATA, PSMQ_CALCULATOR, PSMQCS_CALCULATOR, true, 2);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " curve construction Full (5 curves, 2 ccy and " + nbIns1 + " instruments in 1 units) - with par spread-market quote: " + (endTime - startTime) + " ms");
+    // Performance note: curve construction (with par spread/market quote), 4 curves - 2 ccy and 49 instruments by units): 23-Jul-2012: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: x ms for 100 bundles.
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      curveParSpreadMQ0 = makeCurves(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PSMQ_CALCULATOR, PSMQCS_CALCULATOR, true, 0);
+      curveParSpreadMQ1 = makeCurves(DEFINITIONS_UNITS[1], GENERATORS_UNITS[1], NAMES_UNITS[1], KNOWN_DATA, PSMQ_CALCULATOR, PSMQCS_CALCULATOR, true, 1);
       YieldCurveBundle ycbTotal = curveParSpreadMQ0.getFirst().copy();
       ycbTotal.addAll(curveParSpreadMQ0.getFirst());
       CurveBuildingBlockBundle cubTotal = new CurveBuildingBlockBundle();
@@ -452,14 +473,62 @@ public class YieldCurveConstructionGeneratorBlockFullTest {
       curveParSpreadMQT = new ObjectsPair<YieldCurveBundle, CurveBuildingBlockBundle>(ycbTotal, cubTotal);
     }
     endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " curve construction Full 7 curves, 3 ccy and " + nbInsT + " instruments (with par spread-market quote): " + (endTime - startTime) + " ms");
-    // Performance note: curve construction (with par spread/market quote), 7 curves - 3 ccy and 70 instruments by units): 23-Jul-2012: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 2350 ms for 100 bundles.
+    System.out.println(nbTest + " curve construction Full (7 curves, 3 ccy and " + nbInsT + " instruments in 4 units) - with par spread-market quote: " + (endTime - startTime) + " ms");
+    // Performance note: curve construction (with par spread/market quote), 7 curves - 3 ccy and 70 instruments by units): 23-Jul-2012: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: x ms for 100 bundles.
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      curvePresentValue = makeCurves(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PV_CONVERTED_CALCULATOR, PVCS_CONVERTED_CALCULATOR, true, 0);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " curve construction Full (4 curves, 2 ccy and " + nbIns0 + " instruments in 3 units) - with present value: " + (endTime - startTime) + " ms");
+    // Performance note: curve construction (with present value, 4 curves - 2 ccy and 42 instruments by units): 23-Jul-2012: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: xx ms for 100 bundles.
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      curveParSpreadMQ0 = makeCurves(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PSMQ_CALCULATOR, PSMQCS_CALCULATOR, true, 0);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " curve construction Full (4 curves, 2 ccy and " + nbIns0 + " instruments in 3 units)- with par spread-market quote: " + (endTime - startTime) + " ms");
+    // Performance note: curve construction (with par spread/market quote), 4 curves - 2 ccy and 49 instruments by units): 23-Jul-2012: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: x ms for 100 bundles.
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      curveParSpreadMQ1 = makeCurves(DEFINITIONS_UNITS[1], GENERATORS_UNITS[1], NAMES_UNITS[1], KNOWN_DATA, PSMQ_CALCULATOR, PSMQCS_CALCULATOR, true, 1);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " curve construction Full (5 curves, 2 ccy and " + nbIns1 + " instruments in 3 units) - with par spread-market quote: " + (endTime - startTime) + " ms");
+    // Performance note: curve construction (with par spread/market quote), 4 curves - 2 ccy and 49 instruments by units): 23-Jul-2012: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: x ms for 100 bundles.
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      curveParSpreadMQ2 = makeCurves(DEFINITIONS_UNITS[2], GENERATORS_UNITS[2], NAMES_UNITS[2], KNOWN_DATA, PSMQ_CALCULATOR, PSMQCS_CALCULATOR, true, 2);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " curve construction Full (5 curves, 2 ccy and " + nbIns1 + " instruments in 1 units) - with par spread-market quote: " + (endTime - startTime) + " ms");
+    // Performance note: curve construction (with par spread/market quote), 4 curves - 2 ccy and 49 instruments by units): 23-Jul-2012: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: x ms for 100 bundles.
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      curveParSpreadMQ0 = makeCurves(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PSMQ_CALCULATOR, PSMQCS_CALCULATOR, true, 0);
+      curveParSpreadMQ1 = makeCurves(DEFINITIONS_UNITS[1], GENERATORS_UNITS[1], NAMES_UNITS[1], KNOWN_DATA, PSMQ_CALCULATOR, PSMQCS_CALCULATOR, true, 1);
+      YieldCurveBundle ycbTotal = curveParSpreadMQ0.getFirst().copy();
+      ycbTotal.addAll(curveParSpreadMQ0.getFirst());
+      CurveBuildingBlockBundle cubTotal = new CurveBuildingBlockBundle();
+      cubTotal.addAll(curveParSpreadMQ1.getSecond());
+      cubTotal.addAll(curveParSpreadMQ1.getSecond());
+      curveParSpreadMQT = new ObjectsPair<YieldCurveBundle, CurveBuildingBlockBundle>(ycbTotal, cubTotal);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " curve construction Full (7 curves, 3 ccy and " + nbIns1 + " instruments in 4 units) - with par spread-market quote: " + (endTime - startTime) + " ms");
+    // Performance note: curve construction (with par spread/market quote), 7 curves - 3 ccy and 70 instruments by units): 23-Jul-2012: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: x ms for 100 bundles.
+
   }
 
-  public static InstrumentDefinition<?>[] getDefinitions(final double[] marketQuotes, final Generator[] generators, final Period[] tenors, final Double[] other) {
+  public static InstrumentDefinition<?>[] getDefinitions(final double[] marketQuotes, final Generator[] generators, final Period[] tenors) {
     final InstrumentDefinition<?>[] definitions = new InstrumentDefinition<?>[marketQuotes.length];
     for (int loopmv = 0; loopmv < marketQuotes.length; loopmv++) {
-      definitions[loopmv] = generators[loopmv].generateInstrument(NOW, tenors[loopmv], marketQuotes[loopmv], NOTIONAL, other[loopmv]);
+      definitions[loopmv] = generators[loopmv].generateInstrument(NOW, tenors[loopmv], marketQuotes[loopmv], NOTIONAL, FX_MATRIX);
     }
     return definitions;
   }
@@ -496,7 +565,7 @@ public class YieldCurveConstructionGeneratorBlockFullTest {
 
   private static Pair<YieldCurveBundle, CurveBuildingBlockBundle> makeCurves(final InstrumentDefinition<?>[][][] definitions, GeneratorCurve[][] curveGenerators, String[][] curveNames,
       YieldCurveBundle knownData, final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> calculator,
-      final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> sensitivityCalculator, boolean withToday) {
+      final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> sensitivityCalculator, boolean withToday, int block) {
     int nbBlocks = curveGenerators.length;
     YieldCurveBundle knownSoFarData = knownData.copy();
     List<InstrumentDerivative> instrumentsSoFar = new ArrayList<InstrumentDerivative>();
@@ -507,7 +576,7 @@ public class YieldCurveConstructionGeneratorBlockFullTest {
     int start = 0;
     for (int loopunit = 0; loopunit < nbBlocks; loopunit++) {
       int startBlock = 0;
-      InstrumentDerivative[] instruments = convert(curveNames, definitions[loopunit], loopunit, withToday);
+      InstrumentDerivative[] instruments = convert(curveNames, definitions[loopunit], loopunit, withToday, block);
       instrumentsSoFar.addAll(Arrays.asList(instruments));
       InstrumentDerivative[] instrumentsSoFarArray = instrumentsSoFar.toArray(new InstrumentDerivative[0]);
       double[] initGuess = initialGuess(definitions[loopunit]);
@@ -536,7 +605,7 @@ public class YieldCurveConstructionGeneratorBlockFullTest {
   }
 
   @SuppressWarnings("unchecked")
-  private static InstrumentDerivative[] convert(String[][] curveNames, InstrumentDefinition<?>[][] definitions, int unit, boolean withToday) {
+  private static InstrumentDerivative[] convert(String[][] curveNames, InstrumentDefinition<?>[][] definitions, int unit, boolean withToday, int block) {
     int nbDef = 0;
     for (int loopdef1 = 0; loopdef1 < definitions.length; loopdef1++) {
       nbDef += definitions[loopdef1].length;
@@ -551,23 +620,23 @@ public class YieldCurveConstructionGeneratorBlockFullTest {
           ird = ((SwapFixedONDefinition) instrument).toDerivative(NOW, getTSSwapFixedON(withToday, unit), names);
         } else {
           if (instrument instanceof SwapFixedIborDefinition) {
-            final String[] names = getCurvesNameSwapFixedIbor(curveNames, unit);
+            final String[] names = getCurvesNameSwapFixedIbor(curveNames, unit, loopcurve, block);
             ird = ((SwapFixedIborDefinition) instrument).toDerivative(NOW, getTSSwapFixedIbor(withToday, unit), names);
           } else {
             if (instrument instanceof SwapXCcyIborIborDefinition) {
-              final String[] names = getCurvesNameSwapXCcyIborIbor(curveNames, unit);
+              final String[] names = getCurvesNameSwapXCcyIborIbor(curveNames, block);
               ird = ((SwapXCcyIborIborDefinition) instrument).toDerivative(NOW, getTSSwapXCcyIborIbor(withToday, unit), names);
             } else {
               if (instrument instanceof SwapIborIborDefinition) {
-                final String[] names = getCurvesNameSwapIborIbor(curveNames, unit);
+                final String[] names = getCurvesNameSwapIborIbor(curveNames, unit, block);
                 ird = ((SwapIborIborDefinition) instrument).toDerivative(NOW, getTSSwapIborIbor(withToday, unit), names);
               } else {
                 final String[] names;
                 if (instrument instanceof ForexSwapDefinition) {
-                  names = getCurvesNameFXSwap(curveNames, unit);
+                  names = getCurvesNameFXSwap(curveNames, block);
                 } else {
                   // Cash
-                  names = getCurvesNameCash(curveNames, unit, loopcurve);
+                  names = getCurvesNameCash(curveNames, unit, loopcurve, block);
                 }
                 ird = instrument.toDerivative(NOW, names);
               }
@@ -622,54 +691,71 @@ public class YieldCurveConstructionGeneratorBlockFullTest {
     }
   }
 
-  private static String[] getCurvesNameSwapFixedIbor(String[][] curveNames, Integer unit) {
-    switch (unit) {
+  private static String[] getCurvesNameSwapFixedIbor(String[][] curveNames, Integer unit, Integer curve, int block) {
+    if (block != 2) {
+      switch (unit) {
+        case 1:
+          return new String[] {curveNames[0][0], curveNames[1][0]};
+        case 2:
+          return new String[] {curveNames[2][0], curveNames[2][1]};
+        default:
+          throw new IllegalArgumentException(unit.toString());
+      }
+    }
+    switch (curve) {
       case 1:
-        return new String[] {curveNames[0][0], curveNames[1][0]};
-      case 2:
-        return new String[] {curveNames[2][0], curveNames[2][1]};
+        return new String[] {curveNames[0][0], curveNames[0][1]};
+      case 4:
+        return new String[] {curveNames[0][2], curveNames[0][4]};
       default:
         throw new IllegalArgumentException(unit.toString());
     }
   }
 
-  private static String[] getCurvesNameSwapXCcyIborIbor(String[][] curveNames, Integer unit) {
-    switch (unit) {
+  private static String[] getCurvesNameSwapXCcyIborIbor(String[][] curveNames, int block) {
+    switch (block) {
       case 2:
+        return new String[] {curveNames[0][2], curveNames[0][3], curveNames[0][0], curveNames[0][1]};
+      default:
         return new String[] {curveNames[2][0], curveNames[2][1], curveNames[0][0], curveNames[1][0]};
-      default:
-        throw new IllegalArgumentException(unit.toString());
     }
   }
 
-  private static String[] getCurvesNameSwapIborIbor(String[][] curveNames, Integer unit) {
-    switch (unit) {
-      case 2:
-        return new String[] {curveNames[2][0], curveNames[2][1], curveNames[2][2]};
-      default:
-        throw new IllegalArgumentException(unit.toString());
+  private static String[] getCurvesNameSwapIborIbor(String[][] curveNames, Integer unit, int block) {
+    if (block != 2) {
+      switch (unit) {
+        case 2:
+          return new String[] {curveNames[2][0], curveNames[2][1], curveNames[2][2]};
+        default:
+          throw new IllegalArgumentException(unit.toString());
+      }
     }
+    return new String[] {curveNames[0][2], curveNames[0][3], curveNames[0][4]};
   }
 
-  private static String[] getCurvesNameCash(String[][] curveNames, Integer unit, Integer curve) {
-    switch (unit) {
-      case 0:
-        return new String[] {curveNames[0][0]};
-      case 1:
-        return new String[] {curveNames[1][0]};
-      case 2:
-        return new String[] {curveNames[2][curve]};
-      default:
-        throw new IllegalArgumentException(unit.toString());
+  private static String[] getCurvesNameCash(String[][] curveNames, Integer unit, Integer curve, int block) {
+    if (block != 2) {
+      switch (unit) {
+        case 0:
+          return new String[] {curveNames[0][0]};
+        case 1:
+          return new String[] {curveNames[1][0]};
+        case 2:
+          return new String[] {curveNames[2][curve]};
+        default:
+          throw new IllegalArgumentException(unit.toString());
+      }
     }
+    return new String[] {curveNames[0][curve]};
+
   }
 
-  private static String[] getCurvesNameFXSwap(String[][] curveNames, Integer unit) {
-    switch (unit) {
+  private static String[] getCurvesNameFXSwap(String[][] curveNames, int block) {
+    switch (block) {
       case 2:
+        return new String[] {curveNames[0][2], curveNames[0][0]};
+      default:
         return new String[] {curveNames[2][0], curveNames[0][0]};
-      default:
-        throw new IllegalArgumentException(unit.toString());
     }
   }
 
@@ -686,6 +772,8 @@ public class YieldCurveConstructionGeneratorBlockFullTest {
   @SuppressWarnings("rawtypes")
   private static DoubleTimeSeries[] getTSSwapFixedIbor(Boolean withToday, Integer unit) {
     switch (unit) {
+      case 0:
+        return TS_FIXED_IBOR_USD3M_WITHOUT_TODAY;
       case 1:
         return withToday ? TS_FIXED_IBOR_USD3M_WITH_TODAY : TS_FIXED_IBOR_USD3M_WITHOUT_TODAY;
       case 2:
@@ -698,6 +786,8 @@ public class YieldCurveConstructionGeneratorBlockFullTest {
   @SuppressWarnings("rawtypes")
   private static DoubleTimeSeries[] getTSSwapXCcyIborIbor(Boolean withToday, Integer unit) {
     switch (unit) {
+      case 0:
+        return TS_FIXED_IBOR_EURUSD3M_WITHOUT_TODAY;
       case 2:
         return withToday ? TS_FIXED_IBOR_EURUSD3M_WITH_TODAY : TS_FIXED_IBOR_EURUSD3M_WITHOUT_TODAY;
       default:
@@ -708,6 +798,8 @@ public class YieldCurveConstructionGeneratorBlockFullTest {
   @SuppressWarnings("rawtypes")
   private static DoubleTimeSeries[] getTSSwapIborIbor(Boolean withToday, Integer unit) {
     switch (unit) {
+      case 0:
+        return TS_FIXED_IBOR_JPY3MJPY6M_WITHOUT_TODAY;
       case 2:
         return withToday ? TS_FIXED_IBOR_JPY3MJPY6M_WITH_TODAY : TS_FIXED_IBOR_JPY3MJPY6M_WITHOUT_TODAY;
       default:
