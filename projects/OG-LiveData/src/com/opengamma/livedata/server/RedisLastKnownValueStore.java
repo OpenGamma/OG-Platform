@@ -90,12 +90,25 @@ public class RedisLastKnownValueStore implements LastKnownValueStore {
       Jedis jedis = getJedisPool().getResource();
       try {
         for (FudgeField field : fieldValues.getAllFields()) {
-          if (field.getType().getTypeId() != FudgeWireType.DOUBLE_TYPE_ID) {
+          Double doubleValue = null;
+          
+          if (field.getType().getTypeId() == FudgeWireType.DOUBLE_TYPE_ID) {
+            doubleValue = (Double) field.getValue();
+          } else if (field.getType().getTypeId() == FudgeWireType.STRING_TYPE_ID) {
+            // Try a conversion to double. This can happen if the chunker leaves
+            // a type in raw wire format, and it's a text-based format.
+            try {
+              doubleValue = Double.parseDouble((String) field.getValue());
+            } catch (Exception e) {
+              // Couldn't be parsed.
+            }
+          }
+          if (doubleValue == null) {
             s_logger.info("Redis encoding for {} can only handle doubles, can't handle {}", getJedisKey(), field);
             continue;
           }
           // Yep, this is ugly as hell.
-          jedis.hset(getJedisKey(), field.getName(), ((Double) field.getValue()).toString());
+          jedis.hset(getJedisKey(), field.getName(), doubleValue.toString());
         }
       } catch (Exception e) {
         s_logger.error("Unable to write fields to Redis {}", _jedisKey, e);
@@ -129,6 +142,7 @@ public class RedisLastKnownValueStore implements LastKnownValueStore {
       // TODO kirk 2012-07-16 -- Give this a FudgeContext.
       MutableFudgeMsg fudgeMsg = OpenGammaFudgeContext.getInstance().newMessage();
       Map<String, String> allFields = jedis.hgetAll(getJedisKey());
+      s_logger.debug("Updating {} from Jedis: {}", getJedisKey(), allFields);
       for (Map.Entry<String, String> fieldEntry : allFields.entrySet()) {
         fudgeMsg.add(fieldEntry.getKey(), Double.parseDouble(fieldEntry.getValue()));
       }

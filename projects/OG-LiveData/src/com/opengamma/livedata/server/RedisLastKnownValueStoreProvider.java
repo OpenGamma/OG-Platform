@@ -44,7 +44,7 @@ public class RedisLastKnownValueStoreProvider implements LastKnownValueStoreProv
   private int _port = 6379;
   private String _globalPrefix = "";
   private boolean _writeThrough = true;
-  private boolean _isInitialized;
+  private volatile boolean _isInitialized;
   private JedisPool _jedisPool;
 
   /**
@@ -116,6 +116,7 @@ public class RedisLastKnownValueStoreProvider implements LastKnownValueStoreProv
     initIfNecessary();
     String redisKey = generateRedisKey(security, normalizationRuleSetId);
     s_logger.debug("Creating Redis LKV store on {}/{} with key name {}", new Object[] {security, normalizationRuleSetId, redisKey});
+    updateIdentifiers(security);
     RedisLastKnownValueStore store = new RedisLastKnownValueStore(_jedisPool, redisKey, isWriteThrough());
     return store;
   }
@@ -159,17 +160,19 @@ public class RedisLastKnownValueStoreProvider implements LastKnownValueStoreProv
     return sb.toString();
   }
 
-  protected synchronized void initIfNecessary() {
+  protected void initIfNecessary() {
     if (_isInitialized) {
       return;
     }
-    assert _jedisPool == null;
-    JedisPoolConfig poolConfig = new JedisPoolConfig();
-    //poolConfig.set...
-    JedisPool pool = new JedisPool(poolConfig, getServer(), getPort());
-    _jedisPool = pool;
-    
-    _isInitialized = true;
+    synchronized (this) {
+      assert _jedisPool == null;
+      JedisPoolConfig poolConfig = new JedisPoolConfig();
+      //poolConfig.set...
+      JedisPool pool = new JedisPool(poolConfig, getServer(), getPort());
+      _jedisPool = pool;
+      
+      _isInitialized = true;
+    }
   }
   
   protected void updateIdentifiers(ExternalId security) {
@@ -181,9 +184,14 @@ public class RedisLastKnownValueStoreProvider implements LastKnownValueStoreProv
 
   @Override
   public Set<String> getAllIdentifiers(String identifierScheme) {
+    initIfNecessary();
     Jedis jedis = _jedisPool.getResource();
     Set<String> allMembers = jedis.smembers(generatePerSchemeKey(identifierScheme));
     _jedisPool.returnResource(jedis);
+    s_logger.info("Loaded {} identifiers from Jedis (full contents in Debug level log)", allMembers.size());
+    if (s_logger.isDebugEnabled()) {
+      s_logger.debug("Loaded identifiers from Jedis: {}", allMembers);
+    }
     return allMembers;
   }
   
