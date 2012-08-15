@@ -50,8 +50,8 @@ import com.opengamma.util.tuple.ObjectsPair;
 public class MasterPortfolioWriter implements PortfolioWriter {
 
   private final PortfolioMaster _portfolioMaster;
-  protected final PositionMaster _positionMaster;
-  protected final SecurityMaster _securityMaster;
+  private final PositionMaster _positionMaster;
+  private final SecurityMaster _securityMaster;
   
   private PortfolioDocument _portfolioDocument;
   private ManageablePortfolioNode _currentNode;
@@ -415,4 +415,15 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     _currentNode = _portfolioDocument.getPortfolio().getRootNode();
   }
 
+  public PortfolioMaster getPortfolioMaster() {
+    return _portfolioMaster;
+  }
+
+  public PositionMaster getPositionMaster() {
+    return _positionMaster;
+  }
+
+  public SecurityMaster getSecurityMaster() {
+    return _securityMaster;
+  }
 }
