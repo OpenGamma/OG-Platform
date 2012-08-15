@@ -63,27 +63,27 @@ public class CDSPremiumDefinition extends AnnuityCouponFixedDefinition {
     
     final ZonedDateTime maturityWithOffset = protectStart ? maturity.plusDays(1) : maturity;
     
-    CouponFixedDefinition[] coupons = new CouponFixedDefinition[paymentDates.length];
+    CDSCouponDefinition[] coupons = new CDSCouponDefinition[paymentDates.length];
     final int maturityIndex = coupons.length - 1;
     
     if (maturityIndex > 0) {
     
-      coupons[0] = new CouponFixedDefinition(currency, paymentDates[0], startDate, paymentDates[0],
+      coupons[0] = new CDSCouponDefinition(currency, paymentDates[0], startDate, paymentDates[0],
         dayCount.getDayCountFraction(startDate, paymentDates[0]), notional, fixedRate);
       
       for (int i = 1; i < maturityIndex; i++) {
-        coupons[i] = new CouponFixedDefinition(currency, paymentDates[i], paymentDates[i - 1], paymentDates[i],
+        coupons[i] = new CDSCouponDefinition(currency, paymentDates[i], paymentDates[i - 1], paymentDates[i],
           dayCount.getDayCountFraction(paymentDates[i - 1], paymentDates[i]), notional, fixedRate);
       }
       
       // TODO: extra time for protect start is included here, is this correct?
-      coupons[maturityIndex] =  new CouponFixedDefinition(currency, paymentDates[maturityIndex], paymentDates[maturityIndex - 1], maturity,
+      coupons[maturityIndex] =  new CDSCouponDefinition(currency, paymentDates[maturityIndex], paymentDates[maturityIndex - 1], maturity,
         dayCount.getDayCountFraction(paymentDates[maturityIndex - 1], maturityWithOffset), notional, fixedRate);
       
     } else {
       
       // TODO: extra time for protect start is included here, is this correct?
-      coupons[0] = new CouponFixedDefinition(currency, paymentDates[0], startDate, maturity,
+      coupons[0] = new CDSCouponDefinition(currency, paymentDates[0], startDate, maturity,
         dayCount.getDayCountFraction(startDate, maturityWithOffset), notional, fixedRate);
     }
     
