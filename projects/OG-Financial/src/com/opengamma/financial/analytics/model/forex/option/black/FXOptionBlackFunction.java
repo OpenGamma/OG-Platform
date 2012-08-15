@@ -237,10 +237,6 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
   protected abstract Set<ComputedValue> getResult(final InstrumentDerivative forex, final ForexOptionDataBundle<?> data, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext);
 
-  protected String getValueRequirementName() {
-    return _valueRequirementName;
-  }
-
   protected static ValueRequirement getCurveRequirement(final String curveName, final Currency currency, final String curveCalculationConfigName) {
     final ValueProperties.Builder properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, curveName)
