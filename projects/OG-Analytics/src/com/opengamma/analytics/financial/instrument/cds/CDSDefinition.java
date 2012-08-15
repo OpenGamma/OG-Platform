@@ -121,7 +121,7 @@ public class CDSDefinition implements InstrumentDefinition<CDSDerivative> {
   
   public double accruedInterest(final ZonedDateTime pricingDate) {
 
-    final ZonedDateTime stepinDate = pricingDate.plusDays(1);
+    final ZonedDateTime stepinDate = pricingDate.plusDays(1); // TODO: Get this value from somewhere
     
     final int nCoupons = _premium.getNumberOfPayments();
     int couponIndex = 0;

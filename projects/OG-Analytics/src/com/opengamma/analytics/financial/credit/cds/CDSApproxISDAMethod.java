@@ -41,13 +41,13 @@ public class CDSApproxISDAMethod implements PricingMethod {
     throw new RuntimeException("please pass in the pricing date");
   }
   
-  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves, ZonedDateTime pricingDate, ZonedDateTime stepinDate, boolean cleanPrice) {
+  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves, ZonedDateTime pricingDate, ZonedDateTime stepinDate, ZonedDateTime settlementDate, boolean cleanPrice) {
     
     CDSDerivative cds = (CDSDerivative) instrument;
     YieldAndDiscountCurve discountCurve = curves.getCurve(cds.getDiscountCurveName());
     YieldAndDiscountCurve spreadCurve = curves.getCurve(cds.getSpreadCurveName());
 
-    return CurrencyAmount.of(cds.getPremium().getCurrency(), calculateUpfrontCharge(cds, discountCurve, spreadCurve, pricingDate, stepinDate, cleanPrice));
+    return CurrencyAmount.of(cds.getPremium().getCurrency(), calculateUpfrontCharge(cds, discountCurve, spreadCurve, pricingDate, stepinDate, settlementDate, cleanPrice));
   }
 
   /**
@@ -66,14 +66,14 @@ public class CDSApproxISDAMethod implements PricingMethod {
    * @param stepinDate The step-in date
    * @return PV of the CDS contract
    */
-  public double calculateUpfrontCharge(CDSDerivative cds, YieldAndDiscountCurve discountCurve, YieldAndDiscountCurve spreadCurve, ZonedDateTime pricingDate, ZonedDateTime stepinDate, boolean cleanPrice) {
+  public double calculateUpfrontCharge(CDSDerivative cds, YieldAndDiscountCurve discountCurve, YieldAndDiscountCurve spreadCurve, ZonedDateTime pricingDate, ZonedDateTime stepinDate, ZonedDateTime settlementDate, boolean cleanPrice) {
     
     if (stepinDate.isBefore(pricingDate)) {
       throw new OpenGammaRuntimeException("Cannot value a CDS with step-in date before pricing date");
     }
     
-    final double contingentLeg = valueContingentLeg(cds, discountCurve, spreadCurve, pricingDate, stepinDate);
-    final double feeLeg = valueFeeLeg(cds, discountCurve, spreadCurve, pricingDate, stepinDate);
+    final double contingentLeg = valueContingentLeg(cds, discountCurve, spreadCurve, pricingDate, stepinDate, settlementDate);
+    final double feeLeg = valueFeeLeg(cds, discountCurve, spreadCurve, pricingDate, stepinDate, settlementDate);
     final double dirtyPrice = (contingentLeg - feeLeg) * cds.getNotional();
     
     System.out.println("contingent=" + contingentLeg + ", fee=" + feeLeg);
@@ -91,7 +91,7 @@ public class CDSApproxISDAMethod implements PricingMethod {
    * @param stepinDate The step-in date
    * @return PV of the CDS premium leg
    */
-  private double valueFeeLeg(CDSDerivative cds, YieldAndDiscountCurve discountCurve, YieldAndDiscountCurve hazardCurve, ZonedDateTime pricingDate, ZonedDateTime stepinDate) {
+  private double valueFeeLeg(CDSDerivative cds, YieldAndDiscountCurve discountCurve, YieldAndDiscountCurve hazardCurve, ZonedDateTime pricingDate, ZonedDateTime stepinDate, ZonedDateTime settlementDate) {
     
     // If the "protect start" flag is set, then the start date of the CDS is protected and observations are made at the start
     // of the day rather than the end. This is modelled by shifting all period start/end dates one day forward,
@@ -106,6 +106,7 @@ public class CDSApproxISDAMethod implements PricingMethod {
     final double startTime = getTimeBetween(pricingDate, startDate);
     final double maturity = getTimeBetween(pricingDate, maturityDate);
     final double offsetStepinTime = getTimeBetween(pricingDate, stepinDate.minusDays(offset));
+    final double settlementTime = getTimeBetween(pricingDate, settlementDate);
 
     // List of all time points for which real data points exist on the discount/spread curves, only need for accrual on default calculation
     final NavigableSet<Double> timeline = cds.isAccrualOnDefault() ? buildTimeLine(discountCurve, hazardCurve, startTime, maturity) : null;
@@ -143,7 +144,8 @@ public class CDSApproxISDAMethod implements PricingMethod {
       }
     }
     
-    return result;
+    System.out.println("fee undiscounted: " + result);
+    return result / discountCurve.getDiscountFactor(settlementTime);
   }
 
   /**
@@ -215,7 +217,7 @@ public class CDSApproxISDAMethod implements PricingMethod {
    * @param stepinDate The step-in date
    * @return PV of the CDS default leg
    */
-  private double valueContingentLeg(CDSDerivative cds, YieldAndDiscountCurve discountCurve, YieldAndDiscountCurve hazardCurve, ZonedDateTime pricingDate, ZonedDateTime stepinDate) {
+  private double valueContingentLeg(CDSDerivative cds, YieldAndDiscountCurve discountCurve, YieldAndDiscountCurve hazardCurve, ZonedDateTime pricingDate, ZonedDateTime stepinDate, ZonedDateTime settlementDate) {
 
     final CouponFixed[] premiums = cds.getPremium().getPayments();
     final ZonedDateTime startDate = premiums[0].getAccrualStartDate();
@@ -236,15 +238,15 @@ public class CDSApproxISDAMethod implements PricingMethod {
     
     final double valuationStartTime = getTimeBetween(pricingDate, valuationStartDate);
     final double maturity = getTimeBetween(pricingDate, maturityDate);
+    final double settlementTime = getTimeBetween(pricingDate, settlementDate);
     final double recoveryRate = cds.getRecoveryRate();
     
     final double value = cds.isPayOnDefault()
       ? valueContingentLegPayOnDefault(recoveryRate, valuationStartTime, maturity, discountCurve, hazardCurve)
       : valueContingentLegPayOnMaturity(recoveryRate, valuationStartTime, maturity, discountCurve, hazardCurve);
-    
-    final double discount = 1.0; // TODO: verify assumptions about pricing date  -- cdsCcyCurve.getDiscountFactor(valueDate);
 
-    return value / discount;
+      System.out.println("cont undiscounted: " + value);
+    return value / discountCurve.getDiscountFactor(settlementTime);
   }
 
   /**
