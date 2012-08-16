@@ -25,7 +25,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ *
  */
 public class CurveSpecificationBuilderConfiguration {
 
@@ -41,6 +41,7 @@ public class CurveSpecificationBuilderConfiguration {
   private final Map<Tenor, CurveInstrumentProvider> _euriborInstrumentProviders;
   private final Map<Tenor, CurveInstrumentProvider> _cdorInstrumentProviders;
   private final Map<Tenor, CurveInstrumentProvider> _futureInstrumentProviders;
+  private final Map<Tenor, CurveInstrumentProvider> _swap12MInstrumentProviders;
   private final Map<Tenor, CurveInstrumentProvider> _swap6MInstrumentProviders;
   private final Map<Tenor, CurveInstrumentProvider> _swap3MInstrumentProviders;
   private final Map<Tenor, CurveInstrumentProvider> _basisSwapInstrumentProviders;
@@ -71,6 +72,7 @@ public class CurveSpecificationBuilderConfiguration {
    * @param simpleZeroDepositInstrumentProviders a map of tenor to simple zero deposit instruments
    * @param periodicZeroDepositInstrumentProviders a map of tenor to periodic zero deposit instruments
    * @param continuousZeroDepositInstrumentProviders a map of tenor to continuous zero deposit instruments
+   * @param swap12MInstrumentProviders a map of tenor to instrument providers for 6M swap curve instruments where 6M is the floating tenor
    */
   public CurveSpecificationBuilderConfiguration(final Map<Tenor, CurveInstrumentProvider> cashInstrumentProviders, final Map<Tenor, CurveInstrumentProvider> fra3MInstrumentProviders,
       final Map<Tenor, CurveInstrumentProvider> fra6MInstrumentProviders, final Map<Tenor, CurveInstrumentProvider> liborInstrumentProviders,
@@ -80,7 +82,7 @@ public class CurveSpecificationBuilderConfiguration {
       final Map<Tenor, CurveInstrumentProvider> swap3MInstrumentProviders, final Map<Tenor, CurveInstrumentProvider> basisSwapInstrumentProviders,
       final Map<Tenor, CurveInstrumentProvider> tenorSwapInstrumentProviders, final Map<Tenor, CurveInstrumentProvider> oisSwapInstrumentProviders,
       final Map<Tenor, CurveInstrumentProvider> simpleZeroDepositInstrumentProviders, final Map<Tenor, CurveInstrumentProvider> periodicZeroDepositInstrumentProviders,
-      final Map<Tenor, CurveInstrumentProvider> continuousZeroDepositInstrumentProviders) {
+      final Map<Tenor, CurveInstrumentProvider> continuousZeroDepositInstrumentProviders, final Map<Tenor, CurveInstrumentProvider> swap12MInstrumentProviders) {
     _cashInstrumentProviders = cashInstrumentProviders;
     _fra3MInstrumentProviders = fra3MInstrumentProviders;
     _fra6MInstrumentProviders = fra6MInstrumentProviders;
@@ -90,6 +92,7 @@ public class CurveSpecificationBuilderConfiguration {
     _ciborInstrumentProviders = ciborInstrumentProviders;
     _stiborInstrumentProviders = stiborInstrumentProviders;
     _futureInstrumentProviders = futureInstrumentProviders;
+    _swap12MInstrumentProviders = swap12MInstrumentProviders;
     _swap6MInstrumentProviders = swap6MInstrumentProviders;
     _swap3MInstrumentProviders = swap3MInstrumentProviders;
     _basisSwapInstrumentProviders = basisSwapInstrumentProviders;
@@ -120,9 +123,8 @@ public class CurveSpecificationBuilderConfiguration {
     final CurveInstrumentProvider mapper = instrumentMappers.get(tenor);
     if (mapper != null) {
       return mapper.getInstrument(curveDate, tenor);
-    } else {
-      throw new OpenGammaRuntimeException("can't find instrument mapper definition for " + tenor);
     }
+    throw new OpenGammaRuntimeException("can't find instrument mapper definition for " + tenor);
   }
 
   private ExternalId getStaticSecurity(final Map<Tenor, CurveInstrumentProvider> instrumentMappers, final LocalDate curveDate, final FixedIncomeStrip strip) {
@@ -134,9 +136,8 @@ public class CurveSpecificationBuilderConfiguration {
     final CurveInstrumentProvider mapper = instrumentMappers.get(tenor);
     if (mapper != null) {
       return mapper.getInstrument(curveDate, tenor, payTenor, receiveTenor, payIndexType, receiveIndexType);
-    } else {
-      throw new OpenGammaRuntimeException("can't find instrument mapper definition for " + tenor);
     }
+    throw new OpenGammaRuntimeException("can't find instrument mapper definition for " + tenor);
   }
 
   /**
@@ -184,9 +185,22 @@ public class CurveSpecificationBuilderConfiguration {
    * @param tenor the time into the curve for this security
    * @return the identifier of the security to use
    */
+  public ExternalId getSwap12MSecurity(final LocalDate curveDate, final Tenor tenor) {
+    if (_swap12MInstrumentProviders == null) {
+      throw new OpenGammaRuntimeException("Cannot get 12M swap instrument provider");
+    }
+    return getStaticSecurity(_swap12MInstrumentProviders, curveDate, tenor);
+  }
+
+  /**
+   * Build a Swap security identifier for a curve node point
+   * @param curveDate the date of the start of the curve
+   * @param tenor the time into the curve for this security
+   * @return the identifier of the security to use
+   */
   public ExternalId getSwap6MSecurity(final LocalDate curveDate, final Tenor tenor) {
     if (_swap6MInstrumentProviders == null) {
-      throw new OpenGammaRuntimeException("Cannot get swap instrument provider");
+      throw new OpenGammaRuntimeException("Cannot get 6M swap instrument provider");
     }
     return getStaticSecurity(_swap6MInstrumentProviders, curveDate, tenor);
   }
@@ -335,9 +349,8 @@ public class CurveSpecificationBuilderConfiguration {
     final CurveInstrumentProvider mapper = _periodicZeroDepositInstrumentProviders.get(tenor);
     if (mapper != null) {
       return mapper.getInstrument(curveDate, tenor, periodsPerYear, true);
-    } else {
-      throw new OpenGammaRuntimeException("can't find instrument mapper definition for " + tenor + " (looking for periodic zero deposit strip)");
     }
+    throw new OpenGammaRuntimeException("can't find instrument mapper definition for " + tenor + " (looking for periodic zero deposit strip)");
   }
 
   /**
@@ -367,9 +380,8 @@ public class CurveSpecificationBuilderConfiguration {
     final CurveInstrumentProvider mapper = _futureInstrumentProviders.get(tenor);
     if (mapper != null) {
       return mapper.getInstrument(curveDate, tenor, numberQuarterlyFuturesFromTenor);
-    } else {
-      throw new OpenGammaRuntimeException("can't find instrument mapper definition for " + tenor + " (looking for future strip)");
     }
+    throw new OpenGammaRuntimeException("can't find instrument mapper definition for " + tenor + " (looking for future strip)");
   }
 
   /**
@@ -445,8 +457,16 @@ public class CurveSpecificationBuilderConfiguration {
   }
 
   /**
-   * Gets the swapInstrumentProviders field for serialisation
-   * @return the swapInstrumentProviders
+   * Gets the swap12MInstrumentProviders field for serialisation
+   * @return the swap12MInstrumentProviders
+   */
+  public Map<Tenor, CurveInstrumentProvider> getSwap12MInstrumentProviders() {
+    return _swap12MInstrumentProviders;
+  }
+
+  /**
+   * Gets the swap6MInstrumentProviders field for serialisation
+   * @return the swap6MInstrumentProviders
    */
   public Map<Tenor, CurveInstrumentProvider> getSwap6MInstrumentProviders() {
     return _swap6MInstrumentProviders;
@@ -510,7 +530,7 @@ public class CurveSpecificationBuilderConfiguration {
 
   /**
    * Get all available tenors
-   * 
+   *
    * @return the sorted tenors
    */
   public SortedSet<Tenor> getAllTenors() {
@@ -554,6 +574,9 @@ public class CurveSpecificationBuilderConfiguration {
     if (getSwap6MInstrumentProviders() != null) {
       allTenors.addAll(getSwap6MInstrumentProviders().keySet());
     }
+    if (getSwap12MInstrumentProviders() != null) {
+      allTenors.addAll(getSwap12MInstrumentProviders().keySet());
+    }
     if (getTenorSwapInstrumentProviders() != null) {
       allTenors.addAll(getTenorSwapInstrumentProviders().keySet());
     }
@@ -587,6 +610,7 @@ public class CurveSpecificationBuilderConfiguration {
         && ObjectUtils.equals(getCiborInstrumentProviders(), other.getCiborInstrumentProviders())
         && ObjectUtils.equals(getStiborInstrumentProviders(), other.getStiborInstrumentProviders())
         && ObjectUtils.equals(getCDORInstrumentProviders(), other.getCDORInstrumentProviders())
+        && ObjectUtils.equals(getSwap12MInstrumentProviders(), other.getSwap12MInstrumentProviders())
         && ObjectUtils.equals(getSwap6MInstrumentProviders(), other.getSwap6MInstrumentProviders())
         && ObjectUtils.equals(getSwap3MInstrumentProviders(), other.getSwap3MInstrumentProviders())
         && ObjectUtils.equals(getBasisSwapInstrumentProviders(), other.getBasisSwapInstrumentProviders())

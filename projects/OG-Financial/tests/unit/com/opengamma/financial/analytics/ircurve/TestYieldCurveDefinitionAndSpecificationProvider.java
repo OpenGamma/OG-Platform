@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.ircurve;
@@ -12,7 +12,7 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ *
  */
 public class TestYieldCurveDefinitionAndSpecificationProvider {
 
@@ -51,7 +51,7 @@ public class TestYieldCurveDefinitionAndSpecificationProvider {
     final Map<Tenor, CurveInstrumentProvider> tenorSwapInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
     final Map<Tenor, CurveInstrumentProvider> oisSwapInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
     return new CurveSpecificationBuilderConfiguration(cashInstrumentProviders, fraInstrumentProviders, null, rateInstrumentProviders, null, null, null, null, futureInstrumentProviders, null,
-        swapInstrumentProviders, basisSwapInstrumentProviders, tenorSwapInstrumentProviders, oisSwapInstrumentProviders, null, null, null);
+        swapInstrumentProviders, basisSwapInstrumentProviders, tenorSwapInstrumentProviders, oisSwapInstrumentProviders, null, null, null, null);
   }
 
   public static CurveSpecificationBuilderConfiguration buildTestUSDCurveConfiguration() {
@@ -97,7 +97,7 @@ public class TestYieldCurveDefinitionAndSpecificationProvider {
     final Map<Tenor, CurveInstrumentProvider> tenorSwapInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
     final Map<Tenor, CurveInstrumentProvider> oisSwapInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
     return new CurveSpecificationBuilderConfiguration(cashInstrumentProviders, fra3MInstrumentProviders, fra6MInstrumentProviders, liborInstrumentProviders, null, null, null,
-        futureInstrumentProviders, null, null, swap3MInstrumentProviders, basisSwapInstrumentProviders, tenorSwapInstrumentProviders, oisSwapInstrumentProviders, null, null, null);
+        futureInstrumentProviders, null, null, swap3MInstrumentProviders, basisSwapInstrumentProviders, tenorSwapInstrumentProviders, oisSwapInstrumentProviders, null, null, null, null);
   }
 
   public static CurveSpecificationBuilderConfiguration buildTestEURCurveConfiguration() {
@@ -156,6 +156,6 @@ public class TestYieldCurveDefinitionAndSpecificationProvider {
     final Map<Tenor, CurveInstrumentProvider> tenorSwapInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
     final Map<Tenor, CurveInstrumentProvider> oisSwapInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
     return new CurveSpecificationBuilderConfiguration(cashInstrumentProviders, fra3MInstrumentProviders, fra6MInstrumentProviders, liborInstrumentProviders, euriborInstrumentProviders, null, null,
-        null, futureInstrumentProviders, swap6MInstrumentProviders, swap3MInstrumentProviders, basisSwapInstrumentProviders, tenorSwapInstrumentProviders, oisSwapInstrumentProviders, null, null, null);
+        null, futureInstrumentProviders, swap6MInstrumentProviders, swap3MInstrumentProviders, basisSwapInstrumentProviders, tenorSwapInstrumentProviders, oisSwapInstrumentProviders, null, null, null, null);
   }
 }
