@@ -20,7 +20,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  */
 public class RedisLastKnownValueStoreProviderTest {
   // TODO kirk 2012-07-18 -- This needs to be moved to external properties.
-  private static final String REDIS_SERVER = "localhost";
+  private static final String REDIS_SERVER = "redis-lx-1";
   
   public static String generatePrefix(String testName) {
     StringBuilder sb = new StringBuilder();
