@@ -6,7 +6,8 @@
 package com.opengamma.bbg.test;
 
 import com.opengamma.bbg.MongoDBCachingReferenceDataProvider;
-import com.opengamma.bbg.ReferenceDataProvider;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
+import com.opengamma.bbg.referencedata.cache.MongoDBValueCachingReferenceDataProvider;
 import com.opengamma.util.mongo.MongoConnector;
 import com.opengamma.util.test.MongoTestUtils;
 
@@ -23,7 +24,7 @@ public class MongoCachedReferenceData {
    * @param testClass  the test class, not null
    * @return the wrapped provider, not null
    */
-  public static MongoDBCachingReferenceDataProvider makeMongoProvider(ReferenceDataProvider underlying, Class<?> testClass) {
+  public static MongoDBValueCachingReferenceDataProvider makeMongoProvider(ReferenceDataProvider underlying, Class<?> testClass) {
     return makeMongoProvider(underlying, testClass, false);
   }
 
@@ -35,9 +36,9 @@ public class MongoCachedReferenceData {
    * @param makeUnique  whether to make the database totally unique
    * @return the wrapped provider, not null
    */
-  public static MongoDBCachingReferenceDataProvider makeMongoProvider(ReferenceDataProvider underlying, Class<?> testClass, boolean makeUnique) {
+  public static MongoDBValueCachingReferenceDataProvider makeMongoProvider(ReferenceDataProvider underlying, Class<?> testClass, boolean makeUnique) {
     MongoConnector mongoConnector = getMongoConnector(testClass, makeUnique);
-    MongoDBCachingReferenceDataProvider mongoProvider = new MongoDBCachingReferenceDataProvider(underlying, mongoConnector);
+    MongoDBValueCachingReferenceDataProvider mongoProvider = new MongoDBValueCachingReferenceDataProvider(underlying, mongoConnector);
     return mongoProvider;
   }
 
@@ -51,5 +52,34 @@ public class MongoCachedReferenceData {
   private static MongoConnector getMongoConnector(Class<?> testClass, boolean makeUnique) {
     return MongoTestUtils.makeTestConnector(testClass.getSimpleName(), makeUnique);
   }
+
+  // START deprecated
+  //-------------------------------------------------------------------------
+  /**
+   * Wraps a Bloomberg reference data provider with Mongo for caching.
+   * 
+   * @param underlying  the underlying provider
+   * @param testClass  the test class, not null
+   * @return the wrapped provider, not null
+   */
+  public static MongoDBCachingReferenceDataProvider makeMongoProvider(com.opengamma.bbg.ReferenceDataProvider underlying, Class<?> testClass) {
+    return makeMongoProvider(underlying, testClass, false);
+  }
+
+  /**
+   * Wraps a Bloomberg reference data provider with Mongo for caching.
+   * 
+   * @param underlying  the underlying provider
+   * @param testClass  the test class, not null
+   * @param makeUnique  whether to make the database totally unique
+   * @return the wrapped provider, not null
+   */
+  public static MongoDBCachingReferenceDataProvider makeMongoProvider(com.opengamma.bbg.ReferenceDataProvider underlying, Class<?> testClass, boolean makeUnique) {
+    MongoConnector mongoConnector = getMongoConnector(testClass, makeUnique);
+    MongoDBCachingReferenceDataProvider mongoProvider = new MongoDBCachingReferenceDataProvider(underlying, mongoConnector);
+    return mongoProvider;
+  }
+  //-------------------------------------------------------------------------
+  // END deprecated
 
 }

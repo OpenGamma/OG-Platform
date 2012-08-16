@@ -21,36 +21,27 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.bbg.BloombergConnector;
-import com.opengamma.bbg.referencedata.ReferenceDataProvider;
-import com.opengamma.bbg.referencedata.cache.EHValueCachingReferenceDataProvider;
-import com.opengamma.bbg.referencedata.cache.InMemoryInvalidFieldCachingReferenceDataProvider;
-import com.opengamma.bbg.referencedata.cache.MongoDBInvalidFieldCachingReferenceDataProvider;
-import com.opengamma.bbg.referencedata.cache.MongoDBValueCachingReferenceDataProvider;
-import com.opengamma.bbg.referencedata.impl.BloombergReferenceDataProvider;
-import com.opengamma.bbg.referencedata.impl.DataReferenceDataProviderResource;
-import com.opengamma.bbg.referencedata.impl.RemoteReferenceDataProvider;
+import com.opengamma.bbg.BloombergReferenceDataProvider;
+import com.opengamma.bbg.EHCachingReferenceDataProvider;
+import com.opengamma.bbg.MongoDBCachingReferenceDataProvider;
+import com.opengamma.bbg.ReferenceDataProvider;
+import com.opengamma.bbg.referencedata.cache.MongoDBPermanentErrorCachingReferenceDataProvider;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
-import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.util.mongo.MongoConnector;
 
 /**
  * Component factory for the Bloomberg reference data provider.
  */
 @BeanDefinition
-public class BloombergReferenceDataProviderComponentFactory extends AbstractComponentFactory {
+public class BloombergReferenceDataProviderNonRestComponentFactory extends AbstractComponentFactory {
 
   /**
    * The classifier that the factory should publish under.
    */
   @PropertyDefinition(validate = "notNull")
   private String _classifier;
-  /**
-   * The flag determining whether the component should be published by REST (default true).
-   */
-  @PropertyDefinition
-  private boolean _publishRest = true;
   /**
    * The Bloomberg connector.
    */
@@ -75,12 +66,7 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
     final ReferenceDataProvider provider = initReferenceDataProvider(repo);
     final ComponentInfo info = new ComponentInfo(ReferenceDataProvider.class, getClassifier());
-    info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
-    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteReferenceDataProvider.class);
     repo.registerComponent(info, provider);
-    if (isPublishRest()) {
-      repo.getRestComponents().publish(info, new DataReferenceDataProviderResource(provider));
-    }
   }
 
   /**
@@ -91,21 +77,20 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
    */
   protected ReferenceDataProvider initReferenceDataProvider(ComponentRepository repo) {
     BloombergConnector bloombergConnector = getBloombergConnector();
-    BloombergReferenceDataProvider underlying = new BloombergReferenceDataProvider(bloombergConnector);
-    repo.registerLifecycle(underlying);
-    
     MongoConnector mongoConnector = getMongoConnector();
     CacheManager cacheManager = getCacheManager();
     if (mongoConnector != null) {
-      MongoDBInvalidFieldCachingReferenceDataProvider fieldCached = new MongoDBInvalidFieldCachingReferenceDataProvider(underlying, mongoConnector);
-      return new MongoDBValueCachingReferenceDataProvider(fieldCached, mongoConnector);
+      MongoDBPermanentErrorCachingReferenceDataProvider underlying = new MongoDBPermanentErrorCachingReferenceDataProvider(bloombergConnector, mongoConnector);
+      repo.registerLifecycle(underlying);
+      return new MongoDBCachingReferenceDataProvider(underlying, mongoConnector);
       
     } else if (cacheManager != null) {
-      ReferenceDataProvider fieldCached = new InMemoryInvalidFieldCachingReferenceDataProvider(underlying);  // TODO: EHcached version
-      return new EHValueCachingReferenceDataProvider(fieldCached, cacheManager);
+      BloombergReferenceDataProvider underlying = new BloombergReferenceDataProvider(bloombergConnector);
+      repo.registerLifecycle(underlying);
+      return new EHCachingReferenceDataProvider(underlying, cacheManager);
       
     } else {
-      return new InMemoryInvalidFieldCachingReferenceDataProvider(underlying);
+      return new BloombergReferenceDataProvider(bloombergConnector);
     }
   }
 
@@ -115,16 +100,16 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
    * The meta-bean for {@code BloombergReferenceDataProviderComponentFactory}.
    * @return the meta-bean, not null
    */
-  public static BloombergReferenceDataProviderComponentFactory.Meta meta() {
-    return BloombergReferenceDataProviderComponentFactory.Meta.INSTANCE;
+  public static BloombergReferenceDataProviderNonRestComponentFactory.Meta meta() {
+    return BloombergReferenceDataProviderNonRestComponentFactory.Meta.INSTANCE;
   }
   static {
-    JodaBeanUtils.registerMetaBean(BloombergReferenceDataProviderComponentFactory.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(BloombergReferenceDataProviderNonRestComponentFactory.Meta.INSTANCE);
   }
 
   @Override
-  public BloombergReferenceDataProviderComponentFactory.Meta metaBean() {
-    return BloombergReferenceDataProviderComponentFactory.Meta.INSTANCE;
+  public BloombergReferenceDataProviderNonRestComponentFactory.Meta metaBean() {
+    return BloombergReferenceDataProviderNonRestComponentFactory.Meta.INSTANCE;
   }
 
   @Override
@@ -132,8 +117,6 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
     switch (propertyName.hashCode()) {
       case -281470431:  // classifier
         return getClassifier();
-      case -614707837:  // publishRest
-        return isPublishRest();
       case 2061648978:  // bloombergConnector
         return getBloombergConnector();
       case 224118201:  // mongoConnector
@@ -149,9 +132,6 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
     switch (propertyName.hashCode()) {
       case -281470431:  // classifier
         setClassifier((String) newValue);
-        return;
-      case -614707837:  // publishRest
-        setPublishRest((Boolean) newValue);
         return;
       case 2061648978:  // bloombergConnector
         setBloombergConnector((BloombergConnector) newValue);
@@ -179,9 +159,8 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      BloombergReferenceDataProviderComponentFactory other = (BloombergReferenceDataProviderComponentFactory) obj;
+      BloombergReferenceDataProviderNonRestComponentFactory other = (BloombergReferenceDataProviderNonRestComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
           JodaBeanUtils.equal(getBloombergConnector(), other.getBloombergConnector()) &&
           JodaBeanUtils.equal(getMongoConnector(), other.getMongoConnector()) &&
           JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
@@ -194,7 +173,6 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
     hash += hash * 31 + JodaBeanUtils.hashCode(getBloombergConnector());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMongoConnector());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
@@ -225,31 +203,6 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
    */
   public final Property<String> classifier() {
     return metaBean().classifier().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the flag determining whether the component should be published by REST (default true).
-   * @return the value of the property
-   */
-  public boolean isPublishRest() {
-    return _publishRest;
-  }
-
-  /**
-   * Sets the flag determining whether the component should be published by REST (default true).
-   * @param publishRest  the new value of the property
-   */
-  public void setPublishRest(boolean publishRest) {
-    this._publishRest = publishRest;
-  }
-
-  /**
-   * Gets the the {@code publishRest} property.
-   * @return the property, not null
-   */
-  public final Property<Boolean> publishRest() {
-    return metaBean().publishRest().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -351,34 +304,28 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
      * The meta-property for the {@code classifier} property.
      */
     private final MetaProperty<String> _classifier = DirectMetaProperty.ofReadWrite(
-        this, "classifier", BloombergReferenceDataProviderComponentFactory.class, String.class);
-    /**
-     * The meta-property for the {@code publishRest} property.
-     */
-    private final MetaProperty<Boolean> _publishRest = DirectMetaProperty.ofReadWrite(
-        this, "publishRest", BloombergReferenceDataProviderComponentFactory.class, Boolean.TYPE);
+        this, "classifier", BloombergReferenceDataProviderNonRestComponentFactory.class, String.class);
     /**
      * The meta-property for the {@code bloombergConnector} property.
      */
     private final MetaProperty<BloombergConnector> _bloombergConnector = DirectMetaProperty.ofReadWrite(
-        this, "bloombergConnector", BloombergReferenceDataProviderComponentFactory.class, BloombergConnector.class);
+        this, "bloombergConnector", BloombergReferenceDataProviderNonRestComponentFactory.class, BloombergConnector.class);
     /**
      * The meta-property for the {@code mongoConnector} property.
      */
     private final MetaProperty<MongoConnector> _mongoConnector = DirectMetaProperty.ofReadWrite(
-        this, "mongoConnector", BloombergReferenceDataProviderComponentFactory.class, MongoConnector.class);
+        this, "mongoConnector", BloombergReferenceDataProviderNonRestComponentFactory.class, MongoConnector.class);
     /**
      * The meta-property for the {@code cacheManager} property.
      */
     private final MetaProperty<CacheManager> _cacheManager = DirectMetaProperty.ofReadWrite(
-        this, "cacheManager", BloombergReferenceDataProviderComponentFactory.class, CacheManager.class);
+        this, "cacheManager", BloombergReferenceDataProviderNonRestComponentFactory.class, CacheManager.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
-        "publishRest",
         "bloombergConnector",
         "mongoConnector",
         "cacheManager");
@@ -394,8 +341,6 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           return _classifier;
-        case -614707837:  // publishRest
-          return _publishRest;
         case 2061648978:  // bloombergConnector
           return _bloombergConnector;
         case 224118201:  // mongoConnector
@@ -407,13 +352,13 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
     }
 
     @Override
-    public BeanBuilder<? extends BloombergReferenceDataProviderComponentFactory> builder() {
-      return new DirectBeanBuilder<BloombergReferenceDataProviderComponentFactory>(new BloombergReferenceDataProviderComponentFactory());
+    public BeanBuilder<? extends BloombergReferenceDataProviderNonRestComponentFactory> builder() {
+      return new DirectBeanBuilder<BloombergReferenceDataProviderNonRestComponentFactory>(new BloombergReferenceDataProviderNonRestComponentFactory());
     }
 
     @Override
-    public Class<? extends BloombergReferenceDataProviderComponentFactory> beanType() {
-      return BloombergReferenceDataProviderComponentFactory.class;
+    public Class<? extends BloombergReferenceDataProviderNonRestComponentFactory> beanType() {
+      return BloombergReferenceDataProviderNonRestComponentFactory.class;
     }
 
     @Override
@@ -428,14 +373,6 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
      */
     public final MetaProperty<String> classifier() {
       return _classifier;
-    }
-
-    /**
-     * The meta-property for the {@code publishRest} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Boolean> publishRest() {
-      return _publishRest;
     }
 
     /**

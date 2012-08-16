@@ -20,26 +20,21 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.bbg.BloombergConnector;
-import com.opengamma.bbg.referencedata.ReferenceDataProvider;
-import com.opengamma.bbg.referencedata.cache.EHValueCachingReferenceDataProvider;
-import com.opengamma.bbg.referencedata.cache.InMemoryInvalidFieldCachingReferenceDataProvider;
-import com.opengamma.bbg.referencedata.cache.MongoDBInvalidFieldCachingReferenceDataProvider;
-import com.opengamma.bbg.referencedata.cache.MongoDBValueCachingReferenceDataProvider;
-import com.opengamma.bbg.referencedata.impl.BloombergReferenceDataProvider;
-import com.opengamma.bbg.referencedata.impl.DataReferenceDataProviderResource;
-import com.opengamma.bbg.referencedata.impl.RemoteReferenceDataProvider;
+import com.opengamma.bbg.BloombergHistoricalTimeSeriesSource;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
-import com.opengamma.component.factory.ComponentInfoAttributes;
-import com.opengamma.util.mongo.MongoConnector;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.historicaltimeseries.impl.DataHistoricalTimeSeriesSourceResource;
+import com.opengamma.core.historicaltimeseries.impl.EHCachingHistoricalTimeSeriesSource;
+import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
 
 /**
- * Component factory for the Bloomberg reference data provider.
+ * Component factory for the Bloomberg time-series source.
+ * The source and this factory are now effectively deprecated by the provider
  */
 @BeanDefinition
-public class BloombergReferenceDataProviderComponentFactory extends AbstractComponentFactory {
+public class BloombergHistoricalTimeSeriesSourceComponentFactory extends AbstractComponentFactory {
 
   /**
    * The classifier that the factory should publish under.
@@ -52,20 +47,13 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
   @PropertyDefinition
   private boolean _publishRest = true;
   /**
-   * The Bloomberg connector.
+   * The underlying time-series provider.
    */
   @PropertyDefinition(validate = "notNull")
-  private BloombergConnector _bloombergConnector;
+  private HistoricalTimeSeriesProvider _historicalTimeSeriesProvider;
   /**
-   * The Mongo connector.
-   * If a Mongo connector is specified, then it is used for caching.
-   */
-  @PropertyDefinition
-  private MongoConnector _mongoConnector;
-  /**
-   * The cache manager.
-   * If a Mongo connector is specified, then this is not used.
-   * If a Mongo connector is not specified and this is, then EH cache is used.
+   * The optional cache manager.
+   * Caching will be added if this field is set.
    */
   @PropertyDefinition
   private CacheManager _cacheManager;
@@ -73,58 +61,38 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
-    final ReferenceDataProvider provider = initReferenceDataProvider(repo);
-    final ComponentInfo info = new ComponentInfo(ReferenceDataProvider.class, getClassifier());
-    info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
-    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteReferenceDataProvider.class);
-    repo.registerComponent(info, provider);
+    HistoricalTimeSeriesSource source = initHistoricalTimeSeriesSource(repo);
+    ComponentInfo info = new ComponentInfo(BloombergHistoricalTimeSeriesSource.class, getClassifier());
+    repo.registerComponent(info, source);
     if (isPublishRest()) {
-      repo.getRestComponents().publish(info, new DataReferenceDataProviderResource(provider));
+      repo.getRestComponents().publishResource(new DataHistoricalTimeSeriesSourceResource(source));  // publish in old way
     }
   }
 
-  /**
-   * Creates the provider.
-   * 
-   * @param repo  the repository, not null
-   * @return the provider, not null
-   */
-  protected ReferenceDataProvider initReferenceDataProvider(ComponentRepository repo) {
-    BloombergConnector bloombergConnector = getBloombergConnector();
-    BloombergReferenceDataProvider underlying = new BloombergReferenceDataProvider(bloombergConnector);
-    repo.registerLifecycle(underlying);
-    
-    MongoConnector mongoConnector = getMongoConnector();
-    CacheManager cacheManager = getCacheManager();
-    if (mongoConnector != null) {
-      MongoDBInvalidFieldCachingReferenceDataProvider fieldCached = new MongoDBInvalidFieldCachingReferenceDataProvider(underlying, mongoConnector);
-      return new MongoDBValueCachingReferenceDataProvider(fieldCached, mongoConnector);
-      
-    } else if (cacheManager != null) {
-      ReferenceDataProvider fieldCached = new InMemoryInvalidFieldCachingReferenceDataProvider(underlying);  // TODO: EHcached version
-      return new EHValueCachingReferenceDataProvider(fieldCached, cacheManager);
-      
-    } else {
-      return new InMemoryInvalidFieldCachingReferenceDataProvider(underlying);
+  protected HistoricalTimeSeriesSource initHistoricalTimeSeriesSource(ComponentRepository repo) {
+    HistoricalTimeSeriesSource source = new BloombergHistoricalTimeSeriesSource(getHistoricalTimeSeriesProvider());
+    if (getCacheManager() != null) {
+      source = new EHCachingHistoricalTimeSeriesSource(source, getCacheManager());
     }
+    return source;
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code BloombergReferenceDataProviderComponentFactory}.
+   * The meta-bean for {@code BloombergHistoricalTimeSeriesSourceComponentFactory}.
    * @return the meta-bean, not null
    */
-  public static BloombergReferenceDataProviderComponentFactory.Meta meta() {
-    return BloombergReferenceDataProviderComponentFactory.Meta.INSTANCE;
+  public static BloombergHistoricalTimeSeriesSourceComponentFactory.Meta meta() {
+    return BloombergHistoricalTimeSeriesSourceComponentFactory.Meta.INSTANCE;
   }
   static {
-    JodaBeanUtils.registerMetaBean(BloombergReferenceDataProviderComponentFactory.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(BloombergHistoricalTimeSeriesSourceComponentFactory.Meta.INSTANCE);
   }
 
   @Override
-  public BloombergReferenceDataProviderComponentFactory.Meta metaBean() {
-    return BloombergReferenceDataProviderComponentFactory.Meta.INSTANCE;
+  public BloombergHistoricalTimeSeriesSourceComponentFactory.Meta metaBean() {
+    return BloombergHistoricalTimeSeriesSourceComponentFactory.Meta.INSTANCE;
   }
 
   @Override
@@ -134,10 +102,8 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
         return getClassifier();
       case -614707837:  // publishRest
         return isPublishRest();
-      case 2061648978:  // bloombergConnector
-        return getBloombergConnector();
-      case 224118201:  // mongoConnector
-        return getMongoConnector();
+      case -1592479713:  // historicalTimeSeriesProvider
+        return getHistoricalTimeSeriesProvider();
       case -1452875317:  // cacheManager
         return getCacheManager();
     }
@@ -153,11 +119,8 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
       case -614707837:  // publishRest
         setPublishRest((Boolean) newValue);
         return;
-      case 2061648978:  // bloombergConnector
-        setBloombergConnector((BloombergConnector) newValue);
-        return;
-      case 224118201:  // mongoConnector
-        setMongoConnector((MongoConnector) newValue);
+      case -1592479713:  // historicalTimeSeriesProvider
+        setHistoricalTimeSeriesProvider((HistoricalTimeSeriesProvider) newValue);
         return;
       case -1452875317:  // cacheManager
         setCacheManager((CacheManager) newValue);
@@ -169,7 +132,7 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
   @Override
   protected void validate() {
     JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_bloombergConnector, "bloombergConnector");
+    JodaBeanUtils.notNull(_historicalTimeSeriesProvider, "historicalTimeSeriesProvider");
     super.validate();
   }
 
@@ -179,11 +142,10 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      BloombergReferenceDataProviderComponentFactory other = (BloombergReferenceDataProviderComponentFactory) obj;
+      BloombergHistoricalTimeSeriesSourceComponentFactory other = (BloombergHistoricalTimeSeriesSourceComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
-          JodaBeanUtils.equal(getBloombergConnector(), other.getBloombergConnector()) &&
-          JodaBeanUtils.equal(getMongoConnector(), other.getMongoConnector()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesProvider(), other.getHistoricalTimeSeriesProvider()) &&
           JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
           super.equals(obj);
     }
@@ -195,8 +157,7 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBloombergConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMongoConnector());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesProvider());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
     return hash ^ super.hashCode();
   }
@@ -254,63 +215,34 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the Bloomberg connector.
+   * Gets the underlying time-series provider.
    * @return the value of the property, not null
    */
-  public BloombergConnector getBloombergConnector() {
-    return _bloombergConnector;
+  public HistoricalTimeSeriesProvider getHistoricalTimeSeriesProvider() {
+    return _historicalTimeSeriesProvider;
   }
 
   /**
-   * Sets the Bloomberg connector.
-   * @param bloombergConnector  the new value of the property, not null
+   * Sets the underlying time-series provider.
+   * @param historicalTimeSeriesProvider  the new value of the property, not null
    */
-  public void setBloombergConnector(BloombergConnector bloombergConnector) {
-    JodaBeanUtils.notNull(bloombergConnector, "bloombergConnector");
-    this._bloombergConnector = bloombergConnector;
+  public void setHistoricalTimeSeriesProvider(HistoricalTimeSeriesProvider historicalTimeSeriesProvider) {
+    JodaBeanUtils.notNull(historicalTimeSeriesProvider, "historicalTimeSeriesProvider");
+    this._historicalTimeSeriesProvider = historicalTimeSeriesProvider;
   }
 
   /**
-   * Gets the the {@code bloombergConnector} property.
+   * Gets the the {@code historicalTimeSeriesProvider} property.
    * @return the property, not null
    */
-  public final Property<BloombergConnector> bloombergConnector() {
-    return metaBean().bloombergConnector().createProperty(this);
+  public final Property<HistoricalTimeSeriesProvider> historicalTimeSeriesProvider() {
+    return metaBean().historicalTimeSeriesProvider().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the Mongo connector.
-   * If a Mongo connector is specified, then it is used for caching.
-   * @return the value of the property
-   */
-  public MongoConnector getMongoConnector() {
-    return _mongoConnector;
-  }
-
-  /**
-   * Sets the Mongo connector.
-   * If a Mongo connector is specified, then it is used for caching.
-   * @param mongoConnector  the new value of the property
-   */
-  public void setMongoConnector(MongoConnector mongoConnector) {
-    this._mongoConnector = mongoConnector;
-  }
-
-  /**
-   * Gets the the {@code mongoConnector} property.
-   * If a Mongo connector is specified, then it is used for caching.
-   * @return the property, not null
-   */
-  public final Property<MongoConnector> mongoConnector() {
-    return metaBean().mongoConnector().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the cache manager.
-   * If a Mongo connector is specified, then this is not used.
-   * If a Mongo connector is not specified and this is, then EH cache is used.
+   * Gets the optional cache manager.
+   * Caching will be added if this field is set.
    * @return the value of the property
    */
   public CacheManager getCacheManager() {
@@ -318,9 +250,8 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
   }
 
   /**
-   * Sets the cache manager.
-   * If a Mongo connector is specified, then this is not used.
-   * If a Mongo connector is not specified and this is, then EH cache is used.
+   * Sets the optional cache manager.
+   * Caching will be added if this field is set.
    * @param cacheManager  the new value of the property
    */
   public void setCacheManager(CacheManager cacheManager) {
@@ -329,8 +260,7 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
 
   /**
    * Gets the the {@code cacheManager} property.
-   * If a Mongo connector is specified, then this is not used.
-   * If a Mongo connector is not specified and this is, then EH cache is used.
+   * Caching will be added if this field is set.
    * @return the property, not null
    */
   public final Property<CacheManager> cacheManager() {
@@ -339,7 +269,7 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code BloombergReferenceDataProviderComponentFactory}.
+   * The meta-bean for {@code BloombergHistoricalTimeSeriesSourceComponentFactory}.
    */
   public static class Meta extends AbstractComponentFactory.Meta {
     /**
@@ -351,27 +281,22 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
      * The meta-property for the {@code classifier} property.
      */
     private final MetaProperty<String> _classifier = DirectMetaProperty.ofReadWrite(
-        this, "classifier", BloombergReferenceDataProviderComponentFactory.class, String.class);
+        this, "classifier", BloombergHistoricalTimeSeriesSourceComponentFactory.class, String.class);
     /**
      * The meta-property for the {@code publishRest} property.
      */
     private final MetaProperty<Boolean> _publishRest = DirectMetaProperty.ofReadWrite(
-        this, "publishRest", BloombergReferenceDataProviderComponentFactory.class, Boolean.TYPE);
+        this, "publishRest", BloombergHistoricalTimeSeriesSourceComponentFactory.class, Boolean.TYPE);
     /**
-     * The meta-property for the {@code bloombergConnector} property.
+     * The meta-property for the {@code historicalTimeSeriesProvider} property.
      */
-    private final MetaProperty<BloombergConnector> _bloombergConnector = DirectMetaProperty.ofReadWrite(
-        this, "bloombergConnector", BloombergReferenceDataProviderComponentFactory.class, BloombergConnector.class);
-    /**
-     * The meta-property for the {@code mongoConnector} property.
-     */
-    private final MetaProperty<MongoConnector> _mongoConnector = DirectMetaProperty.ofReadWrite(
-        this, "mongoConnector", BloombergReferenceDataProviderComponentFactory.class, MongoConnector.class);
+    private final MetaProperty<HistoricalTimeSeriesProvider> _historicalTimeSeriesProvider = DirectMetaProperty.ofReadWrite(
+        this, "historicalTimeSeriesProvider", BloombergHistoricalTimeSeriesSourceComponentFactory.class, HistoricalTimeSeriesProvider.class);
     /**
      * The meta-property for the {@code cacheManager} property.
      */
     private final MetaProperty<CacheManager> _cacheManager = DirectMetaProperty.ofReadWrite(
-        this, "cacheManager", BloombergReferenceDataProviderComponentFactory.class, CacheManager.class);
+        this, "cacheManager", BloombergHistoricalTimeSeriesSourceComponentFactory.class, CacheManager.class);
     /**
      * The meta-properties.
      */
@@ -379,8 +304,7 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "publishRest",
-        "bloombergConnector",
-        "mongoConnector",
+        "historicalTimeSeriesProvider",
         "cacheManager");
 
     /**
@@ -396,10 +320,8 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
           return _classifier;
         case -614707837:  // publishRest
           return _publishRest;
-        case 2061648978:  // bloombergConnector
-          return _bloombergConnector;
-        case 224118201:  // mongoConnector
-          return _mongoConnector;
+        case -1592479713:  // historicalTimeSeriesProvider
+          return _historicalTimeSeriesProvider;
         case -1452875317:  // cacheManager
           return _cacheManager;
       }
@@ -407,13 +329,13 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
     }
 
     @Override
-    public BeanBuilder<? extends BloombergReferenceDataProviderComponentFactory> builder() {
-      return new DirectBeanBuilder<BloombergReferenceDataProviderComponentFactory>(new BloombergReferenceDataProviderComponentFactory());
+    public BeanBuilder<? extends BloombergHistoricalTimeSeriesSourceComponentFactory> builder() {
+      return new DirectBeanBuilder<BloombergHistoricalTimeSeriesSourceComponentFactory>(new BloombergHistoricalTimeSeriesSourceComponentFactory());
     }
 
     @Override
-    public Class<? extends BloombergReferenceDataProviderComponentFactory> beanType() {
-      return BloombergReferenceDataProviderComponentFactory.class;
+    public Class<? extends BloombergHistoricalTimeSeriesSourceComponentFactory> beanType() {
+      return BloombergHistoricalTimeSeriesSourceComponentFactory.class;
     }
 
     @Override
@@ -439,19 +361,11 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
     }
 
     /**
-     * The meta-property for the {@code bloombergConnector} property.
+     * The meta-property for the {@code historicalTimeSeriesProvider} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<BloombergConnector> bloombergConnector() {
-      return _bloombergConnector;
-    }
-
-    /**
-     * The meta-property for the {@code mongoConnector} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<MongoConnector> mongoConnector() {
-      return _mongoConnector;
+    public final MetaProperty<HistoricalTimeSeriesProvider> historicalTimeSeriesProvider() {
+      return _historicalTimeSeriesProvider;
     }
 
     /**
