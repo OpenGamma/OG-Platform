@@ -4,7 +4,6 @@
     <publications>
       <artifact name="og-provider" type="jar"/>
       <artifact name="og-provider" type="source" ext="jar" />
-      <artifact name="og-provider" type="resource" ext="zip" />
     </publications>
     
     <dependencies>
