@@ -83,9 +83,13 @@ import com.opengamma.util.tuple.Pair;
  */
 public class YieldCurveConstructionGeneratorBlockFullSpreadTest {
 
-  private static final Interpolator1D INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
+  private static final Interpolator1D INTERPOLATOR_DQ = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   private static final Interpolator1D INTERPOLATOR_LINEAR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
+      Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  private static final Interpolator1D INTERPOLATOR_CS = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
+      Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  private static final Interpolator1D INTERPOLATOR_EXP = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.EXPONENTIAL, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   private static final MatrixAlgebra MATRIX_ALGEBRA = new CommonsMatrixAlgebra();
 
@@ -213,7 +217,7 @@ public class YieldCurveConstructionGeneratorBlockFullSpreadTest {
   /** Standard USD Forward 6M curve instrument definitions */
   public static final InstrumentDefinition<?>[] DEFINITIONS_FWD6_USD;
   /** Units of curves */
-  public static final int[] NB_UNITS = new int[] {2, 3, 3, 1, 1, 2};
+  public static final int[] NB_UNITS = new int[] {2, 2, 2, 3, 3, 1, 1, 2};
   public static final int NB_BLOCKS = NB_UNITS.length;
   public static final InstrumentDefinition<?>[][][][] DEFINITIONS_UNITS = new InstrumentDefinition<?>[NB_BLOCKS][][][];
   public static final GeneratorCurve[][][] GENERATORS_UNITS = new GeneratorCurve[NB_BLOCKS][][];
@@ -227,66 +231,70 @@ public class YieldCurveConstructionGeneratorBlockFullSpreadTest {
     DEFINITIONS_FWD3_USD_3 = getDefinitions(FWD3_USD_MARKET_QUOTES_3, FWD3_USD_GENERATORS_3, FWD3_USD_TENOR_3, new Double[FWD3_USD_MARKET_QUOTES_3.length]);
     DEFINITIONS_FWD3_USD_4 = getDefinitions(FWD3_USD_MARKET_QUOTES_4, FWD3_USD_GENERATORS_4, FWD3_USD_TENOR_4, new Double[FWD3_USD_MARKET_QUOTES_4.length]);
     DEFINITIONS_FWD6_USD = getDefinitions(FWD6_USD_MARKET_QUOTES, FWD6_USD_GENERATORS, FWD6_USD_TENOR, new Double[FWD6_USD_MARKET_QUOTES.length]);
-    DEFINITIONS_UNITS[0] = new InstrumentDefinition<?>[NB_UNITS[0]][][];
-    DEFINITIONS_UNITS[1] = new InstrumentDefinition<?>[NB_UNITS[1]][][];
-    DEFINITIONS_UNITS[2] = new InstrumentDefinition<?>[NB_UNITS[2]][][];
-    DEFINITIONS_UNITS[3] = new InstrumentDefinition<?>[NB_UNITS[3]][][];
-    DEFINITIONS_UNITS[4] = new InstrumentDefinition<?>[NB_UNITS[4]][][];
-    DEFINITIONS_UNITS[5] = new InstrumentDefinition<?>[NB_UNITS[5]][][];
+    for (int loopblock = 0; loopblock < NB_BLOCKS; loopblock++) {
+      DEFINITIONS_UNITS[loopblock] = new InstrumentDefinition<?>[NB_UNITS[loopblock]][][];
+      GENERATORS_UNITS[loopblock] = new GeneratorCurve[NB_UNITS[loopblock]][];
+      NAMES_UNITS[loopblock] = new String[NB_UNITS[loopblock]][];
+    }
     DEFINITIONS_UNITS[0][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD};
     DEFINITIONS_UNITS[0][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD};
     DEFINITIONS_UNITS[1][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD};
-    DEFINITIONS_UNITS[1][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD_2};
-    DEFINITIONS_UNITS[1][2] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD6_USD};
+    DEFINITIONS_UNITS[1][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD};
     DEFINITIONS_UNITS[2][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD};
-    DEFINITIONS_UNITS[2][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD_2};
-    DEFINITIONS_UNITS[2][2] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD6_USD};
-    DEFINITIONS_UNITS[3][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD_3, DEFINITIONS_DSC_USD};
-    DEFINITIONS_UNITS[4][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD_3, DEFINITIONS_DSC_USD};
-    DEFINITIONS_UNITS[5][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD};
-    DEFINITIONS_UNITS[5][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD_4};
-    GeneratorCurve genInt = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR);
+    DEFINITIONS_UNITS[2][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD};
+    DEFINITIONS_UNITS[3][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD};
+    DEFINITIONS_UNITS[3][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD_2};
+    DEFINITIONS_UNITS[3][2] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD6_USD};
+    DEFINITIONS_UNITS[4][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD};
+    DEFINITIONS_UNITS[4][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD_2};
+    DEFINITIONS_UNITS[4][2] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD6_USD};
+    DEFINITIONS_UNITS[5][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD_3, DEFINITIONS_DSC_USD};
+    DEFINITIONS_UNITS[6][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD_3, DEFINITIONS_DSC_USD};
+    DEFINITIONS_UNITS[7][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD};
+    DEFINITIONS_UNITS[7][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD_4};
+    GeneratorCurve genIntDQ = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_DQ);
+    GeneratorCurve genIntCS = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_CS);
+    GeneratorCurve genIntDFExp = new GeneratorCurveDiscountFactorInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_EXP);
     GeneratorCurve genNS = new GeneratorCurveYieldNelsonSiegel();
     GeneratorCurve genInt0 = new GeneratorCurveYieldInterpolatedAnchor(MATURITY_CALCULATOR, INTERPOLATOR_LINEAR);
-    GeneratorCurve genAddExistFwd3 = new GeneratorCurveAddYieldExisiting(genInt, false, CURVE_NAME_FWD3_USD);
+    GeneratorCurve genAddExistFwd3 = new GeneratorCurveAddYieldExisiting(genIntDQ, false, CURVE_NAME_FWD3_USD);
     GeneratorCurve genCst = new GeneratorCurveYieldConstant();
-    GENERATORS_UNITS[0] = new GeneratorCurve[NB_UNITS[0]][];
-    GENERATORS_UNITS[1] = new GeneratorCurve[NB_UNITS[1]][];
-    GENERATORS_UNITS[2] = new GeneratorCurve[NB_UNITS[2]][];
-    GENERATORS_UNITS[3] = new GeneratorCurve[NB_UNITS[3]][];
-    GENERATORS_UNITS[4] = new GeneratorCurve[NB_UNITS[4]][];
-    GENERATORS_UNITS[5] = new GeneratorCurve[NB_UNITS[5]][];
-    GENERATORS_UNITS[0][0] = new GeneratorCurve[] {genInt};
+    // Interpolated (cubic spline on yield cc) and Cst+interpolated / TODO: interpolated (linear on periodic yield) / TODO: interpolated (exponential on discount factor)
+    GENERATORS_UNITS[0][0] = new GeneratorCurve[] {genIntCS};
     GENERATORS_UNITS[0][1] = new GeneratorCurve[] {new GeneratorCurveAddYield(new GeneratorCurve[] {genCst, genInt0}, false)};
-    GENERATORS_UNITS[1][0] = new GeneratorCurve[] {genInt};
-    GENERATORS_UNITS[1][1] = new GeneratorCurve[] {genInt};
-    GENERATORS_UNITS[1][2] = new GeneratorCurve[] {genInt};
-    GENERATORS_UNITS[2][0] = new GeneratorCurve[] {genInt};
-    GENERATORS_UNITS[2][1] = new GeneratorCurve[] {genInt};
-    GENERATORS_UNITS[2][2] = new GeneratorCurve[] {genAddExistFwd3};
-    GENERATORS_UNITS[3][0] = new GeneratorCurve[] {genInt, genInt};
-    GENERATORS_UNITS[4][0] = new GeneratorCurve[] {genInt, genAddExistFwd3};
-    GENERATORS_UNITS[5][0] = new GeneratorCurve[] {genInt};
-    //GENERATORS_UNITS[5][1] = new GeneratorCurve[] {genNS };
-    GENERATORS_UNITS[5][1] = new GeneratorCurve[] {new GeneratorCurveAddYield(new GeneratorCurve[] {genNS, genInt0}, false)};
-    NAMES_UNITS[0] = new String[NB_UNITS[0]][];
-    NAMES_UNITS[1] = new String[NB_UNITS[1]][];
-    NAMES_UNITS[2] = new String[NB_UNITS[2]][];
-    NAMES_UNITS[3] = new String[NB_UNITS[3]][];
-    NAMES_UNITS[4] = new String[NB_UNITS[4]][];
-    NAMES_UNITS[5] = new String[NB_UNITS[5]][];
+    GENERATORS_UNITS[1][0] = new GeneratorCurve[] {genIntCS};
+    GENERATORS_UNITS[1][1] = new GeneratorCurve[] {genIntCS};
+    GENERATORS_UNITS[2][0] = new GeneratorCurve[] {genIntDFExp};
+    GENERATORS_UNITS[2][1] = new GeneratorCurve[] {genIntDFExp};
+    // 3xinterpolated / 2xinterpolated + spread over existing
+    GENERATORS_UNITS[3][0] = new GeneratorCurve[] {genIntDQ};
+    GENERATORS_UNITS[3][1] = new GeneratorCurve[] {genIntDQ};
+    GENERATORS_UNITS[3][2] = new GeneratorCurve[] {genIntDQ};
+    GENERATORS_UNITS[4][0] = new GeneratorCurve[] {genIntDQ};
+    GENERATORS_UNITS[4][1] = new GeneratorCurve[] {genIntDQ};
+    GENERATORS_UNITS[4][2] = new GeneratorCurve[] {genAddExistFwd3};
+    // 2xinterpolated / interpolated + spread over existing
+    GENERATORS_UNITS[5][0] = new GeneratorCurve[] {genIntDQ, genIntDQ};
+    GENERATORS_UNITS[6][0] = new GeneratorCurve[] {genIntDQ, genAddExistFwd3};
+    // interpolated + functional+interpolated
+    GENERATORS_UNITS[7][0] = new GeneratorCurve[] {genIntDQ};
+    GENERATORS_UNITS[7][1] = new GeneratorCurve[] {new GeneratorCurveAddYield(new GeneratorCurve[] {genNS, genInt0}, false)};
     NAMES_UNITS[0][0] = new String[] {CURVE_NAME_DSC_USD};
     NAMES_UNITS[0][1] = new String[] {CURVE_NAME_FWD3_USD};
     NAMES_UNITS[1][0] = new String[] {CURVE_NAME_DSC_USD};
     NAMES_UNITS[1][1] = new String[] {CURVE_NAME_FWD3_USD};
-    NAMES_UNITS[1][2] = new String[] {CURVE_NAME_FWD6_USD};
     NAMES_UNITS[2][0] = new String[] {CURVE_NAME_DSC_USD};
     NAMES_UNITS[2][1] = new String[] {CURVE_NAME_FWD3_USD};
-    NAMES_UNITS[2][2] = new String[] {CURVE_NAME_FWD6_USD};
-    NAMES_UNITS[3][0] = new String[] {CURVE_NAME_FWD3_USD, CURVE_NAME_DSC_USD};
-    NAMES_UNITS[4][0] = new String[] {CURVE_NAME_FWD3_USD, CURVE_NAME_DSC_USD};
-    NAMES_UNITS[5][0] = new String[] {CURVE_NAME_DSC_USD};
-    NAMES_UNITS[5][1] = new String[] {CURVE_NAME_FWD3_USD};
+    NAMES_UNITS[3][0] = new String[] {CURVE_NAME_DSC_USD};
+    NAMES_UNITS[3][1] = new String[] {CURVE_NAME_FWD3_USD};
+    NAMES_UNITS[3][2] = new String[] {CURVE_NAME_FWD6_USD};
+    NAMES_UNITS[4][0] = new String[] {CURVE_NAME_DSC_USD};
+    NAMES_UNITS[4][1] = new String[] {CURVE_NAME_FWD3_USD};
+    NAMES_UNITS[4][2] = new String[] {CURVE_NAME_FWD6_USD};
+    NAMES_UNITS[5][0] = new String[] {CURVE_NAME_FWD3_USD, CURVE_NAME_DSC_USD};
+    NAMES_UNITS[6][0] = new String[] {CURVE_NAME_FWD3_USD, CURVE_NAME_DSC_USD};
+    NAMES_UNITS[7][0] = new String[] {CURVE_NAME_DSC_USD};
+    NAMES_UNITS[7][1] = new String[] {CURVE_NAME_FWD3_USD};
   }
 
   // Present Value
@@ -376,7 +384,7 @@ public class YieldCurveConstructionGeneratorBlockFullSpreadTest {
       ps[loopblock] = pusbc.calculateSensitivity(SWAP, fixedCurves, CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(loopblock).getFirst());
       mqs[loopblock] = mqsc.fromInstrument(SWAP, fixedCurves, CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(loopblock).getFirst(), CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(loopblock).getSecond());
     }
-    for (int loopblock = 3; loopblock < 5; loopblock++) { // Test is underlying specific. Only 2 curves tested.
+    for (int loopblock = 5; loopblock < 7; loopblock++) { // Test is underlying specific. Only 2 curves tested.
       testPnLNodeSensitivity(mqs[loopblock], loopblock);
     }
     int t = 0;
