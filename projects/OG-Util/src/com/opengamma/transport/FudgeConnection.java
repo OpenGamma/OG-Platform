@@ -15,5 +15,8 @@ public interface FudgeConnection {
   FudgeMessageSender getFudgeMessageSender();
 
   void setConnectionStateListener(FudgeConnectionStateListener listener);
+  
+  // REVIEW kirk 2012-07-23 -- This needs a way to tear down the connection.
+  // See http://jira.opengamma.com/browse/PLAT-2458
 
 }

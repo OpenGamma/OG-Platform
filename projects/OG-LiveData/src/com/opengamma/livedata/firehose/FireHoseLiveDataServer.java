@@ -240,7 +240,7 @@ public class FireHoseLiveDataServer extends AbstractLiveDataServer {
     _dispatcher.terminate();
     _dispatcher = null;
     // Poke it with a NULL message to release the "take" method
-    _received.add(new Subscription("", new EmptyMarketDataSenderFactory()));
+    _received.add(new Subscription("", new EmptyMarketDataSenderFactory(), getLkvStoreProvider()));
   }
 
   @Override
