@@ -21,7 +21,7 @@ import com.opengamma.util.ArgumentChecker;
 public class SwapThetaDefaults extends InterestRateInstrumentDefaultPropertiesFunction {
   private final String _defaultNumberOfDays;
 
-  public SwapThetaDefaults(final String priority, final String includeIRFutures, final String defaultNumberOfDays, final String[] currencyAndCurveConfigNames) {
+  public SwapThetaDefaults(final String priority, final String includeIRFutures, final String defaultNumberOfDays, final String... currencyAndCurveConfigNames) {
     super(priority, includeIRFutures, currencyAndCurveConfigNames);
     ArgumentChecker.notNull(defaultNumberOfDays, "default number of days");
     _defaultNumberOfDays = defaultNumberOfDays;
