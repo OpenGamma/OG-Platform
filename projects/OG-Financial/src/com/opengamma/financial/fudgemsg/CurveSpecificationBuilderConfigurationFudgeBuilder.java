@@ -44,6 +44,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
   private static final String SWAP = "swapInstrumentProviders";
   private static final String SWAP_3M = "swap3MInstrumentProviders";
   private static final String SWAP_6M = "swap6MInstrumentProviders";
+  private static final String SWAP_12M = "swap12MInstrumentProviders";
   private static final String BASIS_SWAP = "basisSwapInstrumentProviders";
   private static final String TENOR_SWAP = "tenorSwapInstrumentProviders";
   private static final String OIS_SWAP = "oisSwapInstrumentProviders";
@@ -148,6 +149,14 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
         serializer.addToMessage(swap6MInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
       }
       message.add(SWAP_6M, swap6MInstrumentProvidersMessage);
+    }
+
+    if (object.getSwap12MInstrumentProviders() != null) {
+      final MutableFudgeMsg swap12MInstrumentProvidersMessage = serializer.newMessage();
+      for (final Entry<Tenor, CurveInstrumentProvider> entry : object.getSwap12MInstrumentProviders().entrySet()) {
+        serializer.addToMessage(swap12MInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+      }
+      message.add(SWAP_12M, swap12MInstrumentProvidersMessage);
     }
 
     if (object.getBasisSwapInstrumentProviders() != null) {
@@ -346,6 +355,15 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
       }
     }
 
+    Map<Tenor, CurveInstrumentProvider> swap12MInstrumentProviders = null;
+    if (message.hasField(SWAP_12M)) {
+      swap12MInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
+      final FudgeMsg swap12MInstrumentProvidersMessage = message.getMessage(SWAP_12M);
+      for (final FudgeField field : swap12MInstrumentProvidersMessage.getAllFields()) {
+        swap12MInstrumentProviders.put(new Tenor(Period.parse(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+      }
+    }
+
     Map<Tenor, CurveInstrumentProvider> basisSwapInstrumentProviders = null;
     if (message.hasField(BASIS_SWAP)) {
       basisSwapInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
@@ -402,6 +420,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
 
     return new CurveSpecificationBuilderConfiguration(cashInstrumentProviders, fra3MInstrumentProviders, fra6MInstrumentProviders, liborInstrumentProviders, euriborInstrumentProviders,
         cdorInstrumentProviders, ciborInstrumentProviders, stiborInstrumentProviders, futureInstrumentProviders, swap6MInstrumentProviders, swap3MInstrumentProviders, basisSwapInstrumentProviders,
-        tenorSwapInstrumentProviders, oisSwapInstrumentProviders, simpleZeroDepositInstrumentProviders, periodicZeroDepositInstrumentProviders, continuousZeroDepositInstrumentProviders);
+        tenorSwapInstrumentProviders, oisSwapInstrumentProviders, simpleZeroDepositInstrumentProviders, periodicZeroDepositInstrumentProviders, continuousZeroDepositInstrumentProviders,
+        swap12MInstrumentProviders);
   }
 }
