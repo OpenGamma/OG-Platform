@@ -30,6 +30,7 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * A security source based on the Bloomberg data source.
+ * This class is now implemented on top of SecurityProvider and is effectively deprecated. 
  */
 public final class BloombergSecuritySource implements SecuritySource {
 

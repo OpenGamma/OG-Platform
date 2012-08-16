@@ -32,6 +32,7 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * Loads time-series from Bloomberg.
+ * This class is now implemented on top of HistoricalTimeSeriesProvider and is effectively deprecated. 
  */
 public class BloombergHistoricalTimeSeriesSource implements HistoricalTimeSeriesSource {
 
