@@ -48,7 +48,7 @@ public class ISDAInterpolator1D extends Interpolator1D {
 
   @Override
   public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, Double value) {
-    return null;
+    throw new UnsupportedOperationException("Nodal sensitivities are not supported for the ISDA interpolation method");
   }
 
   @Override

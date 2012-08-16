@@ -9,21 +9,29 @@ import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.interestrate.method.PricingMethod;
+import com.opengamma.analytics.financial.instrument.cds.CDSDefinition;
+import com.opengamma.analytics.financial.instrument.cds.CDSPremiumDefinition;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
+import com.opengamma.analytics.math.rootfinding.SingleRootFinder;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.businessday.FollowingBusinessDayConvention;
+import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.convention.daycount.ActualThreeSixty;
 import com.opengamma.financial.convention.daycount.ActualThreeSixtyFive;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.frequency.SimpleFrequency;
+import com.opengamma.util.money.Currency;
 
 /**
  * An approximation to the calculation method for the ISDA CDS model
@@ -69,6 +77,60 @@ public class CDSApproxISDAMethod {
     
     return cleanPrice ? dirtyPrice + cds.getAccruedInterest() : dirtyPrice;
   }
+  
+  public double calculateUpfrontCharge(final CDSDerivative cds, final ISDACurve discountCurve, double flatSpread,
+      final ZonedDateTime pricingDate, final ZonedDateTime stepinDate, final ZonedDateTime settlementDate, boolean cleanPrice) {
+    
+    final CouponFixed[] premiumPayments = cds.getPremium().getPayments();
+    final ZonedDateTime startDate = premiumPayments[0].getAccrualStartDate();
+    final ZonedDateTime maturityDate = premiumPayments[premiumPayments.length - 1].getAccrualEndDate();
+    
+    final double[] timePoints = {cds.getMaturity()};
+    final double[] dataPoints = {flatSpread};
+
+    final CDSDefinition zeroCDSDefinition = makeZeroCDSDefintion(startDate, maturityDate, dataPoints[0], cds.getRecoveryRate());
+    final CDSDerivative zeroCDS = zeroCDSDefinition.toDerivative(pricingDate, "IR_CURVE", "TEMP_CURVE");
+    
+    SingleRootFinder<Double, Double> rootFinder = new BrentSingleRootFinder(1E-10);
+    
+    dataPoints[0] = rootFinder.getRoot(
+      new Function1D<Double, Double>() {
+        @Override
+        public Double evaluate(Double x) {
+          System.out.println("Evaluating " + x);
+          dataPoints[0] = x;   
+          ISDACurve tempCurve = new ISDACurve("TEMP_CURVE", timePoints, dataPoints, 0.0);
+          return calculateUpfrontCharge(zeroCDS, discountCurve, tempCurve, pricingDate, stepinDate, settlementDate, true);
+        }  
+      },
+      0.0, 1.0
+    );
+    
+    final ISDACurve hazardRateCurve = new ISDACurve("HAZARD_RATE_CURVE", timePoints, dataPoints, 0.0);
+      
+    return calculateUpfrontCharge(cds, discountCurve, hazardRateCurve, pricingDate, stepinDate, settlementDate, cleanPrice);
+  }
+  
+  private CDSDefinition makeZeroCDSDefintion(ZonedDateTime startDate, ZonedDateTime maturity, final double spread, final double recoveryRate) {
+    
+    final double notional = 1.0;
+    
+    // TODO: source these values from somewhere
+    final Frequency couponFrequency = SimpleFrequency.QUARTERLY;
+    final Calendar calendar = new MondayToFridayCalendar("TestCalendar");
+    final DayCount dayCount = new ActualThreeSixty();
+    final BusinessDayConvention convention = new FollowingBusinessDayConvention();
+    
+    final CDSPremiumDefinition premiumDefinition = CDSPremiumDefinition.fromISDA(
+        Currency.USD, startDate, maturity,
+        couponFrequency, calendar, dayCount, convention,
+        notional, spread,
+        /* protect start */ true);
+    
+    return new CDSDefinition(premiumDefinition, null, startDate, maturity, notional, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true, dayCount);
+  }
+  
+
 
   /**
    * Value the premium leg of a CDS taken from the step-in date.
@@ -112,7 +174,6 @@ public class CDSApproxISDAMethod {
     
     for (int i = 0; i < premiums.length; i++) {
       
-      // TODO: Use payment date != period end date for discount of final payment, since maturity is not adjusted for calendars
       payment = premiums[i];
       accrualPeriodEnd = i < maturityIndex ? payment.getAccrualEndDate() : maturityDate;
       periodEnd = getTimeBetween(pricingDate, accrualPeriodEnd.minusDays(offset));

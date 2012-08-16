@@ -50,7 +50,7 @@ public class CDSApproxISDAMethodTest extends CDSTestSetup {
     final ZonedDateTime settlementDate = ZonedDateTime.of(2008, 9, 23, 0, 0, 0, 0, TimeZone.UTC);
     
     final CDSDerivative cds = loadCDS_ISDAExampleCDSCalcualtor().toDerivative(pricingDate, "IR_CURVE", "HAZARD_RATE_CURVE");   
-    final ISDACurve discountCurve = loadDiscountCurve_ISDAExampleCDSCalculator_FlatIRCurve();
+    final ISDACurve discountCurve = loadDiscountCurve_ISDAExampleCDSExcelFlat();
     final ISDACurve hazardRateCurve = loadHazardRateCurve_ISDAExampleCDSCalculator_FlatIRCurve();
     
     final CDSApproxISDAMethod method = new CDSApproxISDAMethod();
@@ -72,7 +72,7 @@ public class CDSApproxISDAMethodTest extends CDSTestSetup {
     final ZonedDateTime settlementDate = ZonedDateTime.of(2008, 9, 23, 0, 0, 0, 0, TimeZone.UTC);
     
     final CDSDerivative cds = loadCDS_ISDAExampleCDSCalcualtor().toDerivative(pricingDate, "IR_CURVE", "HAZARD_RATE_CURVE"); 
-    final ISDACurve discountCurve = loadDiscountCurve_ISDAExampleCDSCalculator();
+    final ISDACurve discountCurve = loadDiscountCurve_ISDAExampleExcel();
     final ISDACurve hazardRateCurve = loadHazardRateCurve_ISDAExampleCDSCalculator();
     
     final CDSApproxISDAMethod method = new CDSApproxISDAMethod();
@@ -84,6 +84,30 @@ public class CDSApproxISDAMethodTest extends CDSTestSetup {
     
     Assert.assertTrue(cleanPriceError < 1E-15);
     Assert.assertTrue(dirtyPriceError < 1E-15);
+  }
+  
+  @Test
+  public void testISDAExcelCDSConverter() {
+    
+    final ZonedDateTime pricingDate = ZonedDateTime.of(2008, 9, 18, 0, 0, 0, 0, TimeZone.UTC);
+    final ZonedDateTime stepinDate = pricingDate.plusDays(1);
+    final ZonedDateTime settlementDate = ZonedDateTime.of(2008, 9, 23, 0, 0, 0, 0, TimeZone.UTC);
+    
+    final CDSDerivative cds = loadCDS_ISDAExampleUpfrontConverter().toDerivative(pricingDate, "IR_CURVE", "HAZARD_RATE_CURVE"); 
+    final ISDACurve discountCurve = loadDiscountCurve_ISDAExampleExcel();
+    
+    final CDSApproxISDAMethod method = new CDSApproxISDAMethod();
+
+    //final double cleanPrice = method.calculateUpfrontCharge(cds, discountCurve, 0.001, pricingDate, stepinDate, settlementDate, true);
+    final double dirtyPrice = method.calculateUpfrontCharge(cds, discountCurve, 0.055, pricingDate, stepinDate, settlementDate, false);
+    //final double cleanPriceError = Math.abs( (cleanPrice - 1605993.21801408) / cds.getNotional() );
+    final double dirtyPriceError = Math.abs( (dirtyPrice - 59463.6983992436) / cds.getNotional() );
+    
+    //Assert.assertTrue(cleanPriceError < 1E-15);
+    Assert.assertTrue(dirtyPriceError < 1E-15);
+    
+    //System.out.println( cleanPrice );
+    System.out.println( dirtyPrice );
   }
   
 }

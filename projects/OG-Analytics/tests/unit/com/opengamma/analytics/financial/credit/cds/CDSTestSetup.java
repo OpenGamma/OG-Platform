@@ -292,35 +292,41 @@ public class CDSTestSetup {
     return new CDSDefinition(premiumDefinition, null, startDate, maturity, notional, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true, dayCount);
   }
   
-  protected ISDACurve loadDiscountCurve_ISDAExampleCDSCalculator_FlatIRCurve() {
+  protected CDSDefinition loadCDS_ISDAExampleUpfrontConverter() {
+    
+    final ZonedDateTime startDate = ZonedDateTime.of(2007, 3, 20, 0, 0, 0, 0, TimeZone.UTC);
+    final ZonedDateTime maturity = ZonedDateTime.of(2013, 6, 20, 0, 0, 0, 0, TimeZone.UTC);
+    final double notional = 10000000, spread = 0.05 /* 500bp */, recoveryRate = 0.4;
+    
+    final Frequency couponFrequency = SimpleFrequency.QUARTERLY;
+    final Calendar calendar = new MondayToFridayCalendar("TestCalendar");
+    final DayCount dayCount = new ActualThreeSixty();
+    final BusinessDayConvention convention = new FollowingBusinessDayConvention();
+    
+    final CDSPremiumDefinition premiumDefinition = CDSPremiumDefinition.fromISDA(Currency.USD, startDate, maturity, couponFrequency, calendar, dayCount, convention, notional, spread, /* protect start */ true);
+    
+    return new CDSDefinition(premiumDefinition, null, startDate, maturity, notional, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true, dayCount);
+  }
+  
+  protected ISDACurve loadHazardRateCurve_ISDAExampleCDSCalculator() {
     
     final ZonedDateTime baseDate = ZonedDateTime.of(2008, 9, 18, 0, 0, 0, 0, TimeZone.UTC);
     
     double[] times = {
-        0.0,
-        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2008, 11, 28, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2009, 2, 27, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2009, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2010, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2011, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2012, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2013, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2014, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2015, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2016, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2017, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2018, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2019, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2020, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2023, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2028, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2033, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2038, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
+      0.0,
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2013, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2015, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2018, 06, 20, 0, 0, 0, 0, TimeZone.UTC))
     };
     
-    double[] rates = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+    double[] rates = {
+      (new PeriodicInterestRate(0.09709857471184660000,1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.09709857471184660000,1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.09705141266558010000,1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.09701141671498870000,1)).toContinuous().getRate()
+    };
     
-    return new ISDACurve("IR_CURVE", times, rates, 0.0);
+    return new ISDACurve("HAZARD_RATE_CURVE", times, rates, 0.0);
   }
   
   protected ISDACurve loadHazardRateCurve_ISDAExampleCDSCalculator_FlatIRCurve() {
@@ -342,7 +348,7 @@ public class CDSTestSetup {
     return new ISDACurve("HAZARD_RATE_CURVE", times, rates, 0.0);
   }
   
-  protected ISDACurve loadDiscountCurve_ISDAExampleCDSCalculator() {
+  protected ISDACurve loadDiscountCurve_ISDAExampleExcel() {
     
     final ZonedDateTime pricingDate = ZonedDateTime.of(2008, 9, 18, 0, 0, 0, 0, TimeZone.UTC);
     final ZonedDateTime baseDate = ZonedDateTime.of(2008, 9, 22, 0, 0, 0, 0, TimeZone.UTC);
@@ -486,25 +492,35 @@ public class CDSTestSetup {
     return new ISDACurve("IR_CURVE", times, rates, s_act365.getDayCountFraction(pricingDate, baseDate));
   }
   
-  protected ISDACurve loadHazardRateCurve_ISDAExampleCDSCalculator() {
+  protected ISDACurve loadDiscountCurve_ISDAExampleCDSExcelFlat() {
     
     final ZonedDateTime baseDate = ZonedDateTime.of(2008, 9, 18, 0, 0, 0, 0, TimeZone.UTC);
     
     double[] times = {
-      0.0,
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2013, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2015, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2018, 06, 20, 0, 0, 0, 0, TimeZone.UTC))
+        0.0,
+        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2008, 11, 28, 0, 0, 0, 0, TimeZone.UTC)),
+        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2009, 2, 27, 0, 0, 0, 0, TimeZone.UTC)),
+        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2009, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
+        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2010, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
+        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2011, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
+        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2012, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
+        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2013, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
+        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2014, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
+        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2015, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
+        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2016, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
+        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2017, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
+        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2018, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
+        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2019, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
+        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2020, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
+        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2023, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
+        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2028, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
+        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2033, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
+        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2038, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
     };
     
-    double[] rates = {
-      (new PeriodicInterestRate(0.09709857471184660000,1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.09709857471184660000,1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.09705141266558010000,1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.09701141671498870000,1)).toContinuous().getRate()
-    };
+    double[] rates = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
     
-    return new ISDACurve("HAZARD_RATE_CURVE", times, rates, 0.0);
+    return new ISDACurve("IR_CURVE", times, rates, 0.0);
   }
 
 }
