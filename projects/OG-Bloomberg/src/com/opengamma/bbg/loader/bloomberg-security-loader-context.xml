@@ -7,7 +7,7 @@
   <!-- Bloomberg data loaders -->
   <import resource="classpath:bbgData-${opengamma.platform.marketdatasource}.xml" />
   
-	<bean id="bbgBulkSecLoader" class="com.opengamma.bbg.loader.BloombergBulkSecurityLoader">
+	<bean id="bloombergSecurityProvider" class="com.opengamma.bbg.security.BloombergSecurityProvider">
 		<constructor-arg ref="bloombergReferenceDataProvider" />
 		<constructor-arg>
       <bean class="com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider" />
@@ -15,8 +15,8 @@
 	</bean>
 
 	<bean id="securityLoader" class="com.opengamma.bbg.loader.BloombergSecurityFileLoader">
+    <constructor-arg ref="bloombergSecurityProvider" />
 		<constructor-arg ref="dbSecurityMaster" />
-		<constructor-arg ref="bbgBulkSecLoader" />
 		<property name="refDataProvider" ref="bloombergReferenceDataProvider" />
 	</bean>
 

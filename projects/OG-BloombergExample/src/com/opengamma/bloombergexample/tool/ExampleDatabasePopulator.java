@@ -16,9 +16,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergIdentifierProvider;
-import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.component.BloombergTimeSeriesUpdateTool;
-import com.opengamma.bbg.loader.BloombergBulkSecurityLoader;
 import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
 import com.opengamma.bbg.loader.BloombergSecurityLoader;
 import com.opengamma.bbg.tool.BloombergToolContext;
@@ -34,14 +32,13 @@ import com.opengamma.financial.analytics.volatility.surface.FXOptionVolatilitySu
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
 import com.opengamma.financial.generator.StaticNameGenerator;
 import com.opengamma.financial.security.equity.EquitySecurity;
-import com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider;
-import com.opengamma.financial.timeseries.exchange.ExchangeDataProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
+import com.opengamma.provider.security.SecurityProvider;
 import com.opengamma.util.generate.scripts.Scriptable;
 import com.opengamma.util.money.Currency;
 
@@ -142,11 +139,9 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
   }
 
   private void loadFutures(Set<ExternalIdBundle> identifiers) {
-    SecurityMaster secMaster = getToolContext().getSecurityMaster();
-    ReferenceDataProvider referenceDataProvider = ((BloombergToolContext) getToolContext()).getBloombergReferenceDataProvider();
-    ExchangeDataProvider exchangeDataProvider = new DefaultExchangeDataProvider();
-    BloombergBulkSecurityLoader bulkSecurityLoader = new BloombergBulkSecurityLoader(referenceDataProvider, exchangeDataProvider);
-    BloombergSecurityLoader securityLoader = new BloombergSecurityLoader(secMaster, bulkSecurityLoader);
+    SecurityMaster securityMaster = getToolContext().getSecurityMaster();
+    SecurityProvider securityProvider = getToolContext().getSecurityProvider();
+    BloombergSecurityLoader securityLoader = new BloombergSecurityLoader(securityProvider, securityMaster);
     securityLoader.loadSecurity(identifiers);
   }
 

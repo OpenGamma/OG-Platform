@@ -24,7 +24,6 @@ import com.opengamma.bbg.BloombergIdentifierProvider;
 import com.opengamma.bbg.BloombergSecuritySource;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.RemoteReferenceDataProviderFactoryBean;
-import com.opengamma.bbg.loader.BloombergBulkSecurityLoader;
 import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
 import com.opengamma.bbg.loader.BloombergSecurityLoader;
 import com.opengamma.bbg.security.BloombergSecurityProvider;
@@ -40,6 +39,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.provider.security.SecurityProvider;
 import com.opengamma.transport.jaxrs.UriEndPointUriFactoryBean;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.jms.JmsConnector;
@@ -64,6 +64,11 @@ public class IntegrationDataComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition(validate = "notNull")
   private String _referenceDataJmsTopic;
 
+  /**
+   * The security provider.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private SecurityProvider _securityProvider;
   /**
    * The security master.
    */
@@ -135,14 +140,7 @@ public class IntegrationDataComponentFactory extends AbstractComponentFactory {
   }
 
   protected SecurityLoader createSecurityLoader(ReferenceDataProvider refData, HistoricalTimeSeriesSource bbgHtsSource) {
-    // bulk loader
-    ExchangeDataProvider exchangeDataProvider = initExchangeDataProvider();
-    BloombergBulkSecurityLoader bbgBulkSecLoader = new BloombergBulkSecurityLoader(refData, exchangeDataProvider);
-
-    // security master loader
-    SecurityLoader bbgSecLoader = new BloombergSecurityLoader(getSecurityMaster(), bbgBulkSecLoader);
-
-    return bbgSecLoader;
+    return new BloombergSecurityLoader(getSecurityProvider(), getSecurityMaster());
   }
   
   protected HistoricalTimeSeriesLoader initHistoricalTimeSeriesLoader(ComponentRepository repo, ReferenceDataProvider refData, HistoricalTimeSeriesSource bbgHtsSource) {
@@ -182,6 +180,8 @@ public class IntegrationDataComponentFactory extends AbstractComponentFactory {
         return getBbgServerConfigurationUri();
       case 580124724:  // referenceDataJmsTopic
         return getReferenceDataJmsTopic();
+      case 809869649:  // securityProvider
+        return getSecurityProvider();
       case -887218750:  // securityMaster
         return getSecurityMaster();
       case 173967376:  // historicalTimeSeriesMaster
@@ -203,6 +203,9 @@ public class IntegrationDataComponentFactory extends AbstractComponentFactory {
       case 580124724:  // referenceDataJmsTopic
         setReferenceDataJmsTopic((String) newValue);
         return;
+      case 809869649:  // securityProvider
+        setSecurityProvider((SecurityProvider) newValue);
+        return;
       case -887218750:  // securityMaster
         setSecurityMaster((SecurityMaster) newValue);
         return;
@@ -223,6 +226,7 @@ public class IntegrationDataComponentFactory extends AbstractComponentFactory {
   protected void validate() {
     JodaBeanUtils.notNull(_bbgServerConfigurationUri, "bbgServerConfigurationUri");
     JodaBeanUtils.notNull(_referenceDataJmsTopic, "referenceDataJmsTopic");
+    JodaBeanUtils.notNull(_securityProvider, "securityProvider");
     JodaBeanUtils.notNull(_securityMaster, "securityMaster");
     JodaBeanUtils.notNull(_historicalTimeSeriesMaster, "historicalTimeSeriesMaster");
     JodaBeanUtils.notNull(_fudgeContext, "fudgeContext");
@@ -239,6 +243,7 @@ public class IntegrationDataComponentFactory extends AbstractComponentFactory {
       IntegrationDataComponentFactory other = (IntegrationDataComponentFactory) obj;
       return JodaBeanUtils.equal(getBbgServerConfigurationUri(), other.getBbgServerConfigurationUri()) &&
           JodaBeanUtils.equal(getReferenceDataJmsTopic(), other.getReferenceDataJmsTopic()) &&
+          JodaBeanUtils.equal(getSecurityProvider(), other.getSecurityProvider()) &&
           JodaBeanUtils.equal(getSecurityMaster(), other.getSecurityMaster()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
           JodaBeanUtils.equal(getFudgeContext(), other.getFudgeContext()) &&
@@ -253,6 +258,7 @@ public class IntegrationDataComponentFactory extends AbstractComponentFactory {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getBbgServerConfigurationUri());
     hash += hash * 31 + JodaBeanUtils.hashCode(getReferenceDataJmsTopic());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityProvider());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFudgeContext());
@@ -310,6 +316,32 @@ public class IntegrationDataComponentFactory extends AbstractComponentFactory {
    */
   public final Property<String> referenceDataJmsTopic() {
     return metaBean().referenceDataJmsTopic().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the security provider.
+   * @return the value of the property, not null
+   */
+  public SecurityProvider getSecurityProvider() {
+    return _securityProvider;
+  }
+
+  /**
+   * Sets the security provider.
+   * @param securityProvider  the new value of the property, not null
+   */
+  public void setSecurityProvider(SecurityProvider securityProvider) {
+    JodaBeanUtils.notNull(securityProvider, "securityProvider");
+    this._securityProvider = securityProvider;
+  }
+
+  /**
+   * Gets the the {@code securityProvider} property.
+   * @return the property, not null
+   */
+  public final Property<SecurityProvider> securityProvider() {
+    return metaBean().securityProvider().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -437,6 +469,11 @@ public class IntegrationDataComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<String> _referenceDataJmsTopic = DirectMetaProperty.ofReadWrite(
         this, "referenceDataJmsTopic", IntegrationDataComponentFactory.class, String.class);
     /**
+     * The meta-property for the {@code securityProvider} property.
+     */
+    private final MetaProperty<SecurityProvider> _securityProvider = DirectMetaProperty.ofReadWrite(
+        this, "securityProvider", IntegrationDataComponentFactory.class, SecurityProvider.class);
+    /**
      * The meta-property for the {@code securityMaster} property.
      */
     private final MetaProperty<SecurityMaster> _securityMaster = DirectMetaProperty.ofReadWrite(
@@ -463,6 +500,7 @@ public class IntegrationDataComponentFactory extends AbstractComponentFactory {
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "bbgServerConfigurationUri",
         "referenceDataJmsTopic",
+        "securityProvider",
         "securityMaster",
         "historicalTimeSeriesMaster",
         "fudgeContext",
@@ -481,6 +519,8 @@ public class IntegrationDataComponentFactory extends AbstractComponentFactory {
           return _bbgServerConfigurationUri;
         case 580124724:  // referenceDataJmsTopic
           return _referenceDataJmsTopic;
+        case 809869649:  // securityProvider
+          return _securityProvider;
         case -887218750:  // securityMaster
           return _securityMaster;
         case 173967376:  // historicalTimeSeriesMaster
@@ -523,6 +563,14 @@ public class IntegrationDataComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<String> referenceDataJmsTopic() {
       return _referenceDataJmsTopic;
+    }
+
+    /**
+     * The meta-property for the {@code securityProvider} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<SecurityProvider> securityProvider() {
+      return _securityProvider;
     }
 
     /**

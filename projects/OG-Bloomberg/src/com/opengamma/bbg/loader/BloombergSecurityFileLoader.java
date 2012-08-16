@@ -50,6 +50,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.provider.security.SecurityProvider;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
@@ -84,13 +85,15 @@ public class BloombergSecurityFileLoader {
   private ExternalScheme _scheme;
 
   /**
-   * @param secMaster the security master, not-null
-   * @param bbgBulkSecLoader bloomberg security loader, not-null
+   * Creates an instance.
+   * 
+   * @param securityMaster  the security master, not null
+   * @param securityProvider  bloomberg security loader, not null
    */
-  public BloombergSecurityFileLoader(final SecurityMaster secMaster, final BloombergBulkSecurityLoader bbgBulkSecLoader) {
-    ArgumentChecker.notNull(secMaster, "secMaster");
-    ArgumentChecker.notNull(bbgBulkSecLoader, "BloombergBulkSecurityLoader");
-    _securityLoader = new BloombergSecurityLoader(secMaster, bbgBulkSecLoader);
+  public BloombergSecurityFileLoader(final SecurityProvider securityProvider, final SecurityMaster securityMaster) {
+    ArgumentChecker.notNull(securityProvider, "securityProvider");
+    ArgumentChecker.notNull(securityMaster, "securityMaster");
+    _securityLoader = new BloombergSecurityLoader(securityProvider, securityMaster);
   }
 
   //-------------------------------------------------------------------------
