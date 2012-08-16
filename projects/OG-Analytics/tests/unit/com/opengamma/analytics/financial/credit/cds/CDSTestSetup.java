@@ -8,8 +8,6 @@ import javax.time.calendar.Period;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-import org.testng.annotations.BeforeClass;
-
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityPaymentFixedDefinition;
 import com.opengamma.analytics.financial.instrument.cds.CDSDefinition;
@@ -17,12 +15,9 @@ import com.opengamma.analytics.financial.instrument.cds.CDSPremiumDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.analytics.financial.interestrate.PeriodicInterestRate;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
-import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
-import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.FollowingBusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -51,39 +46,75 @@ public class CDSTestSetup {
       return -1.0 * s_act365.getDayCountFraction(rebasedDate2, date1);
     }
   }
+  
+  
+  /*
+   * ------------------------------------------
+   * Test data for the Simple CDS pricing model
+   * ------------------------------------------
+   */
+  
+  protected CDSDefinition loadCDS_SimpleModel() {
+    
+    ZonedDateTime pricingDate = ZonedDateTime.of(2010, 12, 31, 0, 0, 0, 0, TimeZone.UTC);
 
-  protected static CDSDerivative _isdaTestCDS;
-  protected static YieldCurveBundle _isdaTestCurveBundle;
-  protected static YieldCurveBundle _simpleTestCurveBundle;
-  protected static CDSDerivative _simpleTestCDS;
-  protected static YieldCurve _isdaTestSpreadCurve;
-  protected static YieldCurve _isdaTestCdsCcyYieldCurve;
-  protected static ZonedDateTime _simpleTestPricingDate;
-  protected static ZonedDateTime _simpleTestStepinDate;
-  protected static ZonedDateTime _isdaTestPricingDate;
-  protected static ZonedDateTime _isdaTestStepinDate;
+  
+    ZonedDateTime startDate = ZonedDateTime.of(2010, 12, 20, 0, 0, 0, 0, TimeZone.UTC);
+    ZonedDateTime maturity = ZonedDateTime.of(2020, 12, 20, 0, 0, 0, 0, TimeZone.UTC);
+    ZonedDateTime bondMaturity = ZonedDateTime.of(2016, 6, 20, 0, 0, 0, 0, TimeZone.UTC);
+    
+    double notional = 1.0;
+    double spread = 0.0025;
+    double recoveryRate = 0.6;
+    Currency currency = Currency.GBP;
+    Frequency premiumFrequency = SimpleFrequency.QUARTERLY;
+    PeriodFrequency bondPremiumFrequency = PeriodFrequency.ANNUAL;
 
-  @BeforeClass
-  public static void setupBeforeClass() {
-    setupSimpleTestData();
+    Calendar calendar = new MondayToFridayCalendar("TestCalendar");
+    DayCount dayCount = new ActualThreeSixtyFive();
+    BusinessDayConvention convention = new FollowingBusinessDayConvention();
+  
+    final AnnuityCouponFixedDefinition premiumDefinition = AnnuityCouponFixedDefinition.from(currency, startDate, maturity, premiumFrequency, calendar, dayCount, convention, /*EOM*/ false, notional, spread, /*isPayer*/false);
+  
+    List<ZonedDateTime> possibleDefaultDates = scheduleDatesInRange(bondMaturity, bondPremiumFrequency.getPeriod(), pricingDate, maturity, calendar, convention);
+    if (maturity.isAfter(bondMaturity)) {
+      possibleDefaultDates.add(convention.adjustDate(calendar, maturity));
+    }
+  
+    PaymentFixedDefinition[] defaultPayments = new PaymentFixedDefinition[possibleDefaultDates.size()];
+  
+    for (int i = 0; i < defaultPayments.length; ++i) {
+      defaultPayments[i] = new PaymentFixedDefinition(currency, possibleDefaultDates.get(i), notional * (1.0 - recoveryRate));
+    }
+  
+    final AnnuityPaymentFixedDefinition payoutDefinition = new AnnuityPaymentFixedDefinition(defaultPayments);
+    
+    return new CDSDefinition(premiumDefinition, payoutDefinition, startDate, maturity, notional, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true, dayCount);
+    
+  }
+  
+  protected static List<ZonedDateTime> scheduleDatesInRange(ZonedDateTime maturity, Period schedulePeriod, ZonedDateTime earliest, ZonedDateTime latest,
+    Calendar calendar, BusinessDayConvention convention) {
+
+  List<ZonedDateTime> datesInRange = new ArrayList<ZonedDateTime>();
+  ZonedDateTime scheduleDate = maturity;
+  int periods = 0;
+
+  while (scheduleDate.isAfter(latest)) {
+    scheduleDate = convention.adjustDate(calendar, maturity.minus(schedulePeriod.multipliedBy(++periods)));
   }
 
-  public static void setupSimpleTestData() {
+  while (!scheduleDate.isBefore(earliest)) {
+    datesInRange.add(scheduleDate);
+    scheduleDate = convention.adjustDate(calendar, maturity.minus(schedulePeriod.multipliedBy(++periods)));
+  }
+
+  Collections.reverse(datesInRange);
+  return datesInRange;
+}
+  
+  protected YieldCurveBundle loadCurveBundle_SimpleModel() {
     
-    _simpleTestPricingDate = ZonedDateTime.of(2010, 12, 31, 0, 0, 0, 0, TimeZone.UTC);
-    _simpleTestStepinDate = ZonedDateTime.of(2011, 1, 4, 0, 0, 0, 0, TimeZone.UTC);
-  
-    double notional = 1.0;
-    double recoveryRate = 0.6;
-    double spread = 0.0025;
-    Currency currency = Currency.GBP;
-    ZonedDateTime protectionStartDate = ZonedDateTime.of(2010, 12, 20, 0, 0, 0, 0, TimeZone.UTC);
-    ZonedDateTime maturity = ZonedDateTime.of(2020, 12, 20, 0, 0, 0, 0, TimeZone.UTC);
-    Frequency premiumFrequency = SimpleFrequency.QUARTERLY;
-  
-    ZonedDateTime bondMaturity = ZonedDateTime.of(2016, 6, 20, 0, 0, 0, 0, TimeZone.UTC);
-    PeriodFrequency bondPremiumFrequency = PeriodFrequency.ANNUAL;
-  
     final double[] timePoints = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
     final double[] cdsCcyPoints = {
       0.00673222222222214000,
@@ -132,80 +163,70 @@ public class CDSTestSetup {
     final YieldCurve bondCcyYieldCurve = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(timePoints, bondCcyPoints, new LinearInterpolator1D()));
     final YieldCurve spreadCurve = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(timePoints, spreadPoints, new LinearInterpolator1D()));
   
-    _simpleTestCurveBundle = new YieldCurveBundle();
-    _simpleTestCurveBundle.setCurve("CDS_CCY", cdsCcyYieldCurve);
-    _simpleTestCurveBundle.setCurve("BOND_CCY", bondCcyYieldCurve);
-    _simpleTestCurveBundle.setCurve("SPREAD", spreadCurve);
-  
-    Calendar calendar = new MondayToFridayCalendar("TestCalendar");
-    DayCount dayCount = new ActualThreeSixtyFive();
-    BusinessDayConvention convention = new FollowingBusinessDayConvention();
-  
-    final AnnuityCouponFixedDefinition premiumDefinition = AnnuityCouponFixedDefinition.from(currency, protectionStartDate, maturity, premiumFrequency, calendar, dayCount, convention, /*EOM*/ false, notional, spread, /*isPayer*/false);
-    final AnnuityCouponFixed premiums = premiumDefinition.toDerivative(_simpleTestPricingDate, "CDS_CCY");
-  
-    List<ZonedDateTime> possibleDefaultDates = scheduleDatesInRange(bondMaturity, bondPremiumFrequency.getPeriod(), _simpleTestPricingDate, maturity, calendar, convention);
-    if (maturity.isAfter(bondMaturity)) {
-      possibleDefaultDates.add(convention.adjustDate(calendar, maturity));
-    }
-  
-    PaymentFixedDefinition[] defaultPayments = new PaymentFixedDefinition[possibleDefaultDates.size()];
-  
-    for (int i = 0; i < defaultPayments.length; ++i) {
-      defaultPayments[i] = new PaymentFixedDefinition(currency, possibleDefaultDates.get(i), notional * (1.0 - recoveryRate));
-    }
-  
-    final AnnuityPaymentFixed payouts = (new AnnuityPaymentFixedDefinition(defaultPayments)).toDerivative(_simpleTestPricingDate, "CDS_CCY");
-  
+    YieldCurveBundle bundle = new YieldCurveBundle();
+    bundle.setCurve("CDS_CCY", cdsCcyYieldCurve);
+    bundle.setCurve("BOND_CCY", bondCcyYieldCurve);
+    bundle.setCurve("SPREAD", spreadCurve);
     
-    _simpleTestCDS = new CDSDerivative(
-      "CDS_CCY", "SPREAD", "BOND_CCY",
-      premiums, payouts,
-      TimeCalculator.getTimeBetween(_simpleTestPricingDate, protectionStartDate), TimeCalculator.getTimeBetween(_simpleTestPricingDate, maturity),
-      notional, spread, recoveryRate, 0.0, /*accrual on default*/ true, /*pay on default*/ true, /*protect start*/ false);
+    return bundle;
   }
+  
+  
+  /*
+   * -------------------------------------------------------------------------------
+   * Data for the ISDA examples provided in main.c as test driver for reference code
+   * -------------------------------------------------------------------------------
+   */
+  
+  protected CDSDefinition loadCDS_ISDAExampleMainC(final double spreadBasisPoints) {
+    
+    final ZonedDateTime startDate = ZonedDateTime.of(2008, 2, 8, 0, 0, 0, 0, TimeZone.UTC);
+    final ZonedDateTime maturity = ZonedDateTime.of(2008, 2, 12, 0, 0, 0, 0, TimeZone.UTC);
+    
+    final double notional = 1.0e7;
+    final double spread = spreadBasisPoints/10000.0;
+    final double recoveryRate = 0.4;
 
-  public static void setupIsdaTestData(double spread) {
-      _isdaTestPricingDate = ZonedDateTime.of(2008, 2, 1, 0, 0, 0, 0, TimeZone.UTC);
-      _isdaTestStepinDate = ZonedDateTime.of(2008, 2, 9, 0, 0, 0, 0, TimeZone.UTC);
+    final Frequency premiumFrequency = SimpleFrequency.QUARTERLY;
+    final Calendar calendar = new MondayToFridayCalendar("TestCalendar");
+    final DayCount dayCount = new ActualThreeSixty();
+    final BusinessDayConvention convention = new FollowingBusinessDayConvention();
+
+    final CDSPremiumDefinition premiumDefinition = CDSPremiumDefinition.fromISDA(Currency.USD, startDate, maturity, premiumFrequency, calendar, dayCount, convention, notional, spread, /* protectStart */ true);
+
+    return new CDSDefinition(premiumDefinition, null, startDate, maturity, notional, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true, dayCount);
+  }
   
-      Currency currency = Currency.USD;
-      double notional = 1.0e7;
-      double recoveryRate = 0.4;
-      spread = spread/10000.0;
-      ZonedDateTime cdsStartDate = ZonedDateTime.of(2008, 2, 8, 0, 0, 0, 0, TimeZone.UTC);
-      ZonedDateTime maturity = ZonedDateTime.of(2008, 2, 12, 0, 0, 0, 0, TimeZone.UTC);
-      Frequency premiumFrequency = SimpleFrequency.QUARTERLY;
-      boolean protectStart = true;
-  
-      double[] discountCurveTimePoints = {
-        0.0,
-        TimeCalculator.getTimeBetween(_isdaTestPricingDate, ZonedDateTime.of(2008, 2, 3, 0, 0, 0, 0, TimeZone.UTC)),
-        TimeCalculator.getTimeBetween(_isdaTestPricingDate, ZonedDateTime.of(2008, 3, 3, 0, 0, 0, 0, TimeZone.UTC)),
-        TimeCalculator.getTimeBetween(_isdaTestPricingDate, ZonedDateTime.of(2008, 4, 3, 0, 0, 0, 0, TimeZone.UTC)),
-        TimeCalculator.getTimeBetween(_isdaTestPricingDate, ZonedDateTime.of(2008, 7, 3, 0, 0, 0, 0, TimeZone.UTC)),
-        TimeCalculator.getTimeBetween(_isdaTestPricingDate, ZonedDateTime.of(2008, 10, 3, 0, 0, 0, 0, TimeZone.UTC)),
-        TimeCalculator.getTimeBetween(_isdaTestPricingDate, ZonedDateTime.of(2009, 1, 5, 0, 0, 0, 0, TimeZone.UTC)),
-        TimeCalculator.getTimeBetween(_isdaTestPricingDate, ZonedDateTime.of(2009, 7, 3, 0, 0, 0, 0, TimeZone.UTC)),
-        TimeCalculator.getTimeBetween(_isdaTestPricingDate, ZonedDateTime.of(2010, 1, 4, 0, 0, 0, 0, TimeZone.UTC)),
-        TimeCalculator.getTimeBetween(_isdaTestPricingDate, ZonedDateTime.of(2010, 7, 5, 0, 0, 0, 0, TimeZone.UTC)),
-        TimeCalculator.getTimeBetween(_isdaTestPricingDate, ZonedDateTime.of(2011, 1, 3, 0, 0, 0, 0, TimeZone.UTC)),
-        TimeCalculator.getTimeBetween(_isdaTestPricingDate, ZonedDateTime.of(2011, 7, 4, 0, 0, 0, 0, TimeZone.UTC)),
-        TimeCalculator.getTimeBetween(_isdaTestPricingDate, ZonedDateTime.of(2012, 1, 3, 0, 0, 0, 0, TimeZone.UTC)),
-        TimeCalculator.getTimeBetween(_isdaTestPricingDate, ZonedDateTime.of(2012, 7, 3, 0, 0, 0, 0, TimeZone.UTC)),
-        TimeCalculator.getTimeBetween(_isdaTestPricingDate, ZonedDateTime.of(2013, 1, 3, 0, 0, 0, 0, TimeZone.UTC)),
-        TimeCalculator.getTimeBetween(_isdaTestPricingDate, ZonedDateTime.of(2013, 7, 3, 0, 0, 0, 0, TimeZone.UTC)),
-        TimeCalculator.getTimeBetween(_isdaTestPricingDate, ZonedDateTime.of(2014, 1, 3, 0, 0, 0, 0, TimeZone.UTC)),
-        TimeCalculator.getTimeBetween(_isdaTestPricingDate, ZonedDateTime.of(2014, 7, 3, 0, 0, 0, 0, TimeZone.UTC)),
-        TimeCalculator.getTimeBetween(_isdaTestPricingDate, ZonedDateTime.of(2015, 1, 5, 0, 0, 0, 0, TimeZone.UTC)),
-        TimeCalculator.getTimeBetween(_isdaTestPricingDate, ZonedDateTime.of(2015, 7, 3, 0, 0, 0, 0, TimeZone.UTC)),
-        TimeCalculator.getTimeBetween(_isdaTestPricingDate, ZonedDateTime.of(2016, 1, 4, 0, 0, 0, 0, TimeZone.UTC)),
-        TimeCalculator.getTimeBetween(_isdaTestPricingDate, ZonedDateTime.of(2016, 7, 4, 0, 0, 0, 0, TimeZone.UTC)),
-        TimeCalculator.getTimeBetween(_isdaTestPricingDate, ZonedDateTime.of(2017, 1, 3, 0, 0, 0, 0, TimeZone.UTC))
+  protected ISDACurve loadDiscountCurve_ISDAExampleMainC() {
+    
+    final ZonedDateTime baseDate = ZonedDateTime.of(2008, 2, 1, 0, 0, 0, 0, TimeZone.UTC);
+    
+    double[] times = {
+        getTimeBetween(baseDate, ZonedDateTime.of(2008, 2, 3, 0, 0, 0, 0, TimeZone.UTC)),
+        getTimeBetween(baseDate, ZonedDateTime.of(2008, 3, 3, 0, 0, 0, 0, TimeZone.UTC)),
+        getTimeBetween(baseDate, ZonedDateTime.of(2008, 4, 3, 0, 0, 0, 0, TimeZone.UTC)),
+        getTimeBetween(baseDate, ZonedDateTime.of(2008, 7, 3, 0, 0, 0, 0, TimeZone.UTC)),
+        getTimeBetween(baseDate, ZonedDateTime.of(2008, 10, 3, 0, 0, 0, 0, TimeZone.UTC)),
+        getTimeBetween(baseDate, ZonedDateTime.of(2009, 1, 5, 0, 0, 0, 0, TimeZone.UTC)),
+        getTimeBetween(baseDate, ZonedDateTime.of(2009, 7, 3, 0, 0, 0, 0, TimeZone.UTC)),
+        getTimeBetween(baseDate, ZonedDateTime.of(2010, 1, 4, 0, 0, 0, 0, TimeZone.UTC)),
+        getTimeBetween(baseDate, ZonedDateTime.of(2010, 7, 5, 0, 0, 0, 0, TimeZone.UTC)),
+        getTimeBetween(baseDate, ZonedDateTime.of(2011, 1, 3, 0, 0, 0, 0, TimeZone.UTC)),
+        getTimeBetween(baseDate, ZonedDateTime.of(2011, 7, 4, 0, 0, 0, 0, TimeZone.UTC)),
+        getTimeBetween(baseDate, ZonedDateTime.of(2012, 1, 3, 0, 0, 0, 0, TimeZone.UTC)),
+        getTimeBetween(baseDate, ZonedDateTime.of(2012, 7, 3, 0, 0, 0, 0, TimeZone.UTC)),
+        getTimeBetween(baseDate, ZonedDateTime.of(2013, 1, 3, 0, 0, 0, 0, TimeZone.UTC)),
+        getTimeBetween(baseDate, ZonedDateTime.of(2013, 7, 3, 0, 0, 0, 0, TimeZone.UTC)),
+        getTimeBetween(baseDate, ZonedDateTime.of(2014, 1, 3, 0, 0, 0, 0, TimeZone.UTC)),
+        getTimeBetween(baseDate, ZonedDateTime.of(2014, 7, 3, 0, 0, 0, 0, TimeZone.UTC)),
+        getTimeBetween(baseDate, ZonedDateTime.of(2015, 1, 5, 0, 0, 0, 0, TimeZone.UTC)),
+        getTimeBetween(baseDate, ZonedDateTime.of(2015, 7, 3, 0, 0, 0, 0, TimeZone.UTC)),
+        getTimeBetween(baseDate, ZonedDateTime.of(2016, 1, 4, 0, 0, 0, 0, TimeZone.UTC)),
+        getTimeBetween(baseDate, ZonedDateTime.of(2016, 7, 4, 0, 0, 0, 0, TimeZone.UTC)),
+        getTimeBetween(baseDate, ZonedDateTime.of(2017, 1, 3, 0, 0, 0, 0, TimeZone.UTC))
       };
   
-      double[] discountCurveRates = {
-        0.000000001013888972778431700000, /* copied first value for zero point */
+      double[] rates = {
         0.000000001013888972778431700000,
         0.000000001013888972778431700000,
         0.000000001013888972778431700000,
@@ -230,63 +251,30 @@ public class CDSTestSetup {
         0.000000000997973248135311370000
       };
       
-      double ccRate = (new PeriodicInterestRate(0.81582707425206369, 1)).toContinuous().getRate();
-      
-      double[] flatSpreadCurveTimePoints = {
-        0.0,
-        s_act365.getDayCountFraction(_isdaTestPricingDate, ZonedDateTime.of(2008, 2, 12, 0, 0, 0, 0, TimeZone.UTC)), // 0.030136986301369864
-      };
-      double[] flatSpreadCurveRates = {
-        ccRate, ccRate
-      };
-  
-      _isdaTestCdsCcyYieldCurve = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(discountCurveTimePoints, discountCurveRates, new LinearInterpolator1D()));
-      _isdaTestSpreadCurve = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(flatSpreadCurveTimePoints, flatSpreadCurveRates, new LinearInterpolator1D()));
-  
-      _isdaTestCurveBundle = new YieldCurveBundle();
-      _isdaTestCurveBundle.setCurve("CDS_CCY", _isdaTestCdsCcyYieldCurve);
-      _isdaTestCurveBundle.setCurve("SPREAD", _isdaTestSpreadCurve);
-  
-      Calendar calendar = new MondayToFridayCalendar("TestCalendar");
-      DayCount dayCount = new ActualThreeSixty();
-      BusinessDayConvention convention = new FollowingBusinessDayConvention();
-  
-      final CDSPremiumDefinition premiumDefinition = CDSPremiumDefinition.fromISDA(currency, cdsStartDate, maturity, premiumFrequency, calendar, dayCount, convention, notional, spread, protectStart);
-      final AnnuityCouponFixed premiums = premiumDefinition.toDerivative(_isdaTestPricingDate, "CDS_CCY");
-  
-      final AnnuityPaymentFixed payouts = null;
-      
-      _isdaTestCDS = new CDSDerivative(
-        "CDS_CCY", "SPREAD", /*bond CCY curve*/ null,
-        premiums, payouts,
-        getTimeBetween(_isdaTestPricingDate, cdsStartDate), getTimeBetween(_isdaTestPricingDate, maturity),
-        notional, spread, recoveryRate, 0.0, /*accrual on default*/ true, /*pay on default*/ true, /*protect start*/ true);
-    }
-
-  public CDSTestSetup() {
-    super();
-  }
-
-  protected static List<ZonedDateTime> scheduleDatesInRange(ZonedDateTime maturity, Period schedulePeriod, ZonedDateTime earliest, ZonedDateTime latest,
-    Calendar calendar, BusinessDayConvention convention) {
-  
-    List<ZonedDateTime> datesInRange = new ArrayList<ZonedDateTime>();
-    ZonedDateTime scheduleDate = maturity;
-    int periods = 0;
-  
-    while (scheduleDate.isAfter(latest)) {
-      scheduleDate = convention.adjustDate(calendar, maturity.minus(schedulePeriod.multipliedBy(++periods)));
-    }
-  
-    while (!scheduleDate.isBefore(earliest)) {
-      datesInRange.add(scheduleDate);
-      scheduleDate = convention.adjustDate(calendar, maturity.minus(schedulePeriod.multipliedBy(++periods)));
-    }
-  
-    Collections.reverse(datesInRange);
-    return datesInRange;
+      return new ISDACurve("IR_CURVE", times, rates, 0.0);
   }
   
+  protected ISDACurve loadHazardRateCurve_ISDAExampleMainC() {
+    
+    final ZonedDateTime baseDate = ZonedDateTime.of(2008, 2, 1, 0, 0, 0, 0, TimeZone.UTC);
+
+    double[] times = {
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2008, 2, 12, 0, 0, 0, 0, TimeZone.UTC))
+    };
+    
+    double[] rates = {
+        (new PeriodicInterestRate(0.81582707425206369, 1)).toContinuous().getRate()
+    };
+    
+    return new ISDACurve("HAZARD_RATE_CURVE", times, rates, 0.0);
+  }
+
+
+  /*
+   * ---------------------------------------------------------------------------------
+   * Data for the ISDA examples provided in the example Excel file, CDS calculator tab
+   * ---------------------------------------------------------------------------------
+   */
   
   protected CDSDefinition loadCDS_ISDAExampleCDSCalcualtor() {
     
@@ -306,28 +294,28 @@ public class CDSTestSetup {
   
   protected ISDACurve loadDiscountCurve_ISDAExampleCDSCalculator_FlatIRCurve() {
     
-    final ZonedDateTime pricingDate = ZonedDateTime.of(2008, 9, 18, 0, 0, 0, 0, TimeZone.UTC);
+    final ZonedDateTime baseDate = ZonedDateTime.of(2008, 9, 18, 0, 0, 0, 0, TimeZone.UTC);
     
     double[] times = {
         0.0,
-        s_act365.getDayCountFraction(pricingDate, ZonedDateTime.of(2008, 11, 28, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(pricingDate, ZonedDateTime.of(2009, 2, 27, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(pricingDate, ZonedDateTime.of(2009, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(pricingDate, ZonedDateTime.of(2010, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(pricingDate, ZonedDateTime.of(2011, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(pricingDate, ZonedDateTime.of(2012, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(pricingDate, ZonedDateTime.of(2013, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(pricingDate, ZonedDateTime.of(2014, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(pricingDate, ZonedDateTime.of(2015, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(pricingDate, ZonedDateTime.of(2016, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(pricingDate, ZonedDateTime.of(2017, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(pricingDate, ZonedDateTime.of(2018, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(pricingDate, ZonedDateTime.of(2019, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(pricingDate, ZonedDateTime.of(2020, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(pricingDate, ZonedDateTime.of(2023, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(pricingDate, ZonedDateTime.of(2028, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(pricingDate, ZonedDateTime.of(2033, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(pricingDate, ZonedDateTime.of(2038, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
+        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2008, 11, 28, 0, 0, 0, 0, TimeZone.UTC)),
+        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2009, 2, 27, 0, 0, 0, 0, TimeZone.UTC)),
+        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2009, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
+        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2010, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
+        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2011, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
+        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2012, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
+        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2013, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
+        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2014, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
+        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2015, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
+        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2016, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
+        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2017, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
+        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2018, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
+        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2019, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
+        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2020, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
+        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2023, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
+        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2028, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
+        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2033, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
+        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2038, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
     };
     
     double[] rates = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
@@ -337,12 +325,13 @@ public class CDSTestSetup {
   
   protected ISDACurve loadHazardRateCurve_ISDAExampleCDSCalculator_FlatIRCurve() {
     
-    final ZonedDateTime pricingDate = ZonedDateTime.of(2008, 9, 18, 0, 0, 0, 0, TimeZone.UTC);
+    final ZonedDateTime baseDate = ZonedDateTime.of(2008, 9, 18, 0, 0, 0, 0, TimeZone.UTC);
+    
     final double[] times = {
       0.0,
-      s_act365.getDayCountFraction(pricingDate, ZonedDateTime.of(2013, 6, 20, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(pricingDate, ZonedDateTime.of(2015, 6, 20, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(pricingDate, ZonedDateTime.of(2018, 6, 20, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2013, 6, 20, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2015, 6, 20, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2018, 6, 20, 0, 0, 0, 0, TimeZone.UTC)),
     };
     
     final double ccRate = (new PeriodicInterestRate(0.09740867310916100000, 1)).toContinuous().getRate();

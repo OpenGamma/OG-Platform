@@ -124,7 +124,7 @@ public class CDSApproxISDAMethod {
       result += amount * survival * discount;
       
       if (s_logger.isDebugEnabled()) {
-        s_logger.debug("i=" + i + ", accrualEnd=" + accrualPeriodEnd + ", t-value=" + periodEnd + ", accrualTime=" + payment.getPaymentYearFraction());
+        s_logger.debug("i=" + i + ", accrualEnd=" + accrualPeriodEnd + ", t-value=" + periodEnd + ", accrualTime=" + payment.getPaymentYearFraction() + ", paymentTime=" + paymentTime + ", ir=" + discountCurve.getInterestRate(paymentTime));
         s_logger.debug("ammount=" + amount + ", survival=" + survival + ", discount=" + discount + ", pv=" + amount * survival * discount);
       }
       

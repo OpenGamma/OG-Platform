@@ -5,11 +5,12 @@
  */
 package com.opengamma.analytics.financial.credit.cds;
 
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.analytics.math.interpolation.FlatExtrapolator1D;
-import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 
 /**
  * A curve that behaves according to the ISDA standard for CDS pricing.
@@ -36,11 +37,17 @@ public class ISDACurve {
     _name = name;
     _offset = offset;
     
-    _curve = InterpolatedDoublesCurve.fromSorted(xData, yData,
-      new CombinedInterpolatorExtrapolator(
-        new LinearInterpolator1D(),
-        new FlatExtrapolator1D(),
-        new FlatExtrapolator1D()));
+    if (xData.length > 1) {
+      _curve = InterpolatedDoublesCurve.fromSorted(xData, yData,
+        new CombinedInterpolatorExtrapolator(
+          new ISDAInterpolator1D(),
+          new FlatExtrapolator1D(),
+          new FlatExtrapolator1D()));
+    } else if (xData.length == 1) {
+      _curve = ConstantDoublesCurve.from(yData[0]);
+    } else {
+      throw new OpenGammaRuntimeException("Cannot construct a curve with no points");
+    }
     
     _shiftedTimePoints = new double[xData.length];
     
@@ -57,13 +64,8 @@ public class ISDACurve {
     return _curve.getYValue(t - _offset);
   }
   
-  public double getDiscountFactor(final double t_) {
-    
-    double t = t_;// + 1.0/365.0;
-    
-    //System.out.println(_name + "(" + t + "): offset=" + _offset + ", t-offset=" + (t - _offset) + ", rate/pay=" + getInterestRate(t) + ", df/pay= " + Math.exp((_offset-t) * getInterestRate(t)) + ", rate/today=" + getInterestRate(0.0) + ", df/today=" + Math.exp(_offset * getInterestRate(0.0)));
-    
-    return Math.exp((_offset-t) * getInterestRate(t)) / Math.exp(_offset * getInterestRate(0.0));
+  public double getDiscountFactor(final double t) {
+    return Math.exp((_offset - t) * getInterestRate(t)) / Math.exp(_offset * getInterestRate(0.0));
   }
   
   public double[] getTimePoints() {

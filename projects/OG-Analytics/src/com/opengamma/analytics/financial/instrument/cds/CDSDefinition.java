@@ -10,15 +10,12 @@ import javax.time.calendar.ZonedDateTime;
 import com.opengamma.analytics.financial.credit.cds.CDSDerivative;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
+import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityPaymentFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.daycount.AccruedInterestCalculator;
-import com.opengamma.financial.convention.daycount.ActualThreeSixtyFive;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.frequency.Frequency;
-import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -32,7 +29,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class CDSDefinition implements InstrumentDefinition<CDSDerivative> {
   
-  private final CDSPremiumDefinition _premium;
+  private final AnnuityCouponFixedDefinition _premium;
   private final AnnuityPaymentFixedDefinition _payout;
   
   private final ZonedDateTime _startDate;
@@ -62,7 +59,7 @@ public class CDSDefinition implements InstrumentDefinition<CDSDerivative> {
    * @param payOnDefault Whether protection payment is due on default (true) or at maturity (false)
    * @param protectStart Whether the start date is protected (i.e. one extra day of protection)
    */
-  public CDSDefinition(final CDSPremiumDefinition premium, final AnnuityPaymentFixedDefinition payout,
+  public CDSDefinition(final AnnuityCouponFixedDefinition premium, final AnnuityPaymentFixedDefinition payout,
     final ZonedDateTime startDate, final ZonedDateTime maturity,
     final double notional, final double spread, final double recoveryRate,
     final boolean accrualOnDefault, final boolean payOnDefault, final boolean protectStart,
@@ -125,12 +122,18 @@ public class CDSDefinition implements InstrumentDefinition<CDSDerivative> {
     
     final int nCoupons = _premium.getNumberOfPayments();
     int couponIndex = 0;
+    boolean found = false;
     
-    for (int i = 0; i < nCoupons; i++) {
-      if (_premium.getNthPayment(i).getAccrualEndDate().isAfter(stepinDate)) {
+    for (int i = nCoupons - 1; i >= 0; --i) {
+      if (!_premium.getNthPayment(i).getAccrualStartDate().isAfter(stepinDate)) {
         couponIndex = i;
+        found = true;
         break;
       }
+    }
+    
+    if (!found) {
+      return 0.0;
     }
     
     final CouponFixedDefinition currentPeriod = _premium.getNthPayment(couponIndex);
