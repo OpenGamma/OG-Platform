@@ -33,14 +33,16 @@ public final class CogdaFactoryUtil {
       String redisServer,
       Integer redisPort,
       String redisPrefix,
+      boolean readThrough,
       Logger logger) {
     if (redisServer == null) {
       logger.info("No Redis Server specified in configuration so using map LKVStoreProvider.");
       return new MapLastKnownValueStoreProvider();
     } else {
+      logger.info("Connecting Redis LKV Store Provider to {}:{} {} {}", new Object[] {redisServer, redisPort, redisPrefix, readThrough});
       RedisLastKnownValueStoreProvider lkvProvider = new RedisLastKnownValueStoreProvider();
       lkvProvider.setServer(redisServer);
-      lkvProvider.setWriteThrough(true);
+      lkvProvider.setWriteThrough(readThrough);
       if (redisPort == null) {
         logger.info("No Redis port provided. Defaulting to 6379");
         lkvProvider.setPort(6379);

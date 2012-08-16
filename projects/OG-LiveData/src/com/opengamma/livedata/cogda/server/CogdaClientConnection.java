@@ -16,12 +16,15 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdate;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.cogda.msg.CogdaCommandResponseResult;
+import com.opengamma.livedata.cogda.msg.CogdaLiveDataBuilderUtil;
 import com.opengamma.livedata.cogda.msg.CogdaLiveDataCommandResponseMessage;
 import com.opengamma.livedata.cogda.msg.CogdaLiveDataSnapshotRequestBuilder;
 import com.opengamma.livedata.cogda.msg.CogdaLiveDataSnapshotRequestMessage;
@@ -49,6 +52,7 @@ import com.opengamma.util.ArgumentChecker;
  * a particular {@link CogdaLiveDataServer}.
  */
 public class CogdaClientConnection implements FudgeConnectionStateListener, FudgeMessageReceiver {
+  private static final Logger s_logger = LoggerFactory.getLogger(CogdaClientConnection.class);
   private final FudgeContext _fudgeContext;
   private final CogdaLiveDataServer _server;
   private final FudgeMessageSender _messageSender;
@@ -106,10 +110,15 @@ public class CogdaClientConnection implements FudgeConnectionStateListener, Fudg
 
   @Override
   public void connectionReset(FudgeConnection connection) {
+    s_logger.warn("Connection Reset");
   }
 
   @Override
   public void connectionFailed(FudgeConnection connection, Exception cause) {
+    // TODO kirk 2012-08-15 -- Fix this so that failed connections result in
+    // torn down client connections.
+    s_logger.warn("Connection failed {}", cause);
+    getServer().removeClient(this);
   }
   
   public void handshakeMessage(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
@@ -163,8 +172,7 @@ public class CogdaClientConnection implements FudgeConnectionStateListener, Fudg
         break;
     }
     
-    // REVIEW kirk 2012-07-23 -- Does this work?
-    sendMessage((new FudgeSerializer(fudgeContext)).objectToFudgeMsg(response));
+    sendMessage(CogdaLiveDataBuilderUtil.buildCommandResponseMessage(fudgeContext, response));
   }
 
   /**
@@ -181,7 +189,13 @@ public class CogdaClientConnection implements FudgeConnectionStateListener, Fudg
     // TODO kirk 2012-07-23 -- Check entitlements.
     if (getServer().isValidLiveData(request.getSubscriptionId(), request.getNormalizationScheme())) {
       LastKnownValueStore lkvStore = getServer().getLastKnownValueStore(request.getSubscriptionId(), request.getNormalizationScheme());
-      FudgeMsg fields = lkvStore.getFields();
+      FudgeMsg fields = null;
+      if (lkvStore != null) {
+        fields = lkvStore.getFields();
+      } else {
+        s_logger.warn("Valid live data {} lacks fields in LKV store", request);
+        fields = fudgeContext.newMessage();
+      }
       
       response.setGenericResult(CogdaCommandResponseResult.SUCCESSFUL);
       response.setValues(fields);
@@ -206,7 +220,13 @@ public class CogdaClientConnection implements FudgeConnectionStateListener, Fudg
     // TODO kirk 2012-07-23 -- Check entitlements.
     if (getServer().isValidLiveData(request.getSubscriptionId(), request.getNormalizationScheme())) {
       LastKnownValueStore lkvStore = getServer().getLastKnownValueStore(request.getSubscriptionId(), request.getNormalizationScheme());
-      FudgeMsg fields = lkvStore.getFields();
+      FudgeMsg fields = null;
+      if (lkvStore != null) {
+        fields = lkvStore.getFields();
+      } else {
+        s_logger.warn("Valid live data {} lacks fields in LKV store", request);
+        fields = fudgeContext.newMessage();
+      }
       
       response.setGenericResult(CogdaCommandResponseResult.SUCCESSFUL);
       response.setSnapshot(fields);
@@ -268,7 +288,11 @@ public class CogdaClientConnection implements FudgeConnectionStateListener, Fudg
     message.setNormalizationScheme(key.getNormalizationRuleSetId());
     message.setValues(values);
     FudgeMsg msg = CogdaLiveDataUpdateBuilder.buildMessageStatic(new FudgeSerializer(getFudgeContext()), message);
-    getMessageSender().send(msg);
+    try {
+      getMessageSender().send(msg);
+    } catch (Exception e) {
+      s_logger.info("Exception thrown; assuming socket closed and tearing down client.");
+    }
   }
 
 }

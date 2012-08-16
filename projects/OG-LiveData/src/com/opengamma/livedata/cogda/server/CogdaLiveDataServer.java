@@ -155,7 +155,7 @@ public class CogdaLiveDataServer implements FudgeConnectionReceiver, Lifecycle {
     // TODO kirk 2012-07-23 -- Check to see if valid.
     
     LastKnownValueStore store = _lastKnownValueStores.get(ldspec);
-    if (store != null) {
+    if (store == null) {
       LastKnownValueStore fresh = getLastKnownValueStoreProvider().newInstance(subscriptionId, normalizationScheme);
       LastKnownValueStore fromMap = _lastKnownValueStores.putIfAbsent(ldspec, fresh);
       if (fromMap == null) {

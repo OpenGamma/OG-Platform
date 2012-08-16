@@ -57,7 +57,13 @@ public class CogdaLiveDataServerFactory extends AbstractComponentFactory {
   
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
-    LastKnownValueStoreProvider lkvStoreProvider = CogdaFactoryUtil.constructLastKnownValueStoreProvider(getDataRedisServer(), getDataRedisPort(), getDataRedisPrefix(), s_logger);
+    LastKnownValueStoreProvider lkvStoreProvider =
+        CogdaFactoryUtil.constructLastKnownValueStoreProvider(
+            getDataRedisServer(),
+            getDataRedisPort(),
+            getDataRedisPrefix(),
+            false,
+            s_logger);
     CogdaLiveDataServer liveDataServer = new CogdaLiveDataServer(lkvStoreProvider);
     if (getListenPort() != null) {
       liveDataServer.setPortNumber(getListenPort());

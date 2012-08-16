@@ -5,8 +5,10 @@
  */
 package com.opengamma.livedata.cogda.msg;
 
+import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.id.ExternalId;
 
@@ -26,7 +28,7 @@ public final class CogdaLiveDataBuilderUtil {
   }
   
   public static void addResponseFields(MutableFudgeMsg msg, CogdaLiveDataCommandResponseMessage response) {
-    msg.add("correlationId", response.getClass());
+    msg.add("correlationId", response.getCorrelationId());
     addExternalId(msg, response.getSubscriptionId(), response.getNormalizationScheme());
     
     msg.add("genericResult", response.getGenericResult().name());
@@ -49,6 +51,15 @@ public final class CogdaLiveDataBuilderUtil {
     response.setNormalizationScheme(msg.getString("normalizationScheme"));
     response.setGenericResult(CogdaCommandResponseResult.valueOf(msg.getString("genericResult")));
     response.setUserMessage(msg.getString("userMessage"));
+  }
+  
+  public static FudgeMsg buildCommandResponseMessage(FudgeContext fudgeContext, CogdaLiveDataCommandResponseMessage responseMessage) {
+    if (responseMessage instanceof CogdaLiveDataSubscriptionResponseMessage) {
+      return CogdaLiveDataSubscriptionResponseBuilder.buildMessageStatic(new FudgeSerializer(fudgeContext), (CogdaLiveDataSubscriptionResponseMessage) responseMessage);
+    } else if (responseMessage instanceof CogdaLiveDataSnapshotResponseMessage) {
+      return CogdaLiveDataSnapshotResponseBuilder.buildMessageStatic(new FudgeSerializer(fudgeContext), (CogdaLiveDataSnapshotResponseMessage) responseMessage);
+    }
+    return null;
   }
   
 }
