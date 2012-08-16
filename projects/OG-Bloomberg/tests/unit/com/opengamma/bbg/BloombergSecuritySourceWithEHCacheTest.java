@@ -7,6 +7,7 @@ package com.opengamma.bbg;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.bbg.security.BloombergSecurityProvider;
 import com.opengamma.bbg.test.BloombergLiveDataServerUtils;
 import com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider;
 
@@ -21,10 +22,9 @@ public class BloombergSecuritySourceWithEHCacheTest extends BloombergSecuritySou
   @Override
   protected BloombergSecuritySource createSecuritySource() {
     _refDataProvider = BloombergLiveDataServerUtils.getCachingReferenceDataProvider(BloombergSecuritySourceWithEHCacheTest.class);
-    
     DefaultExchangeDataProvider exchangeProvider = new DefaultExchangeDataProvider();
-    
-    return new BloombergSecuritySource(_refDataProvider, exchangeProvider);
+    BloombergSecurityProvider secProvider = new BloombergSecurityProvider(_refDataProvider, exchangeProvider);
+    return new BloombergSecuritySource(secProvider);
   }
 
   @Override

@@ -5,8 +5,6 @@
  */
 package com.opengamma.bbg;
 
-import static com.opengamma.bbg.BloombergConstants.BBG_COMMON_STOCK_TYPE;
-import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_EQUITY_OPTION_SECURITY_TYPE;
 import static com.opengamma.bbg.util.BloombergSecurityUtils.AAPL_EQUITY_TICKER;
 import static com.opengamma.bbg.util.BloombergSecurityUtils.APV_EQUITY_OPTION_TICKER;
 import static com.opengamma.bbg.util.BloombergSecurityUtils.ATT_EQUITY_TICKER;
@@ -41,6 +39,8 @@ import javax.time.Instant;
 import javax.time.calendar.Clock;
 import javax.time.calendar.TimeZone;
 
+import org.joda.beans.Bean;
+import org.joda.beans.test.BeanAssert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -111,16 +111,6 @@ public abstract class BloombergSecuritySourceTestCase {
   }
 
   //-------------------------------------------------------------------------
-  @Test
-  public void getSecurityType() throws Exception {
-    String bbgEquitySecType = BBG_COMMON_STOCK_TYPE;
-    String bbgEquityOptionSecType = BLOOMBERG_EQUITY_OPTION_SECURITY_TYPE;
-    assertEquals(bbgEquitySecType, _securitySource.getSecurityType(AAPL_EQUITY_TICKER));
-    assertEquals(bbgEquityOptionSecType, _securitySource.getSecurityType(APV_EQUITY_OPTION_TICKER));
-    assertEquals(bbgEquitySecType, _securitySource.getSecurityType("T US Equity"));
-    assertNull(_securitySource.getSecurityType("INVALID"));
-  }
-
   @Test
   public void aaplEquityByBbgTicker() throws Exception {
     ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_AAPL_EQUITY_SEC,
@@ -287,7 +277,7 @@ public abstract class BloombergSecuritySourceTestCase {
     Security wheat = _securitySource.getSecurity(EXPECTED_WHEAT_FUTURE_SEC.getExternalIdBundle());
     assertNotNull(wheat);
     assertTrue(wheat instanceof AgricultureFutureSecurity);
-    assertEquals(EXPECTED_WHEAT_FUTURE_SEC, wheat);
+    assertSecurity(EXPECTED_WHEAT_FUTURE_SEC, wheat);
   }
 
   @Test(groups={"bbgSecurityFutureTests"})
@@ -295,7 +285,7 @@ public abstract class BloombergSecuritySourceTestCase {
     Security spIndex = _securitySource.getSecurity(EXPECTED_EQUITY_FUTURE_SEC.getExternalIdBundle());
     assertNotNull(spIndex);
     assertTrue(spIndex instanceof EquityFutureSecurity);
-    assertEquals(EXPECTED_EQUITY_FUTURE_SEC, spIndex);
+    assertSecurity(EXPECTED_EQUITY_FUTURE_SEC, spIndex);
   }
 
   @Test(enabled = false)
@@ -304,7 +294,7 @@ public abstract class BloombergSecuritySourceTestCase {
     Security audUsd = _securitySource.getSecurity(id);
     assertNotNull(audUsd);
     assertTrue(audUsd instanceof FXFutureSecurity);
-    assertEquals(EXPECTED_AUDUSD_FUTURE_SEC, audUsd);
+    assertSecurity(EXPECTED_AUDUSD_FUTURE_SEC, audUsd);
   }
 
   @Test(groups={"bbgSecurityFutureTests"})
@@ -354,7 +344,7 @@ public abstract class BloombergSecuritySourceTestCase {
     Security silverFuture = _securitySource.getSecurity(EXPECTED_SILVER_FUTURE.getExternalIdBundle());
     assertNotNull(silverFuture);
     assertTrue(silverFuture instanceof MetalFutureSecurity);
-    assertEquals(EXPECTED_SILVER_FUTURE, silverFuture);
+    assertSecurity(EXPECTED_SILVER_FUTURE, silverFuture);
   }
 
   @Test(groups={"bbgSecurityFutureTests"})
@@ -362,7 +352,7 @@ public abstract class BloombergSecuritySourceTestCase {
     Security ethanolFuture = _securitySource.getSecurity(EXPECTED_ETHANOL_FUTURE.getExternalIdBundle());
     assertNotNull(ethanolFuture);
     assertTrue(ethanolFuture instanceof EnergyFutureSecurity);
-    assertEquals(EXPECTED_ETHANOL_FUTURE, ethanolFuture);
+    assertSecurity(EXPECTED_ETHANOL_FUTURE, ethanolFuture);
   }
 
   @Test(groups={"bbgSecurityFutureTests"})
@@ -370,7 +360,7 @@ public abstract class BloombergSecuritySourceTestCase {
     Security euroDollar = _securitySource.getSecurity(EXPECTED_EURODOLLAR_FUTURE.getExternalIdBundle());
     assertNotNull(euroDollar);
     assertTrue(euroDollar instanceof InterestRateFutureSecurity);
-    assertEquals(EXPECTED_EURODOLLAR_FUTURE, euroDollar);
+    assertSecurity(EXPECTED_EURODOLLAR_FUTURE, euroDollar);
   }
 
   @Test
@@ -436,6 +426,11 @@ public abstract class BloombergSecuritySourceTestCase {
       Security sec = future.get();
       assertEquitySecurity(EXPECTED_ATT_EQUITY_SEC, sec);
     }
+  }
+
+  public static void assertSecurity(Security expected, Security actual) {
+    assertNotNull(actual);
+    BeanAssert.assertBeanEquals((Bean) expected, (Bean) actual);
   }
 
   public static void assertEquitySecurity(EquitySecurity expectedEquity, Security sec) {

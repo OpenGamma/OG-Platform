@@ -14,10 +14,10 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
 import javax.time.calendar.ZoneOffset;
 
-
 import com.opengamma.bbg.BloombergSecuritySource;
-import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.position.Counterparty;
+import com.opengamma.core.security.Security;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
@@ -58,18 +58,15 @@ public class ExchangeTradedRowParser extends RowParser {
   
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> row) {
-    
     ArgumentChecker.notNull(row, "row");
     
     for (ExternalScheme scheme : s_schemeWaterfall) {
-      ManageableSecurity security = _bbgSecSource.getSecurity(ExternalIdBundle.of(
-          ExternalId.of(scheme, getWithException(row, TICKER))
-      ));
-      if (security != null) {
-        return new ManageableSecurity[] {security };
+      ExternalIdBundle id = ExternalId.of(scheme, getWithException(row, TICKER)).toBundle();
+      Security security = _bbgSecSource.getSecurity(id);
+      if (security != null && security instanceof ManageableSecurity) {
+        return new ManageableSecurity[] {(ManageableSecurity) security};
       }
     }
-
     return new ManageableSecurity[] {};
   }
 

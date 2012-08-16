@@ -35,10 +35,14 @@
     <constructor-arg ref="bloombergRefDataMongoConnector"/>
   </bean>
 
-	<bean id="bloombergSecuritySource" class="com.opengamma.bbg.BloombergSecuritySource">
-		<constructor-arg ref="cachingProvider" />
+  <bean id="bloombergSecuritySource" class="com.opengamma.bbg.BloombergSecuritySource">
+    <constructor-arg>
+      <bean class="com.opengamma.bbg.security.BloombergSecurityProvider">
         <constructor-arg ref="cachingProvider" />
-	</bean>
+        <constructor-arg ref="cachingProvider" />
+      </bean>
+    </constructor-arg>
+  </bean>
 	
 	<bean id="requestDispatcher" class="com.opengamma.bbg.server.SecurityMasterRequestReceiver">
 		<constructor-arg ref="bloombergSecuritySource"/>

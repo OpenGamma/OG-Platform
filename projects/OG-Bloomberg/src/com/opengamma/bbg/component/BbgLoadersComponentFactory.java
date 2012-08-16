@@ -27,6 +27,7 @@ import com.opengamma.bbg.RemoteReferenceDataProviderFactoryBean;
 import com.opengamma.bbg.loader.BloombergBulkSecurityLoader;
 import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
 import com.opengamma.bbg.loader.BloombergSecurityLoader;
+import com.opengamma.bbg.security.BloombergSecurityProvider;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
@@ -136,7 +137,8 @@ public class BbgLoadersComponentFactory extends AbstractComponentFactory {
   }
 
   private void initBloombergSecuritySource(ComponentRepository repo, ReferenceDataProvider refData) {
-    BloombergSecuritySource bloombergSecuritySource = new BloombergSecuritySource(refData, new DefaultExchangeDataProvider());
+    BloombergSecurityProvider secProvider = new BloombergSecurityProvider(refData, new DefaultExchangeDataProvider());
+    BloombergSecuritySource bloombergSecuritySource = new BloombergSecuritySource(secProvider);
     ComponentInfo info = new ComponentInfo(BloombergSecuritySource.class, "bbg");
     repo.registerComponent(info, bloombergSecuritySource);
   }

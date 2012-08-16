@@ -20,6 +20,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.bbg.BloombergSecuritySource;
 import com.opengamma.bbg.ReferenceDataProvider;
+import com.opengamma.bbg.security.BloombergSecurityProvider;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
@@ -52,7 +53,8 @@ public class BbgSecuritySourceComponentFactory extends AbstractComponentFactory 
   }
   
   protected BloombergSecuritySource initBloombergSecuritySource(ComponentRepository repo, ExchangeDataProvider exchangeDataProvider) {
-    BloombergSecuritySource bloombergSecuritySource = new BloombergSecuritySource(getBbgReferenceData(), exchangeDataProvider);
+    BloombergSecurityProvider secProvider = new BloombergSecurityProvider(getBbgReferenceData(), exchangeDataProvider);
+    BloombergSecuritySource bloombergSecuritySource = new BloombergSecuritySource(secProvider);
     
     ComponentInfo info = new ComponentInfo(BloombergSecuritySource.class, getClassifier());
     repo.registerComponent(info, bloombergSecuritySource);

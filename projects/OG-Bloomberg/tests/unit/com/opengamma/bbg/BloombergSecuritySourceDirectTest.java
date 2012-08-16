@@ -7,6 +7,7 @@ package com.opengamma.bbg;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.bbg.security.BloombergSecurityProvider;
 import com.opengamma.bbg.test.BloombergTestUtils;
 import com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider;
 
@@ -21,18 +22,17 @@ public class BloombergSecuritySourceDirectTest extends BloombergSecuritySourceTe
   @Override
   protected BloombergSecuritySource createSecuritySource() {
     BloombergConnector connector = BloombergTestUtils.getBloombergConnector();
-    BloombergReferenceDataProvider dataProvider = new BloombergReferenceDataProvider(connector);
-    dataProvider.start();
-    _dataProvider = dataProvider;
-    
+    BloombergReferenceDataProvider refDataProvider = new BloombergReferenceDataProvider(connector);
+    refDataProvider.start();
+    _dataProvider = refDataProvider;
     DefaultExchangeDataProvider exchangeProvider = new DefaultExchangeDataProvider();
-    
-    return new BloombergSecuritySource(_dataProvider, exchangeProvider);
+    BloombergSecurityProvider secProvider = new BloombergSecurityProvider(refDataProvider, exchangeProvider);
+    return new BloombergSecuritySource(secProvider);
   }
 
   @Override
   protected void stopSecuritySource() {
-    if(_dataProvider != null) {
+    if (_dataProvider != null) {
       BloombergReferenceDataProvider dataProvider = _dataProvider;
       _dataProvider = null;
       dataProvider.stop();
