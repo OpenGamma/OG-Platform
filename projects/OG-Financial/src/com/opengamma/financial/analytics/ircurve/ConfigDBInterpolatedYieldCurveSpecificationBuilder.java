@@ -19,7 +19,7 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.id.ExternalId;
 
 /**
- * 
+ *
  */
 public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements InterpolatedYieldCurveSpecificationBuilder {
   private final ConfigSource _configSource;
@@ -90,6 +90,9 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
           break;
         case SWAP_6M:
           identifier = builderConfig.getSwap6MSecurity(curveDate, strip.getCurveNodePointTime());
+          break;
+        case SWAP_12M:
+          identifier = builderConfig.getSwap12MSecurity(curveDate, strip.getCurveNodePointTime());
           break;
         case SWAP:
           // assume that all old swaps are 3m - shouldn't be used but just for consistency

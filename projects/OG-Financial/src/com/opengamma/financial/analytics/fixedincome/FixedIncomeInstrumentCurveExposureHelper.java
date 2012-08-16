@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.fixedincome;
@@ -11,7 +11,7 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.security.FinancialSecurity;
 
 /**
- * 
+ *
  */
 public final class FixedIncomeInstrumentCurveExposureHelper {
 
@@ -31,6 +31,8 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
       case SWAP_3M:
         return new String[] {fundingCurveName, forwardCurveName };
       case SWAP_6M:
+        return new String[] {fundingCurveName, forwardCurveName };
+      case SWAP_12M:
         return new String[] {fundingCurveName, forwardCurveName };
       case CASH:
         return new String[] {fundingCurveName };
@@ -74,6 +76,8 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
       case SWAP_3M:
         return new String[] {fundingCurveName, forwardCurveName };
       case SWAP_6M:
+        return new String[] {fundingCurveName, forwardCurveName };
+      case SWAP_12M:
         return new String[] {fundingCurveName, forwardCurveName };
       case CASH:
         return new String[] {forwardCurveName };
