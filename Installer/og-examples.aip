@@ -52,7 +52,7 @@
     <ROW Table="CustomAction" Row="JAVA_XMX_2" Column="Target" Value="[=JAVA_XMX]"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiActionTextComponent">
-    <ROW Action="Populate" Description="Creating and populating example database"/>
+    <ROW Action="PopulateExample" Description="Creating and populating example database" Template="Database:"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCreateFolderComponent">
     <ROW Directory_="M_START__Dir" Component_="StartMenu"/>
@@ -60,7 +60,7 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCustActComponent">
     <ROW Action="JAVA_XMX_1" Type="51" Source="JAVA_XMX" Target="[JAVA_XMX]"/>
     <ROW Action="JAVA_XMX_2" Type="51" Source="JAVA_XMX" Target="[JAVA_XMX]"/>
-    <ROW Action="Populate" Type="3106" Source="APPDIR" Target="&quot;[bin_Dir]MainRunner.exe&quot; &quot;[bin_Dir]og-example-populate.ini&quot;"/>
+    <ROW Action="PopulateExample" Type="3106" Source="APPDIR" Target="&quot;[bin_Dir]MainRunner.exe&quot; &quot;[bin_Dir]og-example-populate.ini&quot;"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiIniFileComponent">
     <ROW IniFile="URL" FileName="OpenGa~1.url|OpenGamma Web Interface.url" DirProperty="M_START__Dir" Section="InternetShortcut" Key="URL" Value="http://localhost:8080/" Action="0" Component_="StartMenu"/>
@@ -138,7 +138,7 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsmModuleInstExSeqComponent">
     <ROW Action="JAVA_XMX_2" BaseAction="ValidateProductID" After="1"/>
-    <ROW Action="Populate" BaseAction="InstallODBC" After="1" Condition="( NOT Installed )"/>
+    <ROW Action="PopulateExample" BaseAction="InstallODBC" After="1" Condition="( NOT Installed ) AND ( $Service.exe=3 )"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsmModuleSignatureComponent">
     <ROW ModuleID="OG_Examples" Version="1.0.0" GUID="896E213F_74AF_4B49_9E81_4168EAAE3507" Name="Example OpenGamma Engine" Manufacturer="OpenGamma Ltd" Comments="An example engine with a random market data source"/>

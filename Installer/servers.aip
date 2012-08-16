@@ -115,6 +115,8 @@
     <ROW Action="AI_XmlRemove" Description="Executing XML file configurations" Template="Configuring XML file: &quot;[1]&quot;" DescriptionLocId="ActionText.Description.AI_XmlRemove" TemplateLocId="ActionText.Template.AI_XmlRemove"/>
     <ROW Action="AI_XmlRollback" Description="Rolling back XML file configurations." Template="Rolling back XML file configurations." DescriptionLocId="ActionText.Description.AI_XmlRollback" TemplateLocId="ActionText.Template.AI_XmlRollback"/>
     <ROW Action="AI_XmlUninstall" Description="Generating actions to configure XML files" DescriptionLocId="ActionText.Description.AI_XmlUninstall"/>
+    <ROW Action="BloombergExample" Description="Waiting for service to start" Template="Service:"/>
+    <ROW Action="OpenGammaExample" Description="Waiting for service to start"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiAppSearchComponent">
     <ROW Property="BLOOMBERG_SAPI_PORT" Signature_="AppSearchSign"/>
@@ -139,7 +141,20 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiControlComponent">
     <ROW Dialog_="CustomizeDlg" Control="Tree" Type="SelectionTree" X="25" Y="85" Width="175" Height="95" Attributes="7" Property="_BrowseProperty" Text="Tree of selections" Order="100" TextLocId="Control.Text.CustomizeDlg#Tree" MsiKey="CustomizeDlg#Tree"/>
-    <ROW Dialog_="CustomizeDlg" Control="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Attributes="1048577" Text="[BannerBitmap]" Order="900" MsiKey="CustomizeDlg#BannerBitmap"/>
+    <ROW Dialog_="CustomizeDlg" Control="Reset" Type="PushButton" X="15" Y="243" Width="76" Height="17" Attributes="3" Text="[ButtonText_Reset]" Order="200" TextLocId="-" MsiKey="CustomizeDlg#Reset"/>
+    <ROW Dialog_="CustomizeDlg" Control="DiskCost" Type="PushButton" X="91" Y="243" Width="76" Height="17" Attributes="3" Text="Disk &amp;Usage" Order="300" TextLocId="Control.Text.CustomizeDlg#DiskCost" MsiKey="CustomizeDlg#DiskCost"/>
+    <ROW Dialog_="CustomizeDlg" Control="BottomLine" Type="Line" X="5" Y="234" Width="368" Height="0" Attributes="1" Order="400" MsiKey="CustomizeDlg#BottomLine"/>
+    <ROW Dialog_="CustomizeDlg" Control="Logo" Type="Text" X="4" Y="228" Width="70" Height="12" Attributes="1" Text="Advanced Installer" Order="500" TextLocId="Control.Text.CustomizeDlg#Logo" MsiKey="CustomizeDlg#Logo"/>
+    <ROW Dialog_="CustomizeDlg" Control="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Back]" Order="600" TextLocId="-" MsiKey="CustomizeDlg#Back" Options="1"/>
+    <ROW Dialog_="CustomizeDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Order="700" TextLocId="-" MsiKey="CustomizeDlg#Next" Options="1"/>
+    <ROW Dialog_="CustomizeDlg" Control="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Attributes="1048577" Text="[BannerBitmap]" Order="800" MsiKey="CustomizeDlg#BannerBitmap"/>
+    <ROW Dialog_="CustomizeDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Select the way you want features to be installed." Order="1000" TextLocId="Control.Text.CustomizeDlg#Description" MsiKey="CustomizeDlg#Description"/>
+    <ROW Dialog_="CustomizeDlg" Control="Box" Type="GroupBox" X="210" Y="81" Width="140" Height="98" Attributes="1" Order="1100" MsiKey="CustomizeDlg#Box"/>
+    <ROW Dialog_="CustomizeDlg" Control="ItemSize" Type="Text" X="215" Y="128" Width="131" Height="50" Attributes="3" Text="The size of the currently selected item." Order="1200" TextLocId="Control.Text.CustomizeDlg#ItemSize" MsiKey="CustomizeDlg#ItemSize"/>
+    <ROW Dialog_="CustomizeDlg" Control="ItemDescription" Type="Text" X="215" Y="90" Width="131" Height="30" Attributes="3" Text="Multiline description of the currently selected item." Order="1300" TextLocId="Control.Text.CustomizeDlg#ItemDescription" MsiKey="CustomizeDlg#ItemDescription"/>
+    <ROW Dialog_="CustomizeDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Order="1400" MsiKey="CustomizeDlg#BannerLine"/>
+    <ROW Dialog_="CustomizeDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Custom Setup" TextStyle="[DlgTitleFont]" Order="1500" TextLocId="Control.Text.CustomizeDlg#Title" MsiKey="CustomizeDlg#Title"/>
+    <ROW Dialog_="CustomizeDlg" Control="Text" Type="Text" X="25" Y="55" Width="320" Height="20" Attributes="3" Text="Click on the icons in the tree below to change the way features will be installed." Order="1600" TextLocId="Control.Text.CustomizeDlg#Text" MsiKey="CustomizeDlg#Text"/>
     <ROW Dialog_="ExitDialog" Control="LaunchProdText" Type="Text" X="148" Y="170" Width="220" Height="20" Attributes="65539" Text="Start OpenGamma web interface" Order="800" TextLocId="Control.Text.ExitDialog#LaunchProdText" MsiKey="ExitDialog#LaunchProdText"/>
     <ROW Dialog_="SetupTypeDlg" Control="CustomText" Type="Text" X="105" Y="131" Width="230" Height="30" Attributes="3" Text="Allows users to choose which program features will be installed. Recommended for advanced users." Order="400" TextLocId="Control.Text.SetupTypeDlg#CustomText" MsiKey="SetupTypeDlg#CustomText"/>
     <ATTRIBUTE name="DeletedRows" value="CustomizeDlg#Location@CustomizeDlg#LocationLabel@CustomizeDlg#Browse"/>
