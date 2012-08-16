@@ -23,8 +23,11 @@ public class YieldAndDiscountCurveTest {
   private static final InterpolatedDoublesCurve DF = InterpolatedDoublesCurve.from(TIME, new double[] {Math.exp(-0.03), Math.exp(-0.08), Math.exp(-0.15)}, new LinearInterpolator1D());
   private static final YieldCurve YIELD = YieldCurve.from(R);
   private static final DiscountCurve DISCOUNT = DiscountCurve.from(DF);
+  private static final int COMPOUNDING = 2;
+  private static final YieldPeriodicCurve YIELD_PERIODIC = YieldPeriodicCurve.from(COMPOUNDING, R);
 
   private static final double TOLERANCE_RATE = 1.0E-10;
+  private static final double TOLERANCE_PV = 1.0E-10;
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullName() {
@@ -34,6 +37,16 @@ public class YieldAndDiscountCurveTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullCurve() {
     new YieldCurve("Name", null);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void nullNamePer() {
+    new YieldPeriodicCurve(null, COMPOUNDING, R);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void nullCurvePer() {
+    new YieldPeriodicCurve("Name", COMPOUNDING, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -62,6 +75,18 @@ public class YieldAndDiscountCurveTest {
     assertEquals(YIELD.getDiscountFactor(1.5), Math.exp(-1.5 * R.getYValue(1.5)), 1e-15);
     assertEquals(DISCOUNT.getInterestRate(1.4), -Math.log(DF.getYValue(1.4)) / 1.4, 1e-15);
     assertEquals(DISCOUNT.getDiscountFactor(1.5), DF.getYValue(1.5), 1e-15);
+  }
+
+  @Test
+  public void gettersYieldPeriodic() {
+    assertEquals("YieldPeriodicCurve: getter", YIELD_PERIODIC.getCurve(), R);
+    double point = 1.5;
+    assertEquals("YieldPeriodicCurve: getter", YIELD_PERIODIC.getPeriodicInterestRate(point, COMPOUNDING), R.getYValue(point), TOLERANCE_RATE);
+    double rate = R.getYValue(point);
+    double dfannual = Math.pow(1.0 + rate / COMPOUNDING, -COMPOUNDING);
+    double df = Math.pow(1.0 + rate / COMPOUNDING, -point * COMPOUNDING);
+    assertEquals("YieldPeriodicCurve: getter", YIELD_PERIODIC.getDiscountFactor(point), df, TOLERANCE_PV);
+    assertEquals("YieldPeriodicCurve: getter", YIELD_PERIODIC.getInterestRate(point), -Math.log(dfannual), TOLERANCE_PV);
   }
 
   @Test
