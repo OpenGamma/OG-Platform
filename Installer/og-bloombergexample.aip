@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT Type="Advanced Installer" CreateVersion="8.7.1" version="8.7.1" Modules="msm" RootPath="." Language="en" Id="{D50D582B-757D-4172-80FB-22218ADD09B1}">
+<DOCUMENT Type="Advanced Installer" CreateVersion="8.7.1" version="9.4" Modules="msm" RootPath="." Language="en" Id="{D50D582B-757D-4172-80FB-22218ADD09B1}">
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
     <ROW Property="AI_ModuleId" Value="A4CB8CFA_EA51_4AAA_8E13_639700C7B425"/>
     <ROW Property="JAVA_XMX" Value="JAVA_XMX"/>
@@ -11,6 +11,7 @@
     <ROW Directory="ProgramMenuFolder" Directory_Parent="TARGETDIR" DefaultDir="Progra~1|ProgramMenuFolder" IsPseudoRoot="1"/>
     <ROW Directory="TARGETDIR" DefaultDir="SourceDir"/>
     <ROW Directory="bin_Dir" Directory_Parent="APPDIR" DefaultDir="bin"/>
+    <ROW Directory="bloombergexampledb.tmp_Dir" Directory_Parent="hsqldb_Dir" DefaultDir="bloomb~1.tmp|bloombergexample-db.tmp"/>
     <ROW Directory="config_Dir" Directory_Parent="APPDIR" DefaultDir="config"/>
     <ROW Directory="db_Dir" Directory_Parent="install_Dir" DefaultDir="db"/>
     <ROW Directory="fullstack_Dir" Directory_Parent="config_Dir" DefaultDir="fullst~1|fullstack"/>
@@ -126,6 +127,8 @@
     <ROW FileKey="__4" Component_="og_bloombergexample.jar" DirProperty="hsqldb_Dir" InstallMode="2"/>
     <ROW FileKey="__5" Component_="og_bloombergexample.jar" DirProperty="db_Dir" InstallMode="2"/>
     <ROW FileKey="__6" Component_="og_bloombergexample.jar" DirProperty="install_Dir" InstallMode="2"/>
+    <ROW FileKey="__7" Component_="og_bloombergexample.jar" FileName="*" DirProperty="bloombergexampledb.tmp_Dir" InstallMode="2"/>
+    <ROW FileKey="__8" Component_="og_bloombergexample.jar" DirProperty="bloombergexampledb.tmp_Dir" InstallMode="2"/>
     <ROW FileKey="bloombergexample.log_" Component_="log" FileName="bloombergexample.log*" DirProperty="log_Dir" InstallMode="2"/>
     <ROW FileKey="bloombergexample__" Component_="og_bloombergexample.jar" FileName="bloombergexample-*" DirProperty="hsqldb_Dir" InstallMode="2"/>
     <ROW FileKey="bloombergexample_logback.xml" Component_="config" FileName="bloombergexample-logback.xml" DirProperty="config_Dir" InstallMode="2"/>
@@ -144,7 +147,7 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsmModuleInstExSeqComponent">
     <ROW Action="JAVA_XMX_2" BaseAction="ValidateProductID" After="1"/>
-    <ROW Action="Populate" BaseAction="InstallODBC" After="1" Condition="NOT Installed AND BLOOMBERG_SAPI_PORT"/>
+    <ROW Action="Populate" BaseAction="InstallODBC" After="1" Condition="( NOT Installed ) AND ( BLOOMBERG_SAPI_PORT )"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsmModuleSignatureComponent">
     <ROW ModuleID="OG_BloombergExample" Version="1.0.0" GUID="A4CB8CFA_EA51_4AAA_8E13_639700C7B425" Name="Example Bloomberg Engine" Manufacturer="OpenGamma Ltd" Comments="An example engine using Bloomberg data"/>
