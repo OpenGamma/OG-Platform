@@ -9,7 +9,7 @@ $.register_module({
         var module = this, counter = 1, api = og.api.rest.views;
         return function (config) {
             var data = this, events = {meta: [], data: []}, id = 'data_' + counter++, meta, cols,
-                viewport = null, view_id = config.view, viewport_id, viewport_version, subscribed = false,
+                viewport = null, view_id = config.view, graph_id, viewport_id, viewport_version, subscribed = false,
                 ROOT = 'rootNode', SETS = 'columnSets', ROWS = 'rowCount',
                 grid_type = config.type, depgraph = !!config.depgraph,
                 fixed_set = {portfolio: 'Portfolio', primitives: 'Primitives'};
@@ -20,14 +20,15 @@ $.register_module({
             };
             var data_setup = function () {
                 if (!viewport) return;
-                var viewports = api[grid_type].viewports;
+                var viewports = (depgraph ? api[grid_type].depgraphs : api[grid_type]).viewports;
                 subscribed = true;
                 (viewport_id ? viewports.get({
-                    view_id: view_id, viewport_id: viewport_id, update: data_setup
-                }) : viewports.put({view_id: view_id, rows: viewport.rows, columns: viewport.cols})
+                    view_id: view_id, graph_id: graph_id, viewport_id: viewport_id, update: data_setup
+                }) : viewports.put({view_id: view_id, graph_id: graph_id, rows: viewport.rows, columns: viewport.cols})
                     .pipe(function (result) {
                         (viewport_id = result.meta.id), (viewport_version = result.data.version);
-                        return viewports.get({view_id: view_id, viewport_id: viewport_id, update: data_setup});
+                        return viewports
+                            .get({view_id: view_id, graph_id: graph_id, viewport_id: viewport_id, update: data_setup});
                     })
                 ).pipe(data_handler);
             };
@@ -36,8 +37,8 @@ $.register_module({
                 events[type].forEach(function (value) {value.handler.apply(null, value.args.concat(args));});
             };
             var grid_handler = function (result) {
-                if (result.error)
-                    return (view_id = viewport_id = subscribed = null), og.dev.warn(result.message), initialize();
+                if (result.error) return (view_id = graph_id = viewport_id = subscribed = null),
+                    og.dev.warn(result.message), initialize();
                 if (!result.data[SETS].length) return;
                 meta.data_rows = result.data[ROOT] ? result.data[ROOT][1] + 1 : result.data[ROWS];
                 meta.structure = result.data[ROOT] || [];
@@ -51,9 +52,19 @@ $.register_module({
                 fire('meta', meta);
                 if (!subscribed) return data_setup();
             };
-            var grid_setup = function (result) {return api[grid_type].grid.get({id: view_id, update: initialize});};
+            var grid_setup = function (result) {
+                return depgraph ?
+                    api[grid_type].depgraphs.put({row: config.row, col: config.col, view_id: view_id})
+                        .pipe(function (result) {
+                            return api[grid_type].depgraphs.grid
+                                .get({view_id: view_id, graph_id: (graph_id = result.meta.id)});
+                        })
+                    : api[grid_type].grid.get({view_id: view_id, update: initialize});
+            };
             var initialize = function () {
-                (view_id ? grid_setup() : api.put(config).pipe(view_handler)).pipe(grid_handler);
+                var put_options = ['viewdefinition', 'aggregators', 'live', 'provider', 'snapshot', 'version']
+                    .reduce(function (acc, val) {return (acc[val] = config[val]), acc;}, {});
+                (view_id ? grid_setup() : api.put(put_options).pipe(view_handler)).pipe(grid_handler);
             };
             var view_handler = function (result) {return (view_id = result.meta.id), grid_setup();};
             data.busy = (function (busy) {

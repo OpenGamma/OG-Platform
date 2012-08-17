@@ -8,7 +8,7 @@ $.register_module({
     obj: function () {
         var module = this, namespace = '.og_analytics_selector', overlay = '.OG-g-sel', cell = '.OG-g-cell';
         return function (grid) {
-            var selector = this, $ = grid.$, grid_offset, grid_width, grid_height, fixed_width;
+            var selector = this, $ = grid.$, grid_offset, grid_width, grid_height, fixed_width, events = {select: []};
             var auto_scroll = function (event, scroll_top, scroll_left, start) {
                 var x = event.pageX - grid_offset.left, y = event.pageY - grid_offset.top, increment = 35,
                     interval = 100, scroll_body = grid.elements.scroll_body, over_fixed = x < fixed_width;
@@ -25,11 +25,17 @@ $.register_module({
             };
             (auto_scroll.timeout = null), (auto_scroll.scroll = false);
             var clean_up = function () {
+                var selection = selector.selection();
                 $(document).off(namespace);
                 (auto_scroll.timeout = clearTimeout(auto_scroll.timeout)), (auto_scroll.scroll = false);
+                if (selection) fire('select', selection);
+            };
+            var fire = function (type) {
+                var args = Array.prototype.slice.call(arguments, 1), lcv, len = events[type].length;
+                for (lcv = 0; lcv < len; lcv += 1)
+                    if (false === events[type][lcv].handler.apply(null, events[type][lcv].args.concat(args))) break;
             };
             var initialize = function () {
-                clean_up();
                 grid_offset = grid.elements.parent.offset();
                 grid_width = grid.elements.parent.width();
                 grid_height = grid.elements.parent.height();
@@ -44,6 +50,7 @@ $.register_module({
                 if (!(($target = $(event.target)).is(cell) ? $target : $target.parents(cell + ':first'))
                     .length && !(is_overlay = $target.is(overlay))) return; // if the cursor is not over a cell, bail
                 if (is_overlay) return selector.clear();
+                clean_up();
                 $(document)
                     .on('mouseup' + namespace, clean_up)
                     .on('mousemove' + namespace, (function (x, y, handler) { // run it manually once and return it
@@ -110,6 +117,11 @@ $.register_module({
             (render.regions = null), (render.rectangle = null);
             selector.clear = function () {
                 $(grid.id + ' ' + overlay).remove(), (render.regions = null), (render.rectangle = null);
+            };
+            selector.on = function (type, handler) {
+                if (type in events)
+                    events[type].push({handler: handler, args: Array.prototype.slice.call(arguments, 2)});
+                return selector;
             };
             selector.selection = function () {
                 if (!render.rectangle) return null;

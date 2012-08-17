@@ -20,6 +20,7 @@ $.register_module({
                         type: 'portfolio',
                         depgraph: false,
                         viewdefinition: args.id,
+                        row: 0, col: 2,
                         live: true,
                         provider: 'Live market data (Bloomberg, Activ, TullettPrebon)'
                     }
@@ -56,7 +57,11 @@ $.register_module({
             rules: {
                 root: {route: '/frame:?', method: module.name + '.root'},
                 grid: {route: '/grid/:id/frame:?', method: module.name + '.grid'},
-                gadgetscontainer: {route: '/gadgetscontainer/:center/frame:?', method: module.name + '.gadgetscontainer'},
+                gadgetscontainer: {
+                    route: '/gadgetscontainer/:center/frame:?',
+                    method: module.name + '.gadgetscontainer'
+                },
+                positions: {route: '/positions/:id/trades:?/frame:?', method: module.name + '.positions'},
                 positions: {route: '/positions/:id/trades:?/frame:?', method: module.name + '.positions'},
                 securities: {route: '/securities/:id/frame:?', method: module.name + '.securities'},
                 timeseries: {route: '/timeseries/id:?/key:?/frame:?', method: module.name + '.timeseries'}

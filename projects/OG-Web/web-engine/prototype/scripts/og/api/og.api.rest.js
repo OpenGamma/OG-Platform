@@ -25,7 +25,7 @@ $.register_module({
             },
             request_id = 1,
             MAX_INT = Math.pow(2, 31) - 1, PAGE_SIZE = 50, PAGE = 1, STALL = 500 /* 500ms */,
-            INSTANT = 0 /* 0ms */, RESUBSCRIBE = 30000 /* 20s */,
+            INSTANT = 0 /* 0ms */, RESUBSCRIBE = 30000 /* 30s */,
             TIMEOUTSOON = 120000 /* 2m */, TIMEOUTFOREVER = 7200000 /* 2h */,
             get_cache = function (key) {return common.get_cache(module.name + key);},
             set_cache = function (key, value) {return common.set_cache(module.name + key, value);},
@@ -571,22 +571,87 @@ $.register_module({
                         put: not_available.partial('put'),
                         del: not_available.partial('del')
                     },
+                    depgraphs: {
+                        root: 'views/{{id}}/portfolio/depgraphs',
+                        del: not_implemented.partial('del'),
+                        get: not_available.partial('get'),
+                        grid: {
+                            root: 'views/{{view_id}}/portfolio/depgraphs/{{graph_id}}/grid',
+                            get: function (config) {
+                                var root = this.root, method = root.split('/'), data = {}, meta;
+                                meta = check({
+                                    bundle: {method: root + '#get', config: config},
+                                    required: [{all_of: ['view_id', 'graph_id']}]
+                                });
+                                method[1] = str(config.view_id);
+                                method[4] = str(config.graph_id);
+                                return request(method, {data: data, meta: meta});
+                            },
+                            put: not_available.partial('put'),
+                            del: not_available.partial('del')
+                        },
+                        put: function (config) {
+                            var root = this.root, method = root.split('/'), data = {}, meta,
+                                fields = ['view_id', 'row', 'col'],
+                            meta = check({
+                                bundle: {method: root + '#put', config: config}, required: [{all_of: fields}]
+                            });
+                            meta.type = 'POST';
+                            data['clientId'] = api.id;
+                            method[1] = config.view_id;
+                            fields.forEach(function (val, idx) {if (val = str(config[val])) data[fields[idx]] = val;});
+                            return request(method, {data: data, meta: meta});
+                        },
+                        viewports: {
+                            root: 'views/{{view_id}}/portfolio/depgraphs/{{graph_id}}/viewports',
+                            get: function (config) {
+                                config = config || {};
+                                var root = this.root, method = root.split('/'), data = {}, meta;
+                                meta = check({
+                                    bundle: {method: root + '#get', config: config},
+                                    required: [{all_of: ['view_id', 'graph_id', 'viewport_id']}]
+                                });
+                                method[1] = config.view_id;
+                                method[4] = config.graph_id;
+                                method.push(config.viewport_id, 'data');
+                                return request(method, {data: data, meta: meta});
+                            },
+                            put: function (config) {
+                                config = config || {};
+                                var root = this.root, method = root.split('/'), data = {}, meta,
+                                    fields = ['view_id', 'graph_id', 'viewport_id', 'rows', 'columns'],
+                                meta = check({
+                                    bundle: {method: root + '#put', config: config},
+                                    required: [{all_of: ['view_id', 'graph_id', 'rows', 'columns']}]
+                                });
+                                meta.type = 'POST';
+                                data.rows = config.rows;
+                                data.columns = config.columns;
+                                data['clientId'] = api.id;
+                                method[1] = config.view_id;
+                                method[4] = config.graph_id;
+                                if (config.viewport_id) (meta.type = 'PUT'), method.push(config.viewport_id);
+                                return request(method, {data: data, meta: meta});
+                            },
+                            del: not_available.partial('del')
+                        }
+                    },
                     grid: {
-                        root: 'views/{{id}}/portfolio/grid',
+                        root: 'views/{{view_id}}/portfolio/grid',
                         get: function (config) {
                             config = config || {};
                             var root = this.root, method = root.split('/'), data = {}, meta;
                             meta = check({
                                 bundle: {method: root + '#get', config: config},
-                                required: [{all_of: ['id']}]
+                                required: [{all_of: ['view_id']}]
                             });
-                            return request(((method[1] = str(config.id)), method), {data: data, meta: meta});
+                            return request(((method[1] = str(config.view_id)), method), {data: data, meta: meta});
                         },
                         put: not_available.partial('put'),
                         del: not_available.partial('del')
                     },
                     viewports: {
-                        root: 'views/{{id}}/portfolio/viewports',
+                        root: 'views/{{view_id}}/portfolio/viewports',
                         get: function (config) {
                             config = config || {};
                             var root = this.root, method = root.split('/'), data = {}, meta;
