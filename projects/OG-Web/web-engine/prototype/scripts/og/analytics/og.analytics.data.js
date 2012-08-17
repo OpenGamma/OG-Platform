@@ -56,16 +56,14 @@ $.register_module({
             };
             var grid_setup = function (result) {
                 return depgraph ?
-                    api[grid_type].grid.get({view_id: view_id, update: initialize})
-                        .pipe(function (result) {
-                            if (!result.data[SETS].length) return;
-                            return api[grid_type].depgraphs.put({row: config.row, col: config.col, view_id: view_id})
-                                .pipe(function (result) {
-                                    return api[grid_type].depgraphs.grid.get({
-                                        view_id: view_id, graph_id: (graph_id = result.meta.id), update: initialize
-                                    });
-                                })
-                        })
+                    api[grid_type].grid.get({view_id: view_id, update: initialize}).pipe(function (result) {
+                        if (!result.data[SETS].length) return;
+                        return api[grid_type].depgraphs.put({row: config.row, col: config.col, view_id: view_id})
+                            .pipe(function (result) {
+                                return api[grid_type].depgraphs.grid
+                                    .get({view_id: view_id, graph_id: (graph_id = result.meta.id), update: initialize});
+                            })
+                    })
                     : api[grid_type].grid.get({view_id: view_id, update: initialize});
             };
             var initialize = function () {
