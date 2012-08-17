@@ -42,6 +42,7 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.provider.security.SecurityProvider;
 
 /**
  * Component factory for setting up a tool context.
@@ -148,6 +149,11 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
   private ConventionBundleSource _conventionBundleSource;
 
   /**
+   * The security provider.
+   */
+  @PropertyDefinition
+  private SecurityProvider _securityProvider;
+  /**
    * The security loader.
    */
   @PropertyDefinition
@@ -239,6 +245,8 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
         return getMarketDataSnapshotSource();
       case -1281578674:  // conventionBundleSource
         return getConventionBundleSource();
+      case 809869649:  // securityProvider
+        return getSecurityProvider();
       case -903470221:  // securityLoader
         return getSecurityLoader();
       case 157715905:  // historicalTimeSeriesLoader
@@ -307,6 +315,9 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
       case -1281578674:  // conventionBundleSource
         setConventionBundleSource((ConventionBundleSource) newValue);
         return;
+      case 809869649:  // securityProvider
+        setSecurityProvider((SecurityProvider) newValue);
+        return;
       case -903470221:  // securityLoader
         setSecurityLoader((SecurityLoader) newValue);
         return;
@@ -343,6 +354,7 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getHistoricalTimeSeriesSource(), other.getHistoricalTimeSeriesSource()) &&
           JodaBeanUtils.equal(getMarketDataSnapshotSource(), other.getMarketDataSnapshotSource()) &&
           JodaBeanUtils.equal(getConventionBundleSource(), other.getConventionBundleSource()) &&
+          JodaBeanUtils.equal(getSecurityProvider(), other.getSecurityProvider()) &&
           JodaBeanUtils.equal(getSecurityLoader(), other.getSecurityLoader()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesLoader(), other.getHistoricalTimeSeriesLoader()) &&
           super.equals(obj);
@@ -372,6 +384,7 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConventionBundleSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityProvider());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLoader());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesLoader());
     return hash ^ super.hashCode();
@@ -854,6 +867,31 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the security provider.
+   * @return the value of the property
+   */
+  public SecurityProvider getSecurityProvider() {
+    return _securityProvider;
+  }
+
+  /**
+   * Sets the security provider.
+   * @param securityProvider  the new value of the property
+   */
+  public void setSecurityProvider(SecurityProvider securityProvider) {
+    this._securityProvider = securityProvider;
+  }
+
+  /**
+   * Gets the the {@code securityProvider} property.
+   * @return the property, not null
+   */
+  public final Property<SecurityProvider> securityProvider() {
+    return metaBean().securityProvider().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the security loader.
    * @return the value of the property
    */
@@ -1008,6 +1046,11 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<ConventionBundleSource> _conventionBundleSource = DirectMetaProperty.ofReadWrite(
         this, "conventionBundleSource", ToolContextComponentFactory.class, ConventionBundleSource.class);
     /**
+     * The meta-property for the {@code securityProvider} property.
+     */
+    private final MetaProperty<SecurityProvider> _securityProvider = DirectMetaProperty.ofReadWrite(
+        this, "securityProvider", ToolContextComponentFactory.class, SecurityProvider.class);
+    /**
      * The meta-property for the {@code securityLoader} property.
      */
     private final MetaProperty<SecurityLoader> _securityLoader = DirectMetaProperty.ofReadWrite(
@@ -1041,6 +1084,7 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
         "historicalTimeSeriesSource",
         "marketDataSnapshotSource",
         "conventionBundleSource",
+        "securityProvider",
         "securityLoader",
         "historicalTimeSeriesLoader");
 
@@ -1091,6 +1135,8 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
           return _marketDataSnapshotSource;
         case -1281578674:  // conventionBundleSource
           return _conventionBundleSource;
+        case 809869649:  // securityProvider
+          return _securityProvider;
         case -903470221:  // securityLoader
           return _securityLoader;
         case 157715905:  // historicalTimeSeriesLoader
@@ -1265,6 +1311,14 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<ConventionBundleSource> conventionBundleSource() {
       return _conventionBundleSource;
+    }
+
+    /**
+     * The meta-property for the {@code securityProvider} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<SecurityProvider> securityProvider() {
+      return _securityProvider;
     }
 
     /**

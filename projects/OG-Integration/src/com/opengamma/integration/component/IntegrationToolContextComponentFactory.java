@@ -17,7 +17,6 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.bbg.BloombergSecuritySource;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.component.factory.tool.ToolContextComponentFactory;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
@@ -31,17 +30,10 @@ import com.opengamma.integration.tool.IntegrationToolContext;
 public class IntegrationToolContextComponentFactory extends ToolContextComponentFactory {
 
   /**
-   * The Bloomberg security source.
-   */
-  @PropertyDefinition
-  private BloombergSecuritySource _bloombergSecuritySource;
-  
-  /**
    * The Bloomberg reference data provider.
    */
   @PropertyDefinition
   private ReferenceDataProvider _bloombergReferenceDataProvider;
-  
   /**
    * The Bloomberg historical time-series source.
    */
@@ -79,8 +71,6 @@ public class IntegrationToolContextComponentFactory extends ToolContextComponent
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -437041514:  // bloombergSecuritySource
-        return getBloombergSecuritySource();
       case -245204181:  // bloombergReferenceDataProvider
         return getBloombergReferenceDataProvider();
       case 1652351076:  // bloombergHistoricalTimeSeriesSource
@@ -92,9 +82,6 @@ public class IntegrationToolContextComponentFactory extends ToolContextComponent
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -437041514:  // bloombergSecuritySource
-        setBloombergSecuritySource((BloombergSecuritySource) newValue);
-        return;
       case -245204181:  // bloombergReferenceDataProvider
         setBloombergReferenceDataProvider((ReferenceDataProvider) newValue);
         return;
@@ -112,8 +99,7 @@ public class IntegrationToolContextComponentFactory extends ToolContextComponent
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       IntegrationToolContextComponentFactory other = (IntegrationToolContextComponentFactory) obj;
-      return JodaBeanUtils.equal(getBloombergSecuritySource(), other.getBloombergSecuritySource()) &&
-          JodaBeanUtils.equal(getBloombergReferenceDataProvider(), other.getBloombergReferenceDataProvider()) &&
+      return JodaBeanUtils.equal(getBloombergReferenceDataProvider(), other.getBloombergReferenceDataProvider()) &&
           JodaBeanUtils.equal(getBloombergHistoricalTimeSeriesSource(), other.getBloombergHistoricalTimeSeriesSource()) &&
           super.equals(obj);
     }
@@ -123,35 +109,9 @@ public class IntegrationToolContextComponentFactory extends ToolContextComponent
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBloombergSecuritySource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getBloombergReferenceDataProvider());
     hash += hash * 31 + JodaBeanUtils.hashCode(getBloombergHistoricalTimeSeriesSource());
     return hash ^ super.hashCode();
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the Bloomberg security source.
-   * @return the value of the property
-   */
-  public BloombergSecuritySource getBloombergSecuritySource() {
-    return _bloombergSecuritySource;
-  }
-
-  /**
-   * Sets the Bloomberg security source.
-   * @param bloombergSecuritySource  the new value of the property
-   */
-  public void setBloombergSecuritySource(BloombergSecuritySource bloombergSecuritySource) {
-    this._bloombergSecuritySource = bloombergSecuritySource;
-  }
-
-  /**
-   * Gets the the {@code bloombergSecuritySource} property.
-   * @return the property, not null
-   */
-  public final Property<BloombergSecuritySource> bloombergSecuritySource() {
-    return metaBean().bloombergSecuritySource().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -215,11 +175,6 @@ public class IntegrationToolContextComponentFactory extends ToolContextComponent
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code bloombergSecuritySource} property.
-     */
-    private final MetaProperty<BloombergSecuritySource> _bloombergSecuritySource = DirectMetaProperty.ofReadWrite(
-        this, "bloombergSecuritySource", IntegrationToolContextComponentFactory.class, BloombergSecuritySource.class);
-    /**
      * The meta-property for the {@code bloombergReferenceDataProvider} property.
      */
     private final MetaProperty<ReferenceDataProvider> _bloombergReferenceDataProvider = DirectMetaProperty.ofReadWrite(
@@ -234,7 +189,6 @@ public class IntegrationToolContextComponentFactory extends ToolContextComponent
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "bloombergSecuritySource",
         "bloombergReferenceDataProvider",
         "bloombergHistoricalTimeSeriesSource");
 
@@ -247,8 +201,6 @@ public class IntegrationToolContextComponentFactory extends ToolContextComponent
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -437041514:  // bloombergSecuritySource
-          return _bloombergSecuritySource;
         case -245204181:  // bloombergReferenceDataProvider
           return _bloombergReferenceDataProvider;
         case 1652351076:  // bloombergHistoricalTimeSeriesSource
@@ -273,14 +225,6 @@ public class IntegrationToolContextComponentFactory extends ToolContextComponent
     }
 
     //-----------------------------------------------------------------------
-    /**
-     * The meta-property for the {@code bloombergSecuritySource} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<BloombergSecuritySource> bloombergSecuritySource() {
-      return _bloombergSecuritySource;
-    }
-
     /**
      * The meta-property for the {@code bloombergReferenceDataProvider} property.
      * @return the meta-property, not null

@@ -5,7 +5,6 @@
  */
 package com.opengamma.bbg.tool;
 
-import com.opengamma.bbg.BloombergSecuritySource;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 
@@ -13,13 +12,6 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
  * Exposes elements of a Bloomberg market data server in a tool context.
  */
 public interface BloombergToolContext {
-
-  /**
-   * Gets the Bloomberg security source.
-   * 
-   * @return the Bloomberg security source
-   */
-  BloombergSecuritySource getBloombergSecuritySource();
 
   /**
    * Gets the Bloomberg reference data provider.
