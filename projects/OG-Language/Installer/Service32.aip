@@ -63,7 +63,7 @@
     <ROW RequiredID="OG_LanguageCore.BFBD8D7F_3845_4E0F_AF95_4B3CCBC4AD60" RequiredLanguage="1033"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsmModuleInstExSeqComponent">
-    <ROW Action="Configure" BaseAction="RegisterProduct" After="1" Condition="( NOT Installed ) AND ( UILevel=&quot;5&quot; )"/>
+    <ROW Action="Configure" BaseAction="RegisterProduct" After="1" Condition="( NOT Installed ) AND ( UILevel=&quot;5&quot; AND $ServiceRunner.exe=3 )"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsmModuleSignatureComponent">
     <ROW ModuleID="OG_Language32" Version="1.0.1" GUID="F763DF0E_DE89_4D90_8022_0D703F231520" Name="Language Integration 32-bit Service" Manufacturer="OpenGamma Ltd" Comments="The service installation for use with 32-bit Java"/>
