@@ -8,7 +8,6 @@ package com.opengamma.analytics.financial.model.interestrate.curve;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.financial.interestrate.InterestRate;
@@ -56,9 +55,15 @@ public class YieldPeriodicCurve extends YieldAndDiscountCurve {
   }
 
   @Override
+  public double getInterestRate(final Double time) {
+    double rate = _curve.getYValue(time);
+    return _compoundingPeriodsPerYear * Math.log(1 + rate / _compoundingPeriodsPerYear);
+  }
+
+  @Override
   public double getDiscountFactor(final double t) {
     double rate = _curve.getYValue(t);
-    return Math.pow(1 + rate / _compoundingPeriodsPerYear, _compoundingPeriodsPerYear * t);
+    return Math.pow(1 + rate / _compoundingPeriodsPerYear, -_compoundingPeriodsPerYear * t);
   }
 
   @Override
@@ -74,7 +79,16 @@ public class YieldPeriodicCurve extends YieldAndDiscountCurve {
 
   @Override
   public double[] getInterestRateParameterSensitivity(double t) {
-    return ArrayUtils.toPrimitive(_curve.getYValueParameterSensitivity(t));
+    double rp = _curve.getYValue(t);
+    //    double rc = _compoundingPeriodsPerYear * Math.log(1 + rp / _compoundingPeriodsPerYear);
+    double rcBar = 1.0;
+    double rpBar = 1.0 / (1 + rp / _compoundingPeriodsPerYear) * rcBar;
+    Double[] drpdp = _curve.getYValueParameterSensitivity(t);
+    double[] pBar = new double[drpdp.length];
+    for (int loopp = 0; loopp < drpdp.length; loopp++) {
+      pBar[loopp] = drpdp[loopp] * rpBar;
+    }
+    return pBar;
   }
 
   @Override

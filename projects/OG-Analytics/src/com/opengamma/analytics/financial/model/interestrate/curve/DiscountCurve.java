@@ -46,6 +46,18 @@ public class DiscountCurve extends YieldAndDiscountCurve {
   }
 
   @Override
+  public double getInterestRate(final Double time) {
+    double eps = 1.0E-6;
+    if (Math.abs(time) > eps) {
+      return -Math.log(getDiscountFactor(time)) / time;
+    }
+    // Implementation note: if time too close to 0, compute the limit for t->0.
+    double dfP = getDiscountFactor(time + eps);
+    double df = getDiscountFactor(time);
+    return (df - dfP) / (eps * df);
+  }
+
+  @Override
   public double getDiscountFactor(final double t) {
     return _curve.getYValue(t);
   }
