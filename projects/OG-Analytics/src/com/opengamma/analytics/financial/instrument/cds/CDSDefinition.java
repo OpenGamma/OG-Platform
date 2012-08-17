@@ -92,13 +92,11 @@ public class CDSDefinition implements InstrumentDefinition<CDSDerivative> {
   @Override
   public CDSDerivative toDerivative(ZonedDateTime pricingDate, String... yieldCurveNames) {
     
-    System.out.println("Converting with pricingDate = " + pricingDate);
-    
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    ArgumentChecker.isTrue(yieldCurveNames.length >= 2, "At least two curves are required (discount, credit spread, discount for underlying is optional)");
+    ArgumentChecker.isTrue(yieldCurveNames.length >= 1, "At least one curve required (discount, credit spread, discount for underlying is optional)");
     
     final String discountCurveName = yieldCurveNames[0];
-    final String spreadCurveName = yieldCurveNames[1];
+    final String spreadCurveName =  yieldCurveNames.length > 1 ? yieldCurveNames[1] : null;
     final String underlyingDiscountCurveName = yieldCurveNames.length > 2 ? yieldCurveNames[2] : null;
     
     //DayCount dc = new ActualThreeSixtyFive();
@@ -139,10 +137,6 @@ public class CDSDefinition implements InstrumentDefinition<CDSDerivative> {
     final CouponFixedDefinition currentPeriod = _premium.getNthPayment(couponIndex);
     final ZonedDateTime previousAccrualDate = currentPeriod.getAccrualStartDate();
     final ZonedDateTime nextAccrualDate = currentPeriod.getAccrualEndDate();
-    
-    
-    System.out.println("start date: " + previousAccrualDate);
-    System.out.println("today: " + pricingDate);
     
     return AccruedInterestCalculator.getAccruedInterest(
       _dayCount, couponIndex, nCoupons, previousAccrualDate, stepinDate, nextAccrualDate, currentPeriod.getRate(), Math.round(1.0 / currentPeriod.getPaymentYearFraction()), /* isEOM */ false)

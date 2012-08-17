@@ -73,8 +73,6 @@ public class CDSApproxISDAMethod {
     final double feeLeg = valueFeeLeg(cds, discountCurve, hazardRateCurve, pricingDate, stepinDate, settlementDate);
     final double dirtyPrice = (contingentLeg - feeLeg) * cds.getNotional();
     
-    System.out.println("contingent=" + contingentLeg + ", fee=" + feeLeg);
-    
     return cleanPrice ? dirtyPrice + cds.getAccruedInterest() : dirtyPrice;
   }
   
@@ -93,17 +91,19 @@ public class CDSApproxISDAMethod {
     
     SingleRootFinder<Double, Double> rootFinder = new BrentSingleRootFinder(1E-10);
     
+    double guess = dataPoints[0] / (1 + cds.getRecoveryRate());
+    
     dataPoints[0] = rootFinder.getRoot(
       new Function1D<Double, Double>() {
         @Override
         public Double evaluate(Double x) {
-          System.out.println("Evaluating " + x);
+          //System.out.println("Evaluating " + x);
           dataPoints[0] = x;   
           ISDACurve tempCurve = new ISDACurve("TEMP_CURVE", timePoints, dataPoints, 0.0);
           return calculateUpfrontCharge(zeroCDS, discountCurve, tempCurve, pricingDate, stepinDate, settlementDate, true);
         }  
       },
-      0.0, 1.0
+      -0.1, 1.0
     );
     
     final ISDACurve hazardRateCurve = new ISDACurve("HAZARD_RATE_CURVE", timePoints, dataPoints, 0.0);
@@ -164,8 +164,6 @@ public class CDSApproxISDAMethod {
     // List of all time points for which real data points exist on the discount/spread curves, only need for accrual on default calculation
     final NavigableSet<Double> timeline = cds.isAccrualOnDefault() ? buildTimeLine(discountCurve, hazardRateCurve, startTime, maturity) : null;
     
-    System.out.println(timeline.toString());
-    
     CouponFixed payment;
     ZonedDateTime accrualPeriodStart, accrualPeriodEnd;
     double periodStart, periodEnd, paymentTime;
@@ -184,10 +182,10 @@ public class CDSApproxISDAMethod {
       discount = discountCurve.getDiscountFactor(paymentTime);
       result += amount * survival * discount;
       
-      if (s_logger.isDebugEnabled()) {
-        s_logger.debug("i=" + i + ", accrualEnd=" + accrualPeriodEnd + ", t-value=" + periodEnd + ", accrualTime=" + payment.getPaymentYearFraction() + ", paymentTime=" + paymentTime + ", ir=" + discountCurve.getInterestRate(paymentTime));
-        s_logger.debug("ammount=" + amount + ", survival=" + survival + ", discount=" + discount + ", pv=" + amount * survival * discount);
-      }
+      //if (s_logger.isDebugEnabled()) {
+      //  s_logger.debug("i=" + i + ", accrualEnd=" + accrualPeriodEnd + ", t-value=" + periodEnd + ", accrualTime=" + payment.getPaymentYearFraction() + ", paymentTime=" + paymentTime + ", ir=" + discountCurve.getInterestRate(paymentTime));
+      //  s_logger.debug("ammount=" + amount + ", survival=" + survival + ", discount=" + discount + ", pv=" + amount * survival * discount);
+      //}
       
       if (cds.isAccrualOnDefault()) {
         timeline.add(periodEnd);
@@ -197,7 +195,6 @@ public class CDSApproxISDAMethod {
       }
     }
     
-    System.out.println("fee undiscounted: " + result);
     return result / discountCurve.getDiscountFactor(settlementTime);
   }
 
@@ -256,7 +253,6 @@ public class CDSApproxISDAMethod {
       discount0 = discount1;
     }
 
-    s_logger.debug("Accrual=" + value);
     return value;
   }
 
@@ -300,7 +296,6 @@ public class CDSApproxISDAMethod {
       ? valueContingentLegPayOnDefault(recoveryRate, valuationStartTime, maturity, discountCurve, hazardRateCurve)
       : valueContingentLegPayOnMaturity(recoveryRate, valuationStartTime, maturity, discountCurve, hazardRateCurve);
 
-    System.out.println("cont undiscounted: " + value);
     return value / discountCurve.getDiscountFactor(settlementTime);
   }
 
