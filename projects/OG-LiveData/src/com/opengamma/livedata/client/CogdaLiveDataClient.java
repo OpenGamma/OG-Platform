@@ -45,6 +45,8 @@ import com.opengamma.livedata.cogda.msg.CogdaLiveDataSubscriptionRequestBuilder;
 import com.opengamma.livedata.cogda.msg.CogdaLiveDataSubscriptionRequestMessage;
 import com.opengamma.livedata.cogda.msg.CogdaLiveDataSubscriptionResponseBuilder;
 import com.opengamma.livedata.cogda.msg.CogdaLiveDataSubscriptionResponseMessage;
+import com.opengamma.livedata.cogda.msg.CogdaLiveDataUnsubscribeBuilder;
+import com.opengamma.livedata.cogda.msg.CogdaLiveDataUnsubscribeMessage;
 import com.opengamma.livedata.cogda.msg.CogdaLiveDataUpdateBuilder;
 import com.opengamma.livedata.cogda.msg.CogdaLiveDataUpdateMessage;
 import com.opengamma.livedata.cogda.msg.CogdaMessageType;
@@ -187,6 +189,11 @@ public class CogdaLiveDataClient extends AbstractLiveDataClient implements Lifec
 
   @Override
   protected void cancelPublication(LiveDataSpecification fullyQualifiedSpecification) {
+    CogdaLiveDataUnsubscribeMessage message = new CogdaLiveDataUnsubscribeMessage();
+    message.setCorrelationId(_nextRequestId.getAndIncrement());
+    message.setNormalizationScheme(fullyQualifiedSpecification.getNormalizationRuleSetId());
+    message.setSubscriptionId(fullyQualifiedSpecification.getIdentifiers().iterator().next());
+    _messageSender.send(CogdaLiveDataUnsubscribeBuilder.buildMessageStatic(new FudgeSerializer(getFudgeContext()), message));
   }
 
   @Override
