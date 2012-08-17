@@ -89,8 +89,8 @@ public class YieldCurveConstructionGeneratorBlockFullSpreadTest {
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   private static final Interpolator1D INTERPOLATOR_CS = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-  private static final Interpolator1D INTERPOLATOR_EXP = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.EXPONENTIAL, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
-      Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  private static final Interpolator1D INTERPOLATOR_EXP = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.EXPONENTIAL, Interpolator1DFactory.EXPONENTIAL_EXTRAPOLATOR,
+      Interpolator1DFactory.EXPONENTIAL_EXTRAPOLATOR);
   private static final MatrixAlgebra MATRIX_ALGEBRA = new CommonsMatrixAlgebra();
 
   private static final LastTimeCalculator MATURITY_CALCULATOR = LastTimeCalculator.getInstance();
@@ -237,11 +237,11 @@ public class YieldCurveConstructionGeneratorBlockFullSpreadTest {
       NAMES_UNITS[loopblock] = new String[NB_UNITS[loopblock]][];
     }
     DEFINITIONS_UNITS[0][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD};
-    DEFINITIONS_UNITS[0][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD};
+    DEFINITIONS_UNITS[0][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD_2};
     DEFINITIONS_UNITS[1][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD};
-    DEFINITIONS_UNITS[1][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD};
+    DEFINITIONS_UNITS[1][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD_2};
     DEFINITIONS_UNITS[2][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD};
-    DEFINITIONS_UNITS[2][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD};
+    DEFINITIONS_UNITS[2][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD_2};
     DEFINITIONS_UNITS[3][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD};
     DEFINITIONS_UNITS[3][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD_2};
     DEFINITIONS_UNITS[3][2] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD6_USD};
@@ -253,17 +253,21 @@ public class YieldCurveConstructionGeneratorBlockFullSpreadTest {
     DEFINITIONS_UNITS[7][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD};
     DEFINITIONS_UNITS[7][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD_4};
     GeneratorCurve genIntDQ = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_DQ);
-    GeneratorCurve genIntCS = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_CS);
+    //    GeneratorCurve genIntCS = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_CS);
+    GeneratorCurve genIntLin = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LINEAR);
+    int compoundingRate = 2;
+    GeneratorCurve genIntRPLin = new GeneratorCurveYieldPeriodicInterpolated(MATURITY_CALCULATOR, compoundingRate, INTERPOLATOR_LINEAR);
     GeneratorCurve genIntDFExp = new GeneratorCurveDiscountFactorInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_EXP);
     GeneratorCurve genNS = new GeneratorCurveYieldNelsonSiegel();
     GeneratorCurve genInt0 = new GeneratorCurveYieldInterpolatedAnchor(MATURITY_CALCULATOR, INTERPOLATOR_LINEAR);
     GeneratorCurve genAddExistFwd3 = new GeneratorCurveAddYieldExisiting(genIntDQ, false, CURVE_NAME_FWD3_USD);
-    GeneratorCurve genCst = new GeneratorCurveYieldConstant();
-    // Interpolated (cubic spline on yield cc) and Cst+interpolated / TODO: interpolated (linear on periodic yield) / TODO: interpolated (exponential on discount factor)
-    GENERATORS_UNITS[0][0] = new GeneratorCurve[] {genIntCS};
-    GENERATORS_UNITS[0][1] = new GeneratorCurve[] {new GeneratorCurveAddYield(new GeneratorCurve[] {genCst, genInt0}, false)};
-    GENERATORS_UNITS[1][0] = new GeneratorCurve[] {genIntCS};
-    GENERATORS_UNITS[1][1] = new GeneratorCurve[] {genIntCS};
+    //    GeneratorCurve genCst = new GeneratorCurveYieldConstant();
+    // Interpolated (cubic spline on yield cc) and Cst+interpolated / interpolated (linear on periodic yield) / interpolated (exponential on discount factor)
+    GENERATORS_UNITS[0][0] = new GeneratorCurve[] {genIntLin};
+    GENERATORS_UNITS[0][1] = new GeneratorCurve[] {genIntLin};
+    //    GENERATORS_UNITS[0][1] = new GeneratorCurve[] {new GeneratorCurveAddYield(new GeneratorCurve[] {genCst, genInt0}, false)};
+    GENERATORS_UNITS[1][0] = new GeneratorCurve[] {genIntRPLin};
+    GENERATORS_UNITS[1][1] = new GeneratorCurve[] {genIntRPLin};
     GENERATORS_UNITS[2][0] = new GeneratorCurve[] {genIntDFExp};
     GENERATORS_UNITS[2][1] = new GeneratorCurve[] {genIntDFExp};
     // 3xinterpolated / 2xinterpolated + spread over existing
@@ -435,7 +439,7 @@ public class YieldCurveConstructionGeneratorBlockFullSpreadTest {
     return bumped;
   }
 
-  @Test(enabled = false)
+  @Test(enabled = true)
   /**
    * Code used to graph the curves
    */
@@ -446,14 +450,12 @@ public class YieldCurveConstructionGeneratorBlockFullSpreadTest {
     for (int looppt = 0; looppt <= nbPoints; looppt++) {
       x[looppt] = looppt * endTime / nbPoints;
     }
-    int nbAnalysis = 5;
+    int nbAnalysis = NB_BLOCKS;
     YieldCurveBundle[] bundle = new YieldCurveBundle[nbAnalysis];
     double[][][] rate = new double[nbAnalysis][][];
-    bundle[0] = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(1).getFirst();
-    bundle[1] = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(2).getFirst();
-    bundle[2] = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(3).getFirst();
-    bundle[3] = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(4).getFirst();
-    bundle[4] = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(5).getFirst();
+    for (int loopblock = 0; loopblock < nbAnalysis; loopblock++) {
+      bundle[loopblock] = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(loopblock).getFirst();
+    }
     for (int loopbundle = 0; loopbundle < nbAnalysis; loopbundle++) {
       Set<String> curveNames = bundle[loopbundle].getAllNames();
       int nbCurve = curveNames.size();
@@ -467,7 +469,7 @@ public class YieldCurveConstructionGeneratorBlockFullSpreadTest {
       }
     }
     double[] rateNS = new double[nbPoints + 1];
-    YieldAndDiscountAddZeroSpreadCurve curve = (YieldAndDiscountAddZeroSpreadCurve) bundle[4].getCurve(CURVE_NAME_FWD3_USD);
+    YieldAndDiscountAddZeroSpreadCurve curve = (YieldAndDiscountAddZeroSpreadCurve) bundle[7].getCurve(CURVE_NAME_FWD3_USD);
     DoublesCurveNelsonSiegel curveNS = (DoublesCurveNelsonSiegel) (((YieldCurve) curve.getCurves()[0]).getCurve());
     for (int looppt = 0; looppt <= nbPoints; looppt++) {
       rateNS[looppt] = curveNS.getYValue(x[looppt]);
@@ -601,8 +603,13 @@ public class YieldCurveConstructionGeneratorBlockFullSpreadTest {
         unitMap.put(curveNames[loopunit][loopcurve], new ObjectsPair<Integer, Integer>(start + startBlock, nbIns[loopcurve]));
         startBlock += nbIns[loopcurve];
       }
-      if ((block == 5) && (loopunit == 1)) {
+      if ((block == 7) && (loopunit == 1)) {
         initGuess = new double[] {0.012, -0.003, 0.018, 1.60, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+      }
+      if (block == 2) { // Discount factor
+        for (int loopi = 0; loopi < nbInsTotal; loopi++) {
+          initGuess[loopi] = 1.0;
+        }
       }
       Pair<YieldCurveBundle, Double[]> unitCal = makeUnit(instruments, initGuess, gen, knownSoFarData, calculator, sensitivityCalculator);
       parametersSoFar.addAll(Arrays.asList(unitCal.getSecond()));
@@ -677,10 +684,12 @@ public class YieldCurveConstructionGeneratorBlockFullSpreadTest {
       case 0:
       case 1:
       case 2:
-      case 5:
-        return new String[] {curveNames[0][0], curveNames[0][0]};
       case 3:
       case 4:
+      case 7:
+        return new String[] {curveNames[0][0], curveNames[0][0]};
+      case 5:
+      case 6:
         return new String[] {curveNames[0][1], curveNames[0][1]};
       default:
         throw new IllegalArgumentException(block.toString());
@@ -694,10 +703,12 @@ public class YieldCurveConstructionGeneratorBlockFullSpreadTest {
           case 0:
           case 1:
           case 2:
-          case 5:
-            return new String[] {curveNames[0][0], curveNames[1][0]};
           case 3:
           case 4:
+          case 7:
+            return new String[] {curveNames[0][0], curveNames[1][0]};
+          case 5:
+          case 6:
             return new String[] {curveNames[0][1], curveNames[0][0]};
           default:
             throw new IllegalArgumentException(block.toString());
@@ -718,10 +729,12 @@ public class YieldCurveConstructionGeneratorBlockFullSpreadTest {
           case 0:
           case 1:
           case 2:
-          case 5:
-            return new String[] {curveNames[0][0]};
           case 3:
           case 4:
+          case 7:
+            return new String[] {curveNames[0][0]};
+          case 5:
+          case 6:
             return new String[] {curveNames[0][loopcurve]};
           default:
             throw new IllegalArgumentException(block.toString());
