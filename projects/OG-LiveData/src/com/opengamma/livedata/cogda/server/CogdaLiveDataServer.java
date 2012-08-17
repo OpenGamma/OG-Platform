@@ -10,10 +10,12 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
@@ -50,6 +52,7 @@ public class CogdaLiveDataServer implements FudgeConnectionReceiver, Lifecycle {
   private final Set<CogdaClientConnection> _clients = Collections.synchronizedSet(new HashSet<CogdaClientConnection>());
   // TODO kirk 2012-07-23 -- This is absolutely the wrong executor here.
   private final Executor _valueUpdateSendingExecutor = Executors.newFixedThreadPool(5);
+  private final AtomicLong _ticksReceived = new AtomicLong(0L);
   
   public CogdaLiveDataServer(LastKnownValueStoreProvider lkvStoreProvider) {
     this(lkvStoreProvider, OpenGammaFudgeContext.getInstance());
@@ -115,6 +118,7 @@ public class CogdaLiveDataServer implements FudgeConnectionReceiver, Lifecycle {
   }
   
   public void liveDataReceived(LiveDataValueUpdate valueUpdate) {
+    _ticksReceived.incrementAndGet();
     // This could probably be much much faster, but we're designed initially for low-frequency
     // updates. Someone smarter should optimize the data structures here.
     List<CogdaClientConnection> connections = new LinkedList<CogdaClientConnection>(_clients);
@@ -171,4 +175,22 @@ public class CogdaLiveDataServer implements FudgeConnectionReceiver, Lifecycle {
     _clients.remove(connection);
   }
   
+
+  public int getNumClients() {
+    return _clients.size();
+  }
+  
+  public long getNumTicksReceived() {
+    return _ticksReceived.get();
+  }
+  
+  public Set<String> getActiveUsers() {
+    Set<String> result = new TreeSet<String>();
+    synchronized (_clients) {
+      for (CogdaClientConnection connection : _clients) {
+        result.add(connection.getUser().toString());
+      }
+    }
+    return result;
+  }
 }
