@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.livedata.firehose;
+package com.opengamma.livedata.cogda.server;
 
 import com.opengamma.transport.FudgeMessageSender;
 
@@ -14,7 +14,7 @@ import com.opengamma.transport.FudgeMessageSender;
  * stream into discrete messages, and then distribute onto an MOM system for later
  * processing into a full {@code FireHoseLiveData} object.
  */
-public class FireHoseRecordChunker {
+public class CogdaRecordChunker {
   
   /**
    * The destination for decoded messsages.
