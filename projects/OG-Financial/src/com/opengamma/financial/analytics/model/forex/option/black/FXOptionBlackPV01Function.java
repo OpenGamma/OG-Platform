@@ -22,6 +22,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.option.definition.ForexOptionDataBundle;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -32,11 +33,14 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.analytics.CurrencyPairsFunction;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
+import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
 import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
@@ -169,14 +173,15 @@ public class FXOptionBlackPV01Function extends FXOptionBlackSingleValuedFunction
     requirements.add(getSurfaceRequirement(surfaceName, putCurrency, callCurrency, interpolatorName, leftExtrapolatorName, rightExtrapolatorName));
     final UnorderedCurrencyPair currencyPair = UnorderedCurrencyPair.of(putCurrency, callCurrency);
     requirements.add(new ValueRequirement(ValueRequirementNames.SPOT_RATE, currencyPair));
-    requirements.add(new ValueRequirement(ValueRequirementNames.CURRENCY_PAIRS, target.toSpecification()));
     requirements.add(getCurveSensitivitiesRequirement(putCurveName, putCurveCalculationConfigName, callCurveName, callCurveCalculationConfigName, surfaceName,
         interpolatorName, leftExtrapolatorName, rightExtrapolatorName, currency, resultCurrency, resultCurveName, target));
+    requirements.add(new ValueRequirement(ValueRequirementNames.CURRENCY_PAIRS, ComputationTargetType.PRIMITIVE, currencyPair.getUniqueId()));
     return requirements;
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+    String currencyPairConfigName = null;
     String currency = null;
     String curveName = null;
     for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
@@ -185,13 +190,26 @@ public class FXOptionBlackPV01Function extends FXOptionBlackSingleValuedFunction
         final ValueProperties constraints = value.getConstraints();
         currency = constraints.getValues(ValuePropertyNames.CURVE_CURRENCY).iterator().next();
         curveName = constraints.getValues(ValuePropertyNames.CURVE).iterator().next();
-        break;
+      }
+      final ValueSpecification key = entry.getKey();
+      if (key.getValueName().equals(ValueRequirementNames.CURRENCY_PAIRS)) {
+        currencyPairConfigName = key.getProperty(CurrencyPairsFunction.CURRENCY_PAIRS_NAME);
       }
     }
     assert currency != null;
     assert curveName != null;
-    //final String resultCurrency = getResultCurrency(target, baseQuotePair);
-    final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.PV01, target.toSpecification(), getResultProperties(currency, curveName).get());
+    assert currencyPairConfigName != null;
+    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
+    final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
+    final CurrencyPairs baseQuotePairs = currencyPairsSource.getCurrencyPairs(currencyPairConfigName);
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
+    final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
+    final CurrencyPair baseQuotePair = baseQuotePairs.getCurrencyPair(putCurrency, callCurrency);
+    if (baseQuotePair == null) {
+      throw new OpenGammaRuntimeException("Could not get base/quote pair for currency pair (" + putCurrency + ", " + callCurrency + ")");
+    }
+    final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.PV01, target.toSpecification(), getResultProperties(target, baseQuotePair, curveName).get());
     return Collections.singleton(resultSpec);
   }
 
@@ -208,13 +226,12 @@ public class FXOptionBlackPV01Function extends FXOptionBlackSingleValuedFunction
         .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
         .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
         .withAny(ValuePropertyNames.CURRENCY)
-        //.with(ValuePropertyNames.CURRENCY, getResultCurrency(target))
         .withAny(ValuePropertyNames.CURVE_CURRENCY)
         .withAny(ValuePropertyNames.CURVE);
   }
 
-//  private ValueProperties.Builder getResultProperties(final String resultCurrency, final String currency, final String curveName) {
-  private ValueProperties.Builder getResultProperties(final String currency, final String curveName) {
+  private ValueProperties.Builder getResultProperties(final ComputationTarget target, final CurrencyPair baseQuotePair, final String curveName) {
+    final String resultCurrency = getResultCurrency(target, baseQuotePair);
     return createValueProperties()
         .withAny(PUT_CURVE)
         .withAny(CALL_CURVE)
@@ -225,9 +242,8 @@ public class FXOptionBlackPV01Function extends FXOptionBlackSingleValuedFunction
         .withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
         .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
         .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
-        .withAny(ValuePropertyNames.CURRENCY)
-        //.with(ValuePropertyNames.CURRENCY, resultCurrency)
-        .with(ValuePropertyNames.CURVE_CURRENCY, currency)
+        .with(ValuePropertyNames.CURRENCY, resultCurrency)
+        .withAny(ValuePropertyNames.CURVE_CURRENCY)
         .with(ValuePropertyNames.CURVE, curveName);
   }
 
