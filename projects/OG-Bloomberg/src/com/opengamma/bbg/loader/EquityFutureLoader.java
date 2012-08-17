@@ -95,6 +95,10 @@ public class EquityFutureLoader extends SecurityLoader {
       s_logger.info("currency is null, cannot construct EquityFutureSecurity");
       return null;
     }
+    if (!isValidField(category)) {
+      s_logger.info("category is null, cannot construct EquityFutureSecurity");
+      return null;
+    }
     ExternalId underlying = null;
     if (underlyingTicker != null) {
       underlying = ExternalSchemes.bloombergTickerSecurityId(underlyingTicker + " " + marketSector);
