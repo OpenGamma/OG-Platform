@@ -17,6 +17,6 @@
     <ROW Fragment="MsmValidation.aip" Path="&lt;AI_FRAGS&gt;MsmValidation.aip"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsmModuleSignatureComponent">
-    <ROW ModuleID="OG_Production" Version="1.0.0" GUID="9F952E7F_1D31_4BCF_B0C1_2FDA3DA37474" Name="OpenGamma Engine" Manufacturer="OpenGamma Ltd" Comments="The OpenGamma engine"/>
+    <ROW ModuleID="OG_Integration" Version="1.0.0" GUID="9F952E7F_1D31_4BCF_B0C1_2FDA3DA37474" Name="OpenGamma Engine" Manufacturer="OpenGamma Ltd" Comments="The OpenGamma engine"/>
   </COMPONENT>
 </DOCUMENT>
