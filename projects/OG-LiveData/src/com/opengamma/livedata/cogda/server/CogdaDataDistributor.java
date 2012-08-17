@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializer;
@@ -62,6 +63,7 @@ public abstract class CogdaDataDistributor implements Lifecycle {
       new ConcurrentHashMap<LiveDataSpecification, LastKnownValueStore>();
   private final ConcurrentMap<LiveDataSpecification, FieldHistoryStore> _normalizationState =
       new ConcurrentHashMap<LiveDataSpecification, FieldHistoryStore>();
+  private AtomicLong _ticksReceived = new AtomicLong(0L);
   
   public CogdaDataDistributor(
       String externalIdScheme,
@@ -75,6 +77,14 @@ public abstract class CogdaDataDistributor implements Lifecycle {
     _normalization = Collections.unmodifiableMap(constructNormalizationRules(normalizationSchemes));
   }
   
+  /**
+   * Gets the externalIdScheme.
+   * @return the externalIdScheme
+   */
+  public String getExternalIdScheme() {
+    return _externalIdScheme;
+  }
+
   /**
    * Gets the normalizedMessageSender.
    * @return the normalizedMessageSender
@@ -190,6 +200,7 @@ public abstract class CogdaDataDistributor implements Lifecycle {
    * @param fields updated fields
    */
   public void updateReceived(ExternalId id, FudgeMsg fields) {
+    _ticksReceived.incrementAndGet();
     // Iterate over all normalization schemes.
     for (Map.Entry<String, NormalizationRuleSet> normalizationEntry : _normalization.entrySet()) {
       LiveDataSpecification ldspec = new LiveDataSpecification(normalizationEntry.getKey(), id);
@@ -224,6 +235,10 @@ public abstract class CogdaDataDistributor implements Lifecycle {
     LiveDataValueUpdateBean updateBean = new LiveDataValueUpdateBean(0, ldspec, normalizedFields);
     FudgeMsg msg = LiveDataValueUpdateBeanFudgeBuilder.toFudgeMsg(serializer, updateBean);
     getNormalizedMessageSender().send(msg);
+  }
+  
+  public long getNumTicksReceived() {
+    return _ticksReceived.get();
   }
 
 }
