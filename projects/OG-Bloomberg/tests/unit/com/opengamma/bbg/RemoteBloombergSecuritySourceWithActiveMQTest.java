@@ -33,6 +33,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.bbg.security.BloombergSecurityProvider;
+import com.opengamma.bbg.security.BloombergSecurityProviderTest;
 import com.opengamma.bbg.server.SecurityMasterRequestReceiver;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.Security;
@@ -323,7 +324,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
         ExternalSchemes.bloombergTickerSecurityId(SPX_INDEX_OPTION_TICKER));
     EquityIndexOptionSecurity expectedOption = makeSPXIndexOptionSecurity(true);
     Security sec = _remoteSecSource.getSecurity(indexOptionKey);
-    BloombergSecuritySourceTestCase.assertEuropeanVanillaEquityIndexOptionSecurity(expectedOption, sec);
+    BloombergSecurityProviderTest.assertEuropeanVanillaEquityIndexOptionSecurity(expectedOption, sec);
   }
 
   @Test(enabled = false, description = "Because this contacts Bloomberg, we don't want to run all the time")
@@ -336,7 +337,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
     assertNotNull(securities);
     assertEquals(1, securities.size());
     Security sec = securities.iterator().next();
-    BloombergSecuritySourceTestCase.assertEuropeanVanillaEquityIndexOptionSecurity(expectedOption, sec);
+    BloombergSecurityProviderTest.assertEuropeanVanillaEquityIndexOptionSecurity(expectedOption, sec);
   }
 
   @Test(enabled = false, description = "Because this contacts Bloomberg, we don't want to run all the time")
@@ -345,7 +346,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
         ExternalSchemes.bloombergBuidSecurityId("IX3961626-0-9B80"));
     EquityIndexOptionSecurity expectedOption = makeSPXIndexOptionSecurity(false);
     Security sec = _remoteSecSource.getSecurity(indexOptionKey);
-    BloombergSecuritySourceTestCase.assertEuropeanVanillaEquityIndexOptionSecurity(expectedOption, sec);
+    BloombergSecurityProviderTest.assertEuropeanVanillaEquityIndexOptionSecurity(expectedOption, sec);
   }
 
   @Test(enabled = false, description = "Because this contacts Bloomberg, we don't want to run all the time")
@@ -358,7 +359,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
     assertNotNull(securities);
     assertEquals(1, securities.size());
     Security sec = securities.iterator().next();
-    BloombergSecuritySourceTestCase.assertEuropeanVanillaEquityIndexOptionSecurity(expectedOption, sec);
+    BloombergSecurityProviderTest.assertEuropeanVanillaEquityIndexOptionSecurity(expectedOption, sec);
   }
 
   @Test(enabled = false, description = "Because this contacts Bloomberg, we don't want to run all the time")
@@ -417,7 +418,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
       // SPX security
       Security sec = future.get();
       EquityIndexOptionSecurity expectedOption = makeSPXIndexOptionSecurity(true);
-      BloombergSecuritySourceTestCase.assertEuropeanVanillaEquityIndexOptionSecurity(expectedOption, sec);
+      BloombergSecurityProviderTest.assertEuropeanVanillaEquityIndexOptionSecurity(expectedOption, sec);
     }
 
     for (Future<Security> future : aaplresults) {

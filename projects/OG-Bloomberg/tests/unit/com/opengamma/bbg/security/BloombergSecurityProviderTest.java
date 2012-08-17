@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.bbg;
+package com.opengamma.bbg.security;
 
 import static com.opengamma.bbg.util.BloombergSecurityUtils.AAPL_EQUITY_TICKER;
 import static com.opengamma.bbg.util.BloombergSecurityUtils.APV_EQUITY_OPTION_TICKER;
@@ -41,13 +41,14 @@ import javax.time.calendar.TimeZone;
 
 import org.joda.beans.Bean;
 import org.joda.beans.test.BeanAssert;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.google.common.collect.Lists;
-import com.opengamma.bbg.security.BloombergSecurityProvider;
-import com.opengamma.bbg.util.BloombergSecurityUtils;
+import com.google.common.collect.ImmutableSet;
+import com.opengamma.bbg.BloombergConnector;
+import com.opengamma.bbg.BloombergReferenceDataProvider;
+import com.opengamma.bbg.test.BloombergTestUtils;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -64,16 +65,18 @@ import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
+import com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
-import com.opengamma.id.UniqueId;
+import com.opengamma.provider.security.SecurityProvider;
 import com.opengamma.util.time.Expiry;
 
 /**
  * Base case for testing BloombergSecuritySource.
  */
-public abstract class BloombergSecuritySourceTestCase {
+@Test(groups = "integration")
+public class BloombergSecurityProviderTest {
 
   private static final EquitySecurity EXPECTED_AAPL_EQUITY_SEC = makeExpectedAAPLEquitySecurity();
   private static final EquitySecurity EXPECTED_ATT_EQUITY_SEC = makeExpectedATTEquitySecurity();
@@ -90,34 +93,161 @@ public abstract class BloombergSecuritySourceTestCase {
   private static final ExternalScheme[] EXPECTED_IDENTIFICATION_SCHEME = new ExternalScheme[] {
       ExternalSchemes.BLOOMBERG_BUID, ExternalSchemes.BLOOMBERG_TICKER, ExternalSchemes.CUSIP};
 
-  private BloombergSecuritySource _securitySource = null;
+  private BloombergReferenceDataProvider _refDataProvider;
+  private SecurityProvider _securityProvider;
 
-  @BeforeMethod
+  @BeforeClass
   public void setupBloombergSecuritySource() throws Exception {
-    _securitySource = createSecuritySource();
+    _securityProvider = createSecurityProvider();
   }
 
-  protected abstract BloombergSecuritySource createSecuritySource() throws Exception;
+  protected SecurityProvider createSecurityProvider() throws Exception {
+    BloombergConnector connector = BloombergTestUtils.getBloombergConnector();
+    BloombergReferenceDataProvider refDataProvider = new BloombergReferenceDataProvider(connector);
+    refDataProvider.start();
+    _refDataProvider = refDataProvider;
+    DefaultExchangeDataProvider exchangeProvider = new DefaultExchangeDataProvider();
+    return new BloombergSecurityProvider(refDataProvider, exchangeProvider);
+  }
 
-  @AfterMethod
+  @AfterClass
   public void terminateSecuritySource() throws Exception {
-    stopSecuritySource();
-
-    if (_securitySource != null) {
-      _securitySource = null;
-    }
+    stopSecurityProvider(_securityProvider);
+    _securityProvider = null;
   }
 
-  protected void stopSecuritySource() throws Exception {
+  protected void stopSecurityProvider(SecurityProvider provider) throws Exception {
+    if (_refDataProvider != null) {
+      BloombergReferenceDataProvider dataProvider = _refDataProvider;
+      _refDataProvider = null;
+      dataProvider.stop();
+    }
   }
 
   //-------------------------------------------------------------------------
   @Test
   public void aaplEquityByBbgTicker() throws Exception {
-    ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_AAPL_EQUITY_SEC,
-        ExternalSchemes.BLOOMBERG_TICKER);
-    Security sec = _securitySource.getSecurity(ExternalIdBundle.of(bloombergIdentifier));
+    ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_AAPL_EQUITY_SEC, ExternalSchemes.BLOOMBERG_TICKER);
+    Security sec = _securityProvider.getSecurity(ExternalIdBundle.of(bloombergIdentifier));
     assertEquitySecurity(EXPECTED_AAPL_EQUITY_SEC, sec);
+  }
+
+  @Test
+  public void aaplEquityByBbgUnique() throws Exception {
+    ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_AAPL_EQUITY_SEC, ExternalSchemes.BLOOMBERG_BUID);
+    Security sec = _securityProvider.getSecurity(ExternalIdBundle.of(bloombergIdentifier));
+    assertEquitySecurity(EXPECTED_AAPL_EQUITY_SEC, sec);
+  }
+
+  @Test
+  public void aaplEquitiesByBbgTicker() throws Exception {
+    ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_AAPL_EQUITY_SEC, ExternalSchemes.BLOOMBERG_TICKER);
+    Security security = _securityProvider.getSecurity(bloombergIdentifier.toBundle());
+    assertNotNull(security);
+    assertEquitySecurity(EXPECTED_AAPL_EQUITY_SEC, security);
+  }
+
+  @Test
+  public void aaplEquitiesByBbgUnique() throws Exception {
+    ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_AAPL_EQUITY_SEC, ExternalSchemes.BLOOMBERG_BUID);
+    Security security = _securityProvider.getSecurity(bloombergIdentifier.toBundle());
+    assertNotNull(security);
+    assertEquitySecurity(EXPECTED_AAPL_EQUITY_SEC, security);
+  }
+
+  @Test
+  public void attEquityByBbgTicker() throws Exception {
+    ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_ATT_EQUITY_SEC, ExternalSchemes.BLOOMBERG_TICKER);
+    Security sec = _securityProvider.getSecurity(ExternalIdBundle.of(bloombergIdentifier));
+    assertEquitySecurity(EXPECTED_ATT_EQUITY_SEC, sec);
+  }
+
+  @Test
+  public void exchangeTradedFund() throws Exception {
+    Security security = _securityProvider.getSecurity(US_NATURAL_GAS_FUND.getExternalIdBundle());
+    assertEquitySecurity(US_NATURAL_GAS_FUND, security);
+  }
+
+  @Test
+  public void attEquitiesByBbgTicker() throws Exception {
+    ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_ATT_EQUITY_SEC, ExternalSchemes.BLOOMBERG_TICKER);
+    Security security = _securityProvider.getSecurity(bloombergIdentifier.toBundle());
+    assertNotNull(security);
+    assertEquitySecurity(EXPECTED_ATT_EQUITY_SEC, security);
+  }
+
+  @Test
+  public void attEquityByBbgUnique() throws Exception {
+    ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_ATT_EQUITY_SEC, ExternalSchemes.BLOOMBERG_BUID);
+    Security sec = _securityProvider.getSecurity(ExternalIdBundle.of(bloombergIdentifier));
+    assertEquitySecurity(EXPECTED_ATT_EQUITY_SEC, sec);
+  }
+
+  @Test
+  public void attEquitiesByBbgUnique() throws Exception {
+    ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_ATT_EQUITY_SEC, ExternalSchemes.BLOOMBERG_BUID);
+    Security security = _securityProvider.getSecurity(bloombergIdentifier.toBundle());
+    assertNotNull(security);
+    assertEquitySecurity(EXPECTED_ATT_EQUITY_SEC, security);
+  }
+
+  @Test
+  public void apvEquityOptionByBbgTicker() throws Exception {
+    Security sec = _securityProvider.getSecurity(EXPECTED_APVL_EQUITYOPTION_SEC.getExternalIdBundle());
+    assertAmericanVanillaEquityOptionSecurity(EXPECTED_APVL_EQUITYOPTION_SEC, sec);
+  }
+
+  @Test
+  public void apvEquityOptionsByBbgTicker() throws Exception {
+    ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_APVL_EQUITYOPTION_SEC, ExternalSchemes.BLOOMBERG_TICKER);
+    Security security = _securityProvider.getSecurity(bloombergIdentifier.toBundle());
+    assertNotNull(security);
+    assertAmericanVanillaEquityOptionSecurity(EXPECTED_APVL_EQUITYOPTION_SEC, security);
+  }
+
+  @Test
+  public void apvEquityOptionsByBbgUnique() throws Exception {
+    ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_APVL_EQUITYOPTION_SEC, ExternalSchemes.BLOOMBERG_BUID);
+    Security security = _securityProvider.getSecurity(bloombergIdentifier.toBundle());
+    assertNotNull(security);
+    assertAmericanVanillaEquityOptionSecurity(EXPECTED_APVL_EQUITYOPTION_SEC, security);
+  }
+
+  @Test
+  public void apvEquityOptionByBbgUnique() throws Exception {
+    ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_APVL_EQUITYOPTION_SEC, ExternalSchemes.BLOOMBERG_BUID);
+    Security sec = _securityProvider.getSecurity(ExternalIdBundle.of(bloombergIdentifier));
+    assertAmericanVanillaEquityOptionSecurity(EXPECTED_APVL_EQUITYOPTION_SEC, sec);
+  }
+
+  @Test
+  public void spxIndexOptionByBbgTicker() throws Exception {
+    ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_SPX_INDEXOPTION_SEC, ExternalSchemes.BLOOMBERG_TICKER);
+    Security sec = _securityProvider.getSecurity(ExternalIdBundle.of(bloombergIdentifier));
+    assertEuropeanVanillaEquityIndexOptionSecurity(EXPECTED_SPX_INDEXOPTION_SEC, sec);
+  }
+
+  @Test
+  public void spxIndexOptionsByBbgTicker() throws Exception {
+    ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_SPX_INDEXOPTION_SEC, ExternalSchemes.BLOOMBERG_TICKER);
+    Security security = _securityProvider.getSecurity(bloombergIdentifier.toBundle());
+    assertNotNull(security);
+    assertEuropeanVanillaEquityIndexOptionSecurity(EXPECTED_SPX_INDEXOPTION_SEC, security);
+  }
+
+  @Test
+  public void spxIndexOptionByBbgUnique() throws Exception {
+    ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_SPX_INDEXOPTION_SEC, ExternalSchemes.BLOOMBERG_BUID);
+    Security sec = _securityProvider.getSecurity(ExternalIdBundle.of(bloombergIdentifier));
+    assertEuropeanVanillaEquityIndexOptionSecurity(EXPECTED_SPX_INDEXOPTION_SEC, sec);
+  }
+
+  @Test
+  public void spxIndexOptionsByBbgUnique() throws Exception {
+    ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_SPX_INDEXOPTION_SEC, ExternalSchemes.BLOOMBERG_BUID);
+    Security security = _securityProvider.getSecurity(bloombergIdentifier.toBundle());
+    assertNotNull(security);
+    assertEuropeanVanillaEquityIndexOptionSecurity(EXPECTED_SPX_INDEXOPTION_SEC, security);
   }
 
   private ExternalId getBloombergIdentifier(FinancialSecurity finSec, ExternalScheme scheme) {
@@ -125,157 +255,10 @@ public abstract class BloombergSecuritySourceTestCase {
     return identifierBundle.getExternalId(scheme);
   }
 
-  @Test
-  public void aaplEquityByBbgUnique() throws Exception {
-    ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_AAPL_EQUITY_SEC,
-        ExternalSchemes.BLOOMBERG_BUID);
-    Security sec = _securitySource.getSecurity(ExternalIdBundle.of(bloombergIdentifier));
-    assertEquitySecurity(EXPECTED_AAPL_EQUITY_SEC, sec);
-  }
-
-  @Test
-  public void aaplEquitiesByBbgTicker() throws Exception {
-    ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_AAPL_EQUITY_SEC,
-        ExternalSchemes.BLOOMBERG_TICKER);
-    Collection<Security> securities = _securitySource.getSecurities(ExternalIdBundle.of(bloombergIdentifier));
-    assertNotNull(securities);
-    assertEquals(1, securities.size());
-    Security sec = securities.iterator().next();
-    assertEquitySecurity(EXPECTED_AAPL_EQUITY_SEC, sec);
-  }
-
-  @Test
-  public void aaplEquitiesByBbgUnique() throws Exception {
-    ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_AAPL_EQUITY_SEC,
-        ExternalSchemes.BLOOMBERG_BUID);
-    Collection<Security> securities = _securitySource.getSecurities(ExternalIdBundle.of(bloombergIdentifier));
-    assertNotNull(securities);
-    assertEquals(1, securities.size());
-    Security sec = securities.iterator().next();
-    assertEquitySecurity(EXPECTED_AAPL_EQUITY_SEC, sec);
-  }
-
-  @Test
-  public void attEquityByBbgTicker() throws Exception {
-    ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_ATT_EQUITY_SEC,
-        ExternalSchemes.BLOOMBERG_TICKER);
-    Security sec = _securitySource.getSecurity(ExternalIdBundle.of(bloombergIdentifier));
-    assertEquitySecurity(EXPECTED_ATT_EQUITY_SEC, sec);
-  }
-
-  @Test
-  public void exchangeTradedFund() throws Exception {
-    Security security = _securitySource.getSecurity(US_NATURAL_GAS_FUND.getExternalIdBundle());
-    assertEquitySecurity(US_NATURAL_GAS_FUND, security);
-  }
-
-  @Test
-  public void attEquitiesByBbgTicker() throws Exception {
-    ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_ATT_EQUITY_SEC,
-        ExternalSchemes.BLOOMBERG_TICKER);
-    Collection<Security> securities = _securitySource.getSecurities(ExternalIdBundle.of(bloombergIdentifier));
-    assertNotNull(securities);
-    assertEquals(1, securities.size());
-    Security sec = securities.iterator().next();
-    assertEquitySecurity(EXPECTED_ATT_EQUITY_SEC, sec);
-  }
-
-  @Test
-  public void attEquityByBbgUnique() throws Exception {
-    ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_ATT_EQUITY_SEC,
-        ExternalSchemes.BLOOMBERG_BUID);
-    Security sec = _securitySource.getSecurity(ExternalIdBundle.of(bloombergIdentifier));
-    assertEquitySecurity(EXPECTED_ATT_EQUITY_SEC, sec);
-  }
-
-  @Test
-  public void attEquitiesByBbgUnique() throws Exception {
-    ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_ATT_EQUITY_SEC,
-        ExternalSchemes.BLOOMBERG_BUID);
-    Collection<Security> securities = _securitySource.getSecurities(ExternalIdBundle.of(bloombergIdentifier));
-    assertNotNull(securities);
-    assertEquals(1, securities.size());
-    Security sec = securities.iterator().next();
-    assertEquitySecurity(EXPECTED_ATT_EQUITY_SEC, sec);
-  }
-
-  @Test
-  public void apvEquityOptionByBbgTicker() throws Exception {
-    Security sec = _securitySource.getSecurity(EXPECTED_APVL_EQUITYOPTION_SEC.getExternalIdBundle());
-    assertAmericanVanillaEquityOptionSecurity(EXPECTED_APVL_EQUITYOPTION_SEC, sec);
-  }
-
-  @Test
-  public void apvEquityOptionsByBbgTicker() throws Exception {
-    ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_APVL_EQUITYOPTION_SEC,
-        ExternalSchemes.BLOOMBERG_TICKER);
-    Collection<Security> securities = _securitySource.getSecurities(ExternalIdBundle.of(bloombergIdentifier));
-    assertNotNull(securities);
-    assertEquals(1, securities.size());
-    Security sec = securities.iterator().next();
-    assertAmericanVanillaEquityOptionSecurity(EXPECTED_APVL_EQUITYOPTION_SEC, sec);
-  }
-
-  @Test
-  public void apvEquityOptionsByBbgUnique() throws Exception {
-    ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_APVL_EQUITYOPTION_SEC,
-        ExternalSchemes.BLOOMBERG_BUID);
-    Collection<Security> securities = _securitySource.getSecurities(ExternalIdBundle.of(bloombergIdentifier));
-    assertNotNull(securities);
-    assertEquals(1, securities.size());
-    Security sec = securities.iterator().next();
-    assertAmericanVanillaEquityOptionSecurity(EXPECTED_APVL_EQUITYOPTION_SEC, sec);
-  }
-
-  @Test
-  public void apvEquityOptionByBbgUnique() throws Exception {
-    ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_APVL_EQUITYOPTION_SEC,
-        ExternalSchemes.BLOOMBERG_BUID);
-    Security sec = _securitySource.getSecurity(ExternalIdBundle.of(bloombergIdentifier));
-    assertAmericanVanillaEquityOptionSecurity(EXPECTED_APVL_EQUITYOPTION_SEC, sec);
-  }
-
-  @Test
-  public void spxIndexOptionByBbgTicker() throws Exception {
-    ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_SPX_INDEXOPTION_SEC,
-        ExternalSchemes.BLOOMBERG_TICKER);
-    Security sec = _securitySource.getSecurity(ExternalIdBundle.of(bloombergIdentifier));
-    assertEuropeanVanillaEquityIndexOptionSecurity(EXPECTED_SPX_INDEXOPTION_SEC, sec);
-  }
-
-  @Test
-  public void spxIndexOptionsByBbgTicker() throws Exception {
-    ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_SPX_INDEXOPTION_SEC,
-        ExternalSchemes.BLOOMBERG_TICKER);
-    Collection<Security> securities = _securitySource.getSecurities(ExternalIdBundle.of(bloombergIdentifier));
-    assertNotNull(securities);
-    assertEquals(1, securities.size());
-    Security sec = securities.iterator().next();
-    assertEuropeanVanillaEquityIndexOptionSecurity(EXPECTED_SPX_INDEXOPTION_SEC, sec);
-  }
-
-  @Test
-  public void spxIndexOptionByBbgUnique() throws Exception {
-    ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_SPX_INDEXOPTION_SEC,
-        ExternalSchemes.BLOOMBERG_BUID);
-    Security sec = _securitySource.getSecurity(ExternalIdBundle.of(bloombergIdentifier));
-    assertEuropeanVanillaEquityIndexOptionSecurity(EXPECTED_SPX_INDEXOPTION_SEC, sec);
-  }
-
-  @Test
-  public void spxIndexOptionsByBbgUnique() throws Exception {
-    ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_SPX_INDEXOPTION_SEC,
-        ExternalSchemes.BLOOMBERG_BUID);
-    Collection<Security> securities = _securitySource.getSecurities(ExternalIdBundle.of(bloombergIdentifier));
-    assertNotNull(securities);
-    assertEquals(1, securities.size());
-    Security sec = securities.iterator().next();
-    assertEuropeanVanillaEquityIndexOptionSecurity(EXPECTED_SPX_INDEXOPTION_SEC, sec);
-  }
-
+  //-------------------------------------------------------------------------
   @Test(groups={"bbgSecurityFutureTests"})
   public void agricultureFuture() throws Exception {
-    Security wheat = _securitySource.getSecurity(EXPECTED_WHEAT_FUTURE_SEC.getExternalIdBundle());
+    Security wheat = _securityProvider.getSecurity(EXPECTED_WHEAT_FUTURE_SEC.getExternalIdBundle());
     assertNotNull(wheat);
     assertTrue(wheat instanceof AgricultureFutureSecurity);
     assertSecurity(EXPECTED_WHEAT_FUTURE_SEC, wheat);
@@ -283,7 +266,7 @@ public abstract class BloombergSecuritySourceTestCase {
 
   @Test(groups={"bbgSecurityFutureTests"})
   public void equityFuture() throws Exception {
-    Security spIndex = _securitySource.getSecurity(EXPECTED_EQUITY_FUTURE_SEC.getExternalIdBundle());
+    Security spIndex = _securityProvider.getSecurity(EXPECTED_EQUITY_FUTURE_SEC.getExternalIdBundle());
     assertNotNull(spIndex);
     assertTrue(spIndex instanceof EquityFutureSecurity);
     assertSecurity(EXPECTED_EQUITY_FUTURE_SEC, spIndex);
@@ -292,7 +275,7 @@ public abstract class BloombergSecuritySourceTestCase {
   @Test(enabled = false)
   public void currencyFuture() throws Exception {
     ExternalIdBundle id = ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("LNM0 Curncy"));
-    Security audUsd = _securitySource.getSecurity(id);
+    Security audUsd = _securityProvider.getSecurity(id);
     assertNotNull(audUsd);
     assertTrue(audUsd instanceof FXFutureSecurity);
     assertSecurity(EXPECTED_AUDUSD_FUTURE_SEC, audUsd);
@@ -301,7 +284,7 @@ public abstract class BloombergSecuritySourceTestCase {
   @Test(groups={"bbgSecurityFutureTests"})
   public void euroBondFuture() throws Exception {
     ExternalIdBundle euroBund = ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("RXA Comdty"));
-    Security bond = _securitySource.getSecurity(euroBund);
+    Security bond = _securityProvider.getSecurity(euroBund);
     assertNotNull(bond);
     assertTrue(bond instanceof BondFutureSecurity);
     BondFutureSecurity euroBondFuture = (BondFutureSecurity) bond;
@@ -342,7 +325,7 @@ public abstract class BloombergSecuritySourceTestCase {
 
   @Test(groups={"bbgSecurityFutureTests"})
   public void metalFuture() throws Exception {
-    Security silverFuture = _securitySource.getSecurity(EXPECTED_SILVER_FUTURE.getExternalIdBundle());
+    Security silverFuture = _securityProvider.getSecurity(EXPECTED_SILVER_FUTURE.getExternalIdBundle());
     assertNotNull(silverFuture);
     assertTrue(silverFuture instanceof MetalFutureSecurity);
     assertSecurity(EXPECTED_SILVER_FUTURE, silverFuture);
@@ -350,7 +333,7 @@ public abstract class BloombergSecuritySourceTestCase {
 
   @Test(groups={"bbgSecurityFutureTests"})
   public void energyFuture() throws Exception {
-    Security ethanolFuture = _securitySource.getSecurity(EXPECTED_ETHANOL_FUTURE.getExternalIdBundle());
+    Security ethanolFuture = _securityProvider.getSecurity(EXPECTED_ETHANOL_FUTURE.getExternalIdBundle());
     assertNotNull(ethanolFuture);
     assertTrue(ethanolFuture instanceof EnergyFutureSecurity);
     assertSecurity(EXPECTED_ETHANOL_FUTURE, ethanolFuture);
@@ -358,7 +341,7 @@ public abstract class BloombergSecuritySourceTestCase {
 
   @Test(groups={"bbgSecurityFutureTests"})
   public void interestRateFuture() throws Exception {
-    Security euroDollar = _securitySource.getSecurity(EXPECTED_EURODOLLAR_FUTURE.getExternalIdBundle());
+    Security euroDollar = _securityProvider.getSecurity(EXPECTED_EURODOLLAR_FUTURE.getExternalIdBundle());
     assertNotNull(euroDollar);
     assertTrue(euroDollar instanceof InterestRateFutureSecurity);
     assertSecurity(EXPECTED_EURODOLLAR_FUTURE, euroDollar);
@@ -367,14 +350,14 @@ public abstract class BloombergSecuritySourceTestCase {
   @Test
   public void invalidSecurity() throws Exception {
     ExternalIdBundle invalidKey = ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("INVALID"));
-    Security sec = _securitySource.getSecurity(invalidKey);
+    Security sec = _securityProvider.getSecurity(invalidKey);
     assertNull(sec);
   }
 
   @Test
   public void invalidSecurities() throws Exception {
     ExternalIdBundle invalidKey = ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("INVALID"));
-    Collection<Security> securities = _securitySource.getSecurities(invalidKey);
+    Map<ExternalIdBundle, Security> securities = _securityProvider.getSecurities(ImmutableSet.of(invalidKey));
     assertNotNull(securities);
     assertTrue(securities.isEmpty());
   }
@@ -429,12 +412,12 @@ public abstract class BloombergSecuritySourceTestCase {
     }
   }
 
-  public static void assertSecurity(Security expected, Security actual) {
+  static void assertSecurity(Security expected, Security actual) {
     assertNotNull(actual);
     BeanAssert.assertBeanEquals((Bean) expected, (Bean) actual);
   }
 
-  public static void assertEquitySecurity(EquitySecurity expectedEquity, Security sec) {
+  static void assertEquitySecurity(EquitySecurity expectedEquity, Security sec) {
     // check specific bits we want to spot failures on quickly
     assertNotNull(sec);
     assertTrue(sec instanceof EquitySecurity);
@@ -467,7 +450,7 @@ public abstract class BloombergSecuritySourceTestCase {
     actualEquity.setExternalIdBundle(actualIdentifiers);
   }
 
-  public static void assertAmericanVanillaEquityOptionSecurity(EquityOptionSecurity expectedOption, Security sec) {
+  static void assertAmericanVanillaEquityOptionSecurity(EquityOptionSecurity expectedOption, Security sec) {
     // check specific bits we want to spot failures on quickly
     assertNotNull(sec);
     assertTrue(sec instanceof EquityOptionSecurity);
@@ -476,7 +459,7 @@ public abstract class BloombergSecuritySourceTestCase {
     assertEquityOptionSecurity(expectedOption, sec);
   }
 
-  public static void assertAmericanVanillaEquityIndexOptionSecurity(EquityIndexOptionSecurity expectedOption, Security sec) {
+  static void assertAmericanVanillaEquityIndexOptionSecurity(EquityIndexOptionSecurity expectedOption, Security sec) {
     // check specific bits we want to spot failures on quickly
     assertNotNull(sec);
     assertTrue(sec instanceof EquityIndexOptionSecurity);
@@ -485,7 +468,7 @@ public abstract class BloombergSecuritySourceTestCase {
     assertEquityIndexOptionSecurity(expectedOption, sec);
   }
 
-  public static void assertEquityOptionSecurity(EquityOptionSecurity expectedOption, Security sec) {
+  static void assertEquityOptionSecurity(EquityOptionSecurity expectedOption, Security sec) {
     assertNotNull(expectedOption);
     assertNotNull(sec);
     EquityOptionSecurity actualOption = (EquityOptionSecurity) sec;
@@ -499,10 +482,10 @@ public abstract class BloombergSecuritySourceTestCase {
     assertEquals(expectedOption.getUnderlyingId(), actualOption.getUnderlyingId());
     assertEquals(expectedOption.getName(), actualOption.getName());
     // check the lot
-    assertEquals(expectedOption, sec);
+    assertSecurity(expectedOption, sec);
   }
 
-  public static void assertEquityIndexOptionSecurity(EquityIndexOptionSecurity expectedOption, Security sec) {
+  static void assertEquityIndexOptionSecurity(EquityIndexOptionSecurity expectedOption, Security sec) {
     assertNotNull(expectedOption);
     assertNotNull(sec);
     EquityIndexOptionSecurity actualOption = (EquityIndexOptionSecurity) sec;
@@ -516,10 +499,10 @@ public abstract class BloombergSecuritySourceTestCase {
     assertEquals(expectedOption.getUnderlyingId(), actualOption.getUnderlyingId());
     assertEquals(expectedOption.getName(), actualOption.getName());
     // check the lot
-    assertEquals(expectedOption, sec);
+    assertSecurity(expectedOption, sec);
   }
 
-  public static void assertEuropeanVanillaEquityOptionSecurity(EquityOptionSecurity expectedOption, Security sec) {
+  static void assertEuropeanVanillaEquityOptionSecurity(EquityOptionSecurity expectedOption, Security sec) {
     // check specific bits we want to spot failures on quickly
     assertNotNull(sec);
     assertTrue(sec instanceof EquityOptionSecurity);
@@ -528,7 +511,7 @@ public abstract class BloombergSecuritySourceTestCase {
     assertEquityOptionSecurity(expectedOption, sec);
   }
 
-  public static void assertEuropeanVanillaEquityIndexOptionSecurity(EquityIndexOptionSecurity expectedOption, Security sec) {
+  static void assertEuropeanVanillaEquityIndexOptionSecurity(EquityIndexOptionSecurity expectedOption, Security sec) {
     // check specific bits we want to spot failures on quickly
     assertNotNull(sec);
     assertTrue(sec instanceof EquityIndexOptionSecurity);
@@ -545,16 +528,17 @@ public abstract class BloombergSecuritySourceTestCase {
     }
 
     public Security call() throws Exception {
-      return _securitySource.getSecurity(_secKey);
+      return _securityProvider.getSecurity(_secKey);
     }
   }
 
+  //-------------------------------------------------------------------------
   @Test
   public void test_getBulkSecurity() throws Exception {
-    UniqueId aaplId = UniqueId.of(BloombergSecurityProvider.BLOOMBERG_SCHEME, BloombergSecurityUtils.AAPL_BUID);
-    UniqueId attId = UniqueId.of(BloombergSecurityProvider.BLOOMBERG_SCHEME, BloombergSecurityUtils.ATT_BUID);
+    ExternalIdBundle aaplId = getBloombergIdentifier(EXPECTED_AAPL_EQUITY_SEC, ExternalSchemes.BLOOMBERG_BUID).toBundle();
+    ExternalIdBundle attId = getBloombergIdentifier(EXPECTED_ATT_EQUITY_SEC, ExternalSchemes.BLOOMBERG_BUID).toBundle();
     
-    Map<UniqueId, Security> securities = _securitySource.getSecurities(Lists.newArrayList(aaplId, attId));
+    Map<ExternalIdBundle, Security> securities = _securityProvider.getSecurities(ImmutableSet.of(aaplId, attId));
     assertNotNull(securities);
     assertEquals(2, securities.size());
     assertTrue(securities.keySet().contains(aaplId));
