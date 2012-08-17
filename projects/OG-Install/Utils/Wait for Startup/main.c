@@ -151,7 +151,7 @@ LRESULT CALLBACK _wndProc (HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
 		if (lp) {
 			g_pszStatus = (const TCHAR *)lp;
 			InvalidateRect (hwnd, NULL, TRUE);
-			MessageBox (hwnd, g_pszStatus, NULL, MB_OK | MB_ICONWARNING);
+			MessageBox (hwnd, g_pszStatus, g_pszTitle, MB_OK | MB_ICONWARNING);
 		}
 		PostQuitMessage (0);
 		break;
