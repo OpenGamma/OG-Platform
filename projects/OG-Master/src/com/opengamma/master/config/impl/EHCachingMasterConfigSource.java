@@ -74,36 +74,30 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
   //-------------------------------------------------------------------------
   @Override
   public <T> T getConfig(Class<T> clazz, UniqueId uniqueId) {
-    ArgumentChecker.notNull(clazz, "clazz");
-    ArgumentChecker.notNull(uniqueId, "uniqueId");
-    
-    final Element element = _configCache.get(uniqueId);
-    if (element != null) {
-      return EHCacheUtils.<T>get(element);
+    final Object key = Arrays.asList(clazz, uniqueId);
+    final Element e = _configCache.get(key);
+    if (e != null) {
+      return get(e);
     }
     try {
-      return putValue(uniqueId, super.getConfig(clazz, uniqueId), _configCache);
+      return putValue(key, super.getConfig(clazz, uniqueId), _configCache);
     } catch (RuntimeException ex) {
-      return EHCacheUtils.<T>putException(uniqueId, ex, _configCache);
+      return putException(key, ex, _configCache);
     }
   }
 
   //-------------------------------------------------------------------------
   @Override
   public <T> T getConfig(Class<T> clazz, ObjectId objectId, VersionCorrection versionCorrection) {
-    ArgumentChecker.notNull(clazz, "clazz");
-    ArgumentChecker.notNull(objectId, "objectId");
-    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    
-    final Object searchKey = Arrays.asList(clazz, objectId, versionCorrection);
-    final Element element = _configCache.get(searchKey);
-    if (element != null) {
-      return EHCacheUtils.<T>get(element);
+    final Object key = Arrays.asList(clazz, objectId, versionCorrection);
+    final Element e = _configCache.get(key);
+    if (e != null) {
+      return get(e);
     }
     try {
-      return putValue(searchKey, super.getConfig(clazz, objectId, versionCorrection), _configCache);
+      return putValue(key, super.getConfig(clazz, objectId, versionCorrection), _configCache);
     } catch (RuntimeException ex) {
-      return EHCacheUtils.<T>putException(searchKey, ex, _configCache);
+      return putException(key, ex, _configCache);
     }
   }
 
@@ -125,18 +119,19 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
   //-------------------------------------------------------------------------
   @Override
   public <T> T getByName(Class<T> clazz, String name, Instant versionAsOf) {
-    ArgumentChecker.notNull(clazz, "clazz");
-    ArgumentChecker.notNull(name, "name");
-        
-    final Object searchKey = Arrays.asList(clazz, name, versionAsOf);
-    final Element element = _configCache.get(searchKey);
-    if (element != null) {
-      return EHCacheUtils.<T>get(element);
+    if (versionAsOf == null) {
+      return super.getByName(clazz, name, versionAsOf);
+    }
+    
+    final Object key = Arrays.asList(clazz, name, versionAsOf);
+    final Element e = _configCache.get(key);
+    if (e != null) {
+      return get(e);
     }
     try {
-      return putValue(searchKey, super.getByName(clazz, name, versionAsOf), _configCache);
+      return putValue(key, super.getByName(clazz, name, versionAsOf), _configCache);
     } catch (RuntimeException ex) {
-      return EHCacheUtils.<T>putException(searchKey, ex, _configCache);
+      return putException(key, ex, _configCache);
     }
   }
 

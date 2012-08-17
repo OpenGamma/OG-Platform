@@ -55,12 +55,12 @@ public class EHCachingConfigSource implements ConfigSource {
     final Object key = Arrays.asList(clazz, uniqueId);
     final Element e = getCache().get(key);
     if (e != null) {
-      return EHCacheUtils.<T>get(e);
+      return get(e);
     }
     try {
       return putValue(key, getUnderlying().getConfig(clazz, uniqueId), getCache());
     } catch (RuntimeException ex) {
-      return EHCacheUtils.<T>putException(key, ex, getCache());
+      return putException(key, ex, getCache());
     }
   }
 
@@ -69,12 +69,12 @@ public class EHCachingConfigSource implements ConfigSource {
     final Object key = Arrays.asList(clazz, objectId, versionCorrection);
     final Element e = getCache().get(key);
     if (e != null) {
-      return EHCacheUtils.<T>get(e);
+      return get(e);
     }
     try {
       return putValue(key, getUnderlying().getConfig(clazz, objectId, versionCorrection), getCache());
     } catch (RuntimeException ex) {
-      return EHCacheUtils.<T>putException(key, ex, getCache());
+      return putException(key, ex, getCache());
     }
   }
 
@@ -103,12 +103,12 @@ public class EHCachingConfigSource implements ConfigSource {
     final Object key = Arrays.asList(clazz, name, versionAsOf);
     final Element e = getCache().get(key);
     if (e != null) {
-      return EHCacheUtils.<T>get(e);
+      return get(e);
     }
     try {
       return putValue(key, getUnderlying().getByName(clazz, name, versionAsOf), getCache());
     } catch (RuntimeException ex) {
-      return EHCacheUtils.<T>putException(key, ex, getCache());
+      return putException(key, ex, getCache());
     }
   }
 
