@@ -79,10 +79,7 @@ public class OrphanedPositionRemoverTest {
     
   }
 
-  /**
-   * @return
-   */
-  protected ManageablePortfolioNode generatePortfolio() {
+  private ManageablePortfolioNode generatePortfolio() {
     ManageablePortfolioNode rootNode = new ManageablePortfolioNode("Port1");
     rootNode.addPosition(_pos1.getUniqueId());
     
@@ -97,16 +94,35 @@ public class OrphanedPositionRemoverTest {
     return rootNode;
   }
 
-  @Test(expectedExceptions = DataNotFoundException.class)
+  @Test
   public void removeOrphanedPosition() {
     
-    PositionDocument positionDocument = _positionMaster.get(_pos4.getUniqueId());
+    PositionDocument positionDocument = _positionMaster.get(_pos1.getUniqueId());
+    AssertJUnit.assertNotNull(positionDocument.getPosition());
+    positionDocument = _positionMaster.get(_pos2.getUniqueId());
+    AssertJUnit.assertNotNull(positionDocument.getPosition());
+    positionDocument = _positionMaster.get(_pos3.getUniqueId());
+    AssertJUnit.assertNotNull(positionDocument.getPosition());
+    positionDocument = _positionMaster.get(_pos4.getUniqueId());
     AssertJUnit.assertNotNull(positionDocument.getPosition());
     
     OrphanedPositionRemover positionRemover = new OrphanedPositionRemover(_portfolioMaster, _positionMaster);
     positionRemover.run();
-   
+    
+    positionDocument = _positionMaster.get(_pos1.getUniqueId());
+    AssertJUnit.assertNotNull(positionDocument.getPosition());
+    positionDocument = _positionMaster.get(_pos2.getUniqueId());
+    AssertJUnit.assertNotNull(positionDocument.getPosition());
+    positionDocument = _positionMaster.get(_pos3.getUniqueId());
+    AssertJUnit.assertNotNull(positionDocument.getPosition());
+    try {
     _positionMaster.get(_pos4.getUniqueId());
+    AssertJUnit.fail("position 4 should have been removed");
+    } catch (DataNotFoundException ex) {
+      //do nothing
+    }
+    
+    
   }
 
 }
