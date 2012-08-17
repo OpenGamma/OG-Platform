@@ -71,7 +71,7 @@ public class DataSecurityProviderResource extends AbstractDataResource {
   @POST  // should be a get, but query is too large
   @Path("securityGet")
   public Response getSecurity(SecurityProviderGetRequest request) {
-    SecurityProviderGetResult result = getSecurityProvider().getSecurityInformation(request);
+    SecurityProviderGetResult result = getSecurityProvider().getSecurities(request);
     return responseOkFudge(result);
   }
 

@@ -38,20 +38,20 @@ public class RemoteSecurityProvider extends AbstractRemoteClient implements Secu
   @Override
   public Security getSecurity(ExternalIdBundle externalIdBundle) {
     SecurityProviderGetRequest request = SecurityProviderGetRequest.createGet(externalIdBundle, null);
-    SecurityProviderGetResult result = getSecurityInformation(request);
+    SecurityProviderGetResult result = getSecurities(request);
     return result.getResultMap().get(externalIdBundle);
   }
 
   @Override
   public Map<ExternalIdBundle, Security> getSecurities(Iterable<ExternalIdBundle> externalIdBundles) {
     SecurityProviderGetRequest request = SecurityProviderGetRequest.createGetBulk(externalIdBundles, null);
-    SecurityProviderGetResult result = getSecurityInformation(request);
+    SecurityProviderGetResult result = getSecurities(request);
     return result.getResultMap();
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public SecurityProviderGetResult getSecurityInformation(SecurityProviderGetRequest request) {
+  public SecurityProviderGetResult getSecurities(SecurityProviderGetRequest request) {
     ArgumentChecker.notNull(request, "request");
     
     URI uri = DataSecurityProviderResource.uriGet(getBaseUri());

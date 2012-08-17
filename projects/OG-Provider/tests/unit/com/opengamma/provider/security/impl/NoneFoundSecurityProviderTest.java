@@ -42,7 +42,7 @@ public class NoneFoundSecurityProviderTest {
     NoneFoundSecurityProvider test = new NoneFoundSecurityProvider();
     SecurityProviderGetRequest request = SecurityProviderGetRequest.createGet(ExternalIdBundle.of("A", "B"), "FOO");
     SecurityProviderGetResult expected = new SecurityProviderGetResult();
-    assertEquals(expected, test.getSecurityInformation(request));
+    assertEquals(expected, test.getSecurities(request));
   }
 
 }

@@ -51,7 +51,7 @@ public class DataSecurityProviderResourceTest {
         ExternalIdBundle.of("A", "B"), "S");
     final SecurityProviderGetResult result = new SecurityProviderGetResult();
     
-    when(_underlying.getSecurityInformation(same(request))).thenReturn(result);
+    when(_underlying.getSecurities(same(request))).thenReturn(result);
     
     Response test = _resource.getSecurity(request);
     assertEquals(Status.OK.getStatusCode(), test.getStatus());

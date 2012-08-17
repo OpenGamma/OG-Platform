@@ -61,6 +61,6 @@ public interface SecurityProvider {
    * @return the security information result, not null
    * @throws RuntimeException if a problem occurs
    */
-  SecurityProviderGetResult getSecurityInformation(SecurityProviderGetRequest request);
+  SecurityProviderGetResult getSecurities(SecurityProviderGetRequest request);
 
 }
