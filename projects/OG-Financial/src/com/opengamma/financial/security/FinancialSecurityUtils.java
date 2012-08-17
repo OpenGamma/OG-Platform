@@ -797,7 +797,7 @@ public class FinancialSecurityUtils {
    * @param security the security to be examined.
    * @return true if exchange traded or false otherwise.
    */
-  public static boolean isExchangedTraded(final Security security) {
+  public static boolean isExchangeTraded(final Security security) {
     boolean result = false;
     if (security instanceof FinancialSecurity) {
       final FinancialSecurity finSec = (FinancialSecurity) security;

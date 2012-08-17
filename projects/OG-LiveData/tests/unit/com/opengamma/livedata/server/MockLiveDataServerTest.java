@@ -81,7 +81,7 @@ public class MockLiveDataServerTest {
     assertSame(subscription, _server.getSubscription(spec));
     
     assertTrue(_server.isSubscribedTo(subscription));
-    assertFalse(_server.isSubscribedTo(new Subscription("foo", _server.getMarketDataSenderFactory())));
+    assertFalse(_server.isSubscribedTo(new Subscription("foo", _server.getMarketDataSenderFactory(), new MapLastKnownValueStoreProvider())));
     assertTrue(_server.isSubscribedTo(uniqueId));
     assertFalse(_server.isSubscribedTo("foo"));
     assertTrue(_server.isSubscribedTo(spec));

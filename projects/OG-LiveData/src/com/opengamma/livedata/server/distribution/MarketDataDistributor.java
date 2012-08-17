@@ -16,6 +16,9 @@ import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.livedata.server.FieldHistoryStore;
+import com.opengamma.livedata.server.LastKnownValueStore;
+import com.opengamma.livedata.server.LastKnownValueStoreProvider;
+import com.opengamma.livedata.server.MapLastKnownValueStore;
 import com.opengamma.livedata.server.Subscription;
 import com.opengamma.util.ArgumentChecker;
 
@@ -46,7 +49,7 @@ public class MarketDataDistributor {
    * this store provides a current snapshot of the entire state of the 
    * market data line.   
    */
-  private FieldHistoryStore _lastKnownValues;
+  private final LastKnownValueStore _lastKnownValues;
   /** 
    * A history store to be used by the FieldHistoryUpdater normalization rule.
    * Fields stored in this history could either be completely unnormalized, 
@@ -81,15 +84,18 @@ public class MarketDataDistributor {
    * @param distributionSpec  What data should be distributed, how and where.
    * @param subscription  Which subscription this distributor belongs to.
    * @param marketDataSenderFactory  Used to create listener(s) that actually publish the data
-   * @param persistent  Whether this distributor is persistent. 
+   * @param persistent  Whether this distributor is persistent.
+   * @param lkvStoreProvider The factory for LastKnownValue stores. 
    */
   public MarketDataDistributor(DistributionSpecification distributionSpec,
       Subscription subscription,
       MarketDataSenderFactory marketDataSenderFactory,
-      boolean persistent) {
+      boolean persistent,
+      LastKnownValueStoreProvider lkvStoreProvider) {
     ArgumentChecker.notNull(distributionSpec, "Distribution spec");
     ArgumentChecker.notNull(subscription, "Subscription");
     ArgumentChecker.notNull(marketDataSenderFactory, "Market data sender factory");
+    ArgumentChecker.notNull(lkvStoreProvider, "LKV Store Provider");
     
     _distributionSpec = distributionSpec;
     _subscription = subscription;
@@ -98,6 +104,14 @@ public class MarketDataDistributor {
       throw new IllegalStateException("Null returned by " + marketDataSenderFactory);
     }
     setPersistent(persistent);
+    
+    _lastKnownValues = lkvStoreProvider.newInstance(distributionSpec.getMarketDataId(), distributionSpec.getNormalizationRuleSet().getId());
+    
+    // Initialize history with last known values.
+    // This does nothing in the default state (where the LKV is empty) but
+    // in case where the LKV is backed by a persistent store will prep the
+    // current state based on the persistent version.
+    _history.liveDataReceived(_lastKnownValues.getFields());
   }
 
   //-------------------------------------------------------------------------
@@ -144,27 +158,27 @@ public class MarketDataDistributor {
    * @return the latest value, not null
    */
   public LiveDataValueUpdateBean getSnapshot() {
-    if (getLastKnownValues() == null) {
+    FudgeMsg lastKnownValues = getLastKnownValues();
+    if (lastKnownValues == null) {
       return null;
     }
     return new LiveDataValueUpdateBean(
         getNumMessagesSent(), // 0-based as it should be 
         getDistributionSpec().getFullyQualifiedLiveDataSpecification(), 
-        getLastKnownValues());
+        lastKnownValues);
   }
 
   private synchronized FudgeMsg getLastKnownValues() {
-    if (_lastKnownValues == null) {
+    // NOTE kirk 2012-07-12 -- I have to assume the sentinel is important
+    // so I'm preserving it even though _lastKnownValues will never be null now.
+    if (_lastKnownValues.isEmpty()) {
       return null;
     }
-    return _lastKnownValues.getLastKnownValues();
+    return _lastKnownValues.getFields();
   }
   
   private synchronized void updateLastKnownValues(FudgeMsg lastKnownValue) {
-    if (_lastKnownValues == null) {
-      _lastKnownValues = new FieldHistoryStore();
-    }
-    _lastKnownValues.liveDataReceived(lastKnownValue);
+    _lastKnownValues.updateFields(lastKnownValue);
   }
 
   //-------------------------------------------------------------------------

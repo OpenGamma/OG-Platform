@@ -20,6 +20,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.schedule.HolidayDateRemovalFunction;
@@ -69,6 +70,7 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
@@ -93,7 +95,13 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
     final String currencyString = currency.getCode();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final ValueProperties constraints = desiredValue.getConstraints();
-    final String desiredCurrency = desiredValue.getConstraint(ValuePropertyNames.CURRENCY);
+    final String desiredCurrency;
+    final Set<String> currencies = desiredValue.getConstraints().getValues(ValuePropertyNames.CURRENCY);
+    if (currencies != null && !currencies.isEmpty()) {
+      desiredCurrency = desiredValue.getConstraint(ValuePropertyNames.CURRENCY);
+    } else {
+      desiredCurrency = currencyString;
+    }
     final String curveCalculationConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     final Set<String> yieldCurveNames = constraints.getValues(ValuePropertyNames.CURVE);
     final Period samplingPeriod = getSamplingPeriod(desiredValue.getConstraint(ValuePropertyNames.SAMPLING_PERIOD));
@@ -108,7 +116,15 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
     final ValueProperties resultProperties;
     if (!desiredCurrency.equals(currencyString)) {
       if (inputs.getValue(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES) != null) {
-        fxSeries = (HistoricalTimeSeries) inputs.getValue(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES);
+        final Map<UnorderedCurrencyPair, HistoricalTimeSeries> allFXSeries = (Map<UnorderedCurrencyPair, HistoricalTimeSeries>) inputs.getValue(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES);
+        if (allFXSeries.size() != 1) {
+          throw new OpenGammaRuntimeException("Have more than one FX series; should not happen");
+        }
+        final Map.Entry<UnorderedCurrencyPair, HistoricalTimeSeries> entry = Iterables.getOnlyElement(allFXSeries.entrySet());
+        if (!UnorderedCurrencyPair.of(Currency.of(desiredCurrency), currency).equals(entry.getKey())) {
+          throw new OpenGammaRuntimeException("Could not get FX series for currency pair " + desiredCurrency + ", " + currencyString);
+        }
+        fxSeries = entry.getValue();
         resultProperties = getResultProperties(desiredValue, desiredCurrency, yieldCurveNames.toArray(ArrayUtils.EMPTY_STRING_ARRAY), curveCalculationConfigName);
       } else {
         throw new OpenGammaRuntimeException("Could not get FX series for currency pair " + desiredCurrency + ", " + currencyString);

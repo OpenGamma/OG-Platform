@@ -948,7 +948,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(FXOptionBlackForwardSlideThetaFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackVolatilitySurfaceForwardSlideThetaFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackYieldCurvesForwardSlideThetaFunction.class));
-    functionConfigs.add(functionConfiguration(FXOptionBlackDefaults.class, PriorityClass.ABOVE_NORMAL.name(), DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR, LINEAR_EXTRAPOLATOR,
+    functionConfigs.add(functionConfiguration(FXOptionBlackDefaults.class, PriorityClass.BELOW_NORMAL.name(), DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR, LINEAR_EXTRAPOLATOR,
         "USD", "DefaultTwoCurveUSDConfig", "Discounting", "EUR", "DefaultTwoCurveEURConfig", "Discounting", "TULLETT",
         "USD", "DefaultTwoCurveUSDConfig", "Discounting", "CAD", "DefaultTwoCurveCADConfig", "Discounting", "TULLETT",
         "USD", "DefaultTwoCurveUSDConfig", "Discounting", "AUD", "DefaultTwoCurveAUDConfig", "Discounting", "TULLETT",        
@@ -960,7 +960,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         "USD", "DefaultTwoCurveUSDConfig", "Discounting", "HUF", "DefaultCashCurveHUFConfig", "Cash", "TULLETT",
         "USD", "DefaultTwoCurveUSDConfig", "Discounting", "KRW", "DefaultCashCurveKRWConfig", "Cash", "TULLETT",        
         "USD", "DefaultTwoCurveUSDConfig", "Discounting", "BRL", "DefaultCashCurveBRLConfig", "Cash", "TULLETT"));
-    functionConfigs.add(functionConfiguration(FXOptionBlackThetaDefaults.class, PriorityClass.ABOVE_NORMAL.name(), "1", DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR, LINEAR_EXTRAPOLATOR,
+    functionConfigs.add(functionConfiguration(FXOptionBlackThetaDefaults.class, PriorityClass.BELOW_NORMAL.name(), "1", DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR, LINEAR_EXTRAPOLATOR,
         "USD", "DefaultTwoCurveUSDConfig", "Discounting", "EUR", "DefaultTwoCurveEURConfig", "Discounting", "TULLETT",
         "USD", "DefaultTwoCurveUSDConfig", "Discounting", "CAD", "DefaultTwoCurveCADConfig", "Discounting", "TULLETT",
         "USD", "DefaultTwoCurveUSDConfig", "Discounting", "AUD", "DefaultTwoCurveAUDConfig", "Discounting", "TULLETT",        
@@ -1393,21 +1393,21 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(SABRRightExtrapolationPVSABRNodeSensitivityFunction.Rho.class));
     functionConfigs.add(functionConfiguration(SABRRightExtrapolationVegaFunction.class));
     functionConfigs.add(functionConfiguration(SABRRightExtrapolationYCNSFunction.class));
-    functionConfigs.add(functionConfiguration(SABRNoExtrapolationDefaults.class, PriorityClass.ABOVE_NORMAL.name(), VolatilityDataFittingDefaults.NON_LINEAR_LEAST_SQUARES,
+    functionConfigs.add(functionConfiguration(SABRNoExtrapolationDefaults.class, PriorityClass.BELOW_NORMAL.name(), VolatilityDataFittingDefaults.NON_LINEAR_LEAST_SQUARES,
         "USD", "DefaultTwoCurveUSDConfig", "BLOOMBERG",
         "EUR", "DefaultTwoCurveEURConfig", "BLOOMBERG",
         "GBP", "DefaultTwoCurveGBPConfig", "BLOOMBERG"));
-    functionConfigs.add(functionConfiguration(SABRRightExtrapolationDefaults.class, PriorityClass.ABOVE_NORMAL.name(), VolatilityDataFittingDefaults.NON_LINEAR_LEAST_SQUARES,
+    functionConfigs.add(functionConfiguration(SABRRightExtrapolationDefaults.class, PriorityClass.BELOW_NORMAL.name(), VolatilityDataFittingDefaults.NON_LINEAR_LEAST_SQUARES,
         "0.07", "10.0",
         "USD", "DefaultTwoCurveUSDConfig", "BLOOMBERG",
         "EUR", "DefaultTwoCurveEURConfig", "BLOOMBERG",
         "GBP", "DefaultTwoCurveGBPConfig", "BLOOMBERG"));
-    functionConfigs.add(functionConfiguration(SABRNoExtrapolationVegaDefaults.class, PriorityClass.ABOVE_NORMAL.name(), VolatilityDataFittingDefaults.NON_LINEAR_LEAST_SQUARES,
+    functionConfigs.add(functionConfiguration(SABRNoExtrapolationVegaDefaults.class, PriorityClass.BELOW_NORMAL.name(), VolatilityDataFittingDefaults.NON_LINEAR_LEAST_SQUARES,
         LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR,
         "USD", "DefaultTwoCurveUSDConfig", "BLOOMBERG",
         "EUR", "DefaultTwoCurveEURConfig", "BLOOMBERG",
         "GBP", "DefaultTwoCurveGBPConfig", "BLOOMBERG"));
-    functionConfigs.add(functionConfiguration(SABRRightExtrapolationVegaDefaults.class, PriorityClass.ABOVE_NORMAL.name(), VolatilityDataFittingDefaults.NON_LINEAR_LEAST_SQUARES,
+    functionConfigs.add(functionConfiguration(SABRRightExtrapolationVegaDefaults.class, PriorityClass.BELOW_NORMAL.name(), VolatilityDataFittingDefaults.NON_LINEAR_LEAST_SQUARES,
         "0.07", "10.0", LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR,
         "USD", "DefaultTwoCurveUSDConfig", "BLOOMBERG",
         "EUR", "DefaultTwoCurveEURConfig", "BLOOMBERG",

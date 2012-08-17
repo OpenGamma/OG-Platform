@@ -5,7 +5,6 @@
  */
 package com.opengamma.integration.tool.portfolio;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -69,41 +68,21 @@ public class OrphanedPositionRemover {
   }
 
   private Set<ObjectId> getValidPositions() {
-    Set<ObjectId> validPositions = Sets.newHashSet();
+    final Set<ObjectId> validPositions = Sets.newHashSet();
     PortfolioSearchResult portfolioSearchResult = _portfolioMaster.search(new PortfolioSearchRequest());
     
     for (PortfolioDocument portfolioDocument : portfolioSearchResult.getDocuments()) {
-      validPositions.addAll(PositionAccumulator.getAccumulatedPositions(portfolioDocument.getPortfolio().getRootNode()));
+      accumulatePositions(portfolioDocument.getPortfolio().getRootNode(), validPositions);
     }
     return validPositions;
   }
-
-
-  private static final class PositionAccumulator {
+  
+  private void accumulatePositions(final ManageablePortfolioNode node, final Set<ObjectId> positions) {
+    positions.addAll(node.getPositionIds());
     
-    /**
-     * The set of positions.
-     */
-    private final Set<ObjectId> _positions = new HashSet<ObjectId>();
-    
-    private PositionAccumulator(final ManageablePortfolioNode node) {
-      _positions.addAll(node.getPositionIds());
-      for (ManageablePortfolioNode childNode : node.getChildNodes()) {
-        _positions.addAll(PositionAccumulator.getAccumulatedPositions(childNode));
-      }
+    for (ManageablePortfolioNode childNode : node.getChildNodes()) {
+      accumulatePositions(childNode, positions);
     }
-
-    public static Set<ObjectId> getAccumulatedPositions(final ManageablePortfolioNode node) {
-      return new PositionAccumulator(node).getPositions();
-    }
-
-    /**
-     * Gets the positions.
-     * @return the positions
-     */
-    public Set<ObjectId> getPositions() {
-      return _positions;
-    } 
   }
-
+  
 }

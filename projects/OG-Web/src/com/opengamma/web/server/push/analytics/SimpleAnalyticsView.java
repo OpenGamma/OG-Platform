@@ -146,7 +146,7 @@ import com.opengamma.util.ArgumentChecker;
   public long updateViewport(GridType gridType, String graphId, String viewportId, ViewportSpecification viewportSpec) {
     s_logger.debug("Updating viewport for dependency graph {} of the {} grid using {}", new Object[]{graphId, gridType, viewportSpec});
     long version = getGrid(gridType).updateViewport(graphId, viewportId, viewportSpec);
-    _listener.gridDataChanged(getGrid(gridType).getViewport(viewportId).getDataId());
+    _listener.gridDataChanged(getGrid(gridType).getViewport(graphId, viewportId).getDataId());
     return version;
   }
 

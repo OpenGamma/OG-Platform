@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.conversion;
@@ -138,7 +138,6 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
     final FixedInterestRateLeg fixedLeg = (FixedInterestRateLeg) (payFixed ? payLeg : receiveLeg);
     final FloatingInterestRateLeg floatLeg = (FloatingInterestRateLeg) (payFixed ? receiveLeg : payLeg);
     final ExternalId regionId = _conventionSource.getConventionBundle(floatLeg.getFloatingReferenceRateId()).getRegion();
-    //final ExternalId regionId = payLeg.getRegionId();
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionId);
     final Currency currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency();
     final String currencyString = currency.getCode();

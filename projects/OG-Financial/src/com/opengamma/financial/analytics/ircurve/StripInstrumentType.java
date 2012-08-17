@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.ircurve;
@@ -37,6 +37,8 @@ public enum StripInstrumentType {
   SWAP_3M,
   /** Fixed / float swap (6m floating leg reset tenor) */
   SWAP_6M,
+  /** Fixed / float swap (12m floating leg reset tenor) */
+  SWAP_12M,
   /** CDOR */
   CDOR,
   /** Cibor */

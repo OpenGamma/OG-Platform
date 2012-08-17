@@ -180,7 +180,7 @@ public class DependencyGraphGridStructure implements GridStructure {
         }
       }
     }
-    return sb.length() == 0 ? null : sb.toString();
+    return sb.toString();
   }
 
   private static AnalyticsColumn column(String header) {

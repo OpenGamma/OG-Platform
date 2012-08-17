@@ -29,10 +29,10 @@ public class PortfolioExchangeTradedPnLFunction extends AbstractPortfolioPnLFunc
       final Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
       for (Position position : allPositions) {
         Security positionSecurity = position.getSecurity();
-        if (FinancialSecurityUtils.isExchangedTraded(positionSecurity)) {
+        if (FinancialSecurityUtils.isExchangeTraded(positionSecurity)) {
           for (Trade trade : position.getTrades()) {
             Security tradeSecurity = trade.getSecurity();
-            if (!FinancialSecurityUtils.isExchangedTraded(tradeSecurity)) {
+            if (!FinancialSecurityUtils.isExchangeTraded(tradeSecurity)) {
               return false;
             }
           }
