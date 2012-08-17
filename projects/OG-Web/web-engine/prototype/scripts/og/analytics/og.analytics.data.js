@@ -14,7 +14,7 @@ $.register_module({
                 grid_type = config.type, depgraph = !!config.depgraph,
                 fixed_set = {portfolio: 'Portfolio', primitives: 'Primitives'};
             var data_handler = function (result) {
-                if (result.error) return og.dev.warn(result.message);
+                if (result.error) return og.dev.warn(result.message), data_setup();
                 if (!events.data.length || !result.data) return; // if a tree falls or there's no tree, etc.
                 if (result.data.version === viewport_version) return fire('data', result.data.data);
             };
@@ -25,8 +25,7 @@ $.register_module({
                 (viewport_id ? viewports.get({
                     view_id: view_id, graph_id: graph_id, viewport_id: viewport_id, update: data_setup
                 }) : viewports
-                    //.put({view_id: view_id, graph_id: graph_id, rows: viewport.rows, columns: viewport.cols})
-                    .put({view_id: view_id, graph_id: graph_id, viewport_id: viewport_id, rows: [0, 1, 2, 3], columns: [0, 1, 2, 3, 4]})
+                    .put({view_id: view_id, graph_id: graph_id, rows: viewport.rows, columns: viewport.cols})
                     .pipe(function (result) {
                         (viewport_id = result.meta.id), (viewport_version = result.data.version);
                         return viewports
@@ -91,10 +90,10 @@ $.register_module({
                 viewport = new_viewport;
                 if (!viewport_id) return;
                 data.busy(true);
-                viewports
-                    // .put({view_id: view_id, graph_id: graph_id, viewport_id: viewport_id, rows: viewport.rows, columns: viewport.cols})
-                    .put({view_id: view_id, graph_id: graph_id, viewport_id: viewport_id, rows: [0, 1, 2, 3], columns: [0, 1, 2, 3, 4]})
-                    .pipe(function (result) {(viewport_version = result.data.version), data.busy(false);})
+                viewports.put({
+                    view_id: view_id, graph_id: graph_id, viewport_id: viewport_id,
+                    rows: viewport.rows, columns: viewport.cols
+                }).pipe(function (result) {(viewport_version = result.data.version), data.busy(false);});
             };
             initialize();
         };
