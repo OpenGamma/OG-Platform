@@ -99,7 +99,7 @@ public class ExampleViewsPopulator extends AbstractExampleTool {
   }
 
   private ViewDefinition getEquityViewDefinition(final String portfolioName) {
-    final UniqueId portfolioId = getPortfolioId(portfolioName);
+    final UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
     final ViewDefinition viewDefinition = new ViewDefinition(portfolioName + " View", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.USD);
     viewDefinition.setMaxFullCalculationPeriod(30000L);
@@ -118,7 +118,7 @@ public class ExampleViewsPopulator extends AbstractExampleTool {
   }
 
   private ViewDefinition getMultiCurrencySwapViewDeprecatedDefinition(final String swapPortfolioName) {
-    final UniqueId portfolioId = getPortfolioId(swapPortfolioName);
+    final UniqueId portfolioId = getPortfolioId(swapPortfolioName).toLatest();
     final ViewDefinition viewDefinition = new ViewDefinition("Multi-currency Swap View (Deprecated)", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.USD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);
@@ -143,7 +143,7 @@ public class ExampleViewsPopulator extends AbstractExampleTool {
   }
 
   private ViewDefinition getMultiCurrencySwapViewDefinition(final String portfolioName) {
-    final UniqueId portfolioId = getPortfolioId(portfolioName);
+    final UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
     final ViewDefinition viewDefinition = new ViewDefinition("Multi-currency Swap View", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.USD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);
@@ -184,7 +184,7 @@ public class ExampleViewsPopulator extends AbstractExampleTool {
   }
 
   private ViewDefinition getAUDSwapView1Definition(final String portfolioName) {
-    final UniqueId portfolioId = getPortfolioId(portfolioName);
+    final UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
     final ViewDefinition viewDefinition = new ViewDefinition("AUD Swaps (3m / 6m basis) (1)", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.AUD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);
@@ -214,7 +214,7 @@ public class ExampleViewsPopulator extends AbstractExampleTool {
   }
 
   private ViewDefinition getAUDSwapView2Definition(final String portfolioName) {
-    final UniqueId portfolioId = getPortfolioId(portfolioName);
+    final UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
     final ViewDefinition viewDefinition = new ViewDefinition("AUD Swaps (3m / 6m basis) (2)", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.AUD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);
@@ -242,7 +242,7 @@ public class ExampleViewsPopulator extends AbstractExampleTool {
   }
 
   private ViewDefinition getAUDSwapView3Definition(final String portfolioName) {
-    final UniqueId portfolioId = getPortfolioId(portfolioName);
+    final UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
     final ViewDefinition viewDefinition = new ViewDefinition("AUD Swaps (no basis)", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.AUD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);
@@ -264,7 +264,7 @@ public class ExampleViewsPopulator extends AbstractExampleTool {
   }
 
   private ViewDefinition getSABRExtrapolationViewDefinition(final String portfolioName) {
-    final UniqueId portfolioId = getPortfolioId(portfolioName);
+    final UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
     final ViewDefinition viewDefinition = new ViewDefinition("Mixed CM", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.USD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);
@@ -307,7 +307,7 @@ public class ExampleViewsPopulator extends AbstractExampleTool {
   }
 
   private ViewDefinition getSwaptionParityViewDefinition(final String portfolioName) {
-    final UniqueId portfolioId = getPortfolioId(portfolioName);
+    final UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
     final ViewDefinition viewDefinition = new ViewDefinition("Swap / Swaption Parity", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.USD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);
