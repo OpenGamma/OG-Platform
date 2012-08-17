@@ -16,7 +16,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
@@ -62,7 +61,7 @@ public class ForwardRateAgreementDefinitionTest {
   private static final ForwardRateAgreementDefinition FRA_DEFINITION_1 = new ForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL,
       FIXING_DATE, INDEX, FRA_RATE);
   private static final ForwardRateAgreementDefinition FRA_DEFINITION_2 = ForwardRateAgreementDefinition.from(FRA_DEFINITION_1, FIXING_DATE, INDEX, FRA_RATE);
-  //private static final ForwardRateAgreementDefinition FRA_DEFINITION_3 = ForwardRateAgreementDefinition.from(ACCRUAL_START_DATE, ACCRUAL_END_DATE, NOTIONAL, INDEX, FRA_RATE);
+  private static final ForwardRateAgreementDefinition FRA_DEFINITION_3 = ForwardRateAgreementDefinition.from(ACCRUAL_START_DATE, ACCRUAL_END_DATE, NOTIONAL, INDEX, FRA_RATE);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27); //For conversion to derivative
 
@@ -118,14 +117,18 @@ public class ForwardRateAgreementDefinitionTest {
     assertEquals(FRA_DEFINITION_2.getRate(), FRA_RATE);
     assertEquals(FRA_DEFINITION_2.getFixindPeriodStartDate(), FIXING_START_DATE);
     assertEquals(FRA_DEFINITION_2.getFixindPeriodEndDate(), FIXING_END_DATE);
-    //TODO
-    //    assertEquals(FRA_DEFINITION_3.getAccrualStartDate(), ACCRUAL_START_DATE);
-    //    assertEquals(FRA_DEFINITION_3.getAccrualEndDate(), ACCRUAL_END_DATE);
-    //    assertEquals(FRA_DEFINITION_3.getIndex(), INDEX);
-    //    assertEquals(FRA_DEFINITION_3.getPaymentYearFraction(), ACCRUAL_FACTOR_PAYMENT);
-    //    assertEquals(FRA_DEFINITION_3.getRate(), FRA_RATE);
-    //    assertEquals(FRA_DEFINITION_3.getFixindPeriodStartDate(), FIXING_START_DATE);
-    //    assertEquals(FRA_DEFINITION_3.getFixindPeriodEndDate(), FIXING_END_DATE);
+    assertEquals("ForwardRateAgreementDefinition: from", FRA_DEFINITION_3.getAccrualStartDate(), ACCRUAL_START_DATE);
+    assertEquals("ForwardRateAgreementDefinition: from", FRA_DEFINITION_3.getAccrualEndDate(), ACCRUAL_END_DATE);
+    double accrualFactorPay = DAY_COUNT_INDEX.getDayCountFraction(ACCRUAL_START_DATE, ACCRUAL_END_DATE);
+    assertEquals("ForwardRateAgreementDefinition: from", FRA_DEFINITION_3.getPaymentYearFraction(), accrualFactorPay);
+    assertEquals("ForwardRateAgreementDefinition: from", FRA_DEFINITION_3.getPaymentDate(), ACCRUAL_START_DATE);
+    ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(ACCRUAL_START_DATE, -SETTLEMENT_DAYS, CALENDAR);
+    assertEquals("ForwardRateAgreementDefinition: from", FRA_DEFINITION_3.getFixingDate(), fixingDate);
+    assertEquals("ForwardRateAgreementDefinition: from", FRA_DEFINITION_3.getIndex(), INDEX);
+    assertEquals("ForwardRateAgreementDefinition: from", FRA_DEFINITION_3.getRate(), FRA_RATE);
+    assertEquals("ForwardRateAgreementDefinition: from", FRA_DEFINITION_3.getFixindPeriodStartDate(), ACCRUAL_START_DATE);
+    ZonedDateTime fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(ACCRUAL_START_DATE, INDEX);
+    assertEquals("ForwardRateAgreementDefinition: from", FRA_DEFINITION_3.getFixindPeriodEndDate(), fixingPeriodEndDate);
   }
 
   @Test
@@ -139,8 +142,7 @@ public class ForwardRateAgreementDefinitionTest {
     final ZonedDateTime accrualEndDate = ScheduleCalculator.getAdjustedDate(spotDate, endPeriod, INDEX);
     final ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(accrualStartDate, -SETTLEMENT_DAYS, CALENDAR);
     final double accrualFactor = DAY_COUNT_INDEX.getDayCountFraction(accrualStartDate, accrualEndDate);
-    final ForwardRateAgreementDefinition fraExpected = new ForwardRateAgreementDefinition(CUR, accrualStartDate, accrualStartDate, accrualEndDate, accrualFactor, NOTIONAL, fixingDate, INDEX,
-        FRA_RATE);
+    final ForwardRateAgreementDefinition fraExpected = new ForwardRateAgreementDefinition(CUR, accrualStartDate, accrualStartDate, accrualEndDate, accrualFactor, NOTIONAL, fixingDate, INDEX, FRA_RATE);
     assertEquals("FRA builder", fraExpected, fraFromTrade);
   }
 
