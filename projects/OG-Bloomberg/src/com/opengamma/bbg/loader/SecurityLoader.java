@@ -24,10 +24,10 @@ import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.bbg.BloombergSecuritySource;
 import com.opengamma.bbg.PerSecurityReferenceDataResult;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.ReferenceDataResult;
+import com.opengamma.bbg.security.BloombergSecurityProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.option.AmericanExerciseType;
@@ -267,7 +267,7 @@ public abstract class SecurityLoader {
 
   protected void parseIdentifiers(final FudgeMsg fieldData, final ManageableSecurity security, final String firstTradeDateField, final String lastTradeDateField) {
     ExternalIdBundle identifierBundle = BloombergDataUtils.parseIdentifiers(fieldData, firstTradeDateField, lastTradeDateField).toBundle();
-    security.setUniqueId(BloombergSecuritySource.createUniqueId(identifierBundle.getValue(ExternalSchemes.BLOOMBERG_BUID)));
+    security.setUniqueId(BloombergSecurityProvider.createUniqueId(identifierBundle.getValue(ExternalSchemes.BLOOMBERG_BUID)));
     security.setExternalIdBundle(identifierBundle);
   }
   

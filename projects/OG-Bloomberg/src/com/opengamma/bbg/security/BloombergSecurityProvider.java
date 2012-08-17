@@ -13,6 +13,7 @@ import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.loader.BloombergBulkSecurityLoader;
 import com.opengamma.financial.timeseries.exchange.ExchangeDataProvider;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.provider.security.SecurityProviderGetRequest;
 import com.opengamma.provider.security.SecurityProviderGetResult;
@@ -22,6 +23,11 @@ import com.opengamma.provider.security.impl.AbstractSecurityProvider;
  * Provider of security information from the Bloomberg data source.
  */
 public final class BloombergSecurityProvider extends AbstractSecurityProvider {
+
+  /**
+   * Bloomberg scheme.
+   */
+  public static final String BLOOMBERG_SCHEME = "Bloomberg";
 
   /**
    * The underlying loader.
@@ -46,6 +52,17 @@ public final class BloombergSecurityProvider extends AbstractSecurityProvider {
     SecurityProviderGetResult result = new SecurityProviderGetResult();
     result.getResultMap().putAll(map);
     return result;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates a unique identifier.
+   * 
+   * @param value  the value, not null
+   * @return a Bloomberg unique identifier, not null
+   */
+  public static UniqueId createUniqueId(String value) {
+    return UniqueId.of(BLOOMBERG_SCHEME, value);
   }
 
 }

@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
+import com.opengamma.bbg.security.BloombergSecurityProvider;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.core.id.ExternalSchemes;
@@ -36,26 +37,11 @@ public final class BloombergSecuritySource implements SecuritySource {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergSecuritySource.class);
-  /**
-   * Bloomberg scheme.
-   */
-  public static final String BLOOMBERG_SCHEME = "Bloomberg";
 
   /**
    * The provider.
    */
   private final SecurityProvider _provider;
-
-  //-------------------------------------------------------------------------
-  /**
-   * Creates a unique identifier.
-   * 
-   * @param value  the value, not null
-   * @return a Bloomberg unique identifier, not null
-   */
-  public static UniqueId createUniqueId(String value) {
-    return UniqueId.of(BLOOMBERG_SCHEME, value);
-  }
 
   /**
    * Creates an instance.
@@ -70,7 +56,7 @@ public final class BloombergSecuritySource implements SecuritySource {
   //-------------------------------------------------------------------------
   @Override
   public Security getSecurity(UniqueId uniqueId) {
-    if (BLOOMBERG_SCHEME.equals(uniqueId.getScheme()) == false) {
+    if (BloombergSecurityProvider.BLOOMBERG_SCHEME.equals(uniqueId.getScheme()) == false) {
       throw new IllegalArgumentException("Identifier must be a Bloomberg unique identifier: " + uniqueId);
     }
     return getSecurity(uniqueId.getValue());
@@ -78,7 +64,7 @@ public final class BloombergSecuritySource implements SecuritySource {
 
   @Override
   public Security getSecurity(ObjectId objectId, VersionCorrection versionCorrection) {
-    if (BLOOMBERG_SCHEME.equals(objectId.getScheme()) == false) {
+    if (BloombergSecurityProvider.BLOOMBERG_SCHEME.equals(objectId.getScheme()) == false) {
       throw new IllegalArgumentException("Identifier must be a Bloomberg object identifier: " + objectId);
     }
     return getSecurity(objectId.getValue());
@@ -142,7 +128,7 @@ public final class BloombergSecuritySource implements SecuritySource {
   private Map<ExternalIdBundle, UniqueId> createBundle2UniqueIdMap(Collection<UniqueId> uniqueIds) {
     Map<ExternalIdBundle, UniqueId> result = Maps.newHashMap();
     for (UniqueId uniqueId : uniqueIds) {
-      if (BLOOMBERG_SCHEME.equals(uniqueId.getScheme()) == false) {
+      if (BloombergSecurityProvider.BLOOMBERG_SCHEME.equals(uniqueId.getScheme()) == false) {
         throw new IllegalArgumentException("Identifier must be a Bloomberg unique identifier: " + uniqueId);
       }
       String bbgIdValue = uniqueId.getValue();

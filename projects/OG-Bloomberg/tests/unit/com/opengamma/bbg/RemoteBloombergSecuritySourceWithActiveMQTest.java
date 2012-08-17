@@ -32,6 +32,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.opengamma.bbg.security.BloombergSecurityProvider;
 import com.opengamma.bbg.server.SecurityMasterRequestReceiver;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.Security;
@@ -459,7 +460,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
       identifiers.add(ExternalSchemes.bloombergTickerSecurityId(SPX_INDEX_OPTION_TICKER));
     }
     security.setExternalIdBundle(ExternalIdBundle.of(identifiers));
-    security.setUniqueId(BloombergSecuritySource.createUniqueId("IX3961626-0-9B80"));
+    security.setUniqueId(BloombergSecurityProvider.createUniqueId("IX3961626-0-9B80"));
     return security;
   }
 
@@ -480,7 +481,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
     }
     identifiers.add(ExternalSchemes.bloombergBuidSecurityId("EO1016952010010397C00001"));
     security.setExternalIdBundle(ExternalIdBundle.of(identifiers));
-    security.setUniqueId(BloombergSecuritySource.createUniqueId("EO1016952010010397C00001"));
+    security.setUniqueId(BloombergSecurityProvider.createUniqueId("EO1016952010010397C00001"));
 
     return security;
   }
@@ -500,7 +501,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
     equitySecurity.addExternalId(
         ExternalSchemes.sedol1SecurityId("2046251"));
 
-    equitySecurity.setUniqueId(BloombergSecuritySource.createUniqueId("EQ0010169500001000"));
+    equitySecurity.setUniqueId(BloombergSecurityProvider.createUniqueId("EQ0010169500001000"));
     equitySecurity.setShortName("AAPL");
 
     return equitySecurity;
@@ -522,7 +523,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
     equitySecurity.addExternalId(
         ExternalSchemes.sedol1SecurityId("2831811"));
     
-    equitySecurity.setUniqueId(BloombergSecuritySource.createUniqueId("EQ0010137600001000"));
+    equitySecurity.setUniqueId(BloombergSecurityProvider.createUniqueId("EQ0010137600001000"));
     equitySecurity.setShortName("T");
     return equitySecurity;
   }

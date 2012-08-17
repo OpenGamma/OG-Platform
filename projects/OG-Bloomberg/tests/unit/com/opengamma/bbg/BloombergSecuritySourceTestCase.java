@@ -46,6 +46,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Lists;
+import com.opengamma.bbg.security.BloombergSecurityProvider;
 import com.opengamma.bbg.util.BloombergSecurityUtils;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.Security;
@@ -550,8 +551,8 @@ public abstract class BloombergSecuritySourceTestCase {
 
   @Test
   public void test_getBulkSecurity() throws Exception {
-    UniqueId aaplId = UniqueId.of(BloombergSecuritySource.BLOOMBERG_SCHEME, BloombergSecurityUtils.AAPL_BUID);
-    UniqueId attId = UniqueId.of(BloombergSecuritySource.BLOOMBERG_SCHEME, BloombergSecurityUtils.ATT_BUID);
+    UniqueId aaplId = UniqueId.of(BloombergSecurityProvider.BLOOMBERG_SCHEME, BloombergSecurityUtils.AAPL_BUID);
+    UniqueId attId = UniqueId.of(BloombergSecurityProvider.BLOOMBERG_SCHEME, BloombergSecurityUtils.ATT_BUID);
     
     Map<UniqueId, Security> securities = _securitySource.getSecurities(Lists.newArrayList(aaplId, attId));
     assertNotNull(securities);
