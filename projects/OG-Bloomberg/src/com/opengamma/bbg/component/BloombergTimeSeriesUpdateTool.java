@@ -8,29 +8,23 @@ package com.opengamma.bbg.component;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergIdentifierProvider;
 import com.opengamma.bbg.loader.BloombergHistoricalLoader;
-import com.opengamma.bbg.tool.BloombergToolContext;
-import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.bbg.tool.AbstractBloombergTool;
 import com.opengamma.util.generate.scripts.Scriptable;
 
 /**
  * Updates time-series using the Bloomberg historical loader.
  */
 @Scriptable
-public class BloombergTimeSeriesUpdateTool extends AbstractTool {
+public class BloombergTimeSeriesUpdateTool extends AbstractBloombergTool {
 
   @Override
   protected void doRun() throws Exception {
-    if (!(getToolContext() instanceof BloombergToolContext)) {
-      throw new OpenGammaRuntimeException("The " + BloombergTimeSeriesUpdateTool.class.getSimpleName() +
-          " requires a tool context which implements " + BloombergToolContext.class.getName());
-    }
     BloombergHistoricalLoader loader = new BloombergHistoricalLoader(
         getToolContext().getHistoricalTimeSeriesMaster(),
-        ((BloombergToolContext) getToolContext()).getBloombergHistoricalTimeSeriesSource(),
-        new BloombergIdentifierProvider(((BloombergToolContext) getToolContext()).getBloombergReferenceDataProvider()));
+        getBloombergToolContext().getBloombergHistoricalTimeSeriesSource(),
+        new BloombergIdentifierProvider(getBloombergToolContext().getBloombergReferenceDataProvider()));
     loader.setUpdateDb(true);
     loader.setReload(getCommandLine().hasOption("reload"));
     loader.run();
