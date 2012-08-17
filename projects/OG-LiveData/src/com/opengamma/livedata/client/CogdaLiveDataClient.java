@@ -37,7 +37,6 @@ import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdate;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.livedata.cogda.msg.CogdaLiveDataCommandResponseMessage;
 import com.opengamma.livedata.cogda.msg.CogdaLiveDataSnapshotRequestBuilder;
 import com.opengamma.livedata.cogda.msg.CogdaLiveDataSnapshotRequestMessage;
 import com.opengamma.livedata.cogda.msg.CogdaLiveDataSnapshotResponseBuilder;
@@ -82,6 +81,7 @@ public class CogdaLiveDataClient extends AbstractLiveDataClient implements Lifec
    */
   private Socket _socket;
   private FudgeMessageSender _messageSender;
+  @SuppressWarnings("unused")
   private Thread _socketReadThread;
   private AtomicLong _nextRequestId = new AtomicLong(1L);
   private Map<Long, SubscriptionHandle> _activeSubscriptionRequests = new ConcurrentHashMap<Long, SubscriptionHandle>();
@@ -347,7 +347,12 @@ public class CogdaLiveDataClient extends AbstractLiveDataClient implements Lifec
     return ((_socket != null) && (_socket.isConnected()));
   }
 
-  public static void main(String[] args) throws InterruptedException {
+  /**
+   * A simple test that runs against localhost. Only useful for protocol development.
+   * @param args Command-line args. Ignored.
+   * @throws InterruptedException Required to make the compiler happy
+   */
+  public static final void main(final String[] args) throws InterruptedException {
     CogdaLiveDataClient client = new CogdaLiveDataClient(UserPrincipal.getLocalUser());
     client.start();
     

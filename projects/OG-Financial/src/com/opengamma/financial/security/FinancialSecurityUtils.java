@@ -636,7 +636,7 @@ public class FinancialSecurityUtils {
 
         @Override
         public Collection<Currency> visitBondFutureOptionSecurity(final BondFutureOptionSecurity security) {
-          return null;
+          return Collections.singletonList(security.getCurrency());
         }
 
         @Override
