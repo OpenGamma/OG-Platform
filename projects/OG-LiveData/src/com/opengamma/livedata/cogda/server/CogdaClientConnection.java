@@ -32,6 +32,8 @@ import com.opengamma.livedata.cogda.msg.CogdaLiveDataSnapshotResponseMessage;
 import com.opengamma.livedata.cogda.msg.CogdaLiveDataSubscriptionRequestBuilder;
 import com.opengamma.livedata.cogda.msg.CogdaLiveDataSubscriptionRequestMessage;
 import com.opengamma.livedata.cogda.msg.CogdaLiveDataSubscriptionResponseMessage;
+import com.opengamma.livedata.cogda.msg.CogdaLiveDataUnsubscribeBuilder;
+import com.opengamma.livedata.cogda.msg.CogdaLiveDataUnsubscribeMessage;
 import com.opengamma.livedata.cogda.msg.CogdaLiveDataUpdateBuilder;
 import com.opengamma.livedata.cogda.msg.CogdaLiveDataUpdateMessage;
 import com.opengamma.livedata.cogda.msg.CogdaMessageType;
@@ -166,13 +168,18 @@ public class CogdaClientConnection implements FudgeConnectionStateListener, Fudg
       case SUBSCRIPTION_REQUEST:
         response = handleSubscriptionRequest(fudgeContext, msg);
         break;
+      case UNSUBSCRIBE:
+        handleUnsubscription(fudgeContext, msg);
+        break;
       default:
         // Illegal here.
         // Need an "ILLEGAL_COMMAND" message.
         break;
     }
     
-    sendMessage(CogdaLiveDataBuilderUtil.buildCommandResponseMessage(fudgeContext, response));
+    if (response != null) {
+      sendMessage(CogdaLiveDataBuilderUtil.buildCommandResponseMessage(fudgeContext, response));
+    }
   }
 
   /**
@@ -236,6 +243,12 @@ public class CogdaClientConnection implements FudgeConnectionStateListener, Fudg
       response.setGenericResult(CogdaCommandResponseResult.NOT_AVAILABLE);
     }
     return response;
+  }
+  
+  private void handleUnsubscription(FudgeContext fudgeContext, FudgeMsg msg) {
+    CogdaLiveDataUnsubscribeMessage request = CogdaLiveDataUnsubscribeBuilder.buildObjectStatic(new FudgeDeserializer(fudgeContext), msg);
+    
+    _subscriptions.remove(new LiveDataSpecification(request.getNormalizationScheme(), request.getSubscriptionId()));
   }
   
   private void sendMessage(FudgeMsg msg) {
