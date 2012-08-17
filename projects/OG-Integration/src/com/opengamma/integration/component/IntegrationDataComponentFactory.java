@@ -21,12 +21,10 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.bbg.BloombergIdentifierProvider;
-import com.opengamma.bbg.BloombergSecuritySource;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.RemoteReferenceDataProviderFactoryBean;
 import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
 import com.opengamma.bbg.loader.BloombergSecurityLoader;
-import com.opengamma.bbg.security.BloombergSecurityProvider;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
@@ -97,14 +95,6 @@ public class IntegrationDataComponentFactory extends AbstractComponentFactory {
     HistoricalTimeSeriesSource bbgHtsSource = initTimeSeriesSource(repo);
     initSecurityLoader(repo, refData, bbgHtsSource);
     initHistoricalTimeSeriesLoader(repo, refData, bbgHtsSource);
-    initBloombergSecuritySource(repo, refData);
-  }
-
-  private void initBloombergSecuritySource(ComponentRepository repo, ReferenceDataProvider refData) {
-    BloombergSecurityProvider secProvider = new BloombergSecurityProvider(refData, new DefaultExchangeDataProvider());
-    BloombergSecuritySource bloombergSecuritySource = new BloombergSecuritySource(secProvider);
-    ComponentInfo info = new ComponentInfo(BloombergSecuritySource.class, BBG_CLASSIFIER);
-    repo.registerComponent(info, bloombergSecuritySource);
   }
 
   protected ReferenceDataProvider initReferenceDataProvider(ComponentRepository repo) {

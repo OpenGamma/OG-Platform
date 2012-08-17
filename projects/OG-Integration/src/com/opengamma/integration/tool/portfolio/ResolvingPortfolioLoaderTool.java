@@ -14,7 +14,6 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.bbg.BloombergSecuritySource;
 import com.opengamma.integration.copier.portfolio.PortfolioCopierVisitor;
 import com.opengamma.integration.copier.portfolio.QuietPortfolioCopierVisitor;
 import com.opengamma.integration.copier.portfolio.ResolvingPortfolioCopier;
@@ -22,15 +21,16 @@ import com.opengamma.integration.copier.portfolio.VerbosePortfolioCopierVisitor;
 import com.opengamma.integration.copier.portfolio.reader.PortfolioReader;
 import com.opengamma.integration.copier.portfolio.reader.SingleSheetSimplePortfolioReader;
 import com.opengamma.integration.copier.portfolio.rowparser.ExchangeTradedRowParser;
-import com.opengamma.integration.copier.portfolio.writer.PrettyPrintingPortfolioWriter;
 import com.opengamma.integration.copier.portfolio.writer.MasterPortfolioWriter;
 import com.opengamma.integration.copier.portfolio.writer.PortfolioWriter;
+import com.opengamma.integration.copier.portfolio.writer.PrettyPrintingPortfolioWriter;
 import com.opengamma.integration.copier.sheet.SheetFormat;
 import com.opengamma.integration.tool.AbstractIntegrationTool;
 import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.provider.security.SecurityProvider;
 import com.opengamma.util.generate.scripts.Scriptable;
 
 /**
@@ -86,7 +86,7 @@ public class ResolvingPortfolioLoaderTool extends AbstractIntegrationTool {
     // Construct portfolio reader
     PortfolioReader portfolioReader = constructPortfolioReader(
         getCommandLine().getOptionValue(FILE_NAME_OPT), 
-        context.getBloombergSecuritySource()
+        context.getSecurityProvider()
     );
     
     // Create portfolio copier
@@ -142,7 +142,7 @@ public class ResolvingPortfolioLoaderTool extends AbstractIntegrationTool {
   }
   
   // TODO take a stream as well as the file name, BBG master
-  private static PortfolioReader constructPortfolioReader(String filename, BloombergSecuritySource bbgSecurityMaster) {
+  private static PortfolioReader constructPortfolioReader(String filename, SecurityProvider securityProvider) {
     InputStream stream;
     try {
       stream = new BufferedInputStream(new FileInputStream(filename));
@@ -155,7 +155,7 @@ public class ResolvingPortfolioLoaderTool extends AbstractIntegrationTool {
       case XLS:
       case CSV:
         // Check that the asset class was specified on the command line
-        return new SingleSheetSimplePortfolioReader(sheetFormat, stream, new ExchangeTradedRowParser(bbgSecurityMaster));
+        return new SingleSheetSimplePortfolioReader(sheetFormat, stream, new ExchangeTradedRowParser(securityProvider));
 
       default:
         throw new OpenGammaRuntimeException("Input filename should end in .CSV or .XLS");

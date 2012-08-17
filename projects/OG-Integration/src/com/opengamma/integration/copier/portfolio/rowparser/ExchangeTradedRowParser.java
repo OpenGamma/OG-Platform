@@ -14,7 +14,6 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
 import javax.time.calendar.ZoneOffset;
 
-import com.opengamma.bbg.BloombergSecuritySource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.security.Security;
@@ -24,6 +23,7 @@ import com.opengamma.id.ExternalScheme;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.provider.security.SecurityProvider;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -40,11 +40,11 @@ public class ExchangeTradedRowParser extends RowParser {
   
   private String[] _columns = {TICKER, QUANTITY, TRADE_DATE, PREMIUM, COUNTERPARTY };
   
-  private BloombergSecuritySource _bbgSecSource;
+  private SecurityProvider _securityProvider;
 
-  public ExchangeTradedRowParser(BloombergSecuritySource bbgSecSource) {
-    ArgumentChecker.notNull(bbgSecSource, "bbgSecSource");
-    _bbgSecSource = bbgSecSource;
+  public ExchangeTradedRowParser(SecurityProvider securityProvider) {
+    ArgumentChecker.notNull(securityProvider, "securityProvider");
+    _securityProvider = securityProvider;
   }
 
   private static final ExternalScheme[] s_schemeWaterfall = {
@@ -62,7 +62,7 @@ public class ExchangeTradedRowParser extends RowParser {
     
     for (ExternalScheme scheme : s_schemeWaterfall) {
       ExternalIdBundle id = ExternalId.of(scheme, getWithException(row, TICKER)).toBundle();
-      Security security = _bbgSecSource.getSecurity(id);
+      Security security = _securityProvider.getSecurity(id);
       if (security != null && security instanceof ManageableSecurity) {
         return new ManageableSecurity[] {(ManageableSecurity) security};
       }
