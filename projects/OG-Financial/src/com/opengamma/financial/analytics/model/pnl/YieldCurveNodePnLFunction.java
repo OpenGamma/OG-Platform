@@ -95,7 +95,13 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
     final String currencyString = currency.getCode();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final ValueProperties constraints = desiredValue.getConstraints();
-    final String desiredCurrency = desiredValue.getConstraint(ValuePropertyNames.CURRENCY);
+    final String desiredCurrency;
+    final Set<String> currencies = desiredValue.getConstraints().getValues(ValuePropertyNames.CURRENCY);
+    if (currencies != null && !currencies.isEmpty()) {
+      desiredCurrency = desiredValue.getConstraint(ValuePropertyNames.CURRENCY);
+    } else {
+      desiredCurrency = currencyString;
+    }
     final String curveCalculationConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     final Set<String> yieldCurveNames = constraints.getValues(ValuePropertyNames.CURVE);
     final Period samplingPeriod = getSamplingPeriod(desiredValue.getConstraint(ValuePropertyNames.SAMPLING_PERIOD));
