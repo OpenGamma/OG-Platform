@@ -148,6 +148,10 @@ import com.opengamma.util.tuple.Pair;
     return getDependencyGraph(graphId).getData(viewportId);
   }
 
+  /* package */ DependencyGraphViewport getViewport(String graphId, String viewportId) {
+    return getDependencyGraph(graphId).getViewport(viewportId);
+  }
+
   /* package */ List<String> getDependencyGraphGridIds() {
     List<String> gridIds = new ArrayList<String>();
     for (AnalyticsGrid grid : _depGraphs.values()) {
