@@ -8,6 +8,7 @@ package com.opengamma.component;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -15,13 +16,18 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 import javax.servlet.ServletContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
+import org.springframework.jmx.export.MBeanExporter;
+import org.springframework.jmx.support.JmxUtils;
 import org.springframework.web.context.ServletContextAware;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.rest.RestComponents;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ReflectionUtils;
@@ -68,6 +74,10 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * The objects with {@code ServletContextAware}.
    */
   private final List<ServletContextAware> _servletContextAware = new ArrayList<ServletContextAware>();
+  /**
+   * The objects that should be registered as managed resources.
+   */
+  private final List<Object> _managedResources = new LinkedList<Object>();
   /**
    * The status.
    */
@@ -529,6 +539,35 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
 
   //-------------------------------------------------------------------------
   /**
+   * Registers an instance that should be treated as a JMX Managed Resource
+   * 
+   * @param managedResource the object that should be treated as an MBean
+   */
+  public void registerMBean(Object managedResource) {
+    ArgumentChecker.notNull(managedResource, "managedResource");
+    checkStatus(Status.CREATING);
+    
+    try {
+      registerMBean0(managedResource);
+      registered(null, managedResource);
+      
+    } catch (RuntimeException ex) {
+      _status.set(Status.FAILED);
+      throw new RuntimeException("Failed during registering ManagedResource: " + managedResource, ex);
+    }
+  }
+
+  /**
+   * Registers an instance that should be treated as a JMX Managed Resource
+   * 
+   * @param managedResource the object that should be treated as an MBean
+   */
+  private void registerMBean0(Object managedResource) {
+    _managedResources.add(managedResource);
+  }
+  
+  //-------------------------------------------------------------------------
+  /**
    * Called whenever an instance is registered.
    * 
    * @param registeredKey  the key or info of the instance that was registered, null if not a component
@@ -563,11 +602,20 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
       for (Lifecycle obj : _lifecycles) {
         obj.start();
       }
+      MBeanExporter exporter = new MBeanExporter();
+      exporter.setServer(JmxUtils.locateMBeanServer());
+      for (Object managedResource : _managedResources) {
+        ObjectName objectName = new ObjectName("com.opengamma:name=" + managedResource.getClass().getSimpleName());
+        exporter.registerManagedResource(managedResource, objectName);
+      }
       _status.set(Status.RUNNING);
       
     } catch (RuntimeException ex) {
       _status.set(Status.FAILED);
       throw ex;
+    } catch (MalformedObjectNameException ex) {
+      _status.set(Status.FAILED);
+      throw new OpenGammaRuntimeException("Failed to start component repository", ex);
     }
   }
 
