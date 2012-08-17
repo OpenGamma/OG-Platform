@@ -5,7 +5,7 @@ package com.opengamma.analytics.financial.credit.cds;
  * 
  * @author Niels Stchedroff
  */
-public enum TestGridFields {
+public enum ISDATestGridFields {
 	START_DATE("Start Date"),
 	CASH_SETTLE("Cash Settle"),
 	ACCRUED_PREMIUM("Accrued Premium"),
@@ -28,7 +28,7 @@ public enum TestGridFields {
 		return _heading;
 	}
 
-	private TestGridFields(String _heading) 
+	private ISDATestGridFields(String _heading) 
 	{
 		this._heading = _heading;
 	}

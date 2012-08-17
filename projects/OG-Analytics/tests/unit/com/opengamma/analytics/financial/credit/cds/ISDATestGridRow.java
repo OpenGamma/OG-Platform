@@ -7,11 +7,11 @@ import javax.time.calendar.LocalDate;
  * 
  * @author Niels Stchedroff
  */
-public class TestGridRow extends TestGrid {
+public class ISDATestGridRow extends ISDATestGrid {
 
 	private Object[] _rowData;
 
-	public TestGridRow(Object[] rowData) {
+	public ISDATestGridRow(Object[] rowData) {
 		_rowData = rowData;
 	}
 	
@@ -20,7 +20,7 @@ public class TestGridRow extends TestGrid {
 	 */
 	public LocalDate getTradeDate()
 	{
-		Object data = _rowData[TestGrid.getHeadingIndex().get(TestGridFields.TRADE_DATE)];
+		Object data = _rowData[ISDATestGrid.getHeadingIndex().get(ISDATestGridFields.TRADE_DATE)];
 		if(data instanceof LocalDate)
 		{
 			return (LocalDate) data;
@@ -35,7 +35,7 @@ public class TestGridRow extends TestGrid {
 	 */
 	public LocalDate getMaturityDate()
 	{
-		Object data = _rowData[TestGrid.getHeadingIndex().get(TestGridFields.MATURITY_DATE)];
+		Object data = _rowData[ISDATestGrid.getHeadingIndex().get(ISDATestGridFields.MATURITY_DATE)];
 		if(data instanceof LocalDate)
 		{
 			return (LocalDate) data;
@@ -46,13 +46,13 @@ public class TestGridRow extends TestGrid {
 	
 	public String getCurrency()
 	{
-		Object data = _rowData[TestGrid.getHeadingIndex().get(TestGridFields.CURRENCY)];
+		Object data = _rowData[ISDATestGrid.getHeadingIndex().get(ISDATestGridFields.CURRENCY)];
 		return data.toString();	
 	}
 	
 	public double getCoupon()
 	{
-		Object data = _rowData[TestGrid.getHeadingIndex().get(TestGridFields.COUPON)];
+		Object data = _rowData[ISDATestGrid.getHeadingIndex().get(ISDATestGridFields.COUPON)];
 		if(data instanceof Double)
 		{
 			return (Double) data;
@@ -63,7 +63,7 @@ public class TestGridRow extends TestGrid {
 	
 	public double getQuotedSpread()
 	{
-		Object data = _rowData[TestGrid.getHeadingIndex().get(TestGridFields.QUOTED_SPREAD)];
+		Object data = _rowData[ISDATestGrid.getHeadingIndex().get(ISDATestGridFields.QUOTED_SPREAD)];
 		if(data instanceof Double)
 		{
 			return (Double) data;
@@ -74,7 +74,7 @@ public class TestGridRow extends TestGrid {
 	
 	public double getRecoveryRate()
 	{
-		Object data = _rowData[TestGrid.getHeadingIndex().get(TestGridFields.RECOVERY)];
+		Object data = _rowData[ISDATestGrid.getHeadingIndex().get(ISDATestGridFields.RECOVERY)];
 		if(data instanceof Double)
 		{
 			return (Double) data;
@@ -85,7 +85,7 @@ public class TestGridRow extends TestGrid {
 	
 	public double getUpfront()
 	{
-		Object data = _rowData[TestGrid.getHeadingIndex().get(TestGridFields.UPFRONT)];
+		Object data = _rowData[ISDATestGrid.getHeadingIndex().get(ISDATestGridFields.UPFRONT)];
 		if(data instanceof Double)
 		{
 			return (Double) data;
@@ -96,7 +96,7 @@ public class TestGridRow extends TestGrid {
 	
 	public double getCleanPrice()
 	{
-		Object data = _rowData[TestGrid.getHeadingIndex().get(TestGridFields.CLEAN_PRICE)];
+		Object data = _rowData[ISDATestGrid.getHeadingIndex().get(ISDATestGridFields.CLEAN_PRICE)];
 		if(data instanceof Double)
 		{
 			return (Double) data;
@@ -107,7 +107,7 @@ public class TestGridRow extends TestGrid {
 	
 	public double getDaysAccrued()
 	{
-		Object data = _rowData[TestGrid.getHeadingIndex().get(TestGridFields.DAYS_ACCRUED)];
+		Object data = _rowData[ISDATestGrid.getHeadingIndex().get(ISDATestGridFields.DAYS_ACCRUED)];
 		if(data instanceof Double)
 		{
 			return (Double) data;
@@ -118,7 +118,7 @@ public class TestGridRow extends TestGrid {
 	
 	public double getAccruedPremium()
 	{
-		Object data = _rowData[TestGrid.getHeadingIndex().get(TestGridFields.ACCRUED_PREMIUM)];
+		Object data = _rowData[ISDATestGrid.getHeadingIndex().get(ISDATestGridFields.ACCRUED_PREMIUM)];
 		if(data instanceof Double)
 		{
 			return (Double) data;
@@ -129,7 +129,7 @@ public class TestGridRow extends TestGrid {
 	
 	public LocalDate getCashSettle()
 	{
-		Object data = _rowData[TestGrid.getHeadingIndex().get(TestGridFields.CASH_SETTLE)];
+		Object data = _rowData[ISDATestGrid.getHeadingIndex().get(ISDATestGridFields.CASH_SETTLE)];
 		if(data instanceof LocalDate)
 		{
 			return (LocalDate) data;
@@ -144,7 +144,7 @@ public class TestGridRow extends TestGrid {
 	
 	public LocalDate getStartDate()
 	{
-		Object data = _rowData[TestGrid.getHeadingIndex().get(TestGridFields.START_DATE)];
+		Object data = _rowData[ISDATestGrid.getHeadingIndex().get(ISDATestGridFields.START_DATE)];
 		if(data instanceof LocalDate)
 		{
 			return (LocalDate) data;

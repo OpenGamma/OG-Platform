@@ -1,7 +1,10 @@
 package com.opengamma.analytics.financial.credit.cds;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.format.DateTimeFormatter;
@@ -10,14 +13,47 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-@SuppressWarnings("restriction")
-public abstract class IsdaTestManager {
+public class ISDAStagedTestManager {
 	
-	private static DateTimeFormatter formatter = DateTimeFormatters
-			.pattern("dd_MM_yyyy");
+  private static Pattern gridRegex = Pattern.compile("([A-Z]{3}+)_([0-9]{8}+)\\.xls", Pattern.CASE_INSENSITIVE);
+  
+  private static DateTimeFormatter gridFormatter = DateTimeFormatters.pattern("yyyyMMdd");
+  
+	private static DateTimeFormatter stagedFormatter = DateTimeFormatters.pattern("dd_MM_yyyy");
 	
-	private static DateTimeFormatter formatter2 = DateTimeFormatters
-			.pattern("yyyyMMdd");
+	private static String stagedXmlDirectory = "resources" + File.separator + "isda_test_grids_xml";
+	private static String stagedXmlBaseFileName = "IsdaTestGrid_";
+	
+	public ISDAStagedTest loadStagedTestForGrid(final String gridFilename) throws IOException, JAXBException {
+	  
+	  InputStream is = null;
+	  
+	  try {
+	    
+  	  final Matcher matcher = gridRegex.matcher(gridFilename);
+  	  
+  	  if (!matcher.matches()) {
+  	    return null;
+  	  }
+  	    
+  	  final LocalDate testDate = LocalDate.parse(matcher.group(2), gridFormatter);
+  	  final String path = stagedXmlDirectory + File.separator + stagedXmlBaseFileName + matcher.group(1) + "_" + testDate.toString(stagedFormatter) + ".xml";
+  	  is = getClass().getClassLoader().getResourceAsStream(path);
+  	  
+  	  if (is == null) {
+  	    return null;
+  	  }
+  	    
+	    final JAXBContext jaxbContext = JAXBContext.newInstance(ISDAStagedTest.class);
+	    final Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+	    return  (ISDAStagedTest) jaxbUnmarshaller.unmarshal(is);
+	  }
+	  finally {
+	    if (is != null) {
+	      is.close();
+	    }
+	  }
+	}
 	
 	public static final String[][] tests = { {"CAD","01_05_2009"},
 			{"CAD","01_06_2009"},
@@ -159,9 +195,9 @@ public abstract class IsdaTestManager {
 			{"USD","29_05_2009"} };
 	
 	
-	public static IsdaTest[] getAllTests() throws JAXBException
+	public static ISDAStagedTest[] getAllTests() throws JAXBException
 	{
-		IsdaTest[] result = new IsdaTest[tests.length];
+		ISDAStagedTest[] result = new ISDAStagedTest[tests.length];
 		for (int i = 0; i < tests.length; i++) {
 
 			InputStream is = getFileInputStream(getTestFileName(i));
@@ -190,8 +226,8 @@ public abstract class IsdaTestManager {
 	{
 		String currency = getTestCurrency(i);
 		String dateStr = getTestDate(i);
-		LocalDate date = LocalDate.parse(dateStr, formatter);
-		return currency + "_" + date.toString(formatter2) + ".xls";
+		LocalDate date = LocalDate.parse(dateStr, stagedFormatter);
+		return currency + "_" + date.toString(gridFormatter) + ".xls";
 	}
 	
 	/**
@@ -202,11 +238,11 @@ public abstract class IsdaTestManager {
 	 * @return The Interest Rate Curve object
 	 * @throws JAXBException
 	 */
-	public static IsdaTest getGridTest(InputStream is)
+	public static ISDAStagedTest getGridTest(InputStream is)
 			throws JAXBException {
-		JAXBContext jaxbContext = JAXBContext.newInstance(IsdaTest.class);
+		JAXBContext jaxbContext = JAXBContext.newInstance(ISDAStagedTest.class);
 		Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-		IsdaTest isdaTest = (IsdaTest) jaxbUnmarshaller
+		ISDAStagedTest isdaTest = (ISDAStagedTest) jaxbUnmarshaller
 				.unmarshal(is);
 		return isdaTest;
 	}
@@ -217,7 +253,7 @@ public abstract class IsdaTestManager {
 	 * @return The input stream to the file
 	 */
 	public static InputStream getFileInputStream(String fileName) {
-		return IsdaTestManager.class.getClassLoader().getResourceAsStream(
+		return ISDAStagedTestManager.class.getClassLoader().getResourceAsStream(
 				fileName);
 	}
 

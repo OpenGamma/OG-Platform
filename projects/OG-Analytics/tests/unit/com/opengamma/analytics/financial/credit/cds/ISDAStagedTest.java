@@ -101,12 +101,12 @@ import javax.xml.bind.annotation.XmlType;
     "grid"
 })
 @XmlRootElement(name = "isdaTest")
-public class IsdaTest {
+public class ISDAStagedTest {
 
     @XmlElement(name = "IRCurve", required = true)
-    protected IsdaTest.IRCurve irCurve;
+    protected ISDAStagedTest.IRCurve irCurve;
     @XmlElement(required = true)
-    protected IsdaTest.Grid grid;
+    protected ISDAStagedTest.Grid grid;
 
     /**
      * Gets the value of the irCurve property.
@@ -116,7 +116,7 @@ public class IsdaTest {
      *     {@link IsdaTest.IRCurve }
      *     
      */
-    public IsdaTest.IRCurve getIRCurve() {
+    public ISDAStagedTest.IRCurve getIRCurve() {
         return irCurve;
     }
 
@@ -128,7 +128,7 @@ public class IsdaTest {
      *     {@link IsdaTest.IRCurve }
      *     
      */
-    public void setIRCurve(IsdaTest.IRCurve value) {
+    public void setIRCurve(ISDAStagedTest.IRCurve value) {
         this.irCurve = value;
     }
 
@@ -140,7 +140,7 @@ public class IsdaTest {
      *     {@link IsdaTest.Grid }
      *     
      */
-    public IsdaTest.Grid getGrid() {
+    public ISDAStagedTest.Grid getGrid() {
         return grid;
     }
 
@@ -152,7 +152,7 @@ public class IsdaTest {
      *     {@link IsdaTest.Grid }
      *     
      */
-    public void setGrid(IsdaTest.Grid value) {
+    public void setGrid(ISDAStagedTest.Grid value) {
         this.grid = value;
     }
 
@@ -217,7 +217,7 @@ public class IsdaTest {
     public static class Grid {
 
         @XmlElement(required = true)
-        protected List<IsdaTest.Grid.GridTest> gridTest;
+        protected List<ISDAStagedTest.Grid.GridTest> gridTest;
 
         /**
          * Gets the value of the gridTest property.
@@ -241,9 +241,9 @@ public class IsdaTest {
          * 
          * 
          */
-        public List<IsdaTest.Grid.GridTest> getGridTest() {
+        public List<ISDAStagedTest.Grid.GridTest> getGridTest() {
             if (gridTest == null) {
-                gridTest = new ArrayList<IsdaTest.Grid.GridTest>();
+                gridTest = new ArrayList<ISDAStagedTest.Grid.GridTest>();
             }
             return this.gridTest;
         }
@@ -332,7 +332,7 @@ public class IsdaTest {
             @XmlElement(required = true)
             protected String dirtyResult;
             @XmlElement(required = true)
-            protected IsdaTest.Grid.GridTest.HazardCurve hazardCurve;
+            protected ISDAStagedTest.Grid.GridTest.HazardCurve hazardCurve;
 
             /**
              * Gets the value of the today property.
@@ -606,7 +606,7 @@ public class IsdaTest {
              *     {@link IsdaTest.Grid.GridTest.HazardCurve }
              *     
              */
-            public IsdaTest.Grid.GridTest.HazardCurve getHazardCurve() {
+            public ISDAStagedTest.Grid.GridTest.HazardCurve getHazardCurve() {
                 return hazardCurve;
             }
 
@@ -618,7 +618,7 @@ public class IsdaTest {
              *     {@link IsdaTest.Grid.GridTest.HazardCurve }
              *     
              */
-            public void setHazardCurve(IsdaTest.Grid.GridTest.HazardCurve value) {
+            public void setHazardCurve(ISDAStagedTest.Grid.GridTest.HazardCurve value) {
                 this.hazardCurve = value;
             }
 
@@ -661,7 +661,7 @@ public class IsdaTest {
                 @XmlElement(required = true)
                 protected String dayCountConv;
                 @XmlElement(required = true)
-                protected Points points;
+                protected ISDAStagedTestPoints points;
 
                 /**
                  * Gets the value of the baseDate property.
@@ -743,7 +743,7 @@ public class IsdaTest {
                  *     {@link Points }
                  *     
                  */
-                public Points getPoints() {
+                public ISDAStagedTestPoints getPoints() {
                     return points;
                 }
 
@@ -755,7 +755,7 @@ public class IsdaTest {
                  *     {@link Points }
                  *     
                  */
-                public void setPoints(Points value) {
+                public void setPoints(ISDAStagedTestPoints value) {
                     this.points = value;
                 }
 
@@ -808,7 +808,7 @@ public class IsdaTest {
         @XmlElement(required = true)
         protected String dayCountConv;
         @XmlElement(required = true)
-        protected Points points;
+        protected ISDAStagedTestPoints points;
 
         /**
          * Gets the value of the originalIRCurveDate property.
@@ -914,7 +914,7 @@ public class IsdaTest {
          *     {@link Points }
          *     
          */
-        public Points getPoints() {
+        public ISDAStagedTestPoints getPoints() {
             return points;
         }
 
@@ -926,7 +926,7 @@ public class IsdaTest {
          *     {@link Points }
          *     
          */
-        public void setPoints(Points value) {
+        public void setPoints(ISDAStagedTestPoints value) {
             this.points = value;
         }
 

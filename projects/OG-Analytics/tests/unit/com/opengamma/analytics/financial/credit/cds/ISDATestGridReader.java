@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public abstract class ReadTestGridFiles {
+public abstract class ISDATestGridReader {
 
 	private static void readTheTests() throws InterruptedException, IOException {
 		for (int i = 0; i < testGrids.length; i++) {
@@ -26,16 +26,16 @@ public abstract class ReadTestGridFiles {
 
 				// Yes, ancient format excel :-)
 				Workbook wb = new HSSFWorkbook(is);
-				TestGrid testGrid = getTestGrid(wb);
+				ISDATestGrid testGrid = getTestGrid(wb);
 
 			} catch (IOException e) {
 			}
 		}
 	}
 
-	private static TestGrid getTestGrid(Workbook wb)
+	private static ISDATestGrid getTestGrid(Workbook wb)
 			throws InterruptedException {
-		TestGrid testGrid = new TestGrid();
+		ISDATestGrid testGrid = new ISDATestGrid();
 		// Assuming the first sheet
 		Sheet sheet = wb.getSheetAt(0);
 		testGrid.process(sheet);
@@ -58,7 +58,7 @@ public abstract class ReadTestGridFiles {
 	private static DateTimeFormatter formatter = DateTimeFormatters
 			.pattern("yyyyMMdd");
 	private static final Logger s_logger = LoggerFactory
-			.getLogger(ReadTestGridFiles.class);
+			.getLogger(ISDATestGridReader.class);
 	public static final String[] testGrids = { "AUD_20090908.xls",
 			"AUD_20090909.xls", "AUD_20090910.xls", "AUD_20090911.xls",
 			"CAD_20090428.xls", "CAD_20090429.xls", "CAD_20090430.xls",
@@ -117,7 +117,7 @@ public abstract class ReadTestGridFiles {
 			"USD_20090911.xls" };
 
 	private static InputStream getFileInputStream(String fileName) {
-		return ReadTestGridFiles.class.getClassLoader().getResourceAsStream(
+		return ISDATestGridReader.class.getClassLoader().getResourceAsStream(
 				fileName);
 	}
 

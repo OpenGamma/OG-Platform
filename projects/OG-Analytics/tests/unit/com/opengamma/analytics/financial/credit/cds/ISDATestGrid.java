@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  * The class holds the data for one of the test grids and the associated
  * interest rate curve
  */
-public class TestGrid {
+public class ISDATestGrid {
 
 	/**
 	 * The data types we expect in the spreadsheet mapped to the POI structures
@@ -45,12 +45,12 @@ public class TestGrid {
 	}
 
 	private static final Logger s_logger = LoggerFactory
-			.getLogger(TestGrid.class);
+			.getLogger(ISDATestGrid.class);
 
-	public static final TestGridFields[] headingNames = { TestGridFields.TRADE_DATE, TestGridFields.MATURITY_DATE,
-		TestGridFields.CURRENCY, TestGridFields.COUPON, TestGridFields.QUOTED_SPREAD, TestGridFields.RECOVERY, TestGridFields.UPFRONT,
-		TestGridFields.CLEAN_PRICE, TestGridFields.DAYS_ACCRUED, TestGridFields.ACCRUED_PREMIUM, TestGridFields.CASH_SETTLE,
-		TestGridFields.START_DATE };
+	public static final ISDATestGridFields[] headingNames = { ISDATestGridFields.TRADE_DATE, ISDATestGridFields.MATURITY_DATE,
+		ISDATestGridFields.CURRENCY, ISDATestGridFields.COUPON, ISDATestGridFields.QUOTED_SPREAD, ISDATestGridFields.RECOVERY, ISDATestGridFields.UPFRONT,
+		ISDATestGridFields.CLEAN_PRICE, ISDATestGridFields.DAYS_ACCRUED, ISDATestGridFields.ACCRUED_PREMIUM, ISDATestGridFields.CASH_SETTLE,
+		ISDATestGridFields.START_DATE };
 	public static final DataTypes[] headingTypes = { DataTypes.DATE, DataTypes.DATE,
 			DataTypes.STRING, DataTypes.NUMBER, DataTypes.NUMBER,
 			DataTypes.NUMBER, DataTypes.NUMBER, DataTypes.NUMBER,
@@ -59,23 +59,23 @@ public class TestGrid {
 	/**
 	 * The test data itself
 	 */
-	private List<TestGridRow> _data = new ArrayList<TestGridRow>();
+	private List<ISDATestGridRow> _data = new ArrayList<ISDATestGridRow>();
 
 	private Set<String> _currencies = new TreeSet<String>();
 
 	private LocalDate _tradeDate;
 
 	private String _currency;
-	private static TreeMap<TestGridFields, Integer> headingIndex;
+	private static TreeMap<ISDATestGridFields, Integer> headingIndex;
 
 	private static DateTimeFormatter formatter = DateTimeFormatters
 			.pattern("yyyyMMdd");
 
-	static TreeMap<TestGridFields, Integer> getHeadingIndex()
+	static TreeMap<ISDATestGridFields, Integer> getHeadingIndex()
 	{
 		if(headingIndex == null)
 		{
-			headingIndex = new TreeMap<TestGridFields, Integer>();
+			headingIndex = new TreeMap<ISDATestGridFields, Integer>();
 			for (int i = 0; i < headingNames.length; i++) {
 				headingIndex.put(headingNames[i], i);
 			}
@@ -210,14 +210,14 @@ public class TestGrid {
 				_currencies.add((String) rowData[colIndex]);
 			}
 		}
-		getData().add(new TestGridRow(rowData));
+		getData().add(new ISDATestGridRow(rowData));
 	}
 
-	public List<TestGridRow> getData() {
+	public List<ISDATestGridRow> getData() {
 		return _data;
 	}
 
-	private void setData(List<TestGridRow> _data) {
+	private void setData(List<ISDATestGridRow> _data) {
 		this._data = _data;
 	}
 }

@@ -37,7 +37,7 @@ import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.util.money.Currency;
 
 
-public class IsdaTestHarness {
+public class ISDATestGridHarness {
   
   private static DateTimeFormatter formatter = DateTimeFormatters.pattern("dd/MM/yyyy");
   private static DayCount dayCount = new ActualThreeSixtyFive();
@@ -48,99 +48,58 @@ public class IsdaTestHarness {
   
   private List<String> badTestFiles = new ArrayList<String>();
   
+  
   @Test
-  public void runTestHarnessTest() throws JAXBException, IOException, InterruptedException 
-  {
+  public void runAllTestGrids() throws Exception {
+	  
+	  final ISDATestGridManager manager = new ISDATestGridManager();
+	  final ISDAStagedTestManager stagedManager = new ISDAStagedTestManager();
+	  final String[] testFiles = manager.findAllTestGridFiles();
+	  
+	  ISDATestGrid testGrid;
+	  ISDAStagedTest stagedTest;
+	  ISDACurve discountCurve;
+	  
+	  for (String fileName : testFiles) {
+		  
+		  testGrid = manager.loadTestGrid(fileName);
+		  stagedTest = stagedManager.loadStagedTestForGrid(fileName);
+		  
+		  if (stagedTest == null) {
+		    System.out.println("Could not load staged file for test grid: " + fileName);
+		    continue;
+		  }
+		  
+		  discountCurve = buildCurve(stagedTest.getIRCurve(), "IR_CURVE");
+		  
+		  System.out.println("Running test grid: " + fileName);
+		  runTestGrid(testGrid, stagedTest, discountCurve);
+	  }
+  }
+  
+  public void runTestGrid(ISDATestGrid testGrid, ISDAStagedTest stagedTest, ISDACurve discountCurve) {
     
+    final List<ISDAStagedTest.Grid.GridTest> stagedTestCases = stagedTest.getGrid().getGridTest();
+    int i = 0, n = stagedTestCases.size();
     
+    failures = 0;
+    maxError = 0.0;
     
-    IsdaTest[] result = IsdaTestManager.getAllTests();
-    
-    for (int i = 0; i < result.length; i++) {
+    for (ISDATestGridRow testCase : testGrid.getData()) {
       
-      failures = 0;
-      maxError = 0.0;
-      
-      IsdaTest test = result[i];
-      System.out.println( "Running grid: " + IsdaTestManager.getTestFileName(i) + ", test cases: " + test.getGrid().getGridTest().size());
-      
-      String excelFile = IsdaTestManager.getNameOfExcelTestGridFile(i);
-      TestGrid excelGrid = TestGridManager.getTestGrid(excelFile);
-      List<TestGridRow> excelRows = excelGrid.getData();
-      
-      IsdaTest.IRCurve irCurve = test.getIRCurve();
-      IsdaTest.Grid testGrid = test.getGrid();  
-      List<IsdaTest.Grid.GridTest> testList = testGrid.getGridTest();
-      
-      ISDACurve discountCurve = buildDiscountCurve(irCurve);
-      
-      for (int j = 0; j < testList.size(); j++) {
-        IsdaTest.Grid.GridTest testCase = testList.get(j);
-        TestGridRow excelRow = excelRows.get(j);
-        runTestCase(excelRow, discountCurve, testCase);
+      if (i == n) {
+        System.out.println("Limit of staged data readched, skipping remaining tests for this grid");
+        break;
       }
       
-      if (failures > 0) {
-        System.out.println( "Errors: " + failures + ", max error = " + maxError);
-        badTestFiles.add(IsdaTestManager.getTestFileName(i));
-      }
+      runTestCase(testCase, stagedTestCases.get(i++), discountCurve);
     }
     
-    System.out.println("Bad test files: " + badTestFiles);
+    System.out.println( "Failures: " + failures + ", max error: " + maxError);
   }
   
-  public ISDACurve buildDiscountCurve(IsdaTest.IRCurve irCurve) {
-    
-    // Expect all curve objects to use annual compounding
-    Assert.assertEquals(Double.valueOf(irCurve.getBasis()), 1.0);
-    
-    final LocalDate baseDate = LocalDate.parse(irCurve.getBaseDate(), formatter);
-    final int nPoints = irCurve.getPoints().getPoint().size();
-    
-    double times[] = new double[nPoints];
-    double rates[] = new double[nPoints];
-    
-    LocalDate date;
-    Double rate;
-    int i = 0;
-    
-    for (Points.Point dataPoint : irCurve.getPoints().getPoint()) {
-      date = LocalDate.parse(dataPoint.getDate(), formatter);
-      rate = (new PeriodicInterestRate(Double.valueOf(dataPoint.getRate()),1)).toContinuous().getRate();
-      times[i] = dayCount.getDayCountFraction(baseDate, date);
-      rates[i++] = rate;
-    }
-    
-    return new ISDACurve("IR_CURVE", times, rates, 0.0);
-  }
-  
-  public ISDACurve buildHazardCurve(IsdaTest.Grid.GridTest.HazardCurve hazardRateCurve) {
-    
-    // Expect all curve objects to use annual compounding
-    Assert.assertEquals(Double.valueOf(hazardRateCurve.getBasis()), 1.0);
-    
-    final LocalDate baseDate = LocalDate.parse(hazardRateCurve.getBaseDate(), formatter);
-    final int nPoints = hazardRateCurve.getPoints().getPoint().size();
-    
-    double times[] = new double[nPoints];
-    double rates[] = new double[nPoints];
-    
-    LocalDate date;
-    Double rate;
-    int i = 0;
-    
-    for (Points.Point dataPoint : hazardRateCurve.getPoints().getPoint()) {
-      date = LocalDate.parse(dataPoint.getDate(), formatter);
-      rate = (new PeriodicInterestRate(Double.valueOf(dataPoint.getRate()),1)).toContinuous().getRate();
-      times[i] = dayCount.getDayCountFraction(baseDate, date);
-      rates[i++] = rate;
-    }
-    
-    return new ISDACurve("HAZARD_RATE_CURVE", times, rates, 0.0);
-  }
-  
-  public void runTestCase(TestGridRow testCase, ISDACurve discountCurve, IsdaTest.Grid.GridTest interpretedTestCase) {
-    
+  public void runTestCase(ISDATestGridRow testCase, ISDAStagedTest.Grid.GridTest stagedTestCase, ISDACurve discountCurve) {
+       
     final Calendar calendar = new MondayToFridayCalendar("TestCalendar");
     final BusinessDayConvention convention = new FollowingBusinessDayConvention();
     final DateAdjuster adjuster = convention.getDateAdjuster(calendar);
@@ -161,7 +120,7 @@ public class IsdaTestHarness {
     final CDSDefinition cdsDefinition = new CDSDefinition(premiumDefinition, null, startDate, maturity, notional, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true, dayCount);
     
     final double marketSpread = testCase.getQuotedSpread() / 10000.0;
-    final ISDACurve hazardCurve = buildHazardCurve(interpretedTestCase.getHazardCurve());  
+    final ISDACurve hazardCurve = buildCurve(stagedTestCase.getHazardCurve(), "HAZARD_RATE_CURVE");  
     
     final ZonedDateTime pricingDate = testCase.getTradeDate().atStartOfDayInZone(TimeZone.UTC);                                          // LocalDate.parse(interpretedTestCase.getToday(), formatter)
     final ZonedDateTime stepinDate = pricingDate.plusDays(1);                                      // Step in date = T+1 calendar        // LocalDate.parse(interpretedTestCase.getStepinDate(), formatter)
@@ -170,15 +129,15 @@ public class IsdaTestHarness {
       ? testCase.getCashSettle().atStartOfDayInZone(TimeZone.UTC)
       : pricingDate.plusDays(1).with(adjuster).plusDays(1).with(adjuster).plusDays(1).with(adjuster);   // LocalDate.parse(interpretedTestCase.getValueDate(), formatter)
     
-    if (!pricingDate.equals(LocalDate.parse(interpretedTestCase.getToday(), formatter).atStartOfDayInZone(TimeZone.UTC))) {
-      throw new OpenGammaRuntimeException("price dates do not match: " + pricingDate + ", " + LocalDate.parse(interpretedTestCase.getToday(), formatter).atStartOfDayInZone(TimeZone.UTC));
+    if (!pricingDate.equals(LocalDate.parse(stagedTestCase.getToday(), formatter).atStartOfDayInZone(TimeZone.UTC))) {
+      throw new OpenGammaRuntimeException("price dates do not match: " + pricingDate + ", " + LocalDate.parse(stagedTestCase.getToday(), formatter).atStartOfDayInZone(TimeZone.UTC));
     }
     
-    if (!stepinDate.equals(LocalDate.parse(interpretedTestCase.getStepinDate(), formatter).atStartOfDayInZone(TimeZone.UTC))) {
-      System.out.println("stepin dates do not match: " + stepinDate + ", " + LocalDate.parse(interpretedTestCase.getStepinDate(), formatter).atStartOfDayInZone(TimeZone.UTC));
+    if (!stepinDate.equals(LocalDate.parse(stagedTestCase.getStepinDate(), formatter).atStartOfDayInZone(TimeZone.UTC))) {
+      System.out.println("stepin dates do not match: " + stepinDate + ", " + LocalDate.parse(stagedTestCase.getStepinDate(), formatter).atStartOfDayInZone(TimeZone.UTC));
     }
     
-    if (!settlementDate.equals(LocalDate.parse(interpretedTestCase.getValueDate(), formatter).atStartOfDayInZone(TimeZone.UTC))) {
+    if (!settlementDate.equals(LocalDate.parse(stagedTestCase.getValueDate(), formatter).atStartOfDayInZone(TimeZone.UTC))) {
       System.out.println("settlement dates do not match!");
     }
     
@@ -203,6 +162,56 @@ public class IsdaTestHarness {
     
     //Assert.assertTrue( relativeError < 1E-8 );
     
+  }  
+  
+  public ISDACurve buildCurve(final ISDAStagedTest.IRCurve curveData, final String curveName) {
+  
+    // Expect all curve objects to use annual compounding
+    Assert.assertEquals(Double.valueOf(curveData.getBasis()), 1.0);
+    
+    final LocalDate baseDate = LocalDate.parse(curveData.getBaseDate(), formatter);
+    final int nPoints = curveData.getPoints().getPoint().size();
+    
+    double times[] = new double[nPoints];
+    double rates[] = new double[nPoints];
+    
+    LocalDate date;
+    Double rate;
+    int i = 0;
+    
+    for (ISDAStagedTestPoints.Point dataPoint : curveData.getPoints().getPoint()) {
+      date = LocalDate.parse(dataPoint.getDate(), formatter);
+      rate = (new PeriodicInterestRate(Double.valueOf(dataPoint.getRate()),1)).toContinuous().getRate();
+      times[i] = dayCount.getDayCountFraction(baseDate, date);
+      rates[i++] = rate;
+    }
+    
+    return new ISDACurve(curveName, times, rates, 0.0);
+  }
+  
+  public ISDACurve buildCurve(final ISDAStagedTest.Grid.GridTest.HazardCurve curveData, final String curveName) {
+    
+    // Expect all curve objects to use annual compounding
+    Assert.assertEquals(Double.valueOf(curveData.getBasis()), 1.0);
+    
+    final LocalDate baseDate = LocalDate.parse(curveData.getBaseDate(), formatter);
+    final int nPoints = curveData.getPoints().getPoint().size();
+    
+    double times[] = new double[nPoints];
+    double rates[] = new double[nPoints];
+    
+    LocalDate date;
+    Double rate;
+    int i = 0;
+    
+    for (ISDAStagedTestPoints.Point dataPoint : curveData.getPoints().getPoint()) {
+      date = LocalDate.parse(dataPoint.getDate(), formatter);
+      rate = (new PeriodicInterestRate(Double.valueOf(dataPoint.getRate()),1)).toContinuous().getRate();
+      times[i] = dayCount.getDayCountFraction(baseDate, date);
+      rates[i++] = rate;
+    }
+    
+    return new ISDACurve(curveName, times, rates, 0.0);
   }
 
 }

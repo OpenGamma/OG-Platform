@@ -52,10 +52,10 @@ import javax.xml.bind.annotation.XmlType;
     "point"
 })
 @XmlRootElement(name = "points")
-public class Points {
+public class ISDAStagedTestPoints {
 
     @XmlElement(required = true)
-    protected List<Points.Point> point;
+    protected List<ISDAStagedTestPoints.Point> point;
 
     /**
      * Gets the value of the point property.
@@ -79,9 +79,9 @@ public class Points {
      * 
      * 
      */
-    public List<Points.Point> getPoint() {
+    public List<ISDAStagedTestPoints.Point> getPoint() {
         if (point == null) {
-            point = new ArrayList<Points.Point>();
+            point = new ArrayList<ISDAStagedTestPoints.Point>();
         }
         return this.point;
     }
