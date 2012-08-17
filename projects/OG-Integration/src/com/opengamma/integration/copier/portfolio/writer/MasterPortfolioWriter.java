@@ -71,17 +71,6 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
 
   public MasterPortfolioWriter(String portfolioName, PortfolioMaster portfolioMaster,
-      PositionMaster positionMaster, SecurityMaster securityMaster, boolean overwrite) {
-    this(portfolioName, portfolioMaster, positionMaster, securityMaster, overwrite, false);
-  }
-
-  public MasterPortfolioWriter(String portfolioName, PortfolioMaster portfolioMaster,
-      PositionMaster positionMaster, SecurityMaster securityMaster, boolean overwrite,
-      boolean mergePositions) {
-    this(portfolioName, portfolioMaster, positionMaster, securityMaster, overwrite, mergePositions, false);
-  }
-
-  public MasterPortfolioWriter(String portfolioName, PortfolioMaster portfolioMaster,
       PositionMaster positionMaster, SecurityMaster securityMaster, boolean overwrite,
       boolean mergePositions, boolean keepCurrentPositions)  {
 
