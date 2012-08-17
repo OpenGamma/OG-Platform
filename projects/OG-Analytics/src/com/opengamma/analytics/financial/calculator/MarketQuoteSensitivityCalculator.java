@@ -14,10 +14,10 @@ import java.util.Set;
 import com.opengamma.analytics.financial.curve.AbstractParameterSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.math.matrix.ColtMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
+import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -28,7 +28,7 @@ public final class MarketQuoteSensitivityCalculator {
   /**
    * The matrix algebra used for matrix inversion.
    */
-  private static final MatrixAlgebra MATRIX_ALGEBRA = new ColtMatrixAlgebra(); //TODO make this a parameter
+  private static final MatrixAlgebra MATRIX_ALGEBRA = new OGMatrixAlgebra(); //TODO make this a parameter  //ColtMatrixAlgebra()
   /**
    * The parameter sensitivity calculator. The parameters are the parameters used to described the curve.
    */

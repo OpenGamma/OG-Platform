@@ -83,8 +83,13 @@ public class MasterPortfolioReader implements PortfolioReader {
     if (positionId == null) {
       return null;
     } else {
-      ManageablePosition position = _positionMaster.get(positionId, VersionCorrection.LATEST).getPosition();
-      
+      ManageablePosition position;
+      try {
+      position = _positionMaster.get(positionId, VersionCorrection.LATEST).getPosition();
+      } catch (Throwable t) {
+        return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(null, null);
+      }
+
       // Write the related security(ies)
       ManageableSecurityLink sLink = position.getSecurityLink();
       Security security = sLink.resolveQuiet(_securitySource);

@@ -75,6 +75,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
 
   private DistributionSpecificationResolver _distributionSpecificationResolver = new NaiveDistributionSpecificationResolver();
   private LiveDataEntitlementChecker _entitlementChecker = new PermissiveLiveDataEntitlementChecker();
+  private LastKnownValueStoreProvider _lkvStoreProvider = new MapLastKnownValueStoreProvider();
   
   private volatile ConnectionStatus _connectionStatus = ConnectionStatus.NOT_CONNECTED;
 
@@ -146,6 +147,22 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   
   public String getDefaultNormalizationRuleSetId() {
     return StandardRules.getOpenGammaRuleSetId();
+  }
+
+  /**
+   * Gets the lkvStoreProvider.
+   * @return the lkvStoreProvider
+   */
+  public LastKnownValueStoreProvider getLkvStoreProvider() {
+    return _lkvStoreProvider;
+  }
+
+  /**
+   * Sets the lkvStoreProvider.
+   * @param lkvStoreProvider  the lkvStoreProvider
+   */
+  public void setLkvStoreProvider(LastKnownValueStoreProvider lkvStoreProvider) {
+    _lkvStoreProvider = lkvStoreProvider;
   }
 
   /**
@@ -413,7 +430,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
             continue;
           }
           
-          subscription = new Subscription(securityUniqueId, getMarketDataSenderFactory());
+          subscription = new Subscription(securityUniqueId, getMarketDataSenderFactory(), getLkvStoreProvider());
           subscription.createDistributor(distributionSpec, persistent);
           securityUniqueId2NewSubscription.put(subscription.getSecurityUniqueId(), subscription);
           securityUniqueId2SpecFromClient.put(subscription.getSecurityUniqueId(), specFromClient);

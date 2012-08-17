@@ -213,6 +213,15 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
           security = swapSecurity;
           break;
         }
+        case SWAP_12M: {
+          final SwapSecurity swapSecurity = getSwap(curveSpecification, strip, marketValues, Tenor.ONE_YEAR);
+          if (swapSecurity == null) {
+            throw new OpenGammaRuntimeException("Could not resolve swap curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
+          }
+          maturity = swapSecurity.getMaturityDate();
+          security = swapSecurity;
+          break;
+        }
         case TENOR_SWAP:
           final SwapSecurity tenorSwapSecurity = getTenorSwap(curveSpecification, strip, marketValues);
           if (tenorSwapSecurity == null) {

@@ -11,6 +11,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.swap.SwapXCcyIborIborDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -22,7 +23,7 @@ import com.opengamma.util.ArgumentChecker;
 public class GeneratorSwapXCcyIborIbor extends Generator {
 
   /**
-   * The Ibor index of the first leg.
+   * The Ibor index of the first leg. The spread is added to this leg.
    */
   private final IborIndex _iborIndex1;
   /**
@@ -123,13 +124,28 @@ public class GeneratorSwapXCcyIborIbor extends Generator {
     return _endOfMonth;
   }
 
+  /**
+   * Generate the cross-currency swap from the spread and the FX exchange rate.
+   * @param date The reference date (the effective date of the swap will be the spot lag of the generator after the reference date).
+   * @param tenor The swap tenor.
+   * @param spread The spread above the index (is applied to the first leg).
+   * @param notional The notional of the second leg. The first leg notional is that number multiplied by the FX rate (see below).
+   * @param objects The FX rate used to build the swap. Can be as a rate (Double) directly. In that case it should be the ccy2/ccy1 rate.
+   * Or as a FXMatrix and the correct rate is used.
+   * @return The cross-currency swap.
+   */
   @Override
   public SwapXCcyIborIborDefinition generateInstrument(ZonedDateTime date, Period tenor, double spread, double notional, Object... objects) {
     ArgumentChecker.isTrue(objects.length == 1, "Forex rate required");
-    ArgumentChecker.isTrue(objects[0] instanceof Double, "forex rate should be a double");
-    Double fx = (Double) objects[0];
+    ArgumentChecker.isTrue((objects[0] instanceof Double) || (objects[0] instanceof FXMatrix), "forex rate should be a double");
+    Double fx;
+    if (objects[0] instanceof Double) {
+      fx = (Double) objects[0];
+    } else {
+      fx = ((FXMatrix) objects[0]).getFxRate(_iborIndex2.getCurrency(), _iborIndex1.getCurrency());
+    }
     final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(date, _spotLag, _iborIndex1.getCalendar());
-    return SwapXCcyIborIborDefinition.from(startDate, tenor, this, notional, notional * fx, spread, true);
+    return SwapXCcyIborIborDefinition.from(startDate, tenor, this, fx * notional, notional, spread, true);
   }
 
   @Override

@@ -47,4 +47,14 @@ public abstract class GeneratorCurve {
     return this;
   }
 
+  /**
+   * The initial guess of parameters can be very different for different curve descriptions (in particular for functional curves).
+   * The method produce a set of initial guess parameters from the instruments "rates". By default it simply return the rates.
+   * @param rates The instrument estimated rates.
+   * @return The initial parameters guess.
+   */
+  public double[] initialGuess(double[] rates) {
+    return rates;
+  }
+
 }

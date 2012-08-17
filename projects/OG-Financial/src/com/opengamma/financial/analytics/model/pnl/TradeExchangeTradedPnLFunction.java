@@ -47,7 +47,7 @@ public class TradeExchangeTradedPnLFunction extends AbstractTradeOrDailyPosition
     if (security instanceof FXForwardSecurity || security instanceof FXOptionSecurity || security instanceof FXBarrierOptionSecurity || security instanceof FXDigitalOptionSecurity) {
       return false;
     }
-    return (target.getType() == ComputationTargetType.TRADE && (FinancialSecurityUtils.isExchangedTraded(security)) || security instanceof BondSecurity);
+    return (target.getType() == ComputationTargetType.TRADE && (FinancialSecurityUtils.isExchangeTraded(security)) || security instanceof BondSecurity);
   }
 
   @Override

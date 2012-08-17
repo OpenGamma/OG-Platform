@@ -56,10 +56,9 @@ public final class CouponOISDiscountingMethod implements PricingMethod {
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(coupon.getForwardCurveName());
     final YieldAndDiscountCurve discountingCurve = curves.getCurve(coupon.getFundingCurveName());
-    final double forward = (forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTime()) / forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTime()) - 1)
-        / coupon.getFixingPeriodAccrualFactor();
+    final double ratio = forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTime()) / forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTime());
     final double df = discountingCurve.getDiscountFactor(coupon.getPaymentTime());
-    final double value = coupon.getNotionalAccrued() * coupon.getPaymentYearFraction() * forward * df;
+    final double value = (coupon.getNotionalAccrued() * ratio - coupon.getNotional()) * df;
     return CurrencyAmount.of(coupon.getCurrency(), value);
   }
 
@@ -81,15 +80,15 @@ public final class CouponOISDiscountingMethod implements PricingMethod {
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(coupon.getForwardCurveName());
     final YieldAndDiscountCurve discountingCurve = curves.getCurve(coupon.getFundingCurveName());
     final double df = discountingCurve.getDiscountFactor(coupon.getPaymentTime());
-    final double dfForwardStart = forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTime());
-    final double dfForwardEnd = forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTime());
-    final double forward = (dfForwardStart / dfForwardEnd - 1.0) / coupon.getFixingPeriodAccrualFactor();
+    final double dfRatioStart = forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTime());
+    final double dfRatioEnd = forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTime());
+    final double ratio = dfRatioStart / dfRatioEnd;
     // Backward sweep
     final double pvBar = 1.0;
-    final double forwardBar = coupon.getNotionalAccrued() * coupon.getPaymentYearFraction() * df * pvBar;
-    final double dfForwardEndBar = -dfForwardStart / (dfForwardEnd * dfForwardEnd) / coupon.getFixingPeriodAccrualFactor() * forwardBar;
-    final double dfForwardStartBar = 1.0 / (coupon.getFixingPeriodAccrualFactor() * dfForwardEnd) * forwardBar;
-    final double dfBar = coupon.getNotionalAccrued() * coupon.getPaymentYearFraction() * forward * pvBar;
+    final double ratioBar = coupon.getNotionalAccrued() * df * pvBar;
+    final double dfRatioEndBar = -dfRatioStart / (dfRatioEnd * dfRatioEnd) * ratioBar;
+    final double dfRatioStartBar = 1.0 / dfRatioEnd * ratioBar;
+    final double dfBar = (coupon.getNotionalAccrued() * ratio - coupon.getNotional()) * pvBar;
     final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
     listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), -coupon.getPaymentTime() * df * dfBar));
@@ -97,15 +96,15 @@ public final class CouponOISDiscountingMethod implements PricingMethod {
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMapDsc);
     final Map<String, List<DoublesPair>> resultMapFwd = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> listForward = new ArrayList<DoublesPair>();
-    listForward.add(new DoublesPair(coupon.getFixingPeriodStartTime(), -coupon.getFixingPeriodStartTime() * dfForwardStart * dfForwardStartBar));
-    listForward.add(new DoublesPair(coupon.getFixingPeriodEndTime(), -coupon.getFixingPeriodEndTime() * dfForwardEnd * dfForwardEndBar));
+    listForward.add(new DoublesPair(coupon.getFixingPeriodStartTime(), -coupon.getFixingPeriodStartTime() * dfRatioStart * dfRatioStartBar));
+    listForward.add(new DoublesPair(coupon.getFixingPeriodEndTime(), -coupon.getFixingPeriodEndTime() * dfRatioEnd * dfRatioEndBar));
     resultMapFwd.put(coupon.getForwardCurveName(), listForward);
     result = result.plus(new InterestRateCurveSensitivity(resultMapFwd));
     return result;
   }
 
   /**
-   * Computes the par rate.
+   * Computes the par rate, i.e. the fair rate for the remaining period. 
    * @param coupon The coupon.
    * @param curves The curves.
    * @return The par rate.

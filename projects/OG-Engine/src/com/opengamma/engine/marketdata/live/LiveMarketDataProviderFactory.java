@@ -30,19 +30,13 @@ public class LiveMarketDataProviderFactory implements MarketDataProviderFactory 
     _namedFactories = ImmutableMap.copyOf(namedFactories);
   }
 
-/*
-  public LiveMarketDataProviderFactory(MarketDataProvider defaultProvider, Map<String, MarketDataProvider> sourceToProviderMap) {
-    throw new UnsupportedOperationException();
-  }
-*/
-
   @Override
   public MarketDataProvider create(UserPrincipal user, MarketDataSpecification marketDataSpec) {
     ArgumentChecker.notNull(user, "user");
     ArgumentChecker.notNull(marketDataSpec, "marketDataSpec");
     LiveMarketDataSpecification liveSpec = (LiveMarketDataSpecification) marketDataSpec;
     if (liveSpec.getDataSource() == null) {
-      _defaultFactory.create(user);
+      return _defaultFactory.create(user);
     }
     LiveDataFactory liveDataFactory = _namedFactories.get(liveSpec.getDataSource());
     if (liveDataFactory == null) {

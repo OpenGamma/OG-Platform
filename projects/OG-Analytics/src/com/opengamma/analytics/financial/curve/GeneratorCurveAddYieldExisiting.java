@@ -60,4 +60,10 @@ public class GeneratorCurveAddYieldExisiting extends GeneratorCurve {
     YieldAndDiscountCurve newCurve = _generator.generateCurve(name + "-0", bundle, parameters);
     return new YieldAndDiscountAddZeroSpreadCurve(name, _substract, existingCurve, newCurve);
   }
+
+  @Override
+  public GeneratorCurve finalGenerator(Object data) {
+    return new GeneratorCurveAddYieldExisiting(_generator.finalGenerator(data), _substract, _existingCurveName);
+  }
+
 }

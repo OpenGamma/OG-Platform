@@ -24,6 +24,10 @@ public class CurveBuildingGeneratorFunction extends YieldCurveBundleBuildingFunc
    * The map with the curve names and the related generators.
    */
   private final LinkedHashMap<String, GeneratorCurve> _curveGenerators;
+  /**
+   * The yield curve bundle with known data (curves).
+   */
+  private final YieldCurveBundle _knownData;
 
   /**
    * Constructor
@@ -32,11 +36,31 @@ public class CurveBuildingGeneratorFunction extends YieldCurveBundleBuildingFunc
   public CurveBuildingGeneratorFunction(LinkedHashMap<String, GeneratorCurve> curveGenerators) {
     ArgumentChecker.notNull(curveGenerators, "Curve generator map");
     _curveGenerators = curveGenerators;
+    _knownData = new YieldCurveBundle();
+  }
+
+  /**
+   * Constructor
+   * @param curveGenerators The curve constructor. The order is important.
+   * @param knownData The yield curve bundle with known data (curves).
+   */
+  public CurveBuildingGeneratorFunction(LinkedHashMap<String, GeneratorCurve> curveGenerators, final YieldCurveBundle knownData) {
+    ArgumentChecker.notNull(curveGenerators, "Curve generator map");
+    _curveGenerators = curveGenerators;
+    _knownData = knownData;
+  }
+
+  /**
+   * Gets the know curves.
+   * @return The known curves.
+   */
+  public YieldCurveBundle getKnownData() {
+    return _knownData;
   }
 
   @Override
   public YieldCurveBundle evaluate(DoubleMatrix1D x) {
-    YieldCurveBundle bundle = new YieldCurveBundle();
+    YieldCurveBundle bundle = _knownData.copy();
     Set<String> names = _curveGenerators.keySet();
     int index = 0;
     for (String name : names) {

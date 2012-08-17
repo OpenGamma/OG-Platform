@@ -23,10 +23,10 @@ import com.opengamma.analytics.math.statistics.distribution.fnlib.DERFC;
  * f(x) = \frac{1}{\sqrt{2\pi}\sigma} e^{-\frac{(x - \mu)^2}{2\sigma^2}}
  * \end{align*}
  * $$
- * where $\mu$ is the mean and $\sigma$ the standard deviation of 
+ * where $\mu$ is the mean and $\sigma$ the standard deviation of
  * the distribution.
  * <p>
- * For values of the cumulative distribution function $|x| > 7.6$ this class calculates the cdf 
+ * For values of the cumulative distribution function $|x| > 7.6$ this class calculates the cdf
  * directly. For all other methods and values of $x$, this class is a wrapper for the
  * <a href="http://acs.lbl.gov/software/colt/api/cern/jet/random/Normal.html">Colt</a> implementation of the normal distribution.
  */
@@ -61,14 +61,6 @@ public class NormalDistribution implements ProbabilityDistribution<Double> {
 
   /**
    * {@inheritDoc}
-   * The cern.jet.random library gives poor results for $x < -8$, and returns zero for $x < -8.37$, so beyond $x < -7.6$ 
-   * we use the approximation 
-   * $$
-   * \begin{align*}
-   * N(x) \approx \frac{N'(x)}{\sqrt{1 + x^2}}
-   * \end{align*}
-   * $$
-   * and use the symmetry of the distribution for $x > 7.6$  
    */
   @Override
   public double getCDF(final Double x) {
