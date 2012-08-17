@@ -86,7 +86,7 @@ $.register_module({
                 return data;
             };
             data.viewport = function (new_viewport) {
-                var viewports = api[grid_type].viewports;
+                var viewports = (depgraph ? api[grid_type].depgraphs : api[grid_type]).viewports;
                 viewport = new_viewport;
                 if (!viewport_id) return;
                 data.busy(true);
