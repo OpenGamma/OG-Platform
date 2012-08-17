@@ -8,15 +8,14 @@ package com.opengamma.component;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.servlet.ServletContext;
 
@@ -77,7 +76,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
   /**
    * The objects that should be registered as managed resources.
    */
-  private final List<Object> _managedResources = new LinkedList<Object>();
+  private final Map<ObjectName, Object> _managedResources = new TreeMap<ObjectName, Object>();
   /**
    * The status.
    */
@@ -544,11 +543,22 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * @param managedResource the object that should be treated as an MBean
    */
   public void registerMBean(Object managedResource) {
+    registerMBean(managedResource, generateObjectName(managedResource));
+  }
+
+  /**
+   * Registers an instance that should be treated as a JMX Managed Resource
+   * 
+   * @param managedResource the object that should be treated as an MBean
+   * @param name The fully qualified JMX ObjectName
+   */
+  public void registerMBean(Object managedResource, ObjectName name) {
     ArgumentChecker.notNull(managedResource, "managedResource");
+    ArgumentChecker.notNull(name, "name");
     checkStatus(Status.CREATING);
     
     try {
-      registerMBean0(managedResource);
+      registerMBean0(managedResource, name);
       registered(null, managedResource);
       
     } catch (RuntimeException ex) {
@@ -562,8 +572,18 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * 
    * @param managedResource the object that should be treated as an MBean
    */
-  private void registerMBean0(Object managedResource) {
-    _managedResources.add(managedResource);
+  private void registerMBean0(Object managedResource, ObjectName name) {
+    _managedResources.put(name, managedResource);
+  }
+  
+  protected ObjectName generateObjectName(Object managedResource) {
+    ObjectName objectName;
+    try {
+      objectName = new ObjectName("com.opengamma:name=" + managedResource.getClass().getSimpleName());
+    } catch (Exception ex) {
+      throw new OpenGammaRuntimeException("Could not generate object name for " + managedResource, ex);
+    }
+    return objectName;
   }
   
   //-------------------------------------------------------------------------
@@ -604,18 +624,14 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
       }
       MBeanExporter exporter = new MBeanExporter();
       exporter.setServer(JmxUtils.locateMBeanServer());
-      for (Object managedResource : _managedResources) {
-        ObjectName objectName = new ObjectName("com.opengamma:name=" + managedResource.getClass().getSimpleName());
-        exporter.registerManagedResource(managedResource, objectName);
+      for (Map.Entry<ObjectName, Object> resourceEntry : _managedResources.entrySet()) {
+        exporter.registerManagedResource(resourceEntry.getValue(), resourceEntry.getKey());
       }
       _status.set(Status.RUNNING);
       
     } catch (RuntimeException ex) {
       _status.set(Status.FAILED);
       throw ex;
-    } catch (MalformedObjectNameException ex) {
-      _status.set(Status.FAILED);
-      throw new OpenGammaRuntimeException("Failed to start component repository", ex);
     }
   }
 
