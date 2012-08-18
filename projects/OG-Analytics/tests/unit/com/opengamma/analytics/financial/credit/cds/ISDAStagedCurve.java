@@ -26,6 +26,10 @@ public class ISDAStagedCurve {
   @XmlElement(name = "snap")
   private String _snapDate;
   
+  /** The curve effective date */
+  @XmlElement(name = "effective", required = true)
+  private String _effectiveDate;
+  
   /** The curve spot date, data points are relative to this date */
   @XmlElement(name = "spot", required = true)
   private String _spotDate;
@@ -62,6 +66,10 @@ public class ISDAStagedCurve {
   
   public String getSnapDate() {
     return _snapDate;
+  }
+  
+  public String getEffectiveDate() {
+    return _effectiveDate;
   }
   
   public String getSpotDate() {

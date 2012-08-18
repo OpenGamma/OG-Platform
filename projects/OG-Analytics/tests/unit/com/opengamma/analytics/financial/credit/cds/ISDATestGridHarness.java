@@ -70,7 +70,7 @@ public class ISDATestGridHarness {
     ISDAStagedCurve stagedCurve;
     ISDACurve hazardCurve = null;
     
-    int i = 1;
+    int i = 0;
     maxError = 0.0;
     
     for (ISDATestGridRow testCase : testGrid.getData()) {
@@ -81,7 +81,7 @@ public class ISDATestGridHarness {
       runTestCase(testCase, discountCurve, hazardCurve, i++);
     }
     
-    System.out.println( "Test grid completed, max error: " + maxError);
+    System.out.println( "Passed " + i + " test cases, largest relative error was " + maxError);
   }
   
   public void runTestCase(ISDATestGridRow testCase, ISDACurve discountCurve, ISDACurve hazardRateCurve, int i) {
@@ -101,7 +101,7 @@ public class ISDATestGridHarness {
       ? testCase.getCashSettle().atStartOfDayInZone(TimeZone.UTC)
       : pricingDate.plusDays(1).with(adjuster).plusDays(1).with(adjuster).plusDays(1).with(adjuster);
     
-    // If start date is not supplied, take ten years from the maturity date (this should be less than pricing date)
+    // If start date is not supplied, take twenty years from the maturity date (to ensure it is before the pricing date)
     final ZonedDateTime startDate = testCase.getStartDate() != null
       ? testCase.getStartDate().atStartOfDayInZone(TimeZone.UTC)
       : maturity.minusYears(20).with(adjuster);
@@ -138,7 +138,7 @@ public class ISDATestGridHarness {
     
     if (relativeError > maxError) {
       maxError = relativeError;
-      System.out.println("Case: " + i + ", Result: " + result + ", Exepcted: " + expectedResult + ", Error: " + actualError + ", relativeError: " + relativeError);
+      // System.out.println("Case: " + i + ", Result: " + result + ", Exepcted: " + expectedResult + ", Error: " + actualError + ", relativeError: " + relativeError);
     }
     
     Assert.assertTrue( relativeError < 1E-10 );
@@ -149,9 +149,11 @@ public class ISDATestGridHarness {
     // Expect all curve objects to use annual compounding
     // Assert.assertEquals(Double.valueOf(curveData.getBasis()), 1.0);
     
+    final LocalDate effectiveDate = LocalDate.parse(curveData.getEffectiveDate(), formatter);
     final LocalDate baseDate = LocalDate.parse(curveData.getSpotDate(), formatter);
-    final int nPoints = curveData.getPoints().size();
+    final double offset = dayCount.getDayCountFraction(effectiveDate, baseDate);
     
+    final int nPoints = curveData.getPoints().size();
     double times[] = new double[nPoints];
     double rates[] = new double[nPoints];
     
@@ -166,7 +168,7 @@ public class ISDATestGridHarness {
       rates[i++] = rate;
     }
     
-    return new ISDACurve(curveName, times, rates, 0.0);
+    return new ISDACurve(curveName, times, rates, offset);
   }
   
   public ISDACurve buildCurve(final ISDAStagedTest.IRCurve curveData, final String curveName) {

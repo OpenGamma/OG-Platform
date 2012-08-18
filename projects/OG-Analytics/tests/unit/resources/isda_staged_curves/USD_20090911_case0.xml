@@ -1,0 +1,8 @@
+<curve name="USD_20090911_case0">
+<ccy>CAD</ccy>
+<effective>2009-09-11</effective>
+<spot>2009-09-11</spot>
+<points>
+<point><date>2010-09-20</date><rate>0.00126610127180988</rate></point>
+</points>
+</curve>

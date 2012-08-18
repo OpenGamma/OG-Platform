@@ -1,6 +1,7 @@
 <curve name="CAD_20090428">
 <ccy>CAD</ccy>
 <snap>2009-04-27</snap>
+<effective>2009-04-28</effective>
 <spot>2009-04-28</spot>
 <points>
 <point><date>2009-05-28</date><rate>0.0041649393502583</rate></point>
