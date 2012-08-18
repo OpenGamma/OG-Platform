@@ -89,7 +89,7 @@ public class CDSApproxISDAMethod {
     final CDSDefinition zeroCDSDefinition = makeZeroCDSDefintion(startDate, maturityDate, dataPoints[0], cds.getRecoveryRate());
     final CDSDerivative zeroCDS = zeroCDSDefinition.toDerivative(pricingDate, "IR_CURVE", "TEMP_CURVE");
     
-    SingleRootFinder<Double, Double> rootFinder = new BrentSingleRootFinder(1E-10);
+    SingleRootFinder<Double, Double> rootFinder = new BrentSingleRootFinder(1E-17);
     
     double guess = dataPoints[0] / (1 + cds.getRecoveryRate());
     
@@ -103,7 +103,7 @@ public class CDSApproxISDAMethod {
           return calculateUpfrontCharge(zeroCDS, discountCurve, tempCurve, pricingDate, stepinDate, settlementDate, true);
         }  
       },
-      -0.1, 1.0
+      0.0, 1.0
     );
     
     final ISDACurve hazardRateCurve = new ISDACurve("HAZARD_RATE_CURVE", timePoints, dataPoints, 0.0);
