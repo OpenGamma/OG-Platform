@@ -5,17 +5,12 @@
  */
 package com.opengamma.analytics.financial.credit.cds;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.time.calendar.DateAdjuster;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 import javax.time.calendar.format.DateTimeFormatter;
 import javax.time.calendar.format.DateTimeFormatters;
-import javax.xml.bind.JAXBException;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -41,11 +36,7 @@ public class ISDATestGridHarness {
   private static DayCount dayCount = new ActualThreeSixtyFive();
   private static CDSApproxISDAMethod calculator = new CDSApproxISDAMethod();
   
-  private int failures;
   private double maxError;
-  
-  private List<String> badTestFiles = new ArrayList<String>();
-  
   
   @Test
   public void runAllTestGrids() throws Exception {
@@ -80,7 +71,6 @@ public class ISDATestGridHarness {
     ISDACurve hazardCurve = null;
     
     int i = 1;
-    failures = 0;
     maxError = 0.0;
     
     for (ISDATestGridRow testCase : testGrid.getData()) {
@@ -91,7 +81,7 @@ public class ISDATestGridHarness {
       runTestCase(testCase, discountCurve, hazardCurve, i++);
     }
     
-    System.out.println( "Failures: " + failures + ", max error: " + maxError);
+    System.out.println( "Test grid completed, max error: " + maxError);
   }
   
   public void runTestCase(ISDATestGridRow testCase, ISDACurve discountCurve, ISDACurve hazardRateCurve, int i) {
@@ -114,7 +104,7 @@ public class ISDATestGridHarness {
     // If start date is not supplied, take ten years from the maturity date (this should be less than pricing date)
     final ZonedDateTime startDate = testCase.getStartDate() != null
       ? testCase.getStartDate().atStartOfDayInZone(TimeZone.UTC)
-      : maturity.minusYears(10).with(adjuster);
+      : maturity.minusYears(20).with(adjuster);
     
     // Spread and recovery are always given
     final double spread = testCase.getCoupon() / 10000.0;
@@ -151,12 +141,7 @@ public class ISDATestGridHarness {
       System.out.println("Case: " + i + ", Result: " + result + ", Exepcted: " + expectedResult + ", Error: " + actualError + ", relativeError: " + relativeError);
     }
     
-    if (relativeError >= 1E-10) {
-      failures++;
-    }
-    
-    //Assert.assertTrue( relativeError < 1E-8 );
-    
+    Assert.assertTrue( relativeError < 1E-10 );
   }
   
   public ISDACurve buildCurve(final ISDAStagedCurve curveData, final String curveName) {
