@@ -150,8 +150,7 @@ public class CreditDefaultSwapDefinition {
     //Validate.isTrue(valuationrecoveryrate <= 1.0, "Valuation recovery rate should be in the range [0%, 100%]");
     //Validate.isTrue(curverecoveryrate >= 0.0, "Curve recovery rate should be in the range [0%, 100%]");
     //Validate.isTrue(curverecoveryrate <= 1.0, "Curve recovery rate should be in the range [0%, 100%]");
-    
-    
+    /*
     ArgumentChecker.isTrue(buySellProtection.isEmpty(), "Buy/Sell protection flag is empty");
     ArgumentChecker.isTrue(protectionSeller.isEmpty(), "Protection seller field is empty");
     ArgumentChecker.isTrue(protectionBuyer.isEmpty(), "Protection buyer field is empty");
@@ -171,6 +170,9 @@ public class CreditDefaultSwapDefinition {
     ArgumentChecker.isTrue(notional >= 0.0,  "Notional amount should be greater than or equal to zero");
     ArgumentChecker.isTrue(parSpread >= 0.0,  "CDS par spread should be greater than or equal to zero");
     ArgumentChecker.isInRangeInclusive(valuationRecoveryRate, 0.0, 1.0);
+    ArgumentChecker.isInRangeInclusive(valuationRecoveryRate, 0.0, 1.0);
+    ArgumentChecker.isInRangeInclusive(curveRecoveryRate, 0.0, 1.0);
+    */
     
     
     _buySellProtection = buySellProtection;
