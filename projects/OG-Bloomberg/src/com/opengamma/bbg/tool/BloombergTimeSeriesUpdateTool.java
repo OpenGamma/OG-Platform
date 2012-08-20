@@ -3,14 +3,13 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.bbg.component;
+package com.opengamma.bbg.tool;
 
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 import com.opengamma.bbg.BloombergIdentifierProvider;
 import com.opengamma.bbg.loader.BloombergHistoricalLoader;
-import com.opengamma.bbg.tool.AbstractBloombergTool;
 import com.opengamma.util.generate.scripts.Scriptable;
 
 /**
