@@ -32,7 +32,10 @@ public class CogdaLiveDataSubscriptionResponseBuilder implements FudgeBuilder<Co
   public static CogdaLiveDataSubscriptionResponseMessage buildObjectStatic(FudgeDeserializer deserializer, FudgeMsg message) {
     CogdaLiveDataSubscriptionResponseMessage response = new CogdaLiveDataSubscriptionResponseMessage();
     CogdaLiveDataBuilderUtil.setResponseFields(message, response);
-    response.setSnapshot(message.getMessage("snapshot"));
+    FudgeMsg snapshot = message.getMessage("snapshot");
+    if (snapshot != null) {
+      response.setSnapshot(message.getMessage("snapshot"));
+    }
     return response;
   }
   

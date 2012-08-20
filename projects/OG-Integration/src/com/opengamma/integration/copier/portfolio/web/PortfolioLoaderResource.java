@@ -127,7 +127,8 @@ public class PortfolioLoaderResource {
     RowParser rowParser = new ExchangeTradedRowParser(_securityProvider);
     SheetFormat format = getFormatForFileName(fileName);
     final PortfolioReader portfolioReader = new SingleSheetSimplePortfolioReader(format, fileStream, rowParser);
-    final PortfolioWriter portfolioWriter = new MasterPortfolioWriter(portfolioName, _portfolioMaster, _positionMaster, _securityMaster, false);
+    final PortfolioWriter portfolioWriter = new MasterPortfolioWriter(portfolioName, _portfolioMaster, _positionMaster,
+        _securityMaster, false, false, false);
     StreamingOutput streamingOutput = new StreamingOutput() {
       @Override
       public void write(OutputStream output) throws IOException, WebApplicationException {

@@ -24,4 +24,17 @@ public interface LastKnownValueStoreProvider {
    * @throws UnsupportedOperationException if this operation is not supported.
    */
   Set<String> getAllIdentifiers(String identifierScheme);
+  
+  /**
+   * Optional operation: determine whether there is already an LKV store
+   * for the given specification.
+   * In general, this should return true if a call to
+   * {@link #newInstance(ExternalId, String)} will return an instance
+   * that is already populated with data, rather than one which is empty.
+   * 
+   * @param security The security to be checked
+   * @param normalizationRuleSetId The normalization rule set checked
+   * @return true iff there is an LKV store for this specification
+   */
+  boolean isAvailable(ExternalId security, String normalizationRuleSetId);
 }
