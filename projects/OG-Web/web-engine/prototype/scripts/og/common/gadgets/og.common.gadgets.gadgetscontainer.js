@@ -69,6 +69,7 @@ $.register_module({
                             switch (type) {
                                 case 'timeseries': url = prefix + type + ':' + id; break;
                                 case 'surface': url = prefix + type + ':' + id; break;
+                                case 'curve': url = prefix + type + ':' + id; break;
                                 case 'grid': url = prefix + type + ':' + id; break;
                             }
                             if (!dropped) {
@@ -238,6 +239,13 @@ $.register_module({
                         return {
                             gadget: 'og.common.gadgets.surface',
                             name: 'Surface ' + id,
+                            options: {id: id, child: true}
+                        }
+                    };
+                    options.curve = function (id) {
+                        return {
+                            gadget: 'og.common.gadgets.curve',
+                            name: 'Curve ' + id,
                             options: {id: id, child: true}
                         }
                     };

@@ -77,6 +77,7 @@
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-maximize.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-drop.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-new-window.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-reset.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-background.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-tooltip.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-dropbox.css</fragment>
@@ -97,6 +98,7 @@
   </bundle>
   <bundle id="common.gadgets.css">
     <fragment>/styles/common/gadgets/og.common.gadgets.OG-gadget-surface-hud.css</fragment>
+    <fragment>/styles/common/gadgets/og.common.gadgets.OG-gadget-curve-hud.css</fragment>
   </bundle>
   <bundle id="common.forms.css">
     <fragment>/styles/common/forms/og.common.forms.OG-grid-box.css</fragment>
@@ -185,7 +187,7 @@
     <fragment>/scripts/lib/cometd.js</fragment>
     <fragment>/scripts/lib/handlebars-1.0.0.beta.6.js</fragment>
     <fragment>/scripts/lib/jsbmp.js</fragment>
-    <fragment>/scripts/lib/jquery/jquery-1.8.0.js</fragment>
+    <fragment>/scripts/lib/jquery/jquery-1.7.1.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.cometd.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.tmpl.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.jsonp-1.1.0.min.js</fragment>
@@ -270,6 +272,7 @@
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.trades.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.positions.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.timeseries.js</fragment>
+    <fragment>/scripts/og/common/gadgets/og.common.gadgets.curve.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.surface.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.securitiesidentifiers.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.gadgetscontainer.js</fragment>
