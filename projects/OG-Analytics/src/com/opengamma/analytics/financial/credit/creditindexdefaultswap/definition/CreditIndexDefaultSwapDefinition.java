@@ -22,19 +22,25 @@ public class CreditIndexDefaultSwapDefinition {
   private final double _notional;
   
   private final double _spread;
+
   
+  /*
   public CreditIndexDefaultSwapDefinition(ZonedDateTime startDate, 
-                                          ZonedDateTime effectiveDate, 
-                                          ZonedDateTime maturityDate, 
-                                          ZonedDateTime valuationDate, 
-                                          int numberOfObligors, 
-                                          double notional, 
-                                          double spread) {
+      ZonedDateTime effectiveDate, 
+      ZonedDateTime maturityDate, 
+      ZonedDateTime valuationDate, 
+      int numberOfObligors, 
+      double notional, 
+      double spread)
+  */
+  
+  
+  public CreditIndexDefaultSwapDefinition(double notional, double spread, int numberOfObligors) {
     
-    _startDate = startDate;
-    _effectiveDate = effectiveDate;
-    _maturityDate = maturityDate;
-    _valuationDate = valuationDate;
+    //_startDate = startDate;
+    //_effectiveDate = effectiveDate;
+    //_maturityDate = maturityDate;
+    //_valuationDate = valuationDate;
     
     _numberOfObligors = numberOfObligors;
     

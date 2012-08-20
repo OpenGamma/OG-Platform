@@ -43,16 +43,16 @@ public class CreditDefaultSwapDefinition {
   private final Calendar _calendar;
   
   // The date of the contract inception
-  private final ZonedDateTime _startDate;
+  //private final ZonedDateTime _startDate;
   
   // The effective date for protection to begin (usually T + 1 for legacy CDS)
-  private final ZonedDateTime _effectiveDate;
+  //private final ZonedDateTime _effectiveDate;
   
   // The maturity date of the contract (when premium and protection coverage ceases)
-  private final ZonedDateTime _maturityDate;
+  //private final ZonedDateTime _maturityDate;
   
   // The date on which we want to calculate the CDS MtM
-  private final ZonedDateTime _valuationDate;
+  //private final ZonedDateTime _valuationDate;
   
   // The method for generating the schedule of premium payments
   private final String _scheduleGenerationMethod;
@@ -86,16 +86,16 @@ public class CreditDefaultSwapDefinition {
   private final boolean _includeAccruedPremium;
   
   // Vector of dates for which interest rates are provided
-  private final ZonedDateTime[] _interestRateTenors;
+  //private final ZonedDateTime[] _interestRateTenors;
   
   // Vector of interest rates from which to bootstrap the discount factor curve 
-  private final ZonedDateTime[] _interestRates;
+  //private final ZonedDateTime[] _interestRates;
   
   // Vector of dates for which market observed CDS par spread quotes are provided
-  private final ZonedDateTime[] _creditSpreadTenors;
+  //private final ZonedDateTime[] _creditSpreadTenors;
   
   // Vector of market observed CDS par spread quotes from which to bootstrap the survival probability curve
-  private final ZonedDateTime[] _creditSpreads;
+  //private final ZonedDateTime[] _creditSpreads;
   
   // ----------------------------------------------------------------------------------------------------------------------------------------
   
@@ -113,10 +113,10 @@ public class CreditDefaultSwapDefinition {
                                       String debtSeniority, 
                                       String restructuringClause, 
                                       Calendar calendar,
-                                      ZonedDateTime startDate,
-                                      ZonedDateTime effectiveDate,
-                                      ZonedDateTime maturityDate,
-                                      ZonedDateTime valuationDate,
+                                      //ZonedDateTime startDate,
+                                      //ZonedDateTime effectiveDate,
+                                      //ZonedDateTime maturityDate,
+                                      //ZonedDateTime valuationDate,
                                       String scheduleGenerationMethod,
                                       String couponFrequency,
                                       String daycountFractionConvention,
@@ -126,11 +126,13 @@ public class CreditDefaultSwapDefinition {
                                       double valuationRecoveryRate, 
                                       double curveRecoveryRate, 
                                       boolean includeAccruedPremium,
-                                      boolean adjustMaturityDate,
-                                      ZonedDateTime[] interestRateTenors,
-                                      ZonedDateTime[] interestRates,
-                                      ZonedDateTime[] creditSpreadTenors,
-                                      ZonedDateTime[] creditSpreads) {
+                                      boolean adjustMaturityDate) {
+                                      
+    
+    //ZonedDateTime[] interestRateTenors,
+    //ZonedDateTime[] interestRates,
+    //ZonedDateTime[] creditSpreadTenors,
+    //ZonedDateTime[] creditSpreads)
     
     //Validate.notNull(buysellprotection, "buysellprotection");
     //Validate.notNull(protectionseller, "protectionseller");
@@ -149,6 +151,9 @@ public class CreditDefaultSwapDefinition {
     //Validate.isTrue(curverecoveryrate >= 0.0, "Curve recovery rate should be in the range [0%, 100%]");
     //Validate.isTrue(curverecoveryrate <= 1.0, "Curve recovery rate should be in the range [0%, 100%]");
     
+    ArgumentChecker.isTrue(buySellProtection == null, "Buy/Sell flag is set to null");
+    ArgumentChecker.isTrue(notional >= 0.0,  "Notional amount should be greater than or equal to zero");
+    
     //ArgumentChecker.isTrue(startdate.isBefore(valuationdate), "Start date {} must be before valuation date {}", startdate, valuationdate);
     
     _buySellProtection = buySellProtection;
@@ -162,10 +167,10 @@ public class CreditDefaultSwapDefinition {
     
     _calendar = calendar;
     
-    _startDate = startDate;
-    _effectiveDate = effectiveDate;
-    _maturityDate = maturityDate;
-    _valuationDate = valuationDate;
+    //_startDate = startDate;
+    //_effectiveDate = effectiveDate;
+    //_maturityDate = maturityDate;
+    //_valuationDate = valuationDate;
     
     _scheduleGenerationMethod = scheduleGenerationMethod;
     _couponFrequency = couponFrequency;
@@ -181,10 +186,10 @@ public class CreditDefaultSwapDefinition {
     
     _includeAccruedPremium = includeAccruedPremium;
     
-    _interestRateTenors = interestRateTenors;               
-    _interestRates = interestRates;                         
-    _creditSpreadTenors = creditSpreadTenors;               
-    _creditSpreads = creditSpreads;                         
+    //_interestRateTenors = interestRateTenors;               
+    //_interestRates = interestRates;                         
+    //_creditSpreadTenors = creditSpreadTenors;               
+    //_creditSpreads = creditSpreads;                         
   }
   
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -225,6 +230,7 @@ public class CreditDefaultSwapDefinition {
   
 //----------------------------------------------------------------------------------------------------------------------------------------
   
+  /*
   public ZonedDateTime getStartDate() {
     return _startDate;
   }
@@ -240,6 +246,7 @@ public class CreditDefaultSwapDefinition {
   public ZonedDateTime getValuationDate() {
     return _valuationDate;
   }
+  */
 
 //----------------------------------------------------------------------------------------------------------------------------------------
   
@@ -287,6 +294,7 @@ public class CreditDefaultSwapDefinition {
   
   //----------------------------------------------------------------------------------------------------------------------------------------
   
+  /*
   ZonedDateTime[] getInterestratetenors() {
     return _interestRateTenors;
   }
@@ -303,6 +311,7 @@ public class CreditDefaultSwapDefinition {
   ZonedDateTime[] getCreditspreads() {
     return _creditSpreads;
   }
+  */
   
 }
 

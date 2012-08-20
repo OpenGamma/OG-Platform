@@ -14,9 +14,10 @@ public class CreditIndexDefaultSwapDefinitionTest {
   
   final static int n = 125;
   
+  final static double spread = 60.0;
   final static double N = 100;
 
-  //private static final CreditIndexDefaultSwapDefinition index = new CreditIndexDefaultSwapDefinition(n, N);
+  private static final CreditIndexDefaultSwapDefinition index = new CreditIndexDefaultSwapDefinition(N, spread, n);
   
   
   
