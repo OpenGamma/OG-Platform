@@ -51,11 +51,13 @@ import com.opengamma.util.time.LocalDateRange;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
- * Loads time-series information from Bloomberg.
+ * Loads time-series information from Bloomberg into a master.
  * <p>
- * This loads missing historical time-series data from Bloomberg.
+ * This loads missing historical time-series data from Bloomberg and stores it
+ * into a master.
  */
 public class BloombergHistoricalTimeSeriesLoader implements HistoricalTimeSeriesLoader {
+  // note that there is relatively little Bloomberg specific code here
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergHistoricalTimeSeriesLoader.class);
