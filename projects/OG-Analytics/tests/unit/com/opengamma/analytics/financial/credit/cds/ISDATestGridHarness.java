@@ -5,9 +5,11 @@
  */
 package com.opengamma.analytics.financial.credit.cds;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.time.calendar.DateAdjuster;
 import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.Period;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
@@ -40,7 +42,7 @@ public class ISDATestGridHarness {
   private static final double dirtyRelativeErrorLimit = 1E-10;
   private static final double cleanPercentageErrorLimit = 1E-8;
   
-  private static final DateTimeFormatter formatter = DateTimeFormatters.pattern("yyyy-MM-dd");
+  private static final DateTimeFormatter formatter = DateTimeFormatters.pattern("dd/MM/yyyy");
   private static final DayCount dayCount = new ActualThreeSixtyFive();
   private static final CDSApproxISDAMethod calculator = new CDSApproxISDAMethod();
   
@@ -106,31 +108,43 @@ public class ISDATestGridHarness {
   
   public void runTestGrids(final String[] testFiles) throws Exception {
 	  
+    String currency;
 	  ISDATestGrid testGrid;
 	  ISDAStagedCurve stagedCurve;
 	  ISDACurve discountCurve;
 	  TestGridResult result;
 	  
-	  long grids = 0, gridFailures = 0, cases = 0, caseFailures = 0;
+	  long grids = 0, gridFailures = 0, gridsMissingData = 0, cases = 0, caseFailures = 0;
     double totalTime = 0.0;
 	  double maxAbsoluteError = 0.0;
 	  double maxRelativeError = 0.0;
 	  double maxCleanPercentageError = 0.0;
 	  
+	  Set<String> currencies = new HashSet<String>();
+	  
 	  for (String fileName : testFiles) {
-		  
+	    
+	    currency = fileName.substring(0, 3);
 		  testGrid = testGridManager.loadTestGrid(fileName);
 		  stagedCurve = stagedDataManager.loadStagedCurveForGrid(fileName);
 		  
-		  if (stagedCurve == null)
+		  if (stagedCurve == null) {
+		    ++gridsMissingData;
+		    System.out.println("Skipping test grid: " + fileName + " (missing IR curve)");
 		    continue;
+		  }
+		    
+      if (currencies.contains(currency))
+        continue;
+      else
+        currencies.add(currency);
 		  
 		  System.out.println("Running test grid: " + fileName);
 		  
 		  discountCurve = buildCurve(stagedCurve, "IR_CURVE");
 		  result = runTestGrid(testGrid, discountCurve, fileName);
 		  
-		  grids += 1;
+		  ++grids;
 		  gridFailures += result.failures > 0 ? 1 : 0;
 		  cases += result.cases;
 		  caseFailures += result.failures;
@@ -142,6 +156,7 @@ public class ISDATestGridHarness {
 	  
 	  System.out.println(" --- ISDA Test Grid run complete --- ");
 	  System.out.println("Total execution time: " + totalTime + "s");
+	  System.out.println("Total test grids with missing data: " + gridsMissingData);
 	  System.out.println("Total test grids executed: " + grids);
 	  System.out.println("Total test cases executed: " + cases);
 	  System.out.println("Total test grids failed: " + gridFailures);
@@ -153,9 +168,6 @@ public class ISDATestGridHarness {
   
   public TestGridResult runTestGrid(ISDATestGrid testGrid, ISDACurve discountCurve, String testGridFileName) throws Exception {
     
-    ISDAStagedCurve stagedCurve;
-    ISDACurve hazardRateCurve = null;
-    
     int i = 0, failures = 0;
     TestResult result;
     double maxAbsoluteError = 0.0;
@@ -166,9 +178,7 @@ public class ISDATestGridHarness {
     
     for (ISDATestGridRow testCase : testGrid.getData()) {
       
-      stagedCurve = stagedDataManager.loadStagedHazardCurveForGrid(testGridFileName, i);
-      hazardRateCurve = stagedCurve != null ? buildCurve(stagedCurve, "HAZARD_RATE_CURVE") : null;
-      result = runTestCase(testCase, discountCurve, hazardRateCurve);
+      result = runTestCase(testCase, discountCurve);
       
       if (result.dirtyRelativeError >= dirtyRelativeErrorLimit || result.dirtyAbsoluteError >= dirtyAbsoluteErrorLimit || result.cleanPercentageError >= cleanPercentageErrorLimit) {
         
@@ -202,7 +212,7 @@ public class ISDATestGridHarness {
     return new TestGridResult(i, failures, seconds, maxAbsoluteError, maxRelativeError, maxCleanPercentageError);
   }
   
-  public TestResult runTestCase(ISDATestGridRow testCase, ISDACurve discountCurve, ISDACurve hazardRateCurve) {
+  public TestResult runTestCase(ISDATestGridRow testCase, ISDACurve discountCurve) {
        
     final Calendar calendar = new MondayToFridayCalendar("TestCalendar");
     final BusinessDayConvention convention = new FollowingBusinessDayConvention();
@@ -243,13 +253,8 @@ public class ISDATestGridHarness {
     final double marketSpread = testCase.getQuotedSpread() / 10000.0;
     
     // Now go price
-    final double dirtyPrice = hazardRateCurve != null
-      ? calculator.calculateUpfrontCharge(cds, discountCurve, hazardRateCurve, pricingDate, stepinDate, settlementDate, false)
-      : calculator.calculateUpfrontCharge(cds, discountCurve, marketSpread, pricingDate, stepinDate, settlementDate, false);
-    
-    final double cleanPrice = hazardRateCurve != null
-        ? calculator.calculateUpfrontCharge(cds, discountCurve, hazardRateCurve, pricingDate, stepinDate, settlementDate, true)
-        : calculator.calculateUpfrontCharge(cds, discountCurve, marketSpread, pricingDate, stepinDate, settlementDate, true);
+    final double dirtyPrice = calculator.calculateUpfrontCharge(cds, discountCurve, marketSpread, pricingDate, stepinDate, settlementDate, false);
+    final double cleanPrice = calculator.calculateUpfrontCharge(cds, discountCurve, marketSpread, pricingDate, stepinDate, settlementDate, true);
       
     final double dirtyExpected = testCase.getUpfront();
     final double dirtyAbsoluteError = Math.abs(notional * dirtyPrice - dirtyExpected);
