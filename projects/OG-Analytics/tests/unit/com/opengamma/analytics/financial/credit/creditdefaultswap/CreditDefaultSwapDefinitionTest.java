@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.credit.creditdefaultswap;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
@@ -40,7 +41,7 @@ public class CreditDefaultSwapDefinitionTest {
   private static final double notional = 10000000.0;
   private static final double parSpread = 60.0;
 
-  private static final double valuationRecoveryRate = 0.40;
+  private static final double valuationRecoveryRate = -0.40;
   private static final double curveRecoveryRate = 0.40;
 
   private static final boolean includeAccruedPremium = true;
@@ -71,8 +72,8 @@ public class CreditDefaultSwapDefinitionTest {
                                                                                                     //interestRateTenors,
                                                                                                     //interestRates,
                                                                                                     //creditSpreadTenors,
-  
-  /*//creditSpreads);
+                                                                                                    //creditSpreads);
+  /*
   @Test
   public void testNullBuySellProtectionFlag() {
     assertEquals(null, CDS_DEFINITION.getBuySellProtection(), 1e-15);
@@ -80,11 +81,29 @@ public class CreditDefaultSwapDefinitionTest {
   */
 
   @Test
-public void testNotional() {
-  assertEquals(1.0e7, CDS_DEFINITION.getNotional(), 1e-15);
+  public void testNotional() {
+    //assertEquals(1.0e7, CDS_DEFINITION.getNotional(), 1e-15);
+    assertTrue(CDS_DEFINITION.getNotional() >= 0);
+  }
   
+  @Test
+  public void testParSpread() {
+    assertTrue(CDS_DEFINITION.getParSpread() >= 0);
+  }
   
-}
+  /*
+  @Test
+  public void testValuationRecoveryRate() {
+    assertTrue(CDS_DEFINITION.getValuationRecoveryRate() >= 0.0);
+    assertTrue(CDS_DEFINITION.getValuationRecoveryRate() <= 1.0);
+  }
+  */
+  
+  @Test
+  public void testCurveRecoveryRate() {
+    assertTrue(CDS_DEFINITION.getCurveRecoveryRate() >= 0.0);
+    assertTrue(CDS_DEFINITION.getCurveRecoveryRate() <= 1.0);
+  }
   
   /*
   @Test

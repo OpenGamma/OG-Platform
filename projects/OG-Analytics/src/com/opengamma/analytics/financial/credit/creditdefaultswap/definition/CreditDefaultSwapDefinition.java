@@ -134,22 +134,8 @@ public class CreditDefaultSwapDefinition {
     //ZonedDateTime[] creditSpreadTenors,
     //ZonedDateTime[] creditSpreads)
     
-    //Validate.notNull(buysellprotection, "buysellprotection");
-    //Validate.notNull(protectionseller, "protectionseller");
-    //Validate.notNull(protectionbuyer, "protectionbuyer");
-    //Validate.notNull(referenceentity, "referenceentity");
-    //Validate.notNull(currency, "currency");
-    //Validate.notNull(debtseniority, "debtseniority");
-    //Validate.notNull(restructuringclause, "restructuringclause");
-    //Validate.notNull(calendar, "calendar");
+    ArgumentChecker.isTrue(buySellProtection.isEmpty(), "Buy/Sell protection flag is empty");
     
-    //Validate.isTrue(parspread > 0.0, "CDS par spread should be greater than zero");
-    //Validate.isTrue(notional >= 0.0, "Notional should be greater than or equal to zero");
-    
-    //Validate.isTrue(valuationrecoveryrate >= 0.0, "Valuation recovery rate should be in the range [0%, 100%]");
-    //Validate.isTrue(valuationrecoveryrate <= 1.0, "Valuation recovery rate should be in the range [0%, 100%]");
-    //Validate.isTrue(curverecoveryrate >= 0.0, "Curve recovery rate should be in the range [0%, 100%]");
-    //Validate.isTrue(curverecoveryrate <= 1.0, "Curve recovery rate should be in the range [0%, 100%]");
     /*
     ArgumentChecker.isTrue(buySellProtection.isEmpty(), "Buy/Sell protection flag is empty");
     ArgumentChecker.isTrue(protectionSeller.isEmpty(), "Protection seller field is empty");
@@ -167,13 +153,13 @@ public class CreditDefaultSwapDefinition {
     
     //ArgumentChecker.isTrue(startdate.isBefore(valuationdate), "Start date {} must be before valuation date {}", startdate, valuationdate);
     
-    ArgumentChecker.isTrue(notional >= 0.0,  "Notional amount should be greater than or equal to zero");
-    ArgumentChecker.isTrue(parSpread >= 0.0,  "CDS par spread should be greater than or equal to zero");
-    ArgumentChecker.isInRangeInclusive(valuationRecoveryRate, 0.0, 1.0);
-    ArgumentChecker.isInRangeInclusive(valuationRecoveryRate, 0.0, 1.0);
-    ArgumentChecker.isInRangeInclusive(curveRecoveryRate, 0.0, 1.0);
     */
     
+    ArgumentChecker.isTrue(notional >= 0.0,  "Notional amount should be greater than or equal to zero");
+    ArgumentChecker.isTrue(parSpread >= 0.0,  "CDS par spread should be greater than or equal to zero");
+    
+    ArgumentChecker.isInRangeInclusive(valuationRecoveryRate, 0.0, 1.0);
+    ArgumentChecker.isInRangeInclusive(curveRecoveryRate, 0.0, 1.0);
     
     _buySellProtection = buySellProtection;
     _protectionBuyer = protectionBuyer;
@@ -292,7 +278,7 @@ public class CreditDefaultSwapDefinition {
 //----------------------------------------------------------------------------------------------------------------------------------------
   
   public double getNotional() {
-    System.out.println("Notional = " + _notional);
+    //System.out.println("Notional = " + _notional);
     return _notional;
   }
   
