@@ -5,13 +5,9 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap;
 
-import com.opengamma.util.money.Currency;
-import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.util.money.Currency;
 
 /**
  * 

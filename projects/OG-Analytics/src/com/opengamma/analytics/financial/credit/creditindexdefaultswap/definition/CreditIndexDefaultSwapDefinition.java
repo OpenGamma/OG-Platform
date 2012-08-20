@@ -5,31 +5,91 @@
  */
 package com.opengamma.analytics.financial.credit.creditindexdefaultswap.definition;
 
+import javax.time.calendar.ZonedDateTime;
+
 /**
  * 
  */
 public class CreditIndexDefaultSwapDefinition {
   
-  private final int _numberofobligors;
+  ZonedDateTime _startDate;
+  ZonedDateTime _effectiveDate;
+  ZonedDateTime _maturityDate;
+  ZonedDateTime _valuationDate;
+  
+  private final int _numberOfObligors;
   
   private final double _notional;
   
-  public CreditIndexDefaultSwapDefinition(int numberofobligors, double notional) {
+  private final double _spread;
+  
+  public CreditIndexDefaultSwapDefinition(ZonedDateTime startDate, 
+                                          ZonedDateTime effectiveDate, 
+                                          ZonedDateTime maturityDate, 
+                                          ZonedDateTime valuationDate, 
+                                          int numberOfObligors, 
+                                          double notional, 
+                                          double spread) {
     
-    _numberofobligors = numberofobligors;
+    _startDate = startDate;
+    _effectiveDate = effectiveDate;
+    _maturityDate = maturityDate;
+    _valuationDate = valuationDate;
+    
+    _numberOfObligors = numberOfObligors;
     
     _notional = notional;
+    
+    _spread = spread;
   }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
+
+  ZonedDateTime getStartDate() {
+    return _startDate;
+  }
+
+  void setStartDate(ZonedDateTime startDate) {
+    _startDate = startDate;
+  }
+
+  ZonedDateTime getEffectiveDate() {
+    return _effectiveDate;
+  }
+
+  void setEffectiveDate(ZonedDateTime effectiveDate) {
+    _effectiveDate = effectiveDate;
+  }
+
+  ZonedDateTime getMaturityDate() {
+    return _maturityDate;
+  }
+
+  void setMaturityDate(ZonedDateTime maturityDate) {
+    _maturityDate = maturityDate;
+  }
+
+  ZonedDateTime getValuationDate() {
+    return _valuationDate;
+  }
   
-  int getNumberofobligors() {
-    return _numberofobligors;
+  int getNumberOfObligors() {
+    return _numberOfObligors;
+  }
+
+  void setValuationDate(ZonedDateTime valuationDate) {
+    _valuationDate = valuationDate;
   }
 
   double getNotional() {
     return _notional;
   }
+
+  double getSpread() {
+    return _spread;
+  }
+  
+  
   
 //----------------------------------------------------------------------------------------------------------------------------------------
   
