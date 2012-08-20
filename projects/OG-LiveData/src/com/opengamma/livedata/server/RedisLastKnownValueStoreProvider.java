@@ -194,5 +194,15 @@ public class RedisLastKnownValueStoreProvider implements LastKnownValueStoreProv
     }
     return allMembers;
   }
+
+  @Override
+  public boolean isAvailable(ExternalId security, String normalizationRuleSetId) {
+    initIfNecessary();
+    String redisKey = generateRedisKey(security, normalizationRuleSetId);
+    Jedis jedis = _jedisPool.getResource();
+    boolean isAvailable = jedis.exists(redisKey);
+    _jedisPool.returnResource(jedis);
+    return isAvailable;
+  }
   
 }

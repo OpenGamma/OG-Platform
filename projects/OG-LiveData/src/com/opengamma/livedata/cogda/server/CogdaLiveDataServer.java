@@ -150,8 +150,7 @@ public class CogdaLiveDataServer implements FudgeConnectionReceiver, Lifecycle {
   }
   
   public boolean isValidLiveData(ExternalId subscriptionId, String normalizationScheme) {
-    // TODO kirk 2012-07-23 -- Check to see if valid.
-    return true;
+    return getLastKnownValueStoreProvider().isAvailable(subscriptionId, normalizationScheme);
   }
   
   public LastKnownValueStore getLastKnownValueStore(ExternalId subscriptionId, String normalizationScheme) {

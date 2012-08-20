@@ -25,4 +25,9 @@ public class MapLastKnownValueStoreProvider implements LastKnownValueStoreProvid
     throw new UnsupportedOperationException();
   }
 
+  @Override
+  public boolean isAvailable(ExternalId security, String normalizationRuleSetId) {
+    return false;
+  }
+
 }

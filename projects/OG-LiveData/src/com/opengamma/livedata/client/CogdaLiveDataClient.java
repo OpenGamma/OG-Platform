@@ -370,7 +370,7 @@ public class CogdaLiveDataClient extends AbstractLiveDataClient implements Lifec
     subs.add(lds);
     subs.add(new LiveDataSpecification("OpenGamma", ExternalId.of("SURF", "ASIRSEUR49Y30A03L")));
     subs.add(new LiveDataSpecification("OpenGamma", ExternalId.of("SURF", "FV1DRUSDBRL06M")));
-    client.subscribe(UserPrincipal.getLocalUser(), subs, new LiveDataListener() {
+    LiveDataListener ldl = new LiveDataListener() {
       @Override
       public void subscriptionResultReceived(LiveDataSubscriptionResponse subscriptionResult) {
         s_logger.warn("Sub result {}", subscriptionResult);
@@ -386,7 +386,10 @@ public class CogdaLiveDataClient extends AbstractLiveDataClient implements Lifec
         s_logger.warn("Data received {}", valueUpdate);
       }
       
-    });
+    }; 
+    client.subscribe(UserPrincipal.getLocalUser(), subs, ldl);
+    
+    client.subscribe(UserPrincipal.getLocalUser(), new LiveDataSpecification("OpenGamma", ExternalId.of("SURF", "NO_SUCH_THING")), ldl);
     
     Thread.sleep(100000000L);
   }
