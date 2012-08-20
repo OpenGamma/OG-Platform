@@ -67,4 +67,12 @@ public class GeneratorCurveYieldInterpolatedAnchorNode extends GeneratorCurve {
     return generateCurve(name, parameters);
   }
 
+  @Override
+  public double[] initialGuess(double[] rates) {
+    ArgumentChecker.isTrue(rates.length == _nbPoints, "Rates of incorrect length.");
+    double[] spread = new double[_nbPoints];
+    // implementation note: The "anchor" generator is used for spread. The initial guess is a spread of 0.
+    return spread;
+  }
+
 }

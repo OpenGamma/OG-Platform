@@ -83,13 +83,14 @@ import com.opengamma.util.tuple.Pair;
  */
 public class YieldCurveConstructionGeneratorBlockFullSpreadTest {
 
+  //TODO: add test on futures.
   private static final Interpolator1D INTERPOLATOR_DQ = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   private static final Interpolator1D INTERPOLATOR_LINEAR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-  private static final Interpolator1D INTERPOLATOR_CS = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
-      Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-  private static final Interpolator1D INTERPOLATOR_EXP = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.EXPONENTIAL, Interpolator1DFactory.EXPONENTIAL_EXTRAPOLATOR,
+  //  private static final Interpolator1D INTERPOLATOR_CS = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
+  //      Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  private static final Interpolator1D INTERPOLATOR_LL = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LOG_LINEAR, Interpolator1DFactory.EXPONENTIAL_EXTRAPOLATOR,
       Interpolator1DFactory.EXPONENTIAL_EXTRAPOLATOR);
   private static final MatrixAlgebra MATRIX_ALGEBRA = new CommonsMatrixAlgebra();
 
@@ -255,9 +256,9 @@ public class YieldCurveConstructionGeneratorBlockFullSpreadTest {
     GeneratorCurve genIntDQ = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_DQ);
     //    GeneratorCurve genIntCS = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_CS);
     GeneratorCurve genIntLin = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LINEAR);
-    int compoundingRate = 2;
+    int compoundingRate = 1;
     GeneratorCurve genIntRPLin = new GeneratorCurveYieldPeriodicInterpolated(MATURITY_CALCULATOR, compoundingRate, INTERPOLATOR_LINEAR);
-    GeneratorCurve genIntDFExp = new GeneratorCurveDiscountFactorInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_EXP);
+    GeneratorCurve genIntDFLL = new GeneratorCurveDiscountFactorInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LL);
     GeneratorCurve genNS = new GeneratorCurveYieldNelsonSiegel();
     GeneratorCurve genInt0 = new GeneratorCurveYieldInterpolatedAnchor(MATURITY_CALCULATOR, INTERPOLATOR_LINEAR);
     GeneratorCurve genAddExistFwd3 = new GeneratorCurveAddYieldExisiting(genIntDQ, false, CURVE_NAME_FWD3_USD);
@@ -268,8 +269,8 @@ public class YieldCurveConstructionGeneratorBlockFullSpreadTest {
     //    GENERATORS_UNITS[0][1] = new GeneratorCurve[] {new GeneratorCurveAddYield(new GeneratorCurve[] {genCst, genInt0}, false)};
     GENERATORS_UNITS[1][0] = new GeneratorCurve[] {genIntRPLin};
     GENERATORS_UNITS[1][1] = new GeneratorCurve[] {genIntRPLin};
-    GENERATORS_UNITS[2][0] = new GeneratorCurve[] {genIntDFExp};
-    GENERATORS_UNITS[2][1] = new GeneratorCurve[] {genIntDFExp};
+    GENERATORS_UNITS[2][0] = new GeneratorCurve[] {genIntDFLL};
+    GENERATORS_UNITS[2][1] = new GeneratorCurve[] {genIntDFLL};
     // 3xinterpolated / 2xinterpolated + spread over existing
     GENERATORS_UNITS[3][0] = new GeneratorCurve[] {genIntDQ};
     GENERATORS_UNITS[3][1] = new GeneratorCurve[] {genIntDQ};
@@ -478,7 +479,7 @@ public class YieldCurveConstructionGeneratorBlockFullSpreadTest {
     t++;
   }
 
-  @Test(enabled = false)
+  @Test(enabled = true)
   public void performance() {
     long startTime, endTime;
     final int nbTest = 100;
@@ -487,13 +488,15 @@ public class YieldCurveConstructionGeneratorBlockFullSpreadTest {
     @SuppressWarnings("unused")
     Pair<YieldCurveBundle, CurveBuildingBlockBundle> curveParSpreadMQ;
     int[] nbIns = new int[NB_BLOCKS];
-    nbIns[0] = DEFINITIONS_DSC_USD.length + DEFINITIONS_FWD3_USD.length;
-    nbIns[1] = DEFINITIONS_DSC_USD.length + DEFINITIONS_FWD3_USD_2.length + DEFINITIONS_FWD6_USD.length;
-    nbIns[2] = DEFINITIONS_DSC_USD.length + DEFINITIONS_FWD3_USD_2.length + DEFINITIONS_FWD6_USD.length;
-    nbIns[3] = DEFINITIONS_DSC_USD.length + DEFINITIONS_FWD3_USD_3.length;
-    nbIns[4] = DEFINITIONS_DSC_USD.length + DEFINITIONS_FWD3_USD_3.length;
-    nbIns[5] = DEFINITIONS_DSC_USD.length + DEFINITIONS_FWD3_USD_4.length;
-    int[] nbCurve = new int[] {2, 3, 3, 2, 2, 2};
+    nbIns[0] = DEFINITIONS_DSC_USD.length + DEFINITIONS_FWD3_USD_2.length;
+    nbIns[1] = DEFINITIONS_DSC_USD.length + DEFINITIONS_FWD3_USD_2.length;
+    nbIns[2] = DEFINITIONS_DSC_USD.length + DEFINITIONS_FWD3_USD_2.length;
+    nbIns[3] = DEFINITIONS_DSC_USD.length + DEFINITIONS_FWD3_USD_2.length + DEFINITIONS_FWD6_USD.length;
+    nbIns[4] = DEFINITIONS_DSC_USD.length + DEFINITIONS_FWD3_USD_2.length + DEFINITIONS_FWD6_USD.length;
+    nbIns[5] = DEFINITIONS_DSC_USD.length + DEFINITIONS_FWD3_USD_3.length;
+    nbIns[6] = DEFINITIONS_DSC_USD.length + DEFINITIONS_FWD3_USD_3.length;
+    nbIns[7] = DEFINITIONS_DSC_USD.length + DEFINITIONS_FWD3_USD_4.length;
+    int[] nbCurve = new int[] {2, 2, 2, 3, 3, 2, 2, 2};
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
@@ -605,11 +608,6 @@ public class YieldCurveConstructionGeneratorBlockFullSpreadTest {
       }
       if ((block == 7) && (loopunit == 1)) {
         initGuess = new double[] {0.012, -0.003, 0.018, 1.60, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-      }
-      if (block == 2) { // Discount factor
-        for (int loopi = 0; loopi < nbInsTotal; loopi++) {
-          initGuess[loopi] = 1.0;
-        }
       }
       Pair<YieldCurveBundle, Double[]> unitCal = makeUnit(instruments, initGuess, gen, knownSoFarData, calculator, sensitivityCalculator);
       parametersSoFar.addAll(Arrays.asList(unitCal.getSecond()));

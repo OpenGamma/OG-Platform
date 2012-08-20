@@ -59,4 +59,14 @@ public class GeneratorCurveDiscountFactorInterpolatedNode extends GeneratorCurve
     return generateCurve(name, parameters);
   }
 
+  @Override
+  public double[] initialGuess(double[] rates) {
+    ArgumentChecker.isTrue(rates.length == _nbPoints, "Rates of incorrect length.");
+    double[] discountFactor = new double[_nbPoints];
+    for (int loopnode = 0; loopnode < _nbPoints; loopnode++) {
+      discountFactor[loopnode] = Math.exp(-_nodePoints[loopnode] * rates[loopnode]);
+    }
+    return discountFactor;
+  }
+
 }
