@@ -35,4 +35,12 @@ public interface OGUser extends UniqueIdentifiable {
    * @return the name of the user, not null
    */
   String getName();
+  
+  /**
+   * Obtains the hashed version of the user's password.
+   * May be null or empty, particularly if the user is disabled.
+   * 
+   * @return The hashed password for the user account.
+   */
+  String getPasswordHash();
 }
