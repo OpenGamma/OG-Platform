@@ -5,6 +5,8 @@
  */
 package com.opengamma.core.user;
 
+import java.util.List;
+
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.PublicAPI;
@@ -43,4 +45,11 @@ public interface OGUser extends UniqueIdentifiable {
    * @return The hashed password for the user account.
    */
   String getPasswordHash();
+  
+  /**
+   * Obtains the user's entitlements.
+   * Each may be interpreted as a pattern to be applied to a restricted resource.
+   * @return Entitlements for the user in order of processing
+   */
+  List<String> getEntitlements();
 }
