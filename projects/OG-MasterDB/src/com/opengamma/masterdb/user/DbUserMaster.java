@@ -9,6 +9,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.fudgemsg.FudgeContext;
@@ -16,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.id.ExternalId;
@@ -26,6 +29,8 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.user.ManageableOGUser;
 import com.opengamma.master.user.UserDocument;
 import com.opengamma.master.user.UserMaster;
+import com.opengamma.master.user.UserSearchRequest;
+import com.opengamma.master.user.UserSearchResult;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
@@ -150,6 +155,8 @@ public class DbUserMaster extends AbstractDocumentDbMaster<UserDocument> impleme
         if (docId != _previousDocId) {
           _previousDocId = docId;
           buildUser(rs, docId);
+          _previousKeyId = -1L;
+          _processEntitlements = true;
         }
         
         // IDKEY_ID tells us when we're on a new external ID
@@ -205,6 +212,25 @@ public class DbUserMaster extends AbstractDocumentDbMaster<UserDocument> impleme
       doc.setUser(user);
       _documents.add(doc);
     }
+  }
+
+  @Override
+  public UserSearchResult search(UserSearchRequest request) {
+    // TODO kirk 2012-08-20 -- Yep, this is exactly what it looks like. Yes, it needs
+    // replacing.
+    List<UserDocument> docs = new LinkedList<UserDocument>();
+    
+    final String sql = getElSqlBundle().getSql("GetAll");
+    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
+    @SuppressWarnings("unchecked")
+    final List<UserDocument> queryResult = namedJdbc.query(sql, Collections.EMPTY_MAP, new UserDocumentExtractor());
+    for (UserDocument doc : queryResult) {
+      if (request.matches(doc)) {
+        docs.add(doc);
+      }
+    }
+    
+    return new UserSearchResult(docs);
   }
 
 }
