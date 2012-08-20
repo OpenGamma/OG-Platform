@@ -54,7 +54,7 @@ public class InMemoryUserMasterTest {
 
   public void test_get_match() {
     UserDocument result = master.get(addedDoc.getUniqueId());
-    assertEquals(UniqueId.of("MemExg", "1"), result.getUniqueId());
+    assertEquals(UniqueId.of("MemUsr", "1"), result.getUniqueId());
     assertEquals(addedDoc, result);
   }
 
