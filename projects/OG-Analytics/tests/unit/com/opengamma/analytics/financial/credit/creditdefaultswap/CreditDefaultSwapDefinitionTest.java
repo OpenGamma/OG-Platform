@@ -72,11 +72,21 @@ public class CreditDefaultSwapDefinitionTest {
                                                                                                     //interestRates,
                                                                                                     //creditSpreadTenors,
                                                                                                     //creditSpreads);
-
+  @Test
   public void testNullBuySellProtectionFlag() {
     assertEquals(null, CDS_DEFINITION.getBuySellProtection(), 1e-15);
   }
 
-
+  @Test
+public void testNotional() {
+  assertEquals(1.0e7, CDS_DEFINITION.getNotional(), 1e-15);
+  
+  
+}
+  
+  @Test
+  public void testBuySellProtectionFlag() {
+    assertEquals("Buy", CDS_DEFINITION.getBuySellProtection());
+  }
      
 }

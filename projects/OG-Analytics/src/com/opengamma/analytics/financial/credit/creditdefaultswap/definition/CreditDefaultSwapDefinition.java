@@ -151,7 +151,7 @@ public class CreditDefaultSwapDefinition {
     //Validate.isTrue(curverecoveryrate >= 0.0, "Curve recovery rate should be in the range [0%, 100%]");
     //Validate.isTrue(curverecoveryrate <= 1.0, "Curve recovery rate should be in the range [0%, 100%]");
     
-    ArgumentChecker.isTrue(buySellProtection == null, "Buy/Sell flag is set to null");
+    //ArgumentChecker.isTrue(buySellProtection == null, "Buy/Sell flag is set to null");
     ArgumentChecker.isTrue(notional >= 0.0,  "Notional amount should be greater than or equal to zero");
     
     //ArgumentChecker.isTrue(startdate.isBefore(valuationdate), "Start date {} must be before valuation date {}", startdate, valuationdate);
@@ -273,6 +273,7 @@ public class CreditDefaultSwapDefinition {
 //----------------------------------------------------------------------------------------------------------------------------------------
   
   public double getNotional() {
+    System.out.println("Notional = " + _notional);
     return _notional;
   }
   
