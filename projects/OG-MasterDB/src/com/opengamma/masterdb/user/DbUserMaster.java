@@ -89,6 +89,7 @@ public class DbUserMaster extends AbstractDocumentDbMaster<UserDocument> impleme
       .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
       .addValue("name", document.getName())
       .addValue("password", user.getPasswordHash());
+    
     // the arguments for inserting into the idkey tables
     final List<DbMapSqlParameterSource> assocList = new ArrayList<DbMapSqlParameterSource>();
     final List<DbMapSqlParameterSource> idKeyList = new ArrayList<DbMapSqlParameterSource>();
@@ -109,12 +110,25 @@ public class DbUserMaster extends AbstractDocumentDbMaster<UserDocument> impleme
         idKeyList.add(idkeyArgs);
       }
     }
+    
+    final List<DbMapSqlParameterSource> entitlementList = new ArrayList<DbMapSqlParameterSource>();
+    int iEntitlement = 0;
+    for (String entitlement : user.getEntitlements()) {
+      entitlementList.add(new DbMapSqlParameterSource()
+        .addValue("oguser_id", docId)
+        .addValue("entitlement_index", iEntitlement)
+        .addValue("entitlement_pattern", entitlement));
+      iEntitlement++;
+    }
+    
     final String sqlDoc = getElSqlBundle().getSql("Insert", docArgs);
     final String sqlIdKey = getElSqlBundle().getSql("InsertIdKey");
     final String sqlDoc2IdKey = getElSqlBundle().getSql("InsertDoc2IdKey");
+    final String sqlEntitlement = getElSqlBundle().getSql("InsertEntitlement");
     getJdbcTemplate().update(sqlDoc, docArgs);
     getJdbcTemplate().batchUpdate(sqlIdKey, idKeyList.toArray(new DbMapSqlParameterSource[idKeyList.size()]));
     getJdbcTemplate().batchUpdate(sqlDoc2IdKey, assocList.toArray(new DbMapSqlParameterSource[assocList.size()]));
+    getJdbcTemplate().batchUpdate(sqlEntitlement, entitlementList.toArray(new DbMapSqlParameterSource[entitlementList.size()]));
     return document;
   }
 
@@ -123,6 +137,8 @@ public class DbUserMaster extends AbstractDocumentDbMaster<UserDocument> impleme
    */
   protected final class UserDocumentExtractor implements ResultSetExtractor<List<UserDocument>> {
     private long _previousDocId = -1L;
+    private long _previousKeyId = -1L;
+    private boolean _processEntitlements = true;
     private ManageableOGUser _currUser;
     private List<UserDocument> _documents = new ArrayList<UserDocument>();
 
@@ -130,16 +146,37 @@ public class DbUserMaster extends AbstractDocumentDbMaster<UserDocument> impleme
     public List<UserDocument> extractData(final ResultSet rs) throws SQLException, DataAccessException {
       while (rs.next()) {
         final long docId = rs.getLong("DOC_ID");
+        // DOC_ID tells us when we're on a new document.
         if (docId != _previousDocId) {
           _previousDocId = docId;
           buildUser(rs, docId);
         }
         
-        String idKey = rs.getString("KEY_SCHEME");
-        String idValue = rs.getString("KEY_VALUE");
-        ExternalIdBundle idBundle = _currUser.getExternalIdBundle().withExternalId(
-            ExternalId.of(idKey, idValue));
-        _currUser.setExternalIdBundle(idBundle);
+        // IDKEY_ID tells us when we're on a new external ID
+        // This tells us to both process the ID and NOT to process the entitlement
+        // patterns.
+        final long keyId = rs.getLong("IDKEY_ID");
+        if (rs.wasNull()) {
+          // No external IDs. Have to process entitlements.
+          _processEntitlements = true;
+        } else if (keyId != _previousKeyId) {
+          // We've rolled. Don't process entitlements this pass.
+          if (_previousKeyId != -1L) {
+            _processEntitlements = false;
+          }
+          
+          _previousKeyId = keyId;
+          String idKey = rs.getString("KEY_SCHEME");
+          String idValue = rs.getString("KEY_VALUE");
+          ExternalIdBundle idBundle = _currUser.getExternalIdBundle().withExternalId(
+              ExternalId.of(idKey, idValue));
+          _currUser.setExternalIdBundle(idBundle);
+        }
+        
+        String entitlementPattern = rs.getString("ENTITLEMENT_PATTERN");
+        if (_processEntitlements && !rs.wasNull()) {
+          _currUser.getEntitlements().add(entitlementPattern);
+        }
       }
       return _documents;
     }

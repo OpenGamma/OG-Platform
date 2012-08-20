@@ -70,6 +70,37 @@ public class DbUserMasterTest extends DbTest {
     user.setExternalIdBundle(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D")));
     user.setName("Test");
     user.setPasswordHash("PASSWORD_HASH");
+    user.getEntitlements().add("ENTITLEMENT-1");
+    user.getEntitlements().add("ENTITLEMENT-2");
+    user.getEntitlements().add("ENTITLEMENT-3");
+    UserDocument addDoc = new UserDocument(user);
+    UserDocument added = _userMaster.add(addDoc);
+    
+    UserDocument loaded = _userMaster.get(added.getUniqueId());
+    assertEquals(added, loaded);
+  }
+
+  @Test
+  public void test_noid() throws Exception {
+    ManageableOGUser user = new ManageableOGUser();
+    user.setName("Test");
+    user.setPasswordHash("PASSWORD_HASH");
+    user.getEntitlements().add("ENTITLEMENT-1");
+    user.getEntitlements().add("ENTITLEMENT-2");
+    user.getEntitlements().add("ENTITLEMENT-3");
+    UserDocument addDoc = new UserDocument(user);
+    UserDocument added = _userMaster.add(addDoc);
+    
+    UserDocument loaded = _userMaster.get(added.getUniqueId());
+    assertEquals(added, loaded);
+  }
+
+  @Test
+  public void test_no_entitlements() throws Exception {
+    ManageableOGUser user = new ManageableOGUser();
+    user.setExternalIdBundle(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D")));
+    user.setName("Test");
+    user.setPasswordHash("PASSWORD_HASH");
     UserDocument addDoc = new UserDocument(user);
     UserDocument added = _userMaster.add(addDoc);
     

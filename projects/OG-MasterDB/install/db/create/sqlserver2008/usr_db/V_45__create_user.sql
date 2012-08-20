@@ -54,8 +54,15 @@ CREATE TABLE usr_oguser2idkey (
     oguser_id bigint NOT NULL,
     idkey_id bigint NOT NULL,
     PRIMARY KEY (oguser_id, idkey_id),
-    CONSTRAINT usr_fk_oguseridkey2exg FOREIGN KEY (oguser_id) REFERENCES usr_oguser (id),
-    CONSTRAINT usr_fk_oguseridkey2idkey FOREIGN KEY (idkey_id) REFERENCES usr_idkey (id)
+    CONSTRAINT usr_fk_oguseridkey2exg FOREIGN KEY (oguser_id) REFERENCES usr_oguser (id) ON DELETE CASCADE,
+    CONSTRAINT usr_fk_oguseridkey2idkey FOREIGN KEY (idkey_id) REFERENCES usr_idkey (id) ON DELETE CASCADE
 );
 CREATE INDEX ix_usr_oguser2idkey_idkey ON usr_oguser2idkey(idkey_id);
 
+CREATE TABLE usr_entitlement (
+    oguser_id bigint NOT NULL,
+    entitlement_index int NOT NULL,
+    entitlement_pattern varchar(255) NOT NULL,
+    PRIMARY KEY (oguser_id, entitlement_index),
+    CONSTRAINT usr_fk_entit2oguser FOREIGN KEY (oguser_id) REFERENCES usr_oguser (id) ON DELETE CASCADE
+);
