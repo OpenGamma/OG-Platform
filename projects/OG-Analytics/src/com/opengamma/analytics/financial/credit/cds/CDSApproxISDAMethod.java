@@ -103,7 +103,7 @@ public class CDSApproxISDAMethod {
           return calculateUpfrontCharge(zeroCDS, discountCurve, tempCurve, pricingDate, stepinDate, settlementDate, true);
         }  
       },
-      0.0, 1.0
+      0.0, 100.0
     );
     
     final ISDACurve hazardRateCurve = new ISDACurve("HAZARD_RATE_CURVE", timePoints, dataPoints, 0.0);

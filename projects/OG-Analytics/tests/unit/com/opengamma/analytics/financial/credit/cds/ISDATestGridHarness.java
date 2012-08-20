@@ -105,10 +105,10 @@ public class ISDATestGridHarness {
   
   @Test(groups="slow")
   public void runAllTestGrids() throws Exception {
-	  runTestGrids(testGridManager.findAllTestGrids());
+	  runTestGrids(testGridManager.findAllTestGrids(), false);
   }
   
-  public void runTestGrids(final Map<String,String[]> testGrids) throws Exception {
+  public void runTestGrids(final Map<String,String[]> testGrids, final boolean fastFilter) throws Exception {
 	  
     String classification;
 	  ISDATestGrid testGrid;
@@ -123,6 +123,7 @@ public class ISDATestGridHarness {
 	  double maxCleanPercentageError = 0.0;
 	  
 	  Set<String> testGridFilter = new HashSet<String>();
+	  Set<String> failedGrids = new HashSet<String>();
 	  
 	  for (Entry<String, String[]> batch : testGrids.entrySet()) {
   	  for (String fileName : batch.getValue()) {
@@ -130,10 +131,12 @@ public class ISDATestGridHarness {
   	    // Only run one grid for each category/currency combination
         classification = batch.getKey() + ":" + fileName.substring(0, 3);
         
-        if (testGridFilter.contains(classification))
-          continue;
-        else
-          testGridFilter.add(classification);
+        if (fastFilter) {
+          if (testGridFilter.contains(classification))
+            continue;
+          else
+            testGridFilter.add(classification);
+        }
   	    
         // Load the IR curve for the current grid
   		  testGrid = testGridManager.loadTestGrid(batch.getKey(), fileName);
@@ -159,6 +162,10 @@ public class ISDATestGridHarness {
   		  maxAbsoluteError = result.maxAbsoluteError > maxAbsoluteError ? result.maxAbsoluteError : maxAbsoluteError;
   		  maxRelativeError = result.maxRelativeError > maxRelativeError ? result.maxRelativeError : maxRelativeError;
   		  maxCleanPercentageError = result.maxCleanPercentageError > maxCleanPercentageError ? result.maxCleanPercentageError : maxCleanPercentageError;
+  		  
+  		  if (result.failures > 0) {
+  		    failedGrids.add(batch.getKey() + " " + fileName + " (" + result.failures + " failures)");
+  		  }
   	  }
 	  }
 	  
@@ -172,6 +179,14 @@ public class ISDATestGridHarness {
 	  System.out.println("Largest dirty absolute error: " + maxAbsoluteError);
 	  System.out.println("Largest dirty relative error: " + maxRelativeError);
 	  System.out.println("Largest clean percentage error: " + maxCleanPercentageError);
+	  
+	  System.out.println("Failed grids:");
+	  
+	  for (String failedGrid : failedGrids) {
+	    System.out.println(failedGrid);
+	  }
+	  
+	  System.out.println( " --- ISDA Test Grid run complete --- ");
   }
   
   public TestGridResult runTestGrid(ISDATestGrid testGrid, ISDACurve discountCurve, String testGridFileName) throws Exception {
