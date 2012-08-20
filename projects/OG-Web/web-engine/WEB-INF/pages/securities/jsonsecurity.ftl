@@ -20,6 +20,7 @@
         "rate":"${security.rate}",
         "region":"${security.regionId?replace("_", " ")}",
         "underlyingId":"${security.underlyingId?replace("_", " ")}",
+        "underlyingExternalId":"${security.underlyingId.scheme}-${security.underlyingId.value}",
         "startDate": {
               "date": "${security.startDate.toLocalDate()}",
               "zone": "${security.startDate.zone}"
