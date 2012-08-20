@@ -6,6 +6,8 @@
 package com.opengamma.analytics.financial.credit.cds;
 
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.time.calendar.DateAdjuster;
@@ -98,17 +100,17 @@ public class ISDATestGridHarness {
   
   @Test
   public void runSelectedTestGrids() throws Exception {
-    runTestGrids(selectedUnitTestGrids);
+    //runTestGrids(selectedUnitTestGrids);
   }
   
   @Test(groups="slow")
   public void runAllTestGrids() throws Exception {
-	  runTestGrids(testGridManager.findAllTestGridFiles());
+	  runTestGrids(testGridManager.findAllTestGrids());
   }
   
-  public void runTestGrids(final String[] testFiles) throws Exception {
+  public void runTestGrids(final Map<String,String[]> testGrids) throws Exception {
 	  
-    String currency;
+    String classification;
 	  ISDATestGrid testGrid;
 	  ISDAStagedCurve stagedCurve;
 	  ISDACurve discountCurve;
@@ -120,38 +122,44 @@ public class ISDATestGridHarness {
 	  double maxRelativeError = 0.0;
 	  double maxCleanPercentageError = 0.0;
 	  
-	  Set<String> currencies = new HashSet<String>();
+	  Set<String> testGridFilter = new HashSet<String>();
 	  
-	  for (String fileName : testFiles) {
-	    
-	    currency = fileName.substring(0, 3);
-		  testGrid = testGridManager.loadTestGrid(fileName);
-		  stagedCurve = stagedDataManager.loadStagedCurveForGrid(fileName);
-		  
-		  if (stagedCurve == null) {
-		    ++gridsMissingData;
-		    System.out.println("Skipping test grid: " + fileName + " (missing IR curve)");
-		    continue;
-		  }
-		    
-      if (currencies.contains(currency))
-        continue;
-      else
-        currencies.add(currency);
-		  
-		  System.out.println("Running test grid: " + fileName);
-		  
-		  discountCurve = buildCurve(stagedCurve, "IR_CURVE");
-		  result = runTestGrid(testGrid, discountCurve, fileName);
-		  
-		  ++grids;
-		  gridFailures += result.failures > 0 ? 1 : 0;
-		  cases += result.cases;
-		  caseFailures += result.failures;
-		  totalTime += result.seconds;
-		  maxAbsoluteError = result.maxAbsoluteError > maxAbsoluteError ? result.maxAbsoluteError : maxAbsoluteError;
-		  maxRelativeError = result.maxRelativeError > maxRelativeError ? result.maxRelativeError : maxRelativeError;
-		  maxCleanPercentageError = result.maxCleanPercentageError > maxCleanPercentageError ? result.maxCleanPercentageError : maxCleanPercentageError;
+	  for (Entry<String, String[]> batch : testGrids.entrySet()) {
+  	  for (String fileName : batch.getValue()) {
+  	    
+  	    // Only run one grid for each category/currency combination
+        classification = batch.getKey() + ":" + fileName.substring(0, 3);
+        
+        if (testGridFilter.contains(classification))
+          continue;
+        else
+          testGridFilter.add(classification);
+  	    
+        // Load the IR curve for the current grid
+  		  testGrid = testGridManager.loadTestGrid(batch.getKey(), fileName);
+  		  stagedCurve = stagedDataManager.loadStagedCurveForGrid(fileName);
+  		  
+  		  if (stagedCurve == null) {
+  		    ++gridsMissingData;
+  		    System.out.println("Skipping test grid: " + batch.getKey() + " " + fileName + " (missing IR curve)");
+  		    continue;
+  		  }
+  		  
+  		  // Run the grid
+  		  System.out.println("Running test grid: " + batch.getKey() + " " + fileName);
+  		  discountCurve = buildCurve(stagedCurve, "IR_CURVE");
+  		  result = runTestGrid(testGrid, discountCurve, fileName);
+  		  
+  		  // Record results
+  		  ++grids;
+  		  gridFailures += result.failures > 0 ? 1 : 0;
+  		  cases += result.cases;
+  		  caseFailures += result.failures;
+  		  totalTime += result.seconds;
+  		  maxAbsoluteError = result.maxAbsoluteError > maxAbsoluteError ? result.maxAbsoluteError : maxAbsoluteError;
+  		  maxRelativeError = result.maxRelativeError > maxRelativeError ? result.maxRelativeError : maxRelativeError;
+  		  maxCleanPercentageError = result.maxCleanPercentageError > maxCleanPercentageError ? result.maxCleanPercentageError : maxCleanPercentageError;
+  	  }
 	  }
 	  
 	  System.out.println(" --- ISDA Test Grid run complete --- ");
@@ -177,6 +185,10 @@ public class ISDATestGridHarness {
     final ZonedDateTime start = ZonedDateTime.now();
     
     for (ISDATestGridRow testCase : testGrid.getData()) {
+      
+      // Handle bad rows in the test data
+      if (!testCase.isTestValid())
+        continue;
       
       result = runTestCase(testCase, discountCurve);
       

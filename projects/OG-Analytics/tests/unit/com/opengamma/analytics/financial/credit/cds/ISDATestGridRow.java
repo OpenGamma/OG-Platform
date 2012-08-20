@@ -15,6 +15,11 @@ public class ISDATestGridRow extends ISDATestGrid {
 		_rowData = rowData;
 	}
 	
+	public boolean isTestValid() {
+	  
+	  return _rowData[ISDATestGrid.getHeadingIndex().get(ISDATestGridFields.TRADE_DATE)] != null;
+	}
+	
 	/**
 	 * Get the Trade Date
 	 */
