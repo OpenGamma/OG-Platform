@@ -23,6 +23,8 @@ public enum CogdaMessageType {
   SUBSCRIPTION_REQUEST,
   /** {@see CogdaLiveDataSubscriptionResponseMessage} */
   SUBSCRIPTION_RESPONSE,
+  /** {@see CogdaLiveDataUnsubscribeMessage} */
+  UNSUBSCRIBE,
   /** {@see CogdaLiveDataUpdateMessage} */
   LIVE_DATA_UPDATE;
   
