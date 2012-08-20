@@ -209,7 +209,7 @@ public class CurveHtsResolverTool extends AbstractIntegrationTool {
   private void loadHistoricalData(boolean write, String[] dataFields, String dataProvider, Set<ExternalId>... externalIdSets) {
     BloombergHistoricalTimeSeriesLoader loader = new BloombergHistoricalTimeSeriesLoader(
       getToolContext().getHistoricalTimeSeriesMaster(),
-      getToolContext().getBloombergHistoricalTimeSeriesSource(),
+      getToolContext().getHistoricalTimeSeriesProvider(),
       new BloombergIdentifierProvider(getToolContext().getBloombergReferenceDataProvider()));
 
     for (Set<ExternalId> externalIds : externalIdSets) {

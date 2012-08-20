@@ -51,8 +51,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.bbg.util.BloombergDomainIdentifierResolver;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -67,10 +65,12 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchR
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.master.position.PositionMaster;
+import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.MapUtils;
 import com.opengamma.util.PlatformConfigUtils;
 import com.opengamma.util.time.DateUtils;
+import com.opengamma.util.time.LocalDateRange;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
@@ -99,7 +99,7 @@ public class BloombergHistoricalLoader {
   private static final LocalDate DEFAULT_START_DATE = LocalDate.of(1900, MonthOfYear.JANUARY, 1);
 
   private final HistoricalTimeSeriesMaster _timeSeriesMaster;
-  private final HistoricalTimeSeriesSource _bbgHistoricalTimeSeriesSource;
+  private final HistoricalTimeSeriesProvider _historicalTimeSeriesProvider;
   private PositionMaster _positionMaster;
   private final BloombergHistoricalTimeSeriesLoader _loader;
 
@@ -117,13 +117,13 @@ public class BloombergHistoricalLoader {
   private List<ExternalIdBundle> _errors = new ArrayList<ExternalIdBundle>();
 
   public BloombergHistoricalLoader(final HistoricalTimeSeriesMaster htsMaster, 
-      final HistoricalTimeSeriesSource underlyingHtsProvider, 
+      final HistoricalTimeSeriesProvider underlyingHtsProvider, 
       final ExternalIdResolver identifierProvider) {
     ArgumentChecker.notNull(htsMaster, "htsMaster");
     ArgumentChecker.notNull(underlyingHtsProvider, "underlyingHtsProvider");
     ArgumentChecker.notNull(identifierProvider, "identifierProvider");
     _timeSeriesMaster = htsMaster;
-    _bbgHistoricalTimeSeriesSource = underlyingHtsProvider;
+    _historicalTimeSeriesProvider = underlyingHtsProvider;
     _loader = new BloombergHistoricalTimeSeriesLoader(htsMaster, underlyingHtsProvider, identifierProvider);
   }
 
@@ -541,7 +541,7 @@ public class BloombergHistoricalLoader {
           Set<ExternalIdBundle> identifiers = fieldIdentifiers.getValue();
           
           String bbgDataProvider = BloombergDataUtils.resolveDataProvider(dataProvider);
-          Map<ExternalIdBundle, HistoricalTimeSeries> bbgLoadedTS = getTimeSeries(dataField, startDate, endDate, bbgDataProvider, identifiers);
+          Map<ExternalIdBundle, LocalDateDoubleTimeSeries> bbgLoadedTS = getTimeSeries(dataField, startDate, endDate, bbgDataProvider, identifiers);
           if (bbgLoadedTS.size() < identifiers.size()) {
             s_logger.error("Failed to load time series for {}", Sets.difference(identifiers, bbgLoadedTS.keySet()));
           }
@@ -551,10 +551,10 @@ public class BloombergHistoricalLoader {
     }
   }
 
-  private void storeUpdatedSeriesInDb(Map<ExternalIdBundle, HistoricalTimeSeries> bbgLoadedTS, Map<MetaDataKey, ObjectId> metaDataKeyMap, String dataProvider, String dataField) {
-    for (Entry<ExternalIdBundle, HistoricalTimeSeries> identifierTS : bbgLoadedTS.entrySet()) {
+  private void storeUpdatedSeriesInDb(Map<ExternalIdBundle, LocalDateDoubleTimeSeries> bbgLoadedTS, Map<MetaDataKey, ObjectId> metaDataKeyMap, String dataProvider, String dataField) {
+    for (Entry<ExternalIdBundle, LocalDateDoubleTimeSeries> identifierTS : bbgLoadedTS.entrySet()) {
       // ensure data points are after the last stored data point
-      LocalDateDoubleTimeSeries timeSeries = identifierTS.getValue().getTimeSeries();
+      LocalDateDoubleTimeSeries timeSeries = identifierTS.getValue();
       if (timeSeries.isEmpty()) {
         s_logger.info("No new data for series {} {}", dataField, identifierTS.getKey());
         continue;  // avoids errors in getLatestTime()
@@ -889,11 +889,12 @@ public class BloombergHistoricalLoader {
   }
 
   //-------------------------------------------------------------------------
-  private Map<ExternalIdBundle, HistoricalTimeSeries> getTimeSeries(
+  private Map<ExternalIdBundle, LocalDateDoubleTimeSeries> getTimeSeries(
       final String dataField, final LocalDate startDate, final LocalDate endDate, String bbgDataProvider, Set<ExternalIdBundle> identifierSet) {
     s_logger.debug("Loading time series {} ({}-{}) {}: {}", new Object[] {dataField, startDate, endDate, bbgDataProvider, identifierSet});
-    return _bbgHistoricalTimeSeriesSource.getHistoricalTimeSeries(
-        identifierSet, BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME, bbgDataProvider, dataField, startDate, true, endDate, true);
+    LocalDateRange dateRange = LocalDateRange.of(startDate, endDate, true);
+    return _historicalTimeSeriesProvider.getHistoricalTimeSeries(
+        identifierSet, BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME, bbgDataProvider, dataField, dateRange);
   }
 
 }

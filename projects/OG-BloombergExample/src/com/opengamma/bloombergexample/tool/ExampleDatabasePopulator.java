@@ -145,7 +145,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
   private void loadHistoricalData(Set<ExternalId>... externalIdSets) {
     BloombergHistoricalTimeSeriesLoader loader = new BloombergHistoricalTimeSeriesLoader(
       getToolContext().getHistoricalTimeSeriesMaster(),
-      getBloombergToolContext().getBloombergHistoricalTimeSeriesSource(),
+      getToolContext().getHistoricalTimeSeriesProvider(),
       new BloombergIdentifierProvider(getBloombergToolContext().getBloombergReferenceDataProvider()));
 
     Collection<EquitySecurity> securities = readEquitySecurities();

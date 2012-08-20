@@ -21,12 +21,12 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.integration.copier.portfolio.web.PortfolioLoaderResource;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
 import com.opengamma.provider.security.SecurityProvider;
 
 /**
@@ -65,7 +65,7 @@ public class IntegrationWebComponentFactory extends AbstractComponentFactory {
    * The time-series provider for the underlying data source.
    */
   @PropertyDefinition(validate = "notNull")
-  private HistoricalTimeSeriesSource _bloombergHistoricalTimeSeriesSource;
+  private HistoricalTimeSeriesProvider _historicalTimeSeriesProvider;
   /**
    * The reference data provider for the underlying data source.
    */
@@ -81,7 +81,7 @@ public class IntegrationWebComponentFactory extends AbstractComponentFactory {
         getSecurityMaster(),
         getHistoricalTimeSeriesMaster(),
         getSecurityProvider(),
-        getBloombergHistoricalTimeSeriesSource(),
+        getHistoricalTimeSeriesProvider(),
         getBloombergReferenceDataProvider()));
   }
 
@@ -116,8 +116,8 @@ public class IntegrationWebComponentFactory extends AbstractComponentFactory {
         return getHistoricalTimeSeriesMaster();
       case 809869649:  // securityProvider
         return getSecurityProvider();
-      case 1652351076:  // bloombergHistoricalTimeSeriesSource
-        return getBloombergHistoricalTimeSeriesSource();
+      case -1592479713:  // historicalTimeSeriesProvider
+        return getHistoricalTimeSeriesProvider();
       case -245204181:  // bloombergReferenceDataProvider
         return getBloombergReferenceDataProvider();
     }
@@ -142,8 +142,8 @@ public class IntegrationWebComponentFactory extends AbstractComponentFactory {
       case 809869649:  // securityProvider
         setSecurityProvider((SecurityProvider) newValue);
         return;
-      case 1652351076:  // bloombergHistoricalTimeSeriesSource
-        setBloombergHistoricalTimeSeriesSource((HistoricalTimeSeriesSource) newValue);
+      case -1592479713:  // historicalTimeSeriesProvider
+        setHistoricalTimeSeriesProvider((HistoricalTimeSeriesProvider) newValue);
         return;
       case -245204181:  // bloombergReferenceDataProvider
         setBloombergReferenceDataProvider((ReferenceDataProvider) newValue);
@@ -159,7 +159,7 @@ public class IntegrationWebComponentFactory extends AbstractComponentFactory {
     JodaBeanUtils.notNull(_securityMaster, "securityMaster");
     JodaBeanUtils.notNull(_historicalTimeSeriesMaster, "historicalTimeSeriesMaster");
     JodaBeanUtils.notNull(_securityProvider, "securityProvider");
-    JodaBeanUtils.notNull(_bloombergHistoricalTimeSeriesSource, "bloombergHistoricalTimeSeriesSource");
+    JodaBeanUtils.notNull(_historicalTimeSeriesProvider, "historicalTimeSeriesProvider");
     JodaBeanUtils.notNull(_bloombergReferenceDataProvider, "bloombergReferenceDataProvider");
     super.validate();
   }
@@ -176,7 +176,7 @@ public class IntegrationWebComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getSecurityMaster(), other.getSecurityMaster()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
           JodaBeanUtils.equal(getSecurityProvider(), other.getSecurityProvider()) &&
-          JodaBeanUtils.equal(getBloombergHistoricalTimeSeriesSource(), other.getBloombergHistoricalTimeSeriesSource()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesProvider(), other.getHistoricalTimeSeriesProvider()) &&
           JodaBeanUtils.equal(getBloombergReferenceDataProvider(), other.getBloombergReferenceDataProvider()) &&
           super.equals(obj);
     }
@@ -191,7 +191,7 @@ public class IntegrationWebComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityProvider());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBloombergHistoricalTimeSeriesSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesProvider());
     hash += hash * 31 + JodaBeanUtils.hashCode(getBloombergReferenceDataProvider());
     return hash ^ super.hashCode();
   }
@@ -331,25 +331,25 @@ public class IntegrationWebComponentFactory extends AbstractComponentFactory {
    * Gets the time-series provider for the underlying data source.
    * @return the value of the property, not null
    */
-  public HistoricalTimeSeriesSource getBloombergHistoricalTimeSeriesSource() {
-    return _bloombergHistoricalTimeSeriesSource;
+  public HistoricalTimeSeriesProvider getHistoricalTimeSeriesProvider() {
+    return _historicalTimeSeriesProvider;
   }
 
   /**
    * Sets the time-series provider for the underlying data source.
-   * @param bloombergHistoricalTimeSeriesSource  the new value of the property, not null
+   * @param historicalTimeSeriesProvider  the new value of the property, not null
    */
-  public void setBloombergHistoricalTimeSeriesSource(HistoricalTimeSeriesSource bloombergHistoricalTimeSeriesSource) {
-    JodaBeanUtils.notNull(bloombergHistoricalTimeSeriesSource, "bloombergHistoricalTimeSeriesSource");
-    this._bloombergHistoricalTimeSeriesSource = bloombergHistoricalTimeSeriesSource;
+  public void setHistoricalTimeSeriesProvider(HistoricalTimeSeriesProvider historicalTimeSeriesProvider) {
+    JodaBeanUtils.notNull(historicalTimeSeriesProvider, "historicalTimeSeriesProvider");
+    this._historicalTimeSeriesProvider = historicalTimeSeriesProvider;
   }
 
   /**
-   * Gets the the {@code bloombergHistoricalTimeSeriesSource} property.
+   * Gets the the {@code historicalTimeSeriesProvider} property.
    * @return the property, not null
    */
-  public final Property<HistoricalTimeSeriesSource> bloombergHistoricalTimeSeriesSource() {
-    return metaBean().bloombergHistoricalTimeSeriesSource().createProperty(this);
+  public final Property<HistoricalTimeSeriesProvider> historicalTimeSeriesProvider() {
+    return metaBean().historicalTimeSeriesProvider().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -414,10 +414,10 @@ public class IntegrationWebComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<SecurityProvider> _securityProvider = DirectMetaProperty.ofReadWrite(
         this, "securityProvider", IntegrationWebComponentFactory.class, SecurityProvider.class);
     /**
-     * The meta-property for the {@code bloombergHistoricalTimeSeriesSource} property.
+     * The meta-property for the {@code historicalTimeSeriesProvider} property.
      */
-    private final MetaProperty<HistoricalTimeSeriesSource> _bloombergHistoricalTimeSeriesSource = DirectMetaProperty.ofReadWrite(
-        this, "bloombergHistoricalTimeSeriesSource", IntegrationWebComponentFactory.class, HistoricalTimeSeriesSource.class);
+    private final MetaProperty<HistoricalTimeSeriesProvider> _historicalTimeSeriesProvider = DirectMetaProperty.ofReadWrite(
+        this, "historicalTimeSeriesProvider", IntegrationWebComponentFactory.class, HistoricalTimeSeriesProvider.class);
     /**
      * The meta-property for the {@code bloombergReferenceDataProvider} property.
      */
@@ -433,7 +433,7 @@ public class IntegrationWebComponentFactory extends AbstractComponentFactory {
         "securityMaster",
         "historicalTimeSeriesMaster",
         "securityProvider",
-        "bloombergHistoricalTimeSeriesSource",
+        "historicalTimeSeriesProvider",
         "bloombergReferenceDataProvider");
 
     /**
@@ -455,8 +455,8 @@ public class IntegrationWebComponentFactory extends AbstractComponentFactory {
           return _historicalTimeSeriesMaster;
         case 809869649:  // securityProvider
           return _securityProvider;
-        case 1652351076:  // bloombergHistoricalTimeSeriesSource
-          return _bloombergHistoricalTimeSeriesSource;
+        case -1592479713:  // historicalTimeSeriesProvider
+          return _historicalTimeSeriesProvider;
         case -245204181:  // bloombergReferenceDataProvider
           return _bloombergReferenceDataProvider;
       }
@@ -520,11 +520,11 @@ public class IntegrationWebComponentFactory extends AbstractComponentFactory {
     }
 
     /**
-     * The meta-property for the {@code bloombergHistoricalTimeSeriesSource} property.
+     * The meta-property for the {@code historicalTimeSeriesProvider} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<HistoricalTimeSeriesSource> bloombergHistoricalTimeSeriesSource() {
-      return _bloombergHistoricalTimeSeriesSource;
+    public final MetaProperty<HistoricalTimeSeriesProvider> historicalTimeSeriesProvider() {
+      return _historicalTimeSeriesProvider;
     }
 
     /**

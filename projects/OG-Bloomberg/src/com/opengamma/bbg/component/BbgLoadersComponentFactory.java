@@ -35,6 +35,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
 import com.opengamma.provider.security.SecurityProvider;
 import com.opengamma.transport.jaxrs.UriEndPointUriFactoryBean;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
@@ -63,6 +64,11 @@ public class BbgLoadersComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition(validate = "notNull")
   private SecurityProvider _securityProvider;
   /**
+   * The time-series provider.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private HistoricalTimeSeriesProvider _historicalTimeSeriesProvider;
+  /**
    * The security master.
    */
   @PropertyDefinition(validate = "notNull")
@@ -89,7 +95,7 @@ public class BbgLoadersComponentFactory extends AbstractComponentFactory {
     ReferenceDataProvider refData = initReferenceDataProvider(repo);
     HistoricalTimeSeriesSource bbgHtsSource = initTimeSeriesSource(repo);
     initSecurityLoader(repo, refData, bbgHtsSource);
-    initHistoricalTimeSeriesLoader(repo, refData, bbgHtsSource);
+    initHistoricalTimeSeriesLoader(repo, refData);
   }
 
   protected ReferenceDataProvider initReferenceDataProvider(ComponentRepository repo) {
@@ -124,9 +130,10 @@ public class BbgLoadersComponentFactory extends AbstractComponentFactory {
     return bbgSecLoader;
   }
 
-  protected HistoricalTimeSeriesLoader initHistoricalTimeSeriesLoader(ComponentRepository repo, ReferenceDataProvider refData, HistoricalTimeSeriesSource bbgHtsSource) {
+  protected HistoricalTimeSeriesLoader initHistoricalTimeSeriesLoader(ComponentRepository repo, ReferenceDataProvider refData) {
     ExternalIdResolver idProvider = new BloombergIdentifierProvider(refData);
-    HistoricalTimeSeriesLoader htsLoader = new BloombergHistoricalTimeSeriesLoader(getHistoricalTimeSeriesMaster(), bbgHtsSource, idProvider);
+    HistoricalTimeSeriesLoader htsLoader = new BloombergHistoricalTimeSeriesLoader(
+        getHistoricalTimeSeriesMaster(), getHistoricalTimeSeriesProvider(), idProvider);
     ComponentInfo info = new ComponentInfo(HistoricalTimeSeriesLoader.class, "standard");
     repo.registerComponent(info, htsLoader);
     return htsLoader;
@@ -159,6 +166,8 @@ public class BbgLoadersComponentFactory extends AbstractComponentFactory {
         return getReferenceDataJmsTopic();
       case 809869649:  // securityProvider
         return getSecurityProvider();
+      case -1592479713:  // historicalTimeSeriesProvider
+        return getHistoricalTimeSeriesProvider();
       case -887218750:  // securityMaster
         return getSecurityMaster();
       case 173967376:  // historicalTimeSeriesMaster
@@ -183,6 +192,9 @@ public class BbgLoadersComponentFactory extends AbstractComponentFactory {
       case 809869649:  // securityProvider
         setSecurityProvider((SecurityProvider) newValue);
         return;
+      case -1592479713:  // historicalTimeSeriesProvider
+        setHistoricalTimeSeriesProvider((HistoricalTimeSeriesProvider) newValue);
+        return;
       case -887218750:  // securityMaster
         setSecurityMaster((SecurityMaster) newValue);
         return;
@@ -204,6 +216,7 @@ public class BbgLoadersComponentFactory extends AbstractComponentFactory {
     JodaBeanUtils.notNull(_bbgServerConfigurationUri, "bbgServerConfigurationUri");
     JodaBeanUtils.notNull(_referenceDataJmsTopic, "referenceDataJmsTopic");
     JodaBeanUtils.notNull(_securityProvider, "securityProvider");
+    JodaBeanUtils.notNull(_historicalTimeSeriesProvider, "historicalTimeSeriesProvider");
     JodaBeanUtils.notNull(_securityMaster, "securityMaster");
     JodaBeanUtils.notNull(_historicalTimeSeriesMaster, "historicalTimeSeriesMaster");
     JodaBeanUtils.notNull(_fudgeContext, "fudgeContext");
@@ -221,6 +234,7 @@ public class BbgLoadersComponentFactory extends AbstractComponentFactory {
       return JodaBeanUtils.equal(getBbgServerConfigurationUri(), other.getBbgServerConfigurationUri()) &&
           JodaBeanUtils.equal(getReferenceDataJmsTopic(), other.getReferenceDataJmsTopic()) &&
           JodaBeanUtils.equal(getSecurityProvider(), other.getSecurityProvider()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesProvider(), other.getHistoricalTimeSeriesProvider()) &&
           JodaBeanUtils.equal(getSecurityMaster(), other.getSecurityMaster()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
           JodaBeanUtils.equal(getFudgeContext(), other.getFudgeContext()) &&
@@ -236,6 +250,7 @@ public class BbgLoadersComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getBbgServerConfigurationUri());
     hash += hash * 31 + JodaBeanUtils.hashCode(getReferenceDataJmsTopic());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityProvider());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesProvider());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFudgeContext());
@@ -319,6 +334,32 @@ public class BbgLoadersComponentFactory extends AbstractComponentFactory {
    */
   public final Property<SecurityProvider> securityProvider() {
     return metaBean().securityProvider().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the time-series provider.
+   * @return the value of the property, not null
+   */
+  public HistoricalTimeSeriesProvider getHistoricalTimeSeriesProvider() {
+    return _historicalTimeSeriesProvider;
+  }
+
+  /**
+   * Sets the time-series provider.
+   * @param historicalTimeSeriesProvider  the new value of the property, not null
+   */
+  public void setHistoricalTimeSeriesProvider(HistoricalTimeSeriesProvider historicalTimeSeriesProvider) {
+    JodaBeanUtils.notNull(historicalTimeSeriesProvider, "historicalTimeSeriesProvider");
+    this._historicalTimeSeriesProvider = historicalTimeSeriesProvider;
+  }
+
+  /**
+   * Gets the the {@code historicalTimeSeriesProvider} property.
+   * @return the property, not null
+   */
+  public final Property<HistoricalTimeSeriesProvider> historicalTimeSeriesProvider() {
+    return metaBean().historicalTimeSeriesProvider().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -451,6 +492,11 @@ public class BbgLoadersComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<SecurityProvider> _securityProvider = DirectMetaProperty.ofReadWrite(
         this, "securityProvider", BbgLoadersComponentFactory.class, SecurityProvider.class);
     /**
+     * The meta-property for the {@code historicalTimeSeriesProvider} property.
+     */
+    private final MetaProperty<HistoricalTimeSeriesProvider> _historicalTimeSeriesProvider = DirectMetaProperty.ofReadWrite(
+        this, "historicalTimeSeriesProvider", BbgLoadersComponentFactory.class, HistoricalTimeSeriesProvider.class);
+    /**
      * The meta-property for the {@code securityMaster} property.
      */
     private final MetaProperty<SecurityMaster> _securityMaster = DirectMetaProperty.ofReadWrite(
@@ -478,6 +524,7 @@ public class BbgLoadersComponentFactory extends AbstractComponentFactory {
         "bbgServerConfigurationUri",
         "referenceDataJmsTopic",
         "securityProvider",
+        "historicalTimeSeriesProvider",
         "securityMaster",
         "historicalTimeSeriesMaster",
         "fudgeContext",
@@ -498,6 +545,8 @@ public class BbgLoadersComponentFactory extends AbstractComponentFactory {
           return _referenceDataJmsTopic;
         case 809869649:  // securityProvider
           return _securityProvider;
+        case -1592479713:  // historicalTimeSeriesProvider
+          return _historicalTimeSeriesProvider;
         case -887218750:  // securityMaster
           return _securityMaster;
         case 173967376:  // historicalTimeSeriesMaster
@@ -548,6 +597,14 @@ public class BbgLoadersComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<SecurityProvider> securityProvider() {
       return _securityProvider;
+    }
+
+    /**
+     * The meta-property for the {@code historicalTimeSeriesProvider} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<HistoricalTimeSeriesProvider> historicalTimeSeriesProvider() {
+      return _historicalTimeSeriesProvider;
     }
 
     /**

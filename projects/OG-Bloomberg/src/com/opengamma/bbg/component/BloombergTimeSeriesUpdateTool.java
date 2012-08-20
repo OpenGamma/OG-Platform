@@ -23,7 +23,7 @@ public class BloombergTimeSeriesUpdateTool extends AbstractBloombergTool {
   protected void doRun() throws Exception {
     BloombergHistoricalLoader loader = new BloombergHistoricalLoader(
         getToolContext().getHistoricalTimeSeriesMaster(),
-        getBloombergToolContext().getBloombergHistoricalTimeSeriesSource(),
+        getToolContext().getHistoricalTimeSeriesProvider(),
         new BloombergIdentifierProvider(getBloombergToolContext().getBloombergReferenceDataProvider()));
     loader.setUpdateDb(true);
     loader.setReload(getCommandLine().hasOption("reload"));

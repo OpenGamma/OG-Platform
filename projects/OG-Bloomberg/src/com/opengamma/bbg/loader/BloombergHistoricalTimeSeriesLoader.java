@@ -26,7 +26,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -43,10 +42,12 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchR
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
+import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.time.DateUtils;
+import com.opengamma.util.time.LocalDateRange;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
@@ -70,7 +71,7 @@ public class BloombergHistoricalTimeSeriesLoader implements HistoricalTimeSeries
   /**
    * The provider of time-series.
    */
-  private final HistoricalTimeSeriesSource _underlyingHtsProvider;
+  private final HistoricalTimeSeriesProvider _underlyingHtsProvider;
   /**
    * The resolver of identifiers.
    */
@@ -85,7 +86,7 @@ public class BloombergHistoricalTimeSeriesLoader implements HistoricalTimeSeries
    */
   public BloombergHistoricalTimeSeriesLoader(
       final HistoricalTimeSeriesMaster htsMaster,
-      final HistoricalTimeSeriesSource underlyingHtsProvider,
+      final HistoricalTimeSeriesProvider underlyingHtsProvider,
       final ExternalIdResolver identifierProvider) {
     ArgumentChecker.notNull(htsMaster, "htsMaster");
     ArgumentChecker.notNull(underlyingHtsProvider, "underlyingHtsProvider");
@@ -188,7 +189,7 @@ public class BloombergHistoricalTimeSeriesLoader implements HistoricalTimeSeries
       int identifiersSize = bundle2WithDates.keySet().size();
       System.out.printf("Loading %d ts  dataField: %s dataProvider: %s startDate: %s endDate: %s\n", identifiersSize, dataField, dataProvider, startDate, endDate);
       OperationTimer timer = new OperationTimer(s_logger, " loading " + identifiersSize + " timeseries from Bloomberg");
-      Map<ExternalIdBundle, HistoricalTimeSeries> tsMap = loadTimeSeries(bundle2WithDates.keySet(), dataField, dataProvider, startDate, endDate);
+      Map<ExternalIdBundle, LocalDateDoubleTimeSeries> tsMap = loadTimeSeries(bundle2WithDates.keySet(), dataField, dataProvider, startDate, endDate);
       timer.finished();
       
       timer = new OperationTimer(s_logger, " storing " + identifiersSize + " timeseries from Bloomberg");
@@ -207,11 +208,12 @@ public class BloombergHistoricalTimeSeriesLoader implements HistoricalTimeSeries
    * @param endDate  the end date to load, not null
    * @return the map of results, not null
    */
-  protected Map<ExternalIdBundle, HistoricalTimeSeries> loadTimeSeries(
+  protected Map<ExternalIdBundle, LocalDateDoubleTimeSeries> loadTimeSeries(
       Set<ExternalIdBundle> externalIds, String dataField, String dataProvider, LocalDate startDate, LocalDate endDate) {
     s_logger.debug("Loading time series {} ({}-{}) {}: {}", new Object[] {dataField, startDate, endDate, dataProvider, externalIds});
+    LocalDateRange dateRange = LocalDateRange.of(startDate, endDate, true);
     return _underlyingHtsProvider.getHistoricalTimeSeries(
-        externalIds, BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME, dataProvider, dataField, startDate, true, endDate, true);
+        externalIds, BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME, dataProvider, dataField, dateRange);
   }
 
   /**
@@ -225,14 +227,14 @@ public class BloombergHistoricalTimeSeriesLoader implements HistoricalTimeSeries
    * @param result  the result map of identifiers, updated if already in database, not null
    */
   protected void storeTimeSeries(
-      Map<ExternalIdBundle, HistoricalTimeSeries> tsMap, String dataField, String dataProvider,
+      Map<ExternalIdBundle, LocalDateDoubleTimeSeries> tsMap, String dataField, String dataProvider,
       Map<ExternalIdBundleWithDates, ExternalId> bundleToIdentifier,
       Map<ExternalIdBundle, ExternalIdBundleWithDates> identifiersToBundleWithDates,
       Map<ExternalId, UniqueId> result) {
     // Add timeseries to data store
-    for (Entry<ExternalIdBundle, HistoricalTimeSeries> entry : tsMap.entrySet()) {
+    for (Entry<ExternalIdBundle, LocalDateDoubleTimeSeries> entry : tsMap.entrySet()) {
       ExternalIdBundle identifers = entry.getKey();
-      LocalDateDoubleTimeSeries timeSeries = entry.getValue().getTimeSeries();
+      LocalDateDoubleTimeSeries timeSeries = entry.getValue();
       if (timeSeries != null && !timeSeries.isEmpty()) {
         ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
         ExternalIdBundleWithDates bundleWithDates = identifiersToBundleWithDates.get(identifers);
@@ -295,11 +297,11 @@ public class BloombergHistoricalTimeSeriesLoader implements HistoricalTimeSeries
     String dataSource = info.getDataSource();
     String dataProvider = info.getDataProvider();
     String dataField = info.getDataField();
-    HistoricalTimeSeries series = _underlyingHtsProvider.getHistoricalTimeSeries(externalIdBundle, dataSource, dataProvider, dataField);
+    LocalDateDoubleTimeSeries series = _underlyingHtsProvider.getHistoricalTimeSeries(externalIdBundle, dataSource, dataProvider, dataField);
     if (series == null) {
       return false;
     }
-    _htsMaster.correctTimeSeriesDataPoints(doc.getInfo().getTimeSeriesObjectId(), series.getTimeSeries());
+    _htsMaster.correctTimeSeriesDataPoints(doc.getInfo().getTimeSeriesObjectId(), series);
     return true;
   }
 

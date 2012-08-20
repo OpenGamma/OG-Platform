@@ -40,6 +40,7 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
 import com.opengamma.provider.security.SecurityProvider;
 import com.opengamma.util.ReflectionUtils;
 
@@ -162,6 +163,11 @@ public class ToolContext extends DirectBean implements Closeable {
   @PropertyDefinition
   private SecurityLoader _securityLoader;
   /**
+   * The time-series provider.
+   */
+  @PropertyDefinition
+  private HistoricalTimeSeriesProvider _historicalTimeSeriesProvider;
+  /**
    * The time-series loader.
    */
   @PropertyDefinition
@@ -263,6 +269,8 @@ public class ToolContext extends DirectBean implements Closeable {
         return getSecurityProvider();
       case -903470221:  // securityLoader
         return getSecurityLoader();
+      case -1592479713:  // historicalTimeSeriesProvider
+        return getHistoricalTimeSeriesProvider();
       case 157715905:  // historicalTimeSeriesLoader
         return getHistoricalTimeSeriesLoader();
     }
@@ -335,6 +343,9 @@ public class ToolContext extends DirectBean implements Closeable {
       case -903470221:  // securityLoader
         setSecurityLoader((SecurityLoader) newValue);
         return;
+      case -1592479713:  // historicalTimeSeriesProvider
+        setHistoricalTimeSeriesProvider((HistoricalTimeSeriesProvider) newValue);
+        return;
       case 157715905:  // historicalTimeSeriesLoader
         setHistoricalTimeSeriesLoader((HistoricalTimeSeriesLoader) newValue);
         return;
@@ -370,6 +381,7 @@ public class ToolContext extends DirectBean implements Closeable {
           JodaBeanUtils.equal(getConventionBundleSource(), other.getConventionBundleSource()) &&
           JodaBeanUtils.equal(getSecurityProvider(), other.getSecurityProvider()) &&
           JodaBeanUtils.equal(getSecurityLoader(), other.getSecurityLoader()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesProvider(), other.getHistoricalTimeSeriesProvider()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesLoader(), other.getHistoricalTimeSeriesLoader());
     }
     return false;
@@ -399,6 +411,7 @@ public class ToolContext extends DirectBean implements Closeable {
     hash += hash * 31 + JodaBeanUtils.hashCode(getConventionBundleSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityProvider());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLoader());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesProvider());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesLoader());
     return hash;
   }
@@ -924,6 +937,31 @@ public class ToolContext extends DirectBean implements Closeable {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the time-series provider.
+   * @return the value of the property
+   */
+  public HistoricalTimeSeriesProvider getHistoricalTimeSeriesProvider() {
+    return _historicalTimeSeriesProvider;
+  }
+
+  /**
+   * Sets the time-series provider.
+   * @param historicalTimeSeriesProvider  the new value of the property
+   */
+  public void setHistoricalTimeSeriesProvider(HistoricalTimeSeriesProvider historicalTimeSeriesProvider) {
+    this._historicalTimeSeriesProvider = historicalTimeSeriesProvider;
+  }
+
+  /**
+   * Gets the the {@code historicalTimeSeriesProvider} property.
+   * @return the property, not null
+   */
+  public final Property<HistoricalTimeSeriesProvider> historicalTimeSeriesProvider() {
+    return metaBean().historicalTimeSeriesProvider().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the time-series loader.
    * @return the value of the property
    */
@@ -1063,6 +1101,11 @@ public class ToolContext extends DirectBean implements Closeable {
     private final MetaProperty<SecurityLoader> _securityLoader = DirectMetaProperty.ofReadWrite(
         this, "securityLoader", ToolContext.class, SecurityLoader.class);
     /**
+     * The meta-property for the {@code historicalTimeSeriesProvider} property.
+     */
+    private final MetaProperty<HistoricalTimeSeriesProvider> _historicalTimeSeriesProvider = DirectMetaProperty.ofReadWrite(
+        this, "historicalTimeSeriesProvider", ToolContext.class, HistoricalTimeSeriesProvider.class);
+    /**
      * The meta-property for the {@code historicalTimeSeriesLoader} property.
      */
     private final MetaProperty<HistoricalTimeSeriesLoader> _historicalTimeSeriesLoader = DirectMetaProperty.ofReadWrite(
@@ -1093,6 +1136,7 @@ public class ToolContext extends DirectBean implements Closeable {
         "conventionBundleSource",
         "securityProvider",
         "securityLoader",
+        "historicalTimeSeriesProvider",
         "historicalTimeSeriesLoader");
 
     /**
@@ -1146,6 +1190,8 @@ public class ToolContext extends DirectBean implements Closeable {
           return _securityProvider;
         case -903470221:  // securityLoader
           return _securityLoader;
+        case -1592479713:  // historicalTimeSeriesProvider
+          return _historicalTimeSeriesProvider;
         case 157715905:  // historicalTimeSeriesLoader
           return _historicalTimeSeriesLoader;
       }
@@ -1334,6 +1380,14 @@ public class ToolContext extends DirectBean implements Closeable {
      */
     public final MetaProperty<SecurityLoader> securityLoader() {
       return _securityLoader;
+    }
+
+    /**
+     * The meta-property for the {@code historicalTimeSeriesProvider} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<HistoricalTimeSeriesProvider> historicalTimeSeriesProvider() {
+      return _historicalTimeSeriesProvider;
     }
 
     /**

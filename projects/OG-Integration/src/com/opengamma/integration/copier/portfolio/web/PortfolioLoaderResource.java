@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.bbg.ReferenceDataProvider;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.integration.copier.portfolio.ResolvingPortfolioCopier;
 import com.opengamma.integration.copier.portfolio.reader.PortfolioReader;
 import com.opengamma.integration.copier.portfolio.reader.SingleSheetSimplePortfolioReader;
@@ -37,6 +36,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
 import com.opengamma.provider.security.SecurityProvider;
 import com.opengamma.util.ArgumentChecker;
 import com.sun.jersey.multipart.BodyPartEntity;
@@ -56,7 +56,7 @@ public class PortfolioLoaderResource {
   private final SecurityMaster _securityMaster;
   private final HistoricalTimeSeriesMaster _historicalTimeSeriesMaster;
   private final SecurityProvider _securityProvider;
-  private final HistoricalTimeSeriesSource _historicalTimeSeriesProvider;
+  private final HistoricalTimeSeriesProvider _historicalTimeSeriesProvider;
   private final ReferenceDataProvider _referenceDataProvider;
 
   /**
@@ -75,7 +75,7 @@ public class PortfolioLoaderResource {
                                  SecurityMaster securityMaster,
                                  HistoricalTimeSeriesMaster historicalTimeSeriesMaster,
                                  SecurityProvider securityProvider,
-                                 HistoricalTimeSeriesSource historicalTimeSeriesProvider,
+                                 HistoricalTimeSeriesProvider historicalTimeSeriesProvider,
                                  ReferenceDataProvider bloombergReferenceDataProvider) {
     ArgumentChecker.notNull(positionMaster, "positionMaster");
     ArgumentChecker.notNull(portfolioMaster, "portfolioMaster");
