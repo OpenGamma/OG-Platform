@@ -16,7 +16,7 @@ public class CreditIndexDefaultSwapDefinitionTest {
   
   final static double N = 100;
 
-  private static final CreditIndexDefaultSwapDefinition index = new CreditIndexDefaultSwapDefinition(n, N);
+  //private static final CreditIndexDefaultSwapDefinition index = new CreditIndexDefaultSwapDefinition(n, N);
   
   
   
