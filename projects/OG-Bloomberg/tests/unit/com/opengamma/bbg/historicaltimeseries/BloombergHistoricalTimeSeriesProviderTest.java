@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.bbg;
+package com.opengamma.bbg.historicaltimeseries;
 
 import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME;
 import static com.opengamma.bbg.BloombergConstants.DATA_PROVIDER_UNKNOWN;
@@ -26,11 +26,12 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.opengamma.bbg.historicaltimeseries.BloombergHistoricalTimeSeriesProvider;
+import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.test.BloombergTestUtils;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetRequest;
 import com.opengamma.util.time.LocalDateRange;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
@@ -80,6 +81,54 @@ public class BloombergHistoricalTimeSeriesProviderTest {
     LocalDateDoubleTimeSeries test = _provider.getHistoricalTimeSeries(SIMPLE_BUNDLE, BBG_DATA_SOURCE, DEFAULT_DATA_PROVIDER, PX_LAST, range);
     assertNotNull(test);
     assertEquals(1, test.size());
+  }
+
+  @Test
+  public void getHistoricalTimeSeriesWithZeroMaxPoints() throws Exception {    
+    LocalDate endDate = LocalDate.of(2012, 03, 07);
+    LocalDate startDate = endDate.minusMonths(1);
+    
+    LocalDateRange dateRange = LocalDateRange.of(startDate, endDate, true);
+    HistoricalTimeSeriesProviderGetRequest realRequest = HistoricalTimeSeriesProviderGetRequest.createGet(SIMPLE_BUNDLE, BBG_DATA_SOURCE, DEFAULT_DATA_PROVIDER, PX_LAST, dateRange);
+    realRequest.setMaxPoints(0);
+    LocalDateDoubleTimeSeries realHts = _provider.getHistoricalTimeSeries(realRequest).getResultMap().get(SIMPLE_BUNDLE);
+    
+    assertNotNull(realHts);
+    assertEquals(0, realHts.size());
+  }
+
+  @Test
+  public void getHistoricalTimeSeriesWithAllMaxPoints() throws Exception {    
+    LocalDate endDate = LocalDate.of(2012, 03, 07);
+    LocalDate startDate = endDate.minusMonths(1);
+    
+    LocalDateRange dateRange = LocalDateRange.of(startDate, endDate, true);
+    HistoricalTimeSeriesProviderGetRequest referenceRequest = HistoricalTimeSeriesProviderGetRequest.createGet(SIMPLE_BUNDLE, BBG_DATA_SOURCE, DEFAULT_DATA_PROVIDER, PX_LAST, dateRange);
+    LocalDateDoubleTimeSeries reference = _provider.getHistoricalTimeSeries(referenceRequest).getResultMap().get(SIMPLE_BUNDLE);
+    HistoricalTimeSeriesProviderGetRequest realRequest = HistoricalTimeSeriesProviderGetRequest.createGet(SIMPLE_BUNDLE, BBG_DATA_SOURCE, DEFAULT_DATA_PROVIDER, PX_LAST, dateRange);
+    realRequest.setMaxPoints(-9999);
+    LocalDateDoubleTimeSeries realHts = _provider.getHistoricalTimeSeries(realRequest).getResultMap().get(SIMPLE_BUNDLE);
+    
+    assertNotNull(realHts);
+    assertEquals(reference.size(), realHts.size());
+    assertEquals(reference, realHts);
+  }
+
+  @Test
+  public void getHistoricalTimeSeriesWithTwoMaxPoints() throws Exception {    
+    LocalDate endDate = LocalDate.of(2012, 03, 07);
+    LocalDate startDate = endDate.minusMonths(1);
+    
+    LocalDateRange dateRange = LocalDateRange.of(startDate, endDate, true);
+    HistoricalTimeSeriesProviderGetRequest referenceRequest = HistoricalTimeSeriesProviderGetRequest.createGet(SIMPLE_BUNDLE, BBG_DATA_SOURCE, DEFAULT_DATA_PROVIDER, PX_LAST, dateRange);
+    LocalDateDoubleTimeSeries reference = _provider.getHistoricalTimeSeries(referenceRequest).getResultMap().get(SIMPLE_BUNDLE);
+    HistoricalTimeSeriesProviderGetRequest realRequest = HistoricalTimeSeriesProviderGetRequest.createGet(SIMPLE_BUNDLE, BBG_DATA_SOURCE, DEFAULT_DATA_PROVIDER, PX_LAST, dateRange);
+    realRequest.setMaxPoints(-2);
+    LocalDateDoubleTimeSeries realHts = _provider.getHistoricalTimeSeries(realRequest).getResultMap().get(SIMPLE_BUNDLE);
+    
+    assertNotNull(realHts);
+    assertEquals(2, realHts.size());
+    assertEquals(reference.tail(2), realHts);
   }
 
   @Test
