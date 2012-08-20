@@ -9,26 +9,18 @@ CREATE TABLE usr_schema_version (
 );
 INSERT INTO usr_schema_version (version_key, version_value) VALUES ('schema_patch', '45');
 
---CREATE SEQUENCE usr_oguser_seq AS bigint
---    START WITH 1000 INCREMENT BY 1 NO CYCLE;
---CREATE SEQUENCE usr_idkey_seq as bigint
---    START WITH 1000 INCREMENT BY 1 NO CYCLE;
-CREATE TABLE usr_oguser_seq (
-  SeqID INT identity(1000,1) PRIMARY KEY,
-  SeqVal VARCHAR(1)
-);
-CREATE TABLE usr_idkey_seq (
-  SeqID INT identity(1000,1) PRIMARY KEY,
-  SeqVal VARCHAR(1)
-);
+CREATE SEQUENCE usr_oguser_seq
+    START WITH 1000 INCREMENT BY 1 NO CYCLE;
+CREATE SEQUENCE usr_idkey_seq
+    START WITH 1000 INCREMENT BY 1 NO CYCLE;
 
 CREATE TABLE usr_oguser (
     id bigint NOT NULL,
     oid bigint NOT NULL,
-    ver_from_instant DATETIME2(6) NOT NULL,
-    ver_to_instant DATETIME2(6) NOT NULL,
-    corr_from_instant DATETIME2(6) NOT NULL,
-    corr_to_instant DATETIME2(6) NOT NULL,
+    ver_from_instant timestamp without time zone NOT NULL,
+    ver_to_instant timestamp without time zone NOT NULL,
+    corr_from_instant timestamp without time zone NOT NULL,
+    corr_to_instant timestamp without time zone NOT NULL,
     name varchar(255) NOT NULL,
     password varchar(255) NOT NULL,
     PRIMARY KEY (id),
