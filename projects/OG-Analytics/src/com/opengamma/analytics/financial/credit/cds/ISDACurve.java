@@ -42,7 +42,7 @@ public class ISDACurve {
         new CombinedInterpolatorExtrapolator(
           new ISDAInterpolator1D(),
           new FlatExtrapolator1D(),
-          new FlatExtrapolator1D()));
+          new ISDAExtrapolator1D()));
     } else if (xData.length == 1) {
       _curve = ConstantDoublesCurve.from(yData[0]);
     } else {
