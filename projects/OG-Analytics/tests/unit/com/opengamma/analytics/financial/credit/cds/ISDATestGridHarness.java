@@ -7,13 +7,14 @@ package com.opengamma.analytics.financial.credit.cds;
 
 import javax.time.calendar.DateAdjuster;
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.Period;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 import javax.time.calendar.format.DateTimeFormatter;
 import javax.time.calendar.format.DateTimeFormatters;
+import javax.time.Duration;
 
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.instrument.cds.CDSDefinition;
@@ -33,56 +34,93 @@ import com.opengamma.util.money.Currency;
 
 public class ISDATestGridHarness {
   
-  private static DateTimeFormatter formatter = DateTimeFormatters.pattern("yyyy-MM-dd");
-  private static DayCount dayCount = new ActualThreeSixtyFive();
-  private static CDSApproxISDAMethod calculator = new CDSApproxISDAMethod();
+  private static final String[] selectedUnitTestGrids = { "HKD_20090908.xls", "USD_20090911.xls" };
+  
+  private static final double dirtyAbsoluteErrorLimit = 1E-4;
+  private static final double dirtyRelativeErrorLimit = 1E-10;
+  private static final double cleanPercentageErrorLimit = 1E-8;
+  
+  private static final DateTimeFormatter formatter = DateTimeFormatters.pattern("yyyy-MM-dd");
+  private static final DayCount dayCount = new ActualThreeSixtyFive();
+  private static final CDSApproxISDAMethod calculator = new CDSApproxISDAMethod();
+  
+  private ISDATestGridManager testGridManager;
+  private ISDAStagedDataManager stagedDataManager;
   
   private class TestResult {
-    public final double actual;
-    public final double expected;
-    public final double absoluteError;
-    public final double relativeError;
+    public final double dirty;
+    public final double dirtyExpected;
+    public final double dirtyAbsoluteError;
+    public final double dirtyRelativeError;
     
-    public TestResult (final double actual, final double expected, final double absoluteError, final double relativeError) {
-      this.actual = actual;
-      this.expected = expected;
-      this.absoluteError = absoluteError;
-      this.relativeError = relativeError;
+    public final double clean;
+    public final double cleanExpected;
+    public final double cleanPercentageError;
+    
+    public TestResult (final double dirty, final double dirtyExpected, final double dirtyAbsoluteError, final double dirtyRelativeError,
+      final double clean, final double cleanExpected, final double cleanPercentageError) {
+      
+      this.dirty = dirty;
+      this.dirtyExpected = dirtyExpected;
+      this.dirtyAbsoluteError = dirtyAbsoluteError;
+      this.dirtyRelativeError = dirtyRelativeError;
+      
+      this.clean = clean;
+      this.cleanExpected = cleanExpected;
+      this.cleanPercentageError = cleanPercentageError;
     }
   }
   
   private class TestGridResult {
     public final int cases;
+    public final int failures;
+    public final double seconds;
     public final double maxAbsoluteError;
     public final double maxRelativeError;
+    public final double maxCleanPercentageError;
     
-    public TestGridResult(final int cases, final double maxAbsoluteError, final double maxRelativeError) {
+    public TestGridResult(final int cases, final int failures, final double seconds, final double maxAbsoluteError, final double maxRelativeError, final double maxCleanPercentageError) {
       this.cases = cases;
+      this.failures = failures;
+      this.seconds = seconds;
       this.maxAbsoluteError = maxAbsoluteError;
       this.maxRelativeError = maxRelativeError;
+      this.maxCleanPercentageError = maxCleanPercentageError;
     }
   }
   
+  public ISDATestGridHarness() {
+    testGridManager = new ISDATestGridManager();
+    stagedDataManager = new ISDAStagedDataManager();
+  }
+  
   @Test
+  public void runSelectedTestGrids() throws Exception {
+    runTestGrids(selectedUnitTestGrids);
+  }
+  
+  @Test(groups="slow")
   public void runAllTestGrids() throws Exception {
-	  
-	  final ISDATestGridManager manager = new ISDATestGridManager();
-	  final ISDAStagedDataManager stagedManager = new ISDAStagedDataManager();
-	  final String[] testFiles = manager.findAllTestGridFiles();
+	  runTestGrids(testGridManager.findAllTestGridFiles());
+  }
+  
+  public void runTestGrids(final String[] testFiles) throws Exception {
 	  
 	  ISDATestGrid testGrid;
 	  ISDAStagedCurve stagedCurve;
 	  ISDACurve discountCurve;
 	  TestGridResult result;
 	  
-	  long grids = 0, cases = 0;
+	  long grids = 0, gridFailures = 0, cases = 0, caseFailures = 0;
+    double totalTime = 0.0;
 	  double maxAbsoluteError = 0.0;
 	  double maxRelativeError = 0.0;
+	  double maxCleanPercentageError = 0.0;
 	  
 	  for (String fileName : testFiles) {
 		  
-		  testGrid = manager.loadTestGrid(fileName);
-		  stagedCurve = stagedManager.loadStagedCurveForGrid(fileName);
+		  testGrid = testGridManager.loadTestGrid(fileName);
+		  stagedCurve = stagedDataManager.loadStagedCurveForGrid(fileName);
 		  
 		  if (stagedCurve == null)
 		    continue;
@@ -93,59 +131,75 @@ public class ISDATestGridHarness {
 		  result = runTestGrid(testGrid, discountCurve, fileName);
 		  
 		  grids += 1;
+		  gridFailures += result.failures > 0 ? 1 : 0;
 		  cases += result.cases;
+		  caseFailures += result.failures;
+		  totalTime += result.seconds;
 		  maxAbsoluteError = result.maxAbsoluteError > maxAbsoluteError ? result.maxAbsoluteError : maxAbsoluteError;
 		  maxRelativeError = result.maxRelativeError > maxRelativeError ? result.maxRelativeError : maxRelativeError;
+		  maxCleanPercentageError = result.maxCleanPercentageError > maxCleanPercentageError ? result.maxCleanPercentageError : maxCleanPercentageError;
 	  }
 	  
 	  System.out.println(" --- ISDA Test Grid run complete --- ");
+	  System.out.println("Total execution time: " + totalTime + "s");
 	  System.out.println("Total test grids executed: " + grids);
 	  System.out.println("Total test cases executed: " + cases);
-	  System.out.println("Largest absolute error: " + maxAbsoluteError);
-	  System.out.println("Largest relative error: " + maxRelativeError);
+	  System.out.println("Total test grids failed: " + gridFailures);
+	  System.out.println("Total test cases failed: " + caseFailures);
+	  System.out.println("Largest dirty absolute error: " + maxAbsoluteError);
+	  System.out.println("Largest dirty relative error: " + maxRelativeError);
+	  System.out.println("Largest clean percentage error: " + maxCleanPercentageError);
   }
   
   public TestGridResult runTestGrid(ISDATestGrid testGrid, ISDACurve discountCurve, String testGridFileName) throws Exception {
     
-    ISDAStagedDataManager stagedManager = new ISDAStagedDataManager();
     ISDAStagedCurve stagedCurve;
     ISDACurve hazardRateCurve = null;
     
-    int i = 0;
+    int i = 0, failures = 0;
     TestResult result;
     double maxAbsoluteError = 0.0;
-    double maxRelativeError = 0.0;  
+    double maxRelativeError = 0.0;
+    double maxCleanPercentageError = 0.0;
+    
+    final ZonedDateTime start = ZonedDateTime.now();
     
     for (ISDATestGridRow testCase : testGrid.getData()) {
       
-      stagedCurve = stagedManager.loadStagedHazardCurveForGrid(testGridFileName, i);
+      stagedCurve = stagedDataManager.loadStagedHazardCurveForGrid(testGridFileName, i);
       hazardRateCurve = stagedCurve != null ? buildCurve(stagedCurve, "HAZARD_RATE_CURVE") : null;
       result = runTestCase(testCase, discountCurve, hazardRateCurve);
       
-      if (result.absoluteError > maxAbsoluteError ) {
-        maxAbsoluteError = result.absoluteError;
+      if (result.dirtyRelativeError >= dirtyRelativeErrorLimit || result.dirtyAbsoluteError >= dirtyAbsoluteErrorLimit || result.cleanPercentageError >= cleanPercentageErrorLimit) {
+        
+        ++failures;
+        
+        // Only print out worst cases, to avoid excessive output if the test results are massively out
+        if (result.dirtyAbsoluteError > maxAbsoluteError || result.dirtyRelativeError > maxRelativeError || result.cleanPercentageError > maxCleanPercentageError) {
+          System.out.println("Grid marked to fail: " + testGridFileName + " row " + (i+2) + ": "
+            + "dirty = " + result.dirty + " (exepcted = " + result.dirtyExpected + "), "
+            + "clean = " + result.clean + " (expected = " + result.cleanExpected + "), "
+            + "absolute error = " + result.dirtyAbsoluteError + ", relative error = " + result.dirtyRelativeError + ", percentage error = " + result.cleanPercentageError);
+        }
       }
       
-      if (result.relativeError > maxRelativeError) {
-        maxRelativeError = result.relativeError;
-        // System.out.println("Case: " + i + ", Result: " + result + ", Exepcted: " + expectedResult + ", Error: " + actualError + ", relativeError: " + relativeError);
-      }
-      
-      if (hazardRateCurve != null) {
-        System.out.println("Case " + i + " (staged hazard rate): actual = " + result.actual + ", exepcted = " + result.expected + ", absolute error = " + result.absoluteError + ", relative error = " + result.relativeError);
-      }
-         
-      if (result.relativeError >= 1E-10 || result.absoluteError > 1E-4) {
-        // Assert.fail("Failed grid " + testGridFileName + " line " + (i+2) + ": actual = " + result.actual + ", exepcted = " + result.expected + ", absolute error = " + result.absoluteError + ", relative error = " + result.relativeError);
-        System.out.println("Grid marked to fail: " + testGridFileName + " row " + (i+2) + ": actual = " + result.actual + ", exepcted = " + result.expected + ", absolute error = " + result.absoluteError + ", relative error = " + result.relativeError);
-      }
+      maxAbsoluteError = result.dirtyAbsoluteError > maxAbsoluteError ? result.dirtyAbsoluteError : maxAbsoluteError;
+      maxRelativeError = result.dirtyRelativeError > maxRelativeError ? result.dirtyRelativeError : maxRelativeError;
+      maxCleanPercentageError = result.cleanPercentageError > maxCleanPercentageError ? result.cleanPercentageError : maxCleanPercentageError;
 
       ++i;
     }
     
-    System.out.println( "Passed " + i + " test cases, largest absolute error was " + maxAbsoluteError + ", largest relative error was " + maxRelativeError);
+    final ZonedDateTime stop = ZonedDateTime.now();
+    final Duration elapsedTime = Duration.between(start, stop);
+    final double seconds = elapsedTime.getSeconds() + (elapsedTime.getNanoOfSecond() / 1000000) / 1000.0;
     
-    return new TestGridResult(i, maxAbsoluteError, maxRelativeError);
+    System.out.println( "Executed " + i + " test cases in " + seconds + "s with " + failures + " failure(s)"
+      + ", largest dirty absolute error was " + maxAbsoluteError
+      + ", largest dirty relative error was " + maxRelativeError
+      + ", largest clean percentage error was " + maxCleanPercentageError);
+    
+    return new TestGridResult(i, failures, seconds, maxAbsoluteError, maxRelativeError, maxCleanPercentageError);
   }
   
   public TestResult runTestCase(ISDATestGridRow testCase, ISDACurve discountCurve, ISDACurve hazardRateCurve) {
@@ -181,23 +235,31 @@ public class ISDATestGridHarness {
     final DayCount dayCount = new ActualThreeSixty();  
     
     // Now build the CDS object
-    final CDSPremiumDefinition premiumDefinition = CDSPremiumDefinition.fromISDA(Currency.USD, startDate, maturity, couponFrequency, calendar, dayCount, convention, notional, spread, /* protect start */ true);
-    final CDSDefinition cdsDefinition = new CDSDefinition(premiumDefinition, null, startDate, maturity, notional, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true, dayCount);
+    final CDSPremiumDefinition premiumDefinition = CDSPremiumDefinition.fromISDA(Currency.USD, startDate, maturity, couponFrequency, calendar, dayCount, convention, /*notional*/ 1.0, spread, /* protect start */ true);
+    final CDSDefinition cdsDefinition = new CDSDefinition(premiumDefinition, null, startDate, maturity, /*notional*/1.0, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true, dayCount);
     final CDSDerivative cds = cdsDefinition.toDerivative(pricingDate, "IR_CURVE");  
     
     // Par spread is always supplied
     final double marketSpread = testCase.getQuotedSpread() / 10000.0;
     
     // Now go price
-    final double result = hazardRateCurve != null
+    final double dirtyPrice = hazardRateCurve != null
       ? calculator.calculateUpfrontCharge(cds, discountCurve, hazardRateCurve, pricingDate, stepinDate, settlementDate, false)
       : calculator.calculateUpfrontCharge(cds, discountCurve, marketSpread, pricingDate, stepinDate, settlementDate, false);
-      
-    final double expectedResult = testCase.getUpfront();
-    final double actualError = Math.abs(result - expectedResult);
-    final double relativeError = Math.abs(actualError / expectedResult);
     
-    return new TestResult(result, expectedResult, actualError, relativeError);
+    final double cleanPrice = hazardRateCurve != null
+        ? calculator.calculateUpfrontCharge(cds, discountCurve, hazardRateCurve, pricingDate, stepinDate, settlementDate, true)
+        : calculator.calculateUpfrontCharge(cds, discountCurve, marketSpread, pricingDate, stepinDate, settlementDate, true);
+      
+    final double dirtyExpected = testCase.getUpfront();
+    final double dirtyAbsoluteError = Math.abs(notional * dirtyPrice - dirtyExpected);
+    final double dirtyRelativeError = Math.abs(dirtyAbsoluteError / dirtyExpected);
+    
+    final double cleanPercentage = 100.0 - (cleanPrice * 100.0);
+    final double cleanExpected = testCase.getCleanPrice();
+    final double cleanPercentageError = Math.abs(cleanPercentage - cleanExpected);
+    
+    return new TestResult(notional * dirtyPrice, dirtyExpected, dirtyAbsoluteError, dirtyRelativeError, cleanPercentage, cleanExpected, cleanPercentageError);
   }
   
   public ISDACurve buildCurve(final ISDAStagedCurve curveData, final String curveName) {
