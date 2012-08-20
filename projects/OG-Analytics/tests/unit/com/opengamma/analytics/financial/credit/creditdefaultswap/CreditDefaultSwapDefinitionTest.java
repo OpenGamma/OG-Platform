@@ -5,6 +5,11 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap;
 
+import static org.testng.AssertJUnit.assertEquals;
+
+import org.testng.annotations.Test;
+
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
@@ -14,27 +19,64 @@ import com.opengamma.util.money.Currency;
  */
 public class CreditDefaultSwapDefinitionTest {
   
-  final String buysellprotection = "Buy";
-  
-  final String protectionbuyer = "ABC";
-  final String protectionseller = "XYZ";
-  final String referenceentity = "C";
-  
+  private static final String buySellProtection = "Buy";
+
+  private static final String protectionBuyer = "ABC";
+  private static final String protectionSeller = "XYZ";
+  private static final String referenceEntity = "C";
+
   private static final Currency currency = Currency.USD;
-  
-  final String debtseniority = "Senior";
-  final String restructuringclause = "NR";
-     
+
+  private static final String debtSeniority = "Senior";
+  private static final String restructuringClause = "NR";
+
   private static final Calendar calendar = new MondayToFridayCalendar("A");
-  
-  final double notional = 10000000.0;
-  final double parspread = 60.0;
-  
-  final double valuationrecoveryrate = 0.40;
-  final double curverecoveryrate = 0.40;
-  
-  final boolean includeaccruedpremium = true;
-  
-//private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  //private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+
+  private static final String scheduleGenerationMethod = "Backward";
+  private static final String couponFrequency = "Quarterly";
+  private static final String daycountFractionConvention = "ACT/360";
+  private static final String businessdayAdjustmentConvention = "Following";
+
+  private static final double notional = 10000000.0;
+  private static final double parSpread = 60.0;
+
+  private static final double valuationRecoveryRate = 0.40;
+  private static final double curveRecoveryRate = 0.40;
+
+  private static final boolean includeAccruedPremium = true;
+  private static final boolean adjustMaturityDate = false;
+
+  private static final CreditDefaultSwapDefinition CDS_DEFINITION = new CreditDefaultSwapDefinition(buySellProtection, 
+                                                                                                    protectionBuyer, 
+                                                                                                    protectionSeller, 
+                                                                                                    referenceEntity,
+                                                                                                    currency, 
+                                                                                                    debtSeniority, 
+                                                                                                    restructuringClause, 
+                                                                                                    calendar,
+                                                                                                    //startDate,
+                                                                                                    //effectiveDate,
+                                                                                                    //maturityDate,
+                                                                                                    //valuationDate,
+                                                                                                    scheduleGenerationMethod,
+                                                                                                    couponFrequency,
+                                                                                                    daycountFractionConvention,
+                                                                                                    businessdayAdjustmentConvention,
+                                                                                                    notional, 
+                                                                                                    parSpread, 
+                                                                                                    valuationRecoveryRate, 
+                                                                                                    curveRecoveryRate, 
+                                                                                                    includeAccruedPremium,
+                                                                                                    adjustMaturityDate); //, 
+                                                                                                    //interestRateTenors,
+                                                                                                    //interestRates,
+                                                                                                    //creditSpreadTenors,
+                                                                                                    //creditSpreads);
+
+  public void testNullBuySellProtectionFlag() {
+    assertEquals(null, CDS_DEFINITION.getBuySellProtection(), 1e-15);
+  }
+
+
+     
 }
