@@ -18,5 +18,13 @@ import com.opengamma.util.PublicSPI;
 @PublicSPI
 public interface UserMaster extends AbstractMaster<UserDocument>, ChangeProvider {
 
-  // TODO kirk 2012-08-20 -- Searching and history will be added when the basics work.
+  /**
+   * Searches for users matching the specified search criteria.
+   * 
+   * @param request  the search request, not null
+   * @return the search result, not null
+   * @throws IllegalArgumentException if the request is invalid
+   */
+  UserSearchResult search(UserSearchRequest request);
+  // TODO kirk 2012-08-20 -- History will be added when the basics work.
 }

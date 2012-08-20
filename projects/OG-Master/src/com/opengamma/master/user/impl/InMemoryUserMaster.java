@@ -5,6 +5,8 @@
  */
 package com.opengamma.master.user.impl;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -23,6 +25,8 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.user.ManageableOGUser;
 import com.opengamma.master.user.UserDocument;
 import com.opengamma.master.user.UserMaster;
+import com.opengamma.master.user.UserSearchRequest;
+import com.opengamma.master.user.UserSearchResult;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -168,6 +172,19 @@ public class InMemoryUserMaster implements UserMaster {
   @Override
   public ChangeManager changeManager() {
     return _changeManager;
+  }
+
+  @Override
+  public UserSearchResult search(UserSearchRequest request) {
+    List<UserDocument> docs = new LinkedList<UserDocument>();
+    
+    for (UserDocument doc : _store.values()) {
+      if (request.matches(doc)) {
+        docs.add(doc);
+      }
+    }
+    
+    return new UserSearchResult(docs);
   }
 
 }

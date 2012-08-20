@@ -61,6 +61,33 @@
 
 
 -- ==========================================================================
+@NAME(GetAll)
+  SELECT
+    main.id AS doc_id,
+    main.oid AS doc_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    main.name AS name,
+    main.password AS password,
+    ui.idkey_id as idkey_id,
+    ik.key_scheme as key_scheme,
+    ik.key_value as key_value,
+    ent.entitlement_pattern as entitlement_pattern
+  FROM
+    usr_oguser main
+    LEFT JOIN usr_oguser2idkey ui ON (ui.oguser_id = main.id)
+    LEFT JOIN usr_idkey ik ON (ik.id = ui.idkey_id)
+    LEFT JOIN usr_entitlement ent on (ent.oguser_id = main.id)
+  ORDER BY
+    doc_id,
+    doc_oid,
+    idkey_id,
+    ent.entitlement_index
+
+
+-- ==========================================================================
 @NAME(SearchInner)
   @PAGING(:paging_offset,:paging_fetch)
     SELECT
