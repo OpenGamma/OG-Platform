@@ -151,10 +151,28 @@ public class CreditDefaultSwapDefinition {
     //Validate.isTrue(curverecoveryrate >= 0.0, "Curve recovery rate should be in the range [0%, 100%]");
     //Validate.isTrue(curverecoveryrate <= 1.0, "Curve recovery rate should be in the range [0%, 100%]");
     
-    //ArgumentChecker.isTrue(buySellProtection == null, "Buy/Sell flag is set to null");
-    ArgumentChecker.isTrue(notional >= 0.0,  "Notional amount should be greater than or equal to zero");
+    
+    ArgumentChecker.isTrue(buySellProtection.isEmpty(), "Buy/Sell protection flag is empty");
+    ArgumentChecker.isTrue(protectionSeller.isEmpty(), "Protection seller field is empty");
+    ArgumentChecker.isTrue(protectionBuyer.isEmpty(), "Protection buyer field is empty");
+    ArgumentChecker.isTrue(referenceEntity.isEmpty(), "Reference entity field is empty");
+    
+    ArgumentChecker.isTrue(debtSeniority.isEmpty(), "Debt seniority field is empty");
+    ArgumentChecker.isTrue(restructuringClause.isEmpty(), "Restructuring clause field is empty");
+    
+    ArgumentChecker.isTrue(scheduleGenerationMethod.isEmpty(), "Schedule generation method field is empty");
+    ArgumentChecker.isTrue(couponFrequency.isEmpty(), "Coupon frequency field is empty");
+    ArgumentChecker.isTrue(daycountFractionConvention.isEmpty(), "Daycount fraction convention field is empty");
+    ArgumentChecker.isTrue(businessdayAdjustmentConvention.isEmpty(), "Business day adjustment convention field is empty");
+    
     
     //ArgumentChecker.isTrue(startdate.isBefore(valuationdate), "Start date {} must be before valuation date {}", startdate, valuationdate);
+    
+    ArgumentChecker.isTrue(notional >= 0.0,  "Notional amount should be greater than or equal to zero");
+    ArgumentChecker.isTrue(parSpread >= 0.0,  "CDS par spread should be greater than or equal to zero");
+    
+    ArgumentChecker.isInRangeInclusive(_valuationRecoveryRate, 0.0, 1.0);
+    
     
     _buySellProtection = buySellProtection;
     _protectionBuyer = protectionBuyer;
