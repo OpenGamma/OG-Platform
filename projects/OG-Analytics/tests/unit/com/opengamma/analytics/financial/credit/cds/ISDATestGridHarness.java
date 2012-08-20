@@ -36,7 +36,31 @@ public class ISDATestGridHarness {
   private static DayCount dayCount = new ActualThreeSixtyFive();
   private static CDSApproxISDAMethod calculator = new CDSApproxISDAMethod();
   
-  private double maxError;
+  private class TestResult {
+    public final double actual;
+    public final double expected;
+    public final double absoluteError;
+    public final double relativeError;
+    
+    public TestResult (final double actual, final double expected, final double absoluteError, final double relativeError) {
+      this.actual = actual;
+      this.expected = expected;
+      this.absoluteError = absoluteError;
+      this.relativeError = relativeError;
+    }
+  }
+  
+  private class TestGridResult {
+    public final int cases;
+    public final double maxAbsoluteError;
+    public final double maxRelativeError;
+    
+    public TestGridResult(final int cases, final double maxAbsoluteError, final double maxRelativeError) {
+      this.cases = cases;
+      this.maxAbsoluteError = maxAbsoluteError;
+      this.maxRelativeError = maxRelativeError;
+    }
+  }
   
   @Test
   public void runAllTestGrids() throws Exception {
@@ -48,6 +72,11 @@ public class ISDATestGridHarness {
 	  ISDATestGrid testGrid;
 	  ISDAStagedCurve stagedCurve;
 	  ISDACurve discountCurve;
+	  TestGridResult result;
+	  
+	  long grids = 0, cases = 0;
+	  double maxAbsoluteError = 0.0;
+	  double maxRelativeError = 0.0;
 	  
 	  for (String fileName : testFiles) {
 		  
@@ -60,31 +89,65 @@ public class ISDATestGridHarness {
 		  System.out.println("Running test grid: " + fileName);
 		  
 		  discountCurve = buildCurve(stagedCurve, "IR_CURVE");
-		  runTestGrid(testGrid, discountCurve, fileName);
+		  result = runTestGrid(testGrid, discountCurve, fileName);
+		  
+		  grids += 1;
+		  cases += result.cases;
+		  maxAbsoluteError = result.maxAbsoluteError > maxAbsoluteError ? result.maxAbsoluteError : maxAbsoluteError;
+		  maxRelativeError = result.maxRelativeError > maxRelativeError ? result.maxRelativeError : maxRelativeError;
 	  }
+	  
+	  System.out.println(" --- ISDA Test Grid run complete --- ");
+	  System.out.println("Total test grids executed: " + grids);
+	  System.out.println("Total test cases executed: " + cases);
+	  System.out.println("Largest absolute error: " + maxAbsoluteError);
+	  System.out.println("Largest relative error: " + maxRelativeError);
   }
   
-  public void runTestGrid(ISDATestGrid testGrid, ISDACurve discountCurve, String testGridFileName) throws Exception {
+  public TestGridResult runTestGrid(ISDATestGrid testGrid, ISDACurve discountCurve, String testGridFileName) throws Exception {
     
     ISDAStagedDataManager stagedManager = new ISDAStagedDataManager();
     ISDAStagedCurve stagedCurve;
-    ISDACurve hazardCurve = null;
+    ISDACurve hazardRateCurve = null;
     
     int i = 0;
-    maxError = 0.0;
+    TestResult result;
+    double maxAbsoluteError = 0.0;
+    double maxRelativeError = 0.0;  
     
     for (ISDATestGridRow testCase : testGrid.getData()) {
       
       stagedCurve = stagedManager.loadStagedHazardCurveForGrid(testGridFileName, i);
-      hazardCurve = stagedCurve != null ? buildCurve(stagedCurve, "HAZARD_RATE_CURVE") : null;
+      hazardRateCurve = stagedCurve != null ? buildCurve(stagedCurve, "HAZARD_RATE_CURVE") : null;
       
-      runTestCase(testCase, discountCurve, hazardCurve, i++);
+      if (hazardRateCurve != null) {
+        System.out.println("Using a staged hazard rate curve for case " + i);
+      }
+      
+      result = runTestCase(testCase, discountCurve, hazardRateCurve);
+      
+      if (result.absoluteError > maxAbsoluteError ) {
+        maxAbsoluteError = result.absoluteError;
+      }
+      
+      if (result.relativeError > maxRelativeError) {
+        maxRelativeError = result.relativeError;
+        // System.out.println("Case: " + i + ", Result: " + result + ", Exepcted: " + expectedResult + ", Error: " + actualError + ", relativeError: " + relativeError);
+      }
+         
+      if (result.relativeError >= 2E-10 || result.absoluteError > 2E-3) {
+        Assert.fail("Failed grid " + testGridFileName + " line " + (i+2) + ": actual = " + result.actual + ", exepcted = " + result.expected + ", absolute error = " + result.absoluteError + ", relative error = " + result.relativeError);
+      }
+
+      ++i;
     }
     
-    System.out.println( "Passed " + i + " test cases, largest relative error was " + maxError);
+    System.out.println( "Passed " + i + " test cases, largest absolute error was " + maxAbsoluteError + ", largest relative error was " + maxRelativeError);
+    
+    return new TestGridResult(i, maxAbsoluteError, maxRelativeError);
   }
   
-  public void runTestCase(ISDATestGridRow testCase, ISDACurve discountCurve, ISDACurve hazardRateCurve, int i) {
+  public TestResult runTestCase(ISDATestGridRow testCase, ISDACurve discountCurve, ISDACurve hazardRateCurve) {
        
     final Calendar calendar = new MondayToFridayCalendar("TestCalendar");
     final BusinessDayConvention convention = new FollowingBusinessDayConvention();
@@ -123,10 +186,6 @@ public class ISDATestGridHarness {
     // Par spread is always supplied
     final double marketSpread = testCase.getQuotedSpread() / 10000.0;
     
-    if (hazardRateCurve != null) {
-      System.out.println("Using a staged hazard rate curve for case " + i);
-    }
-    
     // Now go price
     final double result = hazardRateCurve != null
       ? calculator.calculateUpfrontCharge(cds, discountCurve, hazardRateCurve, pricingDate, stepinDate, settlementDate, false)
@@ -136,12 +195,7 @@ public class ISDATestGridHarness {
     final double actualError = Math.abs(result - expectedResult);
     final double relativeError = Math.abs(actualError / expectedResult);
     
-    if (relativeError > maxError) {
-      maxError = relativeError;
-      // System.out.println("Case: " + i + ", Result: " + result + ", Exepcted: " + expectedResult + ", Error: " + actualError + ", relativeError: " + relativeError);
-    }
-    
-    Assert.assertTrue( relativeError < 1E-10 );
+    return new TestResult(result, expectedResult, actualError, relativeError);
   }
   
   public ISDACurve buildCurve(final ISDAStagedCurve curveData, final String curveName) {
@@ -169,56 +223,6 @@ public class ISDATestGridHarness {
     }
     
     return new ISDACurve(curveName, times, rates, offset);
-  }
-  
-  public ISDACurve buildCurve(final ISDAStagedTest.IRCurve curveData, final String curveName) {
-  
-    // Expect all curve objects to use annual compounding
-    Assert.assertEquals(Double.valueOf(curveData.getBasis()), 1.0);
-    
-    final LocalDate baseDate = LocalDate.parse(curveData.getBaseDate(), formatter);
-    final int nPoints = curveData.getPoints().getPoint().size();
-    
-    double times[] = new double[nPoints];
-    double rates[] = new double[nPoints];
-    
-    LocalDate date;
-    Double rate;
-    int i = 0;
-    
-    for (ISDAStagedTestPoints.Point dataPoint : curveData.getPoints().getPoint()) {
-      date = LocalDate.parse(dataPoint.getDate(), formatter);
-      rate = (new PeriodicInterestRate(Double.valueOf(dataPoint.getRate()),1)).toContinuous().getRate();
-      times[i] = dayCount.getDayCountFraction(baseDate, date);
-      rates[i++] = rate;
-    }
-    
-    return new ISDACurve(curveName, times, rates, 0.0);
-  }
-  
-  public ISDACurve buildCurve(final ISDAStagedTest.Grid.GridTest.HazardCurve curveData, final String curveName) {
-    
-    // Expect all curve objects to use annual compounding
-    Assert.assertEquals(Double.valueOf(curveData.getBasis()), 1.0);
-    
-    final LocalDate baseDate = LocalDate.parse(curveData.getBaseDate(), formatter);
-    final int nPoints = curveData.getPoints().getPoint().size();
-    
-    double times[] = new double[nPoints];
-    double rates[] = new double[nPoints];
-    
-    LocalDate date;
-    Double rate;
-    int i = 0;
-    
-    for (ISDAStagedTestPoints.Point dataPoint : curveData.getPoints().getPoint()) {
-      date = LocalDate.parse(dataPoint.getDate(), formatter);
-      rate = (new PeriodicInterestRate(Double.valueOf(dataPoint.getRate()),1)).toContinuous().getRate();
-      times[i] = dayCount.getDayCountFraction(baseDate, date);
-      rates[i++] = rate;
-    }
-    
-    return new ISDACurve(curveName, times, rates, 0.0);
   }
 
 }
