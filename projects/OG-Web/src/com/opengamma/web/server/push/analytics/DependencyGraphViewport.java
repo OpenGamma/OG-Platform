@@ -50,8 +50,9 @@ public class DependencyGraphViewport extends AnalyticsViewport {
     }
     _viewportSpec = viewportSpec;
     _viewportValueSpecs = _gridStructure.getValueSpecificationsForRows(_viewportSpec.getRows());
+    ++_version;
     updateResults(cycle, cache);
-    return ++_version;
+    return _version;
   }
 
   /* package */ String updateResults(ViewCycle cycle, ResultsCache cache) {
