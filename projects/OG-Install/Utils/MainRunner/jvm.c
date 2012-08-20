@@ -138,7 +138,7 @@ static BOOL _findJavaFromRegistry (PCTSTR pszPublisher) {
 ///
 /// @return TRUE if a JVM was found, FALSE if there was a problem
 BOOL FindJava () {
-	return _findJavaFromRegistry (TEXT ("JavaSoft")) || _findJavaFromRegistry (TEXT ("OpenGamma"));
+	return _findJavaFromRegistry (TEXT ("OpenGammaLtd")) || _findJavaFromRegistry (TEXT ("JavaSoft"));
 }
 
 static BOOL _isFolderExpansion (const char *pszPath) {
