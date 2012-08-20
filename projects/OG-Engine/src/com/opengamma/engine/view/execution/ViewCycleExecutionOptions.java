@@ -86,12 +86,12 @@ public class ViewCycleExecutionOptions {
   }
 
   /**
-   * Gets the market data specification.
+   * Gets the market data specifications.
    *
-   * @return the market data specification, or null if not specified
+   * @return the market data specifications, not null but possibly empty
    */
   public List<MarketDataSpecification> getMarketDataSpecifications() {
-    throw new UnsupportedOperationException();
+    return _marketDataSpecifications;
   }
 
   @Override

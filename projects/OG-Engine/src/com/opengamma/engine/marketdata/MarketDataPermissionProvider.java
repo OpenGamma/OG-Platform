@@ -18,11 +18,11 @@ import com.opengamma.util.PublicSPI;
 public interface MarketDataPermissionProvider {
 
   /**
-   * Checks whether has permission to view market data and returns the requirements
-   * @param user
-   * @param requirements
-   * @return
+   * Checks whether has permission to view market data and returns the requirements which were in the query but the user
+   * <em>doesn't</em> have permission for.
+   * @param user The user whose market data permissions should be checked
+   * @param requirements The requirements that specify the market data
+   * @return The requirements for which the user <em>doesn't</em> have permission
    */
   Set<ValueRequirement> checkMarketDataPermissions(UserPrincipal user, Set<ValueRequirement> requirements);
-  
 }

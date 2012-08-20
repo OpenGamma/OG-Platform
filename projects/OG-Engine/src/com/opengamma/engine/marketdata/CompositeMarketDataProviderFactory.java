@@ -16,13 +16,14 @@ import com.opengamma.livedata.UserPrincipal;
  */
 public class CompositeMarketDataProviderFactory {
 
-  private final MarketDataProviderResolver _providerResolver;
+  private final MarketDataProviderResolver _resolver;
 
   public CompositeMarketDataProviderFactory(MarketDataProviderResolver resolver) {
-    _providerResolver = resolver;
+    _resolver = resolver;
   }
 
   public CompositeMarketDataProvider create(UserPrincipal user, List<MarketDataSpecification> specs) {
-    throw new UnsupportedOperationException();
+    // TODO should this method do the resolution and pass in the MarketDataProviders?
+    return new CompositeMarketDataProvider(user, specs, _resolver);
   }
 }

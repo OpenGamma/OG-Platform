@@ -19,26 +19,15 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * TODO should this implement MarketDataSnapshot? the snapshot time methods don't make much sense. also init timeout
- * for historical snapshots the snapshot times are historical, for live they are the time that init() is called
- * what do the existing combined snapshots / providers do? they return the info for the first snapshot delegate
+ *
  */
 /* package */ class CompositeMarketDataSnapshot implements MarketDataSnapshot {
 
-  private final List<MarketDataSnapshot> _snapshots;
-  private final List<Set<ValueRequirement>> _requirementsBySnapshot;
+  private final List<UnderlyingSnapshot> _snapshots;
 
-  /* package */ CompositeMarketDataSnapshot(List<MarketDataSnapshot> snapshots,
-                                            List<Set<ValueRequirement>> requirementsBySnapshot) {
+  /* package */ CompositeMarketDataSnapshot(List<UnderlyingSnapshot> snapshots) {
     ArgumentChecker.notEmpty(snapshots, "snapshots");
-    ArgumentChecker.notNull(requirementsBySnapshot, "requirementsBySnapshot");
-    if (snapshots.size() != requirementsBySnapshot.size()) {
-      throw new IllegalArgumentException("snapshots and requirementsBySnapshot must be the same size, " +
-                                             "snapshots.size() = " + snapshots.size() + ", " +
-                                             "requirementsBySnapshot.size = " + requirementsBySnapshot.size());
-    }
     _snapshots = snapshots;
-    _requirementsBySnapshot = requirementsBySnapshot;
   }
 
   @Override
@@ -49,7 +38,7 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public Instant getSnapshotTimeIndication() {
-    return getSnapshotTime();
+    return _snapshots.get(0).getSnapshot().getSnapshotTimeIndication();
   }
 
   /**
@@ -57,8 +46,8 @@ import com.opengamma.util.ArgumentChecker;
    */
   @Override
   public void init() {
-    for (MarketDataSnapshot snapshot : _snapshots) {
-      snapshot.init();
+    for (UnderlyingSnapshot snapshot : _snapshots) {
+      snapshot.getSnapshot().init();
     }
   }
 
@@ -70,13 +59,12 @@ import com.opengamma.util.ArgumentChecker;
    */
   @Override
   public void init(Set<ValueRequirement> valuesRequired, long timeout, TimeUnit unit) {
-    for (int i = 0; i < _snapshots.size(); i++) {
-      MarketDataSnapshot snapshot = _snapshots.get(i);
-      Set<ValueRequirement> requirements = Sets.intersection(_requirementsBySnapshot.get(i), valuesRequired);
+    for (UnderlyingSnapshot underlyingSnapshot : _snapshots) {
+      Set<ValueRequirement> requirements = Sets.intersection(underlyingSnapshot.getRequirements(), valuesRequired);
       // TODO whole timeout? or divide timeout between all delegate snapshots and keep track of how much is left?
       // the combined snapshot does this but that seems broken to me
       if (!requirements.isEmpty()) {
-        snapshot.init(requirements, timeout, unit);
+        underlyingSnapshot.getSnapshot().init(requirements, timeout, unit);
       }
     }
   }
@@ -86,7 +74,7 @@ import com.opengamma.util.ArgumentChecker;
    */
   @Override
   public Instant getSnapshotTime() {
-    return _snapshots.get(0).getSnapshotTime();
+    return _snapshots.get(0).getSnapshot().getSnapshotTime();
   }
 
   /**
@@ -96,9 +84,9 @@ import com.opengamma.util.ArgumentChecker;
    */
   @Override
   public Object query(ValueRequirement requirement) {
-    for (int i = 0; i < _snapshots.size(); i++) {
-      if (_requirementsBySnapshot.get(i).contains(requirement)) {
-        return _snapshots.get(i).query(requirement);
+    for (UnderlyingSnapshot snapshot : _snapshots) {
+      if (snapshot.getRequirements().contains(requirement)) {
+        return snapshot.getSnapshot().query(requirement);
       }
     }
     return null;
@@ -112,9 +100,10 @@ import com.opengamma.util.ArgumentChecker;
   @Override
   public Map<ValueRequirement, Object> query(Set<ValueRequirement> requirements) {
     Map<ValueRequirement, Object> results = Maps.newHashMapWithExpectedSize(requirements.size());
-    for (int i = 0; i < _snapshots.size(); i++) {
-      Set<ValueRequirement> snapshotRequirements = Sets.intersection(_requirementsBySnapshot.get(i), requirements);
-      Map<ValueRequirement, Object> snapshotValues = _snapshots.get(i).query(snapshotRequirements);
+    for (UnderlyingSnapshot snapshot : _snapshots) {
+      Set<ValueRequirement> snapshotRequirements = requirements;
+      //Set<ValueRequirement> snapshotRequirements = Sets.intersection(snapshot.getRequirements(), requirements);
+      Map<ValueRequirement, Object> snapshotValues = snapshot.getSnapshot().query(snapshotRequirements);
       results.putAll(snapshotValues);
     }
     return results;

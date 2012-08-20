@@ -46,11 +46,9 @@ public class CompositeMarketDataSnapshotTest {
   public void setUp() throws Exception {
     _delegate1 = mock(MarketDataSnapshot.class);
     _delegate2 = mock(MarketDataSnapshot.class);
-    _snapshot = new CompositeMarketDataSnapshot(
-        Lists.newArrayList(_delegate1, _delegate2),
-        Lists.<Set<ValueRequirement>>newArrayList(
-            Sets.newHashSet(REQUIREMENT1),
-            Sets.newHashSet(REQUIREMENT2)));
+    _snapshot = new CompositeMarketDataSnapshot(Lists.newArrayList(
+        new UnderlyingSnapshot(_delegate1, Sets.newHashSet(REQUIREMENT1)),
+        new UnderlyingSnapshot(_delegate2, Sets.newHashSet(REQUIREMENT2))));
     stub(_delegate1.query(REQUIREMENT1)).toReturn(VALUE1);
     stub(_delegate2.query(REQUIREMENT2)).toReturn(VALUE2);
     stub(_delegate1.query(Sets.newHashSet(REQUIREMENT1))).toReturn(ImmutableMap.of(REQUIREMENT1, VALUE1));

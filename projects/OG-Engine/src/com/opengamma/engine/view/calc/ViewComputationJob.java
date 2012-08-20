@@ -145,7 +145,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     return trigger;
   }
 
-  //-------------------------------------------------------------------------
+  // TODO get rid of the private getters
   private ViewProcessImpl getViewProcess() {
     return _viewProcess;
   }
@@ -216,6 +216,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     MarketDataSnapshot marketDataSnapshot;
     try {
       if (_marketDataProvider == null ||
+          // TODO encapsulate this logic in CompositeMarketDataProvider
           !_marketDataProvider.getMarketDataSpecifications().equals(executionOptions.getMarketDataSpecifications())) {
         // A different market data provider is required. We support this because we can, but changing provider is not the
         // most efficient operation.
@@ -629,6 +630,11 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       _compilationExpiryCycleTrigger.reset();
     }
 
+    // TODO reorder the next two calls so the subscriptions are known before the compilation callback?
+    // this would mean the actual subscriptions are known before the permissions provider is queried
+    // so the provider that will be providing each piece of data is queried for its permissions.
+    // otherwise there's there possibility that a provider will
+
     // Notify the view that a (re)compilation has taken place before going on to do any time-consuming work.
     // This might contain enough for clients to e.g. render an empty grid in which results will later appear. 
     viewDefinitionCompiled(compiledViewDefinition);
@@ -719,7 +725,8 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   }
 
   private void setMarketDataProvider(List<MarketDataSpecification> marketDataSpecs) {
-    _marketDataProvider = _compositeMarketDataProviderFactory.create(_viewDefinition.getMarketDataUser(), marketDataSpecs);
+    _marketDataProvider = _compositeMarketDataProviderFactory.create(_viewDefinition.getMarketDataUser(),
+                                                                     marketDataSpecs);
     if (_marketDataProvider == null) {
       s_logger.error("Couldn't resolve {}", marketDataSpecs);
     } else {
@@ -786,9 +793,6 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   //-------------------------------------------------------------------------
   @Override
   public void subscriptionSucceeded(ValueRequirement requirement) {
-    // REVIEW jonathan 2011-01-07
-    // Can't tell in general whether this subscription message was relating to a subscription that we made or one that
-    // a concurrent user of the MarketDataProvider made.
     s_logger.debug("Subscription succeeded: {}", requirement);
     removePendingSubscription(requirement);
   }
