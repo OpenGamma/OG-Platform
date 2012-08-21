@@ -49,7 +49,11 @@
       <entry name="?*.ini" />
       <entry name="?*.elsql" />
     </wildcardResourcePatterns>
-    <annotationProcessing enabled="false" useClasspath="true" />
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="false">
+        <processorPath useClasspath="true" />
+      </profile>
+    </annotationProcessing>
   </component>
   <component name="CopyrightManager" default="">
     <module2copyright />
@@ -234,8 +238,6 @@
   </component>
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/projects/Fudge-Java/Fudge-Java.iml" filepath="$PROJECT_DIR$/projects/Fudge-Java/Fudge-Java.iml" />
-      <module fileurl="file://$PROJECT_DIR$/projects/Fudge-Proto/Fudge-Proto.iml" filepath="$PROJECT_DIR$/projects/Fudge-Proto/Fudge-Proto.iml" />
       <module fileurl="file://$PROJECT_DIR$/projects/OG-Analytics/OG-Analytics.iml" filepath="$PROJECT_DIR$/projects/OG-Analytics/OG-Analytics.iml" />
       <module fileurl="file://$PROJECT_DIR$/projects/OG-Bloomberg/OG-Bloomberg.iml" filepath="$PROJECT_DIR$/projects/OG-Bloomberg/OG-Bloomberg.iml" />
       <module fileurl="file://$PROJECT_DIR$/projects/OG-BloombergExample/OG-BloombergExample.iml" filepath="$PROJECT_DIR$/projects/OG-BloombergExample/OG-BloombergExample.iml" />
@@ -244,6 +246,7 @@
       <module fileurl="file://$PROJECT_DIR$/projects/OG-Engine/OG-Engine.iml" filepath="$PROJECT_DIR$/projects/OG-Engine/OG-Engine.iml" />
       <module fileurl="file://$PROJECT_DIR$/projects/OG-Examples/OG-Examples.iml" filepath="$PROJECT_DIR$/projects/OG-Examples/OG-Examples.iml" />
       <module fileurl="file://$PROJECT_DIR$/projects/OG-Financial/OG-Financial.iml" filepath="$PROJECT_DIR$/projects/OG-Financial/OG-Financial.iml" />
+      <module fileurl="file://$PROJECT_DIR$/projects/OG-Install/OG-Install.iml" filepath="$PROJECT_DIR$/projects/OG-Install/OG-Install.iml" />
       <module fileurl="file://$PROJECT_DIR$/projects/OG-Integration/OG-Integration.iml" filepath="$PROJECT_DIR$/projects/OG-Integration/OG-Integration.iml" />
       <module fileurl="file://$PROJECT_DIR$/projects/OG-Language/OG-Language.iml" filepath="$PROJECT_DIR$/projects/OG-Language/OG-Language.iml" />
       <module fileurl="file://$PROJECT_DIR$/projects/OG-LiveData/OG-LiveData.iml" filepath="$PROJECT_DIR$/projects/OG-LiveData/OG-LiveData.iml" />
