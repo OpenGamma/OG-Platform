@@ -75,7 +75,7 @@ public class CreditDefaultSwapDefinition {
   // to give the trade a value of zero at the contract start date (there is no exchange of payments upfront) 
   private final double _parSpread;
   
-  // The recovery rate to be used in the calculation of the CDS MtM
+  // The recovery rate to be used in the calculation of the CDS MtM (can be different to the rate used to calibrate the survival curve)
   private final double _valuationRecoveryRate;
   
   // The recovery rate to be used when calibrating the hazard rate term structure to the market par CDS spread quotes
@@ -84,28 +84,16 @@ public class CreditDefaultSwapDefinition {
   // Flag to determine whether the accrued coupons should be included in the CDS premium lag calculation
   private final boolean _includeAccruedPremium;
   
-  // The yield curve object for dicsount factors
+  // The yield curve object for discount factors
   private final YieldCurve _yieldCurve;
   
-  // TODO : Add the survival curve
-  
-  // Vector of dates for which interest rates are provided
-  //private final ZonedDateTime[] _interestRateTenors;
-  
-  // Vector of interest rates from which to bootstrap the discount factor curve 
-  //private final ZonedDateTime[] _interestRates;
-  
-  // Vector of dates for which market observed CDS par spread quotes are provided
-  //private final ZonedDateTime[] _creditSpreadTenors;
-  
-  // Vector of market observed CDS par spread quotes from which to bootstrap the survival probability curve
-  //private final ZonedDateTime[] _creditSpreads;
+  // TODO : Add the survival curve (assuming that we want the survival probabilities as an input to the pricer - not the par CDS spread term struct)
   
   // ----------------------------------------------------------------------------------------------------------------------------------------
   
   // Constructor for a CDS definition object (all fields are user specified)
  
-  // Probably not the best way of handling schedule generation and interest rate and credit spread curves - need to look at another product to see how it is done
+  // Probably not the best way of handling schedule generation, business day conventions etc - need to look at another product to see how it is done
   
   // How can we reduce the number of parameters?
   
@@ -136,7 +124,6 @@ public class CreditDefaultSwapDefinition {
     ArgumentChecker.isTrue(buySellProtection.isEmpty(), "Buy/Sell protection flag is empty");
     
     /*
-    ArgumentChecker.isTrue(buySellProtection.isEmpty(), "Buy/Sell protection flag is empty");
     ArgumentChecker.isTrue(protectionSeller.isEmpty(), "Protection seller field is empty");
     ArgumentChecker.isTrue(protectionBuyer.isEmpty(), "Protection buyer field is empty");
     ArgumentChecker.isTrue(referenceEntity.isEmpty(), "Reference entity field is empty");
@@ -192,12 +179,7 @@ public class CreditDefaultSwapDefinition {
     
     _includeAccruedPremium = includeAccruedPremium;
     
-    _yieldCurve = yieldCurve;
-    
-    //_interestRateTenors = interestRateTenors;               
-    //_interestRates = interestRates;                         
-    //_creditSpreadTenors = creditSpreadTenors;               
-    //_creditSpreads = creditSpreads;                         
+    _yieldCurve = yieldCurve;                         
   }
   
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -304,27 +286,6 @@ public class CreditDefaultSwapDefinition {
   YieldCurve getYieldCurve() {
     return _yieldCurve;
   }
-    
-  
-  /*
-  ZonedDateTime[] getInterestratetenors() {
-    return _interestRateTenors;
-  }
-
-  ZonedDateTime[] getInterestrates() {
-    return _interestRates;
-  }
-  
-  ZonedDateTime[] getCreditspreadtenors() {
-    return _creditSpreadTenors;
-  }
-  
-
-  ZonedDateTime[] getCreditspreads() {
-    return _creditSpreads;
-  }
-  */
-  
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
