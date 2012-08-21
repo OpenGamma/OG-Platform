@@ -22,6 +22,7 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.springframework.context.Lifecycle;
 
+import com.opengamma.core.user.UserSource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdate;
@@ -36,6 +37,11 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * The base server process for any Cogda Live Data Server.
+ * <p/>
+ * By default, it will operate in a completely unauthenticated mode. User names and passwords
+ * in connection requests will be ignored, and all fields will be accessible by any connection.
+ * However, in combination with an injected {@link UserSource} (see {@link #setUserSource(UserSource)}),
+ * the server will authenticate users and authorize access.
  */
 public class CogdaLiveDataServer implements FudgeConnectionReceiver, Lifecycle {
   /**
@@ -53,6 +59,7 @@ public class CogdaLiveDataServer implements FudgeConnectionReceiver, Lifecycle {
   // TODO kirk 2012-07-23 -- This is absolutely the wrong executor here.
   private final Executor _valueUpdateSendingExecutor = Executors.newFixedThreadPool(5);
   private final AtomicLong _ticksReceived = new AtomicLong(0L);
+  private UserSource _userSource;
   
   public CogdaLiveDataServer(LastKnownValueStoreProvider lkvStoreProvider) {
     this(lkvStoreProvider, OpenGammaFudgeContext.getInstance());
@@ -89,6 +96,22 @@ public class CogdaLiveDataServer implements FudgeConnectionReceiver, Lifecycle {
    */
   public LastKnownValueStoreProvider getLastKnownValueStoreProvider() {
     return _lastKnownValueStoreProvider;
+  }
+
+  /**
+   * Gets the userSource.
+   * @return the userSource
+   */
+  public UserSource getUserSource() {
+    return _userSource;
+  }
+
+  /**
+   * Sets the userSource.
+   * @param userSource  the userSource
+   */
+  public void setUserSource(UserSource userSource) {
+    _userSource = userSource;
   }
 
   @Override

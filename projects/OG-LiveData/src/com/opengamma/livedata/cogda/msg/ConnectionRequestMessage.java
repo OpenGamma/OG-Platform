@@ -34,6 +34,13 @@ public class ConnectionRequestMessage extends DirectBean {
   @PropertyDefinition(validate = "notNull")
   private String _userName;
   /**
+   * The user's password. This should not be hashed or otherwise
+   * pre-modified. It may be null, which may be permitted by the particular
+   * server.
+   */
+  @PropertyDefinition
+  private String _password;
+  /**
    * Capabilities supported by this server.
    */
   @PropertyDefinition(validate = "notNull")
@@ -67,6 +74,8 @@ public class ConnectionRequestMessage extends DirectBean {
     switch (propertyName.hashCode()) {
       case -266666762:  // userName
         return getUserName();
+      case 1216985755:  // password
+        return getPassword();
       case -1487597642:  // capabilities
         return getCapabilities();
     }
@@ -78,6 +87,9 @@ public class ConnectionRequestMessage extends DirectBean {
     switch (propertyName.hashCode()) {
       case -266666762:  // userName
         setUserName((String) newValue);
+        return;
+      case 1216985755:  // password
+        setPassword((String) newValue);
         return;
       case -1487597642:  // capabilities
         setCapabilities((MutableFudgeMsg) newValue);
@@ -101,6 +113,7 @@ public class ConnectionRequestMessage extends DirectBean {
     if (obj != null && obj.getClass() == this.getClass()) {
       ConnectionRequestMessage other = (ConnectionRequestMessage) obj;
       return JodaBeanUtils.equal(getUserName(), other.getUserName()) &&
+          JodaBeanUtils.equal(getPassword(), other.getPassword()) &&
           JodaBeanUtils.equal(getCapabilities(), other.getCapabilities());
     }
     return false;
@@ -110,6 +123,7 @@ public class ConnectionRequestMessage extends DirectBean {
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getUserName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPassword());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCapabilities());
     return hash;
   }
@@ -138,6 +152,37 @@ public class ConnectionRequestMessage extends DirectBean {
    */
   public final Property<String> userName() {
     return metaBean().userName().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the user's password. This should not be hashed or otherwise
+   * pre-modified. It may be null, which may be permitted by the particular
+   * server.
+   * @return the value of the property
+   */
+  public String getPassword() {
+    return _password;
+  }
+
+  /**
+   * Sets the user's password. This should not be hashed or otherwise
+   * pre-modified. It may be null, which may be permitted by the particular
+   * server.
+   * @param password  the new value of the property
+   */
+  public void setPassword(String password) {
+    this._password = password;
+  }
+
+  /**
+   * Gets the the {@code password} property.
+   * pre-modified. It may be null, which may be permitted by the particular
+   * server.
+   * @return the property, not null
+   */
+  public final Property<String> password() {
+    return metaBean().password().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -182,6 +227,11 @@ public class ConnectionRequestMessage extends DirectBean {
     private final MetaProperty<String> _userName = DirectMetaProperty.ofReadWrite(
         this, "userName", ConnectionRequestMessage.class, String.class);
     /**
+     * The meta-property for the {@code password} property.
+     */
+    private final MetaProperty<String> _password = DirectMetaProperty.ofReadWrite(
+        this, "password", ConnectionRequestMessage.class, String.class);
+    /**
      * The meta-property for the {@code capabilities} property.
      */
     private final MetaProperty<MutableFudgeMsg> _capabilities = DirectMetaProperty.ofReadWrite(
@@ -192,6 +242,7 @@ public class ConnectionRequestMessage extends DirectBean {
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "userName",
+        "password",
         "capabilities");
 
     /**
@@ -205,6 +256,8 @@ public class ConnectionRequestMessage extends DirectBean {
       switch (propertyName.hashCode()) {
         case -266666762:  // userName
           return _userName;
+        case 1216985755:  // password
+          return _password;
         case -1487597642:  // capabilities
           return _capabilities;
       }
@@ -233,6 +286,14 @@ public class ConnectionRequestMessage extends DirectBean {
      */
     public final MetaProperty<String> userName() {
       return _userName;
+    }
+
+    /**
+     * The meta-property for the {@code password} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> password() {
+      return _password;
     }
 
     /**
