@@ -5,13 +5,12 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.definition;
 
-import org.apache.commons.lang.Validate;
+import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import javax.time.calendar.ZonedDateTime;
-import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 
 /**
  *  Definition of a vanilla legacy Credit Default Swap contract (i.e. transacted pre 8th April 2009)
@@ -85,6 +84,11 @@ public class CreditDefaultSwapDefinition {
   // Flag to determine whether the accrued coupons should be included in the CDS premium lag calculation
   private final boolean _includeAccruedPremium;
   
+  // The yield curve object for dicsount factors
+  private final YieldCurve _yieldCurve;
+  
+  // TODO : Add the survival curve
+  
   // Vector of dates for which interest rates are provided
   //private final ZonedDateTime[] _interestRateTenors;
   
@@ -126,15 +130,10 @@ public class CreditDefaultSwapDefinition {
                                       double valuationRecoveryRate, 
                                       double curveRecoveryRate, 
                                       boolean includeAccruedPremium,
-                                      boolean adjustMaturityDate) {
-                                      
+                                      boolean adjustMaturityDate,
+                                      YieldCurve yieldCurve) {
     
-    //ZonedDateTime[] interestRateTenors,
-    //ZonedDateTime[] interestRates,
-    //ZonedDateTime[] creditSpreadTenors,
-    //ZonedDateTime[] creditSpreads)
-    
-    //ArgumentChecker.isTrue(buySellProtection.isEmpty(), "Buy/Sell protection flag is empty");
+    ArgumentChecker.isTrue(buySellProtection.isEmpty(), "Buy/Sell protection flag is empty");
     
     /*
     ArgumentChecker.isTrue(buySellProtection.isEmpty(), "Buy/Sell protection flag is empty");
@@ -154,6 +153,8 @@ public class CreditDefaultSwapDefinition {
     //ArgumentChecker.isTrue(startdate.isBefore(valuationdate), "Start date {} must be before valuation date {}", startdate, valuationdate);
     
     */
+    
+    // TODO : Add all the argument checkers
     
     ArgumentChecker.isTrue(notional >= 0.0,  "Notional amount should be greater than or equal to zero");
     ArgumentChecker.isTrue(parSpread >= 0.0,  "CDS par spread should be greater than or equal to zero");
@@ -190,6 +191,8 @@ public class CreditDefaultSwapDefinition {
     _curveRecoveryRate = curveRecoveryRate;
     
     _includeAccruedPremium = includeAccruedPremium;
+    
+    _yieldCurve = yieldCurve;
     
     //_interestRateTenors = interestRateTenors;               
     //_interestRates = interestRates;                         
@@ -295,8 +298,13 @@ public class CreditDefaultSwapDefinition {
   public boolean getIncludeAccruedPremium() {
     return _includeAccruedPremium;
   }
-  
+
   //----------------------------------------------------------------------------------------------------------------------------------------
+  
+  YieldCurve getYieldCurve() {
+    return _yieldCurve;
+  }
+    
   
   /*
   ZonedDateTime[] getInterestratetenors() {
