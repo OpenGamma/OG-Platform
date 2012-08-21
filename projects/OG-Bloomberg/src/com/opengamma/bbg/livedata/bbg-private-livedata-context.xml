@@ -46,6 +46,7 @@
     <constructor-arg index="0" ref="fakeBloombergLiveDataServer" />
     <constructor-arg index="1" ref="bloombergLiveDataServer" />
     <constructor-arg index="2" ref="fakeSubscriptionSelector" />
+    <constructor-arg index="3" ref="standardCacheManager" />
     
     <!-- TODO stop setting these properties on everything -->
     <property name="distributionSpecificationResolver" ref="bbgDistributionSpecificationResolver"/>
@@ -57,11 +58,12 @@
   <bean id="bloombergLiveDataServer" class="com.opengamma.bbg.livedata.BloombergLiveDataServer" init-method="start">
     <constructor-arg index="0" ref="bloombergConnector" />
     <constructor-arg index="1" ref="bbgReferenceDataProvider" />
+    <constructor-arg index="2" ref="standardCacheManager" />
     
     <property name="distributionSpecificationResolver" ref="bbgDistributionSpecificationResolver"/>
     <property name="entitlementChecker" ref="bbgEntitlementChecker"/>
     <property name="marketDataSenderFactory" ref="jmsSenderFactory"/>
-    <property name="subscriptionLimit" value="1000"/> 
+    <property name="subscriptionLimit" value="1000"/>
   </bean>
     
   <bean id="fakeBloombergLiveDataServer" class="com.opengamma.bbg.livedata.faketicks.FakeSubscriptionBloombergLiveDataServer" init-method="start">
