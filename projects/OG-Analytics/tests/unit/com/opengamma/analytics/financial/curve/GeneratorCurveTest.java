@@ -10,6 +10,13 @@ import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.curve.generator.GeneratorCurve;
+import com.opengamma.analytics.financial.curve.generator.GeneratorCurveAddYield;
+import com.opengamma.analytics.financial.curve.generator.GeneratorCurveAddYieldExisiting;
+import com.opengamma.analytics.financial.curve.generator.GeneratorCurveYieldConstant;
+import com.opengamma.analytics.financial.curve.generator.GeneratorCurveYieldInterpolatedAnchorNode;
+import com.opengamma.analytics.financial.curve.generator.GeneratorCurveYieldInterpolatedNode;
+import com.opengamma.analytics.financial.curve.generator.GeneratorCurveYieldNelsonSiegel;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountAddZeroSpreadCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;

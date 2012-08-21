@@ -20,7 +20,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 /**
  * Generator (or template) for OIS.
  */
-public class GeneratorSwapIborON extends Generator {
+public class GeneratorSwapIborON extends GeneratorInstrument {
 
   /**
    * The Ibor index.

@@ -22,7 +22,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Class with the description of overnight deposit characteristics (conventions, calendar, ...).
  */
-public class GeneratorDepositON extends Generator {
+public class GeneratorDepositON extends GeneratorInstrument {
 
   /**
    * The index currency. Not null.

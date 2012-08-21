@@ -19,7 +19,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Class with the description of swap characteristics.
  */
-public class GeneratorSwapIborIbor extends Generator {
+public class GeneratorSwapIborIbor extends GeneratorInstrument {
 
   /**
    * The Ibor index of the first leg.

@@ -21,7 +21,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 /**
  * Generator (or template) for OIS.
  */
-public class GeneratorFixedON extends Generator {
+public class GeneratorFixedON extends GeneratorInstrument {
 
   /**
    * The ON index of the floating leg.

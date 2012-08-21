@@ -19,7 +19,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Class with the description of swap characteristics.
  */
-public class GeneratorFRA extends Generator {
+public class GeneratorFRA extends GeneratorInstrument {
 
   /**
    * The Ibor index underlying the FRA.

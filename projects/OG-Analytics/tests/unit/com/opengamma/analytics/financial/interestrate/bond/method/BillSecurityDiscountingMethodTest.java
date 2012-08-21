@@ -23,7 +23,6 @@ import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.bond.calculator.YieldFromCurvesCalculator;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecurity;
-import com.opengamma.analytics.financial.interestrate.bond.method.BillSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.method.SensitivityFiniteDifference;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -96,9 +95,12 @@ public class BillSecurityDiscountingMethodTest {
 
   @Test
   public void priceFromYield() {
-    double priceComputed = METHOD_SECURITY.priceFromYield(BILL_SEC, YIELD);
-    double priceExpected = 1.0 / (1 + BILL_SEC.getAccralFactor() * YIELD);
-    assertEquals("Bill Security: discounting method - price", priceExpected, priceComputed, TOLERANCE_PRICE);
+    double[] yields = new double[] {0.0010, 0.0, -0.0010};
+    for (int loopyields = 0; loopyields < yields.length; loopyields++) {
+      double priceComputed = METHOD_SECURITY.priceFromYield(BILL_SEC, yields[loopyields]);
+      double priceExpected = 1.0 / (1 + BILL_SEC.getAccralFactor() * yields[loopyields]);
+      assertEquals("Bill Security: discounting method - price", priceExpected, priceComputed, TOLERANCE_PRICE);
+    }
   }
 
   @Test

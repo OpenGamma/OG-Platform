@@ -22,7 +22,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Class with the description of swap characteristics.
  */
-public class GeneratorSwapFixedIbor extends Generator {
+public class GeneratorSwapFixedIbor extends GeneratorInstrument {
 
   /**
    * The fixed leg period of payments.

@@ -12,8 +12,8 @@ import java.util.HashSet;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.curve.ParameterSensitivityCalculator;
-import com.opengamma.analytics.financial.curve.ParameterUnderlyingSensitivityCalculator;
+import com.opengamma.analytics.financial.curve.sensitivity.ParameterSensitivityCalculator;
+import com.opengamma.analytics.financial.curve.sensitivity.ParameterUnderlyingSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityIRSCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueNodeSensitivityCalculator;

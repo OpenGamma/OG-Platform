@@ -8,10 +8,10 @@ package com.opengamma.analytics.financial.calculator;
 import java.util.HashMap;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.curve.AbstractParameterSensitivityBlockCalculator;
-import com.opengamma.analytics.financial.curve.CurveBuildingBlock;
-import com.opengamma.analytics.financial.curve.CurveBuildingBlockBundle;
-import com.opengamma.analytics.financial.curve.ParameterSensitivity;
+import com.opengamma.analytics.financial.curve.building.CurveBuildingBlock;
+import com.opengamma.analytics.financial.curve.building.CurveBuildingBlockBundle;
+import com.opengamma.analytics.financial.curve.sensitivity.AbstractParameterSensitivityBlockCalculator;
+import com.opengamma.analytics.financial.curve.sensitivity.ParameterSensitivity;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;

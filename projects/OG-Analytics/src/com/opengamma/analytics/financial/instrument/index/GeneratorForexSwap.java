@@ -23,7 +23,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Class with the description of Forex swaps (currencies, conventions, ...).
  */
-public class GeneratorForexSwap extends Generator {
+public class GeneratorForexSwap extends GeneratorInstrument {
 
   /**
    * The first currency. Not null.
