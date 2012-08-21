@@ -60,6 +60,7 @@
           <root url="jar://$USER_HOME$/.ivy2/cache/javax.mail/javamail/jars/smtp-1.4.3.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/javax.mail/javamail/jars/mailapi-1.4.3.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/javax.activation/jaf/jars/activation-1.1.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.mindrot/jBCrypt/jars/jbcrypt-0.3m.jar!/" />
         </CLASSES>
         <JAVADOC>
           <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-logging/javadocs/commons-logging-javadoc-1.1.1.jar!/" />
@@ -90,6 +91,7 @@
           <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-collections/sources/commons-collections-src-3.2.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-codec/sources/commons-codec-sources-1.6.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-lang/sources/commons-lang-sources-2.6.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.mindrot/jBCrypt/sources/jbcrypt-sources-0.3m.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

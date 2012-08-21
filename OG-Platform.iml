@@ -41,8 +41,8 @@
         <CLASSES>
           <root url="jar://$USER_HOME$/.ivy2/cache/com.opengamma/region/jars/og-regions-20110127.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.poi/poi/jars/poi-3.7.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-logging/jars/commons-logging-api-1.1.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-logging/jars/commons-logging-1.1.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-logging/jars/commons-logging-api-1.1.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-logging/jars/commons-logging-adapters-1.1.1.jar!/" />
         </CLASSES>
         <JAVADOC>
