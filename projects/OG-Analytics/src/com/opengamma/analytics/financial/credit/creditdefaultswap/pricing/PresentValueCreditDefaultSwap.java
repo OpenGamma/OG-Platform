@@ -13,20 +13,31 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.Cre
 public class PresentValueCreditDefaultSwap {
   
   public double getPresentValueCreditDefaultSwap(CreditDefaultSwapDefinition cds) {
- 
+
+    // -------------------------------------------------------------------------------------------------
+    
+    int phi = 0;
+    
     double presentValue = 0.0;
     
     double presentValuePremiumLeg = calculatePremiumLeg(cds);
     double presentValueContingentLeg = calculateContingentLeg(cds);
     double presentValueAccruedPremium = calculateAccruedPremium(cds);
     
-    // TODO : Make sure make it is clear what the buy/sell protection convention is
-    presentValue = -(presentValuePremiumLeg + presentValueAccruedPremium) + presentValueContingentLeg;
+    // Constructing the CDS checks if the Buy/Sell flag is not equal to 'Buy' or 'Sell', so don't have to check it here
+    if(cds.getBuySellProtection() == "Buy")
+      phi = 1;
+    else
+      phi = -1;
+    
+    // TODO : Make sure make it is clear what the buy/sell protection cashflow convention is
+    presentValue = -phi*(presentValuePremiumLeg + presentValueAccruedPremium) + presentValueContingentLeg;
     
     return presentValue;
   }
 
- 
+  //-------------------------------------------------------------------------------------------------
+  
   // Method to calculate the value of the fee leg
   double calculatePremiumLeg(CreditDefaultSwapDefinition cds) {
 
@@ -34,6 +45,8 @@ public class PresentValueCreditDefaultSwap {
 
     return presentValuePremiumLeg;
   }
+  
+  // -------------------------------------------------------------------------------------------------
   
   // Method to calculate the value of the contingent leg
   double calculateContingentLeg(CreditDefaultSwapDefinition cds) {
@@ -43,6 +56,8 @@ public class PresentValueCreditDefaultSwap {
     return presentValueContingentLeg;
   }
   
+  //-------------------------------------------------------------------------------------------------
+  
   // Method to calculate the value of the accrued premium (part of the premium leg cashflow)
   double calculateAccruedPremium(CreditDefaultSwapDefinition cds) {
     
@@ -50,5 +65,6 @@ public class PresentValueCreditDefaultSwap {
     
     return presentValueAccruedPremium;
   }
-
+  
+  //-------------------------------------------------------------------------------------------------
 }
