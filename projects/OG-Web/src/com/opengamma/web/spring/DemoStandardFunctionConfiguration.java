@@ -78,7 +78,6 @@ import com.opengamma.financial.analytics.model.bond.BondZSpreadPresentValueSensi
 import com.opengamma.financial.analytics.model.bond.BondZSpreadPresentValueSensitivityFromMarketCleanPriceFunction;
 import com.opengamma.financial.analytics.model.bond.NelsonSiegelSvenssonBondCurveFunction;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackDeltaFunction;
-import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackFromFuturePV01Function;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackFromFuturePresentValueFunction;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackGammaFunction;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackPV01Function;
