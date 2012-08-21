@@ -19,6 +19,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import net.sf.ehcache.CacheManager;
+
 import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,8 +55,7 @@ import com.opengamma.util.PublicAPI;
  */
 @PublicAPI
 public abstract class AbstractLiveDataServer implements Lifecycle {
-  private static final Logger s_logger = LoggerFactory
-      .getLogger(AbstractLiveDataServer.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(AbstractLiveDataServer.class);
   
   private volatile MarketDataSenderFactory _marketDataSenderFactory = new EmptyMarketDataSenderFactory();
   private final Collection<SubscriptionListener> _subscriptionListeners = new CopyOnWriteArrayList<SubscriptionListener>();
@@ -70,6 +71,8 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
 
   private final AtomicLong _numMarketDataUpdatesReceived = new AtomicLong(0);
   private final PerformanceCounter _performanceCounter;
+  
+  private final CacheManager _cacheManager;
 
   private final Lock _subscriptionLock = new ReentrantLock();
 
@@ -78,17 +81,33 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   private LastKnownValueStoreProvider _lkvStoreProvider = new MapLastKnownValueStoreProvider();
   
   private volatile ConnectionStatus _connectionStatus = ConnectionStatus.NOT_CONNECTED;
-
   
+  /**
+   * Constructor.
+   */
   protected AbstractLiveDataServer() {
-    this(true);
+    this(null, true);
+  }
+  
+  /**
+   * Constructor.
+   * 
+   * @param cacheManager  the cache manager
+   */
+  protected AbstractLiveDataServer(CacheManager cacheManager) {
+    this(cacheManager, true);
   }
 
   /**
+   * Constructor.
+   * <p>
    * You may wish to disable performance counting if you expect a high rate of messages, or to process messages on several threads.
-   * @param isPerformanceCountingEnabled Whether to track the message rate here. See getNumLiveDataUpdatesSentPerSecondOverLastMinute
+   * 
+   * @param cacheManager  the cache manager
+   * @param isPerformanceCountingEnabled  whether to track the message rate. See {{@link #getNumLiveDataUpdatesSentPerSecondOverLastMinute()}.
    */
-  protected AbstractLiveDataServer(boolean isPerformanceCountingEnabled) {
+  protected AbstractLiveDataServer(CacheManager cacheManager, boolean isPerformanceCountingEnabled) {
+    _cacheManager = cacheManager;
     _performanceCounter = isPerformanceCountingEnabled ? new PerformanceCounter(60) : null;
   }
   
@@ -115,7 +134,11 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   public void setMarketDataSenderFactory(MarketDataSenderFactory marketDataSenderFactory) {
     _marketDataSenderFactory = marketDataSenderFactory;
   }
-
+  
+  public CacheManager getCacheManager() {
+    return _cacheManager;
+  }
+  
   public void addSubscriptionListener(SubscriptionListener subscriptionListener) {
     ArgumentChecker.notNull(subscriptionListener, "Subscription Listener");
     _subscriptionListeners.add(subscriptionListener);

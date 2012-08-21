@@ -32,7 +32,6 @@ import com.opengamma.livedata.resolver.NormalizationRuleResolver;
 import com.opengamma.livedata.server.AbstractLiveDataServer;
 import com.opengamma.livedata.server.Subscription;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.ehcache.EHCacheUtils;
 
 
 /**
@@ -43,6 +42,15 @@ public abstract class AbstractBloombergLiveDataServer extends AbstractLiveDataSe
   private NormalizationRuleResolver _normalizationRules;
   private IdResolver _idResolver;
   private DistributionSpecificationResolver _defaultDistributionSpecificationResolver;
+  
+  /**
+   * Constructs an instance.
+   * 
+   * @param cacheManager  the cache manager, not null
+   */
+  public AbstractBloombergLiveDataServer(CacheManager cacheManager) {
+    super(cacheManager);
+  }
   
   /**
    * Gets a reference data provider for use when cached results are acceptable, and perhaps preferred.
@@ -109,7 +117,7 @@ public abstract class AbstractBloombergLiveDataServer extends AbstractLiveDataSe
   
   public synchronized NormalizationRuleResolver getNormalizationRules() {
     if (_normalizationRules == null) {
-      _normalizationRules = new StandardRuleResolver(BloombergDataUtils.getDefaultNormalizationRules(getCachingReferenceDataProvider(), EHCacheUtils.createCacheManager()));
+      _normalizationRules = new StandardRuleResolver(BloombergDataUtils.getDefaultNormalizationRules(getCachingReferenceDataProvider(), getCacheManager()));
     }
     return _normalizationRules;
   }
@@ -123,10 +131,9 @@ public abstract class AbstractBloombergLiveDataServer extends AbstractLiveDataSe
 
   public synchronized DistributionSpecificationResolver getDefaultDistributionSpecificationResolver() {
     if (_defaultDistributionSpecificationResolver == null) {
-      CacheManager cacheManager = EHCacheUtils.createCacheManager();
       DefaultDistributionSpecificationResolver distributionSpecResolver = new DefaultDistributionSpecificationResolver(getIdResolver(), getNormalizationRules(), new BloombergJmsTopicNameResolver(
           getCachingReferenceDataProvider()));
-      return new EHCachingDistributionSpecificationResolver(distributionSpecResolver, cacheManager, "BBG");
+      return new EHCachingDistributionSpecificationResolver(distributionSpecResolver, getCacheManager(), "BBG");
     }
     return _defaultDistributionSpecificationResolver;
   }

@@ -95,6 +95,7 @@
     <constructor-arg value="${opengamma.demo.ticks.start}" />
     <constructor-arg value="${opengamma.demo.ticks.end}" />
     <constructor-arg ref="bbgReferenceDataProvider" />
+    <constructor-arg ref="standardCacheManager" />
     <property name="entitlementChecker" ref="entitlementChecker" />
     <property name="marketDataSenderFactory" ref="jmsSenderFactory" />
     <property name="distributionSpecificationResolver" ref="distributionSpecificationResolver" />
