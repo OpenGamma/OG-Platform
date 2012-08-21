@@ -21,6 +21,9 @@ public class ConnectionRequestBuilder implements FudgeBuilder<ConnectionRequestM
     msg.add("MESSAGE_TYPE", CogdaMessageType.CONNECTION_REQUEST.name());
     
     msg.add("userName", request.getUserName());
+    if (request.getPassword() != null) {
+      msg.add("password", request.getPassword());
+    }
     
     msg.add("capabilities", request.getCapabilities());
     
@@ -35,6 +38,10 @@ public class ConnectionRequestBuilder implements FudgeBuilder<ConnectionRequestM
   public static ConnectionRequestMessage buildObjectStatic(FudgeDeserializer deserializer, FudgeMsg message) {
     ConnectionRequestMessage request = new ConnectionRequestMessage();
     request.setUserName(message.getString("userName"));
+    String passwordFromMessage = message.getString("password");
+    if (passwordFromMessage != null) {
+      request.setPassword(passwordFromMessage);
+    }
     request.applyCapabilities(message.getMessage("capabilities"));
     return request;
   }
