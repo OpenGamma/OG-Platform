@@ -78,6 +78,8 @@ import com.opengamma.financial.analytics.model.bond.BondZSpreadPresentValueSensi
 import com.opengamma.financial.analytics.model.bond.BondZSpreadPresentValueSensitivityFromMarketCleanPriceFunction;
 import com.opengamma.financial.analytics.model.bond.NelsonSiegelSvenssonBondCurveFunction;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackDeltaFunction;
+import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackFromFuturePV01Function;
+import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackFromFuturePresentValueFunction;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackGammaFunction;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackPV01Function;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackPresentValueFunction;
@@ -1032,6 +1034,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(BondFutureOptionBlackPV01Function.class));
     functionConfigs.add(functionConfiguration(BondFutureOptionBlackYCNSFunction.class));
     functionConfigs.add(functionConfiguration(BondFutureOptionBlackVegaFunction.class));
+    functionConfigs.add(functionConfiguration(BondFutureOptionBlackFromFuturePresentValueFunction.class));
   }
 
   private static void addLocalVolatilityCalculatorsOld(final List<FunctionConfiguration> functionConfigs) {
