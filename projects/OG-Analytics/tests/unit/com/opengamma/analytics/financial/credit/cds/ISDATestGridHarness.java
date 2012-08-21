@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.credit.cds;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -38,7 +39,12 @@ import com.opengamma.util.money.Currency;
 
 public class ISDATestGridHarness {
   
-  private static final String[] selectedUnitTestGrids = { "HKD_20090908.xls", "USD_20090911.xls" };
+  private static final Map<String,String[]> selectedUnitTestGrids;
+  static {
+    selectedUnitTestGrids = new HashMap<String,String[]>();
+    //selectedUnitTestGrids.put("benchmark", new String[] { "HKD_20090908.xls", "USD_20090911.xls" } );
+    selectedUnitTestGrids.put("corporate", new String[] { "EUR_20090525.xls" } );
+  }
   
   private static final double dirtyAbsoluteErrorLimit = 1E-4;
   private static final double dirtyRelativeErrorLimit = 1E-10;
@@ -93,6 +99,17 @@ public class ISDATestGridHarness {
     }
   }
   
+  public static void main(String[] args) {
+    try {
+      ISDATestGridHarness harness = new ISDATestGridHarness();
+      harness.runAllTestGrids();
+    }
+    catch (Throwable e) {
+      System.err.println("Unexpected error: " + e.getMessage());
+      System.exit(-1);
+    }
+  }
+  
   public ISDATestGridHarness() {
     testGridManager = new ISDATestGridManager();
     stagedDataManager = new ISDAStagedDataManager();
@@ -100,7 +117,7 @@ public class ISDATestGridHarness {
   
   @Test
   public void runSelectedTestGrids() throws Exception {
-    //runTestGrids(selectedUnitTestGrids);
+    runTestGrids(selectedUnitTestGrids, false);
   }
   
   @Test(groups="slow")
@@ -128,10 +145,10 @@ public class ISDATestGridHarness {
 	  for (Entry<String, String[]> batch : testGrids.entrySet()) {
   	  for (String fileName : batch.getValue()) {
   	    
-  	    // Only run one grid for each category/currency combination
-        classification = batch.getKey() + ":" + fileName.substring(0, 3);
+  	    // If fast filter is set, only run one grid for each category/currency combination
+  	    if (fastFilter) {   
+  	      classification = batch.getKey() + ":" + fileName.substring(0, 3);
         
-        if (fastFilter) {
           if (testGridFilter.contains(classification))
             continue;
           else
