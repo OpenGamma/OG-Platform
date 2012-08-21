@@ -135,7 +135,7 @@ public class CogdaClientConnection implements FudgeConnectionStateListener, Fudg
     
     // Wrap this in synchronized to force the cache flush.
     synchronized (this) {
-      _user = getServer().authenticate(request.getUserName());
+      _user = getServer().authenticate(request.getUserName(), request.getPassword());
     }
     
     if (getUser() == null) {
