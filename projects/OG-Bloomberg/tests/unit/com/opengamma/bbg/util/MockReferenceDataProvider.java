@@ -20,37 +20,38 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
-import com.opengamma.bbg.PerSecurityReferenceDataResult;
-import com.opengamma.bbg.ReferenceDataProvider;
-import com.opengamma.bbg.ReferenceDataResult;
+import com.opengamma.bbg.referencedata.ReferenceData;
+import com.opengamma.bbg.referencedata.ReferenceDataProviderGetRequest;
+import com.opengamma.bbg.referencedata.ReferenceDataProviderGetResult;
+import com.opengamma.bbg.referencedata.impl.AbstractReferenceDataProvider;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * Mock class.
  */
-public class MockReferenceDataProvider implements ReferenceDataProvider {
+public class MockReferenceDataProvider extends AbstractReferenceDataProvider {
 
   private Set<String> _expectedFields = Sets.newHashSet();
   private Map<String, Multimap<String, String>> _mockDataMap = Maps.newHashMap();
 
   @Override
-  public ReferenceDataResult getFields(Set<String> securityKeys, Set<String> fields) {
+  protected ReferenceDataProviderGetResult doBulkGet(ReferenceDataProviderGetRequest request) {
     if (_expectedFields.size() > 0) {
       for (String field : _expectedFields) {
-        assertTrue(fields.contains(field));
+        assertTrue(request.getFields().contains(field));
       }
     }
-    ReferenceDataResult result = new ReferenceDataResult();
-    for (String secKey : securityKeys) {
-      if (_mockDataMap.containsKey(secKey)) {
+    ReferenceDataProviderGetResult result = new ReferenceDataProviderGetResult();
+    for (String identifier : request.getIdentifiers()) {
+      if (_mockDataMap.containsKey(identifier)) {
         // known security
-        PerSecurityReferenceDataResult secRes = new PerSecurityReferenceDataResult(secKey);
+        ReferenceData refData = new ReferenceData(identifier);
         MutableFudgeMsg msg = OpenGammaFudgeContext.getInstance().newMessage();
         
-        Multimap<String, String> fieldMap = _mockDataMap.get(secKey);
+        Multimap<String, String> fieldMap = _mockDataMap.get(identifier);
         if (fieldMap != null) {
           // security actually has data
-          for (String field : fields) {
+          for (String field : request.getFields()) {
             Collection<String> values = fieldMap.get(field);
             assertTrue("Field not found: " + field + " in " + fieldMap.keySet(), values.size() > 0);
             assertNotNull(values);
@@ -67,12 +68,12 @@ public class MockReferenceDataProvider implements ReferenceDataProvider {
             }
           }
         }
-        secRes.setFieldData(msg);
-        result.addResult(secRes);
+        refData.setFieldValues(msg);
+        result.addReferenceData(refData);
         
       } else {
         // security wasn't marked as known
-        fail("Security not found: " + secKey + " in " + _mockDataMap.keySet());
+        fail("Security not found: " + identifier + " in " + _mockDataMap.keySet());
       }
     }
     return result;

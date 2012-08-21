@@ -17,7 +17,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
-import com.opengamma.bbg.CachingReferenceDataProvider;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.test.BloombergLiveDataServerUtils;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.core.id.ExternalSchemes;
@@ -48,7 +48,7 @@ public class BloombergJmsTopicNameResolverTest {
   @Test(enabled = false)
   private void testResolve(NormalizationRuleSet rules) {
     
-    CachingReferenceDataProvider rdp = _server.getCachingReferenceDataProvider();
+    ReferenceDataProvider rdp = _server.getReferenceDataProvider();
     BloombergIdResolver idResolver = new BloombergIdResolver(rdp);
     
     BloombergJmsTopicNameResolver topicNameResolver = new BloombergJmsTopicNameResolver(rdp);

@@ -60,16 +60,17 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergConstants;
-import com.opengamma.bbg.PerSecurityReferenceDataResult;
-import com.opengamma.bbg.ReferenceDataProvider;
-import com.opengamma.bbg.ReferenceDataResult;
 import com.opengamma.bbg.historical.normalization.BloombergRateHistoricalTimeSeriesNormalizer;
 import com.opengamma.bbg.livedata.normalization.BloombergRateRuleProvider;
 import com.opengamma.bbg.normalization.BloombergRateClassifier;
+import com.opengamma.bbg.referencedata.ReferenceData;
+import com.opengamma.bbg.referencedata.ReferenceDataError;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
+import com.opengamma.bbg.referencedata.ReferenceDataProviderGetRequest;
+import com.opengamma.bbg.referencedata.ReferenceDataProviderGetResult;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -379,45 +380,7 @@ public final class BloombergDataUtils {
   }
 
   public static Map<String, String> getBUID(ReferenceDataProvider refDataProvider, Set<String> bloombergKeys) {
-    Map<String, String> result = Maps.newHashMap();
-
-    ReferenceDataResult refDataResult = refDataProvider.getFields(bloombergKeys, Collections.singleton(FIELD_ID_BBG_UNIQUE));
-    if (refDataResult == null) {
-      s_logger.warn("Bloomberg Reference Data Provider returned NULL result for {}", bloombergKeys);
-      return result;
-    }
-
-    for (String securityDes : bloombergKeys) {
-      PerSecurityReferenceDataResult secResult = refDataResult.getResult(securityDes);
-      if (secResult == null) {
-        s_logger.warn("PerSecurityReferenceDataResult for {} cannot be null", securityDes);
-        continue;
-      }
-      //check no exceptions
-      List<String> exceptions = secResult.getExceptions();
-
-      if (exceptions != null && exceptions.size() > 0) {
-        for (String msg : exceptions) {
-          s_logger.warn("Exception looking up {}/{} - {}",
-              new Object[] {securityDes, FIELD_ID_BBG_UNIQUE, msg });
-        }
-        continue;
-      }
-      // check same security was returned
-      String refSec = secResult.getSecurity();
-      if (!securityDes.equals(refSec)) {
-        s_logger.warn("Returned security {} not the same as searched security {}", refSec, securityDes);
-        continue;
-      }
-      //get field data
-      FudgeMsg fieldData = secResult.getFieldData();
-      if (fieldData != null) {
-        if (fieldData.getString(FIELD_ID_BBG_UNIQUE) != null) {
-          result.put(securityDes, fieldData.getString(FIELD_ID_BBG_UNIQUE));
-        }
-      }
-    }
-    return result;
+    return refDataProvider.getReferenceDataValues(bloombergKeys, FIELD_ID_BBG_UNIQUE);
   }
 
   public static Set<String> getIndexMembers(ReferenceDataProvider refDataProvider, String indexTicker) {
@@ -426,12 +389,13 @@ public final class BloombergDataUtils {
     bbgFields.add("INDX_MEMBERS");
     bbgFields.add("INDX_MEMBERS2");
     bbgFields.add("INDX_MEMBERS3");
-    ReferenceDataResult dataResult = refDataProvider.getFields(Collections.singleton(indexTicker), bbgFields);
-    PerSecurityReferenceDataResult perSecResult = dataResult.getResult(indexTicker);
-    List<String> exceptions = perSecResult.getExceptions();
-    if (!exceptions.isEmpty()) {
-      s_logger.warn("Unable to lookup Index {} members because of exceptions {}", indexTicker, exceptions.toString());
-      throw new OpenGammaRuntimeException("Unable to lookup Index members because of exceptions " + exceptions.toString());
+    ReferenceDataProviderGetRequest dataRequest = ReferenceDataProviderGetRequest.createGet(indexTicker, bbgFields, true);
+    ReferenceDataProviderGetResult dataResult = refDataProvider.getReferenceData(dataRequest);
+    ReferenceData perSecResult = dataResult.getReferenceData(indexTicker);
+    List<ReferenceDataError> errors = perSecResult.getErrors();
+    if (!errors.isEmpty()) {
+      s_logger.warn("Unable to lookup Index {} members because of exceptions {}", indexTicker, errors.toString());
+      throw new OpenGammaRuntimeException("Unable to lookup Index members because of exceptions " + errors.toString());
     }
     addIndexMembers(result, perSecResult, "INDX_MEMBERS");
     addIndexMembers(result, perSecResult, "INDX_MEMBERS2");
@@ -444,9 +408,8 @@ public final class BloombergDataUtils {
    * @param perSecResult
    * @return
    */
-  private static void addIndexMembers(Set<String> result,
-      PerSecurityReferenceDataResult perSecResult, String fieldName) {
-    FudgeMsg fieldData = perSecResult.getFieldData();
+  private static void addIndexMembers(Set<String> result, ReferenceData perSecResult, String fieldName) {
+    FudgeMsg fieldData = perSecResult.getFieldValues();
     List<FudgeField> fields = fieldData.getAllByName(fieldName);
     for (FudgeField fudgeField : fields) {
       FudgeMsg msg = (FudgeMsg) fudgeField.getValue();
@@ -458,40 +421,13 @@ public final class BloombergDataUtils {
   public static Set<ExternalId> getOptionChain(ReferenceDataProvider refDataProvider, String securityID) {
     ArgumentChecker.notNull(securityID, "security name");
     Set<ExternalId> result = new TreeSet<ExternalId>();
-    ReferenceDataResult refDataResult = refDataProvider.getFields(Collections.singleton(securityID), Collections.singleton(FIELD_OPT_CHAIN));
-    if (refDataResult == null) {
-      s_logger.info("Bloomberg Reference Data Provider returned NULL result");
-      return null;
-    }
-    PerSecurityReferenceDataResult secResult = refDataResult.getResult(securityID);
-    if (secResult == null) {
-      s_logger.info("PerSecurityReferenceDataResult for " + securityID + " cannot be null");
-      return null;
-    }
-
-    //check no exceptions
-    List<String> exceptions = secResult.getExceptions();
-    if (exceptions != null && exceptions.size() > 0) {
-      for (String msg : exceptions) {
-        s_logger.warn(msg);
-      }
-      return null;
-    }
-
-    // check same security was returned
-    String refSec = secResult.getSecurity();
-    if (!securityID.equals(refSec)) {
-      s_logger.info("Returned security {} not the same as searched security {}", refSec, securityID);
-      return null;
-    }
-
-    //get field data
-    FudgeMsg fieldData = secResult.getFieldData();
+    
+    FudgeMsg fieldData = refDataProvider.getReferenceData(Collections.singleton(securityID), Collections.singleton(FIELD_OPT_CHAIN)).get(securityID);
     if (fieldData == null) {
-      s_logger.info("FudgeFieldContainer for security {} cannot be null", securityID);
+      s_logger.info("Reference data for security {} cannot be null", securityID);
       return null;
     }
-
+    
     for (FudgeField field : fieldData.getAllByName(FIELD_OPT_CHAIN)) {
       FudgeMsg chainContainer = (FudgeMsg) field.getValue();
       String identifier =  StringUtils.trimToNull(chainContainer.getString("Security Description"));

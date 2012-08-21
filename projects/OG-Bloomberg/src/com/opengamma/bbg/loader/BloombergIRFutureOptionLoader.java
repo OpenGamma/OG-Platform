@@ -12,7 +12,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.google.common.collect.Sets;
-import com.opengamma.bbg.ReferenceDataProvider;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.bbg.util.BloombergDomainIdentifierResolver;
 import com.opengamma.id.ExternalId;

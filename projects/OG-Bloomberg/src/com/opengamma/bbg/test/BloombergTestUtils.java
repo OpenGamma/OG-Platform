@@ -19,7 +19,7 @@ import org.fudgemsg.MutableFudgeMsg;
 import com.bloomberglp.blpapi.SessionOptions;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergConnector;
-import com.opengamma.bbg.BloombergReferenceDataProvider;
+import com.opengamma.bbg.referencedata.impl.BloombergReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.test.TestProperties;

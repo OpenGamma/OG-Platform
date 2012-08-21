@@ -38,7 +38,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.bbg.BloombergIdentifierProvider;
-import com.opengamma.bbg.BloombergReferenceDataProvider;
+import com.opengamma.bbg.referencedata.impl.BloombergReferenceDataProvider;
 import com.opengamma.bbg.test.BloombergTestUtils;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.id.ExternalSchemes;

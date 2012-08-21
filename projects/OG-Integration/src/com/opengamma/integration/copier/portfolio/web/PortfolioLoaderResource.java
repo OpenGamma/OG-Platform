@@ -23,7 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.bbg.ReferenceDataProvider;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.integration.copier.portfolio.ResolvingPortfolioCopier;
 import com.opengamma.integration.copier.portfolio.reader.PortfolioReader;
 import com.opengamma.integration.copier.portfolio.reader.SingleSheetSimplePortfolioReader;

@@ -14,9 +14,8 @@ import org.joda.beans.MetaProperty;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.bbg.PatchableReferenceDataProvider;
-import com.opengamma.bbg.ReferenceDataProvider;
-import com.opengamma.bbg.RemoteReferenceDataProviderFactoryBean;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
+import com.opengamma.bbg.referencedata.impl.PatchableReferenceDataProvider;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 
@@ -27,14 +26,8 @@ import com.opengamma.component.ComponentRepository;
 public class PatchableBbgLoadersComponentFactory extends BbgLoadersComponentFactory {
 
   protected ReferenceDataProvider initReferenceDataProvider(ComponentRepository repo) {
-    RemoteReferenceDataProviderFactoryBean factory = new RemoteReferenceDataProviderFactoryBean();
-    factory.setJmsConnector(getJmsConnector());
-    factory.setRequestTopic(getReferenceDataJmsTopic());
-    factory.setFudgeContext(getFudgeContext());
-    
-    ReferenceDataProvider refData = factory.getObjectCreating();
-    ReferenceDataProvider wrappedRefData = new PatchableReferenceDataProvider(refData);
-    ComponentInfo info = new ComponentInfo(ReferenceDataProvider.class, "bbg");
+    ReferenceDataProvider wrappedRefData = new PatchableReferenceDataProvider(getReferenceDataProvider());
+    ComponentInfo info = new ComponentInfo(ReferenceDataProvider.class, "bloomberg");
     repo.registerComponent(info, wrappedRefData);
     return wrappedRefData;
   }

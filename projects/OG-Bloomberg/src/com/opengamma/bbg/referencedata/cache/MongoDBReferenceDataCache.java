@@ -21,7 +21,6 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.opengamma.bbg.PerSecurityReferenceDataResult;
 import com.opengamma.bbg.referencedata.ReferenceData;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
@@ -83,22 +82,6 @@ public class MongoDBReferenceDataCache {
   }
 
   //-------------------------------------------------------------------------
-  public void saveCachedResult(PerSecurityReferenceDataResult securityResult) {
-    FudgeDeserializer deserializer = new FudgeDeserializer(_fudgeContext);
-    
-    String securityDes = securityResult.getSecurity();
-    FudgeMsg fieldData = securityResult.getFieldData();
-    
-    if (securityDes != null && fieldData != null) {
-      s_logger.info("Persisting fields for \"{}\": {}", securityDes, securityResult.getFieldData());
-      DBObject mongoDBObject = createMongoDBForResultOld(deserializer, securityResult);
-      s_logger.debug("dbObject={}", mongoDBObject);
-      BasicDBObject query = new BasicDBObject();
-      query.put(SECURITY_DES_KEY_NAME, securityDes);
-      _mongoCollection.update(query, mongoDBObject, true, false);
-    }
-  }
-
   public Set<String> getAllCachedSecurities() {
     BasicDBObject query = new BasicDBObject();
     query.put(SECURITY_DES_KEY_NAME, new BasicDBObject("$exists", 1));
@@ -112,43 +95,6 @@ public class MongoDBReferenceDataCache {
       String securityDes = (String) dbObject.get(SECURITY_DES_KEY_NAME);
       result.add(securityDes);
     }
-    return result;
-  }
-  
-  public Map<String, PerSecurityReferenceDataResult> loadCachedResults(Set<String> securities) {
-    Map<String, PerSecurityReferenceDataResult> result = new TreeMap<String, PerSecurityReferenceDataResult>();
-    FudgeSerializer serializer = new FudgeSerializer(_fudgeContext);
-    
-    BasicDBObject query = new BasicDBObject();
-    query.put(SECURITY_DES_KEY_NAME, new BasicDBObject("$in", securities));
-    DBCursor cursor = _mongoCollection.find(query);
-    while (cursor.hasNext()) {
-      DBObject dbObject = cursor.next();
-      s_logger.debug("dbObject={}", dbObject);
-      
-      String securityDes = (String) dbObject.get(SECURITY_DES_KEY_NAME);
-      s_logger.debug("Have security data for des {} in MongoDB", securityDes);
-      PerSecurityReferenceDataResult perSecResult = parseDBObjectOld(serializer, securityDes, dbObject);
-      if (result.put(securityDes, perSecResult) != null) {
-        s_logger.warn("{}/{} Querying on des {} gave more than one document", 
-            new Object[] {_mongoConnector.getName(), _mongoCollection.getName(), securityDes });
-      }
-    }
-    return result;
-  }
-
-  private PerSecurityReferenceDataResult parseDBObjectOld(FudgeSerializer serializer, String securityDes, DBObject fromDB) {
-    PerSecurityReferenceDataResult result = new PerSecurityReferenceDataResult(securityDes);
-    DBObject fieldData = (DBObject) fromDB.get(FIELD_DATA_KEY_NAME);
-    result.setFieldData(serializer.objectToFudgeMsg(fieldData));
-    return result;
-  }
-
-  private DBObject createMongoDBForResultOld(FudgeDeserializer deserializer, PerSecurityReferenceDataResult refDataResult) {
-    BasicDBObject result = new BasicDBObject();
-    result.put(SECURITY_DES_KEY_NAME, refDataResult.getSecurity());
-    DBObject fieldData = deserializer.fudgeMsgToObject(DBObject.class, refDataResult.getFieldData());
-    result.put(FIELD_DATA_KEY_NAME, fieldData);
     return result;
   }
 

@@ -5,7 +5,7 @@
  */
 package com.opengamma.bbg.tool;
 
-import com.opengamma.bbg.ReferenceDataProvider;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 
 /**
  * Exposes elements of a Bloomberg market data server in a tool context.

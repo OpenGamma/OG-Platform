@@ -17,7 +17,7 @@
     <property name="port" value="${bloomberg.port}" />
   </bean>
 
-	<bean id="refDataProvider" class="com.opengamma.bbg.BloombergReferenceDataProvider">
+	<bean id="refDataProvider" class="com.opengamma.bbg.referencedata.impl.BloombergReferenceDataProvider">
 	  <constructor-arg ref="standardBloombergConnector" />
 	</bean>
 
@@ -30,7 +30,7 @@
     <property name="collectionSuffix" value="bloomberg-security-loader-test-context" />
   </bean>
 
-  <bean id="cachingRefProvider" class="com.opengamma.bbg.MongoDBCachingReferenceDataProvider">
+  <bean id="cachingRefProvider" class="com.opengamma.bbg.referencedata.cache.MongoDBValueCachingReferenceDataProvider">
     <constructor-arg ref="refDataProvider" />
     <constructor-arg ref="bloombergRefDataMongoConnector" />
   </bean>

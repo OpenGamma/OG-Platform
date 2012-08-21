@@ -17,7 +17,7 @@
     <property name="port" value="${opengamma.bloomberg.port}" />
   </bean>
 
-  <bean id="refDataProvider" class="com.opengamma.bbg.BloombergReferenceDataProvider">
+  <bean id="refDataProvider" class="com.opengamma.bbg.referencedata.impl.BloombergReferenceDataProvider">
     <constructor-arg ref="standardBloombergConnector" />
   </bean>
 
@@ -29,7 +29,7 @@
     <property name="databaseName" value="${opengamma.bloomberg.reference.database}" />
   </bean>
 
-  <bean id="cachingReferenceDataProvider" class="com.opengamma.bbg.MongoDBCachingReferenceDataProvider">
+  <bean id="cachingReferenceDataProvider" class="com.opengamma.bbg.referencedata.cache.MongoDBValueCachingReferenceDataProvider">
     <constructor-arg ref="refDataProvider" />
     <constructor-arg ref="bloombergRefDataMongoConnector"/>
   </bean>
@@ -46,7 +46,7 @@
     	<property name="filename" value="${bbgRefDataCollector.fieldList}" />
   	</bean>
   	
-  	<bean id="bbgRefDataProvider" class="com.opengamma.bbg.BloombergReferenceDataProvider" init-method="start" destroy-method="stop">
+    <bean id="bbgRefDataProvider" class="com.opengamma.bbg.referencedata.impl.BloombergReferenceDataProvider" init-method="start" destroy-method="stop">
     	<constructor-arg ref="standardBloombergConnector" />
   	</bean>
   

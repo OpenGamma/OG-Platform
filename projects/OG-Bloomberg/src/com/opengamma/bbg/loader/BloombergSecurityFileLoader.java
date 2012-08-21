@@ -7,8 +7,6 @@ package com.opengamma.bbg.loader;
 
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_CHAIN;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_EXPIRE_DT;
-import static com.opengamma.bbg.util.ReferenceDataProviderUtils.getFields;
-import static com.opengamma.bbg.util.ReferenceDataProviderUtils.singleFieldSearch;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,9 +39,9 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergConstants;
-import com.opengamma.bbg.CachingReferenceDataProvider;
-import com.opengamma.bbg.ReferenceDataProvider;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDomainIdentifierResolver;
+import com.opengamma.bbg.util.ReferenceDataProviderUtils;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -165,17 +163,7 @@ public class BloombergSecurityFileLoader {
     return result;
   }
 
-  private List<ExternalIdBundle> findSucesses(final Map<ExternalIdBundle, UniqueId> loadedSecurities) {
-    List<ExternalIdBundle> result = Lists.newArrayList();
-    for (Entry<ExternalIdBundle, UniqueId> entry : loadedSecurities.entrySet()) {
-      if (entry.getValue() != null) {
-        result.add(entry.getKey());
-      }
-    }
-    return result;
-  }
   private Set<ExternalIdBundle> loadOptionIdentifiers(final Set<ExternalIdBundle> identifiers) {
-
     Set<String> bloombergKeys = new HashSet<String>();
     for (ExternalIdBundle dsids : identifiers) {
       ExternalId preferredIdentifier = BloombergDomainIdentifierResolver.resolvePreferredIdentifier(dsids);
@@ -183,15 +171,7 @@ public class BloombergSecurityFileLoader {
     }
 
     Set<ExternalIdBundle> optionsIdentifiers = new HashSet<ExternalIdBundle>();
-
-    ReferenceDataProvider referenceDataProvider = null;
-    if (_refDataProvider instanceof CachingReferenceDataProvider) {
-      CachingReferenceDataProvider cacheRefDataProvider = (CachingReferenceDataProvider) _refDataProvider;
-      referenceDataProvider = cacheRefDataProvider.getUnderlying();
-    } else {
-      referenceDataProvider = _refDataProvider;
-    }
-    Map<String, FudgeMsg> refDataResultMap = getFields(bloombergKeys, Collections.singleton(FIELD_OPT_CHAIN), referenceDataProvider);
+    Map<String, FudgeMsg> refDataResultMap = _refDataProvider.getReferenceDataIgnoreCache(bloombergKeys, Collections.singleton(FIELD_OPT_CHAIN));
     for (Entry<String, FudgeMsg> entry : refDataResultMap.entrySet()) {
       FudgeMsg fieldContainer = entry.getValue();
       //process the options
@@ -199,7 +179,7 @@ public class BloombergSecurityFileLoader {
       for (FudgeField field : fieldContainer.getAllByName(BloombergConstants.FIELD_OPT_CHAIN)) {
         FudgeMsg optionContainer = (FudgeMsg) field.getValue();
         String optionTickerStr = optionContainer.getString("Security Description");
-        String expiryStr = singleFieldSearch(optionTickerStr, FIELD_OPT_EXPIRE_DT, referenceDataProvider);
+        String expiryStr = ReferenceDataProviderUtils.singleFieldSearchIgnoreCache(optionTickerStr, FIELD_OPT_EXPIRE_DT, _refDataProvider);
         LocalDate expiryLocalDate = null;
         try {
           expiryLocalDate = LocalDate.parse(expiryStr);

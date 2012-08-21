@@ -145,56 +145,15 @@
   
   <!-- BLOOMBERG SPECIFIC -->
   
-  <!-- Common -->
-  
-  <bean id="fudgeContext" class="com.opengamma.util.fudgemsg.OpenGammaFudgeContext" factory-method="getInstance" />
-  
-  <!-- Reference data -->   
-  <bean id="refDataProvider" class="com.opengamma.bbg.BloombergReferenceDataProvider" init-method="start" destroy-method="stop">
-    <constructor-arg index="0" ref="standardBloombergConnector" />
-  </bean>
-  
-  <bean id="bbgReferenceDataProvider" class="com.opengamma.bbg.EHCachingReferenceDataProvider">
-    <constructor-arg ref="refDataProvider"/>
-    <constructor-arg ref="cacheManager"/>
-  </bean>   
-  
-  <bean id="refDataRequestReceiver" class="com.opengamma.bbg.server.ReferenceDataProviderRequestReceiver">
-    <constructor-arg ref="bbgReferenceDataProvider" />
-  </bean>
-  
-  <bean id="refDataRequestDispatcher" class="com.opengamma.transport.FudgeRequestDispatcher">
-    <constructor-arg ref="refDataRequestReceiver" />
-    <constructor-arg ref="fudgeContext" />
-  </bean>
-  
-  <bean id="refDataJmsReceiver" class="com.opengamma.transport.jms.JmsByteArrayRequestDispatcher">
-    <constructor-arg ref="refDataRequestDispatcher" />
-  </bean>
-  
-  <bean id="refDataMessageListenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
-    <property name="connectionFactory" ref="jmsConnectionFactory"/>
-    <property name="destination">
-      <bean class="org.apache.activemq.command.ActiveMQTopic">
-        <constructor-arg value="${opengamma.bloomberg.reference.request.topic}" />
-      </bean>
-    </property>
-    <property name="messageListener" ref="refDataJmsReceiver" />
-  </bean>
-  
   <!-- Bloomberg-backed HTS Source -->
   
-  <bean id="bbgTimeSeriesStatistics" class="com.opengamma.bbg.referencedata.statistics.DailyBloombergReferenceDataStatistics" />
-  
   <bean id="historicalTimeSeriesSource" class="com.opengamma.bbg.BloombergHistoricalTimeSeriesSource" init-method="start">
-    <constructor-arg ref="standardBloombergConnector" />
-    <constructor-arg ref="bbgTimeSeriesStatistics" />
+    <constructor-arg ref="standardHistoricalTimeSeriesProvider" />
   </bean>
-  
   <bean id="historicalTimeSeriesSourceRestBean" class="com.opengamma.core.historicaltimeseries.impl.DataHistoricalTimeSeriesSourceResource">
     <constructor-arg ref="historicalTimeSeriesSource" />
   </bean>
-  
+
   <!-- Live data -->
 
   <bean id="distributionSpecificationResolver" factory-bean="bloombergLiveDataServer" factory-method="getDefaultDistributionSpecificationResolver" />
@@ -204,7 +163,7 @@
   
   <bean id="bloombergLiveDataServer" class="com.opengamma.bbg.livedata.BloombergLiveDataServer" init-method="start">
     <constructor-arg index="0" ref="standardBloombergConnector" />
-    <constructor-arg index="1" ref="bbgReferenceDataProvider" />
+    <constructor-arg index="1" ref="bloombergReferenceDataProvider" />
     
     <property name="distributionSpecificationResolver" ref="distributionSpecificationResolver"/>
     <property name="entitlementChecker" ref="entitlementChecker"/>
@@ -267,7 +226,7 @@
   <!-- Configuration resource -->
   
   <bean id="configurationResource" class="com.opengamma.util.rest.DataConfigurationResource">
-    <constructor-arg ref="fudgeContext" />
+    <constructor-arg ref="standardFudgeContext" />
     <constructor-arg>
       <map>
         <entry key="0">
@@ -285,10 +244,6 @@
   </bean>
 
   <!-- JMX -->
-  <bean id="bbgTimeSeriesDataStatisticsMBean" class="com.opengamma.bbg.referencedata.statistics.DailyBloombergReferenceDataStatisticsMBean">
-    <constructor-arg ref="bbgTimeSeriesStatistics" />
-  </bean>
-
   <bean id="bbgServerMBean" class="com.opengamma.livedata.server.LiveDataServerMBean">
     <constructor-arg ref="liveDataServer"/>
   </bean>

@@ -34,8 +34,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.livedata.BloombergLiveDataServer;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
@@ -247,7 +247,7 @@ public class FakeSubscriptionBloombergLiveDataServer extends AbstractLiveDataSer
     return true;
   }
 
-  public ReferenceDataProvider getCachingReferenceDataProvider() {
-    return _underlying.getCachingReferenceDataProvider();
+  public ReferenceDataProvider getReferenceDataProvider() {
+    return _underlying.getReferenceDataProvider();
   }
 }

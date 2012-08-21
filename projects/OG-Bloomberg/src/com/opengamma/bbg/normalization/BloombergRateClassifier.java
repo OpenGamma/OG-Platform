@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.bbg.ReferenceDataProvider;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.loader.BloombergSecurityTypeResolver;
 import com.opengamma.bbg.loader.SecurityType;
 import com.opengamma.bbg.loader.SecurityTypeResolver;

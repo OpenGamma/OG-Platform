@@ -10,12 +10,10 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
-import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -24,10 +22,8 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
-import com.opengamma.bbg.BloombergReferenceDataProvider;
-import com.opengamma.bbg.MongoDBCachingReferenceDataProvider;
-import com.opengamma.bbg.PerSecurityReferenceDataResult;
-import com.opengamma.bbg.ReferenceDataResult;
+import com.opengamma.bbg.referencedata.cache.MongoDBValueCachingReferenceDataProvider;
+import com.opengamma.bbg.referencedata.impl.BloombergReferenceDataProvider;
 import com.opengamma.bbg.test.MongoCachedReferenceData;
 
 /**
@@ -61,7 +57,7 @@ public class BloombergSwaptionFileLoader {
       String[] line;
       Pattern pattern = Pattern.compile("^(\\w\\w\\w).*?(\\d+)(M|Y)(\\d+)(M|Y)\\s*?(PY|RC)\\s*?(.*)$");
       BloombergReferenceDataProvider rawBbgRefDataProvider = getBloombergSecurityFileLoader();
-      MongoDBCachingReferenceDataProvider bbgRefDataProvider = MongoCachedReferenceData.makeMongoProvider(rawBbgRefDataProvider, BloombergSwaptionFileLoader.class);
+      MongoDBValueCachingReferenceDataProvider bbgRefDataProvider = MongoCachedReferenceData.makeMongoProvider(rawBbgRefDataProvider, BloombergSwaptionFileLoader.class);
       while ((line = csvReader.readNext()) != null) {
         String name = line[NAME_FIELD];
         Matcher matcher = pattern.matcher(name);
@@ -75,10 +71,7 @@ public class BloombergSwaptionFileLoader {
           String distanceATM = matcher.group(7);
           
           String buid = "/buid/" + line[BUID_FIELD];
-          ReferenceDataResult fields = bbgRefDataProvider.getFields(Collections.singleton(buid), Collections.singleton("TICKER"));
-          PerSecurityReferenceDataResult result = fields.getResult(buid);
-          FudgeMsg fieldData = result.getFieldData();
-          String value = fieldData.getString("TICKER");
+          String value = bbgRefDataProvider.getReferenceDataValue(buid, "TICKER");
           csvWriter.writeNext(new String[] {name, ccy, swapTenorSize, swapTenorUnit, optionTenorSize, optionTenorUnit, payReceive, distanceATM, value });
         } else {
           s_logger.error("Couldn't parse " + name + " field");

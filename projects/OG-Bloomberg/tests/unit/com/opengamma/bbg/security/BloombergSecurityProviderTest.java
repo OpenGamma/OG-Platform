@@ -47,7 +47,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.bbg.BloombergConnector;
-import com.opengamma.bbg.BloombergReferenceDataProvider;
+import com.opengamma.bbg.referencedata.impl.BloombergReferenceDataProvider;
 import com.opengamma.bbg.test.BloombergTestUtils;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.Security;
