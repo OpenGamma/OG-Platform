@@ -123,7 +123,7 @@ public class CreditDefaultSwapDefinition {
                                       boolean adjustMaturityDate,
                                       YieldCurve yieldCurve) {
     
-    ArgumentChecker.isTrue(buySellProtection.isEmpty(), "Buy/Sell protection flag is empty");
+    //ArgumentChecker.isTrue(buySellProtection.isEmpty(), "Buy/Sell protection flag is empty");
     
     /*
     ArgumentChecker.isTrue(protectionSeller.isEmpty(), "Protection seller field is empty");
@@ -181,7 +181,9 @@ public class CreditDefaultSwapDefinition {
     
     _includeAccruedPremium = includeAccruedPremium;
     
-    _yieldCurve = yieldCurve;                         
+    _yieldCurve = yieldCurve;
+    
+    // TODO : Should we build the premium cashflow schedule in the CDS ctor?
   }
   
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -288,6 +290,160 @@ public class CreditDefaultSwapDefinition {
   YieldCurve getYieldCurve() {
     return _yieldCurve;
   }
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+  
+  // Not sure about this
+  
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + (_adjustMaturityDate ? 1231 : 1237);
+    result = prime * result + ((_businessdayAdjustmentConvention == null) ? 0 : _businessdayAdjustmentConvention.hashCode());
+    result = prime * result + ((_buySellProtection == null) ? 0 : _buySellProtection.hashCode());
+    result = prime * result + ((_calendar == null) ? 0 : _calendar.hashCode());
+    result = prime * result + ((_couponFrequency == null) ? 0 : _couponFrequency.hashCode());
+    result = prime * result + ((_currency == null) ? 0 : _currency.hashCode());
+    long temp;
+    temp = Double.doubleToLongBits(_curveRecoveryRate);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + ((_daycountFractionConvention == null) ? 0 : _daycountFractionConvention.hashCode());
+    result = prime * result + ((_debtSeniority == null) ? 0 : _debtSeniority.hashCode());
+    result = prime * result + ((_effectiveDate == null) ? 0 : _effectiveDate.hashCode());
+    result = prime * result + (_includeAccruedPremium ? 1231 : 1237);
+    result = prime * result + ((_maturityDate == null) ? 0 : _maturityDate.hashCode());
+    temp = Double.doubleToLongBits(_notional);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_parSpread);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + ((_protectionBuyer == null) ? 0 : _protectionBuyer.hashCode());
+    result = prime * result + ((_protectionSeller == null) ? 0 : _protectionSeller.hashCode());
+    result = prime * result + ((_referenceEntity == null) ? 0 : _referenceEntity.hashCode());
+    result = prime * result + ((_restructuringClause == null) ? 0 : _restructuringClause.hashCode());
+    result = prime * result + ((_scheduleGenerationMethod == null) ? 0 : _scheduleGenerationMethod.hashCode());
+    result = prime * result + ((_startDate == null) ? 0 : _startDate.hashCode());
+    result = prime * result + ((_valuationDate == null) ? 0 : _valuationDate.hashCode());
+    temp = Double.doubleToLongBits(_valuationRecoveryRate);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + ((_yieldCurve == null) ? 0 : _yieldCurve.hashCode());
+    return result;
+  }
+  
+//----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Not sure about this
+  
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    CreditDefaultSwapDefinition other = (CreditDefaultSwapDefinition) obj;
+    if (_adjustMaturityDate != other._adjustMaturityDate)
+      return false;
+    if (_businessdayAdjustmentConvention == null) {
+      if (other._businessdayAdjustmentConvention != null)
+        return false;
+    } else if (!_businessdayAdjustmentConvention.equals(other._businessdayAdjustmentConvention))
+      return false;
+    if (_buySellProtection == null) {
+      if (other._buySellProtection != null)
+        return false;
+    } else if (!_buySellProtection.equals(other._buySellProtection))
+      return false;
+    if (_calendar == null) {
+      if (other._calendar != null)
+        return false;
+    } else if (!_calendar.equals(other._calendar))
+      return false;
+    if (_couponFrequency == null) {
+      if (other._couponFrequency != null)
+        return false;
+    } else if (!_couponFrequency.equals(other._couponFrequency))
+      return false;
+    if (_currency == null) {
+      if (other._currency != null)
+        return false;
+    } else if (!_currency.equals(other._currency))
+      return false;
+    if (Double.doubleToLongBits(_curveRecoveryRate) != Double.doubleToLongBits(other._curveRecoveryRate))
+      return false;
+    if (_daycountFractionConvention == null) {
+      if (other._daycountFractionConvention != null)
+        return false;
+    } else if (!_daycountFractionConvention.equals(other._daycountFractionConvention))
+      return false;
+    if (_debtSeniority == null) {
+      if (other._debtSeniority != null)
+        return false;
+    } else if (!_debtSeniority.equals(other._debtSeniority))
+      return false;
+    if (_effectiveDate == null) {
+      if (other._effectiveDate != null)
+        return false;
+    } else if (!_effectiveDate.equals(other._effectiveDate))
+      return false;
+    if (_includeAccruedPremium != other._includeAccruedPremium)
+      return false;
+    if (_maturityDate == null) {
+      if (other._maturityDate != null)
+        return false;
+    } else if (!_maturityDate.equals(other._maturityDate))
+      return false;
+    if (Double.doubleToLongBits(_notional) != Double.doubleToLongBits(other._notional))
+      return false;
+    if (Double.doubleToLongBits(_parSpread) != Double.doubleToLongBits(other._parSpread))
+      return false;
+    if (_protectionBuyer == null) {
+      if (other._protectionBuyer != null)
+        return false;
+    } else if (!_protectionBuyer.equals(other._protectionBuyer))
+      return false;
+    if (_protectionSeller == null) {
+      if (other._protectionSeller != null)
+        return false;
+    } else if (!_protectionSeller.equals(other._protectionSeller))
+      return false;
+    if (_referenceEntity == null) {
+      if (other._referenceEntity != null)
+        return false;
+    } else if (!_referenceEntity.equals(other._referenceEntity))
+      return false;
+    if (_restructuringClause == null) {
+      if (other._restructuringClause != null)
+        return false;
+    } else if (!_restructuringClause.equals(other._restructuringClause))
+      return false;
+    if (_scheduleGenerationMethod == null) {
+      if (other._scheduleGenerationMethod != null)
+        return false;
+    } else if (!_scheduleGenerationMethod.equals(other._scheduleGenerationMethod))
+      return false;
+    if (_startDate == null) {
+      if (other._startDate != null)
+        return false;
+    } else if (!_startDate.equals(other._startDate))
+      return false;
+    if (_valuationDate == null) {
+      if (other._valuationDate != null)
+        return false;
+    } else if (!_valuationDate.equals(other._valuationDate))
+      return false;
+    if (Double.doubleToLongBits(_valuationRecoveryRate) != Double.doubleToLongBits(other._valuationRecoveryRate))
+      return false;
+    if (_yieldCurve == null) {
+      if (other._yieldCurve != null)
+        return false;
+    } else if (!_yieldCurve.equals(other._yieldCurve))
+      return false;
+    return true;
+  }
+  
+  //---------------------------------------------------------------------------------------------------------------------------------------- 
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
