@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.credit.creditindexdefaultswap.definition;
 
+import java.util.Vector;
+
 import javax.time.calendar.ZonedDateTime;
 
 /**
@@ -12,10 +14,12 @@ import javax.time.calendar.ZonedDateTime;
  */
 public class CreditIndexDefaultSwapDefinition {
   
+  /*
   ZonedDateTime _startDate;
   ZonedDateTime _effectiveDate;
   ZonedDateTime _maturityDate;
   ZonedDateTime _valuationDate;
+  */
   
   private final int _numberOfObligors;
   
@@ -47,10 +51,13 @@ public class CreditIndexDefaultSwapDefinition {
     _notional = notional;
     
     _spread = spread;
+    
+    Vector<String> underlyingPool = new Vector(_numberOfObligors);
   }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 
+  /*
   ZonedDateTime getStartDate() {
     return _startDate;
   }
@@ -86,6 +93,7 @@ public class CreditIndexDefaultSwapDefinition {
   void setValuationDate(ZonedDateTime valuationDate) {
     _valuationDate = valuationDate;
   }
+  */
 
   double getNotional() {
     return _notional;

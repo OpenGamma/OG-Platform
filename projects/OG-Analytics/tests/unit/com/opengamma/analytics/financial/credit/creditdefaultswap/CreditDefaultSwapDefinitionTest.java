@@ -5,8 +5,9 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap;
 
-import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
+
+import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
@@ -14,6 +15,7 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.Cre
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -32,6 +34,11 @@ public class CreditDefaultSwapDefinitionTest {
   private static final String restructuringClause = "NR";
 
   private static final Calendar calendar = new MondayToFridayCalendar("A");
+  
+  private static final ZonedDateTime startDate = DateUtils.getUTCDate(2012, 8, 21);
+  private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2012, 8, 22);
+  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2017, 9, 20);
+  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2012, 8, 22);
 
   private static final String scheduleGenerationMethod = "Backward";
   private static final String couponFrequency = "Quarterly";
@@ -55,10 +62,10 @@ public class CreditDefaultSwapDefinitionTest {
                                                                                                     debtSeniority, 
                                                                                                     restructuringClause, 
                                                                                                     calendar,
-                                                                                                    //startDate,
-                                                                                                    //effectiveDate,
-                                                                                                    //maturityDate,
-                                                                                                    //valuationDate,
+                                                                                                    startDate,
+                                                                                                    effectiveDate,
+                                                                                                    maturityDate,
+                                                                                                    valuationDate,
                                                                                                     scheduleGenerationMethod,
                                                                                                     couponFrequency,
                                                                                                     daycountFractionConvention,

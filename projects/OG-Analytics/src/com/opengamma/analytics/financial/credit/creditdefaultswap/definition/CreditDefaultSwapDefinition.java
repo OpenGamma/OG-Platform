@@ -43,16 +43,16 @@ public class CreditDefaultSwapDefinition {
   private final Calendar _calendar;
   
   // The date of the contract inception
-  //private final ZonedDateTime _startDate;
+  private final ZonedDateTime _startDate;
   
   // The effective date for protection to begin (usually T + 1 for legacy CDS)
-  //private final ZonedDateTime _effectiveDate;
+  private final ZonedDateTime _effectiveDate;
   
   // The maturity date of the contract (when premium and protection coverage ceases)
-  //private final ZonedDateTime _maturityDate;
+  private final ZonedDateTime _maturityDate;
   
   // The date on which we want to calculate the CDS MtM
-  //private final ZonedDateTime _valuationDate;
+  private final ZonedDateTime _valuationDate;
   
   // The method for generating the schedule of premium payments
   private final String _scheduleGenerationMethod;
@@ -113,10 +113,10 @@ public class CreditDefaultSwapDefinition {
                                       String debtSeniority, 
                                       String restructuringClause, 
                                       Calendar calendar,
-                                      //ZonedDateTime startDate,
-                                      //ZonedDateTime effectiveDate,
-                                      //ZonedDateTime maturityDate,
-                                      //ZonedDateTime valuationDate,
+                                      ZonedDateTime startDate,
+                                      ZonedDateTime effectiveDate,
+                                      ZonedDateTime maturityDate,
+                                      ZonedDateTime valuationDate,
                                       String scheduleGenerationMethod,
                                       String couponFrequency,
                                       String daycountFractionConvention,
@@ -134,7 +134,7 @@ public class CreditDefaultSwapDefinition {
     //ZonedDateTime[] creditSpreadTenors,
     //ZonedDateTime[] creditSpreads)
     
-    ArgumentChecker.isTrue(buySellProtection.isEmpty(), "Buy/Sell protection flag is empty");
+    //ArgumentChecker.isTrue(buySellProtection.isEmpty(), "Buy/Sell protection flag is empty");
     
     /*
     ArgumentChecker.isTrue(buySellProtection.isEmpty(), "Buy/Sell protection flag is empty");
@@ -172,10 +172,10 @@ public class CreditDefaultSwapDefinition {
     
     _calendar = calendar;
     
-    //_startDate = startDate;
-    //_effectiveDate = effectiveDate;
-    //_maturityDate = maturityDate;
-    //_valuationDate = valuationDate;
+    _startDate = startDate;
+    _effectiveDate = effectiveDate;
+    _maturityDate = maturityDate;
+    _valuationDate = valuationDate;
     
     _scheduleGenerationMethod = scheduleGenerationMethod;
     _couponFrequency = couponFrequency;
@@ -235,7 +235,6 @@ public class CreditDefaultSwapDefinition {
   
 //----------------------------------------------------------------------------------------------------------------------------------------
   
-  /*
   public ZonedDateTime getStartDate() {
     return _startDate;
   }
@@ -251,7 +250,6 @@ public class CreditDefaultSwapDefinition {
   public ZonedDateTime getValuationDate() {
     return _valuationDate;
   }
-  */
 
 //----------------------------------------------------------------------------------------------------------------------------------------
   
