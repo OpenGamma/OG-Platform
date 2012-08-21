@@ -12,6 +12,8 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.PresentValueCreditDefaultSwap;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
@@ -48,13 +50,18 @@ public class PresentValueCreditDefaultSwapTest {
   private static final double notional = 10000000.0;
   private static final double parSpread = 60.0;
 
-  private static final double valuationRecoveryRate = -0.40;
+  private static final double valuationRecoveryRate = 0.40;
   private static final double curveRecoveryRate = 0.40;
 
   private static final boolean includeAccruedPremium = true;
   private static final boolean adjustMaturityDate = false;
   
-  private static final YieldCurve yieldCurve = YieldCurve.from(null);
+  
+  private static final double[] TIME = new double[] {1, 2, 3};
+  private static final double[] RATES = new double[] {0.03, 0.04, 0.05};
+  private static final double[] DF_VALUES = new double[] {Math.exp(-0.03), Math.exp(-0.08), Math.exp(-0.15)};
+  private static final InterpolatedDoublesCurve R = InterpolatedDoublesCurve.from(TIME, RATES, new LinearInterpolator1D());
+  private static final YieldCurve yieldCurve = YieldCurve.from(R);
 
   private static final CreditDefaultSwapDefinition CDS_1 = new CreditDefaultSwapDefinition(buySellProtection, 
                                                                                             protectionBuyer, 
@@ -80,13 +87,14 @@ public class PresentValueCreditDefaultSwapTest {
                                                                                             adjustMaturityDate,
                                                                                             yieldCurve);
   
-  @Test
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testGetPresentValueCreditDefaultSwap() {
 
-    private static final PresentValueCreditDefaultSwap cds = new PresentValueCreditDefaultSwap();
+    final PresentValueCreditDefaultSwap cds = new PresentValueCreditDefaultSwap();
     
     double V = cds.getPresentValueCreditDefaultSwap(CDS_1);
     
+    System.out.println("CDS V = " + V);
   }
 
 }

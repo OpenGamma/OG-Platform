@@ -58,33 +58,50 @@ public class PresentValueCreditDefaultSwap {
   // Method to calculate the value of the fee leg
   double calculatePremiumLeg(CreditDefaultSwapDefinition cds) {
 
+    int n = 20;
+    
+    double r = 0.0;
+    double h = 0.0;
+    
     double presentValuePremiumLeg = 0.0;
     
     // Hack together a hard-coded premium leg, just to get the ball rolling
     
-    double s = 60.0/10000.0;
-    double N = 1;
-    
-    double T = 5.0;
+    double notional = cds.getNotional();
+    double parSpread = cds.getParSpread();
 
-    double Z = 0.0;
-    double S = 0.0;
+    double cashflowSchedule[] = new double [n];
     
-    double r = 0.0;
-    double h = 0.01;
-    
-    double dcf = 0.25;
-    
-    int n = 20;
-   
-    for(int i = 1; i < n; i++)
+    double irCurve[][] = new double [n][n];
+    double survCurve[][] = new double [n][n];
+
+    // Generate a dummy cashflow schedule 'object'
+    for(int i = 1; i <= n; i++)
     {
       double t = i/4;
       
-      presentValuePremiumLeg += dcf*Math.exp(-r*t)*(Math.exp(-h*(t - 0.25)) - Math.exp(-h*t));
+      cashflowSchedule[i] = t;
+      
+      irCurve[i][0] = t;
+      irCurve[i][1] = Math.exp(-r*t);
+      
+      System.out.println(irCurve[i][0] + " " + irCurve[i][1]);
     }
     
-    return s*N*presentValuePremiumLeg;
+    
+
+    double dcf = 0.25;
+
+    
+
+    for(int i = 1; i <= n; i++)
+    {
+      double t = i/4;
+
+      presentValuePremiumLeg += dcf*Math.exp(-r*t)*Math.exp(-h*t);
+    }
+
+    return parSpread*notional*presentValuePremiumLeg;
   }
   
   // -------------------------------------------------------------------------------------------------
