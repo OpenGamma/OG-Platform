@@ -5,19 +5,23 @@
  */
 package com.opengamma.analytics.financial.credit;
 
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+
 /**
  * 
  */
 public class PresentValueCDS {
-  
+
   public PresentValueCDS() {
-    
+
   }
 
-  public double getPresentValueCDS(double notional) {
+  public double getPresentValueCDS(CreditDefaultSwapDefinition definition, YieldCurve curve) {
     double vFee = 0;
     double vCont = 0;
 
+    double notional = definition.getNotional();
     //double notional = 10000000;
 
     double r = 0.0;
@@ -34,7 +38,7 @@ public class PresentValueCDS {
     for (i = 1; i <= n; i++) {
 
       double t =  i / 4;
-      double z = Math.exp(-r * t);
+      double z = curve.getDiscountFactor(t); //Math.exp(-r * t);
 
       vFee = vFee + notional * dcf * z * Math.exp(-h * t);
       vCont = vCont + notional * (1 - delta) * z * (Math.exp(-h * (t - 1) - Math.exp(-h * t)));
@@ -42,7 +46,7 @@ public class PresentValueCDS {
     }
 
     double v = -s * vFee + vCont;
-    
+
     return v;
   }
 }
