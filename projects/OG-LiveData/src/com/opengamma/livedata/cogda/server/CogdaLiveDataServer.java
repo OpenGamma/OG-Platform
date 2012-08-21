@@ -215,10 +215,12 @@ public class CogdaLiveDataServer implements FudgeConnectionReceiver, Lifecycle {
     
     OGUser ogUser = getOGUser(userName);
     if (ogUser == null) {
+      s_logger.info("Not allowing login for {} because no user in UserSource", userName);
       return null;
     }
     
     if (isCheckPassword() && !AuthenticationUtils.passwordsMatch(ogUser, password)) {
+      s_logger.info("Not allowing login for {} because passwords don't match", userName);
       return null;
     }
     return UserPrincipal.getLocalUser(userName);
