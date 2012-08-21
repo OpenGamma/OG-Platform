@@ -23,7 +23,7 @@ import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 
 /**
- *
+ * @deprecated probably not needed any more
  */
 public class ChainedMarketDataSubscriberTest {
 

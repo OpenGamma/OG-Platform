@@ -9,7 +9,7 @@ import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * @deprecated probably not needed any more
  */
 /* package */ class ProviderWithSpec {
 

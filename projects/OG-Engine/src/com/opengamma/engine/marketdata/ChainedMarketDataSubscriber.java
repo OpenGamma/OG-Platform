@@ -25,6 +25,7 @@ import com.opengamma.util.ArgumentChecker;
  * in the chain if the data isn't available from the provider or if subscription fails. If subscription fails for
  * the last subscriber in the chain the underlying listener is informed.
  * TODO does this need a close() method to remove itself as a listener from the provider?
+ * @deprecated probably not needed any more
  */
 /* package */ class ChainedMarketDataSubscriber {
 

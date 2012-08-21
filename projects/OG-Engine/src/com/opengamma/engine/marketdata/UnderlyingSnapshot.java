@@ -11,7 +11,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * @deprecated probably not needed any more
  */
 /* package */ class UnderlyingSnapshot {
 

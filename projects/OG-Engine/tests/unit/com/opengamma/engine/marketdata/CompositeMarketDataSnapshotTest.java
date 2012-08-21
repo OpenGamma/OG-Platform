@@ -15,6 +15,7 @@ import static org.mockito.Mockito.verify;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNull;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -22,6 +23,8 @@ import java.util.concurrent.TimeUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -46,9 +49,17 @@ public class CompositeMarketDataSnapshotTest {
   public void setUp() throws Exception {
     _delegate1 = mock(MarketDataSnapshot.class);
     _delegate2 = mock(MarketDataSnapshot.class);
-    _snapshot = new CompositeMarketDataSnapshot(Lists.newArrayList(
-        new UnderlyingSnapshot(_delegate1, Sets.newHashSet(REQUIREMENT1)),
-        new UnderlyingSnapshot(_delegate2, Sets.newHashSet(REQUIREMENT2))));
+    final List<Set<ValueRequirement>> requirements =
+        ImmutableList.<Set<ValueRequirement>>of(
+            Sets.newHashSet(REQUIREMENT1),
+            Sets.newHashSet(REQUIREMENT2));
+    Supplier<List<Set<ValueRequirement>>> subscriptionSupplier = new Supplier<List<Set<ValueRequirement>>>() {
+      @Override
+      public List<Set<ValueRequirement>> get() {
+        return requirements;
+      }
+    };
+    _snapshot = new CompositeMarketDataSnapshot(Lists.newArrayList(_delegate1, _delegate2), subscriptionSupplier);
     stub(_delegate1.query(REQUIREMENT1)).toReturn(VALUE1);
     stub(_delegate2.query(REQUIREMENT2)).toReturn(VALUE2);
     stub(_delegate1.query(Sets.newHashSet(REQUIREMENT1))).toReturn(ImmutableMap.of(REQUIREMENT1, VALUE1));
@@ -73,6 +84,7 @@ public class CompositeMarketDataSnapshotTest {
     Set<ValueRequirement> reqs = Sets.newHashSet(REQUIREMENT1, UNKNOWN_REQUIREMENT);
     _snapshot.init(reqs, 0, TimeUnit.MILLISECONDS);
     verify(_delegate1).init(Sets.newHashSet(REQUIREMENT1), 0, TimeUnit.MILLISECONDS);
+    verify(_delegate1, never()).init();
     verify(_delegate2, never()).init();
     verify(_delegate2, never()).init(anySet(), anyLong(), (TimeUnit) anyObject());
   }

@@ -14,6 +14,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import javax.time.Duration;
 import javax.time.Instant;
 
+import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -27,6 +28,7 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * TODO should this be an interface?
+ * TODO should this be in the same package as ViewComputationJob? it's not used anywhere else and isn't general purpose
  */
 public class CompositeMarketDataProvider {
 
@@ -73,17 +75,16 @@ public class CompositeMarketDataProvider {
   }
 
   private List<Set<ValueRequirement>> partitionRequirementsByProvider(Set<ValueRequirement> requirements) {
-    List<Set<ValueRequirement>> reqsByProvider = Lists.newArrayList();
+    List<Set<ValueRequirement>> reqsByProvider = Lists.newArrayListWithCapacity(_providers.size());
+    for (MarketDataProvider ignored : _providers) {
+      Set<ValueRequirement> reqs = Sets.newHashSet();
+      reqsByProvider.add(reqs);
+    }
     for (ValueRequirement valueRequirement : requirements) {
       for (int i = 0; i < _providers.size(); i++) {
         MarketDataProvider provider = _providers.get(i);
         if (provider.getAvailabilityProvider().getAvailability(valueRequirement) == MarketDataAvailability.AVAILABLE) {
-          Set<ValueRequirement> reqs = reqsByProvider.get(i);
-          if (reqs == null) {
-            reqs = Sets.newHashSet();
-            reqsByProvider.set(i, reqs);
-          }
-          reqs.add(valueRequirement);
+          reqsByProvider.get(i).add(valueRequirement);
         }
       }
     }
@@ -120,15 +121,12 @@ public class CompositeMarketDataProvider {
   }
 
   public MarketDataSnapshot snapshot() {
-    List<UnderlyingSnapshot> underlyingSnapshots = Lists.newArrayListWithCapacity(_providers.size());
+    List<MarketDataSnapshot> snapshots = Lists.newArrayListWithCapacity(_providers.size());
     for (int i = 0; i < _providers.size(); i++) {
       MarketDataSnapshot snapshot = _providers.get(i).snapshot(_specs.get(i));
-      // TODO this is no good, snapshot() is called before the subscriptions are set up
-      // TODO snapshots need to query this class for subscriptions as required
-      UnderlyingSnapshot underlyingSnapshot = new UnderlyingSnapshot(snapshot, _subscriptions.get(i));
-      underlyingSnapshots.add(underlyingSnapshot);
+      snapshots.add(snapshot);
     }
-    return new CompositeMarketDataSnapshot(underlyingSnapshots);
+    return new CompositeMarketDataSnapshot(snapshots, new SubscriptionSupplier());
   }
 
   public Duration getRealTimeDuration(Instant fromInstant, Instant toInstant) {
@@ -236,6 +234,18 @@ public class CompositeMarketDataProvider {
         }
       }
       return missingRequirements;
+    }
+  }
+
+  /**
+   * Supplies a list of the current subscriptions for each underlying provider. This is necessary because snapshots
+   * are created before subscriptions are set up but the snapshots need access to the subscriptions.
+   */
+  private class SubscriptionSupplier implements Supplier<List<Set<ValueRequirement>>> {
+
+    @Override
+    public List<Set<ValueRequirement>> get() {
+      return _subscriptions;
     }
   }
 }
