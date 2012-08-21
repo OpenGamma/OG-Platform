@@ -5,6 +5,7 @@
  */
 package com.opengamma.livedata.cogda.server;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -20,9 +21,15 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
+import com.opengamma.core.user.AuthenticationUtils;
+import com.opengamma.core.user.OGUser;
+import com.opengamma.core.user.UserSource;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdate;
 import com.opengamma.livedata.UserPrincipal;
@@ -36,8 +43,21 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * The base server process for any Cogda Live Data Server.
+ * <p/>
+ * By default, it will operate in a completely unauthenticated mode. User names and passwords
+ * in connection requests will be ignored, and all fields will be accessible by any connection.
+ * However, in combination with an injected {@link UserSource} (see {@link #setUserSource(UserSource)}),
+ * the server will authenticate users and authorize access.
+ * If the server has a {@link UserSource} provided, but the {@code checkPassword} parameter
+ * is set to false (see {@link #setCheckPassword(boolean)}) then only authorization will be provided and it is assumed
+ * that authentication is handled elsewhere in the overall application and so user credentials
+ * can be assumed to be valid without a password being provided.
+ * <p/>
+ * Because the {@link UserSource} will be hit for every authorization question, it is <strong>critical</strong>
+ * that the source caches requests in some form.
  */
 public class CogdaLiveDataServer implements FudgeConnectionReceiver, Lifecycle {
+  private static final Logger s_logger = LoggerFactory.getLogger(CogdaLiveDataServer.class);
   /**
    * The default port on which the server will listen for inbound connections.
    */
@@ -53,6 +73,8 @@ public class CogdaLiveDataServer implements FudgeConnectionReceiver, Lifecycle {
   // TODO kirk 2012-07-23 -- This is absolutely the wrong executor here.
   private final Executor _valueUpdateSendingExecutor = Executors.newFixedThreadPool(5);
   private final AtomicLong _ticksReceived = new AtomicLong(0L);
+  private UserSource _userSource;
+  private boolean _checkPassword = true;
   
   public CogdaLiveDataServer(LastKnownValueStoreProvider lkvStoreProvider) {
     this(lkvStoreProvider, OpenGammaFudgeContext.getInstance());
@@ -91,6 +113,40 @@ public class CogdaLiveDataServer implements FudgeConnectionReceiver, Lifecycle {
     return _lastKnownValueStoreProvider;
   }
 
+  /**
+   * Gets the userSource.
+   * @return the userSource
+   */
+  public UserSource getUserSource() {
+    return _userSource;
+  }
+
+  /**
+   * Sets the userSource.
+   * @param userSource  the userSource
+   */
+  public void setUserSource(UserSource userSource) {
+    _userSource = userSource;
+  }
+
+  /**
+   * Whether passwords will be checked.
+   * @return true if passwords will be checked.
+   */
+  public boolean isCheckPassword() {
+    return _checkPassword;
+  }
+
+  /**
+   * Sets whether passwords will be checked.
+   * Setting to false means that only authorization will be performed
+   * rather than authentication.
+   * @param checkPassword  false to turn off password checking on connections.
+   */
+  public void setCheckPassword(boolean checkPassword) {
+    _checkPassword = checkPassword;
+  }
+
   @Override
   public void connectionReceived(FudgeContext fudgeContext, FudgeMsgEnvelope message, FudgeConnection connection) {
     CogdaClientConnection clientConnection = new CogdaClientConnection(fudgeContext, this, connection);
@@ -102,6 +158,7 @@ public class CogdaLiveDataServer implements FudgeConnectionReceiver, Lifecycle {
   }
 
   @Override
+  
   public void start() {
     _connectionReceiver.setPortNumber(getPortNumber());
     _connectionReceiver.start();
@@ -136,8 +193,36 @@ public class CogdaLiveDataServer implements FudgeConnectionReceiver, Lifecycle {
     }
   }
   
+  protected OGUser getOGUser(String userName) {
+    OGUser ogUser = null;
+    Collection<? extends OGUser> ogUsers = getUserSource().getUsers(userName, VersionCorrection.LATEST);
+    if (ogUsers.isEmpty()) {
+      return null;
+    }
+    if (ogUsers.size() > 1) {
+      s_logger.warn("Authentication returned multiple users for {}. Choosing first. {}", userName, ogUsers);
+    }
+    ogUser = ogUsers.iterator().next();
+    return ogUser;
+  }
+  
   // Callbacks from the client.
-  public UserPrincipal authenticate(String userName) {
+  public UserPrincipal authenticate(String userName, String password) {
+    if (getUserSource() == null) {
+      // No user source. Allow all connections.
+      return UserPrincipal.getLocalUser(userName);
+    }
+    
+    OGUser ogUser = getOGUser(userName);
+    if (ogUser == null) {
+      s_logger.info("Not allowing login for {} because no user in UserSource", userName);
+      return null;
+    }
+    
+    if (isCheckPassword() && !AuthenticationUtils.passwordsMatch(ogUser, password)) {
+      s_logger.info("Not allowing login for {} because passwords don't match", userName);
+      return null;
+    }
     return UserPrincipal.getLocalUser(userName);
   }
   
@@ -150,8 +235,7 @@ public class CogdaLiveDataServer implements FudgeConnectionReceiver, Lifecycle {
   }
   
   public boolean isValidLiveData(ExternalId subscriptionId, String normalizationScheme) {
-    // TODO kirk 2012-07-23 -- Check to see if valid.
-    return true;
+    return getLastKnownValueStoreProvider().isAvailable(subscriptionId, normalizationScheme);
   }
   
   public LastKnownValueStore getLastKnownValueStore(ExternalId subscriptionId, String normalizationScheme) {
@@ -188,7 +272,7 @@ public class CogdaLiveDataServer implements FudgeConnectionReceiver, Lifecycle {
     Set<String> result = new TreeSet<String>();
     synchronized (_clients) {
       for (CogdaClientConnection connection : _clients) {
-        result.add(connection.getUser().toString());
+        result.add(connection.getUserPrincipal().toString());
       }
     }
     return result;

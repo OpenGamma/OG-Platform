@@ -45,6 +45,8 @@ import com.opengamma.livedata.cogda.msg.CogdaLiveDataSubscriptionRequestBuilder;
 import com.opengamma.livedata.cogda.msg.CogdaLiveDataSubscriptionRequestMessage;
 import com.opengamma.livedata.cogda.msg.CogdaLiveDataSubscriptionResponseBuilder;
 import com.opengamma.livedata.cogda.msg.CogdaLiveDataSubscriptionResponseMessage;
+import com.opengamma.livedata.cogda.msg.CogdaLiveDataUnsubscribeBuilder;
+import com.opengamma.livedata.cogda.msg.CogdaLiveDataUnsubscribeMessage;
 import com.opengamma.livedata.cogda.msg.CogdaLiveDataUpdateBuilder;
 import com.opengamma.livedata.cogda.msg.CogdaLiveDataUpdateMessage;
 import com.opengamma.livedata.cogda.msg.CogdaMessageType;
@@ -187,6 +189,11 @@ public class CogdaLiveDataClient extends AbstractLiveDataClient implements Lifec
 
   @Override
   protected void cancelPublication(LiveDataSpecification fullyQualifiedSpecification) {
+    CogdaLiveDataUnsubscribeMessage message = new CogdaLiveDataUnsubscribeMessage();
+    message.setCorrelationId(_nextRequestId.getAndIncrement());
+    message.setNormalizationScheme(fullyQualifiedSpecification.getNormalizationRuleSetId());
+    message.setSubscriptionId(fullyQualifiedSpecification.getIdentifiers().iterator().next());
+    _messageSender.send(CogdaLiveDataUnsubscribeBuilder.buildMessageStatic(new FudgeSerializer(getFudgeContext()), message));
   }
 
   @Override
@@ -352,8 +359,9 @@ public class CogdaLiveDataClient extends AbstractLiveDataClient implements Lifec
    * @param args Command-line args. Ignored.
    * @throws InterruptedException Required to make the compiler happy
    */
-  public static final void main(final String[] args) throws InterruptedException {
+  public static void main(final String[] args) throws InterruptedException {
     CogdaLiveDataClient client = new CogdaLiveDataClient(UserPrincipal.getLocalUser());
+    //client.setServerName("cogdasvr-lx-1.hq.opengamma.com");
     client.start();
     
     LiveDataSpecification lds = new LiveDataSpecification("OpenGamma", ExternalId.of("SURF", "FV2DBEURUSD12M"));
@@ -363,7 +371,7 @@ public class CogdaLiveDataClient extends AbstractLiveDataClient implements Lifec
     subs.add(lds);
     subs.add(new LiveDataSpecification("OpenGamma", ExternalId.of("SURF", "ASIRSEUR49Y30A03L")));
     subs.add(new LiveDataSpecification("OpenGamma", ExternalId.of("SURF", "FV1DRUSDBRL06M")));
-    client.subscribe(UserPrincipal.getLocalUser(), subs, new LiveDataListener() {
+    LiveDataListener ldl = new LiveDataListener() {
       @Override
       public void subscriptionResultReceived(LiveDataSubscriptionResponse subscriptionResult) {
         s_logger.warn("Sub result {}", subscriptionResult);
@@ -379,7 +387,10 @@ public class CogdaLiveDataClient extends AbstractLiveDataClient implements Lifec
         s_logger.warn("Data received {}", valueUpdate);
       }
       
-    });
+    }; 
+    client.subscribe(UserPrincipal.getLocalUser(), subs, ldl);
+    
+    client.subscribe(UserPrincipal.getLocalUser(), new LiveDataSpecification("OpenGamma", ExternalId.of("SURF", "NO_SUCH_THING")), ldl);
     
     Thread.sleep(100000000L);
   }

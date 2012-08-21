@@ -85,6 +85,7 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
   private static final Calendar WEEKEND_CALENDAR = new MondayToFridayCalendar("Weekend");
   private static final TimeSeriesDifferenceOperator DIFFERENCE = new TimeSeriesDifferenceOperator();
 
+  @SuppressWarnings("unchecked")
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();
@@ -282,6 +283,11 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
   @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.POSITION;
+  }
+
+  @Override
+  public boolean canHandleMissingRequirements() {
+    return true;
   }
 
   protected ValueProperties getResultProperties(final ValueRequirement desiredValue, final String currency, final String[] curveNames, final String curveCalculationConfig) {

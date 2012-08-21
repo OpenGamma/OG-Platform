@@ -27,7 +27,9 @@ public final class EHCacheUtils {
   }
 
   /**
-   * Creates a cache manager.
+   * Creates a cache manager using the default configuration. This should be used only in a test environment; in other
+   * environments a shared, configured cache manager should be injected.
+   * 
    * @return the cache manager, not null
    */
   public static CacheManager createCacheManager() {

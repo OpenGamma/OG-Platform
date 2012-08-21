@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import net.sf.ehcache.CacheManager;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -48,19 +50,14 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
   private long _subscriptionLimit = Long.MAX_VALUE;
   private volatile RejectedDueToSubscriptionLimitEvent _lastLimitRejection; // = null
   
-  public BloombergLiveDataServer(BloombergConnector bloombergConnector, CachingReferenceDataProvider cachingReferenceDataProvider) {
-    this(bloombergConnector, cachingReferenceDataProvider, cachingReferenceDataProvider.getUnderlying());
-  }
-
-  private BloombergLiveDataServer(BloombergConnector bloombergConnector,
-      CachingReferenceDataProvider cachingRefDataProvider,
-      ReferenceDataProvider underlyingReferenceDataProvider) {
-    ArgumentChecker.notNull(bloombergConnector, "Bloomberg Session Options");
-    ArgumentChecker.notNull(cachingRefDataProvider, "Caching Reference Data Provider");
-    ArgumentChecker.notNull(underlyingReferenceDataProvider, "Bloomberg Reference Data Provider");
+  public BloombergLiveDataServer(BloombergConnector bloombergConnector, CachingReferenceDataProvider cachingReferenceDataProvider, CacheManager cacheManager) {
+    super(cacheManager);
+    ArgumentChecker.notNull(bloombergConnector, "bloombergConnector");
+    ArgumentChecker.notNull(cachingReferenceDataProvider, "cachingReferenceDataProvider");
+    ArgumentChecker.notNull(cacheManager, "cacheManager");
     _bloombergConnector = bloombergConnector;
-    _cachingRefDataProvider = cachingRefDataProvider;
-    _underlyingReferenceDataProvider = underlyingReferenceDataProvider;
+    _cachingRefDataProvider = cachingReferenceDataProvider;
+    _underlyingReferenceDataProvider = cachingReferenceDataProvider.getUnderlying();
   }
 
   /**

@@ -5,13 +5,12 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.definition;
 
-import org.apache.commons.lang.Validate;
+import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import javax.time.calendar.ZonedDateTime;
-import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 
 /**
  *  Definition of a vanilla legacy Credit Default Swap contract (i.e. transacted pre 8th April 2009)
@@ -19,190 +18,186 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 public class CreditDefaultSwapDefinition {
   
   //----------------------------------------------------------------------------------------------------------------------------------------
+  
+  // Member variables of the CDS contract (defines what a CDS is)
 
   // From the users perspective, are we buying or selling protection
-  private final String _buysellprotection;
+  private final String _buySellProtection;
 
   // Identifiers for the (three) counterparties in the trade
-  private final String _protectionbuyer;
-  private final String _protectionseller;
-  private final String _referenceentity;
+  private final String _protectionBuyer;
+  private final String _protectionSeller;
+  private final String _referenceEntity;
   
   // The currency the trade is executed in e.g. USD
   private final Currency _currency;
   
   // The seniority of the debt of the reference entity the CDS is written on (e.g. senior or subordinated)
-  private final String _debtseniority;
+  private final String _debtSeniority;
   
   // The restructuring type in the event of a credit event deemed to be a restructuring of the reference entities debt (e.g. OR, MR, MMR or NR)
-  private final String _restructuringclause;
+  private final String _restructuringClause;
   
   // Holiday calendar for the determination of adjusted business days in the cashflow schedule
   private final Calendar _calendar;
   
   // The date of the contract inception
-  private final ZonedDateTime _startdate;
+  private final ZonedDateTime _startDate;
   
   // The effective date for protection to begin (usually T + 1 for legacy CDS)
-  private final ZonedDateTime _effectivedate;
+  private final ZonedDateTime _effectiveDate;
   
   // The maturity date of the contract (when premium and protection coverage ceases)
-  private final ZonedDateTime _maturitydate;
+  private final ZonedDateTime _maturityDate;
   
   // The date on which we want to calculate the CDS MtM
-  private final ZonedDateTime _valuationdate;
+  private final ZonedDateTime _valuationDate;
   
   // The method for generating the schedule of premium payments
-  private final String _schedulegenerationmethod;
+  private final String _scheduleGenerationMethod;
   
   // The frequency of coupon payments (usually quarterly)
-  private final String _couponfrequency;
+  private final String _couponFrequency;
   
   // Day-count convention (usually Act/360)
-  private final String _daycountfractionconvention;
+  private final String _daycountFractionConvention;
   
   // Business day adjustment convention (usually following)
-  private final String _businessdayadjustmentconvention;
+  private final String _businessdayAdjustmentConvention;
   
   // Flag to determine if we business day adjust the final maturity date
-  private final boolean _adjustmaturitydate;
+  private final boolean _adjustMaturityDate;
   
   // The trade notional (in the trade currency)
   private final double _notional;
   
   // The quoted par spread of the trade (as this is a legacy CDS, this is the coupon applied to the premium leg 
   // to give the trade a value of zero at the contract start date (there is no exchange of payments upfront) 
-  private final double _parspread;
+  private final double _parSpread;
   
-  // The recovery rate to be used in the calculation of the CDS MtM
-  private final double _valuationrecoveryrate;
+  // The recovery rate to be used in the calculation of the CDS MtM (can be different to the rate used to calibrate the survival curve)
+  private final double _valuationRecoveryRate;
   
   // The recovery rate to be used when calibrating the hazard rate term structure to the market par CDS spread quotes
-  private final double _curverecoveryrate;
+  private final double _curveRecoveryRate;
   
   // Flag to determine whether the accrued coupons should be included in the CDS premium lag calculation
-  private final boolean _includeaccruedpremium;
+  private final boolean _includeAccruedPremium;
   
-  // Vector of dates for which interest rates are provided
-  private final ZonedDateTime[] _interestratetenors;
+  // The yield curve object for discount factors
+  private final YieldCurve _yieldCurve;
   
-  // Vector of interest rates from which to bootstrap the discount factor curve 
-  private final ZonedDateTime[] _interestrates;
-  
-  // Vector of dates for which market observed CDS par spread quotes are provided
-  private final ZonedDateTime[] _creditspreadtenors;
-  
-  // Vector of market observed CDS par spread quotes from which to bootstrap the survival probability curve
-  private final ZonedDateTime[] _creditspreads;
+  // TODO : Add the survival curve (assuming that we want the survival probabilities as an input to the pricer - not the par CDS spread term struct)
   
   // ----------------------------------------------------------------------------------------------------------------------------------------
   
   // Constructor for a CDS definition object (all fields are user specified)
  
-  // Probably not the best way of handling schedule generation and interest rate and credit spread curves - need to look at another product to see how it is done
+  // Probably not the best way of handling schedule generation, business day conventions etc - need to look at another product to see how it is done
   
   // How can we reduce the number of parameters?
   
-  public CreditDefaultSwapDefinition(String buysellprotection,
-                                      String protectionbuyer, 
-                                      String protectionseller, 
-                                      String referenceentity, 
+  public CreditDefaultSwapDefinition(String buySellProtection,
+                                      String protectionBuyer, 
+                                      String protectionSeller, 
+                                      String referenceEntity, 
                                       Currency currency, 
-                                      String debtseniority, 
-                                      String restructuringclause, 
+                                      String debtSeniority, 
+                                      String restructuringClause, 
                                       Calendar calendar,
-                                      ZonedDateTime startdate,
-                                      ZonedDateTime effectivedate,
-                                      ZonedDateTime maturitydate,
-                                      ZonedDateTime valuationdate,
-                                      String schedulegenerationmethod,
-                                      String couponfrequency,
-                                      String daycountfractionconvention,
-                                      String businessdayadjustmentconvention,
+                                      ZonedDateTime startDate,
+                                      ZonedDateTime effectiveDate,
+                                      ZonedDateTime maturityDate,
+                                      ZonedDateTime valuationDate,
+                                      String scheduleGenerationMethod,
+                                      String couponFrequency,
+                                      String daycountFractionConvention,
+                                      String businessdayAdjustmentConvention,
                                       double notional, 
-                                      double parspread, 
-                                      double valuationrecoveryrate, 
-                                      double curverecoveryrate, 
-                                      boolean includeaccruedpremium,
-                                      boolean adjustmaturitydate,
-                                      ZonedDateTime[] interestratetenors,
-                                      ZonedDateTime[] interestrates,
-                                      ZonedDateTime[] creditspreadtenors,
-                                      ZonedDateTime[] creditspreads) {
+                                      double parSpread, 
+                                      double valuationRecoveryRate, 
+                                      double curveRecoveryRate, 
+                                      boolean includeAccruedPremium,
+                                      boolean adjustMaturityDate,
+                                      YieldCurve yieldCurve) {
     
-    Validate.notNull(buysellprotection, "buysellprotection");
-    Validate.notNull(protectionseller, "protectionseller");
-    Validate.notNull(protectionbuyer, "protectionbuyer");
-    Validate.notNull(referenceentity, "referenceentity");
-    Validate.notNull(currency, "currency");
-    Validate.notNull(debtseniority, "debtseniority");
-    Validate.notNull(restructuringclause, "restructuringclause");
-    Validate.notNull(calendar, "calendar");
+    ArgumentChecker.isTrue(buySellProtection.isEmpty(), "Buy/Sell protection flag is empty");
     
-    Validate.isTrue(parspread > 0.0, "CDS par spread should be greater than zero");
-    Validate.isTrue(notional >= 0.0, "Notional should be greater than or equal to zero");
+    /*
+    ArgumentChecker.isTrue(protectionSeller.isEmpty(), "Protection seller field is empty");
+    ArgumentChecker.isTrue(protectionBuyer.isEmpty(), "Protection buyer field is empty");
+    ArgumentChecker.isTrue(referenceEntity.isEmpty(), "Reference entity field is empty");
     
-    Validate.isTrue(valuationrecoveryrate >= 0.0, "Valuation recovery rate should be in the range [0%, 100%]");
-    Validate.isTrue(valuationrecoveryrate <= 1.0, "Valuation recovery rate should be in the range [0%, 100%]");
-    Validate.isTrue(curverecoveryrate >= 0.0, "Curve recovery rate should be in the range [0%, 100%]");
-    Validate.isTrue(curverecoveryrate <= 1.0, "Curve recovery rate should be in the range [0%, 100%]");
+    ArgumentChecker.isTrue(debtSeniority.isEmpty(), "Debt seniority field is empty");
+    ArgumentChecker.isTrue(restructuringClause.isEmpty(), "Restructuring clause field is empty");
     
-    ArgumentChecker.isTrue(startdate.isBefore(valuationdate), "Start date {} must be before valuation date {}", startdate, valuationdate);
-    // Remember have to check that the dates are in the right order e.g. maturity < start
-    // This will be a problem because we are using ZoneddateTime objects (need to convert to a double?)
+    ArgumentChecker.isTrue(scheduleGenerationMethod.isEmpty(), "Schedule generation method field is empty");
+    ArgumentChecker.isTrue(couponFrequency.isEmpty(), "Coupon frequency field is empty");
+    ArgumentChecker.isTrue(daycountFractionConvention.isEmpty(), "Daycount fraction convention field is empty");
+    ArgumentChecker.isTrue(businessdayAdjustmentConvention.isEmpty(), "Business day adjustment convention field is empty");
     
-    _buysellprotection = buysellprotection;
-    _protectionbuyer = protectionbuyer;
-    _protectionseller = protectionseller;
-    _referenceentity = referenceentity;
+    
+    //ArgumentChecker.isTrue(startdate.isBefore(valuationdate), "Start date {} must be before valuation date {}", startdate, valuationdate);
+    
+    */
+    
+    // TODO : Add all the argument checkers
+    
+    ArgumentChecker.isTrue(notional >= 0.0,  "Notional amount should be greater than or equal to zero");
+    ArgumentChecker.isTrue(parSpread >= 0.0,  "CDS par spread should be greater than or equal to zero");
+    
+    ArgumentChecker.isInRangeInclusive(valuationRecoveryRate, 0.0, 1.0);
+    ArgumentChecker.isInRangeInclusive(curveRecoveryRate, 0.0, 1.0);
+    
+    _buySellProtection = buySellProtection;
+    _protectionBuyer = protectionBuyer;
+    _protectionSeller = protectionSeller;
+    _referenceEntity = referenceEntity;
     
     _currency = currency;
-    _debtseniority = debtseniority;
-    _restructuringclause = restructuringclause;
+    _debtSeniority = debtSeniority;
+    _restructuringClause = restructuringClause;
     
     _calendar = calendar;
     
-    _startdate = startdate;
-    _effectivedate = effectivedate;
-    _maturitydate = maturitydate;
-    _valuationdate = valuationdate;
+    _startDate = startDate;
+    _effectiveDate = effectiveDate;
+    _maturityDate = maturityDate;
+    _valuationDate = valuationDate;
     
-    _schedulegenerationmethod = schedulegenerationmethod;
-    _couponfrequency = couponfrequency;
-    _daycountfractionconvention = daycountfractionconvention;
-    _businessdayadjustmentconvention = businessdayadjustmentconvention;
-    _adjustmaturitydate = adjustmaturitydate;
+    _scheduleGenerationMethod = scheduleGenerationMethod;
+    _couponFrequency = couponFrequency;
+    _daycountFractionConvention = daycountFractionConvention;
+    _businessdayAdjustmentConvention = businessdayAdjustmentConvention;
+    _adjustMaturityDate = adjustMaturityDate;
     
     _notional = notional;
-    _parspread = parspread;
+    _parSpread = parSpread;
     
-    _valuationrecoveryrate = valuationrecoveryrate;
-    _curverecoveryrate = curverecoveryrate;
+    _valuationRecoveryRate = valuationRecoveryRate;
+    _curveRecoveryRate = curveRecoveryRate;
     
-    _includeaccruedpremium = includeaccruedpremium;
+    _includeAccruedPremium = includeAccruedPremium;
     
-    _interestratetenors = interestratetenors;               // This should be a vector - need to add get method
-    _interestrates = interestrates;                         // This should be a vector - need to add get method
-    _creditspreadtenors = creditspreadtenors;               // This should be a vector - need to add get method
-    _creditspreads = creditspreads;                         // This should be a vector - need to add get method
+    _yieldCurve = yieldCurve;                         
   }
   
 //----------------------------------------------------------------------------------------------------------------------------------------
 
   public String getBuySellProtection() {
-    return _buysellprotection;
+    return _buySellProtection;
   }
    
   public String getProtectionBuyer() {
-    return _protectionbuyer;
+    return _protectionBuyer;
   }
    
   public String getProtectionSeller() {
-    return _protectionseller;
+    return _protectionSeller;
   }
    
   public String getReferenceEntity() {
-    return _referenceentity;
+    return _referenceEntity;
   }
   
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -212,11 +207,11 @@ public class CreditDefaultSwapDefinition {
   }
   
   public String getDebtSeniority() {
-    return _debtseniority;
+    return _debtSeniority;
   }
   
   public String getRestructuringClause() {
-    return _restructuringclause;
+    return _restructuringClause;
   }
   
   public Calendar getCalendar() {
@@ -226,84 +221,71 @@ public class CreditDefaultSwapDefinition {
 //----------------------------------------------------------------------------------------------------------------------------------------
   
   public ZonedDateTime getStartDate() {
-    return _startdate;
+    return _startDate;
   }
   
   public ZonedDateTime getEffectiveDate() {
-    return _effectivedate;
+    return _effectiveDate;
   }
   
   public ZonedDateTime getMaturityDate() {
-    return _maturitydate;
+    return _maturityDate;
   }
   
   public ZonedDateTime getValuationDate() {
-    return _valuationdate;
+    return _valuationDate;
   }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
   
   public String getScheduleGenerationMethod() {
-    return _schedulegenerationmethod;
+    return _scheduleGenerationMethod;
   }
   
   public String getCouponFrequency() {
-    return _couponfrequency;
+    return _couponFrequency;
   }
   
   public String getDayCountFractionConvention() {
-    return _daycountfractionconvention;
+    return _daycountFractionConvention;
   }
   
   public String getBusinessDayAdjustmentConvention() {
-    return _businessdayadjustmentconvention;
+    return _businessdayAdjustmentConvention;
   }
   
   public boolean getAdjustMaturityDate() {
-    return _adjustmaturitydate;
+    return _adjustMaturityDate;
   }
   
 //----------------------------------------------------------------------------------------------------------------------------------------
   
   public double getNotional() {
+    //System.out.println("Notional = " + _notional);
     return _notional;
   }
   
   public double getParSpread() {
-    return _parspread;
+    return _parSpread;
   }
   
   public double getValuationRecoveryRate() {
-    return _valuationrecoveryrate;
+    return _valuationRecoveryRate;
   }
   
   public double getCurveRecoveryRate() {
-    return _curverecoveryrate;
+    return _curveRecoveryRate;
   }
   
   public boolean getIncludeAccruedPremium() {
-    return _includeaccruedpremium;
+    return _includeAccruedPremium;
   }
-  
+
   //----------------------------------------------------------------------------------------------------------------------------------------
   
-  ZonedDateTime[] getInterestratetenors() {
-    return _interestratetenors;
+  YieldCurve getYieldCurve() {
+    return _yieldCurve;
   }
-
-  ZonedDateTime[] getInterestrates() {
-    return _interestrates;
-  }
-  
-  ZonedDateTime[] getCreditspreadtenors() {
-    return _creditspreadtenors;
-  }
-  
-
-  ZonedDateTime[] getCreditspreads() {
-    return _creditspreads;
-  }
-  
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------

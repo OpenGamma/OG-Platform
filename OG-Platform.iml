@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="IvyIDEA" name="IvyIDEA">
+      <configuration ivyFile="$MODULE_DIR$/projects/KingsRoad/ivy.xml" useProjectSettings="true" useCustomIvySettings="true" ivySettingsFile="" onlyResolveSelectedConfigs="false">
+        <propertiesSettings>
+          <propertiesFiles includeProjectLevelPropertiesFiles="true" />
+        </propertiesSettings>
+      </configuration>
+    </facet>
+  </component>
   <component name="NewModuleRootManager" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/build/classes" />
     <output-test url="file://$MODULE_DIR$/tests/classes" />
@@ -14,6 +23,37 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="OG-Analytics" />
+    <orderEntry type="module" module-name="OG-Bloomberg" />
+    <orderEntry type="module" module-name="OG-Component" />
+    <orderEntry type="module" module-name="OG-Core" />
+    <orderEntry type="module" module-name="OG-Engine" />
+    <orderEntry type="module" module-name="OG-Financial" />
+    <orderEntry type="module" module-name="OG-LiveData" />
+    <orderEntry type="module" module-name="OG-Master" />
+    <orderEntry type="module" module-name="OG-MasterDB" />
+    <orderEntry type="module" module-name="OG-Security" />
+    <orderEntry type="module" module-name="OG-Util" />
+    <orderEntry type="module" module-name="OG-Web" />
+    <orderEntry type="module" module-name="OG-Integration" />
+    <orderEntry type="module-library">
+      <library name="IvyIDEA-OG-Platform-default">
+        <CLASSES>
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.opengamma/region/jars/og-regions-20110127.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.poi/poi/jars/poi-3.7.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-logging/jars/commons-logging-1.1.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-logging/jars/commons-logging-api-1.1.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-logging/jars/commons-logging-adapters-1.1.1.jar!/" />
+        </CLASSES>
+        <JAVADOC>
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-logging/javadocs/commons-logging-javadoc-1.1.1.jar!/" />
+        </JAVADOC>
+        <SOURCES>
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.poi/poi/sources/poi-sources-3.7.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-logging/sources/commons-logging-src-1.1.1.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
   </component>
   <component name="org.twodividedbyzero.idea.findbugs">
     <option name="_basePreferences">

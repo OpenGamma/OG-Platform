@@ -194,7 +194,7 @@ public abstract class InterestRateInstrumentCurveSpecificFunction extends Abstra
     }
     final String[] applicableCurveNames = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, curveNames);
     if (Arrays.binarySearch(applicableCurveNames, curve) < 0) {
-      s_logger.error("Security {} is not sensitive to the curve {}", security, curve);
+      s_logger.error("{} {} security is not sensitive to the curve {}", new Object[] {currency, security.getClass(), curve});
       return null;
     }
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();

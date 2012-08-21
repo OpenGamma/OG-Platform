@@ -23,6 +23,8 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.PositionSearchResult;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.paging.Paging;
+import com.opengamma.util.paging.PagingRequest;
 
 /**
  * Deletes positions that are not currently in a portfolio
@@ -30,6 +32,8 @@ import com.opengamma.util.ArgumentChecker;
 public class OrphanedPositionRemover {
   
   private static final Logger s_logger = LoggerFactory.getLogger(OrphanedPositionRemover.class);
+  
+  private static final int PAGE_SIZE = 100;
   
   private final PortfolioMaster _portfolioMaster;
   private final PositionMaster _positionMaster;
@@ -42,8 +46,8 @@ public class OrphanedPositionRemover {
   }
 
   public void run() {
-    Set<ObjectId> validPositions = getValidPositions();
-    Set<UniqueId> orphanedPositions = getOrphanedPositions(validPositions);
+    final Set<ObjectId> validPositions = getValidPositions();
+    final Set<UniqueId> orphanedPositions = getOrphanedPositions(validPositions);
     removePositions(orphanedPositions);
   }
   
@@ -56,32 +60,62 @@ public class OrphanedPositionRemover {
   }
 
   private Set<UniqueId> getOrphanedPositions(Set<ObjectId> validPositions) {
-    Set<UniqueId> orphanedPositions = Sets.newHashSet();
-    PositionSearchResult positionSearchResult = _positionMaster.search(new PositionSearchRequest());
-    for (PositionDocument positionDocument : positionSearchResult.getDocuments()) {
-      UniqueId positionId = positionDocument.getPosition().getUniqueId();
-      if (!validPositions.contains(positionId.getObjectId())) {
-        orphanedPositions.add(positionId);
+    
+    final Set<UniqueId> result = Sets.newHashSet();
+    final int totalPositions = getTotalPositionSize();
+    
+    Paging paging = Paging.of(PagingRequest.ofPage(1, PAGE_SIZE), totalPositions);
+    int totalPages = paging.getTotalPages();
+    for (int i = 1; i <= totalPages; i++) {
+      PositionSearchRequest searchRequest = new PositionSearchRequest();
+      searchRequest.setPagingRequest(PagingRequest.ofPage(i, PAGE_SIZE));
+      for (PositionDocument positionDocument : _positionMaster.search(searchRequest).getDocuments()) {
+        UniqueId positionId = positionDocument.getPosition().getUniqueId();
+        if (!validPositions.contains(positionId.getObjectId())) {
+          result.add(positionId);
+        }
       }
     }
-    return orphanedPositions;
+    return result;
+  }
+
+  private int getTotalPositionSize() {
+    PositionSearchRequest searchRequest = new PositionSearchRequest();
+    searchRequest.setPagingRequest(PagingRequest.ONE);
+    PositionSearchResult portfolioSearchResult = _positionMaster.search(searchRequest);
+    return portfolioSearchResult.getPaging().getTotalItems();
   }
 
   private Set<ObjectId> getValidPositions() {
-    final Set<ObjectId> validPositions = Sets.newHashSet();
-    PortfolioSearchResult portfolioSearchResult = _portfolioMaster.search(new PortfolioSearchRequest());
     
-    for (PortfolioDocument portfolioDocument : portfolioSearchResult.getDocuments()) {
-      accumulatePositions(portfolioDocument.getPortfolio().getRootNode(), validPositions);
+    final Set<ObjectId> result = Sets.newHashSet();
+    final int totalPortfolios = getPortfolioTotalSize();
+    Paging paging = Paging.of(PagingRequest.ofPage(1, PAGE_SIZE), totalPortfolios);
+    int totalPages = paging.getTotalPages();
+    for (int i = 1; i <= totalPages; i++) {
+      PortfolioSearchRequest searchRequest = new PortfolioSearchRequest();
+      searchRequest.setPagingRequest(PagingRequest.ofPage(i, PAGE_SIZE));
+      for (PortfolioDocument portfolioDocument : _portfolioMaster.search(searchRequest).getDocuments()) {
+        accumulatePositionIdentifiers(portfolioDocument.getPortfolio().getRootNode(), result);
+      }
     }
-    return validPositions;
+    return result;
+    
   }
   
-  private void accumulatePositions(final ManageablePortfolioNode node, final Set<ObjectId> positions) {
+  private int getPortfolioTotalSize() {
+    PortfolioSearchRequest searchRequest = new PortfolioSearchRequest();
+    searchRequest.setPagingRequest(PagingRequest.ONE);
+    
+    PortfolioSearchResult portfolioSearchResult = _portfolioMaster.search(searchRequest);
+    return portfolioSearchResult.getPaging().getTotalItems();
+  }
+
+  private void accumulatePositionIdentifiers(final ManageablePortfolioNode node, final Set<ObjectId> positions) {
     positions.addAll(node.getPositionIds());
     
     for (ManageablePortfolioNode childNode : node.getChildNodes()) {
-      accumulatePositions(childNode, positions);
+      accumulatePositionIdentifiers(childNode, positions);
     }
   }
   

@@ -61,7 +61,7 @@ public abstract class BondSecurityDefinition<N extends PaymentDefinition, C exte
    * @param settlementDays Standard number of days between trade date and trade settlement. Used for clean price and yield computation.
    * @param calendar The calendar used to compute the standard settlement date.
    */
-  public BondSecurityDefinition(AnnuityDefinition<N> nominal, AnnuityDefinition<C> coupon, int exCouponDays, int settlementDays, Calendar calendar) {
+  public BondSecurityDefinition(final AnnuityDefinition<N> nominal, final AnnuityDefinition<C> coupon, final int exCouponDays, final int settlementDays, final Calendar calendar) {
     Validate.notNull(nominal, "Nominal");
     Validate.notNull(coupon, "Coupon");
     Validate.isTrue(nominal.getCurrency() == coupon.getCurrency(), "Currency of nominal and coupons should be the same");
@@ -87,7 +87,7 @@ public abstract class BondSecurityDefinition<N extends PaymentDefinition, C exte
    * @param issuer The issuer name.
    * @param repoType The repo type name.
    */
-  public BondSecurityDefinition(AnnuityDefinition<N> nominal, AnnuityDefinition<C> coupon, int exCouponDays, int settlementDays, Calendar calendar, final String issuer, final String repoType) {
+  public BondSecurityDefinition(final AnnuityDefinition<N> nominal, final AnnuityDefinition<C> coupon, final int exCouponDays, final int settlementDays, final Calendar calendar, final String issuer, final String repoType) {
     Validate.notNull(nominal, "Nominal");
     Validate.notNull(coupon, "Coupon");
     Validate.isTrue(nominal.getCurrency() == coupon.getCurrency(), "Currency of nominal and coupons should be the same");
@@ -171,7 +171,7 @@ public abstract class BondSecurityDefinition<N extends PaymentDefinition, C exte
   public String toString() {
     String result = "Bond : \n";
     result += "Notional: " + _nominal.toString();
-    result += "\nCoupons: \n" + _coupon.toString();
+    result += "\nCoupons: \n" + _coupon.toString() + "\n";
     return result;
   }
 
@@ -189,7 +189,7 @@ public abstract class BondSecurityDefinition<N extends PaymentDefinition, C exte
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -199,7 +199,7 @@ public abstract class BondSecurityDefinition<N extends PaymentDefinition, C exte
     if (getClass() != obj.getClass()) {
       return false;
     }
-    BondSecurityDefinition<?, ?> other = (BondSecurityDefinition<?, ?>) obj;
+    final BondSecurityDefinition<?, ?> other = (BondSecurityDefinition<?, ?>) obj;
     if (!ObjectUtils.equals(_coupon, other._coupon)) {
       return false;
     }

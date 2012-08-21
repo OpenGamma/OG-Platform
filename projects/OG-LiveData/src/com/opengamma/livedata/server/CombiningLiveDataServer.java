@@ -20,6 +20,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import net.sf.ehcache.CacheManager;
+
 import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,17 +47,16 @@ public abstract class CombiningLiveDataServer extends AbstractLiveDataServer {
   private final ExecutorService _subscriptionExecutor = Executors.newCachedThreadPool();
   private final Set<AbstractLiveDataServer> _underlyings;
 
-  public CombiningLiveDataServer(AbstractLiveDataServer... otherUnderlyings) {
-    this(Arrays.asList(otherUnderlyings));
+  public CombiningLiveDataServer(CacheManager cacheManager, AbstractLiveDataServer... otherUnderlyings) {
+    this(Arrays.asList(otherUnderlyings), cacheManager);
   }
 
-  public CombiningLiveDataServer(Collection<? extends AbstractLiveDataServer> otherUnderlyings) {
+  public CombiningLiveDataServer(Collection<? extends AbstractLiveDataServer> otherUnderlyings, CacheManager cacheManager) {
+    super(cacheManager);
     _underlyings = Sets.newHashSet();
     _underlyings.addAll(otherUnderlyings);
-
   }
 
-  
   @Override
   public Collection<LiveDataSubscriptionResponse> subscribe(Collection<LiveDataSpecification> liveDataSpecificationsFromClient, final boolean persistent) {
     return subscribeByServer(
