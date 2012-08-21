@@ -272,7 +272,7 @@ public class CogdaLiveDataServer implements FudgeConnectionReceiver, Lifecycle {
     Set<String> result = new TreeSet<String>();
     synchronized (_clients) {
       for (CogdaClientConnection connection : _clients) {
-        result.add(connection.getUser().toString());
+        result.add(connection.getUserPrincipal().toString());
       }
     }
     return result;
