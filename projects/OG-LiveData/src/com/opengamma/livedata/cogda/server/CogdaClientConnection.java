@@ -5,6 +5,7 @@
  */
 package com.opengamma.livedata.cogda.server;
 
+import java.text.MessageFormat;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -20,6 +21,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.user.EntitlementUtils;
+import com.opengamma.core.user.OGUser;
+import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdate;
 import com.opengamma.livedata.UserPrincipal;
@@ -64,7 +68,8 @@ public class CogdaClientConnection implements FudgeConnectionStateListener, Fudg
   private final Lock _writerLock = new ReentrantLock();
   private final Lock _valuesToSendLock = new ReentrantLock();
   
-  private UserPrincipal _user; 
+  private UserPrincipal _userPrincipal;
+  private OGUser _user;
   
   public CogdaClientConnection(FudgeContext fudgeContext, CogdaLiveDataServer server, FudgeConnection connection) {
     ArgumentChecker.notNull(fudgeContext, "fudgeContext");
@@ -106,8 +111,24 @@ public class CogdaClientConnection implements FudgeConnectionStateListener, Fudg
    * Gets the user.
    * @return the user
    */
-  public UserPrincipal getUser() {
+  public UserPrincipal getUserPrincipal() {
+    return _userPrincipal;
+  }
+
+  /**
+   * Gets the user.
+   * @return the user
+   */
+  public OGUser getUser() {
     return _user;
+  }
+
+  /**
+   * Sets the user.
+   * @param user  the user
+   */
+  public void setUser(OGUser user) {
+    _user = user;
   }
 
   @Override
@@ -135,10 +156,13 @@ public class CogdaClientConnection implements FudgeConnectionStateListener, Fudg
     
     // Wrap this in synchronized to force the cache flush.
     synchronized (this) {
-      _user = getServer().authenticate(request.getUserName(), request.getPassword());
+      _userPrincipal = getServer().authenticate(request.getUserName(), request.getPassword());
+      if (_userPrincipal != null) {
+        _user = getServer().getOGUser(request.getUserName());
+      }
     }
     
-    if (getUser() == null) {
+    if (getUserPrincipal() == null) {
       ConnectionResponseMessage response = new ConnectionResponseMessage();
       response.setResult(ConnectionResult.NOT_AUTHORIZED);
       sendMessage(ConnectionResponseBuilder.buildMessageStatic(new FudgeSerializer(fudgeContext), response));
@@ -155,7 +179,7 @@ public class CogdaClientConnection implements FudgeConnectionStateListener, Fudg
 
   @Override
   public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
-    if (getUser() == null) {
+    if (getUserPrincipal() == null) {
       throw new OpenGammaRuntimeException("Cannot operate, failed user authentication.");
     }
     FudgeMsg msg = msgEnvelope.getMessage();
@@ -181,6 +205,12 @@ public class CogdaClientConnection implements FudgeConnectionStateListener, Fudg
       sendMessage(CogdaLiveDataBuilderUtil.buildCommandResponseMessage(fudgeContext, response));
     }
   }
+  
+  protected boolean isEntitled(String operation, ExternalId subscriptionId, String normalizationScheme) {
+    String entitlementDetail = MessageFormat.format("/{0}/{1}[{2}]", subscriptionId.getScheme(), subscriptionId.getValue(), normalizationScheme);
+    String entitlementString = EntitlementUtils.generateEntitlementString(true, operation, "cogda", entitlementDetail);
+    return EntitlementUtils.userHasEntitlement(getUser(), entitlementString);
+  }
 
   /**
    * @param fudgeContext
@@ -193,8 +223,11 @@ public class CogdaClientConnection implements FudgeConnectionStateListener, Fudg
     response.setSubscriptionId(request.getSubscriptionId());
     response.setNormalizationScheme(request.getNormalizationScheme());
     
-    // TODO kirk 2012-07-23 -- Check entitlements.
-    if (getServer().isValidLiveData(request.getSubscriptionId(), request.getNormalizationScheme())) {
+    if (!getServer().isValidLiveData(request.getSubscriptionId(), request.getNormalizationScheme())) {
+      response.setGenericResult(CogdaCommandResponseResult.NOT_AVAILABLE);
+    } else if (!isEntitled(EntitlementUtils.SNAPSHOT, request.getSubscriptionId(), request.getNormalizationScheme())) {
+      response.setGenericResult(CogdaCommandResponseResult.NOT_AUTHORIZED);
+    } else {
       LastKnownValueStore lkvStore = getServer().getLastKnownValueStore(request.getSubscriptionId(), request.getNormalizationScheme());
       FudgeMsg fields = null;
       if (lkvStore != null) {
@@ -206,8 +239,6 @@ public class CogdaClientConnection implements FudgeConnectionStateListener, Fudg
       
       response.setGenericResult(CogdaCommandResponseResult.SUCCESSFUL);
       response.setValues(fields);
-    } else {
-      response.setGenericResult(CogdaCommandResponseResult.NOT_AVAILABLE);
     }
     
     return response;
@@ -225,7 +256,11 @@ public class CogdaClientConnection implements FudgeConnectionStateListener, Fudg
     response.setNormalizationScheme(request.getNormalizationScheme());
     
     // TODO kirk 2012-07-23 -- Check entitlements.
-    if (getServer().isValidLiveData(request.getSubscriptionId(), request.getNormalizationScheme())) {
+    if (!getServer().isValidLiveData(request.getSubscriptionId(), request.getNormalizationScheme())) {
+      response.setGenericResult(CogdaCommandResponseResult.NOT_AVAILABLE);
+    } else if (!isEntitled(EntitlementUtils.SUBSCRIBE, request.getSubscriptionId(), request.getNormalizationScheme())) {
+      response.setGenericResult(CogdaCommandResponseResult.NOT_AUTHORIZED);
+    } else {
       LastKnownValueStore lkvStore = getServer().getLastKnownValueStore(request.getSubscriptionId(), request.getNormalizationScheme());
       FudgeMsg fields = null;
       if (lkvStore != null) {
@@ -239,8 +274,6 @@ public class CogdaClientConnection implements FudgeConnectionStateListener, Fudg
       response.setSnapshot(fields);
       
       _subscriptions.putIfAbsent(new LiveDataSpecification(request.getNormalizationScheme(), request.getSubscriptionId()), Boolean.TRUE);
-    } else {
-      response.setGenericResult(CogdaCommandResponseResult.NOT_AVAILABLE);
     }
     return response;
   }
