@@ -13,7 +13,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- *  Definition of a vanilla legacy Credit Default Swap contract (i.e. transacted pre 8th April 2009)
+ *  Definition of a vanilla legacy Credit Default Swap contract (i.e. transacted prior to Big Bang 8th April 2009)
  */
 public class CreditDefaultSwapDefinition {
   
@@ -88,6 +88,8 @@ public class CreditDefaultSwapDefinition {
   private final YieldCurve _yieldCurve;
   
   // TODO : Add the survival curve (assuming that we want the survival probabilities as an input to the pricer - not the par CDS spread term struct)
+  
+  // TODO : Should the yield and survival curves be part of the CDS object? Should they be passed in to the pricer seperately?
   
   // ----------------------------------------------------------------------------------------------------------------------------------------
   
