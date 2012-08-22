@@ -216,7 +216,6 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     MarketDataSnapshot marketDataSnapshot;
     try {
       if (_marketDataProvider == null ||
-          // TODO encapsulate this logic in CompositeMarketDataProvider
           !_marketDataProvider.getMarketDataSpecifications().equals(executionOptions.getMarketDataSpecifications())) {
         // A different market data provider is required. We support this because we can, but changing provider is not the
         // most efficient operation.

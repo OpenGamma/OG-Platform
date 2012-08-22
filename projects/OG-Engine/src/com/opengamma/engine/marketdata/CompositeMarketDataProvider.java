@@ -27,19 +27,28 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * TODO should this be an interface?
+ * A source of market data that aggregates data from multiple underlying {@link MarketDataProvider}s.
+ * Each request for market data is handled by one of the underlying providers. When a subscription is made
+ * the underlying providers are checked in priority order until one of them is able to provide the data.
  * TODO should this be in the same package as ViewComputationJob? it's not used anywhere else and isn't general purpose
  */
 public class CompositeMarketDataProvider {
 
-  private final List<MarketDataSpecification> _specs;
+  /** The underlying providers in priority order. */
   private final List<MarketDataProvider> _providers;
+  /** The specs for the underlying providers in the same order as the providers. */
+  private final List<MarketDataSpecification> _specs;
+  /** The current subscriptions for each of the underlying providers, in the same order as the providers. */
   private final List<Set<ValueRequirement>> _subscriptions;
-  //private final ChainedMarketDataSubscriber _subscriber;
   private final MarketDataAvailabilityProvider _availabilityProvider = new AvailabilityProvider();
   private final PermissionsProvider _permissionsProvider = new PermissionsProvider();
   private final CopyOnWriteArraySet<MarketDataListener> _listeners = new CopyOnWriteArraySet<MarketDataListener>();
 
+  /**
+   * @param user The user requesting the data, not null
+   * @param specs Specifications of the underlying providers in priority order, not empty
+   * @param resolver For resolving market data specifications into providers, not null
+   */
   public CompositeMarketDataProvider(UserPrincipal user,
                                      List<MarketDataSpecification> specs,
                                      MarketDataProviderResolver resolver) {
@@ -49,7 +58,6 @@ public class CompositeMarketDataProvider {
     _specs = ImmutableList.copyOf(specs);
     _providers = Lists.newArrayListWithCapacity(specs.size());
     _subscriptions = Lists.newArrayListWithCapacity(specs.size());
-    //List<ProviderWithSpec> providersWithSpecs = Lists.newArrayListWithCapacity(specs.size());
     Listener listener = new Listener();
 
     for (MarketDataSpecification spec : specs) {
@@ -60,20 +68,31 @@ public class CompositeMarketDataProvider {
       _providers.add(provider);
       _subscriptions.add(Sets.<ValueRequirement>newHashSet());
       provider.addListener(listener);
-      //providersWithSpecs.add(new ProviderWithSpec(provider, spec));
     }
-
-    //_subscriber = ChainedMarketDataSubscriber.createChain(providersWithSpecs, new Listener());
   }
 
+  /**
+   * Adds a listener that will be notified of market data updates and subscription changes.
+   * @param listener The listener, not null
+   */
   public void addListener(MarketDataListener listener) {
+    ArgumentChecker.notNull(listener, "listener");
     _listeners.add(listener);
   }
 
+  /**
+   * Removes a listener.
+   * @param listener The listener, not null
+   */
   public void removeListener(MarketDataListener listener) {
     _listeners.remove(listener);
   }
 
+  /**
+   * Divides up the requirements into a set for each underlying provider.
+   * @param requirements The market data requirements
+   * @return A set of requirements for each underlying provider, in the same order as the providers
+   */
   private List<Set<ValueRequirement>> partitionRequirementsByProvider(Set<ValueRequirement> requirements) {
     List<Set<ValueRequirement>> reqsByProvider = Lists.newArrayListWithCapacity(_providers.size());
     for (MarketDataProvider ignored : _providers) {
@@ -91,7 +110,12 @@ public class CompositeMarketDataProvider {
     return reqsByProvider;
   }
 
+  /**
+   * Sets up subscriptions for market data
+   * @param requirements The market data requirements, not null
+   */
   public void subscribe(Set<ValueRequirement> requirements) {
+    ArgumentChecker.notNull(requirements, "requirements");
     List<Set<ValueRequirement>> reqsByProvider = partitionRequirementsByProvider(requirements);
     for (int i = 0; i < reqsByProvider.size(); i++) {
       Set<ValueRequirement> newSubs = reqsByProvider.get(i);
@@ -101,7 +125,12 @@ public class CompositeMarketDataProvider {
     }
   }
 
+  /**
+   * Unsubscribes from market data.
+   * @param requirements The subscriptions that should be removed, not null
+   */
   public void unsubscribe(Set<ValueRequirement> requirements) {
+    ArgumentChecker.notNull(requirements, "requirements");
     // TODO optimise this by storing a map of requirements to provider indices?
     List<Set<ValueRequirement>> reqsByProvider = partitionRequirementsByProvider(requirements);
     for (int i = 0; i < reqsByProvider.size(); i++) {
@@ -112,14 +141,23 @@ public class CompositeMarketDataProvider {
     }
   }
 
+  /**
+   * @return An availability provider backed by the availability providers of the underlying market data providers
+   */
   public MarketDataAvailabilityProvider getAvailabilityProvider() {
     return _availabilityProvider;
   }
 
+  /**
+   * @return An permissions provider backed by the permissions providers of the underlying market data providers
+   */
   public MarketDataPermissionProvider getPermissionProvider() {
     return _permissionsProvider;
   }
 
+  /**
+   * @return A snapshot of market data backed by snapshots from the underlying providers.
+   */
   public MarketDataSnapshot snapshot() {
     List<MarketDataSnapshot> snapshots = Lists.newArrayListWithCapacity(_providers.size());
     for (int i = 0; i < _providers.size(); i++) {
@@ -133,13 +171,13 @@ public class CompositeMarketDataProvider {
     return Duration.between(fromInstant, toInstant);
   }
 
-  // TODO get rid of this method
   public List<MarketDataSpecification> getMarketDataSpecifications() {
     return _specs;
   }
 
   /**
-   * This is an inner class to avoid polluting the API with public listener methods that users of the class
+   * Listens for updates from the underlying providers and distributes them to the listeners. This is
+   * an inner class to avoid polluting the API with public listener methods that users of the class
    * aren't interested in.
    */
   private class Listener implements MarketDataListener {

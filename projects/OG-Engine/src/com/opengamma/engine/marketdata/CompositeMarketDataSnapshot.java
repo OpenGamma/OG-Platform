@@ -20,13 +20,20 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Snapshot of market data which aggregates data from multiple underlying snapshots.
  */
 /* package */ class CompositeMarketDataSnapshot implements MarketDataSnapshot {
 
+  /** The underlying snapshots. */
   private final List<MarketDataSnapshot> _snapshots;
+  /** Supplies the current set of subscriptions for the underlying snapshots in the same order as the snapshots. */
   private final Supplier<List<Set<ValueRequirement>>> _subscriptionSupplier;
 
+  /**
+   * @param snapshots The underlying snapshots
+   * @param subscriptionSupplier Supplies the current set of subscriptions for the underlying snapshots
+   * in the same order as the snapshots
+   */
   /* package */ CompositeMarketDataSnapshot(List<MarketDataSnapshot> snapshots,
                                             Supplier<List<Set<ValueRequirement>>> subscriptionSupplier) {
     ArgumentChecker.notEmpty(snapshots, "snapshots");
@@ -57,13 +64,15 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   /**
-   * Initializes the underlying snapshots
+   * Initializes the underlying snapshots.
    * @param requirements  the values required in the snapshot, not null
    * @param timeout  the maximum time to wait for the required values
    * @param unit  the timeout unit, not null
    */
   @Override
   public void init(Set<ValueRequirement> requirements, long timeout, TimeUnit unit) {
+    ArgumentChecker.notNull(requirements, "requirements");
+    ArgumentChecker.notNull(unit, "unit");
     List<Set<ValueRequirement>> subscriptions = _subscriptionSupplier.get();
     for (int i = 0; i < _snapshots.size(); i++) {
       MarketDataSnapshot snapshot = _snapshots.get(i);
@@ -92,6 +101,7 @@ import com.opengamma.util.ArgumentChecker;
    */
   @Override
   public Object query(ValueRequirement requirement) {
+    ArgumentChecker.notNull(requirement, "requirement");
     List<Set<ValueRequirement>> subscriptions = _subscriptionSupplier.get();
     for (int i = 0; i < _snapshots.size(); i++) {
       MarketDataSnapshot snapshot = _snapshots.get(i);
@@ -104,12 +114,14 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   /**
-   *
+   * Returns the values from the underlying snapshots if they are available
    * @param requirements the values required, not null
-   * @return
+   * @return The values from the underlying snapshots if they are available, values that aren't available will be
+   * missing from the results map
    */
   @Override
   public Map<ValueRequirement, Object> query(Set<ValueRequirement> requirements) {
+    ArgumentChecker.notNull(requirements, "requirements");
     Map<ValueRequirement, Object> results = Maps.newHashMapWithExpectedSize(requirements.size());
     List<Set<ValueRequirement>> subscriptions = _subscriptionSupplier.get();
     for (int i = 0; i < _snapshots.size(); i++) {
