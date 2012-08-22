@@ -77,7 +77,6 @@
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-maximize.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-drop.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-new-window.css</fragment>
-    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-reset.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-background.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-tooltip.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-dropbox.css</fragment>
@@ -98,7 +97,6 @@
   </bundle>
   <bundle id="common.gadgets.css">
     <fragment>/styles/common/gadgets/og.common.gadgets.OG-gadget-surface-hud.css</fragment>
-    <fragment>/styles/common/gadgets/og.common.gadgets.OG-gadget-curve-hud.css</fragment>
   </bundle>
   <bundle id="common.forms.css">
     <fragment>/styles/common/forms/og.common.forms.OG-grid-box.css</fragment>
@@ -219,6 +217,7 @@
     <fragment>/scripts/lib/jquery/slick_grid/slick.grid.js</fragment>
     <fragment>/scripts/lib/jquery/slick_grid/slick.rowselectionmodel.js</fragment>
     <fragment>/scripts/lib/routemap.js</fragment>
+    <fragment>/scripts/lib/ogcurve.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.layout.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.awesometable.js</fragment>
     <fragment>/scripts/lib/three/three.js</fragment>

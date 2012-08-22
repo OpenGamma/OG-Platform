@@ -7,92 +7,6 @@ $.register_module({
     dependencies: ['og.common.gadgets.manager'],
     obj: function () {
         var prefix = 'og_curve_gadget_', counter = 1;
-        var Curve = function (selector, input) {
-            var $selector = $(selector), width = $selector.width(), height = $selector.height(),
-                $hud, $plot, $plot_obj, hud = {}, curve = {}, data = {},
-                color_arr = ['#42669a', '#ff9c00', '#00e13a', '#313b44'], background_color = '#f8f8f8',
-                options = {
-                    colors: [],
-                    grid: {
-                        borderWidth: 0, color: '#999', minBorderMargin: 0, labelMargin: 4,
-                        hoverable: true, aboveData: false
-                    },
-                    lines: {lineWidth: 1, fill: false, fillColor: '#f8fbfd'},
-                    legend: {
-                        backgroundColor: null, show: true, labelBoxBorderColor: 'transparent', position: 'nw', margin: 1
-                    },
-                    pan: {interactive: true, cursor: "move", frameRate: 30},
-                    selection: {mode: null},
-                    series: {shadowSize: 1, points: {radius: 2, lineWidth: 1, fill: true, fillColor: "#ffffff"}},
-                    xaxis: {mode: 'years', tickLength: 'full', labelHeight: 14, tickColor: '#fff'},
-                    yaxis: {position: 'left', tickLength: 'full', labelWidth: 30, tickColor: '#fff'},
-                    zoom: {interactive: true}
-                };
-            /**
-              * Format data and update options
-              */
-            var formatter = function (data, options) {
-                var obj = {options: options, data: []};
-                data.forEach(function (val, i) {
-                    if (val.curve) {
-                        obj.data.push({data: val.curve});
-                        obj.options.colors.push(color_arr[i]);
-                    }
-                    if (val.nodes) {
-                        obj.data.push({data: val.nodes, points: {show: true}});
-                        obj.options.colors.push(color_arr[i]);
-                    }
-                });
-                return obj;
-            };
-            curve.load = function () {
-                $.when(
-                    og.api.text({module: 'og.views.gadgets.curve.curve_tash'}),
-                    og.api.text({module: 'og.views.gadgets.curve.tooltip_tash'})
-                ).then(function (tmpl_curve, tmpl_tooltip) {
-                    var $html = $(tmpl_curve);
-                    data = formatter(input, options);
-                    $hud = $html.find('.og-js-hud');
-                    $plot = $html.find('.og-js-curve').css({
-                        width: width, height: height, 'background-color': background_color
-                    });
-                    $plot_obj = $.plot($plot, data.data, data.options);
-                    $selector.empty().html($html);
-                    hud.load(tmpl_tooltip);
-                });
-            };
-            /**
-             * Resets the curve zooming and panning
-             */
-            curve.reload = function () {
-                $plot_obj = $.plot($plot, data.data, data.options);
-                $selector.find('.og-reset').hide();
-            };
-            /**
-             * Updates the curve data only. Preserves zooming and panning
-             */
-            curve.update = function (data) {
-                $plot_obj.setData(formatter(data, options).data);
-                $plot_obj.draw();
-            };
-            /**
-             * Add tooltip and reset button
-             */
-            hud.load = function (tooltip_html) {
-                var previous = null, sel = '.og-js-curve-tooltip';
-                $plot.bind('plothover', function (event, pos, item) {
-                    if (item && previous != item.dataIndex) {
-                        $(sel).remove(), previous = item.dataIndex;
-                        $((Handlebars.compile(tooltip_html))({x: item.datapoint[0], y: item.datapoint[1]}))
-                            .appendTo('body').css({top: item.pageY + 5, left: item.pageX + 5}).show();
-                    }
-                    if (!item) $(sel).remove(), previous = null;
-                });
-                $plot.bind('plotpan plotzoom', function () {$selector.find('.og-reset').show();});
-                $hud.css({position: 'absolute', top: 0, left: 0}).on('click', function () {curve.reload();});
-            };
-            return curve;
-        };
         return function (config) {
             config.data = [
                 {
@@ -204,8 +118,7 @@ $.register_module({
                     .html('<div class="' + alive + '"></div>')
                     .find('div')
                     .css({position: 'absolute', top: 0, left: 0, right: 0, bottom: 0});
-                curve = new Curve(config.selector + ' div', config.data);
-                curve.load();
+                curve = $(config.selector + ' div').ogcurve(config.data);
             };
             gadget.resize = gadget.load;
             gadget.load();
