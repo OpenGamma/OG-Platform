@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.equity.futures;
@@ -22,7 +22,6 @@ import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.core.position.Trade;
-import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -50,7 +49,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public class EquityFutureYieldCurveNodeSensitivityFunction extends AbstractFunction.NonCompiledInvoker {
 
@@ -73,12 +72,11 @@ public class EquityFutureYieldCurveNodeSensitivityFunction extends AbstractFunct
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
     final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
-    final SimpleTrade trade = (SimpleTrade) target.getTrade();
+    final Trade trade = target.getTrade();
     final EquityFutureSecurity security = (EquityFutureSecurity) trade.getSecurity();
     final ZonedDateTime valuationTime = executionContext.getValuationClock().zonedDateTime();
     final Double lastMarginPrice = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle()).getTimeSeries().getLatestValue();
-    trade.setPremium(lastMarginPrice); // TODO !!! Issue of futures and margining
-    final EquityFutureDefinition definition = _converter.visitEquityFutureTrade(trade);
+    final EquityFutureDefinition definition = _converter.visitEquityFutureTrade(trade, lastMarginPrice);
     final EquityFuture derivative = definition.toDerivative(valuationTime);
     final YieldAndDiscountCurve fundingCurve = getYieldCurve(security, inputs);
     final Double spot = getSpot(security, inputs);

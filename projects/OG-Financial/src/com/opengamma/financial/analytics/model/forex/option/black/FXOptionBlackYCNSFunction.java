@@ -22,7 +22,7 @@ import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRa
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityIRSCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
+import com.opengamma.analytics.financial.model.option.definition.ForexOptionDataBundle;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.core.config.ConfigSource;
@@ -64,7 +64,7 @@ public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative forex, final SmileDeltaTermStructureDataBundle data, final ComputationTarget target,
+  protected Set<ComputedValue> getResult(final InstrumentDerivative forex, final ForexOptionDataBundle<?> data, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);

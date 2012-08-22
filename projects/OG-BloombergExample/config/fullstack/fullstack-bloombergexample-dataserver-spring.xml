@@ -123,6 +123,7 @@
 
   <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
     <property name="shared" value="true"/>
+    <property name="configLocation" value="${ehcache.configFile}" />
   </bean>
   <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
     <property name="staticMethod" value="net.sf.ehcache.management.ManagementService.registerMBeans"/>

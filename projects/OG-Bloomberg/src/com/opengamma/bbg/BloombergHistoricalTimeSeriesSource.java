@@ -28,8 +28,6 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
 import javax.time.calendar.format.DateTimeFormatters;
 
-import com.opengamma.core.change.BasicChangeManager;
-import com.opengamma.core.change.ChangeManager;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
@@ -46,8 +44,9 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.referencedata.statistics.BloombergReferenceDataStatistics;
-import com.opengamma.bbg.referencedata.statistics.NullBloombergReferenceDataStatistics;
 import com.opengamma.bbg.util.BloombergDomainIdentifierResolver;
+import com.opengamma.core.change.BasicChangeManager;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
@@ -104,18 +103,32 @@ public class BloombergHistoricalTimeSeriesSource extends AbstractBloombergStatic
   /**
    * Creates an instance.
    * <p>
-   * This will not gather statistics on usage.
+   * This will use the statistics tool in the connector.
    * 
    * @param bloombergConnector  the Bloomberg connector, not null
    */
   public BloombergHistoricalTimeSeriesSource(BloombergConnector bloombergConnector) {
-    this(bloombergConnector, NullBloombergReferenceDataStatistics.INSTANCE);
+    this(bloombergConnector, bloombergConnector.getReferenceDataStatistics());
   }
 
-  public BloombergHistoricalTimeSeriesSource(BloombergConnector bloombergConnector, final ChangeManager changeManager) {
-    this(bloombergConnector, NullBloombergReferenceDataStatistics.INSTANCE, changeManager);
+  /**
+   * Creates an instance.
+   * <p>
+   * This will use the statistics tool in the connector.
+   * 
+   * @param bloombergConnector  the Bloomberg connector, not null
+   * @param changeManager  the change manager, not null
+   */
+  public BloombergHistoricalTimeSeriesSource(BloombergConnector bloombergConnector, ChangeManager changeManager) {
+    this(bloombergConnector, bloombergConnector.getReferenceDataStatistics(), changeManager);
   }
 
+  /**
+   * Creates an instance with statistics gathering.
+   * 
+   * @param bloombergConnector  the Bloomberg connector, not null
+   * @param statistics  the statistics to collect, not null
+   */
   public BloombergHistoricalTimeSeriesSource(BloombergConnector bloombergConnector, BloombergReferenceDataStatistics statistics) {
     this(bloombergConnector, statistics, new BasicChangeManager());
   }
@@ -125,9 +138,10 @@ public class BloombergHistoricalTimeSeriesSource extends AbstractBloombergStatic
    * 
    * @param bloombergConnector  the Bloomberg connector, not null
    * @param statistics  the statistics to collect, not null
+   * @param changeManager  the change manager, not null
    */
-  public BloombergHistoricalTimeSeriesSource(BloombergConnector bloombergConnector, BloombergReferenceDataStatistics statistics,
-                                             final ChangeManager changeManager) {
+  public BloombergHistoricalTimeSeriesSource(
+      BloombergConnector bloombergConnector, BloombergReferenceDataStatistics statistics, ChangeManager changeManager) {
     super(bloombergConnector);
     ArgumentChecker.notNull(statistics, "statistics");
     ArgumentChecker.notNull(changeManager, "changeManager");
@@ -203,7 +217,7 @@ public class BloombergHistoricalTimeSeriesSource extends AbstractBloombergStatic
     ExternalId dsid = BloombergDomainIdentifierResolver.resolvePreferredIdentifier(identifiers);
     String bbgKey = BloombergDomainIdentifierResolver.toBloombergKeyWithDataProvider(dsid, dataProvider);
     Request request = composeRequest(bbgKey, dataSource, dataProvider, field, startDate, endDate, maxPoints);
-    _statistics.gotFields(Collections.singleton(bbgKey), Collections.singleton(field));
+    _statistics.recordStatistics(Collections.singleton(bbgKey), Collections.singleton(field));
     LocalDateDoubleTimeSeries timeSeries = processRequest(bbgKey, request, field);
     return new SimpleHistoricalTimeSeries(UID_SUPPLIER.get(), timeSeries);
   }
@@ -517,7 +531,7 @@ public class BloombergHistoricalTimeSeriesSource extends AbstractBloombergStatic
     request.set("endDate", printYYYYMMDD(end));
     request.set("adjustmentSplit", true);
     
-    _statistics.gotFields(bbgSecDomainMap.keySet(), Collections.singleton(dataField));
+    _statistics.recordStatistics(bbgSecDomainMap.keySet(), Collections.singleton(dataField));
     CorrelationID cid = submitBloombergRequest(request);
     BlockingQueue<Element> resultElements = getResultElement(cid);
     if (resultElements == null || resultElements.isEmpty()) {

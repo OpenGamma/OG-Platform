@@ -18,6 +18,14 @@ import org.testng.annotations.Test;
 public class LocalDateRangeTest {
 
   @Test
+  public void test_ALL() {
+    LocalDateRange test = LocalDateRange.ALL;
+    assertEquals(test.getStartDateInclusive(), LocalDate.MIN_DATE);
+    assertEquals(test.getEndDateInclusive(), LocalDate.MAX_DATE);
+    assertEquals(test.getEndDateExclusive(), LocalDate.MAX_DATE);
+  }
+
+  @Test
   public void test_of_2_true() {
     LocalDateRange test = LocalDateRange.of(LocalDate.of(2012, 7, 28), LocalDate.of(2012, 7, 30), true);
     assertEquals(test.getStartDateInclusive(), LocalDate.of(2012, 7, 28));

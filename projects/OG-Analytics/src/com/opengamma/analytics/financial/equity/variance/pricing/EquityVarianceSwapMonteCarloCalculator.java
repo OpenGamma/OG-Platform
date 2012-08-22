@@ -43,8 +43,8 @@ public class EquityVarianceSwapMonteCarloCalculator {
     _norm = new NormalDistribution(0, 1.0, random);
   }
 
-  public double[] solve(final double spot, final AffineDividends dividends, final double expiry,
-      final YieldAndDiscountCurve discountCurve, final LocalVolatilitySurfaceStrike localVol, final int nSims) {
+  public double[] solve(final double spot, final YieldAndDiscountCurve discountCurve, final AffineDividends dividends,
+      final double expiry, final LocalVolatilitySurfaceStrike localVol, final int nSims) {
 
     ArgumentChecker.notNull(dividends, "null dividends");
     ArgumentChecker.notNegative(expiry, "negative expiry");

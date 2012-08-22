@@ -19,6 +19,11 @@ import com.opengamma.util.ArgumentChecker;
  */
 public final class LocalDateRange implements Serializable {
 
+  /**
+   * A range over the whole time-line.
+   */
+  public static final LocalDateRange ALL = LocalDateRange.of(LocalDate.MIN_DATE, LocalDate.MAX_DATE, true);
+
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
@@ -82,11 +87,14 @@ public final class LocalDateRange implements Serializable {
   }
 
   /**
-   * Gets the end date, inclusive.
+   * Gets the end date, exclusive.
    * 
    * @return the end date, not null
    */
   public LocalDate getEndDateExclusive() {
+    if (_endDate.equals(LocalDate.MAX_DATE)) {
+      return _endDate;
+    }
     return _endDate.plusDays(1);
   }
 

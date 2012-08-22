@@ -23,12 +23,12 @@ import com.opengamma.analytics.financial.forex.definition.ForexOptionVanillaDefi
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.model.option.definition.BlackForexTermStructureParameters;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
-import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackForexTermStructureBundle;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
+import com.opengamma.analytics.financial.model.volatility.curve.BlackForexTermStructureParameters;
+import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;

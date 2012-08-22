@@ -45,7 +45,7 @@ public class YieldCurveBundle {
   }
 
   /**
-   * Constructor from existing currency map and existing fxMatrix. A new curve map is created. The currency map and FXMatrix are directly used.
+   * Constructor from existing currency map and existing fxMatrix.
    * @param fxMatrix The FXMatrix.
    * @param curveCurrency The map of currency names to currency
    * @param curvesMap The map of curve names to curve
@@ -59,12 +59,12 @@ public class YieldCurveBundle {
       ArgumentChecker.noNulls(curvesMap.values(), "curve map entry set");
       _curves.putAll(curvesMap);
     }
-    _curveCurrency = curveCurrency;
-    _fxMatrix = fxMatrix;
+    _curveCurrency = new HashMap<String, Currency>(curveCurrency);
+    _fxMatrix = new FXMatrix(fxMatrix);
   }
 
   /**
-   * Constructor from existing currency map and existing fxMatrix. A new curve map is created.
+   * Constructor from existing currency map and existing fxMatrix.
    * @param fxMatrix The FXMatrix.
    * @param curveCurrency The map of currency names to currency
    */
@@ -161,11 +161,14 @@ public class YieldCurveBundle {
   }
 
   /**
-   * Create a new copy of the bundle using a new map and the same curve and curve names.
+   * Create a new copy of the bundle.
    * @return The bundle.
    */
   public YieldCurveBundle copy() {
-    return new YieldCurveBundle(this);
+    final LinkedHashMap<String, YieldAndDiscountCurve> curves = new LinkedHashMap<String, YieldAndDiscountCurve>(_curves);
+    final Map<String, Currency> curveCurrency = new HashMap<String, Currency>(_curveCurrency);
+    final FXMatrix fxMatrix = new FXMatrix(_fxMatrix);
+    return new YieldCurveBundle(fxMatrix, curveCurrency, curves);
   }
 
   /**
@@ -238,7 +241,7 @@ public class YieldCurveBundle {
    * Gets map linking each curve in the bundle to its currency.
    * @return The map.
    */
-  public Map<String, Currency> getCcyMap() {
+  public Map<String, Currency> getCurrencyMap() {
     return _curveCurrency;
   }
 

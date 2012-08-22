@@ -25,7 +25,7 @@ import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
-import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParametersStrikeInterpolation;
+import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;

@@ -35,12 +35,6 @@ public class RemoteViewComputationCacheSource extends DefaultViewComputationCach
     this(client, privateDataStoreFactory, client.getFudgeContext(), cacheManager);
   }
 
-  public RemoteViewComputationCacheSource(final RemoteCacheClient client,
-      final FudgeMessageStoreFactory privateDataStoreFactory, final CacheManager cacheManager,
-      final int maxLocalCachedElements) {
-    this(client, privateDataStoreFactory, client.getFudgeContext(), cacheManager, maxLocalCachedElements);
-  }
-
   /**
    * @param client the connection to a {@link ViewComputationCacheServer}
    * @param privateDataStoreFactory the private data store - the shared data store will be the remote one
@@ -52,15 +46,7 @@ public class RemoteViewComputationCacheSource extends DefaultViewComputationCach
       final FudgeMessageStoreFactory privateDataStoreFactory, final FudgeContext fudgeContext,
       final CacheManager cacheManager) {
     super(createIdentifierMap(client), fudgeContext, privateDataStoreFactory, createFudgeMessageStoreFactory(client,
-        cacheManager, -1));
-    client.setAsynchronousMessageReceiver(this);
-  }
-
-  public RemoteViewComputationCacheSource(final RemoteCacheClient client,
-      final FudgeMessageStoreFactory privateDataStoreFactory, final FudgeContext fudgeContext,
-      final CacheManager cacheManager, final int maxLocalCachedElements) {
-    super(createIdentifierMap(client), fudgeContext, privateDataStoreFactory, createFudgeMessageStoreFactory(client,
-        cacheManager, maxLocalCachedElements));
+        cacheManager));
     client.setAsynchronousMessageReceiver(this);
   }
 
@@ -69,13 +55,9 @@ public class RemoteViewComputationCacheSource extends DefaultViewComputationCach
   }
 
   private static FudgeMessageStoreFactory createFudgeMessageStoreFactory(final RemoteCacheClient client,
-      final CacheManager cacheManager, final int maxLocalCachedElements) {
+      final CacheManager cacheManager) {
     final RemoteFudgeMessageStoreFactory remote = new RemoteFudgeMessageStoreFactory(client);
-    if (maxLocalCachedElements >= 0) {
-      return new CachingFudgeMessageStoreFactory(remote, cacheManager, maxLocalCachedElements);
-    } else {
-      return new CachingFudgeMessageStoreFactory(remote, cacheManager);
-    }
+    return new CachingFudgeMessageStoreFactory(remote, cacheManager);
   }
 
   private final CacheMessageVisitor _messageReceiver = new CacheMessageVisitor() {

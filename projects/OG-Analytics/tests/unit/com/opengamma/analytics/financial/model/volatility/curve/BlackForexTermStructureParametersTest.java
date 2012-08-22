@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.model.option.definition;
+package com.opengamma.analytics.financial.model.volatility.curve;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
@@ -11,6 +11,7 @@ import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.model.volatility.curve.BlackForexTermStructureParameters;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;

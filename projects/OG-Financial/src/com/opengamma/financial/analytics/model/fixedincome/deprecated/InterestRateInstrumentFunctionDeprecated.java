@@ -164,12 +164,6 @@ public abstract class InterestRateInstrumentFunctionDeprecated extends AbstractF
     final String fundingCurveName = fundingCurves.iterator().next();
     final String curveCalculationMethod = curveCalculationMethodNames.iterator().next();
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-    if (forwardCurveName.equals(fundingCurveName)) {
-      requirements.add(getCurveRequirement(target, forwardCurveName, null, null, curveCalculationMethod));
-      return requirements;
-    }
-    requirements.add(getCurveRequirement(target, forwardCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod));
-    requirements.add(getCurveRequirement(target, fundingCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod));
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Set<ValueRequirement> timeSeriesRequirements = _definitionConverter.getConversionTimeSeriesRequirements(security, security.accept(_visitor),
         FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, fundingCurveName, forwardCurveName));
@@ -177,6 +171,12 @@ public abstract class InterestRateInstrumentFunctionDeprecated extends AbstractF
       return null;
     }
     requirements.addAll(timeSeriesRequirements);
+    if (forwardCurveName.equals(fundingCurveName)) {
+      requirements.add(getCurveRequirement(target, forwardCurveName, null, null, curveCalculationMethod));
+      return requirements;
+    }
+    requirements.add(getCurveRequirement(target, forwardCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod));
+    requirements.add(getCurveRequirement(target, fundingCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod));
     return requirements;
   }
 

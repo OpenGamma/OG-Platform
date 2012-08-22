@@ -60,7 +60,8 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
   protected abstract Object computeValues(Set<EquityIndexOption> vanillaOptions, StaticReplicationDataBundle market);
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues)
+    throws AsynchronousExecution {
 
     final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
     final EquityBarrierOptionSecurity barrierSec = getEquityBarrierOptionSecurity(target);

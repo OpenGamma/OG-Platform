@@ -36,7 +36,6 @@ public class BlackVolatilitySurfaceSABRInterpolatorFunction extends BlackVolatil
   protected GeneralSmileInterpolator getSmileInterpolator(final ValueRequirement desiredValue) {
     final String modelName = desiredValue.getConstraint(PROPERTY_SABR_MODEL);
     final String weightingFunctionName = desiredValue.getConstraint(PROPERTY_SABR_WEIGHTING_FUNCTION);
-    @SuppressWarnings("unchecked")
     final VolatilityFunctionProvider<SABRFormulaData> model = (VolatilityFunctionProvider<SABRFormulaData>) VolatilityFunctionFactory.getCalculator(modelName);
     final WeightingFunction weightingFunction = WeightingFunctionFactory.getWeightingFunction(weightingFunctionName);
     final boolean useExternalBeta = Boolean.parseBoolean(desiredValue.getConstraint(PROPERTY_SABR_USE_EXTERNAL_BETA));

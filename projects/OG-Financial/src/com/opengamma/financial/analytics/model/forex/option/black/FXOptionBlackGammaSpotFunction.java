@@ -8,8 +8,10 @@ package com.opengamma.financial.analytics.model.forex.option.black;
 import java.util.Collections;
 import java.util.Set;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.calculator.GammaSpotBlackForexCalculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.model.option.definition.ForexOptionDataBundle;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -35,11 +37,14 @@ public class FXOptionBlackGammaSpotFunction extends FXOptionBlackSingleValuedFun
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative forex, final SmileDeltaTermStructureDataBundle data, final ComputationTarget target,
+  protected Set<ComputedValue> getResult(final InstrumentDerivative forex, final ForexOptionDataBundle<?> data, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
-    final CurrencyAmount result = CALCULATOR.visit(forex, data);
-    final double gammaValue = result.getAmount() / 100.0; // FIXME: the 100 should be removed when the scaling is available
-    return Collections.singleton(new ComputedValue(spec, gammaValue));
+    if (data instanceof SmileDeltaTermStructureDataBundle) {
+      final CurrencyAmount result = CALCULATOR.visit(forex, data);
+      final double gammaValue = result.getAmount() / 100.0; // FIXME: the 100 should be removed when the scaling is available
+      return Collections.singleton(new ComputedValue(spec, gammaValue));
+    }
+    throw new OpenGammaRuntimeException("Can only calculate gamma spot for surfaces with smiles");
   }
 
 }

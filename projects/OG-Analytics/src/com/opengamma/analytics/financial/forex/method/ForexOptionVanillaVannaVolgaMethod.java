@@ -317,7 +317,8 @@ public final class ForexOptionVanillaVannaVolgaMethod implements ForexPricingMet
    * @param vega The vega using the base volatility at the reference points (index 0 and 2) and at the strike (index 1). The array is changed with the method call.
    * @return The weights.
    */
-  public double[] vannaVolgaWeights(final ForexOptionVanilla optionForex, final double forward, final double dfDomestic, final double[] strikesReference, final double[] volatilitiesReference, final double[] vega) {
+  public double[] vannaVolgaWeights(final ForexOptionVanilla optionForex, final double forward, final double dfDomestic, final double[] strikesReference,
+      final double[] volatilitiesReference, final double[] vega) {
     final double strike = optionForex.getStrike();
     final double volATM = volatilitiesReference[1]; // The reference volatility is the "middle" one, which is often ATM.
     final BlackFunctionData dataBlackATM = new BlackFunctionData(forward, dfDomestic, volATM);

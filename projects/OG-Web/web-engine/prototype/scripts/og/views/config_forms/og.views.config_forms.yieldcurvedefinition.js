@@ -58,7 +58,7 @@ $.register_module({
                             var rest_options = {page: '*', name: '*_' + currency, type: CURV, cache_for: 30 * 1000};
                             api.configs.get(rest_options).pipe(function (result) {
                                 handler(result.data.data.map(function (val) {
-                                    var value = val.split('|')[1].match(/^([^_]+)/)[1];
+                                    var value = val.split('|')[1].split('_').slice(0, -1).join('_');
                                     return {value: value, text: value};
                                 }));
                             });

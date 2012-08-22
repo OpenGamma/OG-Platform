@@ -199,6 +199,14 @@ public abstract class BondFutureOptionBlackFunction extends AbstractFunction.Non
         .with(ValuePropertyNames.CURRENCY, currency).get();
   }
 
+  protected FixedIncomeConverterDataProvider getDataConverter() {
+    return _dataConverter;
+  }
+
+  protected BondFutureOptionTradeConverter getTradeConverter() {
+    return _converter;
+  }
+
   private ValueRequirement getVolatilityRequirement(final String surface, final Currency currency) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.SURFACE, surface)

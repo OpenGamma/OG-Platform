@@ -10,9 +10,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-
 /**
- * A {@link BloombergReferenceDataStatistics} which stores statistics in a simple map
+ * A {@link BloombergReferenceDataStatistics} which stores statistics in a simple map.
  */
 public class MapBloombergReferenceDataStatistics implements BloombergReferenceDataStatistics {
 
@@ -20,11 +19,11 @@ public class MapBloombergReferenceDataStatistics implements BloombergReferenceDa
   private final Map<String, Long> _getsPerSecurity = new HashMap<String, Long>();
   private final Map<String, Long> _getsPerField = new HashMap<String, Long>();
 
-  public synchronized void gotFields(Set<String> securities, Set<String> fields) {
+  public synchronized void recordStatistics(Set<String> securities, Set<String> fields) {
     incrementInterned(_getsPerSecurity, securities, fields.size());
     incrementInterned(_getsPerField, fields, securities.size());
   }
-  
+
   private static void incrementInterned(Map<String, Long> map, Set<String> keys, long delta) {
     for (String key : keys) {
       Long previous = map.get(key);
@@ -44,7 +43,7 @@ public class MapBloombergReferenceDataStatistics implements BloombergReferenceDa
     }
     return count;
   }
-  
+
   public synchronized Snapshot getSnapshot() {
     return new Snapshot(_getsPerSecurity, _getsPerField);
   }
@@ -52,7 +51,9 @@ public class MapBloombergReferenceDataStatistics implements BloombergReferenceDa
   public synchronized long getDistinctSecurityCount() {
     return _getsPerSecurity.size();
   }
+
   public synchronized long getDistinctFieldCount() {
     return _getsPerField.size();
   }
+
 }

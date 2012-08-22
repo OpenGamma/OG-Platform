@@ -36,10 +36,11 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
-import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
+import com.opengamma.analytics.financial.model.volatility.VolatilityAndBucketedSensitivities;
+import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;
@@ -384,8 +385,8 @@ public class ForexOptionVanillaMethodTest {
     assertEquals("Forex: relative delta", ce.getAmount(EUR), delta, TOLERANCE_RELATIVE);
     final FXMatrix fxMatrixM = new FXMatrix(EUR, USD, SPOT - shift);
     final FXMatrix fxMatrixP = new FXMatrix(EUR, USD, SPOT + shift);
-    final YieldCurveBundle fxDown = new YieldCurveBundle(fxMatrixM, CURVES.getCcyMap(), CURVES.getCurvesMap());
-    final YieldCurveBundle fxUp = new YieldCurveBundle(fxMatrixP, CURVES.getCcyMap(), CURVES.getCurvesMap());
+    final YieldCurveBundle fxDown = new YieldCurveBundle(fxMatrixM, CURVES.getCurrencyMap(), CURVES.getCurvesMap());
+    final YieldCurveBundle fxUp = new YieldCurveBundle(fxMatrixP, CURVES.getCurrencyMap(), CURVES.getCurvesMap());
     final SmileDeltaTermStructureDataBundle smileBundleM = new SmileDeltaTermStructureDataBundle(fxDown, SMILE_TERM_FLAT, Pair.of(EUR, USD));
     final SmileDeltaTermStructureDataBundle smileBundleP = new SmileDeltaTermStructureDataBundle(fxUp, SMILE_TERM_FLAT, Pair.of(EUR, USD));
     final MultipleCurrencyAmount pvM = METHOD_OPTION.presentValue(forexOption, smileBundleM);
@@ -402,8 +403,8 @@ public class ForexOptionVanillaMethodTest {
     final double shift = 1.0E-6;
     final FXMatrix fxMatrixM = new FXMatrix(EUR, USD, SPOT - shift);
     final FXMatrix fxMatrixP = new FXMatrix(EUR, USD, SPOT + shift);
-    final YieldCurveBundle fxDown = new YieldCurveBundle(fxMatrixM, CURVES.getCcyMap(), CURVES.getCurvesMap());
-    final YieldCurveBundle fxUp = new YieldCurveBundle(fxMatrixP, CURVES.getCcyMap(), CURVES.getCurvesMap());
+    final YieldCurveBundle fxDown = new YieldCurveBundle(fxMatrixM, CURVES.getCurrencyMap(), CURVES.getCurvesMap());
+    final YieldCurveBundle fxUp = new YieldCurveBundle(fxMatrixP, CURVES.getCurrencyMap(), CURVES.getCurvesMap());
     final SmileDeltaTermStructureDataBundle smileBundleM = new SmileDeltaTermStructureDataBundle(fxDown, SMILE_TERM_FLAT, Pair.of(EUR, USD));
     final SmileDeltaTermStructureDataBundle smileBundleP = new SmileDeltaTermStructureDataBundle(fxUp, SMILE_TERM_FLAT, Pair.of(EUR, USD));
     final double strike = 1.45;
@@ -441,8 +442,8 @@ public class ForexOptionVanillaMethodTest {
     assertEquals("Forex: relative delta", ce.getAmount(EUR), delta, TOLERANCE_RELATIVE);
     final FXMatrix fxMatrixM = new FXMatrix(EUR, USD, SPOT * (1 - shift));
     final FXMatrix fxMatrixP = new FXMatrix(EUR, USD, SPOT * (1 + shift));
-    final YieldCurveBundle fxDown = new YieldCurveBundle(fxMatrixM, CURVES.getCcyMap(), CURVES.getCurvesMap());
-    final YieldCurveBundle fxUp = new YieldCurveBundle(fxMatrixP, CURVES.getCcyMap(), CURVES.getCurvesMap());
+    final YieldCurveBundle fxDown = new YieldCurveBundle(fxMatrixM, CURVES.getCurrencyMap(), CURVES.getCurvesMap());
+    final YieldCurveBundle fxUp = new YieldCurveBundle(fxMatrixP, CURVES.getCurrencyMap(), CURVES.getCurvesMap());
     final SmileDeltaTermStructureDataBundle smileBundleM = new SmileDeltaTermStructureDataBundle(fxDown, SMILE_TERM_FLAT, Pair.of(EUR, USD));
     final SmileDeltaTermStructureDataBundle smileBundleP = new SmileDeltaTermStructureDataBundle(fxUp, SMILE_TERM_FLAT, Pair.of(EUR, USD));
     final MultipleCurrencyAmount pvM = METHOD_OPTION.presentValue(forexOption, smileBundleM);
@@ -459,8 +460,8 @@ public class ForexOptionVanillaMethodTest {
     final double shift = 1.0E-6;
     final FXMatrix fxMatrixM = new FXMatrix(EUR, USD, SPOT * (1 - shift));
     final FXMatrix fxMatrixP = new FXMatrix(EUR, USD, SPOT * (1 + shift));
-    final YieldCurveBundle fxDown = new YieldCurveBundle(fxMatrixM, CURVES.getCcyMap(), CURVES.getCurvesMap());
-    final YieldCurveBundle fxUp = new YieldCurveBundle(fxMatrixP, CURVES.getCcyMap(), CURVES.getCurvesMap());
+    final YieldCurveBundle fxDown = new YieldCurveBundle(fxMatrixM, CURVES.getCurrencyMap(), CURVES.getCurvesMap());
+    final YieldCurveBundle fxUp = new YieldCurveBundle(fxMatrixP, CURVES.getCurrencyMap(), CURVES.getCurvesMap());
     final SmileDeltaTermStructureDataBundle smileBundleM = new SmileDeltaTermStructureDataBundle(fxDown, SMILE_TERM_FLAT, Pair.of(EUR, USD));
     final SmileDeltaTermStructureDataBundle smileBundleP = new SmileDeltaTermStructureDataBundle(fxUp, SMILE_TERM_FLAT, Pair.of(EUR, USD));
     final double strike = 1.45;
@@ -486,8 +487,8 @@ public class ForexOptionVanillaMethodTest {
     final double shift = 1.0E-6;
     final FXMatrix fxMatrixM = new FXMatrix(EUR, USD, SPOT - shift);
     final FXMatrix fxMatrixP = new FXMatrix(EUR, USD, SPOT + shift);
-    final YieldCurveBundle fxDown = new YieldCurveBundle(fxMatrixM, CURVES.getCcyMap(), CURVES.getCurvesMap());
-    final YieldCurveBundle fxUp = new YieldCurveBundle(fxMatrixP, CURVES.getCcyMap(), CURVES.getCurvesMap());
+    final YieldCurveBundle fxDown = new YieldCurveBundle(fxMatrixM, CURVES.getCurrencyMap(), CURVES.getCurvesMap());
+    final YieldCurveBundle fxUp = new YieldCurveBundle(fxMatrixP, CURVES.getCurrencyMap(), CURVES.getCurvesMap());
     final SmileDeltaTermStructureDataBundle smileBundleM = new SmileDeltaTermStructureDataBundle(fxDown, SMILE_TERM_FLAT, Pair.of(EUR, USD));
     final SmileDeltaTermStructureDataBundle smileBundleP = new SmileDeltaTermStructureDataBundle(fxUp, SMILE_TERM_FLAT, Pair.of(EUR, USD));
     final double strike = 1.45;
@@ -514,8 +515,8 @@ public class ForexOptionVanillaMethodTest {
     final double shift = 1.0E-6;
     final FXMatrix fxMatrixM = new FXMatrix(EUR, USD, SPOT - shift);
     final FXMatrix fxMatrixP = new FXMatrix(EUR, USD, SPOT + shift);
-    final YieldCurveBundle fxDown = new YieldCurveBundle(fxMatrixM, CURVES.getCcyMap(), CURVES.getCurvesMap());
-    final YieldCurveBundle fxUp = new YieldCurveBundle(fxMatrixP, CURVES.getCcyMap(), CURVES.getCurvesMap());
+    final YieldCurveBundle fxDown = new YieldCurveBundle(fxMatrixM, CURVES.getCurrencyMap(), CURVES.getCurvesMap());
+    final YieldCurveBundle fxUp = new YieldCurveBundle(fxMatrixP, CURVES.getCurrencyMap(), CURVES.getCurvesMap());
     final SmileDeltaTermStructureDataBundle smileBundleM = new SmileDeltaTermStructureDataBundle(fxDown, SMILE_TERM_FLAT, Pair.of(EUR, USD));
     final SmileDeltaTermStructureDataBundle smileBundleP = new SmileDeltaTermStructureDataBundle(fxUp, SMILE_TERM_FLAT, Pair.of(EUR, USD));
     final double strike = 1.45;
@@ -542,8 +543,8 @@ public class ForexOptionVanillaMethodTest {
     final double shift = 1.0E-6;
     final FXMatrix fxMatrixM = new FXMatrix(EUR, USD, SPOT * (1 - shift));
     final FXMatrix fxMatrixP = new FXMatrix(EUR, USD, SPOT * (1 + shift));
-    final YieldCurveBundle fxDown = new YieldCurveBundle(fxMatrixM, CURVES.getCcyMap(), CURVES.getCurvesMap());
-    final YieldCurveBundle fxUp = new YieldCurveBundle(fxMatrixP, CURVES.getCcyMap(), CURVES.getCurvesMap());
+    final YieldCurveBundle fxDown = new YieldCurveBundle(fxMatrixM, CURVES.getCurrencyMap(), CURVES.getCurvesMap());
+    final YieldCurveBundle fxUp = new YieldCurveBundle(fxMatrixP, CURVES.getCurrencyMap(), CURVES.getCurvesMap());
     final SmileDeltaTermStructureDataBundle smileBundleM = new SmileDeltaTermStructureDataBundle(fxDown, SMILE_TERM_FLAT, Pair.of(EUR, USD));
     final SmileDeltaTermStructureDataBundle smileBundleP = new SmileDeltaTermStructureDataBundle(fxUp, SMILE_TERM_FLAT, Pair.of(EUR, USD));
     final double strike = 1.45;
@@ -569,8 +570,8 @@ public class ForexOptionVanillaMethodTest {
     final double shift = 1.0E-6;
     final FXMatrix fxMatrixM = new FXMatrix(EUR, USD, SPOT * (1 - shift));
     final FXMatrix fxMatrixP = new FXMatrix(EUR, USD, SPOT * (1 + shift));
-    final YieldCurveBundle fxDown = new YieldCurveBundle(fxMatrixM, CURVES.getCcyMap(), CURVES.getCurvesMap());
-    final YieldCurveBundle fxUp = new YieldCurveBundle(fxMatrixP, CURVES.getCcyMap(), CURVES.getCurvesMap());
+    final YieldCurveBundle fxDown = new YieldCurveBundle(fxMatrixM, CURVES.getCurrencyMap(), CURVES.getCurvesMap());
+    final YieldCurveBundle fxUp = new YieldCurveBundle(fxMatrixP, CURVES.getCurrencyMap(), CURVES.getCurvesMap());
     final SmileDeltaTermStructureDataBundle smileBundleM = new SmileDeltaTermStructureDataBundle(fxDown, SMILE_TERM_FLAT, Pair.of(EUR, USD));
     final SmileDeltaTermStructureDataBundle smileBundleP = new SmileDeltaTermStructureDataBundle(fxUp, SMILE_TERM_FLAT, Pair.of(EUR, USD));
     final double strike = 1.45;
@@ -876,10 +877,10 @@ public class ForexOptionVanillaMethodTest {
     final Pair<Currency, Currency> currencyPair = ObjectsPair.of(EUR, USD);
     assertEquals("Forex vanilla option: vega", currencyPair, sensi.getCurrencyPair());
     final PresentValueForexBlackVolatilitySensitivity pointSensitivity = METHOD_OPTION.presentValueBlackVolatilitySensitivity(FOREX_CALL_OPTION, SMILE_BUNDLE);
-    final double[][] nodeWeight = new double[NB_EXP + 1][NB_STRIKE];
     final double df = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(TimeCalculator.getTimeBetween(REFERENCE_DATE, OPTION_PAY_DATE));
     final double forward = SPOT * CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(TimeCalculator.getTimeBetween(REFERENCE_DATE, OPTION_PAY_DATE)) / df;
-    SMILE_TERM.getVolatility(FOREX_CALL_OPTION.getTimeToExpiry(), STRIKE, forward, nodeWeight);
+    final VolatilityAndBucketedSensitivities volAndSensitivities = SMILE_TERM.getVolatilityAndSensitivities(FOREX_CALL_OPTION.getTimeToExpiry(), STRIKE, forward);
+    final double[][] nodeWeight = volAndSensitivities.getBucketedSensitivities();
     final DoublesPair point = DoublesPair.of(FOREX_CALL_OPTION.getTimeToExpiry(), STRIKE);
     for (int loopexp = 0; loopexp < NB_EXP; loopexp++) {
       for (int loopstrike = 0; loopstrike < NB_STRIKE; loopstrike++) {

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.fudgemsg;
@@ -24,7 +24,7 @@ import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurf
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 
 /**
- * 
+ *
  */
 /* package */ final class ModelVolatilitySmile {
 
@@ -62,16 +62,19 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
   @FudgeBuilderFor(SmileInterpolatorSpline.class)
   public static final class SmileInterpolatorSplineBuilder extends AbstractFudgeBuilder<SmileInterpolatorSpline> {
     private static final String INTERPOLATOR_FIELD_NAME = "interpolatorField";
+    private static final String EXTRAPOLATOR_FAILURE_BEHAVIOUR_FIELD_NAME = "extrapolatorFailureBehaviourField";
 
     @Override
     public SmileInterpolatorSpline buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final Interpolator1D interpolator = deserializer.fieldValueToObject(Interpolator1D.class, message.getByName(INTERPOLATOR_FIELD_NAME));
-      return new SmileInterpolatorSpline(interpolator);
+      final String extrapolatorFailureBehaviourName = message.getString(EXTRAPOLATOR_FAILURE_BEHAVIOUR_FIELD_NAME);
+      return new SmileInterpolatorSpline(interpolator, extrapolatorFailureBehaviourName);
     }
 
     @Override
     protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final SmileInterpolatorSpline object) {
       serializer.addToMessage(message, INTERPOLATOR_FIELD_NAME, null, object.getInterpolator());
+      message.add(EXTRAPOLATOR_FAILURE_BEHAVIOUR_FIELD_NAME, object.getExtrapolatorFailureBehaviour());
     }
   }
 

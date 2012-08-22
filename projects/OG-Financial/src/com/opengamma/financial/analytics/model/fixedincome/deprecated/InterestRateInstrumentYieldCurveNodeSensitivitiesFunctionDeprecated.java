@@ -216,6 +216,13 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunctionDeprecated
     }
     final String calculationMethod = calculationMethodNames.iterator().next();
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final Set<ValueRequirement> timeSeriesRequirements = _definitionConverter.getConversionTimeSeriesRequirements(security, security.accept(_visitor),
+        FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, fundingCurveName, forwardCurveName));
+    if (timeSeriesRequirements == null) {
+      return null;
+    }
+    requirements.addAll(timeSeriesRequirements);
     if (forwardCurveName.equals(fundingCurveName)) {
       requirements.add(getCurveRequirement(target, forwardCurveName, forwardCurveName, fundingCurveName, calculationMethod));
       requirements.add(getCurveSpecRequirement(target, curveName));
@@ -236,13 +243,6 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunctionDeprecated
         requirements.add(getCouponSensitivityRequirement(target, forwardCurveName, fundingCurveName));
       }
     }
-    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final Set<ValueRequirement> timeSeriesRequirements = _definitionConverter.getConversionTimeSeriesRequirements(security, security.accept(_visitor),
-        FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, fundingCurveName, forwardCurveName));
-    if (timeSeriesRequirements == null) {
-      return null;
-    }
-    requirements.addAll(timeSeriesRequirements);
     return requirements;
   }
 

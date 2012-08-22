@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.forex.defaultproperties;
@@ -53,7 +53,9 @@ public class FXOptionBlackDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.VALUE_THETA,
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
     ValueRequirementNames.VALUE_RHO,
-    ValueRequirementNames.VALUE_PHI
+    ValueRequirementNames.VALUE_PHI,
+    ValueRequirementNames.VALUE_VOMMA,
+    ValueRequirementNames.VALUE_VANNA
   };
   private final PriorityClass _priority;
   private final String _interpolatorName;

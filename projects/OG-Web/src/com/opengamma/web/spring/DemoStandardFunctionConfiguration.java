@@ -106,10 +106,12 @@ import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOpt
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionVegaMatrixFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionVommaFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexVanillaBarrierOptionDefaultPropertiesFunction;
+import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexVanillaBarrierOptionForwardValueFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexVanillaBarrierOptionPresentValueFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexVanillaBarrierOptionRhoFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexVanillaBarrierOptionSpotDeltaFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexVanillaBarrierOptionSpotGammaFunction;
+import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexVanillaBarrierOptionSpotIndexFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexVanillaBarrierOptionSpotVannaFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexVanillaBarrierOptionVegaFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexVanillaBarrierOptionVommaFunction;
@@ -171,9 +173,11 @@ import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackI
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackPV01Function;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackPresentValueCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackPresentValueFunction;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackVannaFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackVegaFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackVegaMatrixFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackVegaQuoteMatrixFunction;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackVommaFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackCurrencyExposureFunctionDeprecated;
 import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackPV01FunctionDeprecated;
 import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackPresentValueCurveSensitivityFunctionDeprecated;
@@ -738,7 +742,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addDefaultPropertyFunctions(functionConfigs);
     addHistoricalDataFunctions(functionConfigs);
     addPassthroughFunctions(functionConfigs);
-    
+
     functionConfigs.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "FUNDING"));
     functionConfigs.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "SECONDARY"));
 
@@ -815,30 +819,28 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   private static void addEquityDerivativesCalculators(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(),
         Arrays.asList(ValueRequirementNames.PRESENT_VALUE, EquityFuturePricerFactory.MARK_TO_MARKET, "FUNDING")));
-    //functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE, EquityFuturePricerFactory.COST_OF_CARRY)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(),
         Arrays.asList(ValueRequirementNames.PRESENT_VALUE, EquityFuturePricerFactory.DIVIDEND_YIELD, "FUNDING")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityIndexDividendFuturesFunction.class.getName(),
-        Arrays.asList(ValueRequirementNames.PRESENT_VALUE, EquityFuturePricerFactory.MARK_TO_MARKET, "FUNDING")));
     //functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE, EquityFuturePricerFactory.COST_OF_CARRY)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(),
-        Arrays.asList(ValueRequirementNames.PRESENT_VALUE, EquityFuturePricerFactory.DIVIDEND_YIELD, "FUNDING")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(),
         Arrays.asList(ValueRequirementNames.PV01, EquityFuturePricerFactory.MARK_TO_MARKET, "FUNDING")));
-    //functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.PV01, EquityFuturePricerFactory.COST_OF_CARRY)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(),
         Arrays.asList(ValueRequirementNames.PV01, EquityFuturePricerFactory.DIVIDEND_YIELD, "FUNDING")));
+    //functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.PV01, EquityFuturePricerFactory.COST_OF_CARRY)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(),
         Arrays.asList(ValueRequirementNames.VALUE_RHO, EquityFuturePricerFactory.MARK_TO_MARKET, "FUNDING")));
-    //functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.VALUE_RHO, EquityFuturePricerFactory.COST_OF_CARRY)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(),
         Arrays.asList(ValueRequirementNames.VALUE_RHO, EquityFuturePricerFactory.DIVIDEND_YIELD, "FUNDING")));
+    //functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.VALUE_RHO, EquityFuturePricerFactory.COST_OF_CARRY)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(),
         Arrays.asList(ValueRequirementNames.VALUE_DELTA, EquityFuturePricerFactory.MARK_TO_MARKET, "FUNDING")));
-    //functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.VALUE_DELTA, EquityFuturePricerFactory.COST_OF_CARRY)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(),
         Arrays.asList(ValueRequirementNames.VALUE_DELTA, EquityFuturePricerFactory.DIVIDEND_YIELD, "FUNDING")));
+   //functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.VALUE_DELTA, EquityFuturePricerFactory.COST_OF_CARRY)));
     functionConfigs.add(functionConfiguration(EquityFutureYieldCurveNodeSensitivityFunction.class, "FUNDING"));
+
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityIndexDividendFuturesFunction.class.getName(),
+        Arrays.asList(ValueRequirementNames.PRESENT_VALUE, EquityFuturePricerFactory.MARK_TO_MARKET, "FUNDING")));
     functionConfigs.add(functionConfiguration(EquityIndexDividendFutureYieldCurveNodeSensitivityFunction.class, "FUNDING"));
     functionConfigs.add(functionConfiguration(EquityForwardFromSpotAndYieldCurveFunction.class, "FUNDING"));
     functionConfigs.add(functionConfiguration(EquityVarianceSwapPresentValueFunction.class, "FUNDING", "BBG", EquityForwardFromSpotAndYieldCurveFunction.FORWARD_FROM_SPOT_AND_YIELD_CURVE));
@@ -863,6 +865,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(EquityIndexOptionDefaultPropertiesFunction.class, "BBG", "FUNDING", "Spline"));
 
     functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionPresentValueFunction.class));
+    functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionSpotIndexFunction.class));
+    functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionForwardValueFunction.class));
     functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionRhoFunction.class));
     functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionSpotDeltaFunction.class));
     functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionSpotGammaFunction.class));
@@ -913,6 +917,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(FXOptionBlackVegaQuoteMatrixFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackGammaFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackGammaSpotFunction.class));
+    functionConfigs.add(functionConfiguration(FXOptionBlackVannaFunction.class));
+    functionConfigs.add(functionConfiguration(FXOptionBlackVommaFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackPresentValueCurveSensitivityFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackPV01Function.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackImpliedVolatilityFunction.class));
@@ -971,7 +977,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     //functionConfigs.add(functionConfiguration(HestonFourierIRFutureSurfaceFittingFunction.class, "USD", "DEFAULT"));
     //functionConfigs.add(functionConfiguration(InterestRateFutureOptionHestonPresentValueFunction.class, "FORWARD_3M", "FUNDING", "DEFAULT"));
   }
-  
+
   private static void addBondFutureOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(BondFutureOptionBlackPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(BondFutureOptionBlackDeltaFunction.class));
@@ -1039,7 +1045,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   private static void addLocalVolatilityCalculators(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(new StaticFunctionConfiguration(BlackVolatilitySurfaceMixedLogNormalInterpolatorFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(BlackVolatilitySurfaceSABRInterpolatorFunction.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(BlackVolatilitySurfaceSplineInterpolatorFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(BlackVolatilitySurfaceSplineInterpolatorFunction.Exception.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(BlackVolatilitySurfaceSplineInterpolatorFunction.Quiet.class.getName()));
 
     functionConfigs.add(new StaticFunctionConfiguration(EquityBlackVolatilitySurfaceFunction.class.getName()));
 
@@ -1053,8 +1060,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new StaticFunctionConfiguration(EquityDupireLocalVolatilitySurfaceFunction.MixedLogNormal.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(EquityDupireLocalVolatilitySurfaceFunction.SABR.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(EquityDupireLocalVolatilitySurfaceFunction.Spline.class.getName()));
-
-
 
     functionConfigs.add(new ParameterizedFunctionConfiguration(ForexLocalVolatilityForwardPDEPipsPresentValueFunction.class.getName(),
         Arrays.asList(BlackVolatilitySurfacePropertyNamesAndValues.SPLINE)));
@@ -1192,6 +1197,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     splineProperties.add(Interpolator1DFactory.DOUBLE_QUADRATIC);
     splineProperties.add(Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
     splineProperties.add(Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+    // Equity default is: Quiet - if ShiftedLogNormalTailExtrapolationFitter fails on boundary, try on next strike in interior of domain
+    splineProperties.add(BlackVolatilitySurfacePropertyNamesAndValues.QUIET_SPLINE_EXTRAPOLATOR_FAILURE);
 
     functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceMixedLogNormalInterpolatorDefaults.class.getName(), mixedLogNormalProperties));
     functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceSABRInterpolatorDefaults.class.getName(), sabrProperties));
@@ -1211,10 +1218,13 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     forexBlackSurfaceSABRProperties.add(WeightingFunctionFactory.SINE_WEIGHTING_FUNCTION_NAME);
     forexBlackSurfaceSABRProperties.add("false");
     forexBlackSurfaceSABRProperties.add("0.5");
-    final List<String> forexBlackSurfaceSplineProperties = new ArrayList<String>(commonForexBlackSurfaceProperties);
-    forexBlackSurfaceSplineProperties.add(Interpolator1DFactory.DOUBLE_QUADRATIC);
-    forexBlackSurfaceSplineProperties.add(Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
-    forexBlackSurfaceSplineProperties.add(Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+    // BlackSurface with Spline Interpolation and  ShiftedLogNormalTailExtrapolation
+    final List<String> blackSurfaceSplineProperties = new ArrayList<String>(commonForexBlackSurfaceProperties);
+    blackSurfaceSplineProperties.add(Interpolator1DFactory.DOUBLE_QUADRATIC);
+    blackSurfaceSplineProperties.add(Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+    blackSurfaceSplineProperties.add(Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+    // Spline default is: Quiet - if ShiftedLogNormalTailExtrapolationFitter fails on boundary, try on next strike in interior of domain
+    blackSurfaceSplineProperties.add(BlackVolatilitySurfacePropertyNamesAndValues.QUIET_SPLINE_EXTRAPOLATOR_FAILURE);
 
     // commonForexLOCALSurfaceProperties
     final List<String> commonForexLocalSurfaceProperties = new ArrayList<String>(commonForexBlackSurfaceProperties);
@@ -1230,6 +1240,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     forexLocalSurfaceSplineProperties.add(Interpolator1DFactory.DOUBLE_QUADRATIC);
     forexLocalSurfaceSplineProperties.add(Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
     forexLocalSurfaceSplineProperties.add(Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+    // FX default is:  Quiet - if ShiftedLogNormalTailExtrapolationFitter fails on boundary, try on next strike in interior of domain
+    forexLocalSurfaceSplineProperties.add(BlackVolatilitySurfacePropertyNamesAndValues.QUIET_SPLINE_EXTRAPOLATOR_FAILURE);
 
 
     final List<String> commonForexBackwardPDEProperties = new ArrayList<String>(commonForexLocalSurfaceProperties);
@@ -1252,6 +1264,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     forexBackwardPDESplineProperties.add(Interpolator1DFactory.DOUBLE_QUADRATIC);
     forexBackwardPDESplineProperties.add(Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
     forexBackwardPDESplineProperties.add(Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+    // backwardPDE default is: Quiet - if ShiftedLogNormalTailExtrapolationFitter fails on boundary, try on next strike in interior of domain
+    forexBackwardPDESplineProperties.add(BlackVolatilitySurfacePropertyNamesAndValues.QUIET_SPLINE_EXTRAPOLATOR_FAILURE);
     final List<String> commonForexForwardPDEProperties = new ArrayList<String>(commonForexLocalSurfaceProperties);
     commonForexForwardPDEProperties.add("0.5");
     commonForexForwardPDEProperties.add("100");
@@ -1273,13 +1287,15 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     forexForwardPDESplineProperties.add(Interpolator1DFactory.DOUBLE_QUADRATIC);
     forexForwardPDESplineProperties.add(Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
     forexForwardPDESplineProperties.add(Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+    // forwardPDE default is: Quiet - if ShiftedLogNormalTailExtrapolationFitter fails on boundary, try on next strike in interior of domain
+    forexForwardPDESplineProperties.add(BlackVolatilitySurfacePropertyNamesAndValues.QUIET_SPLINE_EXTRAPOLATOR_FAILURE);
 
 
 
 
     functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceMixedLogNormalDefaults.class.getName(), forexBlackSurfaceMixedLogNormalProperties));
     functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceSABRDefaults.class.getName(), forexBlackSurfaceSABRProperties));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceSplineDefaults.class.getName(), forexBlackSurfaceSplineProperties));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceSplineDefaults.class.getName(), blackSurfaceSplineProperties));
     functionConfigs.add(new ParameterizedFunctionConfiguration(LocalVolatilitySurfaceMixedLogNormalDefaults.class.getName(), forexLocalSurfaceMixedLogNormalProperties));
     functionConfigs.add(new ParameterizedFunctionConfiguration(LocalVolatilitySurfaceSABRDefaults.class.getName(), forexLocalSurfaceSABRProperties));
     functionConfigs.add(new ParameterizedFunctionConfiguration(LocalVolatilitySurfaceSplineDefaults.class.getName(), forexLocalSurfaceSplineProperties));
@@ -1511,7 +1527,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivitiesYieldCurveDV01Function.class));
     functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivitiesYieldCurveCS01Function.class));
   }
-  
+
   private static void addPassthroughFunctions(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(DV01Function.class));
   }

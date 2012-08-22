@@ -144,6 +144,15 @@ public class FXMatrix {
   }
 
   /**
+   * @param ccy1 The first currency
+   * @param ccy2 The second currency
+   * @return True if the matrix contains both currencies
+   */
+  public boolean containsPair(final Currency ccy1, final Currency ccy2) {
+    return _currencies.containsKey(ccy1) && _currencies.containsKey(ccy2);
+  }
+
+  /**
    * Convert a multiple currency amount into a amount in a given currency.
    * @param amount The multiple currency amount, not null
    * @param ccy The currency for the conversion.

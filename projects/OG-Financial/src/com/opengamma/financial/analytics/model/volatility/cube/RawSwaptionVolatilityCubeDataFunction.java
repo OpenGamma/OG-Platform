@@ -54,7 +54,6 @@ import com.opengamma.util.time.Tenor;
 public class RawSwaptionVolatilityCubeDataFunction extends AbstractFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(RawSwaptionVolatilityCubeDataFunction.class);
 
-  @SuppressWarnings("unchecked")
   public static Set<ValueRequirement> buildDataRequirements(final SwaptionVolatilityCubeSpecificationSource specificationSource,
       final VolatilityCubeDefinitionSource definitionSource, final ZonedDateTime atInstant, final ComputationTarget target,
       final String specificationName, final String definitionName) {
@@ -91,7 +90,7 @@ public class RawSwaptionVolatilityCubeDataFunction extends AbstractFunction {
     final ZonedDateTime atInstant = ZonedDateTime.ofInstant(atInstantProvider, TimeZone.UTC);
     return new AbstractInvokingCompiledFunction() {
 
-      @SuppressWarnings("unchecked")
+      @SuppressWarnings("synthetic-access")
       @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
         final ValueRequirement desiredValue = desiredValues.iterator().next();
@@ -155,6 +154,7 @@ public class RawSwaptionVolatilityCubeDataFunction extends AbstractFunction {
         return ComputationTargetType.PRIMITIVE;
       }
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
         if (target.getUniqueId() == null) {
@@ -164,6 +164,7 @@ public class RawSwaptionVolatilityCubeDataFunction extends AbstractFunction {
         return target.getType() == ComputationTargetType.PRIMITIVE && Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
       }
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
         final ValueProperties properties = createValueProperties()
@@ -175,6 +176,7 @@ public class RawSwaptionVolatilityCubeDataFunction extends AbstractFunction {
         return Collections.singleton(new ValueSpecification(ValueRequirementNames.VOLATILITY_CUBE_MARKET_DATA, target.toSpecification(), properties));
       }
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
         final ValueProperties constraints = desiredValue.getConstraints();
