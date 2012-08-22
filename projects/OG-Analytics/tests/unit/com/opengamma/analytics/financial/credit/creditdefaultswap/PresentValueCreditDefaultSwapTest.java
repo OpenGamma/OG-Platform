@@ -48,7 +48,7 @@ public class PresentValueCreditDefaultSwapTest {
   private static final String businessdayAdjustmentConvention = "Following";
 
   private static final double notional = 10000000.0;
-  private static final double parSpread = 100.0;
+  private static final double parSpread = 0.0;
 
   private static final double valuationRecoveryRate = 0.40;
   private static final double curveRecoveryRate = 0.40;
@@ -56,15 +56,19 @@ public class PresentValueCreditDefaultSwapTest {
   private static final boolean includeAccruedPremium = true;
   private static final boolean adjustMaturityDate = false;
   
-  private static final int numberOfIntegrationSteps = 10;
+  private static final int numberOfIntegrationSteps = 20;
   
-  // TODO : replace this with something more meaningful
   // Dummy yield curve
   private static final double[] TIME = new double[] {0, 3, 5};
-  private static final double[] RATES = new double[] {0.0, 0.0, 0.0};
-  //private static final double[] DF_VALUES = new double[] {Math.exp(-0.03), Math.exp(-0.08), Math.exp(-0.15)};
+  private static final double[] RATES = new double[] {0.05, 0.05, 0.05};
   private static final InterpolatedDoublesCurve R = InterpolatedDoublesCurve.from(TIME, RATES, new LinearInterpolator1D());
   private static final YieldCurve yieldCurve = YieldCurve.from(R);
+  
+ // Dummy survival curve (proxied by a yield curve for now)
+ private static final double[] survivalTIME = new double[] {0, 3, 5};
+ private static final double[] survivalProbs = new double[] {0.01, 0.01, 0.01};
+ private static final InterpolatedDoublesCurve S = InterpolatedDoublesCurve.from(survivalTIME, survivalProbs, new LinearInterpolator1D());
+ private static final YieldCurve survivalCurve = YieldCurve.from(S);
   
   // Create a CDS contract object
   private static final CreditDefaultSwapDefinition CDS_1 = new CreditDefaultSwapDefinition(buySellProtection, 
@@ -90,24 +94,21 @@ public class PresentValueCreditDefaultSwapTest {
                                                                                             includeAccruedPremium,
                                                                                             adjustMaturityDate,
                                                                                             numberOfIntegrationSteps,
-                                                                                            yieldCurve);
+                                                                                            yieldCurve,
+                                                                                            survivalCurve);
   
  
   // TODO : Sort out what exception to throw
   @Test //(expectedExceptions = testng.TestException.class)
   public void testGetPresentValueCreditDefaultSwap() {
     
+    // Hardcode the number of cashflows
     int n = 20;
     
     double pV = 0.0;
-    double h = 0.01;
     
+    // Array to hold the dummy schedule
     double cashflowSchedule[][] = new double [n + 1][2];
-    
-    double irCurve[][] = new double [n + 1][2];
-    double survCurve[][] = new double [n + 1][2];
-
-    System.out.println("There are " + cashflowSchedule.length + " cashflow dates (including time zero)");
     
     // -----------------------------------------------------------------------------------------------
     
@@ -124,41 +125,19 @@ public class PresentValueCreditDefaultSwapTest {
       if(i > 0) {
         cashflowSchedule[i][1] = cashflowSchedule[i][0] - cashflowSchedule[i - 1][0];
       }
-      
-      irCurve[i][0] = cashflowSchedule[i][0];
-
-      /*
-      if (i > 0) {
-        irCurve[i][1] = yieldCurve.getDiscountFactor(t);
-      } else {
-        irCurve[i][1] = 0.0;
-      }
-      */
-
-      irCurve[i][1] = yieldCurve.getDiscountFactor(t);
-      
-      survCurve[i][0] = cashflowSchedule[i][0];
-      survCurve[i][1] = Math.exp(-h * t);
-      
-      //System.out.println(cashflowSchedule[i][0] + " " + cashflowSchedule[i][1]);
-      System.out.println(irCurve[i][0] + " " + irCurve[i][1]);
-      //System.out.println(survCurve[i][0] + " " + survCurve[i][1]);
     }
-    
-    //System.out.println("Generated schedule");
     
     // -----------------------------------------------------------------------------------------------
     
-    // Call the ctor to create a CDS
+    // Call the constructor to create a CDS
     final PresentValueCreditDefaultSwap cds = new PresentValueCreditDefaultSwap();
     
     // Call the CDS PV calculator to get the current PV
-    pV = cds.getPresentValueCreditDefaultSwap(CDS_1, cashflowSchedule, irCurve, survCurve);
+    pV = cds.getPresentValueCreditDefaultSwap(CDS_1, cashflowSchedule);
     
+    // Report the result
     System.out.println("CDS PV = " + pV);
     
     // -----------------------------------------------------------------------------------------------
-  
   }
-
 }

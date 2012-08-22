@@ -13,7 +13,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- *  Definition of a vanilla legacy Credit Default Swap contract (i.e. transacted prior to Big Bang 8th April 2009)
+ *  Definition of a vanilla legacy Credit Default Swap contract (i.e. transacted prior to Big Bang of April 2009)
  */
 public class CreditDefaultSwapDefinition {
   
@@ -90,6 +90,9 @@ public class CreditDefaultSwapDefinition {
   // The yield curve object for discount factors
   private final YieldCurve _yieldCurve;
   
+  // The survival curve object for survival probabilities (proxy with a YieldCurve object for now)
+  private final YieldCurve _survivalCurve; 
+  
   // TODO : Add the survival curve (assuming that we want the survival probabilities as an input to the pricer - not the par CDS spread term struct)
   
   // TODO : Should the yield and survival curves be part of the CDS object? Should they be passed in to the pricer seperately?
@@ -125,7 +128,8 @@ public class CreditDefaultSwapDefinition {
                                       boolean includeAccruedPremium,
                                       boolean adjustMaturityDate,
                                       int numberOfIntegrationSteps,
-                                      YieldCurve yieldCurve) {
+                                      YieldCurve yieldCurve,
+                                      YieldCurve survivalCurve) {
     
     //ArgumentChecker.isTrue(buySellProtection.isEmpty(), "Buy/Sell protection flag is empty");
     
@@ -190,6 +194,7 @@ public class CreditDefaultSwapDefinition {
     _numberOfIntegrationSteps = numberOfIntegrationSteps;
     
     _yieldCurve = yieldCurve;
+    _survivalCurve = survivalCurve;
     
     // TODO : Should we build the premium cashflow schedule in the CDS ctor?
   }
@@ -298,8 +303,12 @@ public class CreditDefaultSwapDefinition {
 
   //----------------------------------------------------------------------------------------------------------------------------------------
   
-  YieldCurve getYieldCurve() {
+  public YieldCurve getYieldCurve() {
     return _yieldCurve;
+  }
+  
+  public YieldCurve getSurvivalCurve() {
+    return _survivalCurve;
   }
 
 //----------------------------------------------------------------------------------------------------------------------------------------

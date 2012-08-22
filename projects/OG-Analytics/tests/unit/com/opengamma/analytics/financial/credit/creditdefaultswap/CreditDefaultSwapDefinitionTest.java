@@ -58,13 +58,20 @@ public class CreditDefaultSwapDefinitionTest {
   private static final boolean adjustMaturityDate = false;
   
   private static final int numberOfIntegrationSteps = 10;
+
+  // TODO : replace the yield and survival curves with something more meaningful
   
   // Dummy yield curve
   private static final double[] TIME = new double[] {0, 3, 5};
   private static final double[] RATES = new double[] {0.0, 0.0, 0.0};
-  //private static final double[] DF_VALUES = new double[] {Math.exp(-0.03), Math.exp(-0.08), Math.exp(-0.15)};
   private static final InterpolatedDoublesCurve R = InterpolatedDoublesCurve.from(TIME, RATES, new LinearInterpolator1D());
   private static final YieldCurve yieldCurve = YieldCurve.from(R);
+  
+//Dummy survival curve (proxied by a yield curve for now)
+ private static final double[] survivalTIME = new double[] {0, 3, 5};
+ private static final double[] survivalProbs = new double[] {0.0, 0.0, 0.0};
+ private static final InterpolatedDoublesCurve S = InterpolatedDoublesCurve.from(survivalTIME, survivalProbs, new LinearInterpolator1D());
+ private static final YieldCurve survivalCurve = YieldCurve.from(S);
 
   private static final CreditDefaultSwapDefinition CDS_DEFINITION = new CreditDefaultSwapDefinition(buySellProtection, 
                                                                                                     protectionBuyer, 
@@ -89,7 +96,8 @@ public class CreditDefaultSwapDefinitionTest {
                                                                                                     includeAccruedPremium,
                                                                                                     adjustMaturityDate,
                                                                                                     numberOfIntegrationSteps,
-                                                                                                    yieldCurve);
+                                                                                                    yieldCurve,
+                                                                                                    survivalCurve);
   
   // TODO : Add all the tests
   
