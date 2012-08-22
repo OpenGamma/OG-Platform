@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.cds.CDSDefinition;
 import com.opengamma.analytics.financial.instrument.cds.CDSPremiumDefinition;
+import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
@@ -32,6 +33,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * An approximation to the calculation method for the ISDA CDS model
@@ -499,5 +501,10 @@ public class CDSApproxISDAMethod {
     } else {
       return -1.0 * s_act365.getDayCountFraction(rebasedDate2, date1);
     }
+  }
+
+  public CurrencyAmount presentValue(CDSDerivative cdsDerivative, YieldCurveBundle curveBundle) {
+    //TODO: Niels fix this
+    return null;
   }
 }

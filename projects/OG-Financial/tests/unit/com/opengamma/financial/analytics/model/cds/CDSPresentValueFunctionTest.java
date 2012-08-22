@@ -20,6 +20,7 @@ import com.opengamma.engine.MapComputationTargetResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.test.MockSecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
@@ -41,8 +42,8 @@ public class CDSPresentValueFunctionTest {
   private static MockSecuritySource securitySource;
   private static FunctionCompilationContext functionCompilationContext;
   private static final Security CDS_SECURITY = new CDSSecurity(1.0, 0.6, 0.0025, Currency.GBP, ZonedDateTime.of(2020, 12, 20, 0, 0, 0, 0, TimeZone.UTC), ZonedDateTime.now(), SimpleFrequency.ANNUAL,
-    underlying);
-  private CDSPresentValueFunction testItem;
+    DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), null, underlying);
+  private CDSSimplePresentValueFunction testItem;
 
   @BeforeClass
   public static void initBeforeClass()
@@ -65,7 +66,7 @@ public class CDSPresentValueFunctionTest {
   @BeforeMethod
   public void beforeEachMethod()
   {
-    testItem = new CDSPresentValueFunction();
+    testItem = new CDSSimplePresentValueFunction();
   }
 
   @Test
@@ -91,7 +92,6 @@ public class CDSPresentValueFunctionTest {
     //TODO
   }
 
-
   @Test
   public void getRequirements() {
     Set<ValueRequirement> result = testItem.getRequirements(functionCompilationContext, new ComputationTarget(CDS_SECURITY), null);
@@ -107,7 +107,7 @@ public class CDSPresentValueFunctionTest {
     Assert
       .assertEquals(
         r.toString(),
-        "[ValueReq[YieldCurve, CTSpec[PRIMITIVE, CurrencyISO~GBP], {Curve=[CDS_US TREASURY N/B]}], ValueReq[YieldCurve, CTSpec[PRIMITIVE, CurrencyISO~GBP], {CurveCalculationMethod=[ParRate],Curve=[SECONDARY],FundingCurve=[SECONDARY],ForwardCurve=[SECONDARY]}], ValueReq[YieldCurve, CTSpec[PRIMITIVE, CurrencyISO~USD], {CurveCalculationMethod=[ParRate],Curve=[SECONDARY],FundingCurve=[SECONDARY],ForwardCurve=[SECONDARY]}]]"); 
+        "[ValueReq[YieldCurve, CTSpec[PRIMITIVE, CurrencyISO~GBP], {Curve=[CDS_US TREASURY N/B]}], ValueReq[YieldCurve, CTSpec[PRIMITIVE, CurrencyISO~GBP], {CurveCalculationMethod=[ParRate],Curve=[SECONDARY],FundingCurve=[SECONDARY],ForwardCurve=[SECONDARY]}], ValueReq[YieldCurve, CTSpec[PRIMITIVE, CurrencyISO~USD], {CurveCalculationMethod=[ParRate],Curve=[SECONDARY],FundingCurve=[SECONDARY],ForwardCurve=[SECONDARY]}]]");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

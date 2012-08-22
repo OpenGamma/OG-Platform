@@ -10,16 +10,20 @@ import static com.opengamma.masterdb.security.hibernate.Converters.dateTimeWithZ
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdBeanToExternalId;
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdToExternalIdBean;
 import static com.opengamma.masterdb.security.hibernate.Converters.frequencyBeanToFrequency;
+import static com.opengamma.masterdb.security.hibernate.Converters.dayCountBeanToDayCount;
+import static com.opengamma.masterdb.security.hibernate.Converters.businessDayConventionBeanToBusinessDayConvention;
 import static com.opengamma.masterdb.security.hibernate.Converters.zonedDateTimeBeanToDateTimeWithZone;
-
 import com.opengamma.financial.security.cds.CDSSecurity;
 import com.opengamma.masterdb.security.hibernate.AbstractSecurityBeanOperation;
+import com.opengamma.masterdb.security.hibernate.CurrencyBean;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDao;
 import com.opengamma.masterdb.security.hibernate.OperationContext;
+import com.opengamma.util.money.Currency;
 
 /**
  * Operation for converting between {@link CDSSecurity} and {@link CDSSecurityBean}
- * @author Martin Traverse
+ *
+ * @author Martin Traverse, Niels Stchedroff (Riskcare)
  */
 public final class CDSSecurityBeanOperation extends AbstractSecurityBeanOperation<CDSSecurity, CDSSecurityBean> {
 
@@ -44,8 +48,18 @@ public final class CDSSecurityBeanOperation extends AbstractSecurityBeanOperatio
     return bean;
   }
 
+  //TODO: Niels fix this
   @Override
   public CDSSecurity createSecurity(OperationContext context, CDSSecurityBean bean) {
+    
+    CurrencyBean[] currencyBeans = bean.getHolidayCalendarCurrencies();
+    Currency[] holidayCalendarCurrencies = new Currency[currencyBeans.length];
+    
+    for (int i = 0; i < currencyBeans.length; i++) {
+      CurrencyBean currencyBean = currencyBeans[i];
+      holidayCalendarCurrencies[i] = currencyBeanToCurrency(currencyBean);
+    }
+    
     return new CDSSecurity(
       bean.getNotional(),
       bean.getRecoveryRate(),
@@ -54,6 +68,9 @@ public final class CDSSecurityBeanOperation extends AbstractSecurityBeanOperatio
       zonedDateTimeBeanToDateTimeWithZone(bean.getMaturity()),
       zonedDateTimeBeanToDateTimeWithZone(bean.getProtectionStartDate()),
       frequencyBeanToFrequency(bean.getPremiumFrequency()),
+      dayCountBeanToDayCount(bean.getDayCount()), 
+      businessDayConventionBeanToBusinessDayConvention(bean.getBusinessDayConvention()),
+      holidayCalendarCurrencies, 
       externalIdBeanToExternalId(bean.getUnderlying())
     );
   }

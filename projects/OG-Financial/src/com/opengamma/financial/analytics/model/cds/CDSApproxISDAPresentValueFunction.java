@@ -12,6 +12,7 @@ import java.util.Set;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.credit.cds.CDSApproxISDAMethod;
 import com.opengamma.analytics.financial.credit.cds.CDSDerivative;
 import com.opengamma.analytics.financial.credit.cds.CDSSimpleMethod;
 import com.opengamma.analytics.financial.instrument.cds.CDSDefinition;
@@ -50,7 +51,7 @@ import com.opengamma.util.money.CurrencyAmount;
  * @author Martin Traverse
  * @see CDSSecurity
  */
-public class CDSPresentValueFunction extends AbstractFunction.NonCompiledInvoker {
+public class CDSApproxISDAPresentValueFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public ComputationTargetType getTargetType() {
@@ -194,7 +195,7 @@ public class CDSPresentValueFunction extends AbstractFunction.NonCompiledInvoker
     final CDSDerivative cdsDerivative = cdsDefinition.toDerivative(pricingDate, cdsCcyCurve.getName(), spreadCurve.getName(), bondCcyCurve.getName());
     
     // Go price!
-    final PricingMethod method = new CDSSimpleMethod();
+    final CDSApproxISDAMethod method = new CDSApproxISDAMethod();
     final CurrencyAmount result = method.presentValue(cdsDerivative, curveBundle);
     
     // Package the result
