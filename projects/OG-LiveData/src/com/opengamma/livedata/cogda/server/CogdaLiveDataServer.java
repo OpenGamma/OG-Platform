@@ -28,6 +28,7 @@ import org.springframework.context.Lifecycle;
 import com.opengamma.core.user.AuthenticationUtils;
 import com.opengamma.core.user.OGUser;
 import com.opengamma.core.user.UserSource;
+import com.opengamma.core.user.impl.SimpleOGUser;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.LiveDataSpecification;
@@ -194,6 +195,13 @@ public class CogdaLiveDataServer implements FudgeConnectionReceiver, Lifecycle {
   }
   
   protected OGUser getOGUser(String userName) {
+    if (getUserSource() == null) {
+      // Nothing will work without an OG User. So we return a mock one.
+      SimpleOGUser simpleUser = new SimpleOGUser();
+      simpleUser.setName(userName);
+      simpleUser.getEntitlements().add("*");
+      return simpleUser;
+    }
     OGUser ogUser = null;
     Collection<? extends OGUser> ogUsers = getUserSource().getUsers(userName, VersionCorrection.LATEST);
     if (ogUsers.isEmpty()) {
