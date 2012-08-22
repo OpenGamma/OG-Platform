@@ -41,14 +41,14 @@ public class PresentValueCreditDefaultSwapTest {
   private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2012, 8, 22);
   private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2017, 9, 20);
   private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2012, 8, 22);
-
+    
   private static final String scheduleGenerationMethod = "Backward";
   private static final String couponFrequency = "Quarterly";
   private static final String daycountFractionConvention = "ACT/360";
   private static final String businessdayAdjustmentConvention = "Following";
 
   private static final double notional = 10000000.0;
-  private static final double parSpread = 60.0;
+  private static final double parSpread = 100.0;
 
   private static final double valuationRecoveryRate = 0.40;
   private static final double curveRecoveryRate = 0.40;
@@ -56,13 +56,17 @@ public class PresentValueCreditDefaultSwapTest {
   private static final boolean includeAccruedPremium = true;
   private static final boolean adjustMaturityDate = false;
   
+  private static final int numberOfIntegrationSteps = 10;
   
-  private static final double[] TIME = new double[] {1, 2, 3};
-  private static final double[] RATES = new double[] {0.03, 0.04, 0.05};
-  private static final double[] DF_VALUES = new double[] {Math.exp(-0.03), Math.exp(-0.08), Math.exp(-0.15)};
+  // TODO : replace this with something more meaningful
+  // Dummy yield curve
+  private static final double[] TIME = new double[] {0, 3, 5};
+  private static final double[] RATES = new double[] {0.0, 0.0, 0.0};
+  //private static final double[] DF_VALUES = new double[] {Math.exp(-0.03), Math.exp(-0.08), Math.exp(-0.15)};
   private static final InterpolatedDoublesCurve R = InterpolatedDoublesCurve.from(TIME, RATES, new LinearInterpolator1D());
   private static final YieldCurve yieldCurve = YieldCurve.from(R);
-
+  
+  // Create a CDS contract object
   private static final CreditDefaultSwapDefinition CDS_1 = new CreditDefaultSwapDefinition(buySellProtection, 
                                                                                             protectionBuyer, 
                                                                                             protectionSeller, 
@@ -85,16 +89,76 @@ public class PresentValueCreditDefaultSwapTest {
                                                                                             curveRecoveryRate, 
                                                                                             includeAccruedPremium,
                                                                                             adjustMaturityDate,
+                                                                                            numberOfIntegrationSteps,
                                                                                             yieldCurve);
   
-  @Test(expectedExceptions = IllegalArgumentException.class)
+ 
+  // TODO : Sort out what exception to throw
+  @Test //(expectedExceptions = testng.TestException.class)
   public void testGetPresentValueCreditDefaultSwap() {
+    
+    int n = 20;
+    
+    double pV = 0.0;
+    double h = 0.01;
+    
+    double cashflowSchedule[][] = new double [n + 1][2];
+    
+    double irCurve[][] = new double [n + 1][2];
+    double survCurve[][] = new double [n + 1][2];
 
+    System.out.println("There are " + cashflowSchedule.length + " cashflow dates (including time zero)");
+    
+    // -----------------------------------------------------------------------------------------------
+    
+    // Generate a dummy cashflow schedule 'object'
+    for(int i = 0; i <= n; i++)
+    {
+      // Calculate the dummy time
+      double t = (double)i/4;
+      
+      // Store dummy time in the cashflow schedule 'object'
+      cashflowSchedule[i][0] = t;
+      
+      // Calculate the time difference (in years) between consecutive coupon payment dates 
+      if(i > 0) {
+        cashflowSchedule[i][1] = cashflowSchedule[i][0] - cashflowSchedule[i - 1][0];
+      }
+      
+      irCurve[i][0] = cashflowSchedule[i][0];
+
+      /*
+      if (i > 0) {
+        irCurve[i][1] = yieldCurve.getDiscountFactor(t);
+      } else {
+        irCurve[i][1] = 0.0;
+      }
+      */
+
+      irCurve[i][1] = yieldCurve.getDiscountFactor(t);
+      
+      survCurve[i][0] = cashflowSchedule[i][0];
+      survCurve[i][1] = Math.exp(-h * t);
+      
+      //System.out.println(cashflowSchedule[i][0] + " " + cashflowSchedule[i][1]);
+      System.out.println(irCurve[i][0] + " " + irCurve[i][1]);
+      //System.out.println(survCurve[i][0] + " " + survCurve[i][1]);
+    }
+    
+    //System.out.println("Generated schedule");
+    
+    // -----------------------------------------------------------------------------------------------
+    
+    // Call the ctor to create a CDS
     final PresentValueCreditDefaultSwap cds = new PresentValueCreditDefaultSwap();
     
-    double V = cds.getPresentValueCreditDefaultSwap(CDS_1);
+    // Call the CDS PV calculator to get the current PV
+    pV = cds.getPresentValueCreditDefaultSwap(CDS_1, cashflowSchedule, irCurve, survCurve);
     
-    System.out.println("CDS V = " + V);
+    System.out.println("CDS PV = " + pV);
+    
+    // -----------------------------------------------------------------------------------------------
+  
   }
 
 }

@@ -84,6 +84,9 @@ public class CreditDefaultSwapDefinition {
   // Flag to determine whether the accrued coupons should be included in the CDS premium lag calculation
   private final boolean _includeAccruedPremium;
   
+  // The number of integration steps (per year) - for the computation of the integral in the contingent leg
+  private final int _numberOfIntegrationSteps;
+  
   // The yield curve object for discount factors
   private final YieldCurve _yieldCurve;
   
@@ -121,6 +124,7 @@ public class CreditDefaultSwapDefinition {
                                       double curveRecoveryRate, 
                                       boolean includeAccruedPremium,
                                       boolean adjustMaturityDate,
+                                      int numberOfIntegrationSteps,
                                       YieldCurve yieldCurve) {
     
     //ArgumentChecker.isTrue(buySellProtection.isEmpty(), "Buy/Sell protection flag is empty");
@@ -151,6 +155,8 @@ public class CreditDefaultSwapDefinition {
     ArgumentChecker.isInRangeInclusive(valuationRecoveryRate, 0.0, 1.0);
     ArgumentChecker.isInRangeInclusive(curveRecoveryRate, 0.0, 1.0);
     
+    ArgumentChecker.isTrue(numberOfIntegrationSteps > 0,  "Number of integration steps (for contingent leg valuation) should be greater than zero");
+    
     _buySellProtection = buySellProtection;
     _protectionBuyer = protectionBuyer;
     _protectionSeller = protectionSeller;
@@ -180,6 +186,8 @@ public class CreditDefaultSwapDefinition {
     _curveRecoveryRate = curveRecoveryRate;
     
     _includeAccruedPremium = includeAccruedPremium;
+    
+    _numberOfIntegrationSteps = numberOfIntegrationSteps;
     
     _yieldCurve = yieldCurve;
     
@@ -265,7 +273,6 @@ public class CreditDefaultSwapDefinition {
 //----------------------------------------------------------------------------------------------------------------------------------------
   
   public double getNotional() {
-    //System.out.println("Notional = " + _notional);
     return _notional;
   }
   
@@ -283,6 +290,10 @@ public class CreditDefaultSwapDefinition {
   
   public boolean getIncludeAccruedPremium() {
     return _includeAccruedPremium;
+  }
+
+  public int getNumberOfIntegrationSteps() {
+    return _numberOfIntegrationSteps;
   }
 
   //----------------------------------------------------------------------------------------------------------------------------------------
