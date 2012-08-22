@@ -53,7 +53,8 @@ public class AffineDividends {
    * @return the tau
    */
   public double[] getTau() {
-    return _tau;
+    final double[] tau = Arrays.copyOf(_tau, _n);
+    return tau;
   }
 
   /**
@@ -61,7 +62,8 @@ public class AffineDividends {
    * @return the alpha
    */
   public double[] getAlpha() {
-    return _alpha;
+    final double[] alpha = Arrays.copyOf(_alpha, _n);
+    return alpha;
   }
 
   /**
@@ -69,7 +71,8 @@ public class AffineDividends {
    * @return the beta
    */
   public double[] getBeta() {
-    return _beta;
+    double[] beta = Arrays.copyOf(_beta, _n);
+    return beta;
   }
 
   /**
@@ -105,6 +108,48 @@ public class AffineDividends {
    */
   public int getNumberOfDividends() {
     return _n;
+  }
+
+  /**
+   * Change one of the dividend times 
+   * @param value The new value of the dividend time, tau
+   * @param index The index of the new dividend time
+   * @return A new AffineDividends with the changed tau
+   */
+  public AffineDividends withTau(final double value, final int index) {
+    ArgumentChecker.isTrue(value >= 0.0, "negative tau");
+    ArgumentChecker.isTrue(index >= 0 && index < _n, "index out of range");
+    double[] tau = Arrays.copyOf(_tau, _n);
+    tau[index] = value;
+    return new AffineDividends(tau, _alpha, _beta);
+  }
+
+  /**
+   * Change one of the alpha values 
+   * @param value The new value of alpha
+   * @param index The index of the new alpha
+   * @return A new AffineDividends with the changed alpha
+   */
+  public AffineDividends withAlpha(final double value, final int index) {
+    ArgumentChecker.isTrue(value >= 0.0, "negative alpha");
+    ArgumentChecker.isTrue(index >= 0 && index < _n, "index out of range");
+    double[] alpha = Arrays.copyOf(_alpha, _n);
+    alpha[index] = value;
+    return new AffineDividends(_tau, alpha, _beta);
+  }
+
+  /**
+   * Change one of the beta values 
+   * @param value The new value of beta
+   * @param index The index of the new beta
+   * @return A new AffineDividends with the changed beta
+   */
+  public AffineDividends withBeta(final double value, final int index) {
+    ArgumentChecker.isTrue(value >= 0.0, "negative beta");
+    ArgumentChecker.isTrue(index >= 0 && index < _n, "index out of range");
+    double[] beta = Arrays.copyOf(_beta, _n);
+    beta[index] = value;
+    return new AffineDividends(_tau, _alpha, beta);
   }
 
   @Override

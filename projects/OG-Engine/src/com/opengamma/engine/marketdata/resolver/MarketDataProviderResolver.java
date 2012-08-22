@@ -7,6 +7,7 @@ package com.opengamma.engine.marketdata.resolver;
 
 import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -16,12 +17,12 @@ import com.opengamma.util.PublicSPI;
 public interface MarketDataProviderResolver {
 
   /**
-   * Resolves a {@link MarketDataSnapshotSpecification} into a {@link MarketDataProvider} which is able to 
+   * Resolves a {@link MarketDataSpecification} into a {@link MarketDataProvider} which is able to
    * work with the specification.
    * 
    * @param snapshotSpec  the snapshot specification for which a provider is required, not null 
    * @return the resolved snapshot provider
    */
-  MarketDataProvider resolve(MarketDataSpecification snapshotSpec);
+  MarketDataProvider resolve(UserPrincipal marketDataUser, MarketDataSpecification snapshotSpec);
 
 }

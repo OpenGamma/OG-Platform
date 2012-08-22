@@ -22,6 +22,7 @@
 <listEntry value="com.opengamma.masterdb.portfolio"/>
 <listEntry value="com.opengamma.masterdb.position"/>
 <listEntry value="com.opengamma.masterdb.security"/>
+<listEntry value="com.opengamma.masterdb.user"/>
 </listAttribute>
 <mapAttribute key="org.testng.eclipse.PARAMETERS"/>
 <intAttribute key="org.testng.eclipse.TYPE" value="5"/>

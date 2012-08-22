@@ -85,7 +85,7 @@ public class EHCachingExchangeSource implements ExchangeSource {
   public Exchange getSingleExchange(ExternalId identifier) {
     Element element = _exchangeExternalIdCache.get(identifier);
     if (element != null) {
-      return (Exchange) element.getValue();
+      return (Exchange) element.getObjectValue();
     }
     
     Exchange underlying = _underlying.getSingleExchange(identifier);

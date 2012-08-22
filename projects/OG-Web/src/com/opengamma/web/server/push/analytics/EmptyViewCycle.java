@@ -5,8 +5,11 @@
  */
 package com.opengamma.web.server.push.analytics;
 
+import java.util.Collections;
+
 import javax.time.Duration;
 
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.calc.ComputationCacheQuery;
@@ -16,6 +19,7 @@ import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.calc.ViewCycleState;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.tuple.Pair;
 
 /**
  *
@@ -25,8 +29,13 @@ import com.opengamma.id.UniqueId;
   /* package */ static final EngineResourceReference<ViewCycle> REFERENCE = new EmptyViewCycleReference();
   /* package */ static final ViewCycle INSTANCE = new EmptyViewCycle();
 
-  private static final ComputationCacheResponse EMPTY_RESPONSE = new ComputationCacheResponse();
   private static final InMemoryViewComputationResultModel EMPTY_RESULTS = new InMemoryViewComputationResultModel();
+  private static final ComputationCacheResponse EMPTY_RESPONSE;
+
+  static {
+    EMPTY_RESPONSE = new ComputationCacheResponse();
+    EMPTY_RESPONSE.setResults(Collections.<Pair<ValueSpecification, Object>>emptyList());
+  }
 
   private EmptyViewCycle() {
   }

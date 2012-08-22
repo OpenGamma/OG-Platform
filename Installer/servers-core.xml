@@ -6,10 +6,13 @@
   <condition property="disable.og.activ">
     <isset property="disable.marketdata" />
   </condition>
-  <target name="enable-og-activ" if="enable.og.activ" unless="disable.og.activ">
+  <target name="enable-og-activ" depends="disable-og-activ" if="enable.og.activ" unless="disable.og.activ">
     <ai-enable feature-id="og_activ" />
     <property name="at.least.one.feature" value="true" />
     <antcall target="build-og-activ" inheritall="true" inheritrefs="true" />
+  </target>
+  <target name="disable-og-activ" unless="enable.og.activ">
+    <ai-disable feature-id="og_activ" />
   </target>
   <target name="build-og-activ" if="ai.present">
     <ai-set-version file="og-activ.aip" version="${module.version.msi}.${module.build.number}" />
@@ -19,10 +22,13 @@
   <condition property="disable.og.bloomerg">
     <isset property="disable.marketdata" />
   </condition>
-  <target name="enable-og-bloomberg" if="enable.og.bloomberg" unless="disable.og.bloomberg">
+  <target name="enable-og-bloomberg" depends="disable-og-bloomberg" if="enable.og.bloomberg" unless="disable.og.bloomberg">
     <ai-enable feature-id="og_bloomberg" />
     <property name="at.least.one.feature" value="true" />
     <antcall target="build-og-bloomberg" inheritall="true" inheritrefs="true" />
+  </target>
+  <target name="disable-og-bloomberg" unless="enable.og.bloomberg">
+    <ai-disable feature-id="og_bloomberg" />
   </target>
   <target name="build-og-bloomberg" if="ai.present">
     <ai-set-version file="og-bloomberg.aip" version="${module.version.msi}.${module.build.number}" />
@@ -32,10 +38,13 @@
   <condition property="disable.og.reuters">
     <isset property="disable.marketdata" />
   </condition>
-  <target name="enable-og-reuters" if="enable.og.reuters" unless="disable.og.reuters">
+  <target name="enable-og-reuters" depends="disable-og-reuters" if="enable.og.reuters" unless="disable.og.reuters">
     <ai-enable feature-id="og_reuters" />
     <property name="at.least.one.feature" value="true" />
     <antcall target="build-og-reuters" inheritall="true" inheritrefs="true" />
+  </target>
+  <target name="disable-og-reuters" unless="enable.og.reuters">
+    <ai-disable feature-id="og_reuters" />
   </target>
   <target name="build-og-reuters" if="ai.present">
     <ai-set-version file="og-reuters.aip" version="${module.version.msi}.${module.build.number}" />
@@ -45,10 +54,13 @@
   <condition property="disable.og.tullettprebon">
     <isset property="disable.marketdata" />
   </condition>
-  <target name="enable-og-tullettprebon" if="enable.og.tullettprebon" unless="disable.og.tullettprebon">
+  <target name="enable-og-tullettprebon" depends="disable-og-tullettprebon" if="enable.og.tullettprebon" unless="disable.og.tullettprebon">
     <ai-enable feature-id="og_tullettprebon" />
     <property name="at.least.one.feature" value="true" />
     <antcall target="build-og-tullettprebon" inheritall="true" inheritrefs="true" />
+  </target>
+  <target name="disable-og-tullettprebon" unless="enable.og.tullettprebon">
+    <ai-disable feature-id="og_tullettprebon" />
   </target>
   <target name="build-og-tullettprebon" if="ai.present">
     <ai-set-version file="og-tullettprebon.aip" version="${module.version.msi}.${module.build.number}" />
@@ -62,10 +74,13 @@
   <condition property="disable.og.examples">
     <isset property="disable.engine" />
   </condition>
-  <target name="enable-og-examples" if="enable.og.examples" unless="disable.og.examples">
+  <target name="enable-og-examples" depends="disable-og-examples" if="enable.og.examples" unless="disable.og.examples">
     <ai-enable feature-id="og_examples" />
     <property name="at.least.one.feature" value="true" />
     <antcall target="build-og-examples" inheritall="true" inheritrefs="true" />
+  </target>
+  <target name="disable-og-examples" unless="enable.og.examples">
+    <ai-disable feature-id="og_examples" />
   </target>
   <target name="build-og-examples" if="ai.present">
     <ai-set-version file="og-examples.aip" version="${module.version.msi}.${module.build.number}" />
@@ -75,28 +90,34 @@
   <condition property="disable.og.bloombergexample">
     <isset property="disable.engine" />
   </condition>
-  <target name="enable-og-bloombergexample" if="enable.og.bloombergexample" unless="disable.og.bloombergexample">
+  <target name="enable-og-bloombergexample" depends="disable-og-bloombergexample" if="enable.og.bloombergexample" unless="disable.og.bloombergexample">
     <ai-enable feature-id="og_bloombergexample" />
     <property name="at.least.one.feature" value="true" />
     <antcall target="build-og-bloombergexample" inheritall="true" inheritrefs="true" />
+  </target>
+  <target name="disable-og-bloombergexample" unless="enable.og.bloombergexample">
+    <ai-disable feature-id="og_bloombergexample" />
   </target>
   <target name="build-og-bloombergexample" if="ai.present">
     <ai-set-version file="og-bloombergexample.aip" version="${module.version.msi}.${module.build.number}" />
     <ai-build file="og-bloombergexample.aip" build-id="DefaultBuild" />
   </target>
-  <available property="enable.og.production" file="${install.dir}/og.production.jar" />
-  <condition property="disable.og.production">
+  <available property="enable.og.integration" file="${install.dir}/og.integration.jar" />
+  <condition property="disable.og.integration">
     <isset property="disable.engine" />
   </condition>
-  <target name="enable-og-production" if="enable.og.production" unless="disable.og.production">
+  <target name="enable-og-integration" depends="disable-og-integration" if="enable.og.integration" unless="disable.og.integration">
     <mkdir dir="${install.dir}/install" /> <!-- OG-Integration doesn't produce an "install" folder -->
-    <ai-enable feature-id="og_production" />
+    <ai-enable feature-id="og_integration" />
     <property name="at.least.one.feature" value="true" />
-    <antcall target="build-og-production" inheritall="true" inheritrefs="true" />
+    <antcall target="build-og-integration" inheritall="true" inheritrefs="true" />
   </target>
-  <target name="build-og-production" if="ai.present">
-    <ai-set-version file="og-production.aip" version="${module.version.msi}.${module.build.number}" />
-    <ai-build file="og-production.aip" build-id="DefaultBuild" />
+  <target name="disable-og-integration" unless="enable.og.integration">
+    <ai-disable feature-id="og_integration" />
+  </target>
+  <target name="build-og-integration" if="ai.present">
+    <ai-set-version file="og-integration.aip" version="${module.version.msi}.${module.build.number}" />
+    <ai-build file="og-integration.aip" build-id="DefaultBuild" />
   </target>
   <available property="enable.www" file="${install.dir}/web-engine/favicon.ico" />
   <condition property="disable.www">
@@ -111,7 +132,7 @@
     <ai-set-version file="www.aip" version="${module.version.msi}.${module.build.number}" />
     <ai-build file="www.aip" build-id="DefaultBuild" />
   </target>
-  <target name="enable-engine" depends="enable-og-examples,enable-og-bloombergexample,enable-og-production,enable-www" />
+  <target name="enable-engine" depends="enable-og-examples,enable-og-bloombergexample,enable-og-integration,enable-www" />
 
   <!-- general tasks -->
 

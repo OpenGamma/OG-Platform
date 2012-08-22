@@ -22,7 +22,6 @@ import com.opengamma.engine.marketdata.PendingCombinedMarketDataSubscription.Pen
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -137,28 +136,28 @@ public class MarketDataProviderWithOverride implements MarketDataProvider {
 
   //-------------------------------------------------------------------------
   @Override
-  public void subscribe(UserPrincipal user, ValueRequirement valueRequirement) {
-    subscribe(user, Collections.singleton(valueRequirement));
+  public void subscribe(ValueRequirement valueRequirement) {
+    subscribe(Collections.singleton(valueRequirement));
   }
 
   @Override
-  public void subscribe(UserPrincipal user, Set<ValueRequirement> valueRequirements) {
+  public void subscribe(Set<ValueRequirement> valueRequirements) {
     for (ValueRequirement requirement : valueRequirements) {
       _pendingSubscriptions.put(requirement, new PendingCombinedMarketDataSubscription(Arrays.asList(_underlying, _override)));
     }
-    _underlying.subscribe(user, valueRequirements);
-    _override.subscribe(user, valueRequirements);
+    _underlying.subscribe(valueRequirements);
+    _override.subscribe(valueRequirements);
   }
   
   @Override
-  public void unsubscribe(UserPrincipal user, ValueRequirement valueRequirement) {
-    unsubscribe(user, Collections.singleton(valueRequirement));
+  public void unsubscribe(ValueRequirement valueRequirement) {
+    unsubscribe(Collections.singleton(valueRequirement));
   }
 
   @Override
-  public void unsubscribe(UserPrincipal user, Set<ValueRequirement> valueRequirements) {
-    _underlying.unsubscribe(user, valueRequirements);
-    _override.unsubscribe(user, valueRequirements);
+  public void unsubscribe(Set<ValueRequirement> valueRequirements) {
+    _underlying.unsubscribe(valueRequirements);
+    _override.unsubscribe(valueRequirements);
   }
 
   //-------------------------------------------------------------------------

@@ -13,6 +13,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.iborindex.IndexIborTestsMaster;
 import com.opengamma.analytics.financial.instrument.swap.SwapXCcyIborIborDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -63,11 +64,14 @@ public class GeneratorSwapXCcyIborIborTest {
     Period tenor = Period.ofMonths(6);
     double spread = -0.0050;
     double notional = 12345;
-    double fxRate = 1.40;
-    SwapXCcyIborIborDefinition insGenerated = EURIBOR3MUSDLIBOR3M.generateInstrument(referenceDate, tenor, spread, notional, fxRate);
+    double fxRateUSDEUR = 0.75;
+    FXMatrix fxMatrix = new FXMatrix(USDLIBOR3M.getCurrency(), EURIBOR3M.getCurrency(), fxRateUSDEUR);
+    SwapXCcyIborIborDefinition insGenerated = EURIBOR3MUSDLIBOR3M.generateInstrument(referenceDate, tenor, spread, notional, fxRateUSDEUR);
+    SwapXCcyIborIborDefinition insGenerated2 = EURIBOR3MUSDLIBOR3M.generateInstrument(referenceDate, tenor, spread, notional, fxMatrix);
     ZonedDateTime settleDate = ScheduleCalculator.getAdjustedDate(referenceDate, EURIBOR3MUSDLIBOR3M.getSpotLag(), NYC);
-    SwapXCcyIborIborDefinition insExpected = SwapXCcyIborIborDefinition.from(settleDate, tenor, EURIBOR3MUSDLIBOR3M, notional, notional * fxRate, spread, true);
+    SwapXCcyIborIborDefinition insExpected = SwapXCcyIborIborDefinition.from(settleDate, tenor, EURIBOR3MUSDLIBOR3M, fxRateUSDEUR * notional, notional, spread, true);
     assertEquals("Generator Deposit: generate instrument", insExpected, insGenerated);
+    assertEquals("Generator Deposit: generate instrument", insExpected, insGenerated2);
   }
 
 }

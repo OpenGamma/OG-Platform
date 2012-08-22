@@ -13,7 +13,6 @@ import javax.time.Instant;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -43,37 +42,33 @@ public interface MarketDataProvider {
    * Attempts to subscribe a user to a piece of market data. All listeners will be notified of the result
    * asynchronously. The existence of a subscription might notify the provider that the value should be included in
    * snapshots.
-   * 
-   * @param user  the user making the subscription, not null
+   *
    * @param valueRequirement  the market data requirement, not null
    */
-  void subscribe(UserPrincipal user, ValueRequirement valueRequirement);
-  
+  void subscribe(ValueRequirement valueRequirement);
+
   /**
    * Attempts to subscribe a user to a set of market data. All listeners will be notified of the result
    * asynchronously. The existence of a subscription might notify the provider that the value should be included in
    * snapshots.
    *
-   * @param user  the user making the subscription, not null
    * @param valueRequirements  the market data requirements, not null
    */
-  void subscribe(UserPrincipal user, Set<ValueRequirement> valueRequirements);
-  
+  void subscribe(Set<ValueRequirement> valueRequirements);
+
   /**
    * Unsubscribes a user from a piece of market data.
-   * 
-   * @param user  the user who made the subscription, not null
+   *
    * @param valueRequirement  the market data requirement, not null
    */
-  void unsubscribe(UserPrincipal user, ValueRequirement valueRequirement);
-  
+  void unsubscribe(ValueRequirement valueRequirement);
+
   /**
    * Unsubscribes a user from a set of market data.
-   * 
-   * @param user  the user who made the subscription, not null
+   *
    * @param valueRequirements  the market data requirements, not null
    */
-  void unsubscribe(UserPrincipal user, Set<ValueRequirement> valueRequirements);
+  void unsubscribe(Set<ValueRequirement> valueRequirements);
   
   //-------------------------------------------------------------------------
   /**

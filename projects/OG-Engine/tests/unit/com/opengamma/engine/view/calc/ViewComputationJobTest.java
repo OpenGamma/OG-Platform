@@ -390,25 +390,25 @@ public class ViewComputationJobTest {
     public void removeListener(MarketDataListener listener) {
       _underlyingProvider.removeListener(listener);
     }
-    
+
     @Override
-    public void subscribe(UserPrincipal user, ValueRequirement valueRequirement) {
-      _underlyingProvider.subscribe(user, valueRequirement);
+    public void subscribe(ValueRequirement valueRequirement) {
+      _underlyingProvider.subscribe(valueRequirement);
     }
 
     @Override
-    public void subscribe(UserPrincipal user, Set<ValueRequirement> valueRequirements) {
-      _underlyingProvider.subscribe(user, valueRequirements);
+    public void subscribe(Set<ValueRequirement> valueRequirements) {
+      _underlyingProvider.subscribe(valueRequirements);
     }
 
     @Override
-    public void unsubscribe(UserPrincipal user, ValueRequirement valueRequirement) {
-      _underlyingProvider.unsubscribe(user, valueRequirement);
+    public void unsubscribe(ValueRequirement valueRequirement) {
+      _underlyingProvider.unsubscribe(valueRequirement);
     }
 
     @Override
-    public void unsubscribe(UserPrincipal user, Set<ValueRequirement> valueRequirements) {
-      _underlyingProvider.unsubscribe(user, valueRequirements);
+    public void unsubscribe(Set<ValueRequirement> valueRequirements) {
+      _underlyingProvider.unsubscribe(valueRequirements);
     }
 
     @Override
@@ -433,13 +433,16 @@ public class ViewComputationJobTest {
     @Override
     public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
       final SecuritySource dummySecuritySource = new MockSecuritySource();
-      return new LiveMarketDataSnapshot(_underlyingProvider.snapshot(marketDataSpec), new LiveMarketDataProvider(_dummyLiveDataClient, dummySecuritySource, getAvailabilityProvider()));
+      return new LiveMarketDataSnapshot(_underlyingProvider.snapshot(marketDataSpec),
+                                        new LiveMarketDataProvider(_dummyLiveDataClient, getAvailabilityProvider(),
+                                                                   dummySecuritySource, UserPrincipal.getTestUser()));
     }
 
     @Override
     public MarketDataAvailability getAvailability(ValueRequirement requirement) {
       // Want the market data provider to indicate that data is available even before it's really available
-      return (requirement.equals(ViewProcessorTestEnvironment.getPrimitive1()) || requirement.equals(ViewProcessorTestEnvironment.getPrimitive2())) ? MarketDataAvailability.AVAILABLE
+      return (requirement.equals(ViewProcessorTestEnvironment.getPrimitive1()) ||
+          requirement.equals(ViewProcessorTestEnvironment.getPrimitive2())) ? MarketDataAvailability.AVAILABLE
           : MarketDataAvailability.NOT_AVAILABLE;
     }
 
@@ -465,7 +468,7 @@ public class ViewComputationJobTest {
     }
 
     @Override
-    public MarketDataProvider resolve(MarketDataSpecification snapshotSpec) {
+    public MarketDataProvider resolve(UserPrincipal user, MarketDataSpecification snapshotSpec) {
       if (_provider1SourceName.equals(((LiveMarketDataSpecification) snapshotSpec).getDataSource())) {
         return _provider1;
       }

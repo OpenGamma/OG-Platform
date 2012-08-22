@@ -113,6 +113,7 @@
 
 		<javac srcdir="${src.dir}" destdir="${classes.dir}"
       classpath="${lib.path.jar.file}" debug="${build.debug}" optimize="${build.optimize}"
+      source="${build.javac.source}" target="${build.javac.target}"
       memoryMaximumSize="512M" fork="true"
       verbose="${build.verbose}" listfiles="${build.listfiles}" />
 		<copy todir="${classes.dir}">
@@ -169,6 +170,7 @@
 	<target name="compile-tests-main" depends="compile-tests-mkdir">
 		<javac srcdir="${tests.src.dir}" destdir="${tests.classes.dir}"
       classpathref="tests.build.classpath.id" debug="${build.debug}"
+      source="${build.javac.source}" target="${build.javac.target}"
       memoryMaximumSize="512M" fork="true"
       optimize="${build.optimize}" verbose="${build.verbose}" listfiles="${build.listfiles}" />
 	</target>
@@ -178,6 +180,7 @@
 	<target name="compile-tests-interop" depends="compile-tests-mkdir" if="tests.interop">
 		<javac srcdir="${tests.dir}/interop" destdir="${tests.classes.dir}"
       classpathref="tests.build.classpath.id" debug="${build.debug}"
+      source="${build.javac.source}" target="${build.javac.target}"
       memoryMaximumSize="512M" fork="true"
       optimize="${build.optimize}" verbose="${build.verbose}" listfiles="${build.listfiles}" />
 	</target>

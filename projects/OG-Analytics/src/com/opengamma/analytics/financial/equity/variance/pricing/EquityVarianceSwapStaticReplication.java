@@ -35,7 +35,7 @@ public class EquityVarianceSwapStaticReplication {
    * @param dividends The dividends structure 
    * @param expiry The expiry of the variance swap 
    * @param volSurface A <b>pure</b> implied volatility surface - 
-   * @return The expected variance with and without adjustments for the dividend payments (the former is usually the case for single stock and the latter for indices)
+   * @return The expected variance (<b>not</b> annualised) with and without adjustments for the dividend payments (the former is usually the case for single stock and the latter for indices)
    */
   public double[] expectedVariance(final double spot, final YieldAndDiscountCurve discountCurve, final AffineDividends dividends, final double expiry,
       final PureImpliedVolatilitySurface volSurface) {
@@ -73,7 +73,7 @@ public class EquityVarianceSwapStaticReplication {
    * @param dividends The dividends structure 
    * @param expiry The expiry of the variance swap 
    * @param volSurfaceStrike A implied volatility surface
-   * @return The expected variance with and without adjustments for the dividend payments (the former is usually the case for single stock and the latter for indices)
+   * @return The expected variance (<b>not</b> annualised) with and without adjustments for the dividend payments (the former is usually the case for single stock and the latter for indices)
    */
   public double[] expectedVariance(final double spot, final YieldAndDiscountCurve discountCurve, final AffineDividends dividends, final double expiry,
       final BlackVolatilitySurfaceStrike volSurfaceStrike) {

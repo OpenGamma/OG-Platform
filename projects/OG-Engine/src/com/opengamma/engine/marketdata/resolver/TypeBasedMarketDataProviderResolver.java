@@ -11,9 +11,10 @@ import java.util.Map;
 import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataProviderFactory;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.livedata.UserPrincipal;
 
 /**
- * Resolves a {@link MarketDataSnapshotSpecification} into a {@link MarketDataProvider} by specification type.
+ * Resolves a {@link MarketDataSpecification} into a {@link MarketDataProvider} by specification type.
  */
 public class TypeBasedMarketDataProviderResolver implements MarketDataProviderResolver {
 
@@ -24,12 +25,12 @@ public class TypeBasedMarketDataProviderResolver implements MarketDataProviderRe
   }
   
   @Override
-  public MarketDataProvider resolve(MarketDataSpecification marketDataSpec) {
+  public MarketDataProvider resolve(UserPrincipal user, MarketDataSpecification marketDataSpec) {
     MarketDataProviderFactory providerFactory = _providerFactoryMap.get(marketDataSpec.getClass());
     if (providerFactory == null) {
       return null;
     }
-    return providerFactory.create(marketDataSpec);
+    return providerFactory.create(user, marketDataSpec);
   }
 
 }

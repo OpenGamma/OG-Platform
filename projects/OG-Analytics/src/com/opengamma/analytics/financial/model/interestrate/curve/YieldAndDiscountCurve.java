@@ -44,16 +44,6 @@ public abstract class YieldAndDiscountCurve implements InterestRateModel<Double>
   }
 
   /**
-   * Returns the interest rate (zero-coupon continuously-compounded) at a given time.
-   * @param time The time 
-   * @return The interest rate for time to maturity <i>t</i>.
-   */
-  @Override
-  public double getInterestRate(final Double time) {
-    return -Math.log(getDiscountFactor(time)) / time;
-  }
-
-  /**
    * Returns the discount factor at a given time.
    * @param t The time 
    * @return The discount factor for time to maturity <i>t</i>.

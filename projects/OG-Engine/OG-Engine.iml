@@ -26,6 +26,8 @@
       <sourceFolder url="file://$MODULE_DIR$/tests/unit" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/build" />
       <excludeFolder url="file://$MODULE_DIR$/build/classes" />
+      <excludeFolder url="file://$MODULE_DIR$/dist" />
+      <excludeFolder url="file://$MODULE_DIR$/lib" />
       <excludeFolder url="file://$MODULE_DIR$/tests/classes" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />

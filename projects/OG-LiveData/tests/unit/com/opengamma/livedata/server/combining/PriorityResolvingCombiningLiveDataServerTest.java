@@ -28,6 +28,7 @@ import com.opengamma.livedata.server.AbstractLiveDataServer;
 import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.livedata.server.MockDistributionSpecificationResolver;
 import com.opengamma.livedata.server.MockLiveDataServer;
+import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
  * Test.
@@ -60,7 +61,7 @@ public class PriorityResolvingCombiningLiveDataServerTest {
     setEntitlementChecker(_serverC);
     _serverC.connect();
     
-    _combiningServer = new PriorityResolvingCombiningLiveDataServer(Lists.newArrayList(_serverB, _serverC));
+    _combiningServer = new PriorityResolvingCombiningLiveDataServer(Lists.newArrayList(_serverB, _serverC), EHCacheUtils.createCacheManager());
     _combiningServer.start();
     
     assertEquals(AbstractLiveDataServer.ConnectionStatus.CONNECTED, _combiningServer.getConnectionStatus());

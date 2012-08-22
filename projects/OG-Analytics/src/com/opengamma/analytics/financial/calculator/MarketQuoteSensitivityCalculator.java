@@ -28,7 +28,7 @@ public final class MarketQuoteSensitivityCalculator {
   /**
    * The matrix algebra used for matrix inversion.
    */
-  private static final MatrixAlgebra MATRIX_ALGEBRA = new ColtMatrixAlgebra(); //TODO make this a parameter
+  private static final MatrixAlgebra MATRIX_ALGEBRA = new ColtMatrixAlgebra(); //TODO make this a parameter  //ColtMatrixAlgebra()
   /**
    * The parameter sensitivity calculator. The parameters are the parameters used to described the curve.
    */

@@ -19,6 +19,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import net.sf.ehcache.CacheManager;
+
 import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,8 +55,7 @@ import com.opengamma.util.PublicAPI;
  */
 @PublicAPI
 public abstract class AbstractLiveDataServer implements Lifecycle {
-  private static final Logger s_logger = LoggerFactory
-      .getLogger(AbstractLiveDataServer.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(AbstractLiveDataServer.class);
   
   private volatile MarketDataSenderFactory _marketDataSenderFactory = new EmptyMarketDataSenderFactory();
   private final Collection<SubscriptionListener> _subscriptionListeners = new CopyOnWriteArrayList<SubscriptionListener>();
@@ -70,24 +71,43 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
 
   private final AtomicLong _numMarketDataUpdatesReceived = new AtomicLong(0);
   private final PerformanceCounter _performanceCounter;
+  
+  private final CacheManager _cacheManager;
 
   private final Lock _subscriptionLock = new ReentrantLock();
 
   private DistributionSpecificationResolver _distributionSpecificationResolver = new NaiveDistributionSpecificationResolver();
   private LiveDataEntitlementChecker _entitlementChecker = new PermissiveLiveDataEntitlementChecker();
+  private LastKnownValueStoreProvider _lkvStoreProvider = new MapLastKnownValueStoreProvider();
   
   private volatile ConnectionStatus _connectionStatus = ConnectionStatus.NOT_CONNECTED;
-
   
+  /**
+   * Constructor.
+   */
   protected AbstractLiveDataServer() {
-    this(true);
+    this(null, true);
+  }
+  
+  /**
+   * Constructor.
+   * 
+   * @param cacheManager  the cache manager
+   */
+  protected AbstractLiveDataServer(CacheManager cacheManager) {
+    this(cacheManager, true);
   }
 
   /**
+   * Constructor.
+   * <p>
    * You may wish to disable performance counting if you expect a high rate of messages, or to process messages on several threads.
-   * @param isPerformanceCountingEnabled Whether to track the message rate here. See getNumLiveDataUpdatesSentPerSecondOverLastMinute
+   * 
+   * @param cacheManager  the cache manager
+   * @param isPerformanceCountingEnabled  whether to track the message rate. See {{@link #getNumLiveDataUpdatesSentPerSecondOverLastMinute()}.
    */
-  protected AbstractLiveDataServer(boolean isPerformanceCountingEnabled) {
+  protected AbstractLiveDataServer(CacheManager cacheManager, boolean isPerformanceCountingEnabled) {
+    _cacheManager = cacheManager;
     _performanceCounter = isPerformanceCountingEnabled ? new PerformanceCounter(60) : null;
   }
   
@@ -114,7 +134,11 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   public void setMarketDataSenderFactory(MarketDataSenderFactory marketDataSenderFactory) {
     _marketDataSenderFactory = marketDataSenderFactory;
   }
-
+  
+  public CacheManager getCacheManager() {
+    return _cacheManager;
+  }
+  
   public void addSubscriptionListener(SubscriptionListener subscriptionListener) {
     ArgumentChecker.notNull(subscriptionListener, "Subscription Listener");
     _subscriptionListeners.add(subscriptionListener);
@@ -146,6 +170,22 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   
   public String getDefaultNormalizationRuleSetId() {
     return StandardRules.getOpenGammaRuleSetId();
+  }
+
+  /**
+   * Gets the lkvStoreProvider.
+   * @return the lkvStoreProvider
+   */
+  public LastKnownValueStoreProvider getLkvStoreProvider() {
+    return _lkvStoreProvider;
+  }
+
+  /**
+   * Sets the lkvStoreProvider.
+   * @param lkvStoreProvider  the lkvStoreProvider
+   */
+  public void setLkvStoreProvider(LastKnownValueStoreProvider lkvStoreProvider) {
+    _lkvStoreProvider = lkvStoreProvider;
   }
 
   /**
@@ -413,7 +453,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
             continue;
           }
           
-          subscription = new Subscription(securityUniqueId, getMarketDataSenderFactory());
+          subscription = new Subscription(securityUniqueId, getMarketDataSenderFactory(), getLkvStoreProvider());
           subscription.createDistributor(distributionSpec, persistent);
           securityUniqueId2NewSubscription.put(subscription.getSecurityUniqueId(), subscription);
           securityUniqueId2SpecFromClient.put(subscription.getSecurityUniqueId(), specFromClient);

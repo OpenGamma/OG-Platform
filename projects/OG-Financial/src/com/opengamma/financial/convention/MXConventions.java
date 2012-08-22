@@ -28,46 +28,46 @@ public class MXConventions {
   public static synchronized void addFixedIncomeInstrumentConventions(final InMemoryConventionBundleMaster conventionMaster) {
     Validate.notNull(conventionMaster, "convention master");
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-    final DayCount act252 = DayCountFactory.INSTANCE.getDayCount("Actual/252");
-    final ExternalId br = ExternalSchemes.financialRegionId("BR");
+    final DayCount dc = DayCountFactory.INSTANCE.getDayCount("28/360");
+    final ExternalId mx = ExternalSchemes.financialRegionId("MX");
 
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BCDR1T Curncy"), simpleNameSecurityId("BRL DEPOSIT 1d")), "BRL DEPOSIT 1d", act252,
-        following, Period.ofDays(1), 0, false, br);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BCDR2T Curncy"), simpleNameSecurityId("BRL DEPOSIT 2d")), "BRL DEPOSIT 2d", act252,
-        following, Period.ofDays(1), 0, false, br);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BCDR3T Curncy"), simpleNameSecurityId("BRL DEPOSIT 3d")), "BRL DEPOSIT 3d", act252,
-        following, Period.ofDays(1), 2, false, br);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BCDR1Z Curncy"), simpleNameSecurityId("BRL DEPOSIT 1w")), "BRL DEPOSIT 1w", act252,
-        following, Period.ofDays(7), 2, false, br);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BCDR2Z Curncy"), simpleNameSecurityId("BRL DEPOSIT 2w")), "BRL DEPOSIT 2w", act252,
-        following, Period.ofDays(14), 2, false, br);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BCDR3Z Curncy"), simpleNameSecurityId("BRL DEPOSIT 3w")), "BRL DEPOSIT 3w", act252,
-        following, Period.ofDays(21), 2, false, br);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BCDRA Curncy"), simpleNameSecurityId("BRL DEPOSIT 1m")), "BRL DEPOSIT 1m", act252,
-        following, Period.ofMonths(1), 2, false, br);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BCDRB Curncy"), simpleNameSecurityId("BRL DEPOSIT 2m")), "BRL DEPOSIT 2m", act252,
-        following, Period.ofMonths(2), 2, false, br);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BCDRC Curncy"), simpleNameSecurityId("BRL DEPOSIT 3m")), "BRL DEPOSIT 3m", act252,
-        following, Period.ofMonths(3), 2, false, br);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BCDRD Curncy"), simpleNameSecurityId("BRL DEPOSIT 4m")), "BRL DEPOSIT 4m", act252,
-        following, Period.ofMonths(4), 2, false, br);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BCDRE Curncy"), simpleNameSecurityId("BRL DEPOSIT 5m")), "BRL DEPOSIT 5m", act252,
-        following, Period.ofMonths(5), 2, false, br);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BCDRF Curncy"), simpleNameSecurityId("BRL DEPOSIT 6m")), "BRL DEPOSIT 6m", act252,
-        following, Period.ofMonths(6), 2, false, br);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BCDRG Curncy"), simpleNameSecurityId("BRL DEPOSIT 7m")), "BRL DEPOSIT 7m", act252,
-        following, Period.ofMonths(7), 2, false, br);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BCDRH Curncy"), simpleNameSecurityId("BRL DEPOSIT 8m")), "BRL DEPOSIT 8m", act252,
-        following, Period.ofMonths(8), 2, false, br);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BCDRI Curncy"), simpleNameSecurityId("BRL DEPOSIT 9m")), "BRL DEPOSIT 9m", act252,
-        following, Period.ofMonths(9), 2, false, br);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BCDRJ Curncy"), simpleNameSecurityId("BRL DEPOSIT 10m")), "BRL DEPOSIT 10m", act252,
-        following, Period.ofMonths(10), 2, false, br);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BCDRK Curncy"), simpleNameSecurityId("BRL DEPOSIT 11m")), "BRL DEPOSIT 11m", act252,
-        following, Period.ofMonths(11), 2, false, br);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BCDR1 Curncy"), simpleNameSecurityId("BRL DEPOSIT 12m")), "BRL DEPOSIT 12m", act252,
-        following, Period.ofMonths(12), 2, false, br);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("MPDR1T Curncy"), simpleNameSecurityId("MXN DEPOSIT 1d")), "MXN DEPOSIT 1d", dc,
+        following, Period.ofDays(1), 0, false, mx);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("MPDR2T Curncy"), simpleNameSecurityId("MXN DEPOSIT 2d")), "MXN DEPOSIT 2d", dc,
+        following, Period.ofDays(1), 0, false, mx);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("MPDR3T Curncy"), simpleNameSecurityId("MXN DEPOSIT 3d")), "MXN DEPOSIT 3d", dc,
+        following, Period.ofDays(1), 2, false, mx);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("MPDR1Z Curncy"), simpleNameSecurityId("MXN DEPOSIT 1w")), "MXN DEPOSIT 1w", dc,
+        following, Period.ofDays(7), 2, false, mx);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("MPDR2Z Curncy"), simpleNameSecurityId("MXN DEPOSIT 2w")), "MXN DEPOSIT 2w", dc,
+        following, Period.ofDays(14), 2, false, mx);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("MPDR3Z Curncy"), simpleNameSecurityId("MXN DEPOSIT 3w")), "MXN DEPOSIT 3w", dc,
+        following, Period.ofDays(21), 2, false, mx);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("MPDRA Curncy"), simpleNameSecurityId("MXN DEPOSIT 1m")), "MXN DEPOSIT 1m", dc,
+        following, Period.ofMonths(1), 2, false, mx);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("MPDRB Curncy"), simpleNameSecurityId("MXN DEPOSIT 2m")), "MXN DEPOSIT 2m", dc,
+        following, Period.ofMonths(2), 2, false, mx);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("MPDRC Curncy"), simpleNameSecurityId("MXN DEPOSIT 3m")), "MXN DEPOSIT 3m", dc,
+        following, Period.ofMonths(3), 2, false, mx);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("MPDRD Curncy"), simpleNameSecurityId("MXN DEPOSIT 4m")), "MXN DEPOSIT 4m", dc,
+        following, Period.ofMonths(4), 2, false, mx);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("MPDRE Curncy"), simpleNameSecurityId("MXN DEPOSIT 5m")), "MXN DEPOSIT 5m", dc,
+        following, Period.ofMonths(5), 2, false, mx);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("MPDRF Curncy"), simpleNameSecurityId("MXN DEPOSIT 6m")), "MXN DEPOSIT 6m", dc,
+        following, Period.ofMonths(6), 2, false, mx);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("MPDRG Curncy"), simpleNameSecurityId("MXN DEPOSIT 7m")), "MXN DEPOSIT 7m", dc,
+        following, Period.ofMonths(7), 2, false, mx);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("MPDRH Curncy"), simpleNameSecurityId("MXN DEPOSIT 8m")), "MXN DEPOSIT 8m", dc,
+        following, Period.ofMonths(8), 2, false, mx);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("MPDRI Curncy"), simpleNameSecurityId("MXN DEPOSIT 9m")), "MXN DEPOSIT 9m", dc,
+        following, Period.ofMonths(9), 2, false, mx);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("MPDRJ Curncy"), simpleNameSecurityId("MXN DEPOSIT 10m")), "MXN DEPOSIT 10m", dc,
+        following, Period.ofMonths(10), 2, false, mx);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("MPDRK Curncy"), simpleNameSecurityId("MXN DEPOSIT 11m")), "MXN DEPOSIT 11m", dc,
+        following, Period.ofMonths(11), 2, false, mx);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("MPDR1 Curncy"), simpleNameSecurityId("MXN DEPOSIT 12m")), "MXN DEPOSIT 12m", dc,
+        following, Period.ofMonths(12), 2, false, mx);
   }
 
 }

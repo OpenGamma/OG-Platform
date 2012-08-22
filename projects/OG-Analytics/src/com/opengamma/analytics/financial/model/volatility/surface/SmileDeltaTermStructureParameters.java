@@ -14,6 +14,8 @@ import com.opengamma.analytics.financial.model.option.definition.SmileDeltaParam
 import com.opengamma.analytics.financial.model.volatility.SmileAndBucketedSensitivities;
 import com.opengamma.analytics.financial.model.volatility.VolatilityAndBucketedSensitivities;
 import com.opengamma.analytics.financial.model.volatility.VolatilityAndBucketedSensitivitiesModel;
+import com.opengamma.analytics.financial.model.volatility.curve.BlackForexTermStructureParameters;
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
@@ -271,6 +273,19 @@ public class SmileDeltaTermStructureParameters implements VolatilityAndBucketedS
   @Override
   public VolatilityAndBucketedSensitivities getVolatilityAndSensitivities(final Triple<Double, Double, Double> tsf) {
     throw new NotImplementedException();
+  }
+
+  public BlackForexTermStructureParameters toTermStructureOnlyData(final Interpolator1D interpolator) {
+    ArgumentChecker.notNull(interpolator, "interpolator");
+    final int n = _timeToExpiration.length;
+    final double[] timesToExpiry = new double[n];
+    System.arraycopy(_timeToExpiration, 0, timesToExpiry, 0, n);
+    final double[] vols = new double[n];
+    final int atmIndex = (_volatilityTerm[0].getVolatility().length - 1) / 2;
+    for (int i = 0; i < n; i++) {
+      vols[i] = _volatilityTerm[i].getVolatility()[atmIndex];
+    }
+    return new BlackForexTermStructureParameters(InterpolatedDoublesCurve.fromSorted(timesToExpiry, vols, interpolator));
   }
 
   @Override

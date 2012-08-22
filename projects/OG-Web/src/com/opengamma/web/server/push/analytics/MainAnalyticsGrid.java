@@ -71,7 +71,7 @@ import com.opengamma.util.tuple.Pair;
 
   // -------- dependency graph grids --------
 
-  /* package */ DependencyGraphGrid getDependencyGraph(String graphId) {
+  private DependencyGraphGrid getDependencyGraph(String graphId) {
     DependencyGraphGrid grid = _depGraphs.get(graphId);
     if (grid == null) {
       throw new DataNotFoundException("No dependency graph found with ID " + graphId + " for " + _gridType + " grid");
@@ -146,6 +146,14 @@ import com.opengamma.util.tuple.Pair;
 
   /* package */ ViewportResults getData(String graphId, String viewportId) {
     return getDependencyGraph(graphId).getData(viewportId);
+  }
+
+  /* package */ DependencyGraphViewport getViewport(String graphId, String viewportId) {
+    return getDependencyGraph(graphId).getViewport(viewportId);
+  }
+
+  /* package */ String getGridId(String graphId) {
+    return getDependencyGraph(graphId).getGridId();
   }
 
   /* package */ List<String> getDependencyGraphGridIds() {

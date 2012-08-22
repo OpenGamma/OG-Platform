@@ -56,6 +56,7 @@ import com.opengamma.web.server.push.analytics.formatting.ResultsFormatter;
 import com.opengamma.web.server.push.rest.AggregatorNamesResource;
 import com.opengamma.web.server.push.rest.MarketDataSnapshotListResource;
 import com.opengamma.web.server.push.rest.MasterType;
+import com.opengamma.web.server.push.rest.ViewDefinitionEntriesResource;
 import com.opengamma.web.server.push.rest.ViewsResource;
 import com.opengamma.web.server.push.rest.json.AnalyticsColumnGroupsMessageBodyWriter;
 import com.opengamma.web.server.push.rest.json.DependencyGraphGridStructureMessageBodyWriter;
@@ -190,6 +191,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     repo.getRestComponents().publishHelper(new DependencyGraphGridStructureMessageBodyWriter(columnWriter));
     repo.getRestComponents().publishHelper(new AnalyticsColumnGroupsMessageBodyWriter(columnWriter));
     repo.getRestComponents().publishHelper(new ViewportResultsMessageBodyWriter(resultsFormatter));
+    repo.getRestComponents().publishHelper(new ViewDefinitionEntriesResource(getViewDefinitionRepository()));
 
     // these items need to be available to the servlet, but aren't important enough to be published components
     repo.registerServletContextAware(new ServletContextAware() {

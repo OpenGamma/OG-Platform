@@ -83,7 +83,7 @@ public class InterestRateFutureLoader extends SecurityLoader {
     BBGCODE_UNDERLYING.put("EF", "JY0003M Index");
     BBGCODE_UNDERLYING.put("IR", "BBSW3M Index");
     BBGCODE_UNDERLYING.put("BA", "CDOR03 Index");
-    // TODO: Add EY - 3M Tibor
+    BBGCODE_UNDERLYING.put("EY", "TI0003M Index");
   }
   
   /**

@@ -29,7 +29,7 @@ import com.opengamma.web.server.push.analytics.AnalyticsViewManager;
 import com.opengamma.web.server.push.analytics.ViewRequest;
 
 /**
- *
+ * RESTful resource
  */
 @Path("views")
 public class ViewsResource {
@@ -88,6 +88,8 @@ public class ViewsResource {
     UserPrincipal user = UserPrincipal.getTestUser();
     String userName = null;
     //String userName = user.getUserName();
+    // TODO get this as a ClientConnection and add a shutdown listener (which doesn't exist ATM)
+    // TODO or should the listener go on the connection manager? that's what's notified of the timeout
     AnalyticsViewListener listener = _connectionManager.getConnectionByClientId(userName, clientId);
     _viewManager.createView(viewRequest,
                             user,

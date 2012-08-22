@@ -14,6 +14,8 @@ import java.util.concurrent.ConcurrentMap;
 
 import javax.time.calendar.ZonedDateTime;
 
+import net.sf.ehcache.CacheManager;
+
 import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.bbg.ReferenceDataProvider;
@@ -47,9 +49,10 @@ public class RecordedBloombergLiveDataServer extends AbstractBloombergLiveDataSe
    * @param dataStart  the tick start time
    * @param dataEnd  the tick end time
    * @param referenceDataProvider  a source of reference data
+   * @param cacheManager  the cache manager, not null
    */
-  public RecordedBloombergLiveDataServer(String rootTickPath, String dataStart, String dataEnd, ReferenceDataProvider referenceDataProvider) {
-    this(rootTickPath, ZonedDateTime.parse(dataStart), ZonedDateTime.parse(dataEnd), referenceDataProvider);
+  public RecordedBloombergLiveDataServer(String rootTickPath, String dataStart, String dataEnd, ReferenceDataProvider referenceDataProvider, CacheManager cacheManager) {
+    this(rootTickPath, ZonedDateTime.parse(dataStart), ZonedDateTime.parse(dataEnd), referenceDataProvider, cacheManager);
   }
   
   /**
@@ -59,8 +62,10 @@ public class RecordedBloombergLiveDataServer extends AbstractBloombergLiveDataSe
    * @param dataStart  the tick start time
    * @param dataEnd  the tick end time
    * @param referenceDataProvider  a source of reference data
+   * @param cacheManager  the cache manager, not null
    */
-  public RecordedBloombergLiveDataServer(String rootTickPath, ZonedDateTime dataStart, ZonedDateTime dataEnd, ReferenceDataProvider referenceDataProvider) {
+  public RecordedBloombergLiveDataServer(String rootTickPath, ZonedDateTime dataStart, ZonedDateTime dataEnd, ReferenceDataProvider referenceDataProvider, CacheManager cacheManager) {
+    super(cacheManager);
     BloombergTickReceiver tickReceiver = new BloombergTickReceiver() {
       @Override
       public void tickReceived(BloombergTick msg) {

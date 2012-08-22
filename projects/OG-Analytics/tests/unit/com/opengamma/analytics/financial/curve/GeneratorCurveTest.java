@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.curve;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 import org.testng.annotations.Test;
 
@@ -32,12 +33,14 @@ public class GeneratorCurveTest {
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   private static final double[] NODES = new double[] {0.01, 0.50, 1.00, 2.00, 5.05, 10.0};
   private static final double[] YIELD = new double[] {0.02, 0.02, 0.03, 0.01, 0.02, 0.01};
-  private static final GeneratorCurveYieldInterpolatedNode GENERATOR_YIELD_INTERPOLATED = new GeneratorCurveYieldInterpolatedNode(NODES, LINEAR_FLAT);
+  private static final double ANCHOR = 1.5;
+  private static final GeneratorCurveYieldInterpolatedNode GENERATOR_YIELD_INTERPOLATED_NODE = new GeneratorCurveYieldInterpolatedNode(NODES, LINEAR_FLAT);
+  private static final GeneratorCurveYieldInterpolatedAnchorNode GENERATOR_YIELD_INTERPOLATED_ANCHOR_NODE = new GeneratorCurveYieldInterpolatedAnchorNode(NODES, ANCHOR, LINEAR_FLAT);
 
   private static final double CST = 0.0050;
   private static final GeneratorCurveYieldConstant GENERATOR_YIELD_CONSTANT = new GeneratorCurveYieldConstant();
 
-  private static final GeneratorCurveAddYield GENERATOR_SPREAD = new GeneratorCurveAddYield(new GeneratorCurve[] {GENERATOR_YIELD_INTERPOLATED, GENERATOR_YIELD_CONSTANT}, false);
+  private static final GeneratorCurveAddYield GENERATOR_SPREAD = new GeneratorCurveAddYield(new GeneratorCurve[] {GENERATOR_YIELD_INTERPOLATED_NODE, GENERATOR_YIELD_CONSTANT}, false);
 
   private static final GeneratorCurveAddYieldExisiting GENERATOR_EXISTING = new GeneratorCurveAddYieldExisiting(GENERATOR_YIELD_CONSTANT, true, CURVE_NAME_1);
 
@@ -59,6 +62,11 @@ public class GeneratorCurveTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
+  public void nullYieldInterpolatorZero() {
+    new GeneratorCurveYieldInterpolatedAnchorNode(NODES, ANCHOR, null);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullSpreadGen() {
     new GeneratorCurveAddYield(null, false);
   }
@@ -75,14 +83,36 @@ public class GeneratorCurveTest {
 
   @Test
   public void getterYieldInterpolated() {
-    assertEquals(NODES.length, GENERATOR_YIELD_INTERPOLATED.getNumberOfParameter());
+    assertEquals(NODES.length, GENERATOR_YIELD_INTERPOLATED_NODE.getNumberOfParameter());
+  }
+
+  @Test
+  public void getterYieldInterpolatedZero() {
+    assertEquals(NODES.length, GENERATOR_YIELD_INTERPOLATED_ANCHOR_NODE.getNumberOfParameter());
   }
 
   @Test
   public void generateCurveYieldInterpolated() {
-    YieldAndDiscountCurve curveGenerated = GENERATOR_YIELD_INTERPOLATED.generateCurve(CURVE_NAME_1, YIELD);
+    YieldAndDiscountCurve curveGenerated = GENERATOR_YIELD_INTERPOLATED_NODE.generateCurve(CURVE_NAME_1, YIELD);
     YieldAndDiscountCurve curveExpected = new YieldCurve(CURVE_NAME_1, new InterpolatedDoublesCurve(NODES, YIELD, LINEAR_FLAT, true, CURVE_NAME_1));
     assertEquals("GeneratorCurveYieldInterpolated: generate curve", curveExpected, curveGenerated);
+  }
+
+  @Test
+  public void generateCurveYieldInterpolatedAnchor() {
+    YieldAndDiscountCurve curveGenerated = GENERATOR_YIELD_INTERPOLATED_ANCHOR_NODE.generateCurve(CURVE_NAME_1, YIELD);
+    double[] nodex = new double[NODES.length + 1];
+    System.arraycopy(NODES, 0, nodex, 0, 3);
+    nodex[3] = ANCHOR;
+    System.arraycopy(NODES, 3, nodex, 4, 3);
+    double[] yieldx = new double[NODES.length + 1];
+    System.arraycopy(YIELD, 0, yieldx, 0, 3);
+    yieldx[3] = 0.0;
+    System.arraycopy(YIELD, 3, yieldx, 4, 3);
+    YieldAndDiscountCurve curveExpected = new YieldCurve(CURVE_NAME_1, new InterpolatedDoublesCurve(nodex, yieldx, LINEAR_FLAT, true, CURVE_NAME_1));
+    assertEquals("GeneratorCurveYieldInterpolated: generate curve", curveExpected.getNumberOfParameters() - 1, curveGenerated.getNumberOfParameters());
+    assertArrayEquals("GeneratorCurveYieldInterpolated: generate curve", ((YieldCurve) curveExpected).getCurve().getXData(), ((YieldCurve) curveGenerated).getCurve().getXData());
+    assertArrayEquals("GeneratorCurveYieldInterpolated: generate curve", ((YieldCurve) curveExpected).getCurve().getYData(), ((YieldCurve) curveGenerated).getCurve().getYData());
   }
 
   @Test
@@ -109,7 +139,7 @@ public class GeneratorCurveTest {
    * The the curve generator with yield spread with two levels of spread.
    */
   public void generateCurveYieldSpread2() {
-    GeneratorCurveAddYield generatorSpread1 = new GeneratorCurveAddYield(new GeneratorCurve[] {GENERATOR_YIELD_INTERPOLATED, GENERATOR_YIELD_CONSTANT}, false);
+    GeneratorCurveAddYield generatorSpread1 = new GeneratorCurveAddYield(new GeneratorCurve[] {GENERATOR_YIELD_INTERPOLATED_NODE, GENERATOR_YIELD_CONSTANT}, false);
     GeneratorCurveAddYield generatorSpread2 = new GeneratorCurveAddYield(new GeneratorCurve[] {generatorSpread1, GENERATOR_YIELD_CONSTANT}, false);
     double[] x = new double[YIELD.length + 2];
     System.arraycopy(YIELD, 0, x, 0, YIELD.length);
@@ -129,7 +159,7 @@ public class GeneratorCurveTest {
     double[] x = new double[2 * YIELD.length];
     System.arraycopy(YIELD, 0, x, 0, YIELD.length);
     System.arraycopy(YIELD, 0, x, YIELD.length, YIELD.length);
-    GeneratorCurveAddYield generatorIntMinusInt = new GeneratorCurveAddYield(new GeneratorCurve[] {GENERATOR_YIELD_INTERPOLATED, GENERATOR_YIELD_INTERPOLATED}, true);
+    GeneratorCurveAddYield generatorIntMinusInt = new GeneratorCurveAddYield(new GeneratorCurve[] {GENERATOR_YIELD_INTERPOLATED_NODE, GENERATOR_YIELD_INTERPOLATED_NODE}, true);
     YieldAndDiscountCurve curveGenerated = generatorIntMinusInt.generateCurve(CURVE_NAME_1, x);
     YieldAndDiscountCurve curveExpected0 = new YieldCurve(CURVE_NAME_1 + "-0", new InterpolatedDoublesCurve(NODES, YIELD, LINEAR_FLAT, true, CURVE_NAME_1 + "-0"));
     YieldAndDiscountCurve curveExpected1 = new YieldCurve(CURVE_NAME_1 + "-1", new InterpolatedDoublesCurve(NODES, YIELD, LINEAR_FLAT, true, CURVE_NAME_1 + "-1"));

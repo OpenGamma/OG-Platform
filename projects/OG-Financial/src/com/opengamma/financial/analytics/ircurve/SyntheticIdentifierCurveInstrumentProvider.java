@@ -34,6 +34,7 @@ public class SyntheticIdentifierCurveInstrumentProvider implements CurveInstrume
     switch (type) {
       case SWAP_3M:
       case SWAP_6M:
+      case SWAP_12M:
         _idType = StripInstrumentType.SWAP;
         break;
       case FRA_3M:

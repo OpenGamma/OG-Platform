@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import net.sf.ehcache.CacheManager;
+
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.resolver.AbstractResolver;
 import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
@@ -21,7 +23,6 @@ import com.opengamma.livedata.server.AbstractLiveDataServer;
 import com.opengamma.livedata.server.CombiningLiveDataServer;
 import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
  * Combines live data servers by choosing the first server which can resolve the ID
@@ -31,11 +32,15 @@ public class PriorityResolvingCombiningLiveDataServer extends CombiningLiveDataS
   private final List<? extends AbstractLiveDataServer> _servers;
 
   /**
+   * Constructs an instance.
+   * 
    * @param servers Servers in preference order (Best first)
+   * @param cacheManager  the cache manager, not null
    */
-  public PriorityResolvingCombiningLiveDataServer(List<? extends AbstractLiveDataServer> servers) {
-    super(servers);
+  public PriorityResolvingCombiningLiveDataServer(List<? extends AbstractLiveDataServer> servers, CacheManager cacheManager) {
+    super(servers, cacheManager);
     ArgumentChecker.notEmpty(servers, "servers");
+    ArgumentChecker.notNull(cacheManager, "cacheManager");
     _servers = servers;
   }
 
@@ -112,9 +117,8 @@ public class PriorityResolvingCombiningLiveDataServer extends CombiningLiveDataS
   }
   
   public DistributionSpecificationResolver getDefaultDistributionSpecificationResolver() {
-    
     DistributionSpecificationResolver distributionSpecResolver = new DelegatingDistributionSpecificationResolver();
     //TODO should I cache here
-    return new EHCachingDistributionSpecificationResolver(distributionSpecResolver, EHCacheUtils.createCacheManager(), "COMBINING");
+    return new EHCachingDistributionSpecificationResolver(distributionSpecResolver, getCacheManager(), "COMBINING");
   }
 }

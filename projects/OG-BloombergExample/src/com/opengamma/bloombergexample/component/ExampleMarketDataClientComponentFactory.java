@@ -25,17 +25,14 @@ import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.marketdata.InMemoryNamedMarketDataSpecificationRepository;
-import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataProviderFactory;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
-import com.opengamma.engine.marketdata.PermissiveMarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
-import com.opengamma.engine.marketdata.live.LiveMarketDataProvider;
+import com.opengamma.engine.marketdata.live.LiveDataFactory;
 import com.opengamma.engine.marketdata.live.LiveMarketDataProviderFactory;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.client.RemoteLiveDataClientFactoryBean;
-import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.jms.JmsConnector;
 
 /**
@@ -86,11 +83,9 @@ public class ExampleMarketDataClientComponentFactory extends AbstractComponentFa
   private MarketDataProviderFactory initLiveMarketDataProviderFactory(ComponentRepository repo) {
     LiveDataClient bbgLiveDataClient = createLiveDataClient(getBbgSubscriptionTopic(), getBbgEntitlementTopic(), getBbgHeartbeatTopic());
     MarketDataAvailabilityProvider bbgAvailabilityProvider = BloombergDataUtils.createAvailabilityProvider(getSecuritySource());
-    MarketDataProvider bbgProvider = new LiveMarketDataProvider(bbgLiveDataClient, getSecuritySource(), bbgAvailabilityProvider, OpenGammaFudgeContext.getInstance(), 
-        new PermissiveMarketDataPermissionProvider());
-    
-    Map<String, MarketDataProvider> sourceToProviderMap = ImmutableMap.of(BLOOMBERG_LIVE_SOURCE_NAME, bbgProvider);
-    LiveMarketDataProviderFactory liveMarketDataProviderFactory = new LiveMarketDataProviderFactory(bbgProvider, sourceToProviderMap);
+    LiveDataFactory factory = new LiveDataFactory(bbgLiveDataClient, bbgAvailabilityProvider, getSecuritySource());
+    Map<String, LiveDataFactory> factories = ImmutableMap.of(BLOOMBERG_LIVE_SOURCE_NAME, factory);
+    LiveMarketDataProviderFactory liveMarketDataProviderFactory = new LiveMarketDataProviderFactory(factory, factories);
     ComponentInfo info = new ComponentInfo(MarketDataProviderFactory.class, getClassifier());
     repo.registerComponent(info, liveMarketDataProviderFactory);
     return liveMarketDataProviderFactory;

@@ -45,7 +45,7 @@ public class InterestRateFutureOptionBlackYieldCurveNodePnLDefaults extends Defa
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(currencyCurveConfigAndSurfaceNames, "currency, curve config and surface names");
     final int nPairs = currencyCurveConfigAndSurfaceNames.length;
-    ArgumentChecker.isTrue(nPairs % 3 == 0, "Must have one curve config name per currency");
+    ArgumentChecker.isTrue(nPairs % 3 == 0, "Must have one curve config name and surface name per currency");
     _samplingPeriod = samplingPeriod;
     _scheduleCalculator = scheduleCalculator;
     _samplingFunction = samplingFunction;

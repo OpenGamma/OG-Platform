@@ -26,6 +26,9 @@
         </bean>
       </list>
     </property>
+    <property name="errorHandler">
+      <bean class="com.opengamma.component.rest.PlainTextErrorHandler" />
+    </property>
   </bean>
   
   <bean id="server" class="org.eclipse.jetty.server.Server">

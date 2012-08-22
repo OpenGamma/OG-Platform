@@ -55,7 +55,8 @@ public abstract class AbstractParameterSensitivityCalculator {
     Validate.notNull(instrument, "null InterestRateDerivative");
     Validate.notNull(fixedCurves, "null set of fixed curves.");
     Validate.notNull(bundle, "null bundle");
-    final InterestRateCurveSensitivity sensitivity = _curveSensitivityCalculator.visit(instrument, bundle);
+    InterestRateCurveSensitivity sensitivity = _curveSensitivityCalculator.visit(instrument, bundle);
+    sensitivity = sensitivity.cleaned(); // TODO: for testing purposes only. Should be removed after the tests.
     return pointToParameterSensitivity(sensitivity, fixedCurves, bundle);
   }
 

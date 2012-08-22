@@ -69,7 +69,7 @@ public class ExampleViewsPopulator extends AbstractExampleTool {
   }
 
   private ViewDefinition getEquityOptionViewDefinition(String portfolioName) {
-    UniqueId portfolioId = getPortfolioId(portfolioName);
+    UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
     ViewDefinition equityViewDefinition = new ViewDefinition(portfolioName + " View", portfolioId, UserPrincipal.getTestUser());
     equityViewDefinition.setDefaultCurrency(Currency.USD);
     equityViewDefinition.setMaxFullCalculationPeriod(30000L);
@@ -84,7 +84,7 @@ public class ExampleViewsPopulator extends AbstractExampleTool {
   }
 
   private ViewDefinition getEquityViewDefinition(String portfolioName) {
-    UniqueId portfolioId = getPortfolioId(portfolioName);
+    UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
     ViewDefinition equityViewDefinition = new ViewDefinition(portfolioName + " View", portfolioId, UserPrincipal.getTestUser());
     equityViewDefinition.setDefaultCurrency(Currency.USD);
     equityViewDefinition.setMaxFullCalculationPeriod(30000L);
@@ -107,7 +107,7 @@ public class ExampleViewsPopulator extends AbstractExampleTool {
   }
 
   private ViewDefinition getMultiCurrencySwapViewDefinition(final String portfolioName) {
-    UniqueId portfolioId = getPortfolioId(portfolioName);
+    UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
     ViewDefinition viewDefinition = new ViewDefinition(portfolioName + " View", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.USD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);
@@ -144,7 +144,7 @@ public class ExampleViewsPopulator extends AbstractExampleTool {
   }
 
   private ViewDefinition getFXViewDefinition(String portfolioName) {
-    UniqueId portfolioId = getPortfolioId(portfolioName);
+    UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
     ViewDefinition viewDefinition = new ViewDefinition(portfolioName + " View", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.USD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);

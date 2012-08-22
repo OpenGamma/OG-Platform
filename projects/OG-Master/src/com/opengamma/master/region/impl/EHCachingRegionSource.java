@@ -119,8 +119,8 @@ public class EHCachingRegionSource implements RegionSource {
       Element element = _cache.get(uniqueId); 
       if (element != null) {
         s_logger.debug("Cache hit on {}", uniqueId);
-        if (element.getValue() instanceof Region) {
-          result = (Region) element.getValue();
+        if (element.getObjectValue() instanceof Region) {
+          result = (Region) element.getObjectValue();
         }
       } else {
         s_logger.debug("Cache miss on {}", uniqueId);
@@ -142,7 +142,7 @@ public class EHCachingRegionSource implements RegionSource {
     Element element = _cache.get(request);
     if (element != null) {
       s_logger.debug("Cache hit on {}", request);
-      result = (Region) element.getValue();
+      result = (Region) element.getObjectValue();
     } else {
       s_logger.debug("Cache miss on {}", request);
       result = _underlying.getRegion(objectId, versionCorrection);
@@ -165,7 +165,7 @@ public class EHCachingRegionSource implements RegionSource {
     Collection<? extends Region> result = null;
     if (element != null) {
       s_logger.debug("Cache hit on {}", request);
-      result = (Collection<? extends Region>) element.getValue();
+      result = (Collection<? extends Region>) element.getObjectValue();
     } else {
       s_logger.debug("Cache miss on {}", request);
       result = _underlying.getRegions(bundle, versionCorrection);
@@ -195,7 +195,7 @@ public class EHCachingRegionSource implements RegionSource {
     Element element = _cache.get(bundle);
     if (element != null) {
       s_logger.debug("Cache hit on {}", bundle);
-      result = (Region) element.getValue();
+      result = (Region) element.getObjectValue();
     } else {
       s_logger.debug("Cache miss on {}", bundle);
       result = _underlying.getHighestLevelRegion(bundle);

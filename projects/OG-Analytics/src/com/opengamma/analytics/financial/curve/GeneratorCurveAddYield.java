@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.curve;
 
 import java.util.Arrays;
 
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountAddZeroSpreadCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -31,10 +32,6 @@ public class GeneratorCurveAddYield extends GeneratorCurve {
    * The number of generators.
    */
   private final int _nbGenerators;
-  /**
-   * The total number of parameters for the generated spread curve.
-   */
-  private final int _nbParameters;
 
   /**
    * Constructor.
@@ -46,21 +43,20 @@ public class GeneratorCurveAddYield extends GeneratorCurve {
     _generators = generators;
     _nbGenerators = generators.length;
     _substract = substract;
-    int nbParam = 0;
-    for (int loopgen = 0; loopgen < _nbGenerators; loopgen++) {
-      nbParam += _generators[loopgen].getNumberOfParameter();
-    }
-    _nbParameters = nbParam;
   }
 
   @Override
   public int getNumberOfParameter() {
-    return _nbParameters;
+    int nbParam = 0;
+    for (int loopgen = 0; loopgen < _nbGenerators; loopgen++) {
+      nbParam += _generators[loopgen].getNumberOfParameter();
+    }
+    return nbParam;
   }
 
   @Override
   public YieldAndDiscountCurve generateCurve(String name, double[] x) {
-    ArgumentChecker.isTrue(x.length == _nbParameters, "Incorrect number of parameters");
+    ArgumentChecker.isTrue(x.length == getNumberOfParameter(), "Incorrect number of parameters");
     YieldAndDiscountCurve[] underlyingCurves = new YieldAndDiscountCurve[_nbGenerators];
     int index = 0;
     for (int loopgen = 0; loopgen < _nbGenerators; loopgen++) {
@@ -74,6 +70,47 @@ public class GeneratorCurveAddYield extends GeneratorCurve {
   @Override
   public YieldAndDiscountCurve generateCurve(String name, YieldCurveBundle bundle, double[] parameters) {
     return generateCurve(name, parameters);
+  }
+
+  /**
+   * All generator but the last should be already in their final form and with a known number of parameters.
+   * The number of data corresponding to each known generator is eliminated and only the last part is used to create the final generator version.
+   * If several generators had a unknown number of parameters, it would be unclear which instrument correspond to which generator.
+   * @param data The array of instrument used to construct the curve.
+   * @return The final generator.
+   */
+  @Override
+  public GeneratorCurve finalGenerator(Object data) {
+    ArgumentChecker.isTrue(data instanceof InstrumentDerivative[], "data should be an array of InstrumentDerivative");
+    InstrumentDerivative[] instruments = (InstrumentDerivative[]) data;
+    GeneratorCurve[] finalGenerator = new GeneratorCurve[_nbGenerators];
+    int nbDataUsed = 0;
+    int nbParam = 0;
+    for (int loopgen = 0; loopgen < _nbGenerators - 1; loopgen++) {
+      finalGenerator[loopgen] = _generators[loopgen];
+      nbParam = _generators[loopgen].getNumberOfParameter();
+      nbDataUsed += nbParam;
+    }
+    InstrumentDerivative[] instrumentsLast = new InstrumentDerivative[instruments.length - nbDataUsed + 1];
+    instrumentsLast[0] = instruments[nbDataUsed - (nbParam + 1) / 2]; // For the anchor.
+    System.arraycopy(instruments, nbDataUsed, instrumentsLast, 1, instruments.length - nbDataUsed);
+    finalGenerator[_nbGenerators - 1] = _generators[_nbGenerators - 1].finalGenerator(instrumentsLast);
+    return new GeneratorCurveAddYield(finalGenerator, _substract);
+  }
+
+  @Override
+  public double[] initialGuess(double[] rates) {
+    double[] guess = new double[rates.length];
+    int nbDataUsed = 0;
+    int nbParam = 0;
+    for (int loopgen = 0; loopgen < _nbGenerators; loopgen++) {
+      nbParam = _generators[loopgen].getNumberOfParameter();
+      double[] tmp = new double[nbParam];
+      System.arraycopy(rates, nbDataUsed, tmp, 0, nbParam);
+      System.arraycopy(_generators[loopgen].initialGuess(tmp), 0, guess, nbDataUsed, nbParam);
+      nbDataUsed += nbParam;
+    }
+    return guess;
   }
 
 }

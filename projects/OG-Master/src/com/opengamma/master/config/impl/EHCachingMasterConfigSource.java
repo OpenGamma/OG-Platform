@@ -11,6 +11,7 @@ import static com.opengamma.util.ehcache.EHCacheUtils.putValue;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import javax.time.Instant;
 
@@ -18,13 +19,14 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.opengamma.core.change.ChangeEvent;
+import com.opengamma.core.change.ChangeListener;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
@@ -32,8 +34,6 @@ import com.opengamma.util.ehcache.EHCacheUtils;
  * A cache to optimize the results of {@code MasterConfigSource}.
  */
 public class EHCachingMasterConfigSource extends MasterConfigSource {
-
-  private static final Logger s_logger = LoggerFactory.getLogger(EHCachingMasterConfigSource.class);
   
   /**
    * Cache key for configs.
@@ -58,7 +58,7 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
   public EHCachingMasterConfigSource(final ConfigMaster underlying, final CacheManager cacheManager) {
     super(underlying);
     
-    s_logger.warn("EHCache doesn't perform well here (see PLAT-1015)");
+    underlying.changeManager().addChangeListener(new ConfigDocumentChangeListener());
     
     ArgumentChecker.notNull(cacheManager, "cacheManager");
     _cacheManager = cacheManager;
@@ -74,78 +74,124 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
   //-------------------------------------------------------------------------
   @Override
   public <T> T getConfig(Class<T> clazz, UniqueId uniqueId) {
-    final Object key = Arrays.asList(clazz, uniqueId);
-    final Element e = _configCache.get(key);
-    if (e != null) {
-      return get(e);
+    ArgumentChecker.notNull(clazz, "clazz");
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    
+    final Element element = _configCache.get(uniqueId);
+    if (element != null) {
+      return EHCacheUtils.<T>get(element);
     }
     try {
-      return putValue(key, super.getConfig(clazz, uniqueId), _configCache);
+      return putValue(uniqueId, super.getConfig(clazz, uniqueId), _configCache);
     } catch (RuntimeException ex) {
-      return putException(key, ex, _configCache);
+      return EHCacheUtils.<T>putException(uniqueId, ex, _configCache);
     }
   }
 
   //-------------------------------------------------------------------------
   @Override
   public <T> T getConfig(Class<T> clazz, ObjectId objectId, VersionCorrection versionCorrection) {
-    final Object key = Arrays.asList(clazz, objectId, versionCorrection);
-    final Element e = _configCache.get(key);
-    if (e != null) {
-      return get(e);
+    ArgumentChecker.notNull(clazz, "clazz");
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    
+    final Object searchKey = Arrays.asList(clazz, objectId, versionCorrection);
+    final Element element = _configCache.get(searchKey);
+    if (element != null) {
+      return EHCacheUtils.<T>get(element);
     }
     try {
-      return putValue(key, super.getConfig(clazz, objectId, versionCorrection), _configCache);
+      ConfigDocument<T> document = getDocument(clazz, objectId, versionCorrection);
+      putValue(document.getUniqueId(), document.getValue(), _configCache);
+      return putValue(searchKey, document.getValue(), _configCache);
     } catch (RuntimeException ex) {
-      return putException(key, ex, _configCache);
+      return EHCacheUtils.<T>putException(searchKey, ex, _configCache);
     }
   }
 
   //-------------------------------------------------------------------------
   @Override
   public <T> Collection<? extends T> getConfigs(Class<T> clazz, String configName, VersionCorrection versionCorrection) {
-    final Object key = Arrays.asList(clazz, configName, versionCorrection);
-    final Element e = _configCache.get(key);
-    if (e != null) {
-      return get(e);
+    ArgumentChecker.notNull(clazz, "clazz");
+    ArgumentChecker.notNull(configName, "configName");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    
+    final Object searchKey = Arrays.asList(clazz, configName, versionCorrection);
+    final Element element = _configCache.get(searchKey);
+    if (element != null) {
+      return get(element);
     }
     try {
-      return putValue(key, super.getConfigs(clazz, configName, versionCorrection), _configCache);
+      
+      ConfigSearchResult<T> searchResult = searchDocuments(clazz, configName, versionCorrection);
+      List<ConfigDocument<T>> documents = searchResult.getDocuments();
+      if (documents != null) {
+        for (ConfigDocument<T> doc : documents) {
+          putValue(doc.getUniqueId(), doc.getValue(), _configCache);
+        }
+      }
+      
+      return putValue(searchKey, searchResult.getValues(), _configCache);
     } catch (RuntimeException ex) {
-      return putException(key, ex, _configCache);
+      return putException(searchKey, ex, _configCache);
     }
   }
 
   //-------------------------------------------------------------------------
   @Override
   public <T> T getByName(Class<T> clazz, String name, Instant versionAsOf) {
-    if (versionAsOf == null) {
-      return super.getByName(clazz, name, versionAsOf);
-    }
-    
-    final Object key = Arrays.asList(clazz, name, versionAsOf);
-    final Element e = _configCache.get(key);
-    if (e != null) {
-      return get(e);
+    ArgumentChecker.notNull(clazz, "clazz");
+    ArgumentChecker.notNull(name, "name");
+        
+    final Object searchKey = Arrays.asList(clazz, name, versionAsOf);
+    final Element element = _configCache.get(searchKey);
+    if (element != null) {
+      return EHCacheUtils.<T>get(element);
     }
     try {
-      return putValue(key, super.getByName(clazz, name, versionAsOf), _configCache);
+      
+      ConfigDocument<T> doc = getDocumentByName(clazz, name, versionAsOf);
+      T config = null;
+      if (doc != null) {
+        putValue(doc.getUniqueId(), doc.getValue(), _configCache);
+        config = doc.getValue();
+      }
+      return putValue(searchKey, config, _configCache);
     } catch (RuntimeException ex) {
-      return putException(key, ex, _configCache);
+      return EHCacheUtils.<T>putException(searchKey, ex, _configCache);
     }
   }
 
   @Override
   public <T> T getLatestByName(Class<T> clazz, String name) {
-    final Object key = Arrays.asList(clazz, name);
-    final Element e = _configCache.get(key);
-    if (e != null) {
-      return get(e);
+    return getByName(clazz, name, null);
+  }
+  
+  private class ConfigDocumentChangeListener implements ChangeListener {
+
+    @Override
+    public void entityChanged(ChangeEvent event) {
+      switch (event.getType()) {
+        case CORRECTED:
+        case UPDATED:
+        case REMOVED:
+          cleanCaches(event);
+          break;
+        default:
+          break;
+      }
     }
-    try {
-      return putValue(key, super.getLatestByName(clazz, name), _configCache);
-    } catch (RuntimeException ex) {
-      return putException(key, ex, _configCache);
+
+    private void cleanCaches(ChangeEvent event) {
+      UniqueId uniqueId = event.getBeforeId();
+      if (inCache(uniqueId)) {
+        _configCache.removeAll();
+      }
+    }
+
+    private boolean inCache(UniqueId uniqueId) {
+      Element element = _configCache.get(uniqueId);
+      return element != null;
     }
   }
   

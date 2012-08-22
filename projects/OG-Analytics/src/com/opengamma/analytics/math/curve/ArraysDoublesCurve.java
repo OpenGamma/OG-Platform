@@ -18,9 +18,8 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /** 
  * Parent class for a family of curves where the data is stored as arrays.
- * It is possible to construct a curve using either unsorted (in <i>x</i>) data
- * or sorted (ascending in <i>x</i>). Note that if the constructor is told that unsorted data are sorted then no sorting will take place, which will give 
- * unpredictable results.
+ * It is possible to construct a curve using either unsorted (in <i>x</i>) data or sorted (ascending in <i>x</i>). 
+ * Note that if the constructor is told that unsorted data are sorted then no sorting will take place, which will give unpredictable results.
  * 
  */
 public abstract class ArraysDoublesCurve extends DoublesCurve {
