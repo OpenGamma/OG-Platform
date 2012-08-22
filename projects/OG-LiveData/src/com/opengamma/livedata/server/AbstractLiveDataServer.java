@@ -53,18 +53,19 @@ import com.opengamma.util.PublicAPI;
  */
 @PublicAPI
 public abstract class AbstractLiveDataServer implements Lifecycle {
-  private static final Logger s_logger = LoggerFactory
-      .getLogger(AbstractLiveDataServer.class);
-  
+
+  /** Logger. */
+  private static final Logger s_logger = LoggerFactory.getLogger(AbstractLiveDataServer.class);
+
   private volatile MarketDataSenderFactory _marketDataSenderFactory = new EmptyMarketDataSenderFactory();
   private final Collection<SubscriptionListener> _subscriptionListeners = new CopyOnWriteArrayList<SubscriptionListener>();
-  
+
   /** Access controlled via _subscriptionLock */
   private final Set<Subscription> _currentlyActiveSubscriptions = new HashSet<Subscription>();
-  
+
   /** _Write_ access controlled via _subscriptionLock */
   private final Map<String, Subscription> _securityUniqueId2Subscription = new ConcurrentHashMap<String, Subscription>();
-  
+
   /** Access controlled via _subscriptionLock */
   private final Map<LiveDataSpecification, MarketDataDistributor> _fullyQualifiedSpec2Distributor = new HashMap<LiveDataSpecification, MarketDataDistributor>();
 
@@ -76,22 +77,27 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   private DistributionSpecificationResolver _distributionSpecificationResolver = new NaiveDistributionSpecificationResolver();
   private LiveDataEntitlementChecker _entitlementChecker = new PermissiveLiveDataEntitlementChecker();
   private LastKnownValueStoreProvider _lkvStoreProvider = new MapLastKnownValueStoreProvider();
-  
+
   private volatile ConnectionStatus _connectionStatus = ConnectionStatus.NOT_CONNECTED;
 
-  
+  /**
+   * Creates an instance.
+   */
   protected AbstractLiveDataServer() {
     this(true);
   }
 
   /**
+   * Creates an instance controlling performance counting.
    * You may wish to disable performance counting if you expect a high rate of messages, or to process messages on several threads.
-   * @param isPerformanceCountingEnabled Whether to track the message rate here. See getNumLiveDataUpdatesSentPerSecondOverLastMinute
+   * 
+   * @param isPerformanceCountingEnabled  whether to track the message rate here, see getNumLiveDataUpdatesSentPerSecondOverLastMinute
    */
   protected AbstractLiveDataServer(boolean isPerformanceCountingEnabled) {
     _performanceCounter = isPerformanceCountingEnabled ? new PerformanceCounter(60) : null;
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
    * @return the distributionSpecificationResolver
    */
@@ -652,51 +658,47 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     }
     return snapshot;
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
    * Processes a market data subscription request by going through the steps of
    * resolution, entitlement check, and subscription.
    * 
-   * @param subscriptionRequest Request from client telling what to subscribe to
-   * @return LiveDataSubscriptionResponseMsg Sent back to the client of this server
+   * @param subscriptionRequest  the request from the client telling what to subscribe to, not null
+   * @return the response sent back to the client of this server, not null
    */
-  public LiveDataSubscriptionResponseMsg subscriptionRequestMade(
-      LiveDataSubscriptionRequest subscriptionRequest) {
-    
+  public LiveDataSubscriptionResponseMsg subscriptionRequestMade(LiveDataSubscriptionRequest subscriptionRequest) {
     try {
-      
       return subscriptionRequestMadeImpl(subscriptionRequest);
       
-    } catch (Exception e) {
-      
-      s_logger.error("Failed to subscribe to " + subscriptionRequest, e);
+    } catch (Exception ex) {
+      s_logger.error("Failed to subscribe to " + subscriptionRequest, ex);
       
       ArrayList<LiveDataSubscriptionResponse> responses = new ArrayList<LiveDataSubscriptionResponse>();
       for (LiveDataSpecification requestedSpecification :  subscriptionRequest.getSpecifications()) {
         responses.add(getErrorResponse(
             requestedSpecification, 
             LiveDataSubscriptionResult.INTERNAL_ERROR,
-            e.getMessage()));
+            ex.getMessage()));
       }
-      return new LiveDataSubscriptionResponseMsg(subscriptionRequest
-          .getUser(), responses);
+      return new LiveDataSubscriptionResponseMsg(subscriptionRequest.getUser(), responses);
     }
   }
-  
-  protected LiveDataSubscriptionResponseMsg subscriptionRequestMadeImpl(
-      LiveDataSubscriptionRequest subscriptionRequest) {
-    
-    boolean persistent = subscriptionRequest.getType().equals(SubscriptionType.PERSISTENT);
 
-    ArrayList<LiveDataSubscriptionResponse> responses = new ArrayList<LiveDataSubscriptionResponse>();
+  /**
+   * Handles a subscription request.
+   * 
+   * @param subscriptionRequest  the request, not null
+   * @return the response, not null
+   */
+  protected LiveDataSubscriptionResponseMsg subscriptionRequestMadeImpl(LiveDataSubscriptionRequest subscriptionRequest) {
+    final boolean persistent = subscriptionRequest.getType().equals(SubscriptionType.PERSISTENT);
+    final ArrayList<LiveDataSubscriptionResponse> responses = new ArrayList<LiveDataSubscriptionResponse>();
     
-    ArrayList<LiveDataSpecification> snapshots = new ArrayList<LiveDataSpecification>();
-    ArrayList<LiveDataSpecification> subscriptions = new ArrayList<LiveDataSpecification>();
-    
+    // build and check the distribution specifications
     Map<LiveDataSpecification, DistributionSpecification> distributionSpecifications = getDistributionSpecificationResolver().resolve(subscriptionRequest.getSpecifications());
     ArrayList<LiveDataSpecification> distributable = new ArrayList<LiveDataSpecification>();
-    for (LiveDataSpecification requestedSpecification : subscriptionRequest
-        .getSpecifications()) {
+    for (LiveDataSpecification requestedSpecification : subscriptionRequest.getSpecifications()) {
       try {
         // Check that this spec can be found
         DistributionSpecification spec = distributionSpecifications.get(requestedSpecification);
@@ -707,17 +709,21 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
         } else {
           distributable.add(requestedSpecification);
         }
-      } catch (Exception e) {
-        s_logger.error("Failed to subscribe to " + requestedSpecification, e);
+        
+      } catch (Exception ex) {
+        s_logger.error("Failed to subscribe to " + requestedSpecification, ex);
         responses.add(new LiveDataSubscriptionResponse(requestedSpecification,
             LiveDataSubscriptionResult.INTERNAL_ERROR,
-            e.getMessage(),
+            ex.getMessage(),
             null,
             null,
             null));
       }
     }
     
+    // check entitlement and sort into snapshots/subscriptions
+    ArrayList<LiveDataSpecification> snapshots = new ArrayList<LiveDataSpecification>();
+    ArrayList<LiveDataSpecification> subscriptions = new ArrayList<LiveDataSpecification>();
     Map<LiveDataSpecification, Boolean> entitled = getEntitlementChecker().isEntitled(subscriptionRequest.getUser(), distributable);
     for (Entry<LiveDataSpecification, Boolean> entry : entitled.entrySet()) {
       LiveDataSpecification requestedSpecification = entry.getKey();
@@ -735,28 +741,30 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
               null));
           continue;
         }
-
+        
         // Pass to the right bucket by type
         if (subscriptionRequest.getType() == SubscriptionType.SNAPSHOT) {
           snapshots.add(requestedSpecification);
         } else {
           subscriptions.add(requestedSpecification);
         }
-
-      } catch (Exception e) {
-        s_logger.error("Failed to subscribe to " + requestedSpecification, e);
+        
+      } catch (Exception ex) {
+        s_logger.error("Failed to subscribe to " + requestedSpecification, ex);
         responses.add(new LiveDataSubscriptionResponse(requestedSpecification,
             LiveDataSubscriptionResult.INTERNAL_ERROR,
-            e.getMessage(),
+            ex.getMessage(),
             null,
             null,
             null));
       }
     }
     
+    // handle snapshots
     if (!snapshots.isEmpty()) {
       try {
         responses.addAll(snapshot(snapshots));
+        
       } catch (Exception ex) {
         s_logger.error("Error obtaining snapshots for {}: {}", snapshots, ex.getMessage());
         if (s_logger.isDebugEnabled()) {
@@ -773,23 +781,25 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
       }
     }
     
+    // handle subscriptions
     if (!subscriptions.isEmpty()) {
       try {
         responses.addAll(subscribe(subscriptions, persistent));
-      } catch (Exception e) {
+        
+      } catch (Exception ex) {
         for (LiveDataSpecification requestedSpecification : subscriptions) {
           responses.add(getErrorResponse(
               requestedSpecification, 
               LiveDataSubscriptionResult.INTERNAL_ERROR,
-              e.getMessage()));
+              ex.getMessage()));
         }
       }
     }
     
-    return new LiveDataSubscriptionResponseMsg(subscriptionRequest
-        .getUser(), responses);
+    return new LiveDataSubscriptionResponseMsg(subscriptionRequest.getUser(), responses);
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
    * Unsubscribes from market data. All distributors related to that
    * subscription will be stopped.
@@ -1048,35 +1058,47 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     }
     return distributors.iterator().next();
   }
-  
-  protected LiveDataSubscriptionResponse getErrorResponse(LiveDataSpecification liveDataSpecificationFromClient,
-      LiveDataSubscriptionResult result, String message) {
-    return new LiveDataSubscriptionResponse(liveDataSpecificationFromClient,
-        result,
-        message,
-        null,
-        null,
-        null);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Helper to build an error response.
+   * 
+   * @param liveDataSpecificationFromClient  the original specification
+   * @param result  the result enum
+   * @param message  the error message, not null
+   * @return the response, not null
+   */
+  protected LiveDataSubscriptionResponse getErrorResponse(
+      LiveDataSpecification liveDataSpecificationFromClient, LiveDataSubscriptionResult result, String message) {
+    return new LiveDataSubscriptionResponse(liveDataSpecificationFromClient, result, message, null, null, null);
   }
 
-  protected LiveDataSubscriptionResponse getSnapshotResponse(LiveDataSpecification liveDataSpecificationFromClient, LiveDataValueUpdateBean snapshot) {
+  /**
+   * Helper to build a snapshot response.
+   * 
+   * @param liveDataSpecificationFromClient  the original specification
+   * @param snapshot  the snapshot, not null
+   * @return the response, not null
+   */
+  protected LiveDataSubscriptionResponse getSnapshotResponse(
+      LiveDataSpecification liveDataSpecificationFromClient, LiveDataValueUpdateBean snapshot) {
     return new LiveDataSubscriptionResponse(
-        liveDataSpecificationFromClient,
-        LiveDataSubscriptionResult.SUCCESS,
-        null,
-        snapshot.getSpecification(),
-        null,
-        snapshot);
+        liveDataSpecificationFromClient, LiveDataSubscriptionResult.SUCCESS,
+        null, snapshot.getSpecification(), null, snapshot);
   }
-  
-  protected LiveDataSubscriptionResponse getSubscriptionResponse(LiveDataSpecification liveDataSpecificationFromClient, DistributionSpecification distributionSpec) {
+
+  /**
+   * Helper to build a subscription response.
+   * 
+   * @param liveDataSpecificationFromClient  the original specification
+   * @param distributionSpec  the subscription, not null
+   * @return the response, not null
+   */
+  protected LiveDataSubscriptionResponse getSubscriptionResponse(
+      LiveDataSpecification liveDataSpecificationFromClient, DistributionSpecification distributionSpec) {
     return new LiveDataSubscriptionResponse(
-        liveDataSpecificationFromClient,
-        LiveDataSubscriptionResult.SUCCESS,
-        null,
-        distributionSpec.getFullyQualifiedLiveDataSpecification(),
-        distributionSpec.getJmsTopic(),
-        null);
+        liveDataSpecificationFromClient, LiveDataSubscriptionResult.SUCCESS,
+        null, distributionSpec.getFullyQualifiedLiveDataSpecification(), distributionSpec.getJmsTopic(), null);
   }
-  
+
 }
