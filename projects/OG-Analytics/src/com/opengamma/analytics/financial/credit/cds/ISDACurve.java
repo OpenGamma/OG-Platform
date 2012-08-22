@@ -32,7 +32,7 @@ public class ISDACurve {
   
   private final double[] _shiftedTimePoints;
   
-  private final double zeroDiscountFactor;
+  private final double _zeroDiscountFactor;
   
   public ISDACurve(final String name, final double[] xData, final double[] yData, final double offset) {
     
@@ -57,7 +57,7 @@ public class ISDACurve {
       _shiftedTimePoints[i] = xData[i] + _offset;
     }
     
-    zeroDiscountFactor = Math.exp(_offset * getInterestRate(0.0));
+    _zeroDiscountFactor = Math.exp(_offset * getInterestRate(0.0));
   }
 
   public String getName() {
@@ -69,7 +69,7 @@ public class ISDACurve {
   }
   
   public double getDiscountFactor(final double t) {
-    return Math.exp((_offset - t) * getInterestRate(t)) / zeroDiscountFactor;
+    return Math.exp((_offset - t) * getInterestRate(t)) / _zeroDiscountFactor;
   }
   
   public double[] getTimePoints() {

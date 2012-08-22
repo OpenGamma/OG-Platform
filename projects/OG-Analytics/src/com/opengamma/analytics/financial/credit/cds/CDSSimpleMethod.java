@@ -18,9 +18,9 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
- * Do the actual CDS calculations
+ * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
- * @author Niels Stchedroff
+ * Please see distribution for license.
  */
 public class CDSSimpleMethod implements PricingMethod {
 

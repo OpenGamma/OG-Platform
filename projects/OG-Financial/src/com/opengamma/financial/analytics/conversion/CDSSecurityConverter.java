@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
-import javax.time.calendar.ZonedDateTime;
-
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
@@ -20,16 +18,11 @@ import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefiniti
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
-import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
-import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 
@@ -43,9 +36,9 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class CDSSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
   
-  private static boolean ACCRUAL_ON_DEFAULT = true;
-  private static boolean PAY_ON_DEFAULT = true;
-  private static boolean PROTECT_START = true;
+  private static final boolean ACCRUAL_ON_DEFAULT = true;
+  private static final boolean PAY_ON_DEFAULT = true;
+  private static final boolean PROTECT_START = true;
   
   private final SecuritySource _securitySource;
   private final HolidaySource _holidaySource;
@@ -69,37 +62,31 @@ public class CDSSecurityConverter extends FinancialSecurityVisitorAdapter<Instru
     _bondConverter = new BondSecurityConverter(_holidaySource, _conventionSource, _regionSource);
   }
   
-  // TODO: Lots of stuff to verify still in here!!!
   @Override
   public InstrumentDefinition<?> visitCDSSecurity(final CDSSecurity cds) {
     
-    final String conventionName = "TODO: Find correct convention name"; // TODO: find correct convention name
-    
-    final ConventionBundle conventionBundle = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, conventionName));
-    if (conventionBundle == null) {
-      throw new OpenGammaRuntimeException("Convention called " + conventionName + " was null");
-    }
-    
-    final DayCount dayCount = conventionBundle.getDayCount();
-    final BusinessDayConvention convention = conventionBundle.getBusinessDayConvention();
-    final Calendar calendar = CalendarUtils.getCalendar(_holidaySource, cds.getCurrency());
+    final Calendar calendar = CalendarUtils.getCalendar(_holidaySource, cds.getHolidayCalendarCurrencies());
     
     final CDSPremiumDefinition premiumPayments = CDSPremiumDefinition.fromISDA(
       cds.getCurrency(), cds.getProtectionStartDate(), cds.getMaturity(), cds.getPremiumFrequency(),
-      calendar, dayCount, convention, cds.getNotional(), cds.getSpread(), PROTECT_START);
+      calendar, cds.getDayCount(), cds.getBusinessDayConvention(), cds.getNotional(), cds.getSpread(), PROTECT_START);
     
-    final AnnuityPaymentFixedDefinition defaultPayments = cds.getUnderlying() != null ? possibleDefaultPayments(cds, convention) : null;
+    final AnnuityPaymentFixedDefinition defaultPayments = cds.getUnderlying() != null ? possibleDefaultPayments(cds) : null;
     
     return new CDSDefinition(
       premiumPayments, defaultPayments, cds.getProtectionStartDate(), cds.getMaturity(),
       cds.getNotional(), cds.getSpread(), cds.getRecoveryRate(),
-      ACCRUAL_ON_DEFAULT, PAY_ON_DEFAULT, PROTECT_START, dayCount);
+      ACCRUAL_ON_DEFAULT, PAY_ON_DEFAULT, PROTECT_START, cds.getDayCount());
   }
     
-  // Build a fixed payment annuity representing possible default payouts
-  // Payout dates are coupon dates on the underlying bond that fall within the effective period of the CDS
-  // If the CDS extends beyond the maturity of the bond, the CDS maturity date is included as an extra possible default date
-  private AnnuityPaymentFixedDefinition possibleDefaultPayments(CDSSecurity cds, BusinessDayConvention convention) {
+  /**
+   * Build a fixed payment annuity representing possible default payouts
+   * Payout dates are coupon dates on the underlying bond that fall within the effective period of the CDS
+   * If the CDS extends beyond the maturity of the bond, the CDS maturity date is included as an extra possible default date
+   * @param cds The CDS in question
+   * @return
+   */
+  private AnnuityPaymentFixedDefinition possibleDefaultPayments(CDSSecurity cds) {
     
     final BondSecurity bond = (BondSecurity) _securitySource.getSecurity(ExternalIdBundle.of(cds.getUnderlying()));
     if (bond == null) {
@@ -137,10 +124,9 @@ public class CDSSecurityConverter extends FinancialSecurityVisitorAdapter<Instru
     }
     
     if (cds.getMaturity().isAfter(bond.getLastTradeDate().getExpiry())) {
-      payouts[i++] = new PaymentFixedDefinition(cds.getCurrency(), convention.adjustDate(bondCalendar, cds.getMaturity()), payoutAmmount);
+      payouts[i++] = new PaymentFixedDefinition(cds.getCurrency(), cds.getBusinessDayConvention().adjustDate(bondCalendar, cds.getMaturity()), payoutAmmount);
     }
     
     return new AnnuityPaymentFixedDefinition(payouts);
   }
-
 }

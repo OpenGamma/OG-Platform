@@ -44,7 +44,7 @@ import com.opengamma.util.time.Expiry;
  * Load example CDS security and store for testing
  * @author Martin Traverse
  * @see CDSSecurity
- * @see CDSPresentValueFunction
+ * @see CDSSimplePresentValueFunction
  */
 public class ExampleCDSLoader extends AbstractExampleTool {
 
@@ -68,6 +68,7 @@ public class ExampleCDSLoader extends AbstractExampleTool {
     
     secMaster.add(cdsDoc);
     
+    //TODO: Niels: plumb into the database
     portfolioWithSecurity(cds, "Test CDS Port 1");
     
     System.out.println("All done!");

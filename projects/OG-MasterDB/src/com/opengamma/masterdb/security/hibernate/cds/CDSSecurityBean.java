@@ -5,24 +5,26 @@
  */
 package com.opengamma.masterdb.security.hibernate.cds;
 
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.PropertyDefinition;
+import java.util.Map;
 
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.financial.security.cds.CDSSecurity;
+import com.opengamma.masterdb.security.hibernate.BusinessDayConventionBean;
 import com.opengamma.masterdb.security.hibernate.CurrencyBean;
+import com.opengamma.masterdb.security.hibernate.DayCountBean;
 import com.opengamma.masterdb.security.hibernate.ExternalIdBean;
 import com.opengamma.masterdb.security.hibernate.FrequencyBean;
 import com.opengamma.masterdb.security.hibernate.SecurityBean;
 import com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean;
-
-import java.util.Map;
-
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * Bean representation of {@link CDSSecurity}
@@ -51,6 +53,24 @@ public class CDSSecurityBean extends SecurityBean {
   
   @PropertyDefinition(validate = "notNull")
   private FrequencyBean _premiumFrequency;
+  
+  /**
+   * The day count convention. ISDA uses ACT/360.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private DayCountBean _dayCount;
+  
+  /**
+   * The business day convention.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private BusinessDayConventionBean _businessDayConvention;
+  
+  /**
+   * The holiday calendar currencies - will be used to generate the holiday calendar for the CDS.
+   */
+  @PropertyDefinition
+  private CurrencyBean[] _holidayCalendarCurrencies;
   
   @PropertyDefinition
   private ExternalIdBean _underlying;
@@ -90,6 +110,12 @@ public class CDSSecurityBean extends SecurityBean {
         return getProtectionStartDate();
       case 146671813:  // premiumFrequency
         return getPremiumFrequency();
+      case 1905311443:  // dayCount
+        return getDayCount();
+      case -1002835891:  // businessDayConvention
+        return getBusinessDayConvention();
+      case -1646862139:  // holidayCalendarCurrencies
+        return getHolidayCalendarCurrencies();
       case -1770633379:  // underlying
         return getUnderlying();
     }
@@ -120,6 +146,15 @@ public class CDSSecurityBean extends SecurityBean {
       case 146671813:  // premiumFrequency
         setPremiumFrequency((FrequencyBean) newValue);
         return;
+      case 1905311443:  // dayCount
+        setDayCount((DayCountBean) newValue);
+        return;
+      case -1002835891:  // businessDayConvention
+        setBusinessDayConvention((BusinessDayConventionBean) newValue);
+        return;
+      case -1646862139:  // holidayCalendarCurrencies
+        setHolidayCalendarCurrencies((CurrencyBean[]) newValue);
+        return;
       case -1770633379:  // underlying
         setUnderlying((ExternalIdBean) newValue);
         return;
@@ -133,7 +168,8 @@ public class CDSSecurityBean extends SecurityBean {
     JodaBeanUtils.notNull(_maturity, "maturity");
     JodaBeanUtils.notNull(_protectionStartDate, "protectionStartDate");
     JodaBeanUtils.notNull(_premiumFrequency, "premiumFrequency");
-    JodaBeanUtils.notNull(_underlying, "underlying");
+    JodaBeanUtils.notNull(_dayCount, "dayCount");
+    JodaBeanUtils.notNull(_businessDayConvention, "businessDayConvention");
     super.validate();
   }
 
@@ -151,6 +187,9 @@ public class CDSSecurityBean extends SecurityBean {
           JodaBeanUtils.equal(getMaturity(), other.getMaturity()) &&
           JodaBeanUtils.equal(getProtectionStartDate(), other.getProtectionStartDate()) &&
           JodaBeanUtils.equal(getPremiumFrequency(), other.getPremiumFrequency()) &&
+          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
+          JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
+          JodaBeanUtils.equal(getHolidayCalendarCurrencies(), other.getHolidayCalendarCurrencies()) &&
           JodaBeanUtils.equal(getUnderlying(), other.getUnderlying()) &&
           super.equals(obj);
     }
@@ -167,6 +206,9 @@ public class CDSSecurityBean extends SecurityBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getMaturity());
     hash += hash * 31 + JodaBeanUtils.hashCode(getProtectionStartDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPremiumFrequency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidayCalendarCurrencies());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlying());
     return hash ^ super.hashCode();
   }
@@ -352,8 +394,85 @@ public class CDSSecurityBean extends SecurityBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the underlying.
+   * Gets the day count convention. ISDA uses ACT/360.
    * @return the value of the property, not null
+   */
+  public DayCountBean getDayCount() {
+    return _dayCount;
+  }
+
+  /**
+   * Sets the day count convention. ISDA uses ACT/360.
+   * @param dayCount  the new value of the property, not null
+   */
+  public void setDayCount(DayCountBean dayCount) {
+    JodaBeanUtils.notNull(dayCount, "dayCount");
+    this._dayCount = dayCount;
+  }
+
+  /**
+   * Gets the the {@code dayCount} property.
+   * @return the property, not null
+   */
+  public final Property<DayCountBean> dayCount() {
+    return metaBean().dayCount().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the business day convention.
+   * @return the value of the property, not null
+   */
+  public BusinessDayConventionBean getBusinessDayConvention() {
+    return _businessDayConvention;
+  }
+
+  /**
+   * Sets the business day convention.
+   * @param businessDayConvention  the new value of the property, not null
+   */
+  public void setBusinessDayConvention(BusinessDayConventionBean businessDayConvention) {
+    JodaBeanUtils.notNull(businessDayConvention, "businessDayConvention");
+    this._businessDayConvention = businessDayConvention;
+  }
+
+  /**
+   * Gets the the {@code businessDayConvention} property.
+   * @return the property, not null
+   */
+  public final Property<BusinessDayConventionBean> businessDayConvention() {
+    return metaBean().businessDayConvention().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the holiday calendar currencies - will be used to generate the holiday calendar for the CDS.
+   * @return the value of the property
+   */
+  public CurrencyBean[] getHolidayCalendarCurrencies() {
+    return _holidayCalendarCurrencies;
+  }
+
+  /**
+   * Sets the holiday calendar currencies - will be used to generate the holiday calendar for the CDS.
+   * @param holidayCalendarCurrencies  the new value of the property
+   */
+  public void setHolidayCalendarCurrencies(CurrencyBean[] holidayCalendarCurrencies) {
+    this._holidayCalendarCurrencies = holidayCalendarCurrencies;
+  }
+
+  /**
+   * Gets the the {@code holidayCalendarCurrencies} property.
+   * @return the property, not null
+   */
+  public final Property<CurrencyBean[]> holidayCalendarCurrencies() {
+    return metaBean().holidayCalendarCurrencies().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the underlying.
+   * @return the value of the property
    */
   public ExternalIdBean getUnderlying() {
     return _underlying;
@@ -361,10 +480,9 @@ public class CDSSecurityBean extends SecurityBean {
 
   /**
    * Sets the underlying.
-   * @param underlying  the new value of the property, not null
+   * @param underlying  the new value of the property
    */
   public void setUnderlying(ExternalIdBean underlying) {
-    JodaBeanUtils.notNull(underlying, "underlying");
     this._underlying = underlying;
   }
 
@@ -422,6 +540,21 @@ public class CDSSecurityBean extends SecurityBean {
     private final MetaProperty<FrequencyBean> _premiumFrequency = DirectMetaProperty.ofReadWrite(
         this, "premiumFrequency", CDSSecurityBean.class, FrequencyBean.class);
     /**
+     * The meta-property for the {@code dayCount} property.
+     */
+    private final MetaProperty<DayCountBean> _dayCount = DirectMetaProperty.ofReadWrite(
+        this, "dayCount", CDSSecurityBean.class, DayCountBean.class);
+    /**
+     * The meta-property for the {@code businessDayConvention} property.
+     */
+    private final MetaProperty<BusinessDayConventionBean> _businessDayConvention = DirectMetaProperty.ofReadWrite(
+        this, "businessDayConvention", CDSSecurityBean.class, BusinessDayConventionBean.class);
+    /**
+     * The meta-property for the {@code holidayCalendarCurrencies} property.
+     */
+    private final MetaProperty<CurrencyBean[]> _holidayCalendarCurrencies = DirectMetaProperty.ofReadWrite(
+        this, "holidayCalendarCurrencies", CDSSecurityBean.class, CurrencyBean[].class);
+    /**
      * The meta-property for the {@code underlying} property.
      */
     private final MetaProperty<ExternalIdBean> _underlying = DirectMetaProperty.ofReadWrite(
@@ -438,6 +571,9 @@ public class CDSSecurityBean extends SecurityBean {
         "maturity",
         "protectionStartDate",
         "premiumFrequency",
+        "dayCount",
+        "businessDayConvention",
+        "holidayCalendarCurrencies",
         "underlying");
 
     /**
@@ -463,6 +599,12 @@ public class CDSSecurityBean extends SecurityBean {
           return _protectionStartDate;
         case 146671813:  // premiumFrequency
           return _premiumFrequency;
+        case 1905311443:  // dayCount
+          return _dayCount;
+        case -1002835891:  // businessDayConvention
+          return _businessDayConvention;
+        case -1646862139:  // holidayCalendarCurrencies
+          return _holidayCalendarCurrencies;
         case -1770633379:  // underlying
           return _underlying;
       }
@@ -539,6 +681,30 @@ public class CDSSecurityBean extends SecurityBean {
      */
     public final MetaProperty<FrequencyBean> premiumFrequency() {
       return _premiumFrequency;
+    }
+
+    /**
+     * The meta-property for the {@code dayCount} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<DayCountBean> dayCount() {
+      return _dayCount;
+    }
+
+    /**
+     * The meta-property for the {@code businessDayConvention} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<BusinessDayConventionBean> businessDayConvention() {
+      return _businessDayConvention;
+    }
+
+    /**
+     * The meta-property for the {@code holidayCalendarCurrencies} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<CurrencyBean[]> holidayCalendarCurrencies() {
+      return _holidayCalendarCurrencies;
     }
 
     /**
