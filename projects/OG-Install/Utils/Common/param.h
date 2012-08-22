@@ -17,13 +17,34 @@ public:
 	virtual int ProcessImplied (int nArgs, PCSTR *ppszArgs) { return 0; }
 };
 
-class CParamFlag : public CParam {
+class CAbstractParamFlag : public CParam {
+protected:
+	friend class CParamFlagInvert;
+	virtual void SetValue (BOOL bValue) = 0;
+public:
+	CAbstractParamFlag (PCSTR pszFlag);
+	int ProcessExplicit (int nArgs, PCSTR *ppszArgs);
+	virtual BOOL IsSet () const = 0;
+};
+
+class CParamFlag : public CAbstractParamFlag {
 private:
 	BOOL m_bValue;
+protected:
+	void SetValue (BOOL bValue) { m_bValue = bValue; }
 public:
 	CParamFlag (PCSTR pszFlag);
-	int ProcessExplicit (int nArgs, PCSTR *ppszArgs);
 	BOOL IsSet () const { return m_bValue; }
+};
+
+class CParamFlagInvert : public CAbstractParamFlag {
+private:
+	CAbstractParamFlag *m_pUnderlying;
+protected:
+	void SetValue (BOOL bValue) { m_pUnderlying->SetValue (!bValue); }
+public:
+	CParamFlagInvert (PCSTR pszFlag, CParamFlag *pUnderlying);
+	BOOL IsSet () const { return !m_pUnderlying->IsSet (); }
 };
 
 class CParamString : public CParam {

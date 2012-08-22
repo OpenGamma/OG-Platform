@@ -3,6 +3,7 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
     <ROW Property="JAVA_XMX" Value="JAVA_XMX"/>
     <ROW Property="M_START" Value="OpenGamma"/>
+    <ROW Property="TOOL_UI_FLAG" Value="TOOL_UI_FLAG"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiDirsComponent">
     <ROW Directory="APPDIR" Directory_Parent="TARGETDIR" DefaultDir="." IsPseudoRoot="1"/>
@@ -60,7 +61,9 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCustActComponent">
     <ROW Action="JAVA_XMX_1" Type="51" Source="JAVA_XMX" Target="[JAVA_XMX]"/>
     <ROW Action="JAVA_XMX_2" Type="51" Source="JAVA_XMX" Target="[JAVA_XMX]"/>
-    <ROW Action="PopulateExample" Type="3106" Source="APPDIR" Target="&quot;[bin_Dir]MainRunner.exe&quot; &quot;[bin_Dir]og-example-populate.ini&quot;"/>
+    <ROW Action="PopulateExample" Type="3106" Source="APPDIR" Target="&quot;[bin_Dir]MainRunner.exe&quot; &quot;[bin_Dir]og-example-populate.ini&quot; [TOOL_UI_FLAG]"/>
+    <ROW Action="TOOL_UI_FLAG_1" Type="51" Source="TOOL_UI_FLAG" Target="[TOOL_UI_FLAG]"/>
+    <ROW Action="TOOL_UI_FLAG_2" Type="51" Source="TOOL_UI_FLAG" Target="[TOOL_UI_FLAG]"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiIniFileComponent">
     <ROW IniFile="URL" FileName="OpenGa~1.url|OpenGamma Web Interface.url" DirProperty="M_START__Dir" Section="InternetShortcut" Key="URL" Value="http://localhost:8080/" Action="0" Component_="StartMenu"/>
@@ -131,11 +134,13 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsmModuleInstExSeqComponent">
     <ROW Action="JAVA_XMX_2" BaseAction="ValidateProductID" After="1"/>
     <ROW Action="PopulateExample" BaseAction="InstallODBC" After="1" Condition="( NOT Installed ) AND ( $Service.exe=3 )"/>
+    <ROW Action="TOOL_UI_FLAG_2" BaseAction="MigrateFeatureStates" After="1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsmModuleSignatureComponent">
     <ROW ModuleID="OG_Examples" Version="1.0.0" GUID="896E213F_74AF_4B49_9E81_4168EAAE3507" Name="Example OpenGamma Engine" Manufacturer="OpenGamma Ltd" Comments="An example engine with a random market data source"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsmModuleUISeqComponent">
     <ROW Action="JAVA_XMX_1" BaseAction="ValidateProductID" After="1"/>
+    <ROW Action="TOOL_UI_FLAG_1" BaseAction="JAVA_XMX_1" After="1"/>
   </COMPONENT>
 </DOCUMENT>

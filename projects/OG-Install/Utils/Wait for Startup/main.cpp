@@ -9,8 +9,9 @@
 #include "wait.h"
 
 static CParamFlag g_oSilent ("silent");
-static CParam *g_apoParams[5] = { &CWait::s_oServiceName, &CWait::s_oHost, &CWait::s_oPort, &CFeedback::s_oTitle, &g_oSilent };
-static CParams g_oParams (5, g_apoParams);
+static CParamFlagInvert g_oGUI ("gui", &g_oSilent);
+static CParam *g_apoParams[6] = { &CWait::s_oServiceName, &CWait::s_oHost, &CWait::s_oPort, &CFeedback::s_oTitle, &g_oSilent, &g_oGUI };
+static CParams g_oParams (sizeof (g_apoParams) / sizeof (*g_apoParams), g_apoParams);
 
 DWORD CALLBACK _main (LPVOID pReserved) {
 	CFeedback *poFeedback = (CFeedback*)pReserved;

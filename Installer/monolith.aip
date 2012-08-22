@@ -25,6 +25,7 @@
     <ROW Property="ProductVersion" Value="1.0.0" Type="32"/>
     <ROW Property="RSTAT_FILE" Value="Tools for R"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
+    <ROW Property="TOOL_UI_FLAG" Value="-gui"/>
     <ROW Property="UpgradeCode" Value="{539AA424-1C4B-4B71-B78D-9FCC8FA9AAAB}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="NoJVM32:Windows 9x/ME#NoJVM64:Windows 9x/ME#JVM32:Windows 9x/ME#JVM64:Windows 9x/ME#MsiBuild:Windows 9x/ME" ValueLocId="-"/>
     <ROW Property="WindowsType9XDisplay" MultiBuildValue="NoJVM32:Windows 9x/ME#NoJVM64:Windows 9x/ME#JVM32:Windows 9x/ME#JVM64:Windows 9x/ME#MsiBuild:Windows 9x/ME" ValueLocId="-"/>
@@ -275,19 +276,20 @@
     <ROW Action="AI_XmlRollback" Type="11521" Source="xmlCfg.dll" Target="OnXmlRollback" WithoutSeq="true"/>
     <ROW Action="AI_XmlUninstall" Type="1" Source="xmlCfg.dll" Target="OnXmlUninstall"/>
     <ROW Action="BloombergDataUsed" Type="38" Target="MsgBox &quot;The engine will be configured to run from Bloomberg data.&quot;, vbOKOnly + vbInformation, &quot;Bloomberg Example Engine&quot;" WithoutSeq="true"/>
-    <ROW Action="BloombergExample" Type="1058" Source="APPDIR" Target="&quot;[APPDIR]bin\Wait for Startup.exe&quot; -t &quot;OpenGamma Example Server&quot; -s BloombergExample"/>
+    <ROW Action="BloombergExample" Type="1058" Source="APPDIR" Target="&quot;[APPDIR]bin\Wait for Startup.exe&quot; -t &quot;OpenGamma Example Server&quot; -s BloombergExample [TOOL_UI_FLAG]"/>
     <ROW Action="BloombergInstalledNotUsed" Type="38" Target="MsgBox &quot;Bloomberg was not found - components will still be installed but the simulated market data engine used by default.&quot;, vbOKOnly + vbExclamation, &quot;Bloomberg Example Engine&quot;" WithoutSeq="true"/>
     <ROW Action="BloombergLogin" Type="38" Target="MsgBox &quot;During installation reference data will be loaded from Bloomberg. If you are not logged into Bloomberg please do so before continuing.&quot;, vbOKOnly + vbInformation, &quot;Bloomberg Example Engine&quot;" WithoutSeq="true"/>
     <ROW Action="OG_LANGUAGE_EXT_1" Type="51" Source="OG_LANGUAGE_EXT" Target="[CommonAppDataFolder][M_FILE]\[LANG_FILE]\ext"/>
     <ROW Action="OG_LANGUAGE_EXT_2" Type="51" Source="OG_LANGUAGE_EXT" Target="[CommonAppDataFolder][M_FILE]\[LANG_FILE]\ext"/>
     <ROW Action="OG_LANGUAGE_JAR_1" Type="51" Source="OG_LANGUAGE_JAR" Target="[CommonAppDataFolder][M_FILE]\[LANG_FILE]"/>
     <ROW Action="OG_LANGUAGE_JAR_2" Type="51" Source="OG_LANGUAGE_JAR" Target="[CommonAppDataFolder][M_FILE]\[LANG_FILE]"/>
-    <ROW Action="OpenGammaExample" Type="1058" Source="APPDIR" Target="&quot;[APPDIR]bin\Wait for Startup.exe&quot; -t &quot;OpenGamma Example Server&quot; -s OpenGammaExample"/>
+    <ROW Action="OpenGammaExample" Type="1058" Source="APPDIR" Target="&quot;[APPDIR]bin\Wait for Startup.exe&quot; -t &quot;OpenGamma Example Server&quot; -s OpenGammaExample [TOOL_UI_FLAG]"/>
     <ROW Action="RNotVisible" Type="38" Target="MsgBox &quot;The R installation is not visible to the 32-bit installer.&quot;, vbOKOnly + vbExclamation, &quot;Tools for R&quot;" WithoutSeq="true"/>
     <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder][Manufacturer]\[ProductName]" MultiBuildTarget="NoJVM64:[ProgramFiles64Folder][Manufacturer]\[ProductName]#JVM64:[ProgramFiles64Folder][Manufacturer]\[ProductName]"/>
     <ROW Action="SET_SHORTCUTDIR" Type="307" Source="SHORTCUTDIR" Target="[ProgramMenuFolder][ProductName]"/>
     <ROW Action="SET_TARGETDIR_TO_APPDIR" Type="51" Source="TARGETDIR" Target="[APPDIR]"/>
     <ROW Action="SimulatedMarketDataUsed" Type="38" Target="MsgBox &quot;The engine will be configured to run from simulated market and historical data.&quot;, vbOKOnly + vbInformation, &quot;Example Engine&quot;" WithoutSeq="true"/>
+    <ROW Action="TOOL_UI_FLAG" Type="51" Source="TOOL_UI_FLAG" Target="-silent"/>
     <ROW Action="viewer.exe" Type="1730" Source="viewer.exe" Target="http://localhost:8080/"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiEventMappingComponent">
@@ -302,8 +304,8 @@
     <ROW Action="AI_STORE_LOCATION" Condition="(Not Installed) OR REINSTALL" Sequence="1501"/>
     <ROW Action="AI_PREPARE_UPGRADE" Condition="AI_UPGRADE=&quot;No&quot; AND (Not Installed)" Sequence="1399"/>
     <ROW Action="AI_ResolveKnownFolders" Sequence="52"/>
-    <ROW Action="OG_LANGUAGE_EXT_2" Sequence="202"/>
-    <ROW Action="OG_LANGUAGE_JAR_2" Sequence="201"/>
+    <ROW Action="OG_LANGUAGE_EXT_2" Sequence="203"/>
+    <ROW Action="OG_LANGUAGE_JAR_2" Sequence="202"/>
     <ROW Action="AI_XmlInstall" Condition="(REMOVE &lt;&gt; &quot;ALL&quot;)" Sequence="5102"/>
     <ROW Action="AI_XmlUninstall" Condition="(REMOVE)" Sequence="3101"/>
     <ROW Action="AI_TxtUpdaterInstall" Sequence="5101"/>
@@ -313,6 +315,7 @@
     <ROW Action="viewer.exe" Condition="( NOT Installed ) AND ( &amp;www=3 AND  ( &amp;og_bloombergexample=3 OR &amp;og_examples=3) AND  UILevel&gt;=4 )" Sequence="5969"/>
     <ROW Action="AI_ResolveLocalizedCredentials" Sequence="51"/>
     <ROW Action="AI_AiRemoveFilesImmediate" Sequence="3499"/>
+    <ROW Action="TOOL_UI_FLAG" Condition="( NOT Installed ) AND ( UILevel&lt;4 )" Sequence="201"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstallUISequenceComponent">
     <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="749"/>
