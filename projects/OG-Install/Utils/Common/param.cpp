@@ -21,19 +21,28 @@ int CParam::ProcessExplicit (int nArgs, PCSTR *ppszArgs) {
 	}
 }
 
-CParamFlag::CParamFlag (PCSTR pszFlag)
+CAbstractParamFlag::CAbstractParamFlag (PCSTR pszFlag)
 : CParam (pszFlag) {
-	m_bValue = FALSE;
 }
 
-int CParamFlag::ProcessExplicit (int nArgs, PCSTR *ppszArgs) {
+int CAbstractParamFlag::ProcessExplicit (int nArgs, PCSTR *ppszArgs) {
 	int nTaken = CParam::ProcessExplicit (nArgs, ppszArgs);
 	if (nTaken == 1) {
-		m_bValue = TRUE;
+		SetValue (TRUE);
 		return 1;
 	} else {
 		return 0;
 	}
+}
+
+CParamFlag::CParamFlag (PCSTR pszFlag)
+: CAbstractParamFlag (pszFlag) {
+	m_bValue = FALSE;
+}
+
+CParamFlagInvert::CParamFlagInvert (PCSTR pszFlag, CParamFlag *pUnderlying)
+: CAbstractParamFlag (pszFlag) {
+	m_pUnderlying = pUnderlying;
 }
 
 CParamString::CParamString (PCSTR pszFlag, PCSTR pszDefault, BOOL bImplied)

@@ -12,7 +12,8 @@
 
 static CParamString g_oConfig ("config", NULL, TRUE);
 static CParamFlag g_oSilent ("silent");
-static CParam *g_apoParams[2] = { &g_oConfig, &g_oSilent };
+static CParamFlagInvert g_oGUI ("gui", &g_oSilent);
+static CParam *g_apoParams[3] = { &g_oConfig, &g_oSilent, &g_oGUI };
 static CParams g_oParams (sizeof (g_apoParams) / sizeof (*g_apoParams), g_apoParams);
 
 static DWORD CALLBACK _main (PVOID pFeedback) {
