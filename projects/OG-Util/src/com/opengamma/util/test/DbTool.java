@@ -51,7 +51,9 @@ import com.opengamma.util.tuple.Pair;
  */
 public class DbTool extends Task {
 
-  /** Logger. */
+  /**
+   * During installation, INFO level messages will be reported to the user as progress.
+   */
   private static final Logger s_logger = LoggerFactory.getLogger(DbTool.class);
 
   private static final String DATABASE_INSTALL_FOLDER = "install/db";
@@ -723,8 +725,8 @@ public class DbTool extends Task {
     if (createScript == null || !createScript.exists()) {
       throw new OpenGammaRuntimeException("The " + migrateFromVersion + " create script is missing (" + createScript + ")");
     }
-    s_logger.info("Creating DB version " + migrateFromVersion);
-    s_logger.info("Executing create script " + dbScripts.get(migrateFromVersion).getFirst());
+    s_logger.debug("Creating {} DB version {}", masterDB, migrateFromVersion);
+    s_logger.debug("Executing create script {}", dbScripts.get(migrateFromVersion).getFirst());
     executeSQLScript(catalog, schema, createScript);
     if (callback != null) {
       callback.tablesCreatedOrUpgraded(Integer.toString(migrateFromVersion), masterDB);
@@ -735,8 +737,8 @@ public class DbTool extends Task {
       if (migrateScript == null || !migrateScript.exists()) {
         throw new OpenGammaRuntimeException("The " + v + " create script is missing (" + migrateScript + ")");
       }
-      s_logger.info("Migrating DB from " + (v - 1) + "version to" + v);
-      s_logger.info("Executing migrate script " + dbScripts.get(v).getFirst());
+      s_logger.debug("Migrating DB from version {} to {}", (v - 1), v);
+      s_logger.debug("Executing migrate script {}", dbScripts.get(v).getFirst());
       executeSQLScript(catalog, schema, migrateScript);
       if (callback != null) {
         callback.tablesCreatedOrUpgraded(Integer.toString(v), masterDB);
@@ -761,25 +763,25 @@ public class DbTool extends Task {
     }
 
     if (_clear) {
-      s_logger.info("Clearing tables...");
+      s_logger.info("Clearing database tables at {}", getJdbcUrl());
       initialize();
       clearTables(_catalog, _schema);
     }
 
     if (_drop) {
-      s_logger.info("Dropping schema...");
+      s_logger.info("Dropping existing database schema at {}", getJdbcUrl());
       initialize();
       dropSchema(_catalog, _schema);
     }
 
     if (_create) {
-      s_logger.info("Creating schema...");
+      s_logger.info("Creating new database schema at {}", getJdbcUrl());
       initialize();
       createSchema(_catalog, _schema);
     }
 
     if (_createTables) {
-      s_logger.info("Creating tables...");
+      s_logger.info("Creating database tables at {}", getJdbcUrl());
       initialize();
       createTables(_catalog, null, null);
       shutdown(_catalog);
@@ -789,7 +791,7 @@ public class DbTool extends Task {
       TestProperties.setBaseDir(_testPropertiesDir);
 
       for (String dbType : TestProperties.getDatabaseTypes(_testDbType)) {
-        s_logger.info("Creating " + dbType + " test database...");
+        s_logger.debug("Creating " + dbType + " test database...");
 
         String dbUrl = TestProperties.getDbHost(dbType);
         String user = TestProperties.getDbUsername(dbType);
@@ -806,8 +808,7 @@ public class DbTool extends Task {
         shutdown(getTestCatalog());
       }
     }
-
-    s_logger.info("All tasks succeeded.");
+    s_logger.info("OpenGamma database created at {}", getJdbcUrl());
   }
 
   public static void usage(Options options) {
@@ -868,7 +869,7 @@ public class DbTool extends Task {
     try {
       tool.execute();
     } catch (BuildException e) {
-      s_logger.info(e.getMessage());
+      s_logger.error(e.getMessage());
       usage(options);
       System.exit(-1);
     }

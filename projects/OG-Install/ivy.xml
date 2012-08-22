@@ -1,6 +1,9 @@
 <ivy-module version="2.0">
   <info organisation="com.opengamma" module="og-install" status="integration"/>
   <publications>
+    <!-- Java resources -->
+    <artifact name="og-install" type="jar" ext="jar" />
+    <artifact name="og-install" type="source" ext="jar" />
     <!-- Merge Modules -->
     <artifact name="MSM" type="msm" ext="zip" />
     <!-- Binaries -->
@@ -8,6 +11,6 @@
     <artifact name="Util64" type="bin" ext="zip" />
   </publications>
   <dependencies>
-    <!-- no dependencies -->
+    <dependency name="og-util" rev="latest.integration" />
   </dependencies>
 </ivy-module>
