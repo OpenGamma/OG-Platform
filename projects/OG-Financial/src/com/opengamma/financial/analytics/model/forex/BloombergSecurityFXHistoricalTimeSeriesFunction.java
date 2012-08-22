@@ -6,10 +6,10 @@
 package com.opengamma.financial.analytics.model.forex;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
@@ -49,13 +49,17 @@ public class BloombergSecurityFXHistoricalTimeSeriesFunction extends AbstractSec
       final Currency desiredCurrency = Currency.of(Iterables.getOnlyElement(resultCurrencies));
       if (securityCurrencies.size() == 1) {
         final Currency securityCurrency = Iterables.getOnlyElement(securityCurrencies);
-        return Collections.singleton(getHTSRequirement(context, desiredCurrency, securityCurrency));
+        ValueRequirement htsRequirement = getHTSRequirement(context, desiredCurrency, securityCurrency);
+        return htsRequirement != null ? ImmutableSet.of(htsRequirement) : null;
       }
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       for (final Currency securityCurrency : securityCurrencies) {
-        requirements.add(getHTSRequirement(context, desiredCurrency, securityCurrency));
+        ValueRequirement htsRequirement = getHTSRequirement(context, desiredCurrency, securityCurrency);
+        if (htsRequirement != null) {
+          requirements.add(htsRequirement);
+        }
       }
-      return requirements;
+      return !requirements.isEmpty() ? requirements : null;
     }
     return null;
   }

@@ -5,15 +5,20 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap;
 
-import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
+
+import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -32,6 +37,11 @@ public class CreditDefaultSwapDefinitionTest {
   private static final String restructuringClause = "NR";
 
   private static final Calendar calendar = new MondayToFridayCalendar("A");
+  
+  private static final ZonedDateTime startDate = DateUtils.getUTCDate(2012, 8, 21);
+  private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2012, 8, 22);
+  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2017, 9, 20);
+  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2012, 8, 22);
 
   private static final String scheduleGenerationMethod = "Backward";
   private static final String couponFrequency = "Quarterly";
@@ -46,6 +56,15 @@ public class CreditDefaultSwapDefinitionTest {
 
   private static final boolean includeAccruedPremium = true;
   private static final boolean adjustMaturityDate = false;
+  
+  private static final int numberOfIntegrationSteps = 10;
+  
+  // Dummy yield curve
+  private static final double[] TIME = new double[] {0, 3, 5};
+  private static final double[] RATES = new double[] {0.0, 0.0, 0.0};
+  //private static final double[] DF_VALUES = new double[] {Math.exp(-0.03), Math.exp(-0.08), Math.exp(-0.15)};
+  private static final InterpolatedDoublesCurve R = InterpolatedDoublesCurve.from(TIME, RATES, new LinearInterpolator1D());
+  private static final YieldCurve yieldCurve = YieldCurve.from(R);
 
   private static final CreditDefaultSwapDefinition CDS_DEFINITION = new CreditDefaultSwapDefinition(buySellProtection, 
                                                                                                     protectionBuyer, 
@@ -55,10 +74,10 @@ public class CreditDefaultSwapDefinitionTest {
                                                                                                     debtSeniority, 
                                                                                                     restructuringClause, 
                                                                                                     calendar,
-                                                                                                    //startDate,
-                                                                                                    //effectiveDate,
-                                                                                                    //maturityDate,
-                                                                                                    //valuationDate,
+                                                                                                    startDate,
+                                                                                                    effectiveDate,
+                                                                                                    maturityDate,
+                                                                                                    valuationDate,
                                                                                                     scheduleGenerationMethod,
                                                                                                     couponFrequency,
                                                                                                     daycountFractionConvention,
@@ -68,11 +87,12 @@ public class CreditDefaultSwapDefinitionTest {
                                                                                                     valuationRecoveryRate, 
                                                                                                     curveRecoveryRate, 
                                                                                                     includeAccruedPremium,
-                                                                                                    adjustMaturityDate); //, 
-                                                                                                    //interestRateTenors,
-                                                                                                    //interestRates,
-                                                                                                    //creditSpreadTenors,
-                                                                                                    //creditSpreads);
+                                                                                                    adjustMaturityDate,
+                                                                                                    numberOfIntegrationSteps,
+                                                                                                    yieldCurve);
+  
+  // TODO : Add all the tests
+  
   /*
   @Test
   public void testNullBuySellProtectionFlag() {
@@ -80,16 +100,22 @@ public class CreditDefaultSwapDefinitionTest {
   }
   */
 
-  @Test
+  /*
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNotional() {
-    //assertEquals(1.0e7, CDS_DEFINITION.getNotional(), 1e-15);
-    assertTrue(CDS_DEFINITION.getNotional() >= 0);
+    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, 
+        currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate, maturityDate, 
+        valuationDate, scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, -notional, 
+        parSpread, valuationRecoveryRate, curveRecoveryRate, includeAccruedPremium, adjustMaturityDate, numberOfIntegrationSteps, yieldCurve);
   }
+  */
   
-  @Test
+  /*
+ // @Test
   public void testParSpread() {
     assertTrue(CDS_DEFINITION.getParSpread() >= 0);
   }
+  */
   
   /*
   @Test
@@ -99,11 +125,13 @@ public class CreditDefaultSwapDefinitionTest {
   }
   */
   
-  @Test
+  /*
+//  @Test
   public void testCurveRecoveryRate() {
     assertTrue(CDS_DEFINITION.getCurveRecoveryRate() >= 0.0);
     assertTrue(CDS_DEFINITION.getCurveRecoveryRate() <= 1.0);
   }
+  */
   
   /*
   @Test

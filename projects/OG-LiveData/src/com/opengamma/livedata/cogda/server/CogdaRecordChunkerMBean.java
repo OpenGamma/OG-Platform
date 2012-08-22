@@ -69,7 +69,17 @@ public class CogdaRecordChunkerMBean {
       throw new RuntimeException(e.getMessage());
     }
   }
-  
+
+  @ManagedAttribute(description = "Description of the remote server connection (e.g. hostname/port).")
+  public String getRemoteServerConnectionName() {
+    try {
+      return getChunker().getRemoteServerConnectionName();
+    } catch (RuntimeException e) {
+      s_logger.error("getRemoteServerConnectionName() failed", e);
+      throw new RuntimeException(e.getMessage());
+    }
+  }
+
   @ManagedOperation(description = "Returns the number of ticks seen for the specified symbol since restart.")
   @ManagedOperationParameters({ @ManagedOperationParameter(name = "symbol", description = "Security unique ID. Server type dependent.)") })
   public long getNumTicks(String symbol) {
@@ -80,4 +90,5 @@ public class CogdaRecordChunkerMBean {
       throw new RuntimeException(e.getMessage());
     }
   }
+  
 }
