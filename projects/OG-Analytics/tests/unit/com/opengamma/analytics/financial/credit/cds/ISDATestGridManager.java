@@ -19,12 +19,14 @@ public class ISDATestGridManager {
   public static final String s_testGridDir = "isda_test_grids";
   public static final String s_benchmarkDir = "benchmark";
   public static final String s_corporateDir = "corporate";
+  public static final String s_holidayDir = "holiday";
   
   public Map<String,String[]> findAllTestGrids() throws Exception {
     
     Map<String,String[]> testGrids = new HashMap<String,String[]>();
     testGrids.put(s_benchmarkDir, findAllTestGridsForCategory(s_benchmarkDir));
     testGrids.put(s_corporateDir, findAllTestGridsForCategory(s_corporateDir));
+    testGrids.put(s_holidayDir, findAllTestGridsForCategory(s_holidayDir));
     return testGrids;
   }
 
