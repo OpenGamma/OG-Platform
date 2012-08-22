@@ -96,7 +96,9 @@
               <@rowout label="">${key} - ${basket[key]}</@rowout>
             </#list>
         <#else>
-            <@rowout label="Underlying identifier">${security.underlyingId.scheme.name?replace("_", " ")} - ${security.underlyingId.value}</@rowout>
+            <#if futureSecurityType != "MetalFuture">
+              <@rowout label="Underlying identifier">${security.underlyingId.scheme.name?replace("_", " ")} - ${security.underlyingId.value}</@rowout>
+            </#if>
         </#if>
         
         <#break>

@@ -48,7 +48,8 @@ public class EquityFutureLoader extends SecurityLoader {
       FIELD_ID_CUSIP,
       FIELD_ID_ISIN,
       FIELD_ID_SEDOL1,
-      FIELD_FUT_VAL_PT));
+      FIELD_FUT_VAL_PT,
+      FIELD_FUTURES_CATEGORY));
 
   /** The set of valid Bloomberg 'Futures Category Types' that will map to EquityFutureSecurity */
   public static final Set<String> VALID_SECURITY_TYPES = ImmutableSet.of(BLOOMBERG_EQUITY_INDEX_TYPE);
