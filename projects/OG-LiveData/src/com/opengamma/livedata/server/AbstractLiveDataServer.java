@@ -374,17 +374,13 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
         persistent);
 
     if (results == null || results.size() != 1) {
-      return getErrorResponse(
-          liveDataSpecificationFromClient,
-          LiveDataSubscriptionResult.INTERNAL_ERROR,
-          "subscribe() did not fulfill its contract to populate map for each live data spec");
+      String errorMsg = "subscribe() did not fulfill its contract to populate map for each live data spec";
+      return buildErrorMessageResponse(liveDataSpecificationFromClient, LiveDataSubscriptionResult.INTERNAL_ERROR, errorMsg);
     }
     LiveDataSubscriptionResponse result = results.iterator().next();
     if (!liveDataSpecificationFromClient.equals(result.getRequestedSpecification())) {
-      return getErrorResponse(
-          liveDataSpecificationFromClient,
-          LiveDataSubscriptionResult.INTERNAL_ERROR,
-          "Expected a subscription result for " + liveDataSpecificationFromClient + " but received one for " + result.getRequestedSpecification());
+      String errorMsg = "Expected a subscription result for " + liveDataSpecificationFromClient + " but received one for " + result.getRequestedSpecification();
+      return buildErrorMessageResponse(liveDataSpecificationFromClient, LiveDataSubscriptionResult.INTERNAL_ERROR, errorMsg);
     }
     
     return result;
@@ -413,7 +409,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
         
         if (distributionSpec == null) {
           s_logger.info("Unable to work out distribution spec for specification " + specFromClient);
-          responses.add(getErrorResponse(specFromClient, LiveDataSubscriptionResult.NOT_PRESENT, "Unable to work out distribution spec"));
+          responses.add(buildErrorMessageResponse(specFromClient, LiveDataSubscriptionResult.NOT_PRESENT, "Unable to work out distribution spec"));
           continue;
         }
         
@@ -425,14 +421,14 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
           
           subscription.createDistributor(distributionSpec, persistent);
     
-          responses.add(getSubscriptionResponse(specFromClient, distributionSpec));                    
+          responses.add(buildSubscriptionResponse(specFromClient, distributionSpec));                    
     
         } else {
     
           String securityUniqueId = fullyQualifiedSpec.getIdentifier(getUniqueIdDomain());
           if (securityUniqueId == null) {
-            responses.add(getErrorResponse(specFromClient, LiveDataSubscriptionResult.INTERNAL_ERROR,
-                "Qualified spec " + fullyQualifiedSpec + " does not contain ID of domain " + getUniqueIdDomain()));
+            String errorMsg = "Qualified spec " + fullyQualifiedSpec + " does not contain ID of domain " + getUniqueIdDomain();
+            responses.add(buildErrorMessageResponse(specFromClient, LiveDataSubscriptionResult.INTERNAL_ERROR, errorMsg));
             continue;
           }
           
@@ -484,15 +480,15 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
         _currentlyActiveSubscriptions.add(subscription);
 
         if (subscription.getDistributionSpecifications().size() != 1) {
-          responses.add(getErrorResponse(specFromClient, LiveDataSubscriptionResult.INTERNAL_ERROR,
-              "The subscription should only have 1 distribution specification at the moment: " + subscription));
+          String errorMsg = "The subscription should only have 1 distribution specification at the moment: " + subscription;
+          responses.add(buildErrorMessageResponse(specFromClient, LiveDataSubscriptionResult.INTERNAL_ERROR, errorMsg));
           continue;
         }
         
         for (MarketDataDistributor distributor : subscription.getDistributors()) {
           _fullyQualifiedSpec2Distributor.put(distributor.getFullyQualifiedLiveDataSpecification(),
               distributor);
-          responses.add(getSubscriptionResponse(specFromClient, distributor.getDistributionSpec()));
+          responses.add(buildSubscriptionResponse(specFromClient, distributor.getDistributionSpec()));
         }
         
         s_logger.info("Created {}", subscription);
@@ -588,14 +584,14 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
           //NOTE simon 28/11/2011: We presume that all the fields were provided in one go, all or nothing.
           s_logger.debug("Able to satisfy {} from existing LKV", liveDataSpecificationFromClient);
           LiveDataValueUpdateBean snapshot = currentlyActiveDistributor.getSnapshot();
-          responses.add(getSnapshotResponse(liveDataSpecificationFromClient, snapshot));
+          responses.add(buildSnapshotResponse(liveDataSpecificationFromClient, snapshot));
           continue;
         } else if (canSatisfySnapshotFromEmptySubscription(currentlyActiveDistributor)) {
           //BBG-91 - don't requery when an existing subscription indicates that the snapshot will fail  
           s_logger.debug("Able to satisfy failed snapshot {} from existing LKV", liveDataSpecificationFromClient);
-          responses.add(getErrorResponse(liveDataSpecificationFromClient, LiveDataSubscriptionResult.INTERNAL_ERROR,
-              "Existing subscription for " + currentlyActiveDistributor.getDistributionSpec().getMarketDataId()
-                  + " failed to retrieve a snapshot.  Perhaps requeried fields are unavailable."));
+          String errorMsg = "Existing subscription for " + currentlyActiveDistributor.getDistributionSpec().getMarketDataId() +
+              " failed to retrieve a snapshot.  Perhaps requeried fields are unavailable.";
+          responses.add(buildErrorMessageResponse(liveDataSpecificationFromClient, LiveDataSubscriptionResult.INTERNAL_ERROR, errorMsg));
           continue;
         } else {
           s_logger.debug("Can't use existing subscription to satisfy {} from existing LKV", liveDataSpecificationFromClient);
@@ -604,10 +600,8 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
       
       String securityUniqueId = fullyQualifiedSpec.getIdentifier(getUniqueIdDomain());
       if (securityUniqueId == null) {
-        responses.add(getErrorResponse(
-            liveDataSpecificationFromClient,
-            LiveDataSubscriptionResult.INTERNAL_ERROR,
-            "Qualified spec " + fullyQualifiedSpec + " does not contain ID of domain " + getUniqueIdDomain()));
+        String errorMsg = "Qualified spec " + fullyQualifiedSpec + " does not contain ID of domain " + getUniqueIdDomain();
+        responses.add(buildErrorMessageResponse(liveDataSpecificationFromClient, LiveDataSubscriptionResult.INTERNAL_ERROR, errorMsg));
         continue;
       }
       
@@ -626,18 +620,15 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
       DistributionSpecification distributionSpec = resolved.get(liveDataSpecFromClient);
       FudgeMsg normalizedMsg = distributionSpec.getNormalizedMessage(msg, securityUniqueId);
       if (normalizedMsg == null) {
-        responses.add(getErrorResponse(
-            liveDataSpecFromClient,
-            LiveDataSubscriptionResult.INTERNAL_ERROR,
-            "When snapshot for " + securityUniqueId + " was run through normalization, the message disappeared. This" + 
-            " indicates there are buggy normalization rules in place, or that buggy (or unexpected) data was" +
-            " received from the underlying market data API. Check your normalization rules. Raw, unnormalized msg = "
-            + msg));
+        String errorMsg = "When snapshot for " + securityUniqueId + " was run through normalization, the message disappeared. " + 
+          " This indicates there are buggy normalization rules in place, or that buggy (or unexpected) data was" +
+          " received from the underlying market data API. Check your normalization rules. Raw, unnormalized msg = " + msg;
+        responses.add(buildErrorMessageResponse(liveDataSpecFromClient, LiveDataSubscriptionResult.INTERNAL_ERROR, errorMsg));
         continue;
       }
       
       LiveDataValueUpdateBean snapshot = new LiveDataValueUpdateBean(0, distributionSpec.getFullyQualifiedLiveDataSpecification(), normalizedMsg);
-      responses.add(getSnapshotResponse(liveDataSpecFromClient, snapshot));
+      responses.add(buildSnapshotResponse(liveDataSpecFromClient, snapshot));
     }
     
     return responses; 
@@ -676,10 +667,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
       
       ArrayList<LiveDataSubscriptionResponse> responses = new ArrayList<LiveDataSubscriptionResponse>();
       for (LiveDataSpecification requestedSpecification :  subscriptionRequest.getSpecifications()) {
-        responses.add(getErrorResponse(
-            requestedSpecification, 
-            LiveDataSubscriptionResult.INTERNAL_ERROR,
-            ex.getMessage()));
+        responses.add(buildErrorResponse(requestedSpecification, ex));
       }
       return new LiveDataSubscriptionResponseMsg(subscriptionRequest.getUser(), responses);
     }
@@ -703,21 +691,16 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
         // Check that this spec can be found
         DistributionSpecification spec = distributionSpecifications.get(requestedSpecification);
         if (spec == null) {
-          responses.add(new LiveDataSubscriptionResponse(requestedSpecification,
-              LiveDataSubscriptionResult.NOT_PRESENT, "Could not build distribution specification for "
-                  + requestedSpecification, null, null, null));
+          String errorMsg = "Could not build distribution specification for " + requestedSpecification;
+          s_logger.debug(errorMsg);
+          responses.add(buildErrorMessageResponse(requestedSpecification, LiveDataSubscriptionResult.NOT_PRESENT, errorMsg));
         } else {
           distributable.add(requestedSpecification);
         }
         
       } catch (Exception ex) {
         s_logger.error("Failed to subscribe to " + requestedSpecification, ex);
-        responses.add(new LiveDataSubscriptionResponse(requestedSpecification,
-            LiveDataSubscriptionResult.INTERNAL_ERROR,
-            ex.getMessage(),
-            null,
-            null,
-            null));
+        responses.add(buildErrorResponse(requestedSpecification, ex));
       }
     }
     
@@ -730,15 +713,9 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
       try {
         Boolean entitlement = entry.getValue();
         if (!entitlement) {
-          String msg = subscriptionRequest.getUser() + " is not entitled to " + requestedSpecification;
-          s_logger.info(msg);
-          responses.add(new LiveDataSubscriptionResponse(
-              requestedSpecification,
-              LiveDataSubscriptionResult.NOT_AUTHORIZED,
-              msg,
-              null,
-              null,
-              null));
+          String errorMsg = subscriptionRequest.getUser() + " is not entitled to " + requestedSpecification;
+          s_logger.info(errorMsg);
+          responses.add(buildErrorMessageResponse(requestedSpecification, LiveDataSubscriptionResult.NOT_AUTHORIZED, errorMsg));
           continue;
         }
         
@@ -751,12 +728,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
         
       } catch (Exception ex) {
         s_logger.error("Failed to subscribe to " + requestedSpecification, ex);
-        responses.add(new LiveDataSubscriptionResponse(requestedSpecification,
-            LiveDataSubscriptionResult.INTERNAL_ERROR,
-            ex.getMessage(),
-            null,
-            null,
-            null));
+        responses.add(buildErrorResponse(requestedSpecification, ex));
       }
     }
     
@@ -773,10 +745,8 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
         // REVIEW kirk 2012-07-20 -- This doesn't really look like an InternalError,
         // but we have no way to discriminate in the response from doSnapshot at the moment.
         for (LiveDataSpecification requestedSpecification : snapshots) {
-          responses.add(getErrorResponse(
-              requestedSpecification, 
-              LiveDataSubscriptionResult.INTERNAL_ERROR,
-              "Problem obtaining snapshot: " + ex.getMessage()));
+          String errorMsg = "Problem obtaining snapshot: " + ex.getMessage();
+          responses.add(buildErrorMessageResponse(requestedSpecification, LiveDataSubscriptionResult.INTERNAL_ERROR, errorMsg));
         }
       }
     }
@@ -787,11 +757,12 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
         responses.addAll(subscribe(subscriptions, persistent));
         
       } catch (Exception ex) {
+        s_logger.error("Error obtaining subscriptions for {}: {}", subscriptions, (ex.getMessage() != null ? ex.getMessage() : ex.getClass().getName()));
+        if (s_logger.isDebugEnabled()) {
+          s_logger.debug("Underlying exception in subscription error " + subscriptions, ex);
+        }
         for (LiveDataSpecification requestedSpecification : subscriptions) {
-          responses.add(getErrorResponse(
-              requestedSpecification, 
-              LiveDataSubscriptionResult.INTERNAL_ERROR,
-              ex.getMessage()));
+          responses.add(buildErrorResponse(requestedSpecification, ex));
         }
       }
     }
@@ -1064,11 +1035,23 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
    * Helper to build an error response.
    * 
    * @param liveDataSpecificationFromClient  the original specification
+   * @param throwable  the error, not null
+   * @return the response, not null
+   */
+  protected LiveDataSubscriptionResponse buildErrorResponse(
+      LiveDataSpecification liveDataSpecificationFromClient, Throwable throwable) {
+    return buildErrorMessageResponse(liveDataSpecificationFromClient, LiveDataSubscriptionResult.INTERNAL_ERROR, throwable.toString());
+  }
+
+  /**
+   * Helper to build an error response.
+   * 
+   * @param liveDataSpecificationFromClient  the original specification
    * @param result  the result enum
    * @param message  the error message, not null
    * @return the response, not null
    */
-  protected LiveDataSubscriptionResponse getErrorResponse(
+  protected LiveDataSubscriptionResponse buildErrorMessageResponse(
       LiveDataSpecification liveDataSpecificationFromClient, LiveDataSubscriptionResult result, String message) {
     return new LiveDataSubscriptionResponse(liveDataSpecificationFromClient, result, message, null, null, null);
   }
@@ -1080,7 +1063,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
    * @param snapshot  the snapshot, not null
    * @return the response, not null
    */
-  protected LiveDataSubscriptionResponse getSnapshotResponse(
+  protected LiveDataSubscriptionResponse buildSnapshotResponse(
       LiveDataSpecification liveDataSpecificationFromClient, LiveDataValueUpdateBean snapshot) {
     return new LiveDataSubscriptionResponse(
         liveDataSpecificationFromClient, LiveDataSubscriptionResult.SUCCESS,
@@ -1094,7 +1077,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
    * @param distributionSpec  the subscription, not null
    * @return the response, not null
    */
-  protected LiveDataSubscriptionResponse getSubscriptionResponse(
+  protected LiveDataSubscriptionResponse buildSubscriptionResponse(
       LiveDataSpecification liveDataSpecificationFromClient, DistributionSpecification distributionSpec) {
     return new LiveDataSubscriptionResponse(
         liveDataSpecificationFromClient, LiveDataSubscriptionResult.SUCCESS,
