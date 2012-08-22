@@ -27,9 +27,11 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A source of market data that aggregates data from multiple underlying {@link MarketDataProvider}s.
+ * <p>A source of market data that aggregates data from multiple underlying {@link MarketDataProvider}s.
  * Each request for market data is handled by one of the underlying providers. When a subscription is made
- * the underlying providers are checked in priority order until one of them is able to provide the data.
+ * the underlying providers are checked in priority order until one of them is able to provide the data.</p>
+ * <p>All notifications of market data updates and subscription changes are delivered to all listeners. Therefore
+ * instances of this class shouldn't be shared between multiple view processes.</p>
  * TODO should this be in the same package as ViewComputationJob? it's not used anywhere else and isn't general purpose
  */
 public class CompositeMarketDataProvider {
