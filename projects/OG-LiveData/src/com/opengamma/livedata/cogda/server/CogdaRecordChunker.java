@@ -20,7 +20,7 @@ import com.opengamma.transport.FudgeMessageSender;
  * stream into discrete messages, and then distribute onto an MOM system for later
  * processing into a full {@code FireHoseLiveData} object.
  */
-public class CogdaRecordChunker {
+public abstract class CogdaRecordChunker {
   /**
    * An estimate of the number of symbols that will be seen.
    * Used to establish the size of the internal statics maintenance structures.
@@ -96,5 +96,12 @@ public class CogdaRecordChunker {
     }
     return counter.get();
   }
+  
+  /**
+   * Return a description (e.g. hostname/port) for the remote endpoint
+   * for this connection.
+   * @return An MBean-visible remote connection name
+   */
+  public abstract String getRemoteServerConnectionName();
 
 }
