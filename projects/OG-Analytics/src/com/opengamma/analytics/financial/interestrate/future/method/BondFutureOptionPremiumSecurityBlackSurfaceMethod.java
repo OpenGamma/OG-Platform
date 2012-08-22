@@ -90,6 +90,7 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
    * @return The security price.
    */
   public double optionPrice(final BondFutureOptionPremiumSecurity security, final YieldCurveBundle curves) {
+    ArgumentChecker.notNull(curves, "Curves");
     if (curves instanceof YieldCurveWithBlackCubeBundle) {
       return optionPrice(security, (YieldCurveWithBlackCubeBundle) curves);
     } else if (curves instanceof YieldCurveWithBlackCubeAndForwardBundle) {

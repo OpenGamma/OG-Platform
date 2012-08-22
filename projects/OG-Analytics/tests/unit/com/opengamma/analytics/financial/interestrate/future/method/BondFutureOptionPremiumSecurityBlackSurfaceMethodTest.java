@@ -324,7 +324,7 @@ public class BondFutureOptionPremiumSecurityBlackSurfaceMethodTest {
     METHOD.optionPriceVega(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveWithBlackCubeAndForwardBundle) null);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testWrongDataType2() {
     METHOD.optionPrice(BOND_FUTURE_OPTION_DERIV_CALL, TestsDataSetsBlack.createCurvesBond());
   }

@@ -368,11 +368,14 @@ public class CurveConstructionSpreadTest {
   public void curveConstructionTest(String[][] curveNames, final InstrumentDefinition<?>[][][] definitions, final YieldCurveBundle curves, final boolean withToday, int block) {
     int nbBlocks = definitions.length;
     for (int loopblock = 0; loopblock < nbBlocks; loopblock++) {
-      InstrumentDerivative[] instruments = convert(curveNames, definitions[loopblock], loopblock, withToday, block);
-      double[] pv = new double[instruments.length];
-      for (int loopins = 0; loopins < instruments.length; loopins++) {
-        pv[loopins] = curves.getFxRates().convert(PV_CALCULATOR.visit(instruments[loopins], curves), CCY_USD).getAmount();
-        assertEquals("Curve construction: node block " + loopblock + " - instrument " + loopins, 0, pv[loopins], TOLERANCE_PV);
+      InstrumentDerivative[][] instruments = convert(curveNames, definitions[loopblock], loopblock, withToday, block);
+      double[][] pv = new double[instruments.length][];
+      for (int loopcurve = 0; loopcurve < instruments.length; loopcurve++) {
+        pv[loopcurve] = new double[instruments[loopcurve].length];
+        for (int loopins = 0; loopins < instruments[loopcurve].length; loopins++) {
+          pv[loopcurve][loopins] = curves.getFxRates().convert(PV_CALCULATOR.visit(instruments[loopcurve][loopins], curves), CCY_USD).getAmount();
+          assertEquals("Curve construction: node block " + loopblock + " - instrument " + loopins, 0, pv[loopcurve][loopins], TOLERANCE_PV);
+        }
       }
     }
   }
@@ -446,7 +449,7 @@ public class CurveConstructionSpreadTest {
     return bumped;
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   /**
    * Code used to graph the curves
    */
@@ -485,7 +488,7 @@ public class CurveConstructionSpreadTest {
     t++;
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   public void performance() {
     long startTime, endTime;
     final int nbTest = 100;
@@ -569,7 +572,7 @@ public class CurveConstructionSpreadTest {
       }
       parametersGuess[loopunit] = new double[nbInsUnit];
       int startCurve = 0; // First parameter index of the curve in the unit. 
-      instruments[loopunit] = convert2(curveNames, definitions[loopunit], loopunit, withToday, block);
+      instruments[loopunit] = convert(curveNames, definitions[loopunit], loopunit, withToday, block);
       for (int loopcurve = 0; loopcurve < curveGenerators[loopunit].length; loopcurve++) {
         generatorFinal[loopunit][loopcurve] = curveGenerators[loopunit][loopcurve].finalGenerator(instruments[loopunit][loopcurve]);
         double[] guessCurve = generatorFinal[loopunit][loopcurve].initialGuess(initialGuess(definitions[loopunit][loopcurve]));
@@ -584,38 +587,7 @@ public class CurveConstructionSpreadTest {
   }
 
   @SuppressWarnings("unchecked")
-  private static InstrumentDerivative[] convert(String[][] curveNames, InstrumentDefinition<?>[][] definitions, int unit, boolean withToday, int block) {
-    int nbDef = 0;
-    for (int loopdef1 = 0; loopdef1 < definitions.length; loopdef1++) {
-      nbDef += definitions[loopdef1].length;
-    }
-    final InstrumentDerivative[] instruments = new InstrumentDerivative[nbDef];
-    int loopins = 0;
-    for (int loopcurve = 0; loopcurve < definitions.length; loopcurve++) {
-      for (final InstrumentDefinition<?> instrument : definitions[loopcurve]) {
-        InstrumentDerivative ird;
-        if (instrument instanceof SwapFixedONDefinition) {
-          final String[] names = getCurvesNameSwapFixedON(curveNames, block);
-          ird = ((SwapFixedONDefinition) instrument).toDerivative(NOW, getTSSwapFixedON(withToday, unit), names);
-        } else {
-          if (instrument instanceof SwapFixedIborDefinition) {
-            final String[] names = getCurvesNameSwapFixedIbor(curveNames, unit, block);
-            ird = ((SwapFixedIborDefinition) instrument).toDerivative(NOW, getTSSwapFixedIbor(withToday, unit), names);
-          } else {
-            final String[] names;
-            // Cash
-            names = getCurvesNameCash(curveNames, loopcurve, unit, block);
-            ird = instrument.toDerivative(NOW, names);
-          }
-        }
-        instruments[loopins++] = ird;
-      }
-    }
-    return instruments;
-  }
-
-  @SuppressWarnings("unchecked")
-  private static InstrumentDerivative[][] convert2(String[][] curveNames, InstrumentDefinition<?>[][] definitions, int unit, boolean withToday, int block) {
+  private static InstrumentDerivative[][] convert(String[][] curveNames, InstrumentDefinition<?>[][] definitions, int unit, boolean withToday, int block) {
     int nbDef = 0;
     for (int loopdef1 = 0; loopdef1 < definitions.length; loopdef1++) {
       nbDef += definitions[loopdef1].length;
