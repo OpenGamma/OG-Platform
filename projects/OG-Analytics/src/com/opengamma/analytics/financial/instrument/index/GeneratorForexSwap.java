@@ -13,7 +13,6 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.forex.definition.ForexSwapDefinition;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
-import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -123,7 +122,7 @@ public class GeneratorForexSwap extends GeneratorInstrument {
   }
 
   @Override
-  public InstrumentDefinition<?> generateInstrument(final ZonedDateTime date, final Period tenor, final double forwardPoints, final double notional, final Object... objects) {
+  public ForexSwapDefinition generateInstrument(final ZonedDateTime date, final Period tenor, final double forwardPoints, final double notional, final Object... objects) {
     ArgumentChecker.isTrue(objects.length == 1, "Forex rate required");
     ArgumentChecker.isTrue((objects[0] instanceof Double) || (objects[0] instanceof FXMatrix), "forex rate should be a double");
     Double fx;

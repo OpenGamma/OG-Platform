@@ -9,18 +9,18 @@ import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
+import com.opengamma.analytics.financial.instrument.cash.DepositCounterpartDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
  * Class with the description of overnight deposit characteristics (conventions, calendar, ...).
  */
-public class GeneratorDepositON extends GeneratorInstrument {
+public class GeneratorDepositONCounterpart extends GeneratorInstrument {
 
   /**
    * The index currency. Not null.
@@ -34,22 +34,29 @@ public class GeneratorDepositON extends GeneratorInstrument {
    * The day count convention associated to the generator. Not null.
    */
   private final DayCount _dayCount;
+  /**
+   * The counterpart name. Not null.
+   */
+  private final String _nameCounterpart;
 
   /**
    * Deposit generator from all the financial details.
-   * @param name The generator name. Not null.
+   * @param nameGenerator The generator name. Not null.
    * @param currency The index currency. Not null.
    * @param calendar The calendar associated to the index. Not null.
    * @param dayCount The day count convention associated to the index.
+   * @param nameCounterpart The counterpart name. Not null.
    */
-  public GeneratorDepositON(final String name, final Currency currency, final Calendar calendar, final DayCount dayCount) {
-    super(name);
-    Validate.notNull(currency, "Currency");
-    Validate.notNull(calendar, "Calendar");
-    Validate.notNull(dayCount, "Day count");
+  public GeneratorDepositONCounterpart(final String nameGenerator, final Currency currency, final Calendar calendar, final DayCount dayCount, final String nameCounterpart) {
+    super(nameGenerator);
+    ArgumentChecker.notNull(currency, "Currency");
+    ArgumentChecker.notNull(calendar, "Calendar");
+    ArgumentChecker.notNull(dayCount, "Day count");
+    ArgumentChecker.notNull(nameCounterpart, "Counterpart name");
     _currency = currency;
     _calendar = calendar;
     _dayCount = dayCount;
+    _nameCounterpart = nameCounterpart;
   }
 
   /**
@@ -76,9 +83,17 @@ public class GeneratorDepositON extends GeneratorInstrument {
     return _dayCount;
   }
 
+  /**
+   * Gets the counterpart name.
+   * @return The name.
+   */
+  public String getNameCounterpart() {
+    return _nameCounterpart;
+  }
+
   @Override
   /**
-   * Generate an overnight deposit.
+   * Generate an overnight deposit for the given counterpart.
    * @param date The reference date.
    * @param tenor The period (only with days) up to the start of the overnight deposit.
    * @param marketQuote The deposit rate.
@@ -86,20 +101,21 @@ public class GeneratorDepositON extends GeneratorInstrument {
    * @param objects No.
    * @return The overnight deposit.
    */
-  public CashDefinition generateInstrument(final ZonedDateTime date, final Period tenor, final double marketQuote, final double notional, final Object... objects) {
+  public DepositCounterpartDefinition generateInstrument(final ZonedDateTime date, final Period tenor, final double marketQuote, final double notional, final Object... objects) {
     final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(date, tenor, _calendar);
     final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, 1, _calendar);
     final double accrualFactor = _dayCount.getDayCountFraction(startDate, endDate);
-    return new CashDefinition(_currency, startDate, endDate, notional, marketQuote, accrualFactor);
+    return new DepositCounterpartDefinition(_currency, startDate, endDate, notional, marketQuote, accrualFactor, _nameCounterpart);
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
-    int result = 1;
+    int result = super.hashCode();
     result = prime * result + _calendar.hashCode();
     result = prime * result + _currency.hashCode();
     result = prime * result + _dayCount.hashCode();
+    result = prime * result + _nameCounterpart.hashCode();
     return result;
   }
 
@@ -108,13 +124,13 @@ public class GeneratorDepositON extends GeneratorInstrument {
     if (this == obj) {
       return true;
     }
-    if (obj == null) {
+    if (!super.equals(obj)) {
       return false;
     }
     if (getClass() != obj.getClass()) {
       return false;
     }
-    GeneratorDepositON other = (GeneratorDepositON) obj;
+    GeneratorDepositONCounterpart other = (GeneratorDepositONCounterpart) obj;
     if (!ObjectUtils.equals(_calendar, other._calendar)) {
       return false;
     }
@@ -122,6 +138,9 @@ public class GeneratorDepositON extends GeneratorInstrument {
       return false;
     }
     if (!ObjectUtils.equals(_dayCount, other._dayCount)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_nameCounterpart, other._nameCounterpart)) {
       return false;
     }
     return true;

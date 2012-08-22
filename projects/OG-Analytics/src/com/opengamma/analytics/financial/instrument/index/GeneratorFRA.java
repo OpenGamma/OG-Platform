@@ -11,7 +11,6 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
@@ -62,7 +61,7 @@ public class GeneratorFRA extends GeneratorInstrument {
   }
 
   @Override
-  public InstrumentDefinition<?> generateInstrument(ZonedDateTime date, Period tenor, double rate, double notional, Object... objects) {
+  public ForwardRateAgreementDefinition generateInstrument(ZonedDateTime date, Period tenor, double rate, double notional, Object... objects) {
     Period startPeriod = tenor.minus(_iborIndex.getTenor());
     return ForwardRateAgreementDefinition.fromTrade(date, startPeriod, notional, _iborIndex, rate);
   }

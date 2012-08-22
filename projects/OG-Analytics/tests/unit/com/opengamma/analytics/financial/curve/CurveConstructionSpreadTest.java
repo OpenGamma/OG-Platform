@@ -10,7 +10,6 @@ import static org.testng.AssertJUnit.assertEquals;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -25,7 +24,6 @@ import com.opengamma.analytics.financial.calculator.PresentValueConvertedCalcula
 import com.opengamma.analytics.financial.calculator.PresentValueCurveSensitivityConvertedCalculator;
 import com.opengamma.analytics.financial.calculator.PresentValueCurveSensitivityMCSCalculator;
 import com.opengamma.analytics.financial.calculator.PresentValueMCACalculator;
-import com.opengamma.analytics.financial.curve.building.CurveBuildingBlock;
 import com.opengamma.analytics.financial.curve.building.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.curve.building.CurveBuildingFunction;
 import com.opengamma.analytics.financial.curve.generator.GeneratorCurve;
@@ -68,7 +66,6 @@ import com.opengamma.analytics.math.curve.DoublesCurveNelsonSiegel;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
-import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -336,12 +333,14 @@ public class CurveConstructionSpreadTest {
 
   @BeforeSuite
   static void initClass() {
-    CURVES_PRESENT_VALUE_WITH_TODAY_BLOCK0 = makeCurves(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PV_CONVERTED_CALCULATOR, PVCS_CONVERTED_CALCULATOR, true, 0);
-    CURVES_PRESENT_VALUE_WITHOUT_TODAY_BLOCK0 = makeCurves(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PV_CONVERTED_CALCULATOR, PVCS_CONVERTED_CALCULATOR, false, 0);
-    CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK0 = makeCurves(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PSMQ_CALCULATOR, PSMQCS_CALCULATOR, false, 0);
+    CURVES_PRESENT_VALUE_WITH_TODAY_BLOCK0 = makeCurvesFromDefinitions(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PV_CONVERTED_CALCULATOR, PVCS_CONVERTED_CALCULATOR, true,
+        0);
+    CURVES_PRESENT_VALUE_WITHOUT_TODAY_BLOCK0 = makeCurvesFromDefinitions(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PV_CONVERTED_CALCULATOR, PVCS_CONVERTED_CALCULATOR,
+        false, 0);
+    CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK0 = makeCurvesFromDefinitions(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PSMQ_CALCULATOR, PSMQCS_CALCULATOR, false, 0);
     for (int loopblock = 0; loopblock < NB_BLOCKS; loopblock++) {
-      CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.add(makeCurves(DEFINITIONS_UNITS[loopblock], GENERATORS_UNITS[loopblock], NAMES_UNITS[loopblock], KNOWN_DATA, PSMQ_CALCULATOR, PSMQCS_CALCULATOR, false,
-          loopblock));
+      CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.add(makeCurvesFromDefinitions(DEFINITIONS_UNITS[loopblock], GENERATORS_UNITS[loopblock], NAMES_UNITS[loopblock], KNOWN_DATA, PSMQ_CALCULATOR,
+          PSMQCS_CALCULATOR, false, loopblock));
     }
   }
 
@@ -414,8 +413,8 @@ public class CurveConstructionSpreadTest {
     for (int loopnode = 0; loopnode < nbFwd; loopnode++) {
       final double[] bumpedMarketValues = getBumpedMarketValues(FWD3_USD_MARKET_QUOTES_3, loopnode, eps);
       InstrumentDefinition<?>[] bumpedFwdDefinitions = getDefinitions(bumpedMarketValues, FWD3_USD_GENERATORS_3, FWD3_USD_TENOR_3, new Double[FWD3_USD_MARKET_QUOTES_3.length]);
-      final Pair<YieldCurveBundle, CurveBuildingBlockBundle> bumpedResult = makeCurves(new InstrumentDefinition<?>[][][] {{bumpedFwdDefinitions, DEFINITIONS_DSC_USD}}, GENERATORS_UNITS[block],
-          NAMES_UNITS[block], KNOWN_DATA, PSMQ_CALCULATOR, PSMQCS_CALCULATOR, false, block);
+      final Pair<YieldCurveBundle, CurveBuildingBlockBundle> bumpedResult = makeCurvesFromDefinitions(new InstrumentDefinition<?>[][][] {{bumpedFwdDefinitions, DEFINITIONS_DSC_USD}},
+          GENERATORS_UNITS[block], NAMES_UNITS[block], KNOWN_DATA, PSMQ_CALCULATOR, PSMQCS_CALCULATOR, false, block);
       pvFwd[loopnode] = PV_CONVERTED_CALCULATOR.visit(SWAP, bumpedResult.getFirst());
       pnlFwd[loopnode] = pvFwd[loopnode] - pv;
       pvcsFwdApprox[loopnode] = pnlFwd[loopnode] / eps;
@@ -429,8 +428,8 @@ public class CurveConstructionSpreadTest {
     for (int loopnode = 0; loopnode < nbDsc; loopnode++) {
       final double[] bumpedMarketValues = getBumpedMarketValues(DSC_USD_MARKET_QUOTES, loopnode, eps);
       InstrumentDefinition<?>[] bumpedDscDefinitions = getDefinitions(bumpedMarketValues, DSC_USD_GENERATORS, DSC_USD_TENOR, new Double[DSC_USD_MARKET_QUOTES.length]);
-      final Pair<YieldCurveBundle, CurveBuildingBlockBundle> bumpedResult = makeCurves(new InstrumentDefinition<?>[][][] {{DEFINITIONS_FWD3_USD_3, bumpedDscDefinitions}}, GENERATORS_UNITS[block],
-          NAMES_UNITS[block], KNOWN_DATA, PSMQ_CALCULATOR, PSMQCS_CALCULATOR, false, block);
+      final Pair<YieldCurveBundle, CurveBuildingBlockBundle> bumpedResult = makeCurvesFromDefinitions(new InstrumentDefinition<?>[][][] {{DEFINITIONS_FWD3_USD_3, bumpedDscDefinitions}},
+          GENERATORS_UNITS[block], NAMES_UNITS[block], KNOWN_DATA, PSMQ_CALCULATOR, PSMQCS_CALCULATOR, false, block);
       pvDsc[loopnode] = PV_CONVERTED_CALCULATOR.visit(SWAP, bumpedResult.getFirst());
       pnlDsc[loopnode] = pvDsc[loopnode] - pv;
       pvcsDscApprox[loopnode] = pnlDsc[loopnode] / eps;
@@ -507,7 +506,7 @@ public class CurveConstructionSpreadTest {
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      curvePresentValue = makeCurves(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PV_CONVERTED_CALCULATOR, PVCS_CONVERTED_CALCULATOR, true, 0);
+      curvePresentValue = makeCurvesFromDefinitions(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PV_CONVERTED_CALCULATOR, PVCS_CONVERTED_CALCULATOR, true, 0);
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " curve construction Full 2 curves (Int / Cst+Int) and " + nbIns[0] + " instruments (with present value): " + (endTime - startTime) + " ms");
@@ -516,7 +515,8 @@ public class CurveConstructionSpreadTest {
     for (int loopblock = 0; loopblock < NB_BLOCKS; loopblock++) {
       startTime = System.currentTimeMillis();
       for (int looptest = 0; looptest < nbTest; looptest++) {
-        curveParSpreadMQ = makeCurves(DEFINITIONS_UNITS[loopblock], GENERATORS_UNITS[loopblock], NAMES_UNITS[loopblock], KNOWN_DATA, PSMQ_CALCULATOR, PSMQCS_CALCULATOR, false, loopblock);
+        curveParSpreadMQ = makeCurvesFromDefinitions(DEFINITIONS_UNITS[loopblock], GENERATORS_UNITS[loopblock], NAMES_UNITS[loopblock], KNOWN_DATA, PSMQ_CALCULATOR, PSMQCS_CALCULATOR, false,
+            loopblock);
       }
       endTime = System.currentTimeMillis();
       System.out.println(nbTest + " curve construction Full " + nbCurve[loopblock] + " curves and " + nbIns[loopblock] + " instruments (with par spread-market quote): " + (endTime - startTime)
@@ -535,7 +535,8 @@ public class CurveConstructionSpreadTest {
     for (int loopblock = 0; loopblock < NB_BLOCKS; loopblock++) {
       startTime = System.currentTimeMillis();
       for (int looptest = 0; looptest < nbTest; looptest++) {
-        curveParSpreadMQ = makeCurves(DEFINITIONS_UNITS[loopblock], GENERATORS_UNITS[loopblock], NAMES_UNITS[loopblock], KNOWN_DATA, PSMQ_CALCULATOR, PSMQCS_CALCULATOR, false, loopblock);
+        curveParSpreadMQ = makeCurvesFromDefinitions(DEFINITIONS_UNITS[loopblock], GENERATORS_UNITS[loopblock], NAMES_UNITS[loopblock], KNOWN_DATA, PSMQ_CALCULATOR, PSMQCS_CALCULATOR, false,
+            loopblock);
       }
       endTime = System.currentTimeMillis();
       System.out.println(nbTest + " curve construction Full " + nbCurve[loopblock] + " curves and " + nbIns[loopblock] + " instruments (with par spread-market quote): " + (endTime - startTime)
@@ -553,164 +554,33 @@ public class CurveConstructionSpreadTest {
     return definitions;
   }
 
-  private static Pair<YieldCurveBundle, CurveBuildingBlockBundle> makeCurves(final InstrumentDefinition<?>[][][] definitions, GeneratorCurve[][] curveGenerators, String[][] curveNames,
+  private static Pair<YieldCurveBundle, CurveBuildingBlockBundle> makeCurvesFromDefinitions(final InstrumentDefinition<?>[][][] definitions, GeneratorCurve[][] curveGenerators, String[][] curveNames,
       YieldCurveBundle knownData, final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> calculator,
       final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> sensitivityCalculator, boolean withToday, int block) {
     int nbUnits = curveGenerators.length;
-    YieldCurveBundle knownSoFarData = knownData.copy();
-    List<InstrumentDerivative> instrumentsSoFar = new ArrayList<InstrumentDerivative>();
-    LinkedHashMap<String, GeneratorCurve> generatorsSoFar = new LinkedHashMap<String, GeneratorCurve>();
-    LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> unitBundleSoFar = new LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>>();
-    List<Double> parametersSoFar = new ArrayList<Double>();
-    LinkedHashMap<String, Pair<Integer, Integer>> unitMap = new LinkedHashMap<String, Pair<Integer, Integer>>();
-    int start = 0;
+    double[][] parametersGuess = new double[nbUnits][];
+    GeneratorCurve[][] generatorFinal = new GeneratorCurve[nbUnits][];
+    InstrumentDerivative[][][] instruments = new InstrumentDerivative[nbUnits][][];
     for (int loopunit = 0; loopunit < nbUnits; loopunit++) {
-      int startBlock = 0;
-      InstrumentDerivative[] instruments = convert(curveNames, definitions[loopunit], loopunit, withToday, block);
-      instrumentsSoFar.addAll(Arrays.asList(instruments));
-      InstrumentDerivative[] instrumentsSoFarArray = instrumentsSoFar.toArray(new InstrumentDerivative[0]);
-      LinkedHashMap<String, GeneratorCurve> gen = new LinkedHashMap<String, GeneratorCurve>();
-      int[] nbIns = new int[curveGenerators[loopunit].length];
-      int nbInsTotal = 0;
+      generatorFinal[loopunit] = new GeneratorCurve[curveGenerators[loopunit].length];
+      int nbInsUnit = 0;
       for (int loopcurve = 0; loopcurve < curveGenerators[loopunit].length; loopcurve++) {
-        nbIns[loopcurve] = definitions[loopunit][loopcurve].length;
-        nbInsTotal += nbIns[loopcurve];
+        nbInsUnit += definitions[loopunit][loopcurve].length;
       }
-      double[] initGuess = new double[nbInsTotal];
+      parametersGuess[loopunit] = new double[nbInsUnit];
+      int startCurve = 0; // First parameter index of the curve in the unit. 
+      instruments[loopunit] = convert2(curveNames, definitions[loopunit], loopunit, withToday, block);
       for (int loopcurve = 0; loopcurve < curveGenerators[loopunit].length; loopcurve++) {
-        InstrumentDerivative[] insCurve = new InstrumentDerivative[nbIns[loopcurve]];
-        System.arraycopy(instruments, startBlock, insCurve, 0, nbIns[loopcurve]);
-        GeneratorCurve tmp = curveGenerators[loopunit][loopcurve].finalGenerator(insCurve);
-        double[] guessCurve = tmp.initialGuess(initialGuess(definitions[loopunit][loopcurve]));
-        System.arraycopy(guessCurve, 0, initGuess, startBlock, nbIns[loopcurve]);
-        // TODO: Need a better initial guess method.
-        gen.put(curveNames[loopunit][loopcurve], tmp);
-        generatorsSoFar.put(curveNames[loopunit][loopcurve], tmp);
-        unitMap.put(curveNames[loopunit][loopcurve], new ObjectsPair<Integer, Integer>(start + startBlock, nbIns[loopcurve]));
-        startBlock += nbIns[loopcurve];
+        generatorFinal[loopunit][loopcurve] = curveGenerators[loopunit][loopcurve].finalGenerator(instruments[loopunit][loopcurve]);
+        double[] guessCurve = generatorFinal[loopunit][loopcurve].initialGuess(initialGuess(definitions[loopunit][loopcurve]));
+        System.arraycopy(guessCurve, 0, parametersGuess[loopunit], startCurve, instruments[loopunit][loopcurve].length);
+        startCurve += instruments[loopunit][loopcurve].length;
       }
       if ((block == 7) && (loopunit == 1)) {
-        initGuess = new double[] {0.012, -0.003, 0.018, 1.60, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+        parametersGuess[loopunit] = new double[] {0.012, -0.003, 0.018, 1.60, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
       }
-      Pair<YieldCurveBundle, Double[]> unitCal = CURVE_BUILDING_FUNCTION.makeUnit(instruments, initGuess, gen, knownSoFarData, calculator, sensitivityCalculator);
-      parametersSoFar.addAll(Arrays.asList(unitCal.getSecond()));
-      DoubleMatrix2D[] mat = CURVE_BUILDING_FUNCTION.makeCurveMatrix(instrumentsSoFarArray, generatorsSoFar, start, nbIns, parametersSoFar.toArray(new Double[0]), knownData, sensitivityCalculator);
-      for (int loopcurve = 0; loopcurve < curveGenerators[loopunit].length; loopcurve++) {
-        unitBundleSoFar.put(curveNames[loopunit][loopcurve], new ObjectsPair<CurveBuildingBlock, DoubleMatrix2D>(new CurveBuildingBlock(unitMap), mat[loopcurve]));
-      }
-      knownSoFarData.addAll(unitCal.getFirst());
-      start = start + startBlock;
     }
-    return new ObjectsPair<YieldCurveBundle, CurveBuildingBlockBundle>(knownSoFarData, new CurveBuildingBlockBundle(unitBundleSoFar));
-  }
-
-  //  private static Pair<YieldCurveBundle, CurveBuildingBlockBundle> makeCurves1(final InstrumentDefinition<?>[][][] definitions, GeneratorCurve[][] curveGenerators, String[][] curveNames,
-  //      YieldCurveBundle knownData, final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> calculator,
-  //      final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> sensitivityCalculator, boolean withToday, int block) {
-  //
-  //    int nbUnits = curveGenerators.length;
-  //    double[][] initGuess = new double[nbUnits][];
-  //    GeneratorCurve[][] generatorFinal = new GeneratorCurve[nbUnits][];
-  //    InstrumentDerivative[][][] instruments = new InstrumentDerivative[nbUnits][][];
-  //    for (int loopunit = 0; loopunit < nbUnits; loopunit++) {
-  //      instruments[loopunit] = convert2(curveNames, definitions[loopunit], loopunit, withToday, block);
-  //      for (int loopcurve = 0; loopcurve < curveGenerators[loopunit].length; loopcurve++) {
-  //        generatorFinal[loopunit][loopcurve] = curveGenerators[loopunit][loopcurve].finalGenerator(instruments[loopunit][loopcurve]);
-  //      }
-  //    }
-  //
-  //    YieldCurveBundle knownSoFarData = knownData.copy();
-  //    List<InstrumentDerivative> instrumentsSoFar = new ArrayList<InstrumentDerivative>();
-  //    LinkedHashMap<String, GeneratorCurve> generatorsSoFar = new LinkedHashMap<String, GeneratorCurve>();
-  //    LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> unitBundleSoFar = new LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>>();
-  //    List<Double> parametersSoFar = new ArrayList<Double>();
-  //    LinkedHashMap<String, Pair<Integer, Integer>> unitMap = new LinkedHashMap<String, Pair<Integer, Integer>>();
-  //    int start = 0;
-  //    for (int loopunit = 0; loopunit < nbUnits; loopunit++) {
-  //      int startBlock = 0;
-  //      InstrumentDerivative[] instruments = convert(curveNames, definitions[loopunit], loopunit, withToday, block);
-  //      instrumentsSoFar.addAll(Arrays.asList(instruments));
-  //      InstrumentDerivative[] instrumentsSoFarArray = instrumentsSoFar.toArray(new InstrumentDerivative[0]);
-  //      LinkedHashMap<String, GeneratorCurve> gen = new LinkedHashMap<String, GeneratorCurve>();
-  //      int[] nbIns = new int[curveGenerators[loopunit].length];
-  //      int nbInsTotal = 0;
-  //      for (int loopcurve = 0; loopcurve < curveGenerators[loopunit].length; loopcurve++) {
-  //        nbIns[loopcurve] = definitions[loopunit][loopcurve].length;
-  //        nbInsTotal += nbIns[loopcurve];
-  //      }
-  //      double[] initGuess = new double[nbInsTotal];
-  //      for (int loopcurve = 0; loopcurve < curveGenerators[loopunit].length; loopcurve++) {
-  //        InstrumentDerivative[] insCurve = new InstrumentDerivative[nbIns[loopcurve]];
-  //        System.arraycopy(instruments, startBlock, insCurve, 0, nbIns[loopcurve]);
-  //        GeneratorCurve tmp = curveGenerators[loopunit][loopcurve].finalGenerator(insCurve);
-  //        double[] guessCurve = tmp.initialGuess(initialGuess(definitions[loopunit][loopcurve]));
-  //        System.arraycopy(guessCurve, 0, initGuess, startBlock, nbIns[loopcurve]);
-  //        // TODO: Need a better initial guess method.
-  //        gen.put(curveNames[loopunit][loopcurve], tmp);
-  //        generatorsSoFar.put(curveNames[loopunit][loopcurve], tmp);
-  //        unitMap.put(curveNames[loopunit][loopcurve], new ObjectsPair<Integer, Integer>(start + startBlock, nbIns[loopcurve]));
-  //        startBlock += nbIns[loopcurve];
-  //      }
-  //      if ((block == 7) && (loopunit == 1)) {
-  //        initGuess = new double[] {0.012, -0.003, 0.018, 1.60, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-  //      }
-  //      Pair<YieldCurveBundle, Double[]> unitCal = CURVE_BUILDING_FUNCTION.makeUnit(instruments, initGuess, gen, knownSoFarData, calculator, sensitivityCalculator);
-  //      parametersSoFar.addAll(Arrays.asList(unitCal.getSecond()));
-  //      DoubleMatrix2D[] mat = CURVE_BUILDING_FUNCTION.makeCurveMatrix(instrumentsSoFarArray, generatorsSoFar, start, nbIns, parametersSoFar.toArray(new Double[0]), knownData, sensitivityCalculator);
-  //      for (int loopcurve = 0; loopcurve < curveGenerators[loopunit].length; loopcurve++) {
-  //        unitBundleSoFar.put(curveNames[loopunit][loopcurve], new ObjectsPair<CurveBuildingBlock, DoubleMatrix2D>(new CurveBuildingBlock(unitMap), mat[loopcurve]));
-  //      }
-  //      knownSoFarData.addAll(unitCal.getFirst());
-  //      start = start + startBlock;
-  //    }
-  //    return new ObjectsPair<YieldCurveBundle, CurveBuildingBlockBundle>(knownSoFarData, new CurveBuildingBlockBundle(unitBundleSoFar));
-  //  }
-
-  private static Pair<YieldCurveBundle, CurveBuildingBlockBundle> makeCurves2(final InstrumentDerivative[][][] instruments, GeneratorCurve[][] curveGenerators, String[][] curveNames,
-      double[][] parametersGuess, YieldCurveBundle knownData, final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> calculator,
-      final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> sensitivityCalculator) {
-    int nbUnits = curveGenerators.length;
-    YieldCurveBundle knownSoFarData = knownData.copy();
-    List<InstrumentDerivative> instrumentsSoFar = new ArrayList<InstrumentDerivative>();
-    LinkedHashMap<String, GeneratorCurve> generatorsSoFar = new LinkedHashMap<String, GeneratorCurve>();
-    LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> unitBundleSoFar = new LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>>();
-    List<Double> parametersSoFar = new ArrayList<Double>();
-    LinkedHashMap<String, Pair<Integer, Integer>> unitMap = new LinkedHashMap<String, Pair<Integer, Integer>>();
-    int startUnit = 0;
-    for (int loopunit = 0; loopunit < nbUnits; loopunit++) {
-      int nbCurve = curveGenerators[loopunit].length;
-      int[] startCurve = new int[nbCurve]; // First parameter index of the curve in the unit. 
-      LinkedHashMap<String, GeneratorCurve> gen = new LinkedHashMap<String, GeneratorCurve>();
-      int[] nbIns = new int[curveGenerators[loopunit].length];
-      int nbInsUnit = 0; // Number of instruments in the unit.
-      for (int loopcurve = 0; loopcurve < nbCurve; loopcurve++) {
-        startCurve[loopcurve] = nbInsUnit;
-        nbIns[loopcurve] = instruments[loopunit][loopcurve].length;
-        nbInsUnit += nbIns[loopcurve];
-        instrumentsSoFar.addAll(Arrays.asList(instruments[loopunit][loopcurve]));
-      }
-      InstrumentDerivative[] instrumentsUnit = new InstrumentDerivative[nbInsUnit];
-      InstrumentDerivative[] instrumentsSoFarArray = instrumentsSoFar.toArray(new InstrumentDerivative[0]);
-      for (int loopcurve = 0; loopcurve < nbCurve; loopcurve++) {
-        System.arraycopy(instruments[loopunit][loopcurve], 0, instrumentsUnit, startCurve[loopcurve], nbIns[loopcurve]);
-      }
-      for (int loopcurve = 0; loopcurve < nbCurve; loopcurve++) {
-        GeneratorCurve tmp = curveGenerators[loopunit][loopcurve].finalGenerator(instruments[loopunit][loopcurve]);
-        gen.put(curveNames[loopunit][loopcurve], tmp);
-        generatorsSoFar.put(curveNames[loopunit][loopcurve], tmp);
-        unitMap.put(curveNames[loopunit][loopcurve], new ObjectsPair<Integer, Integer>(startUnit + startCurve[loopcurve], nbIns[loopcurve]));
-      }
-      Pair<YieldCurveBundle, Double[]> unitCal = CURVE_BUILDING_FUNCTION.makeUnit(instrumentsUnit, parametersGuess[loopunit], gen, knownSoFarData, calculator, sensitivityCalculator);
-      parametersSoFar.addAll(Arrays.asList(unitCal.getSecond()));
-      DoubleMatrix2D[] mat = CURVE_BUILDING_FUNCTION
-          .makeCurveMatrix(instrumentsSoFarArray, generatorsSoFar, startUnit, nbIns, parametersSoFar.toArray(new Double[0]), knownData, sensitivityCalculator);
-      for (int loopcurve = 0; loopcurve < curveGenerators[loopunit].length; loopcurve++) {
-        unitBundleSoFar.put(curveNames[loopunit][loopcurve], new ObjectsPair<CurveBuildingBlock, DoubleMatrix2D>(new CurveBuildingBlock(unitMap), mat[loopcurve]));
-      }
-      knownSoFarData.addAll(unitCal.getFirst());
-      startUnit = startUnit + nbInsUnit;
-    }
-    return new ObjectsPair<YieldCurveBundle, CurveBuildingBlockBundle>(knownSoFarData, new CurveBuildingBlockBundle(unitBundleSoFar));
+    return CURVE_BUILDING_FUNCTION.makeCurvesFromDerivatives(instruments, generatorFinal, curveNames, parametersGuess, knownData, calculator, sensitivityCalculator);
   }
 
   @SuppressWarnings("unchecked")
@@ -752,6 +622,7 @@ public class CurveConstructionSpreadTest {
     }
     final InstrumentDerivative[][] instruments = new InstrumentDerivative[definitions.length][];
     for (int loopcurve = 0; loopcurve < definitions.length; loopcurve++) {
+      instruments[loopcurve] = new InstrumentDerivative[definitions[loopcurve].length];
       int loopins = 0;
       for (final InstrumentDefinition<?> instrument : definitions[loopcurve]) {
         InstrumentDerivative ird;
