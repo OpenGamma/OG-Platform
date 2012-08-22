@@ -45,6 +45,8 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.aggregation.BottomPositionValues;
 import com.opengamma.financial.aggregation.SortedPositionValues;
 import com.opengamma.financial.aggregation.TopPositionValues;
+import com.opengamma.financial.analytics.CurrencyPairsDefaults;
+import com.opengamma.financial.analytics.CurrencyPairsFunction;
 import com.opengamma.financial.analytics.DV01Function;
 import com.opengamma.financial.analytics.FilteringSummingFunction;
 import com.opengamma.financial.analytics.LastHistoricalValueFunction;
@@ -133,7 +135,6 @@ import com.opengamma.financial.analytics.model.equity.portfoliotheory.SharpeRati
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.SharpeRatioDefaultPropertiesPositionFunction;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.SharpeRatioPortfolioNodeFunction;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.SharpeRatioPositionFunction;
-import com.opengamma.financial.analytics.model.equity.portfoliotheory.StandardEquityModelFunction;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.TotalRiskAlphaDefaultPropertiesPortfolioNodeFunction;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.TotalRiskAlphaDefaultPropertiesPositionFunction;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.TotalRiskAlphaPortfolioNodeFunction;
@@ -161,9 +162,13 @@ import com.opengamma.financial.analytics.model.fixedincome.deprecated.InterestRa
 import com.opengamma.financial.analytics.model.fixedincome.deprecated.InterestRateInstrumentPresentValueFunctionDeprecated;
 import com.opengamma.financial.analytics.model.fixedincome.deprecated.InterestRateInstrumentYieldCurveNodeSensitivitiesFunctionDeprecated;
 import com.opengamma.financial.analytics.model.forex.BloombergFXSpotRateMarketDataFunction;
-import com.opengamma.financial.analytics.model.forex.defaultproperties.FXForwardDefaultsDeprecated;
+import com.opengamma.financial.analytics.model.forex.defaultproperties.FXForwardDefaults;
 import com.opengamma.financial.analytics.model.forex.defaultproperties.FXOptionBlackDefaults;
-import com.opengamma.financial.analytics.model.forex.defaultproperties.FXOptionBlackDefaultsDeprecated;
+import com.opengamma.financial.analytics.model.forex.forward.FXForwardCurrencyExposureFunction;
+import com.opengamma.financial.analytics.model.forex.forward.FXForwardFXPresentValueFunction;
+import com.opengamma.financial.analytics.model.forex.forward.FXForwardPV01Function;
+import com.opengamma.financial.analytics.model.forex.forward.FXForwardPresentValueCurveSensitivityFunction;
+import com.opengamma.financial.analytics.model.forex.forward.FXForwardYCNSFunction;
 import com.opengamma.financial.analytics.model.forex.forward.deprecated.FXForwardCurrencyExposureFunctionDeprecated;
 import com.opengamma.financial.analytics.model.forex.forward.deprecated.FXForwardPresentValueCurveSensitivityFunctionDeprecated;
 import com.opengamma.financial.analytics.model.forex.forward.deprecated.FXForwardPresentValueFunctionDeprecated;
@@ -213,23 +218,19 @@ import com.opengamma.financial.analytics.model.forex.option.localvol.ForexLocalV
 import com.opengamma.financial.analytics.model.forex.option.localvol.ForexLocalVolatilityForwardPDEPipsPresentValueFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureGrossBasisFromCurvesFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureNetBasisFromCurvesFunction;
-import com.opengamma.financial.analytics.model.future.InterestRateFutureDefaultValuesFunctionDeprecated;
 import com.opengamma.financial.analytics.model.future.InterestRateFuturePV01FunctionDeprecated;
 import com.opengamma.financial.analytics.model.future.InterestRateFuturePresentValueFunctionDeprecated;
 import com.opengamma.financial.analytics.model.future.InterestRateFutureYieldCurveNodeSensitivitiesFunctionDeprecated;
 import com.opengamma.financial.analytics.model.horizon.FXOptionBlackConstantSpreadThetaFunction;
 import com.opengamma.financial.analytics.model.horizon.FXOptionBlackForwardSlideThetaFunction;
-import com.opengamma.financial.analytics.model.horizon.FXOptionBlackThetaDefaults;
 import com.opengamma.financial.analytics.model.horizon.FXOptionBlackVolatilitySurfaceConstantSpreadThetaFunction;
 import com.opengamma.financial.analytics.model.horizon.FXOptionBlackVolatilitySurfaceForwardSlideThetaFunction;
 import com.opengamma.financial.analytics.model.horizon.FXOptionBlackYieldCurvesConstantSpreadThetaFunction;
 import com.opengamma.financial.analytics.model.horizon.FXOptionBlackYieldCurvesForwardSlideThetaFunction;
-import com.opengamma.financial.analytics.model.horizon.InterestRateFutureOptionBlackThetaDefaults;
 import com.opengamma.financial.analytics.model.horizon.InterestRateFutureOptionConstantSpreadThetaFunction;
 import com.opengamma.financial.analytics.model.horizon.SwaptionBlackThetaDefaults;
 import com.opengamma.financial.analytics.model.horizon.SwaptionConstantSpreadThetaFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackDefaultPropertiesFunctionDeprecated;
-import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackDefaults;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackGammaFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackGammaFunctionDeprecated;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackImpliedVolatilityFunction;
@@ -335,8 +336,6 @@ import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedS
 import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesYieldCurveCS01Function;
 import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesYieldCurveDV01Function;
 import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction;
-import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFXFuturePresentValueFunction;
-import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFuturePresentValueFunction;
 import com.opengamma.financial.analytics.model.swaption.black.SwaptionBlackDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.swaption.black.SwaptionBlackImpliedVolatilityFunction;
 import com.opengamma.financial.analytics.model.swaption.black.SwaptionBlackPV01Function;
@@ -410,6 +409,7 @@ import com.opengamma.financial.analytics.volatility.surface.DefaultVolatilitySur
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceShiftFunction;
 import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
+import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.currency.FXOptionBlackPnLSeriesCurrencyConversionFunction;
 import com.opengamma.financial.currency.FixedIncomeInstrumentPnLSeriesCurrencyConversionFunction;
 import com.opengamma.financial.currency.FixedIncomeInstrumentPnLSeriesCurrencyConversionFunctionDeprecated;
@@ -513,8 +513,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 
     functionConfigs.add(functionConfiguration(SecurityCurrencyConversionFunction.class, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES));
     functionConfigs.add(functionConfiguration(PortfolioNodeDefaultCurrencyFunction.Permissive.class, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES));
-    // functionConfigs.add(functionConfiguration(PositionDefaultCurrencyFunction.Permissive.class, ValueRequirementNames.EXTERNAL_SENSITIVITIES));
-    // functionConfigs.add(functionConfiguration(PortfolioNodeDefaultCurrencyFunction.Permissive.class, ValueRequirementNames.EXTERNAL_SENSITIVITIES));
     functionConfigs.add(functionConfiguration(CurrencyMatrixSourcingFunction.class, CurrencyMatrixConfigPopulator.BLOOMBERG_LIVE_DATA));
     functionConfigs.add(functionConfiguration(CurrencyMatrixSourcingFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
     functionConfigs.add(functionConfiguration(FixedIncomeInstrumentPnLSeriesCurrencyConversionFunction.class, CurrencyMatrixConfigPopulator.BLOOMBERG_LIVE_DATA));
@@ -580,6 +578,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(YieldCurveInstrumentConversionHistoricalTimeSeriesFunctionDeprecated.class));
     functionConfigs.add(functionConfiguration(YieldCurveInstrumentConversionHistoricalTimeSeriesShiftFunctionDeprecated.class));
     functionConfigs.add(functionConfiguration(DefaultHistoricalTimeSeriesShiftFunction.class));
+    functionConfigs.add(functionConfiguration(CurrencyPairsFunction.class));
+    functionConfigs.add(functionConfiguration(CurrencyPairsDefaults.class, CurrencyPairs.DEFAULT_CURRENCY_PAIRS));
   }
 
   public static RepositoryConfiguration constructRepositoryConfiguration() {
@@ -601,25 +601,26 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(PortfolioExchangeTradedDailyPnLFunction.Impl.class));
     functionConfigs.add(functionConfiguration(AggregationDefaultPropertyFunction.class, ValueRequirementNames.DAILY_PNL, PortfolioExchangeTradedDailyPnLFunction.Impl.AGGREGATION_STYLE_FULL));
 
-//    addPnLCalculators(functionConfigs);
-//    addVaRCalculators(functionConfigs);
-//    addPortfolioAnalysisCalculators(functionConfigs);
+    addPnLCalculators(functionConfigs);
+    addVaRCalculators(functionConfigs);
+    addPortfolioAnalysisCalculators(functionConfigs);
     addFixedIncomeInstrumentCalculators(functionConfigs);
     addDeprecatedFixedIncomeInstrumentCalculators(functionConfigs);
 
 //    functionConfigs.add(functionConfiguration(StandardEquityModelFunction.class));
 //    functionConfigs.add(functionConfiguration(SimpleFuturePresentValueFunction.class, "FUNDING"));
 //    functionConfigs.add(functionConfiguration(SimpleFXFuturePresentValueFunction.class, "FUNDING", "FUNDING"));
-//    addBondCalculators(functionConfigs);
-//    addBondFutureCalculators(functionConfigs);
-//    addSABRCalculators(functionConfigs);
+    addBondCalculators(functionConfigs);
+    addBondFutureCalculators(functionConfigs);
+    addSABRCalculators(functionConfigs);
 //    addDeprecatedSABRCalculators(functionConfigs);
     addForexOptionCalculators(functionConfigs);
 //    addDeprecatedForexOptionCalculators(functionConfigs);
-//    addForexForwardCalculators(functionConfigs);
-//    addInterestRateFutureCalculators(functionConfigs);
-//    addInterestRateFutureOptionCalculators(functionConfigs);
-//    addBondFutureOptionCalculators(functionConfigs);
+//    addDeprecatedForexForwardCalculators(functionConfigs);
+    addForexForwardCalculators(functionConfigs);
+//    addDeprecatedInterestRateFutureCalculators(functionConfigs);
+    addInterestRateFutureOptionCalculators(functionConfigs);
+    addBondFutureOptionCalculators(functionConfigs);
     addEquityDerivativesCalculators(functionConfigs);
     addBlackCalculators(functionConfigs);
 //    addDeprecatedBlackCalculators(functionConfigs);
@@ -943,6 +944,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   }
 
   private static void addForexOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(CurrencyPairsFunction.class));
+    functionConfigs.add(functionConfiguration(CurrencyPairsDefaults.class, CurrencyPairs.DEFAULT_CURRENCY_PAIRS));
     functionConfigs.add(functionConfiguration(BloombergFXSpotRateMarketDataFunction.class));
     functionConfigs.add(functionConfiguration(BloombergFXSpotRatePercentageChangeFunction.class));
     functionConfigs.add(functionConfiguration(BloombergFXOptionSpotRateFunction.class));
@@ -967,7 +970,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(FXOptionBlackForwardSlideThetaFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackVolatilitySurfaceForwardSlideThetaFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackYieldCurvesForwardSlideThetaFunction.class));
-    functionConfigs.add(functionConfiguration(FXOptionBlackDefaults.class, PriorityClass.BELOW_NORMAL.name(), DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR, LINEAR_EXTRAPOLATOR,
+    functionConfigs.add(functionConfiguration(FXOptionBlackDefaults.class, PriorityClass.NORMAL.name(), DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR, LINEAR_EXTRAPOLATOR,
         "USD", "DefaultTwoCurveUSDConfig", "Discounting", "EUR", "DefaultTwoCurveEURConfig", "Discounting", "TULLETT",
         "USD", "DefaultTwoCurveUSDConfig", "Discounting", "CAD", "DefaultTwoCurveCADConfig", "Discounting", "TULLETT",
         "USD", "DefaultTwoCurveUSDConfig", "Discounting", "AUD", "DefaultTwoCurveAUDConfig", "Discounting", "TULLETT",        
@@ -978,21 +981,11 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         "USD", "DefaultTwoCurveUSDConfig", "Discounting", "NZD", "DefaultTwoCurveNZDConfig", "Discounting", "TULLETT",
         "USD", "DefaultTwoCurveUSDConfig", "Discounting", "HUF", "DefaultCashCurveHUFConfig", "Cash", "TULLETT",
         "USD", "DefaultTwoCurveUSDConfig", "Discounting", "KRW", "DefaultCashCurveKRWConfig", "Cash", "TULLETT",        
-        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "BRL", "DefaultCashCurveBRLConfig", "Cash", "TULLETT"));
-    functionConfigs.add(functionConfiguration(FXOptionBlackThetaDefaults.class, PriorityClass.BELOW_NORMAL.name(), "1", DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR, LINEAR_EXTRAPOLATOR,
-        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "EUR", "DefaultTwoCurveEURConfig", "Discounting", "TULLETT",
-        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "CAD", "DefaultTwoCurveCADConfig", "Discounting", "TULLETT",
-        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "AUD", "DefaultTwoCurveAUDConfig", "Discounting", "TULLETT",        
-        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "CHF", "DefaultTwoCurveCHFConfig", "Discounting", "TULLETT",        
-        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "MXN", "DefaultCashCurveMXNConfig", "Cash", "TULLETT",        
-        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "JPY", "DefaultTwoCurveJPYConfig", "Discounting", "TULLETT",
-        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "GBP", "DefaultTwoCurveGBPConfig", "Discounting", "TULLETT",
-        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "NZD", "DefaultTwoCurveNZDConfig", "Discounting", "TULLETT",
-        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "HUF", "DefaultCashCurveHUFConfig", "Cash", "TULLETT",
-        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "KRW", "DefaultCashCurveKRWConfig", "Cash", "TULLETT",        
-        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "BRL", "DefaultCashCurveBRLConfig", "Cash", "TULLETT"));
+        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "BRL", "DefaultCashCurveBRLConfig", "Cash", "TULLETT",
+        "EUR", "DefaultTwoCurveEURConfig", "Discounting", "CHF", "DefaultTwoCurveCHFConfig", "Discounting", "TULLETT",
+        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "HKD", "DefaultCashCurveHKDConfig", "Cash", "TULLETT"));
   }
-
+  
   private static void addDeprecatedForexOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(BloombergFXSpotRateMarketDataFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackPresentValueFunctionDeprecated.class));
@@ -1003,30 +996,32 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(FXOptionBlackPresentValueCurveSensitivityFunctionDeprecated.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackPV01FunctionDeprecated.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackYCNSFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(FXOptionBlackDefaultsDeprecated.class, "FUNDING", "FORWARD_3M", "PresentValue", "FUNDING",
-        "FORWARD_6M", "PresentValue", "DEFAULT", "DoubleQuadratic", "LinearExtrapolator", "LinearExtrapolator", "USD", "EUR"));
-    functionConfigs.add(functionConfiguration(FXOptionBlackDefaultsDeprecated.class, "FUNDING", "FORWARD_6M", "PresentValue", "FUNDING",
-        "FORWARD_3M", "PresentValue", "DEFAULT", "DoubleQuadratic", "LinearExtrapolator", "LinearExtrapolator", "EUR", "USD"));
   }
 
   private static void addForexForwardCalculators(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(FXForwardPV01Function.class));
+    functionConfigs.add(functionConfiguration(FXForwardFXPresentValueFunction.class));
+    functionConfigs.add(functionConfiguration(FXForwardCurrencyExposureFunction.class));
+    functionConfigs.add(functionConfiguration(FXForwardYCNSFunction.class));
+    functionConfigs.add(functionConfiguration(FXForwardPresentValueCurveSensitivityFunction.class));
+    functionConfigs.add(functionConfiguration(FXForwardDefaults.class, PriorityClass.NORMAL.name(),
+        "USD", "DefaultTwoCurveUSDConfig", "Discounting",
+        "EUR", "DefaultTwoCurveEURConfig", "Discounting",
+        "CHF", "DefaultTwoCurveCHFConfig", "Discounting",
+        "RUB", "DefaultCashCurveRUBConfig", "Cash"));
+  }
+  
+  private static void addDeprecatedForexForwardCalculators(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(FXForwardPresentValueFunctionDeprecated.class));
     functionConfigs.add(functionConfiguration(FXForwardCurrencyExposureFunctionDeprecated.class));
     functionConfigs.add(functionConfiguration(FXForwardYCNSFunctionDeprecated.class));
     functionConfigs.add(functionConfiguration(FXForwardPresentValueCurveSensitivityFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(FXForwardDefaultsDeprecated.class, "FUNDING", "FORWARD_3M", "PresentValue", "FUNDING", "FORWARD_6M", "PresentValue", "USD", "EUR"));
-    functionConfigs.add(functionConfiguration(FXForwardDefaultsDeprecated.class, "FUNDING", "FORWARD_6M", "PresentValue", "FUNDING", "FORWARD_3M", "PresentValue", "EUR", "USD"));
-    functionConfigs.add(functionConfiguration(FXForwardDefaultsDeprecated.class, "FUNDING", "FORWARD_6M", "PresentValue", "FUNDING", "FORWARD_6M", "PresentValue", "CHF", "EUR"));
-    functionConfigs.add(functionConfiguration(FXForwardDefaultsDeprecated.class, "FUNDING", "FORWARD_6M", "PresentValue", "FUNDING", "FORWARD_6M", "PresentValue", "EUR", "CHF"));
-    functionConfigs.add(functionConfiguration(FXForwardDefaultsDeprecated.class, "FUNDING", "FORWARD_6M", "PresentValue", "FUNDING", "FORWARD_3M", "PresentValue", "GBP", "USD"));
-    functionConfigs.add(functionConfiguration(FXForwardDefaultsDeprecated.class, "FUNDING", "FORWARD_3M", "PresentValue", "FUNDING", "FORWARD_6M", "PresentValue", "USD", "GBP"));
   }
 
-  private static void addInterestRateFutureCalculators(final List<FunctionConfiguration> functionConfigs) {
+  private static void addDeprecatedInterestRateFutureCalculators(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(InterestRateFuturePresentValueFunctionDeprecated.class));
     functionConfigs.add(functionConfiguration(InterestRateFuturePV01FunctionDeprecated.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureYieldCurveNodeSensitivitiesFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureDefaultValuesFunctionDeprecated.class, "FUTURES", "FUNDING", "PresentValue", "USD", "EUR", "GBP", "AUD"));
   }
 
   private static void addInterestRateFutureOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
