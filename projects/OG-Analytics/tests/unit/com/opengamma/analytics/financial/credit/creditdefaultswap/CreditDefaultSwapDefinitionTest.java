@@ -55,6 +55,8 @@ public class CreditDefaultSwapDefinitionTest {
   private static final boolean includeAccruedPremium = true;
   private static final boolean adjustMaturityDate = false;
   
+  private static final int numberOfIntegrationSteps = 10;
+  
   private static final YieldCurve yieldCurve = YieldCurve.from(null);
 
   private static final CreditDefaultSwapDefinition CDS_DEFINITION = new CreditDefaultSwapDefinition(buySellProtection, 
@@ -79,6 +81,7 @@ public class CreditDefaultSwapDefinitionTest {
                                                                                                     curveRecoveryRate, 
                                                                                                     includeAccruedPremium,
                                                                                                     adjustMaturityDate,
+                                                                                                    numberOfIntegrationSteps,
                                                                                                     yieldCurve);
   
   // TODO : Add all the tests
@@ -95,7 +98,7 @@ public class CreditDefaultSwapDefinitionTest {
     new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, 
         currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate, maturityDate, 
         valuationDate, scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, -notional, 
-        parSpread, valuationRecoveryRate, curveRecoveryRate, includeAccruedPremium, adjustMaturityDate, yieldCurve);
+        parSpread, valuationRecoveryRate, curveRecoveryRate, includeAccruedPremium, adjustMaturityDate, numberOfIntegrationSteps, yieldCurve);
   }
   
  // @Test

@@ -5,15 +5,16 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing;
 
+import javax.time.calendar.ZonedDateTime;
+
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 
 /**
  * 
  */
 public class PresentValueCreditDefaultSwap {
   
-  public double getPresentValueCreditDefaultSwap(CreditDefaultSwapDefinition cds) {
+  public double getPresentValueCreditDefaultSwap(CreditDefaultSwapDefinition cds, double cashflowSchedule[][], double irCurve[][], double survCurve[][]) {
 
     // -------------------------------------------------------------------------------------------------
 
@@ -24,30 +25,27 @@ public class PresentValueCreditDefaultSwap {
     double presentValueContingentLeg = 0.0;
     double presentValueAccruedPremium = 0.0;
 
-
     // Calculate the value of the premium leg
-    presentValuePremiumLeg = calculatePremiumLeg(cds);
+    presentValuePremiumLeg = calculatePremiumLeg(cds, cashflowSchedule, irCurve, survCurve);
     
     // Calculate the value of the contingent leg
-    presentValueContingentLeg = calculateContingentLeg(cds);
+    presentValueContingentLeg = calculateContingentLeg(cds, cashflowSchedule, irCurve, survCurve);
     
-    // Calculate the accrued premium if this is required
+    // Calculate the accrued premium if this is specified in the contract
     if (cds.getIncludeAccruedPremium()) {
-      presentValueAccruedPremium = calculateAccruedPremium(cds);
-    }                    // Sort out checkstyle
-    else {
+      presentValueAccruedPremium = calculateAccruedPremium(cds, cashflowSchedule, irCurve, survCurve);
+    } else {
       presentValueAccruedPremium = 0.0;
     }
 
     // Constructing the CDS checks if the Buy/Sell flag is not equal to 'Buy' or 'Sell', so don't have to check it here
     if (cds.getBuySellProtection().equalsIgnoreCase("Buy")) {
       phi = 1;
-    }                   // Sort out checkstyle
-    else {
+    } else {
       phi = -1;
     }
 
-    // TODO : Make sure make it is clear what the buy/sell protection cashflow convention is
+    // TODO : Make sure it is clear what the buy/sell protection cashflow convention is i.e. value of phi
     presentValue = -phi * (presentValuePremiumLeg + presentValueAccruedPremium) + presentValueContingentLeg;
 
     return presentValue;
@@ -56,62 +54,58 @@ public class PresentValueCreditDefaultSwap {
   //-------------------------------------------------------------------------------------------------
   
   // Method to calculate the value of the fee leg
-  double calculatePremiumLeg(CreditDefaultSwapDefinition cds) {
+  
+  // We assume the schedule of coupon payment dates (suitably generated) has been computed externally and is passed in via cashflowSchedule
+  // We assume the discount factors have been computed externally and passed in via irCurve
+  // We assume the calibrated survival probabilities have been computed externally and are passed in via survCurve
+  
+  // Will replace these dummy 'objects' with suitably computed objects in due course
+  
+  double calculatePremiumLeg(CreditDefaultSwapDefinition cds, double cashflowSchedule[][], double irCurve[][], double survCurve[][]) {
 
-    int n = 20;
-    
-    double r = 0.0;
-    double h = 0.0;
+    // Determine how many cashflows there are (this includes time zero even though there is no cashfow on this date
+    int n = cashflowSchedule.length;
     
     double presentValuePremiumLeg = 0.0;
     
-    // Hack together a hard-coded premium leg, just to get the ball rolling
-    
+    // Get the notional amount to multiply for premium leg by
     double notional = cds.getNotional();
-    double parSpread = cds.getParSpread();
-
-    double cashflowSchedule[] = new double [n];
     
-    double irCurve[][] = new double [n][n];
-    double survCurve[][] = new double [n][n];
-
-    // Generate a dummy cashflow schedule 'object'
-    for(int i = 1; i <= n; i++)
-    {
-      double t = i/4;
+    // Get the CDS par spread (remember this is supplied in bps, therefore needs to be divided by 10,000)
+    double parSpread = cds.getParSpread() / 10000.0;
+ 
+    for (int i = 1; i < n; i++) {
+      double dcf = cashflowSchedule[i][1];
+      double discountFactor = irCurve[i][1];
+      double survivalProbability = survCurve[i][1];
       
-      cashflowSchedule[i] = t;
-      
-      irCurve[i][0] = t;
-      irCurve[i][1] = Math.exp(-r*t);
-      
-      System.out.println(irCurve[i][0] + " " + irCurve[i][1]);
-    }
-    
-    
-
-    double dcf = 0.25;
-
-    
-
-    for(int i = 1; i <= n; i++)
-    {
-      double t = i/4;
-
-      presentValuePremiumLeg += dcf*Math.exp(-r*t)*Math.exp(-h*t);
+      presentValuePremiumLeg += dcf * discountFactor * survivalProbability;
     }
 
-    return parSpread*notional*presentValuePremiumLeg;
+    return parSpread * notional * presentValuePremiumLeg;
   }
   
   // -------------------------------------------------------------------------------------------------
   
   // Method to calculate the value of the contingent leg
-  double calculateContingentLeg(CreditDefaultSwapDefinition cds) {
+  double calculateContingentLeg(CreditDefaultSwapDefinition cds, double cashflowSchedule[][], double irCurve[][], double survCurve[][]) {
   
     double presentValueContingentLeg = 0.0;
     
-    double delta = 0.4;
+    ZonedDateTime maturityDate = cds.getMaturityDate();
+    ZonedDateTime valuationDate = cds.getValuationDate();
+    
+    // Hardcoded hack for now - will remove when work out how to use ZoneddateTime
+    int t = 0;
+    int T =5;
+    
+    //int K = numberOfIntegrationPoints * (T - t) + 0.5;
+    
+    int numberOfIntegrationSteps = cds.getNumberOfIntegrationSteps();
+    
+    double valuationRecoveryRate = cds.getValuationRecoveryRate();
+    
+    System.out.println("delta = " + valuationRecoveryRate);
     
     return presentValueContingentLeg;
   }
@@ -119,7 +113,7 @@ public class PresentValueCreditDefaultSwap {
   //-------------------------------------------------------------------------------------------------
   
   // Method to calculate the value of the accrued premium (part of the premium leg cashflow)
-  double calculateAccruedPremium(CreditDefaultSwapDefinition cds) {
+  double calculateAccruedPremium(CreditDefaultSwapDefinition cds, double cashflowSchedule[][], double irCurve[][], double survCurve[][]) {
     
     double presentValueAccruedPremium = 0.0;
     
