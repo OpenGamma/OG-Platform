@@ -9,11 +9,7 @@ import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.cds.CDSDefinition;
@@ -32,7 +28,6 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * An approximation to the calculation method for the ISDA CDS model
@@ -40,8 +35,6 @@ import com.opengamma.util.tuple.Pair;
  * @author Martin Traverse, Niels Stchedroff (Riskcare)
  */
 public class CDSApproxISDAMethod {
-  
-  private static final Logger s_logger = LoggerFactory.getLogger(CDSApproxISDAMethod.class);
   
   private static DayCount s_act365 = new ActualThreeSixtyFive();
   
@@ -111,7 +104,7 @@ public class CDSApproxISDAMethod {
     final double settlementDiscountFactor = discountCurve.getDiscountFactor(settlementTime);
     final double stepinDiscountFactor = offsetStepinTime > 0.0 ? discountCurve.getDiscountFactor(offsetStepinTime) : discountCurve.getDiscountFactor(0.0);
     
-    return valueCDS(cds, discountCurve, hazardRateCurve, paymentTimeline, feeTimeline, contingentTimeline, pricingDate, stepinDate, cleanPrice, stepinDiscountFactor, settlementDiscountFactor);
+    return valueCDS(cds, discountCurve, hazardRateCurve, paymentTimeline, feeTimeline, contingentTimeline, pricingDate, offsetStepinTime, cleanPrice, stepinDiscountFactor, settlementDiscountFactor);
   }
 
   public double calculateUpfrontCharge(final CDSDerivative cds, final ISDACurve discountCurve, double flatSpread,
@@ -157,16 +150,15 @@ public class CDSApproxISDAMethod {
     
     SingleRootFinder<Double, Double> rootFinder = new BrentSingleRootFinder(1E-17);
     
-    double guess = dataPoints[0] / (1 + cds.getRecoveryRate());
+    //double guess = dataPoints[0] / (1 + cds.getRecoveryRate());
     
     dataPoints[0] = rootFinder.getRoot(
       new Function1D<Double, Double>() {
         @Override
         public Double evaluate(Double x) {
-          //System.out.println("Evaluating " + x);
           dataPoints[0] = x;   
           ISDACurve tempCurve = new ISDACurve("TEMP_CURVE", timePoints, dataPoints, 0.0);
-          return valueCDS(zeroCDS, discountCurve, tempCurve, paymentTimeline, feeTimeline, contingentTimeline, pricingDate, stepinDate, true, stepinDiscountFactor, settlementDiscountFactor);
+          return valueCDS(zeroCDS, discountCurve, tempCurve, paymentTimeline, feeTimeline, contingentTimeline, pricingDate, offsetStepinTime, true, stepinDiscountFactor, settlementDiscountFactor);
         }  
       },
       0.0, 100.0
@@ -174,7 +166,7 @@ public class CDSApproxISDAMethod {
     
     final ISDACurve hazardRateCurve = new ISDACurve("HAZARD_RATE_CURVE", timePoints, dataPoints, 0.0);
       
-    return valueCDS(cds, discountCurve, hazardRateCurve, paymentTimeline, feeTimeline, contingentTimeline, pricingDate, stepinDate, cleanPrice, stepinDiscountFactor, settlementDiscountFactor);
+    return valueCDS(cds, discountCurve, hazardRateCurve, paymentTimeline, feeTimeline, contingentTimeline, pricingDate, offsetStepinTime, cleanPrice, stepinDiscountFactor, settlementDiscountFactor);
   }
   
   private CDSDefinition makeZeroCDSDefintion(ZonedDateTime startDate, ZonedDateTime maturity, final double spread, final double recoveryRate) {
@@ -197,14 +189,14 @@ public class CDSApproxISDAMethod {
   }
   
   private double valueCDS(CDSDerivative cds, ISDACurve discountCurve, ISDACurve hazardRateCurve, Timeline paymentTimeline, Timeline feeTimeline, Timeline contingentTimeline,
-  ZonedDateTime pricingDate, ZonedDateTime stepinDate, boolean cleanPrice, final double stepinDiscountFactor, final double settlementDiscountFactor) {
+  ZonedDateTime pricingDate, final double stepinTime, boolean cleanPrice, final double stepinDiscountFactor, final double settlementDiscountFactor) {
     
-    if (stepinDate.isBefore(pricingDate)) {
+    if (stepinTime < PRICING_TIME) {
       throw new OpenGammaRuntimeException("Cannot value a CDS with step-in date before pricing date");
     }
     
     final double contingentLeg = valueContingentLeg(cds, contingentTimeline, hazardRateCurve, settlementDiscountFactor);
-    final double feeLeg = valueFeeLeg(cds, paymentTimeline, feeTimeline, hazardRateCurve, pricingDate, stepinDate, stepinDiscountFactor, settlementDiscountFactor);
+    final double feeLeg = valueFeeLeg(cds, paymentTimeline, feeTimeline, hazardRateCurve, pricingDate, stepinTime, stepinDiscountFactor, settlementDiscountFactor);
     final double dirtyPrice = (contingentLeg - feeLeg) * cds.getNotional();
     
     return cleanPrice ? dirtyPrice + cds.getAccruedInterest() : dirtyPrice;
@@ -220,7 +212,7 @@ public class CDSApproxISDAMethod {
    * @return PV of the CDS premium leg
    */
   private double valueFeeLeg(final CDSDerivative cds, final Timeline paymentTimeline, final Timeline accrualTimeline, final ISDACurve hazardRateCurve,
-    final ZonedDateTime pricingDate, final ZonedDateTime stepinDate, final double stepinDiscountFactor, final double settlementDiscountFactor) {
+    final ZonedDateTime pricingDate, final double stepinTime, final double stepinDiscountFactor, final double settlementDiscountFactor) {
     
     // If the "protect start" flag is set, then the start date of the CDS is protected and observations are made at the start
     // of the day rather than the end. This is modelled by shifting all period start/end dates one day forward,
@@ -231,7 +223,6 @@ public class CDSApproxISDAMethod {
     final int offset = cds.isProtectStart() ? 1 : 0;
     
     final ZonedDateTime maturityDate = premiums[premiums.length - 1].getAccrualEndDate().plusDays(offset);
-    final double offsetStepinTime = getTimeBetween(pricingDate, stepinDate.minusDays(offset));
 
     CouponFixed payment;
     ZonedDateTime accrualPeriodEnd;
@@ -257,7 +248,7 @@ public class CDSApproxISDAMethod {
         startIndex = endIndex;
         while (accrualTimeline.timePoints[endIndex] < periodEnd) { ++endIndex; }
           
-        result += valueFeeLegAccrualOnDefault(amount, accrualTimeline, hazardRateCurve, startIndex, endIndex, offsetStepinTime, stepinDiscountFactor);
+        result += valueFeeLegAccrualOnDefault(amount, accrualTimeline, hazardRateCurve, startIndex, endIndex, stepinTime, stepinDiscountFactor);
       }
     }
     

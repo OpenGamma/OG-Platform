@@ -98,16 +98,13 @@ public class CDSApproxISDAMethodTest extends CDSTestSetup {
     
     final CDSApproxISDAMethod method = new CDSApproxISDAMethod();
 
-    //final double cleanPrice = method.calculateUpfrontCharge(cds, discountCurve, 0.001, pricingDate, stepinDate, settlementDate, true);
+    final double cleanPrice = method.calculateUpfrontCharge(cds, discountCurve, 0.055, pricingDate, stepinDate, settlementDate, true);
     final double dirtyPrice = method.calculateUpfrontCharge(cds, discountCurve, 0.055, pricingDate, stepinDate, settlementDate, false);
-    //final double cleanPriceError = Math.abs( (cleanPrice - 1605993.21801408) / cds.getNotional() );
+    final double cleanPriceError = Math.abs( (cleanPrice - 185852.587288133) / cds.getNotional() );
     final double dirtyPriceError = Math.abs( (dirtyPrice - 59463.6983992436) / cds.getNotional() );
     
-    //Assert.assertTrue(cleanPriceError < 1E-15);
+    Assert.assertTrue(cleanPriceError < 1E-15);
     Assert.assertTrue(dirtyPriceError < 1E-15);
-    
-    //System.out.println( cleanPrice );
-    System.out.println( dirtyPrice );
   }
   
 }
