@@ -18,17 +18,20 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
+/**
+ * Managed staged data for ISDA test cases
+ * 
+ * @author Martin Traverse, Niels Stchedroff (Riskcare)
+ */
 public class ISDAStagedDataManager {
 
-  private static Pattern gridRegex = Pattern.compile("([A-Z]{3}+)_([0-9]{8}+)\\.xls", Pattern.CASE_INSENSITIVE);
-
-  private static DateTimeFormatter gridFormatter = DateTimeFormatters.pattern("yyyyMMdd");
-
-  private static DateTimeFormatter stagedFormatter = DateTimeFormatters.pattern("dd_MM_yyyy");
-
-  private static String resourceDirectory = "resources";
-  private static String stagedCurveDirectory = "isda_staged_curves";
-  private static String stagedCurveBaseName = "IsdaIrCurve_";
+  private static final Pattern TEST_GRID_REGEX = Pattern.compile("([A-Z]{3}+)_([0-9]{8}+)\\.xls", Pattern.CASE_INSENSITIVE);
+  private static final DateTimeFormatter GRID_DATE_FORMAT = DateTimeFormatters.pattern("yyyyMMdd");
+  private static final DateTimeFormatter STAGED_DATE_FORMAT = DateTimeFormatters.pattern("dd_MM_yyyy");
+  
+  private static final String RESOURCE_DIR = "resources";
+  private static final String STAGED_CURVE_DIR = "isda_staged_curves";
+  private static final String STAGED_CURVE_BASENAME = "IsdaIrCurve_";
 
   public ISDAStagedCurve loadStagedCurveForGrid(final String gridFilename) throws IOException, JAXBException {
 
@@ -36,15 +39,15 @@ public class ISDAStagedDataManager {
 
     try {
 
-      final Matcher matcher = gridRegex.matcher(gridFilename);
+      final Matcher matcher = TEST_GRID_REGEX.matcher(gridFilename);
 
       if (!matcher.matches()) {
         return null;
       }
 
-      final LocalDate testDate = LocalDate.parse(matcher.group(2), gridFormatter);
-      final String path = resourceDirectory + File.separator + stagedCurveDirectory + File.separator
-          + stagedCurveBaseName + matcher.group(1) + "_" + testDate.toString(stagedFormatter) + ".xml";
+      final LocalDate testDate = LocalDate.parse(matcher.group(2), GRID_DATE_FORMAT);
+      final String path = RESOURCE_DIR + File.separator + STAGED_CURVE_DIR + File.separator
+          + STAGED_CURVE_BASENAME + matcher.group(1) + "_" + testDate.toString(STAGED_DATE_FORMAT) + ".xml";
       is = getClass().getClassLoader().getResourceAsStream(path);
 
       if (is == null) {

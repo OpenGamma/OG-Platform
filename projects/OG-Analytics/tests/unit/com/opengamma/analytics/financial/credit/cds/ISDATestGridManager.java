@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.analytics.financial.credit.cds;
 
 import java.io.File;
@@ -12,27 +17,29 @@ import org.apache.poi.ss.usermodel.Workbook;
 
 /**
  * Manages the ISDA test grids
+ * 
+ * Martin Traverse, Niels Stchedroff (Riskcare)
  */
 public class ISDATestGridManager {
   
-  public static final String s_resourcesDir = "resources";
-  public static final String s_testGridDir = "isda_test_grids";
-  public static final String s_benchmarkDir = "benchmark";
-  public static final String s_corporateDir = "corporate";
-  public static final String s_holidayDir = "holiday";
+  private static final String RESOURCE_DIR = "resources";
+  private static final String TEST_GRID_DIR = "isda_test_grids";
+  private static final String BENCHMARK_DIR = "benchmark";
+  private static final String CORPORATE_DIR = "corporate";
+  private static final String HOLIDAY_DIR = "holiday";
   
   public Map<String,String[]> findAllTestGrids() throws Exception {
     
     Map<String,String[]> testGrids = new HashMap<String,String[]>();
-    testGrids.put(s_benchmarkDir, findAllTestGridsForCategory(s_benchmarkDir));
-    testGrids.put(s_corporateDir, findAllTestGridsForCategory(s_corporateDir));
-    testGrids.put(s_holidayDir, findAllTestGridsForCategory(s_holidayDir));
+    testGrids.put(BENCHMARK_DIR, findAllTestGridsForCategory(BENCHMARK_DIR));
+    testGrids.put(CORPORATE_DIR, findAllTestGridsForCategory(CORPORATE_DIR));
+    testGrids.put(HOLIDAY_DIR, findAllTestGridsForCategory(HOLIDAY_DIR));
     return testGrids;
   }
 
   public String[] findAllTestGridsForCategory(final String category) throws Exception {
 
-    final String path = s_resourcesDir + File.separator + s_testGridDir + File.separator + category;
+    final String path = RESOURCE_DIR + File.separator + TEST_GRID_DIR + File.separator + category;
     final URL directory = getClass().getClassLoader().getResource(path);
 
     if (directory == null) {
@@ -51,7 +58,7 @@ public class ISDATestGridManager {
     InputStream is = null;
 
     try {
-      String path = s_resourcesDir + File.separator + s_testGridDir + File.separator + category + File.separator + fileName;
+      String path = RESOURCE_DIR + File.separator + TEST_GRID_DIR + File.separator + category + File.separator + fileName;
       is = getClass().getClassLoader().getResourceAsStream(path);
       Workbook wb = new HSSFWorkbook(is);
       Sheet sheet = wb.getSheetAt(0);
