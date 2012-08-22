@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.8.2
+Created-By: 1.6.0_20-b02 (Sun Microsystems Inc.)
+Built-By: andrew
+Build-Version: 1.0.0-local-20120822150053
+Main-Class: og-install.Main
+

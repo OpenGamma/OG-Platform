@@ -4,6 +4,7 @@
   <import file="${common.dir}/cpp.xml" />
 
   <path id="cc.build.path">
+    <pathelement path="Common" />
     <pathelement path="MainRunner" />
     <pathelement path="Service" />
     <pathelement path="Wait for Startup" />
@@ -42,11 +43,11 @@
     <mkdir dir="Releasex64" />
     <antcall target="dist-publish-impl">
       <param name="config" value="ReleaseWin32" />
-      <param name="dist.file" value="${dist.dir}/Util32.zip" />
+      <param name="dist.file" value="${dist.dir}/Util32-bin.zip" />
     </antcall>
     <antcall target="dist-publish-impl">
       <param name="config" value="Releasex64" />
-      <param name="dist.file" value="${dist.dir}/Util64.zip" />
+      <param name="dist.file" value="${dist.dir}/Util64-bin.zip" />
     </antcall>
   </target>
 

@@ -57,8 +57,11 @@ public abstract class AbstractTool {
    * @param logbackResource the logback resource location, not null
    * @return true if successful
    */
-  public static final boolean init(String logbackResource) {
-    return LogUtils.configureLogger(logbackResource);
+  public static final boolean init(final String logbackResource) {
+    s_logger.debug("Configuring logging from {}", logbackResource);
+    // Don't reconfigure if already configured from the default property or any existing loggers will break
+    // and stop reporting anything.
+    return logbackResource.equals(getSystemDefaultLogbackConfiguration()) ? true : LogUtils.configureLogger(logbackResource);
   }
 
   /**
@@ -68,6 +71,26 @@ public abstract class AbstractTool {
   }
 
   //-------------------------------------------------------------------------
+
+  protected static String getSystemDefaultLogbackConfiguration() {
+    return System.getProperty("logback.configurationFile");
+  }
+
+  /**
+   * Returns the name of the default logback configuration file if none is explicitly specified. This will be {@link #TOOL_LOGBACK_XML} unless the global {@code logback.configurationFile property} has
+   * been set.
+   * 
+   * @return the logback configuration file resource address, not null
+   */
+  protected String getDefaultLogbackConfiguration() {
+    final String globalConfiguration = getSystemDefaultLogbackConfiguration();
+    if (globalConfiguration != null) {
+      return globalConfiguration;
+    } else {
+      return TOOL_LOGBACK_XML;
+    }
+  }
+
   /**
    * Initializes and runs the tool from standard command-line arguments.
    * <p>
@@ -114,7 +137,7 @@ public abstract class AbstractTool {
       return true;
     }
     String logbackResource = line.getOptionValue(LOGBACK_RESOURCE_OPTION);
-    logbackResource = StringUtils.defaultIfEmpty(logbackResource, TOOL_LOGBACK_XML);
+    logbackResource = StringUtils.defaultIfEmpty(logbackResource, getDefaultLogbackConfiguration());
     String configResource = line.getOptionValue(CONFIG_RESOURCE_OPTION);
     configResource = StringUtils.defaultString(configResource, defaultConfigResource);
     return init(logbackResource) && run(configResource);
@@ -131,11 +154,11 @@ public abstract class AbstractTool {
   public final boolean run(String configResource) {
     try {
       ArgumentChecker.notNull(configResource, "configResourceLocation");
-      s_logger.info("Starting " + getClass().getSimpleName());
+      s_logger.info("Starting {}", getClass().getSimpleName());
       ToolContext toolContext = ToolContextUtils.getToolContext(configResource);
-      s_logger.info("Running " + getClass().getSimpleName());
+      s_logger.info("Running {}", getClass().getSimpleName());
       run(toolContext);
-      s_logger.info("Finished " + getClass().getSimpleName());
+      s_logger.info("Finished {}", getClass().getSimpleName());
       return true;
     } catch (Exception ex) {
       ex.printStackTrace();
