@@ -5,6 +5,7 @@
  */
 package com.opengamma.master.user.impl;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,16 +18,8 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.ChangeType;
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.ObjectIdSupplier;
-import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.user.ManageableOGUser;
-import com.opengamma.master.user.UserDocument;
-import com.opengamma.master.user.UserMaster;
-import com.opengamma.master.user.UserSearchRequest;
-import com.opengamma.master.user.UserSearchResult;
+import com.opengamma.id.*;
+import com.opengamma.master.user.*;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -187,4 +180,76 @@ public class InMemoryUserMaster implements UserMaster {
     return new UserSearchResult(docs);
   }
 
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  
+
+  @Override
+  public List<UniqueId> replaceVersion(UniqueId uniqueId, List<UserDocument> replacementDocuments) {
+
+    ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
+
+    if (replacementDocuments.isEmpty()) {
+      //removing a version
+      if (_store.remove(uniqueId.getObjectId()) == null) {
+        throw new DataNotFoundException("User not found: " + uniqueId);
+      }
+      _changeManager.entityChanged(ChangeType.REMOVED, uniqueId, null, Instant.now());
+      return Collections.emptyList();
+    } else {
+      UserDocument document = replacementDocuments.get(replacementDocuments.size() - 1);
+      ArgumentChecker.notNull(document, "document");
+      ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
+      ArgumentChecker.notNull(document.getUser(), "document.user");
+
+      final Instant now = Instant.now();
+      final UserDocument storedDocument = _store.get(uniqueId.getObjectId());
+      if (storedDocument == null) {
+        throw new DataNotFoundException("User not found: " + uniqueId);
+      }
+      document.setUniqueId(uniqueId.toLatest());
+      document.setVersionFromInstant(now);
+      document.setVersionToInstant(null);
+      document.setCorrectionFromInstant(now);
+      document.setCorrectionToInstant(null);
+      if (_store.replace(uniqueId.getObjectId(), storedDocument, document) == false) {
+        throw new IllegalArgumentException("Concurrent modification");
+      }
+      _changeManager.entityChanged(ChangeType.UPDATED, uniqueId, document.getUniqueId(), now);
+      return Collections.singletonList(document.getUniqueId());
+    }
+  }
+
+  @Override
+  public List<UniqueId> replaceAllVersions(ObjectIdentifiable objectId, List<UserDocument> replacementDocuments) {
+    return replaceVersion(objectId.getObjectId().atLatestVersion(), replacementDocuments);
+  }
+
+  @Override
+  public List<UniqueId> replaceVersions(ObjectIdentifiable objectId, List<UserDocument> replacementDocuments) {
+    return replaceVersion(objectId.getObjectId().atLatestVersion(), replacementDocuments);
+  }
+
+  @Override
+  public UniqueId addVersion(ObjectIdentifiable objectId, UserDocument documentToAdd) {
+    List<UniqueId> result = replaceVersion(objectId.getObjectId().atLatestVersion(), Collections.singletonList(documentToAdd));
+    if (result.isEmpty()) {
+      return null;
+    } else {
+      return result.get(0);
+    }
+  }
+
+  @Override
+  public UniqueId replaceVersion(UserDocument replacementDocument) {
+    List<UniqueId> result = replaceVersion(replacementDocument.getUniqueId(), Collections.singletonList(replacementDocument));
+    if (result.isEmpty()) {
+      return null;
+    } else {
+      return result.get(0);
+    }
+  }
+
+  @Override
+  public void removeVersion(UniqueId uniqueId) {
+    replaceVersion(uniqueId, Collections.<UserDocument>emptyList());
+  }
 }

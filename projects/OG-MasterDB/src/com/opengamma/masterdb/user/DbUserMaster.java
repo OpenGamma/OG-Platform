@@ -21,16 +21,10 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import com.opengamma.elsql.ElSqlBundle;
-import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.user.ManageableOGUser;
-import com.opengamma.master.user.UserDocument;
-import com.opengamma.master.user.UserMaster;
-import com.opengamma.master.user.UserSearchRequest;
-import com.opengamma.master.user.UserSearchResult;
+import com.opengamma.id.*;
+import com.opengamma.master.AbstractHistoryRequest;
+import com.opengamma.master.AbstractHistoryResult;
+import com.opengamma.master.user.*;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
@@ -233,4 +227,14 @@ public class DbUserMaster extends AbstractDocumentDbMaster<UserDocument> impleme
     return new UserSearchResult(docs);
   }
 
+  @Override
+  public AbstractHistoryResult<UserDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
+    UserHistoryRequest historyRequest = new UserHistoryRequest();
+    historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
+    historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
+    historyRequest.setVersionsFromInstant(request.getVersionsFromInstant());
+    historyRequest.setVersionsToInstant(request.getVersionsToInstant());
+    historyRequest.setObjectId(request.getObjectId());
+    return doHistory(request, new UserHistoryResult(), new UserDocumentExtractor());
+  }
 }
