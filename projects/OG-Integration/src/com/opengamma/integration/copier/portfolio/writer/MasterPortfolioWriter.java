@@ -124,10 +124,10 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
       // Just add new quantity to existing position
       ManageablePosition existingPosition = _securityIdToPosition.get(writtenSecurities.get(0).getUniqueId().getObjectId());
-      position.setQuantity(existingPosition.getQuantity().add(position.getQuantity()));
+      existingPosition.setQuantity(existingPosition.getQuantity().add(position.getQuantity()));
 
       // Save the updated position to the position master
-      PositionDocument addedDoc = _positionMaster.update(new PositionDocument(position));
+      PositionDocument addedDoc = _positionMaster.update(new PositionDocument(existingPosition));
 
       // update position map (huh?)
       _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), addedDoc.getPosition());
