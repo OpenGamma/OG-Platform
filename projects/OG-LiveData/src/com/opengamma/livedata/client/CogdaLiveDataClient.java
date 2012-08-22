@@ -373,6 +373,8 @@ public class CogdaLiveDataClient extends AbstractLiveDataClient implements Lifec
     subs.add(new LiveDataSpecification("OpenGamma", ExternalId.of("SURF", "ASIRSEUR49Y30A03L")));
     subs.add(new LiveDataSpecification("OpenGamma", ExternalId.of("SURF", "FV1DRUSDBRL06M")));
     subs.add(new LiveDataSpecification("OpenGamma", ExternalId.of("ICAP", "SAUD_9Y")));
+    subs.add(new LiveDataSpecification("OpenGamma", ExternalId.of("ICAP", "GBP_5Y")));
+    subs.add(new LiveDataSpecification("OpenGamma", ExternalId.of("ICAP", "GBPUSD7M")));
     LiveDataListener ldl = new LiveDataListener() {
       @Override
       public void subscriptionResultReceived(LiveDataSubscriptionResponse subscriptionResult) {
