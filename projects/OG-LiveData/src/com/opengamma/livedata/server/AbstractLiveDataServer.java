@@ -126,7 +126,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   /**
    * Gets the distribution resolver.
    * 
-   * @return the resolver
+   * @return the resolver, not null
    */
   public DistributionSpecificationResolver getDistributionSpecificationResolver() {
     return _distributionSpecificationResolver;
@@ -135,16 +135,17 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   /**
    * Sets the distribution resolver.
    * 
-   * @param distributionSpecificationResolver  the distribution resolver
+   * @param distributionSpecificationResolver  the distribution resolver, not null
    */
   public void setDistributionSpecificationResolver(DistributionSpecificationResolver distributionSpecificationResolver) {
+    ArgumentChecker.notNull(distributionSpecificationResolver, "distributionSpecificationResolver");
     _distributionSpecificationResolver = distributionSpecificationResolver;
   }
 
   /**
    * Gets the market data sender factory.
    * 
-   * @return the factory
+   * @return the factory, not null
    */
   public MarketDataSenderFactory getMarketDataSenderFactory() {
     return _marketDataSenderFactory;
@@ -153,9 +154,10 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   /**
    * Sets the market data sender factory.
    * 
-   * @param marketDataSenderFactory  the factory
+   * @param marketDataSenderFactory  the factory, not null
    */
   public void setMarketDataSenderFactory(MarketDataSenderFactory marketDataSenderFactory) {
+    ArgumentChecker.notNull(marketDataSenderFactory, "marketDataSenderFactory");
     _marketDataSenderFactory = marketDataSenderFactory;
   }
 
@@ -165,7 +167,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
    * @param subscriptionListener  the listener, not null
    */
   public void addSubscriptionListener(SubscriptionListener subscriptionListener) {
-    ArgumentChecker.notNull(subscriptionListener, "Subscription Listener");
+    ArgumentChecker.notNull(subscriptionListener, "subscriptionListener");
     _subscriptionListeners.add(subscriptionListener);
   }
 
@@ -175,6 +177,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
    * @param subscriptionListeners  the listeners, not null
    */
   public void setSubscriptionListeners(Collection<SubscriptionListener> subscriptionListeners) {
+    ArgumentChecker.noNulls(subscriptionListeners, "subscriptionListeners");
     _subscriptionListeners.clear();
     for (SubscriptionListener subscriptionListener : subscriptionListeners) {
       addSubscriptionListener(subscriptionListener);
@@ -184,7 +187,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   /**
    * Gets the entitlement checker.
    * 
-   * @return the entitlement checker
+   * @return the entitlement checker, not null
    */
   public LiveDataEntitlementChecker getEntitlementChecker() {
     return _entitlementChecker;
@@ -193,9 +196,10 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   /**
    * Sets the entitlement checker.
    * 
-   * @param entitlementChecker  the entitlement checker
+   * @param entitlementChecker  the entitlement checker, not null
    */
   public void setEntitlementChecker(LiveDataEntitlementChecker entitlementChecker) {
+    ArgumentChecker.notNull(entitlementChecker, "entitlementChecker");
     _entitlementChecker = entitlementChecker;
   }
 
@@ -211,7 +215,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   /**
    * Gets the provider for the last known value store.
    * 
-   * @return the provider
+   * @return the provider, not null
    */
   public LastKnownValueStoreProvider getLkvStoreProvider() {
     return _lkvStoreProvider;
@@ -220,9 +224,10 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   /**
    * Sets the provider for the last known value store.
    * 
-   * @param lkvStoreProvider  the provider
+   * @param lkvStoreProvider  the provider, not null
    */
   public void setLkvStoreProvider(LastKnownValueStoreProvider lkvStoreProvider) {
+    ArgumentChecker.notNull(lkvStoreProvider, "lkvStoreProvider");
     _lkvStoreProvider = lkvStoreProvider;
   }
 
