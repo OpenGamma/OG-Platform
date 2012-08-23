@@ -12,6 +12,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -101,7 +102,8 @@ public class CogdaLiveDataClient extends AbstractLiveDataClient implements Lifec
   
   @Override
   public boolean isEntitled(UserPrincipal user, LiveDataSpecification requestedSpecification) {
-    return false;
+    // TODO kirk 2012-08-23 -- Implement this properly.
+    return true;
   }
 
   /**
@@ -154,7 +156,11 @@ public class CogdaLiveDataClient extends AbstractLiveDataClient implements Lifec
 
   @Override
   public Map<LiveDataSpecification, Boolean> isEntitled(UserPrincipal user, Collection<LiveDataSpecification> requestedSpecifications) {
-    return null;
+    Map<LiveDataSpecification, Boolean> result = new HashMap<LiveDataSpecification, Boolean>();
+    for (LiveDataSpecification ldc : requestedSpecifications) {
+      result.put(ldc, isEntitled(user, ldc));
+    }
+    return result;
   }
 
   @Override
@@ -289,6 +295,8 @@ public class CogdaLiveDataClient extends AbstractLiveDataClient implements Lifec
       default:
         super.subscriptionRequestFailed(subHandle, ldsResponse);
     }
+    subHandle.subscriptionResultReceived(ldsResponse);
+    subHandle.getListener().valueUpdate(valueUpdateBean);
   }
   
   @Override
