@@ -65,7 +65,7 @@ public class CDSSecurityConverter extends FinancialSecurityVisitorAdapter<Instru
   @Override
   public InstrumentDefinition<?> visitCDSSecurity(final CDSSecurity cds) {
     
-    final Calendar calendar = CalendarUtils.getCalendar(_holidaySource, cds.getHolidayCalendarCurrencies());
+    final Calendar calendar = CalendarUtils.getCalendar(_holidaySource, cds.getCurrency());
     
     final CDSPremiumDefinition premiumPayments = CDSPremiumDefinition.fromISDA(
       cds.getCurrency(), cds.getProtectionStartDate(), cds.getMaturity(), cds.getPremiumFrequency(),

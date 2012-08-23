@@ -81,12 +81,6 @@ public class CDSSecurity extends FinancialSecurity {
   @PropertyDefinition(validate = "notNull")
   private BusinessDayConvention _businessDayConvention;
   
-  /**
-   * The holiday calendar currencies - will be used to generate the holiday calendar for the CDS.
-   */
-  @PropertyDefinition
-  private Currency[] _holidayCalendarCurrencies;
-  
   /** Underlying bond */
   // TODO: Where to validate underlying is actually a bond?
   @PropertyDefinition
@@ -98,7 +92,7 @@ public class CDSSecurity extends FinancialSecurity {
 
   public CDSSecurity(double notional, double recoveryRate, double spread,
     Currency currency, ZonedDateTime maturity, ZonedDateTime protectionStartDate,
-    Frequency premiumFrequency, DayCount dayCount, BusinessDayConvention businessDayConvention, Currency[] holidayCalendarCurrencies, ExternalId underlying) {
+    Frequency premiumFrequency, DayCount dayCount, BusinessDayConvention businessDayConvention,  ExternalId underlying) {
     
     super(SECURITY_TYPE);
     setNotional(notional);
@@ -111,7 +105,6 @@ public class CDSSecurity extends FinancialSecurity {
     setDayCount(dayCount);
     setBusinessDayConvention(businessDayConvention);
     setUnderlying(underlying);
-    setHolidayCalendarCurrencies(holidayCalendarCurrencies);
   }
 
   @Override
@@ -158,8 +151,6 @@ public class CDSSecurity extends FinancialSecurity {
         return getDayCount();
       case -1002835891:  // businessDayConvention
         return getBusinessDayConvention();
-      case -1646862139:  // holidayCalendarCurrencies
-        return getHolidayCalendarCurrencies();
       case -1770633379:  // underlying
         return getUnderlying();
     }
@@ -196,9 +187,6 @@ public class CDSSecurity extends FinancialSecurity {
       case -1002835891:  // businessDayConvention
         setBusinessDayConvention((BusinessDayConvention) newValue);
         return;
-      case -1646862139:  // holidayCalendarCurrencies
-        setHolidayCalendarCurrencies((Currency[]) newValue);
-        return;
       case -1770633379:  // underlying
         setUnderlying((ExternalId) newValue);
         return;
@@ -233,7 +221,6 @@ public class CDSSecurity extends FinancialSecurity {
           JodaBeanUtils.equal(getPremiumFrequency(), other.getPremiumFrequency()) &&
           JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
           JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
-          JodaBeanUtils.equal(getHolidayCalendarCurrencies(), other.getHolidayCalendarCurrencies()) &&
           JodaBeanUtils.equal(getUnderlying(), other.getUnderlying()) &&
           super.equals(obj);
     }
@@ -252,7 +239,6 @@ public class CDSSecurity extends FinancialSecurity {
     hash += hash * 31 + JodaBeanUtils.hashCode(getPremiumFrequency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
     hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidayCalendarCurrencies());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlying());
     return hash ^ super.hashCode();
   }
@@ -490,31 +476,6 @@ public class CDSSecurity extends FinancialSecurity {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the holiday calendar currencies - will be used to generate the holiday calendar for the CDS.
-   * @return the value of the property
-   */
-  public Currency[] getHolidayCalendarCurrencies() {
-    return _holidayCalendarCurrencies;
-  }
-
-  /**
-   * Sets the holiday calendar currencies - will be used to generate the holiday calendar for the CDS.
-   * @param holidayCalendarCurrencies  the new value of the property
-   */
-  public void setHolidayCalendarCurrencies(Currency[] holidayCalendarCurrencies) {
-    this._holidayCalendarCurrencies = holidayCalendarCurrencies;
-  }
-
-  /**
-   * Gets the the {@code holidayCalendarCurrencies} property.
-   * @return the property, not null
-   */
-  public final Property<Currency[]> holidayCalendarCurrencies() {
-    return metaBean().holidayCalendarCurrencies().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the underlying.
    * @return the value of the property
    */
@@ -594,11 +555,6 @@ public class CDSSecurity extends FinancialSecurity {
     private final MetaProperty<BusinessDayConvention> _businessDayConvention = DirectMetaProperty.ofReadWrite(
         this, "businessDayConvention", CDSSecurity.class, BusinessDayConvention.class);
     /**
-     * The meta-property for the {@code holidayCalendarCurrencies} property.
-     */
-    private final MetaProperty<Currency[]> _holidayCalendarCurrencies = DirectMetaProperty.ofReadWrite(
-        this, "holidayCalendarCurrencies", CDSSecurity.class, Currency[].class);
-    /**
      * The meta-property for the {@code underlying} property.
      */
     private final MetaProperty<ExternalId> _underlying = DirectMetaProperty.ofReadWrite(
@@ -617,7 +573,6 @@ public class CDSSecurity extends FinancialSecurity {
         "premiumFrequency",
         "dayCount",
         "businessDayConvention",
-        "holidayCalendarCurrencies",
         "underlying");
 
     /**
@@ -647,8 +602,6 @@ public class CDSSecurity extends FinancialSecurity {
           return _dayCount;
         case -1002835891:  // businessDayConvention
           return _businessDayConvention;
-        case -1646862139:  // holidayCalendarCurrencies
-          return _holidayCalendarCurrencies;
         case -1770633379:  // underlying
           return _underlying;
       }
@@ -741,14 +694,6 @@ public class CDSSecurity extends FinancialSecurity {
      */
     public final MetaProperty<BusinessDayConvention> businessDayConvention() {
       return _businessDayConvention;
-    }
-
-    /**
-     * The meta-property for the {@code holidayCalendarCurrencies} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Currency[]> holidayCalendarCurrencies() {
-      return _holidayCalendarCurrencies;
     }
 
     /**

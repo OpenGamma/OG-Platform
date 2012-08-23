@@ -18,6 +18,9 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.Security;
 import com.opengamma.examples.tool.AbstractExampleTool;
 
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
@@ -68,7 +71,6 @@ public class ExampleCDSLoader extends AbstractExampleTool {
     
     secMaster.add(cdsDoc);
     
-    //TODO: Niels: plumb into the database
     portfolioWithSecurity(cds, "Test CDS Port 1");
     
     System.out.println("All done!");
@@ -96,7 +98,15 @@ public class ExampleCDSLoader extends AbstractExampleTool {
   
   private CDSSecurity makeOneCDS(final ExternalId underlying) {
     
-    final CDSSecurity cds1 = new CDSSecurity(1.0, 0.6, 0.0025, Currency.GBP, ZonedDateTime.of(2020, 12, 20, 0, 0, 0, 0, TimeZone.UTC), ZonedDateTime.now(), SimpleFrequency.ANNUAL, underlying);
+    ZonedDateTime maturity = ZonedDateTime.of(2020, 12, 20, 0, 0, 0, 0, TimeZone.UTC);
+    SimpleFrequency frequency = SimpleFrequency.ANNUAL;
+    DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+    BusinessDayConvention businessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+    final CDSSecurity cds1 = new CDSSecurity(1.0, 0.6, 0.0025, Currency.GBP, maturity, ZonedDateTime.now(), 
+                                             frequency, 
+                                             dayCount, 
+                                             businessDayConvention,  
+                                             underlying);
     cds1.addExternalId(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "TEST_CDS_00001--US912828KY53-A"));
     cds1.setName("TEST CDS 00001");
     

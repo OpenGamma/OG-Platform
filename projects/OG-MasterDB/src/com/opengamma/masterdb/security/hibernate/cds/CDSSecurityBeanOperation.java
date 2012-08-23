@@ -45,20 +45,13 @@ public final class CDSSecurityBeanOperation extends AbstractSecurityBeanOperatio
     bean.setProtectionStartDate(dateTimeWithZoneToZonedDateTimeBean(security.getProtectionStartDate()));
     bean.setPremiumFrequency(secMasterSession.getOrCreateFrequencyBean(security.getPremiumFrequency().getConventionName()));
     bean.setUnderlying(externalIdToExternalIdBean(security.getUnderlying()));
+    bean.setDayCount(secMasterSession.getOrCreateDayCountBean(security.getDayCount().getConventionName()));
+    bean.setBusinessDayConvention(secMasterSession.getOrCreateBusinessDayConventionBean(security.getBusinessDayConvention().getConventionName()));
     return bean;
   }
 
-  //TODO: Niels fix this
   @Override
   public CDSSecurity createSecurity(OperationContext context, CDSSecurityBean bean) {
-    
-    CurrencyBean[] currencyBeans = bean.getHolidayCalendarCurrencies();
-    Currency[] holidayCalendarCurrencies = new Currency[currencyBeans.length];
-    
-    for (int i = 0; i < currencyBeans.length; i++) {
-      CurrencyBean currencyBean = currencyBeans[i];
-      holidayCalendarCurrencies[i] = currencyBeanToCurrency(currencyBean);
-    }
     
     return new CDSSecurity(
       bean.getNotional(),
@@ -70,7 +63,6 @@ public final class CDSSecurityBeanOperation extends AbstractSecurityBeanOperatio
       frequencyBeanToFrequency(bean.getPremiumFrequency()),
       dayCountBeanToDayCount(bean.getDayCount()), 
       businessDayConventionBeanToBusinessDayConvention(bean.getBusinessDayConvention()),
-      holidayCalendarCurrencies, 
       externalIdBeanToExternalId(bean.getUnderlying())
     );
   }

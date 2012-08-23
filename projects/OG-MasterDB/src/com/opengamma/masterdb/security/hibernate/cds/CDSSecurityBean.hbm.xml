@@ -21,6 +21,8 @@
       <property name="scheme" column="underlying_scheme" type="string"/>
       <property name="identifier" column="underlying_identifier" type="string"/>
     </component>
+    <many-to-one name="dayCount" class="com.opengamma.masterdb.security.hibernate.DayCountBean" column="daycount_id" not-null="true" />
+    <many-to-one name="businessDayConvention" class="com.opengamma.masterdb.security.hibernate.BusinessDayConventionBean" column="businessdayconvention_id" not-null="true" />
   </union-subclass>
 
   <query name="CDSSecurityBean.one.bySecurityId"><![CDATA[
