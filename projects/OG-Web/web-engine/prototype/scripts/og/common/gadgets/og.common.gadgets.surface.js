@@ -83,6 +83,19 @@ $.register_module({
             }
         };
         /**
+         * Custom THREE.SceneUtils.createMultiMaterialObject, THREE's current version creates flickering
+         */
+        util.create_multimaterial_object = function (geometry, materials) {
+          var i, il = materials.length,
+            group = new THREE.Object3D();
+          for (i = 0; i < il; i++) {
+            var object = new THREE.Mesh(geometry, materials[i]);
+            object.position.y = i/100;
+            group.add(object);
+          }
+          return group;
+        };
+        /**
          * Apply Natrual Log to each item in Array
          * @param {Array} arr
          * @returns {Array}
@@ -316,6 +329,7 @@ $.register_module({
                     tube = new THREE.TubeGeometry(line, 1, 0.2, 4, false, false);
                     THREE.GeometryUtils.merge(merged, tube);
                     merged.computeFaceNormals();
+                    merged.computeBoundingSphere();
                     group = new THREE.Mesh(merged, material);
                     group.matrixAutoUpdate = false;
                 }
@@ -338,7 +352,7 @@ $.register_module({
              */
             gadget.create_floor = function () {
                 var plane = new THREE.PlaneGeometry(5000, 5000, 100, 100), floor;
-                floor = THREE.SceneUtils.createMultiMaterialObject(plane, matlib.get_material('compound_floor_wire'));
+                floor = util.create_multimaterial_object(plane, matlib.get_material('compound_floor_wire'));
                 floor.position.y = -0.01;
                 return floor;
             };
@@ -852,7 +866,7 @@ $.register_module({
                 var obj = new THREE.Object3D();
                 (function () { // plane
                     var plane = new Plane('smilex'), material = matlib.get_material('compound_grid_wire'),
-                        mesh = THREE.SceneUtils.createMultiMaterialObject(plane, material);
+                        mesh = util.create_multimaterial_object(plane, material);
                     mesh.rotation.x = Math.PI * 0.5;
                     mesh.position.y = settings.surface_y;
                     mesh.position.z = -((settings.surface_z / 2) + settings.smile_distance);
@@ -878,7 +892,7 @@ $.register_module({
                 var obj = new THREE.Object3D();
                 (function () { // plane
                     var plane = new Plane('smiley'), material = matlib.get_material('compound_grid_wire'),
-                        mesh = THREE.SceneUtils.createMultiMaterialObject(plane, material);
+                        mesh = util.create_multimaterial_object(plane, material);
                     mesh.position.x = (settings.surface_x / 2) + settings.smile_distance;
                     mesh.rotation.z = Math.PI * 0.5;
                     mesh.matrixAutoUpdate = false;
@@ -1021,7 +1035,7 @@ $.register_module({
              */
             surface.create_bottom_grid = function () {
                 var plane = new Plane('surface'),
-                    mesh = THREE.SceneUtils.createMultiMaterialObject(plane, matlib.get_material('compound_grid_wire'));
+                    mesh = util.create_multimaterial_object(plane, matlib.get_material('compound_grid_wire'));
                 mesh.overdraw = true;
                 mesh.matrixAutoUpdate = false;
                 return mesh;
@@ -1056,12 +1070,13 @@ $.register_module({
              * @return {THREE.Object3D}
              */
             surface.create_surface_plane = function () {
-                var plane = new Plane('surface'), group = new THREE.Object3D(), i, wire;
+                var plane = new Plane('surface'), group = new THREE.Object3D(), i, wire, wiremesh;
                 plane.verticesNeedUpdate = true;
                 for (i = 0; i < adjusted_vol.length; i++) {plane.vertices[i].y = adjusted_vol[i];} // extrude
                 wire = THREE.GeometryUtils.clone(plane);
                 plane.computeCentroids();
                 plane.computeFaceNormals();
+                plane.computeBoundingSphere();
                 (function () { // apply heatmap
                     if (!webgl) return;
                     var faces = 'abcd', face, color, vertex, index, i, k,
@@ -1102,8 +1117,11 @@ $.register_module({
                         else plane_face.materialIndex = wire_face.materialIndex = 0;
                     }
                 }());
+                // move wiremesh to account for Z-fighting
+                wiremesh = new THREE.Mesh(wire, new THREE.MeshFaceMaterial());
+                wiremesh.position.y = 0.01;
                 group.add(new THREE.Mesh(plane, new THREE.MeshFaceMaterial()));
-                group.add(new THREE.Mesh(wire, new THREE.MeshFaceMaterial()));
+                group.add(wiremesh);
                 group.position.y = settings.floating_height;
                 group.matrixAutoUpdate = false;
                 group.updateMatrix();
