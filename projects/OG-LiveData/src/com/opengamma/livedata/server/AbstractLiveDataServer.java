@@ -228,80 +228,82 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
 
   //-------------------------------------------------------------------------
   /**
-   * Subscribes to the given ticker(s) using the underlying market
-   * data provider.
+   * Subscribes to the specified tickers using the underlying market data provider.
    * <p>
-   * The return value is a map from unique ID to subscription handle.
-   * The map must contain an entry for each <code>uniqueId</code>.
+   * This returns a map from identifier to subscription handle.
+   * The map must contain an entry for each input <code>uniqueId</code>.
    * Failure to subscribe to any <code>uniqueId</code> should result in an exception being thrown. 
    * 
-   * @param uniqueIds A collection of unique IDs. Not null. May be empty.
-   * @return Subscription handles corresponding to the unique IDs.
-   * @throws RuntimeException If subscribing to any unique IDs failed.
+   * @param uniqueIds  the collection of identifiers to subscribe to, may be empty, not null
+   * @return the subscription handles corresponding to the identifiers, not null
+   * @throws RuntimeException if subscribing to any unique IDs failed
    */
   protected abstract Map<String, Object> doSubscribe(Collection<String> uniqueIds);
 
   /**
-   * Unsubscribes to the given ticker(s) using the underlying market
-   * data provider.
+   * Unsubscribes to the given tickers using the underlying market data provider.
+   * <p>
+   * The handles returned by {@link #doSubscribe} are used to unsubscribe.
    *  
-   * @param subscriptionHandles
-   *          Subscription handle(s) returned by {@link #doSubscribe(Collection uniqueIds)}.
-   *          Not null. May be empty.
+   * @param subscriptionHandles  the subscription handles to unsubscribe, may be empty, not null
    */
   protected abstract void doUnsubscribe(Collection<Object> subscriptionHandles);
-  
+
   /**
    * Returns an image (i.e., all fields) from the underlying market data provider.
-   * 
-   * @return The return value is a map from unique ID to subscription handle.
+   * <p>
+   * This returns a map from identifier to a message describing the fields.
    * The map must contain an entry for each <code>uniqueId</code>.
    * Failure to snapshot any <code>uniqueId</code> should result in an exception being thrown. 
-   * @param uniqueIds Not null. May be empty.
-   * @throws RuntimeException If the snapshot could not be obtained.
+   * 
+   * @param uniqueIds  the collection of identifiers to query, may be empty, not null
+   * @return the snapshot result, not null
+   * @throws RuntimeException if the snapshot could not be obtained
    */
   protected abstract Map<String, FudgeMsg> doSnapshot(Collection<String> uniqueIds);
 
   /**
-   * @return Identification domain that uniquely identifies securities for this
-   *         type of server.
+   * Gets the external scheme that defines securities for the underlying market data provider.
+   * 
+   * @return the scheme, not null
    */
   protected abstract ExternalScheme getUniqueIdDomain();
-  
+
   /**
    * Connects to the underlying market data provider.
    * You can rely on the fact that this method is only
    * called when getConnectionStatus() == ConnectionStatus.NOT_CONNECTED.
    */
   protected abstract void doConnect();
-  
+
   /**
    * Connects to the underlying market data provider.
    * You can rely on the fact that this method is only
    * called when getConnectionStatus() == ConnectionStatus.CONNECTED.
    */
   protected abstract void doDisconnect();
-  
+
   /**
    * In some cases, the underlying market data API may not, when a subscription is created,
    * return a full image of all fields. If so, we need to get the full image explicitly.
    * 
-   * @param subscription The subscription currently being created 
-   * @return true if a snapshot should be made when a new subscription is created, false otherwise. 
+   * @param subscription  the subscription currently being created, not null
+   * @return true if a snapshot should be made when a new subscription is created
    */
   protected abstract boolean snapshotOnSubscriptionStartRequired(Subscription subscription);
-  
+
   /**
    * In some cases a subscription with  no data may indicate that a snapshot will have no data
    * 
-   * @param distributior The currently active distributor for the security being snapshotted 
+   * @param distributior  the currently active distributor for the security being snapshotted, not null
    * @return true if an empty subscription indicates that the snapshot result would be empty
    */
   protected boolean canSatisfySnapshotFromEmptySubscription(MarketDataDistributor distributior) {
     //NOTE simon 28/11/2011: Only in the case of requiring a snapshot is it safe to use an empty snapshot from a subscription, since in the other case we may still be waiting for values
     return snapshotOnSubscriptionStartRequired(distributior.getSubscription());
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
    * Is the server connected to underlying market data API?
    */
@@ -311,11 +313,21 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     /** Connection not active */
     NOT_CONNECTED
   }
-  
+
+  /**
+   * Gets the current connection status.
+   * 
+   * @return the status, not null
+   */
   public ConnectionStatus getConnectionStatus() {
     return _connectionStatus;
   }
-  
+
+  /**
+   * Sets the connection status.
+   * 
+   * @param connectionStatus  the status, not null
+   */
   public void setConnectionStatus(ConnectionStatus connectionStatus) {
     _connectionStatus = connectionStatus;
     s_logger.info("Connection status changed to " + connectionStatus);
@@ -326,7 +338,8 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
       }
     }
   }
-  
+
+  //-------------------------------------------------------------------------
   void reestablishSubscriptions() {
     _subscriptionLock.lock();
     try {
