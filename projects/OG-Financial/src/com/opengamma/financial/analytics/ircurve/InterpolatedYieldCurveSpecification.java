@@ -14,7 +14,6 @@ import java.util.TreeSet;
 import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
@@ -25,7 +24,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ *
  *
  */
 public class InterpolatedYieldCurveSpecification implements Serializable {
@@ -37,52 +36,94 @@ public class InterpolatedYieldCurveSpecification implements Serializable {
   private final Currency _currency;
   private final String _name;
   private final Interpolator1D _interpolator;
+  private final boolean _interpolateYield;
   private final SortedSet<FixedIncomeStripWithIdentifier> _strips = new TreeSet<FixedIncomeStripWithIdentifier>();
   private final ExternalId _region;
-    
-  public InterpolatedYieldCurveSpecification(LocalDate curveDate, String name, Currency currency,  
-      Interpolator1D interpolator, Collection<FixedIncomeStripWithIdentifier> resolvedStrips, 
-      ExternalId region) {
-    Validate.notNull(curveDate, "CurveDate");
-    Validate.notNull(currency, "Currency");
-    Validate.notNull(interpolator, "Interpolator1D");
-    Validate.notNull(resolvedStrips, "ResolvedStrips");
-    Validate.notNull(region, "RegionID");
+
+  public InterpolatedYieldCurveSpecification(final LocalDate curveDate, final String name, final Currency currency,
+      final Interpolator1D interpolator, final Collection<FixedIncomeStripWithIdentifier> resolvedStrips,
+      final ExternalId region) {
+    ArgumentChecker.notNull(curveDate, "CurveDate");
+    ArgumentChecker.notNull(currency, "Currency");
+    ArgumentChecker.notNull(interpolator, "Interpolator1D");
+    ArgumentChecker.notNull(resolvedStrips, "ResolvedStrips");
+    ArgumentChecker.notNull(region, "RegionID");
     // Name can be null.
     _curveDate = curveDate;
     _currency = currency;
     _name = name;
     _interpolator = interpolator;
+    _interpolateYield = true;
     _region = region;
-    for (FixedIncomeStripWithIdentifier strip : resolvedStrips) {
-      addStrip(strip);
-    }
-  }
-  
-  public InterpolatedYieldCurveSpecification(LocalDate curveDate, String name, Currency currency,  
-      Interpolator1D interpolator, Collection<FixedIncomeStripWithIdentifier> resolvedStrips, 
-      ExternalId region, Tenor fraBasis, Tenor swapBasis) {
-    Validate.notNull(curveDate, "CurveDate");
-    Validate.notNull(currency, "Currency");
-    Validate.notNull(interpolator, "Interpolator1D");
-    Validate.notNull(resolvedStrips, "ResolvedStrips");
-    Validate.notNull(region, "RegionID");
-    // Name can be null.
-    _curveDate = curveDate;
-    _currency = currency;
-    _name = name;
-    _interpolator = interpolator;
-    _region = region;
-    for (FixedIncomeStripWithIdentifier strip : resolvedStrips) {
+    for (final FixedIncomeStripWithIdentifier strip : resolvedStrips) {
       addStrip(strip);
     }
   }
 
-  public void addStrip(FixedIncomeStripWithIdentifier strip) {
+  public InterpolatedYieldCurveSpecification(final LocalDate curveDate, final String name, final Currency currency,
+      final Interpolator1D interpolator, final Collection<FixedIncomeStripWithIdentifier> resolvedStrips,
+      final ExternalId region, final Tenor fraBasis, final Tenor swapBasis) {
+    ArgumentChecker.notNull(curveDate, "CurveDate");
+    ArgumentChecker.notNull(currency, "Currency");
+    ArgumentChecker.notNull(interpolator, "Interpolator1D");
+    ArgumentChecker.notNull(resolvedStrips, "ResolvedStrips");
+    ArgumentChecker.notNull(region, "RegionID");
+    // Name can be null.
+    _curveDate = curveDate;
+    _currency = currency;
+    _name = name;
+    _interpolator = interpolator;
+    _interpolateYield = true;
+    _region = region;
+    for (final FixedIncomeStripWithIdentifier strip : resolvedStrips) {
+      addStrip(strip);
+    }
+  }
+
+  public InterpolatedYieldCurveSpecification(final LocalDate curveDate, final String name, final Currency currency,
+      final Interpolator1D interpolator, final boolean interpolateYield, final Collection<FixedIncomeStripWithIdentifier> resolvedStrips,
+      final ExternalId region) {
+    ArgumentChecker.notNull(curveDate, "CurveDate");
+    ArgumentChecker.notNull(currency, "Currency");
+    ArgumentChecker.notNull(interpolator, "Interpolator1D");
+    ArgumentChecker.notNull(resolvedStrips, "ResolvedStrips");
+    ArgumentChecker.notNull(region, "RegionID");
+    // Name can be null.
+    _curveDate = curveDate;
+    _currency = currency;
+    _name = name;
+    _interpolator = interpolator;
+    _interpolateYield = interpolateYield;
+    _region = region;
+    for (final FixedIncomeStripWithIdentifier strip : resolvedStrips) {
+      addStrip(strip);
+    }
+  }
+
+  public InterpolatedYieldCurveSpecification(final LocalDate curveDate, final String name, final Currency currency,
+      final Interpolator1D interpolator, final boolean interpolateYield, final Collection<FixedIncomeStripWithIdentifier> resolvedStrips,
+      final ExternalId region, final Tenor fraBasis, final Tenor swapBasis) {
+    ArgumentChecker.notNull(curveDate, "CurveDate");
+    ArgumentChecker.notNull(currency, "Currency");
+    ArgumentChecker.notNull(interpolator, "Interpolator1D");
+    ArgumentChecker.notNull(resolvedStrips, "ResolvedStrips");
+    ArgumentChecker.notNull(region, "RegionID");
+    // Name can be null.
+    _curveDate = curveDate;
+    _currency = currency;
+    _name = name;
+    _interpolator = interpolator;
+    _interpolateYield = interpolateYield;
+    _region = region;
+    for (final FixedIncomeStripWithIdentifier strip : resolvedStrips) {
+      addStrip(strip);
+    }
+  }
+  public void addStrip(final FixedIncomeStripWithIdentifier strip) {
     ArgumentChecker.notNull(strip, "Strip");
     _strips.add(strip);
   }
-  
+
   /**
    * Gets the region field.
    * @return the region
@@ -120,14 +161,21 @@ public class InterpolatedYieldCurveSpecification implements Serializable {
   }
 
   /**
+   * @return Whether to interpolate the yield (true) or discount factors (false)
+   */
+  public boolean interpolateYield() {
+    return _interpolateYield;
+  }
+
+  /**
    * @return the strips
    */
   public SortedSet<FixedIncomeStripWithIdentifier> getStrips() {
     return Collections.unmodifiableSortedSet(_strips);
   }
-  
+
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -137,7 +185,7 @@ public class InterpolatedYieldCurveSpecification implements Serializable {
     if (!(obj instanceof InterpolatedYieldCurveSpecification)) {
       return false;
     }
-    InterpolatedYieldCurveSpecification other = (InterpolatedYieldCurveSpecification) obj;
+    final InterpolatedYieldCurveSpecification other = (InterpolatedYieldCurveSpecification) obj;
     if (!ObjectUtils.equals(_currency, other._currency)) {
       return false;
     }
@@ -153,16 +201,19 @@ public class InterpolatedYieldCurveSpecification implements Serializable {
     if (!ObjectUtils.equals(_region, other._region)) {
       return false;
     }
+    if (_interpolateYield != other._interpolateYield) {
+      return false;
+    }
     return true;
   }
 
   @Override
   public int hashCode() {
-    int prime = 37;
+    final int prime = 37;
     int result = 1;
     result = (result * prime) + _currency.hashCode();
     if (_name != null) {
-      result = (result * prime) + _name.hashCode(); 
+      result = (result * prime) + _name.hashCode();
     }
     // since currency/name/date are a candidate key we leave it at that.
     return result;

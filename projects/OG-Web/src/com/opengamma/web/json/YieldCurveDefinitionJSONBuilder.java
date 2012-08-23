@@ -51,7 +51,7 @@ public final class YieldCurveDefinitionJSONBuilder extends AbstractJSONBuilder<Y
   }
 
   private static YieldCurveDefinition getDummyYieldCurveDefinition() {
-    YieldCurveDefinition dummy = new YieldCurveDefinition(Currency.GBP, ExternalSchemes.countryRegionId(Country.US), "", "");
+    YieldCurveDefinition dummy = new YieldCurveDefinition(Currency.GBP, ExternalSchemes.countryRegionId(Country.US), "", "", "", "", true);
     dummy.addStrip(new FixedIncomeStrip(StripInstrumentType.LIBOR, Tenor.DAY, ""));
     return dummy;
   }
