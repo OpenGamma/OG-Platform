@@ -24,11 +24,11 @@ import com.opengamma.web.server.push.rest.MasterType;
  */
 public class ConnectionManagerImpl implements ConnectionManager {
 
-  /** Period for the periodic tasks that check whether the client connections have been idle for too long */
-  private static final long DEFAULT_TIMEOUT_CHECK_PERIOD = 60000;
+  /** Period for the tasks that check whether the client connections have been idle for too long */
+  private static final long DEFAULT_TIMEOUT_CHECK_PERIOD = 20000;
 
-  /** By default a client is disconnected if it hasn't been heard from for five minutes */
-  private static final long DEFAULT_TIMEOUT = 300000;
+  /** By default a client is disconnected if it hasn't been heard from for 60 seconds */
+  private static final long DEFAULT_TIMEOUT = 60000;
 
   // TODO a better way to generate client IDs
   /** Client ID of the next connection */
@@ -126,7 +126,9 @@ public class ConnectionManagerImpl implements ConnectionManager {
    * @throws DataNotFoundException If there is no connection for the specified ID, the user ID is invalid or if
    * the client and user IDs don't correspond
    * TODO not sure this should be public
+   * TODO or should it be specified in ClientConnection?
    */
+  @Override
   public ClientConnection getConnectionByClientId(String userId, String clientId) {
     // TODO user logins
     //ArgumentChecker.notEmpty(userId, "userId");
