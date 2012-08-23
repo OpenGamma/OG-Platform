@@ -66,6 +66,11 @@ public class UserSearchRequest extends AbstractSearchRequest {
   @PropertyDefinition
   private String _externalIdValue;
   /**
+   * The user id to search for, wildcards allowed, null to not match on name.
+   */
+  @PropertyDefinition
+  private String _userId;
+  /**
    * The display user name to search for, wildcards allowed, null to not match on name.
    */
   @PropertyDefinition
@@ -190,6 +195,9 @@ public class UserSearchRequest extends AbstractSearchRequest {
     if (getExternalIdSearch() != null && getExternalIdSearch().matches(user.getExternalIdBundle()) == false) {
       return false;
     }
+    if (getUserId() != null && RegexUtils.wildcardMatch(getUserId(), user.getUserId()) == false) {
+      return false;
+    }
     if (getName() != null && RegexUtils.wildcardMatch(getName(), user.getName()) == false) {
       return false;
     }
@@ -230,6 +238,8 @@ public class UserSearchRequest extends AbstractSearchRequest {
         return getExternalIdSearch();
       case 2072311499:  // externalIdValue
         return getExternalIdValue();
+      case -836030906:  // userId
+        return getUserId();
       case 3373707:  // name
         return getName();
       case -26774448:  // sortOrder
@@ -250,6 +260,9 @@ public class UserSearchRequest extends AbstractSearchRequest {
         return;
       case 2072311499:  // externalIdValue
         setExternalIdValue((String) newValue);
+        return;
+      case -836030906:  // userId
+        setUserId((String) newValue);
         return;
       case 3373707:  // name
         setName((String) newValue);
@@ -277,6 +290,7 @@ public class UserSearchRequest extends AbstractSearchRequest {
       return JodaBeanUtils.equal(getObjectIds(), other.getObjectIds()) &&
           JodaBeanUtils.equal(getExternalIdSearch(), other.getExternalIdSearch()) &&
           JodaBeanUtils.equal(getExternalIdValue(), other.getExternalIdValue()) &&
+          JodaBeanUtils.equal(getUserId(), other.getUserId()) &&
           JodaBeanUtils.equal(getName(), other.getName()) &&
           JodaBeanUtils.equal(getSortOrder(), other.getSortOrder()) &&
           super.equals(obj);
@@ -290,6 +304,7 @@ public class UserSearchRequest extends AbstractSearchRequest {
     hash += hash * 31 + JodaBeanUtils.hashCode(getObjectIds());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdSearch());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdValue());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUserId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSortOrder());
     return hash ^ super.hashCode();
@@ -381,6 +396,31 @@ public class UserSearchRequest extends AbstractSearchRequest {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the user id to search for, wildcards allowed, null to not match on name.
+   * @return the value of the property
+   */
+  public String getUserId() {
+    return _userId;
+  }
+
+  /**
+   * Sets the user id to search for, wildcards allowed, null to not match on name.
+   * @param userId  the new value of the property
+   */
+  public void setUserId(String userId) {
+    this._userId = userId;
+  }
+
+  /**
+   * Gets the the {@code userId} property.
+   * @return the property, not null
+   */
+  public final Property<String> userId() {
+    return metaBean().userId().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the display user name to search for, wildcards allowed, null to not match on name.
    * @return the value of the property
    */
@@ -457,6 +497,11 @@ public class UserSearchRequest extends AbstractSearchRequest {
     private final MetaProperty<String> _externalIdValue = DirectMetaProperty.ofReadWrite(
         this, "externalIdValue", UserSearchRequest.class, String.class);
     /**
+     * The meta-property for the {@code userId} property.
+     */
+    private final MetaProperty<String> _userId = DirectMetaProperty.ofReadWrite(
+        this, "userId", UserSearchRequest.class, String.class);
+    /**
      * The meta-property for the {@code name} property.
      */
     private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
@@ -474,6 +519,7 @@ public class UserSearchRequest extends AbstractSearchRequest {
         "objectIds",
         "externalIdSearch",
         "externalIdValue",
+        "userId",
         "name",
         "sortOrder");
 
@@ -492,6 +538,8 @@ public class UserSearchRequest extends AbstractSearchRequest {
           return _externalIdSearch;
         case 2072311499:  // externalIdValue
           return _externalIdValue;
+        case -836030906:  // userId
+          return _userId;
         case 3373707:  // name
           return _name;
         case -26774448:  // sortOrder
@@ -538,6 +586,14 @@ public class UserSearchRequest extends AbstractSearchRequest {
      */
     public final MetaProperty<String> externalIdValue() {
       return _externalIdValue;
+    }
+
+    /**
+     * The meta-property for the {@code userId} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> userId() {
+      return _userId;
     }
 
     /**

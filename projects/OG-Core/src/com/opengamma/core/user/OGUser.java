@@ -35,12 +35,13 @@ public interface OGUser extends UniqueIdentifiable {
   ExternalIdBundle getExternalIdBundle();
 
   /**
-   * Gets the name of the user intended for display purposes.
+   * Gets the user id that uniquely identifies the user
+   * This is used with the password to authenticate.
    * 
-   * @return the display name of the user, not null
+   * @return the user id, not null
    */
-  String getName();
-  
+  String getUserId();
+
   /**
    * Obtains the hashed version of the user password.
    * May be null or empty, particularly if the user is disabled.
@@ -48,6 +49,13 @@ public interface OGUser extends UniqueIdentifiable {
    * @return the hashed password for the user account, may be null
    */
   String getPasswordHash();
+
+  /**
+   * Gets the display user name, used to identify the user in a GUI.
+   * 
+   * @return the display user name, not null
+   */
+  String getName();
 
   /**
    * Obtains the user entitlements.

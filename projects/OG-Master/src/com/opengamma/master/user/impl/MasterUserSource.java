@@ -6,7 +6,9 @@
 package com.opengamma.master.user.impl;
 
 import java.util.Collection;
+import java.util.List;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.user.OGUser;
 import com.opengamma.core.user.UserSource;
 import com.opengamma.id.ExternalIdBundle;
@@ -66,11 +68,18 @@ public class MasterUserSource extends AbstractMasterSource<UserDocument, UserMas
 
   //-------------------------------------------------------------------------
   @Override
-  public Collection<? extends OGUser> getUsers(String userName, VersionCorrection versionCorrection) {
+  public OGUser getUser(String userId, VersionCorrection versionCorrection) {
     UserSearchRequest searchRequest = new UserSearchRequest();
-    searchRequest.setName(userName);
+    searchRequest.setUserId(userId);
     searchRequest.setVersionCorrection(versionCorrection);
-    return getMaster().search(searchRequest).getUsers();
+    List<ManageableOGUser> result = getMaster().search(searchRequest).getUsers();
+    if (result.size() == 1) {
+      return result.get(0);
+    }
+    if (result.size() == 0) {
+      throw new DataNotFoundException("User not found: " + userId);
+    }
+    throw new IllegalStateException("Multiple users found: " + userId);
   }
 
 }

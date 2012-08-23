@@ -92,7 +92,7 @@ public class DbUserMaster extends AbstractDocumentDbMaster<UserDocument> impleme
       .addTimestampNullFuture("ver_to_instant", document.getVersionToInstant())
       .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
       .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
-      .addValue("name", document.getName())
+      .addValue("name", user.getUserId())  // TODO: should also store "name"
       .addValue("password", user.getPasswordHash());
     
     // the arguments for inserting into the idkey tables
@@ -197,8 +197,8 @@ public class DbUserMaster extends AbstractDocumentDbMaster<UserDocument> impleme
       
       UniqueId uniqueId = createUniqueId(docOid, docId);
       
-      ManageableOGUser user = new ManageableOGUser();
-      user.setName(rs.getString("NAME"));
+      ManageableOGUser user = new ManageableOGUser(rs.getString("NAME"));  // TODO: should be USERID
+//      user.setName(rs.getString("NAME"));
       user.setPasswordHash(rs.getString("PASSWORD"));
       user.setUniqueId(uniqueId);
       _currUser = user;

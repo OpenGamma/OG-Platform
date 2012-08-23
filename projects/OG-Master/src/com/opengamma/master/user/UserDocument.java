@@ -63,7 +63,7 @@ public class UserDocument extends AbstractDocument implements Serializable {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the name of the user.
+   * Gets the display name of the user.
    * <p>
    * This is derived from the user itself.
    * @return the name, null if no name
