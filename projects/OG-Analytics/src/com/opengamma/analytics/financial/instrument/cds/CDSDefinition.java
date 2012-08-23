@@ -15,6 +15,7 @@ import com.opengamma.analytics.financial.instrument.annuity.AnnuityPaymentFixedD
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.daycount.AccruedInterestCalculator;
+import com.opengamma.financial.convention.daycount.ActualThreeSixtyFive;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.ArgumentChecker;
 
@@ -29,7 +30,9 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class CDSDefinition implements InstrumentDefinition<CDSDerivative> {
   
-  private final AnnuityCouponFixedDefinition _premium;
+  private final static DayCount ACT_365F = new ActualThreeSixtyFive();
+  
+  private final CDSPremiumDefinition _premium;
   private final AnnuityPaymentFixedDefinition _payout;
   
   private final ZonedDateTime _startDate;
@@ -59,7 +62,7 @@ public class CDSDefinition implements InstrumentDefinition<CDSDerivative> {
    * @param payOnDefault Whether protection payment is due on default (true) or at maturity (false)
    * @param protectStart Whether the start date is protected (i.e. one extra day of protection)
    */
-  public CDSDefinition(final AnnuityCouponFixedDefinition premium, final AnnuityPaymentFixedDefinition payout,
+  public CDSDefinition(final CDSPremiumDefinition premium, final AnnuityPaymentFixedDefinition payout,
     final ZonedDateTime startDate, final ZonedDateTime maturity,
     final double notional, final double spread, final double recoveryRate,
     final boolean accrualOnDefault, final boolean payOnDefault, final boolean protectStart,
@@ -107,11 +110,18 @@ public class CDSDefinition implements InstrumentDefinition<CDSDerivative> {
       discountCurveName, spreadCurveName, underlyingDiscountCurveName,
       _premium.toDerivative(pricingDate, discountCurveName),
       _payout == null ? null : _payout.toDerivative(pricingDate, discountCurveName),
-      TimeCalculator.getTimeBetween(pricingDate, _startDate),
-      TimeCalculator.getTimeBetween(pricingDate, _maturity),
+      getTimeBetween(pricingDate, _startDate),
+      getTimeBetween(pricingDate, _maturity),
       _notional, _spread, _recoveryRate, accruedInterest(pricingDate),
       _accrualOnDefault, _payOnDefault, _protectStart
     );
+  }
+  
+  private static double getTimeBetween(final ZonedDateTime date1, final ZonedDateTime date2) {
+    
+    return date2.isBefore(date1)
+      ? -ACT_365F.getDayCountFraction(date2, date1)
+      :  ACT_365F.getDayCountFraction(date1, date2);
   }
   
   public double accruedInterest(final ZonedDateTime pricingDate) {

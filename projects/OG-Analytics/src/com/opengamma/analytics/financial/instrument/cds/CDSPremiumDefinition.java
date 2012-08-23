@@ -5,10 +5,17 @@
  */
 package com.opengamma.analytics.financial.instrument.cds;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.analytics.financial.credit.cds.ISDACDSCoupon;
+import com.opengamma.analytics.financial.credit.cds.ISDACDSPremium;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -29,7 +36,7 @@ import com.opengamma.util.money.Currency;
  */
 public class CDSPremiumDefinition extends AnnuityCouponFixedDefinition {
   
-  public CDSPremiumDefinition(CouponFixedDefinition[] payments) {
+  public CDSPremiumDefinition(CDSCouponDefinition[] payments) {
     super(payments);
   }
 
@@ -88,5 +95,16 @@ public class CDSPremiumDefinition extends AnnuityCouponFixedDefinition {
     }
     
     return new CDSPremiumDefinition(coupons);
+  }
+  
+  @Override
+  public ISDACDSPremium toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    final List<ISDACDSCoupon> resultList = new ArrayList<ISDACDSCoupon>();
+    for (int loopcoupon = 0; loopcoupon < getPayments().length; loopcoupon++) {
+      if (!date.isAfter(getNthPayment(loopcoupon).getPaymentDate())) {
+        resultList.add(((CDSCouponDefinition) getNthPayment(loopcoupon)).toDerivative(date, yieldCurveNames));
+      }
+    }
+    return new ISDACDSPremium(resultList.toArray(new ISDACDSCoupon[0]));
   }
 }

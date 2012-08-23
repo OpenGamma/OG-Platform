@@ -25,7 +25,7 @@ public class CDSDerivative implements InstrumentDerivative {
   private final String _spreadCurveName;
   private final String _underlyingDiscountCurveName;
   
-  private final AnnuityCouponFixed _premium;
+  private final ISDACDSPremium _premium;
   private final AnnuityPaymentFixed _payout;
 
   private final double _startTime;
@@ -59,7 +59,7 @@ public class CDSDerivative implements InstrumentDerivative {
    * @param protectStart Whether the start date is protected (i.e. one extra day of protection)
    */
   public CDSDerivative(final String discountCurveName, final String spreadCurveName, final String underlyingDiscountCurveName,
-    final AnnuityCouponFixed premium, final AnnuityPaymentFixed payout,
+    final ISDACDSPremium premium, final AnnuityPaymentFixed payout,
     final double startTime, final double maturity,
     final double notional, final double spread, final double recoveryRate, final double accruedInterest,
     final boolean accrualOnDefault, final boolean payOnDefault, final boolean protectStart) {
@@ -106,7 +106,7 @@ public class CDSDerivative implements InstrumentDerivative {
     return _underlyingDiscountCurveName;
   }
 
-  public AnnuityCouponFixed getPremium() {
+  public ISDACDSPremium getPremium() {
     return _premium;
   }
 

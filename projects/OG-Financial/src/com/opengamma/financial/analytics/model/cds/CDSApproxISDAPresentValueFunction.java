@@ -196,7 +196,7 @@ public class CDSApproxISDAPresentValueFunction extends AbstractFunction.NonCompi
     
     // Go price!
     final CDSApproxISDAMethod method = new CDSApproxISDAMethod();
-    final CurrencyAmount result = method.presentValue(cdsDerivative, curveBundle);
+    final CurrencyAmount result = null; //method.presentValue(cdsDerivative, curveBundle);
     
     // Package the result
     final ComputedValue marketPriceValue = new ComputedValue(

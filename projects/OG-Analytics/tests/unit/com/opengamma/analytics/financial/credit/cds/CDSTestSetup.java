@@ -74,7 +74,7 @@ public class CDSTestSetup {
     DayCount dayCount = new ActualThreeSixtyFive();
     BusinessDayConvention convention = new FollowingBusinessDayConvention();
   
-    final AnnuityCouponFixedDefinition premiumDefinition = AnnuityCouponFixedDefinition.from(currency, startDate, maturity, premiumFrequency, calendar, dayCount, convention, /*EOM*/ false, notional, spread, /*isPayer*/false);
+    final CDSPremiumDefinition premiumDefinition = null; //CDSPremiumDefinition.fromISDA(currency, startDate, maturity, premiumFrequency, calendar, dayCount, convention, /*EOM*/ false, notional, spread, /*isPayer*/false);
   
     List<ZonedDateTime> possibleDefaultDates = scheduleDatesInRange(bondMaturity, bondPremiumFrequency.getPeriod(), pricingDate, maturity, calendar, convention);
     if (maturity.isAfter(bondMaturity)) {
@@ -352,9 +352,7 @@ public class CDSTestSetup {
     
     final ZonedDateTime pricingDate = ZonedDateTime.of(2008, 9, 18, 0, 0, 0, 0, TimeZone.UTC);
     final ZonedDateTime baseDate = ZonedDateTime.of(2008, 9, 22, 0, 0, 0, 0, TimeZone.UTC);
-    
-    System.out.println( "from a day to itself is: " + s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2008, 9, 22, 0, 0, 0, 0, TimeZone.UTC)) );
-    
+  
     double[] times = { 
       s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2008, 10, 22, 0, 0, 0, 0, TimeZone.UTC)),
       s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2008, 11, 24, 0, 0, 0, 0, TimeZone.UTC)),

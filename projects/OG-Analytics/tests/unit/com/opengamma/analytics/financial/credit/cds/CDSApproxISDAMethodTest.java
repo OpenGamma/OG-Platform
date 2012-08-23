@@ -103,6 +103,8 @@ public class CDSApproxISDAMethodTest extends CDSTestSetup {
     final double cleanPriceError = Math.abs( (cleanPrice - 185852.587288133) / cds.getNotional() );
     final double dirtyPriceError = Math.abs( (dirtyPrice - 59463.6983992436) / cds.getNotional() );
     
+    System.out.println(cleanPriceError + ", " + dirtyPriceError);
+    
     Assert.assertTrue(cleanPriceError < 1E-15);
     Assert.assertTrue(dirtyPriceError < 1E-15);
   }
