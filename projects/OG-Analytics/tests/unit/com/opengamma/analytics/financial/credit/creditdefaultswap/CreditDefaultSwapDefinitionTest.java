@@ -21,10 +21,10 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ *  Tests to verify the construction of a CDS contract 
  */
 public class CreditDefaultSwapDefinitionTest {
-  
+
   private static final String buySellProtection = "Buy";
 
   private static final String protectionBuyer = "ABC";
@@ -37,7 +37,7 @@ public class CreditDefaultSwapDefinitionTest {
   private static final String restructuringClause = "NR";
 
   private static final Calendar calendar = new MondayToFridayCalendar("A");
-  
+
   private static final ZonedDateTime startDate = DateUtils.getUTCDate(2012, 8, 21);
   private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2012, 8, 22);
   private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2017, 9, 20);
@@ -51,27 +51,27 @@ public class CreditDefaultSwapDefinitionTest {
   private static final double notional = 10000000.0;
   private static final double parSpread = 60.0;
 
-  private static final double valuationRecoveryRate = -0.40;
+  private static final double valuationRecoveryRate = 0.40;
   private static final double curveRecoveryRate = 0.40;
 
   private static final boolean includeAccruedPremium = true;
   private static final boolean adjustMaturityDate = false;
-  
-  private static final int numberOfIntegrationSteps = 10;
+
+  private static final int numberOfIntegrationSteps = 20;
 
   // TODO : replace the yield and survival curves with something more meaningful
-  
+
   // Dummy yield curve
   private static final double[] TIME = new double[] {0, 3, 5};
   private static final double[] RATES = new double[] {0.0, 0.0, 0.0};
   private static final InterpolatedDoublesCurve R = InterpolatedDoublesCurve.from(TIME, RATES, new LinearInterpolator1D());
   private static final YieldCurve yieldCurve = YieldCurve.from(R);
-  
-//Dummy survival curve (proxied by a yield curve for now)
- private static final double[] survivalTIME = new double[] {0, 3, 5};
- private static final double[] survivalProbs = new double[] {0.0, 0.0, 0.0};
- private static final InterpolatedDoublesCurve S = InterpolatedDoublesCurve.from(survivalTIME, survivalProbs, new LinearInterpolator1D());
- private static final YieldCurve survivalCurve = YieldCurve.from(S);
+
+  // Dummy survival curve (proxied by a yield curve object for now)
+  private static final double[] survivalTIME = new double[] {0, 3, 5};
+  private static final double[] survivalProbs = new double[] {0.0, 0.0, 0.0};
+  private static final InterpolatedDoublesCurve S = InterpolatedDoublesCurve.from(survivalTIME, survivalProbs, new LinearInterpolator1D());
+  private static final YieldCurve survivalCurve = YieldCurve.from(S);
 
   private static final CreditDefaultSwapDefinition CDS_DEFINITION = new CreditDefaultSwapDefinition(buySellProtection, 
                                                                                                     protectionBuyer, 
@@ -98,17 +98,17 @@ public class CreditDefaultSwapDefinitionTest {
                                                                                                     numberOfIntegrationSteps,
                                                                                                     yieldCurve,
                                                                                                     survivalCurve);
-  
+
   // TODO : Add all the tests
-  
+
   /*
   @Test
   public void testNullBuySellProtectionFlag() {
     assertEquals(null, CDS_DEFINITION.getBuySellProtection(), 1e-15);
   }
-  */
+   */
 
-  /*
+   /*
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNotional() {
     new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, 
@@ -116,43 +116,43 @@ public class CreditDefaultSwapDefinitionTest {
         valuationDate, scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, -notional, 
         parSpread, valuationRecoveryRate, curveRecoveryRate, includeAccruedPremium, adjustMaturityDate, numberOfIntegrationSteps, yieldCurve);
   }
-  */
-  
-  /*
+    */
+
+    /*
  // @Test
   public void testParSpread() {
     assertTrue(CDS_DEFINITION.getParSpread() >= 0);
   }
-  */
-  
-  /*
+     */
+
+     /*
   @Test
   public void testValuationRecoveryRate() {
     assertTrue(CDS_DEFINITION.getValuationRecoveryRate() >= 0.0);
     assertTrue(CDS_DEFINITION.getValuationRecoveryRate() <= 1.0);
   }
-  */
-  
-  /*
+      */
+
+      /*
 //  @Test
   public void testCurveRecoveryRate() {
     assertTrue(CDS_DEFINITION.getCurveRecoveryRate() >= 0.0);
     assertTrue(CDS_DEFINITION.getCurveRecoveryRate() <= 1.0);
   }
-  */
-  
-  /*
+       */
+
+       /*
   @Test
   public void testBuySellProtectionFlag() {
     assertEquals("Buy", CDS_DEFINITION.getBuySellProtection());
   }
-  */
-  
-  /*
+        */
+
+        /*
   @Test
   public void testValuationRecoveryRate() {
     assertEquals(true, CDS_DEFINITION.getValuationRecoveryRate());
   }
-  */
-     
+         */
+
 }

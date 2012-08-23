@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap;
 
+import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
@@ -20,7 +21,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ *  Test of the implementation of the valuation model for a CDS 
  */
 public class PresentValueCreditDefaultSwapTest {
   
@@ -30,22 +31,24 @@ public class PresentValueCreditDefaultSwapTest {
   private static final String protectionSeller = "XYZ";
   private static final String referenceEntity = "C";
 
-  private static final Currency currency = Currency.USD;
+  private static final Currency currency = Currency.GBP;
 
   private static final String debtSeniority = "Senior";
   private static final String restructuringClause = "NR";
 
-  private static final Calendar calendar = new MondayToFridayCalendar("A");
+  private static final Calendar calendar = new MyCalendar();
   
-  private static final ZonedDateTime startDate = DateUtils.getUTCDate(2012, 8, 21);
+  private static final ZonedDateTime startDate = DateUtils.getUTCDate(2012, 8, 24);
   private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2012, 8, 22);
-  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2017, 9, 20);
-  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2012, 8, 22);
+  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2017, 8, 28);
+  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2012, 8, 24);
     
   private static final String scheduleGenerationMethod = "Backward";
   private static final String couponFrequency = "Quarterly";
   private static final String daycountFractionConvention = "ACT/360";
   private static final String businessdayAdjustmentConvention = "Following";
+  
+  //private static final FollowingBusinessDayConvention businessdayAdjustmentConvention = new FollowingBusinessDayConvention();
 
   private static final double notional = 10000000.0;
   private static final double parSpread = 0.0;
@@ -56,7 +59,7 @@ public class PresentValueCreditDefaultSwapTest {
   private static final boolean includeAccruedPremium = true;
   private static final boolean adjustMaturityDate = false;
   
-  private static final int numberOfIntegrationSteps = 20;
+  private static final int numberOfIntegrationSteps = 12;
   
   // Dummy yield curve
   private static final double[] TIME = new double[] {0, 3, 5};
@@ -102,7 +105,7 @@ public class PresentValueCreditDefaultSwapTest {
   @Test //(expectedExceptions = testng.TestException.class)
   public void testGetPresentValueCreditDefaultSwap() {
     
-    // Hardcode the number of cashflows
+    // Hardcode the number of cashflows - will change this when implement the schedule generator
     int n = 20;
     
     double pV = 0.0;
@@ -140,4 +143,45 @@ public class PresentValueCreditDefaultSwapTest {
     
     // -----------------------------------------------------------------------------------------------
   }
+  
+//-----------------------------------------------------------------------------------------------
+  
+  // Bespoke calendar class
+  private static class MyCalendar implements Calendar {
+    
+    private static final Calendar weekend = new MondayToFridayCalendar("GBP");
+
+    @Override
+    public boolean isWorkingDay(LocalDate date) {
+      
+      if (!weekend.isWorkingDay(date)) {
+        return false; 
+      }
+      
+      // Custom bank holiday
+      if (date.equals(LocalDate.of(2012, 8, 27))) {
+        return false;
+      }
+      
+      // Custom bank holiday
+      if (date.equals(LocalDate.of(2017, 8, 28))) {
+        return false;
+      }
+      
+      // Custom bank holiday
+      if (date.equals(LocalDate.of(2017, 8, 29))) {
+        return false;
+      }
+      
+      return true;
+    }
+
+    @Override
+    public String getConventionName() {
+      return "";
+    }
+    
+  }
 }
+
+//-----------------------------------------------------------------------------------------------

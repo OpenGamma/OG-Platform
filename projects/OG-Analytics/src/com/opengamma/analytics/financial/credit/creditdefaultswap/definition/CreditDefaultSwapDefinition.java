@@ -20,86 +20,90 @@ public class CreditDefaultSwapDefinition {
   //----------------------------------------------------------------------------------------------------------------------------------------
   
   // Member variables of the CDS contract (defines what a CDS is)
+  
+  // Conventions
+  
+  // Buy protection   -> Pay premium leg, receive contingent leg  -> 'long' protection  -> 'short' credit risk
+  // Sell protection  -> Receive premium leg, pay contingent leg  -> 'short' protection -> 'long' credit risk
 
-  // From the users perspective, are we buying or selling protection
+  // From the users perspective, are we buying or selling protection - User input
   private final String _buySellProtection;
 
-  // Identifiers for the (three) counterparties in the trade
+  // Identifiers for the (three) counterparties in the trade - User input
   private final String _protectionBuyer;
   private final String _protectionSeller;
   private final String _referenceEntity;
   
-  // The currency the trade is executed in e.g. USD
+  // The currency the trade is executed in e.g. USD - User input
   private final Currency _currency;
   
-  // The seniority of the debt of the reference entity the CDS is written on (e.g. senior or subordinated)
+  // The seniority of the debt of the reference entity the CDS is written on e.g. senior or subordinated - User input
   private final String _debtSeniority;
   
-  // The restructuring type in the event of a credit event deemed to be a restructuring of the reference entities debt (e.g. OR, MR, MMR or NR)
+  // The restructuring type in the event of a credit event deemed to be a restructuring of the reference entities debt e.g. OR, MR, MMR or NR - User input
   private final String _restructuringClause;
   
-  // Holiday calendar for the determination of adjusted business days in the cashflow schedule
+  // Holiday calendar for the determination of adjusted business days in the cashflow schedule - User input
   private final Calendar _calendar;
   
-  // The date of the contract inception
+  // The date of the contract inception - User input
   private final ZonedDateTime _startDate;
   
-  // The effective date for protection to begin (usually T + 1 for legacy CDS)
+  // The effective date for protection to begin (usually T + 1 for legacy CDS) - User input
   private final ZonedDateTime _effectiveDate;
   
-  // The maturity date of the contract (when premium and protection coverage ceases)
+  // The maturity date of the contract (when premium and protection coverage ceases) - User input
   private final ZonedDateTime _maturityDate;
   
-  // The date on which we want to calculate the CDS MtM
+  // The date on which we want to calculate the CDS MtM - User input
   private final ZonedDateTime _valuationDate;
   
-  // The method for generating the schedule of premium payments
+  // The method for generating the schedule of premium payments - User input
   private final String _scheduleGenerationMethod;
   
-  // The frequency of coupon payments (usually quarterly)
+  // The frequency of coupon payments (usually quarterly) - User input
   private final String _couponFrequency;
   
-  // Day-count convention (usually Act/360)
+  // Day-count convention (usually Act/360) - User input
   private final String _daycountFractionConvention;
   
-  // Business day adjustment convention (usually following)
+  // Business day adjustment convention (usually following) - User input
   private final String _businessdayAdjustmentConvention;
   
-  // Flag to determine if we business day adjust the final maturity date
+  // Flag to determine if we business day adjust the final maturity date - User input
   private final boolean _adjustMaturityDate;
   
-  // The trade notional (in the trade currency)
+  // The trade notional (in the trade currency), convention is that this will always be a positive amount - User input
   private final double _notional;
   
   // The quoted par spread of the trade (as this is a legacy CDS, this is the coupon applied to the premium leg 
-  // to give the trade a value of zero at the contract start date (there is no exchange of payments upfront) 
+  // to give the trade a value of zero at the contract startDate (there is no exchange of payments upfront) - User input 
   private final double _parSpread;
   
-  // The recovery rate to be used in the calculation of the CDS MtM (can be different to the rate used to calibrate the survival curve)
+  // The recovery rate to be used in the calculation of the CDS MtM (can be different to the rate used to calibrate the survival curve) - User input
   private final double _valuationRecoveryRate;
   
-  // The recovery rate to be used when calibrating the hazard rate term structure to the market par CDS spread quotes
+  // The recovery rate to be used when calibrating the hazard rate term structure to the market par CDS spread quotes - User input
   private final double _curveRecoveryRate;
   
-  // Flag to determine whether the accrued coupons should be included in the CDS premium lag calculation
+  // Flag to determine whether the accrued coupons should be included in the CDS premium leg calculation - User input
   private final boolean _includeAccruedPremium;
   
-  // The number of integration steps (per year) - for the computation of the integral in the contingent leg
+  // The number of integration steps (per year) - for the computation of the integral in the contingent leg - User input
   private final int _numberOfIntegrationSteps;
   
-  // The yield curve object for discount factors
+  // The yield curve object for discount factors - Constructed from market data
   private final YieldCurve _yieldCurve;
   
-  // The survival curve object for survival probabilities (proxy with a YieldCurve object for now)
+  // The survival curve object for survival probabilities (proxy with a YieldCurve object for now) - Constructed from market data
   private final YieldCurve _survivalCurve; 
   
-  // TODO : Add the survival curve (assuming that we want the survival probabilities as an input to the pricer - not the par CDS spread term struct)
-  
-  // TODO : Should the yield and survival curves be part of the CDS object? Should they be passed in to the pricer seperately?
+  // TODO : Add a seperate 'SurvivalCurve' class whose function is to generate the calibrated survival probabilities from the input CDS par spread term structure
+  // TODO : Should the yield and survival curves be part of the CDS object? Should they be passed in to the pricer seperately as market data?
   
   // ----------------------------------------------------------------------------------------------------------------------------------------
   
-  // Constructor for a CDS definition object (all fields are user specified)
+  // Constructor for a CDS definition object (most fields are user specified)
  
   // Probably not the best way of handling schedule generation, business day conventions etc - need to look at another product to see how it is done
   
@@ -131,36 +135,51 @@ public class CreditDefaultSwapDefinition {
                                       YieldCurve yieldCurve,
                                       YieldCurve survivalCurve) {
     
-    //ArgumentChecker.isTrue(buySellProtection.isEmpty(), "Buy/Sell protection flag is empty");
-    
     /*
+    ArgumentChecker.isTrue(buySellProtection.isEmpty(), "Buy/Sell protection flag is empty");
     ArgumentChecker.isTrue(protectionSeller.isEmpty(), "Protection seller field is empty");
     ArgumentChecker.isTrue(protectionBuyer.isEmpty(), "Protection buyer field is empty");
     ArgumentChecker.isTrue(referenceEntity.isEmpty(), "Reference entity field is empty");
     
+    // TODO : Check currency object?
+    
     ArgumentChecker.isTrue(debtSeniority.isEmpty(), "Debt seniority field is empty");
     ArgumentChecker.isTrue(restructuringClause.isEmpty(), "Restructuring clause field is empty");
+    
+    // TODO : Check calendar object?
+    
+    // TODO : Do we need to check if the ZonedDateTime objects are empty?
     
     ArgumentChecker.isTrue(scheduleGenerationMethod.isEmpty(), "Schedule generation method field is empty");
     ArgumentChecker.isTrue(couponFrequency.isEmpty(), "Coupon frequency field is empty");
     ArgumentChecker.isTrue(daycountFractionConvention.isEmpty(), "Daycount fraction convention field is empty");
     ArgumentChecker.isTrue(businessdayAdjustmentConvention.isEmpty(), "Business day adjustment convention field is empty");
     
+    // TODO : Add the logical checks for the ordering of the dates
+    ArgumentChecker.isTrue(startDate.isBefore(valuationDate), "Start date {} must be before valuation date {}", startDate, valuationDate);
+    ArgumentChecker.isTrue(startDate.isBefore(effectiveDate), "Start date {} must be before effective date {}", startDate, effectiveDate);
+    ArgumentChecker.isTrue(startDate.isBefore(maturityDate), "Start date {} must be before maturity date {}", startDate, maturityDate);
     
-    //ArgumentChecker.isTrue(startdate.isBefore(valuationdate), "Start date {} must be before valuation date {}", startdate, valuationdate);
+    ArgumentChecker.isTrue(valuationDate.isBefore(maturityDate), "Valuation date {} must be before maturity date {}", valuationDate, maturityDate);
+    ArgumentChecker.isTrue(valuationDate.isAfter(effectiveDate), "Valuation date {} must be after effective date {}", valuationDate, effectiveDate);
     
-    */
-    
-    // TODO : Add all the argument checkers
+    // TODO : Are there any logical date checks I have missed?
     
     ArgumentChecker.isTrue(notional >= 0.0,  "Notional amount should be greater than or equal to zero");
     ArgumentChecker.isTrue(parSpread >= 0.0,  "CDS par spread should be greater than or equal to zero");
     
+    // What is the return message here?
     ArgumentChecker.isInRangeInclusive(valuationRecoveryRate, 0.0, 1.0);
     ArgumentChecker.isInRangeInclusive(curveRecoveryRate, 0.0, 1.0);
     
+    // TODO : How do we check the boolean primitives?
+    
+    // TODO : Should we impose an upper limit on the number of integration steps?
     ArgumentChecker.isTrue(numberOfIntegrationSteps > 0,  "Number of integration steps (for contingent leg valuation) should be greater than zero");
     
+    // TODO : Do we need to check if the yieldCurve and survivalCurve objects are empty?
+     */
+
     _buySellProtection = buySellProtection;
     _protectionBuyer = protectionBuyer;
     _protectionSeller = protectionSeller;
@@ -335,6 +354,7 @@ public class CreditDefaultSwapDefinition {
     result = prime * result + ((_maturityDate == null) ? 0 : _maturityDate.hashCode());
     temp = Double.doubleToLongBits(_notional);
     result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + _numberOfIntegrationSteps;
     temp = Double.doubleToLongBits(_parSpread);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + ((_protectionBuyer == null) ? 0 : _protectionBuyer.hashCode());
@@ -343,15 +363,16 @@ public class CreditDefaultSwapDefinition {
     result = prime * result + ((_restructuringClause == null) ? 0 : _restructuringClause.hashCode());
     result = prime * result + ((_scheduleGenerationMethod == null) ? 0 : _scheduleGenerationMethod.hashCode());
     result = prime * result + ((_startDate == null) ? 0 : _startDate.hashCode());
+    result = prime * result + ((_survivalCurve == null) ? 0 : _survivalCurve.hashCode());
     result = prime * result + ((_valuationDate == null) ? 0 : _valuationDate.hashCode());
     temp = Double.doubleToLongBits(_valuationRecoveryRate);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + ((_yieldCurve == null) ? 0 : _yieldCurve.hashCode());
     return result;
   }
-  
-//----------------------------------------------------------------------------------------------------------------------------------------
 
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+  
   // Not sure about this
   
   @Override
@@ -416,6 +437,8 @@ public class CreditDefaultSwapDefinition {
       return false;
     if (Double.doubleToLongBits(_notional) != Double.doubleToLongBits(other._notional))
       return false;
+    if (_numberOfIntegrationSteps != other._numberOfIntegrationSteps)
+      return false;
     if (Double.doubleToLongBits(_parSpread) != Double.doubleToLongBits(other._parSpread))
       return false;
     if (_protectionBuyer == null) {
@@ -447,6 +470,11 @@ public class CreditDefaultSwapDefinition {
       if (other._startDate != null)
         return false;
     } else if (!_startDate.equals(other._startDate))
+      return false;
+    if (_survivalCurve == null) {
+      if (other._survivalCurve != null)
+        return false;
+    } else if (!_survivalCurve.equals(other._survivalCurve))
       return false;
     if (_valuationDate == null) {
       if (other._valuationDate != null)
