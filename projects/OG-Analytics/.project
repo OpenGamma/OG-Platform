@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>OG Analytics</name>
+	<name>OG-Analytics</name>
 	<comment></comment>
 	<projects>
-		<project>OG Financial</project>
-		<project>OG Util</project>
+		<project>OG-Financial</project>
+		<project>OG-Util</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
