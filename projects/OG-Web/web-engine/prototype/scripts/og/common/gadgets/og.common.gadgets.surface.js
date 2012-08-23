@@ -131,7 +131,7 @@ $.register_module({
             var gadget = this, alive = prefix + counter++, $selector = $(config.selector), width, height,
                 sel_offset, // needed to calculate mouse coordinates for raycasting
                 hud = {}, matlib = {}, smile = {}, surface = {}, slice = {}, char_geometries = {}, stats = {},
-                local_settings = {log: true, play: null, stopping: false}, timeout,
+                local_settings = {log: true, play: null, stopping: false}, timeout, projector = new THREE.Projector(),
                 animation_group = new THREE.Object3D(), // everything in animation_group rotates on mouse drag
                 hover_group,          // THREE.Object3D that gets created on hover and destroyed afterward
                 surface_group_top,    // actual surface and anything that needs to be at that y pos
@@ -143,7 +143,7 @@ $.register_module({
                 x_segments = config.xs.length - 1, z_segments = config.zs.length - 1, y_segments = settings.y_segments,
                 ys, adjusted_vol, adjusted_xs, adjusted_ys, adjusted_zs, // gadget.init_data calculates these values
                 vol_max = Math.max.apply(null, config.vol), vol_min = Math.min.apply(null, config.vol),
-                renderer, camera, scene, backlight, keylight, filllight, projector = new THREE.Projector(),
+                renderer, camera, scene, backlight, keylight, filllight, ambientlight,
                 hover_buffer, slice_buffer, load_buffer, surface_buffer, animation_frame;
             /**
              * Buffer constructor
@@ -553,9 +553,10 @@ $.register_module({
                 backlight.position.set(-150, 100, 100);
                 filllight = new THREE.DirectionalLight(0xf2f6ff, 0.5, 500); // smile right
                 filllight.position.set(100, 100, 150);
+                ambientlight = new THREE.AmbientLight(0xffffff);
                 // setup actors / groups & create scene
                 camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000); /* fov, aspect, near, far */
-                animation_group.add(backlight);
+                animation_group.add(ambientlight);
                 animation_group.add(backlight);
                 animation_group.add(keylight);
                 animation_group.add(filllight);
@@ -1073,7 +1074,7 @@ $.register_module({
                             vertex = plane.vertices[index];
                             color = new THREE.Color(0xffffff);
                             hue = ~~((vertex.y - min) / (max - min) * (hue_max - hue_min) + hue_min) / 360;
-                            color.setHSV(hue, 1, 1);
+                            color.setHSV(hue, 0.95, 0.7);
                             face.vertexColors[k] = color;
                         }
                     }
