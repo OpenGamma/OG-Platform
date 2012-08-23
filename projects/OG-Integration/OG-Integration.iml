@@ -44,6 +44,7 @@
     <orderEntry type="module" module-name="OG-MasterDB" />
     <orderEntry type="module" module-name="OG-Financial" />
     <orderEntry type="module" module-name="OG-Web" />
+    <orderEntry type="module" module-name="OG-Component" />
     <orderEntry type="module-library">
       <library name="IvyIDEA-OG-Integration-default">
         <CLASSES>
@@ -82,7 +83,6 @@
         </SOURCES>
       </library>
     </orderEntry>
-    <orderEntry type="module" module-name="OG-Component" />
   </component>
   <component name="org.twodividedbyzero.idea.findbugs">
     <option name="_basePreferences">

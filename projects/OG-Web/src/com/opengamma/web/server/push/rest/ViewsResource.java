@@ -23,8 +23,8 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.server.push.ConnectionManagerImpl;
-import com.opengamma.web.server.push.analytics.AnalyticsViewListener;
+import com.opengamma.web.server.push.ClientConnection;
+import com.opengamma.web.server.push.ConnectionManager;
 import com.opengamma.web.server.push.analytics.AnalyticsViewManager;
 import com.opengamma.web.server.push.analytics.ViewRequest;
 
@@ -37,11 +37,9 @@ public class ViewsResource {
   private static final AtomicLong s_nextViewId = new AtomicLong(0);
 
   private final AnalyticsViewManager _viewManager;
-  // TODO listen for connections closing and close any associated views?
-  // shutdown listener on connection?
-  private final ConnectionManagerImpl _connectionManager;
+  private final ConnectionManager _connectionManager;
 
-  public ViewsResource(AnalyticsViewManager viewManager, ConnectionManagerImpl connectionManager) {
+  public ViewsResource(AnalyticsViewManager viewManager, ConnectionManager connectionManager) {
     ArgumentChecker.notNull(viewManager, "viewManager");
     ArgumentChecker.notNull(connectionManager, "connectionManager");
     _viewManager = viewManager;
@@ -88,12 +86,10 @@ public class ViewsResource {
     UserPrincipal user = UserPrincipal.getTestUser();
     String userName = null;
     //String userName = user.getUserName();
-    // TODO get this as a ClientConnection and add a shutdown listener (which doesn't exist ATM)
-    // TODO or should the listener go on the connection manager? that's what's notified of the timeout
-    AnalyticsViewListener listener = _connectionManager.getConnectionByClientId(userName, clientId);
+    ClientConnection clientConnection = _connectionManager.getConnectionByClientId(userName, clientId);
     _viewManager.createView(viewRequest,
                             user,
-                            listener,
+                            clientConnection,
                             viewId,
                             portfolioGridUri.getPath(),
                             primitivesGridUri.getPath());
