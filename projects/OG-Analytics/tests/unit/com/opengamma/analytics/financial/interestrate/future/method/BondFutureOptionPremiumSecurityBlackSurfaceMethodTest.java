@@ -18,6 +18,7 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
+import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeAndForwardBundle;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -39,7 +40,7 @@ public class BondFutureOptionPremiumSecurityBlackSurfaceMethodTest {
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final int SETTLEMENT_DAYS = 1;
   private static final int NB_BOND = 7;
-  private static final double[] CONVERSION_FACTOR = new double[] {.8317, .8565, .8493, .8516, .8540, .8417, .8292 };
+  private static final double[] CONVERSION_FACTOR = new double[] {.8317, .8565, .8493, .8516, .8540, .8417, .8292};
   private static final ZonedDateTime LAST_TRADING_DATE = DateUtils.getUTCDate(2011, 9, 30);
   private static final ZonedDateTime FIRST_NOTICE_DATE = DateUtils.getUTCDate(2011, 8, 31);
   private static final ZonedDateTime LAST_NOTICE_DATE = DateUtils.getUTCDate(2011, 10, 4);
@@ -56,7 +57,7 @@ public class BondFutureOptionPremiumSecurityBlackSurfaceMethodTest {
   private static final double LAST_DELIVERY_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, LAST_DELIVERY_DATE);
   private static final String CREDIT_CURVE_NAME = "Credit";
   private static final String REPO_CURVE_NAME = "Repo";
-  private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, REPO_CURVE_NAME };
+  private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, REPO_CURVE_NAME};
   private static final YieldCurveWithBlackCubeBundle DATA = TestsDataSetsBlack.createCubesBondFutureOption();
   private static final BondFixedSecurityDefinition[] BASKET_DEFINITION = new BondFixedSecurityDefinition[NB_BOND];
   private static final Currency CUR = Currency.USD;
@@ -65,16 +66,18 @@ public class BondFutureOptionPremiumSecurityBlackSurfaceMethodTest {
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final boolean IS_EOM = false;
   private static final YieldConvention YIELD_CONVENTION = YieldConventionFactory.INSTANCE.getYieldConvention("STREET CONVENTION");
-  private static final Period[] BOND_TENOR = new Period[] {Period.ofYears(5), Period.ofYears(5), Period.ofYears(5), Period.ofYears(8), Period.ofYears(5), Period.ofYears(5), Period.ofYears(5) };
-  private static final ZonedDateTime[] START_ACCRUAL_DATE = new ZonedDateTime[] {DateUtils.getUTCDate(2010, 11, 30), DateUtils.getUTCDate(2010, 12, 31), DateUtils.getUTCDate(2011, 1, 31),
-      DateUtils.getUTCDate(2008, 2, 29), DateUtils.getUTCDate(2011, 3, 31), DateUtils.getUTCDate(2011, 4, 30), DateUtils.getUTCDate(2011, 5, 31) };
-  private static final double[] RATE = new double[] {0.01375, 0.02125, 0.0200, 0.02125, 0.0225, 0.0200, 0.0175 };
+  private static final Period[] BOND_TENOR = new Period[] {Period.ofYears(5), Period.ofYears(5), Period.ofYears(5), Period.ofYears(8), Period.ofYears(5),
+      Period.ofYears(5), Period.ofYears(5)};
+  private static final ZonedDateTime[] START_ACCRUAL_DATE = new ZonedDateTime[] {DateUtils.getUTCDate(2010, 11, 30), DateUtils.getUTCDate(2010, 12, 31),
+      DateUtils.getUTCDate(2011, 1, 31), DateUtils.getUTCDate(2008, 2, 29), DateUtils.getUTCDate(2011, 3, 31), DateUtils.getUTCDate(2011, 4, 30),
+      DateUtils.getUTCDate(2011, 5, 31)};
+  private static final double[] RATE = new double[] {0.01375, 0.02125, 0.0200, 0.02125, 0.0225, 0.0200, 0.0175};
   private static final ZonedDateTime[] MATURITY_DATE = new ZonedDateTime[NB_BOND];
   static {
     for (int loopbasket = 0; loopbasket < NB_BOND; loopbasket++) {
       MATURITY_DATE[loopbasket] = START_ACCRUAL_DATE[loopbasket].plus(BOND_TENOR[loopbasket]);
-      BASKET_DEFINITION[loopbasket] = BondFixedSecurityDefinition.from(CUR, MATURITY_DATE[loopbasket], START_ACCRUAL_DATE[loopbasket], PAYMENT_TENOR, RATE[loopbasket], SETTLEMENT_DAYS, CALENDAR,
-          DAY_COUNT, BUSINESS_DAY, YIELD_CONVENTION, IS_EOM);
+      BASKET_DEFINITION[loopbasket] = BondFixedSecurityDefinition.from(CUR, MATURITY_DATE[loopbasket], START_ACCRUAL_DATE[loopbasket], PAYMENT_TENOR, RATE[loopbasket],
+          SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, YIELD_CONVENTION, IS_EOM);
     }
   }
   private static final BondFixedSecurity[] BASKET = new BondFixedSecurity[NB_BOND];
@@ -85,10 +88,11 @@ public class BondFutureOptionPremiumSecurityBlackSurfaceMethodTest {
       STANDARD[loopbasket] = BASKET_DEFINITION[loopbasket].toDerivative(REFERENCE_DATE, CURVES_NAME);
     }
   }
-  private static final BondFuture BOND_FUTURE_DERIV = new BondFuture(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL,
-      BASKET, CONVERSION_FACTOR, REF_PRICE);
+  private static final BondFuture BOND_FUTURE_DERIV = new BondFuture(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME,
+      NOTIONAL, BASKET, CONVERSION_FACTOR, REF_PRICE);
   private static final double OPTION_EXPIRY = 0.5;
   private static final double PRICE_FUTURE = 1.0325;
+  private static final YieldCurveWithBlackCubeAndForwardBundle DATA_WITH_FUTURE = YieldCurveWithBlackCubeAndForwardBundle.from(DATA, PRICE_FUTURE);
   private static final double STRIKE = 1.04;
   private static final BondFutureOptionPremiumSecurity BOND_FUTURE_OPTION_DERIV_CALL = new BondFutureOptionPremiumSecurity(BOND_FUTURE_DERIV, OPTION_EXPIRY, STRIKE, true);
   private static final BondFutureOptionPremiumSecurity BOND_FUTURE_OPTION_DERIV_PUT = new BondFutureOptionPremiumSecurity(BOND_FUTURE_DERIV, OPTION_EXPIRY, STRIKE, false);
@@ -97,12 +101,12 @@ public class BondFutureOptionPremiumSecurityBlackSurfaceMethodTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSecurity1() {
-    METHOD.optionPriceFromFuturePrice(null, DATA, PRICE_FUTURE);
+    METHOD.optionPrice(null, DATA);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSecurity2() {
-    METHOD.optionPriceFromFuturePrice(null, (YieldCurveBundle) DATA, PRICE_FUTURE);
+    METHOD.optionPrice(null, (YieldCurveBundle) DATA);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -186,101 +190,141 @@ public class BondFutureOptionPremiumSecurityBlackSurfaceMethodTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullSecurity19() {
+    METHOD.optionPrice(null, YieldCurveWithBlackCubeAndForwardBundle.from(DATA, PRICE_FUTURE));
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData1() {
-    METHOD.optionPriceFromFuturePrice(BOND_FUTURE_OPTION_DERIV_CALL, null, PRICE_FUTURE);
+    METHOD.optionPrice(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveWithBlackCubeAndForwardBundle) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData2() {
-    METHOD.optionPriceFromFuturePrice(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveBundle) null, PRICE_FUTURE);
+    METHOD.optionPrice(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveWithBlackCubeBundle) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData3() {
-    METHOD.optionPrice(BOND_FUTURE_OPTION_DERIV_CALL, null);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullData4() {
     METHOD.optionPrice(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveBundle) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullData4() {
+    METHOD.optionPrice(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveWithBlackCubeAndForwardBundle) null);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData5() {
-    METHOD.priceCurveSensitivity(BOND_FUTURE_OPTION_DERIV_CALL, null);
+    METHOD.optionPrice(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveWithBlackCubeBundle) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData6() {
-    METHOD.priceCurveSensitivity(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveBundle) null);
+    METHOD.optionPrice(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveBundle) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData7() {
-    METHOD.priceBlackSensitivity(BOND_FUTURE_OPTION_DERIV_CALL, null);
+    METHOD.priceCurveSensitivity(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveWithBlackCubeAndForwardBundle) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData8() {
-    METHOD.priceBlackSensitivity(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveBundle) null);
+    METHOD.priceCurveSensitivity(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveWithBlackCubeBundle) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData9() {
-    METHOD.optionPriceGamma(BOND_FUTURE_OPTION_DERIV_CALL, null);
+    METHOD.priceCurveSensitivity(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveBundle) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData10() {
-    METHOD.optionPriceGamma(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveBundle) null);
+    METHOD.priceBlackSensitivity(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveWithBlackCubeAndForwardBundle) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData11() {
-    METHOD.impliedVolatility(BOND_FUTURE_OPTION_DERIV_CALL, null);
+    METHOD.priceBlackSensitivity(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveWithBlackCubeBundle) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData12() {
-    METHOD.impliedVolatility(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveBundle) null);
+    METHOD.priceBlackSensitivity(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveBundle) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData13() {
-    METHOD.underlyingFuturePrice(BOND_FUTURE_OPTION_DERIV_CALL, null);
+    METHOD.optionPriceGamma(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveWithBlackCubeAndForwardBundle) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData14() {
-    METHOD.underlyingFuturePrice(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveBundle) null);
+    METHOD.optionPriceGamma(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveWithBlackCubeBundle) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData15() {
-    METHOD.optionPriceDelta(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveBundle) null);
+    METHOD.optionPriceGamma(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveBundle) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData16() {
-    METHOD.optionPriceDelta(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveBundle) null);
+    METHOD.impliedVolatility(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveWithBlackCubeAndForwardBundle) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData17() {
-    METHOD.optionPriceVega(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveBundle) null);
+    METHOD.impliedVolatility(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveWithBlackCubeBundle) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData18() {
+    METHOD.impliedVolatility(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveBundle) null);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullData19() {
+    METHOD.underlyingFuturePrice(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveWithBlackCubeAndForwardBundle) null);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullData20() {
+    METHOD.underlyingFuturePrice(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveBundle) null);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullData21() {
+    METHOD.optionPriceDelta(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveBundle) null);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullData22() {
+    METHOD.optionPriceDelta(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveWithBlackCubeBundle) null);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullData23() {
+    METHOD.optionPriceDelta(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveWithBlackCubeAndForwardBundle) null);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullData24() {
     METHOD.optionPriceVega(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveBundle) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testWrongDataType1() {
-    METHOD.optionPriceFromFuturePrice(BOND_FUTURE_OPTION_DERIV_CALL, TestsDataSetsBlack.createCurvesBond(), PRICE_FUTURE);
+  public void testNullData25() {
+    METHOD.optionPriceVega(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveWithBlackCubeBundle) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullData26() {
+    METHOD.optionPriceVega(BOND_FUTURE_OPTION_DERIV_CALL, (YieldCurveWithBlackCubeAndForwardBundle) null);
+  }
+
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testWrongDataType2() {
     METHOD.optionPrice(BOND_FUTURE_OPTION_DERIV_CALL, TestsDataSetsBlack.createCurvesBond());
   }
@@ -322,10 +366,10 @@ public class BondFutureOptionPremiumSecurityBlackSurfaceMethodTest {
 
   @Test
   public void testBlackPriceFromFuturePrice() {
-    final double callBlackPrice = BlackFormulaRepository.price(PRICE_FUTURE, STRIKE, OPTION_EXPIRY, DATA.getVolatility(OPTION_EXPIRY, STRIKE), true);
-    assertEquals(callBlackPrice, METHOD.optionPriceFromFuturePrice(BOND_FUTURE_OPTION_DERIV_CALL, DATA, PRICE_FUTURE), EPS);
-    final double putBlackPrice = BlackFormulaRepository.price(PRICE_FUTURE, STRIKE, OPTION_EXPIRY, DATA.getVolatility(OPTION_EXPIRY, STRIKE), false);
-    assertEquals(putBlackPrice, METHOD.optionPriceFromFuturePrice(BOND_FUTURE_OPTION_DERIV_PUT, DATA, PRICE_FUTURE), EPS);
+    final double callBlackPrice = BlackFormulaRepository.price(PRICE_FUTURE, STRIKE, OPTION_EXPIRY, DATA_WITH_FUTURE.getVolatility(OPTION_EXPIRY, STRIKE), true);
+    assertEquals(callBlackPrice, METHOD.optionPrice(BOND_FUTURE_OPTION_DERIV_CALL, DATA_WITH_FUTURE), EPS);
+    final double putBlackPrice = BlackFormulaRepository.price(PRICE_FUTURE, STRIKE, OPTION_EXPIRY, DATA_WITH_FUTURE.getVolatility(OPTION_EXPIRY, STRIKE), false);
+    assertEquals(putBlackPrice, METHOD.optionPrice(BOND_FUTURE_OPTION_DERIV_PUT, DATA_WITH_FUTURE), EPS);
     assertEquals(PRICE_FUTURE - STRIKE, callBlackPrice - putBlackPrice, EPS);
   }
 
@@ -337,6 +381,20 @@ public class BondFutureOptionPremiumSecurityBlackSurfaceMethodTest {
     assertEquals(callBlackPrice, METHOD.optionPrice(BOND_FUTURE_OPTION_DERIV_CALL, DATA), EPS);
     final double putBlackPrice = BlackFormulaRepository.price(priceFuture, STRIKE, OPTION_EXPIRY, DATA.getVolatility(OPTION_EXPIRY, STRIKE), false);
     assertEquals(putBlackPrice, METHOD.optionPrice(BOND_FUTURE_OPTION_DERIV_PUT, DATA), EPS);
+  }
+
+  @Test
+  public void testGreeksFromFuturePrice() {
+    final double callBlackDelta = BlackFormulaRepository.delta(PRICE_FUTURE, STRIKE, OPTION_EXPIRY, DATA_WITH_FUTURE.getVolatility(OPTION_EXPIRY, STRIKE), true);
+    assertEquals(callBlackDelta, METHOD.optionPriceDelta(BOND_FUTURE_OPTION_DERIV_CALL, DATA_WITH_FUTURE), EPS);
+    final double putBlackDelta = BlackFormulaRepository.delta(PRICE_FUTURE, STRIKE, OPTION_EXPIRY, DATA_WITH_FUTURE.getVolatility(OPTION_EXPIRY, STRIKE), false);
+    assertEquals(putBlackDelta, METHOD.optionPriceDelta(BOND_FUTURE_OPTION_DERIV_PUT, DATA_WITH_FUTURE), EPS);
+    final double blackVega = BlackFormulaRepository.vega(PRICE_FUTURE, STRIKE, OPTION_EXPIRY, DATA_WITH_FUTURE.getVolatility(OPTION_EXPIRY, STRIKE));
+    assertEquals(blackVega, METHOD.optionPriceVega(BOND_FUTURE_OPTION_DERIV_CALL, DATA_WITH_FUTURE), EPS);
+    assertEquals(blackVega, METHOD.optionPriceVega(BOND_FUTURE_OPTION_DERIV_PUT, DATA_WITH_FUTURE), EPS);
+    final double blackGamma = BlackFormulaRepository.gamma(PRICE_FUTURE, STRIKE, OPTION_EXPIRY, DATA_WITH_FUTURE.getVolatility(OPTION_EXPIRY, STRIKE));
+    assertEquals(blackGamma, METHOD.optionPriceGamma(BOND_FUTURE_OPTION_DERIV_CALL, DATA_WITH_FUTURE), EPS);
+    assertEquals(blackGamma, METHOD.optionPriceGamma(BOND_FUTURE_OPTION_DERIV_PUT, DATA_WITH_FUTURE), EPS);
   }
 
   @Test

@@ -11,9 +11,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
-import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -22,7 +20,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Class with the description of overnight deposit characteristics (conventions, calendar, ...).
  */
-public class GeneratorDepositON extends Generator {
+public class GeneratorDepositON extends GeneratorInstrument {
 
   /**
    * The index currency. Not null.
@@ -88,8 +86,7 @@ public class GeneratorDepositON extends Generator {
    * @param objects No.
    * @return The overnight deposit.
    */
-  public InstrumentDefinition<Cash> generateInstrument(final ZonedDateTime date, final Period tenor, final double marketQuote,
-      final double notional, final Object... objects) {
+  public CashDefinition generateInstrument(final ZonedDateTime date, final Period tenor, final double marketQuote, final double notional, final Object... objects) {
     final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(date, tenor, _calendar);
     final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, 1, _calendar);
     final double accrualFactor = _dayCount.getDayCountFraction(startDate, endDate);

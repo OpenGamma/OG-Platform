@@ -76,11 +76,9 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
     final String fullReceiveCurveName = receiveCurveName + "_" + receiveCurrency.getCode();
     final YieldAndDiscountCurve payFundingCurve = getCurve(inputs, payCurrency, payCurveName, payCurveConfig);
     final YieldAndDiscountCurve receiveFundingCurve = getCurve(inputs, receiveCurrency, receiveCurveName, receiveCurveConfig);
-    final YieldAndDiscountCurve[] curves;
     final Map<String, Currency> curveCurrency = new HashMap<String, Currency>();
     curveCurrency.put(fullPayCurveName, payCurrency);
     curveCurrency.put(fullReceiveCurveName, receiveCurrency);
-    final String[] allCurveNames;
     final Object baseQuotePairsObject = inputs.getValue(ValueRequirementNames.CURRENCY_PAIRS);
     if (baseQuotePairsObject == null) {
       throw new OpenGammaRuntimeException("Could not get base/quote pair data");
@@ -90,13 +88,11 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
     if (baseQuotePair == null) {
       throw new OpenGammaRuntimeException("Could not get base/quote pair for currency pair (" + payCurrency + ", " + receiveCurrency + ")");
     }
-    if (baseQuotePair.getBase().equals(payCurrency)) { // To get Base/quote in market standard order.
-      curves = new YieldAndDiscountCurve[] {payFundingCurve, receiveFundingCurve};
-      allCurveNames = new String[] {fullPayCurveName, fullReceiveCurveName};
-    } else {
-      curves = new YieldAndDiscountCurve[] {receiveFundingCurve, payFundingCurve};
-      allCurveNames = new String[] {fullReceiveCurveName, fullPayCurveName};
-    }
+    final YieldAndDiscountCurve[] curves;
+    final String[] allCurveNames;
+    curves = new YieldAndDiscountCurve[] {payFundingCurve, receiveFundingCurve};
+    allCurveNames = new String[] {fullPayCurveName, fullReceiveCurveName};
+    // Implementation note: The ForexSecurityConverter create the Forex with currency order pay/receive. The curve are passed in the same order.
     final ForexSecurityConverter converter = new ForexSecurityConverter(baseQuotePairs);
     final InstrumentDefinition<?> definition = security.accept(converter);
     final Forex forex = (Forex) definition.toDerivative(now, allCurveNames);

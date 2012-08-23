@@ -113,8 +113,8 @@ public abstract class BondFutureOptionBlackFunction extends AbstractFunction.Non
     if (!(volatilitySurface.getSurface() instanceof InterpolatedDoublesSurface)) {
       throw new OpenGammaRuntimeException("Expecting an InterpolatedDoublesSurface; got " + volatilitySurface.getSurface().getClass());
     }
-    final InstrumentDefinition<?> irFutureOptionDefinition = _converter.convert(trade);
-    final InstrumentDerivative bondFutureOption = _dataConverter.convert(security, irFutureOptionDefinition, now, curveNames, timeSeries);
+    final InstrumentDefinition<?> bondFutureOptionDefinition = _converter.convert(trade);
+    final InstrumentDerivative bondFutureOption = _dataConverter.convert(security, bondFutureOptionDefinition, now, curveNames, timeSeries);
     final ValueProperties properties = getResultProperties(desiredValue, security);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties);
     final YieldCurveWithBlackCubeBundle data = new YieldCurveWithBlackCubeBundle(volatilitySurface.getSurface(), curves);

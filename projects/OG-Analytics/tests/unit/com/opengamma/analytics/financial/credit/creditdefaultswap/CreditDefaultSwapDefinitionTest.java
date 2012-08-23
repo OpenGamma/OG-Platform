@@ -5,40 +5,154 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap;
 
-import com.opengamma.util.money.Currency;
-import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import static org.testng.AssertJUnit.assertTrue;
+
+import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
+
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
  */
 public class CreditDefaultSwapDefinitionTest {
   
-  final String buysellprotection = "Buy";
-  
-  final String protectionbuyer = "ABC";
-  final String protectionseller = "XYZ";
-  final String referenceentity = "C";
-  
+  private static final String buySellProtection = "Buy";
+
+  private static final String protectionBuyer = "ABC";
+  private static final String protectionSeller = "XYZ";
+  private static final String referenceEntity = "C";
+
   private static final Currency currency = Currency.USD;
-  
-  final String debtseniority = "Senior";
-  final String restructuringclause = "NR";
-     
+
+  private static final String debtSeniority = "Senior";
+  private static final String restructuringClause = "NR";
+
   private static final Calendar calendar = new MondayToFridayCalendar("A");
   
-  final double notional = 10000000.0;
-  final double parspread = 60.0;
+  private static final ZonedDateTime startDate = DateUtils.getUTCDate(2012, 8, 21);
+  private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2012, 8, 22);
+  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2017, 9, 20);
+  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2012, 8, 22);
+
+  private static final String scheduleGenerationMethod = "Backward";
+  private static final String couponFrequency = "Quarterly";
+  private static final String daycountFractionConvention = "ACT/360";
+  private static final String businessdayAdjustmentConvention = "Following";
+
+  private static final double notional = 10000000.0;
+  private static final double parSpread = 60.0;
+
+  private static final double valuationRecoveryRate = -0.40;
+  private static final double curveRecoveryRate = 0.40;
+
+  private static final boolean includeAccruedPremium = true;
+  private static final boolean adjustMaturityDate = false;
   
-  final double valuationrecoveryrate = 0.40;
-  final double curverecoveryrate = 0.40;
+  private static final int numberOfIntegrationSteps = 10;
+
+  // TODO : replace the yield and survival curves with something more meaningful
   
-  final boolean includeaccruedpremium = true;
+  // Dummy yield curve
+  private static final double[] TIME = new double[] {0, 3, 5};
+  private static final double[] RATES = new double[] {0.0, 0.0, 0.0};
+  private static final InterpolatedDoublesCurve R = InterpolatedDoublesCurve.from(TIME, RATES, new LinearInterpolator1D());
+  private static final YieldCurve yieldCurve = YieldCurve.from(R);
   
-//private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  //private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+//Dummy survival curve (proxied by a yield curve for now)
+ private static final double[] survivalTIME = new double[] {0, 3, 5};
+ private static final double[] survivalProbs = new double[] {0.0, 0.0, 0.0};
+ private static final InterpolatedDoublesCurve S = InterpolatedDoublesCurve.from(survivalTIME, survivalProbs, new LinearInterpolator1D());
+ private static final YieldCurve survivalCurve = YieldCurve.from(S);
+
+  private static final CreditDefaultSwapDefinition CDS_DEFINITION = new CreditDefaultSwapDefinition(buySellProtection, 
+                                                                                                    protectionBuyer, 
+                                                                                                    protectionSeller, 
+                                                                                                    referenceEntity,
+                                                                                                    currency, 
+                                                                                                    debtSeniority, 
+                                                                                                    restructuringClause, 
+                                                                                                    calendar,
+                                                                                                    startDate,
+                                                                                                    effectiveDate,
+                                                                                                    maturityDate,
+                                                                                                    valuationDate,
+                                                                                                    scheduleGenerationMethod,
+                                                                                                    couponFrequency,
+                                                                                                    daycountFractionConvention,
+                                                                                                    businessdayAdjustmentConvention,
+                                                                                                    notional, 
+                                                                                                    parSpread, 
+                                                                                                    valuationRecoveryRate, 
+                                                                                                    curveRecoveryRate, 
+                                                                                                    includeAccruedPremium,
+                                                                                                    adjustMaturityDate,
+                                                                                                    numberOfIntegrationSteps,
+                                                                                                    yieldCurve,
+                                                                                                    survivalCurve);
+  
+  // TODO : Add all the tests
+  
+  /*
+  @Test
+  public void testNullBuySellProtectionFlag() {
+    assertEquals(null, CDS_DEFINITION.getBuySellProtection(), 1e-15);
+  }
+  */
+
+  /*
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNotional() {
+    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, 
+        currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate, maturityDate, 
+        valuationDate, scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, -notional, 
+        parSpread, valuationRecoveryRate, curveRecoveryRate, includeAccruedPremium, adjustMaturityDate, numberOfIntegrationSteps, yieldCurve);
+  }
+  */
+  
+  /*
+ // @Test
+  public void testParSpread() {
+    assertTrue(CDS_DEFINITION.getParSpread() >= 0);
+  }
+  */
+  
+  /*
+  @Test
+  public void testValuationRecoveryRate() {
+    assertTrue(CDS_DEFINITION.getValuationRecoveryRate() >= 0.0);
+    assertTrue(CDS_DEFINITION.getValuationRecoveryRate() <= 1.0);
+  }
+  */
+  
+  /*
+//  @Test
+  public void testCurveRecoveryRate() {
+    assertTrue(CDS_DEFINITION.getCurveRecoveryRate() >= 0.0);
+    assertTrue(CDS_DEFINITION.getCurveRecoveryRate() <= 1.0);
+  }
+  */
+  
+  /*
+  @Test
+  public void testBuySellProtectionFlag() {
+    assertEquals("Buy", CDS_DEFINITION.getBuySellProtection());
+  }
+  */
+  
+  /*
+  @Test
+  public void testValuationRecoveryRate() {
+    assertEquals(true, CDS_DEFINITION.getValuationRecoveryRate());
+  }
+  */
+     
 }

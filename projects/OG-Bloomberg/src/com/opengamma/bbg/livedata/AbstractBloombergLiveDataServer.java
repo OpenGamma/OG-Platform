@@ -30,7 +30,6 @@ import com.opengamma.livedata.resolver.NormalizationRuleResolver;
 import com.opengamma.livedata.server.AbstractLiveDataServer;
 import com.opengamma.livedata.server.Subscription;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.ehcache.EHCacheUtils;
 
 
 /**
@@ -42,13 +41,23 @@ public abstract class AbstractBloombergLiveDataServer extends AbstractLiveDataSe
   private IdResolver _idResolver;
   private DistributionSpecificationResolver _defaultDistributionSpecificationResolver;
 
+  /**
+   * Creates an instance.
+   * 
+   * @param cacheManager  the cache manager, not null
+   */
+  public AbstractBloombergLiveDataServer(CacheManager cacheManager) {
+    super(cacheManager);
+  }
 
+  //-------------------------------------------------------------------------
   /**
    * Gets the reference data provider.
    * 
    * @return the reference data provider
    */
   protected abstract ReferenceDataProvider getReferenceDataProvider();
+
   @Override
   protected ExternalScheme getUniqueIdDomain() {
     return ExternalSchemes.BLOOMBERG_BUID;
@@ -90,7 +99,7 @@ public abstract class AbstractBloombergLiveDataServer extends AbstractLiveDataSe
 
   public synchronized NormalizationRuleResolver getNormalizationRules() {
     if (_normalizationRules == null) {
-      _normalizationRules = new StandardRuleResolver(BloombergDataUtils.getDefaultNormalizationRules(getReferenceDataProvider(), EHCacheUtils.createCacheManager()));
+      _normalizationRules = new StandardRuleResolver(BloombergDataUtils.getDefaultNormalizationRules(getReferenceDataProvider(), getCacheManager()));
     }
     return _normalizationRules;
   }
@@ -104,10 +113,9 @@ public abstract class AbstractBloombergLiveDataServer extends AbstractLiveDataSe
 
   public synchronized DistributionSpecificationResolver getDefaultDistributionSpecificationResolver() {
     if (_defaultDistributionSpecificationResolver == null) {
-      CacheManager cacheManager = EHCacheUtils.createCacheManager();
-      DefaultDistributionSpecificationResolver distributionSpecResolver = new DefaultDistributionSpecificationResolver(
-          getIdResolver(), getNormalizationRules(), new BloombergJmsTopicNameResolver(getReferenceDataProvider()));
-      return new EHCachingDistributionSpecificationResolver(distributionSpecResolver, cacheManager, "BBG");
+      BloombergJmsTopicNameResolver topicResolver = new BloombergJmsTopicNameResolver(getReferenceDataProvider());
+      DefaultDistributionSpecificationResolver distributionSpecResolver = new DefaultDistributionSpecificationResolver(getIdResolver(), getNormalizationRules(), topicResolver);
+      return new EHCachingDistributionSpecificationResolver(distributionSpecResolver, getCacheManager(), "BBG");
     }
     return _defaultDistributionSpecificationResolver;
   }

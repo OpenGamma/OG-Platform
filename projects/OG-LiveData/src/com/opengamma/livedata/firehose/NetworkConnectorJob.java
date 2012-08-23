@@ -126,4 +126,18 @@ public class NetworkConnectorJob<T> extends AbstractConnectorJob<T> {
     return _socket.getInputStream();
   }
 
+  @Override
+  protected void ioExceptionInRead(IOException e) {
+    super.ioExceptionInRead(e);
+    s_logger.warn("Socket state to {}:{} Bound:{} Closed:{} Connected:{} InputShutdown:{} OutputShutdown:{}",
+        new Object[] {
+          getHost(),
+          getPort(),
+          _socket.isBound(),
+          _socket.isClosed(),
+          _socket.isConnected(),
+          _socket.isInputShutdown(),
+          _socket.isOutputShutdown()});
+  }
+
 }

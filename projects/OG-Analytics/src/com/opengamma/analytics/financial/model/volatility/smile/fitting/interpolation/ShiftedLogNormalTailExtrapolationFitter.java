@@ -18,8 +18,6 @@ import com.opengamma.analytics.math.differentiation.VectorFieldFirstOrderDiffere
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
-import com.opengamma.analytics.math.matrix.MatrixAlgebra;
-import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
 import com.opengamma.analytics.math.minimization.NonLinearParameterTransforms;
 import com.opengamma.analytics.math.minimization.NonLinearTransformFunction;
 import com.opengamma.analytics.math.minimization.NullTransform;
@@ -46,7 +44,7 @@ public class ShiftedLogNormalTailExtrapolationFitter {
   static {
     final ParameterLimitsTransform a = new NullTransform();
     final ParameterLimitsTransform b = new SingleRangeLimitTransform(0.0, LimitType.GREATER_THAN);
-    TRANSFORMS = new UncoupledParameterTransforms(new DoubleMatrix1D(0.0, 1.0), new ParameterLimitsTransform[] {a, b }, new BitSet());
+    TRANSFORMS = new UncoupledParameterTransforms(new DoubleMatrix1D(0.0, 1.0), new ParameterLimitsTransform[] {a, b}, new BitSet());
   }
 
   /**
@@ -67,23 +65,23 @@ public class ShiftedLogNormalTailExtrapolationFitter {
       ArgumentChecker.isTrue(prices[0] < prices[1], "Put prices are not increasing with strike. Either the input data is wrong or there is an arbitrage");
     }
 
-    double vol1 = BlackFormulaRepository.impliedVolatility(prices[0], forward, strikes[0], timeToExpiry, isCall);
-    double vol2 = BlackFormulaRepository.impliedVolatility(prices[1], forward, strikes[1], timeToExpiry, isCall);
-    double kAv = (strikes[0] + strikes[1]) / 2.0;
-    double sigmaAv = (vol1 + vol2) / 2.0;
-    double pAv = BlackFormulaRepository.price(forward, kAv, timeToExpiry, sigmaAv, isCall);
-    double sigmaGrad = (vol1 - vol2) / (strikes[0] - strikes[1]);
-    double pGrad = BlackFormulaRepository.dualDelta(forward, kAv, timeToExpiry, sigmaAv, isCall)
-        + BlackFormulaRepository.vega(forward, kAv, timeToExpiry, sigmaAv) * sigmaGrad;
+    final double vol1 = BlackFormulaRepository.impliedVolatility(prices[0], forward, strikes[0], timeToExpiry, isCall);
+    final double vol2 = BlackFormulaRepository.impliedVolatility(prices[1], forward, strikes[1], timeToExpiry, isCall);
+    final double kAv = (strikes[0] + strikes[1]) / 2.0;
+    final double sigmaAv = (vol1 + vol2) / 2.0;
+    final double pAv = BlackFormulaRepository.price(forward, kAv, timeToExpiry, sigmaAv, isCall);
+    final double sigmaGrad = (vol1 - vol2) / (strikes[0] - strikes[1]);
+    final double pGrad = BlackFormulaRepository.dualDelta(forward, kAv, timeToExpiry, sigmaAv, isCall) + BlackFormulaRepository.vega(forward, kAv, timeToExpiry, sigmaAv)
+        * sigmaGrad;
 
     //This often fails to converge, thus the model is first fitted using price and grad, which given a point very close to the solution to use as the starting point
-    double[] temp = fitPriceAndGrad(forward, kAv, pAv, pGrad, timeToExpiry, isCall);
+    final double[] temp = fitPriceAndGrad(forward, kAv, pAv, pGrad, timeToExpiry, isCall);
 
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> func = getPriceDifferenceFunc(forward, strikes, prices, timeToExpiry, isCall);
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac = getPriceDifferenceJac(forward, strikes, prices, timeToExpiry, isCall);
-    NonLinearTransformFunction nltf = new NonLinearTransformFunction(func, jac, TRANSFORMS);
+    final NonLinearTransformFunction nltf = new NonLinearTransformFunction(func, jac, TRANSFORMS);
 
-    DoubleMatrix1D start = TRANSFORMS.transform(new DoubleMatrix1D(temp));
+    final DoubleMatrix1D start = TRANSFORMS.transform(new DoubleMatrix1D(temp));
     return TRANSFORMS.inverseTransform(ROOTFINDER.getRoot(nltf.getFittingFunction(), nltf.getFittingJacobian(), start)).getData();
   }
 
@@ -106,7 +104,7 @@ public class ShiftedLogNormalTailExtrapolationFitter {
     if (isCall) {
       ArgumentChecker.isTrue(price < forward, "call price must be less than forward. Price  is {} and foward is {} ", price, forward);
       ArgumentChecker.isTrue(priceGrad < 0.0, "Call prices must decrease with strike, but priceGrad is {}", priceGrad);
-      double approxATMPrice = price + (forward - strike) * priceGrad;
+      final double approxATMPrice = price + (forward - strike) * priceGrad;
       if (approxATMPrice >= forward) {
         throw new IllegalArgumentException("inputs imply an ATM price of >  " + approxATMPrice + " which is greater than the forward of " + forward);
       }
@@ -115,7 +113,7 @@ public class ShiftedLogNormalTailExtrapolationFitter {
       ArgumentChecker.isTrue(priceGrad > 0.0, "Put prices must increase with strike, but priceGrad is {}", priceGrad);
     }
 
-    double vol = BlackFormulaRepository.impliedVolatility(price, forward, strike, timeToExpiry, isCall);
+    final double vol = BlackFormulaRepository.impliedVolatility(price, forward, strike, timeToExpiry, isCall);
     final DoubleMatrix1D start = TRANSFORMS.transform(new DoubleMatrix1D(0.0, vol));
 
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> func = getPriceGradDifferenceFunc(forward, strike, price, priceGrad, timeToExpiry, isCall);
@@ -140,12 +138,12 @@ public class ShiftedLogNormalTailExtrapolationFitter {
     final double volsAv = (vols[0] + vols[1]) / 2.0;
     final double volGrad = (vols[1] - vols[0]) / (strikes[1] - strikes[0]);
 
-    double[] temp = fitVolatilityAndGrad(forward, kAv, volsAv, volGrad, timeToExpiry);
-    DoubleMatrix1D start = TRANSFORMS.transform(new DoubleMatrix1D(temp));
+    final double[] temp = fitVolatilityAndGrad(forward, kAv, volsAv, volGrad, timeToExpiry);
+    final DoubleMatrix1D start = TRANSFORMS.transform(new DoubleMatrix1D(temp));
 
-    Function1D<DoubleMatrix1D, DoubleMatrix1D> func = getVolDifferenceFunc(forward, strikes, vols, timeToExpiry);
-    Function1D<DoubleMatrix1D, DoubleMatrix2D> jac = getVolDifferenceJac(forward, strikes, vols, timeToExpiry);
-    NonLinearTransformFunction nltf = new NonLinearTransformFunction(func, jac, TRANSFORMS);
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> func = getVolDifferenceFunc(forward, strikes, vols, timeToExpiry);
+    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac = getVolDifferenceJac(forward, strikes, vols, timeToExpiry);
+    final NonLinearTransformFunction nltf = new NonLinearTransformFunction(func, jac, TRANSFORMS);
     return TRANSFORMS.inverseTransform(ROOTFINDER.getRoot(nltf.getFittingFunction(), nltf.getFittingJacobian(), start)).getData();
   }
 
@@ -173,18 +171,18 @@ public class ShiftedLogNormalTailExtrapolationFitter {
       throw new IllegalArgumentException("Volatility smile must be in range " + minGrad + " to " + maxGrad + ", but valur is " + volGrad);
     }
 
-    DoubleMatrix1D start = TRANSFORMS.transform(new DoubleMatrix1D(0.0, vol));
+    final DoubleMatrix1D start = TRANSFORMS.transform(new DoubleMatrix1D(0.0, vol));
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> func = getVolGradDifferenceFunc(forward, strike, vol, volGrad, timeToExpiry);
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac = getVolGradJac(forward, strike, vol, volGrad, timeToExpiry);
-    NonLinearTransformFunction nltf = new NonLinearTransformFunction(func, jac, TRANSFORMS);
+    final NonLinearTransformFunction nltf = new NonLinearTransformFunction(func, jac, TRANSFORMS);
 
     //The shifted log-normal model does not guarantee that call prices are below the forward and hence that the implied volatility exists. The root finding can fail (when 
     //a genuine solution does exist) because the parameters have wandered into a region where the implied volatility does not exist. In this case the remedy is to fit for
     //price and dual delta, which will give the correct answer (prices above the forward, while not economically possible, do not bother the root finder)
     try {
       return TRANSFORMS.inverseTransform(ROOTFINDER.getRoot(nltf.getFittingFunction(), nltf.getFittingJacobian(), start)).getData();
-    } catch (Exception e) {
-      System.out.println("failed on vol/volGrad - trying price/priceGrad");
+    } catch (final Exception e) {
+      LOG.info("failed on vol/volGrad - trying price/priceGrad");
       final double price = BlackFormulaRepository.price(forward, strike, timeToExpiry, vol, isCall);
       return fitPriceAndGrad(forward, strike, price, dd, timeToExpiry, isCall);
     }
@@ -200,7 +198,7 @@ public class ShiftedLogNormalTailExtrapolationFitter {
    */
   public double[] fitVolatilityAndGrad(final double forward, final double strike, final Function1D<Double, Double> smile, final double timeToExpiry) {
     final double vol = smile.evaluate(strike);
-    Function1D<Double, Double> smileGrad = DIFFERENTIATOR.differentiate(smile);
+    final Function1D<Double, Double> smileGrad = DIFFERENTIATOR.differentiate(smile);
     final double dVol = smileGrad.evaluate(strike);
     return fitVolatilityAndGrad(forward, strike, vol, dVol, timeToExpiry);
   }
@@ -215,23 +213,23 @@ public class ShiftedLogNormalTailExtrapolationFitter {
    * @param lowTail True if fitting extrapolation model to low strikes, false if fitting to high strike tail.
    * @return 3-element array containing: [0] mu = ln(shiftedForward / originalForward) [1] theta = new ln volatility to use [2] new extapolation boundary
    */
-  public ArrayList<Double> fitVolatilityAndGradRecursively(double forward, double[] strikes, double[] vols, final Function1D<Double, Double> dSigmaDx, final double expiry, final boolean lowTail) {
+  public ArrayList<Double> fitVolatilityAndGradRecursively(final double forward, final double[] strikes, final double[] vols, final Function1D<Double, Double> dSigmaDx,
+      final double expiry, final boolean lowTail) {
     final int n = strikes.length;
     ArgumentChecker.isTrue(vols.length == n, "Lengths of strikes and vols unexpectedly differ!");
     double[] shiftAndVol;
     final int endIdx = lowTail ? 0 : n - 1;
     try {
       shiftAndVol = fitVolatilityAndGrad(forward, strikes[endIdx], vols[endIdx], dSigmaDx.evaluate(strikes[endIdx]), expiry);
-    } catch (Exception e) {
-      LOG.error("Extrapolation - Expiry = " + expiry + "- failed to fit tail to " + strikes[endIdx] + ". Trying next strike. Caught " + e);
+    } catch (final Exception e) {
+      LOG.info("Extrapolation - Expiry = " + expiry + "- failed to fit tail to " + strikes[endIdx] + ". Trying next strike. Caught " + e);
       if (lowTail) {
         return fitVolatilityAndGradRecursively(forward, Arrays.copyOfRange(strikes, 1, n), Arrays.copyOfRange(vols, 1, n), dSigmaDx, expiry, lowTail);
-      } else {
-        return fitVolatilityAndGradRecursively(forward, Arrays.copyOfRange(strikes, 0, n - 1), Arrays.copyOfRange(vols, 0, n - 1), dSigmaDx, expiry, lowTail);
-      }
+      } 
+      return fitVolatilityAndGradRecursively(forward, Arrays.copyOfRange(strikes, 0, n - 1), Arrays.copyOfRange(vols, 0, n - 1), dSigmaDx, expiry, lowTail);      
     }
-    LOG.error("Extrapolating from strike, " + strikes[endIdx] + ", with shifted forward, " + forward * Math.exp(shiftAndVol[0]) + ", and vol, " + shiftAndVol[1]);
-    ArrayList<Double> listShiftVolStrike = new ArrayList<Double>();
+    LOG.info("Extrapolating from strike, " + strikes[endIdx] + ", with shifted forward, " + forward * Math.exp(shiftAndVol[0]) + ", and vol, " + shiftAndVol[1]);
+    final ArrayList<Double> listShiftVolStrike = new ArrayList<Double>();
     listShiftVolStrike.add(0, shiftAndVol[0]); // mu = ln(shiftedForward / originalForward)
     listShiftVolStrike.add(1, shiftAndVol[1]); // theta = new ln volatility to use
     listShiftVolStrike.add(2, strikes[endIdx]); // new extapolation boundary
@@ -248,7 +246,8 @@ public class ShiftedLogNormalTailExtrapolationFitter {
    * @param lowTail True if fitting extrapolation model to low strikes, false if fitting to high strike tail.
    * @return 3-element array containing: [0] mu = ln(shiftedForward / originalForward) [1] theta = new ln volatility to use [2] new extapolation boundary
    */
-  public ArrayList<Double> fitVolatilityAndGradRecursively(final double forward, final double[] strikes, final double[] vols, final double[] dSigmaDx, double expiry, final boolean lowTail) {
+  public ArrayList<Double> fitVolatilityAndGradRecursively(final double forward, final double[] strikes, final double[] vols, final double[] dSigmaDx,
+      final double expiry, final boolean lowTail) {
     final int n = strikes.length;
     ArgumentChecker.isTrue(vols.length == n, "Lengths of strikes and vols unexpectedly differ!");
     ArgumentChecker.isTrue(dSigmaDx.length == n, "Lengths of slopes and vols unexpectedly differ!");
@@ -257,15 +256,16 @@ public class ShiftedLogNormalTailExtrapolationFitter {
     final int endIdx = lowTail ? 0 : n - 1;
     try {
       shiftAndVol = fitVolatilityAndGrad(forward, strikes[endIdx], vols[endIdx], dSigmaDx[endIdx], expiry);
-    } catch (Exception e) {
-      LOG.error("Extrapolation - Expiry = " + expiry + "- failed to fit tail to " + strikes[endIdx] + ". Trying next strike. Caught " + e);
+    } catch (final Exception e) {
+      LOG.info("Extrapolation - Expiry = " + expiry + "- failed to fit tail to " + strikes[endIdx] + ". Trying next strike. Caught " + e);
       if (lowTail) {
-        return fitVolatilityAndGradRecursively(forward, Arrays.copyOfRange(strikes, 1, n), Arrays.copyOfRange(vols, 1, n), Arrays.copyOfRange(dSigmaDx, 1, n), expiry, lowTail);
-      } else {
-        return fitVolatilityAndGradRecursively(forward, Arrays.copyOfRange(strikes, 0, n - 1), Arrays.copyOfRange(vols, 0, n - 1), Arrays.copyOfRange(dSigmaDx, 0, n - 1), expiry, lowTail);
-      }
+        return fitVolatilityAndGradRecursively(forward, Arrays.copyOfRange(strikes, 1, n), Arrays.copyOfRange(vols, 1, n), Arrays.copyOfRange(dSigmaDx, 1, n), expiry,
+            lowTail);
+      } 
+      return fitVolatilityAndGradRecursively(forward, Arrays.copyOfRange(strikes, 0, n - 1), Arrays.copyOfRange(vols, 0, n - 1),
+          Arrays.copyOfRange(dSigmaDx, 0, n - 1), expiry, lowTail);
     }
-    LOG.error("Extrapolating from strike, " + strikes[endIdx] + ", with shifted forward, " + forward * Math.exp(shiftAndVol[0]) + ", and vol, " + shiftAndVol[1]);
+    LOG.info("Extrapolating from strike, " + strikes[endIdx] + ", with shifted forward, " + forward * Math.exp(shiftAndVol[0]) + ", and vol, " + shiftAndVol[1]);
     final ArrayList<Double> listShiftVolStrike = new ArrayList<Double>();
     listShiftVolStrike.add(0, shiftAndVol[0]); // mu = ln(shiftedForward / originalForward)
     listShiftVolStrike.add(1, shiftAndVol[1]); // theta = new ln volatility to use
@@ -273,41 +273,42 @@ public class ShiftedLogNormalTailExtrapolationFitter {
     return listShiftVolStrike;
   }
 
-  private Function1D<DoubleMatrix1D, DoubleMatrix1D> getPriceDifferenceFunc(final double forward, final double[] strike, final double[] prices, final double timeToExpiry, final boolean isCall) {
+  private Function1D<DoubleMatrix1D, DoubleMatrix1D> getPriceDifferenceFunc(final double forward, final double[] strike, final double[] prices,
+      final double timeToExpiry, final boolean isCall) {
 
     return new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
       @SuppressWarnings("synthetic-access")
       @Override
-      public DoubleMatrix1D evaluate(DoubleMatrix1D y) {
+      public DoubleMatrix1D evaluate(final DoubleMatrix1D y) {
         // DoubleMatrix1D y = TRANSFORMS.inverseTransform(x);
-        double mu = y.getEntry(0);
-        double theta = y.getEntry(1);
+        final double mu = y.getEntry(0);
+        final double theta = y.getEntry(1);
 
-        double p1 = ShiftedLogNormalTailExtrapolation.price(forward, strike[0], timeToExpiry, isCall, mu, theta);
-        double p2 = ShiftedLogNormalTailExtrapolation.price(forward, strike[1], timeToExpiry, isCall, mu, theta);
+        final double p1 = ShiftedLogNormalTailExtrapolation.price(forward, strike[0], timeToExpiry, isCall, mu, theta);
+        final double p2 = ShiftedLogNormalTailExtrapolation.price(forward, strike[1], timeToExpiry, isCall, mu, theta);
         // return new DoubleMatrix1D((prices[0] - p1) / prices[0], (prices[1] - p2) / prices[1]);
         return new DoubleMatrix1D((p1 - prices[0]) / prices[0], (p2 - prices[1]) / prices[1]);
       }
     };
   }
 
-  private Function1D<DoubleMatrix1D, DoubleMatrix2D> getPriceDifferenceJac(final double forward, final double[] strike, final double[] prices, final double timeToExpiry, final boolean isCall) {
+  private Function1D<DoubleMatrix1D, DoubleMatrix2D> getPriceDifferenceJac(final double forward, final double[] strike, final double[] prices, final double timeToExpiry,
+      final boolean isCall) {
 
-    final MatrixAlgebra ma = new OGMatrixAlgebra();
     return new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
       @SuppressWarnings("synthetic-access")
       @Override
-      public DoubleMatrix2D evaluate(DoubleMatrix1D y) {
+      public DoubleMatrix2D evaluate(final DoubleMatrix1D y) {
         // DoubleMatrix1D y = TRANSFORMS.inverseTransform(x);
-        double mu = y.getEntry(0);
-        double theta = y.getEntry(1);
-        double fStar = forward * Math.exp(mu);
-        double j11 = BlackFormulaRepository.delta(fStar, strike[0], timeToExpiry, theta, isCall) * fStar / prices[0];
-        double j12 = BlackFormulaRepository.vega(fStar, strike[0], timeToExpiry, theta) / prices[0];
-        double j21 = BlackFormulaRepository.delta(fStar, strike[1], timeToExpiry, theta, isCall) * fStar / prices[1];
-        double j22 = BlackFormulaRepository.vega(fStar, strike[1], timeToExpiry, theta) / prices[1];
+        final double mu = y.getEntry(0);
+        final double theta = y.getEntry(1);
+        final double fStar = forward * Math.exp(mu);
+        final double j11 = BlackFormulaRepository.delta(fStar, strike[0], timeToExpiry, theta, isCall) * fStar / prices[0];
+        final double j12 = BlackFormulaRepository.vega(fStar, strike[0], timeToExpiry, theta) / prices[0];
+        final double j21 = BlackFormulaRepository.delta(fStar, strike[1], timeToExpiry, theta, isCall) * fStar / prices[1];
+        final double j22 = BlackFormulaRepository.vega(fStar, strike[1], timeToExpiry, theta) / prices[1];
 
-        DoubleMatrix2D modelParmJac = new DoubleMatrix2D(new double[][] { {j11, j12 }, {j21, j22 } });
+        final DoubleMatrix2D modelParmJac = new DoubleMatrix2D(new double[][] {{j11, j12}, {j21, j22}});
         return modelParmJac;
         //        DoubleMatrix2D tranInvJac = TRANSFORMS.inverseJacobian(x);
         //
@@ -321,13 +322,13 @@ public class ShiftedLogNormalTailExtrapolationFitter {
     return new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
       @SuppressWarnings("synthetic-access")
       @Override
-      public DoubleMatrix1D evaluate(DoubleMatrix1D y) {
+      public DoubleMatrix1D evaluate(final DoubleMatrix1D y) {
         //  DoubleMatrix1D y = TRANSFORMS.inverseTransform(x);
-        double mu = y.getEntry(0);
-        double theta = y.getEntry(1);
+        final double mu = y.getEntry(0);
+        final double theta = y.getEntry(1);
 
-        double v1 = ShiftedLogNormalTailExtrapolation.impliedVolatility(forward, strike[0], timeToExpiry, mu, theta);
-        double v2 = ShiftedLogNormalTailExtrapolation.impliedVolatility(forward, strike[1], timeToExpiry, mu, theta);
+        final double v1 = ShiftedLogNormalTailExtrapolation.impliedVolatility(forward, strike[0], timeToExpiry, mu, theta);
+        final double v2 = ShiftedLogNormalTailExtrapolation.impliedVolatility(forward, strike[1], timeToExpiry, mu, theta);
         return new DoubleMatrix1D((v1 - vols[0]), (v2 - vols[1]));
       }
     };
@@ -340,31 +341,31 @@ public class ShiftedLogNormalTailExtrapolationFitter {
     return new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
       @SuppressWarnings("synthetic-access")
       @Override
-      public DoubleMatrix2D evaluate(DoubleMatrix1D y) {
+      public DoubleMatrix2D evaluate(final DoubleMatrix1D y) {
         final double mu = y.getEntry(0);
         final double theta = y.getEntry(1);
 
         final double fStar = forward * Math.exp(mu);
 
-        double p1 = BlackFormulaRepository.price(fStar, strike[0], timeToExpiry, theta, isCall);
-        double p2 = BlackFormulaRepository.price(fStar, strike[1], timeToExpiry, theta, isCall);
-        double vol1 = BlackFormulaRepository.impliedVolatility(p1, forward, strike[0], timeToExpiry, isCall);
-        double vol2 = BlackFormulaRepository.impliedVolatility(p2, forward, strike[1], timeToExpiry, isCall);
+        final double p1 = BlackFormulaRepository.price(fStar, strike[0], timeToExpiry, theta, isCall);
+        final double p2 = BlackFormulaRepository.price(fStar, strike[1], timeToExpiry, theta, isCall);
+        final double vol1 = BlackFormulaRepository.impliedVolatility(p1, forward, strike[0], timeToExpiry, isCall);
+        final double vol2 = BlackFormulaRepository.impliedVolatility(p2, forward, strike[1], timeToExpiry, isCall);
         final double vega1 = BlackFormulaRepository.vega(forward, strike[0], timeToExpiry, vol1);
         final double vega2 = BlackFormulaRepository.vega(forward, strike[1], timeToExpiry, vol2);
 
-        double j11 = BlackFormulaRepository.delta(fStar, strike[0], timeToExpiry, theta, isCall) * fStar / vega1;
-        double j12 = BlackFormulaRepository.vega(fStar, strike[0], timeToExpiry, theta) / vega1;
-        double j21 = BlackFormulaRepository.delta(fStar, strike[1], timeToExpiry, theta, isCall) * fStar / vega2;
-        double j22 = BlackFormulaRepository.vega(fStar, strike[1], timeToExpiry, theta) / vega2;
+        final double j11 = BlackFormulaRepository.delta(fStar, strike[0], timeToExpiry, theta, isCall) * fStar / vega1;
+        final double j12 = BlackFormulaRepository.vega(fStar, strike[0], timeToExpiry, theta) / vega1;
+        final double j21 = BlackFormulaRepository.delta(fStar, strike[1], timeToExpiry, theta, isCall) * fStar / vega2;
+        final double j22 = BlackFormulaRepository.vega(fStar, strike[1], timeToExpiry, theta) / vega2;
 
-        return new DoubleMatrix2D(new double[][] { {j11, j12 }, {j21, j22 } });
+        return new DoubleMatrix2D(new double[][] {{j11, j12}, {j21, j22}});
       }
     };
   }
 
-  private Function1D<DoubleMatrix1D, DoubleMatrix1D> getPriceGradDifferenceFunc(final double forward, final double strike, final double targetPrice, final double targetDPrice, final double expiry,
-      final boolean isCall) {
+  private Function1D<DoubleMatrix1D, DoubleMatrix1D> getPriceGradDifferenceFunc(final double forward, final double strike, final double targetPrice,
+      final double targetDPrice, final double expiry, final boolean isCall) {
 
     final double scale1 = 1.0 / targetPrice;
     final double scale2 = 1.0 / targetDPrice;
@@ -372,53 +373,55 @@ public class ShiftedLogNormalTailExtrapolationFitter {
     return new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
       @SuppressWarnings("synthetic-access")
       @Override
-      public DoubleMatrix1D evaluate(DoubleMatrix1D y) {
-        double mu = y.getEntry(0);
-        double theta = y.getEntry(1);
-        double price = scale1 * ShiftedLogNormalTailExtrapolation.price(forward, strike, expiry, isCall, mu, theta);
-        double dPrice = scale2 * ShiftedLogNormalTailExtrapolation.dualDelta(forward, strike, expiry, isCall, mu, theta);
+      public DoubleMatrix1D evaluate(final DoubleMatrix1D y) {
+        final double mu = y.getEntry(0);
+        final double theta = y.getEntry(1);
+        final double price = scale1 * ShiftedLogNormalTailExtrapolation.price(forward, strike, expiry, isCall, mu, theta);
+        final double dPrice = scale2 * ShiftedLogNormalTailExtrapolation.dualDelta(forward, strike, expiry, isCall, mu, theta);
         return new DoubleMatrix1D(price - 1.0, dPrice - 1.0);
       }
     };
   }
 
-  private Function1D<DoubleMatrix1D, DoubleMatrix2D> getPriceGradJac(final double forward, final double strike, final double targetPrice, final double targetDPrice, final double expiry,
-      final boolean isCall) {
+  private Function1D<DoubleMatrix1D, DoubleMatrix2D> getPriceGradJac(final double forward, final double strike, final double targetPrice, final double targetDPrice,
+      final double expiry, final boolean isCall) {
     final double scale1 = 1.0 / targetPrice;
     final double scale2 = 1.0 / targetDPrice;
 
     return new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
       @Override
-      public DoubleMatrix2D evaluate(DoubleMatrix1D y) {
-        double mu = y.getEntry(0);
-        double theta = y.getEntry(1);
-        double fStar = forward * Math.exp(mu);
-        double j11 = scale1 * BlackFormulaRepository.delta(fStar, strike, expiry, theta, isCall) * fStar;
-        double j12 = scale1 * BlackFormulaRepository.vega(fStar, strike, expiry, theta);
-        double j21 = scale2 * BlackFormulaRepository.crossGamma(fStar, strike, expiry, theta) * fStar;
-        double j22 = scale2 * BlackFormulaRepository.dualVanna(fStar, strike, expiry, theta);
+      public DoubleMatrix2D evaluate(final DoubleMatrix1D y) {
+        final double mu = y.getEntry(0);
+        final double theta = y.getEntry(1);
+        final double fStar = forward * Math.exp(mu);
+        final double j11 = scale1 * BlackFormulaRepository.delta(fStar, strike, expiry, theta, isCall) * fStar;
+        final double j12 = scale1 * BlackFormulaRepository.vega(fStar, strike, expiry, theta);
+        final double j21 = scale2 * BlackFormulaRepository.crossGamma(fStar, strike, expiry, theta) * fStar;
+        final double j22 = scale2 * BlackFormulaRepository.dualVanna(fStar, strike, expiry, theta);
 
-        return new DoubleMatrix2D(new double[][] { {j11, j12 }, {j21, j22 } });
+        return new DoubleMatrix2D(new double[][] {{j11, j12}, {j21, j22}});
       }
     };
 
   }
 
-  private Function1D<DoubleMatrix1D, DoubleMatrix1D> getVolGradDifferenceFunc(final double forward, final double strike, final double targetVol, final double targetDvol, final double expiry) {
+  private Function1D<DoubleMatrix1D, DoubleMatrix1D> getVolGradDifferenceFunc(final double forward, final double strike, final double targetVol, final double targetDvol,
+      final double expiry) {
     return new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
       @SuppressWarnings("synthetic-access")
       @Override
-      public DoubleMatrix1D evaluate(DoubleMatrix1D y) {
-        double mu = y.getEntry(0);
-        double theta = y.getEntry(1);
-        double vol = ShiftedLogNormalTailExtrapolation.impliedVolatility(forward, strike, expiry, mu, theta);
-        double dvol = ShiftedLogNormalTailExtrapolation.dVdK(forward, strike, expiry, mu, theta, vol);
+      public DoubleMatrix1D evaluate(final DoubleMatrix1D y) {
+        final double mu = y.getEntry(0);
+        final double theta = y.getEntry(1);
+        final double vol = ShiftedLogNormalTailExtrapolation.impliedVolatility(forward, strike, expiry, mu, theta);
+        final double dvol = ShiftedLogNormalTailExtrapolation.dVdK(forward, strike, expiry, mu, theta, vol);
         return new DoubleMatrix1D(vol - targetVol, forward * (dvol - targetDvol));
       }
     };
   }
 
-  private Function1D<DoubleMatrix1D, DoubleMatrix2D> getVolGradJac(final double forward, final double strike, final double targetVol, final double targetDvol, final double expiry) {
+  private Function1D<DoubleMatrix1D, DoubleMatrix2D> getVolGradJac(final double forward, final double strike, final double targetVol, final double targetDvol,
+      final double expiry) {
 
     final VectorFieldFirstOrderDifferentiator diff = new VectorFieldFirstOrderDifferentiator();
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> func = getVolGradDifferenceFunc(forward, strike, targetVol, targetDvol, expiry);

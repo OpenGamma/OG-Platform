@@ -37,6 +37,7 @@ import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalcula
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.tuple.DoublesPair;
@@ -76,6 +77,14 @@ public class FXForwardPV01Function extends FXForwardSingleValuedFunction {
       throw new OpenGammaRuntimeException("Could not get PV01 for " + fullCurveName);
     }
     return Collections.singleton(new ComputedValue(spec, pv01.get(fullCurveName)));
+  }
+
+  @Override
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    if (target.getType() != ComputationTargetType.SECURITY) {
+      return false;
+    }
+    return target.getSecurity() instanceof FXForwardSecurity;
   }
 
   @Override

@@ -19,12 +19,18 @@ import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 public class YieldAndDiscountCurveTest {
 
   private static final double[] TIME = new double[] {1, 2, 3};
-  private static final InterpolatedDoublesCurve R = InterpolatedDoublesCurve.from(TIME, new double[] {0.03, 0.04, 0.05}, new LinearInterpolator1D());
-  private static final InterpolatedDoublesCurve DF = InterpolatedDoublesCurve.from(TIME, new double[] {Math.exp(-0.03), Math.exp(-0.08), Math.exp(-0.15)}, new LinearInterpolator1D());
+  private static final double[] RATES = new double[] {0.03, 0.04, 0.05};
+  private static final double[] DF_VALUES = new double[] {Math.exp(-0.03), Math.exp(-0.08), Math.exp(-0.15)};
+  private static final InterpolatedDoublesCurve R = InterpolatedDoublesCurve.from(TIME, RATES, new LinearInterpolator1D());
+  private static final InterpolatedDoublesCurve DF = InterpolatedDoublesCurve.from(TIME, DF_VALUES, new LinearInterpolator1D());
   private static final YieldCurve YIELD = YieldCurve.from(R);
   private static final DiscountCurve DISCOUNT = DiscountCurve.from(DF);
+  private static final int COMPOUNDING = 2;
+  private static final YieldPeriodicCurve YIELD_PERIODIC = YieldPeriodicCurve.from(COMPOUNDING, R);
 
   private static final double TOLERANCE_RATE = 1.0E-10;
+  private static final double TOLERANCE_PV = 1.0E-10;
+  private static final double TOLERANCE_SENSI = 1.0E-6;
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullName() {
@@ -34,6 +40,16 @@ public class YieldAndDiscountCurveTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullCurve() {
     new YieldCurve("Name", null);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void nullNamePer() {
+    new YieldPeriodicCurve(null, COMPOUNDING, R);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void nullCurvePer() {
+    new YieldPeriodicCurve("Name", COMPOUNDING, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -62,6 +78,64 @@ public class YieldAndDiscountCurveTest {
     assertEquals(YIELD.getDiscountFactor(1.5), Math.exp(-1.5 * R.getYValue(1.5)), 1e-15);
     assertEquals(DISCOUNT.getInterestRate(1.4), -Math.log(DF.getYValue(1.4)) / 1.4, 1e-15);
     assertEquals(DISCOUNT.getDiscountFactor(1.5), DF.getYValue(1.5), 1e-15);
+  }
+
+  @Test
+  public void gettersYieldPeriodic() {
+    assertEquals("YieldPeriodicCurve: getter", YIELD_PERIODIC.getCurve(), R);
+    double point = 1.5;
+    assertEquals("YieldPeriodicCurve: getter", YIELD_PERIODIC.getPeriodicInterestRate(point, COMPOUNDING), R.getYValue(point), TOLERANCE_RATE);
+    double rate = R.getYValue(point);
+    double dfannual = Math.pow(1.0 + rate / COMPOUNDING, -COMPOUNDING);
+    double df = Math.pow(1.0 + rate / COMPOUNDING, -point * COMPOUNDING);
+    assertEquals("YieldPeriodicCurve: getter", YIELD_PERIODIC.getDiscountFactor(point), df, TOLERANCE_PV);
+    assertEquals("YieldPeriodicCurve: getter", YIELD_PERIODIC.getInterestRate(point), -Math.log(dfannual), TOLERANCE_PV);
+  }
+
+  @Test
+  public void interestRateParameterSensitivityYieldPeriodic() {
+    int nbPt = 20;
+    double shift = 1.0E-6;
+    double[] time = new double[nbPt + 1];
+    double[] rt = new double[nbPt + 1];
+    double[][] ps = new double[nbPt + 1][];
+    for (int looppt = 0; looppt <= nbPt; looppt++) {
+      time[looppt] = TIME[0] + looppt * (TIME[TIME.length - 1] - TIME[0]) / nbPt;
+      rt[looppt] = YIELD_PERIODIC.getInterestRate(time[looppt]);
+      ps[looppt] = YIELD_PERIODIC.getInterestRateParameterSensitivity(time[looppt]);
+    }
+    for (int loopr = 0; loopr < RATES.length; loopr++) {
+      double[] rateShift = RATES.clone();
+      rateShift[loopr] += shift;
+      YieldPeriodicCurve yieldPeriodicShifted = YieldPeriodicCurve.from(COMPOUNDING, InterpolatedDoublesCurve.from(TIME, rateShift, new LinearInterpolator1D()));
+      for (int looppt = 0; looppt <= nbPt; looppt++) {
+        double r = yieldPeriodicShifted.getInterestRate(time[looppt]);
+        assertEquals("ParameterSensitivity - YieldPeriodic", (r - rt[looppt]) / shift, ps[looppt][loopr], TOLERANCE_SENSI);
+      }
+    }
+  }
+
+  @Test
+  public void interestRateParameterSensitivityDiscounting() {
+    int nbPt = 20;
+    double shift = 1.0E-6;
+    double[] time = new double[nbPt + 1];
+    double[] rt = new double[nbPt + 1];
+    double[][] ps = new double[nbPt + 1][];
+    for (int looppt = 0; looppt <= nbPt; looppt++) {
+      time[looppt] = TIME[0] + looppt * (TIME[TIME.length - 1] - TIME[0]) / nbPt;
+      rt[looppt] = DISCOUNT.getInterestRate(time[looppt]);
+      ps[looppt] = DISCOUNT.getInterestRateParameterSensitivity(time[looppt]);
+    }
+    for (int loopr = 0; loopr < RATES.length; loopr++) {
+      double[] dfShift = DF_VALUES.clone();
+      dfShift[loopr] += shift;
+      DiscountCurve discountShift = DiscountCurve.from(InterpolatedDoublesCurve.from(TIME, dfShift, new LinearInterpolator1D()));
+      for (int looppt = 0; looppt <= nbPt; looppt++) {
+        double r = discountShift.getInterestRate(time[looppt]);
+        assertEquals("ParameterSensitivity - YieldPeriodic", (r - rt[looppt]) / shift, ps[looppt][loopr], TOLERANCE_SENSI);
+      }
+    }
   }
 
   @Test

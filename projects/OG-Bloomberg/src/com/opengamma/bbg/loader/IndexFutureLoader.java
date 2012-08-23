@@ -42,6 +42,7 @@ public class IndexFutureLoader extends SecurityLoader {
       FIELD_FUT_TRADING_HRS,
       FIELD_ID_MIC_PRIM_EXCH, // trading exchange
       FIELD_CRNCY,
+      FIELD_FUTURES_CATEGORY,
       FIELD_MARKET_SECTOR_DES,
       FIELD_PARSEKYABLE_DES,
       FIELD_UNDL_SPOT_TICKER,

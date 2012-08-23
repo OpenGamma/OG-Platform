@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import net.sf.ehcache.CacheManager;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -52,8 +54,9 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
    * @param bloombergConnector  the connector, not null
    * @param referenceDataProvider  the reference data provider, not null
    */
-  public BloombergLiveDataServer(BloombergConnector bloombergConnector, ReferenceDataProvider referenceDataProvider) {
-    ArgumentChecker.notNull(bloombergConnector, "Bloomberg Session Options");
+  public BloombergLiveDataServer(BloombergConnector bloombergConnector, ReferenceDataProvider referenceDataProvider, CacheManager cacheManager) {
+    super(cacheManager);
+    ArgumentChecker.notNull(bloombergConnector, "bloombergConnector");
     ArgumentChecker.notNull(referenceDataProvider, "referenceDataProvider");
     _bloombergConnector = bloombergConnector;
     _referenceDataProvider = referenceDataProvider;

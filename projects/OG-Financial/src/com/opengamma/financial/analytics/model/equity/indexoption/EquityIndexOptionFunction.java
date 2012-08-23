@@ -61,7 +61,7 @@ import com.opengamma.util.async.AsynchronousExecution;
  *
  */
 public abstract class EquityIndexOptionFunction extends AbstractFunction.NonCompiledInvoker {
-
+  private static final Logger s_logger = LoggerFactory.getLogger(EquityIndexOptionFunction.class);
   private final String _valueRequirementName;
   private EquityIndexOptionConverter _converter; // set in init(), not constructor
 
@@ -84,7 +84,8 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
   }
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+      final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     // 1. Build the analytic derivative to be priced
     final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
     final EquityIndexOptionSecurity security = getEquityIndexOptionSecurity(target);
@@ -248,7 +249,7 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
         .with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, smileInterpolator)
         .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
         .with(ValuePropertyNames.CURVE_CURRENCY, curveCurrency)
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, "EQUITY_OPTION")
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_OPTION)
         .get();
     return new ValueRequirement(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, newId, properties);
   }
@@ -266,5 +267,4 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     return _valueRequirementName;
   }
 
-  private static final Logger s_logger = LoggerFactory.getLogger(EquityIndexOptionFunction.class);
 }

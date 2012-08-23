@@ -7,6 +7,8 @@ package com.opengamma.bbg.test;
 
 import java.lang.reflect.Method;
 
+import net.sf.ehcache.CacheManager;
+
 import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.livedata.BloombergLiveDataServer;
 import com.opengamma.bbg.livedata.faketicks.CombiningBloombergLiveDataServer;
@@ -107,7 +109,7 @@ public class BloombergLiveDataServerUtils {
 
   public static BloombergLiveDataServer getTestServer(ReferenceDataProvider cachingRefDataProvider) {
     
-    BloombergLiveDataServer server = new BloombergLiveDataServer(BloombergTestUtils.getBloombergConnector(), cachingRefDataProvider);
+    BloombergLiveDataServer server = new BloombergLiveDataServer(BloombergTestUtils.getBloombergConnector(), cachingRefDataProvider, EHCacheUtils.createCacheManager());
     DistributionSpecificationResolver distributionSpecificationResolver = server.getDefaultDistributionSpecificationResolver();
     server.setDistributionSpecificationResolver(distributionSpecificationResolver);
     
@@ -119,10 +121,11 @@ public class BloombergLiveDataServerUtils {
     ReferenceDataProvider cachingRefDataProvider = getCachingReferenceDataProvider(refDataProvider, testClass);
     BloombergLiveDataServer underlying = getTestServer(cachingRefDataProvider);
     
-    FakeSubscriptionBloombergLiveDataServer fakeServer = new FakeSubscriptionBloombergLiveDataServer(underlying, EHCacheUtils.createCacheManager());
+    CacheManager cacheManager = EHCacheUtils.createCacheManager();
+    FakeSubscriptionBloombergLiveDataServer fakeServer = new FakeSubscriptionBloombergLiveDataServer(underlying, cacheManager);
     fakeServer.start();
     
-    CombiningBloombergLiveDataServer combinedServer = new CombiningBloombergLiveDataServer(fakeServer, underlying, subscriptionSelector);
+    CombiningBloombergLiveDataServer combinedServer = new CombiningBloombergLiveDataServer(fakeServer, underlying, subscriptionSelector, cacheManager);
         
     combinedServer.start();
     return combinedServer;

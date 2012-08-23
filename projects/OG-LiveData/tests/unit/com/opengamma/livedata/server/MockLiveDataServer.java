@@ -17,6 +17,7 @@ import org.fudgemsg.FudgeMsg;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
@@ -35,8 +36,8 @@ public class MockLiveDataServer extends AbstractLiveDataServer {
     this(domain, new ConcurrentHashMap<String, FudgeMsg>());
   }
   
-  public MockLiveDataServer(ExternalScheme domain,
-      Map<String, FudgeMsg> uniqueId2Snapshot) {
+  public MockLiveDataServer(ExternalScheme domain, Map<String, FudgeMsg> uniqueId2Snapshot) {
+    super(EHCacheUtils.createCacheManager());
     ArgumentChecker.notNull(domain, "Identification domain");
     ArgumentChecker.notNull(uniqueId2Snapshot, "Snapshot map");
     _domain = domain;

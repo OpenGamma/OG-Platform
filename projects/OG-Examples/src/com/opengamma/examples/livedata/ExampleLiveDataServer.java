@@ -40,6 +40,7 @@ import com.opengamma.livedata.server.SubscriptionListener;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.NamedThreadPoolFactory;
 import com.opengamma.util.TerminatableJob;
+import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
@@ -66,13 +67,15 @@ public class ExampleLiveDataServer extends AbstractLiveDataServer {
   public ExampleLiveDataServer(final Resource initialValuesFile) {
     this(initialValuesFile, SCALING_FACTOR, MAX_MILLIS_BETWEEN_TICKS);
   }
-  
+
   public ExampleLiveDataServer(final Resource initialValuesFile, double scalingFactor, int maxMillisBetweenTicks) {
+    super(EHCacheUtils.createCacheManager());
     readInitialValues(initialValuesFile);
     _scalingFactor = scalingFactor;
     _maxMillisBetweenTicks = maxMillisBetweenTicks;
   }
-   
+
+  //-------------------------------------------------------------------------
   private void readInitialValues(Resource initialValuesFile) {
     CSVReader reader = null;
     try {

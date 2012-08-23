@@ -102,10 +102,14 @@ public final class PresentValueBlackCalculator extends PresentValueCalculator {
   public Double visitBondFutureOptionPremiumTransaction(final BondFutureOptionPremiumTransaction option, final YieldCurveBundle curves) {
     ArgumentChecker.notNull(curves, "curves");
     ArgumentChecker.notNull(option, "option");
-    if (curves instanceof YieldCurveWithBlackCubeBundle) {
-      return PREMIUM_BOND_FUTURE_OPTION.presentValue(option, curves).getAmount();
-    }
-    throw new UnsupportedOperationException("The PresentValueBlackCalculator visitor visitBondFutureOptionPremiumTransaction requires a YieldCurveWithBlackCubeBundle as data.");
+    return PREMIUM_BOND_FUTURE_OPTION.presentValue(option, curves).getAmount();
+    //    if (curves instanceof YieldCurveWithBlackCubeBundle) {
+    //      return PREMIUM_BOND_FUTURE_OPTION.presentValue(option, curves).getAmount();
+    //    } else if (curves instanceof YieldCurveWithBlackCubeAndForwardBundle) {
+    //      return PREMIUM_BOND_FUTURE_OPTION.presentValueFromPrice(option, curves, ((YieldCurveWithBlackCubeAndForwardBundle) curves).getForward()).getAmount();
+    //    }
+    //    throw new UnsupportedOperationException(
+    //        "The PresentValueBlackCalculator visitor visitBondFutureOptionPremiumTransaction requires a YieldCurveWithBlackCubeBundle as data.");
   }
 
 }

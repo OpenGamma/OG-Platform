@@ -8,7 +8,9 @@ package com.opengamma.analytics.financial.interestrate.future.method;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
+import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeAndForwardBundle;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
+import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackForexTermStructureBundle;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
@@ -55,28 +57,22 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
   /**
    * Computes the option security price from future price.
    * @param security The future option security, not null
-   * @param blackData The curve and Black volatility data, not null
-   * @param priceFuture The price of the underlying future.
+   * @param blackData The curve, Black volatility data and future price, not null
    * @return The security price.
    */
-  public double optionPriceFromFuturePrice(final BondFutureOptionPremiumSecurity security, final YieldCurveWithBlackCubeBundle blackData, final double priceFuture) {
+  public double optionPrice(final BondFutureOptionPremiumSecurity security, final YieldCurveWithBlackCubeAndForwardBundle blackData) {
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(blackData, "Black data");
     final double strike = security.getStrike();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, security.getExpirationTime(), security.isCall());
     final double volatility = blackData.getVolatility(security.getExpirationTime(), security.getStrike());
-    final BlackFunctionData dataBlack = new BlackFunctionData(priceFuture, 1.0, volatility);
+    final BlackFunctionData dataBlack = new BlackFunctionData(blackData.getForward(), 1.0, volatility);
     final double priceSecurity = BLACK_FUNCTION.getPriceFunction(option).evaluate(dataBlack);
     return priceSecurity;
   }
 
-  public double optionPriceFromFuturePrice(final BondFutureOptionPremiumSecurity security, final YieldCurveBundle curves, final double priceFuture) {
-    ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackCubeBundle, "Yield curve bundle should contain Black cube");
-    return optionPriceFromFuturePrice(security, (YieldCurveWithBlackCubeBundle) curves, priceFuture);
-  }
-
   /**
-   * Computes the option security price. 
+   * Computes the option security price. The future price is computed from the curves. 
    * @param security The bond future option security, not null
    * @param blackData The curve and Black volatility data, not null
    * @return The security price.
@@ -84,12 +80,31 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
   public double optionPrice(final BondFutureOptionPremiumSecurity security, final YieldCurveWithBlackCubeBundle blackData) {
     ArgumentChecker.notNull(security, "security");
     final double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), blackData);
-    return optionPriceFromFuturePrice(security, blackData, priceFuture);
+    return optionPrice(security, YieldCurveWithBlackCubeAndForwardBundle.from(blackData, priceFuture));
   }
 
+  /**
+   * Computes the option security price. If the future price is present in the bundle ()
+   * @param security The bond future option security, not null
+   * @param curves The curve, Black volatility data and potentially future price. 
+   * @return The security price.
+   */
   public double optionPrice(final BondFutureOptionPremiumSecurity security, final YieldCurveBundle curves) {
-    ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackCubeBundle, "Yield curve bundle should contain Black cube");
-    return optionPrice(security, (YieldCurveWithBlackCubeBundle) curves);
+    ArgumentChecker.notNull(curves, "Curves");
+    if (curves instanceof YieldCurveWithBlackCubeBundle) {
+      return optionPrice(security, (YieldCurveWithBlackCubeBundle) curves);
+    } else if (curves instanceof YieldCurveWithBlackCubeAndForwardBundle) {
+      return optionPrice(security, (YieldCurveWithBlackCubeAndForwardBundle) curves);
+    }
+    throw new UnsupportedOperationException(
+        "The BondFutureOptionPremiumSecurityBlackSurfaceMethod method requires a YieldCurveWithBlackCubeBundle or YieldCurveWithBlackCubeAndForwardBundle as data.");
+  }
+
+  public InterestRateCurveSensitivity priceCurveSensitivity(final BondFutureOptionPremiumSecurity security, final YieldCurveBundle curves) {
+    if (curves instanceof YieldCurveWithBlackCubeBundle) {
+      return priceCurveSensitivity(security, (YieldCurveWithBlackCubeBundle) curves);
+    }
+    throw new IllegalArgumentException("Yield curve bundle should contain Black cube");
   }
 
   /**
@@ -116,26 +131,20 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
     return priceFutureDerivative.multiply(priceFutureBar);
   }
 
-  public InterestRateCurveSensitivity priceCurveSensitivity(final BondFutureOptionPremiumSecurity security, final YieldCurveBundle curves) {
-    ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackCubeBundle, "Yield curve bundle should contain Black cube");
-    return priceCurveSensitivity(security, (YieldCurveWithBlackCubeBundle) curves);
-  }
-
   /**
    * Computes the option security price volatility sensitivity. 
    * @param security The future option security, not null
    * @param blackData The curve and Black volatility data, not null
    * @return The security price Black volatility sensitivity.
    */
-  public SurfaceValue priceBlackSensitivity(final BondFutureOptionPremiumSecurity security, final YieldCurveWithBlackCubeBundle blackData) {
+  public SurfaceValue priceBlackSensitivity(final BondFutureOptionPremiumSecurity security, final YieldCurveWithBlackCubeAndForwardBundle blackData) {
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(blackData, "YieldCurveWithBlackCubeBundle was unexpectedly null");
     // Forward sweep
-    final double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), blackData);
     final double strike = security.getStrike();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, security.getExpirationTime(), security.isCall());
     final double volatility = blackData.getVolatility(security.getExpirationTime(), security.getStrike());
-    final BlackFunctionData dataBlack = new BlackFunctionData(priceFuture, 1.0, volatility);
+    final BlackFunctionData dataBlack = new BlackFunctionData(blackData.getForward(), 1.0, volatility);
     final double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
     // Backward sweep
     final double priceBar = 1.0;
@@ -146,8 +155,19 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
   }
 
   public SurfaceValue priceBlackSensitivity(final BondFutureOptionPremiumSecurity security, final YieldCurveBundle curves) {
-    ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackCubeBundle, "Yield curve bundle should contain Black cube");
-    return priceBlackSensitivity(security, (YieldCurveWithBlackCubeBundle) curves);
+    if (curves instanceof YieldCurveWithBlackCubeBundle) {
+      return priceBlackSensitivity(security, (YieldCurveWithBlackCubeBundle) curves);
+    } else if (curves instanceof YieldCurveWithBlackForexTermStructureBundle) {
+      return priceBlackSensitivity(security, (YieldCurveWithBlackCubeAndForwardBundle) curves);
+    }
+    throw new IllegalArgumentException("Yield curve bundle should contain Black cube");
+  }
+
+  public SurfaceValue priceBlackSensitivity(final BondFutureOptionPremiumSecurity security, final YieldCurveWithBlackCubeBundle blackData) {
+    ArgumentChecker.notNull(blackData, "black data");
+    ArgumentChecker.notNull(security, "security");
+    final double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), blackData);
+    return priceBlackSensitivity(security, YieldCurveWithBlackCubeAndForwardBundle.from(blackData, priceFuture));
   }
 
   /**
@@ -156,16 +176,15 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
    * @param blackData The curve and Black volatility data, not null
    * @return The security value delta.
    */
-  public double optionPriceDelta(final BondFutureOptionPremiumSecurity security, final YieldCurveWithBlackCubeBundle blackData) {
+  public double optionPriceDelta(final BondFutureOptionPremiumSecurity security, final YieldCurveWithBlackCubeAndForwardBundle blackData) {
     ArgumentChecker.notNull(security, "security");
-    ArgumentChecker.notNull(blackData, "YieldCurveWithBlackCubeBundle was unexpectedly null");
+    ArgumentChecker.notNull(blackData, "YieldCurveWithBlackCubeAndForwardBundle was unexpectedly null");
     // Forward sweep
-    final double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), blackData);
     final double strike = security.getStrike();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, security.getExpirationTime(), security.isCall());
 
     final double volatility = blackData.getVolatility(security.getExpirationTime(), security.getStrike());
-    final BlackFunctionData dataBlack = new BlackFunctionData(priceFuture, 1.0, volatility);
+    final BlackFunctionData dataBlack = new BlackFunctionData(blackData.getForward(), 1.0, volatility);
 
     final double[] firstDerivs = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
     return firstDerivs[1];
@@ -178,8 +197,19 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
    * @return The security value delta.
    */
   public double optionPriceDelta(final BondFutureOptionPremiumSecurity security, final YieldCurveBundle curves) {
-    ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackCubeBundle, "Yield curve bundle should contain Black cube");
-    return optionPriceDelta(security, (YieldCurveWithBlackCubeBundle) curves);
+    if (curves instanceof YieldCurveWithBlackCubeBundle) {
+      return optionPriceDelta(security, (YieldCurveWithBlackCubeBundle) curves);
+    } else if (curves instanceof YieldCurveWithBlackForexTermStructureBundle) {
+      return optionPriceDelta(security, (YieldCurveWithBlackCubeAndForwardBundle) curves);
+    }
+    throw new IllegalArgumentException("Yield curve bundle should contain Black cube");
+  }
+
+  public double optionPriceDelta(final BondFutureOptionPremiumSecurity security, final YieldCurveWithBlackCubeBundle blackData) {
+    ArgumentChecker.notNull(blackData, "black data");
+    ArgumentChecker.notNull(security, "security");
+    final double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), blackData);
+    return optionPriceDelta(security, YieldCurveWithBlackCubeAndForwardBundle.from(blackData, priceFuture));
   }
 
   /**
@@ -188,16 +218,15 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
    * @param blackData The curve and Black volatility data, not null
    * @return The security price gamma.
    */
-  public double optionPriceGamma(final BondFutureOptionPremiumSecurity security, final YieldCurveWithBlackCubeBundle blackData) {
+  public double optionPriceGamma(final BondFutureOptionPremiumSecurity security, final YieldCurveWithBlackCubeAndForwardBundle blackData) {
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(blackData, "YieldCurveWithBlackCubeBundle was unexpectedly null");
     // Forward sweep
-    final double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), blackData);
     final double strike = security.getStrike();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, security.getExpirationTime(), security.isCall());
 
     final double volatility = blackData.getVolatility(security.getExpirationTime(), security.getStrike());
-    final BlackFunctionData dataBlack = new BlackFunctionData(priceFuture, 1.0, volatility);
+    final BlackFunctionData dataBlack = new BlackFunctionData(blackData.getForward(), 1.0, volatility);
 
     // TODO This is overkill. We only need one value, but it provides extra calculations while doing testing
     final double[] firstDerivs = new double[3];
@@ -213,8 +242,19 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
    * @return The security price gamma.
    */
   public double optionPriceGamma(final BondFutureOptionPremiumSecurity security, final YieldCurveBundle curves) {
-    ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackCubeBundle, "Yield curve bundle should contain Black cube");
-    return optionPriceGamma(security, (YieldCurveWithBlackCubeBundle) curves);
+    if (curves instanceof YieldCurveWithBlackCubeBundle) {
+      return optionPriceGamma(security, (YieldCurveWithBlackCubeBundle) curves);
+    } else if (curves instanceof YieldCurveWithBlackForexTermStructureBundle) {
+      return optionPriceGamma(security, (YieldCurveWithBlackCubeAndForwardBundle) curves);
+    }
+    throw new IllegalArgumentException("Yield curve bundle should contain Black cube");
+  }
+
+  public double optionPriceGamma(final BondFutureOptionPremiumSecurity security, final YieldCurveWithBlackCubeBundle blackData) {
+    ArgumentChecker.notNull(blackData, "black data");
+    ArgumentChecker.notNull(security, "security");
+    final double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), blackData);
+    return optionPriceGamma(security, YieldCurveWithBlackCubeAndForwardBundle.from(blackData, priceFuture));
   }
 
   /**
@@ -223,16 +263,15 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
    * @param blackData The curve and Black volatility data, not null
    * @return The security value delta.
    */
-  public double optionPriceVega(final BondFutureOptionPremiumSecurity security, final YieldCurveWithBlackCubeBundle blackData) {
+  public double optionPriceVega(final BondFutureOptionPremiumSecurity security, final YieldCurveWithBlackCubeAndForwardBundle blackData) {
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(blackData, "YieldCurveWithBlackCubeBundle was unexpectedly null");
     // Forward sweep
-    final double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), blackData);
     final double strike = security.getStrike();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, security.getExpirationTime(), security.isCall());
 
     final double volatility = blackData.getVolatility(security.getExpirationTime(), security.getStrike());
-    final BlackFunctionData dataBlack = new BlackFunctionData(priceFuture, 1.0, volatility);
+    final BlackFunctionData dataBlack = new BlackFunctionData(blackData.getForward(), 1.0, volatility);
 
     final double[] firstDerivs = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
     return firstDerivs[2];
@@ -245,8 +284,19 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
    * @return The security value delta.
    */
   public double optionPriceVega(final BondFutureOptionPremiumSecurity security, final YieldCurveBundle curves) {
-    ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackCubeBundle, "Yield curve bundle should contain Black cube");
-    return optionPriceVega(security, (YieldCurveWithBlackCubeBundle) curves);
+    if (curves instanceof YieldCurveWithBlackCubeBundle) {
+      return optionPriceVega(security, (YieldCurveWithBlackCubeBundle) curves);
+    } else if (curves instanceof YieldCurveWithBlackForexTermStructureBundle) {
+      return optionPriceVega(security, (YieldCurveWithBlackCubeAndForwardBundle) curves);
+    }
+    throw new IllegalArgumentException("Yield curve bundle should contain Black cube");
+  }
+
+  public double optionPriceVega(final BondFutureOptionPremiumSecurity security, final YieldCurveWithBlackCubeBundle blackData) {
+    ArgumentChecker.notNull(blackData, "black data");
+    ArgumentChecker.notNull(security, "security");
+    final double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), blackData);
+    return optionPriceVega(security, YieldCurveWithBlackCubeAndForwardBundle.from(blackData, priceFuture));
   }
 
   /**
@@ -256,8 +306,12 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
    * @return Lognormal Implied Volatility
    */
   public double impliedVolatility(final BondFutureOptionPremiumSecurity security, final YieldCurveBundle curves) {
-    ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackCubeBundle, "Yield curve bundle should contain Black cube");
-    return impliedVolatility(security, (YieldCurveWithBlackCubeBundle) curves);
+    if (curves instanceof YieldCurveWithBlackCubeBundle) {
+      return optionPriceVega(security, (YieldCurveWithBlackCubeBundle) curves);
+    } else if (curves instanceof YieldCurveWithBlackForexTermStructureBundle) {
+      return optionPriceVega(security, (YieldCurveWithBlackCubeAndForwardBundle) curves);
+    }
+    throw new IllegalArgumentException("Yield curve bundle should contain Black cube");
   }
 
   /**
@@ -266,13 +320,22 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
    * @param blackData The curve and Black volatility data, not null
    * @return Lognormal Implied Volatility.
    */
-  public double impliedVolatility(final BondFutureOptionPremiumSecurity security, final YieldCurveWithBlackCubeBundle blackData) {
+  public double impliedVolatility(final BondFutureOptionPremiumSecurity security, final YieldCurveWithBlackCubeAndForwardBundle blackData) {
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(blackData, "Black data");
     return blackData.getVolatility(security.getExpirationTime(), security.getStrike());
   }
 
+  public double impliedVolatility(final BondFutureOptionPremiumSecurity security, final YieldCurveWithBlackCubeBundle blackData) {
+    ArgumentChecker.notNull(blackData, "black data");
+    ArgumentChecker.notNull(security, "security");
+    final double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), blackData);
+    return impliedVolatility(security, YieldCurveWithBlackCubeAndForwardBundle.from(blackData, priceFuture));
+  }
+
   public double underlyingFuturePrice(final BondFutureOptionPremiumSecurity security, final YieldCurveBundle curves) {
+    ArgumentChecker.notNull(security, "security");
+    ArgumentChecker.notNull(curves, "curves");
     ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackCubeBundle, "Yield curve bundle should contain Black cube");
     return underlyingFuturePrice(security, (YieldCurveWithBlackCubeBundle) curves);
   }

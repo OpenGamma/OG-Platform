@@ -69,6 +69,10 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
   public static <X, Y> Set<ValueRequirement> buildDataRequirements(final VolatilitySurfaceSpecification specification, final VolatilitySurfaceDefinition<X, Y> definition,
       final ZonedDateTime atInstant, final String surfaceName, final String instrumentType) {
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
+    if (specification == null) {
+      s_logger.error("Volatility surface specification called {} for instrument type {} was null", surfaceName, instrumentType);
+      return null;
+    }
     final SurfaceInstrumentProvider<X, Y> provider = (SurfaceInstrumentProvider<X, Y>) specification.getSurfaceInstrumentProvider();
     for (final X x : definition.getXs()) {
       for (final Y y : definition.getYs()) {

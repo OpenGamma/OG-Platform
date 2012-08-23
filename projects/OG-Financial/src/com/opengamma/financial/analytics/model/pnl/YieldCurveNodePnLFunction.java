@@ -284,6 +284,11 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
     return ComputationTargetType.POSITION;
   }
 
+  @Override
+  public boolean canHandleMissingRequirements() {
+    return true;
+  }
+
   protected ValueProperties getResultProperties(final ValueRequirement desiredValue, final String currency, final String[] curveNames, final String curveCalculationConfig) {
     return createValueProperties()
         .with(ValuePropertyNames.CURRENCY, currency)

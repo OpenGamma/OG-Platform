@@ -126,8 +126,8 @@ public final class BillSecurityDiscountingMethod implements PricingMethod {
   /**
    * Computes the present value of the bill security by discounting from its price.
    * @param bill The bill.
-   * @param price The price
-   * @param curves The curves.
+   * @param price The (dirty) price at settlement.
+   * @param curves The curves (for discounting from settlement to today) .
    * @return The present value.
    */
   public CurrencyAmount presentValueFromPrice(final BillSecurity bill, final double price, final YieldCurveBundle curves) {

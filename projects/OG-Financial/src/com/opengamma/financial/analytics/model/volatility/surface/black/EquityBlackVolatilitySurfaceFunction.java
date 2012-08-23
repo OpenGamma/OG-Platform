@@ -15,7 +15,6 @@ import it.unimi.dsi.fastutil.doubles.DoubleList;
 import java.util.Arrays;
 import java.util.Set;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,16 +84,16 @@ public class EquityBlackVolatilitySurfaceFunction extends BlackVolatilitySurface
 
 
     @SuppressWarnings("unchecked")
-    final VolatilitySurfaceData<Double, Double> rawVolatilitySurface = (VolatilitySurfaceData<Double, Double>) volatilitySurfaceObject;
+    final VolatilitySurfaceData<Object, Object> rawVolatilitySurface = (VolatilitySurfaceData<Object, Object>) volatilitySurfaceObject;
 
     // Get Unique Expiries
-    final double[] expiries = ArrayUtils.toPrimitive(rawVolatilitySurface.getXs());
+    final double[] expiries = getArrayOfDoubles(rawVolatilitySurface.getXs());
     final DoubleLinkedOpenHashSet expirySet = new DoubleLinkedOpenHashSet(expiries);
     final double[] uniqueExpiries = expirySet.toDoubleArray();
     Arrays.sort(uniqueExpiries);
     final int nExpiries = uniqueExpiries.length;
     // Get Unique Strikes
-    final double[] strikes = ArrayUtils.toPrimitive(rawVolatilitySurface.getYs());
+    final double[] strikes = getArrayOfDoubles(rawVolatilitySurface.getYs());
     final DoubleLinkedOpenHashSet strikeSet = new DoubleLinkedOpenHashSet(strikes);
     final double[] uniqueStrikes = strikeSet.toDoubleArray();
     Arrays.sort(uniqueStrikes);
@@ -236,7 +235,20 @@ public class EquityBlackVolatilitySurfaceFunction extends BlackVolatilitySurface
   }
 
   protected HistoricalTimeSeriesSource getTimeSeriesSource(final FunctionCompilationContext context) {
-    HistoricalTimeSeriesSource tss =  OpenGammaCompilationContext.getHistoricalTimeSeriesSource(context);
+    final HistoricalTimeSeriesSource tss =  OpenGammaCompilationContext.getHistoricalTimeSeriesSource(context);
     return tss;
+  }
+
+
+  private double[] getArrayOfDoubles(final Object[] arrayOfObject) {
+    final double[] expiries;
+    //TODO there is sometimes a problem with Fudge, where a Double[] is transported as Object[]. Needs to be fixed
+    final Object[] xData = arrayOfObject;
+    final int n = xData.length;
+    expiries = new double[n];
+    for (int i = 0; i < n; i++) {
+      expiries[i] = (Double) xData[i];
+    }
+    return expiries;
   }
 }

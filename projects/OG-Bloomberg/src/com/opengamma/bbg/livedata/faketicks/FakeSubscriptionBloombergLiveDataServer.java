@@ -64,9 +64,11 @@ public class FakeSubscriptionBloombergLiveDataServer extends AbstractLiveDataSer
 
   private final BloombergLiveDataServer _underlying;
     
-  public FakeSubscriptionBloombergLiveDataServer(BloombergLiveDataServer underlying, CacheManager cacheManager) { 
+  public FakeSubscriptionBloombergLiveDataServer(BloombergLiveDataServer underlying, CacheManager cacheManager) {
+    super(cacheManager);
     _underlying = underlying;
     ArgumentChecker.notNull(underlying, "underlying");
+    ArgumentChecker.notNull(cacheManager, "cacheManager");
     setDistributionSpecificationResolver(getDistributionSpecResolver(underlying.getDistributionSpecificationResolver()));
     
     String snapshotCacheName = "FakeSubscriptionBloombergLiveDataServer.SnapshotValues";

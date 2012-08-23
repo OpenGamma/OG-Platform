@@ -111,7 +111,7 @@ public class RedisLastKnownValueStore implements LastKnownValueStore {
           jedis.hset(getJedisKey(), field.getName(), doubleValue.toString());
         }
       } catch (Exception e) {
-        s_logger.error("Unable to write fields to Redis {}", _jedisKey, e);
+        s_logger.error("Unable to write fields to Redis : " + _jedisKey, e);
       } finally {
         getJedisPool().returnResource(jedis);
       }

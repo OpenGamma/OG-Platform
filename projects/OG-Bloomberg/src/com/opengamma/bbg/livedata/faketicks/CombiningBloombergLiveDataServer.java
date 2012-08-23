@@ -9,6 +9,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.sf.ehcache.CacheManager;
+
 import com.google.common.collect.Lists;
 import com.opengamma.bbg.livedata.BloombergLiveDataServer;
 import com.opengamma.livedata.LiveDataSpecification;
@@ -24,23 +26,22 @@ public class CombiningBloombergLiveDataServer extends CombiningLiveDataServer {
   private final FakeSubscriptionBloombergLiveDataServer _fakeServer;
   private final BloombergLiveDataServer _realServer;
   private final FakeSubscriptionSelector _selector;
+  
   /**
    * @param otherUnderlyings
    * @param fakeServer The server to use for fake requests
    * @param realServer The server to use for real requests
    * @param selector The selector to use to route requests
+   * @param cacheManager  the cache manager, not null
    */
   public CombiningBloombergLiveDataServer(FakeSubscriptionBloombergLiveDataServer fakeServer,
-      BloombergLiveDataServer realServer, FakeSubscriptionSelector selector) {
-    super(Lists.newArrayList(realServer, fakeServer));
+      BloombergLiveDataServer realServer, FakeSubscriptionSelector selector, CacheManager cacheManager) {
+    super(Lists.newArrayList(realServer, fakeServer), cacheManager);
     _fakeServer = fakeServer;
     _realServer = realServer;
     _selector = selector;
   }
-  
-  
-
-  
+    
   @Override
   protected Map<AbstractLiveDataServer, Collection<LiveDataSpecification>> groupByServer(Collection<LiveDataSpecification> specs) {
     ObjectsPair<Collection<LiveDataSpecification>, Collection<LiveDataSpecification>> split = _selector.splitShouldFake(_fakeServer, specs);

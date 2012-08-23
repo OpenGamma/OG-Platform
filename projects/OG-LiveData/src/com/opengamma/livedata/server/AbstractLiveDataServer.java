@@ -19,6 +19,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import net.sf.ehcache.CacheManager;
+
 import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,6 +73,8 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
 
   private final AtomicLong _numMarketDataUpdatesReceived = new AtomicLong(0);
   private final PerformanceCounter _performanceCounter;
+  
+  private final CacheManager _cacheManager;
 
   private final Lock _subscriptionLock = new ReentrantLock();
 
@@ -82,18 +86,24 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
 
   /**
    * Creates an instance.
+   * 
+   * @param cacheManager  the cache manager, not null
    */
-  protected AbstractLiveDataServer() {
-    this(true);
+  protected AbstractLiveDataServer(CacheManager cacheManager) {
+    this(cacheManager, true);
   }
 
   /**
    * Creates an instance controlling performance counting.
+   * <p>
    * You may wish to disable performance counting if you expect a high rate of messages, or to process messages on several threads.
    * 
-   * @param isPerformanceCountingEnabled  whether to track the message rate here, see getNumLiveDataUpdatesSentPerSecondOverLastMinute
+   * @param cacheManager  the cache manager, not null
+   * @param isPerformanceCountingEnabled  whether to track the message rate here, see {@link #getNumLiveDataUpdatesSentPerSecondOverLastMinute()}
    */
-  protected AbstractLiveDataServer(boolean isPerformanceCountingEnabled) {
+  protected AbstractLiveDataServer(CacheManager cacheManager, boolean isPerformanceCountingEnabled) {
+    ArgumentChecker.notNull(cacheManager, "cacheManager");
+    _cacheManager = cacheManager;
     _performanceCounter = isPerformanceCountingEnabled ? new PerformanceCounter(60) : null;
   }
 
@@ -120,6 +130,15 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   
   public void setMarketDataSenderFactory(MarketDataSenderFactory marketDataSenderFactory) {
     _marketDataSenderFactory = marketDataSenderFactory;
+  }
+
+  /**
+   * Gets the cache manager.
+   *
+   * @return the cache manager, not null
+   */
+  public CacheManager getCacheManager() {
+    return _cacheManager;
   }
 
   public void addSubscriptionListener(SubscriptionListener subscriptionListener) {
