@@ -13,6 +13,9 @@ import com.opengamma.util.PublicAPI;
 
 /**
  * Any user known to the OpenGamma Platform installation.
+ * <p>
+ * A user within the user management system.
+ * Support is provided for external users as well as passwords.
  * <p/> 
  * This interface is read-only.
  * Implementations may be mutable.
@@ -27,29 +30,31 @@ public interface OGUser extends UniqueIdentifiable {
    * Some of these may be unique within that system, while others may be more descriptive.
    * This bundle stores the set of these external identifiers.
    * 
-   * @return the bundle, null if not applicable
+   * @return the bundle, not null
    */
   ExternalIdBundle getExternalIdBundle();
 
   /**
    * Gets the name of the user intended for display purposes.
    * 
-   * @return the name of the user, not null
+   * @return the display name of the user, not null
    */
   String getName();
   
   /**
-   * Obtains the hashed version of the user's password.
+   * Obtains the hashed version of the user password.
    * May be null or empty, particularly if the user is disabled.
    * 
-   * @return The hashed password for the user account.
+   * @return the hashed password for the user account, may be null
    */
   String getPasswordHash();
-  
+
   /**
-   * Obtains the user's entitlements.
+   * Obtains the user entitlements.
    * Each may be interpreted as a pattern to be applied to a restricted resource.
-   * @return Entitlements for the user in order of processing
+   * 
+   * @return the entitlements for the user in order of processing, not null
    */
   List<String> getEntitlements();
+
 }

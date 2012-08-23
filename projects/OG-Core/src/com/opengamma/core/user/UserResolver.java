@@ -79,8 +79,8 @@ public interface UserResolver extends LinkResolver<OGUser> {
    * Gets a user by external identifier bundle.
    * <p>
    * A bundle represents the set of external identifiers which in theory map to a single user.
-   * Unfortunately, not all external identifiers uniquely identify a single version of a single exchange.
-   * As such, it is likely that multiple versions/corrections of multiple different exchanges will match the bundle.
+   * Unfortunately, not all external identifiers uniquely identify a single version of a single user.
+   * As such, it is likely that multiple versions/corrections of multiple different users will match the bundle.
    * The resolver implementation is responsible for selecting the best match.
    * 
    * @param bundle  the external identifier bundle to find, not null
@@ -90,4 +90,5 @@ public interface UserResolver extends LinkResolver<OGUser> {
    * @throws RuntimeException if an error occurs
    */
   OGUser getUser(ExternalIdBundle bundle);
+
 }
