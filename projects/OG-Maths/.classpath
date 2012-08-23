@@ -3,8 +3,8 @@
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" output="tests/classes" path="tests/unit"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/OG Util"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/OG-Util"/>
 	<classpathentry exported="true" kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?ivyXmlPath=ivy.xml&amp;confs=*"/>
-	<classpathentry kind="src" path="/OG Analytics"/>
+	<classpathentry kind="src" path="/OG-Analytics"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
