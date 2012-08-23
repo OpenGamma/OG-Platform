@@ -97,7 +97,7 @@ public class BloombergSecurityProviderTest {
   private SecurityProvider _securityProvider;
 
   @BeforeClass
-  public void setupBloombergSecuritySource() throws Exception {
+  public void setupSecurityProvider() throws Exception {
     _securityProvider = createSecurityProvider();
   }
 
@@ -111,7 +111,7 @@ public class BloombergSecurityProviderTest {
   }
 
   @AfterClass
-  public void terminateSecuritySource() throws Exception {
+  public void terminateSecurityProvider() throws Exception {
     stopSecurityProvider(_securityProvider);
     _securityProvider = null;
   }
