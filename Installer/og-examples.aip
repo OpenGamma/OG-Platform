@@ -47,10 +47,13 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.ModuleConfigurationComponent">
     <ROW Name="JAVA_XMX" Format="0" Type="Formatted" DefaultValue="[JAVA_XMX]" Attributes="0" DisplayName="-Xmx" Description="The -Xmx option"/>
+    <ROW Name="TOOL_UI_FLAG" Format="0" Type="Formatted" DefaultValue="[TOOL_UI_FLAG]" Attributes="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.ModuleSubstitutionComponent">
     <ROW Table="CustomAction" Row="JAVA_XMX_1" Column="Target" Value="[=JAVA_XMX]"/>
     <ROW Table="CustomAction" Row="JAVA_XMX_2" Column="Target" Value="[=JAVA_XMX]"/>
+    <ROW Table="CustomAction" Row="TOOL_UI_FLAG_1" Column="Target" Value="[=TOOL_UI_FLAG]"/>
+    <ROW Table="CustomAction" Row="TOOL_UI_FLAG_2" Column="Target" Value="[=TOOL_UI_FLAG]"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiActionTextComponent">
     <ROW Action="PopulateExample" Description="Creating and populating example database" Template="Database:"/>

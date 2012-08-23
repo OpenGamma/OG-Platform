@@ -153,9 +153,9 @@
     <ROW Property="JRE_64" Signature_="AppSearchSign_1"/>
     <ROW Property="EXCEL_14_32" Signature_="AppSearchSign_10"/>
     <ROW Property="BLOOMBERG_SAPI_PORT" Signature_="AppSearchSign_2"/>
-    <ROW Property="R_32" Signature_="AppSearchSign_4"/>
-    <ROW Property="R_64" Signature_="AppSearchSign_5"/>
-    <ROW Property="R_32_INVALID" Signature_="AppSearchSign_5_1"/>
+    <ROW Property="R32_PATH" Signature_="AppSearchSign_4"/>
+    <ROW Property="R64_PATH" Signature_="AppSearchSign_5"/>
+    <ROW Property="R32_INVALID" Signature_="AppSearchSign_5_1"/>
     <ROW Property="EXCEL_12_32" Signature_="AppSearchSign_6"/>
     <ROW Property="EXCEL_14_64" Signature_="AppSearchSign_7"/>
   </COMPONENT>
@@ -314,8 +314,8 @@
     <ROW Action="OpenGammaExample" Condition="( NOT Installed ) AND ( $og_examples_start=3 )" Sequence="5851"/>
     <ROW Action="viewer.exe" Condition="( NOT Installed ) AND ( &amp;www=3 AND  ( &amp;og_bloombergexample=3 OR &amp;og_examples=3) AND  UILevel&gt;=4 )" Sequence="5969"/>
     <ROW Action="AI_ResolveLocalizedCredentials" Sequence="51"/>
-    <ROW Action="AI_AiRemoveFilesImmediate" Sequence="3499"/>
     <ROW Action="TOOL_UI_FLAG" Condition="( NOT Installed ) AND ( UILevel&lt;4 )" Sequence="201"/>
+    <ROW Action="AI_AiRemoveFilesImmediate" Sequence="3499"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstallUISequenceComponent">
     <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="749"/>
@@ -341,7 +341,7 @@
     <ROW Module="OG_Language_SDK.msm" Path="..\install\install\OG-Language-SDK.msm" Feature="og_language_sdk" Directory="APPDIR"/>
     <ROW Module="OG_Language_i386.msm" Path="..\install\install\OG-Language-i386.msm" Feature="og_language_32" Directory="APPDIR"/>
     <ROW Module="OG_Language_x64.msm" Path="..\install\install\OG-Language-x64.msm" Feature="og_language_64" Directory="APPDIR"/>
-    <ROW Module="OG_RStats.msm" Path="..\install\install\OG-RStats.msm" Feature="og_rstats" Directory="APPDIR" Params="OG_LANGUAGE_EXT=[OG_LANGUAGE_EXT];OG_LANGUAGE_JAR=[OG_LANGUAGE_JAR];R32_PATH=[R_32];R64_PATH=[R_64];"/>
+    <ROW Module="OG_RStats.msm" Path="..\install\install\OG-RStats.msm" Feature="og_rstats" Directory="APPDIR" Params="OG_LANGUAGE_EXT=[OG_LANGUAGE_EXT];OG_LANGUAGE_JAR=[OG_LANGUAGE_JAR];R32_PATH=[R32_PATH];R64_PATH=[R64_PATH];"/>
     <ROW Module="common.msm" Path="build\common.msm" Feature="common" Directory="APPDIR"/>
     <ROW Module="common32.msm" Path="build\common32.msm" Feature="common32" Directory="APPDIR"/>
     <ROW Module="common64.msm" Path="build\common64.msm" Feature="common64" Directory="APPDIR"/>
