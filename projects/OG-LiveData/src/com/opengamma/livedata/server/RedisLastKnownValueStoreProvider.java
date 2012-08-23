@@ -166,6 +166,7 @@ public class RedisLastKnownValueStoreProvider implements LastKnownValueStoreProv
     }
     synchronized (this) {
       assert _jedisPool == null;
+      s_logger.info("Connecting to {}:{}. Write-through set to: {}", new Object[] {getServer(), getPort(), _writeThrough});
       JedisPoolConfig poolConfig = new JedisPoolConfig();
       //poolConfig.set...
       JedisPool pool = new JedisPool(poolConfig, getServer(), getPort());

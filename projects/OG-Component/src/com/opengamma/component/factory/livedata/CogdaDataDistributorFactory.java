@@ -35,6 +35,9 @@ public abstract class CogdaDataDistributorFactory extends AbstractComponentFacto
   @PropertyDefinition
   private String _redisPrefix;
   
+  @PropertyDefinition
+  private boolean _updateRedis = true;
+  
   @PropertyDefinition(validate = "notNull")
   private JmsConnector _publishJmsConnector;
   
@@ -75,6 +78,8 @@ public abstract class CogdaDataDistributorFactory extends AbstractComponentFacto
         return getRedisPort();
       case -2024915987:  // redisPrefix
         return getRedisPrefix();
+      case -585903566:  // updateRedis
+        return isUpdateRedis();
       case -1018802868:  // publishJmsConnector
         return getPublishJmsConnector();
       case -1370796021:  // publishTopicName
@@ -98,6 +103,9 @@ public abstract class CogdaDataDistributorFactory extends AbstractComponentFacto
         return;
       case -2024915987:  // redisPrefix
         setRedisPrefix((String) newValue);
+        return;
+      case -585903566:  // updateRedis
+        setUpdateRedis((Boolean) newValue);
         return;
       case -1018802868:  // publishJmsConnector
         setPublishJmsConnector((JmsConnector) newValue);
@@ -134,6 +142,7 @@ public abstract class CogdaDataDistributorFactory extends AbstractComponentFacto
       return JodaBeanUtils.equal(getRedisServer(), other.getRedisServer()) &&
           JodaBeanUtils.equal(getRedisPort(), other.getRedisPort()) &&
           JodaBeanUtils.equal(getRedisPrefix(), other.getRedisPrefix()) &&
+          JodaBeanUtils.equal(isUpdateRedis(), other.isUpdateRedis()) &&
           JodaBeanUtils.equal(getPublishJmsConnector(), other.getPublishJmsConnector()) &&
           JodaBeanUtils.equal(getPublishTopicName(), other.getPublishTopicName()) &&
           JodaBeanUtils.equal(getListenJmsConnector(), other.getListenJmsConnector()) &&
@@ -149,6 +158,7 @@ public abstract class CogdaDataDistributorFactory extends AbstractComponentFacto
     hash += hash * 31 + JodaBeanUtils.hashCode(getRedisServer());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRedisPort());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRedisPrefix());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isUpdateRedis());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPublishJmsConnector());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPublishTopicName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getListenJmsConnector());
@@ -229,6 +239,31 @@ public abstract class CogdaDataDistributorFactory extends AbstractComponentFacto
    */
   public final Property<String> redisPrefix() {
     return metaBean().redisPrefix().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the updateRedis.
+   * @return the value of the property
+   */
+  public boolean isUpdateRedis() {
+    return _updateRedis;
+  }
+
+  /**
+   * Sets the updateRedis.
+   * @param updateRedis  the new value of the property
+   */
+  public void setUpdateRedis(boolean updateRedis) {
+    this._updateRedis = updateRedis;
+  }
+
+  /**
+   * Gets the the {@code updateRedis} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> updateRedis() {
+    return metaBean().updateRedis().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -361,6 +396,11 @@ public abstract class CogdaDataDistributorFactory extends AbstractComponentFacto
     private final MetaProperty<String> _redisPrefix = DirectMetaProperty.ofReadWrite(
         this, "redisPrefix", CogdaDataDistributorFactory.class, String.class);
     /**
+     * The meta-property for the {@code updateRedis} property.
+     */
+    private final MetaProperty<Boolean> _updateRedis = DirectMetaProperty.ofReadWrite(
+        this, "updateRedis", CogdaDataDistributorFactory.class, Boolean.TYPE);
+    /**
      * The meta-property for the {@code publishJmsConnector} property.
      */
     private final MetaProperty<JmsConnector> _publishJmsConnector = DirectMetaProperty.ofReadWrite(
@@ -388,6 +428,7 @@ public abstract class CogdaDataDistributorFactory extends AbstractComponentFacto
         "redisServer",
         "redisPort",
         "redisPrefix",
+        "updateRedis",
         "publishJmsConnector",
         "publishTopicName",
         "listenJmsConnector",
@@ -408,6 +449,8 @@ public abstract class CogdaDataDistributorFactory extends AbstractComponentFacto
           return _redisPort;
         case -2024915987:  // redisPrefix
           return _redisPrefix;
+        case -585903566:  // updateRedis
+          return _updateRedis;
         case -1018802868:  // publishJmsConnector
           return _publishJmsConnector;
         case -1370796021:  // publishTopicName
@@ -458,6 +501,14 @@ public abstract class CogdaDataDistributorFactory extends AbstractComponentFacto
      */
     public final MetaProperty<String> redisPrefix() {
       return _redisPrefix;
+    }
+
+    /**
+     * The meta-property for the {@code updateRedis} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> updateRedis() {
+      return _updateRedis;
     }
 
     /**
