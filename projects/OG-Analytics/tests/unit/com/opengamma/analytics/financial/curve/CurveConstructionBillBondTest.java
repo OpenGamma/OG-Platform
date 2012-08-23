@@ -5,14 +5,18 @@
  */
 package com.opengamma.analytics.financial.curve;
 
+import static org.testng.AssertJUnit.assertEquals;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.calculator.PresentValueMCACalculator;
 import com.opengamma.analytics.financial.curve.building.CurveBuildingBlockBundle;
@@ -84,7 +88,7 @@ public class CurveConstructionBillBondTest {
   private static final YieldConvention YIELD_BILL_USGOVT = YieldConventionFactory.INSTANCE.getYieldConvention("INTEREST@MTY");
   private static final DayCount DAY_COUNT_BILL_USGOVT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final int SPOT_LAG_BILL = 1;
-  private static final ZonedDateTime[] BILL_MATURITY = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 9, 28), DateUtils.getUTCDate(2013, 11, 30), DateUtils.getUTCDate(2013, 2, 28)};
+  private static final ZonedDateTime[] BILL_MATURITY = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 9, 28), DateUtils.getUTCDate(2012, 11, 30), DateUtils.getUTCDate(2013, 2, 28)};
   private static final int NB_BILL = BILL_MATURITY.length;
   private static final BillSecurityDefinition[] BILL_SECURITY = new BillSecurityDefinition[NB_BILL];
   private static final GeneratorBill[] GENERATOR_BILL = new GeneratorBill[NB_BILL];
@@ -172,33 +176,66 @@ public class CurveConstructionBillBondTest {
   static void initClass() {
     for (int loopblock = 0; loopblock < NB_BLOCKS; loopblock++) {
       CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.add(makeCurvesFromDefinitions(DEFINITIONS_UNITS[loopblock], GENERATORS_UNITS[loopblock], NAMES_UNITS[loopblock], KNOWN_DATA, PSMQ_CALCULATOR,
-          PSMQCS_CALCULATOR, false, loopblock));
+          PSMQCS_CALCULATOR, false));
     }
   }
 
-  //  @Test
-  //  public void curveConstructionGeneratorBlocks() {
-  //    for (int loopblock = 0; loopblock < NB_BLOCKS; loopblock++) {
-  //      curveConstructionTest(NAMES_UNITS[loopblock], DEFINITIONS_UNITS[loopblock], CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(loopblock).getFirst(), false);
-  //    }
-  //    int t = 0;
-  //    t++;
-  //  }
-  //
-  //  public void curveConstructionTest(String[][] curveNames, final InstrumentDefinition<?>[][][] definitions, final YieldCurveBundle curves, final boolean withToday) {
-  //    int nbBlocks = definitions.length;
-  //    for (int loopblock = 0; loopblock < nbBlocks; loopblock++) {
-  //      InstrumentDerivative[][] instruments = convert(curveNames, definitions[loopblock], loopblock, withToday);
-  //      double[][] pv = new double[instruments.length][];
-  //      for (int loopcurve = 0; loopcurve < instruments.length; loopcurve++) {
-  //        pv[loopcurve] = new double[instruments[loopcurve].length];
-  //        for (int loopins = 0; loopins < instruments[loopcurve].length; loopins++) {
-  //          pv[loopcurve][loopins] = curves.getFxRates().convert(PV_CALCULATOR.visit(instruments[loopcurve][loopins], curves), CCY_USD).getAmount();
-  //          assertEquals("Curve construction: node block " + loopblock + " - instrument " + loopins, 0, pv[loopcurve][loopins], TOLERANCE_PV);
-  //        }
-  //      }
-  //    }
-  //  }
+  @Test
+  public void curveConstructionGeneratorBlocks() {
+    for (int loopblock = 0; loopblock < NB_BLOCKS; loopblock++) {
+      curveConstructionTest(NAMES_UNITS[loopblock], DEFINITIONS_UNITS[loopblock], CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(loopblock).getFirst(), false);
+    }
+    int t = 0;
+    t++;
+  }
+
+  public void curveConstructionTest(String[][] curveNames, final InstrumentDefinition<?>[][][] definitions, final YieldCurveBundle curves, final boolean withToday) {
+    int nbBlocks = definitions.length;
+    for (int loopblock = 0; loopblock < nbBlocks; loopblock++) {
+      InstrumentDerivative[][] instruments = convert(curveNames, definitions[loopblock], loopblock, withToday);
+      double[][] pv = new double[instruments.length][];
+      for (int loopcurve = 0; loopcurve < instruments.length; loopcurve++) {
+        pv[loopcurve] = new double[instruments[loopcurve].length];
+        for (int loopins = 0; loopins < instruments[loopcurve].length; loopins++) {
+          pv[loopcurve][loopins] = curves.getFxRates().convert(PV_CALCULATOR.visit(instruments[loopcurve][loopins], curves), CCY_USD).getAmount();
+          assertEquals("Curve construction: node block " + loopblock + " - instrument " + loopins, 0, pv[loopcurve][loopins], TOLERANCE_PV);
+        }
+      }
+    }
+  }
+
+  @Test(enabled = true)
+  /**
+   * Code used to graph the curves
+   */
+  public void analysis() {
+    int nbPoints = 210;
+    double endTime = 21.0;
+    double[] x = new double[nbPoints + 1];
+    for (int looppt = 0; looppt <= nbPoints; looppt++) {
+      x[looppt] = looppt * endTime / nbPoints;
+    }
+    int nbAnalysis = NB_BLOCKS;
+    YieldCurveBundle[] bundle = new YieldCurveBundle[nbAnalysis];
+    double[][][] rate = new double[nbAnalysis][][];
+    for (int loopblock = 0; loopblock < nbAnalysis; loopblock++) {
+      bundle[loopblock] = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(loopblock).getFirst();
+    }
+    for (int loopbundle = 0; loopbundle < nbAnalysis; loopbundle++) {
+      Set<String> curveNames = bundle[loopbundle].getAllNames();
+      int nbCurve = curveNames.size();
+      int loopc = 0;
+      rate[loopbundle] = new double[nbCurve][nbPoints + 1];
+      for (String name : curveNames) {
+        for (int looppt = 0; looppt <= nbPoints; looppt++) {
+          rate[loopbundle][loopc][looppt] = bundle[loopbundle].getCurve(name).getInterestRate(x[looppt]);
+        }
+        loopc++;
+      }
+    }
+    int t = 0;
+    t++;
+  }
 
   public static InstrumentDefinition<?>[] getDefinitions(final double[] marketQuotes, final GeneratorInstrument[] generators, final Period[] tenors) {
     final InstrumentDefinition<?>[] definitions = new InstrumentDefinition<?>[marketQuotes.length];
@@ -210,7 +247,7 @@ public class CurveConstructionBillBondTest {
 
   private static Pair<YieldCurveBundle, CurveBuildingBlockBundle> makeCurvesFromDefinitions(final InstrumentDefinition<?>[][][] definitions, GeneratorCurve[][] curveGenerators, String[][] curveNames,
       YieldCurveBundle knownData, final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> calculator,
-      final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> sensitivityCalculator, boolean withToday, int block) {
+      final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> sensitivityCalculator, boolean withToday) {
     int nbUnits = curveGenerators.length;
     double[][] parametersGuess = new double[nbUnits][];
     GeneratorCurve[][] generatorFinal = new GeneratorCurve[nbUnits][];
