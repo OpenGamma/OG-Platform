@@ -17,32 +17,34 @@ import org.fudgemsg.FudgeMsg;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * 
  */
 public class MockLiveDataServer extends AbstractLiveDataServer {
-  
+
   private final ExternalScheme _domain;
   private final List<String> _subscriptions = new ArrayList<String>();
   private final List<String> _unsubscriptions = new ArrayList<String>();
   private volatile int _numConnections; // = 0;
   private volatile int _numDisconnections; // = 0;
   private final Map<String, FudgeMsg> _uniqueId2MarketData;
-  
+
   public MockLiveDataServer(ExternalScheme domain) {
     this(domain, new ConcurrentHashMap<String, FudgeMsg>());
   }
-  
-  public MockLiveDataServer(ExternalScheme domain,
-      Map<String, FudgeMsg> uniqueId2Snapshot) {
+
+  public MockLiveDataServer(ExternalScheme domain, Map<String, FudgeMsg> uniqueId2Snapshot) {
+    super(EHCacheUtils.createCacheManager());
     ArgumentChecker.notNull(domain, "Identification domain");
     ArgumentChecker.notNull(uniqueId2Snapshot, "Snapshot map");
     _domain = domain;
     _uniqueId2MarketData = uniqueId2Snapshot;
   }
-  
+
+  //-------------------------------------------------------------------------
   public void addMarketDataMapping(String key, FudgeMsg value) {
     _uniqueId2MarketData.put(key, value);        
   }

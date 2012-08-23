@@ -86,15 +86,8 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
 
   /**
    * Creates an instance.
-   */
-  protected AbstractLiveDataServer() {
-    this(null, true);
-  }
-
-  /**
-   * Creates an instance.
    * 
-   * @param cacheManager  the cache manager
+   * @param cacheManager  the cache manager, not null
    */
   protected AbstractLiveDataServer(CacheManager cacheManager) {
     this(cacheManager, true);
@@ -105,10 +98,11 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
    * <p>
    * You may wish to disable performance counting if you expect a high rate of messages, or to process messages on several threads.
    * 
-   * @param cacheManager  the cache manager
+   * @param cacheManager  the cache manager, not null
    * @param isPerformanceCountingEnabled  whether to track the message rate here, see {@link #getNumLiveDataUpdatesSentPerSecondOverLastMinute()}
    */
   protected AbstractLiveDataServer(CacheManager cacheManager, boolean isPerformanceCountingEnabled) {
+    ArgumentChecker.notNull(cacheManager, "cacheManager");
     _cacheManager = cacheManager;
     _performanceCounter = isPerformanceCountingEnabled ? new PerformanceCounter(60) : null;
   }
