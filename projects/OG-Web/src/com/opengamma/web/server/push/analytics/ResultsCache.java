@@ -24,24 +24,37 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
- *
+ * <p>Cache of results from a running view process. This is intended for use with view clients where the first
+ * set of results is a full set and subsequent results are deltas. This cache maintains a full set of results
+ * which includes every target that has ever had a value calculated. It also keeps track of which values were
+ * updated in the previous calculation cycle.</p>
+ * <p>This class isn't thread safe.</p>
  */
 /* package */ class ResultsCache {
 
   private static final int MAX_HISTORY_SIZE = 20;
 
   // is this likely to change? will it ever by dynamic? i.e. client specifies what types it wants history for?
+  /** Types of result values for which history is stored. */
   private static final Set<Class<?>> s_historyTypes =
       ImmutableSet.<Class<?>>of(Double.class, BigDecimal.class, CurrencyAmount.class);
+  /** Empty result for types that don't have history, makes for cleaner code than using null. */
   private static final Result s_emptyResult = Result.empty();
+  /** Empty result for types that have history, makes for cleaner code than using null. */
   private static final Result s_emptyResultWithHistory = Result.emptyWithHistory();
 
+  /** The cached results. */
   private final Map<ResultKey, CacheItem> _results = Maps.newHashMap();
 
   /** ID that's incremented each time results are received, used for keeping track of which items were updated. */
   private long _lastUpdateId = 0;
 
+  /**
+   * Puts a set of results in the cache.
+   * @param results The results, not null
+   */
   /* package */ void put(ViewResultModel results) {
+    ArgumentChecker.notNull(results, "results");
     _lastUpdateId++;
     List<ViewResultEntry> allResults = results.getAllResults();
     for (ViewResultEntry result : allResults) {
@@ -58,11 +71,17 @@ import com.opengamma.util.money.CurrencyAmount;
     }
   }
 
-    /* package */ Collection<Object> getHistory(String calcConfigName, ValueSpecification valueSpec) {
-      return getHistory(calcConfigName, valueSpec, null);
-    }
+  /**
+   * Returns the history for a value and calculation configuration.
+   * @param calcConfigName The calculation configuration name
+   * @param valueSpec The value specification
+   * @return
+   */
+  /* package */ Collection<Object> getHistory(String calcConfigName, ValueSpecification valueSpec) {
+    return getHistory(calcConfigName, valueSpec, null);
+  }
 
-    /* package */ Collection<Object> getHistory(String calcConfigName, ValueSpecification valueSpec, Class<?> columnType) {
+  /* package */ Collection<Object> getHistory(String calcConfigName, ValueSpecification valueSpec, Class<?> columnType) {
     Result result = getResult(calcConfigName, valueSpec, columnType);
     return result.getHistory();
   }
