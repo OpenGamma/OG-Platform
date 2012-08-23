@@ -1513,9 +1513,9 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(SwaptionBlackYieldCurveNodeSensitivitiesFunction.class));
     functionConfigs.add(functionConfiguration(SwaptionBlackImpliedVolatilityFunction.class));
     functionConfigs.add(functionConfiguration(SwaptionConstantSpreadThetaFunction.class));
-    functionConfigs.add(functionConfiguration(SwaptionBlackDefaultPropertiesFunction.class, PriorityClass.ABOVE_NORMAL.name(),
+    functionConfigs.add(functionConfiguration(SwaptionBlackDefaultPropertiesFunction.class, PriorityClass.NORMAL.name(),
         "EUR", "DefaultTwoCurveEURConfig", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(SwaptionBlackThetaDefaults.class, PriorityClass.ABOVE_NORMAL.name(), "1",
+    functionConfigs.add(functionConfiguration(SwaptionBlackThetaDefaults.class, PriorityClass.NORMAL.name(), "1",
         "EUR", "DefaultTwoCurveEURConfig", "DEFAULT"));
   }
   private static void addFixedIncomeInstrumentCalculators(final List<FunctionConfiguration> functionConfigs) {
