@@ -29,32 +29,44 @@ import com.opengamma.util.money.Currency;
  */
 @FudgeBuilderFor(InterpolatedYieldCurveSpecification.class)
 public class InterpolatedYieldCurveSpecificationFudgeBuilder implements FudgeBuilder<InterpolatedYieldCurveSpecification> {
+  private static final String CURVE_DATE_FIELD = "curveDate";
+  private static final String NAME_FIELD = "name";
+  private static final String CURRENCY_FIELD = "currency";
+  private static final String REGION_FIELD = "region";
+  private static final String INTERPOLATOR_FIELD = "interpolator";
+  private static final String INTERPOLATE_YIELDS_FIELD = "interpolateYields";
+  private static final String RESOLVED_STRIPS_FIELD = "resolvedStrips";
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, InterpolatedYieldCurveSpecification object) {
-    MutableFudgeMsg message = serializer.newMessage();
-    serializer.addToMessage(message, "curveDate", null, object.getCurveDate());
-    message.add("name", object.getName());
-    serializer.addToMessage(message, "currency", null, object.getCurrency());
-    serializer.addToMessage(message, "region", null, object.getRegion());
-    serializer.addToMessage(message, "interpolator", null, object.getInterpolator());
-    for (FixedIncomeStripWithIdentifier resolvedStrip : object.getStrips()) {
-      serializer.addToMessage(message, "resolvedStrips", null, resolvedStrip);
+  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final InterpolatedYieldCurveSpecification object) {
+    final MutableFudgeMsg message = serializer.newMessage();
+    serializer.addToMessage(message, CURVE_DATE_FIELD, null, object.getCurveDate());
+    message.add(NAME_FIELD, object.getName());
+    serializer.addToMessage(message, CURRENCY_FIELD, null, object.getCurrency());
+    serializer.addToMessage(message, REGION_FIELD, null, object.getRegion());
+    serializer.addToMessage(message, INTERPOLATOR_FIELD, null, object.getInterpolator());
+    message.add(INTERPOLATE_YIELDS_FIELD, object.interpolateYield());
+    for (final FixedIncomeStripWithIdentifier resolvedStrip : object.getStrips()) {
+      serializer.addToMessage(message, RESOLVED_STRIPS_FIELD, null, resolvedStrip);
     }
-    return message; 
+    return message;
   }
 
   @Override
-  public InterpolatedYieldCurveSpecification buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
-    LocalDate curveDate = deserializer.fieldValueToObject(LocalDate.class, message.getByName("curveDate"));
-    String name = message.getString("name");
-    Currency currency = deserializer.fieldValueToObject(Currency.class, message.getByName("currency"));
-    ExternalId region = deserializer.fieldValueToObject(ExternalId.class, message.getByName("region"));
-    Interpolator1D interpolator = deserializer.fieldValueToObject(Interpolator1D.class, message.getByName("interpolator"));
-    List<FudgeField> resolvedStripFields = message.getAllByName("resolvedStrips");
-    List<FixedIncomeStripWithIdentifier> resolvedStrips = new ArrayList<FixedIncomeStripWithIdentifier>();
-    for (FudgeField resolvedStripField : resolvedStripFields) {
+  public InterpolatedYieldCurveSpecification buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+    final LocalDate curveDate = deserializer.fieldValueToObject(LocalDate.class, message.getByName(CURVE_DATE_FIELD));
+    final String name = message.getString(NAME_FIELD);
+    final Currency currency = deserializer.fieldValueToObject(Currency.class, message.getByName(CURRENCY_FIELD));
+    final ExternalId region = deserializer.fieldValueToObject(ExternalId.class, message.getByName(REGION_FIELD));
+    final Interpolator1D interpolator = deserializer.fieldValueToObject(Interpolator1D.class, message.getByName(INTERPOLATOR_FIELD));
+    final List<FudgeField> resolvedStripFields = message.getAllByName(RESOLVED_STRIPS_FIELD);
+    final List<FixedIncomeStripWithIdentifier> resolvedStrips = new ArrayList<FixedIncomeStripWithIdentifier>();
+    for (final FudgeField resolvedStripField : resolvedStripFields) {
       resolvedStrips.add(deserializer.fieldValueToObject(FixedIncomeStripWithIdentifier.class, resolvedStripField));
+    }
+    if (message.hasField(INTERPOLATE_YIELDS_FIELD)) {
+      final boolean interpolateYield = message.getBoolean(INTERPOLATE_YIELDS_FIELD);
+      return new InterpolatedYieldCurveSpecification(curveDate, name, currency, interpolator, interpolateYield, resolvedStrips, region);
     }
     return new InterpolatedYieldCurveSpecification(curveDate, name, currency, interpolator, resolvedStrips, region);
   }

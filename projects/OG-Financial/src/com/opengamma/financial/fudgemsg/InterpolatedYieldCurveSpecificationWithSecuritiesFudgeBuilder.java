@@ -28,16 +28,23 @@ import com.opengamma.util.money.Currency;
  */
 @FudgeBuilderFor(InterpolatedYieldCurveSpecificationWithSecurities.class)
 public class InterpolatedYieldCurveSpecificationWithSecuritiesFudgeBuilder implements FudgeBuilder<InterpolatedYieldCurveSpecificationWithSecurities> {
+  private static final String CURVE_DATE_FIELD = "curveDate";
+  private static final String NAME_FIELD = "name";
+  private static final String CURRENCY_FIELD = "currency";
+  private static final String INTERPOLATOR_FIELD = "interpolator";
+  private static final String INTERPOLATE_YIELDS_FIELD = "interpolateYields";
+  private static final String RESOLVED_STRIPS_FIELD = "resolvedStrips";
 
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final InterpolatedYieldCurveSpecificationWithSecurities object) {
     final MutableFudgeMsg message = serializer.newMessage();
-    serializer.addToMessage(message, "curveDate", null, object.getCurveDate());
-    message.add("name", object.getName());
-    serializer.addToMessage(message, "currency", null, object.getCurrency());
-    serializer.addToMessage(message, "interpolator", null, object.getInterpolator());
+    serializer.addToMessage(message, CURVE_DATE_FIELD, null, object.getCurveDate());
+    message.add(NAME_FIELD, object.getName());
+    serializer.addToMessage(message, CURRENCY_FIELD, null, object.getCurrency());
+    serializer.addToMessage(message, INTERPOLATOR_FIELD, null, object.getInterpolator());
+    message.add(INTERPOLATE_YIELDS_FIELD, object.interpolateYield());
     for (final FixedIncomeStripWithSecurity resolvedStrip : object.getStrips()) {
-      serializer.addToMessage(message, "resolvedStrips", null, resolvedStrip);
+      serializer.addToMessage(message, RESOLVED_STRIPS_FIELD, null, resolvedStrip);
     }
     return message;
   }
@@ -52,6 +59,10 @@ public class InterpolatedYieldCurveSpecificationWithSecuritiesFudgeBuilder imple
     final List<FixedIncomeStripWithSecurity> resolvedStrips = new ArrayList<FixedIncomeStripWithSecurity>();
     for (final FudgeField resolvedStripField : resolvedStripFields) {
       resolvedStrips.add(deserializer.fieldValueToObject(FixedIncomeStripWithSecurity.class, resolvedStripField));
+    }
+    if (message.hasField(INTERPOLATE_YIELDS_FIELD)) {
+      final boolean interpolateYields = message.getBoolean(INTERPOLATE_YIELDS_FIELD);
+      return new InterpolatedYieldCurveSpecificationWithSecurities(curveDate, name, currency, interpolator, interpolateYields, resolvedStrips);
     }
     return new InterpolatedYieldCurveSpecificationWithSecurities(curveDate, name, currency, interpolator, resolvedStrips);
   }
