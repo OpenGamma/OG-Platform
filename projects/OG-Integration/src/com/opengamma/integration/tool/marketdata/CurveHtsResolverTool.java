@@ -22,13 +22,9 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.opengamma.OpenGammaRuntimeException;
+
 import com.opengamma.bbg.BloombergIdentifierProvider;
-import com.opengamma.bbg.component.BloombergTimeSeriesUpdateTool;
-import com.opengamma.bbg.loader.BloombergHistoricalLoader;
 import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
-import com.opengamma.bbg.tool.BloombergToolContext;
-import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.ircurve.ConfigDBInterpolatedYieldCurveSpecificationBuilder;
@@ -41,6 +37,7 @@ import com.opengamma.financial.convention.ConventionBundleMaster;
 import com.opengamma.financial.convention.DefaultConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.id.ExternalId;
+import com.opengamma.integration.tool.AbstractIntegrationTool;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
@@ -53,7 +50,7 @@ import com.opengamma.util.money.Currency;
 /**
  */
 @Scriptable
-public class CurveHtsResolverTool extends AbstractTool {
+public class CurveHtsResolverTool extends AbstractIntegrationTool {
   /**
    * Logger.
    */
@@ -210,14 +207,10 @@ public class CurveHtsResolverTool extends AbstractTool {
   }
   
   private void loadHistoricalData(boolean write, String[] dataFields, String dataProvider, Set<ExternalId>... externalIdSets) {
-    if (!(getToolContext() instanceof BloombergToolContext)) {
-      throw new OpenGammaRuntimeException("The " + BloombergTimeSeriesUpdateTool.class.getSimpleName() +
-        " requires a tool context which implements " + BloombergToolContext.class.getName());
-    }
     BloombergHistoricalTimeSeriesLoader loader = new BloombergHistoricalTimeSeriesLoader(
       getToolContext().getHistoricalTimeSeriesMaster(),
-      ((BloombergToolContext) getToolContext()).getBloombergHistoricalTimeSeriesSource(),
-      new BloombergIdentifierProvider(((BloombergToolContext) getToolContext()).getBloombergReferenceDataProvider()));
+      getToolContext().getBloombergHistoricalTimeSeriesSource(),
+      new BloombergIdentifierProvider(getToolContext().getBloombergReferenceDataProvider()));
 
     for (Set<ExternalId> externalIds : externalIdSets) {
       if (externalIds.size() > 0) {

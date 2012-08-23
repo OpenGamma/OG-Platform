@@ -6,12 +6,12 @@
 package com.opengamma.bloombergexample.tool;
 
 
-import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.bbg.tool.AbstractBloombergTool;
 
 /**
  * Abstract class for tools that sets up a tool context.
  */
-public abstract class AbstractExampleTool extends AbstractTool {
+public abstract class AbstractExampleTool extends AbstractBloombergTool {
 
   /**
    * Example configuration for tools.
