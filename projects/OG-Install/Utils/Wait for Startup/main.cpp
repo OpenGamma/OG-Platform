@@ -33,6 +33,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *pszCmdLi
 			if (!CFeedbackWindow::Register(hInstance, IDI_OPENGAMMA)) break;
 			poFeedback = new CFeedback (hInstance);
 			poFeedback->Show (nCmdShow);
+			poFeedback->BringToTop ();
 			HANDLE hThread = CreateThread (NULL, 0, _main, poFeedback, 0, NULL);
 			if (!hThread) break;
 			if (CFeedbackWindow::DispatchMessages ()) {

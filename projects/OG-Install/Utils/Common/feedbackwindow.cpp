@@ -194,3 +194,9 @@ void CFeedbackWindow::OnSetStatusText (PCSTR pszText) {
 void CFeedbackWindow::SetStatusText (PCSTR pszText) {
 	SendMessage (m_hwnd, UM_SETSTATUS, 0, (LPARAM)pszText);
 }
+
+void CFeedbackWindow::BringToTop () {
+	// Put window to the very top, then shift it back so it ends up at the front of all non-topmost windows.
+	SetWindowPos (m_hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+	SetWindowPos (m_hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+}

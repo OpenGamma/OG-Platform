@@ -25,6 +25,7 @@ public:
 	CFeedbackWindow (HINSTANCE hInstance, PCSTR pszTitle);
 	static BOOL Register (HINSTANCE hInstance, int nIcon);
 	void Show (int nCmdShow) { ShowWindow (m_hwnd, nCmdShow); }
+	void BringToTop ();
 	void Destroy ();
 	int Alert (PCSTR pszText, PCSTR pszCaption, UINT uType) { return MessageBox (m_hwnd, pszText, pszCaption, uType); }
 	static void Release (CFeedbackWindow *po);
