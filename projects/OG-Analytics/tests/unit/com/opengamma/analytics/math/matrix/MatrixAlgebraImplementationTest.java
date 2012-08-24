@@ -235,11 +235,6 @@ public class MatrixAlgebraImplementationTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testColtMultiply1() {
-    COLT.multiply(M1, M3);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testCommonsMultiply2() {
     COMMONS.multiply(M3, M5);
   }
