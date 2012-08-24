@@ -146,7 +146,7 @@ public class CreditDefaultSwapDefinition {
     ArgumentChecker.isTrue(debtSeniority.isEmpty(), "Debt seniority field is empty");
     ArgumentChecker.isTrue(restructuringClause.isEmpty(), "Restructuring clause field is empty");
     
-    // TODO : Check calendar object?
+    // TODO : Check calendar object? No, can allow calendar to be 'null' if the user doesn't want to business day adjust dates
     
     // TODO : Do we need to check if the ZonedDateTime objects are empty?
     

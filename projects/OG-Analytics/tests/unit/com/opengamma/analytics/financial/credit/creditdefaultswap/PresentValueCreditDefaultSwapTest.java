@@ -40,7 +40,7 @@ public class PresentValueCreditDefaultSwapTest {
   
   private static final ZonedDateTime startDate = DateUtils.getUTCDate(2012, 8, 24);
   private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2012, 8, 22);
-  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2017, 8, 28);
+  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2017, 8, 26);
   private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2012, 8, 24);
     
   private static final String scheduleGenerationMethod = "Backward";
@@ -57,7 +57,7 @@ public class PresentValueCreditDefaultSwapTest {
   private static final double curveRecoveryRate = 0.40;
 
   private static final boolean includeAccruedPremium = true;
-  private static final boolean adjustMaturityDate = false;
+  private static final boolean adjustMaturityDate = true;
   
   private static final int numberOfIntegrationSteps = 12;
   

@@ -170,40 +170,25 @@ public class PresentValueCreditDefaultSwap {
   void generateCDSPremiumLegSchedule(CreditDefaultSwapDefinition cds) {
     
     ZonedDateTime startDate = cds.getStartDate();
-    //ZonedDateTime effectiveDate = cds.getEffectiveDate();
     ZonedDateTime maturityDate = cds.getMaturityDate();
-    ZonedDateTime valuationDate = cds.getValuationDate();
+    
+    boolean adjustMaturityDate = cds.getAdjustMaturityDate();
     
     Calendar calendar = cds.getCalendar();
-
-    System.out.println("Start Date = " + startDate);
     
-    // Set the effective date to be T + 1
-    ZonedDateTime effectiveDate = startDate.plusDays(1);
-    System.out.println("Unadjusted TEff = " + effectiveDate);
-    
-    // Adjust the effective date so it does not fall on a non-business day
-    while (!calendar.isWorkingDay(effectiveDate.toLocalDate())) {
-      
-      effectiveDate = effectiveDate.plusDays(1);
-      
-      //System.out.println("Business Day Adjusted TEff = " + effectiveDate);
+    if (calendar.equals(null)) {
+      // No calender, therefore don't adjust any dates for non-business days
     }
     
-    System.out.println("Adjusted TEff = " + effectiveDate);
+    ZonedDateTime adjustedEffectiveDate = adjustEffectiveDate(startDate, calendar);
+    ZonedDateTime adjustedMaturityDate = adjustMaturityDate(maturityDate, calendar, adjustMaturityDate);
     
-    //maturityDate = effectiveDate.plusYears(5);
-    System.out.println("Unadjusted Maturity Date = " + maturityDate);
-    
-    // If required adjust the maturity date so it does not fall on a non-business day
-    if (cds.getAdjustMaturityDate()) {
-      while (!calendar.isWorkingDay(maturityDate.toLocalDate())) {
-        maturityDate = maturityDate.plusDays(1);
-      }
-    }
+    /*
     
     System.out.println("Adjusted Maturity Date = " + maturityDate);
+    */
     
+    /*
     int numberOfCashflows = 1;
     
     while (maturityDate.isAfter(effectiveDate)) {
@@ -217,6 +202,45 @@ public class PresentValueCreditDefaultSwap {
     //System.out.println(year);
     
     System.out.println("Adjusted Maturity Date = " + maturityDate);
+    */
+    
+    System.out.println("Start Date = " + startDate);
+    System.out.println("Adjusted Effective Date = " + adjustedEffectiveDate);
+    System.out.println("Unadjusted Maturity Date = " + maturityDate);
+    System.out.println("Adjusted Maturity Date = " + adjustedMaturityDate);
+  }
+  
+//-------------------------------------------------------------------------------------------------
+  
+  public ZonedDateTime adjustEffectiveDate(ZonedDateTime startDate, Calendar calendar) {
+    
+    // Set the effective date to be T + 1
+    ZonedDateTime effectiveDate = startDate.plusDays(1);
+    
+    // Adjust the effective date so it does not fall on a non-business day
+    while (!calendar.isWorkingDay(effectiveDate.toLocalDate())) {
+      effectiveDate = effectiveDate.plusDays(1);
+    }
+    
+    return effectiveDate;
+  }
+  
+//-------------------------------------------------------------------------------------------------
+  
+  public ZonedDateTime adjustMaturityDate(ZonedDateTime maturityDate, Calendar calendar, boolean adjustMaturityDate) {
+    
+    ZonedDateTime adjustedMaturityDate = maturityDate;
+    
+    // If required adjust the maturity date so it does not fall on a non-business day
+    if (adjustMaturityDate) {
+      while (!calendar.isWorkingDay(maturityDate.toLocalDate())) {
+        adjustedMaturityDate = adjustedMaturityDate.plusDays(1);
+      }
+    }
+    
+    int year = maturityDate.getYear();
+    
+    return adjustedMaturityDate;
   }
 
   //-------------------------------------------------------------------------------------------------
