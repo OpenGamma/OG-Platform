@@ -13,6 +13,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.payment.CouponDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFloatingDefinition;
@@ -172,6 +173,16 @@ public class ForwardRateAgreementDefinition extends CouponFloatingDefinition {
    */
   public double getRate() {
     return _rate;
+  }
+
+  @Override
+  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
+    return visitor.visitForwardRateAgreement(this, data);
+  }
+
+  @Override
+  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
+    return visitor.visitForwardRateAgreement(this);
   }
 
   @Override

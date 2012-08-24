@@ -60,10 +60,14 @@ import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZer
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyGearingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CapFloorIborDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponFloatingDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborGearingDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborRatchetDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponOISDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponOISSimplifiedDefinition;
@@ -78,7 +82,6 @@ import com.opengamma.analytics.financial.instrument.swaption.SwaptionBermudaFixe
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionInstrumentsDescriptionDataSet;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -87,7 +90,6 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * Class testing the Fixed income instrument definition visitor.
@@ -123,19 +125,6 @@ public class InstrumentDefinitionVisitorTest {
   private static final SwapIborIborDefinition SWAP_IBOR_IBOR = new SwapIborIborDefinition(ANNUITY_IBOR_SPREAD_2, ANNUITY_IBOR_SPREAD_1);
   private static final AnnuityDefinition<PaymentFixedDefinition> GENERAL_ANNUITY = new AnnuityDefinition<PaymentFixedDefinition>(new PaymentFixedDefinition[] {
       new PaymentFixedDefinition(CUR, DateUtils.getUTCDate(2011, 1, 1), 1000), new PaymentFixedDefinition(CUR, DateUtils.getUTCDate(2012, 1, 1), 1000) });
-  private static final CouponFloatingDefinition COUPON_FLOATING = new CouponFloatingDefinition(CUR, SETTLE_DATE.plusMonths(3), SETTLE_DATE, SETTLE_DATE.plusMonths(3), 0.25, NOTIONAL, SETTLE_DATE) {
-
-    @Override
-    public Payment toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data, final String... yieldCurveNames) {
-      return null;
-    }
-
-    @Override
-    public Payment toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-      return null;
-    }
-
-  };
   private static final CouponCMSDefinition COUPON_CMS = CouponCMSDefinition.from(CouponIborDefinition.from(1000, SETTLE_DATE, IBOR_INDEX_1), CMS_INDEX);
   private static final AnnuityCouponCMSDefinition ANNUITY_COUPON_CMS = new AnnuityCouponCMSDefinition(new CouponCMSDefinition[] {COUPON_CMS });
 
@@ -166,8 +155,6 @@ public class InstrumentDefinitionVisitorTest {
     assertEquals(SWAP_IBOR_IBOR.accept(VISITOR, o), "SwapIborIbor1");
     assertEquals(GENERAL_ANNUITY.accept(VISITOR), "Annuity2");
     assertEquals(GENERAL_ANNUITY.accept(VISITOR, o), "Annuity1");
-    assertEquals(COUPON_FLOATING.accept(VISITOR), "CouponFloating2");
-    assertEquals(COUPON_FLOATING.accept(VISITOR, o), "CouponFloating1");
     assertEquals(COUPON_CMS.accept(VISITOR), "CouponCMS2");
     assertEquals(COUPON_CMS.accept(VISITOR, o), "CouponCMS1");
     assertEquals(ANNUITY_COUPON_CMS.accept(VISITOR), "Annuity2");
@@ -302,16 +289,6 @@ public class InstrumentDefinitionVisitorTest {
     @Override
     public String visitSwapIborIborDefinition(final SwapIborIborDefinition swap) {
       return "SwapIborIbor2";
-    }
-
-    @Override
-    public String visitCouponFloating(final CouponFloatingDefinition payment, final T data) {
-      return "CouponFloating1";
-    }
-
-    @Override
-    public String visitCouponFloating(final CouponFloatingDefinition payment) {
-      return "CouponFloating2";
     }
 
     @Override
@@ -724,6 +701,78 @@ public class InstrumentDefinitionVisitorTest {
 
     @Override
     public String visitSwapXCcyIborIborDefinition(SwapXCcyIborIborDefinition swap) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborGearing(CouponIborGearingDefinition payment, T data) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborGearing(CouponIborGearingDefinition payment) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborCompounded(CouponIborCompoundedDefinition payment, T data) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborCompounded(CouponIborCompoundedDefinition payment) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitForwardRateAgreement(ForwardRateAgreementDefinition payment, T data) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitForwardRateAgreement(ForwardRateAgreementDefinition payment) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborRatchet(CouponIborRatchetDefinition payment, T data) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborRatchet(CouponIborRatchetDefinition payment) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitCapFloorIbor(CapFloorIborDefinition payment, T data) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitCapFloorIbor(CapFloorIborDefinition payment) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitCapFloorCMSSpread(CapFloorCMSSpreadDefinition payment, T data) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitCapFloorCMSSpread(CapFloorCMSSpreadDefinition payment) {
       // TODO Auto-generated method stub
       return null;
     }
