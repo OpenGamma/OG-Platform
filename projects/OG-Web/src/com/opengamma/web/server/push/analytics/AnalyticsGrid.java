@@ -17,8 +17,10 @@ import com.opengamma.util.ArgumentChecker;
  */
 /* package */ abstract class AnalyticsGrid<V extends AnalyticsViewport> {
 
+  /** Viewports keyed by ID. */
   protected final Map<String, V> _viewports = new HashMap<String, V>();
 
+  /** ID that's passed to listeners when this grid's row and column structure changes. */
   private final String _gridId;
 
   /**
