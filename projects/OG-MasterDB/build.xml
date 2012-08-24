@@ -48,6 +48,11 @@
       </classpath>
     </taskdef>
     <schemaversiontool dbScriptDir="${basedir}" outputDir="${src.dir}" />
+      <copy todir="${classes.dir}">
+        <fileset dir="${src.dir}">
+          <include name="**/*_db" />
+      </fileset>
+    </copy>
   </target>
   
   <target name="publish" depends="zip-resources,common.publish" />
