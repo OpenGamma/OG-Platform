@@ -53,9 +53,11 @@ public class SchemaVersionTool extends Task {
     if (getDbScriptDir() == null) {
       throw new BuildException("dbScriptDir must be specified");
     }
+    System.out.println("dbScriptDir: " + getDbScriptDir());
     if (getOutputDir() == null) {
       throw new BuildException("outputDir must be specified");
     }
+    System.out.println("outputDir: " + getOutputDir());
     final File outputDir = new File(getOutputDir() + File.separator + SCHEMA_VERSION_DIR);
     if (outputDir.isFile()) {
       throw new BuildException("outputDir must be a directory");
@@ -67,6 +69,9 @@ public class SchemaVersionTool extends Task {
     final DbTool tool = new DbTool();
     tool.addDbScriptDirectory(getDbScriptDir());
     final Map<String, Integer> latestVersions = tool.getLatestVersions();
+    
+    System.out.println("Found latest versions: " + latestVersions);
+    
     for (final Map.Entry<String, Integer> schemaVersion : latestVersions.entrySet()) {
       final String schemaName = schemaVersion.getKey();
       final int latestVersion = schemaVersion.getValue();
@@ -83,6 +88,7 @@ public class SchemaVersionTool extends Task {
         } finally {
           out.close();
         }
+        System.out.println("Written version " + latestVersion + " to " + f.getAbsolutePath());
       } catch (Exception e) {
         throw new BuildException("Error writing file for schema " + schemaName, e);
       }
