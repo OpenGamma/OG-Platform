@@ -249,6 +249,13 @@ $.register_module({
                             options: {id: id, child: true}
                         }
                     };
+                    options.data = function (id) {
+                        return {
+                            gadget: 'og.common.gadgets.data',
+                            name: 'Data ' + id,
+                            options: {id: id, child: true}
+                        }
+                    };
                     options.grid = function (id) {
                         return {gadget: 'og.analytics.Grid', name: 'grid ' + id, options: {}}
                     };

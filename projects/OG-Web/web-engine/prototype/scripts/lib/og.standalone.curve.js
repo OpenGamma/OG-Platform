@@ -13,7 +13,7 @@
         };
     // reset image data url
     css.reset_durl = 'iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAPklEQVQYV2NkgAL30KT/O1fPY4Tx0Wmw' +
-               'BEgRiMarEKYIl0kwA4g3kSQ34rIW2YM4fYnuSRQ34vMQaSYS40YAH8YmCJNUMdcAAAAASUVORK5CYII=';
+                     'BEgRiMarEKYIl0kwA4g3kSQ34rIW2YM4fYnuSRQ34vMQaSYS40YAH8YmCJNUMdcAAAAASUVORK5CYII=';
     // reset container
     css.reset_container = {
         background: '#fff', padding: '3px 5px', border: '1px solid #ddd',

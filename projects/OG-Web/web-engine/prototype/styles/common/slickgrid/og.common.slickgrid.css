@@ -169,7 +169,7 @@
 }
 
 /**
- * Search header
+ * Search
  **/
 .OG-js-search .slick-header {
     background: #a3ceec;
@@ -180,4 +180,11 @@
     border-style: none;
     background: none;
     height: 20px;
+}
+
+/**
+ * Gadgets
+ **/
+.OG-gadget-container .slick-row:hover {
+  background-color: #eee;
 }
