@@ -49,28 +49,16 @@ public class CDSSecurityBean extends SecurityBean {
   private ZonedDateTimeBean _maturity;
   
   @PropertyDefinition(validate = "notNull")
-  private ZonedDateTimeBean _protectionStartDate;
+  private ZonedDateTimeBean _startDate;
   
   @PropertyDefinition(validate = "notNull")
   private FrequencyBean _premiumFrequency;
   
-  /**
-   * The day count convention. ISDA uses ACT/360.
-   */
   @PropertyDefinition(validate = "notNull")
   private DayCountBean _dayCount;
   
-  /**
-   * The business day convention.
-   */
   @PropertyDefinition(validate = "notNull")
   private BusinessDayConventionBean _businessDayConvention;
-  
-  /**
-   * The holiday calendar currencies - will be used to generate the holiday calendar for the CDS.
-   */
-  @PropertyDefinition
-  private CurrencyBean[] _holidayCalendarCurrencies;
   
   @PropertyDefinition
   private ExternalIdBean _underlying;
@@ -106,16 +94,14 @@ public class CDSSecurityBean extends SecurityBean {
         return getCurrency();
       case 313843601:  // maturity
         return getMaturity();
-      case 973819991:  // protectionStartDate
-        return getProtectionStartDate();
+      case -2129778896:  // startDate
+        return getStartDate();
       case 146671813:  // premiumFrequency
         return getPremiumFrequency();
       case 1905311443:  // dayCount
         return getDayCount();
       case -1002835891:  // businessDayConvention
         return getBusinessDayConvention();
-      case -1646862139:  // holidayCalendarCurrencies
-        return getHolidayCalendarCurrencies();
       case -1770633379:  // underlying
         return getUnderlying();
     }
@@ -140,8 +126,8 @@ public class CDSSecurityBean extends SecurityBean {
       case 313843601:  // maturity
         setMaturity((ZonedDateTimeBean) newValue);
         return;
-      case 973819991:  // protectionStartDate
-        setProtectionStartDate((ZonedDateTimeBean) newValue);
+      case -2129778896:  // startDate
+        setStartDate((ZonedDateTimeBean) newValue);
         return;
       case 146671813:  // premiumFrequency
         setPremiumFrequency((FrequencyBean) newValue);
@@ -151,9 +137,6 @@ public class CDSSecurityBean extends SecurityBean {
         return;
       case -1002835891:  // businessDayConvention
         setBusinessDayConvention((BusinessDayConventionBean) newValue);
-        return;
-      case -1646862139:  // holidayCalendarCurrencies
-        setHolidayCalendarCurrencies((CurrencyBean[]) newValue);
         return;
       case -1770633379:  // underlying
         setUnderlying((ExternalIdBean) newValue);
@@ -166,7 +149,7 @@ public class CDSSecurityBean extends SecurityBean {
   protected void validate() {
     JodaBeanUtils.notNull(_currency, "currency");
     JodaBeanUtils.notNull(_maturity, "maturity");
-    JodaBeanUtils.notNull(_protectionStartDate, "protectionStartDate");
+    JodaBeanUtils.notNull(_startDate, "startDate");
     JodaBeanUtils.notNull(_premiumFrequency, "premiumFrequency");
     JodaBeanUtils.notNull(_dayCount, "dayCount");
     JodaBeanUtils.notNull(_businessDayConvention, "businessDayConvention");
@@ -185,11 +168,10 @@ public class CDSSecurityBean extends SecurityBean {
           JodaBeanUtils.equal(getSpread(), other.getSpread()) &&
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getMaturity(), other.getMaturity()) &&
-          JodaBeanUtils.equal(getProtectionStartDate(), other.getProtectionStartDate()) &&
+          JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
           JodaBeanUtils.equal(getPremiumFrequency(), other.getPremiumFrequency()) &&
           JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
           JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
-          JodaBeanUtils.equal(getHolidayCalendarCurrencies(), other.getHolidayCalendarCurrencies()) &&
           JodaBeanUtils.equal(getUnderlying(), other.getUnderlying()) &&
           super.equals(obj);
     }
@@ -204,11 +186,10 @@ public class CDSSecurityBean extends SecurityBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getSpread());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMaturity());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProtectionStartDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStartDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPremiumFrequency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
     hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidayCalendarCurrencies());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlying());
     return hash ^ super.hashCode();
   }
@@ -342,28 +323,28 @@ public class CDSSecurityBean extends SecurityBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the protectionStartDate.
+   * Gets the startDate.
    * @return the value of the property, not null
    */
-  public ZonedDateTimeBean getProtectionStartDate() {
-    return _protectionStartDate;
+  public ZonedDateTimeBean getStartDate() {
+    return _startDate;
   }
 
   /**
-   * Sets the protectionStartDate.
-   * @param protectionStartDate  the new value of the property, not null
+   * Sets the startDate.
+   * @param startDate  the new value of the property, not null
    */
-  public void setProtectionStartDate(ZonedDateTimeBean protectionStartDate) {
-    JodaBeanUtils.notNull(protectionStartDate, "protectionStartDate");
-    this._protectionStartDate = protectionStartDate;
+  public void setStartDate(ZonedDateTimeBean startDate) {
+    JodaBeanUtils.notNull(startDate, "startDate");
+    this._startDate = startDate;
   }
 
   /**
-   * Gets the the {@code protectionStartDate} property.
+   * Gets the the {@code startDate} property.
    * @return the property, not null
    */
-  public final Property<ZonedDateTimeBean> protectionStartDate() {
-    return metaBean().protectionStartDate().createProperty(this);
+  public final Property<ZonedDateTimeBean> startDate() {
+    return metaBean().startDate().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -394,7 +375,7 @@ public class CDSSecurityBean extends SecurityBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the day count convention. ISDA uses ACT/360.
+   * Gets the dayCount.
    * @return the value of the property, not null
    */
   public DayCountBean getDayCount() {
@@ -402,7 +383,7 @@ public class CDSSecurityBean extends SecurityBean {
   }
 
   /**
-   * Sets the day count convention. ISDA uses ACT/360.
+   * Sets the dayCount.
    * @param dayCount  the new value of the property, not null
    */
   public void setDayCount(DayCountBean dayCount) {
@@ -420,7 +401,7 @@ public class CDSSecurityBean extends SecurityBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the business day convention.
+   * Gets the businessDayConvention.
    * @return the value of the property, not null
    */
   public BusinessDayConventionBean getBusinessDayConvention() {
@@ -428,7 +409,7 @@ public class CDSSecurityBean extends SecurityBean {
   }
 
   /**
-   * Sets the business day convention.
+   * Sets the businessDayConvention.
    * @param businessDayConvention  the new value of the property, not null
    */
   public void setBusinessDayConvention(BusinessDayConventionBean businessDayConvention) {
@@ -442,31 +423,6 @@ public class CDSSecurityBean extends SecurityBean {
    */
   public final Property<BusinessDayConventionBean> businessDayConvention() {
     return metaBean().businessDayConvention().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the holiday calendar currencies - will be used to generate the holiday calendar for the CDS.
-   * @return the value of the property
-   */
-  public CurrencyBean[] getHolidayCalendarCurrencies() {
-    return _holidayCalendarCurrencies;
-  }
-
-  /**
-   * Sets the holiday calendar currencies - will be used to generate the holiday calendar for the CDS.
-   * @param holidayCalendarCurrencies  the new value of the property
-   */
-  public void setHolidayCalendarCurrencies(CurrencyBean[] holidayCalendarCurrencies) {
-    this._holidayCalendarCurrencies = holidayCalendarCurrencies;
-  }
-
-  /**
-   * Gets the the {@code holidayCalendarCurrencies} property.
-   * @return the property, not null
-   */
-  public final Property<CurrencyBean[]> holidayCalendarCurrencies() {
-    return metaBean().holidayCalendarCurrencies().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -530,10 +486,10 @@ public class CDSSecurityBean extends SecurityBean {
     private final MetaProperty<ZonedDateTimeBean> _maturity = DirectMetaProperty.ofReadWrite(
         this, "maturity", CDSSecurityBean.class, ZonedDateTimeBean.class);
     /**
-     * The meta-property for the {@code protectionStartDate} property.
+     * The meta-property for the {@code startDate} property.
      */
-    private final MetaProperty<ZonedDateTimeBean> _protectionStartDate = DirectMetaProperty.ofReadWrite(
-        this, "protectionStartDate", CDSSecurityBean.class, ZonedDateTimeBean.class);
+    private final MetaProperty<ZonedDateTimeBean> _startDate = DirectMetaProperty.ofReadWrite(
+        this, "startDate", CDSSecurityBean.class, ZonedDateTimeBean.class);
     /**
      * The meta-property for the {@code premiumFrequency} property.
      */
@@ -550,11 +506,6 @@ public class CDSSecurityBean extends SecurityBean {
     private final MetaProperty<BusinessDayConventionBean> _businessDayConvention = DirectMetaProperty.ofReadWrite(
         this, "businessDayConvention", CDSSecurityBean.class, BusinessDayConventionBean.class);
     /**
-     * The meta-property for the {@code holidayCalendarCurrencies} property.
-     */
-    private final MetaProperty<CurrencyBean[]> _holidayCalendarCurrencies = DirectMetaProperty.ofReadWrite(
-        this, "holidayCalendarCurrencies", CDSSecurityBean.class, CurrencyBean[].class);
-    /**
      * The meta-property for the {@code underlying} property.
      */
     private final MetaProperty<ExternalIdBean> _underlying = DirectMetaProperty.ofReadWrite(
@@ -569,11 +520,10 @@ public class CDSSecurityBean extends SecurityBean {
         "spread",
         "currency",
         "maturity",
-        "protectionStartDate",
+        "startDate",
         "premiumFrequency",
         "dayCount",
         "businessDayConvention",
-        "holidayCalendarCurrencies",
         "underlying");
 
     /**
@@ -595,16 +545,14 @@ public class CDSSecurityBean extends SecurityBean {
           return _currency;
         case 313843601:  // maturity
           return _maturity;
-        case 973819991:  // protectionStartDate
-          return _protectionStartDate;
+        case -2129778896:  // startDate
+          return _startDate;
         case 146671813:  // premiumFrequency
           return _premiumFrequency;
         case 1905311443:  // dayCount
           return _dayCount;
         case -1002835891:  // businessDayConvention
           return _businessDayConvention;
-        case -1646862139:  // holidayCalendarCurrencies
-          return _holidayCalendarCurrencies;
         case -1770633379:  // underlying
           return _underlying;
       }
@@ -668,11 +616,11 @@ public class CDSSecurityBean extends SecurityBean {
     }
 
     /**
-     * The meta-property for the {@code protectionStartDate} property.
+     * The meta-property for the {@code startDate} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ZonedDateTimeBean> protectionStartDate() {
-      return _protectionStartDate;
+    public final MetaProperty<ZonedDateTimeBean> startDate() {
+      return _startDate;
     }
 
     /**
@@ -697,14 +645,6 @@ public class CDSSecurityBean extends SecurityBean {
      */
     public final MetaProperty<BusinessDayConventionBean> businessDayConvention() {
       return _businessDayConvention;
-    }
-
-    /**
-     * The meta-property for the {@code holidayCalendarCurrencies} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<CurrencyBean[]> holidayCalendarCurrencies() {
-      return _holidayCalendarCurrencies;
     }
 
     /**

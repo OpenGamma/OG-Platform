@@ -5,20 +5,19 @@
  */
 package com.opengamma.masterdb.security.hibernate.cds;
 
+import static com.opengamma.masterdb.security.hibernate.Converters.businessDayConventionBeanToBusinessDayConvention;
 import static com.opengamma.masterdb.security.hibernate.Converters.currencyBeanToCurrency;
 import static com.opengamma.masterdb.security.hibernate.Converters.dateTimeWithZoneToZonedDateTimeBean;
+import static com.opengamma.masterdb.security.hibernate.Converters.dayCountBeanToDayCount;
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdBeanToExternalId;
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdToExternalIdBean;
 import static com.opengamma.masterdb.security.hibernate.Converters.frequencyBeanToFrequency;
-import static com.opengamma.masterdb.security.hibernate.Converters.dayCountBeanToDayCount;
-import static com.opengamma.masterdb.security.hibernate.Converters.businessDayConventionBeanToBusinessDayConvention;
 import static com.opengamma.masterdb.security.hibernate.Converters.zonedDateTimeBeanToDateTimeWithZone;
+
 import com.opengamma.financial.security.cds.CDSSecurity;
 import com.opengamma.masterdb.security.hibernate.AbstractSecurityBeanOperation;
-import com.opengamma.masterdb.security.hibernate.CurrencyBean;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDao;
 import com.opengamma.masterdb.security.hibernate.OperationContext;
-import com.opengamma.util.money.Currency;
 
 /**
  * Operation for converting between {@link CDSSecurity} and {@link CDSSecurityBean}
@@ -42,23 +41,16 @@ public final class CDSSecurityBeanOperation extends AbstractSecurityBeanOperatio
     bean.setSpread(security.getSpread());
     bean.setCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getCode()));
     bean.setMaturity(dateTimeWithZoneToZonedDateTimeBean(security.getMaturity()));
-    bean.setProtectionStartDate(dateTimeWithZoneToZonedDateTimeBean(security.getProtectionStartDate()));
+    bean.setStartDate(dateTimeWithZoneToZonedDateTimeBean(security.getStartDate()));
     bean.setPremiumFrequency(secMasterSession.getOrCreateFrequencyBean(security.getPremiumFrequency().getConventionName()));
     bean.setUnderlying(externalIdToExternalIdBean(security.getUnderlying()));
+    bean.setDayCount(secMasterSession.getOrCreateDayCountBean(security.getDayCount().getConventionName()));
+    bean.setBusinessDayConvention(secMasterSession.getOrCreateBusinessDayConventionBean(security.getBusinessDayConvention().getConventionName()));
     return bean;
   }
 
-  //TODO: Niels fix this
   @Override
   public CDSSecurity createSecurity(OperationContext context, CDSSecurityBean bean) {
-    
-    CurrencyBean[] currencyBeans = bean.getHolidayCalendarCurrencies();
-    Currency[] holidayCalendarCurrencies = new Currency[currencyBeans.length];
-    
-    for (int i = 0; i < currencyBeans.length; i++) {
-      CurrencyBean currencyBean = currencyBeans[i];
-      holidayCalendarCurrencies[i] = currencyBeanToCurrency(currencyBean);
-    }
     
     return new CDSSecurity(
       bean.getNotional(),
@@ -66,11 +58,10 @@ public final class CDSSecurityBeanOperation extends AbstractSecurityBeanOperatio
       bean.getSpread(),
       currencyBeanToCurrency(bean.getCurrency()),
       zonedDateTimeBeanToDateTimeWithZone(bean.getMaturity()),
-      zonedDateTimeBeanToDateTimeWithZone(bean.getProtectionStartDate()),
+      zonedDateTimeBeanToDateTimeWithZone(bean.getStartDate()),
       frequencyBeanToFrequency(bean.getPremiumFrequency()),
       dayCountBeanToDayCount(bean.getDayCount()), 
       businessDayConventionBeanToBusinessDayConvention(bean.getBusinessDayConvention()),
-      holidayCalendarCurrencies, 
       externalIdBeanToExternalId(bean.getUnderlying())
     );
   }
