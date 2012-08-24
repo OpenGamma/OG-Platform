@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.curve.interestrate;
@@ -24,9 +24,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.LastTimeCalculator;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
-import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
@@ -62,7 +60,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public class InterpolatedYieldCurveFunction extends AbstractFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(InterpolatedYieldCurveFunction.class);
@@ -122,8 +120,7 @@ public class InterpolatedYieldCurveFunction extends AbstractFunction {
           times[i] = LAST_DATE_CALCULATOR.visit(derivative);
           yields[i++] = marketValue;
         }
-        final String interpolatorName = Interpolator1DFactory.getInterpolatorName(specification.getInterpolator());
-        final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
+        final Interpolator1D interpolator = specification.getInterpolator();
         final InterpolatedDoublesCurve curve = InterpolatedDoublesCurve.from(times, yields, interpolator);
         final ValueProperties properties = createValueProperties()
             .with(ValuePropertyNames.CURVE, curveName)
