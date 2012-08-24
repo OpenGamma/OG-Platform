@@ -59,7 +59,7 @@ public class CDSSecurity extends FinancialSecurity {
   
   /** protection start date */
   @PropertyDefinition(validate = "notNull")
-  private ZonedDateTime _protectionStartDate;
+  private ZonedDateTime _startDate;
   
   /** Maturity date */
   @PropertyDefinition(validate = "notNull")
@@ -91,7 +91,7 @@ public class CDSSecurity extends FinancialSecurity {
   }
 
   public CDSSecurity(double notional, double recoveryRate, double spread,
-    Currency currency, ZonedDateTime maturity, ZonedDateTime protectionStartDate,
+    Currency currency, ZonedDateTime maturity, ZonedDateTime startDate,
     Frequency premiumFrequency, DayCount dayCount, BusinessDayConvention businessDayConvention,  ExternalId underlying) {
     
     super(SECURITY_TYPE);
@@ -100,7 +100,7 @@ public class CDSSecurity extends FinancialSecurity {
     setSpread(spread);
     setCurrency(currency);
     setMaturity(maturity);
-    setProtectionStartDate(protectionStartDate);
+    setStartDate(startDate);
     setPremiumFrequency(premiumFrequency);
     setDayCount(dayCount);
     setBusinessDayConvention(businessDayConvention);
@@ -142,7 +142,7 @@ public class CDSSecurity extends FinancialSecurity {
       case 575402001:  // currency
         return getCurrency();
       case 973819991:  // protectionStartDate
-        return getProtectionStartDate();
+        return getStartDate();
       case 313843601:  // maturity
         return getMaturity();
       case 146671813:  // premiumFrequency
@@ -173,7 +173,7 @@ public class CDSSecurity extends FinancialSecurity {
         setCurrency((Currency) newValue);
         return;
       case 973819991:  // protectionStartDate
-        setProtectionStartDate((ZonedDateTime) newValue);
+        setStartDate((ZonedDateTime) newValue);
         return;
       case 313843601:  // maturity
         setMaturity((ZonedDateTime) newValue);
@@ -197,7 +197,7 @@ public class CDSSecurity extends FinancialSecurity {
   @Override
   protected void validate() {
     JodaBeanUtils.notNull(_currency, "currency");
-    JodaBeanUtils.notNull(_protectionStartDate, "protectionStartDate");
+    JodaBeanUtils.notNull(_startDate, "protectionStartDate");
     JodaBeanUtils.notNull(_maturity, "maturity");
     JodaBeanUtils.notNull(_premiumFrequency, "premiumFrequency");
     JodaBeanUtils.notNull(_dayCount, "dayCount");
@@ -216,7 +216,7 @@ public class CDSSecurity extends FinancialSecurity {
           JodaBeanUtils.equal(getSpread(), other.getSpread()) &&
           JodaBeanUtils.equal(getRecoveryRate(), other.getRecoveryRate()) &&
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getProtectionStartDate(), other.getProtectionStartDate()) &&
+          JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
           JodaBeanUtils.equal(getMaturity(), other.getMaturity()) &&
           JodaBeanUtils.equal(getPremiumFrequency(), other.getPremiumFrequency()) &&
           JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
@@ -234,7 +234,7 @@ public class CDSSecurity extends FinancialSecurity {
     hash += hash * 31 + JodaBeanUtils.hashCode(getSpread());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRecoveryRate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProtectionStartDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStartDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMaturity());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPremiumFrequency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
@@ -349,17 +349,17 @@ public class CDSSecurity extends FinancialSecurity {
    * Gets protection start date
    * @return the value of the property, not null
    */
-  public ZonedDateTime getProtectionStartDate() {
-    return _protectionStartDate;
+  public ZonedDateTime getStartDate() {
+    return _startDate;
   }
 
   /**
    * Sets protection start date
    * @param protectionStartDate  the new value of the property, not null
    */
-  public void setProtectionStartDate(ZonedDateTime protectionStartDate) {
+  public void setStartDate(ZonedDateTime protectionStartDate) {
     JodaBeanUtils.notNull(protectionStartDate, "protectionStartDate");
-    this._protectionStartDate = protectionStartDate;
+    this._startDate = protectionStartDate;
   }
 
   /**

@@ -72,8 +72,6 @@ public class ExampleCDSLoader extends AbstractExampleTool {
     secMaster.add(cdsDoc);
     
     portfolioWithSecurity(cds, "Test CDS Port 1");
-    
-    System.out.println("All done!");
   }
   
   private void portfolioWithSecurity(Security security, String portfolioName) {

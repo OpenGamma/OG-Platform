@@ -49,7 +49,7 @@ public class CDSSecurityBean extends SecurityBean {
   private ZonedDateTimeBean _maturity;
   
   @PropertyDefinition(validate = "notNull")
-  private ZonedDateTimeBean _protectionStartDate;
+  private ZonedDateTimeBean _startDate;
   
   @PropertyDefinition(validate = "notNull")
   private FrequencyBean _premiumFrequency;
@@ -94,8 +94,8 @@ public class CDSSecurityBean extends SecurityBean {
         return getCurrency();
       case 313843601:  // maturity
         return getMaturity();
-      case 973819991:  // protectionStartDate
-        return getProtectionStartDate();
+      case -2129778896:  // startDate
+        return getStartDate();
       case 146671813:  // premiumFrequency
         return getPremiumFrequency();
       case 1905311443:  // dayCount
@@ -126,8 +126,8 @@ public class CDSSecurityBean extends SecurityBean {
       case 313843601:  // maturity
         setMaturity((ZonedDateTimeBean) newValue);
         return;
-      case 973819991:  // protectionStartDate
-        setProtectionStartDate((ZonedDateTimeBean) newValue);
+      case -2129778896:  // startDate
+        setStartDate((ZonedDateTimeBean) newValue);
         return;
       case 146671813:  // premiumFrequency
         setPremiumFrequency((FrequencyBean) newValue);
@@ -149,7 +149,7 @@ public class CDSSecurityBean extends SecurityBean {
   protected void validate() {
     JodaBeanUtils.notNull(_currency, "currency");
     JodaBeanUtils.notNull(_maturity, "maturity");
-    JodaBeanUtils.notNull(_protectionStartDate, "protectionStartDate");
+    JodaBeanUtils.notNull(_startDate, "startDate");
     JodaBeanUtils.notNull(_premiumFrequency, "premiumFrequency");
     JodaBeanUtils.notNull(_dayCount, "dayCount");
     JodaBeanUtils.notNull(_businessDayConvention, "businessDayConvention");
@@ -168,7 +168,7 @@ public class CDSSecurityBean extends SecurityBean {
           JodaBeanUtils.equal(getSpread(), other.getSpread()) &&
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getMaturity(), other.getMaturity()) &&
-          JodaBeanUtils.equal(getProtectionStartDate(), other.getProtectionStartDate()) &&
+          JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
           JodaBeanUtils.equal(getPremiumFrequency(), other.getPremiumFrequency()) &&
           JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
           JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
@@ -186,7 +186,7 @@ public class CDSSecurityBean extends SecurityBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getSpread());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMaturity());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProtectionStartDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStartDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPremiumFrequency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
     hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
@@ -323,28 +323,28 @@ public class CDSSecurityBean extends SecurityBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the protectionStartDate.
+   * Gets the startDate.
    * @return the value of the property, not null
    */
-  public ZonedDateTimeBean getProtectionStartDate() {
-    return _protectionStartDate;
+  public ZonedDateTimeBean getStartDate() {
+    return _startDate;
   }
 
   /**
-   * Sets the protectionStartDate.
-   * @param protectionStartDate  the new value of the property, not null
+   * Sets the startDate.
+   * @param startDate  the new value of the property, not null
    */
-  public void setProtectionStartDate(ZonedDateTimeBean protectionStartDate) {
-    JodaBeanUtils.notNull(protectionStartDate, "protectionStartDate");
-    this._protectionStartDate = protectionStartDate;
+  public void setStartDate(ZonedDateTimeBean startDate) {
+    JodaBeanUtils.notNull(startDate, "startDate");
+    this._startDate = startDate;
   }
 
   /**
-   * Gets the the {@code protectionStartDate} property.
+   * Gets the the {@code startDate} property.
    * @return the property, not null
    */
-  public final Property<ZonedDateTimeBean> protectionStartDate() {
-    return metaBean().protectionStartDate().createProperty(this);
+  public final Property<ZonedDateTimeBean> startDate() {
+    return metaBean().startDate().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -486,10 +486,10 @@ public class CDSSecurityBean extends SecurityBean {
     private final MetaProperty<ZonedDateTimeBean> _maturity = DirectMetaProperty.ofReadWrite(
         this, "maturity", CDSSecurityBean.class, ZonedDateTimeBean.class);
     /**
-     * The meta-property for the {@code protectionStartDate} property.
+     * The meta-property for the {@code startDate} property.
      */
-    private final MetaProperty<ZonedDateTimeBean> _protectionStartDate = DirectMetaProperty.ofReadWrite(
-        this, "protectionStartDate", CDSSecurityBean.class, ZonedDateTimeBean.class);
+    private final MetaProperty<ZonedDateTimeBean> _startDate = DirectMetaProperty.ofReadWrite(
+        this, "startDate", CDSSecurityBean.class, ZonedDateTimeBean.class);
     /**
      * The meta-property for the {@code premiumFrequency} property.
      */
@@ -520,7 +520,7 @@ public class CDSSecurityBean extends SecurityBean {
         "spread",
         "currency",
         "maturity",
-        "protectionStartDate",
+        "startDate",
         "premiumFrequency",
         "dayCount",
         "businessDayConvention",
@@ -545,8 +545,8 @@ public class CDSSecurityBean extends SecurityBean {
           return _currency;
         case 313843601:  // maturity
           return _maturity;
-        case 973819991:  // protectionStartDate
-          return _protectionStartDate;
+        case -2129778896:  // startDate
+          return _startDate;
         case 146671813:  // premiumFrequency
           return _premiumFrequency;
         case 1905311443:  // dayCount
@@ -616,11 +616,11 @@ public class CDSSecurityBean extends SecurityBean {
     }
 
     /**
-     * The meta-property for the {@code protectionStartDate} property.
+     * The meta-property for the {@code startDate} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ZonedDateTimeBean> protectionStartDate() {
-      return _protectionStartDate;
+    public final MetaProperty<ZonedDateTimeBean> startDate() {
+      return _startDate;
     }
 
     /**

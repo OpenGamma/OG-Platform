@@ -68,13 +68,13 @@ public class CDSSecurityConverter extends FinancialSecurityVisitorAdapter<Instru
     final Calendar calendar = CalendarUtils.getCalendar(_holidaySource, cds.getCurrency());
     
     final CDSPremiumDefinition premiumPayments = CDSPremiumDefinition.fromISDA(
-      cds.getCurrency(), cds.getProtectionStartDate(), cds.getMaturity(), cds.getPremiumFrequency(),
+      cds.getCurrency(), cds.getStartDate(), cds.getMaturity(), cds.getPremiumFrequency(),
       calendar, cds.getDayCount(), cds.getBusinessDayConvention(), cds.getNotional(), cds.getSpread(), PROTECT_START);
     
     final AnnuityPaymentFixedDefinition defaultPayments = cds.getUnderlying() != null ? possibleDefaultPayments(cds) : null;
     
     return new CDSDefinition(
-      premiumPayments, defaultPayments, cds.getProtectionStartDate(), cds.getMaturity(),
+      premiumPayments, defaultPayments, cds.getStartDate(), cds.getMaturity(),
       cds.getNotional(), cds.getSpread(), cds.getRecoveryRate(),
       ACCRUAL_ON_DEFAULT, PAY_ON_DEFAULT, PROTECT_START, cds.getDayCount());
   }
@@ -105,7 +105,7 @@ public class CDSSecurityConverter extends FinancialSecurityVisitorAdapter<Instru
     int coveredCouponDates = 0;
 
     for (CouponDefinition coupon: bondCoupons.getPayments()) {
-      if (!coupon.getPaymentDate().isBefore(cds.getProtectionStartDate()) && !coupon.getPaymentDate().isAfter(cds.getMaturity())) {
+      if (!coupon.getPaymentDate().isBefore(cds.getStartDate()) && !coupon.getPaymentDate().isAfter(cds.getMaturity())) {
         ++coveredCouponDates;
       }
     }
@@ -118,7 +118,7 @@ public class CDSSecurityConverter extends FinancialSecurityVisitorAdapter<Instru
     int i = 0;
     
     for (CouponDefinition coupon: bondCoupons.getPayments()) {
-      if (!coupon.getPaymentDate().isBefore(cds.getProtectionStartDate()) && !coupon.getPaymentDate().isAfter(cds.getMaturity())) {
+      if (!coupon.getPaymentDate().isBefore(cds.getStartDate()) && !coupon.getPaymentDate().isAfter(cds.getMaturity())) {
         payouts[i++] = new PaymentFixedDefinition(cds.getCurrency(), coupon.getPaymentDate(), payoutAmmount);
       }
     }
