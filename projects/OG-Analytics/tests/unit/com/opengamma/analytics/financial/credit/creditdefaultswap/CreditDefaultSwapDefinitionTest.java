@@ -40,7 +40,7 @@ public class CreditDefaultSwapDefinitionTest {
 
   private static final ZonedDateTime startDate = DateUtils.getUTCDate(2012, 8, 21);
   private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2012, 8, 22);
-  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2017, 9, 20);
+  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2016, 12, 21);
   private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2012, 8, 22);
 
   private static final String scheduleGenerationMethod = "Backward";

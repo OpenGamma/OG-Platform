@@ -144,6 +144,15 @@ public class PresentValueCreditDefaultSwapTest {
     // -----------------------------------------------------------------------------------------------
   }
   
+  /*
+  @Test
+  public void testIMMAdjustedMaturityDate() {
+    
+    private static final Calendar calendar = new MyCalendar();
+    private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2017, 8, 26);
+  }
+  */
+  
 //-----------------------------------------------------------------------------------------------
   
   // Bespoke calendar class

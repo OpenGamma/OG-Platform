@@ -172,7 +172,7 @@ public class PresentValueCreditDefaultSwap {
     ZonedDateTime startDate = cds.getStartDate();
     ZonedDateTime maturityDate = cds.getMaturityDate();
     
-    boolean adjustMaturityDate = cds.getAdjustMaturityDate();
+    //boolean adjustMaturityDate = cds.getAdjustMaturityDate();
     
     Calendar calendar = cds.getCalendar();
     
@@ -181,12 +181,8 @@ public class PresentValueCreditDefaultSwap {
     }
     
     ZonedDateTime adjustedEffectiveDate = adjustEffectiveDate(startDate, calendar);
-    ZonedDateTime adjustedMaturityDate = adjustMaturityDate(maturityDate, calendar, adjustMaturityDate);
+    ZonedDateTime immAdjustedMaturityDate = immAdjustMaturityDate(maturityDate, calendar);
     
-    /*
-    
-    System.out.println("Adjusted Maturity Date = " + maturityDate);
-    */
     
     /*
     int numberOfCashflows = 1;
@@ -207,7 +203,7 @@ public class PresentValueCreditDefaultSwap {
     System.out.println("Start Date = " + startDate);
     System.out.println("Adjusted Effective Date = " + adjustedEffectiveDate);
     System.out.println("Unadjusted Maturity Date = " + maturityDate);
-    System.out.println("Adjusted Maturity Date = " + adjustedMaturityDate);
+    System.out.println("IMM Adjusted Maturity Date = " + immAdjustedMaturityDate);
   }
   
 //-------------------------------------------------------------------------------------------------
@@ -226,6 +222,86 @@ public class PresentValueCreditDefaultSwap {
   }
   
 //-------------------------------------------------------------------------------------------------
+
+  public ZonedDateTime immAdjustMaturityDate(ZonedDateTime maturityDate, Calendar calendar) {
+    
+    ZonedDateTime immAdjustedMaturityDate = maturityDate;
+    
+    final int day = maturityDate.getDayOfMonth();
+    final int month = maturityDate.getMonthOfYear().getValue();
+    final int year = maturityDate.getYear();
+    
+    final ZonedDateTime immDatePreviousDecember = DateUtils.getUTCDate(year - 1, 12, 20);
+    final ZonedDateTime immDateMarch = DateUtils.getUTCDate(year, 3, 20);
+    final ZonedDateTime immDateJune = DateUtils.getUTCDate(year, 6, 20);
+    final ZonedDateTime immDateSeptember = DateUtils.getUTCDate(year, 9, 20);
+    final ZonedDateTime immDateDecember = DateUtils.getUTCDate(year, 12, 20);
+    final ZonedDateTime immDateNextMarch = DateUtils.getUTCDate(year + 1, 3, 20);
+    
+    /*
+    System.out.println(immDatePreviousDecember);
+    System.out.println(immDateMarch);
+    System.out.println(immDateJune);
+    System.out.println(immDateSeptember);
+    System.out.println(immDateDecember);
+    System.out.println(immDateNextMarch);
+    */
+    
+    // -------------------------------------------------------------------
+    
+    // First of all check that the maturity date isn't one of the IMM dates for 'year'
+    // These tests might be a bit redundant
+    
+    // Is the maturity date equal to the March IMM date of 'year'
+    if (maturityDate.equals(immDateMarch)) {
+      immAdjustedMaturityDate = immDateMarch;
+    }
+    
+    // Is the maturity date equal to the June IMM date of 'year'
+    if (maturityDate.equals(immDateJune)) {
+      immAdjustedMaturityDate = immDateJune;
+    }
+    
+    // Is the maturity date equal to the Seotember IMM date of 'year'
+    if (maturityDate.equals(immDateSeptember)) {
+      immAdjustedMaturityDate = immDateSeptember;
+    }
+    
+    // Is the maturity date equal to the December IMM date of 'year'
+    if (maturityDate.equals(immDateDecember)) {
+      immAdjustedMaturityDate = immDateDecember;
+    }
+    
+    // -------------------------------------------------------------------
+    
+    if (maturityDate.isAfter(immDatePreviousDecember) && maturityDate.isBefore(immDateMarch)) {
+      immAdjustedMaturityDate = immDateMarch;
+    }
+    
+    if (maturityDate.isAfter(immDateMarch) && maturityDate.isBefore(immDateJune)) {
+      immAdjustedMaturityDate = immDateJune;
+    }
+    
+    if (maturityDate.isAfter(immDateJune) && maturityDate.isBefore(immDateSeptember)) {
+      immAdjustedMaturityDate = immDateSeptember;
+    }
+    
+    if (maturityDate.isAfter(immDateSeptember) && maturityDate.isBefore(immDateDecember)) {
+      immAdjustedMaturityDate = immDateDecember;
+    }
+    
+    if (maturityDate.isAfter(immDateDecember) && maturityDate.isBefore(immDateNextMarch)) {
+      immAdjustedMaturityDate = immDateNextMarch;
+    }
+    
+    // -------------------------------------------------------------------
+    
+    //System.out.println("Day = " + day + ", month = " + month + ", year = " + year);
+    
+    return immAdjustedMaturityDate;
+  }
+  
+//-------------------------------------------------------------------------------------------------
   
   public ZonedDateTime adjustMaturityDate(ZonedDateTime maturityDate, Calendar calendar, boolean adjustMaturityDate) {
     
@@ -233,12 +309,10 @@ public class PresentValueCreditDefaultSwap {
     
     // If required adjust the maturity date so it does not fall on a non-business day
     if (adjustMaturityDate) {
-      while (!calendar.isWorkingDay(maturityDate.toLocalDate())) {
+      while (!calendar.isWorkingDay(adjustedMaturityDate.toLocalDate())) {
         adjustedMaturityDate = adjustedMaturityDate.plusDays(1);
       }
     }
-    
-    int year = maturityDate.getYear();
     
     return adjustedMaturityDate;
   }
