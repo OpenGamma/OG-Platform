@@ -20,7 +20,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
-import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.change.JmsChangeManager;
 import com.opengamma.master.holiday.HolidayMaster;
@@ -34,7 +33,7 @@ import com.opengamma.util.jms.JmsConnector;
  * Component factory for the database holiday master.
  */
 @BeanDefinition
-public class DbHolidayMasterComponentFactory extends AbstractComponentFactory {
+public class DbHolidayMasterComponentFactory extends AbstractDbMasterComponentFactory {
 
   /**
    * The classifier that the factory should publish under.
@@ -94,6 +93,7 @@ public class DbHolidayMasterComponentFactory extends AbstractComponentFactory {
       }
       info.addAttribute(ComponentInfoAttributes.JMS_CHANGE_MANAGER_TOPIC, getJmsChangeManagerTopic());
     }
+    checkSchemaVersion(master.getSchemaVersion(), "db_exg");
     
     // register
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
@@ -394,7 +394,7 @@ public class DbHolidayMasterComponentFactory extends AbstractComponentFactory {
   /**
    * The meta-bean for {@code DbHolidayMasterComponentFactory}.
    */
-  public static class Meta extends AbstractComponentFactory.Meta {
+  public static class Meta extends AbstractDbMasterComponentFactory.Meta {
     /**
      * The singleton instance of the meta-bean.
      */

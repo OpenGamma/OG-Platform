@@ -20,7 +20,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
-import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.change.JmsChangeManager;
 import com.opengamma.master.position.PositionMaster;
@@ -34,7 +33,7 @@ import com.opengamma.util.jms.JmsConnector;
  * Component factory for the database position master.
  */
 @BeanDefinition
-public class DbPositionMasterComponentFactory extends AbstractComponentFactory {
+public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentFactory {
 
   /**
    * The classifier that the factory should publish under.
@@ -94,6 +93,7 @@ public class DbPositionMasterComponentFactory extends AbstractComponentFactory {
       }
       info.addAttribute(ComponentInfoAttributes.JMS_CHANGE_MANAGER_TOPIC, getJmsChangeManagerTopic());
     }
+    checkSchemaVersion(master.getSchemaVersion(), "db_pos");
     
     // register
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
@@ -385,7 +385,7 @@ public class DbPositionMasterComponentFactory extends AbstractComponentFactory {
   /**
    * The meta-bean for {@code DbPositionMasterComponentFactory}.
    */
-  public static class Meta extends AbstractComponentFactory.Meta {
+  public static class Meta extends AbstractDbMasterComponentFactory.Meta {
     /**
      * The singleton instance of the meta-bean.
      */

@@ -20,7 +20,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
-import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.change.JmsChangeManager;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
@@ -34,7 +33,7 @@ import com.opengamma.util.jms.JmsConnector;
  * Component factory for the database snapshot master.
  */
 @BeanDefinition
-public class DbMarketDataSnapshotMasterComponentFactory extends AbstractComponentFactory {
+public class DbMarketDataSnapshotMasterComponentFactory extends AbstractDbMasterComponentFactory {
 
   /**
    * The classifier that the factory should publish under.
@@ -94,6 +93,7 @@ public class DbMarketDataSnapshotMasterComponentFactory extends AbstractComponen
       }
       info.addAttribute(ComponentInfoAttributes.JMS_CHANGE_MANAGER_TOPIC, getJmsChangeManagerTopic());
     }
+    checkSchemaVersion(master.getSchemaVersion(), "db_snp");
     
     // register
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
@@ -394,7 +394,7 @@ public class DbMarketDataSnapshotMasterComponentFactory extends AbstractComponen
   /**
    * The meta-bean for {@code DbMarketDataSnapshotMasterComponentFactory}.
    */
-  public static class Meta extends AbstractComponentFactory.Meta {
+  public static class Meta extends AbstractDbMasterComponentFactory.Meta {
     /**
      * The singleton instance of the meta-bean.
      */

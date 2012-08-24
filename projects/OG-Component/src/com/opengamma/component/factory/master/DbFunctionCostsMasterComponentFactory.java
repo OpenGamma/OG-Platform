@@ -32,7 +32,7 @@ import com.opengamma.util.db.DbConnector;
  * Component factory for the database function costs master.
  */
 @BeanDefinition
-public class DbFunctionCostsMasterComponentFactory extends AbstractComponentFactory {
+public class DbFunctionCostsMasterComponentFactory extends AbstractDbMasterComponentFactory {
 
   /**
    * The classifier that the factory should publish under.
@@ -57,6 +57,7 @@ public class DbFunctionCostsMasterComponentFactory extends AbstractComponentFact
     
     // create
     DbFunctionCostsMaster master = new DbFunctionCostsMaster(getDbConnector());
+    checkSchemaVersion(master.getSchemaVersion(), "db_eng");
     
     // register
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
@@ -228,7 +229,7 @@ public class DbFunctionCostsMasterComponentFactory extends AbstractComponentFact
   /**
    * The meta-bean for {@code DbFunctionCostsMasterComponentFactory}.
    */
-  public static class Meta extends AbstractComponentFactory.Meta {
+  public static class Meta extends AbstractDbMasterComponentFactory.Meta {
     /**
      * The singleton instance of the meta-bean.
      */

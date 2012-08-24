@@ -341,3 +341,11 @@
 @NAME(DeleteDataSnapshot)    
   DELETE FROM rsk_live_data_snapshot 
     WHERE id = :snapshot_id
+    
+-- ==========================================================================
+@NAME(GetSchemaVersion)
+  SELECT version_value
+  FROM rsk_schema_version
+  WHERE version_key = :version_key
+
+-- ========================================================================== 

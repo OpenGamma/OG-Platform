@@ -22,7 +22,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
-import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.change.JmsChangeManager;
 import com.opengamma.master.security.SecurityMaster;
@@ -39,8 +38,8 @@ import com.opengamma.util.jms.JmsConnector;
  * Component factory for the database security master.
  */
 @BeanDefinition
-public class DbSecurityMasterComponentFactory extends AbstractComponentFactory {
-
+public class DbSecurityMasterComponentFactory extends AbstractDbMasterComponentFactory {
+  
   /**
    * The classifier that the factory should publish under.
    */
@@ -117,6 +116,7 @@ public class DbSecurityMasterComponentFactory extends AbstractComponentFactory {
         master.setDetailProvider(dp);
       }
     }
+    checkSchemaVersion(master.getSchemaVersion(), "sec_db");
     
     // register
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
@@ -482,7 +482,7 @@ public class DbSecurityMasterComponentFactory extends AbstractComponentFactory {
   /**
    * The meta-bean for {@code DbSecurityMasterComponentFactory}.
    */
-  public static class Meta extends AbstractComponentFactory.Meta {
+  public static class Meta extends AbstractDbMasterComponentFactory.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
