@@ -7,9 +7,13 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.definition;
 
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.analytics.financial.credit.BuySellProtection;
+import com.opengamma.analytics.financial.credit.CouponFrequency;
+import com.opengamma.analytics.financial.credit.DebtSeniority;
+import com.opengamma.analytics.financial.credit.RestructuringClause;
+import com.opengamma.analytics.financial.credit.ScheduleGenerationMethod;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -21,13 +25,17 @@ public class CreditDefaultSwapDefinition {
   
   // Member variables of the CDS contract (defines what a CDS is)
   
-  // Conventions
+  // Cashflow Conventions are assumed to be as below
+  
+  // Notional amount > 0 always - long/short positions are captured by the setting of 'BuySellProtection'
   
   // Buy protection   -> Pay premium leg, receive contingent leg  -> 'long' protection  -> 'short' credit risk
   // Sell protection  -> Receive premium leg, pay contingent leg  -> 'short' protection -> 'long' credit risk
+  
+  // TODO : Replace the strings for the _couponFrequency, _daycountFractionConvention and _businessdayAdjustmentConvention fields
 
   // From the users perspective, are we buying or selling protection - User input
-  private final String _buySellProtection;
+  private final BuySellProtection _buySellProtection;
 
   // Identifiers for the (three) counterparties in the trade - User input
   private final String _protectionBuyer;
@@ -37,11 +45,11 @@ public class CreditDefaultSwapDefinition {
   // The currency the trade is executed in e.g. USD - User input
   private final Currency _currency;
   
-  // The seniority of the debt of the reference entity the CDS is written on e.g. senior or subordinated - User input
-  private final String _debtSeniority;
+  // The seniority of the debt of the reference entity the CDS is written on - User input, see enum
+  private final DebtSeniority _debtSeniority;
   
-  // The restructuring type in the event of a credit event deemed to be a restructuring of the reference entities debt e.g. OR, MR, MMR or NR - User input
-  private final String _restructuringClause;
+  // The restructuring type in the event of a credit event deemed to be a restructuring of the reference entities debt - User input, see enum
+  private final RestructuringClause _restructuringClause;
   
   // Holiday calendar for the determination of adjusted business days in the cashflow schedule - User input
   private final Calendar _calendar;
@@ -58,15 +66,17 @@ public class CreditDefaultSwapDefinition {
   // The date on which we want to calculate the CDS MtM - User input
   private final ZonedDateTime _valuationDate;
   
-  // The method for generating the schedule of premium payments - User input
-  private final String _scheduleGenerationMethod;
+  // The method for generating the schedule of premium payments - User input see enum
+  private final ScheduleGenerationMethod _scheduleGenerationMethod;
   
-  // The frequency of coupon payments (usually quarterly) - User input
-  private final String _couponFrequency;
+  // The frequency of coupon payments (usually quarterly) - User input see enum
+  private final CouponFrequency _couponFrequency;
   
+  // TODO : Convert to an enum
   // Day-count convention (usually Act/360) - User input
   private final String _daycountFractionConvention;
   
+//TODO : Convert to an enum
   // Business day adjustment convention (usually following) - User input
   private final String _businessdayAdjustmentConvention;
   
@@ -96,7 +106,10 @@ public class CreditDefaultSwapDefinition {
   private final YieldCurve _yieldCurve;
   
   // The survival curve object for survival probabilities (proxy with a YieldCurve object for now) - Constructed from market data
-  private final YieldCurve _survivalCurve; 
+  private final YieldCurve _survivalCurve;
+  
+  // The credit key to uniquely identify a reference entities par spread CDS curve
+  private final String _creditKey;
   
   // TODO : Add a seperate 'SurvivalCurve' class whose function is to generate the calibrated survival probabilities from the input CDS par spread term structure
   // TODO : Should the yield and survival curves be part of the CDS object? Should they be passed in to the pricer seperately as market data?
@@ -109,20 +122,20 @@ public class CreditDefaultSwapDefinition {
   
   // How can we reduce the number of parameters?
   
-  public CreditDefaultSwapDefinition(String buySellProtection,
+  public CreditDefaultSwapDefinition(BuySellProtection buySellProtection,
                                       String protectionBuyer, 
                                       String protectionSeller, 
                                       String referenceEntity, 
                                       Currency currency, 
-                                      String debtSeniority, 
-                                      String restructuringClause, 
+                                      DebtSeniority debtSeniority, 
+                                      RestructuringClause restructuringClause, 
                                       Calendar calendar,
                                       ZonedDateTime startDate,
                                       ZonedDateTime effectiveDate,
                                       ZonedDateTime maturityDate,
                                       ZonedDateTime valuationDate,
-                                      String scheduleGenerationMethod,
-                                      String couponFrequency,
+                                      ScheduleGenerationMethod scheduleGenerationMethod,
+                                      CouponFrequency couponFrequency,
                                       String daycountFractionConvention,
                                       String businessdayAdjustmentConvention,
                                       double notional, 
@@ -134,6 +147,8 @@ public class CreditDefaultSwapDefinition {
                                       int numberOfIntegrationSteps,
                                       YieldCurve yieldCurve,
                                       YieldCurve survivalCurve) {
+    
+    // TODO : Fix argument checkers
     
     /*
     ArgumentChecker.isTrue(buySellProtection.isEmpty(), "Buy/Sell protection flag is empty");
@@ -180,6 +195,8 @@ public class CreditDefaultSwapDefinition {
     // TODO : Do we need to check if the yieldCurve and survivalCurve objects are empty?
      */
 
+    // Assign the member variables
+    
     _buySellProtection = buySellProtection;
     _protectionBuyer = protectionBuyer;
     _protectionSeller = protectionSeller;
@@ -215,15 +232,15 @@ public class CreditDefaultSwapDefinition {
     _yieldCurve = yieldCurve;
     _survivalCurve = survivalCurve;
     
-    // TODO : Should we build the premium cashflow schedule in the CDS ctor?
+    _creditKey = _referenceEntity + _currency + _debtSeniority + _restructuringClause;
   }
   
-//----------------------------------------------------------------------------------------------------------------------------------------
-
-  public String getBuySellProtection() {
+// ----------------------------------------------------------------------------------------------------------------------------------------
+  
+  public BuySellProtection getBuySellProtection() {
     return _buySellProtection;
   }
-   
+  
   public String getProtectionBuyer() {
     return _protectionBuyer;
   }
@@ -242,11 +259,11 @@ public class CreditDefaultSwapDefinition {
     return _currency;
   }
   
-  public String getDebtSeniority() {
+  public DebtSeniority getDebtSeniority() {
     return _debtSeniority;
   }
   
-  public String getRestructuringClause() {
+  public RestructuringClause getRestructuringClause() {
     return _restructuringClause;
   }
   
@@ -274,11 +291,11 @@ public class CreditDefaultSwapDefinition {
 
 //----------------------------------------------------------------------------------------------------------------------------------------
   
-  public String getScheduleGenerationMethod() {
+  public ScheduleGenerationMethod getScheduleGenerationMethod() {
     return _scheduleGenerationMethod;
   }
   
-  public String getCouponFrequency() {
+  public CouponFrequency getCouponFrequency() {
     return _couponFrequency;
   }
   
@@ -332,7 +349,11 @@ public class CreditDefaultSwapDefinition {
 
 //----------------------------------------------------------------------------------------------------------------------------------------
   
-  // Not sure about this
+  public String getCreditKey() {
+    return _creditKey;
+  }
+  
+// ----------------------------------------------------------------------------------------------------------------------------------------
   
   @Override
   public int hashCode() {
@@ -372,8 +393,6 @@ public class CreditDefaultSwapDefinition {
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
-  
-  // Not sure about this
   
   @Override
   public boolean equals(Object obj) {

@@ -22,10 +22,10 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
 /**
- *  Tests to verify the construction of a CDS contract 
+ *  Test the implementation of the schedule generation methods for the premium leg of a CDS
  */
-public class CreditDefaultSwapDefinitionTest {
-
+public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
+  
   private static final BuySellProtection buySellProtection = BuySellProtection.BUY;
 
   private static final String protectionBuyer = "ABC";
@@ -100,60 +100,29 @@ public class CreditDefaultSwapDefinitionTest {
                                                                                             numberOfIntegrationSteps,
                                                                                             yieldCurve,
                                                                                             survivalCurve);
-
-  // TODO : Add all the tests
-
+  
   /*
   @Test
-  public void testNullBuySellProtectionFlag() {
-    assertEquals(null, CDS_DEFINITION.getBuySellProtection(), 1e-15);
-  }
-   */
+  public void testIMMAdjustedMaturityDate() {
+    
+    System.out.println("Running schedule generation tests ...");
 
-   /*
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNotional() {
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, 
-        currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate, maturityDate, 
-        valuationDate, scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, -notional, 
-        parSpread, valuationRecoveryRate, curveRecoveryRate, includeAccruedPremium, adjustMaturityDate, numberOfIntegrationSteps, yieldCurve);
-  }
-    */
+    final GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
+    
+    //final PresentValueCreditDefaultSwap CDS_2 = new PresentValueCreditDefaultSwap();
 
-    /*
- // @Test
-  public void testParSpread() {
-    assertTrue(CDS_DEFINITION.getParSpread() >= 0);
-  }
-     */
+    cashflowSchedule.getCreditDefaultSwapPremiumLegSchedule(CDS_1);
 
-     /*
-  @Test
-  public void testValuationRecoveryRate() {
-    assertTrue(CDS_DEFINITION.getValuationRecoveryRate() >= 0.0);
-    assertTrue(CDS_DEFINITION.getValuationRecoveryRate() <= 1.0);
-  }
-      */
+    //ZonedDateTime immAdjustedMaturityDate;
+    ZonedDateTime maturityDate = DateUtils.getUTCDate(2016, 12, 19);
 
-      /*
-//  @Test
-  public void testCurveRecoveryRate() {
-    assertTrue(CDS_DEFINITION.getCurveRecoveryRate() >= 0.0);
-    assertTrue(CDS_DEFINITION.getCurveRecoveryRate() <= 1.0);
-  }
-       */
+    int numberOfTests = 2;
 
-       /*
-  @Test
-  public void testBuySellProtectionFlag() {
-    assertEquals("Buy", CDS_DEFINITION.getBuySellProtection());
-  }
-        */
+    for (int i = 0; i < numberOfTests; i++) {
+      maturityDate = maturityDate.plusDays(1);
 
-        /*
-  @Test
-  public void testValuationRecoveryRate() {
-    assertEquals(true, CDS_DEFINITION.getValuationRecoveryRate());
+      //immAdjustedMaturityDate = cashflowSchedule.getCreditDefaultSwapPremiumLegSchedule(CDS_1);
+    }
   }
-         */
+  */
 }
