@@ -15,6 +15,7 @@ import org.apache.commons.lang.ObjectUtils;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.ArgumentChecker;
@@ -245,13 +246,13 @@ public final class CouponIborCompoundedDefinition extends CouponDefinition imple
   }
 
   @Override
-  public Payment toDerivative(ZonedDateTime date, DoubleTimeSeries<ZonedDateTime> data, String... yieldCurveNames) {
+  public Coupon toDerivative(ZonedDateTime date, DoubleTimeSeries<ZonedDateTime> data, String... yieldCurveNames) {
     // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public Payment toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+  public Coupon toDerivative(ZonedDateTime date, String... yieldCurveNames) {
     // TODO Auto-generated method stub
     return null;
   }

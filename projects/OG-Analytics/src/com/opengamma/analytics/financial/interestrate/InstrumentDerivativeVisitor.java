@@ -51,6 +51,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFlo
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounded;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
@@ -129,14 +130,6 @@ public interface InstrumentDerivativeVisitor<S, T> {
 
   T visitForwardRateAgreement(ForwardRateAgreement fra, S data);
 
-  T visitCouponInflationZeroCouponMonthly(CouponInflationZeroCouponMonthly coupon, S data);
-
-  T visitCouponInflationZeroCouponMonthlyGearing(CouponInflationZeroCouponMonthlyGearing coupon, S data);
-
-  T visitCouponInflationZeroCouponInterpolation(CouponInflationZeroCouponInterpolation coupon, S data);
-
-  T visitCouponInflationZeroCouponInterpolationGearing(CouponInflationZeroCouponInterpolationGearing coupon, S data);
-
   T visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurity<?> bond, S data);
 
   T visitBondCapitalIndexedTransaction(BondCapitalIndexedTransaction<?> bond, S data);
@@ -197,14 +190,6 @@ public interface InstrumentDerivativeVisitor<S, T> {
 
   T visitForwardRateAgreement(ForwardRateAgreement fra);
 
-  T visitCouponInflationZeroCouponMonthly(CouponInflationZeroCouponMonthly coupon);
-
-  T visitCouponInflationZeroCouponMonthlyGearing(CouponInflationZeroCouponMonthlyGearing coupon);
-
-  T visitCouponInflationZeroCouponInterpolation(CouponInflationZeroCouponInterpolation coupon);
-
-  T visitCouponInflationZeroCouponInterpolationGearing(CouponInflationZeroCouponInterpolationGearing coupon);
-
   T visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurity<?> bond);
 
   T visitBondCapitalIndexedTransaction(BondCapitalIndexedTransaction<?> bond);
@@ -227,6 +212,10 @@ public interface InstrumentDerivativeVisitor<S, T> {
 
   T visitCouponIborGearing(CouponIborGearing payment, S data);
 
+  T visitCouponIborCompounded(CouponIborCompounded payment);
+
+  T visitCouponIborCompounded(CouponIborCompounded payment, S data);
+
   T visitCouponOIS(CouponOIS payment, S data);
 
   T visitCouponOIS(CouponOIS payment);
@@ -242,6 +231,24 @@ public interface InstrumentDerivativeVisitor<S, T> {
   T visitSwap(Swap<?, ?> swap, S data);
 
   T visitSwap(Swap<?, ?> swap);
+
+  // -----     Inflation     -----
+
+  T visitCouponInflationZeroCouponMonthly(CouponInflationZeroCouponMonthly coupon, S data);
+
+  T visitCouponInflationZeroCouponMonthly(CouponInflationZeroCouponMonthly coupon);
+
+  T visitCouponInflationZeroCouponMonthlyGearing(CouponInflationZeroCouponMonthlyGearing coupon, S data);
+
+  T visitCouponInflationZeroCouponMonthlyGearing(CouponInflationZeroCouponMonthlyGearing coupon);
+
+  T visitCouponInflationZeroCouponInterpolation(CouponInflationZeroCouponInterpolation coupon, S data);
+
+  T visitCouponInflationZeroCouponInterpolation(CouponInflationZeroCouponInterpolation coupon);
+
+  T visitCouponInflationZeroCouponInterpolationGearing(CouponInflationZeroCouponInterpolationGearing coupon, S data);
+
+  T visitCouponInflationZeroCouponInterpolationGearing(CouponInflationZeroCouponInterpolationGearing coupon);
 
   // -----     Futures and future options   -----
 
