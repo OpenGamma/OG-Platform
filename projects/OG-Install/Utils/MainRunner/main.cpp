@@ -30,6 +30,7 @@ static DWORD CALLBACK _main (PVOID pFeedback) {
 			if (!poFeedback->Connect (poJVM)) break;
 		}
 		if (!CMain::Run (poJVM)) break;
+		dwResult = EXIT_SUCCESS;
 	} while (FALSE);
 	CJavaVM::Release (poJVM);
 	CFeedback::Disconnect ();
@@ -58,6 +59,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *pszCmdLi
 			if (!CFeedbackWindow::Register(hInstance, IDI_OPENGAMMA)) break;
 			poFeedback = new CFeedback (hInstance);
 			poFeedback->Show (nCmdShow);
+			poFeedback->BringToTop ();
 			HANDLE hThread = CreateThread (NULL, 0, _main, poFeedback, 0, NULL);
 			if (!hThread) break;
 			if (CFeedbackWindow::DispatchMessages ()) {
