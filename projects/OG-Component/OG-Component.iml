@@ -31,7 +31,7 @@
     <orderEntry type="module" module-name="OG-Analytics" />
     <orderEntry type="module" module-name="OG-Util" />
     <orderEntry type="module" module-name="OG-Core" />
-    <orderEntry type="module" module-name="OG-Engine" />
+    <orderEntry type="module" module-name="OG-Engine" exported="" />
     <orderEntry type="module" module-name="OG-LiveData" />
     <orderEntry type="module" module-name="OG-Security" />
   </component>
