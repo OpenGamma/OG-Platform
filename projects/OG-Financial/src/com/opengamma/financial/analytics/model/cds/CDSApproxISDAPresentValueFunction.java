@@ -5,22 +5,17 @@
  */
 package com.opengamma.financial.analytics.model.cds;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.time.calendar.DateAdjuster;
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.cds.CDSApproxISDAMethod;
 import com.opengamma.analytics.financial.credit.cds.CDSDerivative;
-import com.opengamma.analytics.financial.credit.cds.CDSSimpleMethod;
+import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.instrument.cds.CDSDefinition;
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.interestrate.method.PricingMethod;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -39,12 +34,9 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.CDSSecurityConverter;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.security.bond.BondSecurity;
+import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.security.cds.CDSSecurity;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.async.AsynchronousExecution;
-import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * CDSPresentValueFunction currently contains initial work on CDS model only
@@ -53,6 +45,9 @@ import com.opengamma.util.money.CurrencyAmount;
  * @see CDSSecurity
  */
 public class CDSApproxISDAPresentValueFunction extends AbstractFunction.NonCompiledInvoker {
+
+  private static final CDSApproxISDAMethod ISDA_APPROX_METHOD = new CDSApproxISDAMethod();
+  private static final String ISDA_METHOD_NAME = "ISDA";
 
   @Override
   public ComputationTargetType getTargetType() {
@@ -65,13 +60,9 @@ public class CDSApproxISDAPresentValueFunction extends AbstractFunction.NonCompi
       return false;
     }
     
-    // Only CDS securities associated with a particular underlying bond can be priced by this method
+    // ISDA can price any CDS
     if (target.getSecurity() instanceof CDSSecurity) {
-      CDSSecurity cds = (CDSSecurity) target.getSecurity();
-      
-      if (cds.getUnderlying() != null) {
-        return true;
-      }
+      return true;
     }
     
     return false;
@@ -82,47 +73,29 @@ public class CDSApproxISDAPresentValueFunction extends AbstractFunction.NonCompi
     if (canApplyTo(context, target)) {
 
       final CDSSecurity cds = (CDSSecurity) target.getSecurity();
-      final ExternalIdBundle bundle = ExternalIdBundle.of(cds.getUnderlying());
-      final BondSecurity bond = (BondSecurity) context.getSecuritySource().getSecurity(bundle);
-
-      if (bond == null) {
-        throw new OpenGammaRuntimeException("Failed to retrieve underlying security");
-      }
 
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
 
-      requirements.add(new ValueRequirement(
-        ValueRequirementNames.YIELD_CURVE,
-        ComputationTargetType.PRIMITIVE,
-        cds.getCurrency().getUniqueId(),
-        ValueProperties
-          .with("Curve", "SECONDARY")
-          .with("FundingCurve", "SECONDARY")
-          .with("ForwardCurve", "SECONDARY")
-          .with("CurveCalculationMethod", "ParRate")
-          .get()
-      ));
-
-      requirements.add(new ValueRequirement(
-        ValueRequirementNames.YIELD_CURVE,
-        ComputationTargetType.PRIMITIVE,
-        bond.getCurrency().getUniqueId(),
-        ValueProperties
-          .with(ValuePropertyNames.CURVE, "SECONDARY")
-          .with("FundingCurve", "SECONDARY")
-          .with("ForwardCurve", "SECONDARY")
-          .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, "ParRate")
-          .get()
-      ));
+//      requirements.add(new ValueRequirement(
+//        ValueRequirementNames.ISDA_CURVE,
+//        ComputationTargetType.PRIMITIVE,
+//        cds.getCurrency().getUniqueId(),
+//        ValueProperties
+//          .with("Curve", "SECONDARY")
+//          .with("FundingCurve", "SECONDARY")
+//          .with("ForwardCurve", "SECONDARY")
+//          .with("CurveCalculationMethod", "ParRate")
+//          .get()
+//      ));
       
-      requirements.add(new ValueRequirement(
-        ValueRequirementNames.YIELD_CURVE,
-        ComputationTargetType.PRIMITIVE,
-        cds.getCurrency().getUniqueId(),
-        ValueProperties
-          .with(ValuePropertyNames.CURVE, "CDS_" + bond.getIssuerName())
-          .get()
-      ));
+//      requirements.add(new ValueRequirement(
+//        ValueRequirementNames.YIELD_CURVE,
+//        ComputationTargetType.PRIMITIVE,
+//        cds.getCurrency().getUniqueId(),
+//        ValueProperties
+//          .with(ValuePropertyNames.CURVE, "CDS_" + bond.getIssuerName())
+//          .get()
+//      ));
 
       return requirements;
     }
@@ -133,18 +106,52 @@ public class CDSApproxISDAPresentValueFunction extends AbstractFunction.NonCompi
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     if (canApplyTo(context, target)) {
       final CDSSecurity cds = (CDSSecurity) target.getSecurity();
-      final ValueSpecification pvSpec = new ValueSpecification(
+      
+      final ValueSpecification cleanPriceSpec = new ValueSpecification(
+        new ValueRequirement(
+          ValueRequirementNames.CLEAN_PRICE,
+          ComputationTargetType.SECURITY,
+          cds.getUniqueId(),
+          ValueProperties
+            .with(ValuePropertyNames.CURRENCY, cds.getCurrency().getCode())
+            .with(ValuePropertyNames.CALCULATION_METHOD, ISDA_METHOD_NAME)
+            .get()
+        ),
+        getUniqueId()
+      );
+      
+      final ValueSpecification dirtyPriceSpec = new ValueSpecification(
+        new ValueRequirement(
+          ValueRequirementNames.DIRTY_PRICE,
+          ComputationTargetType.SECURITY,
+          cds.getUniqueId(),
+          ValueProperties
+            .with(ValuePropertyNames.CURRENCY, cds.getCurrency().getCode())
+            .with(ValuePropertyNames.CALCULATION_METHOD, ISDA_METHOD_NAME)
+            .get()
+        ),
+        getUniqueId()
+      );
+      
+      final ValueSpecification presentValueSpec = new ValueSpecification(
         new ValueRequirement(
           ValueRequirementNames.PRESENT_VALUE,
           ComputationTargetType.SECURITY,
           cds.getUniqueId(),
           ValueProperties
             .with(ValuePropertyNames.CURRENCY, cds.getCurrency().getCode())
+            .with(ValuePropertyNames.CALCULATION_METHOD, ISDA_METHOD_NAME)
             .get()
         ),
         getUniqueId()
       );
-      return Collections.<ValueSpecification>singleton(pvSpec);
+      
+      Set<ValueSpecification> results = new HashSet<ValueSpecification>();
+      results.add(cleanPriceSpec);
+      results.add(dirtyPriceSpec);
+      results.add(presentValueSpec);
+      
+      return results;
     }
     return null;
   }
@@ -163,56 +170,98 @@ public class CDSApproxISDAPresentValueFunction extends AbstractFunction.NonCompi
     
     // Security being priced
     final CDSSecurity cds = (CDSSecurity) target.getSecurity();
-    final BondSecurity bond = (BondSecurity) securitySource.getSecurity(ExternalIdBundle.of(cds.getUnderlying()));
-    
-    if (bond == null) {
-      throw new OpenGammaRuntimeException("Failed to retrieve underlying security");
-    }
 
     // Curves
-    final YieldCurve cdsCcyCurve = (YieldCurve) inputs.getValue(new ValueRequirement(
-      ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, cds.getCurrency().getUniqueId(),
-      ValueProperties.with(ValuePropertyNames.CURVE, "SECONDARY").with("FundingCurve", "SECONDARY").with("ForwardCurve", "SECONDARY").with(ValuePropertyNames.CURVE_CALCULATION_METHOD, "ParRate").get()
-    ));
+//    final YieldCurve discountCurve = (YieldCurve) inputs.getValue(new ValueRequirement(
+//      ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, cds.getCurrency().getUniqueId(),
+//      ValueProperties.with(ValuePropertyNames.CURVE, "SECONDARY").with("FundingCurve", "SECONDARY").with("ForwardCurve", "SECONDARY").with(ValuePropertyNames.CURVE_CALCULATION_METHOD, "ParRate").get()
+//    ));
     
-    final YieldCurve bondCcyCurve = (YieldCurve) inputs.getValue(new ValueRequirement(
-      ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, bond.getCurrency().getUniqueId(),
-      ValueProperties.with(ValuePropertyNames.CURVE, "SECONDARY").with("FundingCurve", "SECONDARY").with("ForwardCurve", "SECONDARY").with(ValuePropertyNames.CURVE_CALCULATION_METHOD, "ParRate").get()
-    ));
-    
-    final YieldCurve spreadCurve = (YieldCurve) inputs.getValue(new ValueRequirement(
+    final YieldCurve spreadCurve = null; /*(YieldCurve) inputs.getValue(new ValueRequirement(
       ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, cds.getCurrency().getUniqueId(),
       ValueProperties.with(ValuePropertyNames.CURVE, "CDS_" + bond.getIssuerName()).get()
-    ));
-    
-    final YieldCurveBundle curveBundle = new YieldCurveBundle();
-    curveBundle.setCurve(cdsCcyCurve.getName(), cdsCcyCurve);
-    curveBundle.setCurve(bondCcyCurve.getName(), bondCcyCurve);
-    curveBundle.setCurve(spreadCurve.getName(), spreadCurve);
+    ));*/
     
     // Convert security in to format suitable for pricing
     final CDSSecurityConverter converter = new CDSSecurityConverter(securitySource, holidaySource, conventionSource, regionSource);
     final CDSDefinition cdsDefinition = (CDSDefinition) cds.accept(converter);
-    final CDSDerivative cdsDerivative = cdsDefinition.toDerivative(pricingDate, cdsCcyCurve.getName(), spreadCurve.getName(), bondCcyCurve.getName());
+    final CDSDerivative cdsDerivative = cdsDefinition.toDerivative(pricingDate, "IR_CURVE");
+    
+    String name = "IR_CURVE";
+    double offset = 0.0;
+    double[] yData = {0.0};
+    double[] xData = {0};
+    ISDACurve isdaDiscountCurve = new ISDACurve(name, xData, yData, offset);
+    
+    
+
+    
+    double flatSpread = 100.0;
+    
+    MondayToFridayCalendar test = new MondayToFridayCalendar("stuff");
+    DateAdjuster adjuster = cds.getBusinessDayConvention().getDateAdjuster(test);
+    
+    final ZonedDateTime stepinDate = pricingDate.plusDays(1);
+    final ZonedDateTime settlementDate = pricingDate.plusDays(1).with(adjuster).plusDays(1).with(adjuster).plusDays(1).with(adjuster);
     
     // Go price!
-    final CDSApproxISDAMethod method = new CDSApproxISDAMethod();
-    final CurrencyAmount result = CurrencyAmount.of(Currency.USD, 100.0);
-      //method.presentValue(cdsDerivative, curveBundle);
     
-    // Package the result
-    final ComputedValue marketPriceValue = new ComputedValue(
+    double dirtyPrice = ISDA_APPROX_METHOD.calculateUpfrontCharge(cdsDerivative, isdaDiscountCurve, flatSpread , pricingDate, stepinDate, settlementDate, false);
+    
+    final ComputedValue cleanPriceValue = new ComputedValue(
       new ValueSpecification(
         new ValueRequirement(
-          ValueRequirementNames.PRESENT_VALUE, ComputationTargetType.SECURITY, cds.getUniqueId(),
-          ValueProperties.with(ValuePropertyNames.CURRENCY, result.getCurrency().getCode()).get()
+          ValueRequirementNames.CLEAN_PRICE,
+          ComputationTargetType.SECURITY,
+          cds.getUniqueId(),
+          ValueProperties
+            .with(ValuePropertyNames.CURRENCY, cds.getCurrency().getCode())
+            .with(ValuePropertyNames.CALCULATION_METHOD, ISDA_METHOD_NAME)
+            .get()
         ),
         getUniqueId()
       ),
-      result.getAmount()
+      dirtyPrice - cdsDerivative.getAccruedInterest()
     );
-
-    return Collections.<ComputedValue>singleton(marketPriceValue);
+    
+    final ComputedValue dirtyPriceValue = new ComputedValue(
+      new ValueSpecification(
+        new ValueRequirement(
+          ValueRequirementNames.DIRTY_PRICE,
+          ComputationTargetType.SECURITY,
+          cds.getUniqueId(),
+          ValueProperties
+            .with(ValuePropertyNames.CURRENCY, cds.getCurrency().getCode())
+            .with(ValuePropertyNames.CALCULATION_METHOD, ISDA_METHOD_NAME)
+            .get()
+        ),
+        getUniqueId()
+      ),
+      dirtyPrice
+    );
+    
+    final ComputedValue presentValue = new ComputedValue(
+      new ValueSpecification(
+        new ValueRequirement(
+          ValueRequirementNames.PRESENT_VALUE,
+          ComputationTargetType.SECURITY,
+          cds.getUniqueId(),
+          ValueProperties
+            .with(ValuePropertyNames.CURRENCY, cds.getCurrency().getCode())
+            .with(ValuePropertyNames.CALCULATION_METHOD, ISDA_METHOD_NAME)
+            .get()
+        ),
+        getUniqueId()
+      ),
+      cleanPriceValue.getValue()
+    );
+    
+    Set<ComputedValue> results = new HashSet<ComputedValue>();
+    results.add(cleanPriceValue);
+    results.add(dirtyPriceValue);
+    results.add(presentValue);
+    
+    return results;
   }
 
 }

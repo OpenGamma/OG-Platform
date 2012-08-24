@@ -57,6 +57,8 @@ public class ExampleCDSLoader extends AbstractExampleTool {
     System.exit(0);
   }
 
+  private int counter = 0;
+
   @Override
   protected void doRun() throws Exception {
     
@@ -66,8 +68,13 @@ public class ExampleCDSLoader extends AbstractExampleTool {
     final SecurityDocument undDoc = new SecurityDocument(und);
     secMaster.add(undDoc);
     
-    final ManageableSecurity cds = makeOneCDS(und.externalIdBundle().get().getExternalId(ExternalSchemes.OG_SYNTHETIC_TICKER));
-    final SecurityDocument cdsDoc = new SecurityDocument(cds);
+    ManageableSecurity cds = makeOneCDS(und.externalIdBundle().get().getExternalId(ExternalSchemes.OG_SYNTHETIC_TICKER));
+    SecurityDocument cdsDoc = new SecurityDocument(cds);
+    
+    //secMaster.add(cdsDoc);
+    
+    cds = makeOneCDS(null);
+    cdsDoc = new SecurityDocument(cds);
     
     secMaster.add(cdsDoc);
     
@@ -106,7 +113,7 @@ public class ExampleCDSLoader extends AbstractExampleTool {
                                              businessDayConvention,  
                                              underlying);
     cds1.addExternalId(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "TEST_CDS_00001--US912828KY53-A"));
-    cds1.setName("TEST CDS 00001");
+    cds1.setName("TEST CDS" + counter ++);
     
     return cds1;
   }
