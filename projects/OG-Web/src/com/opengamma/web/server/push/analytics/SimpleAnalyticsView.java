@@ -23,6 +23,7 @@ import com.opengamma.util.ArgumentChecker;
  * method that mutates the state must have an exclusive lock. The get methods can safely be called by multiple
  * concurrent threads.
  * @see LockingAnalyticsView
+ * @see com.opengamma.web.server.push.analytics Package concurrency notes
  */
 /* package */ class SimpleAnalyticsView implements AnalyticsView {
 

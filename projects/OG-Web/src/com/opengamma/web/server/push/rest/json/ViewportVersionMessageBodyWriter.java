@@ -20,6 +20,7 @@ import javax.ws.rs.ext.Provider;
 import org.json.JSONObject;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.web.server.push.analytics.ViewportResultsJsonWriter;
 import com.opengamma.web.server.push.rest.ViewportVersion;
 
 /**
@@ -28,8 +29,6 @@ import com.opengamma.web.server.push.rest.ViewportVersion;
 @Provider
 @Produces(MediaType.APPLICATION_JSON)
 public class ViewportVersionMessageBodyWriter implements MessageBodyWriter<ViewportVersion> {
-
-  public static final String VERSION = "version";
 
   @Override
   public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
@@ -53,7 +52,7 @@ public class ViewportVersionMessageBodyWriter implements MessageBodyWriter<Viewp
                       MediaType mediaType,
                       MultivaluedMap<String, Object> httpHeaders,
                       OutputStream entityStream) throws IOException, WebApplicationException {
-    ImmutableMap<String, Long> map = ImmutableMap.of(VERSION, version.getVersion());
+    ImmutableMap<String, Long> map = ImmutableMap.of(ViewportResultsJsonWriter.VERSION, version.getVersion());
     entityStream.write(new JSONObject(map).toString().getBytes());
   }
 }
