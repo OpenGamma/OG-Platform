@@ -47,7 +47,7 @@
     <ROW Fragment="MsmValidation.aip" Path="&lt;AI_FRAGS&gt;MsmValidation.aip"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.ModuleConfigurationComponent">
-    <ROW Name="JAVA_XMX" Format="0" Type="Formatted" DefaultValue="Formatted text" Attributes="0" DisplayName="-Xmx" Description="The -Xmx VM startup option"/>
+    <ROW Name="JAVA_XMX" Format="0" Type="Formatted" Attributes="0" DisplayName="-Xmx" Description="The -Xmx VM startup option"/>
     <ROW Name="TOOL_UI_FLAG" Format="0" Type="Formatted" DefaultValue="[TOOL_UI_FLAG]" Attributes="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.ModuleSubstitutionComponent">
