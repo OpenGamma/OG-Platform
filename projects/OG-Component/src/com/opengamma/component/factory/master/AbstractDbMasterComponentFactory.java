@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.masterdb.AbstractDbMaster;
-import com.opengamma.masterdb.schema.SchemaVersionTool;
+import com.opengamma.masterdb.schema.SchemaVersionUtils;
 import com.opengamma.util.ArgumentChecker;
 import java.util.Map;
 import org.joda.beans.BeanBuilder;
@@ -40,9 +40,9 @@ public abstract class AbstractDbMasterComponentFactory extends AbstractComponent
   //-------------------------------------------------------------------------
   protected void checkSchemaVersion(int actualSchemaVersion, String schemaName) {
     ArgumentChecker.notNull(schemaName, "schemaName");
-    Integer expectedSchemaVersion = SchemaVersionTool.readSchemaVersion(schemaName);
+    Integer expectedSchemaVersion = SchemaVersionUtils.readSchemaVersion(schemaName);
     if (expectedSchemaVersion == null) {
-      s_logger.warn("Unable to find schema version information for sec_db. The database schema may differ from the required version.");
+      s_logger.warn("Unable to find schema version information for {}. The database schema may differ from the required version.", schemaName);
       return;
     }
     if (expectedSchemaVersion.intValue() == actualSchemaVersion) {

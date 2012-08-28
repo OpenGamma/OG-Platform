@@ -93,7 +93,7 @@ public class DbConfigMasterComponentFactory extends AbstractDbMasterComponentFac
       }
       info.addAttribute(ComponentInfoAttributes.JMS_CHANGE_MANAGER_TOPIC, getJmsChangeManagerTopic());
     }
-    checkSchemaVersion(master.getSchemaVersion(), "db_cfg");
+    checkSchemaVersion(master.getSchemaVersion(), "cfg_db");
     
     // register
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);

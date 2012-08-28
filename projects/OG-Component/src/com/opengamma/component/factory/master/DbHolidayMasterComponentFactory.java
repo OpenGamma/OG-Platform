@@ -93,7 +93,7 @@ public class DbHolidayMasterComponentFactory extends AbstractDbMasterComponentFa
       }
       info.addAttribute(ComponentInfoAttributes.JMS_CHANGE_MANAGER_TOPIC, getJmsChangeManagerTopic());
     }
-    checkSchemaVersion(master.getSchemaVersion(), "db_exg");
+    checkSchemaVersion(master.getSchemaVersion(), "exg_db");
     
     // register
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);

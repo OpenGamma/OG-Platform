@@ -93,7 +93,7 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
       }
       info.addAttribute(ComponentInfoAttributes.JMS_CHANGE_MANAGER_TOPIC, getJmsChangeManagerTopic());
     }
-    checkSchemaVersion(master.getSchemaVersion(), "db_pos");
+    checkSchemaVersion(master.getSchemaVersion(), "pos_db");
     
     // register
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);

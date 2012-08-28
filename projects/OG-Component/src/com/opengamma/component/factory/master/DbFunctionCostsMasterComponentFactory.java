@@ -57,7 +57,7 @@ public class DbFunctionCostsMasterComponentFactory extends AbstractDbMasterCompo
     
     // create
     DbFunctionCostsMaster master = new DbFunctionCostsMaster(getDbConnector());
-    checkSchemaVersion(master.getSchemaVersion(), "db_eng");
+    checkSchemaVersion(master.getSchemaVersion(), "eng_db");
     
     // register
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
