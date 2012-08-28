@@ -66,7 +66,7 @@ public class CouponIborCompounded extends Coupon {
    * Constructor.
    * @param currency The payment currency.
    * @param paymentTime Time (in years) up to the payment.
-   * @param fundingCurveName Name of the funding curve.
+   * @param discountingCurveName The name of the discounting curve.
    * @param paymentAccrualFactor The year fraction (or accrual factor) for the coupon payment.
    * @param notional The coupon notional.
    * @param notionalAccrued The notional with the interest already fixed accrued.
@@ -78,9 +78,9 @@ public class CouponIborCompounded extends Coupon {
    * @param fixingPeriodAccrualFactors The accrual factors (or year fraction) associated with the fixing periods in the Index day count convention.
    * @param forwardCurveName Name of the forward (or estimation) curve.
    */
-  public CouponIborCompounded(Currency currency, double paymentTime, String fundingCurveName, double paymentAccrualFactor, double notional, double notionalAccrued, IborIndex index,
+  public CouponIborCompounded(Currency currency, double paymentTime, String discountingCurveName, double paymentAccrualFactor, double notional, double notionalAccrued, IborIndex index,
       double[] paymentAccrualFactors, double[] fixingTimes, double[] fixingPeriodStartTimes, double[] fixingPeriodEndTimes, double[] fixingPeriodAccrualFactors, final String forwardCurveName) {
-    super(currency, paymentTime, fundingCurveName, paymentAccrualFactor, notional);
+    super(currency, paymentTime, discountingCurveName, paymentAccrualFactor, notional);
     ArgumentChecker.isTrue(fixingTimes.length == fixingPeriodStartTimes.length, "Fixing times and fixing period should have same length");
     ArgumentChecker.isTrue(fixingTimes.length == fixingPeriodEndTimes.length, "Fixing times and fixing period should have same length");
     ArgumentChecker.isTrue(fixingTimes.length == fixingPeriodAccrualFactors.length, "Fixing times and fixing period should have same length");
