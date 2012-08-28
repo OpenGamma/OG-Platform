@@ -43,7 +43,7 @@ public class CDSPresentValueFunctionTest {
   private static FunctionCompilationContext functionCompilationContext;
   private static final Security CDS_SECURITY = new CDSSecurity(1.0, 0.6, 0.0025, Currency.GBP, ZonedDateTime.of(2020, 12, 20, 0, 0, 0, 0, TimeZone.UTC), ZonedDateTime.now(), SimpleFrequency.ANNUAL,
     DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), underlying);
-  private CDSSimplePresentValueFunction testItem;
+  private CDSApproxISDAPresentValueFunction testItem;
 
   @BeforeClass
   public static void initBeforeClass()
@@ -66,7 +66,7 @@ public class CDSPresentValueFunctionTest {
   @BeforeMethod
   public void beforeEachMethod()
   {
-    testItem = new CDSSimplePresentValueFunction();
+    testItem = new CDSApproxISDAPresentValueFunction();
   }
 
   @Test

@@ -1,23 +1,13 @@
 package com.opengamma.analytics.financial.credit.cds;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import javax.time.calendar.Period;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
-import com.opengamma.analytics.financial.instrument.annuity.AnnuityPaymentFixedDefinition;
-import com.opengamma.analytics.financial.instrument.cds.CDSDefinition;
-import com.opengamma.analytics.financial.instrument.cds.CDSPremiumDefinition;
-import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
+import com.opengamma.analytics.financial.instrument.Convention;
+import com.opengamma.analytics.financial.instrument.cds.ISDACDSDefinition;
+import com.opengamma.analytics.financial.instrument.cds.ISDACDSPremiumDefinition;
 import com.opengamma.analytics.financial.interestrate.PeriodicInterestRate;
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
+import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.FollowingBusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -26,7 +16,6 @@ import com.opengamma.financial.convention.daycount.ActualThreeSixty;
 import com.opengamma.financial.convention.daycount.ActualThreeSixtyFive;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
-import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.util.money.Currency;
 
@@ -45,132 +34,7 @@ public class CDSTestSetup {
     else {
       return -1.0 * s_act365.getDayCountFraction(rebasedDate2, date1);
     }
-  }
-  
-  
-  /*
-   * ------------------------------------------
-   * Test data for the Simple CDS pricing model
-   * ------------------------------------------
-   */
-  
-  protected CDSDefinition loadCDS_SimpleModel() {
-    
-    ZonedDateTime pricingDate = ZonedDateTime.of(2010, 12, 31, 0, 0, 0, 0, TimeZone.UTC);
-
-  
-    ZonedDateTime startDate = ZonedDateTime.of(2010, 12, 20, 0, 0, 0, 0, TimeZone.UTC);
-    ZonedDateTime maturity = ZonedDateTime.of(2020, 12, 20, 0, 0, 0, 0, TimeZone.UTC);
-    ZonedDateTime bondMaturity = ZonedDateTime.of(2016, 6, 20, 0, 0, 0, 0, TimeZone.UTC);
-    
-    double notional = 1.0;
-    double spread = 0.0025;
-    double recoveryRate = 0.6;
-    Currency currency = Currency.GBP;
-    Frequency premiumFrequency = SimpleFrequency.QUARTERLY;
-    PeriodFrequency bondPremiumFrequency = PeriodFrequency.ANNUAL;
-
-    Calendar calendar = new MondayToFridayCalendar("TestCalendar");
-    DayCount dayCount = new ActualThreeSixtyFive();
-    BusinessDayConvention convention = new FollowingBusinessDayConvention();
-  
-    final CDSPremiumDefinition premiumDefinition = null; //CDSPremiumDefinition.fromISDA(currency, startDate, maturity, premiumFrequency, calendar, dayCount, convention, /*EOM*/ false, notional, spread, /*isPayer*/false);
-  
-    List<ZonedDateTime> possibleDefaultDates = scheduleDatesInRange(bondMaturity, bondPremiumFrequency.getPeriod(), pricingDate, maturity, calendar, convention);
-    if (maturity.isAfter(bondMaturity)) {
-      possibleDefaultDates.add(convention.adjustDate(calendar, maturity));
-    }
-  
-    PaymentFixedDefinition[] defaultPayments = new PaymentFixedDefinition[possibleDefaultDates.size()];
-  
-    for (int i = 0; i < defaultPayments.length; ++i) {
-      defaultPayments[i] = new PaymentFixedDefinition(currency, possibleDefaultDates.get(i), notional * (1.0 - recoveryRate));
-    }
-  
-    final AnnuityPaymentFixedDefinition payoutDefinition = new AnnuityPaymentFixedDefinition(defaultPayments);
-    
-    return new CDSDefinition(premiumDefinition, payoutDefinition, startDate, maturity, notional, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true, dayCount);
-    
-  }
-  
-  protected static List<ZonedDateTime> scheduleDatesInRange(ZonedDateTime maturity, Period schedulePeriod, ZonedDateTime earliest, ZonedDateTime latest,
-    Calendar calendar, BusinessDayConvention convention) {
-
-  List<ZonedDateTime> datesInRange = new ArrayList<ZonedDateTime>();
-  ZonedDateTime scheduleDate = maturity;
-  int periods = 0;
-
-  while (scheduleDate.isAfter(latest)) {
-    scheduleDate = convention.adjustDate(calendar, maturity.minus(schedulePeriod.multipliedBy(++periods)));
-  }
-
-  while (!scheduleDate.isBefore(earliest)) {
-    datesInRange.add(scheduleDate);
-    scheduleDate = convention.adjustDate(calendar, maturity.minus(schedulePeriod.multipliedBy(++periods)));
-  }
-
-  Collections.reverse(datesInRange);
-  return datesInRange;
-}
-  
-  protected YieldCurveBundle loadCurveBundle_SimpleModel() {
-    
-    final double[] timePoints = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
-    final double[] cdsCcyPoints = {
-      0.00673222222222214000,
-      0.00673222222222214000,
-      0.01429905379554900000,
-      0.02086135487690320000,
-      0.02630494452289900000,
-      0.03072389009716760000,
-      0.03406975577292020000,
-      0.03670379007549540000,
-      0.03859767722179330000,
-      0.04029139055351690000,
-      0.04171488783608950000,
-      0.04171488783608950000
-    };
-    final double[] bondCcyPoints = {
-      0.00673222222222214000,
-      0.00673222222222214000,
-      0.01429905379554900000,
-      0.02086135487690320000,
-      0.02630494452289900000,
-      0.03072389009716760000,
-      0.03406975577292020000,
-      0.03670379007549540000,
-      0.03859767722179330000,
-      0.04029139055351690000,
-      0.04171488783608950000,
-      0.04171488783608950000
-    };
-    final double[] spreadPoints = {
-      0.008094573225337830000000000000,
-      0.008094573225337830000000000000,
-      0.008472028609360500000000000000,
-      0.008833186263998250000000000000,
-      0.009178825884456880000000000000,
-      0.009509688657093270000000000000,
-      0.009826479094981490000000000000,
-      0.010129866801184300000000000000,
-      0.010420488160288400000000000000,
-      0.010698947959110100000000000000,
-      0.010965820937831700000000000000,
-      0.010965820937831700000000000000
-    };
-  
-    final YieldCurve cdsCcyYieldCurve = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(timePoints, cdsCcyPoints, new LinearInterpolator1D()));
-    final YieldCurve bondCcyYieldCurve = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(timePoints, bondCcyPoints, new LinearInterpolator1D()));
-    final YieldCurve spreadCurve = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(timePoints, spreadPoints, new LinearInterpolator1D()));
-  
-    YieldCurveBundle bundle = new YieldCurveBundle();
-    bundle.setCurve("CDS_CCY", cdsCcyYieldCurve);
-    bundle.setCurve("BOND_CCY", bondCcyYieldCurve);
-    bundle.setCurve("SPREAD", spreadCurve);
-    
-    return bundle;
-  }
-  
+  }  
   
   /*
    * -------------------------------------------------------------------------------
@@ -178,10 +42,11 @@ public class CDSTestSetup {
    * -------------------------------------------------------------------------------
    */
   
-  protected CDSDefinition loadCDS_ISDAExampleMainC(final double spreadBasisPoints) {
+  protected ISDACDSDefinition loadCDS_ISDAExampleMainC(final double spreadBasisPoints) {
     
     final ZonedDateTime startDate = ZonedDateTime.of(2008, 2, 8, 0, 0, 0, 0, TimeZone.UTC);
     final ZonedDateTime maturity = ZonedDateTime.of(2008, 2, 12, 0, 0, 0, 0, TimeZone.UTC);
+    final int settlementDays = 0; // Overridden in test case
     
     final double notional = 1.0e7;
     final double spread = spreadBasisPoints/10000.0;
@@ -190,11 +55,12 @@ public class CDSTestSetup {
     final Frequency premiumFrequency = SimpleFrequency.QUARTERLY;
     final Calendar calendar = new MondayToFridayCalendar("TestCalendar");
     final DayCount dayCount = new ActualThreeSixty();
-    final BusinessDayConvention convention = new FollowingBusinessDayConvention();
+    final BusinessDayConvention businessDays = new FollowingBusinessDayConvention();
+    final Convention convention = new Convention(settlementDays, dayCount, businessDays, calendar, "");
 
-    final CDSPremiumDefinition premiumDefinition = CDSPremiumDefinition.fromISDA(Currency.USD, startDate, maturity, premiumFrequency, calendar, dayCount, convention, notional, spread, /* protectStart */ true);
+    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, premiumFrequency, convention, StubType.SHORT_START, /* protectStart */ true, notional, spread, Currency.USD);
 
-    return new CDSDefinition(premiumDefinition, null, startDate, maturity, notional, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true, dayCount);
+    return new ISDACDSDefinition(startDate, maturity, premiumDefinition, notional, spread, recoveryRate, convention, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true);
   }
   
   protected ISDACurve loadDiscountCurve_ISDAExampleMainC() {
@@ -276,36 +142,40 @@ public class CDSTestSetup {
    * ---------------------------------------------------------------------------------
    */
   
-  protected CDSDefinition loadCDS_ISDAExampleCDSCalcualtor() {
+  protected ISDACDSDefinition loadCDS_ISDAExampleCDSCalcualtor() {
     
     final ZonedDateTime startDate = ZonedDateTime.of(2008, 3, 20, 0, 0, 0, 0, TimeZone.UTC);
     final ZonedDateTime maturity = ZonedDateTime.of(2013, 3, 20, 0, 0, 0, 0, TimeZone.UTC);
+    final int settlementDays = 3;
     final double notional = 10000000, spread = 0.01 /* 100bp */, recoveryRate = 0.4;
     
     final Frequency couponFrequency = SimpleFrequency.QUARTERLY;
     final Calendar calendar = new MondayToFridayCalendar("TestCalendar");
     final DayCount dayCount = new ActualThreeSixty();
-    final BusinessDayConvention convention = new FollowingBusinessDayConvention();
+    final BusinessDayConvention businessDays = new FollowingBusinessDayConvention();
+    final Convention convention = new Convention(settlementDays, dayCount, businessDays, calendar, "");
+
+    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, couponFrequency, convention, StubType.SHORT_START, /* protectStart */ true, notional, spread, Currency.USD);
     
-    final CDSPremiumDefinition premiumDefinition = CDSPremiumDefinition.fromISDA(Currency.USD, startDate, maturity, couponFrequency, calendar, dayCount, convention, notional, spread, /* protect start */ true);
-    
-    return new CDSDefinition(premiumDefinition, null, startDate, maturity, notional, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true, dayCount);
+    return new ISDACDSDefinition(startDate, maturity, premiumDefinition, notional, spread, recoveryRate, convention, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true);
   }
   
-  protected CDSDefinition loadCDS_ISDAExampleUpfrontConverter() {
+  protected ISDACDSDefinition loadCDS_ISDAExampleUpfrontConverter() {
     
     final ZonedDateTime startDate = ZonedDateTime.of(2007, 3, 20, 0, 0, 0, 0, TimeZone.UTC);
     final ZonedDateTime maturity = ZonedDateTime.of(2013, 6, 20, 0, 0, 0, 0, TimeZone.UTC);
+    final int settlementDays = 3;
     final double notional = 10000000, spread = 0.05 /* 500bp */, recoveryRate = 0.4;
     
     final Frequency couponFrequency = SimpleFrequency.QUARTERLY;
     final Calendar calendar = new MondayToFridayCalendar("TestCalendar");
     final DayCount dayCount = new ActualThreeSixty();
-    final BusinessDayConvention convention = new FollowingBusinessDayConvention();
+    final BusinessDayConvention businessDays = new FollowingBusinessDayConvention();
+    final Convention convention = new Convention(settlementDays, dayCount, businessDays, calendar, "");
+
+    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, couponFrequency, convention, StubType.SHORT_START, /* protectStart */ true, notional, spread, Currency.USD);
     
-    final CDSPremiumDefinition premiumDefinition = CDSPremiumDefinition.fromISDA(Currency.USD, startDate, maturity, couponFrequency, calendar, dayCount, convention, notional, spread, /* protect start */ true);
-    
-    return new CDSDefinition(premiumDefinition, null, startDate, maturity, notional, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true, dayCount);
+    return new ISDACDSDefinition(startDate, maturity, premiumDefinition, notional, spread, recoveryRate, convention, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true);
   }
   
   protected ISDACurve loadHazardRateCurve_ISDAExampleCDSCalculator() {

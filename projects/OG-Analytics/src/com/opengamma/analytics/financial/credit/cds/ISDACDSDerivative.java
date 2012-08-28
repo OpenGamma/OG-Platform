@@ -7,29 +7,29 @@ package com.opengamma.analytics.financial.credit.cds;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
-import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 
 /**
- * Derivative implementation for CDS securities
+ * ISDA derivative implementation for CDS securities.
+ * 
+ * Time values are calculated to match the ISDA standard model. The premium is represented
+ * using a specialised {@link Annuity} class which uses {@link ISDACDSCoupon} to describe payments.
  * 
  * @author Martin Traverse, Niels Stchedroff (Riskcare)
- * 
- * @see CDSDefinition
- * @see CDSSecurity
  * @see InstrumentDerivative
+ * @see ISDACDSDefinition
  */
-public class CDSDerivative implements InstrumentDerivative {
+public class ISDACDSDerivative implements InstrumentDerivative {
 
   private final String _discountCurveName;
   private final String _spreadCurveName;
-  private final String _underlyingDiscountCurveName;
   
   private final ISDACDSPremium _premium;
-  private final AnnuityPaymentFixed _payout;
 
   private final double _startTime;
   private final double _maturity;
+  private final double _stepinTime;
+  private final double _settlementTime;
   
   private final double _notional;
   private final double _spread;
@@ -45,11 +45,11 @@ public class CDSDerivative implements InstrumentDerivative {
    * 
    * @param discountCurveName Name of the discount curve in the CDS currency (not null)
    * @param spreadCurveName Name of the credit spread curve for the CDS (not null)
-   * @param underlyingDiscountCurveName Name of the discount curve in the currency of the underlying bond (may be null)
    * @param premium Derivative object representing the premium payments (not null)
-   * @param payout Derivative object representing possible default payouts (may be null)
    * @param startTime Protection start time of the CDS contract (relative to pricing point, may be in the past)
    * @param maturity Maturity of the CDS contract (relative to pricing point)
+   * @param stepinTime Time when step-in becomes effective, relative to pricing point
+   * @param settlementTime Settlement time for upfront payment, relative to the pricing point
    * @param notional Notional of the CDS contract
    * @param spread Spread (a.k.a. coupon rate) of the CDS contract
    * @param recoveryRate Recovery rate against the underlying
@@ -58,21 +58,20 @@ public class CDSDerivative implements InstrumentDerivative {
    * @param payOnDefault Whether protection payment is due on default (true) or at maturity (false)
    * @param protectStart Whether the start date is protected (i.e. one extra day of protection)
    */
-  public CDSDerivative(final String discountCurveName, final String spreadCurveName, final String underlyingDiscountCurveName,
-    final ISDACDSPremium premium, final AnnuityPaymentFixed payout,
-    final double startTime, final double maturity,
+  public ISDACDSDerivative(final String discountCurveName, final String spreadCurveName, final ISDACDSPremium premium,
+    final double startTime, final double maturity, final double stepinTime, final double settlementTime,
     final double notional, final double spread, final double recoveryRate, final double accruedInterest,
     final boolean accrualOnDefault, final boolean payOnDefault, final boolean protectStart) {
     
     _discountCurveName = discountCurveName;
     _spreadCurveName = spreadCurveName;
-    _underlyingDiscountCurveName = underlyingDiscountCurveName;
     
     _premium = premium;
-    _payout = payout;
     
     _startTime = startTime;
     _maturity = maturity;
+    _stepinTime = stepinTime;
+    _settlementTime = settlementTime;
     
     _notional = notional;
     _spread = spread;
@@ -102,16 +101,8 @@ public class CDSDerivative implements InstrumentDerivative {
     return _spreadCurveName;
   }
   
-  public String getUnderlyingDiscountCurveName() {
-    return _underlyingDiscountCurveName;
-  }
-
   public ISDACDSPremium getPremium() {
     return _premium;
-  }
-
-  public AnnuityPaymentFixed getPayout() {
-    return _payout;
   }
   
   public double getStartTime() {
@@ -120,6 +111,14 @@ public class CDSDerivative implements InstrumentDerivative {
   
   public double getMaturity() {
     return _maturity;
+  }
+  
+  public double getStepinTime() {
+    return _stepinTime;
+  }
+  
+  public double getSettlementTime() {
+    return _settlementTime;
   }
 
   public double getNotional() {

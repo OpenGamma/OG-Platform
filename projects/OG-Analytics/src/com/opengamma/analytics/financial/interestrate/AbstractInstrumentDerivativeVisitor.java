@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.interestrate;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.credit.cds.CDSDerivative;
+import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableForward;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableOption;
@@ -225,7 +225,7 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
   }
   
   @Override
-  public T visitCDSDerivative(final CDSDerivative cds, final S data) {
+  public T visitCDSDerivative(final ISDACDSDerivative cds, final S data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedPayment()");
   }
 
@@ -365,7 +365,7 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
   }
   
   @Override
-  public T visitCDSDerivative(final CDSDerivative cds) {
+  public T visitCDSDerivative(final ISDACDSDerivative cds) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedPayment()");
   }
 

@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.interestrate;
 
-import com.opengamma.analytics.financial.credit.cds.CDSDerivative;
+import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableForward;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableOption;
@@ -142,7 +142,7 @@ public interface InstrumentDerivativeVisitor<S, T> {
 
   T visitBondCapitalIndexedTransaction(BondCapitalIndexedTransaction<?> bond, S data);
   
-  T visitCDSDerivative(CDSDerivative cds, S data);
+  T visitCDSDerivative(ISDACDSDerivative cds, S data);
 
   // One argument
 
@@ -212,7 +212,7 @@ public interface InstrumentDerivativeVisitor<S, T> {
 
   T visitBondCapitalIndexedTransaction(BondCapitalIndexedTransaction<?> bond);
   
-  T visitCDSDerivative(CDSDerivative cds);
+  T visitCDSDerivative(ISDACDSDerivative cds);
 
   // -----     Coupons     -----
 

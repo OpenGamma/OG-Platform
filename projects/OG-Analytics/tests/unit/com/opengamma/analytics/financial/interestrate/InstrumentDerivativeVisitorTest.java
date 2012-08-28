@@ -11,7 +11,7 @@ import javax.time.calendar.Period;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.credit.cds.CDSDerivative;
+import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableForward;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableOption;
@@ -729,12 +729,12 @@ public class InstrumentDerivativeVisitorTest {
     }
 
     @Override
-    public Class<?> visitCDSDerivative(CDSDerivative cds, Object data) {
+    public Class<?> visitCDSDerivative(ISDACDSDerivative cds, Object data) {
       return null;
     }
 
     @Override
-    public Class<?> visitCDSDerivative(CDSDerivative cds) {
+    public Class<?> visitCDSDerivative(ISDACDSDerivative cds) {
       return null;
     }
 

@@ -16,13 +16,25 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.money.Currency;
 
 /**
+ * ISDA definition for a CDS coupon.
  * 
+ * This is structurally identical to the standard definition for a fixed coupon, with the
+ * exception that when it is converted to a derivative object an {@link ISDACDSCoupon} is
+ * produced rather than a {@link CouponFixed}. The start time, end time and payment time
+ * for the accrual period of the ISDACDSCoupon are computed using ACT/365F relative to
+ * the pricing point, in accordance with the ISDA model. The payment year fraction must
+ * be computed according to the conventions describing the particular CDS contract (this
+ * is the responsibility of {@link ISDACDSPremiumDefinition}). 
+ * 
+ * @author Martin Traverse, Niels Stchedroff (Riskcare)
+ * @see CouponFixedDefinition
+ * @see ISDACDSPremiumDefinition
  */
-public class CDSCouponDefinition extends CouponFixedDefinition {
+public class ISDACDSCouponDefinition extends CouponFixedDefinition {
   
   private static final DayCount ACT_365F = new ActualThreeSixtyFive();
 
-  public CDSCouponDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double paymentYearFraction,
+  public ISDACDSCouponDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double paymentYearFraction,
       final double notional, final double rate) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional, rate);
   }
@@ -38,7 +50,7 @@ public class CDSCouponDefinition extends CouponFixedDefinition {
     final String fundingCurveName = yieldCurveNames[0]; 
     
     return new ISDACDSCoupon(getCurrency(), getTimeBetween(date, getPaymentDate()), fundingCurveName, getPaymentYearFraction(), getNotional(), getRate(),
-      getAccrualStartDate(), getAccrualEndDate(), getTimeBetween(date, getAccrualStartDate()), getTimeBetween(date, getAccrualEndDate()));
+      getTimeBetween(date, getAccrualStartDate()), getTimeBetween(date, getAccrualEndDate()));
   }
   
   private static double getTimeBetween(final ZonedDateTime date1, final ZonedDateTime date2) {

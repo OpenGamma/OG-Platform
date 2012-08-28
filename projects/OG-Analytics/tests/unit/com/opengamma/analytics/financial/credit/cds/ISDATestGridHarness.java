@@ -22,8 +22,8 @@ import javax.time.Duration;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.instrument.cds.CDSDefinition;
-import com.opengamma.analytics.financial.instrument.cds.CDSPremiumDefinition;
+import com.opengamma.analytics.financial.instrument.cds.ISDACDSDefinition;
+import com.opengamma.analytics.financial.instrument.cds.ISDACDSPremiumDefinition;
 import com.opengamma.analytics.financial.interestrate.PeriodicInterestRate;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.FollowingBusinessDayConvention;
@@ -289,16 +289,16 @@ public class ISDATestGridHarness {
     final DayCount dayCount = new ActualThreeSixty();  
     
     // Now build the CDS object
-    final CDSPremiumDefinition premiumDefinition = CDSPremiumDefinition.fromISDA(Currency.USD, startDate, maturity, couponFrequency, calendar, dayCount, convention, /*notional*/ 1.0, spread, /* protect start */ true);
-    final CDSDefinition cdsDefinition = new CDSDefinition(premiumDefinition, null, startDate, maturity, /*notional*/1.0, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true, dayCount);
-    final CDSDerivative cds = cdsDefinition.toDerivative(pricingDate, "IR_CURVE");  
+    final ISDACDSPremiumDefinition premiumDefinition = null;//ISDACDSPremiumDefinition.fromISDA(Currency.USD, startDate, maturity, couponFrequency, calendar, dayCount, convention, /*notional*/ 1.0, spread, /* protect start */ true);
+    final ISDACDSDefinition cdsDefinition = null;//new ISDACDSDefinition(premiumDefinition, null, startDate, maturity, /*notional*/1.0, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true, dayCount);
+    final ISDACDSDerivative cds = cdsDefinition.toDerivative(pricingDate, "IR_CURVE");  
     
     // Par spread is always supplied
     final double marketSpread = testCase.getQuotedSpread() / 10000.0;
     
     // Now go price
-    final double dirtyPrice = calculator.calculateUpfrontCharge(cds, discountCurve, marketSpread, pricingDate, stepinDate, settlementDate, false);
-    final double cleanPrice = calculator.calculateUpfrontCharge(cds, discountCurve, marketSpread, pricingDate, stepinDate, settlementDate, true);
+    final double dirtyPrice = calculator.calculateUpfrontCharge(cds, discountCurve, marketSpread, false);
+    final double cleanPrice = calculator.calculateUpfrontCharge(cds, discountCurve, marketSpread, true);
       
     final double dirtyExpected = testCase.getUpfront();
     final double dirtyAbsoluteError = Math.abs(notional * dirtyPrice - dirtyExpected);

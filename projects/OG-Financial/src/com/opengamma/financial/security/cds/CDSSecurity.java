@@ -13,6 +13,7 @@ import org.joda.beans.PropertyDefinition;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.id.ExternalId;
@@ -81,6 +82,15 @@ public class CDSSecurity extends FinancialSecurity {
   @PropertyDefinition(validate = "notNull")
   private BusinessDayConvention _businessDayConvention;
   
+  /**
+   * Stub type for the premium payments
+   */
+  @PropertyDefinition(validate = "notNull")
+  private StubType _stubType;
+  
+  @PropertyDefinition
+  private int _settlementDays;
+  
   /** Underlying bond */
   // TODO: Where to validate underlying is actually a bond?
   @PropertyDefinition
@@ -104,6 +114,8 @@ public class CDSSecurity extends FinancialSecurity {
     setPremiumFrequency(premiumFrequency);
     setDayCount(dayCount);
     setBusinessDayConvention(businessDayConvention);
+    setStubType(StubType.SHORT_START);                   // TODO: Feed through to database
+    setSettlementDays(3);                                // TODO: Feed through to database
     setUnderlying(underlying);
   }
 
@@ -141,7 +153,7 @@ public class CDSSecurity extends FinancialSecurity {
         return getRecoveryRate();
       case 575402001:  // currency
         return getCurrency();
-      case 973819991:  // protectionStartDate
+      case -2129778896:  // startDate
         return getStartDate();
       case 313843601:  // maturity
         return getMaturity();
@@ -151,6 +163,10 @@ public class CDSSecurity extends FinancialSecurity {
         return getDayCount();
       case -1002835891:  // businessDayConvention
         return getBusinessDayConvention();
+      case 1873675528:  // stubType
+        return getStubType();
+      case -295948000:  // settlementDays
+        return getSettlementDays();
       case -1770633379:  // underlying
         return getUnderlying();
     }
@@ -172,7 +188,7 @@ public class CDSSecurity extends FinancialSecurity {
       case 575402001:  // currency
         setCurrency((Currency) newValue);
         return;
-      case 973819991:  // protectionStartDate
+      case -2129778896:  // startDate
         setStartDate((ZonedDateTime) newValue);
         return;
       case 313843601:  // maturity
@@ -187,6 +203,12 @@ public class CDSSecurity extends FinancialSecurity {
       case -1002835891:  // businessDayConvention
         setBusinessDayConvention((BusinessDayConvention) newValue);
         return;
+      case 1873675528:  // stubType
+        setStubType((StubType) newValue);
+        return;
+      case -295948000:  // settlementDays
+        setSettlementDays((Integer) newValue);
+        return;
       case -1770633379:  // underlying
         setUnderlying((ExternalId) newValue);
         return;
@@ -197,11 +219,12 @@ public class CDSSecurity extends FinancialSecurity {
   @Override
   protected void validate() {
     JodaBeanUtils.notNull(_currency, "currency");
-    JodaBeanUtils.notNull(_startDate, "protectionStartDate");
+    JodaBeanUtils.notNull(_startDate, "startDate");
     JodaBeanUtils.notNull(_maturity, "maturity");
     JodaBeanUtils.notNull(_premiumFrequency, "premiumFrequency");
     JodaBeanUtils.notNull(_dayCount, "dayCount");
     JodaBeanUtils.notNull(_businessDayConvention, "businessDayConvention");
+    JodaBeanUtils.notNull(_stubType, "stubType");
     super.validate();
   }
 
@@ -221,6 +244,8 @@ public class CDSSecurity extends FinancialSecurity {
           JodaBeanUtils.equal(getPremiumFrequency(), other.getPremiumFrequency()) &&
           JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
           JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
+          JodaBeanUtils.equal(getStubType(), other.getStubType()) &&
+          JodaBeanUtils.equal(getSettlementDays(), other.getSettlementDays()) &&
           JodaBeanUtils.equal(getUnderlying(), other.getUnderlying()) &&
           super.equals(obj);
     }
@@ -239,6 +264,8 @@ public class CDSSecurity extends FinancialSecurity {
     hash += hash * 31 + JodaBeanUtils.hashCode(getPremiumFrequency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
     hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStubType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDays());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlying());
     return hash ^ super.hashCode();
   }
@@ -355,19 +382,19 @@ public class CDSSecurity extends FinancialSecurity {
 
   /**
    * Sets protection start date
-   * @param protectionStartDate  the new value of the property, not null
+   * @param startDate  the new value of the property, not null
    */
-  public void setStartDate(ZonedDateTime protectionStartDate) {
-    JodaBeanUtils.notNull(protectionStartDate, "protectionStartDate");
-    this._startDate = protectionStartDate;
+  public void setStartDate(ZonedDateTime startDate) {
+    JodaBeanUtils.notNull(startDate, "startDate");
+    this._startDate = startDate;
   }
 
   /**
-   * Gets the the {@code protectionStartDate} property.
+   * Gets the the {@code startDate} property.
    * @return the property, not null
    */
-  public final Property<ZonedDateTime> protectionStartDate() {
-    return metaBean().protectionStartDate().createProperty(this);
+  public final Property<ZonedDateTime> startDate() {
+    return metaBean().startDate().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -476,6 +503,57 @@ public class CDSSecurity extends FinancialSecurity {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets stub type for the premium payments
+   * @return the value of the property, not null
+   */
+  public StubType getStubType() {
+    return _stubType;
+  }
+
+  /**
+   * Sets stub type for the premium payments
+   * @param stubType  the new value of the property, not null
+   */
+  public void setStubType(StubType stubType) {
+    JodaBeanUtils.notNull(stubType, "stubType");
+    this._stubType = stubType;
+  }
+
+  /**
+   * Gets the the {@code stubType} property.
+   * @return the property, not null
+   */
+  public final Property<StubType> stubType() {
+    return metaBean().stubType().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the settlementDays.
+   * @return the value of the property
+   */
+  public int getSettlementDays() {
+    return _settlementDays;
+  }
+
+  /**
+   * Sets the settlementDays.
+   * @param settlementDays  the new value of the property
+   */
+  public void setSettlementDays(int settlementDays) {
+    this._settlementDays = settlementDays;
+  }
+
+  /**
+   * Gets the the {@code settlementDays} property.
+   * @return the property, not null
+   */
+  public final Property<Integer> settlementDays() {
+    return metaBean().settlementDays().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the underlying.
    * @return the value of the property
    */
@@ -530,10 +608,10 @@ public class CDSSecurity extends FinancialSecurity {
     private final MetaProperty<Currency> _currency = DirectMetaProperty.ofReadWrite(
         this, "currency", CDSSecurity.class, Currency.class);
     /**
-     * The meta-property for the {@code protectionStartDate} property.
+     * The meta-property for the {@code startDate} property.
      */
-    private final MetaProperty<ZonedDateTime> _protectionStartDate = DirectMetaProperty.ofReadWrite(
-        this, "protectionStartDate", CDSSecurity.class, ZonedDateTime.class);
+    private final MetaProperty<ZonedDateTime> _startDate = DirectMetaProperty.ofReadWrite(
+        this, "startDate", CDSSecurity.class, ZonedDateTime.class);
     /**
      * The meta-property for the {@code maturity} property.
      */
@@ -555,6 +633,16 @@ public class CDSSecurity extends FinancialSecurity {
     private final MetaProperty<BusinessDayConvention> _businessDayConvention = DirectMetaProperty.ofReadWrite(
         this, "businessDayConvention", CDSSecurity.class, BusinessDayConvention.class);
     /**
+     * The meta-property for the {@code stubType} property.
+     */
+    private final MetaProperty<StubType> _stubType = DirectMetaProperty.ofReadWrite(
+        this, "stubType", CDSSecurity.class, StubType.class);
+    /**
+     * The meta-property for the {@code settlementDays} property.
+     */
+    private final MetaProperty<Integer> _settlementDays = DirectMetaProperty.ofReadWrite(
+        this, "settlementDays", CDSSecurity.class, Integer.TYPE);
+    /**
      * The meta-property for the {@code underlying} property.
      */
     private final MetaProperty<ExternalId> _underlying = DirectMetaProperty.ofReadWrite(
@@ -568,11 +656,13 @@ public class CDSSecurity extends FinancialSecurity {
         "spread",
         "recoveryRate",
         "currency",
-        "protectionStartDate",
+        "startDate",
         "maturity",
         "premiumFrequency",
         "dayCount",
         "businessDayConvention",
+        "stubType",
+        "settlementDays",
         "underlying");
 
     /**
@@ -592,8 +682,8 @@ public class CDSSecurity extends FinancialSecurity {
           return _recoveryRate;
         case 575402001:  // currency
           return _currency;
-        case 973819991:  // protectionStartDate
-          return _protectionStartDate;
+        case -2129778896:  // startDate
+          return _startDate;
         case 313843601:  // maturity
           return _maturity;
         case 146671813:  // premiumFrequency
@@ -602,6 +692,10 @@ public class CDSSecurity extends FinancialSecurity {
           return _dayCount;
         case -1002835891:  // businessDayConvention
           return _businessDayConvention;
+        case 1873675528:  // stubType
+          return _stubType;
+        case -295948000:  // settlementDays
+          return _settlementDays;
         case -1770633379:  // underlying
           return _underlying;
       }
@@ -657,11 +751,11 @@ public class CDSSecurity extends FinancialSecurity {
     }
 
     /**
-     * The meta-property for the {@code protectionStartDate} property.
+     * The meta-property for the {@code startDate} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ZonedDateTime> protectionStartDate() {
-      return _protectionStartDate;
+    public final MetaProperty<ZonedDateTime> startDate() {
+      return _startDate;
     }
 
     /**
@@ -694,6 +788,22 @@ public class CDSSecurity extends FinancialSecurity {
      */
     public final MetaProperty<BusinessDayConvention> businessDayConvention() {
       return _businessDayConvention;
+    }
+
+    /**
+     * The meta-property for the {@code stubType} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<StubType> stubType() {
+      return _stubType;
+    }
+
+    /**
+     * The meta-property for the {@code settlementDays} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Integer> settlementDays() {
+      return _settlementDays;
     }
 
     /**

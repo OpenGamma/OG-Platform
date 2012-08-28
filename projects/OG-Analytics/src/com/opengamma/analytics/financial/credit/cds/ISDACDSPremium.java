@@ -8,9 +8,12 @@ package com.opengamma.analytics.financial.credit.cds;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 
 /**
- * Represent a CDS premium as understood by the ISDA standard model
+ * Represent a CDS premium as understood by the ISDA standard model.
+ * 
+ * A fixed coupon annuity using {@link ISDACDSCoupon} to describe payments.
  * 
  * @author Martin Traverse, Niels Stchedroff (Riskcare)
+ * @see AnnuityCouponFixed
  */
 public class ISDACDSPremium extends AnnuityCouponFixed {
 

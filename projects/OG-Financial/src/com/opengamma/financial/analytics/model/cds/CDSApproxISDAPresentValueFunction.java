@@ -12,9 +12,9 @@ import javax.time.calendar.DateAdjuster;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.cds.CDSApproxISDAMethod;
-import com.opengamma.analytics.financial.credit.cds.CDSDerivative;
+import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
-import com.opengamma.analytics.financial.instrument.cds.CDSDefinition;
+import com.opengamma.analytics.financial.instrument.cds.ISDACDSDefinition;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
@@ -32,7 +32,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.conversion.CDSSecurityConverter;
+import com.opengamma.financial.analytics.conversion.ISDACDSSecurityConverter;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.security.cds.CDSSecurity;
@@ -183,9 +183,9 @@ public class CDSApproxISDAPresentValueFunction extends AbstractFunction.NonCompi
     ));*/
     
     // Convert security in to format suitable for pricing
-    final CDSSecurityConverter converter = new CDSSecurityConverter(securitySource, holidaySource, conventionSource, regionSource);
-    final CDSDefinition cdsDefinition = (CDSDefinition) cds.accept(converter);
-    final CDSDerivative cdsDerivative = cdsDefinition.toDerivative(pricingDate, "IR_CURVE");
+    final ISDACDSSecurityConverter converter = new ISDACDSSecurityConverter(holidaySource);
+    final ISDACDSDefinition cdsDefinition = (ISDACDSDefinition) cds.accept(converter);
+    final ISDACDSDerivative cdsDerivative = cdsDefinition.toDerivative(pricingDate, "IR_CURVE");  // Sets step-in = T+1 calendar days, settlement = T+3 working days
     
     String name = "IR_CURVE";
     double offset = 0.0;
@@ -198,15 +198,8 @@ public class CDSApproxISDAPresentValueFunction extends AbstractFunction.NonCompi
     
     double flatSpread = 100.0;
     
-    MondayToFridayCalendar test = new MondayToFridayCalendar("stuff");
-    DateAdjuster adjuster = cds.getBusinessDayConvention().getDateAdjuster(test);
     
-    final ZonedDateTime stepinDate = pricingDate.plusDays(1);
-    final ZonedDateTime settlementDate = pricingDate.plusDays(1).with(adjuster).plusDays(1).with(adjuster).plusDays(1).with(adjuster);
-    
-    // Go price!
-    
-    double dirtyPrice = ISDA_APPROX_METHOD.calculateUpfrontCharge(cdsDerivative, isdaDiscountCurve, flatSpread , pricingDate, stepinDate, settlementDate, false);
+    double dirtyPrice = ISDA_APPROX_METHOD.calculateUpfrontCharge(cdsDerivative, isdaDiscountCurve, flatSpread, false);
     
     final ComputedValue cleanPriceValue = new ComputedValue(
       new ValueSpecification(

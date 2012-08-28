@@ -77,7 +77,6 @@ import com.opengamma.financial.analytics.model.bond.BondZSpreadPresentValueSensi
 import com.opengamma.financial.analytics.model.bond.BondZSpreadPresentValueSensitivityFromMarketCleanPriceFunction;
 import com.opengamma.financial.analytics.model.bond.NelsonSiegelSvenssonBondCurveFunction;
 import com.opengamma.financial.analytics.model.cds.CDSApproxISDAPresentValueFunction;
-import com.opengamma.financial.analytics.model.cds.CDSSimplePresentValueFunction;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFutureYieldCurveNodeSensitivityFunction;
@@ -615,7 +614,6 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     addHistoricalDataFunctions(functionConfigs);
     functionConfigs.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, SECONDARY));
     
-    functionConfigs.add(functionConfiguration(CDSSimplePresentValueFunction.class));
     functionConfigs.add(functionConfiguration(CDSApproxISDAPresentValueFunction.class));
 
     final RepositoryConfiguration repoConfig = new RepositoryConfiguration(functionConfigs);
