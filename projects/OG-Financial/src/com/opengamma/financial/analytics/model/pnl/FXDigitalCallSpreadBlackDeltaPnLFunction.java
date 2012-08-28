@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.pnl;
@@ -20,6 +20,7 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunction;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.analytics.financial.timeseries.util.TimeSeriesDifferenceOperator;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -36,7 +37,9 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
+import com.opengamma.financial.analytics.model.forex.BloombergFXSpotRateIdentifierVisitor;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.analytics.model.forex.option.callspreadblack.FXDigitalCallSpreadBlackFunction;
@@ -44,8 +47,10 @@ import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
+import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
@@ -54,7 +59,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
- * 
+ *
  */
 public class FXDigitalCallSpreadBlackDeltaPnLFunction extends AbstractFunction.NonCompiledInvoker {
 
@@ -86,12 +91,16 @@ public class FXDigitalCallSpreadBlackDeltaPnLFunction extends AbstractFunction.N
     final TimeSeriesSamplingFunction sampling = TimeSeriesSamplingFunctionFactory.getFunction(samplingFunction);
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
-    final Currency currencyNonBase = FXUtils.nonBaseCurrency(putCurrency, callCurrency); // The non-base currency
+    final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
+    final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
+    final CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
+    final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(putCurrency, callCurrency);
+    final Currency currencyNonBase = currencyPair.getCounter(); // The non-base currency
     final double delta = mca.getAmount(currencyNonBase);
     final HistoricalTimeSeries timeSeries = (HistoricalTimeSeries) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
     DoubleTimeSeries<?> result = getPnLSeries(startDate, now.toLocalDate(), schedule, sampling, timeSeries);
     result = result.multiply(position.getQuantity().doubleValue() * delta);
-    final Currency currencyBase = FXUtils.baseCurrency(putCurrency, callCurrency); // The base currency
+    final Currency currencyBase = currencyPair.getBase(); // The base currency
     final ValueProperties resultProperties = createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, FXDigitalCallSpreadBlackFunction.CALL_SPREAD_BLACK_METHOD)
         .with(FXOptionBlackFunction.PUT_CURVE, putCurveName)
@@ -128,7 +137,10 @@ public class FXDigitalCallSpreadBlackDeltaPnLFunction extends AbstractFunction.N
     final FinancialSecurity security = (FinancialSecurity) target.getPosition().getSecurity();
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
-    final Currency currencyBase = FXUtils.baseCurrency(putCurrency, callCurrency); // The base currency
+    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
+    final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
+    final CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
+    final Currency currencyBase = currencyPairs.getCurrencyPair(putCurrency, callCurrency).getBase();
     final ValueProperties properties = createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, FXDigitalCallSpreadBlackFunction.CALL_SPREAD_BLACK_METHOD)
         .withAny(FXOptionBlackFunction.PUT_CURVE)
@@ -192,6 +204,9 @@ public class FXDigitalCallSpreadBlackDeltaPnLFunction extends AbstractFunction.N
     if (samplingPeriods == null || samplingPeriods.size() != 1) {
       return null;
     }
+    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
+    final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
+    final CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
     final ValueRequirement fxCurrencyExposureRequirement = new ValueRequirement(
         ValueRequirementNames.FX_CURRENCY_EXPOSURE, target.getPosition().getSecurity(), ValueProperties.builder()
             .with(ValuePropertyNames.CALCULATION_METHOD, FXDigitalCallSpreadBlackFunction.CALL_SPREAD_BLACK_METHOD)
@@ -204,8 +219,9 @@ public class FXDigitalCallSpreadBlackDeltaPnLFunction extends AbstractFunction.N
             .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorNames.iterator().next())
             .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorNames.iterator().next())
             .with(FXDigitalCallSpreadBlackFunction.PROPERTY_CALL_SPREAD_VALUE, callSpreads.iterator().next()).get());
+    final FinancialSecurity security = (FXDigitalOptionSecurity) target.getPosition().getSecurity();
     final HistoricalTimeSeriesResolutionResult timeSeries = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context).resolve(
-        ExternalIdBundle.of(FXUtils.getSpotIdentifier((FXDigitalOptionSecurity) target.getPosition().getSecurity())), null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
+        ExternalIdBundle.of(security.accept(new BloombergFXSpotRateIdentifierVisitor(currencyPairs))), null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
     if (timeSeries == null) {
       return null;
     }

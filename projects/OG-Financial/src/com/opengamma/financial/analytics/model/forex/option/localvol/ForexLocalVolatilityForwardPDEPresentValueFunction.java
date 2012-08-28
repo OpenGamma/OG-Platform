@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.forex.option.localvol;
@@ -11,7 +11,6 @@ import java.util.Set;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.conversion.ForexDomesticPipsToPresentValueConverter;
-import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -29,14 +28,14 @@ import com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityP
 import com.opengamma.financial.analytics.model.volatility.local.LocalVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.volatility.local.LocalVolatilitySurfaceUtils;
 import com.opengamma.financial.analytics.model.volatility.local.PDEFunctionUtils;
-import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
- * 
+ *
  */
 public class ForexLocalVolatilityForwardPDEPresentValueFunction extends AbstractFunction.NonCompiledInvoker {
   private final String _blackSmileInterpolatorName;
@@ -101,7 +100,9 @@ public class ForexLocalVolatilityForwardPDEPresentValueFunction extends Abstract
   }
 
   private ValueRequirement getSpotRequirement(final FXOptionSecurity fxOption) {
-    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, FXUtils.getSpotIdentifier(fxOption));
+    final Currency putCurrency = fxOption.getPutCurrency();
+    final Currency callCurrency = fxOption.getCallCurrency();
+    return new ValueRequirement(ValueRequirementNames.SPOT_RATE, UnorderedCurrencyPair.of(callCurrency, putCurrency));
   }
 
   private ValueRequirement getPriceRequirement(final ComputationTarget target, final ValueRequirement desiredValue) {

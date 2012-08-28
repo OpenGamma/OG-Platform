@@ -129,10 +129,9 @@ public abstract class FXOptionBlackFunctionDeprecated extends AbstractFunction.N
     }
     final InstrumentDerivative fxOption = definition.toDerivative(now, curveNames);
     final YieldCurveBundle yieldCurves = new YieldCurveBundle(allCurveNames, curves);
-    final ValueRequirement spotRequirement = security.accept(ForexVisitors.getSpotIdentifierVisitor());
-    final Object spotObject = inputs.getValue(spotRequirement);
+    final Object spotObject = inputs.getValue(ValueRequirementNames.SPOT_RATE);
     if (spotObject == null) {
-      throw new OpenGammaRuntimeException("Could not get spot requirement " + spotRequirement);
+      throw new OpenGammaRuntimeException("Could not get spot rate");
     }
     final double spot = (Double) spotObject;
     final ValueRequirement fxVolatilitySurfaceRequirement = getSurfaceRequirement(surfaceName, putCurrency, callCurrency, interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
@@ -232,7 +231,7 @@ public abstract class FXOptionBlackFunctionDeprecated extends AbstractFunction.N
     final ValueRequirement putFundingCurve = getCurveRequirement(putCurveName, putForwardCurveName, putCurveName, putCurveCalculationMethod, putCurrency);
     final ValueRequirement callFundingCurve = getCurveRequirement(callCurveName, callForwardCurveName, callCurveName, callCurveCalculationMethod, callCurrency);
     final ValueRequirement fxVolatilitySurface = getSurfaceRequirement(surfaceName, putCurrency, callCurrency, interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
-    final ValueRequirement spotRequirement = security.accept(ForexVisitors.getSpotIdentifierVisitor());
+    final ValueRequirement spotRequirement = new ValueRequirement(ValueRequirementNames.SPOT_RATE, UnorderedCurrencyPair.of(callCurrency, putCurrency));
     return Sets.newHashSet(putFundingCurve, callFundingCurve, fxVolatilitySurface, spotRequirement);
   }
 
