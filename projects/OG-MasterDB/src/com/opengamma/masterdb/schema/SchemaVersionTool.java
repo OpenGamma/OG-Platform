@@ -5,18 +5,13 @@
  */
 package com.opengamma.masterdb.schema;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.Map;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.opengamma.util.test.DbTool;
 
@@ -25,10 +20,6 @@ import com.opengamma.util.test.DbTool;
  */
 public class SchemaVersionTool extends Task {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(SchemaVersionTool.class);
-  
-  private static final String SCHEMA_VERSION_DIR = "com/opengamma/masterdb/schema"; 
-  
   private String _dbScriptDir;
   private String _outputDir;
   
@@ -58,7 +49,7 @@ public class SchemaVersionTool extends Task {
       throw new BuildException("outputDir must be specified");
     }
     System.out.println("outputDir: " + getOutputDir());
-    final File outputDir = new File(getOutputDir() + File.separator + SCHEMA_VERSION_DIR);
+    final File outputDir = SchemaVersionUtils.getSchemaVersionDir(getOutputDir());
     if (outputDir.isFile()) {
       throw new BuildException("outputDir must be a directory");
     }
@@ -94,20 +85,4 @@ public class SchemaVersionTool extends Task {
       }
     }
   }
-  
-  public static Integer readSchemaVersion(String schemaName) {
-    InputStream schemaVersionStream = ClassLoader.getSystemResourceAsStream(SCHEMA_VERSION_DIR + "/" + schemaName);
-    if (schemaVersionStream == null) {
-      return null;
-    }
-    BufferedReader reader = new BufferedReader(new InputStreamReader(schemaVersionStream));
-    try {
-      String version = reader.readLine();
-      return Integer.parseInt(version);
-    } catch (Exception e) {
-      s_logger.warn("Error reading schema version '" + schemaName + "'", e);
-      return null;
-    }
-  }
-  
 }
