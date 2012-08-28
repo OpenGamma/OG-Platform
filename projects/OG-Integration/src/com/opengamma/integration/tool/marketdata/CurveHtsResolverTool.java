@@ -193,10 +193,14 @@ public class CurveHtsResolverTool extends AbstractIntegrationTool {
         InterpolatedYieldCurveSpecificationBuilder builder = new ConfigDBInterpolatedYieldCurveSpecificationBuilder(configSource);
         for (LocalDate date : dates) {
           s_logger.info("Processing curve date " + date);
-          InterpolatedYieldCurveSpecification curveSpec = builder.buildCurve(date, curveDefinition);
-          for (FixedIncomeStripWithIdentifier strip : curveSpec.getStrips()) {
-            s_logger.info("Processing strip " + strip.getSecurity());
-            externalIds.add(strip.getSecurity());
+          try {
+            InterpolatedYieldCurveSpecification curveSpec = builder.buildCurve(date, curveDefinition);
+            for (FixedIncomeStripWithIdentifier strip : curveSpec.getStrips()) {
+              s_logger.info("Processing strip " + strip.getSecurity());
+              externalIds.add(strip.getSecurity());
+            }
+          } catch (Throwable t) {
+            s_logger.warn("Unable to build curve " + t.getMessage());
           }
         }
       } else {
