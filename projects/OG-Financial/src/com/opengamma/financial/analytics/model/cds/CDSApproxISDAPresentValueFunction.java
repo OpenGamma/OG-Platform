@@ -160,11 +160,8 @@ public class CDSApproxISDAPresentValueFunction extends AbstractFunction.NonCompi
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
 
     // Get handles to data sources
-    final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
-    final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
-    final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
-    
+
     // Time point to price for
     final ZonedDateTime pricingDate = executionContext.getValuationClock().zonedDateTime();
     final ZonedDateTime stepinDate = pricingDate.plusDays(1);
