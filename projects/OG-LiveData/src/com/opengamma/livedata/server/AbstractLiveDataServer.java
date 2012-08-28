@@ -109,45 +109,69 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
 
   //-------------------------------------------------------------------------
   /**
-   * @return the distributionSpecificationResolver
+   * Gets the cache manager.
+   *
+   * @return the cache manager
+   */
+  public CacheManager getCacheManager() {
+    return _cacheManager;
+  }
+
+  /**
+   * Gets the distribution resolver.
+   * 
+   * @return the resolver, not null
    */
   public DistributionSpecificationResolver getDistributionSpecificationResolver() {
     return _distributionSpecificationResolver;
   }
 
   /**
-   * @param distributionSpecificationResolver
-   *          the distributionSpecificationResolver to set
+   * Sets the distribution resolver.
+   * 
+   * @param distributionSpecificationResolver  the distribution resolver, not null
    */
-  public void setDistributionSpecificationResolver(
-      DistributionSpecificationResolver distributionSpecificationResolver) {
+  public void setDistributionSpecificationResolver(DistributionSpecificationResolver distributionSpecificationResolver) {
+    ArgumentChecker.notNull(distributionSpecificationResolver, "distributionSpecificationResolver");
     _distributionSpecificationResolver = distributionSpecificationResolver;
   }
-  
+
+  /**
+   * Gets the market data sender factory.
+   * 
+   * @return the factory, not null
+   */
   public MarketDataSenderFactory getMarketDataSenderFactory() {
     return _marketDataSenderFactory;
   }
-  
+
+  /**
+   * Sets the market data sender factory.
+   * 
+   * @param marketDataSenderFactory  the factory, not null
+   */
   public void setMarketDataSenderFactory(MarketDataSenderFactory marketDataSenderFactory) {
+    ArgumentChecker.notNull(marketDataSenderFactory, "marketDataSenderFactory");
     _marketDataSenderFactory = marketDataSenderFactory;
   }
 
   /**
-   * Gets the cache manager.
-   *
-   * @return the cache manager, not null
+   * Adds a subscription listener.
+   * 
+   * @param subscriptionListener  the listener, not null
    */
-  public CacheManager getCacheManager() {
-    return _cacheManager;
-  }
-
   public void addSubscriptionListener(SubscriptionListener subscriptionListener) {
-    ArgumentChecker.notNull(subscriptionListener, "Subscription Listener");
+    ArgumentChecker.notNull(subscriptionListener, "subscriptionListener");
     _subscriptionListeners.add(subscriptionListener);
   }
 
-  public void setSubscriptionListeners(
-      Collection<SubscriptionListener> subscriptionListeners) {
+  /**
+   * Sets the subscription listeners, replacing all existing ones.
+   * 
+   * @param subscriptionListeners  the listeners, not null
+   */
+  public void setSubscriptionListeners(Collection<SubscriptionListener> subscriptionListeners) {
+    ArgumentChecker.noNulls(subscriptionListeners, "subscriptionListeners");
     _subscriptionListeners.clear();
     for (SubscriptionListener subscriptionListener : subscriptionListeners) {
       addSubscriptionListener(subscriptionListener);
@@ -155,116 +179,130 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   }
 
   /**
-   * @return the entitlementChecker
+   * Gets the entitlement checker.
+   * 
+   * @return the entitlement checker, not null
    */
   public LiveDataEntitlementChecker getEntitlementChecker() {
     return _entitlementChecker;
   }
 
   /**
-   * @param entitlementChecker
-   *          the entitlementChecker to set
+   * Sets the entitlement checker.
+   * 
+   * @param entitlementChecker  the entitlement checker, not null
    */
-  public void setEntitlementChecker(
-      LiveDataEntitlementChecker entitlementChecker) {
+  public void setEntitlementChecker(LiveDataEntitlementChecker entitlementChecker) {
+    ArgumentChecker.notNull(entitlementChecker, "entitlementChecker");
     _entitlementChecker = entitlementChecker;
   }
-  
+
+  /**
+   * Gets the default normalization rule set identifier.
+   * 
+   * @return the identifier, not null
+   */
   public String getDefaultNormalizationRuleSetId() {
     return StandardRules.getOpenGammaRuleSetId();
   }
 
   /**
-   * Gets the lkvStoreProvider.
-   * @return the lkvStoreProvider
+   * Gets the provider for the last known value store.
+   * 
+   * @return the provider, not null
    */
   public LastKnownValueStoreProvider getLkvStoreProvider() {
     return _lkvStoreProvider;
   }
 
   /**
-   * Sets the lkvStoreProvider.
-   * @param lkvStoreProvider  the lkvStoreProvider
+   * Sets the provider for the last known value store.
+   * 
+   * @param lkvStoreProvider  the provider, not null
    */
   public void setLkvStoreProvider(LastKnownValueStoreProvider lkvStoreProvider) {
+    ArgumentChecker.notNull(lkvStoreProvider, "lkvStoreProvider");
     _lkvStoreProvider = lkvStoreProvider;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Subscribes to the given ticker(s) using the underlying market
-   * data provider.
+   * Subscribes to the specified tickers using the underlying market data provider.
    * <p>
-   * The return value is a map from unique ID to subscription handle.
-   * The map must contain an entry for each <code>uniqueId</code>.
+   * This returns a map from identifier to subscription handle.
+   * The map must contain an entry for each input <code>uniqueId</code>.
    * Failure to subscribe to any <code>uniqueId</code> should result in an exception being thrown. 
    * 
-   * @param uniqueIds A collection of unique IDs. Not null. May be empty.
-   * @return Subscription handles corresponding to the unique IDs.
-   * @throws RuntimeException If subscribing to any unique IDs failed.
+   * @param uniqueIds  the collection of identifiers to subscribe to, may be empty, not null
+   * @return the subscription handles corresponding to the identifiers, not null
+   * @throws RuntimeException if subscribing to any unique IDs failed
    */
   protected abstract Map<String, Object> doSubscribe(Collection<String> uniqueIds);
 
   /**
-   * Unsubscribes to the given ticker(s) using the underlying market
-   * data provider.
+   * Unsubscribes to the given tickers using the underlying market data provider.
+   * <p>
+   * The handles returned by {@link #doSubscribe} are used to unsubscribe.
    *  
-   * @param subscriptionHandles
-   *          Subscription handle(s) returned by {@link #doSubscribe(Collection uniqueIds)}.
-   *          Not null. May be empty.
+   * @param subscriptionHandles  the subscription handles to unsubscribe, may be empty, not null
    */
   protected abstract void doUnsubscribe(Collection<Object> subscriptionHandles);
-  
+
   /**
    * Returns an image (i.e., all fields) from the underlying market data provider.
-   * 
-   * @return The return value is a map from unique ID to subscription handle.
+   * <p>
+   * This returns a map from identifier to a message describing the fields.
    * The map must contain an entry for each <code>uniqueId</code>.
    * Failure to snapshot any <code>uniqueId</code> should result in an exception being thrown. 
-   * @param uniqueIds Not null. May be empty.
-   * @throws RuntimeException If the snapshot could not be obtained.
+   * 
+   * @param uniqueIds  the collection of identifiers to query, may be empty, not null
+   * @return the snapshot result, not null
+   * @throws RuntimeException if the snapshot could not be obtained
    */
   protected abstract Map<String, FudgeMsg> doSnapshot(Collection<String> uniqueIds);
 
   /**
-   * @return Identification domain that uniquely identifies securities for this
-   *         type of server.
+   * Gets the external scheme that defines securities for the underlying market data provider.
+   * 
+   * @return the scheme, not null
    */
   protected abstract ExternalScheme getUniqueIdDomain();
-  
+
   /**
    * Connects to the underlying market data provider.
    * You can rely on the fact that this method is only
    * called when getConnectionStatus() == ConnectionStatus.NOT_CONNECTED.
    */
   protected abstract void doConnect();
-  
+
   /**
    * Connects to the underlying market data provider.
    * You can rely on the fact that this method is only
    * called when getConnectionStatus() == ConnectionStatus.CONNECTED.
    */
   protected abstract void doDisconnect();
-  
+
   /**
    * In some cases, the underlying market data API may not, when a subscription is created,
    * return a full image of all fields. If so, we need to get the full image explicitly.
    * 
-   * @param subscription The subscription currently being created 
-   * @return true if a snapshot should be made when a new subscription is created, false otherwise. 
+   * @param subscription  the subscription currently being created, not null
+   * @return true if a snapshot should be made when a new subscription is created
    */
   protected abstract boolean snapshotOnSubscriptionStartRequired(Subscription subscription);
-  
+
   /**
    * In some cases a subscription with  no data may indicate that a snapshot will have no data
    * 
-   * @param distributior The currently active distributor for the security being snapshotted 
+   * @param distributior  the currently active distributor for the security being snapshotted, not null
    * @return true if an empty subscription indicates that the snapshot result would be empty
    */
   protected boolean canSatisfySnapshotFromEmptySubscription(MarketDataDistributor distributior) {
     //NOTE simon 28/11/2011: Only in the case of requiring a snapshot is it safe to use an empty snapshot from a subscription, since in the other case we may still be waiting for values
     return snapshotOnSubscriptionStartRequired(distributior.getSubscription());
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
    * Is the server connected to underlying market data API?
    */
@@ -274,11 +312,21 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     /** Connection not active */
     NOT_CONNECTED
   }
-  
+
+  /**
+   * Gets the current connection status.
+   * 
+   * @return the status, not null
+   */
   public ConnectionStatus getConnectionStatus() {
     return _connectionStatus;
   }
-  
+
+  /**
+   * Sets the connection status.
+   * 
+   * @param connectionStatus  the status, not null
+   */
   public void setConnectionStatus(ConnectionStatus connectionStatus) {
     _connectionStatus = connectionStatus;
     s_logger.info("Connection status changed to " + connectionStatus);
@@ -289,7 +337,8 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
       }
     }
   }
-  
+
+  //-------------------------------------------------------------------------
   void reestablishSubscriptions() {
     _subscriptionLock.lock();
     try {

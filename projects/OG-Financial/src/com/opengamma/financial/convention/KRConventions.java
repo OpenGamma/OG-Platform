@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention;
@@ -17,18 +17,23 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 
 /**
- * 
+ *
  */
 public class KRConventions {
 
   public static synchronized void addFixedIncomeInstrumentConventions(final ConventionBundleMaster conventionMaster) {
     Validate.notNull(conventionMaster, "convention master");
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+    final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+    final DayCount act365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
+    final Frequency quarterly = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.QUARTERLY_NAME);
     final ExternalId kr = ExternalSchemes.financialRegionId("KR");
 
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
@@ -78,5 +83,10 @@ public class KRConventions {
         following, Period.ofYears(4), 2, false, kr);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("KWDR5 Curncy"), simpleNameSecurityId("KRW DEPOSIT 5y")), "KRW DEPOSIT 5y", act360,
         following, Period.ofYears(5), 2, false, kr);
+
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("KWCDC Index"), simpleNameSecurityId("KRW SWAP FIXING 3m")),
+        "KRW SWAP FIXING 3m", act365, modified, Period.ofMonths(3), 0, false, kr);
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("KRW_SWAP")), "KRW_SWAP", act365, modified,
+        quarterly, 2, kr, act365, modified, quarterly, 2, simpleNameSecurityId("KRW SWAP FIXING 3m"), kr, true);
   }
 }

@@ -50,20 +50,20 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  * typically, for last price, you'd use "Market_Value" @see MarketDataRequirementNames
  */
 public class ExampleLiveDataServer extends AbstractLiveDataServer {
-  
+
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleLiveDataServer.class);
-  
+
   private static final FudgeContext s_fudgeConext = OpenGammaFudgeContext.getInstance();
   private static final int NUM_FIELDS = 3;
   private static final double SCALING_FACTOR = 0.005; // i.e. 0.5% * 1SD
   private static final int MAX_MILLIS_BETWEEN_TICKS = 50;
-  
+
   private Map<String, FudgeMsg> _marketValues = Maps.newConcurrentMap();
   private volatile double _scalingFactor;
   private volatile int _maxMillisBetweenTicks;
   private TerminatableJob _marketDataSimulatorJob = new SimulatedMarketDataJob();
   private ExecutorService _executorService;
-  
+
   public ExampleLiveDataServer(final Resource initialValuesFile) {
     this(initialValuesFile, SCALING_FACTOR, MAX_MILLIS_BETWEEN_TICKS);
   }

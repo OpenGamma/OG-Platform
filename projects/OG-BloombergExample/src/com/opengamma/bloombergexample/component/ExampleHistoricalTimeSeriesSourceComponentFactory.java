@@ -34,7 +34,7 @@ public class ExampleHistoricalTimeSeriesSourceComponentFactory extends Integrati
   @Override
   protected HistoricalTimeSeriesResolver initResolver() {
     Collection<HistoricalTimeSeriesFieldAdjustmentMap> fieldAdjustmentMaps = new ArrayList<HistoricalTimeSeriesFieldAdjustmentMap>();
-
+    
     // Add field adjustment maps from superclass
     HistoricalTimeSeriesResolver res = super.initResolver();
     fieldAdjustmentMaps.addAll(((FieldMappingHistoricalTimeSeriesResolver) res).getFieldMaps());

@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.exceptions.JedisDataException;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
@@ -108,7 +109,11 @@ public class RedisLastKnownValueStore implements LastKnownValueStore {
             continue;
           }
           // Yep, this is ugly as hell.
-          jedis.hset(getJedisKey(), field.getName(), doubleValue.toString());
+          try {
+            jedis.hset(getJedisKey(), field.getName(), doubleValue.toString());
+          } catch (JedisDataException jde) {
+            s_logger.warn("Unable to write stuff yo.");
+          }
         }
       } catch (Exception e) {
         s_logger.error("Unable to write fields to Redis : " + _jedisKey, e);

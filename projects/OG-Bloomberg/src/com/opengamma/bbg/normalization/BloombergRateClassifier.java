@@ -100,6 +100,7 @@ public class BloombergRateClassifier {
       case RATE:
       case SWAP:
       case VOLATILITY_QUOTE:
+      case CD:
         return 100;
       case FX_FORWARD:
         return 10000;

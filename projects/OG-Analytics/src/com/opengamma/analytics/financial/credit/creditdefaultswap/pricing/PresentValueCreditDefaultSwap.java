@@ -5,41 +5,35 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing;
 
-import javax.time.calendar.ZonedDateTime;
-
+import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 
 /**
- * 
+ *  Class containing methods for the valuation of a legacy vanilla CDS (and its constituent legs)
  */
 public class PresentValueCreditDefaultSwap {
 
+  // -------------------------------------------------------------------------------------------------
+  
+  // Method for computing the PV of a CDS  
   public double getPresentValueCreditDefaultSwap(CreditDefaultSwapDefinition cds, double [][]cashflowSchedule) {
 
     // -------------------------------------------------------------------------------------------------
 
-    int phi = 0;
-
-    double presentValue = 0.0;
-    double presentValuePremiumLeg = 0.0;
-    double presentValueContingentLeg = 0.0;
-
     // Calculate the value of the premium leg
-    presentValuePremiumLeg = calculatePremiumLeg(cds, cashflowSchedule);
+    double presentValuePremiumLeg = calculatePremiumLeg(cds, cashflowSchedule);
 
     // Calculate the value of the contingent leg
-    presentValueContingentLeg = calculateContingentLeg(cds, cashflowSchedule);
+    double presentValueContingentLeg = calculateContingentLeg(cds);
 
-    // Constructing the CDS checks if the Buy/Sell flag is not equal to 'Buy' or 'Sell', so don't have to check it here
-    if (cds.getBuySellProtection().equalsIgnoreCase("Buy")) {
-      phi = 1;
-    } else {
-      phi = -1;
+    // Calculate the PV of the CDS (assumes we are buying protection i.e. paying the premium leg, receiving the contingent leg)
+    double presentValue = -presentValuePremiumLeg + presentValueContingentLeg;
+
+    // If we are selling protection, then reverse the direction of the premium and contingent leg cashflows
+    if (cds.getBuySellProtection() == BuySellProtection.SELL) {
+      presentValue = -1 * presentValue;
     }
-
-    // TODO : Make sure it is clear what the buy/sell protection cashflow convention is i.e. value of phi
-    presentValue = -phi * presentValuePremiumLeg + presentValueContingentLeg;
 
     return presentValue;
   }
@@ -47,23 +41,23 @@ public class PresentValueCreditDefaultSwap {
   //-------------------------------------------------------------------------------------------------
 
   // TODO : Seperate out the accrued premium calc out into another method (so users can see contribution of this directly)
-
-  // Method to calculate the value of the fee leg
+  // TODO : Add a method to calc both the legs in one go (is this useful or not? Might be useful from a speed perspective - remember can have O(10^5) positions in a book)
 
   // We assume the schedule of coupon payment dates represented as doubles (suitably generated) has been computed externally and is passed in via cashflowSchedule
-  // We assume the discount factors have been computed externally and passed in with the CDS object
-  // We assume the calibrated survival probabilities have been computed externally and are passed in with the CDS object
+  // We assume the discount factors have been computed externally and are passed in with the CDS object
+  // We assume the 'calibrated' survival probabilities have been computed externally and are passed in with the CDS object
+  // Will replace these three dummy 'objects' with suitably computed objects in due course
+  // For now, assuming we are on a cashflow date (for testing purposes) - will need to add the corrections for a seasoned trade
 
-  // Will replace these dummy 'objects' with suitably computed objects in due course
+  // -------------------------------------------------------------------------------------------------
 
-  // For now, assuming we are on a cashflow date (for testing purposes) - will need to add the correction for a seasoned trade
-
+  // Method to calculate the value of the premium leg of a CDS 
   double calculatePremiumLeg(CreditDefaultSwapDefinition cds, double [][]cashflowSchedule) {
 
     double presentValuePremiumLeg = 0.0;
     double presentValueAccruedPremium = 0.0;
 
-    // Determine how many premium cashflows there are in the original contract schedule (this includes time zero even though there is no cashfow on this date
+    // Determine how many premium cashflows there are in the original contract schedule (this includes time zero even though there is no cashfow on this date)
     int n = cashflowSchedule.length;
 
     // Get the notional amount to multiply the premium leg by
@@ -107,16 +101,24 @@ public class PresentValueCreditDefaultSwap {
 
   // -------------------------------------------------------------------------------------------------
 
-  // Method to calculate the value of the contingent leg
+  // Method to calculate the accrued premium of a CDS premium leg (this method is just to allow a user to calculate the accrued on its own)
+  double calculateAccruedPremium(CreditDefaultSwapDefinition cds) {
 
-  double calculateContingentLeg(CreditDefaultSwapDefinition cds, double [][]cashflowSchedule) {
+    // TODO : Add this code
+    
+    double presentValueAccruedPremium = 0.0;
+
+    return presentValueAccruedPremium;
+  }
+
+  // -------------------------------------------------------------------------------------------------
+
+  // Method to calculate the value of the contingent leg of a CDS
+  double calculateContingentLeg(CreditDefaultSwapDefinition cds) {
 
     double presentValueContingentLeg = 0.0;
 
-    //ZonedDateTime maturityDate = cds.getMaturityDate();
-    //ZonedDateTime valuationDate = cds.getValuationDate();
-
-    // Get the notional amount to multiply the premium leg by
+    // Get the notional amount to multiply the contingent leg by
     double notional = cds.getNotional();
 
     // get the yield curve
@@ -125,11 +127,19 @@ public class PresentValueCreditDefaultSwap {
     // Get the survival curve
     YieldCurve survivalCurve = cds.getSurvivalCurve();
 
-    // Hardcoded hack for now - will remove when work out how to use ZoneddateTime
+    // Hardcoded hack for now - will remove when implement the schedule generator
     int tVal = 0;
     int maturity = 5;
 
+    //ZonedDateTime maturityDate = cds.getMaturityDate();
+    //ZonedDateTime valuationDate = cds.getValuationDate();
+
+    //int numDays = DateUtils.getDaysBetween(valuationDate, maturityDate);
+
     int numberOfIntegrationSteps = cds.getNumberOfIntegrationSteps();
+
+    // Check this calculation more carefully - is the proper way to do it
+    //int numberOfPartitions = (int) (numberOfIntegrationSteps * numDays / 365.25 + 0.5); 
 
     int numberOfPartitions = (int) (numberOfIntegrationSteps * (maturity - tVal) + 0.5);
 
@@ -137,6 +147,7 @@ public class PresentValueCreditDefaultSwap {
 
     double valuationRecoveryRate = cds.getValuationRecoveryRate();
 
+    // Calculate the integral for the contingent leg
     for (int k = 1; k < numberOfPartitions; k++) {
 
       double t = k * epsilon;
@@ -152,5 +163,5 @@ public class PresentValueCreditDefaultSwap {
     return notional * (1 - valuationRecoveryRate) * presentValueContingentLeg;
   }
 
-  //-------------------------------------------------------------------------------------------------
+  // -------------------------------------------------------------------------------------------------
 }

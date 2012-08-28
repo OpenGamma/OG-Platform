@@ -52,7 +52,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
   public static final String DEFAULT_OID_SCHEME = "MemCfg";
  
   /**
-   * A cache of securities by identifier.
+   * A cache of configuration by identifier.
    */
   private final ConcurrentMap<ObjectId, ConfigDocument<?>> _store = new ConcurrentHashMap<ObjectId, ConfigDocument<?>>();
   /**
@@ -89,7 +89,6 @@ public class InMemoryConfigMaster implements ConfigMaster {
     this(objectIdSupplier, new BasicChangeManager());
   }
 
-
   /**
    * Creates an instance specifying the supplier of object identifiers and change manager.
    * 
@@ -105,13 +104,48 @@ public class InMemoryConfigMaster implements ConfigMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public ConfigDocument<?> get(UniqueId uniqueId) {
+  public ConfigMetaDataResult metaData(final ConfigMetaDataRequest request) {
+    ArgumentChecker.notNull(request, "request");
+    ConfigMetaDataResult result = new ConfigMetaDataResult();
+    if (request.isConfigTypes()) {
+      Set<Class<?>> types = Sets.newHashSet();
+      for (ConfigDocument<?> doc : _store.values()) {
+        types.add(doc.getValue().getClass());
+      }
+      result.getConfigTypes().addAll(types);
+    }
+    return result;
+  }
+
+  //-------------------------------------------------------------------------
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> ConfigSearchResult<T> search(final ConfigSearchRequest<T> request) {
+    ArgumentChecker.notNull(request, "request");
+    final List<ConfigDocument<T>> list = new ArrayList<ConfigDocument<T>>();
+    for (ConfigDocument<?> doc : _store.values()) {
+      if (request.matches(doc)) {
+        list.add((ConfigDocument<T>) doc);
+      }
+    }
+    final ConfigSearchResult<T> result = new ConfigSearchResult<T>();
+    result.setPaging(Paging.of(request.getPagingRequest(), list));
+    
+    List<ConfigDocument<T>> select = request.getPagingRequest().select(list);
+    
+    result.getDocuments().addAll(select);
+    return result;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ConfigDocument<?> get(final UniqueId uniqueId) {
     return get(uniqueId, VersionCorrection.LATEST);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public ConfigDocument<?> get(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+  public ConfigDocument<?> get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     final ConfigDocument<?> document = _store.get(objectId.getObjectId());
@@ -124,7 +158,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
   //-------------------------------------------------------------------------
   @SuppressWarnings("unchecked")
   @Override
-  public <T> ConfigDocument<T> add(ConfigDocument<T> document) {
+  public <T> ConfigDocument<T> add(final ConfigDocument<T> document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getName(), "document.name");
     ArgumentChecker.notNull(document.getValue(), "document.value");
@@ -146,7 +180,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public <T> ConfigDocument<T> update(ConfigDocument<T> document) {
+  public <T> ConfigDocument<T> update(final ConfigDocument<T> document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     ArgumentChecker.notNull(document.getValue(), "document.value");
@@ -170,7 +204,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public void remove(UniqueId uniqueId) {
+  public void remove(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     if (_store.remove(uniqueId.getObjectId()) == null) {
       throw new DataNotFoundException("Config not found: " + uniqueId);
@@ -182,59 +216,6 @@ public class InMemoryConfigMaster implements ConfigMaster {
   @Override
   public <T> ConfigDocument<T> correct(ConfigDocument<T> document) {
     return update(document);
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public ChangeManager changeManager() {
-    return _changeManager;
-  }
-
-  //------------------------------------------------------------------------- 
-  @SuppressWarnings("unchecked")
-  @Override
-  public <T> ConfigDocument<T> get(UniqueId uniqueId, Class<T> clazz) {
-    ArgumentChecker.notNull(clazz, "clazz");
-    ConfigDocument<?> document = get(uniqueId);
-    if (!clazz.isInstance(document.getValue())) {
-      throw new DataNotFoundException("Config not found: " + uniqueId.getObjectId());
-    }
-    return (ConfigDocument<T>) document;
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public ConfigMetaDataResult metaData(ConfigMetaDataRequest request) {
-    ArgumentChecker.notNull(request, "request");
-    ConfigMetaDataResult result = new ConfigMetaDataResult();
-    if (request.isConfigTypes()) {
-      Set<Class<?>> types = Sets.newHashSet();
-      for (ConfigDocument<?> doc : _store.values()) {
-        types.add(doc.getValue().getClass());
-      }
-      result.getConfigTypes().addAll(types);
-    }
-    return result;
-  }
-
-  //-------------------------------------------------------------------------
-  @SuppressWarnings("unchecked")
-  @Override
-  public <T> ConfigSearchResult<T> search(ConfigSearchRequest<T> request) {
-    ArgumentChecker.notNull(request, "request");
-    final List<ConfigDocument<T>> list = new ArrayList<ConfigDocument<T>>();
-    for (ConfigDocument<?> doc : _store.values()) {
-      if (request.matches(doc)) {
-        list.add((ConfigDocument<T>) doc);
-      }
-    }
-    final ConfigSearchResult<T> result = new ConfigSearchResult<T>();
-    result.setPaging(Paging.of(request.getPagingRequest(), list));
-    
-    List<ConfigDocument<T>> select = request.getPagingRequest().select(list);
-    
-    result.getDocuments().addAll(select);
-    return result;
   }
 
   //-------------------------------------------------------------------------
@@ -253,6 +234,18 @@ public class InMemoryConfigMaster implements ConfigMaster {
     return result;
   }
 
+  //------------------------------------------------------------------------- 
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> ConfigDocument<T> get(UniqueId uniqueId, Class<T> clazz) {
+    ArgumentChecker.notNull(clazz, "clazz");
+    ConfigDocument<?> document = get(uniqueId);
+    if (!clazz.isInstance(document.getValue())) {
+      throw new DataNotFoundException("Config not found: " + uniqueId.getObjectId());
+    }
+    return (ConfigDocument<T>) document;
+  }
+
   //-------------------------------------------------------------------------
   @SuppressWarnings("unchecked")
   @Override
@@ -266,6 +259,12 @@ public class InMemoryConfigMaster implements ConfigMaster {
       throw new DataNotFoundException("Config not found: " + objectId);
     }
     return (ConfigDocument<T>) document;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ChangeManager changeManager() {
+    return _changeManager;
   }
 
 }

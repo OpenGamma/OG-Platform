@@ -5,7 +5,6 @@
  */
 package com.opengamma.livedata.cogda.server;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -194,44 +193,40 @@ public class CogdaLiveDataServer implements FudgeConnectionReceiver, Lifecycle {
     }
   }
   
-  protected OGUser getOGUser(String userName) {
+  protected OGUser getOGUser(String userId) {
     if (getUserSource() == null) {
       // Nothing will work without an OG User. So we return a mock one.
-      SimpleOGUser simpleUser = new SimpleOGUser();
-      simpleUser.setName(userName);
+      SimpleOGUser simpleUser = new SimpleOGUser(userId);
       simpleUser.getEntitlements().add("*");
       return simpleUser;
     }
-    OGUser ogUser = null;
-    Collection<? extends OGUser> ogUsers = getUserSource().getUsers(userName, VersionCorrection.LATEST);
-    if (ogUsers.isEmpty()) {
+    try {
+      return getUserSource().getUser(userId, VersionCorrection.LATEST);
+      
+    } catch (RuntimeException ex) {
+      s_logger.warn("Authentication could not find user {}", userId);
       return null;
     }
-    if (ogUsers.size() > 1) {
-      s_logger.warn("Authentication returned multiple users for {}. Choosing first. {}", userName, ogUsers);
-    }
-    ogUser = ogUsers.iterator().next();
-    return ogUser;
   }
   
   // Callbacks from the client.
-  public UserPrincipal authenticate(String userName, String password) {
+  public UserPrincipal authenticate(String userId, String password) {
     if (getUserSource() == null) {
       // No user source. Allow all connections.
-      return UserPrincipal.getLocalUser(userName);
+      return UserPrincipal.getLocalUser(userId);
     }
     
-    OGUser ogUser = getOGUser(userName);
+    OGUser ogUser = getOGUser(userId);
     if (ogUser == null) {
-      s_logger.info("Not allowing login for {} because no user in UserSource", userName);
+      s_logger.info("Not allowing login for {} because no user in UserSource", userId);
       return null;
     }
     
     if (isCheckPassword() && !AuthenticationUtils.passwordsMatch(ogUser, password)) {
-      s_logger.info("Not allowing login for {} because passwords don't match", userName);
+      s_logger.info("Not allowing login for {} because passwords don't match", userId);
       return null;
     }
-    return UserPrincipal.getLocalUser(userName);
+    return UserPrincipal.getLocalUser(userId);
   }
   
   public List<String> getAvailableServers() {

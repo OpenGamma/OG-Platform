@@ -49,7 +49,10 @@ public class SecondaryCurveDefinitionAndSpecifications {
     for (final Tenor tenorSwapTenor : tenorSwaps) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.TENOR_SWAP, tenorSwapTenor, SPEC_NAME));
     }
-    final YieldCurveDefinition definition = new YieldCurveDefinition(ccy, region, "FUNDING", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
+    final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
+    final String rightExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
+    final boolean interpolateYields = true;    final YieldCurveDefinition definition = new YieldCurveDefinition(ccy, region, "FUNDING", Interpolator1DFactory.DOUBLE_QUADRATIC,
+        leftExtrapolatorName, rightExtrapolatorName, interpolateYields, strips);
     return definition;
   }
 
@@ -67,7 +70,10 @@ public class SecondaryCurveDefinitionAndSpecifications {
     for (final Tenor swapTenor : swaps) {
       strips.add(new FixedIncomeStrip(swapType, swapTenor, SPEC_NAME));
     }
-    final YieldCurveDefinition definition = new YieldCurveDefinition(ccy, region, "FORWARD", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
+    final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
+    final String rightExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
+    final boolean interpolateYields = true;    final YieldCurveDefinition definition = new YieldCurveDefinition(ccy, region, "FORWARD", Interpolator1DFactory.DOUBLE_QUADRATIC,
+        leftExtrapolatorName, rightExtrapolatorName, interpolateYields, strips);
     return definition;
   }
 
@@ -85,7 +91,10 @@ public class SecondaryCurveDefinitionAndSpecifications {
     for (final Tenor tenorSwapTenor : swaps) {
       strips.add(new FixedIncomeStrip(swapType, tenorSwapTenor, SPEC_NAME));
     }
-    final YieldCurveDefinition definition = new YieldCurveDefinition(ccy, region, "SECONDARY", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
+    final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
+    final String rightExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
+    final boolean interpolateYields = true;    final YieldCurveDefinition definition = new YieldCurveDefinition(ccy, region, "SECONDARY", Interpolator1DFactory.DOUBLE_QUADRATIC,
+        leftExtrapolatorName, rightExtrapolatorName, interpolateYields, strips);
     return definition;
   }
 

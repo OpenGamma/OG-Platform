@@ -19,7 +19,11 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Default implementation of {@link AnalyticsView}. This class isn't meant to be thread safe. A thread calling any
+ * method that mutates the state must have an exclusive lock. The get methods can safely be called by multiple
+ * concurrent threads.
+ * @see LockingAnalyticsView
+ * @see com.opengamma.web.server.push.analytics Package concurrency notes
  */
 /* package */ class SimpleAnalyticsView implements AnalyticsView {
 

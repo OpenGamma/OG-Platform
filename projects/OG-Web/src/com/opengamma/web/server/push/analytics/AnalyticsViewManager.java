@@ -23,13 +23,16 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
 import com.opengamma.web.server.push.ClientConnection;
 
 /**
- * TODO handle userId and clientId
- * when view is created wrap in an impl that contains the IDs
- * could just add them to add them to SimpleAnalyticsView
- * when view is requested (including IDs) create another impl that wraps those IDs and delegates to the one that
- * holds the real IDs. but before delegating it compares the IDs
+ * Creates and manages {@link AnalyticsView} implementations.
  */
 public class AnalyticsViewManager {
+
+  /* TODO handle userId and clientId
+  when view is created wrap in an impl that contains the IDs
+  could just add them to add them to SimpleAnalyticsView
+  when view is requested (including IDs) create another impl that wraps those IDs and delegates to the one that
+  holds the real IDs. but before delegating it compares the IDs
+  */
 
   private static final Logger s_logger = LoggerFactory.getLogger(AnalyticsViewManager.class);
 
@@ -53,6 +56,15 @@ public class AnalyticsViewManager {
     _snapshotMaster = snapshotMaster;
   }
 
+  /**
+   * Creates a new view.
+   * @param request Details of the view
+   * @param user User requesting the view
+   * @param clientConnection Connection that will be notified of changes to the view
+   * @param viewId ID of the view, must be unique
+   * @param portfolioGridId ID that's passed to the listener when the view's portfolio grid structure changes
+   * @param primitivesGridId ID that's passed to the listener when the view's primitives grid structure changes
+   */
   public void createView(ViewRequest request,
                          UserPrincipal user,
                          ClientConnection clientConnection,
@@ -78,6 +90,11 @@ public class AnalyticsViewManager {
     clientConnection.addDisconnectionListener(new DisconnectionListener(viewId));
   }
 
+  /**
+   * Deletes a view.
+   * @param viewId ID of the view
+   * @throws DataNotFoundException If there's no view with the specified ID
+   */
   public void deleteView(String viewId) {
     AnalyticsViewClientConnection connection = _viewConnections.remove(viewId);
     if (connection == null) {
@@ -87,6 +104,12 @@ public class AnalyticsViewManager {
     connection.close();
   }
 
+  /**
+   * Returns a view given its ID.
+   * @param viewId ID of the view
+   * @return The view
+   * @throws DataNotFoundException If there's no view with the specified ID
+   */
   public AnalyticsView getView(String viewId) {
     AnalyticsViewClientConnection connection = _viewConnections.get(viewId);
     if (connection == null) {

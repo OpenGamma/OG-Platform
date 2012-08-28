@@ -36,12 +36,10 @@ public class Subscription {
    * Controls how the data from this subscription will be sent.
    */
   private final MarketDataSenderFactory _marketDataSenderFactory;
-  
   /**
    * A lock to enforce that live data is handled in a serialized and thus safe & ordered fashion.
    */
   private final ReentrantLock _liveDataSerializationLock = new ReentrantLock();
-  
   /** 
    * The data from this subscription can be distributed to clients in multiple formats,
    * therefore we need multiple market data distributors.
@@ -62,19 +60,22 @@ public class Subscription {
    * The creation instant.
    */
   private final Date _creationTime;
+  /**
+   * The provider of last known value stores.
+   */
   private final LastKnownValueStoreProvider _lkvStoreProvider;
 
   /**
    * Creates an instance.
    * 
    * @param securityUniqueId  the security unique ID, specific to the market data provider, not null
-   * @param marketDataSenderFactory  the factory that will create market data distributors for this subscription
-   * @param lkvStoreProvider factory for LastKnownValue stores.
+   * @param marketDataSenderFactory  the factory that will create market data distributors for this subscription, not null
+   * @param lkvStoreProvider  the factory for last known value stores, not null
    */
   public Subscription(String securityUniqueId, MarketDataSenderFactory marketDataSenderFactory, LastKnownValueStoreProvider lkvStoreProvider) {
-    ArgumentChecker.notNull(securityUniqueId, "Security unique ID");
-    ArgumentChecker.notNull(marketDataSenderFactory, "Market data sender factory");
-    ArgumentChecker.notNull(lkvStoreProvider, "LastKnownValue store provider");
+    ArgumentChecker.notNull(securityUniqueId, "securityUniqueId");
+    ArgumentChecker.notNull(marketDataSenderFactory, "marketDataSenderFactory");
+    ArgumentChecker.notNull(lkvStoreProvider, "lkvStoreProvider");
     _securityUniqueId = securityUniqueId;
     _marketDataSenderFactory = marketDataSenderFactory;
     _creationTime = new Date();
@@ -172,8 +173,9 @@ public class Subscription {
   }
 
   /**
-   * Gets the lkvStoreProvider.
-   * @return the lkvStoreProvider
+   * Gets the provider of last known value stores.
+   * 
+   * @return the provider of last known value stores, not null
    */
   public LastKnownValueStoreProvider getLkvStoreProvider() {
     return _lkvStoreProvider;

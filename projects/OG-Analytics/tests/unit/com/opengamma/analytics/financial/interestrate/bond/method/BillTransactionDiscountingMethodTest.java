@@ -17,14 +17,16 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.instrument.bond.BillSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BillTransactionDefinition;
+import com.opengamma.analytics.financial.interestrate.FDCurveSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
+import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivityUtils;
+import com.opengamma.analytics.financial.interestrate.ParSpreadMarketQuoteCalculator;
+import com.opengamma.analytics.financial.interestrate.ParSpreadMarketQuoteCurveSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
-import com.opengamma.analytics.financial.interestrate.bond.method.BillSecurityDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.bond.method.BillTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.method.SensitivityFiniteDifference;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -71,8 +73,12 @@ public class BillTransactionDiscountingMethodTest {
   private final static BillTransactionDiscountingMethod METHOD_TRANSACTION = BillTransactionDiscountingMethod.getInstance();
   private final static PresentValueCalculator PVC = PresentValueCalculator.getInstance();
   private final static PresentValueCurveSensitivityCalculator PVCSC = PresentValueCurveSensitivityCalculator.getInstance();
+  private final static ParSpreadMarketQuoteCalculator PSMQC = ParSpreadMarketQuoteCalculator.getInstance();
+  private final static ParSpreadMarketQuoteCurveSensitivityCalculator PSMQCSC = ParSpreadMarketQuoteCurveSensitivityCalculator.getInstance();
 
   private static final double TOLERANCE_PV = 1.0E-2;
+  private static final double TOLERANCE_SPREAD = 1.0E-8;
+  private static final double TOLERANCE_SPREAD_DELTA = 1.0E-6;
 
   @Test
   /**
@@ -133,6 +139,63 @@ public class BillTransactionDiscountingMethodTest {
     InterestRateCurveSensitivity pvcsMethod = METHOD_TRANSACTION.presentValueCurveSensitivity(BILL_TRA, CURVE_BUNDLE);
     InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(PVCSC.visit(BILL_TRA, CURVE_BUNDLE));
     assertTrue("Bill Security: discounting method - curve sensitivity", InterestRateCurveSensitivity.compare(pvcsMethod, pvcsCalculator, TOLERANCE_PV));
+  }
+
+  @Test
+  /**
+   * Tests the par spread.
+   */
+  public void parSpread() {
+    double spread = METHOD_TRANSACTION.parSpread(BILL_TRA, CURVE_BUNDLE);
+    BillTransactionDefinition bill0Definition = BillTransactionDefinition.fromYield(BILL_SEC_DEFINITION, QUANTITY, SETTLE_DATE, YIELD + spread);
+    BillTransaction bill0 = bill0Definition.toDerivative(REFERENCE_DATE, NAME_CURVES);
+    CurrencyAmount pv0 = METHOD_TRANSACTION.presentValue(bill0, CURVE_BUNDLE);
+    assertEquals("Bill Security: discounting method - par spread", 0, pv0.getAmount(), TOLERANCE_PV);
+  }
+
+  @Test
+  /**
+   * Tests the par spread (Method vs Calculator).
+   */
+  public void parSpreadMethodVsCalculator() {
+    double spreadMethod = METHOD_TRANSACTION.parSpread(BILL_TRA, CURVE_BUNDLE);
+    double spreadCalculator = PSMQC.visit(BILL_TRA, CURVE_BUNDLE);
+    assertEquals("Bill Security: discounting method - par spread", spreadMethod, spreadCalculator, TOLERANCE_SPREAD);
+  }
+
+  @Test
+  /**
+   * Tests the par spread curve sensitivity vs a finite difference calculation.
+   */
+  public void parSpreadCurveSensitivity() {
+    InterestRateCurveSensitivity pscsComputed = METHOD_TRANSACTION.parSpreadCurveSensitivity(BILL_TRA, CURVE_BUNDLE);
+    pscsComputed = pscsComputed.cleaned();
+    assertEquals("Bill Security: present value curve sensitivity", 2, pscsComputed.getSensitivities().size());
+    assertEquals("Bill Security: present value curve sensitivity", 1, pscsComputed.getSensitivities().get(NAME_CURVES[0]).size());
+    assertEquals("Bill Security: present value curve sensitivity", 1, pscsComputed.getSensitivities().get(NAME_CURVES[1]).size());
+    //Testing note: Sensitivity is for a movement of 1. 1E+2 = 0.01 unit for a 1 bp move. 
+    final double deltaShift = 1.0E-6;
+    // Credit curve sensitivity
+    final String bumpedCurveName = "Bumped Curve";
+    BillTransaction billBumped = BILL_TRA_DEFINITION.toDerivative(REFERENCE_DATE, NAME_CURVES[0], bumpedCurveName);
+    final double[] nodeTimesDsc = new double[] {billBumped.getBillPurchased().getSettlementTime()};
+    final List<DoublesPair> sensiDscFD = FDCurveSensitivityCalculator.curveSensitvityFDCalculator(BILL_TRA, PSMQC, CURVE_BUNDLE, NAME_CURVES[0], nodeTimesDsc, deltaShift);
+    final List<DoublesPair> sensiDscComputed = pscsComputed.getSensitivities().get(NAME_CURVES[0]);
+    assertTrue("parSpread: curve sensitivity - dsc", InterestRateCurveSensitivityUtils.compare(sensiDscFD, sensiDscComputed, TOLERANCE_SPREAD_DELTA));
+    final double[] nodeTimesCre = new double[] {billBumped.getBillPurchased().getEndTime()};
+    final List<DoublesPair> sensiFwdFD = FDCurveSensitivityCalculator.curveSensitvityFDCalculator(BILL_TRA, PSMQC, CURVE_BUNDLE, NAME_CURVES[1], nodeTimesCre, deltaShift);
+    final List<DoublesPair> sensiFwdComputed = pscsComputed.getSensitivities().get(NAME_CURVES[1]);
+    assertTrue("parSpread: curve sensitivity - fwd", InterestRateCurveSensitivityUtils.compare(sensiFwdFD, sensiFwdComputed, TOLERANCE_SPREAD_DELTA));
+  }
+
+  @Test
+  /**
+   * Tests the par spread curve sensitivity  (Method vs Calculator).
+   */
+  public void parSpreadCurveSensitivityMethodVsCalculator() {
+    InterestRateCurveSensitivity pscsMethod = METHOD_TRANSACTION.parSpreadCurveSensitivity(BILL_TRA, CURVE_BUNDLE);
+    InterestRateCurveSensitivity pscsCalculator = PSMQCSC.visit(BILL_TRA, CURVE_BUNDLE);
+    assertTrue("parSpread: curve sensitivity - fwd", InterestRateCurveSensitivity.compare(pscsMethod, pscsCalculator, TOLERANCE_SPREAD_DELTA));
   }
 
 }
