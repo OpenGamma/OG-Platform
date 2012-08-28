@@ -167,6 +167,8 @@ public class CDSApproxISDAPresentValueFunction extends AbstractFunction.NonCompi
     
     // Time point to price for
     final ZonedDateTime pricingDate = executionContext.getValuationClock().zonedDateTime();
+    final ZonedDateTime stepinDate = pricingDate.plusDays(1);
+    final ZonedDateTime settlementDate = pricingDate.plusDays(3); // TODO: fixme
     
     // Security being priced
     final CDSSecurity cds = (CDSSecurity) target.getSecurity();
@@ -185,7 +187,7 @@ public class CDSApproxISDAPresentValueFunction extends AbstractFunction.NonCompi
     // Convert security in to format suitable for pricing
     final ISDACDSSecurityConverter converter = new ISDACDSSecurityConverter(holidaySource);
     final ISDACDSDefinition cdsDefinition = (ISDACDSDefinition) cds.accept(converter);
-    final ISDACDSDerivative cdsDerivative = cdsDefinition.toDerivative(pricingDate, "IR_CURVE");  // Sets step-in = T+1 calendar days, settlement = T+3 working days
+    final ISDACDSDerivative cdsDerivative = cdsDefinition.toDerivative(pricingDate, stepinDate, settlementDate, "IR_CURVE");
     
     String name = "IR_CURVE";
     double offset = 0.0;
@@ -199,7 +201,7 @@ public class CDSApproxISDAPresentValueFunction extends AbstractFunction.NonCompi
     double flatSpread = 100.0;
     
     
-    double dirtyPrice = ISDA_APPROX_METHOD.calculateUpfrontCharge(cdsDerivative, isdaDiscountCurve, flatSpread, false);
+    double dirtyPrice = ISDA_APPROX_METHOD.calculateUpfrontCharge(cdsDerivative, isdaDiscountCurve, flatSpread, false, pricingDate, stepinDate, settlementDate);
     
     final ComputedValue cleanPriceValue = new ComputedValue(
       new ValueSpecification(

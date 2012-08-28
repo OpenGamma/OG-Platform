@@ -22,9 +22,11 @@ import javax.time.Duration;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.instrument.Convention;
 import com.opengamma.analytics.financial.instrument.cds.ISDACDSDefinition;
 import com.opengamma.analytics.financial.instrument.cds.ISDACDSPremiumDefinition;
 import com.opengamma.analytics.financial.interestrate.PeriodicInterestRate;
+import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.FollowingBusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -258,9 +260,11 @@ public class ISDATestGridHarness {
   
   public TestResult runTestCase(ISDATestGridRow testCase, ISDACurve discountCurve) {
        
+    final DayCount dayCount = new ActualThreeSixty();  
+    final BusinessDayConvention businessDays = new FollowingBusinessDayConvention();
     final Calendar calendar = new MondayToFridayCalendar("TestCalendar");
-    final BusinessDayConvention convention = new FollowingBusinessDayConvention();
-    final DateAdjuster adjuster = convention.getDateAdjuster(calendar);
+    final Convention convention = new Convention(3, dayCount, businessDays, calendar, "");
+    final DateAdjuster adjuster = businessDays.getDateAdjuster(calendar);
     
     final ZonedDateTime pricingDate = testCase.getTradeDate().atStartOfDayInZone(TimeZone.UTC); 
     final ZonedDateTime maturity = testCase.getMaturityDate().atStartOfDayInZone(TimeZone.UTC);
@@ -286,19 +290,18 @@ public class ISDATestGridHarness {
     // Assume 1 billion notional, quarterly premiums and ACT360 day count
     final double notional = 1000000000;
     final Frequency couponFrequency = SimpleFrequency.QUARTERLY;
-    final DayCount dayCount = new ActualThreeSixty();  
     
     // Now build the CDS object
-    final ISDACDSPremiumDefinition premiumDefinition = null;//ISDACDSPremiumDefinition.fromISDA(Currency.USD, startDate, maturity, couponFrequency, calendar, dayCount, convention, /*notional*/ 1.0, spread, /* protect start */ true);
-    final ISDACDSDefinition cdsDefinition = null;//new ISDACDSDefinition(premiumDefinition, null, startDate, maturity, /*notional*/1.0, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true, dayCount);
-    final ISDACDSDerivative cds = cdsDefinition.toDerivative(pricingDate, "IR_CURVE");  
+    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, couponFrequency, convention, StubType.SHORT_START, /* protect start */ true, /*notional*/ 1.0, spread, Currency.USD);
+    final ISDACDSDefinition cdsDefinition = new ISDACDSDefinition(startDate, maturity, premiumDefinition, convention, /*notional*/1.0, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true);
+    final ISDACDSDerivative cds = cdsDefinition.toDerivative(pricingDate, stepinDate, settlementDate, "IR_CURVE");  
     
     // Par spread is always supplied
     final double marketSpread = testCase.getQuotedSpread() / 10000.0;
     
     // Now go price
-    final double dirtyPrice = calculator.calculateUpfrontCharge(cds, discountCurve, marketSpread, false);
-    final double cleanPrice = calculator.calculateUpfrontCharge(cds, discountCurve, marketSpread, true);
+    final double dirtyPrice = calculator.calculateUpfrontCharge(cds, discountCurve, marketSpread, false, pricingDate, stepinDate, settlementDate);
+    final double cleanPrice = calculator.calculateUpfrontCharge(cds, discountCurve, marketSpread, true, pricingDate, stepinDate, settlementDate);
       
     final double dirtyExpected = testCase.getUpfront();
     final double dirtyAbsoluteError = Math.abs(notional * dirtyPrice - dirtyExpected);

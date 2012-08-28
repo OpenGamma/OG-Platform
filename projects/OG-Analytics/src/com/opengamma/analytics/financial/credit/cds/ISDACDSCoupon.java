@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.credit.cds;
 
+import javax.time.calendar.ZonedDateTime;
+
 import com.opengamma.analytics.financial.instrument.cds.ISDACDSCouponDefinition;
 import com.opengamma.analytics.financial.instrument.cds.ISDACDSPremiumDefinition;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
@@ -36,12 +38,14 @@ public class ISDACDSCoupon extends CouponFixed {
    * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
    * @param notional Coupon notional.
    * @param rate The coupon fixed rate.
+   * @param accrualStartDate The start date of the coupon accrual period.
+   * @param accrualEndDate The end date of the coupon accrual period.
    * @param accrualStartTime The start time of the coupon accrual period.
    * @param accrualEndTime The end time of the coupon accrual period.
    */
   public ISDACDSCoupon(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional, final double rate,
-    final double accrualStartTime, final double accrualEndTime) {
-    super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, rate);
+    final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualStartTime, final double accrualEndTime) {
+    super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, rate, accrualStartDate, accrualEndDate);
    
     _accrualStartTime = accrualStartTime;
     _accrualEndTime = accrualEndTime;

@@ -19,7 +19,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Definition implementation for CDS securities
+ * ISDA definition for CDS securities
  * 
  * @author Martin Traverse, Niels Stchedroff (Riskcare)
  * 
@@ -51,16 +51,16 @@ public class ISDACDSDefinition implements InstrumentDefinition<ISDACDSDerivative
    * @param startDate Protection start date of the CDS contract (may be in the past, not null)
    * @param maturity Maturity date of the CDS contract (not null)
    * @param premium Definition for the premium payments (not null)
+   * @param convention Convention data
    * @param notional Notional of the CDS contract
    * @param spread Spread (a.k.a. coupon rate) of the CDS contract
    * @param recoveryRate Recovery rate against the underlying
-   * @param convention Convention data
    * @param accrualOnDefault Whether, in the event of default, accrued interest must be paid for the current period up to the default date
    * @param payOnDefault Whether protection payment is due on default (true) or at maturity (false)
    * @param protectStart Whether the start date is protected (i.e. one extra day of protection)
    */
-  public ISDACDSDefinition(final ZonedDateTime startDate, final ZonedDateTime maturity, final ISDACDSPremiumDefinition premium,
-    final double notional, final double spread, final double recoveryRate, final Convention convention,
+  public ISDACDSDefinition(final ZonedDateTime startDate, final ZonedDateTime maturity, final ISDACDSPremiumDefinition premium, final Convention convention,
+    final double notional, final double spread, final double recoveryRate,
     final boolean accrualOnDefault, final boolean payOnDefault, final boolean protectStart) {
     
     ArgumentChecker.notNull(startDate, "start date");
@@ -84,7 +84,7 @@ public class ISDACDSDefinition implements InstrumentDefinition<ISDACDSDerivative
    * Create a {@link ISDACDSDerivative} object for pricing relative to the given pricing date 
    * 
    * @param pricingDate Pricing point for offsetting t values
-   * @param yieldCurveNames Curve names: 0 = discount, 1 = credit spread, 2 = discount for underlying (optional)
+   * @param yieldCurveNames Curve names: 0 = discount, 1 = credit spread (optional)
    * @return CDS derivative object ready for pricing
    */
   @Override

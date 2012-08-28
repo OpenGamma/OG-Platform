@@ -50,7 +50,7 @@ public class ISDACDSCouponDefinition extends CouponFixedDefinition {
     final String fundingCurveName = yieldCurveNames[0]; 
     
     return new ISDACDSCoupon(getCurrency(), getTimeBetween(date, getPaymentDate()), fundingCurveName, getPaymentYearFraction(), getNotional(), getRate(),
-      getTimeBetween(date, getAccrualStartDate()), getTimeBetween(date, getAccrualEndDate()));
+        getAccrualStartDate(), getAccrualEndDate(), getTimeBetween(date, getAccrualStartDate()), getTimeBetween(date, getAccrualEndDate()));
   }
   
   private static double getTimeBetween(final ZonedDateTime date1, final ZonedDateTime date2) {

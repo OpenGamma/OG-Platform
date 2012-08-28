@@ -54,7 +54,7 @@ public class ISDACDSSecurityConverter extends FinancialSecurityVisitorAdapter<In
       cds.getNotional(), cds.getSpread(), cds.getCurrency());
     
     return new ISDACDSDefinition(cds.getStartDate(), cds.getMaturity(), premiumPayments,
-      cds.getNotional(), cds.getSpread(), cds.getRecoveryRate(), convention,
+      convention, cds.getNotional(), cds.getSpread(), cds.getRecoveryRate(),
       ACCRUAL_ON_DEFAULT, PAY_ON_DEFAULT, PROTECT_START);
   }
 }

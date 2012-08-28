@@ -12,31 +12,27 @@ import java.util.TreeSet;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.instrument.Convention;
 import com.opengamma.analytics.financial.instrument.cds.ISDACDSDefinition;
 import com.opengamma.analytics.financial.instrument.cds.ISDACDSPremiumDefinition;
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
 import com.opengamma.analytics.math.rootfinding.SingleRootFinder;
+import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.FollowingBusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.ActualThreeSixty;
-import com.opengamma.financial.convention.daycount.ActualThreeSixtyFive;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
-import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.CurrencyAmount;
 /**
  * An approximation to the calculation method for the ISDA CDS model
  * 
  * @author Martin Traverse, Niels Stchedroff (Riskcare)
  */
 public class CDSApproxISDAMethod {
-  
-  private static DayCount s_act365 = new ActualThreeSixtyFive();
   
   private static final double PRICING_TIME = 0.0;
   private static final double ONE_DAY_ACT_365F = 1.0 / 365.0;
@@ -69,23 +65,28 @@ public class CDSApproxISDAMethod {
    */
   public double calculateUpfrontCharge(final ISDACDSDerivative cds, final ISDACurve discountCurve, final ISDACurve hazardRateCurve, boolean cleanPrice) {
     
+    // Offset time values
     final double offset = cds.isProtectStart() ? ONE_DAY_ACT_365F : 0.0;
     final double offsetPricingTime = -offset;
     final double offsetStepinTime = cds.getStepinTime() - offset;
     final double offsetMaturityTime = cds.getMaturity() + offset;
     final double protectionStartTime = Math.max(Math.max(cds.getStartTime(), offsetStepinTime), offsetPricingTime);
    
+    // Constant time lines used in pricing
     final Timeline paymentTimeline = buildPaymentTimeline(cds, discountCurve);
     final Timeline accrualTimeline = buildTimeline(cds, discountCurve, hazardRateCurve, cds.getStartTime(), offsetMaturityTime, true);
     final Timeline contingentTimeline = buildTimeline(cds, discountCurve, hazardRateCurve, protectionStartTime, cds.getMaturity(), false);
     
+    // Constant discount factors used in pricing
     final double settlementDiscountFactor = discountCurve.getDiscountFactor(cds.getSettlementTime());
     final double stepinDiscountFactor = offsetStepinTime > 0.0 ? discountCurve.getDiscountFactor(offsetStepinTime) : discountCurve.getDiscountFactor(0.0);
     
-    return valueCDS(cds, discountCurve, hazardRateCurve, paymentTimeline, accrualTimeline, contingentTimeline, offsetStepinTime, stepinDiscountFactor, settlementDiscountFactor, cleanPrice);
+    // Now value CDS, discount curve not needed since discount factors remain constant and are pre-computed
+    return valueCDS(cds, hazardRateCurve, paymentTimeline, accrualTimeline, contingentTimeline, offsetStepinTime, stepinDiscountFactor, settlementDiscountFactor, cleanPrice);
   }
 
-  public double calculateUpfrontCharge(final ISDACDSDerivative cds, final ISDACurve discountCurve, double flatSpread, boolean cleanPrice) {
+  public double calculateUpfrontCharge(final ISDACDSDerivative cds, final ISDACurve discountCurve, double flatSpread, boolean cleanPrice,
+    final ZonedDateTime pricingDate, final ZonedDateTime stepinDate, final ZonedDateTime settlementDate) {
     
     final double offset = cds.isProtectStart() ? ONE_DAY_ACT_365F : 0.0;
     final double offsetPricingTime = -offset;
@@ -103,11 +104,8 @@ public class CDSApproxISDAMethod {
     final double[] timePoints = {cds.getMaturity()};
     final double[] dataPoints = {flatSpread};
 
-    final ISDACDSCoupon[] premiums = cds.getPremium().getPayments();
-    final ZonedDateTime startDate = premiums[0].getAccrualStartDate();
-    final ZonedDateTime maturityDate = premiums[premiums.length - 1].getAccrualEndDate();
-    final ISDACDSDefinition zeroCDSDefinition = makeZeroCDSDefintion(startDate, maturityDate, dataPoints[0], cds.getRecoveryRate());
-    final ISDACDSDerivative zeroCDS = null;//zeroCDSDefinition.toDerivative(pricingDate, "IR_CURVE", "TEMP_CURVE");
+    final ISDACDSDefinition bootstrapCDSDefinition = makeBootstrapCDSDefinition(cds, flatSpread);
+    final ISDACDSDerivative bootstrapCDS = bootstrapCDSDefinition.toDerivative(pricingDate, stepinDate, settlementDate, "IR_CURVE", "TEMP_CURVE");
 
     SingleRootFinder<Double, Double> rootFinder = new BrentSingleRootFinder(1E-17);
     
@@ -119,7 +117,7 @@ public class CDSApproxISDAMethod {
         public Double evaluate(Double x) {
           dataPoints[0] = x;   
           ISDACurve tempCurve = new ISDACurve("TEMP_CURVE", timePoints, dataPoints, 0.0);
-          return valueCDS(zeroCDS, discountCurve, tempCurve, paymentTimeline, accrualTimeline, contingentTimeline, offsetStepinTime, stepinDiscountFactor, settlementDiscountFactor, true);
+          return valueCDS(bootstrapCDS, tempCurve, paymentTimeline, accrualTimeline, contingentTimeline, offsetStepinTime, stepinDiscountFactor, settlementDiscountFactor, true);
         }  
       },
       0.0, 100.0
@@ -127,30 +125,34 @@ public class CDSApproxISDAMethod {
     
     final ISDACurve hazardRateCurve = new ISDACurve("HAZARD_RATE_CURVE", timePoints, dataPoints, 0.0);
       
-    return valueCDS(cds, discountCurve, hazardRateCurve, paymentTimeline, accrualTimeline, contingentTimeline, offsetStepinTime, stepinDiscountFactor, settlementDiscountFactor, cleanPrice);
+    return valueCDS(cds, hazardRateCurve, paymentTimeline, accrualTimeline, contingentTimeline, offsetStepinTime, stepinDiscountFactor, settlementDiscountFactor, cleanPrice);
   }
   
-  private ISDACDSDefinition makeZeroCDSDefintion(ZonedDateTime startDate, ZonedDateTime maturity, final double spread, final double recoveryRate) {
+  private ISDACDSDefinition makeBootstrapCDSDefinition(final ISDACDSDerivative cds, final double parSpread) {
     
     final double notional = 1.0;
+    
+    final ISDACDSCoupon[] premiums = cds.getPremium().getPayments();
+    final ZonedDateTime startDate = premiums[0].getAccrualStartDate();
+    final ZonedDateTime maturity = premiums[premiums.length - 1].getAccrualEndDate();
     
     // TODO: source these values from somewhere
     final Frequency couponFrequency = SimpleFrequency.QUARTERLY;
     final Calendar calendar = new MondayToFridayCalendar("TestCalendar");
     final DayCount dayCount = new ActualThreeSixty();
-    final BusinessDayConvention convention = new FollowingBusinessDayConvention();
+    final BusinessDayConvention businessDays = new FollowingBusinessDayConvention();
+    final Convention convention = new Convention(0, dayCount, businessDays, calendar, "");
     
-    final ISDACDSPremiumDefinition premiumDefinition = null; /*ISDACDSPremiumDefinition.fromISDA(
-        Currency.USD, startDate, maturity,
-        couponFrequency, calendar, dayCount, convention,
-        notional, spread,
-        /* protect start * / true);*/
+    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(
+      startDate, maturity, couponFrequency,
+      convention, StubType.SHORT_START, /* protect start */ true,
+      notional, parSpread, cds.getPremium().getCurrency());
     
-    return null;//new ISDACDSDefinition(startDate, maturity, premiumDefinition, notional, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true, dayCount);
+    return new ISDACDSDefinition(startDate, maturity, premiumDefinition, convention, notional, parSpread, cds.getRecoveryRate(), /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true);
   }
   
-  private double valueCDS(ISDACDSDerivative cds, ISDACurve discountCurve, ISDACurve hazardRateCurve, Timeline paymentTimeline, Timeline accrualTimeline, Timeline contingentTimeline,
-  final double stepinTime, final double stepinDiscountFactor, final double settlementDiscountFactor, boolean cleanPrice) {
+  private double valueCDS(final ISDACDSDerivative cds, final ISDACurve hazardRateCurve, final Timeline paymentTimeline, final Timeline accrualTimeline, final Timeline contingentTimeline,
+    final double stepinTime, final double stepinDiscountFactor, final double settlementDiscountFactor, boolean cleanPrice) {
     
     if (stepinTime < PRICING_TIME) {
       throw new OpenGammaRuntimeException("Cannot value a CDS with step-in date before pricing date");
@@ -351,7 +353,6 @@ public class CDSApproxISDAMethod {
     return (survival0 - survival1) * discount * loss;
   }
   
-  
   private Timeline buildTimeline(ISDACDSDerivative cds, ISDACurve discountCurve, ISDACurve hazardRateCurve, double startTime, double endTime, boolean includeSchedule) {
     
     NavigableSet<Double> allTimePoints = new TreeSet<Double>();
@@ -426,29 +427,5 @@ public class CDSApproxISDAMethod {
     }
     
     return new Timeline(timePoints, discountFactors);
-  }
-  
-  /**
-   * Return the fraction of a year between two dates according the the ACT365 convention.
-   * If date2 < date1 the result will be negative.
-   * 
-   * @param date1 The first date
-   * @param date2 The second date
-   * @return Real time value in years
-   */
-  public static double getTimeBetween(final ZonedDateTime date1, final ZonedDateTime date2) {
-
-    final ZonedDateTime rebasedDate2 = date2.withZoneSameInstant(date1.getZone());
-    final boolean timeIsNegative = date1.isAfter(rebasedDate2);
-
-    if (!timeIsNegative) {
-      return s_act365.getDayCountFraction(date1, rebasedDate2);
-    } else {
-      return -1.0 * s_act365.getDayCountFraction(rebasedDate2, date1);
-    }
-  }
-
-  public CurrencyAmount presentValue(ISDACDSDerivative cdsDerivative, YieldCurveBundle curveBundle) {
-    return null;
   }
 }

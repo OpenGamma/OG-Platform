@@ -60,7 +60,7 @@ public class CDSTestSetup {
 
     final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, premiumFrequency, convention, StubType.SHORT_START, /* protectStart */ true, notional, spread, Currency.USD);
 
-    return new ISDACDSDefinition(startDate, maturity, premiumDefinition, notional, spread, recoveryRate, convention, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true);
+    return new ISDACDSDefinition(startDate, maturity, premiumDefinition, convention, notional, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true);
   }
   
   protected ISDACurve loadDiscountCurve_ISDAExampleMainC() {
@@ -157,7 +157,7 @@ public class CDSTestSetup {
 
     final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, couponFrequency, convention, StubType.SHORT_START, /* protectStart */ true, notional, spread, Currency.USD);
     
-    return new ISDACDSDefinition(startDate, maturity, premiumDefinition, notional, spread, recoveryRate, convention, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true);
+    return new ISDACDSDefinition(startDate, maturity, premiumDefinition, convention, notional, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true);
   }
   
   protected ISDACDSDefinition loadCDS_ISDAExampleUpfrontConverter() {
@@ -175,7 +175,7 @@ public class CDSTestSetup {
 
     final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, couponFrequency, convention, StubType.SHORT_START, /* protectStart */ true, notional, spread, Currency.USD);
     
-    return new ISDACDSDefinition(startDate, maturity, premiumDefinition, notional, spread, recoveryRate, convention, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true);
+    return new ISDACDSDefinition(startDate, maturity, premiumDefinition, convention, notional, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true);
   }
   
   protected ISDACurve loadHazardRateCurve_ISDAExampleCDSCalculator() {
