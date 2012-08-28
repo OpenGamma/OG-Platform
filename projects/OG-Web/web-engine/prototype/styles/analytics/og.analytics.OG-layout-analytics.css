@@ -18,3 +18,7 @@
 .OG-layout-analytics-center {
     background: #f8f8f8;
 }
+
+.OG-layout-analytics-center .OG-g {
+    border-top: 1px solid #fff;
+}

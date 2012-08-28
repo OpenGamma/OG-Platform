@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.analytics.Grid',
     dependencies: ['og.api.text', 'og.analytics.Data'],
     obj: function () {
-        var module = this, counter = 1, header_height = 49, row_height = 19, templates = null,
+        var module = this, counter = 1, header_height = 55, row_height = 19, templates = null,
             scrollbar_size = (function () {
                 var html = '<div style="width: 100px; height: 100px; position: absolute; \
                     visibility: hidden; overflow: auto; left: -10000px; z-index: -10000; bottom: 100px" />';
