@@ -145,7 +145,8 @@ BOOL CWait::WaitForStartup (CFeedback *poFeedback) {
 	if (hService) CloseServiceHandle (hService);
 	if (*szStatus) {
 		if (poFeedback) {
-			poFeedback->Alert (szStatus, "OpenGamma Intallation", MB_OK | MB_ICONSTOP);
+			poFeedback->BringToTop ();
+			poFeedback->Alert (szStatus, "OpenGamma Installation", MB_OK | MB_ICONSTOP);
 		}
 		return FALSE;
 	} else {

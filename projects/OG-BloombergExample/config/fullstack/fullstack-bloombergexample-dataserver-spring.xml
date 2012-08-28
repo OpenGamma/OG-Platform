@@ -215,22 +215,14 @@
   <bean id="bloombergLiveDataServer" class="com.opengamma.bbg.livedata.BloombergLiveDataServer" init-method="start">
     <constructor-arg index="0" ref="bloombergConnector" />
     <constructor-arg index="1" ref="bbgReferenceDataProvider" />
-    
-    <property name="distributionSpecificationResolver" ref="distributionSpecificationResolver"/>
-    <property name="entitlementChecker" ref="entitlementChecker"/>
-    <property name="marketDataSenderFactory" ref="jmsSenderFactory"/>
-    <property name="subscriptionLimit" value="1000"/> 
   </bean>
   
   <bean id="fakeBloombergLiveDataServer" class="com.opengamma.bbg.livedata.faketicks.FakeSubscriptionBloombergLiveDataServer" init-method="start">
     <constructor-arg index="0" ref="bloombergLiveDataServer" />
-    
-    <!-- NOTE: do not set distributionSpecificationResolver, it is derived from the underlying servers resolved-->
+    <constructor-arg index="1" ref="cacheManager" />
     <property name="entitlementChecker" ref="entitlementChecker"/>
     <property name="marketDataSenderFactory" ref="jmsSenderFactory"/> 
   </bean>
-  
-  
   
   <!-- TODO: stop using this, everything should switch to explicit weak, but we have to wait for that change to propagate -->
   <bean id="volatilitySubscriptionSelector" class="com.opengamma.bbg.livedata.faketicks.ByTypeFakeSubscriptionSelector">
