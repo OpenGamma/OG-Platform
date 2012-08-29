@@ -170,9 +170,9 @@ public class BillTransactionDiscountingMethodTest {
   public void parSpreadCurveSensitivity() {
     InterestRateCurveSensitivity pscsComputed = METHOD_TRANSACTION.parSpreadCurveSensitivity(BILL_TRA, CURVE_BUNDLE);
     pscsComputed = pscsComputed.cleaned();
-    assertEquals("Bill Security: present value curve sensitivity", 2, pscsComputed.getSensitivities().size());
-    assertEquals("Bill Security: present value curve sensitivity", 1, pscsComputed.getSensitivities().get(NAME_CURVES[0]).size());
-    assertEquals("Bill Security: present value curve sensitivity", 1, pscsComputed.getSensitivities().get(NAME_CURVES[1]).size());
+    assertEquals("Bill Transaction: par spread curve sensitivity", 2, pscsComputed.getSensitivities().size());
+    assertEquals("Bill Transaction: par spread curve sensitivity", 1, pscsComputed.getSensitivities().get(NAME_CURVES[0]).size());
+    assertEquals("Bill Transaction: par spread sensitivity", 1, pscsComputed.getSensitivities().get(NAME_CURVES[1]).size());
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 0.01 unit for a 1 bp move. 
     final double deltaShift = 1.0E-6;
     // Credit curve sensitivity
@@ -181,11 +181,11 @@ public class BillTransactionDiscountingMethodTest {
     final double[] nodeTimesDsc = new double[] {billBumped.getBillPurchased().getSettlementTime()};
     final List<DoublesPair> sensiDscFD = FDCurveSensitivityCalculator.curveSensitvityFDCalculator(BILL_TRA, PSMQC, CURVE_BUNDLE, NAME_CURVES[0], nodeTimesDsc, deltaShift);
     final List<DoublesPair> sensiDscComputed = pscsComputed.getSensitivities().get(NAME_CURVES[0]);
-    assertTrue("parSpread: curve sensitivity - dsc", InterestRateCurveSensitivityUtils.compare(sensiDscFD, sensiDscComputed, TOLERANCE_SPREAD_DELTA));
+    assertTrue("Bill Transaction: par spread curve sensitivity - dsc", InterestRateCurveSensitivityUtils.compare(sensiDscFD, sensiDscComputed, TOLERANCE_SPREAD_DELTA));
     final double[] nodeTimesCre = new double[] {billBumped.getBillPurchased().getEndTime()};
     final List<DoublesPair> sensiFwdFD = FDCurveSensitivityCalculator.curveSensitvityFDCalculator(BILL_TRA, PSMQC, CURVE_BUNDLE, NAME_CURVES[1], nodeTimesCre, deltaShift);
     final List<DoublesPair> sensiFwdComputed = pscsComputed.getSensitivities().get(NAME_CURVES[1]);
-    assertTrue("parSpread: curve sensitivity - fwd", InterestRateCurveSensitivityUtils.compare(sensiFwdFD, sensiFwdComputed, TOLERANCE_SPREAD_DELTA));
+    assertTrue("Bill Transaction: par spread curve sensitivity - fwd", InterestRateCurveSensitivityUtils.compare(sensiFwdFD, sensiFwdComputed, TOLERANCE_SPREAD_DELTA));
   }
 
   @Test

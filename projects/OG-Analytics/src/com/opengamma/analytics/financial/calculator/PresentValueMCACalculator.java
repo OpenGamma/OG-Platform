@@ -28,11 +28,13 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounded;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponFixedDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.payments.method.CouponIborCompoundedDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponIborDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponIborSpreadDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponOISDiscountingMethod;
@@ -75,6 +77,7 @@ public class PresentValueMCACalculator extends AbstractInstrumentDerivativeVisit
   private static final CouponOISDiscountingMethod METHOD_CPN_OIS = CouponOISDiscountingMethod.getInstance();
   private static final CouponIborDiscountingMethod METHOD_CPN_IBOR = CouponIborDiscountingMethod.getInstance();
   private static final CouponIborSpreadDiscountingMethod METHOD_CPN_IBOR_SPREAD = CouponIborSpreadDiscountingMethod.getInstance();
+  private static final CouponIborCompoundedDiscountingMethod METHOD_CPN_IBOR_COMP = CouponIborCompoundedDiscountingMethod.getInstance();
   private static final ForwardRateAgreementDiscountingMethod METHOD_FRA = ForwardRateAgreementDiscountingMethod.getInstance();
   private static final InterestRateFutureDiscountingMethod METHOD_IR_FUTURES = InterestRateFutureDiscountingMethod.getInstance();
   private static final ForexDiscountingMethod METHOD_FOREX = ForexDiscountingMethod.getInstance();
@@ -127,6 +130,11 @@ public class PresentValueMCACalculator extends AbstractInstrumentDerivativeVisit
   @Override
   public MultipleCurrencyAmount visitCouponIborSpread(final CouponIborSpread coupon, final YieldCurveBundle curves) {
     return MultipleCurrencyAmount.of(METHOD_CPN_IBOR_SPREAD.presentValue(coupon, curves));
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitCouponIborCompounded(final CouponIborCompounded coupon, final YieldCurveBundle curves) {
+    return MultipleCurrencyAmount.of(METHOD_CPN_IBOR_COMP.presentValue(coupon, curves));
   }
 
   @Override

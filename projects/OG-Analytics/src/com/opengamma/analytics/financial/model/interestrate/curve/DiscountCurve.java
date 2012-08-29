@@ -12,6 +12,8 @@ import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.analytics.math.curve.DoublesCurve;
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -43,6 +45,25 @@ public class DiscountCurve extends YieldAndDiscountCurve {
   public static DiscountCurve from(final DoublesCurve discountFactorCurve) {
     ArgumentChecker.notNull(discountFactorCurve, "Curve");
     return new DiscountCurve(discountFactorCurve.getName(), discountFactorCurve);
+  }
+
+  /**
+   * Builder of an interpolated discount factor curve from yields (continuously compounded).
+   * @param nodePoints The node points for the interpolated curve.
+   * @param yields The yields (cc) at the node points.
+   * @param interpolator The discount factors interpolator.
+   * @param name The curve name.
+   * @return The discount curve.
+   */
+  public static DiscountCurve fromYieldsInterpolated(final double[] nodePoints, final double[] yields, final Interpolator1D interpolator, final String name) {
+    int nbYields = yields.length;
+    ArgumentChecker.isTrue(nodePoints.length == nbYields, "Yields array of incorrect length");
+    double[] discountFactor = new double[nbYields];
+    for (int loopy = 0; loopy < nbYields; loopy++) {
+      discountFactor[loopy] = Math.exp(-nodePoints[loopy] * yields[loopy]);
+    }
+    InterpolatedDoublesCurve curve = new InterpolatedDoublesCurve(nodePoints, discountFactor, interpolator, false);
+    return new DiscountCurve(name, curve);
   }
 
   @Override

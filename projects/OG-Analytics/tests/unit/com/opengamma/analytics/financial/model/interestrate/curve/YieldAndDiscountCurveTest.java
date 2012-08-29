@@ -156,4 +156,16 @@ public class YieldAndDiscountCurveTest {
     }
   }
 
+  @Test
+  /**
+   * Tests the build of a discount curve from yields (cc).
+   */
+  public void discountCurveFromYieldsInterpolated() {
+    DiscountCurve dfFromYields = DiscountCurve.fromYieldsInterpolated(TIME, RATES, new LinearInterpolator1D(), "DF");
+    Double[] df = ((InterpolatedDoublesCurve) dfFromYields.getCurve()).getYData();
+    for (int loopyield = 0; loopyield < TIME.length; loopyield++) {
+      assertEquals("DiscountCurve.fromYieldsInterpolated", RATES[loopyield], -Math.log(df[loopyield]) / TIME[loopyield], TOLERANCE_RATE);
+    }
+  }
+
 }

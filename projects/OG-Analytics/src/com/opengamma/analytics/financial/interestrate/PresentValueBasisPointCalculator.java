@@ -17,6 +17,7 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounded;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
@@ -101,6 +102,11 @@ public final class PresentValueBasisPointCalculator extends AbstractInstrumentDe
 
   @Override
   public Double visitCouponIborSpread(final CouponIborSpread coupon, final YieldCurveBundle curves) {
+    return visitCoupon(coupon, curves);
+  }
+
+  @Override
+  public Double visitCouponIborCompounded(final CouponIborCompounded coupon, final YieldCurveBundle curves) {
     return visitCoupon(coupon, curves);
   }
 
