@@ -17,6 +17,7 @@ import com.opengamma.analytics.financial.credit.ScheduleGenerationMethod;
 import com.opengamma.analytics.financial.credit.Sector;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -187,46 +188,92 @@ public class CreditDefaultSwapDefinition {
 
     // TODO : Fix argument checkers
 
-    // TODO : Assume we don't need to check the arguments of the enumerated fields e.g. buySellProtection, currency, calendar?
+    ArgumentChecker.notNull(buySellProtection, "Buy/Sell field is null");
+    // Do we need to check for ""?
 
-    /*
-    ArgumentChecker.isTrue(getBuySellProtection().equals(null), "Buy/Sell protection flag is empty");
-    ArgumentChecker.isTrue(protectionSeller.isEmpty(), "Protection seller field is empty");
-    ArgumentChecker.isTrue(protectionBuyer.isEmpty(), "Protection buyer field is empty");
-    ArgumentChecker.isTrue(referenceEntityTicker.isEmpty(), "Reference entity ticker field is empty");
-    ArgumentChecker.isTrue(referenceEntityShortName.isEmpty(), "Reference entity short name field is empty");
-    ArgumentChecker.isTrue(referenceEntityREDCode.isEmpty(), "Reference entity RED code field is empty");
+    ArgumentChecker.notNull(protectionBuyer, "Protection buyer field is null");
+    ArgumentChecker.isFalse(protectionBuyer.isEmpty(), "Protection buyer field is empty");
 
-    ArgumentChecker.isTrue(getCurrency().equals(null), "Currency field is empty");
-    */
+    ArgumentChecker.notNull(protectionSeller, "Protection seller field is null");
+    ArgumentChecker.isFalse(protectionSeller.isEmpty(), "Protection seller field is empty");
 
-    /*
-    
-    ArgumentChecker.isTrue(debtSeniority.isEmpty(), "Debt seniority field is empty");
-    ArgumentChecker.isTrue(restructuringClause.isEmpty(), "Restructuring clause field is empty");
-    
-    // TODO : Check calendar object? No, can allow calendar to be 'null' if the user doesn't want to business day adjust dates
-    
-    // TODO : Do we need to check if the ZonedDateTime objects are empty?
-    
-    ArgumentChecker.isTrue(scheduleGenerationMethod.isEmpty(), "Schedule generation method field is empty");
-    ArgumentChecker.isTrue(couponFrequency.isEmpty(), "Coupon frequency field is empty");
-    ArgumentChecker.isTrue(daycountFractionConvention.isEmpty(), "Daycount fraction convention field is empty");
-    ArgumentChecker.isTrue(businessdayAdjustmentConvention.isEmpty(), "Business day adjustment convention field is empty");
-    
+    ArgumentChecker.notNull(referenceEntityTicker, "Reference entity ticker field is null");
+    ArgumentChecker.isFalse(referenceEntityTicker.isEmpty(), "Reference entity ticker field is empty");
+
+    ArgumentChecker.notNull(referenceEntityShortName, "Reference entity short name field is null");
+    ArgumentChecker.isFalse(referenceEntityShortName.isEmpty(), "Reference entity short name field is empty");
+
+    ArgumentChecker.notNull(referenceEntityREDCode, "Reference entity RED code field is null");
+    ArgumentChecker.isFalse(referenceEntityREDCode.isEmpty(), "Reference entity RED code field is empty");
+
+    ArgumentChecker.notNull(currency, "Currency field is null");
+    // Do we need to check for ""?
+
+    ArgumentChecker.notNull(debtSeniority, "Debt seniority field is null");
+    // Do we need to check for ""?
+
+    ArgumentChecker.notNull(restructuringClause, "Restructuring clause field is null");
+    // Do we need to check for ""?
+
+    ArgumentChecker.notNull(compositeRating, "Composite rating field is null");
+    // Do we need to check for ""?
+
+    ArgumentChecker.notNull(impliedRating, "Implied rating field is null");
+    // Do we need to check for ""?
+
+    ArgumentChecker.notNull(sector, "Sector field is null");
+    // Do we need to check for ""?
+
+    ArgumentChecker.notNull(region, "Region field is null");
+    // Do we need to check for ""?
+
+    ArgumentChecker.notNull(country, "Country field is null");
+    ArgumentChecker.isFalse(country.isEmpty(), "Country field is empty");
+
+    ArgumentChecker.notNull(calendar, "Calendar field is null");
+    // Do we need to check for ""?
+
+    ArgumentChecker.notNull(startDate, "Start date field is null");
+    // Do we need to check for ""?
+
+    ArgumentChecker.notNull(effectiveDate, "Effective date field is null");
+    // Do we need to check for ""?
+
+    ArgumentChecker.notNull(maturityDate, "Maturity date field is null");
+    // Do we need to check for ""?
+
+    ArgumentChecker.notNull(valuationDate, "Valuation date field is null");
+    // Do we need to check for ""?
+
+    ArgumentChecker.notNull(scheduleGenerationMethod, "Schedule generation method field is null");
+    // Do we need to check for ""?
+
+    ArgumentChecker.notNull(couponFrequency, "Coupon frequency field is null");
+    // Do we need to check for ""?
+
+    // TODO: Add the checks for daycountConvention and businessdayAdjustmentConvention when replace the strings with enums
+
+    // TODO: Verify don't have to check boolean adjustMaturityDate for null
+
+    ArgumentChecker.isTrue(notional >= 0.0, "Notional amount should be greater than or equal to zero");
+    ArgumentChecker.isTrue(parSpread >= 0.0, "CDS par spread should be greater than or equal to zero");
+
+    //ArgumentChecker.isTrue(valuationRecoveryRate >= 0.0, "Valuation Recovery Rate should be greater than or equal to 0%");
+    //ArgumentChecker.isTrue(valuationRecoveryRate <= 1.0, "Valuation Recovery Rate should be less than or equal to 100%");
+
+    //ArgumentChecker.isInRangeInclusive(valuationRecoveryRate, 0.0, 1.0);
+    //ArgumentChecker.isInRangeInclusive(curveRecoveryRate, 0.0, 1.0);
+
     // TODO : Add the logical checks for the ordering of the dates
-    ArgumentChecker.isTrue(startDate.isBefore(valuationDate), "Start date {} must be before valuation date {}", startDate, valuationDate);
-    ArgumentChecker.isTrue(startDate.isBefore(effectiveDate), "Start date {} must be before effective date {}", startDate, effectiveDate);
-    ArgumentChecker.isTrue(startDate.isBefore(maturityDate), "Start date {} must be before maturity date {}", startDate, maturityDate);
-    
-    ArgumentChecker.isTrue(valuationDate.isBefore(maturityDate), "Valuation date {} must be before maturity date {}", valuationDate, maturityDate);
-    ArgumentChecker.isTrue(valuationDate.isAfter(effectiveDate), "Valuation date {} must be after effective date {}", valuationDate, effectiveDate);
-    
     // TODO : Are there any logical date checks I have missed?
-    
-    ArgumentChecker.isTrue(notional >= 0.0,  "Notional amount should be greater than or equal to zero");
-    ArgumentChecker.isTrue(parSpread >= 0.0,  "CDS par spread should be greater than or equal to zero");
-    
+    //ArgumentChecker.isTrue(startDate.isBefore(valuationDate), "Start date {} must be before valuation date {}", startDate, valuationDate);
+    //ArgumentChecker.isTrue(startDate.isBefore(effectiveDate), "Start date {} must be before effective date {}", startDate, effectiveDate);
+    //ArgumentChecker.isTrue(startDate.isBefore(maturityDate), "Start date {} must be before maturity date {}", startDate, maturityDate);
+
+    //ArgumentChecker.isTrue(valuationDate.isBefore(maturityDate), "Valuation date {} must be before maturity date {}", valuationDate, maturityDate);
+    //ArgumentChecker.isTrue(valuationDate.isAfter(effectiveDate), "Valuation date {} must be after effective date {}", valuationDate, effectiveDate);
+
+    /*
     // What is the return message here?
     ArgumentChecker.isInRangeInclusive(valuationRecoveryRate, 0.0, 1.0);
     ArgumentChecker.isInRangeInclusive(curveRecoveryRate, 0.0, 1.0);
@@ -236,7 +283,7 @@ public class CreditDefaultSwapDefinition {
     // TODO : Should we impose an upper limit on the number of integration steps?
     ArgumentChecker.isTrue(numberOfIntegrationSteps > 0,  "Number of integration steps (for contingent leg valuation) should be greater than zero");
     
-    // TODO : Do we need to check if the yieldCurve and survivalCurve objects are empty?
+    // TODO : Do we need to check if the yieldCurve and survivalCurve objects are empty? Yes
      */
 
     // Assign the member variables
@@ -286,6 +333,7 @@ public class CreditDefaultSwapDefinition {
     _survivalCurve = survivalCurve;
     _ratingCurve = ratingCurve;
 
+    //REVIEW 29/8/2012 think about using UniqueId
     _creditKey = _referenceEntityTicker + ":" + _currency + ":" + _debtSeniority + ":" + _restructuringClause;
   }
 
