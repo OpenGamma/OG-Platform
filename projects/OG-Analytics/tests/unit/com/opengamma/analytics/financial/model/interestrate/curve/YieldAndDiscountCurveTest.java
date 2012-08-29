@@ -7,22 +7,25 @@ package com.opengamma.analytics.financial.model.interestrate.curve;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 
 /**
- * 
+ * Tests related to the construction of yield and discounting curves.
  */
 public class YieldAndDiscountCurveTest {
 
   private static final double[] TIME = new double[] {1, 2, 3};
   private static final double[] RATES = new double[] {0.03, 0.04, 0.05};
   private static final double[] DF_VALUES = new double[] {Math.exp(-0.03), Math.exp(-0.08), Math.exp(-0.15)};
-  private static final InterpolatedDoublesCurve R = InterpolatedDoublesCurve.from(TIME, RATES, new LinearInterpolator1D());
-  private static final InterpolatedDoublesCurve DF = InterpolatedDoublesCurve.from(TIME, DF_VALUES, new LinearInterpolator1D());
+  private static final Interpolator1D INTERPOLATOR = new LinearInterpolator1D();
+  private static final InterpolatedDoublesCurve R = InterpolatedDoublesCurve.from(TIME, RATES, INTERPOLATOR);
+  private static final InterpolatedDoublesCurve DF = InterpolatedDoublesCurve.from(TIME, DF_VALUES, INTERPOLATOR);
   private static final YieldCurve YIELD = YieldCurve.from(R);
   private static final DiscountCurve DISCOUNT = DiscountCurve.from(DF);
   private static final int COMPOUNDING = 2;
@@ -154,6 +157,51 @@ public class YieldAndDiscountCurveTest {
       double localShift = Math.abs(time - timeShift) < 1.0E-3 ? shift : 0.0;
       assertEquals("SingleShift", YIELD.getInterestRate(time) + localShift, shifted2.getInterestRate(time), TOLERANCE_RATE);
     }
+  }
+
+  @Test
+  /**
+   * Tests the build of a discount curve from yields (cc).
+   */
+  public void discountCurveFromYieldsInterpolated() {
+    DiscountCurve dfFromYields = DiscountCurve.fromYieldsInterpolated(TIME, RATES, INTERPOLATOR, "DF");
+    InterpolatedDoublesCurve curveInt = (InterpolatedDoublesCurve) dfFromYields.getCurve();
+    Double[] df = curveInt.getYData();
+    for (int loopyield = 0; loopyield < TIME.length; loopyield++) {
+      assertEquals("DiscountCurve.fromYieldsInterpolated", RATES[loopyield], -Math.log(df[loopyield]) / TIME[loopyield], TOLERANCE_RATE);
+    }
+    assertEquals("DiscountCurve.fromYieldsInterpolated", INTERPOLATOR, curveInt.getInterpolator());
+    assertArrayEquals("DiscountCurve.fromYieldsInterpolated", TIME, curveInt.getXDataAsPrimitive(), TOLERANCE_RATE);
+  }
+
+  @Test
+  /**
+   * Tests the build of a discount curve from yields (cc).
+   */
+  public void yieldCurveDiscountFactorInterpolated() {
+    YieldCurve yFromDF = YieldCurve.fromDiscountFactorInterpolated(TIME, DF_VALUES, INTERPOLATOR, "Yield");
+    InterpolatedDoublesCurve curveInt = (InterpolatedDoublesCurve) yFromDF.getCurve();
+    Double[] y = curveInt.getYData();
+    for (int loopyield = 0; loopyield < TIME.length; loopyield++) {
+      assertEquals("YieldCurve.fromDiscountFactorInterpolated", DF_VALUES[loopyield], Math.exp(-y[loopyield] * TIME[loopyield]), TOLERANCE_RATE);
+    }
+    assertEquals("DiscountCurve.fromYieldsInterpolated", INTERPOLATOR, curveInt.getInterpolator());
+    assertArrayEquals("DiscountCurve.fromYieldsInterpolated", TIME, curveInt.getXDataAsPrimitive(), TOLERANCE_RATE);
+  }
+
+  @Test
+  /**
+   * Tests the build of a discount curve from yields (cc).
+   */
+  public void yieldPeriodicFromYieldsInterpolated() {
+    YieldPeriodicCurve perFromYields = YieldPeriodicCurve.fromYieldsInterpolated(TIME, RATES, COMPOUNDING, INTERPOLATOR, "DF");
+    InterpolatedDoublesCurve curveInt = (InterpolatedDoublesCurve) perFromYields.getCurve();
+    Double[] yP = curveInt.getYData();
+    for (int loopyield = 0; loopyield < TIME.length; loopyield++) {
+      assertEquals("YieldPeriodicCurve.fromYieldsInterpolated", RATES[loopyield], COMPOUNDING * Math.log(1.0 + yP[loopyield] / COMPOUNDING), TOLERANCE_RATE);
+    }
+    assertEquals("YieldPeriodicCurve.fromYieldsInterpolated", INTERPOLATOR, curveInt.getInterpolator());
+    assertArrayEquals("YieldPeriodicCurve.fromYieldsInterpolated", TIME, curveInt.getXDataAsPrimitive(), TOLERANCE_RATE);
   }
 
 }

@@ -20,7 +20,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
   // Method to generate the premium leg cashflow schedule
   public void getCreditDefaultSwapPremiumLegSchedule(CreditDefaultSwapDefinition cds) {
-    
+
     System.out.println("Working ...");
 
     /*
@@ -59,7 +59,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     System.out.println("Adjusted Effective Date = " + adjustedEffectiveDate);
     System.out.println("Unadjusted Maturity Date = " + maturityDate);
     System.out.println("IMM Adjusted Maturity Date = " + immAdjustedMaturityDate);
-     */   
+     */
   }
 
   // -------------------------------------------------------------------------------------------

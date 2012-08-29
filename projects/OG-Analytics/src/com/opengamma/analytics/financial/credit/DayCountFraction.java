@@ -12,5 +12,11 @@ public enum DayCountFraction {
   /**
    * ACT/360 (applicable to standard CDS contracts)
    */
-  ACT360;
+  ACT360,
+  /**
+   * ACT/365
+   */
+  ACT365;
+
+  // TODO: Replace this with a more comprehensive list in due course
 }
