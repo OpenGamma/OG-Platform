@@ -62,16 +62,16 @@ import com.opengamma.util.tuple.Pair;
    * Factory method for creating a portfolio grid that doesn't contain any data.
    * @return An empty portoflio grid
    */
-  /* package */ static MainAnalyticsGrid emptyPortfolio() {
-    return new MainAnalyticsGrid(AnalyticsView.GridType.PORTFORLIO, PortfolioGridStructure.empty(), "", new DummyTargetResolver());
+  /* package */ static MainAnalyticsGrid emptyPortfolio(String gridId) {
+    return new MainAnalyticsGrid(AnalyticsView.GridType.PORTFORLIO, PortfolioGridStructure.empty(), gridId, new DummyTargetResolver());
   }
 
   /**
    * Factory method for creating a primitives grid that doesn't contain any data.
    * @return An empty primitives grid
    */
-  /* package */ static MainAnalyticsGrid emptyPrimitives() {
-    return new MainAnalyticsGrid(AnalyticsView.GridType.PRIMITIVES, PrimitivesGridStructure.empty(), "", new DummyTargetResolver());
+  /* package */ static MainAnalyticsGrid emptyPrimitives(String gridId) {
+    return new MainAnalyticsGrid(AnalyticsView.GridType.PRIMITIVES, PrimitivesGridStructure.empty(), gridId, new DummyTargetResolver());
   }
 
   /**

@@ -46,8 +46,8 @@ import com.opengamma.util.ArgumentChecker;
     ArgumentChecker.notNull(primitivesGridId, "primitivesGridId");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
     _targetResolver = targetResolver;
-    _portfolioGrid = MainAnalyticsGrid.emptyPortfolio();
-    _primitivesGrid = MainAnalyticsGrid.emptyPrimitives();
+    _portfolioGrid = MainAnalyticsGrid.emptyPortfolio(portoflioGridId);
+    _primitivesGrid = MainAnalyticsGrid.emptyPrimitives(primitivesGridId);
     _listener = listener;
   }
 
