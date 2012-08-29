@@ -22,7 +22,7 @@ public class YieldCurveDefinitionFudgeEncodingTest extends FinancialTestBase {
 
   @Test
   public void testCycle() {
-    final YieldCurveDefinition curveDefinition = new YieldCurveDefinition(Currency.USD, ExternalSchemes.countryRegionId(Country.US), "ANNOYING", "STUPID");
+    final YieldCurveDefinition curveDefinition = new YieldCurveDefinition(Currency.USD, ExternalSchemes.countryRegionId(Country.US), "NAME", "LINEAR", "LEFT", "RIGHT", false);
     curveDefinition.addStrip(new FixedIncomeStrip(StripInstrumentType.CASH, Tenor.DAY, "Convention"));
     assertEquals(curveDefinition, cycleObject(YieldCurveDefinition.class, curveDefinition));
     curveDefinition.addStrip(new FixedIncomeStrip(StripInstrumentType.FUTURE, Tenor.TWO_YEARS, 3, "CONVENTIONAL"));

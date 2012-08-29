@@ -23,7 +23,6 @@ import com.opengamma.batch.rest.DataBatchMasterResource;
 import com.opengamma.batch.rest.RemoteBatchMaster;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
-import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.masterdb.batch.DbBatchMaster;
 import com.opengamma.util.db.DbConnector;
@@ -32,7 +31,7 @@ import com.opengamma.util.db.DbConnector;
  * Component factory for the database batch master.
  */
 @BeanDefinition
-public class DbBatchMasterComponentFactory extends AbstractComponentFactory {
+public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFactory {
 
   /**
    * The classifier that the factory should publish under.
@@ -65,6 +64,7 @@ public class DbBatchMasterComponentFactory extends AbstractComponentFactory {
     if (getUniqueIdScheme() != null) {
       master.setUniqueIdScheme(getUniqueIdScheme());
     }
+    checkSchemaVersion(master.getSchemaVersion(), "rsk_db");
     
     // register
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
@@ -269,7 +269,7 @@ public class DbBatchMasterComponentFactory extends AbstractComponentFactory {
   /**
    * The meta-bean for {@code DbBatchMasterComponentFactory}.
    */
-  public static class Meta extends AbstractComponentFactory.Meta {
+  public static class Meta extends AbstractDbMasterComponentFactory.Meta {
     /**
      * The singleton instance of the meta-bean.
      */

@@ -210,7 +210,7 @@ public abstract class CogdaDataDistributor implements Lifecycle {
       FudgeMsg normalizedFields = ruleSet.getNormalizedMessage(fields, id.getValue(), _normalizationState.get(ldspec));
       
       // If nothing to update, this returns null.
-      if (normalizedFields != null) {
+      if ((normalizedFields != null) && !normalizedFields.isEmpty()) {
         // update the LKV store
         lkvStore.updateFields(normalizedFields);
         

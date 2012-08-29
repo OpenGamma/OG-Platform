@@ -36,22 +36,22 @@ public abstract class CouponDefinition extends PaymentDefinition {
 
   /**
    * Constructor from all the coupon details.
-   * @param currency The payment currency.
-   * @param paymentDate Coupon payment date.
-   * @param accrualStartDate Start date of the accrual period.
-   * @param accrualEndDate End date of the accrual period.
-   * @param paymentYearFraction Accrual factor of the accrual period.
-   * @param notional Coupon notional.
+   * @param currency The coupn currency.
+   * @param paymentDate The coupon payment date.
+   * @param accrualStartDate The start date of the accrual period.
+   * @param accrualEndDate The end date of the accrual period.
+   * @param paymentAccrualFactor The accrual factor of the accrual period.
+   * @param notional The coupon notional.
    */
-  public CouponDefinition(Currency currency, ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double paymentYearFraction, double notional) {
+  public CouponDefinition(Currency currency, ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double paymentAccrualFactor, double notional) {
     super(currency, paymentDate);
     Validate.notNull(accrualStartDate, "accrual start date");
     this._accrualStartDate = accrualStartDate;
     Validate.notNull(accrualEndDate, "accrual end date");
     Validate.isTrue(!accrualEndDate.isBefore(accrualStartDate), "end before start"); // REview
     this._accrualEndDate = accrualEndDate;
-    Validate.isTrue(paymentYearFraction >= 0.0, "year fraction < 0");
-    this._paymentYearFraction = paymentYearFraction;
+    Validate.isTrue(paymentAccrualFactor >= 0.0, "year fraction < 0");
+    this._paymentYearFraction = paymentAccrualFactor;
     this._notional = notional;
   }
 

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.volatility.local.old;
@@ -35,6 +35,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.finitedifference.PDEFullResults1D;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SurfaceArrayUtils;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -47,17 +48,20 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.security.fx.FXUtils;
+import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
+import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
- * 
+ *
  */
 public class ForexLocalVolatilityPDEPriceFunction extends AbstractFunction.NonCompiledInvoker {
 
@@ -97,6 +101,10 @@ public class ForexLocalVolatilityPDEPriceFunction extends AbstractFunction.NonCo
     final PDEFullResults1D pdeGrid = (PDEFullResults1D) pdeGridObject;
     final double[] gridTimes = pdeGrid.getGrid().getTimeNodes();
     final double[] gridMoneyness = pdeGrid.getGrid().getSpaceNodes();
+    final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
+    final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
+    final CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
+    final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(fxOption.getPutCurrency(), fxOption.getCallCurrency());
     //TODO interpolate
     ///////////////////////////////
     final double tau = getExpiry(fxOption, now);
@@ -108,7 +116,7 @@ public class ForexLocalVolatilityPDEPriceFunction extends AbstractFunction.NonCo
     }
     final ForwardCurve forwardCurve = (ForwardCurve) forwardCurveObject;
     final double forward = forwardCurve.getForward(tau);
-    final double moneyness = getStrike(fxOption) / forward;
+    final double moneyness = getStrike(fxOption, currencyPair) / forward;
     final int timeIndex = SurfaceArrayUtils.getLowerBoundIndex(gridTimes, tau);
     final int spaceIndex = SurfaceArrayUtils.getLowerBoundIndex(gridMoneyness, moneyness);
 
@@ -502,10 +510,9 @@ public class ForexLocalVolatilityPDEPriceFunction extends AbstractFunction.NonCo
     return actAct.getDayCountFraction(date, fxOption.getExpiry().getExpiry());
   }
 
-  private double getStrike(final FXOptionSecurity fxOption) {
+  private double getStrike(final FXOptionSecurity fxOption, final CurrencyPair currencyPair) {
     final Currency putCurrency = fxOption.getPutCurrency();
-    final Currency callCurrency = fxOption.getCallCurrency();
-    if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
+    if (currencyPair.getBase().equals(putCurrency)) {
       return fxOption.getCallAmount() / fxOption.getPutAmount();
     }
     return fxOption.getPutAmount() / fxOption.getCallAmount();

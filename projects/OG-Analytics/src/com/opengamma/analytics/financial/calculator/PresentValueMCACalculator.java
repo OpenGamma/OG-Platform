@@ -17,7 +17,10 @@ import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivati
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
+import com.opengamma.analytics.financial.interestrate.bond.method.BillTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
+import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.analytics.financial.interestrate.cash.method.CashDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
@@ -66,6 +69,7 @@ public class PresentValueMCACalculator extends AbstractInstrumentDerivativeVisit
    * The methods used by the different instruments.
    */
   private static final CashDiscountingMethod METHOD_DEPOSIT = CashDiscountingMethod.getInstance();
+  private static final BillTransactionDiscountingMethod METHOD_BILL_TRANSACTION = BillTransactionDiscountingMethod.getInstance();
   private static final PaymentFixedDiscountingMethod METHOD_PAY_FIXED = PaymentFixedDiscountingMethod.getInstance();
   private static final CouponFixedDiscountingMethod METHOD_CPN_FIXED = CouponFixedDiscountingMethod.getInstance();
   private static final CouponOISDiscountingMethod METHOD_CPN_OIS = CouponOISDiscountingMethod.getInstance();
@@ -82,6 +86,20 @@ public class PresentValueMCACalculator extends AbstractInstrumentDerivativeVisit
   @Override
   public MultipleCurrencyAmount visitCash(final Cash deposit, final YieldCurveBundle curves) {
     return MultipleCurrencyAmount.of(METHOD_DEPOSIT.presentValue(deposit, curves));
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitDepositCounterpart(final DepositCounterpart deposit, final YieldCurveBundle curves) {
+    return MultipleCurrencyAmount.of(METHOD_DEPOSIT.presentValue(deposit, curves));
+  }
+
+  // -----     Bill/Bond     ------
+
+  @Override
+  public MultipleCurrencyAmount visitBillTransaction(final BillTransaction bill, final YieldCurveBundle curves) {
+    Validate.notNull(curves, "Curves");
+    Validate.notNull(bill, "Bill");
+    return MultipleCurrencyAmount.of(METHOD_BILL_TRANSACTION.presentValue(bill, curves));
   }
 
   // -----     Payment/Coupon     ------

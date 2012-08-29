@@ -12,8 +12,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.instrument.bond.BillSecurityDefinition;
-import com.opengamma.analytics.financial.instrument.bond.BillTransactionDefinition;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.method.BillSecurityDiscountingMethod;
@@ -90,7 +88,7 @@ public class BillTransactionDefinitionTest {
     double yield = 0.0020;
     double accrualFactor = ACT360.getDayCountFraction(SETTLE_DATE, END_DATE);
     double price = METHOD_BILL_SECURITY.priceFromYield(YIELD_CONVENTION, yield, accrualFactor);
-    double settlementAmount = -QUANTITY * price;
+    double settlementAmount = -QUANTITY * price * NOTIONAL;
     BillTransactionDefinition from = BillTransactionDefinition.fromYield(BILL_SEC_DEFINITION, QUANTITY, SETTLE_DATE, yield);
     BillTransactionDefinition constructed = new BillTransactionDefinition(BILL_SEC_DEFINITION, QUANTITY, SETTLE_DATE, settlementAmount);
     assertEquals("Bill Transaction Definition: fromYield", constructed, from);

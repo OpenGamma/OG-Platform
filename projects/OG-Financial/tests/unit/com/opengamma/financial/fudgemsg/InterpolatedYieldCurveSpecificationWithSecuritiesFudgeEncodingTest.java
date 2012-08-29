@@ -39,38 +39,38 @@ public class InterpolatedYieldCurveSpecificationWithSecuritiesFudgeEncodingTest 
   public void testCycle() {
     ExternalId dummyId = ExternalSchemes.bloombergTickerSecurityId("USDRC Curncy");
     ExternalIdBundle bundle = ExternalIdBundle.of(dummyId);
-    ZonedDateTime start = DateUtils.getUTCDate(2011, 9, 30);
-    ZonedDateTime maturity = DateUtils.getUTCDate(2011, 10, 1);
-    DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Actual/365");
+    final ZonedDateTime start = DateUtils.getUTCDate(2011, 9, 30);
+    final ZonedDateTime maturity = DateUtils.getUTCDate(2011, 10, 1);
+    final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Actual/365");
     final CashSecurity cash = new CashSecurity(Currency.USD, ExternalSchemes.financialRegionId("US"), start, maturity, dayCount, 0.05, 1);
     cash.setUniqueId(UniqueId.of("TEST", "TEST"));
     cash.setName("1m deposit rate");
     cash.setExternalIdBundle(bundle);
-    FixedIncomeStripWithSecurity cashStrip = new FixedIncomeStripWithSecurity(new FixedIncomeStrip(StripInstrumentType.CASH, Tenor.ONE_MONTH, "DEFAULT"), Tenor.ONE_MONTH, maturity, dummyId, cash);
+    final FixedIncomeStripWithSecurity cashStrip = new FixedIncomeStripWithSecurity(new FixedIncomeStrip(StripInstrumentType.CASH, Tenor.ONE_MONTH, "DEFAULT"), Tenor.ONE_MONTH, maturity, dummyId, cash);
 
     dummyId = ExternalSchemes.bloombergTickerSecurityId("EDZ2 Comdty");
     bundle = ExternalIdBundle.of(dummyId);
     final FutureSecurity future = new InterestRateFutureSecurity(new Expiry(ZonedDateTime.now()), "XCSE", "XCSE", Currency.USD, 0, dummyId, "Interest Rate");
     future.setExternalIdBundle(bundle);
-    FixedIncomeStripWithSecurity futureStrip = new FixedIncomeStripWithSecurity(new FixedIncomeStrip(StripInstrumentType.FUTURE, Tenor.THREE_MONTHS, 2, "DEFAULT"), Tenor.THREE_MONTHS, DateUtils.getUTCDate(2011, 12, 1), dummyId, future);
+    final FixedIncomeStripWithSecurity futureStrip = new FixedIncomeStripWithSecurity(new FixedIncomeStrip(StripInstrumentType.FUTURE, Tenor.THREE_MONTHS, 2, "DEFAULT"), Tenor.THREE_MONTHS, DateUtils.getUTCDate(2011, 12, 1), dummyId, future);
 
     dummyId = ExternalSchemes.bloombergTickerSecurityId("USFR0BE Curncy");
     bundle = ExternalIdBundle.of(dummyId);
-    ZonedDateTime startDate = DateUtils.getUTCDate(2011, 11, 1);
-    ZonedDateTime endDate = DateUtils.getUTCDate(2012, 2, 1);
-    ExternalId underlyingIdentifier = ExternalSchemes.bloombergTickerSecurityId("US0003M Index");
-    ZonedDateTime fixingDate = startDate.minusDays(2);
-    FRASecurity fra = new FRASecurity(Currency.USD, ExternalSchemes.financialRegionId("US"), startDate, endDate, 0.05, 1, underlyingIdentifier, fixingDate);
+    final ZonedDateTime startDate = DateUtils.getUTCDate(2011, 11, 1);
+    final ZonedDateTime endDate = DateUtils.getUTCDate(2012, 2, 1);
+    final ExternalId underlyingIdentifier = ExternalSchemes.bloombergTickerSecurityId("US0003M Index");
+    final ZonedDateTime fixingDate = startDate.minusDays(2);
+    final FRASecurity fra = new FRASecurity(Currency.USD, ExternalSchemes.financialRegionId("US"), startDate, endDate, 0.05, 1, underlyingIdentifier, fixingDate);
     fra.setExternalIdBundle(bundle);
-    FixedIncomeStripWithSecurity fraStrip = new FixedIncomeStripWithSecurity(new FixedIncomeStrip(StripInstrumentType.FRA_3M, Tenor.FIVE_MONTHS, "DEFAULT"), Tenor.FIVE_MONTHS, endDate, dummyId, fra);
-    
+    final FixedIncomeStripWithSecurity fraStrip = new FixedIncomeStripWithSecurity(new FixedIncomeStrip(StripInstrumentType.FRA_3M, Tenor.FIVE_MONTHS, "DEFAULT"), Tenor.FIVE_MONTHS, endDate, dummyId, fra);
+
     final Collection<FixedIncomeStripWithSecurity> strips = new ArrayList<FixedIncomeStripWithSecurity>();
     strips.add(cashStrip);
     strips.add(futureStrip);
     strips.add(fraStrip);
 
     final InterpolatedYieldCurveSpecificationWithSecurities spec = new InterpolatedYieldCurveSpecificationWithSecurities(
-        LocalDate.now(), "FUNDING", Currency.USD, Interpolator1DFactory.LINEAR_INSTANCE, strips);
+        LocalDate.now(), "FUNDING", Currency.USD, Interpolator1DFactory.LINEAR_INSTANCE, true, strips);
     assertEquals(spec, cycleObject(InterpolatedYieldCurveSpecificationWithSecurities.class, spec));
   }
 

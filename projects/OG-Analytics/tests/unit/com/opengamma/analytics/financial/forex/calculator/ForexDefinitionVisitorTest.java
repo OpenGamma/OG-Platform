@@ -47,10 +47,14 @@ import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZer
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyGearingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CapFloorIborDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponFloatingDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborGearingDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborRatchetDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponOISDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponOISSimplifiedDefinition;
@@ -309,16 +313,6 @@ public class ForexDefinitionVisitorTest {
 
     @Override
     public String visitCouponFixed(CouponFixedDefinition payment) {
-      return null;
-    }
-
-    @Override
-    public String visitCouponFloating(CouponFloatingDefinition payment, T data) {
-      return null;
-    }
-
-    @Override
-    public String visitCouponFloating(CouponFloatingDefinition payment) {
       return null;
     }
 
@@ -632,6 +626,78 @@ public class ForexDefinitionVisitorTest {
 
     @Override
     public String visitSwapXCcyIborIborDefinition(SwapXCcyIborIborDefinition swap) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborGearing(CouponIborGearingDefinition payment, T data) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborGearing(CouponIborGearingDefinition payment) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitForwardRateAgreement(ForwardRateAgreementDefinition payment, T data) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitForwardRateAgreement(ForwardRateAgreementDefinition payment) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborRatchet(CouponIborRatchetDefinition payment, T data) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborRatchet(CouponIborRatchetDefinition payment) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitCapFloorIbor(CapFloorIborDefinition payment, T data) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitCapFloorIbor(CapFloorIborDefinition payment) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitCapFloorCMSSpread(CapFloorCMSSpreadDefinition payment, T data) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitCapFloorCMSSpread(CapFloorCMSSpreadDefinition payment) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborCompounded(CouponIborCompoundedDefinition payment, T data) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborCompounded(CouponIborCompoundedDefinition payment) {
       // TODO Auto-generated method stub
       return null;
     }

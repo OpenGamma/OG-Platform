@@ -269,6 +269,17 @@
         <@rowout label="Strike">${security.strike}</@rowout>
         <@rowout label="Underlying Identifier">${security.underlyingId.scheme.name?replace("_", " ")} - ${security.underlyingId.value}</@rowout>
         <#break>
+      <#case "BONDFUTURE_OPTION">
+        <@rowout label="Currency">${security.currency}</@rowout>
+        <@rowout label="Trading Exchange">${security.tradingExchange}</@rowout>
+        <@rowout label="Settlement Exchange">${security.settlementExchange}</@rowout>
+        <@rowout label="Exercise Type">${customRenderer.printExerciseType(security.exerciseType)}</@rowout>
+        <@rowout label="Expiry">${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}</@rowout>
+        <@rowout label="Option Type">${security.optionType}</@rowout>
+        <@rowout label="Point Value">${security.pointValue}</@rowout>
+        <@rowout label="Strike">${security.strike}</@rowout>
+        <@rowout label="Underlying Identifier">${security.underlyingId.scheme.name?replace("_", " ")} - ${security.underlyingId.value}</@rowout>
+        <#break>
       <#case "EQUITY_INDEX_FUTURE_OPTION">
         <@rowout label="Currency">${security.currency}</@rowout>
         <@rowout label="Exchange">${security.exchange}</@rowout>

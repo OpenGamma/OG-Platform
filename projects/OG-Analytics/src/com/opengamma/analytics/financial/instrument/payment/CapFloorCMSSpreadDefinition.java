@@ -10,6 +10,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.index.IndexSwap;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMSSpread;
@@ -166,6 +167,16 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
   }
 
   @Override
+  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
+    return visitor.visitCapFloorCMSSpread(this, data);
+  }
+
+  @Override
+  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
+    return visitor.visitCapFloorCMSSpread(this);
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
@@ -232,7 +243,7 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
     if (yieldCurveNames.length == 2) {
       yieldCurveNames2 = yieldCurveNames;
     } else {
-      yieldCurveNames2 = new String[] {yieldCurveNames[0], yieldCurveNames[2]};
+      yieldCurveNames2 = new String[] {yieldCurveNames[0], yieldCurveNames[2] };
     }
     final SwapFixedCoupon<Coupon> swap2 = _underlyingSwap2.toDerivative(date, yieldCurveNames2);
     return new CapFloorCMSSpread(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, swap1, _cmsIndex1, swap2, _cmsIndex2, settlementTime, _strike, _isCap,
@@ -281,7 +292,7 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
     if (yieldCurveNames.length == 2) {
       yieldCurveNames2 = yieldCurveNames;
     } else {
-      yieldCurveNames2 = new String[] {yieldCurveNames[0], yieldCurveNames[2]};
+      yieldCurveNames2 = new String[] {yieldCurveNames[0], yieldCurveNames[2] };
     }
     final SwapFixedCoupon<Coupon> swap2 = _underlyingSwap2.toDerivative(date, yieldCurveNames2);
     return new CapFloorCMSSpread(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, swap1, _cmsIndex1, swap2, _cmsIndex2, settlementTime, _strike, _isCap,

@@ -24,24 +24,38 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
- *
+ * <p>Cache of results from a running view process. This is intended for use with view clients where the first
+ * set of results is a full set and subsequent results are deltas. This cache maintains a full set of results
+ * which includes every target that has ever had a value calculated. It also keeps track of which values were
+ * updated in the previous calculation cycle.</p>
+ * <p>This class isn't thread safe.</p>
  */
 /* package */ class ResultsCache {
 
+  /** Maximum number of history values stored for each item. */
   private static final int MAX_HISTORY_SIZE = 20;
 
   // is this likely to change? will it ever by dynamic? i.e. client specifies what types it wants history for?
+  /** Types of result values for which history is stored. */
   private static final Set<Class<?>> s_historyTypes =
       ImmutableSet.<Class<?>>of(Double.class, BigDecimal.class, CurrencyAmount.class);
+  /** Empty result for types that don't have history, makes for cleaner code than using null. */
   private static final Result s_emptyResult = Result.empty();
+  /** Empty result for types that have history, makes for cleaner code than using null. */
   private static final Result s_emptyResultWithHistory = Result.emptyWithHistory();
 
+  /** The cached results. */
   private final Map<ResultKey, CacheItem> _results = Maps.newHashMap();
 
   /** ID that's incremented each time results are received, used for keeping track of which items were updated. */
   private long _lastUpdateId = 0;
 
+  /**
+   * Puts a set of results in the cache.
+   * @param results The results, not null
+   */
   /* package */ void put(ViewResultModel results) {
+    ArgumentChecker.notNull(results, "results");
     _lastUpdateId++;
     List<ViewResultEntry> allResults = results.getAllResults();
     for (ViewResultEntry result : allResults) {
@@ -58,15 +72,24 @@ import com.opengamma.util.money.CurrencyAmount;
     }
   }
 
-    /* package */ Collection<Object> getHistory(String calcConfigName, ValueSpecification valueSpec) {
-      return getHistory(calcConfigName, valueSpec, null);
-    }
-
-    /* package */ Collection<Object> getHistory(String calcConfigName, ValueSpecification valueSpec, Class<?> columnType) {
-    Result result = getResult(calcConfigName, valueSpec, columnType);
-    return result.getHistory();
+  /**
+   * Returns the history for a value and calculation configuration.
+   * @param calcConfigName The calculation configuration name
+   * @param valueSpec The value specification
+   * @return The item's history or null if no history is stored for the item's type or no value has ever been received
+   * for the item
+   */
+  /* package */ Collection<Object> getHistory(String calcConfigName, ValueSpecification valueSpec) {
+    return getResult(calcConfigName, valueSpec, null).getHistory();
   }
 
+  /**
+   * Returns a cache result for a value specification and calculation configuration.
+   * @param calcConfigName The calculation configuration name
+   * @param valueSpec The value specification
+   * @param columnType The expected type of the value
+   * @return A cache result, not null
+   */
   /* package */ Result getResult(String calcConfigName, ValueSpecification valueSpec, Class<?> columnType) {
     CacheItem item = _results.get(new ResultKey(calcConfigName, valueSpec));
     if (item != null) {
@@ -82,6 +105,10 @@ import com.opengamma.util.money.CurrencyAmount;
     }
   }
 
+  /**
+   * An item from the cache including its history and a flag indicating whether it was updated by the most recent
+   * calculation cycle. Instances of this class are intended for users of the cache.
+   */
   /* package */ static class Result {
 
     private final Object _value;
@@ -94,27 +121,46 @@ import com.opengamma.util.money.CurrencyAmount;
       _updated = updated;
     }
 
-    public Object getValue() {
+    /**
+     * @return The most recent value, null if no value has ever been calculated for the requirement
+     */
+    /* package */ Object getValue() {
       return _value;
     }
 
-    public Collection<Object> getHistory() {
+    /**
+     * @return The history for the value, empty if no value has been calculated, null if history isn't stored for the
+     * requirement
+     */
+    /* package */ Collection<Object> getHistory() {
       return _history;
     }
 
-    public boolean isUpdated() {
+    /**
+     * @return true if the value was updated by the most recent calculation cycle
+     */
+    /* package */ boolean isUpdated() {
       return _updated;
     }
 
-    public static Result empty() {
+    /**
+     * @return A result with no value and no history, for value requirements that never have history
+     */
+    private static Result empty() {
       return new Result(null, null, false);
     }
 
-    public static Result emptyWithHistory() {
+    /**
+     * @return A result with no value and empty history, for value requirements that can have history
+     */
+    private static Result emptyWithHistory() {
       return new Result(null, Collections.emptyList(), false);
     }
   }
 
+  /**
+   * An item stored in the cache, this is an internal implementation detail.
+   */
   private static class CacheItem {
 
     private final Collection<Object> _history;
@@ -145,6 +191,11 @@ import com.opengamma.util.money.CurrencyAmount;
       return _latestValue;
     }
 
+    /**
+     * Sets the latest value and the ID of the update that calculated it.
+     * @param latestValue The value
+     * @param lastUpdateId ID of the set of results that calculated it
+     */
     private void setLatestValue(Object latestValue, long lastUpdateId) {
       _latestValue = latestValue;
       _lastUpdateId = lastUpdateId;
@@ -153,9 +204,9 @@ import com.opengamma.util.money.CurrencyAmount;
       }
     }
 
-    /* package */
+
     @SuppressWarnings("unchecked")
-    Collection<Object> getHistory() {
+    /* package */ Collection<Object> getHistory() {
       if (_history != null) {
         return Collections.unmodifiableCollection(_history);
       } else {
@@ -163,11 +214,18 @@ import com.opengamma.util.money.CurrencyAmount;
       }
     }
 
+    /**
+     * @return ID of the set of results that updated this item, used to decide whether the item was updated by
+     * the most recent calculation cycle.
+     */
     private long getLastUpdateId() {
       return _lastUpdateId;
     }
   }
 
+  /**
+   * Immutable key for items in the cache, this is in implelemtation detail.
+   */
   private static class ResultKey {
 
     private final String _calcConfigName;

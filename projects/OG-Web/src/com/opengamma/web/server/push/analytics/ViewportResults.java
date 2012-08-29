@@ -12,10 +12,11 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Set of calculation results for displaying in the viewport of a grid of analytics data.
  */
 public class ViewportResults {
 
+  /** Any empty grid cell. */
   private static final Cell s_emptyCell = new Cell(null, null, null);
 
   private final List<List<Cell>> _allResults;
@@ -23,6 +24,13 @@ public class ViewportResults {
   private final ViewportSpecification _viewportSpec;
   private final long _version;
 
+  /**
+   * @param allResults Cells in the viewport containing the data, history and the value specification. The outer
+   * list contains the data by rows and the inner lists contain the data for each row
+   * @param viewportSpec Definition of the rows and columns in the viewport
+   * @param columns The columns in the viewport's grid
+   * @param version The version of the viewport used when creating the results
+   */
   /* package */ ViewportResults(List<List<Cell>> allResults,
                                 ViewportSpecification viewportSpec,
                                 AnalyticsColumnGroups columns,
@@ -36,15 +44,27 @@ public class ViewportResults {
     _version = version;
   }
 
-  public List<List<Cell>> getResults() {
+  /**
+   * @return Cells in the viewport containing the data, history and the value specification. The outer
+   * list contains the data by rows and the inner lists contain the data for each row
+   */
+  /* package */ List<List<Cell>> getResults() {
     return _allResults;
   }
 
-  public boolean isExpanded() {
+  /**
+   *
+   * @return Whether the data is a summary or the full data. Summary data fits in a single grid cell whereas
+   * the full data might need more space. e.g. displaying matrix data in a window that pops up over the main grid.
+   */
+  /* package */ boolean isExpanded() {
     return _viewportSpec.isExpanded();
   }
 
-  public long getVersion() {
+  /**
+   * @return The version of the viewport used when creating the results
+   */
+  /* package */ long getVersion() {
     return _version;
   }
 
@@ -54,21 +74,37 @@ public class ViewportResults {
    * {@code getColumnType(1)} will return the type of column 5
    * @return The type of the specified column
    */
-  public Class<?> getColumnType(int viewportColIndex) {
+  /* package */ Class<?> getColumnType(int viewportColIndex) {
     Integer gridColIndex = _viewportSpec.getGridColumnIndex(viewportColIndex);
     return _columns.getColumn(gridColIndex).getType();
   }
 
-  public static Cell stringCell(String value) {
+  /**
+   * Factory method that creates a grid cell for displaying a string value.
+   * @param value The cell's value
+   * @return A cell for displaying the value
+   */
+  /* package */ static Cell stringCell(String value) {
     ArgumentChecker.notNull(value, "value");
     return new Cell(value, null, null);
   }
 
-  public static Cell valueCell(Object value, ValueSpecification valueSpecification, Collection<Object> history) {
+  /**
+   * Factory method that creates a grid cell for displaying a calculated value.
+   * @param value The value
+   * @param valueSpecification The value's specification
+   * @param history The value's history
+   * @return A cell for displaying the value
+   */
+  /* package */ static Cell valueCell(Object value, ValueSpecification valueSpecification, Collection<Object> history) {
     return new Cell(value, valueSpecification, history);
   }
 
-  public static Cell emptyCell() {
+  /**
+   * Factory method that returns a grid cell with no value.
+   * @return An empty cell
+   */
+  /* package */ static Cell emptyCell() {
     return s_emptyCell;
   }
 
@@ -82,7 +118,10 @@ public class ViewportResults {
         "]";
   }
 
-  public static class Cell {
+  /**
+   * A single grid cell in a set of results, including the cell's value, value specification and history.
+   */
+  /* package */ static class Cell {
 
     private final Object _value;
     private final ValueSpecification _valueSpecification;
@@ -94,15 +133,24 @@ public class ViewportResults {
       _history = history;
     }
 
-    public Object getValue() {
+    /**
+     * @return The cell's value, can be null
+     */
+    /* package */ Object getValue() {
       return _value;
     }
 
-    public ValueSpecification getValueSpecification() {
+    /**
+     * @return The cell's value specification, can be null
+     */
+    /* package */ ValueSpecification getValueSpecification() {
       return _valueSpecification;
     }
 
-    public Collection<Object> getHistory() {
+    /**
+     * @return The cell's value history, can be null or empty
+     */
+    /* package */ Collection<Object> getHistory() {
       return _history;
     }
   }

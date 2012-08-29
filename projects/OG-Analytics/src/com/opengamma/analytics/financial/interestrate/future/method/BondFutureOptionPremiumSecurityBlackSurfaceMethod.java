@@ -72,7 +72,7 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
   }
 
   /**
-   * Computes the option security price. 
+   * Computes the option security price. The future price is computed from the curves. 
    * @param security The bond future option security, not null
    * @param blackData The curve and Black volatility data, not null
    * @return The security price.
@@ -83,9 +83,21 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
     return optionPrice(security, YieldCurveWithBlackCubeAndForwardBundle.from(blackData, priceFuture));
   }
 
+  /**
+   * Computes the option security price. If the future price is present in the bundle ()
+   * @param security The bond future option security, not null
+   * @param curves The curve, Black volatility data and potentially future price. 
+   * @return The security price.
+   */
   public double optionPrice(final BondFutureOptionPremiumSecurity security, final YieldCurveBundle curves) {
-    ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackCubeBundle, "Yield curve bundle should contain Black cube");
-    return optionPrice(security, (YieldCurveWithBlackCubeBundle) curves);
+    ArgumentChecker.notNull(curves, "Curves");
+    if (curves instanceof YieldCurveWithBlackCubeBundle) {
+      return optionPrice(security, (YieldCurveWithBlackCubeBundle) curves);
+    } else if (curves instanceof YieldCurveWithBlackCubeAndForwardBundle) {
+      return optionPrice(security, (YieldCurveWithBlackCubeAndForwardBundle) curves);
+    }
+    throw new UnsupportedOperationException(
+        "The BondFutureOptionPremiumSecurityBlackSurfaceMethod method requires a YieldCurveWithBlackCubeBundle or YieldCurveWithBlackCubeAndForwardBundle as data.");
   }
 
   public InterestRateCurveSensitivity priceCurveSensitivity(final BondFutureOptionPremiumSecurity security, final YieldCurveBundle curves) {

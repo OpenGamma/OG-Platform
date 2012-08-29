@@ -44,6 +44,7 @@ import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -101,10 +102,9 @@ public class FXOptionBlackPV01FunctionDeprecated extends AbstractFunction.NonCom
     if (curveSensitivitiesObject == null) {
       throw new OpenGammaRuntimeException("Could not get curve sensitivities");
     }
-    final ValueRequirement spotRequirement = security.accept(ForexVisitors.getSpotIdentifierVisitor());
-    final Object spotFXObject = inputs.getValue(spotRequirement);
+    final Object spotFXObject = inputs.getValue(ValueRequirementNames.SPOT_RATE);
     if (spotFXObject == null) {
-      throw new OpenGammaRuntimeException("Could not get " + spotRequirement);
+      throw new OpenGammaRuntimeException("Could not get spot rate");
     }
     final double spotFX = (Double) spotFXObject;
     final MultipleCurrencyInterestRateCurveSensitivity curveSensitivities = (MultipleCurrencyInterestRateCurveSensitivity) curveSensitivitiesObject;
@@ -154,9 +154,9 @@ public class FXOptionBlackPV01FunctionDeprecated extends AbstractFunction.NonCom
       return null;
     }
     final String currency = currencies.iterator().next();
-    final String putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor()).getCode();
-    final String callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor()).getCode();
-    if (!(currency.equals(putCurrency) || currency.equals(callCurrency))) {
+    final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
+    final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
+    if (!(currency.equals(putCurrency.getCode()) || currency.equals(callCurrency.getCode()))) {
       return null;
     }
     final Set<String> surfaceNames = constraints.getValues(ValuePropertyNames.SURFACE);
@@ -184,7 +184,7 @@ public class FXOptionBlackPV01FunctionDeprecated extends AbstractFunction.NonCom
     final String putCurveCalculationMethod = putCurveCalculationMethods.iterator().next();
     final String callCurveCalculationMethod = callCurveCalculationMethods.iterator().next();
     final String surfaceName = surfaceNames.iterator().next();
-    final ValueRequirement spotRequirement = security.accept(ForexVisitors.getSpotIdentifierVisitor());
+    final ValueRequirement spotRequirement = new ValueRequirement(ValueRequirementNames.SPOT_RATE, UnorderedCurrencyPair.of(callCurrency, putCurrency));
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     requirements.add(spotRequirement);
     requirements.add(getCurveSpecRequirement(Currency.of(currency), curveName));

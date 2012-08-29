@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.volatility.local.old;
@@ -32,6 +32,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.greeks.Greek;
 import com.opengamma.analytics.financial.greeks.PDEResultCollection;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -45,13 +46,16 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.security.fx.FXUtils;
+import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
+import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompiledInvoker {
 
@@ -83,7 +87,7 @@ public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompi
     final String surfaceName = desiredValue.getConstraint(SURFACE);
     final String surfaceType = desiredValue.getConstraint(PROPERTY_SURFACE_TYPE);
     final String xAxis = desiredValue.getConstraint(PROPERTY_X_AXIS);
-    final String yAxis = desiredValue.getConstraint(PROPERTY_Y_AXIS); //Review R White 12/03/2012 Not sure why integratedVariance is a property of the y axis 
+    final String yAxis = desiredValue.getConstraint(PROPERTY_Y_AXIS); //Review R White 12/03/2012 Not sure why integratedVariance is a property of the y axis
     final String yAxisType = desiredValue.getConstraint(PROPERTY_Y_AXIS_TYPE);
     final String forwardCurveCalculationMethod = desiredValue.getConstraint(CURVE_CALCULATION_METHOD);
     final String forwardCurveName = desiredValue.getConstraint(CURVE);
@@ -104,14 +108,18 @@ public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompi
     if (gridGreeksObject == null) {
       throw new OpenGammaRuntimeException("Grid greeks were null");
     }
-    final double strike = getStrike(fxOption);
+    final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
+    final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
+    final CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
+    final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(fxOption.getPutCurrency(), fxOption.getCallCurrency());
+    final double strike = getStrike(fxOption, currencyPair);
     final PDEResultCollection gridGreeks = (PDEResultCollection) gridGreeksObject;
     final ValueProperties.Builder properties = createValueProperties(surfaceName, surfaceType, xAxis, yAxis, yAxisType, forwardCurveCalculationMethod, h, forwardCurveName, theta, timeSteps,
         spaceSteps,
         timeGridBunching, spaceGridBunching, maxMoneyness, pdeDirection);
     final ComputationTargetSpecification spec = target.toSpecification();
     final Set<ComputedValue> result = new HashSet<ComputedValue>();
-    for (ValueRequirement value : desiredValues) {
+    for (final ValueRequirement value : desiredValues) {
       final Greek greek = s_greekNamesToGreeks.get(value.getValueName());
       final String strikeInterpolatorName = value.getConstraint(PROPERTY_RESULT_STRIKE_INTERPOLATOR);
       final Double point = gridGreeks.getPointGreek(greek, strike, Interpolator1DFactory.getInterpolator(strikeInterpolatorName));
@@ -483,11 +491,10 @@ public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompi
         .with(PROPERTY_PDE_DIRECTION, pdeDirection);
   }
 
-  private double getStrike(final FXOptionSecurity fxOption) {
+  private double getStrike(final FXOptionSecurity fxOption, final CurrencyPair currencyPair) {
     final Currency putCurrency = fxOption.getPutCurrency();
-    final Currency callCurrency = fxOption.getCallCurrency();
-    if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
-      return fxOption.getCallAmount() / fxOption.getPutAmount(); //Review R White 8/3/2012 this was done wrongly in 3 different places
+    if (putCurrency.equals(currencyPair.getBase())) {
+      return fxOption.getCallAmount() / fxOption.getPutAmount();
     }
     return fxOption.getPutAmount() / fxOption.getCallAmount();
 

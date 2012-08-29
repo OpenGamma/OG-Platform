@@ -71,7 +71,7 @@ public class BillTransactionDefinition implements InstrumentDefinition<BillTrans
     Validate.notNull(underlying, "Underlying");
     Validate.notNull(settlementDate, "Settlement date");
     double accrualFactor = underlying.getDayCount().getDayCountFraction(settlementDate, underlying.getEndDate());
-    double settlementAmount = -quantity * METHOD_BILL_SECURITY.priceFromYield(underlying.getYieldConvention(), yield, accrualFactor);
+    double settlementAmount = -quantity * underlying.getNotional() * METHOD_BILL_SECURITY.priceFromYield(underlying.getYieldConvention(), yield, accrualFactor);
     return new BillTransactionDefinition(underlying, quantity, settlementDate, settlementAmount);
   }
 

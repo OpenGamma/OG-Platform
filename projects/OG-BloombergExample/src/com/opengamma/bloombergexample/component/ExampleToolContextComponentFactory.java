@@ -19,7 +19,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.bbg.BloombergSecuritySource;
 import com.opengamma.bbg.ReferenceDataProvider;
-import com.opengamma.bbg.tool.BloombergToolContext;
 import com.opengamma.bloombergexample.loader.ExampleToolContext;
 import com.opengamma.component.factory.tool.ToolContextComponentFactory;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
@@ -29,7 +28,7 @@ import com.opengamma.financial.tool.ToolContext;
  * Component factory for setting up a tool context.
  */
 @BeanDefinition
-public class ExampleToolContextComponentFactory extends ToolContextComponentFactory implements BloombergToolContext {
+public class ExampleToolContextComponentFactory extends ToolContextComponentFactory {
 
   /**
    * The Bloomberg security source.

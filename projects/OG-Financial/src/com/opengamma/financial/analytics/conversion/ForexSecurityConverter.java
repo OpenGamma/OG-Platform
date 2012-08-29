@@ -63,7 +63,6 @@ public class ForexSecurityConverter extends FinancialSecurityVisitorAdapter<Inst
     if (baseQuotePair == null) {
       throw new OpenGammaRuntimeException("Could not get base/quote order for currency pair (" + putCurrency + ", " + callCurrency + ")");
     }
-    //final boolean order = FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency);
     // Implementation note: To get Base/quote in market standard order.
     if (baseQuotePair.getBase().equals(putCurrency)) {
       underlying = ForexDefinition.fromAmounts(putCurrency, callCurrency, settlementDate, putAmount, -callAmount);

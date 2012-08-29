@@ -70,15 +70,16 @@ public interface UserSource {
    */
   Collection<? extends OGUser> getUsers(ExternalIdBundle bundle, VersionCorrection versionCorrection);
 
+  //-------------------------------------------------------------------------
   /**
-   * Gets all users at the given version-correction that match the specified
-   * user name.
+   * Gets the user by user id, specifying a version-correction.
    * 
-   * @param userName the user name to match, not null
+   * @param userId  the user id to match, not null
    * @param versionCorrection  the version-correction, not null
-   * @return all users matching the specified key, empty if no matches, not null
-   * @throws IllegalArgumentException if the identifier bundle is invalid
+   * @return the matched user, not null
+   * @throws DataNotFoundException if the user could not be found
    * @throws RuntimeException if an error occurs
    */
-  Collection<? extends OGUser> getUsers(String userName, VersionCorrection versionCorrection);
+  OGUser getUser(String userId, VersionCorrection versionCorrection);
+
 }

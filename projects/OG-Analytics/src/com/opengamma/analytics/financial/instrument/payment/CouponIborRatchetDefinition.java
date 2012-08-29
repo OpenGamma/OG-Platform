@@ -11,6 +11,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborRatchet;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
@@ -162,6 +163,16 @@ public class CouponIborRatchetDefinition extends CouponFloatingDefinition {
    */
   public double[] getCapCoefficients() {
     return _capCoefficients;
+  }
+
+  @Override
+  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
+    return visitor.visitCouponIborRatchet(this, data);
+  }
+
+  @Override
+  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
+    return visitor.visitCouponIborRatchet(this);
   }
 
   @Override

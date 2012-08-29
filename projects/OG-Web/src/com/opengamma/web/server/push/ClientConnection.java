@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,7 @@ import com.opengamma.web.server.push.rest.MasterType;
  * to be set up so the client is notified if an entity or the contents of a master changes.
  * The published notifications contain the REST URL of the thing that has changed.
  * All subscriptions for a URL are automatically cancelled the first time a notification is published for the URL
- * and| must be re-established every time the client accesses the URL.  This class is thread safe.
+ * and must be re-established every time the client accesses the URL.  This class is thread safe.
  * TODO should this be package-private and everything moved into the same package?
  */
 public class ClientConnection implements ChangeListener, MasterChangeListener, AnalyticsViewListener {
@@ -47,14 +48,19 @@ public class ClientConnection implements ChangeListener, MasterChangeListener, A
   private final ConnectionTimeoutTask _timeoutTask;
   /** Listener that forwards changes over HTTP whenever any updates occur to which this connection subscribes */
   private final RestUpdateListener _listener;
-  private final Object _lock = new Object();
+  /** Listeners that are called when this connection closes. */
+  private final List<DisconnectionListener> _disconnectionListeners = new CopyOnWriteArrayList<DisconnectionListener>();
 
+  /** Lock which must be held when mutating any of the objects below */
+  private final Object _lock = new Object();
   /** URLs which should be published when a master changes, keyed by the type of the master */
   private final Multimap<MasterType, String> _masterUrls = HashMultimap.create();
   /** URLs which should be published when an entity changes, keyed on the entity's ID */
   private final Multimap<ObjectId, String> _entityUrls = HashMultimap.create();
-  /** TODO what's this all about? */
+  /** Map of URLs for which changes should be published to their underlying objects. */
   private final Map<String, UrlMapping> _urlMappings = new HashMap<String, UrlMapping>();
+  /** Connection flag. */
+  private boolean _connected = true;
 
   /**
    * @param userId Login ID of the user that owns this connection TODO this isn't used yet
@@ -85,13 +91,16 @@ public class ClientConnection implements ChangeListener, MasterChangeListener, A
   }
 
   /**
-   * Closes this connection
+   * Disconnects this client.
    */
   /* package */ void disconnect() {
     s_logger.debug("Disconnecting client connection, userId: {}, clientId: {}", _userId, _clientId);
     synchronized (_lock) {
-      _timeoutTask.reset();
-      // TODO need to close any views for this clientId
+      _connected = false;
+      _timeoutTask.cancel();
+      for (DisconnectionListener listener : _disconnectionListeners) {
+        listener.clientDisconnected();
+      }
     }
   }
 
@@ -201,12 +210,26 @@ public class ClientConnection implements ChangeListener, MasterChangeListener, A
   }
 
   /**
+   * Adds a listener that will be notified when the client disconnects. If this is called after the client has
+   * disconnected the listener will be called immediately.
+   * @param listener The listener
+   */
+  public void addDisconnectionListener(DisconnectionListener listener) {
+    synchronized (_lock) {
+      if (_connected) {
+        _disconnectionListeners.add(listener);
+      } else {
+        listener.clientDisconnected();
+      }
+    }
+  }
+
+  /**
    * <p>Container for sets of {@link MasterType}s or {@link ObjectId}s associated with a subscription for a REST URL.
    * This is to allow all subscriptions for a URL to be cleared when its first update is published.</p>
    * <p>This assumes there can be multiple subscriptions for a URL with different {@link MasterType}s or
    * entity {@link ObjectId}s.  TODO Need to check whether this is actually the case.
-   * If not this could probably
-   * be scrapped.</p>
+   * If not this could probably be scrapped.</p>
    */
   private static class UrlMapping {
 
@@ -245,6 +268,17 @@ public class ClientConnection implements ChangeListener, MasterChangeListener, A
         return new UrlMapping(urlMapping.getMasterTypes(), entityIds);
       }
     }
+  }
+
+  /**
+   * Listeners are called when a connection disconnects.
+   */
+  public interface DisconnectionListener {
+
+    /**
+     * Called when the {@link ClientConnection} disconnects.
+     */
+    void clientDisconnected();
   }
 }
 

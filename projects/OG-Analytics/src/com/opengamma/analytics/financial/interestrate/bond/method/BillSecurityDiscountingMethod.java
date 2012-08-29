@@ -110,6 +110,22 @@ public final class BillSecurityDiscountingMethod implements PricingMethod {
   }
 
   /**
+   * Computes the derivative of the bill yield with respect to the price. The yield is in the bill yield convention.
+   * @param bill The bill.
+   * @param price The price. The price is the relative price at settlement.
+   * @return The yield derivative.
+   */
+  public double yieldFromPriceDerivative(final BillSecurity bill, final double price) {
+    if (bill.getYieldConvention() == SimpleYieldConvention.DISCOUNT) {
+      return -1.0 / bill.getAccralFactor();
+    }
+    if (bill.getYieldConvention() == SimpleYieldConvention.INTERESTATMTY) {
+      return -1.0 / (price * price * bill.getAccralFactor());
+    }
+    throw new UnsupportedOperationException("The convention " + bill.getYieldConvention().getConventionName() + " is not supported.");
+  }
+
+  /**
    * Computes the present value of the bill security by discounting from its yield.
    * @param bill The bill.
    * @param yield The bill yield.
@@ -126,8 +142,8 @@ public final class BillSecurityDiscountingMethod implements PricingMethod {
   /**
    * Computes the present value of the bill security by discounting from its price.
    * @param bill The bill.
-   * @param price The price
-   * @param curves The curves.
+   * @param price The (dirty) price at settlement.
+   * @param curves The curves (for discounting from settlement to today) .
    * @return The present value.
    */
   public CurrencyAmount presentValueFromPrice(final BillSecurity bill, final double price, final YieldCurveBundle curves) {

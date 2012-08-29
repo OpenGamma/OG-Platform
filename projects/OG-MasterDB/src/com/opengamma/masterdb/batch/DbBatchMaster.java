@@ -87,6 +87,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
   public DbBatchMaster(final DbConnector dbConnector) {
     super(dbConnector, BATCH_IDENTIFIER_SCHEME);
     _dbBatchWriter = new DbBatchWriter(dbConnector);
+    setElSqlBundle(_dbBatchWriter.getElSqlBundle());
   }
 
   //-------------------------------------------------------------------------

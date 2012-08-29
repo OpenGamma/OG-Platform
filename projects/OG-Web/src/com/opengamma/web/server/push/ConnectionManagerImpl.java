@@ -24,34 +24,25 @@ import com.opengamma.web.server.push.rest.MasterType;
  */
 public class ConnectionManagerImpl implements ConnectionManager {
 
-  /** Period for the periodic tasks that check whether the client connections have been idle for too long */
-  private static final long DEFAULT_TIMEOUT_CHECK_PERIOD = 60000;
-
-  /** By default a client is disconnected if it hasn't been heard from for five minutes */
-  private static final long DEFAULT_TIMEOUT = 300000;
-
+  /** Period for the tasks that check whether the client connections have been idle for too long */
+  private static final long DEFAULT_TIMEOUT_CHECK_PERIOD = 20000;
+  /** By default a client is disconnected if it hasn't been heard from for 60 seconds */
+  private static final long DEFAULT_TIMEOUT = 60000;
   // TODO a better way to generate client IDs
   /** Client ID of the next connection */
   private final AtomicLong _clientConnectionId = new AtomicLong();
-
   /** Provides a connection to the long-polling HTTP connections */
   private final LongPollingConnectionManager _longPollingConnectionManager;
-
   /** Maximum time a client is allow to be idle before it's disconnected */
   private final long _timeout;
-
   /** Period for the tasks that check for idle clients */
   private final long _timeoutCheckPeriod;
-
   /** Connections keyed on client ID */
   private final Map<String, ClientConnection> _connectionsByClientId = new ConcurrentHashMap<String, ClientConnection>();
-
   /** Timer for tasks that check for idle clients */
   private final Timer _timer = new Timer();
-
   /** For listening for changes in entity data */
   private final ChangeManager _changeManager;
-
   /** For listening for changes to any data in a master */
   private final MasterChangeManager _masterChangeManager;
 
@@ -126,7 +117,9 @@ public class ConnectionManagerImpl implements ConnectionManager {
    * @throws DataNotFoundException If there is no connection for the specified ID, the user ID is invalid or if
    * the client and user IDs don't correspond
    * TODO not sure this should be public
+   * TODO or should it be specified in ClientConnection?
    */
+  @Override
   public ClientConnection getConnectionByClientId(String userId, String clientId) {
     // TODO user logins
     //ArgumentChecker.notEmpty(userId, "userId");

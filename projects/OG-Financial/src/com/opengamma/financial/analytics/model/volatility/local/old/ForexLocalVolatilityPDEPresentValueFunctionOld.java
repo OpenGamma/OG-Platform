@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.volatility.local.old;
@@ -30,7 +30,6 @@ import java.util.Set;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.conversion.ForexDomesticPipsToPresentValueConverter;
-import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -44,13 +43,13 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
- * 
+ *
  */
 public class ForexLocalVolatilityPDEPresentValueFunctionOld extends AbstractFunction.NonCompiledInvoker {
 
@@ -410,7 +409,7 @@ public class ForexLocalVolatilityPDEPresentValueFunctionOld extends AbstractFunc
   }
 
   private ValueRequirement getSpotRequirement(final FXOptionSecurity fxOption) {
-    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, FXUtils.getSpotIdentifier(fxOption));
+    return new ValueRequirement(ValueRequirementNames.SPOT_RATE, UnorderedCurrencyPair.of(fxOption.getCallCurrency(), fxOption.getPutCurrency()));
   }
 
   private ValueProperties getPriceProperties(final String surfaceName, final String surfaceType, final String xAxis, final String yAxis, final String yAxisType,
