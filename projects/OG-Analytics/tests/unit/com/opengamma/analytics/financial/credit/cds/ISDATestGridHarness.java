@@ -290,10 +290,11 @@ public class ISDATestGridHarness {
     // Assume 1 billion notional, quarterly premiums and ACT360 day count
     final double notional = 1000000000;
     final Frequency couponFrequency = SimpleFrequency.QUARTERLY;
+    final StubType stubType = StubType.SHORT_START;
     
     // Now build the CDS object
-    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, couponFrequency, convention, StubType.SHORT_START, /* protect start */ true, /*notional*/ 1.0, spread, Currency.USD);
-    final ISDACDSDefinition cdsDefinition = new ISDACDSDefinition(startDate, maturity, premiumDefinition, convention, /*notional*/1.0, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true);
+    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, couponFrequency, convention, stubType, /* protect start */ true, /*notional*/ 1.0, spread, Currency.USD);
+    final ISDACDSDefinition cdsDefinition = new ISDACDSDefinition(startDate, maturity, premiumDefinition, /*notional*/1.0, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true, couponFrequency, convention, stubType);
     final ISDACDSDerivative cds = cdsDefinition.toDerivative(pricingDate, stepinDate, settlementDate, "IR_CURVE");  
     
     // Par spread is always supplied

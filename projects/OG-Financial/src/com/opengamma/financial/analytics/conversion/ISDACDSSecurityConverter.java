@@ -46,7 +46,8 @@ public class ISDACDSSecurityConverter extends FinancialSecurityVisitorAdapter<In
     
     // TODO: Does convention name matter? ISDA code never uses it
     final Calendar calendar = CalendarUtils.getCalendar(_holidaySource, cds.getCurrency());
-    final Convention convention = new Convention(cds.getSettlementDays(), cds.getDayCount(), cds.getBusinessDayConvention(), calendar, cds.getName() + "_convention");
+    final Convention convention = new Convention(
+      cds.getSettlementDays(), cds.getDayCount(), cds.getBusinessDayConvention(), calendar, cds.getName() + "_convention"); // TODO: Is convention name important?
     
     final ISDACDSPremiumDefinition premiumPayments = ISDACDSPremiumDefinition.from(
       cds.getStartDate(), cds.getMaturity(), cds.getPremiumFrequency(),
@@ -54,7 +55,7 @@ public class ISDACDSSecurityConverter extends FinancialSecurityVisitorAdapter<In
       cds.getNotional(), cds.getSpread(), cds.getCurrency());
     
     return new ISDACDSDefinition(cds.getStartDate(), cds.getMaturity(), premiumPayments,
-      convention, cds.getNotional(), cds.getSpread(), cds.getRecoveryRate(),
-      ACCRUAL_ON_DEFAULT, PAY_ON_DEFAULT, PROTECT_START);
+      cds.getNotional(), cds.getSpread(), cds.getRecoveryRate(), ACCRUAL_ON_DEFAULT,
+      PAY_ON_DEFAULT, PROTECT_START, cds.getPremiumFrequency(), convention, cds.getStubType());
   }
 }

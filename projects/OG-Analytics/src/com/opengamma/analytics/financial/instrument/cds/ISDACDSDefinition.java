@@ -13,9 +13,11 @@ import com.opengamma.analytics.financial.instrument.Convention;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
+import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.daycount.AccruedInterestCalculator;
 import com.opengamma.financial.convention.daycount.ActualThreeSixtyFive;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -40,28 +42,33 @@ public class ISDACDSDefinition implements InstrumentDefinition<ISDACDSDerivative
   private final double _spread;
   private final double _recoveryRate;
   
-  private final Convention _convention;
-  
   private final boolean _accrualOnDefault;
   private final boolean _payOnDefault;
   private final boolean _protectStart;
+  
+  private final Frequency _couponFrequency;
+  private final Convention _convention;
+  private final StubType _stubType;
   
   /**
    * Create an (immutable) CDS definition
    * @param startDate Protection start date of the CDS contract (may be in the past, not null)
    * @param maturity Maturity date of the CDS contract (not null)
    * @param premium Definition for the premium payments (not null)
-   * @param convention Convention data
    * @param notional Notional of the CDS contract
    * @param spread Spread (a.k.a. coupon rate) of the CDS contract
    * @param recoveryRate Recovery rate against the underlying
    * @param accrualOnDefault Whether, in the event of default, accrued interest must be paid for the current period up to the default date
    * @param payOnDefault Whether protection payment is due on default (true) or at maturity (false)
    * @param protectStart Whether the start date is protected (i.e. one extra day of protection)
+   * @param couponFrequency The premium coupon frequency
+   * @param convention Convention data
+   * @param stubType The premium stub type
    */
-  public ISDACDSDefinition(final ZonedDateTime startDate, final ZonedDateTime maturity, final ISDACDSPremiumDefinition premium, final Convention convention,
+  public ISDACDSDefinition(final ZonedDateTime startDate, final ZonedDateTime maturity, final ISDACDSPremiumDefinition premium,
     final double notional, final double spread, final double recoveryRate,
-    final boolean accrualOnDefault, final boolean payOnDefault, final boolean protectStart) {
+    final boolean accrualOnDefault, final boolean payOnDefault, final boolean protectStart,
+    final Frequency couponFrequency, final Convention convention, final StubType stubType) {
     
     ArgumentChecker.notNull(startDate, "start date");
     ArgumentChecker.notNull(maturity, "maturity");
@@ -74,10 +81,12 @@ public class ISDACDSDefinition implements InstrumentDefinition<ISDACDSDerivative
     _notional = notional;
     _spread = spread;
     _recoveryRate = recoveryRate;
-    _convention = convention;
     _accrualOnDefault = accrualOnDefault;
     _payOnDefault = payOnDefault;
     _protectStart = protectStart;
+    _couponFrequency = couponFrequency;
+    _convention = convention;
+    _stubType = stubType;
   }
 
   /**
@@ -112,7 +121,8 @@ public class ISDACDSDefinition implements InstrumentDefinition<ISDACDSDerivative
       getTimeBetween(pricingDate, stepinDate),
       getTimeBetween(pricingDate, settlementDate),
       _notional, _spread, _recoveryRate, accruedInterest(pricingDate),
-      _accrualOnDefault, _payOnDefault, _protectStart
+      _accrualOnDefault, _payOnDefault, _protectStart,
+      _couponFrequency, _convention, _stubType
     );
   }
   

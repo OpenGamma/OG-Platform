@@ -12,21 +12,11 @@ import java.util.TreeSet;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.instrument.Convention;
 import com.opengamma.analytics.financial.instrument.cds.ISDACDSDefinition;
 import com.opengamma.analytics.financial.instrument.cds.ISDACDSPremiumDefinition;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
 import com.opengamma.analytics.math.rootfinding.SingleRootFinder;
-import com.opengamma.financial.convention.StubType;
-import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.FollowingBusinessDayConvention;
-import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.financial.convention.daycount.ActualThreeSixty;
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.frequency.Frequency;
-import com.opengamma.financial.convention.frequency.SimpleFrequency;
 /**
  * An approximation to the calculation method for the ISDA CDS model
  * 
@@ -49,19 +39,14 @@ public class CDSApproxISDAMethod {
   }
 
   /**
-   * Calculate the up-front charge of for a CDS. This is what would change hands if the contract were traded.
-   * and is effectively its PV.
-   * 
-   * Step-in date is the date when ownership of protection is assumed and is normally taken as T+1, so a CDS traded
-   * on a particular day becomes effective the next day at 00:01. To value an new CDS contract with start date
-   * T >= 0, then step-in date = T+1. To value an existing contract at some point T, step-in date = T+1 again
-   * but now start date < 0.
+   * Calculate the up-front charge of for a CDS according to the ISDA model,
+   * given ISDA representations of the discount curve and hazard rate function.
    * 
    * @param cds The CDS to be valued
    * @param discountCurve The discount curve
    * @param hazardRateCurve The credit spread curve
    * @param cleanPrice Whether the price is clean (true) or dirty (false)
-   * @return PV of the CDS contract
+   * @return The clean or dirty price of the CDS contract, depending on the cleanPrice flag
    */
   public double calculateUpfrontCharge(final ISDACDSDerivative cds, final ISDACurve discountCurve, final ISDACurve hazardRateCurve, boolean cleanPrice) {
     
@@ -85,6 +70,21 @@ public class CDSApproxISDAMethod {
     return valueCDS(cds, hazardRateCurve, paymentTimeline, accrualTimeline, contingentTimeline, offsetStepinTime, stepinDiscountFactor, settlementDiscountFactor, cleanPrice);
   }
 
+  /**
+   * Calculate the up-front charge of for a CDS according to the ISDA model,
+   * given ISDA representations of the discount curve and a flat par spread from the market.
+   * 
+   * The pricing, step-in and settlement dates need to be passed in as they are used to build the bootstrap instrument.
+   * 
+   * @param cds The CDS to be valued
+   * @param discountCurve The discount curve
+   * @param flatSpread The flat par spread from the market
+   * @param cleanPrice Whether the price is clean (true) or dirty (false)
+   * @param pricingDate The pricing date
+   * @param stepinDate The step-in date
+   * @param settlementDate The settlement date
+   * @return The clean or dirty price of the CDS contract, depending on the cleanPrice flag
+   */
   public double calculateUpfrontCharge(final ISDACDSDerivative cds, final ISDACurve discountCurve, double flatSpread, boolean cleanPrice,
     final ZonedDateTime pricingDate, final ZonedDateTime stepinDate, final ZonedDateTime settlementDate) {
     
@@ -109,6 +109,7 @@ public class CDSApproxISDAMethod {
 
     SingleRootFinder<Double, Double> rootFinder = new BrentSingleRootFinder(1E-17);
     
+    // TODO: Initial guess cannot be used until the solve interface is updated
     //double guess = dataPoints[0] / (1 + cds.getRecoveryRate());
     
     dataPoints[0] = rootFinder.getRoot(
@@ -128,29 +129,55 @@ public class CDSApproxISDAMethod {
     return valueCDS(cds, hazardRateCurve, paymentTimeline, accrualTimeline, contingentTimeline, offsetStepinTime, stepinDiscountFactor, settlementDiscountFactor, cleanPrice);
   }
   
+  /**
+   * Build a CDS instrument to use for bootstrapping the hazard rate function when a flat spread is assumed.
+   * 
+   * In this case most parameters of the bootstrap instrument, particularly the maturity date, are the same
+   * as the instrument being priced.
+   * 
+   * @param cds The CDS being priced
+   * @param parSpread Flat par spread from the market
+   * @return A CDS instrument suitable for bootstrapping the hazard rate function
+   */
   private ISDACDSDefinition makeBootstrapCDSDefinition(final ISDACDSDerivative cds, final double parSpread) {
     
+    // These values are hard-coded in the ISDA C code when building the bootstrap instrument
     final double notional = 1.0;
+    final boolean protectStart = true;
+    final boolean payOnDefault = true;
     
     final ISDACDSCoupon[] premiums = cds.getPremium().getPayments();
     final ZonedDateTime startDate = premiums[0].getAccrualStartDate();
     final ZonedDateTime maturity = premiums[premiums.length - 1].getAccrualEndDate();
     
-    // TODO: source these values from somewhere
-    final Frequency couponFrequency = SimpleFrequency.QUARTERLY;
-    final Calendar calendar = new MondayToFridayCalendar("TestCalendar");
-    final DayCount dayCount = new ActualThreeSixty();
-    final BusinessDayConvention businessDays = new FollowingBusinessDayConvention();
-    final Convention convention = new Convention(0, dayCount, businessDays, calendar, "");
-    
     final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(
-      startDate, maturity, couponFrequency,
-      convention, StubType.SHORT_START, /* protect start */ true,
+      startDate, maturity, cds.getCouponFrequency(),
+      cds.getConvention(), cds.getStubType(), cds.isProtectStart(),
       notional, parSpread, cds.getPremium().getCurrency());
     
-    return new ISDACDSDefinition(startDate, maturity, premiumDefinition, convention, notional, parSpread, cds.getRecoveryRate(), /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true);
+    return new ISDACDSDefinition(startDate, maturity, premiumDefinition, notional, parSpread, cds.getRecoveryRate(),
+      cds.isAccrualOnDefault(), payOnDefault, protectStart,
+      cds.getCouponFrequency(), cds.getConvention(), cds.getStubType());
   }
   
+  
+  /**
+   * Value a CDS contract according to the ISDA model, given pre-computed time-lines, discount factors and hazard-rate function.
+   * 
+   * Note the clean price can be found by subtracting accrued premium at the pricing point from the dirty price. This value is
+   * available in the ISDACDSDerivative object ({@link ISDACDSDerivative#getAccruedInterest()}).
+   * 
+   * @param cds The CDS being valued
+   * @param hazardRateCurve A representation of the hazard rate function
+   * @param paymentTimeline The timeline for fee payments
+   * @param accrualTimeline The timeline used to compute accrual on default for the fee leg
+   * @param contingentTimeline The timeline used to price the contingent leg
+   * @param stepinTime The step-in time
+   * @param stepinDiscountFactor The discount factor at the step-in time
+   * @param settlementDiscountFactor The discount factor at the settlement time
+   * @param cleanPrice Whether to produce a clean price (true) or a dirty price (false)
+   * @return The value of the CDS contract, according to the ISDA model.
+   */
   private double valueCDS(final ISDACDSDerivative cds, final ISDACurve hazardRateCurve, final Timeline paymentTimeline, final Timeline accrualTimeline, final Timeline contingentTimeline,
     final double stepinTime, final double stepinDiscountFactor, final double settlementDiscountFactor, boolean cleanPrice) {
     
@@ -230,7 +257,7 @@ public class CDSApproxISDAMethod {
     final double startTime = timeline.timePoints[startIndex];
     final double endTime = timeline.timePoints[endIndex];
     final double subStartTime = stepinTime > startTime ? stepinTime : startTime;
-    final double accrualRate = amount / (endTime - startTime); // TODO: Handle startTime == endTime
+    final double accrualRate = amount / (endTime - startTime);
 
     double t0, t1, dt, survival0, survival1, discount0, discount1;
     double lambda, fwdRate, lambdaFwdRate, valueForTimeStep, value;
@@ -278,6 +305,7 @@ public class CDSApproxISDAMethod {
    */
   private double valueContingentLeg(final ISDACDSDerivative cds, final Timeline contingentTimeline, final ISDACurve hazardRateCurve, final double settlementDiscountFactor) {
 
+    // The ISDA C code always forces pay on default; code is available for pay on maturity but never used
     final double recoveryRate = cds.getRecoveryRate();
     final double value = cds.isPayOnDefault()
       ? valueContingentLegPayOnDefault(recoveryRate, contingentTimeline, hazardRateCurve)
@@ -353,6 +381,22 @@ public class CDSApproxISDAMethod {
     return (survival0 - survival1) * discount * loss;
   }
   
+  /**
+   * Build a timeline based on the discount and hazard curves, and optional the CDS schedule.
+   * 
+   * The resulting timeline object contains t values for every point on both curves, and optionally
+   * for the start and end time of every accrual period. Discount factors for each time point are
+   * computed and stored. The timeline is truncated to the specified start and end times (these
+   * time points are included in the timeline).
+   * 
+   * @param cds The CDS being priced
+   * @param discountCurve The discount curve
+   * @param hazardRateCurve The hazard curve
+   * @param startTime The first point on the timeline
+   * @param endTime The last point on the timeline
+   * @param includeSchedule Whether to include the CDS accrual period start/end times
+   * @return The populated timeline object
+   */
   private Timeline buildTimeline(ISDACDSDerivative cds, ISDACurve discountCurve, ISDACurve hazardRateCurve, double startTime, double endTime, boolean includeSchedule) {
     
     NavigableSet<Double> allTimePoints = new TreeSet<Double>();
@@ -414,6 +458,14 @@ public class CDSApproxISDAMethod {
     return new Timeline(timePoints, discountFactors);
   }
   
+  /**
+   * Build a timeline based on a series of coupon payment dates. All payment
+   * dates are included, and the discount factors for those dates.
+   * 
+   * @param cds Payment dates are extracted from the CDS premium and included in the timeline
+   * @param discountCurve Discount factors for each payment date are taken from the discount curve
+   * @return The populated timeline object
+   */
   private Timeline buildPaymentTimeline(ISDACDSDerivative cds, ISDACurve discountCurve) {
     
     final ISDACDSCoupon[] payments = cds.getPremium().getPayments();

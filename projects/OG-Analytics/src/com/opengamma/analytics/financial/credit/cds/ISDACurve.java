@@ -39,14 +39,15 @@ public class ISDACurve {
     _name = name;
     _offset = offset;
     
+    // Choose interpolation/extrapolation to match the behaviour of curves in the ISDA CDS reference code
     if (xData.length > 1) {
       _curve = InterpolatedDoublesCurve.fromSorted(xData, yData,
         new CombinedInterpolatorExtrapolator(
-          new ISDAInterpolator1D(),
-          new FlatExtrapolator1D(),
-          new ISDAExtrapolator1D()));
+          new ISDAInterpolator1D(),    // ISDA style interpolation
+          new FlatExtrapolator1D(),    // Flat rate extrapolated to the left
+          new ISDAExtrapolator1D()));  // ISDA style extrapolation to the right
     } else if (xData.length == 1) {
-      _curve = ConstantDoublesCurve.from(yData[0]);
+      _curve = ConstantDoublesCurve.from(yData[0]);  // Unless the curve is flat, in which case use a constant curve
     } else {
       throw new OpenGammaRuntimeException("Cannot construct a curve with no points");
     }

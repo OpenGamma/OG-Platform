@@ -5,9 +5,12 @@
  */
 package com.opengamma.analytics.financial.credit.cds;
 
+import com.opengamma.analytics.financial.instrument.Convention;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
+import com.opengamma.financial.convention.StubType;
+import com.opengamma.financial.convention.frequency.Frequency;
 
 /**
  * ISDA derivative implementation for CDS securities.
@@ -39,6 +42,11 @@ public class ISDACDSDerivative implements InstrumentDerivative {
   private final boolean _accrualOnDefault;
   private final boolean _payOnDefault;
   private final boolean _protectStart;
+  
+  // Not needed for ISDA pricing, but used to build the bootstrap CDS for a flat spread
+  private final Frequency _couponFrequency;
+  private final Convention _convention;
+  private final StubType _stubType;  
 
   /**
    * Create an (immutable) CDS derivative object ready for pricing
@@ -57,11 +65,15 @@ public class ISDACDSDerivative implements InstrumentDerivative {
    * @param accrualOnDefault Whether, in the event of default, accrued interest must be paid for the current period up to the default date
    * @param payOnDefault Whether protection payment is due on default (true) or at maturity (false)
    * @param protectStart Whether the start date is protected (i.e. one extra day of protection)
+   * @param couponFrequency The premium coupon frequency
+   * @param convention The convention data
+   * @param stubType the premium schedule stub type
    */
   public ISDACDSDerivative(final String discountCurveName, final String spreadCurveName, final ISDACDSPremium premium,
     final double startTime, final double maturity, final double stepinTime, final double settlementTime,
     final double notional, final double spread, final double recoveryRate, final double accruedInterest,
-    final boolean accrualOnDefault, final boolean payOnDefault, final boolean protectStart) {
+    final boolean accrualOnDefault, final boolean payOnDefault, final boolean protectStart,
+    final Frequency couponFrequency, final Convention convention, final StubType stubType) {
     
     _discountCurveName = discountCurveName;
     _spreadCurveName = spreadCurveName;
@@ -81,6 +93,10 @@ public class ISDACDSDerivative implements InstrumentDerivative {
     _accrualOnDefault = accrualOnDefault;
     _payOnDefault = payOnDefault;
     _protectStart = protectStart;
+    
+    _couponFrequency = couponFrequency;
+    _convention = convention;
+    _stubType = stubType;
   }
 
   @Override
@@ -148,5 +164,16 @@ public class ISDACDSDerivative implements InstrumentDerivative {
   public boolean isProtectStart() {
     return _protectStart;
   }
-
+  
+  public Frequency getCouponFrequency() {
+    return _couponFrequency;
+  }
+  
+  public Convention getConvention() {
+    return _convention;
+  }
+  
+  public StubType getStubType() {
+    return _stubType;
+  }
 }

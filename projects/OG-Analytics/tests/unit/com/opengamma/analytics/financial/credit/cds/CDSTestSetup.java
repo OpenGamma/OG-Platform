@@ -57,10 +57,11 @@ public class CDSTestSetup {
     final DayCount dayCount = new ActualThreeSixty();
     final BusinessDayConvention businessDays = new FollowingBusinessDayConvention();
     final Convention convention = new Convention(settlementDays, dayCount, businessDays, calendar, "");
+    final StubType stubType = StubType.SHORT_START;
 
-    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, premiumFrequency, convention, StubType.SHORT_START, /* protectStart */ true, notional, spread, Currency.USD);
+    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, premiumFrequency, convention, stubType, /* protectStart */ true, notional, spread, Currency.USD);
 
-    return new ISDACDSDefinition(startDate, maturity, premiumDefinition, convention, notional, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true);
+    return new ISDACDSDefinition(startDate, maturity, premiumDefinition, notional, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true, premiumFrequency, convention, stubType);
   }
   
   protected ISDACurve loadDiscountCurve_ISDAExampleMainC() {
@@ -154,10 +155,11 @@ public class CDSTestSetup {
     final DayCount dayCount = new ActualThreeSixty();
     final BusinessDayConvention businessDays = new FollowingBusinessDayConvention();
     final Convention convention = new Convention(settlementDays, dayCount, businessDays, calendar, "");
+    final StubType stubType = StubType.SHORT_START;
 
-    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, couponFrequency, convention, StubType.SHORT_START, /* protectStart */ true, notional, spread, Currency.USD);
+    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, couponFrequency, convention, stubType, /* protectStart */ true, notional, spread, Currency.USD);
     
-    return new ISDACDSDefinition(startDate, maturity, premiumDefinition, convention, notional, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true);
+    return new ISDACDSDefinition(startDate, maturity, premiumDefinition, notional, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true, couponFrequency, convention, stubType);
   }
   
   protected ISDACDSDefinition loadCDS_ISDAExampleUpfrontConverter() {
@@ -172,10 +174,11 @@ public class CDSTestSetup {
     final DayCount dayCount = new ActualThreeSixty();
     final BusinessDayConvention businessDays = new FollowingBusinessDayConvention();
     final Convention convention = new Convention(settlementDays, dayCount, businessDays, calendar, "");
+    final StubType stubType = StubType.SHORT_START;
 
-    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, couponFrequency, convention, StubType.SHORT_START, /* protectStart */ true, notional, spread, Currency.USD);
+    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, couponFrequency, convention, stubType, /* protectStart */ true, notional, spread, Currency.USD);
     
-    return new ISDACDSDefinition(startDate, maturity, premiumDefinition, convention, notional, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true);
+    return new ISDACDSDefinition(startDate, maturity, premiumDefinition, notional, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true, couponFrequency, convention, stubType);
   }
   
   protected ISDACurve loadHazardRateCurve_ISDAExampleCDSCalculator() {
