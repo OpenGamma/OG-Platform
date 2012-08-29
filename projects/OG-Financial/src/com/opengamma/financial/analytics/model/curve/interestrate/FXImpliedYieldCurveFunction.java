@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.curve.interestrate;
@@ -76,7 +76,7 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ *
  */
 public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInvoker {
   /** Property name for the calculation method */
@@ -280,34 +280,44 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
       return null;
     }
     if (domesticCurveCalculationConfig.getYieldCurveNames().length != 1) {
-      throw new OpenGammaRuntimeException("Can only handle one curve at the moment");
+      s_logger.error("Can only handle one curve at the moment");
+      return null;
     }
     final String domesticCurveName = domesticCurveCalculationConfig.getYieldCurveNames()[0];
     final UniqueIdentifiable domesticId = domesticCurveCalculationConfig.getUniqueId();
     if (!(domesticId instanceof Currency)) {
-      throw new OpenGammaRuntimeException("Can only handle curves with currencies as ids at the moment");
+      s_logger.error("Can only handle curves with currencies as ids at the moment");
+      return null;
     }
     final Currency domesticCurrency = (Currency) domesticId;
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     final Map<String, String[]> exogenousConfigs = domesticCurveCalculationConfig.getExogenousConfigData();
     if (exogenousConfigs.size() != 1) {
-      throw new OpenGammaRuntimeException("Can only handle curves with one foreign curve config");
+      s_logger.error("Can only handle curves with one foreign curve config");
+      return null;
     }
     final Map.Entry<String, String[]> entry = exogenousConfigs.entrySet().iterator().next();
     final MultiCurveCalculationConfig foreignConfig = curveCalculationConfigSource.getConfig(entry.getKey());
+    if (foreignConfig == null) {
+      s_logger.error("Foreign config was null");
+      return null;
+    }
     final UniqueIdentifiable foreignId = foreignConfig.getUniqueId();
     if (!(foreignId instanceof Currency)) {
-      throw new OpenGammaRuntimeException("Can only handle curves with currencies as ids at the moment");
+      s_logger.error("Can only handle curves with currencies as ids at the moment");
+      return null;
     }
     final Currency foreignCurrency = (Currency) foreignId;
     final UnorderedCurrencyPair currencyPair = UnorderedCurrencyPair.of(domesticCurrency, foreignCurrency);
     final FXForwardCurveDefinition definition = fxCurveDefinitionSource.getDefinition(domesticCurveName, currencyPair.toString());
     if (definition == null) {
-      throw new OpenGammaRuntimeException("Couldn't find FX forward curve definition called " + domesticCurveName + " with target " + currencyPair);
+      s_logger.error("Couldn't find FX forward curve definition called " + domesticCurveName + " with target " + currencyPair);
+      return null;
     }
     final FXForwardCurveSpecification fxForwardCurveSpec = fxCurveSpecificationSource.getSpecification(domesticCurveName, currencyPair.toString());
     if (fxForwardCurveSpec == null) {
-      throw new OpenGammaRuntimeException("Couldn't find FX forward curve specification called " + domesticCurveName + " with target " + currencyPair);
+      s_logger.error("Couldn't find FX forward curve specification called " + domesticCurveName + " with target " + currencyPair);
+      return null;
     }
     final ValueProperties fxForwardCurveProperties = ValueProperties.builder().with(ValuePropertyNames.CURVE, domesticCurveName).get();
     final String foreignCurveName = foreignConfig.getYieldCurveNames()[0];

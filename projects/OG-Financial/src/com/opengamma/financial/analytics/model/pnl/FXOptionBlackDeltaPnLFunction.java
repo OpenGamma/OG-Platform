@@ -12,6 +12,9 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.schedule.HolidayDateRemovalFunction;
@@ -63,6 +66,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  *
  */
 public class FXOptionBlackDeltaPnLFunction extends AbstractFunction.NonCompiledInvoker {
+  private static final Logger s_logger = LoggerFactory.getLogger(FXOptionBlackDeltaPnLFunction.class);
   private static final HolidayDateRemovalFunction HOLIDAY_REMOVER = HolidayDateRemovalFunction.getInstance();
   private static final Calendar WEEKEND_CALENDAR = new MondayToFridayCalendar("Weekend");
   private static final TimeSeriesDifferenceOperator DIFFERENCE = new TimeSeriesDifferenceOperator();
@@ -218,6 +222,7 @@ public class FXOptionBlackDeltaPnLFunction extends AbstractFunction.NonCompiledI
     final HistoricalTimeSeriesResolutionResult timeSeries = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context).resolve(spotIdentifier, null, null, null,
         MarketDataRequirementNames.MARKET_VALUE, null);
     if (timeSeries == null) {
+      s_logger.error("Could not get time series for identifier " + spotIdentifier);
       return null;
     }
     final ValueRequirement marketValueRequirement = HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries,
