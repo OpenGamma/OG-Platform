@@ -223,6 +223,8 @@ public final class ValuePropertyNames {
    */
   public static final String SHIFT = "Shift";
 
+  // REVIEW 2012-08-29 andrew -- The Javadoc for SHIFT above is bad; it's a common name that will be used for things other than DV01.
+
   /**
    * 
    */
