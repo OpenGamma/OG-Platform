@@ -27,6 +27,7 @@ $.register_module({
                 }) : viewports
                     .put({view_id: view_id, graph_id: graph_id, rows: viewport.rows, columns: viewport.cols})
                     .pipe(function (result) {
+                        if (result.error) return (view_id = graph_id = viewport_id = subscribed = null);
                         (viewport_id = result.meta.id), (viewport_version = result.data.version);
                         return viewports
                             .get({view_id: view_id, graph_id: graph_id, viewport_id: viewport_id, update: data_setup});

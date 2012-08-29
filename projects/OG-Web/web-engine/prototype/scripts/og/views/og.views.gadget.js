@@ -18,7 +18,7 @@ $.register_module({
                     sparklines: false,
                     source: {
                         type: 'portfolio',
-                        depgraph: false,
+                        depgraph: true,
                         viewdefinition: args.id,
                         row: 0, col: 2,
                         live: true,
