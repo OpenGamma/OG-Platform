@@ -22,7 +22,7 @@ $.register_module({
                         viewdefinition: args.id,
                         row: 0, col: 2,
                         live: true,
-                        provider: 'Live market data (Bloomberg, Activ, TullettPrebon)'
+                        provider: 'Live market data (Bloomberg, Activ, TullettPrebon, ICAP)'
                     }
                 });
             },
