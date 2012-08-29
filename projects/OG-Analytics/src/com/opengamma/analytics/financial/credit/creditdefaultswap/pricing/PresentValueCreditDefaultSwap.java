@@ -15,9 +15,9 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 public class PresentValueCreditDefaultSwap {
 
   // -------------------------------------------------------------------------------------------------
-  
+
   // Method for computing the PV of a CDS  
-  public double getPresentValueCreditDefaultSwap(CreditDefaultSwapDefinition cds, double [][]cashflowSchedule) {
+  public double getPresentValueCreditDefaultSwap(CreditDefaultSwapDefinition cds, double[][] cashflowSchedule) {
 
     // -------------------------------------------------------------------------------------------------
 
@@ -52,7 +52,7 @@ public class PresentValueCreditDefaultSwap {
   // -------------------------------------------------------------------------------------------------
 
   // Method to calculate the value of the premium leg of a CDS 
-  double calculatePremiumLeg(CreditDefaultSwapDefinition cds, double [][]cashflowSchedule) {
+  double calculatePremiumLeg(CreditDefaultSwapDefinition cds, double[][] cashflowSchedule) {
 
     double presentValuePremiumLeg = 0.0;
     double presentValueAccruedPremium = 0.0;
@@ -69,7 +69,7 @@ public class PresentValueCreditDefaultSwap {
     // get the yield curve
     YieldCurve yieldCurve = cds.getYieldCurve();
 
-    // Get the survival curve
+    // Get the survival curve (this will be retreived based on the CDS credit key to uniquely identify a particular spread curve)
     YieldCurve survivalCurve = cds.getSurvivalCurve();
 
     // Do we need to calculate the accrued premium as well
@@ -105,13 +105,15 @@ public class PresentValueCreditDefaultSwap {
   double calculateAccruedPremium(CreditDefaultSwapDefinition cds) {
 
     // TODO : Add this code
-    
+
     double presentValueAccruedPremium = 0.0;
 
     return presentValueAccruedPremium;
   }
 
   // -------------------------------------------------------------------------------------------------
+
+  // TODO: Need to fix this code up so it is not just hacked together
 
   // Method to calculate the value of the contingent leg of a CDS
   double calculateContingentLeg(CreditDefaultSwapDefinition cds) {

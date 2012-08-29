@@ -5,8 +5,6 @@
  */
 package com.opengamma.analytics.financial.credit.creditindexdefaultswap.definition;
 
-import java.util.Vector;
-
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -16,7 +14,7 @@ import com.opengamma.util.money.Currency;
  * 
  */
 public class CreditIndexDefaultSwapDefinition {
-  
+
   // From the users perspective, are we buying or selling protection
   private final String _buySellProtection;
 
@@ -51,20 +49,25 @@ public class CreditIndexDefaultSwapDefinition {
 
   private final double _spread;
 
+  private final int _series;
+  private final String _version;
+
   //Constructor for a CDS index swap definition object (all fields are user specified)
-  public CreditIndexDefaultSwapDefinition(String buySellProtection, 
-                                          String protectionBuyer,
-                                          String protectionSeller,
-                                          String referenceEntity,
-                                          Currency currency,
-                                          Calendar calendar,
-                                          ZonedDateTime startDate, 
-                                          ZonedDateTime effectiveDate, 
-                                          ZonedDateTime maturityDate, 
-                                          ZonedDateTime valuationDate, 
-                                          int numberOfObligors,
-                                          double notional, 
-                                          double spread) {
+  public CreditIndexDefaultSwapDefinition(String buySellProtection,
+      String protectionBuyer,
+      String protectionSeller,
+      String referenceEntity,
+      Currency currency,
+      Calendar calendar,
+      ZonedDateTime startDate,
+      ZonedDateTime effectiveDate,
+      ZonedDateTime maturityDate,
+      ZonedDateTime valuationDate,
+      int numberOfObligors,
+      double notional,
+      double spread,
+      String version,
+      int series) {
 
     _buySellProtection = buySellProtection;
     _protectionBuyer = protectionBuyer;
@@ -83,11 +86,14 @@ public class CreditIndexDefaultSwapDefinition {
     _numberOfObligors = numberOfObligors;
     _notional = notional;
     _spread = spread;
-    
+
+    _version = version;
+    _series = series;
+
     //Vector<String> underlyingPool = new Vector(_numberOfObligors);
   }
 
-//----------------------------------------------------------------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------------------------------------------------------------------
 
   ZonedDateTime getStartDate() {
     return _startDate;
@@ -104,7 +110,7 @@ public class CreditIndexDefaultSwapDefinition {
   ZonedDateTime getValuationDate() {
     return _valuationDate;
   }
-  
+
   int getNumberOfObligors() {
     return _numberOfObligors;
   }
@@ -139,7 +145,7 @@ public class CreditIndexDefaultSwapDefinition {
 
   Calendar getCalendar() {
     return _calendar;
-  } 
-  
-//----------------------------------------------------------------------------------------------------------------------------------------
+  }
+
+  //----------------------------------------------------------------------------------------------------------------------------------------
 }

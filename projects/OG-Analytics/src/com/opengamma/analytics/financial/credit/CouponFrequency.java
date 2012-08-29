@@ -6,25 +6,25 @@
 package com.opengamma.analytics.financial.credit;
 
 /**
- * Specify the frequency of premium payments (will replace these in due course)
+ * Specify the frequency of premium payments 
  */
 public enum CouponFrequency {
-  
   /**
    * Monthly premium payments
    */
-  MONTHLY, 
-  
+  MONTHLY,
   /**
    * Quarterly premium payments (applicable to standard CDS contracts)
    */
-  QUARTERLY, 
+  QUARTERLY,
   /**
    * Semi-annual premium payments
    */
-  SEMIANNUAL, 
+  SEMIANNUAL,
   /**
    * Annual premium payments
    */
   ANNUAL;
+
+  // TODO : Replace this with a more comprehensive list of payment frequencies
 }
