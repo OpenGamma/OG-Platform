@@ -72,10 +72,11 @@ $.register_module({
             grid.meta = null;
             grid.resize = set_size.partial(grid, config);
             grid.viewport = set_viewport.partial(grid);
-            (grid.dataman = new og.analytics.Data(config.source))
+            grid.source = config.source;
+            (grid.dataman = new og.analytics.Data(grid.source))
                 .on('meta', init_grid, grid, config)
                 .on('data', render_rows, grid);
-            grid.events = {mousedown: [], scroll: [], render: []};
+            grid.events = {mousedown: [], scroll: [], render: [], select: []};
             grid.on = function (type, handler) {
                 if (type in grid.events)
                     grid.events[type].push({handler: handler, args: Array.prototype.slice.call(arguments, 2)});
@@ -93,6 +94,9 @@ $.register_module({
                 grid.meta.nodes[row = $target.attr('data-row')] = !grid.meta.nodes[row];
                 grid.resize().selector.clear();
                 return false;
+            }).on('select', function (selection) {
+                var row = selection.rows[0], col = selection.cols[0], type = selection.types[0];
+                if (!(1 === selection.rows.length && 1 === selection.cols.length)) return; // multiple selection
             });
         };
         var init_elements = function (grid, config, elements) {
@@ -128,7 +132,14 @@ $.register_module({
                     }
                 })(null));
             })();
-            grid.selector = new og.analytics.Selector(grid);
+            grid.selector = new og.analytics.Selector(grid).on('select', function (selection) {
+                var absolute_selection = {
+                    rows: selection.rows.map(function (v) {return grid.meta.available[v];}),
+                    cols: selection.cols,
+                    types: selection.cols.map(function (v) {return grid.meta.columns.types[v];})
+                }
+                fire(grid, 'select', absolute_selection);
+            });
             og.common.gadgets.manager.register({alive: grid.alive, resize: grid.resize});
             elements.empty = false;
         };

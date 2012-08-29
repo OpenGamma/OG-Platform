@@ -58,6 +58,8 @@ $.register_module({
                 return depgraph ?
                     api[grid_type].grid.get({view_id: view_id, update: initialize}).pipe(function (result) {
                         if (!result.data[SETS].length) return;
+                        if (graph_id) return api[grid_type].depgraphs.grid
+                            .get({view_id: view_id, graph_id: graph_id, update: initialize});
                         return api[grid_type].depgraphs.put({row: config.row, col: config.col, view_id: view_id})
                             .pipe(function (result) {
                                 return api[grid_type].depgraphs.grid
@@ -91,7 +93,9 @@ $.register_module({
                 viewports.put({
                     view_id: view_id, graph_id: graph_id, viewport_id: viewport_id,
                     rows: viewport.rows, columns: viewport.cols
-                }).pipe(function (result) {(viewport_version = result.data.version), data.busy(false);});
+                }).pipe(function (result) {
+                    if (result.error) return; else (viewport_version = result.data.version), data.busy(false);
+                });
             };
             initialize();
         };

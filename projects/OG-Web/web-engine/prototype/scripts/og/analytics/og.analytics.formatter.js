@@ -6,44 +6,14 @@ $.register_module({
     name: 'og.analytics.Formatter',
     dependencies: ['og.analytics.Grid'],
     obj: function () {
-        var module = this, flat_sparkline = {
-            '0'                                     : null,
-            '0,0'                                   : null,
-            '0,0,0'                                 : null,
-            '0,0,0,0,0'                             : null,
-            '0,0,0,0,0,0'                           : null,
-            '0,0,0,0,0,0,0'                         : null,
-            '0,0,0,0,0,0,0,0'                       : null,
-            '0,0,0,0,0,0,0,0,0'                     : null,
-            '0,0,0,0,0,0,0,0,0,0'                   : null,
-            '0,0,0,0,0,0,0,0,0,0,0'                 : null,
-            '0,0,0,0,0,0,0,0,0,0,0,0'               : null,
-            '0,0,0,0,0,0,0,0,0,0,0,0,0'             : null,
-            '0,0,0,0,0,0,0,0,0,0,0,0,0,0'           : null,
-            '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0'         : null,
-            '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0'       : null,
-            '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0'   : null,
-            '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0' : null
-        }, flat_image = '<span class="fsp"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAAOCAYAAABzTn' +
-            '/UAAAAWElEQVRIie3SwQmAQAxE0dmO7MGbLaSgbCHWsaX5vYgH8ei6oPMgEJhDEohkZmZmZs9AKqSCVCCV0ft0RyqogipIxRnMC02Co7' +
-            'aX+u5zYlq5PfirfvfSVztkN4k8DWtiVAAAAABJRU5ErkJggg==" /></span>';
-        var flat = function (data, str) {
-            return (str in flat_sparkline) || data.reduce(function (acc, val) {
-                if (!acc.val) return acc;
-                acc.val = acc.last === val;
-                acc.last = val;
-                return acc;
-            }, {last: data[0], val: true}).val;
-        };
+        var module = this;
         $.fn.sparkline.defaults.common.disableHiddenCheck = true;
         return function (grid) {
             var formatter = this;
             formatter.DOUBLE = function (value) {
-                var data;
-                return value ? (value.v || '') +
-                    (grid.sparklines ? (flat(value.h, (str = value.h.join(',')))
-                        ? flat_image : '<span class="sp" values="' + str + '"></span>') : '')
-                    : '';
+                return !value ? ''
+                    : (value.v || '') +
+                        (grid.sparklines ? '<span class="sp" values="' + value.h.join(',') + '"></span>' : '');
             };
             formatter.UNKNOWN = function (value) {
                 var type = value.t; delete value.t;
