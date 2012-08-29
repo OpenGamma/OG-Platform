@@ -17,7 +17,6 @@ import com.opengamma.analytics.financial.credit.ScheduleGenerationMethod;
 import com.opengamma.analytics.financial.credit.Sector;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -42,6 +41,7 @@ public class CreditDefaultSwapDefinition {
   // TODO : Convert _couponFrequency string to an enum
   // TODO : Convert _daycountFractionConvention string to an enum
   // TODO : Convert _businessdayAdjustmentConvention string to an enum
+  // TODO : Should really have more identifiers for the counterparty we are trading with
 
   // TODO : Add a seperate 'SurvivalCurve' class whose function is to generate the calibrated survival probabilities from the input CDS par spread term structure
   // TODO : Should the yield, survival and rating curves be part of the CDS object? Should they be passed in to the pricer seperately as market data?
@@ -187,8 +187,9 @@ public class CreditDefaultSwapDefinition {
 
     // TODO : Fix argument checkers
 
-    // TODO : Assume we don't need to check the arguments of the enumerated fields e.g. buySellProtection, currency, calendar
+    // TODO : Assume we don't need to check the arguments of the enumerated fields e.g. buySellProtection, currency, calendar?
 
+    /*
     ArgumentChecker.isTrue(getBuySellProtection().equals(null), "Buy/Sell protection flag is empty");
     ArgumentChecker.isTrue(protectionSeller.isEmpty(), "Protection seller field is empty");
     ArgumentChecker.isTrue(protectionBuyer.isEmpty(), "Protection buyer field is empty");
@@ -197,6 +198,7 @@ public class CreditDefaultSwapDefinition {
     ArgumentChecker.isTrue(referenceEntityREDCode.isEmpty(), "Reference entity RED code field is empty");
 
     ArgumentChecker.isTrue(getCurrency().equals(null), "Currency field is empty");
+    */
 
     /*
     

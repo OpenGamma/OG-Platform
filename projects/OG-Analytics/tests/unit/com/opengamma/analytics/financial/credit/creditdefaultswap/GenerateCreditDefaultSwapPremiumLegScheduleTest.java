@@ -7,6 +7,8 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.testng.annotations.Test;
+
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.CouponFrequency;
 import com.opengamma.analytics.financial.credit.CreditRating;
@@ -17,6 +19,7 @@ import com.opengamma.analytics.financial.credit.ScheduleGenerationMethod;
 import com.opengamma.analytics.financial.credit.Sector;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.PresentValueCreditDefaultSwapTest.MyCalendar;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.GenerateCreditDefaultSwapPremiumLegSchedule;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
@@ -121,28 +124,25 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
 
   // TODO : Add all the tests
 
-  /*
   @Test
   public void testIMMAdjustedMaturityDate() {
-    
+
     System.out.println("Running schedule generation tests ...");
 
     final GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
-    
+
     //final PresentValueCreditDefaultSwap CDS_2 = new PresentValueCreditDefaultSwap();
 
-    cashflowSchedule.getCreditDefaultSwapPremiumLegSchedule(CDS_1);
+    cashflowSchedule.getCreditDefaultSwapPremiumLegSchedule(cds);
 
     //ZonedDateTime immAdjustedMaturityDate;
-    ZonedDateTime maturityDate = DateUtils.getUTCDate(2016, 12, 19);
+    //ZonedDateTime maturityDate = DateUtils.getUTCDate(2016, 12, 19);
 
-    int numberOfTests = 2;
+    //int numberOfTests = 2;
 
-    for (int i = 0; i < numberOfTests; i++) {
-      maturityDate = maturityDate.plusDays(1);
+    //for (int i = 0; i < numberOfTests; i++) {
+    //maturityDate = maturityDate.plusDays(1);
 
-      //immAdjustedMaturityDate = cashflowSchedule.getCreditDefaultSwapPremiumLegSchedule(CDS_1);
-    }
+    //immAdjustedMaturityDate = cashflowSchedule.getCreditDefaultSwapPremiumLegSchedule(CDS_1);
   }
-  */
 }

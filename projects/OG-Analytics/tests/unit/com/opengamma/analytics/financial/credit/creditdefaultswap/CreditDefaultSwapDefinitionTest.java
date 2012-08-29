@@ -120,58 +120,65 @@ public class CreditDefaultSwapDefinitionTest {
       ratingCurve);
 
   // TODO : Add all the tests
-}
 
-/*
-@Test
-public void testNullBuySellProtectionFlag() {
-  assertEquals(null, CDS_DEFINITION.getBuySellProtection(), 1e-15);
-}
- */
+  /*
+  @Test
+  public void testTest() {
+    System.out.println("Testing ...");
+  }
+  */
 
-/*
-@Test(expectedExceptions = IllegalArgumentException.class)
-public void testNotional() {
- new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, 
-     currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate, maturityDate, 
-     valuationDate, scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, -notional, 
-     parSpread, valuationRecoveryRate, curveRecoveryRate, includeAccruedPremium, adjustMaturityDate, numberOfIntegrationSteps, yieldCurve);
-}
- */
+  /*
+  @Test
+  public void testNullBuySellProtectionFlag() {
+    assertEquals(null, CDS_DEFINITION.getBuySellProtection(), 1e-15);
+  }
+   */
 
-/*
-// @Test
-public void testParSpread() {
-assertTrue(CDS_DEFINITION.getParSpread() >= 0);
-}
- */
+  /*
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNotional() {
+   new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, 
+       currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate, maturityDate, 
+       valuationDate, scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, -notional, 
+       parSpread, valuationRecoveryRate, curveRecoveryRate, includeAccruedPremium, adjustMaturityDate, numberOfIntegrationSteps, yieldCurve);
+  }
+   */
 
-/*
-@Test
-public void testValuationRecoveryRate() {
-assertTrue(CDS_DEFINITION.getValuationRecoveryRate() >= 0.0);
-assertTrue(CDS_DEFINITION.getValuationRecoveryRate() <= 1.0);
-}
- */
+  /*
+  // @Test
+  public void testParSpread() {
+  assertTrue(CDS_DEFINITION.getParSpread() >= 0);
+  }
+   */
 
-/*
-//  @Test
-public void testCurveRecoveryRate() {
-assertTrue(CDS_DEFINITION.getCurveRecoveryRate() >= 0.0);
-assertTrue(CDS_DEFINITION.getCurveRecoveryRate() <= 1.0);
-}
- */
+  /*
+  @Test
+  public void testValuationRecoveryRate() {
+  assertTrue(CDS_DEFINITION.getValuationRecoveryRate() >= 0.0);
+  assertTrue(CDS_DEFINITION.getValuationRecoveryRate() <= 1.0);
+  }
+   */
 
-/*
-@Test
-public void testBuySellProtectionFlag() {
-assertEquals("Buy", CDS_DEFINITION.getBuySellProtection());
-}
- */
+  /*
+  //  @Test
+  public void testCurveRecoveryRate() {
+  assertTrue(CDS_DEFINITION.getCurveRecoveryRate() >= 0.0);
+  assertTrue(CDS_DEFINITION.getCurveRecoveryRate() <= 1.0);
+  }
+   */
 
-/*
-@Test
-public void testValuationRecoveryRate() {
-assertEquals(true, CDS_DEFINITION.getValuationRecoveryRate());
+  /*
+  @Test
+  public void testBuySellProtectionFlag() {
+  assertEquals("Buy", CDS_DEFINITION.getBuySellProtection());
+  }
+   */
+
+  /*
+  @Test
+  public void testValuationRecoveryRate() {
+  assertEquals(true, CDS_DEFINITION.getValuationRecoveryRate());
+  }
+   */
 }
- */
