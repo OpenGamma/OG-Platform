@@ -37,6 +37,7 @@ public final class PrettyPrintSecurityType {
     s_data.put("FX_FORWARD", "FX Forward");
     s_data.put("FX_OPTION", "FX Option");
     s_data.put("IRFUTURE_OPTION", "IR Future Option");
+    s_data.put("NONDELIVERABLE_FX_OPTION", "Non-deliverable FX Option");
     s_data.put("SWAP", "Swap");
     s_data.put("SWAPTION", "Swaption");
   }
