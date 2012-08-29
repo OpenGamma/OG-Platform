@@ -33,7 +33,7 @@ $.register_module({
                        depgraph: false,
                        viewdefinition: args.id,
                        live: true,
-                       provider: 'Live market data (Bloomberg, Activ, TullettPrebon)'
+                       provider: 'Live market data (Bloomberg, Activ, TullettPrebon, ICAP)'
                    }
                 });
                 ['south', 'dock-north', 'dock-center', 'dock-south'].forEach(function (val) {
