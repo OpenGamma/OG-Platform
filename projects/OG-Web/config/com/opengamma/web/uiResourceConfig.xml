@@ -280,6 +280,7 @@
   </bundle>
   <bundle id="grid.js">
     <fragment>/scripts/og/analytics/og.analytics.data.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.cell.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.grid.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.selector.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.formatter.js</fragment>

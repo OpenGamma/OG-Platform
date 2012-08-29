@@ -14,7 +14,8 @@ $.register_module({
                 grid_type = config.type, depgraph = !!config.depgraph,
                 fixed_set = {portfolio: 'Portfolio', primitives: 'Primitives'};
             var data_handler = function (result) {
-                if (result.error) return og.dev.warn(result.message), data_setup();
+                if (!result || result.error)
+                    return og.dev.warn(result && result.message || module.name + ': reset connection');
                 if (!events.data.length || !result.data) return; // if a tree falls or there's no tree, etc.
                 if (result.data.version === viewport_version) return fire('data', result.data.data);
             };
@@ -27,7 +28,8 @@ $.register_module({
                 }) : viewports
                     .put({view_id: view_id, graph_id: graph_id, rows: viewport.rows, columns: viewport.cols})
                     .pipe(function (result) {
-                        if (result.error) return (view_id = graph_id = viewport_id = subscribed = null);
+                        if (result.error) // goes to data_setup so take care
+                            return (view_id = graph_id = viewport_id = subscribed = null);
                         (viewport_id = result.meta.id), (viewport_version = result.data.version);
                         return viewports
                             .get({view_id: view_id, graph_id: graph_id, viewport_id: viewport_id, update: data_setup});
@@ -40,8 +42,8 @@ $.register_module({
             };
             var grid_handler = function (result) {
                 if (depgraph && !graph_id) return;
-                if (result.error) return (view_id = graph_id = viewport_id = subscribed = null),
-                    og.dev.warn(result.message), initialize();
+                if (!result || result.error) return (view_id = graph_id = viewport_id = subscribed = null),
+                    og.dev.warn(result && result.message || module.name + ': reset connection'), initialize();
                 if (!result.data[SETS].length) return;
                 meta.data_rows = result.data[ROOT] ? result.data[ROOT][1] + 1 : result.data[ROWS];
                 meta.structure = result.data[ROOT] || [];
@@ -55,10 +57,10 @@ $.register_module({
                 fire('meta', meta);
                 if (!subscribed) return data_setup();
             };
-            var grid_setup = function (result) {
+            var grid_setup = function () {
                 return depgraph ?
                     api[grid_type].grid.get({view_id: view_id, update: initialize}).pipe(function (result) {
-                        if (!result.data[SETS].length) return;
+                        if (result.error || !result.data[SETS].length) return; // goes to grid_handler so take care
                         if (graph_id) return api[grid_type].depgraphs.grid
                             .get({view_id: view_id, graph_id: graph_id, update: initialize});
                         return api[grid_type].depgraphs.put({row: config.row, col: config.col, view_id: view_id})
