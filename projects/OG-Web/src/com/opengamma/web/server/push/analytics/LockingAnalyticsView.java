@@ -16,13 +16,17 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Wraps another {@link AnalyticsView} and protects it from concurrent access. The methods that can mutate the state of
  * the underlying view are locked with a write lock, the getters are locked with a read lock.
+ * @see com.opengamma.web.server.push.analytics Package concurrency notes
  */
 /* package */ class LockingAnalyticsView implements AnalyticsView {
 
   private final AnalyticsView _delegate;
   private final ReadWriteLock _lock = new ReentrantReadWriteLock();
 
-  LockingAnalyticsView(AnalyticsView delegate) {
+  /**
+   * @param delegate The delegate view (presumably not a thread safe implementation)
+   */
+  /* package */ LockingAnalyticsView(AnalyticsView delegate) {
     ArgumentChecker.notNull(delegate, "delegate");
     _delegate = delegate;
   }

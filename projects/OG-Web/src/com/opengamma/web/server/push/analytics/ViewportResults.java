@@ -16,12 +16,16 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ViewportResults {
 
-  /** Any empty grid cell. */
+  /** An empty grid cell. */
   private static final Cell s_emptyCell = new Cell(null, null, null);
 
+  /** The result values by row. */
   private final List<List<Cell>> _allResults;
+  /** The grid columns. */
   private final AnalyticsColumnGroups _columns;
+  /** Definition of the viewport. */
   private final ViewportSpecification _viewportSpec;
+  /** Version of the viewport used when building these results. */
   private final long _version;
 
   /**
@@ -62,7 +66,8 @@ public class ViewportResults {
   }
 
   /**
-   * @return The version of the viewport used when creating the results
+   * @return The version of the viewport used when creating the results, allows the client to that a set of results
+   * correspond to the current viewport state.
    */
   /* package */ long getVersion() {
     return _version;
