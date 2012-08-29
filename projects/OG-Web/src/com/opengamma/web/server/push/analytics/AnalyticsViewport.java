@@ -12,7 +12,7 @@ import com.opengamma.util.ArgumentChecker;
  * A viewport is defined by collections of row and column indices of the visible cells. These are non-contiguous
  * ordered sets. Row indices can be non-contiguous if the grid rows have a tree structure and parts of the
  * structure are collapsed and therefore not visible. Column indices can be non-contiguous if there is a fixed
- * set of columns and the non-fixed columns have been scrolled.
+ * set of columns and the non-fixed columns have been scrolled. This class isn't thread safe.
  */
 /* package */ abstract class AnalyticsViewport {
 
@@ -56,7 +56,8 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   /**
-   * @return The current version of the viewport.
+   * @return The current version of the viewport, allows the client to that a set of results correspond to the
+   * current viewport state.
    */
   /* package */ long getVersion() {
     return _version;

@@ -46,8 +46,8 @@ import com.opengamma.util.ArgumentChecker;
     ArgumentChecker.notNull(primitivesGridId, "primitivesGridId");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
     _targetResolver = targetResolver;
-    _portfolioGrid = MainAnalyticsGrid.emptyPortfolio(portoflioGridId, _targetResolver);
-    _primitivesGrid = MainAnalyticsGrid.emptyPrimitives(primitivesGridId, targetResolver);
+    _portfolioGrid = MainAnalyticsGrid.emptyPortfolio();
+    _primitivesGrid = MainAnalyticsGrid.emptyPrimitives();
     _listener = listener;
   }
 
@@ -150,7 +150,7 @@ import com.opengamma.util.ArgumentChecker;
   public long updateViewport(GridType gridType, String graphId, String viewportId, ViewportSpecification viewportSpec) {
     s_logger.debug("Updating viewport for dependency graph {} of the {} grid using {}", new Object[]{graphId, gridType, viewportSpec});
     long version = getGrid(gridType).updateViewport(graphId, viewportId, viewportSpec);
-    _listener.gridDataChanged(getGrid(gridType).getViewport(graphId, viewportId).getDataId());
+    _listener.gridDataChanged(getGrid(gridType).getDataId(graphId, viewportId));
     return version;
   }
 
