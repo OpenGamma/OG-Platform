@@ -142,7 +142,7 @@ import com.opengamma.util.tuple.Pair;
    * @param gridId ID passed to listeners when the grid's row and column structure changes, this can be any unique value
    * @param row Row index of the cell whose dependency graph is required
    * @param col Column index of the cell whose dependency graph is required
-   * @param compiledViewDef
+   * @param compiledViewDef Compiled view definition containing the full dependency graph
    * TODO a better way to specify which cell we want - target spec? stable row ID generated on the server?
    * one of these will be needed when dynamic view aggregation is implemented
    */
