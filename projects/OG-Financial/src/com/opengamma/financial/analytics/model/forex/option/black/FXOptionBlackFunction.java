@@ -83,6 +83,9 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
+    if (now.isAfter(security.accept(ForexVisitors.getExpiryVisitor()))) {
+      throw new OpenGammaRuntimeException("FX option " + putCurrency.getCode() + "/" + callCurrency + " has expired");
+    }
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String putCurveName = desiredValue.getConstraint(PUT_CURVE);
     final String callCurveName = desiredValue.getConstraint(CALL_CURVE);

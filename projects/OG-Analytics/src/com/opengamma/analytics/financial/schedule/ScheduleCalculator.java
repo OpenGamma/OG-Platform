@@ -55,7 +55,7 @@ public final class ScheduleCalculator {
     * @param date The initial date.
     * @param shiftDays The number of days of the adjustment. Can be negative or positive.
     * @param calendar The calendar representing the god business days.
-    * @return The adjusted dates.
+    * @return The adjusted date.
     */
   public static ZonedDateTime getAdjustedDate(final ZonedDateTime date, final int shiftDays, final Calendar calendar) {
     Validate.notNull(date);
@@ -78,6 +78,25 @@ public final class ScheduleCalculator {
           result = result.minusDays(1);
         }
       }
+    }
+    return result;
+  }
+
+  /**
+    * Return a good business dates computed from given array of date and shifted by a certain number of business days (one return date for each input date).
+    * If the number of shift days is 0, the return date is the next business day.
+    * If the number of shift days is non-zero (positive or negative), a 0 shift is first applied and then a one business day shift is applied as many time as the absolute value of the shift.
+    * If the shift is positive, the one business day is to the future., if the shift is negative, the one business day is to the past.
+    * @param dates The initial dates.
+    * @param shiftDays The number of days of the adjustment. Can be negative or positive.
+    * @param calendar The calendar representing the god business days.
+    * @return The adjusted dates.
+    */
+  public static ZonedDateTime[] getAdjustedDate(final ZonedDateTime[] dates, final int shiftDays, final Calendar calendar) {
+    final int nbDates = dates.length;
+    final ZonedDateTime[] result = new ZonedDateTime[nbDates];
+    for (int loopdate = 0; loopdate < nbDates; loopdate++) {
+      result[loopdate] = getAdjustedDate(dates[loopdate], shiftDays, calendar);
     }
     return result;
   }
@@ -212,6 +231,22 @@ public final class ScheduleCalculator {
   }
 
   /**
+   * Compute the end dates of periods from the start dates and a Ibor index. The period between the start date and the end date is the index tenor.
+   *  There is one return date for each input date.
+   * @param startDates The period start dates.
+   * @param index The Ibor index.
+   * @return The end dates.
+   */
+  public static ZonedDateTime[] getAdjustedDate(final ZonedDateTime[] startDates, final IborIndex index) {
+    final int nbDates = startDates.length;
+    final ZonedDateTime[] result = new ZonedDateTime[nbDates];
+    for (int loopdate = 0; loopdate < nbDates; loopdate++) {
+      result[loopdate] = getAdjustedDate(startDates[loopdate], index);
+    }
+    return result;
+  }
+
+  /**
    * Compute a schedule of unadjusted dates from a start date, an end date and the period between dates.
    * @param startDate The start date.
    * @param endDate The end date.
@@ -325,13 +360,26 @@ public final class ScheduleCalculator {
   * @param convention The business day convention.
   * @param calendar The calendar.
   * @param eomRule Flag indicating if the end-of-month rule should be applied.  
-  * @return The adjusted dates schedule.
+  * @return The adjusted dates schedule (not including the start date).
   */
   public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, final Period tenorTotal, final Period tenorPeriod, final boolean stubShort, final boolean fromEnd,
       final BusinessDayConvention convention, final Calendar calendar, final boolean eomRule) {
     ZonedDateTime[] unadjustedDateSchedule = getUnadjustedDateSchedule(startDate, startDate.plus(tenorTotal), tenorPeriod, stubShort, fromEnd);
     boolean eomApply = (eomRule && (getAdjustedDate(startDate, 1, calendar).getMonthOfYear() != startDate.getMonthOfYear()));
     return getAdjustedDateSchedule(unadjustedDateSchedule, convention, calendar, eomApply);
+  }
+
+  /**
+   * Compute a schedule of adjusted dates from a start date, total tenor and a Ibor index.
+   * @param startDate The start date.
+   * @param tenorTotal The total tenor.
+   * @param stubShort In case the the periods do not fit exactly between start and end date, is the remaining interval shorter (true) or longer (false) than the requested period.
+   * @param fromEnd The dates in the schedule can be computed from the end date (true) or from the start date (false).
+   * @param index The related ibor index. The period tenor, business day convention, calendar and EOM rule of the index are used. 
+  * @return The adjusted dates schedule (not including the start date).
+   */
+  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, final Period tenorTotal, final boolean stubShort, final boolean fromEnd, final IborIndex index) {
+    return getAdjustedDateSchedule(startDate, tenorTotal, index.getTenor(), stubShort, fromEnd, index.getBusinessDayConvention(), index.getCalendar(), index.isEndOfMonth());
   }
 
   /**

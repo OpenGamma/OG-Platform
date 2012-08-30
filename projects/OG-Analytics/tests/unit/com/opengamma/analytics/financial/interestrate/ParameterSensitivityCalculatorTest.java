@@ -20,7 +20,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.curve.ParameterSensitivityCalculator;
+import com.opengamma.analytics.financial.curve.sensitivity.ParameterSensitivityCalculator;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;

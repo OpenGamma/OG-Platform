@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.pnl;
@@ -23,6 +23,7 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunction;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.analytics.financial.timeseries.util.TimeSeriesDifferenceOperator;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.position.Position;
@@ -41,13 +42,16 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
+import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.future.FXFutureSecurity;
-import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
@@ -55,7 +59,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
- * 
+ *
  */
 public class SimpleFXFuturePnLFunction extends AbstractFunction.NonCompiledInvoker {
   private static final HolidayDateRemovalFunction HOLIDAY_REMOVER = HolidayDateRemovalFunction.getInstance();
@@ -79,7 +83,11 @@ public class SimpleFXFuturePnLFunction extends AbstractFunction.NonCompiledInvok
     final Set<String> samplingPeriodName = desiredValue.getConstraints().getValues(ValuePropertyNames.SAMPLING_PERIOD);
     final Set<String> scheduleCalculatorName = desiredValue.getConstraints().getValues(ValuePropertyNames.SCHEDULE_CALCULATOR);
     final Set<String> samplingFunctionName = desiredValue.getConstraints().getValues(ValuePropertyNames.SAMPLING_FUNCTION);
-    final ExternalIdBundle underlyingId = getUnderlyingIdentifier(security);
+    final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
+    final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
+    final CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
+    final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(security.getNumerator(), security.getDenominator());
+    final ExternalIdBundle underlyingId = getUnderlyingIdentifier(security, currencyPair);
     final Period samplingPeriod = getSamplingPeriod(samplingPeriodName);
     final LocalDate startDate = now.minus(samplingPeriod);
     final Currency payCurrency = security.getNumerator();
@@ -95,7 +103,7 @@ public class SimpleFXFuturePnLFunction extends AbstractFunction.NonCompiledInvok
     if (ts.isEmpty()) {
       throw new OpenGammaRuntimeException("Empty price series for id " + underlyingId);
     }
-    if (!FXUtils.isInBaseQuoteOrder(payCurrency, receiveCurrency) && receiveCurrency.equals(security.getCurrency())) {
+    if (!payCurrency.equals(currencyPair.getBase()) && receiveCurrency.equals(security.getCurrency())) {
       ts = ts.reciprocal();
     }
     final Object pvObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE, ComputationTargetType.SECURITY, security.getUniqueId()));
@@ -170,9 +178,13 @@ public class SimpleFXFuturePnLFunction extends AbstractFunction.NonCompiledInvok
         .with(ValuePropertyNames.CURRENCY, future.getCurrency().getCode())
         .with(ValuePropertyNames.PAY_CURVE, payCurveName)
         .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveName).get();
+    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
+    final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
+    final CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
+    final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(future.getNumerator(), future.getDenominator());
     requirements.add(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE, ComputationTargetType.SECURITY, future.getUniqueId(), pvProperties));
     final HistoricalTimeSeriesResolutionResult timeSeries = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context).resolve(
-        getUnderlyingIdentifier(future), null, null, null, MarketDataRequirementNames.MARKET_VALUE, _resolutionKey);
+        getUnderlyingIdentifier(future, currencyPair), null, null, null, MarketDataRequirementNames.MARKET_VALUE, _resolutionKey);
     if (timeSeries == null) {
       return null;
     }
@@ -181,11 +193,11 @@ public class SimpleFXFuturePnLFunction extends AbstractFunction.NonCompiledInvok
     return requirements;
   }
 
-  private ExternalIdBundle getUnderlyingIdentifier(final FXFutureSecurity future) {
+  private ExternalIdBundle getUnderlyingIdentifier(final FXFutureSecurity future, final CurrencyPair currencyPair) {
     ExternalId bloombergId;
     final Currency payCurrency = future.getNumerator();
     final Currency receiveCurrency = future.getDenominator();
-    if (FXUtils.isInBaseQuoteOrder(payCurrency, receiveCurrency)) {
+    if (payCurrency.equals(currencyPair.getBase())) {
       bloombergId = ExternalSchemes.bloombergTickerSecurityId(payCurrency.getCode() + receiveCurrency.getCode() + " Curncy");
     } else {
       bloombergId = ExternalSchemes.bloombergTickerSecurityId(receiveCurrency.getCode() + payCurrency.getCode() + " Curncy");

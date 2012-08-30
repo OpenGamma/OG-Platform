@@ -13,11 +13,17 @@ import java.util.List;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.analytics.financial.curve.building.MultipleYieldCurveFinderGeneratorDataBundle;
+import com.opengamma.analytics.financial.curve.building.MultipleYieldCurveFinderGeneratorFunction;
+import com.opengamma.analytics.financial.curve.building.MultipleYieldCurveFinderGeneratorJacobian;
+import com.opengamma.analytics.financial.curve.generator.GeneratorCurve;
+import com.opengamma.analytics.financial.curve.generator.GeneratorCurveYieldInterpolatedNode;
+import com.opengamma.analytics.financial.curve.sensitivity.ParameterSensitivityCalculator;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
-import com.opengamma.analytics.financial.instrument.index.Generator;
+import com.opengamma.analytics.financial.instrument.index.GeneratorInstrument;
 import com.opengamma.analytics.financial.instrument.index.GeneratorDeposit;
 import com.opengamma.analytics.financial.instrument.index.GeneratorDepositON;
 import com.opengamma.analytics.financial.instrument.index.GeneratorFixedON;
@@ -139,7 +145,7 @@ public class YieldCurveConstructionGeneratorTwoCurrenciesXCcyData {
   /** Market values for the dsc USD curve */
   public static final double[] DSC_1_MARKET_QUOTES = new double[] {0.0045, 0.0050, 0.0075, 0.0080, 0.0085, 0.0090, 0.0095, 0.0110, 0.0120, 0.0130, 0.0140, 0.0150, 0.0200};
   /** Generators for the dsc USD curve */
-  public static final Generator[] DSC_1_GENERATORS = new Generator[] {GENERATOR_DEPOSIT_ON_1, GENERATOR_DEPOSIT_ON_1, GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1,
+  public static final GeneratorInstrument[] DSC_1_GENERATORS = new GeneratorInstrument[] {GENERATOR_DEPOSIT_ON_1, GENERATOR_DEPOSIT_ON_1, GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1,
       GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1};
   /** Tenors for the dsc USD curve */
   public static final Period[] DSC_1_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(1), Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9),
@@ -148,14 +154,14 @@ public class YieldCurveConstructionGeneratorTwoCurrenciesXCcyData {
   /** Market values for the Fwd 3M USD curve */
   public static final double[] FWD_1_MARKET_QUOTES = new double[] {0.0050, 0.0075, 0.0160, 0.0170, 0.0200, 0.0225};
   /** Generators for the Fwd 3M USD curve */
-  public static final Generator[] FWD_1_GENERATORS = new Generator[] {GENERATOR_DEPOSIT_1, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M};
+  public static final GeneratorInstrument[] FWD_1_GENERATORS = new GeneratorInstrument[] {GENERATOR_DEPOSIT_1, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M};
   /** Tenors for the Fwd 3M USD curve */
   public static final Period[] FWD_1_TENOR = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(5), Period.ofYears(10)};
 
   /** Market values for the dsc EUR curve */
   public static final double[] DSC_2_MARKET_QUOTES = new double[] {0.0070, 0.0075, 0.0002, 0.0004, 0.0006, 0.0012, 0.0018, 0.0025, -0.0025, -0.0025, -0.0025, -0.0025, -0.0025};
   /** Generators for the dsc EUR curve */
-  public static final Generator[] DSC_2_GENERATORS = new Generator[] {GENERATOR_DEPOSIT_ON_2, GENERATOR_DEPOSIT_ON_2, GENERATOR_FX, GENERATOR_FX, GENERATOR_FX, GENERATOR_FX, GENERATOR_FX,
+  public static final GeneratorInstrument[] DSC_2_GENERATORS = new GeneratorInstrument[] {GENERATOR_DEPOSIT_ON_2, GENERATOR_DEPOSIT_ON_2, GENERATOR_FX, GENERATOR_FX, GENERATOR_FX, GENERATOR_FX, GENERATOR_FX,
       GENERATOR_FX, GENERATOR_XCCY, GENERATOR_XCCY, GENERATOR_XCCY, GENERATOR_XCCY, GENERATOR_XCCY};
   /** Tenors for the dsc EUR curve */
   public static final Period[] DSC_2_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(1), Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9),
@@ -167,7 +173,7 @@ public class YieldCurveConstructionGeneratorTwoCurrenciesXCcyData {
   /** Market values for the Fwd 3M EUR curve */
   public static final double[] FWD_2_MARKET_QUOTES = new double[] {0.0075, 0.0100, 0.0185, 0.0195, 0.0205, 0.0215, 0.0225, 0.0250};
   /** Generators for the Fwd 3M USD curve */
-  public static final Generator[] FWD_2_GENERATORS = new Generator[] {GENERATOR_DEPOSIT_2, EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M,
+  public static final GeneratorInstrument[] FWD_2_GENERATORS = new GeneratorInstrument[] {GENERATOR_DEPOSIT_2, EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M,
       EUR1YEURIBOR3M};
   /** Tenors for the Fwd 3M USD curve */
   public static final Period[] FWD_2_TENOR = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
@@ -207,7 +213,7 @@ public class YieldCurveConstructionGeneratorTwoCurrenciesXCcyData {
     FWD_2;
   }
 
-  public static List<InstrumentDefinition<?>> getDefinitions(final double[] marketQuotes, final Generator[] generators, final Period[] tenors) {
+  public static List<InstrumentDefinition<?>> getDefinitions(final double[] marketQuotes, final GeneratorInstrument[] generators, final Period[] tenors) {
     final List<InstrumentDefinition<?>> definitions = new ArrayList<InstrumentDefinition<?>>();
     for (int loopmv = 0; loopmv < marketQuotes.length; loopmv++) {
       definitions.add(generators[loopmv].generateInstrument(NOW, tenors[loopmv], marketQuotes[loopmv], NOTIONAL, FX_MATRIX));

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.curve.interestrate;
@@ -41,8 +41,6 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.ParallelArrayBinarySort;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
-import com.opengamma.analytics.math.interpolation.FlatExtrapolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
@@ -84,7 +82,7 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * @deprecated @see MultiYieldCurveFunction
- * 
+ *
  */
 @Deprecated
 public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInvoker {
@@ -385,7 +383,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
   }
 
   private static Interpolator1D getInterpolator(final InterpolatedYieldCurveSpecificationWithSecurities specification) {
-    return new CombinedInterpolatorExtrapolator(specification.getInterpolator(), new FlatExtrapolator1D(), new FlatExtrapolator1D());
+    return specification.getInterpolator();
   }
 
   private Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final ComputationTargetSpecification targetSpec, final String curveName,

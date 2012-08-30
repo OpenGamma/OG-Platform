@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 import org.slf4j.Logger;
@@ -32,20 +31,20 @@ import com.opengamma.util.ArgumentChecker;
  * clients, keyed by the external ID scheme of the items to be loaded.
  * Where requests are made that may be satisfied by any of the underlying clients,
  * the actual underlying client that will be chosen is non-deterministic.
- * <p/>
- * <em><strong>WARNING: COMPLETELY UNTESTED</strong></em><br/>
- * This has not yet been tested because we're waiting for some internal infrastructure
- * to be rolled out to integration test it against the OpenGamma internal market
- * data infrastructure.
  */
 public class DelegatingLiveDataClient implements LiveDataClient {
   private static final Logger s_logger = LoggerFactory.getLogger(DelegatingLiveDataClient.class);
   private final Map<String, LiveDataClient> _underlyingClients = new ConcurrentSkipListMap<String, LiveDataClient>();
+  private LiveDataClient _defaultClient;
   
   public void addUnderlyingClient(String idScheme, LiveDataClient liveDataClient) {
     ArgumentChecker.notNull(idScheme, "idScheme");
     ArgumentChecker.notNull(liveDataClient, "liveDataClient");
     _underlyingClients.put(idScheme, liveDataClient);
+  }
+  
+  public void setDefaultClient(LiveDataClient defaultClient) {
+    _defaultClient = defaultClient;
   }
   
   protected LiveDataClient identifyUnderlying(LiveDataSpecification specification) {
@@ -59,11 +58,15 @@ public class DelegatingLiveDataClient implements LiveDataClient {
       }
     }
     
+    if (_defaultClient != null) {
+      return _defaultClient;
+    }
+    
     throw new OpenGammaRuntimeException("No underlying client configured to handle " + specification);
   }
   
   protected Map<LiveDataClient, List<LiveDataSpecification>> splitCollection(Collection<LiveDataSpecification> specifications) {
-    Map<LiveDataClient, List<LiveDataSpecification>> result = new TreeMap<LiveDataClient, List<LiveDataSpecification>>();
+    Map<LiveDataClient, List<LiveDataSpecification>> result = new HashMap<LiveDataClient, List<LiveDataSpecification>>();
     for (LiveDataSpecification specification : specifications) {
       LiveDataClient underlying = identifyUnderlying(specification);
       List<LiveDataSpecification> perUnderlyingSpecs = result.get(underlying);
@@ -90,7 +93,9 @@ public class DelegatingLiveDataClient implements LiveDataClient {
     
     for (Map.Entry<LiveDataClient, List<LiveDataSpecification>> entry : split.entrySet()) {
       Map<LiveDataSpecification, Boolean> perUnderlyingResult = entry.getKey().isEntitled(user, entry.getValue());
-      result.putAll(perUnderlyingResult);
+      if (perUnderlyingResult != null) {
+        result.putAll(perUnderlyingResult);
+      }
     }
     
     return result;

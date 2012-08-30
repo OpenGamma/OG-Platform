@@ -10,7 +10,6 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.util.money.Currency;
@@ -79,16 +78,6 @@ public abstract class CouponFloatingDefinition extends CouponDefinition implemen
     }
     final CouponFloatingDefinition other = (CouponFloatingDefinition) obj;
     return ObjectUtils.equals(_fixingDate, other._fixingDate);
-  }
-
-  @Override
-  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
-    return visitor.visitCouponFloating(this, data);
-  }
-
-  @Override
-  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
-    return visitor.visitCouponFloating(this);
   }
 
 }

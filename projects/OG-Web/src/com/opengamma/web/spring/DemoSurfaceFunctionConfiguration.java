@@ -83,7 +83,9 @@ public class DemoSurfaceFunctionConfiguration extends SingletonFactoryBean<Repos
     addConfigFor(configs, SwaptionATMVolatilitySurfaceDataFunction.class.getName());
     addConfigFor(configs, InterpolatedVolatilitySurfaceFunction.class.getName());
     configs.add(new ParameterizedFunctionConfiguration(InterpolatedVolatilitySurfaceDefaultPropertiesFunction.class.getName(),
-        Arrays.asList("LinearExtrapolator", "LinearExtrapolator", "Linear", "FlatExtrapolator", "FlatExtrapolator", "Linear")));
+        Arrays.asList("FlatExtrapolator", "FlatExtrapolator", "Linear", "FlatExtrapolator", "FlatExtrapolator", "Linear")));
+//    configs.add(new ParameterizedFunctionConfiguration(InterpolatedVolatilitySurfaceDefaultPropertiesFunction.class.getName(),
+//        Arrays.asList("LinearExtrapolator", "LinearExtrapolator", "Linear", "FlatExtrapolator", "FlatExtrapolator", "Linear")));
     return new RepositoryConfiguration(configs);
   }
 

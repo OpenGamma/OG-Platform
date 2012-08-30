@@ -39,9 +39,9 @@ import com.opengamma.util.paging.Paging;
  * An in-memory implementation of a position master.
  */
 public class InMemoryPositionMaster implements PositionMaster {
-  
+
   /**
-   * The default scheme used for each {@link UniqueId}.
+   * The default scheme used for each {@link ObjectId}.
    */
   public static final String DEFAULT_OID_SCHEME = "MemPos";
 
@@ -100,13 +100,31 @@ public class InMemoryPositionMaster implements PositionMaster {
     _changeManager = changeManager;
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public PositionDocument get(UniqueId uniqueId) {
+  public PositionSearchResult search(final PositionSearchRequest request) {
+    ArgumentChecker.notNull(request, "request");
+    final List<PositionDocument> list = new ArrayList<PositionDocument>();
+    for (PositionDocument doc : _storePositions.values()) {
+      if (request.matches(doc)) {
+        list.add(clonePositionDocument(doc));
+      }
+    }
+    final PositionSearchResult result = new PositionSearchResult();
+    result.setPaging(Paging.of(request.getPagingRequest(), list));
+    result.getDocuments().addAll(request.getPagingRequest().select(list));
+    return result;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public PositionDocument get(final UniqueId uniqueId) {
     return get(uniqueId, VersionCorrection.LATEST);
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public PositionDocument get(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+  public PositionDocument get(ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     final PositionDocument document = _storePositions.get(objectId.getObjectId());
@@ -122,8 +140,9 @@ public class InMemoryPositionMaster implements PositionMaster {
     return clone;
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public PositionDocument add(PositionDocument document) {
+  public PositionDocument add(final PositionDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getPosition(), "document.position");
     
@@ -161,8 +180,9 @@ public class InMemoryPositionMaster implements PositionMaster {
     }
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public PositionDocument update(PositionDocument document) {
+  public PositionDocument update(final PositionDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     ArgumentChecker.notNull(document.getPosition(), "document.position");
@@ -187,7 +207,7 @@ public class InMemoryPositionMaster implements PositionMaster {
     return document;
   }
 
-  private void setVersionTimes(PositionDocument document, final PositionDocument clonedDoc, 
+  private void setVersionTimes(final PositionDocument document, final PositionDocument clonedDoc, 
       final Instant versionFromInstant, final Instant versionToInstant, final Instant correctionFromInstant, final Instant correctionToInstant) {
     
     clonedDoc.setVersionFromInstant(versionFromInstant);
@@ -211,8 +231,9 @@ public class InMemoryPositionMaster implements PositionMaster {
     }
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public void remove(UniqueId uniqueId) {
+  public void remove(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     PositionDocument storedDocument = _storePositions.remove(uniqueId.getObjectId());
     if (storedDocument == null) {
@@ -222,36 +243,25 @@ public class InMemoryPositionMaster implements PositionMaster {
     _changeManager.entityChanged(ChangeType.REMOVED, uniqueId, null, Instant.now());
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public PositionDocument correct(PositionDocument document) {
+  public PositionDocument correct(final PositionDocument document) {
     return update(document);
   }
 
-  @Override
-  public ChangeManager changeManager() {
-    return _changeManager;
-  }
-
-  @Override
-  public PositionSearchResult search(PositionSearchRequest request) {
-    ArgumentChecker.notNull(request, "request");
-    final List<PositionDocument> list = new ArrayList<PositionDocument>();
-    for (PositionDocument doc : _storePositions.values()) {
-      if (request.matches(doc)) {
-        list.add(clonePositionDocument(doc));
-      }
-    }
-    final PositionSearchResult result = new PositionSearchResult();
-    result.setPaging(Paging.of(request.getPagingRequest(), list));
-    result.getDocuments().addAll(request.getPagingRequest().select(list));
-    return result;
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public PositionHistoryResult history(PositionHistoryRequest request) {
     throw new UnsupportedOperationException("History request not supported by InMemoryPositionMaster");
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public ChangeManager changeManager() {
+    return _changeManager;
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public ManageableTrade getTrade(UniqueId tradeId) {
     ArgumentChecker.notNull(tradeId, "tradeId");

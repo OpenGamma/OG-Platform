@@ -15,43 +15,44 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Minimal representation of a portfolio node in an analytics grid. Contains a list of sub-nodes and the grid row
- * indices at which a node starts and ends.
+ * Minimal representation of a node in the structure of a portfolio. For use in an analytics grid. Contains a
+ * list of sub-nodes and indices of the rows at which a node starts and ends.
  */
-public class AnalyticsNode {
+/* package */ class AnalyticsNode {
 
   private final int _startRow;
   private final int _endRow;
-  private final List<AnalyticsNode> children;
+  private final List<AnalyticsNode> _children;
 
   /* package */ AnalyticsNode(int startRow, int endRow, List<AnalyticsNode> children) {
     ArgumentChecker.notNull(children, "children");
     _startRow = startRow;
     _endRow = endRow;
-    this.children = children;
+    _children = children;
   }
 
   /**
    * @return An empty root node that starts and ends at row zero and has no children.
    */
-  public static AnalyticsNode emptyRoot() {
+  /* package */ static AnalyticsNode emptyRoot() {
     return new AnalyticsNode(0, 0, Collections.<AnalyticsNode>emptyList());
   }
 
-  public static AnalyticsNode portoflioRoot(CompiledViewDefinition compiledViewDef) {
+  /**
+   * Factory method that creates a node structure from a portfolio and returns the root node.
+   * @param compiledViewDef A view definition
+   * @return The root node of the portfolio's node structure
+   */
+  /* package */ static AnalyticsNode portoflioRoot(CompiledViewDefinition compiledViewDef) {
     Portfolio portfolio = compiledViewDef.getPortfolio();
     PortfolioNode root = portfolio.getRootNode();
     return new PortfolioNodeBuilder(root).getRoot();
   }
 
-  public static AnalyticsNode primitivesRoot(int primitivesTargetCount) {
-    return new AnalyticsNode(0, primitivesTargetCount - 1, Collections.<AnalyticsNode>emptyList());
-  }
-
   /**
    * @return The row index (zero-based and inclusive) at which the node starts.
    */
-  public int getStartRow() {
+  /* package */ int getStartRow() {
     return _startRow;
   }
 
@@ -59,22 +60,26 @@ public class AnalyticsNode {
    * @return The row index (zero-based and inclusive) at which the node ends. This includes all nested child nodes.
    * i.e. the end row of a node is the same as the end row of its most deeply nested child.
    */
-  public int getEndRow() {
+  /* package */ int getEndRow() {
     return _endRow;
   }
 
   /**
    * @return The direct children of this node.
    */
-  public List<AnalyticsNode> getChildren() {
-    return children;
+  /* package */ List<AnalyticsNode> getChildren() {
+    return _children;
   }
 
   @Override
   public String toString() {
-    return "AnalyticsNode [_startRow=" + _startRow + ", _endRow=" + _endRow + ", children=" + children + "]";
+    return "AnalyticsNode [_startRow=" + _startRow + ", _endRow=" + _endRow + ", _children=" + _children + "]";
   }
 
+  /**
+   * Mutable builder that creates the node structure for a portfolio and returns the root node. Package-scoped for
+   * testing.
+   */
   /* package */ static class PortfolioNodeBuilder {
 
     private final AnalyticsNode _root;
@@ -96,7 +101,7 @@ public class AnalyticsNode {
       return new AnalyticsNode(nodeStart, _lastRow, Collections.unmodifiableList(nodes));
     }
 
-    public AnalyticsNode getRoot() {
+    /* package */ AnalyticsNode getRoot() {
       return _root;
     }
   }

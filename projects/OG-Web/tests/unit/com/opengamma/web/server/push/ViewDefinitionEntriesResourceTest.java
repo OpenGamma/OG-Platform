@@ -38,10 +38,11 @@ public class ViewDefinitionEntriesResourceTest {
 
   @Test
   public void getViewDefinitionNamesOverHttp() throws Exception {
+    WebPushTestUtils _webPushTestUtils = new WebPushTestUtils();
     Pair<Server, WebApplicationContext> serverAndContext =
-        WebPushTestUtils.createJettyServer("classpath:/com/opengamma/web/server/push/viewdefinitionentriesresource-test.xml");
+        _webPushTestUtils.createJettyServer("classpath:/com/opengamma/web/server/push/viewdefinitionentriesresource-test.xml");
     Server server = serverAndContext.getFirst();
-    JSONArray json = new JSONArray(WebPushTestUtils.readFromPath("/jax/viewdefinitions"));
+    JSONArray json = new JSONArray(_webPushTestUtils.readFromPath("/jax/viewdefinitions"));
     assertEquals(1, json.length());
 
     JSONObject def1 = json.getJSONObject(0);

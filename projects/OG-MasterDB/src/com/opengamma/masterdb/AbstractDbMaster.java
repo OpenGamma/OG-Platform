@@ -15,6 +15,7 @@ import javax.time.TimeSource;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -25,6 +26,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDialect;
+import com.opengamma.util.db.DbMapSqlParameterSource;
 
 /**
  * An abstract master for rapid implementation of a database backed master.
@@ -357,6 +359,15 @@ public abstract class AbstractDbMaster {
       return stripped.setScale(0);
     }
     return stripped;
+  }
+  
+  //-------------------------------------------------------------------------
+  public int getSchemaVersion() {
+    final DbMapSqlParameterSource args = new DbMapSqlParameterSource().addValue("version_key", "schema_patch");
+    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
+    final String sql = getElSqlBundle().getSql("GetSchemaVersion", args);
+    String version = namedJdbc.queryForObject(sql, args, String.class);
+    return Integer.parseInt(version);
   }
 
   //-------------------------------------------------------------------------

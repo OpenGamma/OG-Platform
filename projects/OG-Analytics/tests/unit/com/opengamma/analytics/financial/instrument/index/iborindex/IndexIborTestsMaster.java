@@ -56,6 +56,10 @@ public class IndexIborTestsMaster {
         new IborIndex(Currency.AUD, Period.ofMonths(6), 1, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/365"), BusinessDayConventionFactory.INSTANCE
             .getBusinessDayConvention("Modified Following"), true, "AUDBB6M"));
     _ibor.put(
+        "CADCDOR3M",
+        new IborIndex(Currency.CAD, Period.ofMonths(3), 0, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/365"), BusinessDayConventionFactory.INSTANCE
+            .getBusinessDayConvention("Modified Following"), true, "CADCDOR3M"));
+    _ibor.put(
         "EURIBOR1M",
         new IborIndex(Currency.EUR, Period.ofMonths(1), 2, baseCalendar, DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE
             .getBusinessDayConvention("Modified Following"), true, "EURIBOR1M"));

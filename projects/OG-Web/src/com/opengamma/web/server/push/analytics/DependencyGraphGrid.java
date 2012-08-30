@@ -17,7 +17,9 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Grid for displaying the dependency graph for a cell. This graph contains all the calculation steps used
+ * in deriving the cell's value. The first row of the grid shows the cell's value and subsequent rows show a
+ * tree structure containing the dependency graph.
  */
 public class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> {
 
@@ -27,11 +29,11 @@ public class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> 
   private ViewCycle _latestCycle;
   private ResultsCache _cache;
 
-  protected DependencyGraphGrid(DependencyGraphGridStructure gridStructure,
-                                String calcConfigName,
-                                String gridId,
-                                ViewCycle cycle,
-                                ResultsCache cache) {
+  private DependencyGraphGrid(DependencyGraphGridStructure gridStructure,
+                              String calcConfigName,
+                              String gridId,
+                              ViewCycle cycle,
+                              ResultsCache cache) {
     super(gridId);
     ArgumentChecker.notNull(gridStructure, "gridStructure");
     ArgumentChecker.notNull(calcConfigName, "calcConfigName");
@@ -44,14 +46,23 @@ public class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> 
     _cache = cache;
   }
 
-  /* package */
-  static DependencyGraphGrid create(CompiledViewDefinition compiledViewDef,
-                                    ValueSpecification target,
-                                    String calcConfigName,
-                                    ViewCycle cycle,
-                                    ResultsCache cache,
-                                    String gridId,
-                                    ComputationTargetResolver targetResolver) {
+  /**
+   * @param compiledViewDef The view definition from which the graph and calculations were derived
+   * @param target The object whose dependency graph is being displayed
+   * @param calcConfigName The calculation configuration used for the calculations
+   * @param cycle The view cycle that calculated the results
+   * @param cache The results
+   * @param gridId
+   * @param targetResolver For looking up the target of the calculation given its specification
+   * @return
+   */
+  /* package */ static DependencyGraphGrid create(CompiledViewDefinition compiledViewDef,
+                                                  ValueSpecification target,
+                                                  String calcConfigName,
+                                                  ViewCycle cycle,
+                                                  ResultsCache cache,
+                                                  String gridId,
+                                                  ComputationTargetResolver targetResolver) {
     DependencyGraphStructureBuilder builder = new DependencyGraphStructureBuilder(compiledViewDef,
                                                                                   target,
                                                                                   calcConfigName,
@@ -69,7 +80,7 @@ public class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> 
     return new DependencyGraphViewport(viewportSpec, _calcConfigName, _gridStructure, _latestCycle, _cache, dataId);
   }
 
-  public List<String> updateResults(ViewCycle cycle, ResultsCache cache) {
+  /* package */ List<String> updateResults(ViewCycle cycle, ResultsCache cache) {
     _latestCycle = cycle;
     _cache = cache;
     List<String> updatedIds = Lists.newArrayList();
@@ -79,10 +90,10 @@ public class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> 
     return updatedIds;
   }
 
-  public long updateViewport(String viewportId,
-                             ViewportSpecification viewportSpec,
-                             ViewCycle cycle,
-                             ResultsCache cache) {
+  /* package */ long updateViewport(String viewportId,
+                                    ViewportSpecification viewportSpec,
+                                    ViewCycle cycle,
+                                    ResultsCache cache) {
     return getViewport(viewportId).update(viewportSpec, cycle, cache);
   }
 }

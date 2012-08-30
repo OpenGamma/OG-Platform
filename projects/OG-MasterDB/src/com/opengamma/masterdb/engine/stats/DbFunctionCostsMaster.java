@@ -113,6 +113,15 @@ public class DbFunctionCostsMaster implements FunctionCostsMaster {
   }
 
   //-------------------------------------------------------------------------
+  public int getSchemaVersion() {
+    final DbMapSqlParameterSource args = new DbMapSqlParameterSource().addValue("version_key", "schema_patch");
+    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
+    final String sql = getElSqlBundle().getSql("GetSchemaVersion", args);
+    String version = namedJdbc.queryForObject(sql, args, String.class);
+    return Integer.parseInt(version);
+  }
+  
+  //-------------------------------------------------------------------------
   @Override
   public FunctionCostsDocument load(final String configuration, final String functionId, Instant versionAsOf) {
     s_logger.debug("load: {} {}", configuration, functionId);

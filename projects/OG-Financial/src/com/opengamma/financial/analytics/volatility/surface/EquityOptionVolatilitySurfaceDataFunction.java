@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.volatility.surface;
@@ -14,6 +14,9 @@ import java.util.Set;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
@@ -40,9 +43,10 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ *
  */
 public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.NonCompiledInvoker {
+  private static final Logger s_logger = LoggerFactory.getLogger(EquityOptionVolatilitySurfaceDataFunction.class);
 
   @Override
   /**
@@ -149,6 +153,10 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBVolatilitySurfaceSpecificationSource volSpecSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
     final VolatilitySurfaceSpecification specification = volSpecSource.getSpecification(fullName, InstrumentTypeProperties.EQUITY_OPTION);
+    if (specification == null) {
+      s_logger.error("Could not get volatility surface specification with name " + fullName);
+      return null;
+    }
     // 3. Build the ValueRequirements' constraints
     final ValueProperties constraints = ValueProperties.builder()
         .with(ValuePropertyNames.SURFACE, givenName)

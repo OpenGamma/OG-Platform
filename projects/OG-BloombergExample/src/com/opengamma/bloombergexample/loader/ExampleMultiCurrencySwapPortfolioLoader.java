@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergIdentifierProvider;
 import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
-import com.opengamma.bbg.tool.BloombergToolContext;
 import com.opengamma.bloombergexample.tool.AbstractExampleTool;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
@@ -178,8 +177,8 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractExampleTool
 
     BloombergHistoricalTimeSeriesLoader loader = new BloombergHistoricalTimeSeriesLoader(
       getToolContext().getHistoricalTimeSeriesMaster(),
-      ((BloombergToolContext) getToolContext()).getBloombergHistoricalTimeSeriesSource(),
-      new BloombergIdentifierProvider(((BloombergToolContext) getToolContext()).getBloombergReferenceDataProvider()));
+      getBloombergToolContext().getBloombergHistoricalTimeSeriesSource(),
+      new BloombergIdentifierProvider(getBloombergToolContext().getBloombergReferenceDataProvider()));
     loader.addTimeSeries(externalIds, "CMPL", "PX_LAST", LocalDate.now().minusYears(1), LocalDate.now());
   }
 
