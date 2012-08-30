@@ -5,28 +5,27 @@
  */
 package com.opengamma.financial.security.cds;
 
-import javax.time.calendar.ZonedDateTime;
-
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.PropertyDefinition;
-
-import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.frequency.Frequency;
-import com.opengamma.financial.convention.StubType;
-import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.security.FinancialSecurityVisitor;
-import com.opengamma.id.ExternalId;
-import com.opengamma.util.money.Currency;
 import java.util.Map;
 
+import javax.time.calendar.ZonedDateTime;
+
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.financial.convention.StubType;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityVisitor;
+import com.opengamma.util.money.Currency;
 
 /**
  * CDS Security object
@@ -88,21 +87,45 @@ public class CDSSecurity extends FinancialSecurity {
   @PropertyDefinition(validate = "notNull")
   private StubType _stubType;
   
+  /**
+   * Number of business days for settlement
+   */
   @PropertyDefinition
   private int _settlementDays;
   
-  /** Underlying bond */
-  // TODO: Where to validate underlying is actually a bond?
-  @PropertyDefinition
-  private ExternalId _underlying;
+  /**
+   * The name of the underlying issuer
+   */
+  @PropertyDefinition(validate = "notNull")
+  private String _underlyingIssuer;
+  
+  /**
+   * The currency of the underlying issue
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Currency _underlyingCurrency;
+  
+  /**
+   * The seniority of the underlying issue
+   */
+  @PropertyDefinition(validate = "notNull")
+  private String _underlyingSeniority;
+  
+  /**
+   * The restructuring clause
+   */
+  @PropertyDefinition(validate = "notNull")
+  private String _restructuringClause;
+  
   
   CDSSecurity() {
     // For Fudge builder
   }
 
-  public CDSSecurity(double notional, double recoveryRate, double spread,
-    Currency currency, ZonedDateTime maturity, ZonedDateTime startDate,
-    Frequency premiumFrequency, DayCount dayCount, BusinessDayConvention businessDayConvention,  ExternalId underlying) {
+  public CDSSecurity(double notional, double recoveryRate, double spread, Currency currency,
+      ZonedDateTime maturity, ZonedDateTime startDate, Frequency premiumFrequency,
+      DayCount dayCount, BusinessDayConvention businessDayConvention, StubType stubType, int settlementDays,
+      String underlyingIssuer, Currency underlyingCurrency, String underlyingSeniority, String restructuringClause) {
     
     super(SECURITY_TYPE);
     setNotional(notional);
@@ -114,9 +137,12 @@ public class CDSSecurity extends FinancialSecurity {
     setPremiumFrequency(premiumFrequency);
     setDayCount(dayCount);
     setBusinessDayConvention(businessDayConvention);
-    setStubType(StubType.SHORT_START);                   // TODO: Feed through to database
-    setSettlementDays(3);                                // TODO: Feed through to database
-    setUnderlying(underlying);
+    setStubType(stubType);
+    setSettlementDays(settlementDays);
+    setUnderlyingIssuer(underlyingIssuer);
+    setUnderlyingCurrency(underlyingCurrency);
+    setUnderlyingSeniority(underlyingSeniority);
+    setRestructuringClause(restructuringClause);
   }
 
   @Override
@@ -167,8 +193,14 @@ public class CDSSecurity extends FinancialSecurity {
         return getStubType();
       case -295948000:  // settlementDays
         return getSettlementDays();
-      case -1770633379:  // underlying
-        return getUnderlying();
+      case -81466250:  // underlyingIssuer
+        return getUnderlyingIssuer();
+      case -1102975346:  // underlyingCurrency
+        return getUnderlyingCurrency();
+      case -305508959:  // underlyingSeniority
+        return getUnderlyingSeniority();
+      case -1774904020:  // restructuringClause
+        return getRestructuringClause();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -209,8 +241,17 @@ public class CDSSecurity extends FinancialSecurity {
       case -295948000:  // settlementDays
         setSettlementDays((Integer) newValue);
         return;
-      case -1770633379:  // underlying
-        setUnderlying((ExternalId) newValue);
+      case -81466250:  // underlyingIssuer
+        setUnderlyingIssuer((String) newValue);
+        return;
+      case -1102975346:  // underlyingCurrency
+        setUnderlyingCurrency((Currency) newValue);
+        return;
+      case -305508959:  // underlyingSeniority
+        setUnderlyingSeniority((String) newValue);
+        return;
+      case -1774904020:  // restructuringClause
+        setRestructuringClause((String) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -225,6 +266,10 @@ public class CDSSecurity extends FinancialSecurity {
     JodaBeanUtils.notNull(_dayCount, "dayCount");
     JodaBeanUtils.notNull(_businessDayConvention, "businessDayConvention");
     JodaBeanUtils.notNull(_stubType, "stubType");
+    JodaBeanUtils.notNull(_underlyingIssuer, "underlyingIssuer");
+    JodaBeanUtils.notNull(_underlyingCurrency, "underlyingCurrency");
+    JodaBeanUtils.notNull(_underlyingSeniority, "underlyingSeniority");
+    JodaBeanUtils.notNull(_restructuringClause, "restructuringClause");
     super.validate();
   }
 
@@ -246,7 +291,10 @@ public class CDSSecurity extends FinancialSecurity {
           JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
           JodaBeanUtils.equal(getStubType(), other.getStubType()) &&
           JodaBeanUtils.equal(getSettlementDays(), other.getSettlementDays()) &&
-          JodaBeanUtils.equal(getUnderlying(), other.getUnderlying()) &&
+          JodaBeanUtils.equal(getUnderlyingIssuer(), other.getUnderlyingIssuer()) &&
+          JodaBeanUtils.equal(getUnderlyingCurrency(), other.getUnderlyingCurrency()) &&
+          JodaBeanUtils.equal(getUnderlyingSeniority(), other.getUnderlyingSeniority()) &&
+          JodaBeanUtils.equal(getRestructuringClause(), other.getRestructuringClause()) &&
           super.equals(obj);
     }
     return false;
@@ -266,7 +314,10 @@ public class CDSSecurity extends FinancialSecurity {
     hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
     hash += hash * 31 + JodaBeanUtils.hashCode(getStubType());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDays());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlying());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingIssuer());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingSeniority());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRestructuringClause());
     return hash ^ super.hashCode();
   }
 
@@ -529,7 +580,7 @@ public class CDSSecurity extends FinancialSecurity {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the settlementDays.
+   * Gets number of business days for settlement
    * @return the value of the property
    */
   public int getSettlementDays() {
@@ -537,7 +588,7 @@ public class CDSSecurity extends FinancialSecurity {
   }
 
   /**
-   * Sets the settlementDays.
+   * Sets number of business days for settlement
    * @param settlementDays  the new value of the property
    */
   public void setSettlementDays(int settlementDays) {
@@ -554,27 +605,106 @@ public class CDSSecurity extends FinancialSecurity {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the underlying.
-   * @return the value of the property
+   * Gets the name of the underlying issuer
+   * @return the value of the property, not null
    */
-  public ExternalId getUnderlying() {
-    return _underlying;
+  public String getUnderlyingIssuer() {
+    return _underlyingIssuer;
   }
 
   /**
-   * Sets the underlying.
-   * @param underlying  the new value of the property
+   * Sets the name of the underlying issuer
+   * @param underlyingIssuer  the new value of the property, not null
    */
-  public void setUnderlying(ExternalId underlying) {
-    this._underlying = underlying;
+  public void setUnderlyingIssuer(String underlyingIssuer) {
+    JodaBeanUtils.notNull(underlyingIssuer, "underlyingIssuer");
+    this._underlyingIssuer = underlyingIssuer;
   }
 
   /**
-   * Gets the the {@code underlying} property.
+   * Gets the the {@code underlyingIssuer} property.
    * @return the property, not null
    */
-  public final Property<ExternalId> underlying() {
-    return metaBean().underlying().createProperty(this);
+  public final Property<String> underlyingIssuer() {
+    return metaBean().underlyingIssuer().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the currency of the underlying issue
+   * @return the value of the property, not null
+   */
+  public Currency getUnderlyingCurrency() {
+    return _underlyingCurrency;
+  }
+
+  /**
+   * Sets the currency of the underlying issue
+   * @param underlyingCurrency  the new value of the property, not null
+   */
+  public void setUnderlyingCurrency(Currency underlyingCurrency) {
+    JodaBeanUtils.notNull(underlyingCurrency, "underlyingCurrency");
+    this._underlyingCurrency = underlyingCurrency;
+  }
+
+  /**
+   * Gets the the {@code underlyingCurrency} property.
+   * @return the property, not null
+   */
+  public final Property<Currency> underlyingCurrency() {
+    return metaBean().underlyingCurrency().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the seniority of the underlying issue
+   * @return the value of the property, not null
+   */
+  public String getUnderlyingSeniority() {
+    return _underlyingSeniority;
+  }
+
+  /**
+   * Sets the seniority of the underlying issue
+   * @param underlyingSeniority  the new value of the property, not null
+   */
+  public void setUnderlyingSeniority(String underlyingSeniority) {
+    JodaBeanUtils.notNull(underlyingSeniority, "underlyingSeniority");
+    this._underlyingSeniority = underlyingSeniority;
+  }
+
+  /**
+   * Gets the the {@code underlyingSeniority} property.
+   * @return the property, not null
+   */
+  public final Property<String> underlyingSeniority() {
+    return metaBean().underlyingSeniority().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the restructuring clause
+   * @return the value of the property, not null
+   */
+  public String getRestructuringClause() {
+    return _restructuringClause;
+  }
+
+  /**
+   * Sets the restructuring clause
+   * @param restructuringClause  the new value of the property, not null
+   */
+  public void setRestructuringClause(String restructuringClause) {
+    JodaBeanUtils.notNull(restructuringClause, "restructuringClause");
+    this._restructuringClause = restructuringClause;
+  }
+
+  /**
+   * Gets the the {@code restructuringClause} property.
+   * @return the property, not null
+   */
+  public final Property<String> restructuringClause() {
+    return metaBean().restructuringClause().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -643,10 +773,25 @@ public class CDSSecurity extends FinancialSecurity {
     private final MetaProperty<Integer> _settlementDays = DirectMetaProperty.ofReadWrite(
         this, "settlementDays", CDSSecurity.class, Integer.TYPE);
     /**
-     * The meta-property for the {@code underlying} property.
+     * The meta-property for the {@code underlyingIssuer} property.
      */
-    private final MetaProperty<ExternalId> _underlying = DirectMetaProperty.ofReadWrite(
-        this, "underlying", CDSSecurity.class, ExternalId.class);
+    private final MetaProperty<String> _underlyingIssuer = DirectMetaProperty.ofReadWrite(
+        this, "underlyingIssuer", CDSSecurity.class, String.class);
+    /**
+     * The meta-property for the {@code underlyingCurrency} property.
+     */
+    private final MetaProperty<Currency> _underlyingCurrency = DirectMetaProperty.ofReadWrite(
+        this, "underlyingCurrency", CDSSecurity.class, Currency.class);
+    /**
+     * The meta-property for the {@code underlyingSeniority} property.
+     */
+    private final MetaProperty<String> _underlyingSeniority = DirectMetaProperty.ofReadWrite(
+        this, "underlyingSeniority", CDSSecurity.class, String.class);
+    /**
+     * The meta-property for the {@code restructuringClause} property.
+     */
+    private final MetaProperty<String> _restructuringClause = DirectMetaProperty.ofReadWrite(
+        this, "restructuringClause", CDSSecurity.class, String.class);
     /**
      * The meta-properties.
      */
@@ -663,7 +808,10 @@ public class CDSSecurity extends FinancialSecurity {
         "businessDayConvention",
         "stubType",
         "settlementDays",
-        "underlying");
+        "underlyingIssuer",
+        "underlyingCurrency",
+        "underlyingSeniority",
+        "restructuringClause");
 
     /**
      * Restricted constructor.
@@ -696,8 +844,14 @@ public class CDSSecurity extends FinancialSecurity {
           return _stubType;
         case -295948000:  // settlementDays
           return _settlementDays;
-        case -1770633379:  // underlying
-          return _underlying;
+        case -81466250:  // underlyingIssuer
+          return _underlyingIssuer;
+        case -1102975346:  // underlyingCurrency
+          return _underlyingCurrency;
+        case -305508959:  // underlyingSeniority
+          return _underlyingSeniority;
+        case -1774904020:  // restructuringClause
+          return _restructuringClause;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -807,11 +961,35 @@ public class CDSSecurity extends FinancialSecurity {
     }
 
     /**
-     * The meta-property for the {@code underlying} property.
+     * The meta-property for the {@code underlyingIssuer} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ExternalId> underlying() {
-      return _underlying;
+    public final MetaProperty<String> underlyingIssuer() {
+      return _underlyingIssuer;
+    }
+
+    /**
+     * The meta-property for the {@code underlyingCurrency} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Currency> underlyingCurrency() {
+      return _underlyingCurrency;
+    }
+
+    /**
+     * The meta-property for the {@code underlyingSeniority} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> underlyingSeniority() {
+      return _underlyingSeniority;
+    }
+
+    /**
+     * The meta-property for the {@code restructuringClause} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> restructuringClause() {
+      return _restructuringClause;
     }
 
   }

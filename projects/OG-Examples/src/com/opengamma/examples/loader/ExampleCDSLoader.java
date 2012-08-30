@@ -18,6 +18,7 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.Security;
 import com.opengamma.examples.tool.AbstractExampleTool;
 
+import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -111,9 +112,10 @@ public class ExampleCDSLoader extends AbstractExampleTool {
                                              frequency, 
                                              dayCount, 
                                              businessDayConvention,  
-                                             underlying);
+                                             StubType.SHORT_START, 3,
+                                             "US Treasury", Currency.USD, "Senior", "No Restructuring");
     cds1.addExternalId(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "TEST_CDS_00001--US912828KY53-A"));
-    cds1.setName("TEST CDS" + counter ++);
+    cds1.setName("TEST CDS" + counter++);
     
     return cds1;
   }

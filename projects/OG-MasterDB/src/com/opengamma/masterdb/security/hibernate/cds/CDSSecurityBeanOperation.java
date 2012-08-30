@@ -9,14 +9,12 @@ import static com.opengamma.masterdb.security.hibernate.Converters.businessDayCo
 import static com.opengamma.masterdb.security.hibernate.Converters.currencyBeanToCurrency;
 import static com.opengamma.masterdb.security.hibernate.Converters.dateTimeWithZoneToZonedDateTimeBean;
 import static com.opengamma.masterdb.security.hibernate.Converters.dayCountBeanToDayCount;
-import static com.opengamma.masterdb.security.hibernate.Converters.externalIdBeanToExternalId;
-import static com.opengamma.masterdb.security.hibernate.Converters.externalIdToExternalIdBean;
 import static com.opengamma.masterdb.security.hibernate.Converters.frequencyBeanToFrequency;
 import static com.opengamma.masterdb.security.hibernate.Converters.zonedDateTimeBeanToDateTimeWithZone;
 
+import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.security.cds.CDSSecurity;
 import com.opengamma.masterdb.security.hibernate.AbstractSecurityBeanOperation;
-import com.opengamma.masterdb.security.hibernate.ExternalIdBean;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDao;
 import com.opengamma.masterdb.security.hibernate.OperationContext;
 
@@ -44,27 +42,18 @@ public final class CDSSecurityBeanOperation extends AbstractSecurityBeanOperatio
     bean.setMaturity(dateTimeWithZoneToZonedDateTimeBean(security.getMaturity()));
     bean.setStartDate(dateTimeWithZoneToZonedDateTimeBean(security.getStartDate()));
     bean.setPremiumFrequency(secMasterSession.getOrCreateFrequencyBean(security.getPremiumFrequency().getConventionName()));
-
-    if (security.getUnderlying() == null) {
-      bean.setUnderlying(null);
-    } else {
-      bean.setUnderlying(externalIdToExternalIdBean(security.getUnderlying()));
-    }
-
     bean.setDayCount(secMasterSession.getOrCreateDayCountBean(security.getDayCount().getConventionName()));
     bean.setBusinessDayConvention(secMasterSession.getOrCreateBusinessDayConventionBean(security.getBusinessDayConvention().getConventionName()));
+    //bean.setStubType(security.getStubType());
+    bean.setSettlementDays(security.getSettlementDays());
+    bean.setUnderlyingIssuer(security.getUnderlyingIssuer());
+    bean.setUnderlyingCurrency(secMasterSession.getOrCreateCurrencyBean(security.getUnderlyingCurrency().getCode()));
+    bean.setUnderlyingSeniority(security.getUnderlyingSeniority());
     return bean;
   }
 
   @Override
   public CDSSecurity createSecurity(OperationContext context, CDSSecurityBean bean) {
-
-    ExternalIdBean underlying;
-    if (bean.getUnderlying() == null) {
-      underlying = null;
-    } else {
-      underlying = bean.getUnderlying();
-    }
 
     return new CDSSecurity(
       bean.getNotional(),
@@ -76,6 +65,11 @@ public final class CDSSecurityBeanOperation extends AbstractSecurityBeanOperatio
       frequencyBeanToFrequency(bean.getPremiumFrequency()),
       dayCountBeanToDayCount(bean.getDayCount()),
       businessDayConventionBeanToBusinessDayConvention(bean.getBusinessDayConvention()),
-      externalIdBeanToExternalId(underlying));
+      StubType.SHORT_START,
+      bean.getSettlementDays(),
+      bean.getUnderlyingIssuer(),
+      currencyBeanToCurrency(bean.getUnderlyingCurrency()),
+      bean.getUnderlyingSeniority(),
+      bean.getRestructuringClause());
   }
 }

@@ -20,6 +20,7 @@ import com.opengamma.engine.MapComputationTargetResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.test.MockSecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
@@ -42,7 +43,8 @@ public class CDSPresentValueFunctionTest {
   private static MockSecuritySource securitySource;
   private static FunctionCompilationContext functionCompilationContext;
   private static final Security CDS_SECURITY = new CDSSecurity(1.0, 0.6, 0.0025, Currency.GBP, ZonedDateTime.of(2020, 12, 20, 0, 0, 0, 0, TimeZone.UTC), ZonedDateTime.now(), SimpleFrequency.ANNUAL,
-    DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), underlying);
+    DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), StubType.SHORT_START, 3,
+    "US Treasury", Currency.USD, "Senior", "No Restructuring");
   private CDSApproxISDAPresentValueFunction testItem;
 
   @BeforeClass
