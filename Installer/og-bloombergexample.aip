@@ -128,7 +128,7 @@
     <ROW FileKey="bloombergexample.log_" Component_="og_bloombergexample.jar" FileName="bloombergexample.log*" DirProperty="log_Dir" InstallMode="2"/>
     <ROW FileKey="bloombergexample__" Component_="og_bloombergexample.jar" FileName="bloombergexample-*" DirProperty="hsqldb_Dir" InstallMode="2"/>
     <ROW FileKey="bloombergexample_logback.xml" Component_="og_bloombergexample.jar" FileName="bloombergexample-logback.xml" DirProperty="config_Dir" InstallMode="2"/>
-    <ROW FileKey="bloombergexample_requests__" Component_="og_bloombergexample.jar" FileName="*-bloombergexample-requests*" DirProperty="log_Dir" InstallMode="2"/>
+    <ROW FileKey="bloombergexample_requests__" Component_="og_bloombergexample.jar" FileName="*-bloombergexample-run-requests*" DirProperty="log_Dir" InstallMode="2"/>
     <ROW FileKey="bloombergexample_run.properties" Component_="og_bloombergexample.jar" FileName="bloombergexample-run.properties" DirProperty="fullstack_Dir" InstallMode="2"/>
     <ROW FileKey="bloombergexample_run.properties_1" Component_="Service" FileName="bloombergexample-run.properties" DirProperty="toolcontext_Dir" InstallMode="2"/>
   </COMPONENT>
