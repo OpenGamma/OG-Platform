@@ -120,7 +120,7 @@ public class ISDACDSDefinition implements InstrumentDefinition<ISDACDSDerivative
       getTimeBetween(pricingDate, _maturity),
       getTimeBetween(pricingDate, stepinDate),
       getTimeBetween(pricingDate, settlementDate),
-      _notional, _spread, _recoveryRate, accruedInterest(pricingDate),
+      _notional, _spread, _recoveryRate, accruedInterest(stepinDate),
       _accrualOnDefault, _payOnDefault, _protectStart,
       _couponFrequency, _convention, _stubType
     );
@@ -146,9 +146,7 @@ public class ISDACDSDefinition implements InstrumentDefinition<ISDACDSDerivative
       :  ACT_365F.getDayCountFraction(date1, date2);
   }
   
-  public double accruedInterest(final ZonedDateTime pricingDate) {
-
-    final ZonedDateTime stepinDate = pricingDate.plusDays(1); // TODO: Get this value from somewhere
+  public double accruedInterest(final ZonedDateTime stepinDate) {
     
     final int nCoupons = _premium.getNumberOfPayments();
     int couponIndex = 0;
