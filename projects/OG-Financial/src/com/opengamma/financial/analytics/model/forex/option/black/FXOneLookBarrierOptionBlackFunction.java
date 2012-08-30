@@ -88,7 +88,7 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
 
 
     // 3. Build up the market data bundle
-    final ForexOptionDataBundle<?> market = buildMarketBundle(inputs, target, desiredValues);
+    final ForexOptionDataBundle<?> market = buildMarketBundle(now, inputs, target, desiredValues);
 
     // TODO Confirm whether we need to support both types of dataBundles: SmileDeltaTermStructureParametersStrikeInterpolation AND BlackForexTermStructureParameters
 

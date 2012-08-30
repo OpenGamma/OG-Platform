@@ -106,7 +106,7 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
     final InstrumentDerivative fxOption = definition.toDerivative(now, allCurveNames);
 
     // Get market data
-    final ForexOptionDataBundle<?> marketData = buildMarketBundle(inputs, target, desiredValues);
+    final ForexOptionDataBundle<?> marketData = buildMarketBundle(now, inputs, target, desiredValues);
 
     // Create the result specification
     final ValueProperties.Builder properties = getResultProperties(target, desiredValue, baseQuotePair);
@@ -117,7 +117,7 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
   }
 
   // This is re-used by EquityIndexVanillaBarrierOptionFunction, hence is available to call  */
-  protected ForexOptionDataBundle<?> buildMarketBundle(final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+  protected ForexOptionDataBundle<?> buildMarketBundle(ZonedDateTime now, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
 
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
