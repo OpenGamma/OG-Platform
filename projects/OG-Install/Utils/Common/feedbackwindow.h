@@ -22,7 +22,7 @@ protected:
 	virtual void OnClose ();
 	virtual void OnDestroy ();
 public:
-	CFeedbackWindow (HINSTANCE hInstance, PCSTR pszTitle);
+	CFeedbackWindow (HWND hwndParent, HINSTANCE hInstance, PCSTR pszTitle);
 	static BOOL Register (HINSTANCE hInstance, int nIcon);
 	void Show (int nCmdShow) { ShowWindow (m_hwnd, nCmdShow); }
 	void BringToTop ();

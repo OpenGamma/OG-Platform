@@ -131,6 +131,9 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiServInstComponent">
     <ROW ServiceInstall="Service.exe" Name="OpenGammaExample" DisplayName="OpenGamma Example Engine" ServiceType="16" StartType="2" ErrorControl="1" Arguments="&quot;[bin_Dir]og-example.ini&quot; OpenGammaExample" Component_="Service.exe" Description="An OpenGamma engine server running with example/fake data"/>
   </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiShortsComponent">
+    <ROW Shortcut="ExampleEngineService" Directory_="M_START__Dir" Name="Exampl~1|Example Engine Service" Component_="og_examples.jar" Target="[APPDIR]\bin\ServiceControl.exe" Arguments="OpenGammaExample" Description="Starts and stops the engine service" Hotkey="0" IconIndex="0" ShowCmd="1"/>
+  </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsmModuleDependencyComponent">
     <ROW RequiredID="Common.92192C01_228E_4B0B_9D23_68086A1B7449" RequiredLanguage="1033"/>
   </COMPONENT>

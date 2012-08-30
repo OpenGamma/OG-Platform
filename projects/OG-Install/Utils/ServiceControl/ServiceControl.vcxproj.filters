@@ -15,36 +15,41 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="jvm.h">
+    <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="config.h">
+    <ClInclude Include="control.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="feedbackwindow.h">
+    <ClInclude Include="status.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="param.h">
+    <ClInclude Include="startstop.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="service.h">
+    <ClInclude Include="autostart.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="config.cpp">
+    <ResourceCompile Include="resource.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="jvm.cpp">
+    <ClCompile Include="control.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="feedbackwindow.cpp">
+    <ClCompile Include="status.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="param.cpp">
+    <ClCompile Include="startstop.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="service.cpp">
+    <ClCompile Include="autostart.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
