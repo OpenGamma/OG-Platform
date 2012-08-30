@@ -185,16 +185,16 @@
 /**
  * Gadgets
  **/
-.OG-gadget-container .slick-header{
-  border-bottom:1px solid silver;
+.OG-gadget-container .slick-header {
+  border-bottom: 1px solid #ccc;
 }
 
 .OG-gadget-container .slick-row:hover {
   background-color: transparent;
 }
 
-.OG-gadget-container .slick-row .l0{
-  background-color: #D7E7F2;
-  color:#555;
-  font-weight:bold;
+.OG-gadget-container .slick-row .l0 {
+  background-color: #d7e7f2;
+  color: #555;
+  font-weight: bold;
 }
