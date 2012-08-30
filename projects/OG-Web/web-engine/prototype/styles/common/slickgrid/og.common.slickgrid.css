@@ -186,15 +186,20 @@
  * Gadgets
  **/
 .OG-gadget-container .slick-header {
-  border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid #dadcdd;
+    background-color: #ecf5fa;
+}
+
+.OG-gadget-container .slick-header-columns::before {
+    content: none;
 }
 
 .OG-gadget-container .slick-row:hover {
-  background-color: transparent;
+    background-color: transparent;
 }
 
 .OG-gadget-container .slick-row .l0 {
-  background-color: #d7e7f2;
-  color: #555;
-  font-weight: bold;
+    background-color: #ecf5fa;
+    color: #555;
+    font-weight: bold;
 }
