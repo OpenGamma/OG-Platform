@@ -76,7 +76,7 @@ $.register_module({
             (grid.dataman = new og.analytics.Data(grid.source))
                 .on('meta', init_grid, grid, config)
                 .on('data', render_rows, grid);
-            grid.events = {mousedown: [], scroll: [], render: [], select: []};
+            grid.events = {cellselect: [], mousedown: [], rangeselect: [], render: [], scroll: [], select: []};
             grid.on = function (type, handler) {
                 if (type in grid.events)
                     grid.events[type].push({handler: handler, args: Array.prototype.slice.call(arguments, 2)});
@@ -94,9 +94,6 @@ $.register_module({
                 grid.meta.nodes[row = $target.attr('data-row')] = !grid.meta.nodes[row];
                 grid.resize().selector.clear();
                 return false;
-            }).on('select', function (selection) {
-                var row = selection.rows[0], col = selection.cols[0], type = selection.types[0];
-                if (!(1 === selection.rows.length && 1 === selection.cols.length)) return; // multiple selection
             });
         };
         var init_elements = function (grid, config, elements) {
@@ -132,13 +129,17 @@ $.register_module({
                     }
                 })(null));
             })();
-            grid.selector = new og.analytics.Selector(grid).on('select', function (selection) {
-                var absolute_selection = {
-                    rows: selection.rows.map(function (v) {return grid.meta.available[v];}),
-                    cols: selection.cols,
-                    types: selection.cols.map(function (v) {return grid.meta.columns.types[v];})
-                }
-                fire(grid, 'select', absolute_selection);
+            grid.selector = new og.analytics.Selector(grid).on('select', function (raw) {
+                var selection = {
+                    cols: raw.cols,
+                    rows: raw.rows.map(function (row) {return grid.meta.available[row];}),
+                    type: raw.cols.map(function (col) {return grid.meta.columns.types[col];})
+                };
+                if (1 === selection.rows.length && 1 === selection.cols.length)
+                    fire(grid, 'cellselect', {row: selection.rows[0], col: selection.cols[0], type: selection.type[0]});
+                else
+                    fire(grid, 'rangeselect', selection);
+                fire(grid, 'select', selection); // fire for both single and multiple selection
             });
             og.common.gadgets.manager.register({alive: grid.alive, resize: grid.resize});
             elements.empty = false;

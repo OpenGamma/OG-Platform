@@ -49,7 +49,8 @@ $.register_module({
                     y = event.pageY - grid_offset.top + grid.elements.scroll_body.scrollTop() - grid.meta.header_height;
                 if (!(($target = $(event.target)).is(cell) ? $target : $target.parents(cell + ':first'))
                     .length && !(is_overlay = $target.is(overlay))) return; // if the cursor is not over a cell, bail
-                if (is_overlay) return selector.clear();
+                selector.clear();
+                if (is_overlay) return; // if a user is deselecting, leave
                 clean_up();
                 $(document)
                     .on('mouseup' + namespace, clean_up)

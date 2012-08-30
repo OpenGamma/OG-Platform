@@ -627,6 +627,7 @@ $.register_module({
                                 meta.type = 'POST';
                                 data.rows = config.rows;
                                 data.columns = config.columns;
+                                data.expanded = !!config.expanded;
                                 data['clientId'] = api.id;
                                 method[1] = config.view_id;
                                 method[4] = config.graph_id;
@@ -674,6 +675,7 @@ $.register_module({
                             meta.type = 'POST';
                             data.rows = config.rows;
                             data.columns = config.columns;
+                            data.expanded = !!config.expanded;
                             data['clientId'] = api.id;
                             method[1] = config.view_id;
                             if (config.viewport_id) (meta.type = 'PUT'), method.push(config.viewport_id);

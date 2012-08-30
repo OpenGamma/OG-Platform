@@ -26,7 +26,10 @@ $.register_module({
                 (viewport_id ? viewports.get({
                     view_id: view_id, graph_id: graph_id, viewport_id: viewport_id, update: data_setup
                 }) : viewports
-                    .put({view_id: view_id, graph_id: graph_id, rows: viewport.rows, columns: viewport.cols})
+                    .put({
+                        view_id: view_id, graph_id: graph_id,
+                        rows: viewport.rows, columns: viewport.cols, expanded: viewport.expanded
+                    })
                     .pipe(function (result) {
                         if (result.error) // goes to data_setup so take care
                             return (view_id = graph_id = viewport_id = subscribed = null);
@@ -91,14 +94,15 @@ $.register_module({
             data.viewport = function (new_viewport) {
                 var viewports = (depgraph ? api[grid_type].depgraphs : api[grid_type]).viewports;
                 viewport = new_viewport;
-                if (!viewport_id) return;
+                if (!viewport_id) return data;
                 data.busy(true);
                 viewports.put({
                     view_id: view_id, graph_id: graph_id, viewport_id: viewport_id,
-                    rows: viewport.rows, columns: viewport.cols
+                    rows: viewport.rows, columns: viewport.cols, expanded: !!viewport.expanded
                 }).pipe(function (result) {
                     if (result.error) return; else (viewport_version = result.data.version), data.busy(false);
                 });
+                return data;
             };
             initialize();
         };
