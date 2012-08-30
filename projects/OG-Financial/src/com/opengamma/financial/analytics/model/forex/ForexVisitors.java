@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics.model.forex;
 
+import javax.time.calendar.ZonedDateTime;
+
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -24,6 +26,7 @@ public class ForexVisitors {
   private static final FinancialSecurityVisitor<Currency> s_receiveCurrencyInstance = new ReceiveCurrencyVisitor();
   private static final FinancialSecurityVisitor<Currency> s_callCurrencyInstance = new CallCurrencyVisitor();
   private static final FinancialSecurityVisitor<Currency> s_putCurrencyInstance = new PutCurrencyVisitor();
+  private static final FinancialSecurityVisitor<ZonedDateTime> s_expiryInstance = new ExpiryVisitor();
 
   public static FinancialSecurityVisitor<Currency> getPayCurrencyVisitor() {
     return s_payCurrencyInstance;
@@ -39,6 +42,10 @@ public class ForexVisitors {
 
   public static FinancialSecurityVisitor<Currency> getPutCurrencyVisitor() {
     return s_putCurrencyInstance;
+  }
+
+  public static FinancialSecurityVisitor<ZonedDateTime> getExpiryVisitor() {
+    return s_expiryInstance;
   }
 
   private static class PayCurrencyVisitor extends FinancialSecurityVisitorAdapter<Currency> {
@@ -120,6 +127,44 @@ public class ForexVisitors {
     @Override
     public Currency visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity security) {
       return security.getPutCurrency();
+    }
+  }
+
+  private static class ExpiryVisitor extends FinancialSecurityVisitorAdapter<ZonedDateTime> {
+
+    @Override
+    public ZonedDateTime visitFXForwardSecurity(final FXForwardSecurity security) {
+      return security.getForwardDate();
+    }
+
+    @Override
+    public ZonedDateTime visitNonDeliverableFXForwardSecurity(final NonDeliverableFXForwardSecurity security) {
+      return security.getForwardDate();
+    }
+
+    @Override
+    public ZonedDateTime visitFXOptionSecurity(final FXOptionSecurity security) {
+      return security.getExpiry().getExpiry();
+    }
+
+    @Override
+    public ZonedDateTime visitNonDeliverableFXOptionSecurity(final NonDeliverableFXOptionSecurity security) {
+      return security.getExpiry().getExpiry();
+    }
+
+    @Override
+    public ZonedDateTime visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
+      return security.getExpiry().getExpiry();
+    }
+
+    @Override
+    public ZonedDateTime visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity security) {
+      return security.getExpiry().getExpiry();
+    }
+
+    @Override
+    public ZonedDateTime visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity security) {
+      return security.getExpiry().getExpiry();
     }
   }
 }

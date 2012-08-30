@@ -36,12 +36,11 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
+import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.analytics.model.forex.forward.FXForwardMultiValuedFunction;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
@@ -59,15 +58,10 @@ public class FXForwardConstantSpreadThetaFunction extends FXForwardMultiValuedFu
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final Currency payCurrency, receiveCurrency;
-    if (security instanceof FXForwardSecurity) {
-      final FXForwardSecurity forward = (FXForwardSecurity) security;
-      payCurrency = forward.getPayCurrency();
-      receiveCurrency = forward.getReceiveCurrency();
-    } else {
-      final NonDeliverableFXForwardSecurity ndf = (NonDeliverableFXForwardSecurity) security;
-      payCurrency = ndf.getPayCurrency();
-      receiveCurrency = ndf.getReceiveCurrency();
+    final Currency payCurrency = security.accept(ForexVisitors.getPayCurrencyVisitor());
+    final Currency receiveCurrency = security.accept(ForexVisitors.getReceiveCurrencyVisitor());
+    if (now.isAfter(security.accept(ForexVisitors.getExpiryVisitor()))) {
+      throw new OpenGammaRuntimeException("FX forward " + payCurrency.getCode() + "/" + receiveCurrency + " has expired");
     }
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String payCurveName = desiredValue.getConstraint(ValuePropertyNames.PAY_CURVE);

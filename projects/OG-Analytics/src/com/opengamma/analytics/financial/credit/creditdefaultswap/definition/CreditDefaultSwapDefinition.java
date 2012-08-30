@@ -38,14 +38,19 @@ public class CreditDefaultSwapDefinition {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // TODO : How can we reduce the number of parameters in the call to the constructor?
-  // TODO : Convert _couponFrequency string to an enum
   // TODO : Convert _daycountFractionConvention string to an enum
   // TODO : Convert _businessdayAdjustmentConvention string to an enum
-  // TODO : Should really have more identifiers for the counterparty we are trading with
-
+  // TODO : Add the argument checks for daycountConvention and businessdayAdjustmentConvention when replace the strings with enums
+  // TODO : Should really have more identifiers for the counterparty we are trading with (will be useful for CVA related purposes)
+  // TODO : Allow the case valuationDate = startDate
+  // TODO : Allow the case effectiveDate = startDate
+  // TODO : Allow the case maturityDate = startDate (e.g. startDate = 21/03/YY, maturityDate = 21/03/YY but IMM adjusted maturityDate = 20/06/YY)
+  // TODO : Allow the case valuationDate = maturityDate (should return a MtM of zero)
+  // TODO : Allow the case valuationDate = effectiveDate
+  // TODO : Verify don't have to argument check boolean adjustMaturityDate for null
+  // TODO : Verify don't have to argument check boolean includeAccruedPremium for null
+  // TODO : Should we impose an upper limit on the number of integration steps in the calculation of the contingent leg?
   // TODO : Add a seperate 'SurvivalCurve' class whose function is to generate the calibrated survival probabilities from the input CDS par spread term structure
-  // TODO : Should the yield, survival and rating curves be part of the CDS object? Should they be passed in to the pricer seperately as market data?
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -129,7 +134,7 @@ public class CreditDefaultSwapDefinition {
   // Flag to determine whether the accrued coupons should be included in the CDS premium leg calculation - User input
   private final boolean _includeAccruedPremium;
 
-  // The number of integration steps (per year) - for the computation of the integral in the contingent leg - User input
+  // The number of integration steps (per year) for the computation of the integral in the contingent leg - User input
   private final int _numberOfIntegrationSteps;
 
   // The yield curve object for discount factors - Constructed from market data
@@ -147,10 +152,6 @@ public class CreditDefaultSwapDefinition {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Constructor for a CDS definition object (most fields are user specified)
-
-  // Probably not the best way of handling schedule generation, business day conventions etc - need to look at another product to see how it is done
-
-  // How can we reduce the number of parameters?
 
   public CreditDefaultSwapDefinition(BuySellProtection buySellProtection,
       String protectionBuyer,
@@ -186,7 +187,9 @@ public class CreditDefaultSwapDefinition {
       YieldCurve survivalCurve,
       YieldCurve ratingCurve) {
 
-    // TODO : Fix argument checkers
+    // ------------------------------------------------------------------------------------------------
+
+    // Check the validity of the input arguments
 
     ArgumentChecker.notNull(buySellProtection, "Buy/Sell field is null");
     // Do we need to check for ""?
@@ -245,48 +248,37 @@ public class CreditDefaultSwapDefinition {
     ArgumentChecker.notNull(valuationDate, "Valuation date field is null");
     // Do we need to check for ""?
 
+    // Check the temporal ordering of the input dates (these are the unadjusted dates entered by the user)
+    ArgumentChecker.isTrue(startDate.isBefore(valuationDate), "Start date {} must be before valuation date {}", startDate, valuationDate);
+    ArgumentChecker.isTrue(startDate.isBefore(effectiveDate), "Start date {} must be before effective date {}", startDate, effectiveDate);
+    ArgumentChecker.isTrue(startDate.isBefore(maturityDate), "Start date {} must be before maturity date {}", startDate, maturityDate);
+    ArgumentChecker.isTrue(valuationDate.isBefore(maturityDate), "Valuation date {} must be before maturity date {}", valuationDate, maturityDate);
+    ArgumentChecker.isTrue(valuationDate.isAfter(effectiveDate), "Valuation date {} must be after effective date {}", valuationDate, effectiveDate);
+
     ArgumentChecker.notNull(scheduleGenerationMethod, "Schedule generation method field is null");
     // Do we need to check for ""?
 
     ArgumentChecker.notNull(couponFrequency, "Coupon frequency field is null");
     // Do we need to check for ""?
 
-    // TODO: Add the checks for daycountConvention and businessdayAdjustmentConvention when replace the strings with enums
-
-    // TODO: Verify don't have to check boolean adjustMaturityDate for null
-
     ArgumentChecker.isTrue(notional >= 0.0, "Notional amount should be greater than or equal to zero");
     ArgumentChecker.isTrue(parSpread >= 0.0, "CDS par spread should be greater than or equal to zero");
 
-    //ArgumentChecker.isTrue(valuationRecoveryRate >= 0.0, "Valuation Recovery Rate should be greater than or equal to 0%");
-    //ArgumentChecker.isTrue(valuationRecoveryRate <= 1.0, "Valuation Recovery Rate should be less than or equal to 100%");
+    ArgumentChecker.isTrue(valuationRecoveryRate >= 0.0, "Valuation recovery rate should be greater than or equal to 0%");
+    ArgumentChecker.isTrue(valuationRecoveryRate <= 1.0, "Valuation recovery rate should be less than or equal to 100%");
 
-    //ArgumentChecker.isInRangeInclusive(valuationRecoveryRate, 0.0, 1.0);
-    //ArgumentChecker.isInRangeInclusive(curveRecoveryRate, 0.0, 1.0);
+    ArgumentChecker.isTrue(curveRecoveryRate >= 0.0, "Curve recovery rate should be greater than or equal to 0%");
+    ArgumentChecker.isTrue(curveRecoveryRate <= 1.0, "Curve recovery rate should be less than or equal to 100%");
 
-    // TODO : Add the logical checks for the ordering of the dates
-    // TODO : Are there any logical date checks I have missed?
-    //ArgumentChecker.isTrue(startDate.isBefore(valuationDate), "Start date {} must be before valuation date {}", startDate, valuationDate);
-    //ArgumentChecker.isTrue(startDate.isBefore(effectiveDate), "Start date {} must be before effective date {}", startDate, effectiveDate);
-    //ArgumentChecker.isTrue(startDate.isBefore(maturityDate), "Start date {} must be before maturity date {}", startDate, maturityDate);
+    ArgumentChecker.isTrue(numberOfIntegrationSteps > 0, "Number of integration steps (for contingent leg valuation) should be greater than zero");
 
-    //ArgumentChecker.isTrue(valuationDate.isBefore(maturityDate), "Valuation date {} must be before maturity date {}", valuationDate, maturityDate);
-    //ArgumentChecker.isTrue(valuationDate.isAfter(effectiveDate), "Valuation date {} must be after effective date {}", valuationDate, effectiveDate);
+    ArgumentChecker.notNull(yieldCurve, "Yield curve is null");
+    ArgumentChecker.notNull(survivalCurve, "Survival curve is null");
+    ArgumentChecker.notNull(ratingCurve, "Rating curve is null");
 
-    /*
-    // What is the return message here?
-    ArgumentChecker.isInRangeInclusive(valuationRecoveryRate, 0.0, 1.0);
-    ArgumentChecker.isInRangeInclusive(curveRecoveryRate, 0.0, 1.0);
-    
-    // TODO : How do we check the boolean primitives?
-    
-    // TODO : Should we impose an upper limit on the number of integration steps?
-    ArgumentChecker.isTrue(numberOfIntegrationSteps > 0,  "Number of integration steps (for contingent leg valuation) should be greater than zero");
-    
-    // TODO : Do we need to check if the yieldCurve and survivalCurve objects are empty? Yes
-     */
+    // ------------------------------------------------------------------------------------------------
 
-    // Assign the member variables
+    // Assign the member variables for the CDS object
 
     _buySellProtection = buySellProtection;
     _protectionBuyer = protectionBuyer;
@@ -333,11 +325,15 @@ public class CreditDefaultSwapDefinition {
     _survivalCurve = survivalCurve;
     _ratingCurve = ratingCurve;
 
-    //REVIEW 29/8/2012 think about using UniqueId
-    _creditKey = _referenceEntityTicker + ":" + _currency + ":" + _debtSeniority + ":" + _restructuringClause;
+    // REVIEW 29/8/2012 think about using UniqueId instead of _creditKey
+    _creditKey = _referenceEntityTicker + "_" + _currency + "_" + _debtSeniority + "_" + _restructuringClause;
+
+    // ------------------------------------------------------------------------------------------------
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Member variable accessor functions
 
   public BuySellProtection getBuySellProtection() {
     return _buySellProtection;

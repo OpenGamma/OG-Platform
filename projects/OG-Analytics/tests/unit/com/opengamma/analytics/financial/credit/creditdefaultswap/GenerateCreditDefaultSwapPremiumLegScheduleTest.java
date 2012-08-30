@@ -7,8 +7,6 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap;
 
 import javax.time.calendar.ZonedDateTime;
 
-import org.testng.annotations.Test;
-
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.CouponFrequency;
 import com.opengamma.analytics.financial.credit.CreditRating;
@@ -19,7 +17,6 @@ import com.opengamma.analytics.financial.credit.ScheduleGenerationMethod;
 import com.opengamma.analytics.financial.credit.Sector;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.PresentValueCreditDefaultSwapTest.MyCalendar;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.GenerateCreditDefaultSwapPremiumLegSchedule;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
@@ -124,6 +121,7 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
 
   // TODO : Add all the tests
 
+  /*
   @Test
   public void testIMMAdjustedMaturityDate() {
 
@@ -145,4 +143,5 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
 
     //immAdjustedMaturityDate = cashflowSchedule.getCreditDefaultSwapPremiumLegSchedule(CDS_1);
   }
+  */
 }
