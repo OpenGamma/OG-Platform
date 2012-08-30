@@ -10,7 +10,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.financial.analytics.volatility.surface.BloombergEquityOptionVolatilitySurfaceInstrumentProvider;
+import com.opengamma.financial.analytics.volatility.surface.BloombergEquityOptionVolatilitySurfaceInstrumentProviderDeprecated;
 
 /**
  * 
@@ -22,8 +22,8 @@ public class BloombergEquityOptionVolatilitySurfaceInstrumentProviderBuilderFudg
 
   @Test
   public void testCycle() {
-    final BloombergEquityOptionVolatilitySurfaceInstrumentProvider provider = new BloombergEquityOptionVolatilitySurfaceInstrumentProvider(EQUITY_OPTION_PREFIX, POSTFIX,
+    final BloombergEquityOptionVolatilitySurfaceInstrumentProviderDeprecated provider = new BloombergEquityOptionVolatilitySurfaceInstrumentProviderDeprecated(EQUITY_OPTION_PREFIX, POSTFIX,
         DATA_FIELD_NAME);
-    assertEquals(provider, cycleObject(BloombergEquityOptionVolatilitySurfaceInstrumentProvider.class, provider));
+    assertEquals(provider, cycleObject(BloombergEquityOptionVolatilitySurfaceInstrumentProviderDeprecated.class, provider));
   }
 }

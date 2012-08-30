@@ -13,7 +13,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 /**
  * 
  */
-abstract class MinimizationTestFunctions {
+public abstract class MinimizationTestFunctions {
   public static final Function1D<DoubleMatrix1D, Double> ROSENBROCK = new Function1D<DoubleMatrix1D, Double>() {
 
     @Override
