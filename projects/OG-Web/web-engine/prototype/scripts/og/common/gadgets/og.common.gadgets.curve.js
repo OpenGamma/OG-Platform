@@ -114,11 +114,10 @@ $.register_module({
             var gadget = this, curve, alive = prefix + counter++;
             gadget.alive = function () {return !!$('.' + alive).length;};
             gadget.load = function () {
-                $(config.selector)
-                    .html('<div class="' + alive + '"></div>')
-                    .find('div')
-                    .css({position: 'absolute', top: 0, left: 0, right: 0, bottom: 0});
-                curve = $(config.selector + ' div').ogcurve(config.data);
+                curve = $(config.selector)
+                    .addClass(alive)
+                    .css({position: 'absolute', top: 0, left: 0, right: 0, bottom: 0})
+                    .ogcurve(config.data);
             };
             gadget.resize = gadget.load;
             gadget.load();

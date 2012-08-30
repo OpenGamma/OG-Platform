@@ -56,7 +56,7 @@ $.register_module({
         return function (config) {
             var gadget = this, surface, alive = prefix + counter++,
                 surface_options = {
-                    selector: config.selector + ' div',
+                    selector: config.selector,
                     data: {
                         vol: tmp_data[config.id].vol,
                         xs: tmp_data[config.id].xs,
@@ -69,10 +69,8 @@ $.register_module({
                     options: {}
             };
             $(config.selector)
-                .html('<div class="' + alive + '"></div>')
-                .find('div')
+                .addClass(alive)
                 .css({position: 'absolute', top: 0, left: 0, right: 0, bottom: 0});
-            config.selector = config.selector + ' div';
             surface = new JSurface3D(surface_options);
             gadget.alive = function () {
                 var live = !!$('.' + alive).length;

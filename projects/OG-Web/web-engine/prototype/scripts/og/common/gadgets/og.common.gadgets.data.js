@@ -121,10 +121,9 @@ $.register_module({
             gadget.alive = function () {return !!$('.' + alive).length;};
             gadget.load = function () {
                 $(config.selector)
-                    .html('<div class="' + alive + '"></div>')
-                    .find('div')
+                    .addClass(alive)
                     .css({position: 'absolute', top: '0', left: 0, right: 0, bottom: 0, borderTop: '1px solid #fff'});
-                data = $(config.selector + ' div').ogdata([config.data4]);
+                data = $(config.selector).ogdata([config.data4]);
             };
             gadget.resize = gadget.load;
             gadget.load();

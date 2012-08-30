@@ -516,16 +516,14 @@
             return gadget;
         };
         gadget.resize = function () {
-            setTimeout(function () {
-                width = $selector.width();
-                height = $selector.height();
-                sel_offset = $selector.offset();
-                $selector.find('> canvas').css({width: width, height: height});
-                camera.aspect = width / height;
-                camera.updateProjectionMatrix();
-                renderer.setSize(width, height);
-                hud.load();
-            });
+            width = $selector.width();
+            height = $selector.height();
+            sel_offset = $selector.offset();
+            $selector.find('> canvas').css({width: width, height: height});
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(width, height);
+            hud.load();
         };
         /**
          * Updates without reloading everything
