@@ -1,10 +1,11 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
+import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.format.DateTimeFormatter;
 import javax.time.calendar.format.DateTimeFormatters;
@@ -12,21 +13,20 @@ import javax.time.calendar.format.DateTimeFormatters;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
 import com.opengamma.financial.analytics.model.FutureOptionExpiries;
-import com.opengamma.financial.analytics.model.equity.NextEquityExpiryAdjuster;
-import com.opengamma.financial.analytics.model.equity.SaturdayAfterThirdFridayAdjuster;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 
 /**
- * Provides ExternalId's for EquityFutureOptions used to build the Volatility Surface  
+ * Provides ExternalId's for EquityFutureOptions used to build the Volatility Surface
  */
 public class BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider extends BloombergFutureOptionVolatilitySurfaceInstrumentProvider {
 
   private static final ExternalScheme SCHEME = ExternalSchemes.BLOOMBERG_TICKER_WEAK;
   private static final DateTimeFormatter FORMAT = DateTimeFormatters.pattern("MM/dd/yy");
-  private static final FutureOptionExpiries EXPIRY_UTILS = FutureOptionExpiries.of(new SaturdayAfterThirdFridayAdjuster(), new NextEquityExpiryAdjuster()); 
-  
+  private static final FutureOptionExpiries EXPIRY_UTILS = FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY, 1));
+
   /**
    * @param futureOptionPrefix the prefix to the resulting code (eg DJX)
    * @param postfix the postfix to the resulting code (eg Index)

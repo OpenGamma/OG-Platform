@@ -17,10 +17,10 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexOptionVanillaDefinition;
+import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.option.definition.ForexOptionDataBundle;
-import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -39,15 +39,17 @@ import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
- * This function splits a barrier option into a sum of vanilla FXOptionSecurity's,
- * and then calls down to the FXOptionBlackFunction for the paricular requirement
+ * This function splits a European ONE-LOOK Barrier Option into a sum of vanilla FXOptionSecurity's,
+ * and then calls down to the FXOptionBlackFunction for the paricular requirement. <p>
+ * See FXBarrierOptionBlackFunction for Functions on TRUE Barriers. That is, options that knock in or out contingent on hitting a barrier,
+ * at ANY time before expiry. The one-look case here only checks the barrier at expiry.
  */
-public class FXVanillaBarrierOptionBlackFunction extends FXOptionBlackSingleValuedFunction {
+public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackSingleValuedFunction {
 
   /**
    * @param valueRequirementName The desired output
    */
-  public FXVanillaBarrierOptionBlackFunction(String valueRequirementName) {
+  public FXOneLookBarrierOptionBlackFunction(String valueRequirementName) {
     super(valueRequirementName);
   }
 
@@ -61,6 +63,7 @@ public class FXVanillaBarrierOptionBlackFunction extends FXOptionBlackSingleValu
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+
 
     final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
     final FXBarrierOptionSecurity barrierSec = (FXBarrierOptionSecurity) target.getSecurity();
@@ -81,15 +84,16 @@ public class FXVanillaBarrierOptionBlackFunction extends FXOptionBlackSingleValu
     final Double smoothing = Double.parseDouble(strSmooth);
 
     // 2. Break the barrier security into it's vanilla analytic DEFINITIONS
-    final Set<ForexOptionVanillaDefinition> vanillas = vanillaDecomposition(now, barrierSec, smoothing, overhedge);
+    final Set<ForexOptionVanilla> vanillas = vanillaDecomposition(barrierSec, smoothing, overhedge, now, desiredValues);
+
 
     // 3. Build up the market data bundle
-    // !!!!!!!!!!!!!!!!!! This will need a considerable rework
-    // final StaticReplicationDataBundle market = buildMarketBundle(underlyingId, executionContext, inputs, target, desiredValues);
+    final ForexOptionDataBundle<?> market = buildMarketBundle(inputs, target, desiredValues);
 
-    // 4. Compute Values
- // !!!!!!!!!!!!!!!!!! This can be abstracted away, at least from here! :)
-    final Object results = null; // computeValues(vanillas, market);
+    // TODO Confirm whether we need to support both types of dataBundles: SmileDeltaTermStructureParametersStrikeInterpolation AND BlackForexTermStructureParameters
+
+    // 4. Compute Values - in base class
+    final Object results = computeValues(vanillas, market);
 
     // 5. Properties of what's required of this function
     final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), desiredValue.getConstraints());
@@ -104,6 +108,13 @@ public class FXVanillaBarrierOptionBlackFunction extends FXOptionBlackSingleValu
                      .withAny(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH);
   }
 
+  /**
+   * This method is defined by extending Functions
+   * @param vanillas Set of ForexOptionVanilla that European Barrier is composed of. Binaries are modelled as spreads
+   * @param market ForexOptionDataBundle, typically SmileDeltaTermStructureParametersStrikeInterpolation
+   * @return  ComputedValue what the function promises to deliver
+   */
+  protected abstract Object computeValues(Set<ForexOptionVanilla> vanillas, ForexOptionDataBundle<?> market);
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
@@ -127,38 +138,57 @@ public class FXVanillaBarrierOptionBlackFunction extends FXOptionBlackSingleValu
     return commonReqs;
   }
 
-  private Set<ForexOptionVanillaDefinition> vanillaDecomposition(final ZonedDateTime valuation, final FXBarrierOptionSecurity barrierSec,
-      final double smoothingFullWidth, final double overhedge) {
+  private Set<ForexOptionVanilla> vanillaDecomposition(final FXBarrierOptionSecurity barrierSec,
+      final double smoothingFullWidth, final double overhedge, final ZonedDateTime valTime, final Set<ValueRequirement> desiredValues) {
 
-    final HashSet<ForexOptionVanillaDefinition> vanillas = new HashSet<ForexOptionVanillaDefinition>();
+    final HashSet<ForexOptionVanilla> vanillas = new HashSet<ForexOptionVanilla>();
     // Unpack the barrier security
     final boolean isLong = barrierSec.getLongShort().isLong();
     final ZonedDateTime expiry = barrierSec.getExpiry().getExpiry();
-    final double ttm = TimeCalculator.getTimeBetween(valuation, expiry);
+
     // The barrier has four types
     final BarrierDirection bInOut = barrierSec.getBarrierDirection(); //   KNOCK_IN, KNOCK_OUT,
     final BarrierType bUpDown = barrierSec.getBarrierType(); //   UP, DOWN, DOUBLE
     final double barrier = barrierSec.getBarrierLevel();
 
     // Put and Call Amounts, along with market convention for quote/base ccy define the strike, notional, and call/put interpretation
+    final ValueRequirement desiredValue = desiredValues.iterator().next();
+    final String putCurveName = desiredValue.getConstraint(PUT_CURVE);
+    final String callCurveName = desiredValue.getConstraint(CALL_CURVE);
     final double callAmt = barrierSec.getCallAmount();
     final Currency callCcy = barrierSec.getCallCurrency();
     final double putAmt = barrierSec.getPutAmount();
     final Currency putCcy = barrierSec.getPutCurrency();
 
     final boolean inOrder = FXUtils.isInBaseQuoteOrder(putCcy, callCcy);
-    final double baseAmt  = inOrder ? putAmt : callAmt; // This is the Notional of the option if interpreted as N*max(w(X-K),0)
-    final double quoteAmt = inOrder ? callAmt : putAmt;
+    double baseAmt; // This is the Notional of the option if interpreted as N*max(w(X-K),0)
+    double quoteAmt;
+    Currency baseCcy;
+    Currency quoteCcy; // This is the valuation currency in the (X,K) interpretation
+    String baseCurveName;
+    String quoteCurveName;
+    if (inOrder) {
+      baseAmt = putAmt;
+      baseCcy = putCcy;
+      baseCurveName = putCurveName + "_" + putCcy.getCode();
+      quoteAmt = callAmt;
+      quoteCcy = callCcy;
+      quoteCurveName = callCurveName + "_" + callCcy.getCode();
+    } else {
+      baseAmt = callAmt;
+      baseCcy = callCcy;
+      baseCurveName = callCurveName + "_" + callCcy.getCode();
+      quoteAmt = putAmt;
+      quoteCcy = putCcy;
+      quoteCurveName = putCurveName + "_" + putCcy.getCode();
+    }
     final double strike = quoteAmt / baseAmt;
-    final Currency baseCcy = inOrder ? putCcy : callCcy;
-    final Currency quoteCcy = inOrder ? callCcy : putCcy; // This is the valuation currency in the (X,K) interpretation
-
-    final boolean isFxCall = !inOrder; // TODO Confirm that we ignore this information!!
+    final String[] baseQuoteCurveNames = new String[] {baseCurveName, quoteCurveName};
 
     // parameters to model binary as call/put spread
     final double oh = overhedge;
     final double width = strike * smoothingFullWidth;
-    final double size; // = (barrier - strike ) / smoothingFullWidth;
+    final double size;
 
     // There are four cases: UP and IN, UP and OUT, DOWN and IN, DOWN and OUT
     // Switch on direction: If UP, use Call Spreads. If DOWN, use Put spreads.
@@ -195,10 +225,12 @@ public class FXVanillaBarrierOptionBlackFunction extends FXOptionBlackSingleValu
     final PaymentFixedDefinition quoteCcyPayment = new PaymentFixedDefinition(quoteCcy, expiry, -1 * quoteAmt);
     final PaymentFixedDefinition baseCcyPayment = new PaymentFixedDefinition(baseCcy, expiry, baseAmt);
 
-    // For the binaries, we need to adjust the Forex Payments to match the formula: k = A2/A1.
-    // We do this by adjusting A2 = A1 * newStrike as A1 is the Notional in this interpretation
-    ForexDefinition fxFwdForNearStrike = new ForexDefinition(baseCcyPayment, new PaymentFixedDefinition(quoteCcy, expiry, -1 * nearStrike * baseAmt));
-    ForexDefinition fxFwdForFarStrike = new ForexDefinition(baseCcyPayment, new PaymentFixedDefinition(quoteCcy, expiry, -1 * farStrike * baseAmt));
+    // For the binaries, we need to adjust the Forex Payments to match the formulae: k = A2/A1, N = A1.
+    // We do this by adjusting A1' = size * A1; A2' = A1' * newStrike as A1 is the Notional in this interpretation
+    final double baseAmtForSpread = size * baseAmt;
+    final PaymentFixedDefinition baseCcyPmtForSpread = new PaymentFixedDefinition(baseCcy, expiry, baseAmtForSpread);
+    final ForexDefinition fxFwdForNearStrike = new ForexDefinition(baseCcyPmtForSpread, new PaymentFixedDefinition(quoteCcy, expiry, -1 * nearStrike * baseAmtForSpread));
+    final ForexDefinition fxFwdForFarStrike = new ForexDefinition(baseCcyPmtForSpread, new PaymentFixedDefinition(quoteCcy, expiry, -1 * farStrike * baseAmtForSpread));
 
     // Switch  on type
     switch (bInOut) {
@@ -206,23 +238,24 @@ public class FXVanillaBarrierOptionBlackFunction extends FXOptionBlackSingleValu
 
         ForexDefinition fxFwd = new ForexDefinition(baseCcyPayment, quoteCcyPayment);
         final ForexOptionVanillaDefinition longLinearK = new ForexOptionVanillaDefinition(fxFwd, expiry, useCallSpread, isLong);
-        vanillas.add(longLinearK);
+
+        vanillas.add(longLinearK.toDerivative(valTime, baseQuoteCurveNames));
         // Short a binary of size, barrier - strike. Modelled as call spread struck around strike + oh, with spread of 2*eps
         final ForexOptionVanillaDefinition shortNear = new ForexOptionVanillaDefinition(fxFwdForNearStrike, expiry, useCallSpread, !isLong);
         final ForexOptionVanillaDefinition longFar = new ForexOptionVanillaDefinition(fxFwdForFarStrike, expiry, useCallSpread, isLong);
-        vanillas.add(shortNear);
-        vanillas.add(longFar);
+        vanillas.add(shortNear.toDerivative(valTime, baseQuoteCurveNames));
+        vanillas.add(longFar.toDerivative(valTime, baseQuoteCurveNames));
         break;
       case KNOCK_IN:  // Long a linear at *barrier*, long a binary at barrier of size (barrier - strike)
 
-        ForexDefinition fxFwdForBarrier = new ForexDefinition(baseCcyPayment, new PaymentFixedDefinition(quoteCcy, expiry, -1*barrier*baseAmt));
+        ForexDefinition fxFwdForBarrier = new ForexDefinition(baseCcyPayment, new PaymentFixedDefinition(quoteCcy, expiry, -1 * barrier * baseAmt));
         final ForexOptionVanillaDefinition longLinearB = new ForexOptionVanillaDefinition(fxFwdForBarrier, expiry, useCallSpread, isLong);
-        vanillas.add(longLinearB);
+        vanillas.add(longLinearB.toDerivative(valTime, baseQuoteCurveNames));
         // Long a binary of size, barrier - strike. Modelled as call spread struck around strike + oh, with spread of 2*eps
         final ForexOptionVanillaDefinition longNear = new ForexOptionVanillaDefinition(fxFwdForNearStrike, expiry, useCallSpread, isLong);
         final ForexOptionVanillaDefinition shortFar = new ForexOptionVanillaDefinition(fxFwdForFarStrike, expiry, useCallSpread, !isLong);
-        vanillas.add(longNear);
-        vanillas.add(shortFar);
+        vanillas.add(longNear.toDerivative(valTime, baseQuoteCurveNames));
+        vanillas.add(shortFar.toDerivative(valTime, baseQuoteCurveNames));
         break;
       default:
         throw new OpenGammaRuntimeException("Encountered an EquityBarrierOption with unexpected BarrierDirection of: " + bUpDown);
