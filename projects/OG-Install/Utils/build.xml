@@ -7,6 +7,7 @@
     <pathelement path="Common" />
     <pathelement path="MainRunner" />
     <pathelement path="Service" />
+    <pathelement path="ServiceControl" />
     <pathelement path="Wait for Startup" />
   </path>
   
