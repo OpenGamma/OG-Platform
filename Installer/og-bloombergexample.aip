@@ -138,6 +138,9 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiServInstComponent">
     <ROW ServiceInstall="Service.exe" Name="BloombergExample" DisplayName="OpenGamma Bloomberg Example Engine" ServiceType="16" StartType="3" ErrorControl="1" Arguments="&quot;[bin_Dir]og-bloombergexample.ini&quot; BloombergExample" Component_="Service" Description="An OpenGamma engine server connected to Bloomberg market data"/>
   </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiShortsComponent">
+    <ROW Shortcut="ExampleEngineService" Directory_="M_START__Dir" Name="Bloomb~1|Bloomberg Example Engine Service" Component_="og_bloombergexample.jar" Target="[APPDIR]\bin\ServiceControl.exe" Arguments="BloombergExample" Description="Starts and stops the engine service" Hotkey="0" IconIndex="0" ShowCmd="1"/>
+  </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsmModuleDependencyComponent">
     <ROW RequiredID="Common.92192C01_228E_4B0B_9D23_68086A1B7449" RequiredLanguage="1033"/>
   </COMPONENT>

@@ -20,5 +20,5 @@ void CFeedback::OnDestroy () {
 }
 
 CFeedback::CFeedback (HINSTANCE hInstance)
-: CFeedbackWindow (hInstance, s_oTitle.GetString ()) {
+: CFeedbackWindow (HWND_DESKTOP, hInstance, s_oTitle.GetString ()) {
 }

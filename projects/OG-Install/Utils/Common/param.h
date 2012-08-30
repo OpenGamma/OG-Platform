@@ -15,6 +15,7 @@ public:
 	virtual ~CParam () { }
 	virtual int ProcessExplicit (int nArgs, PCSTR *ppszArgs);
 	virtual int ProcessImplied (int nArgs, PCSTR *ppszArgs) { return 0; }
+	PCSTR GetFlag () { return m_pszFlag; }
 };
 
 class CAbstractParamFlag : public CParam {

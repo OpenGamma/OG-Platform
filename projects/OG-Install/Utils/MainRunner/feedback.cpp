@@ -37,7 +37,7 @@ void CFeedback::OnDestroy () {
 }
 
 CFeedback::CFeedback (HINSTANCE hInstance)
-: CFeedbackWindow (hInstance, "OpenGamma Installation") {
+: CFeedbackWindow (HWND_DESKTOP, hInstance, "OpenGamma Installation") {
 }
 
 BOOL CFeedback::Connect (const CJavaVM *poJVM) {

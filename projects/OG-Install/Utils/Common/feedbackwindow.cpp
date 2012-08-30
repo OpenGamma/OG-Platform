@@ -47,14 +47,14 @@ LRESULT CALLBACK CFeedbackWindow::WndProc (HWND hwnd, UINT msg, WPARAM wp, LPARA
 	return 0L;
 }
 
-CFeedbackWindow::CFeedbackWindow (HINSTANCE hInstance, PCSTR pszTitle) {
+CFeedbackWindow::CFeedbackWindow (HWND hwndParent, HINSTANCE hInstance, PCSTR pszTitle) {
 	m_dwRefCount = 2; // Caller and the one embedded in the window
 	int nWidth, nHeight, nScreenWidth, nScreenHeight;
 	nScreenWidth = GetSystemMetrics (SM_CXSCREEN);
 	nScreenHeight = GetSystemMetrics (SM_CYSCREEN);
 	nWidth = GetSystemMetrics (SM_CXICON) * 12 + GetSystemMetrics (SM_CXDLGFRAME) * 2;
 	nHeight = GetSystemMetrics (SM_CYICON) * 3 + GetSystemMetrics (SM_CYDLGFRAME) * 2 + GetSystemMetrics (SM_CYCAPTION);
-	m_hwnd = CreateWindow (WINDOW_CLASS, pszTitle, WS_DLGFRAME | WS_SYSMENU, (nScreenWidth - nWidth) >> 1, (nScreenHeight - nHeight) >> 1, nWidth, nHeight, HWND_DESKTOP, NULL, hInstance, NULL);
+	m_hwnd = CreateWindow (WINDOW_CLASS, pszTitle, WS_DLGFRAME | WS_SYSMENU, (nScreenWidth - nWidth) >> 1, (nScreenHeight - nHeight) >> 1, nWidth, nHeight, hwndParent, NULL, hInstance, NULL);
 	SetWindowLongPtr (m_hwnd, GWLP_USERDATA, (LONG_PTR)this);
 	WNDCLASSEX wc;
 	ZeroMemory (&wc, sizeof (wc));
@@ -103,7 +103,7 @@ int CFeedbackWindow::DispatchMessages () {
 		TranslateMessage (&msg);
 		DispatchMessage (&msg);
 	}
-	return msg.wParam;
+	return (int)msg.wParam;
 }
 
 void CFeedbackWindow::OnClose () {
