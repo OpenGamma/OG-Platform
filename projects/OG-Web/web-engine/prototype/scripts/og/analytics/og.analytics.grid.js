@@ -65,24 +65,9 @@ $.register_module({
             return grid.formatter[type] ? grid.formatter[type](value) : value || '';
         };
         var init_data = function (grid, config) {
-            grid.alive = function () {return grid.$(grid.id).length ? true : !grid.elements.style.remove();};
-            grid.sparklines = !!config.sparklines;
-            grid.elements = {empty: true};
-            grid.id = '#analytics_grid_' + counter++;
-            grid.meta = null;
-            grid.resize = set_size.partial(grid, config);
-            grid.viewport = set_viewport.partial(grid);
-            grid.source = config.source;
             (grid.dataman = new og.analytics.Data(grid.source))
                 .on('meta', init_grid, grid, config)
                 .on('data', render_rows, grid);
-            grid.events = {cellselect: [], mousedown: [], rangeselect: [], render: [], scroll: [], select: []};
-            grid.on = function (type, handler) {
-                if (type in grid.events)
-                    grid.events[type].push({handler: handler, args: Array.prototype.slice.call(arguments, 2)});
-                return grid;
-            };
-            grid.formatter = new og.analytics.Formatter(grid);
             grid.on('render', function () {
                 grid.elements.main.find('.node').each(function (idx, val) {
                     var $node = $(this);
@@ -93,7 +78,7 @@ $.register_module({
                 if (!$target.is('.node')) return;
                 grid.meta.nodes[row = $target.attr('data-row')] = !grid.meta.nodes[row];
                 grid.resize().selector.clear();
-                return false;
+                return false; // kill bubbling if it's a node
             });
         };
         var init_elements = function (grid, config, elements) {
@@ -310,7 +295,23 @@ $.register_module({
             };
         })();
         return function (config, dollar) {
-            this.$ = dollar || $; // each grid holds a reference to its frame/window's $
+            var grid = this;
+            grid.$ = dollar || $; // each grid holds a reference to its frame/window's $
+            grid.alive = function () {return grid.$(grid.id).length ? true : !grid.elements.style.remove();};
+            grid.elements = {empty: true};
+            grid.events = {cellselect: [], mousedown: [], rangeselect: [], render: [], scroll: [], select: []};
+            grid.formatter = new og.analytics.Formatter(grid);
+            grid.id = '#analytics_grid_' + counter++;
+            grid.meta = null;
+            grid.on = function (type, handler) {
+                if (type in grid.events)
+                    grid.events[type].push({handler: handler, args: Array.prototype.slice.call(arguments, 2)});
+                return grid;
+            };
+            grid.resize = set_size.partial(grid, config);
+            grid.source = config.source;
+            grid.sparklines = !!config.sparklines;
+            grid.viewport = set_viewport.partial(grid);
             if (templates) init_data(this, config); else compile_templates(init_data.partial(this, config));
         };
     }
