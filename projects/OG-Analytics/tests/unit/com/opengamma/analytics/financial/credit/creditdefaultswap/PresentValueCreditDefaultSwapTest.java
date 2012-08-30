@@ -173,6 +173,8 @@ public class PresentValueCreditDefaultSwapTest {
 
   // -----------------------------------------------------------------------------------------------
 
+  // TODO : Move the calendar into a seperate TestCalendar class
+
   // Bespoke calendar class (have made this public - may want to change this)
   public static class MyCalendar implements Calendar {
 
@@ -187,6 +189,11 @@ public class PresentValueCreditDefaultSwapTest {
 
       // Custom bank holiday
       if (date.equals(LocalDate.of(2012, 8, 27))) {
+        return false;
+      }
+
+      // Custom bank holiday
+      if (date.equals(LocalDate.of(2012, 8, 28))) {
         return false;
       }
 
