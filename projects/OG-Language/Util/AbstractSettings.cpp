@@ -454,6 +454,8 @@ bool CAbstractSettings::Set (const TCHAR *pszKey, const TCHAR *pszValue) {
 #ifdef _WIN32
 	return RegistrySet (pszKey, pszValue) ? true : false;
 #else /* ifdef _WIN32 */
+	__unused (pszKey)
+	__unused (pszValue)
 	TODO (TEXT ("Not implemented"));
 	return false;
 #endif /* ifdef _WIN32 */

@@ -118,7 +118,7 @@ bool CTimeoutIO::BeginOverlapped (unsigned long timeout, bool bRead) {
 		}
 	}
 	if (IsClosed ()) {
-		m_oBlockedThread.Set (NULL);
+		m_oBlockedThread.Set (0);
 		LOGDEBUG (TEXT ("Already closed; no I/O operations available"));
 		SetLastError (ECANCELED);
 		return false;
@@ -135,7 +135,7 @@ bool CTimeoutIO::BeginOverlapped (unsigned long timeout, bool bRead) {
 		// I/O operation should complete without blocking
 		return true;
 	} else {
-		m_oBlockedThread.Set (NULL);
+		m_oBlockedThread.Set (0);
 		if (n == 0) {
 			// I/O operation shouldn't complete without blocking
 			SetLastError (ETIMEDOUT);
@@ -146,7 +146,7 @@ bool CTimeoutIO::BeginOverlapped (unsigned long timeout, bool bRead) {
 
 /// Complete an overlapped I/O operation.
 void CTimeoutIO::EndOverlapped () {
-	m_oBlockedThread.Set (NULL);
+	m_oBlockedThread.Set (0);
 }
 
 #endif /* ifdef _WIN32 */
@@ -397,7 +397,7 @@ bool CTimeoutIO::CancelLazyClose () {
 	LOGDEBUG (TEXT ("Cancelling lazy close (was ") << m_lLazyTimeout << TEXT ("ms)"));
 	m_lLazyTimeout = 0;
 #ifndef _WIN32
-	m_oBlockedThread.CompareAndSet (NULL, (CThread::INTERRUPTIBLE_HANDLE)-1);
+	m_oBlockedThread.CompareAndSet (0, (CThread::INTERRUPTIBLE_HANDLE)-1);
 #endif /* ifndef _WIN32 */
 	return true;
 }
