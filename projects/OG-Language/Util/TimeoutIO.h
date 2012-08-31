@@ -86,7 +86,7 @@ public:
 
 };
 
-// This is perhaps a dump place for this
+// This is perhaps a dumb place for this
 #ifndef _WIN32
 #include <apr-1/apr_time.h>
 #define GetTickCount()	((unsigned long)apr_time_as_msec (apr_time_now ()))
