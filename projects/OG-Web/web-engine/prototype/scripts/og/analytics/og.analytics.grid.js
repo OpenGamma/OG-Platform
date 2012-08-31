@@ -300,7 +300,6 @@ $.register_module({
             grid.alive = function () {return grid.$(grid.id).length ? true : !grid.elements.style.remove();};
             grid.elements = {empty: true};
             grid.events = {cellselect: [], mousedown: [], rangeselect: [], render: [], scroll: [], select: []};
-            grid.formatter = new og.analytics.Formatter(grid);
             grid.id = '#analytics_grid_' + counter++;
             grid.meta = null;
             grid.on = function (type, handler) {
@@ -308,6 +307,7 @@ $.register_module({
                     grid.events[type].push({handler: handler, args: Array.prototype.slice.call(arguments, 2)});
                 return grid;
             };
+            grid.formatter = new og.analytics.Formatter(grid);
             grid.resize = set_size.partial(grid, config);
             grid.source = config.source;
             grid.sparklines = !!config.sparklines;
