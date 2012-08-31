@@ -24,10 +24,11 @@ public class ViewportResultsJsonWriter {
 
   public static final String VERSION = "version";
 
-  private static final String VALUE_KEY = "v";
-  private static final String HISTORY_KEY = "h";
-  private static final String TYPE_KEY = "t";
+  private static final String VALUE = "v";
+  private static final String HISTORY = "h";
+  private static final String TYPE = "t";
   private static final String DATA = "data";
+  private static final String ERROR = "error";
 
   private final ResultsFormatter _formatter;
 
@@ -53,21 +54,24 @@ public class ViewportResultsJsonWriter {
         Collection<Object> history = cell.getHistory();
         Class<?> columnType = results.getColumnType(viewportColIndex++);
 
-        if (columnType == null || history != null) {
-          // if there is history or we need to send type info then we need to send an object, not just the value
+        if (columnType == null || history != null || cell.isError()) {
+          // if there is history, an error or we need to send type info then we need to send an object, not just the value
           Map<String, Object> valueMap = Maps.newHashMap();
-          valueMap.put(VALUE_KEY, formattedValue);
+          valueMap.put(VALUE, formattedValue);
           // if the the column type isn't known then send the type with the value
           if (columnType == null) {
             Class<?> cellValueClass = cellValue == null ? null : cellValue.getClass();
-            valueMap.put(TYPE_KEY, _formatter.getFormatType(cellValueClass).name());
+            valueMap.put(TYPE, _formatter.getFormatType(cellValueClass).name());
           }
           if (history != null) {
             List<Object> formattedHistory = Lists.newArrayListWithCapacity(history.size());
             for (Object historyValue : history) {
               formattedHistory.add(_formatter.formatForHistory(historyValue, cellValueSpec));
             }
-            valueMap.put(HISTORY_KEY, formattedHistory);
+            valueMap.put(HISTORY, formattedHistory);
+          }
+          if (cell.isError()) {
+            valueMap.put(ERROR, true);
           }
           rowResults.add(valueMap);
         } else {

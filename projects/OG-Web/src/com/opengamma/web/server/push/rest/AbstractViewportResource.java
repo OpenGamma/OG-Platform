@@ -52,7 +52,7 @@ public abstract class AbstractViewportResource {
   public abstract void delete();
 
   @GET
-  @Path("data")
+  @Path("data") // TODO get rid of this, no need for separate URL for getting data
   @Produces(MediaType.APPLICATION_JSON)
   public abstract ViewportResults getData();
 }

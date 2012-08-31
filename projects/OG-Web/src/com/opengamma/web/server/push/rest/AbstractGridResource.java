@@ -53,7 +53,7 @@ public abstract class AbstractGridResource {
    * @return The structure of the grid
    */
   @GET
-  @Path("grid")
+  @Path("grid") // TODO get rid of this, no need to have separate URL for the grid structure
   public abstract GridStructure getGridStructure();
 
   @POST

@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.List;
 
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.calcnode.MissingInput;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -157,6 +158,13 @@ public class ViewportResults {
      */
     /* package */ Collection<Object> getHistory() {
       return _history;
+    }
+
+    /**
+     * @return true if the cell's value couldn't be calculated because of an error
+     */
+    /* package */ boolean isError() {
+      return _value instanceof MissingInput;
     }
   }
 }
