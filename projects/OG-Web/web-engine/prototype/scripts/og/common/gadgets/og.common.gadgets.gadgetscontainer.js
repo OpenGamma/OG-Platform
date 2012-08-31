@@ -12,7 +12,7 @@ $.register_module({
             var initialized = false, loading, gadgets = [], container = this, selector = selector_prefix + pane,
                 class_prefix = selector_prefix.substring(1),
                 live_id, // active tab id
-                overflow = {}, // document offet of overflow panel
+                overflow = {}, // document offset of overflow panel
                 $overflow_panel; // panel that houses non visible tabs
             var extract_id = function (str) {return +str.replace(/^og\-tab\-(\d+)\s(?:.*)$/, '$1');};
             var extract_index = function (id) {
