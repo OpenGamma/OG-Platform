@@ -457,15 +457,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
         
         Subscription subscription = securityUniqueId2NewSubscription.get(securityUniqueId); 
         subscription.setHandle(handle);
-          
-        for (SubscriptionListener listener : _subscriptionListeners) {
-          try {
-            listener.subscribed(subscription);
-          } catch (RuntimeException e) {
-            s_logger.error("Listener " + listener + " subscribe failed", e);
-          }
-        }
-          
+         
         _currentlyActiveSubscriptions.add(subscription);
 
         if (subscription.getDistributionSpecifications().size() != 1) {
@@ -481,6 +473,9 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
         }
         
         s_logger.info("Created {}", subscription);
+        
+        notifySubscriptionListeners(subscription);
+        
       }
 
     } catch (RuntimeException e) {
@@ -501,10 +496,32 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     } finally {
       _subscriptionLock.unlock();
     }
+    
+    //notify that subscription data structure is completely built
+    subscriptionDone(securityUniqueId2NewSubscription.keySet());
 
     return responses;
   }
+
+  private void notifySubscriptionListeners(Subscription subscription) {
+    for (SubscriptionListener listener : _subscriptionListeners) {
+      try {
+        listener.subscribed(subscription);
+      } catch (RuntimeException e) {
+        s_logger.error("Listener " + listener + " subscribe failed", e);
+      }
+    }
+  }
   
+  /**
+   * Implement necessary data flow logic after subscription is completed
+   * 
+   * @param subscriptions the subscriptions, not null 
+   */
+  protected void subscriptionDone(Set<String> subscriptions) {
+    //Do nothing by default
+  }
+
   /**
    * Check that a subscription request is valid.
    * Will be called before any snapshot or subscribe requests for the keys
@@ -723,12 +740,18 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     if (!snapshots.isEmpty()) {
       try {
         responses.addAll(snapshot(snapshots));
-      } catch (Exception e) {
+      } catch (Exception ex) {
+        s_logger.error("Error obtaining snapshots for {}: {}", snapshots, ex.getMessage());
+        if (s_logger.isDebugEnabled()) {
+          s_logger.debug("Underlying exception in snapshot error " + snapshots, ex);
+        }
+        // REVIEW kirk 2012-07-20 -- This doesn't really look like an InternalError,
+        // but we have no way to discriminate in the response from doSnapshot at the moment.
         for (LiveDataSpecification requestedSpecification : snapshots) {
           responses.add(getErrorResponse(
               requestedSpecification, 
               LiveDataSubscriptionResult.INTERNAL_ERROR,
-              e.getMessage()));
+              "Problem obtaining snapshot: " + ex.getMessage()));
         }
       }
     }

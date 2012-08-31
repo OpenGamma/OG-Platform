@@ -15,7 +15,6 @@ import com.opengamma.component.tool.ToolContextUtils;
 import com.opengamma.examples.DBTestUtils;
 import com.opengamma.examples.loader.ExampleEquityPortfolioLoader;
 import com.opengamma.examples.loader.ExampleMultiAssetPortfolioLoader;
-import com.opengamma.examples.loader.ExampleSwapPortfolioLoader;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
@@ -50,7 +49,6 @@ public class ExampleDatabasePopulatorTest {
     try {
       assertMultiAssetPortfolio(toolContext);
       assertEquityPortfolio(toolContext);
-      assertSwapPortfolio(toolContext);
       assertMultiCurrencySwapPortfolio(toolContext);
       
     } finally {
@@ -69,11 +67,6 @@ public class ExampleDatabasePopulatorTest {
   private void assertEquityPortfolio(ToolContext toolContext) {
     PortfolioMaster portfolioMaster = toolContext.getPortfolioMaster();
     assertPortfolio(portfolioMaster, ExampleEquityPortfolioLoader.PORTFOLIO_NAME);
-  }
-
-  private void assertSwapPortfolio(ToolContext toolContext) {
-    PortfolioMaster portfolioMaster = toolContext.getPortfolioMaster();
-    assertPortfolio(portfolioMaster, ExampleSwapPortfolioLoader.PORTFOLIO_NAME);
   }
 
   private void assertMultiCurrencySwapPortfolio(ToolContext toolContext) {

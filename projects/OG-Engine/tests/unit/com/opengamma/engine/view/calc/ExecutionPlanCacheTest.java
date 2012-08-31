@@ -211,7 +211,7 @@ public class ExecutionPlanCacheTest {
   }
 
   public void testCache_identity() {
-    final ExecutionPlanCache cache = new ExecutionPlanCache(EHCacheUtils.createCacheManager(), 1);
+    final ExecutionPlanCache cache = new ExecutionPlanCache(EHCacheUtils.createCacheManager());
     final DependencyGraph graph = createDependencyGraph();
     final ExecutionPlan plan = createExecutionPlan();
     cache.cachePlan(graph, 0, plan);
@@ -225,7 +225,7 @@ public class ExecutionPlanCacheTest {
   }
 
   public void testCache_key() {
-    final ExecutionPlanCache cache = new ExecutionPlanCache(EHCacheUtils.createCacheManager(), 1);
+    final ExecutionPlanCache cache = new ExecutionPlanCache(EHCacheUtils.createCacheManager());
     final ExecutionPlan plan = createExecutionPlan();
     cache.cachePlan(createDependencyGraph(), 0, plan);
     final ExecutionPlan cached = cache.getCachedPlan(createDependencyGraph(), 0);
@@ -233,7 +233,7 @@ public class ExecutionPlanCacheTest {
   }
 
   public void testCache_identity_invalid() {
-    final ExecutionPlanCache cache = new ExecutionPlanCache(EHCacheUtils.createCacheManager(), 1);
+    final ExecutionPlanCache cache = new ExecutionPlanCache(EHCacheUtils.createCacheManager());
     final DependencyGraph graph = createDependencyGraph();
     final ExecutionPlan plan = createExecutionPlan();
     cache.cachePlan(graph, 0, plan);

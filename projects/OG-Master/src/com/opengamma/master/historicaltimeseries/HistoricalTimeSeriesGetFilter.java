@@ -45,7 +45,6 @@ public class HistoricalTimeSeriesGetFilter extends DirectBean {
   @PropertyDefinition(set = "manual")
   private VersionCorrection _versionCorrection = VersionCorrection.LATEST;
   /**
-  /**
    * The earliest date to return, inclusive, null means far past.
    */
   @PropertyDefinition

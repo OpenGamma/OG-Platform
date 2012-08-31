@@ -17,7 +17,8 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * 
  */
-public class ParRateNodeSensitivityCalculator extends NodeSensitivityCalculator {
+public class ParRateNodeSensitivityCalculator extends NodeYieldSensitivityCalculator {
+
   private static final ParRateNodeSensitivityCalculator DEFAULT_INSTANCE = new ParRateNodeSensitivityCalculator();
 
   public static ParRateNodeSensitivityCalculator getDefaultInstance() {

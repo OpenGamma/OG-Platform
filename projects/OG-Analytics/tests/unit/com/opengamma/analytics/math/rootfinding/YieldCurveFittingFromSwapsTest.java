@@ -35,7 +35,6 @@ import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolat
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.analytics.math.rootfinding.VectorRootFinder;
 import com.opengamma.analytics.math.rootfinding.YieldCurveFittingTestDataBundle.TestType;
 import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.analytics.math.rootfinding.newton.NewtonDefaultVectorRootFinder;
@@ -202,7 +201,7 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
 
     for (int i = 0; i < n; i++) {
       forwards[i] = 0.01 + curveKnots[i] * 0.002;// start with upward sloping
-                                                 // forward curve
+      // forward curve
     }
 
     MultipleYieldCurveFinderDataBundle dataBundle = data;
@@ -362,7 +361,7 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
     }
 
     final YieldCurveFittingTestDataBundle data = getYieldCurveFittingTestDataBundle(instruments, knownCurves, curveNames, curveKnots, extrapolator,
-        marketValueCalculator, marketValueSensitivityCalculator, marketValues, startPosition, yields, false);
+        marketValueCalculator, marketValueSensitivityCalculator, marketValues, startPosition, yields, false, FX_MATRIX);
 
     return data;
   }

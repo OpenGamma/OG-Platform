@@ -22,12 +22,14 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.analytics.volatility.cube.AggregatingVolatilityCubeDefinitionSource;
 import com.opengamma.financial.analytics.volatility.cube.BloombergVolatilityCubeDefinitionSource;
 import com.opengamma.financial.analytics.volatility.cube.ConfigDBVolatilityCubeDefinitionSource;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.analytics.volatility.cube.rest.DataVolatilityCubeDefinitionSourceResource;
+import com.opengamma.financial.analytics.volatility.cube.rest.RemoteVolatilityCubeDefinitionSource;
 
 /**
  * Component factory providing the {@code VolatilityCubeDefinitionSource}.
@@ -60,6 +62,9 @@ public class VolatilityCubeDefinitionSourceComponentFactory extends AbstractComp
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
     ComponentInfo info = new ComponentInfo(VolatilityCubeDefinitionSource.class, getClassifier());
+    info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteVolatilityCubeDefinitionSource.class);
+    
     VolatilityCubeDefinitionSource base = new ConfigDBVolatilityCubeDefinitionSource(getConfigSource());
     if (isBloomberg()) {
       VolatilityCubeDefinitionSource bbg = new BloombergVolatilityCubeDefinitionSource();

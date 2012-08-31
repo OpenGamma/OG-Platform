@@ -42,7 +42,7 @@ public class AsayMarginedFutureOptionModelFunction extends BlackScholesMertonMod
       throw new NullPointerException("No spot value for underlying instrument.");
     }
     final double spot = spotAsObject;
-    final YieldAndDiscountCurve curve = new YieldCurve(ConstantDoublesCurve.from(0.));
+    final YieldAndDiscountCurve curve = YieldCurve.from(ConstantDoublesCurve.from(0.));
     final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(ValueRequirementNames.VOLATILITY_SURFACE);
     final double b = 0;
     return new StandardOptionDataBundle(curve, b, volatilitySurface, spot, now);

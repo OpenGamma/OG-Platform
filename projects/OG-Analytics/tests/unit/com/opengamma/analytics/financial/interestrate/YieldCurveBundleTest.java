@@ -13,7 +13,6 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
@@ -28,9 +27,9 @@ public class YieldCurveBundleTest {
   private static final YieldCurveBundle BUNDLE;
 
   static {
-    CURVES[0] = new YieldCurve(ConstantDoublesCurve.from(0.03));
-    CURVES[1] = new YieldCurve(ConstantDoublesCurve.from(0.04));
-    CURVES[2] = new YieldCurve(ConstantDoublesCurve.from(0.05));
+    CURVES[0] = YieldCurve.from(ConstantDoublesCurve.from(0.03));
+    CURVES[1] = YieldCurve.from(ConstantDoublesCurve.from(0.04));
+    CURVES[2] = YieldCurve.from(ConstantDoublesCurve.from(0.05));
     for (int i = 0; i < 3; i++) {
       MAP.put(NAMES[i], CURVES[i]);
     }

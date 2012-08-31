@@ -11,7 +11,8 @@ import com.opengamma.analytics.math.minimization.SumToOne;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * If a PDF is constructed as the weighted sum of log-normal distributions, then a European option price is give by the weighted sum of Black prices (with different volatilities and
+ * (potentially) different forwards). Sufficiently many log-normal distributions can reproduce any PDE and therefore any arbitrage free smile.
  */
 public class MixedLogNormalModelData implements SmileModelData {
 
@@ -31,10 +32,25 @@ public class MixedLogNormalModelData implements SmileModelData {
   //are 3n-2 free parameters (or 2n-1 in the case that the partial forwards are all fixed to one)
   private final double[] _parameters;
 
+  /**
+   * Set up a mixed log-normal model with the means of the distributions all the same value
+   * @param parameters The 2n-1 parameters (where n is the number of normals) in order as: sigma_0, deltaSigma_1....deltaSigma_{n-1}, theta_1...theta_{n-1} where sigma_0
+   *  is the lowest volatility state, and the volatility of state i, sigma_i = sigma_{i-1} + deltaSigma_i, so the volatility states are strictly increasing (with  deltaSigma_i > 0).
+   * The angles theta encode the weights 
+   *  (via the SumToOne class). 
+   */
   public MixedLogNormalModelData(final double[] parameters) {
     this(parameters, true);
   }
 
+  /**
+   * Set up a mixed log-normal model with option to have distributions with different means 
+   * @param parameters The 2n-1 or 3n-2 parameters (where n is the number of normals) depending on weather useShiftedMeans is false or true. The parameters in order as:
+   * sigma_0, deltaSigma_1....deltaSigma_{n-1}, theta_1...theta_{n-1}, phi_1...phi_{n-1}
+   * where sigma_0 is the lowest volatility state, and the volatility of state i, sigma_i = sigma_{i-1} + deltaSigma_i, so the volatility states are strictly increasing
+   * (with deltaSigma_i > 0). The angles theta encode the weights (via the SumToOne class) and the angles phi encode the partial forwards (if they are used).
+   * @param useShiftedMeans If true the distributions can have different means (and 3n-2 parameters must be supplied), otherwise they are all the same (and 2n-1 parameters must be supplied)
+   */
   public MixedLogNormalModelData(final double[] parameters, final boolean useShiftedMeans) {
     ArgumentChecker.notNull(parameters, "parameters");
     _nParams = parameters.length;
@@ -91,6 +107,11 @@ public class MixedLogNormalModelData implements SmileModelData {
     }
   }
 
+  /**
+   * Set up a mixed log-normal model with the means of the distributions all the same value
+   * @param weights The weights  <b>These weights must sum to 1</b> 
+   * @param sigmas The standard deviation of the log of the distributions 
+   */
   public MixedLogNormalModelData(final double[] weights, final double[] sigmas) {
     ArgumentChecker.notNull(sigmas, "null sigmas");
     ArgumentChecker.notNull(weights, "null weights");
@@ -124,6 +145,13 @@ public class MixedLogNormalModelData implements SmileModelData {
     System.arraycopy(theta, 0, _parameters, n, n - 1);
   }
 
+  /**
+   * Set up a mixed log-normal model with the means of the distributions can take different values 
+   * @param weights The weights  <b>These weights must sum to 1</b> 
+   * @param sigmas The standard deviation of the log of the distributions 
+   * @param relativePartialForwards The expectation of each distribution is rpf_i*forward (rpf_i is the ith relativePartialForwards)
+   * <b>Must have sum w_i*rpf_i = 1.0</b>
+   */
   public MixedLogNormalModelData(final double[] weights, final double[] sigmas, final double[] relativePartialForwards) {
     _shiftedMeans = true;
     ArgumentChecker.notNull(sigmas, "null sigmas");
@@ -288,7 +316,5 @@ public class MixedLogNormalModelData implements SmileModelData {
   public String toString() {
     return "MixedLogNormalModelData [_sigmas=" + Arrays.toString(_sigmas) + ", _w=" + Arrays.toString(_w) + ", _f=" + Arrays.toString(_f) + "]";
   }
-
-
 
 }

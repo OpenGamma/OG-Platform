@@ -89,16 +89,16 @@ public class SimpleFuturePresentValueFunction extends AbstractFunction.NonCompil
   }
 
   @Override
-  public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
-    final Security security = (Security) target.getSecurity();
+    final Security security = target.getSecurity();
     return security instanceof EnergyFutureSecurity || security instanceof MetalFutureSecurity || security instanceof IndexFutureSecurity;
   }
 
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = createValueProperties()
         .with(ValuePropertyNames.CURVE, _curveName)
         .with(ValuePropertyNames.CURRENCY, ((FutureSecurity) target.getSecurity()).getCurrency().getCode()).get();
@@ -106,7 +106,7 @@ public class SimpleFuturePresentValueFunction extends AbstractFunction.NonCompil
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final FutureSecurity future = (FutureSecurity) target.getSecurity();
     final ExternalId underlyingIdentifier = getUnderlyingIdentifier(future);
     final ValueRequirement yieldCurve = YieldCurveFunction.getCurveRequirement(future.getCurrency(), _curveName, null, null);

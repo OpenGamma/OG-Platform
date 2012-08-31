@@ -12,7 +12,6 @@ import java.util.Set;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -149,12 +148,17 @@ import com.opengamma.util.ehcache.EHCacheUtils;
    */
   private final Map<DependencyGraph, DependencyGraphKey> _identityLookup = new MapMaker().weakKeys().makeMap();
 
-  public ExecutionPlanCache(final CacheManager manager, final int cacheSize) {
-    if (cacheSize > 0) {
-      EHCacheUtils.addCache(manager, CACHE_NAME, cacheSize, MemoryStoreEvictionPolicy.LRU, false, null, true, 1800, 300, false, 0, null);
-      _cache = EHCacheUtils.getCacheFromManager(manager, CACHE_NAME);
-    } else {
+  /**
+   * Constructs an instance.
+   * 
+   * @param manager  the cache manager from which to obtain the execution plan cache, null not to use caching.
+   */
+  public ExecutionPlanCache(final CacheManager manager) {
+    if (manager == null) {
       _cache = null;
+    } else {
+      EHCacheUtils.addCache(manager, CACHE_NAME);
+      _cache = EHCacheUtils.getCacheFromManager(manager, CACHE_NAME);
     }
   }
 

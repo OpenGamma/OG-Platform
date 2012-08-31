@@ -11,6 +11,8 @@ import java.util.Set;
 import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.core.change.BasicChangeManager;
+import com.opengamma.core.change.ChangeManager;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +61,7 @@ public class MasterHistoricalTimeSeriesSource
    * The clock.
    */
   private final Clock _clock = OpenGammaClock.getInstance();
+
 
   /**
    * Creates an instance with an underlying master which does not override versions.
@@ -476,6 +479,12 @@ public class MasterHistoricalTimeSeriesSource
       s_logger.warn("Cannot find time series info document, or info field is null, or id bundle is null, returning null");
       return null;
     }
+  }
+
+    //-------------------------------------------------------------------------
+  @Override
+  public ChangeManager changeManager() {
+    return getMaster().changeManager();
   }
 
 }

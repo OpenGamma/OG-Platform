@@ -38,7 +38,7 @@ public class ForwardStartOptionDefinitionTest {
   private static final ForwardStartOptionDefinition ITM_PUT = new ForwardStartOptionDefinition(EXPIRY, false, START, PERCENT, Moneyness.ITM);
   private static final ForwardStartOptionDefinition OTM_CALL = new ForwardStartOptionDefinition(EXPIRY, true, START, PERCENT, Moneyness.OTM);
   private static final ForwardStartOptionDefinition OTM_PUT = new ForwardStartOptionDefinition(EXPIRY, false, START, PERCENT, Moneyness.OTM);
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.03)), 0, new VolatilitySurface(ConstantDoublesSurface.from(0.2)), SPOT,
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(YieldCurve.from(ConstantDoublesCurve.from(0.03)), 0, new VolatilitySurface(ConstantDoublesSurface.from(0.2)), SPOT,
       DATE);
 
   @Test(expectedExceptions = IllegalArgumentException.class)

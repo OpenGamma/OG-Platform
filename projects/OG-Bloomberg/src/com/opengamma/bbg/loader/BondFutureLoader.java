@@ -22,6 +22,7 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_ID_ISIN;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_MIC_PRIM_EXCH;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_SEDOL1;
 import static com.opengamma.bbg.BloombergConstants.FIELD_PARSEKYABLE_DES;
+import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_CONT_SIZE;
 import static com.opengamma.bbg.util.BloombergDataUtils.isValidField;
 
 import java.util.Collections;
@@ -73,7 +74,8 @@ public class BondFutureLoader extends SecurityLoader {
       FIELD_ID_ISIN,
       FIELD_ID_SEDOL1,
       FIELD_PARSEKYABLE_DES,
-      FIELD_FUT_VAL_PT));
+      FIELD_FUT_VAL_PT,
+      FIELD_FUT_CONT_SIZE));
   
   /**
    * The valid Bloomberg future categories for Bond Futures
@@ -100,10 +102,8 @@ public class BondFutureLoader extends SecurityLoader {
     String lastDeliveryDateStr = fieldData.getString(FIELD_FUT_DLV_DT_LAST);
     String name = BloombergDataUtils.removeDuplicateWhiteSpace(fieldData.getString(FIELD_FUT_LONG_NAME), " ");
     String bbgUnique = fieldData.getString(FIELD_ID_BBG_UNIQUE);
-    double unitAmount;
-    try {
-      unitAmount = Double.valueOf(fieldData.getString(FIELD_FUT_VAL_PT));
-    } catch (NumberFormatException ex) {
+    Double unitAmount = fieldData.getDouble(FIELD_FUT_CONT_SIZE);
+    if (!fieldData.hasField(FIELD_FUT_CONT_SIZE) || unitAmount == null) {
       s_logger.warn("FIELD_FUT_VAL_PT does not contain a numeric value (" + fieldData.getString(FIELD_FUT_VAL_PT) + ")");
       return null;
     }

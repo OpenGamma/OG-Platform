@@ -11,7 +11,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.interestrate.HoLeeInterestRateModel;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.interestrate.definition.StandardDiscountBondModelDataBundle;
@@ -29,7 +28,7 @@ public class HoLeeInterestRateModelTest {
   private static final ZonedDateTime START = DateUtils.getUTCDate(2011, 7, 1);
   private static final ZonedDateTime MATURITY = DateUtils.getDateOffsetWithYearFraction(START, 10);
   private static final double IR = 0.05;
-  private static final YieldAndDiscountCurve R = new YieldCurve(ConstantDoublesCurve.from(IR));
+  private static final YieldAndDiscountCurve R = YieldCurve.from(ConstantDoublesCurve.from(IR));
   private static final double VOL = 0.1;
   private static final VolatilityCurve SIGMA = new VolatilityCurve(ConstantDoublesCurve.from(VOL));
   private static final StandardDiscountBondModelDataBundle DATA = new StandardDiscountBondModelDataBundle(R, SIGMA, TODAY);
@@ -53,9 +52,9 @@ public class HoLeeInterestRateModelTest {
   public void test() {
     final double eps = 1e-9;
     assertEquals(MODEL.getDiscountBondFunction(START, START).evaluate(DATA), 1, 0);
-    StandardDiscountBondModelDataBundle data = new StandardDiscountBondModelDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.)), new VolatilityCurve(ConstantDoublesCurve.from(0)), TODAY);
+    StandardDiscountBondModelDataBundle data = new StandardDiscountBondModelDataBundle(YieldCurve.from(ConstantDoublesCurve.from(0.)), new VolatilityCurve(ConstantDoublesCurve.from(0)), TODAY);
     assertEquals(MODEL.getDiscountBondFunction(START, MATURITY).evaluate(data), 1, 0);
-    data = new StandardDiscountBondModelDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.)), SIGMA, TODAY);
+    data = new StandardDiscountBondModelDataBundle(YieldCurve.from(ConstantDoublesCurve.from(0.)), SIGMA, TODAY);
     assertEquals(MODEL.getDiscountBondFunction(START, MATURITY).evaluate(data), Math.exp(-0.5 * VOL * VOL * YEARS * YEARS), 0);
     data = new StandardDiscountBondModelDataBundle(R, new VolatilityCurve(ConstantDoublesCurve.from(0)), TODAY);
     assertEquals(MODEL.getDiscountBondFunction(START, MATURITY).evaluate(data), Math.exp(-IR * YEARS), eps);

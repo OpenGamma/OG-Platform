@@ -14,7 +14,7 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 /**
  * Defines a constant curve (i.e. a curve with <i>y = constant</i>)
  */
-public class ConstantDoublesCurve extends Curve<Double, Double> {
+public class ConstantDoublesCurve extends DoublesCurve {
 
   /**
    * @param y Level of the curve
@@ -81,6 +81,11 @@ public class ConstantDoublesCurve extends Curve<Double, Double> {
     return _y;
   }
 
+  @Override
+  public Double[] getYValueParameterSensitivity(Double x) {
+    return new Double[] {1.0d};
+  }
+
   /**
    * 
    * @param x An array of <i>x</i> values, not null
@@ -93,18 +98,6 @@ public class ConstantDoublesCurve extends Curve<Double, Double> {
     final double[] y = new double[x.length];
     Arrays.fill(y, _y);
     return InterpolatedDoublesCurve.from(x, y, interpolator);
-  }
-
-  /**
-   * 
-   * @param x An array of <i>x</i> values, not null
-   * @return A nodal curve with constant value
-   */
-  public NodalDoublesCurve toNodalDoublesCurve(final double[] x) {
-    Validate.notNull(x, "x");
-    final double[] y = new double[x.length];
-    Arrays.fill(y, _y);
-    return NodalDoublesCurve.from(x, y);
   }
 
   /**

@@ -39,7 +39,10 @@ import com.opengamma.util.time.DateUtils;
  * @author yomi
  */
 public class TicksLoaderJob extends TerminatableJob {
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(TicksLoaderJob.class);
+
   private static final FudgeContext s_fudgeContext = new FudgeContext();
   
   private final String _rootDir;

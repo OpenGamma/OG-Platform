@@ -10,7 +10,6 @@ import java.util.Collections;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,10 +29,10 @@ import com.opengamma.util.ehcache.EHCacheUtils;
  */
 public class BloombergRateClassifier {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergRateClassifier.class);
-  
+
   private static final String CACHE_KEY = "bbg-classifier-cache";
-  private static final int CACHE_SIZE = 10000;
   
   private final SecurityTypeResolver _securityTypeResolver;
   private final Cache _cache;
@@ -48,7 +47,7 @@ public class BloombergRateClassifier {
     ArgumentChecker.notNull(referenceDataProvider, "referenceDataProvider");
     ArgumentChecker.notNull(cacheManager, "cacheManager");
     _securityTypeResolver = new BloombergSecurityTypeResolver(referenceDataProvider);
-    EHCacheUtils.addCache(cacheManager, CACHE_KEY, CACHE_SIZE, MemoryStoreEvictionPolicy.LRU, false, null, true, 0, 0, false, 0, null);
+    EHCacheUtils.addCache(cacheManager, CACHE_KEY);
     _cache = EHCacheUtils.getCacheFromManager(cacheManager, CACHE_KEY);
   }
   
@@ -92,9 +91,12 @@ public class BloombergRateClassifier {
         return 10000;
       case BILL:
       case CASH:
+      case CREDIT_DEFAULT_SWAP:
       case FRA:
       case INTEREST_RATE_FUTURE:
+      case BOND_FUTURE:
       case IR_FUTURE_OPTION:
+      case BOND_FUTURE_OPTION:
       case RATE:
       case SWAP:
       case VOLATILITY_QUOTE:

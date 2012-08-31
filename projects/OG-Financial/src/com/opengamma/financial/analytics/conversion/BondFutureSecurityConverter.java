@@ -9,8 +9,6 @@ import java.util.List;
 
 import javax.time.calendar.ZonedDateTime;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
@@ -19,6 +17,7 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
 import com.opengamma.financial.security.future.BondFutureSecurity;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * FIXME CASE - BondFutureDefinition needs a reference price. Without a trade, where will it come from?
@@ -28,15 +27,15 @@ public class BondFutureSecurityConverter extends AbstractFutureSecurityVisitor<I
   private final BondSecurityConverter _bondConverter;
 
   public BondFutureSecurityConverter(final SecuritySource securitySource, final BondSecurityConverter bondConverter) {
-    Validate.notNull(securitySource, "security source");
-    Validate.notNull(bondConverter, "bond converter");
+    ArgumentChecker.notNull(securitySource, "security source");
+    ArgumentChecker.notNull(bondConverter, "bond converter");
     _securitySource = securitySource;
     _bondConverter = bondConverter;
   }
 
   @Override
-  public InstrumentDefinition<?> visitBondFutureSecurity(final BondFutureSecurity bondFuture) {
-    Validate.notNull(bondFuture);
+  public BondFutureDefinition visitBondFutureSecurity(final BondFutureSecurity bondFuture) {
+    ArgumentChecker.notNull(bondFuture, "security");
     final ZonedDateTime tradingLastDate = bondFuture.getExpiry().getExpiry();
     final ZonedDateTime noticeFirstDate = bondFuture.getFirstDeliveryDate();
     final ZonedDateTime noticeLastDate = bondFuture.getLastDeliveryDate();

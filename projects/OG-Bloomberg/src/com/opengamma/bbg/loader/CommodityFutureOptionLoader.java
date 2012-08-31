@@ -5,7 +5,25 @@
  */
 package com.opengamma.bbg.loader;
 
-import static com.opengamma.bbg.BloombergConstants.*;
+import static com.opengamma.bbg.BloombergConstants.BBG_BASE_METAL_TYPE;
+import static com.opengamma.bbg.BloombergConstants.BBG_COAL;
+import static com.opengamma.bbg.BloombergConstants.BBG_CRUDE_OIL;
+import static com.opengamma.bbg.BloombergConstants.BBG_ELECTRICITY;
+import static com.opengamma.bbg.BloombergConstants.BBG_PRECIOUS_METAL_TYPE;
+import static com.opengamma.bbg.BloombergConstants.BBG_REFINED_PRODUCTS;
+import static com.opengamma.bbg.BloombergConstants.BBG_WHEAT;
+import static com.opengamma.bbg.BloombergConstants.FIELD_EXCH_CODE;
+import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_VAL_PT;
+import static com.opengamma.bbg.BloombergConstants.FIELD_ID_BBG_UNIQUE;
+import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_EXERCISE_TYP;
+import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_EXPIRE_DT;
+import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_PUT_CALL;
+import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_STRIKE_PX;
+import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_UNDERLYING_SECURITY_DES;
+import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_UNDL_CRNCY;
+import static com.opengamma.bbg.BloombergConstants.FIELD_PARSEKYABLE_DES;
+import static com.opengamma.bbg.BloombergConstants.FIELD_TICKER;
+import static com.opengamma.bbg.BloombergConstants.FIELD_UNDL_ID_BB_UNIQUE;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -82,7 +100,7 @@ public class CommodityFutureOptionLoader extends SecurityLoader {
     String exchangeCode = fieldData.getString(FIELD_EXCH_CODE);
     String optionExerciseType = fieldData.getString(FIELD_OPT_EXERCISE_TYP);
     double optionStrikePrice = fieldData.getDouble(FIELD_OPT_STRIKE_PX); // Bloomberg data in percent.
-    double pointValue = fieldData.getDouble(FIELD_OPT_VAL_PT);
+    double pointValue = fieldData.getDouble(FIELD_FUT_VAL_PT);
     String putOrCall = fieldData.getString(FIELD_OPT_PUT_CALL);
     String underlingTicker = fieldData.getString(FIELD_OPT_UNDERLYING_SECURITY_DES);
     String currency = fieldData.getString(FIELD_OPT_UNDL_CRNCY);

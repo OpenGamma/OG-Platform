@@ -108,16 +108,28 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
   @Override
   protected FunctionExecutionContext createObject() {
     FunctionExecutionContext context = new FunctionExecutionContext();
-    context.setSecuritySource(_securitySource);
-    context.setPortfolioStructure(new PortfolioStructure(_positionSource));
-    OpenGammaExecutionContext.setHistoricalTimeSeriesSource(context, _historicalTimeSeriesSource);
-    OpenGammaExecutionContext.setRegionSource(context, _regionSource);
-    OpenGammaExecutionContext.setExchangeSource(context, _exchangeSource);
-    OpenGammaExecutionContext.setHolidaySource(context, _holidaySource);
-    OpenGammaExecutionContext.setConventionBundleSource(context, _conventionBundleSource);
-    OpenGammaExecutionContext.setConfigSource(context, _configSource);
-    if (_overrideOperationCompiler != null) {
-      OpenGammaExecutionContext.setOverrideOperationCompiler(context, _overrideOperationCompiler);
+    context.setSecuritySource(getSecuritySource());
+    context.setPortfolioStructure(new PortfolioStructure(getPositionSource()));
+    if (getHistoricalTimeSeriesSource() != null) {
+      OpenGammaExecutionContext.setHistoricalTimeSeriesSource(context, getHistoricalTimeSeriesSource());
+    }
+    if (getRegionSource() != null) {
+      OpenGammaExecutionContext.setRegionSource(context, getRegionSource());
+    }
+    if (getExchangeSource() != null) {
+      OpenGammaExecutionContext.setExchangeSource(context, getExchangeSource());
+    }
+    if (getHolidaySource() != null) {
+      OpenGammaExecutionContext.setHolidaySource(context, getHolidaySource());
+    }
+    if (getConventionBundleSource() != null) {
+      OpenGammaExecutionContext.setConventionBundleSource(context, getConventionBundleSource());
+    }
+    if (getConfigSource() != null) {
+      OpenGammaExecutionContext.setConfigSource(context, getConfigSource());
+    }
+    if (getOverrideOperationCompiler() != null) {
+      OpenGammaExecutionContext.setOverrideOperationCompiler(context, getOverrideOperationCompiler());
     }
     return context;
   }

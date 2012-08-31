@@ -51,9 +51,11 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = "integration")
 public class RemoteBloombergSecuritySourceWithActiveMQTest {
+
   private static final String APV_EQUITY_OPTION_TICKER = "APV US 1 C190 Equity";
   private static final String SPX_INDEX_OPTION_TICKER = "SPX 12 C1100 Index";
   private static final String AAPL_EQUITY_TICKER = "AAPL US Equity";
@@ -105,9 +107,6 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
     }
   }
 
-  /**
-   * 
-   */
   private void assertServerSpringConfig() {
     PropertyPlaceholderConfigurer propConfigurer = (PropertyPlaceholderConfigurer) _serverContext
         .getBean("propertyConfigurer");
@@ -116,9 +115,8 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
     BloombergReferenceDataProvider refDataProvider = (BloombergReferenceDataProvider) _serverContext
         .getBean("refDataProvider");
     assertNotNull(refDataProvider);
-    assertNotNull(refDataProvider.getSessionOptions());
-    assertNotNull(refDataProvider.getSessionOptions().getServerHost());
-
+    assertNotNull(refDataProvider.getBloombergConnector());
+    
     CachingReferenceDataProvider cachingProvider = (CachingReferenceDataProvider) _serverContext
         .getBean("cachingRefDataProvider");
     assertNotNull(cachingProvider);
@@ -148,12 +146,8 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
     assertSame(factory, jmsContainer.getConnectionFactory());
     assertEquals("refDataRequestQueue", jmsContainer.getDestinationName());
     assertFalse(jmsContainer.isPubSubDomain());
-
   }
 
-  /**
-   * 
-   */
   private void assertClientSpringConfig() {
     PropertyPlaceholderConfigurer propConfigurer = (PropertyPlaceholderConfigurer) _serverContext
         .getBean("propertyConfigurer");
@@ -179,6 +173,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
     assertNotNull(remoteSecurityMaster);
   }
 
+  //-------------------------------------------------------------------------
   // @Test
   // @Ignore("Because this contacts Bloomberg, we don't want to run all the time")
   // public void getSecurityType() throws Exception {
@@ -449,9 +444,6 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
     assertFalse(optionChain.isEmpty());
   }
 
-  /**
-   * @return
-   */
   private EquityIndexOptionSecurity makeSPXIndexOptionSecurity(boolean haveBbgTicker) {
     OptionType optionType = OptionType.CALL;
     double strike = 1100.0;
@@ -471,9 +463,6 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
     return security;
   }
 
-  /**
-   * @return
-   */
   private EquityOptionSecurity makeAPVLEquityOptionSecurity(
       boolean haveBbgTicker) {
     OptionType optionType = OptionType.CALL;
@@ -496,9 +485,6 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
     return security;
   }
 
-  /**
-   * @return
-   */
   private EquitySecurity makeAAPLEquitySecurity(boolean haveBbgTicker) {
     EquitySecurity equitySecurity = new EquitySecurity("US", "US", "APPLE INC", Currency.USD);
     if (haveBbgTicker) {
@@ -520,9 +506,6 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
     return equitySecurity;
   }
 
-  /**
-   * @return
-   */
   private EquitySecurity makeATTEquitySecurity(boolean haveBbgTicker) {
     EquitySecurity equitySecurity = new EquitySecurity("US", "US", "AT&T INC", Currency.USD);
     
@@ -544,11 +527,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
     return equitySecurity;
   }
 
-  /**
-   * @param sec
-   * @param expectedEquity
-   */
-  public static void assertEquitySecurity(EquitySecurity expectedEquity,
+  private static void assertEquitySecurity(EquitySecurity expectedEquity,
       Security sec) {
     assertNotNull(sec);
     assertTrue(sec instanceof EquitySecurity);
@@ -563,11 +542,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
     assertEquals(expectedEquity.getCurrency(), actualEquity.getCurrency());
   }
 
-  /**
-   * @param expectedOption
-   * @param sec
-   */
-  public static void assertAmericanVanillaEquityOptionSecurity(
+  private static void assertAmericanVanillaEquityOptionSecurity(
       EquityOptionSecurity expectedOption, Security sec) {
     assertNotNull(sec);
     assertTrue(sec instanceof EquityOptionSecurity);
@@ -584,26 +559,22 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
     assertEquals(expectedOption.getUnderlyingId(), actualOption.getUnderlyingId());
   }
 
-  /**
-   * @param expectedOption
-   * @param sec
-   */
-  public static void assertEuropeanVanillaEquityOptionSecurity(
-      EquityOptionSecurity expectedOption, Security sec) {
-    assertNotNull(sec);
-    assertTrue(sec instanceof EquityOptionSecurity);
-    EquityOptionSecurity actualOption = (EquityOptionSecurity) sec;
-    assertTrue(actualOption.getExerciseType() instanceof EuropeanExerciseType);
-    assertEquals(expectedOption.getExternalIdBundle(), actualOption.getExternalIdBundle());
-    assertEquals(expectedOption.getUniqueId(), actualOption.getUniqueId());
-    assertEquals(expectedOption.getSecurityType(), actualOption
-        .getSecurityType());
-    assertEquals(expectedOption.getCurrency(), actualOption.getCurrency());
-    assertEquals(expectedOption.getOptionType(), actualOption.getOptionType());
-    assertTrue(expectedOption.getStrike() == actualOption.getStrike());
-    assertEquals(expectedOption.getExpiry(), actualOption.getExpiry());
-    assertEquals(expectedOption.getUnderlyingId(), actualOption.getUnderlyingId());
-  }
+//  private static void assertEuropeanVanillaEquityOptionSecurity(
+//      EquityOptionSecurity expectedOption, Security sec) {
+//    assertNotNull(sec);
+//    assertTrue(sec instanceof EquityOptionSecurity);
+//    EquityOptionSecurity actualOption = (EquityOptionSecurity) sec;
+//    assertTrue(actualOption.getExerciseType() instanceof EuropeanExerciseType);
+//    assertEquals(expectedOption.getExternalIdBundle(), actualOption.getExternalIdBundle());
+//    assertEquals(expectedOption.getUniqueId(), actualOption.getUniqueId());
+//    assertEquals(expectedOption.getSecurityType(), actualOption
+//        .getSecurityType());
+//    assertEquals(expectedOption.getCurrency(), actualOption.getCurrency());
+//    assertEquals(expectedOption.getOptionType(), actualOption.getOptionType());
+//    assertTrue(expectedOption.getStrike() == actualOption.getStrike());
+//    assertEquals(expectedOption.getExpiry(), actualOption.getExpiry());
+//    assertEquals(expectedOption.getUnderlyingId(), actualOption.getUnderlyingId());
+//  }
 
   private class BSMGetSecurityCallable implements Callable<Security> {
     ExternalIdBundle _secKey;

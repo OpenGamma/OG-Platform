@@ -66,6 +66,10 @@ public class GeneratorSwapTestsMaster {
         new GeneratorSwapFixedIbor("GBP6MLIBOR6M", Period.ofMonths(6), DayCountFactory.INSTANCE.getDayCount("ACT/365"), _iborIndexMaster.getIndex("GBPLIBOR6M", baseCalendar)));
     _generatorSwap.put("DKK1YCIBOR6M",
         new GeneratorSwapFixedIbor("DKK1YCIBOR6M", Period.ofMonths(12), DayCountFactory.INSTANCE.getDayCount("30/360"), _iborIndexMaster.getIndex("DKKCIBOR6M", baseCalendar)));
+    _generatorSwap.put("JPY6MLIBOR3M",
+        new GeneratorSwapFixedIbor("JPY6MLIBOR3M", Period.ofMonths(6), DayCountFactory.INSTANCE.getDayCount("ACT/365"), _iborIndexMaster.getIndex("JPYLIBOR3M", baseCalendar)));
+    _generatorSwap.put("JPY6MLIBOR6M",
+        new GeneratorSwapFixedIbor("JPY6MLIBOR6M", Period.ofMonths(6), DayCountFactory.INSTANCE.getDayCount("ACT/365"), _iborIndexMaster.getIndex("JPYLIBOR6M", baseCalendar)));
   }
 
   public GeneratorSwapFixedIbor getGenerator(final String name, final Calendar cal) {

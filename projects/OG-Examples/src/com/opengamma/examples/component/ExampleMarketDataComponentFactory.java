@@ -5,8 +5,10 @@
  */
 package com.opengamma.examples.component;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -17,28 +19,35 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.springframework.core.io.Resource;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.core.value.MarketDataRequirementNamesHelper;
 import com.opengamma.engine.marketdata.InMemoryNamedMarketDataSpecificationRepository;
+import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataProviderFactory;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
-import com.opengamma.engine.marketdata.SingletonMarketDataProviderFactory;
+import com.opengamma.engine.marketdata.availability.DomainMarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.live.LiveMarketDataProvider;
+import com.opengamma.engine.marketdata.live.LiveMarketDataProviderFactory;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
-import com.opengamma.examples.marketdata.ExampleMarketDataProvider;
-import com.opengamma.examples.marketdata.SimulatedMarketDataGenerator;
-import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.id.ExternalScheme;
+import com.opengamma.livedata.LiveDataClient;
+import com.opengamma.livedata.client.RemoteLiveDataClientFactoryBean;
+import com.opengamma.util.jms.JmsConnector;
 
 /**
  * Component factory for market data
  */
 @BeanDefinition
 public class ExampleMarketDataComponentFactory extends AbstractComponentFactory {
-
+  
   private static final String SIMULATED_LIVE_SOURCE_NAME = "Simulated live market data";
   
   /**
@@ -52,50 +61,69 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
   @PropertyDefinition(validate = "notNull")
   private SecuritySource _securitySource;
   /**
-   * The market data file to use in the simulation.
+   * The JMS connector.
    */
   @PropertyDefinition(validate = "notNull")
-  private Resource _marketDataFile;
+  private JmsConnector _jmsConnector;
   /**
-   * The security master; market data will be simulated for any suitable entries that aren't in the market data file.
+   * The subscription topic.
    */
   @PropertyDefinition(validate = "notNull")
-  private SecurityMaster _generatedSecurities;
+  private String _subscriptionTopic;
   /**
-   * The time series source; market data will be simulated for suitable entries from the security master that have a price series. The price series is generated randomly when the security is
-   * generated.
+   * The entitlement topic.
    */
   @PropertyDefinition(validate = "notNull")
-  private HistoricalTimeSeriesSource _generatedTimeSeries;
+  private String _entitlementTopic;
+  /**
+   * The heartbeat topic.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private String _heartbeatTopic;
 
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
     initLiveMarketDataProviderFactory(repo);
     initNamedMarketDataSpecificationRepository(repo);
   }
-  
-  protected MarketDataProviderFactory initLiveMarketDataProviderFactory(ComponentRepository repo) {
-    ExampleMarketDataProvider mdProvider = new ExampleMarketDataProvider(getSecuritySource());
-    MarketDataProviderFactory mdProviderFactory = new SingletonMarketDataProviderFactory(mdProvider);
-    
-    SimulatedMarketDataGenerator mdGenerator = new SimulatedMarketDataGenerator(mdProvider, getMarketDataFile(), getGeneratedSecurities(), getGeneratedTimeSeries());
-    repo.registerLifecycle(mdGenerator);
-    
-    ComponentInfo info = new ComponentInfo(MarketDataProviderFactory.class, getClassifier());
-    repo.registerComponent(info, mdProviderFactory);
-    return mdProviderFactory;
-  }
-  
-  protected NamedMarketDataSpecificationRepository initNamedMarketDataSpecificationRepository(ComponentRepository repo) {
+
+  private NamedMarketDataSpecificationRepository initNamedMarketDataSpecificationRepository(ComponentRepository repo) {
     InMemoryNamedMarketDataSpecificationRepository specRepository = new InMemoryNamedMarketDataSpecificationRepository();
-    specRepository.addSpecification(SIMULATED_LIVE_SOURCE_NAME, new LiveMarketDataSpecification(SIMULATED_LIVE_SOURCE_NAME));
-    
+
+    specRepository.addSpecification(SIMULATED_LIVE_SOURCE_NAME, new LiveMarketDataSpecification(SIMULATED_LIVE_SOURCE_NAME)); 
     ComponentInfo info = new ComponentInfo(NamedMarketDataSpecificationRepository.class, getClassifier());
     repo.registerComponent(info, specRepository);
-    
     return specRepository;
   }
+
+  private MarketDataProviderFactory initLiveMarketDataProviderFactory(ComponentRepository repo) {
+    LiveDataClient liveDataClient = createLiveDataClient(getSubscriptionTopic(), getEntitlementTopic(), getHeartbeatTopic());
+    MarketDataAvailabilityProvider availabilityProvider = createAvailabilityProvider();
+    MarketDataProvider marketDataProvider = new LiveMarketDataProvider(liveDataClient, getSecuritySource(), availabilityProvider);
+    
+    Map<String, MarketDataProvider> sourceToProviderMap = ImmutableMap.<String, MarketDataProvider>builder()
+        .put(SIMULATED_LIVE_SOURCE_NAME, marketDataProvider).build();
+    LiveMarketDataProviderFactory marketDataProviderFactory = new LiveMarketDataProviderFactory(marketDataProvider, sourceToProviderMap);
+    ComponentInfo info = new ComponentInfo(MarketDataProviderFactory.class, getClassifier());
+    repo.registerComponent(info, marketDataProviderFactory);
+    return marketDataProviderFactory;
+  }
   
+  protected LiveDataClient createLiveDataClient(String subscriptionTopic, String entitlementTopic, String heartbeatTopic) {
+    RemoteLiveDataClientFactoryBean ldcFb = new RemoteLiveDataClientFactoryBean();
+    ldcFb.setJmsConnector(getJmsConnector());
+    ldcFb.setSubscriptionTopic(subscriptionTopic);
+    ldcFb.setEntitlementTopic(entitlementTopic);
+    ldcFb.setHeartbeatTopic(heartbeatTopic);
+    return ldcFb.getObjectCreating();
+  }
+  
+  private MarketDataAvailabilityProvider createAvailabilityProvider() {
+    Set<ExternalScheme> acceptableSchemes = ImmutableSet.of(ExternalSchemes.OG_SYNTHETIC_TICKER);
+    Collection<String> validMarketDataRequirementNames = MarketDataRequirementNamesHelper.constructValidRequirementNames();
+    return new DomainMarketDataAvailabilityProvider(getSecuritySource(), acceptableSchemes, validMarketDataRequirementNames);
+  }
+
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
@@ -121,12 +149,14 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
         return getClassifier();
       case -702456965:  // securitySource
         return getSecuritySource();
-      case 842625186:  // marketDataFile
-        return getMarketDataFile();
-      case -1479375155:  // generatedSecurities
-        return getGeneratedSecurities();
-      case 2021015187:  // generatedTimeSeries
-        return getGeneratedTimeSeries();
+      case -1495762275:  // jmsConnector
+        return getJmsConnector();
+      case 1191816722:  // subscriptionTopic
+        return getSubscriptionTopic();
+      case 397583362:  // entitlementTopic
+        return getEntitlementTopic();
+      case 1497737619:  // heartbeatTopic
+        return getHeartbeatTopic();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -140,14 +170,17 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
       case -702456965:  // securitySource
         setSecuritySource((SecuritySource) newValue);
         return;
-      case 842625186:  // marketDataFile
-        setMarketDataFile((Resource) newValue);
+      case -1495762275:  // jmsConnector
+        setJmsConnector((JmsConnector) newValue);
         return;
-      case -1479375155:  // generatedSecurities
-        setGeneratedSecurities((SecurityMaster) newValue);
+      case 1191816722:  // subscriptionTopic
+        setSubscriptionTopic((String) newValue);
         return;
-      case 2021015187:  // generatedTimeSeries
-        setGeneratedTimeSeries((HistoricalTimeSeriesSource) newValue);
+      case 397583362:  // entitlementTopic
+        setEntitlementTopic((String) newValue);
+        return;
+      case 1497737619:  // heartbeatTopic
+        setHeartbeatTopic((String) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -157,9 +190,10 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
   protected void validate() {
     JodaBeanUtils.notNull(_classifier, "classifier");
     JodaBeanUtils.notNull(_securitySource, "securitySource");
-    JodaBeanUtils.notNull(_marketDataFile, "marketDataFile");
-    JodaBeanUtils.notNull(_generatedSecurities, "generatedSecurities");
-    JodaBeanUtils.notNull(_generatedTimeSeries, "generatedTimeSeries");
+    JodaBeanUtils.notNull(_jmsConnector, "jmsConnector");
+    JodaBeanUtils.notNull(_subscriptionTopic, "subscriptionTopic");
+    JodaBeanUtils.notNull(_entitlementTopic, "entitlementTopic");
+    JodaBeanUtils.notNull(_heartbeatTopic, "heartbeatTopic");
     super.validate();
   }
 
@@ -172,9 +206,10 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
       ExampleMarketDataComponentFactory other = (ExampleMarketDataComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
-          JodaBeanUtils.equal(getMarketDataFile(), other.getMarketDataFile()) &&
-          JodaBeanUtils.equal(getGeneratedSecurities(), other.getGeneratedSecurities()) &&
-          JodaBeanUtils.equal(getGeneratedTimeSeries(), other.getGeneratedTimeSeries()) &&
+          JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
+          JodaBeanUtils.equal(getSubscriptionTopic(), other.getSubscriptionTopic()) &&
+          JodaBeanUtils.equal(getEntitlementTopic(), other.getEntitlementTopic()) &&
+          JodaBeanUtils.equal(getHeartbeatTopic(), other.getHeartbeatTopic()) &&
           super.equals(obj);
     }
     return false;
@@ -185,9 +220,10 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataFile());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getGeneratedSecurities());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getGeneratedTimeSeries());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSubscriptionTopic());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getEntitlementTopic());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHeartbeatTopic());
     return hash ^ super.hashCode();
   }
 
@@ -245,83 +281,106 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the market data file to use in the simulation.
+   * Gets the JMS connector.
    * @return the value of the property, not null
    */
-  public Resource getMarketDataFile() {
-    return _marketDataFile;
+  public JmsConnector getJmsConnector() {
+    return _jmsConnector;
   }
 
   /**
-   * Sets the market data file to use in the simulation.
-   * @param marketDataFile  the new value of the property, not null
+   * Sets the JMS connector.
+   * @param jmsConnector  the new value of the property, not null
    */
-  public void setMarketDataFile(Resource marketDataFile) {
-    JodaBeanUtils.notNull(marketDataFile, "marketDataFile");
-    this._marketDataFile = marketDataFile;
+  public void setJmsConnector(JmsConnector jmsConnector) {
+    JodaBeanUtils.notNull(jmsConnector, "jmsConnector");
+    this._jmsConnector = jmsConnector;
   }
 
   /**
-   * Gets the the {@code marketDataFile} property.
+   * Gets the the {@code jmsConnector} property.
    * @return the property, not null
    */
-  public final Property<Resource> marketDataFile() {
-    return metaBean().marketDataFile().createProperty(this);
+  public final Property<JmsConnector> jmsConnector() {
+    return metaBean().jmsConnector().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the security master; market data will be simulated for any suitable entries that aren't in the market data file.
+   * Gets the subscription topic.
    * @return the value of the property, not null
    */
-  public SecurityMaster getGeneratedSecurities() {
-    return _generatedSecurities;
+  public String getSubscriptionTopic() {
+    return _subscriptionTopic;
   }
 
   /**
-   * Sets the security master; market data will be simulated for any suitable entries that aren't in the market data file.
-   * @param generatedSecurities  the new value of the property, not null
+   * Sets the subscription topic.
+   * @param subscriptionTopic  the new value of the property, not null
    */
-  public void setGeneratedSecurities(SecurityMaster generatedSecurities) {
-    JodaBeanUtils.notNull(generatedSecurities, "generatedSecurities");
-    this._generatedSecurities = generatedSecurities;
+  public void setSubscriptionTopic(String subscriptionTopic) {
+    JodaBeanUtils.notNull(subscriptionTopic, "subscriptionTopic");
+    this._subscriptionTopic = subscriptionTopic;
   }
 
   /**
-   * Gets the the {@code generatedSecurities} property.
+   * Gets the the {@code subscriptionTopic} property.
    * @return the property, not null
    */
-  public final Property<SecurityMaster> generatedSecurities() {
-    return metaBean().generatedSecurities().createProperty(this);
+  public final Property<String> subscriptionTopic() {
+    return metaBean().subscriptionTopic().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the time series source; market data will be simulated for suitable entries from the security master that have a price series. The price series is generated randomly when the security is
-   * generated.
+   * Gets the entitlement topic.
    * @return the value of the property, not null
    */
-  public HistoricalTimeSeriesSource getGeneratedTimeSeries() {
-    return _generatedTimeSeries;
+  public String getEntitlementTopic() {
+    return _entitlementTopic;
   }
 
   /**
-   * Sets the time series source; market data will be simulated for suitable entries from the security master that have a price series. The price series is generated randomly when the security is
-   * generated.
-   * @param generatedTimeSeries  the new value of the property, not null
+   * Sets the entitlement topic.
+   * @param entitlementTopic  the new value of the property, not null
    */
-  public void setGeneratedTimeSeries(HistoricalTimeSeriesSource generatedTimeSeries) {
-    JodaBeanUtils.notNull(generatedTimeSeries, "generatedTimeSeries");
-    this._generatedTimeSeries = generatedTimeSeries;
+  public void setEntitlementTopic(String entitlementTopic) {
+    JodaBeanUtils.notNull(entitlementTopic, "entitlementTopic");
+    this._entitlementTopic = entitlementTopic;
   }
 
   /**
-   * Gets the the {@code generatedTimeSeries} property.
-   * generated.
+   * Gets the the {@code entitlementTopic} property.
    * @return the property, not null
    */
-  public final Property<HistoricalTimeSeriesSource> generatedTimeSeries() {
-    return metaBean().generatedTimeSeries().createProperty(this);
+  public final Property<String> entitlementTopic() {
+    return metaBean().entitlementTopic().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the heartbeat topic.
+   * @return the value of the property, not null
+   */
+  public String getHeartbeatTopic() {
+    return _heartbeatTopic;
+  }
+
+  /**
+   * Sets the heartbeat topic.
+   * @param heartbeatTopic  the new value of the property, not null
+   */
+  public void setHeartbeatTopic(String heartbeatTopic) {
+    JodaBeanUtils.notNull(heartbeatTopic, "heartbeatTopic");
+    this._heartbeatTopic = heartbeatTopic;
+  }
+
+  /**
+   * Gets the the {@code heartbeatTopic} property.
+   * @return the property, not null
+   */
+  public final Property<String> heartbeatTopic() {
+    return metaBean().heartbeatTopic().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -345,20 +404,25 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
     private final MetaProperty<SecuritySource> _securitySource = DirectMetaProperty.ofReadWrite(
         this, "securitySource", ExampleMarketDataComponentFactory.class, SecuritySource.class);
     /**
-     * The meta-property for the {@code marketDataFile} property.
+     * The meta-property for the {@code jmsConnector} property.
      */
-    private final MetaProperty<Resource> _marketDataFile = DirectMetaProperty.ofReadWrite(
-        this, "marketDataFile", ExampleMarketDataComponentFactory.class, Resource.class);
+    private final MetaProperty<JmsConnector> _jmsConnector = DirectMetaProperty.ofReadWrite(
+        this, "jmsConnector", ExampleMarketDataComponentFactory.class, JmsConnector.class);
     /**
-     * The meta-property for the {@code generatedSecurities} property.
+     * The meta-property for the {@code subscriptionTopic} property.
      */
-    private final MetaProperty<SecurityMaster> _generatedSecurities = DirectMetaProperty.ofReadWrite(
-        this, "generatedSecurities", ExampleMarketDataComponentFactory.class, SecurityMaster.class);
+    private final MetaProperty<String> _subscriptionTopic = DirectMetaProperty.ofReadWrite(
+        this, "subscriptionTopic", ExampleMarketDataComponentFactory.class, String.class);
     /**
-     * The meta-property for the {@code generatedTimeSeries} property.
+     * The meta-property for the {@code entitlementTopic} property.
      */
-    private final MetaProperty<HistoricalTimeSeriesSource> _generatedTimeSeries = DirectMetaProperty.ofReadWrite(
-        this, "generatedTimeSeries", ExampleMarketDataComponentFactory.class, HistoricalTimeSeriesSource.class);
+    private final MetaProperty<String> _entitlementTopic = DirectMetaProperty.ofReadWrite(
+        this, "entitlementTopic", ExampleMarketDataComponentFactory.class, String.class);
+    /**
+     * The meta-property for the {@code heartbeatTopic} property.
+     */
+    private final MetaProperty<String> _heartbeatTopic = DirectMetaProperty.ofReadWrite(
+        this, "heartbeatTopic", ExampleMarketDataComponentFactory.class, String.class);
     /**
      * The meta-properties.
      */
@@ -366,9 +430,10 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "securitySource",
-        "marketDataFile",
-        "generatedSecurities",
-        "generatedTimeSeries");
+        "jmsConnector",
+        "subscriptionTopic",
+        "entitlementTopic",
+        "heartbeatTopic");
 
     /**
      * Restricted constructor.
@@ -383,12 +448,14 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
           return _classifier;
         case -702456965:  // securitySource
           return _securitySource;
-        case 842625186:  // marketDataFile
-          return _marketDataFile;
-        case -1479375155:  // generatedSecurities
-          return _generatedSecurities;
-        case 2021015187:  // generatedTimeSeries
-          return _generatedTimeSeries;
+        case -1495762275:  // jmsConnector
+          return _jmsConnector;
+        case 1191816722:  // subscriptionTopic
+          return _subscriptionTopic;
+        case 397583362:  // entitlementTopic
+          return _entitlementTopic;
+        case 1497737619:  // heartbeatTopic
+          return _heartbeatTopic;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -426,27 +493,35 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
     }
 
     /**
-     * The meta-property for the {@code marketDataFile} property.
+     * The meta-property for the {@code jmsConnector} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Resource> marketDataFile() {
-      return _marketDataFile;
+    public final MetaProperty<JmsConnector> jmsConnector() {
+      return _jmsConnector;
     }
 
     /**
-     * The meta-property for the {@code generatedSecurities} property.
+     * The meta-property for the {@code subscriptionTopic} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<SecurityMaster> generatedSecurities() {
-      return _generatedSecurities;
+    public final MetaProperty<String> subscriptionTopic() {
+      return _subscriptionTopic;
     }
 
     /**
-     * The meta-property for the {@code generatedTimeSeries} property.
+     * The meta-property for the {@code entitlementTopic} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<HistoricalTimeSeriesSource> generatedTimeSeries() {
-      return _generatedTimeSeries;
+    public final MetaProperty<String> entitlementTopic() {
+      return _entitlementTopic;
+    }
+
+    /**
+     * The meta-property for the {@code heartbeatTopic} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> heartbeatTopic() {
+      return _heartbeatTopic;
     }
 
   }

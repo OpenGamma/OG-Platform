@@ -24,19 +24,19 @@ import com.opengamma.transport.jms.JmsByteArrayRequestDispatcher;
 import com.opengamma.transport.jms.JmsByteArrayRequestSender;
 
 /**
- * 
+ * Test.
  */
-@Test
+@Test(groups = "integration")
 public class RemoteReferenceDataProviderWithInMemoryTransportTest extends BloombergReferenceDataProviderTestCase {
 
   private ConfigurableApplicationContext _appContext;
-  
+
   private void setUpSpring() throws Exception {
     ConfigurableApplicationContext context = new ClassPathXmlApplicationContext("/com/opengamma/bbg/test-inMemory-remoteRefDataProvider-context.xml");
     context.start();
     _appContext = context;
   }
-  
+
   private void tearDownSpring() throws Exception {
     if (_appContext != null) {
       ConfigurableApplicationContext context = _appContext;
@@ -44,15 +44,14 @@ public class RemoteReferenceDataProviderWithInMemoryTransportTest extends Bloomb
       context.close();
     }    
   }
- 
+
   private void assertSpringConfig() throws Exception {
     PropertyPlaceholderConfigurer propConfigurer= (PropertyPlaceholderConfigurer)_appContext.getBean("propertyConfigurer");
     assertNotNull(propConfigurer);
     
     BloombergReferenceDataProvider refDataProvider = (BloombergReferenceDataProvider)_appContext.getBean("refDataProvider");
     assertNotNull(refDataProvider);
-    assertNotNull(refDataProvider.getSessionOptions());
-    assertNotNull(refDataProvider.getSessionOptions().getServerHost());
+    assertNotNull(refDataProvider.getBloombergConnector());
     
     CachingReferenceDataProvider cachingRefDataProvider = (CachingReferenceDataProvider)_appContext.getBean("cachingRefDataProvider");
     assertNotNull(cachingRefDataProvider);
@@ -92,7 +91,6 @@ public class RemoteReferenceDataProviderWithInMemoryTransportTest extends Bloomb
     
     ReferenceDataProvider remoteReferenceDataProvider = (RemoteReferenceDataProvider)_appContext.getBean("remoteReferenceDataProvider");
     assertNotNull(remoteReferenceDataProvider);
-    
   }
 
   @Override
@@ -114,5 +112,5 @@ public class RemoteReferenceDataProviderWithInMemoryTransportTest extends Bloomb
   protected void stopProvider() throws Exception {
     tearDownSpring();
   }
-  
+
 }

@@ -90,7 +90,7 @@ final class MathCurve {
       final Object function = deserializer.fieldValueToObject(message.getByName(CURVE_FUNCTION_FIELD_NAME));
       if (function instanceof Function) {
         return FunctionalDoublesCurve.from((Function) function, name);
-      } 
+      }
       throw new OpenGammaRuntimeException("Expected serialized function, got " + function);
     }
 
@@ -101,7 +101,6 @@ final class MathCurve {
       return;
     }
   }
-
 
   /**
    * Fudge builder for {@code NodalDoublesCurve}
@@ -124,8 +123,7 @@ final class MathCurve {
       final double[] x = deserializer.fieldValueToObject(double[].class, message.getByName(X_DATA_FIELD_NAME));
       final double[] y = deserializer.fieldValueToObject(double[].class, message.getByName(Y_DATA_FIELD_NAME));
       final String name = deserializer.fieldValueToObject(String.class, message.getByName(CURVE_NAME_FIELD_NAME));
-      NodalDoublesCurve nodalDoublesCurve = new NodalDoublesCurve(x, y, true, name);
-      return nodalDoublesCurve;
+      return NodalDoublesCurve.fromSorted(x, y, name);
     }
   }
 }

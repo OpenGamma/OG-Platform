@@ -96,7 +96,7 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
           identifier = builderConfig.getSwap3MSecurity(curveDate, strip.getCurveNodePointTime());
           break;
         case BASIS_SWAP:
-          identifier = builderConfig.getBasisSwapSecurity(curveDate, strip.getCurveNodePointTime());
+          identifier = builderConfig.getBasisSwapSecurity(curveDate, strip);
           break;
         case TENOR_SWAP:
           identifier = builderConfig.getTenorSwapSecurity(curveDate, strip.getCurveNodePointTime());

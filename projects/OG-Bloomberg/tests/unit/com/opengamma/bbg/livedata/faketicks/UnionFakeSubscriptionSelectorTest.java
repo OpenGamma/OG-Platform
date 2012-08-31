@@ -25,6 +25,10 @@ import com.opengamma.livedata.test.LiveDataClientTestUtils;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
+/**
+ * Test.
+ */
+@Test(groups = "integration")
 public class UnionFakeSubscriptionSelectorTest {
 
   private BloombergReferenceDataProvider _underlying;
@@ -47,8 +51,9 @@ public class UnionFakeSubscriptionSelectorTest {
     _underlying.stop();
   }
 
+  //-------------------------------------------------------------------------
   @Test
-  public void testSplitCorrectly() throws Exception {
+  public void splitCorrectly() throws Exception {
     final ArrayList<String> queries = Lists.newArrayList("BPSW13 Curncy", //SWAP 
         "USPL30RK Curncy", //SWAPTION VOLATILITY 
         "AAPL US 01/21/12 C145 Equity" //EQUITY OPTION
@@ -67,7 +72,7 @@ public class UnionFakeSubscriptionSelectorTest {
     assertEquals(splitShouldFake.first, splitShouldFakeAlt.first);
     assertEquals(splitShouldFake.second, splitShouldFakeAlt.second);
   }
-  
+
   @Test
   public void splitEconomicallyInOrder() throws Exception {
     final ByTypeFakeSubscriptionSelector swap = new ByTypeFakeSubscriptionSelector("SWAP");
@@ -99,8 +104,7 @@ public class UnionFakeSubscriptionSelectorTest {
   }
 
   @Test
-  public void splitBrokenWorks()
-  {
+  public void splitBrokenWorks() {
     final ArrayList<String> queries = Lists.newArrayList("USSV15F Curncy", //Broken
         "USPL30RK Curncy" //SWAPTION VOLATILITY 
         );
@@ -121,5 +125,5 @@ public class UnionFakeSubscriptionSelectorTest {
     }
     return specs;
   }
-  
+
 }

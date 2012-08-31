@@ -29,6 +29,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class BloombergSecurityTypeResolver implements SecurityTypeResolver {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergSecurityTypeResolver.class);
 
   private static final Map<String, SecurityType> s_futureTypes = Maps.newConcurrentMap();
@@ -51,6 +52,8 @@ public class BloombergSecurityTypeResolver implements SecurityTypeResolver {
     addValidTypes(s_optionTypes, EquityOptionLoader.VALID_SECURITY_TYPES, SecurityType.EQUITY_OPTION);
     addValidTypes(s_optionTypes, EquityIndexOptionLoader.VALID_SECURITY_TYPES, SecurityType.EQUITY_INDEX_OPTION);
     addValidTypes(s_optionTypes, IRFutureOptionLoader.VALID_SECURITY_TYPES, SecurityType.IR_FUTURE_OPTION);
+    addValidTypes(s_optionTypes, BondFutureOptionLoader.VALID_SECURITY_TYPES, SecurityType.BOND_FUTURE_OPTION);
+    addValidTypes(s_optionTypes, CommodityFutureOptionLoader.VALID_SECURITY_TYPES, SecurityType.COMMODITY_FUTURE_OPTION);
   }
 
   private static final Map<String, SecurityType> s_swapTypes = Maps.newConcurrentMap();
@@ -71,6 +74,11 @@ public class BloombergSecurityTypeResolver implements SecurityTypeResolver {
     addValidTypes(s_miscTypes, NonLoadedSecurityTypes.VALID_SPOT_RATE_TYPES, SecurityType.SPOT_RATE);
     addValidTypes(s_miscTypes, NonLoadedSecurityTypes.VALID_VOLATILITY_QUOTE_TYPES, SecurityType.VOLATILITY_QUOTE);
     addValidTypes(s_miscTypes, NonLoadedSecurityTypes.VALID_FX_FORWARD_TYPES, SecurityType.FX_FORWARD);
+  }
+  
+  //private static final Map<String, SecurityType> s_cdsTypes = Maps.newConcurrentMap();
+  static {
+    addValidTypes(s_miscTypes, NonLoadedSecurityTypes.VALID_CDS_TYPES, SecurityType.CREDIT_DEFAULT_SWAP);
   }
 
   private static final Set<String> BBG_FIELDS = Sets.newHashSet(BloombergConstants.FIELD_SECURITY_TYPE, BloombergConstants.FIELD_FUTURES_CATEGORY);

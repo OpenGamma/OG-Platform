@@ -123,6 +123,7 @@
 
   <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
     <property name="shared" value="true"/>
+    <property name="configLocation" value="${ehcache.configFile}" />
   </bean>
   <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
     <property name="staticMethod" value="net.sf.ehcache.management.ManagementService.registerMBeans"/>
@@ -153,9 +154,14 @@
     <property name="serverPort" value="${opengamma.bloomberg.sapi.port}" />
   </bean>
   
+  <bean id="bloombergConnector" class="com.opengamma.bbg.BloombergConnector">
+    <constructor-arg value="FullStack"/>
+    <constructor-arg ref="sessionOptions"/>
+  </bean>
+  
   <!-- Reference data -->   
   <bean id="refDataProvider" class="com.opengamma.bbg.BloombergReferenceDataProvider" init-method="start" destroy-method="stop">
-    <constructor-arg index="0" ref="sessionOptions" />
+    <constructor-arg index="0" ref="bloombergConnector" />
   </bean>
   
   <bean id="bbgReferenceDataProvider" class="com.opengamma.bbg.EHCachingReferenceDataProvider">
@@ -191,7 +197,7 @@
   <bean id="bbgTimeSeriesStatistics" class="com.opengamma.bbg.referencedata.statistics.DailyBloombergReferenceDataStatistics" />
   
   <bean id="historicalTimeSeriesSource" class="com.opengamma.bbg.BloombergHistoricalTimeSeriesSource" init-method="start">
-    <constructor-arg ref="sessionOptions" />
+    <constructor-arg ref="bloombergConnector" />
     <constructor-arg ref="bbgTimeSeriesStatistics" />
   </bean>
   
@@ -207,24 +213,20 @@
   </bean>
   
   <bean id="bloombergLiveDataServer" class="com.opengamma.bbg.livedata.BloombergLiveDataServer" init-method="start">
-    <constructor-arg index="0" ref="sessionOptions" />
+    <constructor-arg index="0" ref="bloombergConnector" />
     <constructor-arg index="1" ref="bbgReferenceDataProvider" />
-    
     <property name="distributionSpecificationResolver" ref="distributionSpecificationResolver"/>
     <property name="entitlementChecker" ref="entitlementChecker"/>
     <property name="marketDataSenderFactory" ref="jmsSenderFactory"/>
-    <property name="subscriptionLimit" value="1000"/> 
+    <property name="subscriptionLimit" value="1000"/>
   </bean>
   
   <bean id="fakeBloombergLiveDataServer" class="com.opengamma.bbg.livedata.faketicks.FakeSubscriptionBloombergLiveDataServer" init-method="start">
     <constructor-arg index="0" ref="bloombergLiveDataServer" />
-    
-    <!-- NOTE: do not set distributionSpecificationResolver, it is derived from the underlying servers resolved-->
+    <constructor-arg index="1" ref="cacheManager" />
     <property name="entitlementChecker" ref="entitlementChecker"/>
     <property name="marketDataSenderFactory" ref="jmsSenderFactory"/> 
   </bean>
-  
-  
   
   <!-- TODO: stop using this, everything should switch to explicit weak, but we have to wait for that change to propagate -->
   <bean id="volatilitySubscriptionSelector" class="com.opengamma.bbg.livedata.faketicks.ByTypeFakeSubscriptionSelector">

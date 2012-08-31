@@ -12,7 +12,7 @@
 
   <target name="enable-all" />
 
-  <target name="create-build-file" depends="create-temp,enable-all" />
+  <target name="create-build-file" depends="create-temp,set-build-number,enable-all" />
 
   <target name="set-build-number" depends="module-build-number" if="ai.present" unless="disable.build.all">
     <ai-set-version version="${module.version.msi}.${module.build.number}" />
@@ -74,7 +74,13 @@
 
   <!-- execution hooks -->
 
-  <target name="build-all" if="ai.present">
+  <target name="fix-msm-parameters">
+    <java classname="com.opengamma.install.msi.MergeModDefaultParameters" classpath="${project.dir}/projects/OG-Install/build/og-install.jar" logError="true">
+      <arg value="${ai.build.file}" />
+    </java>
+  </target>
+
+  <target name="build-all" depends="fix-msm-parameters" if="ai.present">
     <!--<parallel>-->
       <antcall target="build-jvm-i386" inheritrefs="true" />
       <antcall target="build-jvm-x64" inheritrefs="true" />
@@ -83,6 +89,6 @@
     <!--</parallel>-->
   </target>
 
-  <target name="build" depends="create-build-file,set-build-number,build-all" />
+  <target name="build" depends="create-build-file,build-all" />
 
 </project>

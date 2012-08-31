@@ -30,7 +30,7 @@ public class GapOptionDefinitionTest {
   private static final double PAYOFF_STRIKE = 55;
   private static final GapOptionDefinition CALL = new GapOptionDefinition(STRIKE, EXPIRY, true, PAYOFF_STRIKE);
   private static final GapOptionDefinition PUT = new GapOptionDefinition(STRIKE, EXPIRY, false, PAYOFF_STRIKE);
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.03)), 0.03, new VolatilitySurface(ConstantDoublesSurface.from(0.2)),
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(YieldCurve.from(ConstantDoublesCurve.from(0.03)), 0.03, new VolatilitySurface(ConstantDoublesSurface.from(0.2)),
       STRIKE, DateUtils.getUTCDate(2009, 1, 1));
 
   @Test(expectedExceptions = IllegalArgumentException.class)

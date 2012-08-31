@@ -7,6 +7,8 @@ package com.opengamma.engine.function;
 
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.function.blacklist.DummyFunctionBlacklistQuery;
+import com.opengamma.engine.function.blacklist.FunctionBlacklistQuery;
 import com.opengamma.engine.function.resolver.ComputationTargetResults;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.util.PublicAPI;
@@ -49,11 +51,21 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
    * The name under which a re-initialization hook should be bound.
    */
   public static final String FUNCTION_REINITIALIZER_NAME = "functionReinitializer";
+  /**
+   * The name under which the graph building blacklist should be bound.
+   */
+  public static final String GRAPH_BUILDING_BLACKLIST = "graphBuildingBlacklist";
+  /**
+   * The name under which the graph execution blacklist should be bound.
+   */
+  public static final String GRAPH_EXECUTION_BLACKLIST = "graphExecutionBlacklist";
 
   /**
    * Creates an empty function compilation context.
    */
   public FunctionCompilationContext() {
+    setGraphBuildingBlacklist(new DummyFunctionBlacklistQuery());
+    setGraphExecutionBlacklist(new DummyFunctionBlacklistQuery());
   }
 
   /**
@@ -201,12 +213,49 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
     }
   }
 
-  //-------------------------------------------------------------------------
+  /**
+   * Returns the function blacklist to be used during graph building. Graphs should not be built containing any items that are currently on the blacklist.
+   * 
+   * @return the query interface to the blacklist, not null
+   */
+  public FunctionBlacklistQuery getGraphBuildingBlacklist() {
+    return (FunctionBlacklistQuery) get(GRAPH_BUILDING_BLACKLIST);
+  }
+
+  /**
+   * Sets the function blacklist to be used during graph building. Graphs should not be built containing any items that are currently on the blacklist.
+   * 
+   * @param graphBuildingBlacklist interface to the blacklist to use, not null
+   */
+  public void setGraphBuildingBlacklist(final FunctionBlacklistQuery graphBuildingBlacklist) {
+    put(GRAPH_BUILDING_BLACKLIST, graphBuildingBlacklist);
+  }
+
+  /**
+   * Returns the function blacklist to use when executing a graph. This is part of the compilation context because the blacklist applies immediately before the graph is submitted for execution, before
+   * an execution context is valid.
+   * 
+   * @return the execution blacklist, not null
+   */
+  public FunctionBlacklistQuery getGraphExecutionBlacklist() {
+    return (FunctionBlacklistQuery) get(GRAPH_EXECUTION_BLACKLIST);
+  }
+
+  /**
+   * Sets the function blacklist to use when executing a graph. This is part of the compilation context because the blacklist applies immediately before the graph is submitted for execution, before an
+   * execution context is valid.
+   * 
+   * @param blacklist the execution blacklist, not null
+   */
+  public void setGraphExecutionBlacklist(final FunctionBlacklistQuery blacklist) {
+    put(GRAPH_EXECUTION_BLACKLIST, blacklist);
+  }
+
   /**
    * Gets the source of securities cast to a specific type.
    * 
-   * @param <T>  the security source type
-   * @param clazz  the security source type
+   * @param <T> the security source type
+   * @param clazz the security source type
    * @return the security source
    * @throws ClassCastException if the security source is of a different type
    */

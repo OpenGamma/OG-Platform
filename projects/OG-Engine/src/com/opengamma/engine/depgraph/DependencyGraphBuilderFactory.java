@@ -48,7 +48,7 @@ public class DependencyGraphBuilderFactory {
 
   private int _maxAdditionalThreadsPerBuilder = DependencyGraphBuilder.getDefaultMaxAdditionalThreads();
   private int _maxAdditionalThreads = DependencyGraphBuilder.getDefaultMaxAdditionalThreads();
-  private boolean _enableFailureReporting;
+  private boolean _enableFailureReporting/* = true*/; // DON'T CHECK IN WITH =true
   private RunQueueFactory _runQueue = DependencyGraphBuilder.getDefaultRunQueueFactory();
   private FunctionExclusionGroups _functionExclusionGroups;
   private final Executor _executor = createExecutor();

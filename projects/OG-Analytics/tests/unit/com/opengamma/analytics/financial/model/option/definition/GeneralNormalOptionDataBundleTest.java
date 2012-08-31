@@ -27,7 +27,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * 
  */
 public class GeneralNormalOptionDataBundleTest {
-  private static final YieldCurve YIELD = new YieldCurve(ConstantDoublesCurve.from(0.03));
+  private static final YieldCurve YIELD = YieldCurve.from(ConstantDoublesCurve.from(0.03));
   private static final DriftSurface DRIFT_SURFACE = new DriftSurface(FunctionalDoublesSurface.from(new Function<Double, Double>() {
 
     @Override
@@ -78,7 +78,7 @@ public class GeneralNormalOptionDataBundleTest {
     other = new GeneralNormalOptionDataBundle(DATA);
     assertEquals(other, DATA);
     assertEquals(other.hashCode(), DATA.hashCode());
-    other = new GeneralNormalOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.02)), DRIFT_SURFACE, VOLATILITY_SURFACE, SPOT, DATE);
+    other = new GeneralNormalOptionDataBundle(YieldCurve.from(ConstantDoublesCurve.from(0.02)), DRIFT_SURFACE, VOLATILITY_SURFACE, SPOT, DATE);
     assertFalse(other.equals(DATA));
     other = new GeneralNormalOptionDataBundle(YIELD, new DriftSurface(ConstantDoublesSurface.from(0.01)), VOLATILITY_SURFACE, SPOT, DATE);
     assertFalse(other.equals(DATA));
@@ -94,7 +94,7 @@ public class GeneralNormalOptionDataBundleTest {
   public void testBuilders() {
     final ZonedDateTime newDate = DATE.plusDays(1);
     assertEquals(DATA.withDate(newDate), new GeneralNormalOptionDataBundle(YIELD, DRIFT_SURFACE, VOLATILITY_SURFACE, SPOT, newDate));
-    final YieldCurve newCurve = new YieldCurve(ConstantDoublesCurve.from(0.05));
+    final YieldCurve newCurve = YieldCurve.from(ConstantDoublesCurve.from(0.05));
     assertEquals(DATA.withInterestRateCurve(newCurve), new GeneralNormalOptionDataBundle(newCurve, DRIFT_SURFACE, VOLATILITY_SURFACE, SPOT, DATE));
     final VolatilitySurface newSurface = new VolatilitySurface(ConstantDoublesSurface.from(0.9));
     assertEquals(DATA.withVolatilitySurface(newSurface), new GeneralNormalOptionDataBundle(YIELD, DRIFT_SURFACE, newSurface, SPOT, DATE));

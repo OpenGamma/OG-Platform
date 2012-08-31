@@ -11,7 +11,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorInterestRateModel;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorDataBundle;
@@ -31,7 +30,7 @@ public class HullWhiteOneFactorInterestRateModelTest {
   private static final double RATE = 0.056;
   private static final double VOL = 0.01;
   private static final double SPEED = 0.13;
-  private static final YieldAndDiscountCurve R = new YieldCurve(ConstantDoublesCurve.from(RATE));
+  private static final YieldAndDiscountCurve R = YieldCurve.from(ConstantDoublesCurve.from(RATE));
   private static final VolatilityCurve SIGMA = new VolatilityCurve(ConstantDoublesCurve.from(VOL));
   private static final HullWhiteOneFactorInterestRateModel MODEL = new HullWhiteOneFactorInterestRateModel();
   private static final double EPS = 1e-8;

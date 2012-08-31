@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT Type="Advanced Installer" CreateVersion="8.7.1" version="8.7.1" Modules="msm" RootPath="." Language="en" Id="{5BB63EDA-65BC-4E8E-839C-0FA177AB6571}">
+<DOCUMENT Type="Advanced Installer" CreateVersion="8.7.1" version="9.4" Modules="msm" RootPath="." Language="en" Id="{5BB63EDA-65BC-4E8E-839C-0FA177AB6571}">
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
     <ROW Property="AI_ModuleId" Value="4E5453BD_4404_4F15_AC48_815D7107864A"/>
     <ROW Property="LANG_FILE" Value="Language Integration Service"/>
@@ -48,7 +48,7 @@
     <ROW Action="Configure" Type="3106" Source="P_FILE__Dir" Target="&quot;[#ServiceRunner.exe]&quot; configure"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiRegsComponent">
-    <ROW Registry="serviceSDDL" Root="2" Key="SOFTWARE\[M_REG64.4E5453BD_4404_4F15_AC48_815D7107864A]\[LANG_REG64.4E5453BD_4404_4F15_AC48_815D7107864A]" Name="serviceSDDL" Value="D:(A;;GA;;;WD)" Component_="Reg"/>
+    <ROW Registry="serviceSDDL" Root="2" Key="SOFTWARE\[M_REG64]\[LANG_REG64]" Name="serviceSDDL" Value="D:(A;;GA;;;WD)" Component_="Reg"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiServCtrlComponent">
     <ROW ServiceControl="ServiceRunner.exe" Name="OpenGammaLanguageAPI" Event="161" Wait="0" Component_="ServiceRunner.exe"/>
@@ -63,7 +63,7 @@
     <ROW RequiredID="OG_LanguageCore.BFBD8D7F_3845_4E0F_AF95_4B3CCBC4AD60" RequiredLanguage="1033"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsmModuleInstExSeqComponent">
-    <ROW Action="Configure" BaseAction="RegisterProduct" After="1" Condition="NOT Installed AND UILevel=5"/>
+    <ROW Action="Configure" BaseAction="RegisterProduct" After="1" Condition="( NOT Installed ) AND ( UILevel=&quot;5&quot; AND $ServiceRunner.exe=3 )"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsmModuleSignatureComponent">
     <ROW ModuleID="OG_Language64" Version="1.0.1" GUID="4E5453BD_4404_4F15_AC48_815D7107864A" Name="Language Integration 64-bit Service" Manufacturer="OpenGamma Ltd" Comments="The service installation for use with 64-bit Java"/>

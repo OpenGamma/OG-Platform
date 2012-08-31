@@ -9,6 +9,8 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.util.ArgumentChecker;
+
 /**
  * A minimal implementation of a 2D matrix of doubles.
  *
@@ -111,8 +113,10 @@ public class DoubleMatrix2D implements Matrix<Double> {
    */
   @Override
   public Double getEntry(final int... index) {
+    ArgumentChecker.notNull(index, "indices");
+    ArgumentChecker.isTrue(index[0] < _data.length, "x index {} is greater than length of array {}", index[0], _data.length);
+    ArgumentChecker.isTrue(index[1] < _data[0].length, "y index {} is greater than length of array {}", index[1], _data[0].length);
     return _data[index[0]][index[1]];
-
   }
 
   /**

@@ -8,6 +8,8 @@ package com.opengamma.component.factory.source;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import net.sf.ehcache.CacheManager;
+
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -21,9 +23,12 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.DataConfigSourceResource;
+import com.opengamma.core.config.impl.RemoteConfigSource;
 import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.config.impl.EHCachingMasterConfigSource;
 import com.opengamma.master.config.impl.MasterConfigSource;
 
 /**
@@ -47,12 +52,23 @@ public class ConfigSourceComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition(validate = "notNull")
   private ConfigMaster _configMaster;
+  /**
+   * The cache manager.
+   */
+  @PropertyDefinition
+  private CacheManager _cacheManager;
 
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
     ComponentInfo info = new ComponentInfo(ConfigSource.class, getClassifier());
+    info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteConfigSource.class);
+    
     ConfigSource source = new MasterConfigSource(getConfigMaster());
+    if (getCacheManager() != null) {
+      source = new EHCachingMasterConfigSource(getConfigMaster(), getCacheManager());
+    }
     repo.registerComponent(info, source);
     
     if (isPublishRest()) {
@@ -87,6 +103,8 @@ public class ConfigSourceComponentFactory extends AbstractComponentFactory {
         return isPublishRest();
       case 10395716:  // configMaster
         return getConfigMaster();
+      case -1452875317:  // cacheManager
+        return getCacheManager();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -102,6 +120,9 @@ public class ConfigSourceComponentFactory extends AbstractComponentFactory {
         return;
       case 10395716:  // configMaster
         setConfigMaster((ConfigMaster) newValue);
+        return;
+      case -1452875317:  // cacheManager
+        setCacheManager((CacheManager) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -124,6 +145,7 @@ public class ConfigSourceComponentFactory extends AbstractComponentFactory {
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
           JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
+          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
           super.equals(obj);
     }
     return false;
@@ -135,6 +157,7 @@ public class ConfigSourceComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
     return hash ^ super.hashCode();
   }
 
@@ -217,6 +240,31 @@ public class ConfigSourceComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the cache manager.
+   * @return the value of the property
+   */
+  public CacheManager getCacheManager() {
+    return _cacheManager;
+  }
+
+  /**
+   * Sets the cache manager.
+   * @param cacheManager  the new value of the property
+   */
+  public void setCacheManager(CacheManager cacheManager) {
+    this._cacheManager = cacheManager;
+  }
+
+  /**
+   * Gets the the {@code cacheManager} property.
+   * @return the property, not null
+   */
+  public final Property<CacheManager> cacheManager() {
+    return metaBean().cacheManager().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code ConfigSourceComponentFactory}.
    */
   public static class Meta extends AbstractComponentFactory.Meta {
@@ -241,13 +289,19 @@ public class ConfigSourceComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<ConfigMaster> _configMaster = DirectMetaProperty.ofReadWrite(
         this, "configMaster", ConfigSourceComponentFactory.class, ConfigMaster.class);
     /**
+     * The meta-property for the {@code cacheManager} property.
+     */
+    private final MetaProperty<CacheManager> _cacheManager = DirectMetaProperty.ofReadWrite(
+        this, "cacheManager", ConfigSourceComponentFactory.class, CacheManager.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "publishRest",
-        "configMaster");
+        "configMaster",
+        "cacheManager");
 
     /**
      * Restricted constructor.
@@ -264,6 +318,8 @@ public class ConfigSourceComponentFactory extends AbstractComponentFactory {
           return _publishRest;
         case 10395716:  // configMaster
           return _configMaster;
+        case -1452875317:  // cacheManager
+          return _cacheManager;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -306,6 +362,14 @@ public class ConfigSourceComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<ConfigMaster> configMaster() {
       return _configMaster;
+    }
+
+    /**
+     * The meta-property for the {@code cacheManager} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<CacheManager> cacheManager() {
+      return _cacheManager;
     }
 
   }

@@ -36,7 +36,7 @@ public class SABRATMVolatilityCalibrationFunctionTest {
   private static final double T = 0.5;
   private static final double F = 100;
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 8, 1);
-  private static final SABRDataBundle DATA = new SABRDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.0)), 0., new VolatilitySurface(ConstantDoublesSurface.from(ATM_SIGMA)), F, DATE, 0, BETA,
+  private static final SABRDataBundle DATA = new SABRDataBundle(YieldCurve.from(ConstantDoublesCurve.from(0.0)), 0., new VolatilitySurface(ConstantDoublesSurface.from(ATM_SIGMA)), F, DATE, 0, BETA,
       RHO, KSI);
   private static final SABRATMVolatilityCalibrationFunction FUNCTION = new SABRATMVolatilityCalibrationFunction();
   private static final OptionDefinition OPTION = new EuropeanVanillaOptionDefinition(100, new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, T)), true);

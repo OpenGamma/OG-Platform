@@ -8,7 +8,8 @@ package com.opengamma.financial.convention.daycount;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
-import org.apache.commons.lang.Validate;
+import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Convention for calculating the day count.
@@ -28,6 +29,21 @@ public abstract class DayCount {
   public abstract double getDayCountFraction(final LocalDate firstDate, final LocalDate secondDate);
 
   /**
+   * Gets the day count between the specified dates using the supplied calendar to provide business days
+   * <p>
+   * Given two dates, this method returns the fraction of a year between these dates
+   * according to the convention.
+   * 
+   * @param firstDate  the earlier date, not null
+   * @param secondDate  the later date, not null
+   * @param calendar  a calendar
+   * @return the day count fraction
+   */
+  public double getDayCountFraction(final LocalDate firstDate, final LocalDate secondDate, final Calendar calendar) {
+    return getDayCountFraction(firstDate, secondDate);
+  }
+
+  /**
    * Gets the day count between the specified dates.
    * <p>
    * Given two dates, this method returns the fraction of a year between these dates
@@ -38,8 +54,25 @@ public abstract class DayCount {
    * @return the day count fraction
    */
   public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
-    Validate.notNull(firstDate);
-    Validate.notNull(secondDate);
+    ArgumentChecker.notNull(firstDate, "first date");
+    ArgumentChecker.notNull(secondDate, "second date");
+    return getDayCountFraction(firstDate.toLocalDate(), secondDate.toLocalDate());
+  }
+
+  /**
+   * Gets the day count between the specified dates using the supplied calendar to provide business days
+   * <p>
+   * Given two dates, this method returns the fraction of a year between these dates
+   * according to the convention.
+   * 
+   * @param firstDate  the earlier date, not null
+   * @param secondDate  the later date, not null
+   * @param calendar  a calendar
+   * @return the day count fraction
+   */
+  public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate, final Calendar calendar) {
+    ArgumentChecker.notNull(firstDate, "first date");
+    ArgumentChecker.notNull(secondDate, "second date");
     return getDayCountFraction(firstDate.toLocalDate(), secondDate.toLocalDate());
   }
 
@@ -66,9 +99,9 @@ public abstract class DayCount {
    * @return the accrued interest
    */
   public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final double paymentsPerYear) {
-    Validate.notNull(previousCouponDate);
-    Validate.notNull(date);
-    Validate.notNull(nextCouponDate);
+    ArgumentChecker.notNull(previousCouponDate, "previous coupon date");
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.notNull(nextCouponDate, "next coupon date");
     return getAccruedInterest(previousCouponDate.toLocalDate(), date.toLocalDate(), nextCouponDate.toLocalDate(), coupon, paymentsPerYear);
   }
 

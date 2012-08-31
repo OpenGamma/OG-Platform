@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.model.forex.option.black.deprecated;
 import java.util.Collections;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.forex.calculator.CurrencyExposureBlackForexCalculator;
+import com.opengamma.analytics.financial.forex.calculator.CurrencyExposureBlackSmileForexCalculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.engine.value.ComputedValue;
@@ -23,7 +23,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 @Deprecated
 public class FXOptionBlackCurrencyExposureFunctionDeprecated extends FXOptionBlackMultiValuedFunctionDeprecated {
 
-  private static final CurrencyExposureBlackForexCalculator CALCULATOR = CurrencyExposureBlackForexCalculator.getInstance();
+  private static final CurrencyExposureBlackSmileForexCalculator CALCULATOR = CurrencyExposureBlackSmileForexCalculator.getInstance();
 
   public FXOptionBlackCurrencyExposureFunctionDeprecated() {
     super(ValueRequirementNames.FX_CURRENCY_EXPOSURE);

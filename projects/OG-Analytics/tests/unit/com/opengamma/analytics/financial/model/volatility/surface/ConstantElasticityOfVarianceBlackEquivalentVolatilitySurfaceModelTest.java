@@ -33,7 +33,7 @@ public class ConstantElasticityOfVarianceBlackEquivalentVolatilitySurfaceModelTe
   private static final double SPOT = 100;
   private static final double T = 0.25;
   private static final double B = 0;
-  private static final YieldAndDiscountCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(0.1));
+  private static final YieldAndDiscountCurve CURVE = YieldCurve.from(ConstantDoublesCurve.from(0.1));
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 7, 1);
   private static final Expiry EXPIRY = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, T));
   private static final double BETA = 0.5;

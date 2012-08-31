@@ -447,8 +447,8 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     }
     // Curve sensitivity (parallel shift check)
     final double shiftCurve = 0.0000001;
-    final YieldAndDiscountCurve curve5Shift = new YieldCurve(ConstantDoublesCurve.from(0.05 + shiftCurve));
-    final YieldAndDiscountCurve curve4Shift = new YieldCurve(ConstantDoublesCurve.from(0.04 + shiftCurve));
+    final YieldAndDiscountCurve curve5Shift = YieldCurve.from(ConstantDoublesCurve.from(0.05 + shiftCurve));
+    final YieldAndDiscountCurve curve4Shift = YieldCurve.from(ConstantDoublesCurve.from(0.04 + shiftCurve));
 
     final YieldCurveBundle curvesDscShift = new YieldCurveBundle();
     curvesDscShift.setCurve(FUNDING_CURVE_NAME, curve5Shift);

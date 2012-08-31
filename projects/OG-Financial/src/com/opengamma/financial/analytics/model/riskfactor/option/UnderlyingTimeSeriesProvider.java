@@ -5,53 +5,67 @@
  */
 package com.opengamma.financial.analytics.model.riskfactor.option;
 
-import javax.time.calendar.LocalDate;
-
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.greeks.AbstractGreekVisitor;
 import com.opengamma.analytics.financial.greeks.Greek;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.financial.analytics.timeseries.DateConstraint;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
  */
 public class UnderlyingTimeSeriesProvider {
+
   private static final FieldGreekVisitor FIELD_VISITOR = new FieldGreekVisitor();
-  private final HistoricalTimeSeriesSource _timeSeriesSource;
+
+  private final HistoricalTimeSeriesResolver _timeSeriesResolver;
   private final String _resolutionKey;
   private final UnderlyingFinancialSecurityVisitor _securityVisitor;
 
-  public UnderlyingTimeSeriesProvider(final HistoricalTimeSeriesSource timeSeriesSource, final String resolutionKey, final SecuritySource securitySource) {
-    ArgumentChecker.notNull(timeSeriesSource, "time series source");
-    ArgumentChecker.notNull(resolutionKey, "resolution key");
-    ArgumentChecker.notNull(securitySource, "security source");
-    _timeSeriesSource = timeSeriesSource;
+  public UnderlyingTimeSeriesProvider(final HistoricalTimeSeriesResolver timeSeriesResolver, final String resolutionKey, final SecuritySource securitySource) {
+    ArgumentChecker.notNull(timeSeriesResolver, "timeSeriesResolver");
+    ArgumentChecker.notNull(resolutionKey, "resolutionLey");
+    ArgumentChecker.notNull(securitySource, "securitySource");
+    _timeSeriesResolver = timeSeriesResolver;
     _resolutionKey = resolutionKey;
     _securityVisitor = new UnderlyingFinancialSecurityVisitor(securitySource);
   }
 
-  public LocalDateDoubleTimeSeries getSeries(final Greek greek, final FinancialSecurity security) {
-    return getSeries(greek, security, null, null);
+  private HistoricalTimeSeriesResolver getTimeSeriesResolver() {
+    return _timeSeriesResolver;
   }
 
-  public LocalDateDoubleTimeSeries getSeries(final Greek greek, final FinancialSecurity security, final LocalDate startDate, final LocalDate endDate) {
+  private String getResolutionKey() {
+    return _resolutionKey;
+  }
+
+  private UnderlyingFinancialSecurityVisitor getSecurityVisitor() {
+    return _securityVisitor;
+  }
+
+  public ValueRequirement getSeriesRequirement(final Greek greek, final FinancialSecurity security) {
+    return getSeriesRequirement(greek, security, DateConstraint.EARLIEST_START, DateConstraint.VALUATION_TIME);
+  }
+
+  public ValueRequirement getSeriesRequirement(final Greek greek, final FinancialSecurity security, final DateConstraint startDate, final DateConstraint endDate) {
     final String fieldName = greek.accept(FIELD_VISITOR);
-    final ExternalIdBundle underlyingId = security.accept(_securityVisitor);
-    final HistoricalTimeSeries hts = _timeSeriesSource.getHistoricalTimeSeries(fieldName, underlyingId, _resolutionKey, startDate, true, endDate, true);
-    if (hts == null) {
-      throw new OpenGammaRuntimeException("Could not get time series pair for " + underlyingId + " for security " + security + " for " + _resolutionKey + "/" + fieldName);
+    final ExternalIdBundle underlyingId = security.accept(getSecurityVisitor());
+    final HistoricalTimeSeriesResolutionResult timeSeries = getTimeSeriesResolver().resolve(underlyingId, null, null, null, fieldName, getResolutionKey());
+    if (timeSeries == null) {
+      throw new OpenGammaRuntimeException("Could not resolve time series for " + underlyingId + " for security " + security + " for " + getResolutionKey() + "/" + fieldName);
     }
-    return hts.getTimeSeries();
+    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, fieldName, startDate, true, endDate, true);
   }
 
   private static class FieldGreekVisitor extends AbstractGreekVisitor<String> {

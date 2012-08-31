@@ -38,7 +38,7 @@ public class AmericanVanillaOptionDefinitionTest {
   private static final Expiry EXPIRY = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 1));
   private static final OptionDefinition CALL = new AmericanVanillaOptionDefinition(STRIKE, EXPIRY, true);
   private static final OptionDefinition PUT = new AmericanVanillaOptionDefinition(STRIKE, EXPIRY, false);
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.05)), 0., new VolatilitySurface(ConstantDoublesSurface.from(0.2)),
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(YieldCurve.from(ConstantDoublesCurve.from(0.05)), 0., new VolatilitySurface(ConstantDoublesSurface.from(0.2)),
       STRIKE, DATE);
   private static final double EPS = 1e-15;
 

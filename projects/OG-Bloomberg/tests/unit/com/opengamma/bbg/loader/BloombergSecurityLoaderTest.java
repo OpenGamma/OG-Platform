@@ -5,8 +5,19 @@
  */
 package com.opengamma.bbg.loader;
 
-import static com.opengamma.bbg.util.BloombergSecurityUtils.*;
-import static org.testng.AssertJUnit.*;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.makeAPVLEquityOptionSecurity;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.makeEURIBORFutureOptionSecurity;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.makeEURODOLLARFutureOptionSecurity;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.makeExpectedAAPLEquitySecurity;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.makeInterestRateFuture;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.makeLIBORFutureOptionSecurity;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.makeSPXIndexOptionSecurity;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.makeUSBondFuture;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -25,7 +36,6 @@ import org.testng.annotations.Test;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
-import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
@@ -38,10 +48,32 @@ import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
-import com.opengamma.financial.security.future.*;
+import com.opengamma.financial.security.future.AgricultureFutureSecurity;
+import com.opengamma.financial.security.future.BondFutureDeliverable;
+import com.opengamma.financial.security.future.BondFutureSecurity;
+import com.opengamma.financial.security.future.EnergyFutureSecurity;
+import com.opengamma.financial.security.future.EquityFutureSecurity;
+import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
+import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.future.FutureSecurity;
+import com.opengamma.financial.security.future.IndexFutureSecurity;
+import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.financial.security.future.MetalFutureSecurity;
+import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
-import com.opengamma.financial.security.option.*;
+import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
+import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
+import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
+import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
+import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
+import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -53,8 +85,9 @@ import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.test.DbTest;
 
 /**
- * Test BloombergSecurityLoader.
+ * Test.
  */
+@Test(groups = "integration")
 public class BloombergSecurityLoaderTest extends DbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergSecurityLoaderTest.class);
@@ -63,14 +96,10 @@ public class BloombergSecurityLoaderTest extends DbTest {
   private SecurityMaster _securityMaster;
   private BloombergSecurityLoader _securityLoader;
 
-  /**
-   * @param databaseType
-   * @param databaseVersion
-   */
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public BloombergSecurityLoaderTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
-    s_logger.info("running testcases for {} version {}", databaseType, databaseVersion);
+    super(databaseType, databaseVersion, databaseVersion);
+    s_logger.info("running testcases for {}", databaseType);
   }
 
   @Override
@@ -548,7 +577,7 @@ public class BloombergSecurityLoaderTest extends DbTest {
   public void testBondFutureSecurity() {
     assertLoadAndSaveSecurity(makeUSBondFuture());
   }
-  
+
   @Test(groups={"bbgSecurityLoaderTests"})
   public void testIRFutureOptionSecurity() {
     assertLoadAndSaveSecurity(makeEURODOLLARFutureOptionSecurity());

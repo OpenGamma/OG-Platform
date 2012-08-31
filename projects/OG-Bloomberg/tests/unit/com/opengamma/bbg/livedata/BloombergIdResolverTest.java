@@ -8,14 +8,11 @@ package com.opengamma.bbg.livedata;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNull;
 
-import java.lang.reflect.Method;
-
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.opengamma.bbg.CachingReferenceDataProvider;
-import com.opengamma.bbg.test.BloombergLiveDataServerUtils;
+import com.opengamma.bbg.BloombergConstants;
+import com.opengamma.bbg.util.MockReferenceDataProvider;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -23,22 +20,17 @@ import com.opengamma.id.ExternalIdBundle;
 /**
  * Test.
  */
+@Test(groups = "unit")
 public class BloombergIdResolverTest {
 
-  /**
-   * 
-   */
   static final String AAPL_BB_ID_UNIQUE = "EQ0010169500001000";
-  private CachingReferenceDataProvider _refDataProvider = null;
+  private MockReferenceDataProvider _refDataProvider;
 
   @BeforeMethod
-  public void setupBloombergSecuritySource(Method m) {
-    _refDataProvider = BloombergLiveDataServerUtils.getCachingReferenceDataProvider(m);
-  }
-  
-  @AfterMethod
-  public void terminateSecuritySource() {
-    BloombergLiveDataServerUtils.stopCachingReferenceDataProvider(_refDataProvider);
+  public void setup() {
+    _refDataProvider = new MockReferenceDataProvider();
+    _refDataProvider.addResult("AAPL US Equity", BloombergConstants.FIELD_ID_BBG_UNIQUE, AAPL_BB_ID_UNIQUE);
+    _refDataProvider.addResult("foo123", null, null);
   }
 
   //-------------------------------------------------------------------------
@@ -67,7 +59,7 @@ public class BloombergIdResolverTest {
     ExternalId resolved = resolver.resolve(aaplEquity);
     assertEquals(ExternalSchemes.bloombergBuidSecurityId(AAPL_BB_ID_UNIQUE), resolved);
   }
-  
+
   @Test
   public void invalidBbgId() {
     ExternalIdBundle invalidSpec = ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("foo123"));
@@ -75,7 +67,7 @@ public class BloombergIdResolverTest {
     ExternalId resolved = resolver.resolve(invalidSpec);
     assertNull(resolved);
   }
-  
+
   @Test
   public void invalidBbgUniqueId() {
     ExternalId invalidSpec = ExternalSchemes.bloombergBuidSecurityId("foo123");
@@ -85,4 +77,5 @@ public class BloombergIdResolverTest {
     // doesn't validate unique IDs at the moment! should it?
     assertEquals(invalidSpec, resolved);
   }
+
 }

@@ -62,7 +62,11 @@ public abstract class ResolutionFailure implements Cloneable {
     /**
      * Miscellaneous inability to satisfy the requirement. No further information available.
      */
-    UNSATISFIED
+    UNSATISFIED,
+    /**
+     * A blacklist entry has suppressed resolution of the requirement.
+     */
+    SUPPRESSED
   }
 
   /* package */ResolutionFailure() {
@@ -85,6 +89,8 @@ public abstract class ResolutionFailure implements Cloneable {
   protected abstract ResolutionFailure getRequirementsFailed();
 
   protected abstract ResolutionFailure assertValueRequirement(final ValueRequirement valueRequirement);
+
+  protected abstract ResolutionFailure suppressed();
 
   // Query
 

@@ -1,0 +1,42 @@
+/**
+ * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+
+#include "resource.h"
+
+IDI_OPENGAMMA	ICON	"..\\..\\..\\..\\Installer\\OpenGamma.ico"
+
+IDV_OPENGAMMA VERSIONINFO
+	FILEVERSION		1,0,0,0
+	PRODUCTVERSION	1,0,0,0
+	FILEFLAGSMASK	0x3fL
+#ifdef _DEBUG
+	FILEFLAGS		0x1L
+#else /* ifdef _DEBUG */
+	FILEFLAGS		0x0L
+#endif /* ifdef _DEBUG */
+	FILEOS			0x40004L
+	FILETYPE		0x2L
+	FILESUBTYPE		0x0L
+	BEGIN
+		BLOCK "StringFileInfo"
+		BEGIN
+			BLOCK "080904E4"
+			BEGIN
+				VALUE	"CompanyName", "OpenGamma Ltd"
+				VALUE	"FileDescription", "Runs the OpenGamma service"
+				VALUE	"FileVersion", "1.0"
+				VALUE	"InternalName", "Service.exe"
+				VALUE	"LegalCopyright", "Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies. Please see distribution for license."
+				VALUE	"ProductName", "OpenGamma Platform"
+				VALUE	"ProductVersion", "1.0"
+			END
+		END
+		BLOCK "VarFileInfo"
+		BEGIN
+			VALUE	"Translation", 0x809, 1252
+		END
+	END
+	

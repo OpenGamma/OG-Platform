@@ -8,8 +8,7 @@ package com.opengamma.util.ehcache;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.event.RegisteredEventListeners;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+import net.sf.ehcache.Element;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
@@ -18,6 +17,8 @@ import com.opengamma.util.ArgumentChecker;
  * Utilities for working with EHCache.
  */
 public final class EHCacheUtils {
+  
+  private static final Object NULL = new Object();
 
   /**
    * Restrictive constructor.
@@ -39,6 +40,9 @@ public final class EHCacheUtils {
 
   /**
    * Adds a cache to the cache manager if necessary.
+   * <p>
+   * The cache configuration is loaded from the manager's configuration, or the default is used.
+   * 
    * @param manager  the cache manager, not null
    * @param cache  the cache, not null
    */
@@ -56,6 +60,9 @@ public final class EHCacheUtils {
 
   /**
    * Adds a cache to the cache manager if necessary.
+   * <p>
+   * The cache configuration is loaded from the manager's configuration, or the default is used.
+   * 
    * @param manager  the cache manager, not null
    * @param name  the cache name, not null
    */
@@ -63,42 +70,6 @@ public final class EHCacheUtils {
     if (!manager.cacheExists(name)) {
       try {
         manager.addCache(name);
-      } catch (Exception ex) {
-        throw new OpenGammaRuntimeException("Unable to create cache " + name, ex);
-      }
-    }
-  }
-
-  /**
-   * Adds a cache to the cache manager if necessary.
-   * @param manager  the cache manager, not null
-   * @param name  the cache name, not null
-   * @param maxElementsInMemory  the maximum elements in memory
-   * @param memoryStoreEvictionPolicy  the eviction policy
-   * @param overflowToDisk  whether to overflow to disk
-   * @param diskStorePath  the path on disk
-   * @param eternal  eternal
-   * @param timeToLiveSeconds  the time to live in seconds
-   * @param timeToIdleSeconds  the time to idle in seconds
-   * @param diskPersistent  whether the disk is persistent
-   * @param diskExpiryThreadIntervalSeconds  the expiry interval in seconds
-   * @param registeredEventListeners  the listeners
-   */
-  public static void addCache(CacheManager manager, String name,
-      int maxElementsInMemory,
-      MemoryStoreEvictionPolicy memoryStoreEvictionPolicy,
-      boolean overflowToDisk, String diskStorePath, boolean eternal,
-      long timeToLiveSeconds, long timeToIdleSeconds, boolean diskPersistent,
-      long diskExpiryThreadIntervalSeconds,
-      RegisteredEventListeners registeredEventListeners) {
-    ArgumentChecker.notNull(manager, "manager");
-    ArgumentChecker.notNull(name, "name");
-    if (!manager.cacheExists(name)) {
-      try {
-        manager.addCache(new Cache(name, maxElementsInMemory,
-            memoryStoreEvictionPolicy, overflowToDisk, diskStorePath, eternal,
-            timeToLiveSeconds, timeToIdleSeconds, diskPersistent,
-            diskExpiryThreadIntervalSeconds, registeredEventListeners));
       } catch (Exception ex) {
         throw new OpenGammaRuntimeException("Unable to create cache " + name, ex);
       }
@@ -127,5 +98,32 @@ public final class EHCacheUtils {
   public static void clearAll() {
     CacheManager.create().clearAll();
   }
+  
+  @SuppressWarnings("unchecked")
+  public static <T> T get(final Element e) {
+    final Object o = e.getObjectValue();
+    if (o == NULL) {
+      return null;
+    }
+    if (o instanceof RuntimeException) {
+      throw (RuntimeException) o;
+    }
+    return (T) o;
+  }
 
+  public static <T> T putValue(final Object key, final T value, final Cache cache) {
+    final Element e;
+    if (value == null) {
+      e = new Element(key, NULL);
+    } else {
+      e = new Element(key, value);
+    }
+    cache.put(e);
+    return value;
+  }
+
+  public static <T> T putException(final Object key, final RuntimeException e, final Cache cache) {
+    cache.put(new Element(key, e));
+    throw e;
+  }
 }

@@ -75,6 +75,7 @@
           <include>**/*.csv</include>
           <include>**/*.proto</include>
           <include>**/*.txt</include>
+          <include>**/*.xml</include>
         </includes>
       </resource>
     </resources>
@@ -84,6 +85,10 @@
         <directory>${project.build.testSourceDirectory}</directory>
         <includes>
           <include>**/*.properties</include>
+          <include>**/*.csv</include>
+          <include>**/*.proto</include>
+          <include>**/*.txt</include>
+          <include>**/*.xml</include>
         </includes>
       </testResource>
     </testResources>
@@ -245,6 +250,8 @@
   </build>
 
   <!-- ==================================================================== -->
+  <!-- The OpenGamma repository is at http://ivyrepos.opengamma.com/og-maven/public/ -->
+
   <!-- define versions here, so sub-projects do not have to -->
   <dependencyManagement>
     <dependencies>
@@ -268,6 +275,12 @@
         <groupId>commons-beanutils</groupId>
         <artifactId>commons-beanutils</artifactId>
         <version>1.8.3</version>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>commons-codec</groupId>
@@ -294,7 +307,7 @@
       <dependency>
         <groupId>org.fudgemsg</groupId>
         <artifactId>fudge-java</artifactId>
-        <version>0.3.9.1</version>
+        <version>0.3.9.4</version>
         <exclusions>
           <exclusion>
             <groupId>commons-logging</groupId>
@@ -305,7 +318,7 @@
       <dependency>
         <groupId>org.fudgemsg</groupId>
         <artifactId>fudge-proto</artifactId>
-        <version>0.3.9.1</version>
+        <version>0.3.9.2</version>
       </dependency>
       <dependency>
         <groupId>com.opengamma.external.threeten</groupId>

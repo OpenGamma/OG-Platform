@@ -30,13 +30,12 @@ import com.opengamma.security.user.UserGroup;
 import com.opengamma.security.user.UserManager;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = "unit")
 public class UserEntitlementCheckerTest {
-  
-  @Test
+
   public void basicPermissionCheck() {
-    
     Set<UserGroup> userGroups = new HashSet<UserGroup>();
 
     UserGroup group1 = new UserGroup(0L, "group1");
@@ -76,7 +75,7 @@ public class UserEntitlementCheckerTest {
         ExternalId.of("BLOOMBERG_BUID", "BOND12345"),
         new NormalizationRuleSet("MyWeirdNormalizationRule"),
         "LiveData.Bloomberg.Bond.IBMBOND123.MyWeirdNormalizationRule");
-
+    
     DistributionSpecification fxOnBloomberg = new DistributionSpecification(
         ExternalId.of("BLOOMBERG_BUID", "FX12345"),
         StandardRules.getNoNormalization(),

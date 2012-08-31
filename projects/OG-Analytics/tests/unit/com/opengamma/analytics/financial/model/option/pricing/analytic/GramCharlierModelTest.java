@@ -32,7 +32,7 @@ import com.opengamma.util.time.Expiry;
 public class GramCharlierModelTest {
   private static final AnalyticOptionModel<OptionDefinition, SkewKurtosisOptionDataBundle> GRAM_CHARLIER = new GramCharlierModel();
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
-  private static final YieldAndDiscountCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(0.05));
+  private static final YieldAndDiscountCurve CURVE = YieldCurve.from(ConstantDoublesCurve.from(0.05));
   private static final double B = 0.05;
   private static final VolatilitySurface SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(0.3));
   private static final double SPOT = 30;

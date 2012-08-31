@@ -81,6 +81,14 @@ public final class ValueRequirementNames {
    * The market price of the underlying security in a compound security, such as an option
    */
   public static final String UNDERLYING_MARKET_PRICE = "Underlying Market Price";
+  /**
+   * The historical time series of a quantity.
+   */
+  public static final String HISTORICAL_TIME_SERIES = "Historical Time Series";
+  /**
+   * The latest point from a historical time series of a quantity.
+   */
+  public static final String HISTORICAL_TIME_SERIES_LATEST = "Historical Time Series (latest value)";
 
   ///// Curves
 
@@ -100,6 +108,14 @@ public final class ValueRequirementNames {
    * Curve containing (time, rate) pairs.
    */
   public static final String YIELD_CURVE = "YieldCurve";
+  /**
+   * The bundle of historical time series objects for instruments on a curve.
+   */
+  public static final String YIELD_CURVE_HISTORICAL_TIME_SERIES = "Yield Curve Historical Time Series";
+  /**
+   * The bundle of time series objects needed to convert instruments on a curve to their OG-Analytics derivative form.
+   */
+  public static final String YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES = "Yield Curve Instrument Conversion Historical Time Series";
   /**
    * Curve containing (time, rate) pairs that is constructed by directly interpolating between market data points (ie no settlement day corrections, ignoring the type of instrument etc).
    */
@@ -136,6 +152,7 @@ public final class ValueRequirementNames {
    * FX forward curve property metadata
    */
   public static final String FX_FORWARD_CURVE_SPEC = "FXForwardCurveSpec";
+
   ///// Surfaces
 
   /**
@@ -182,6 +199,10 @@ public final class ValueRequirementNames {
    * A volatility surface specification
    */
   public static final String VOLATILITY_SURFACE_SPEC = "VolatilitySurfaceSpecification";
+  /**
+   * The bundle of historical time series objects for elements of a volatility surface.
+   */
+  public static final String VOLATILITY_SURFACE_HISTORICAL_TIME_SERIES = "Volatility Surface Historical Time Series";
 
   ///// Cubes
 
@@ -209,6 +230,7 @@ public final class ValueRequirementNames {
    * The points that have been included in a fit
    */
   public static final String VOLATILITY_CUBE_FITTED_POINTS = "VolatilityCubeFittedPoints";
+
   ///// Pricing
 
   /**
@@ -1136,4 +1158,30 @@ public final class ValueRequirementNames {
    * The PDE space grid values of the price
    */
   public static final String GRID_PRESENT_VALUE = "Grid Present Value";
+  
+  ///// Externally-sourced values
+  // Existing value requirement names with a suffix
+  // NOTE jonathan 2012-07-13 -- simply to allow clearer column headers. Should be removed once we have a better solution.
+  private static final String EXTERNAL_SUFFIX = " (ext)";
+  /**
+   * External value of {@link #CONDITIONAL_HISTORICAL_VAR}
+   */
+  public static final String EXTERNAL_CONDITIONAL_HISTORICAL_VAR = CONDITIONAL_HISTORICAL_VAR + EXTERNAL_SUFFIX;
+  /**
+   * External value of {@link #DV01}
+   */
+  public static final String EXTERNAL_DV01 = DV01 + EXTERNAL_SUFFIX;
+  /**
+   * External value of {@link #HISTORICAL_VAR_STDDEV}
+   */
+  public static final String EXTERNAL_HISTORICAL_VAR_STDDEV = HISTORICAL_VAR_STDDEV + EXTERNAL_SUFFIX;
+  /**
+   * External value of {@link #PRESENT_VALUE}.
+   */
+  public static final String EXTERNAL_PRESENT_VALUE = PRESENT_VALUE + EXTERNAL_SUFFIX;
+  /**
+   * External position quantity.
+   */
+  public static final String EXTERNAL_QUANTITY = "Quantity" + EXTERNAL_SUFFIX;
+  
 }

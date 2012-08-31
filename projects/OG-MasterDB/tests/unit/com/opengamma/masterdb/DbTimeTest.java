@@ -52,8 +52,8 @@ public class DbTimeTest extends DbTest {
   private ElSqlBundle _elSqlBundle;
   
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
-  public DbTimeTest(final String databaseType, final String databaseVersion) {
-    super(databaseType, databaseVersion);
+  public DbTimeTest(final String databaseType, String databaseVersion) {
+    super(databaseType, databaseVersion, databaseVersion);
     _elSqlBundle = ElSqlBundle.of(getDbConnector().getDialect().getElSqlConfig(), DbTimeTest.class);
   }
 

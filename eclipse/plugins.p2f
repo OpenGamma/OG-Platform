@@ -63,7 +63,7 @@
         <repository location='http://eclipse-cs.sf.net/update/'/>
       </repositories>
     </iu>
-    <iu id='org.testng.eclipse.feature.group' name='TestNG' version='6.4.0.20120308_1617'>
+    <iu id='org.testng.eclipse.feature.group' name='TestNG' version='6.7.0.20120825_1316'>
       <repositories size='1'>
         <repository location='http://beust.com/eclipse'/>
       </repositories>

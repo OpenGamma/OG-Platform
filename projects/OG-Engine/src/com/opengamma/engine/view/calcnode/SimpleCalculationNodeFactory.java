@@ -12,6 +12,8 @@ import org.springframework.beans.factory.InitializingBean;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionExecutionContext;
+import com.opengamma.engine.function.blacklist.FunctionBlacklistMaintainer;
+import com.opengamma.engine.function.blacklist.FunctionBlacklistQuery;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatisticsGatherer;
@@ -33,6 +35,9 @@ public class SimpleCalculationNodeFactory implements InitializingBean {
   private boolean _useWriteBehindSharedCache;
   private boolean _useWriteBehindPrivateCache;
   private boolean _useAsynchronousTargetResolve;
+  private FunctionBlacklistQuery _blacklistQuery;
+  private FunctionBlacklistMaintainer _blacklistUpdate;
+  private MaximumJobItemExecutionWatchdog _maxJobItemExecution;
 
   private int _uid;
 
@@ -130,6 +135,30 @@ public class SimpleCalculationNodeFactory implements InitializingBean {
     return _statisticsGatherer;
   }
 
+  public void setFunctionBlacklistQuery(final FunctionBlacklistQuery blacklistQuery) {
+    _blacklistQuery = blacklistQuery;
+  }
+
+  public FunctionBlacklistQuery getFunctionBlacklistQuery() {
+    return _blacklistQuery;
+  }
+
+  public void setFunctionBlacklistUpdate(final FunctionBlacklistMaintainer blacklistUpdate) {
+    _blacklistUpdate = blacklistUpdate;
+  }
+
+  public FunctionBlacklistMaintainer getFunctionBlacklistUpdate() {
+    return _blacklistUpdate;
+  }
+
+  public void setMaxJobItemExecution(final MaximumJobItemExecutionWatchdog maxJobItemExecution) {
+    _maxJobItemExecution = maxJobItemExecution;
+  }
+
+  public MaximumJobItemExecutionWatchdog getMaxJobItemExecution() {
+    return _maxJobItemExecution;
+  }
+
   public synchronized SimpleCalculationNode createNode() {
     final String identifier;
     if (getNodeIdentifier() != null) {
@@ -142,6 +171,15 @@ public class SimpleCalculationNodeFactory implements InitializingBean {
     node.setUseWriteBehindSharedCache(isUseWriteBehindSharedCache());
     node.setUseWriteBehindPrivateCache(isUseWriteBehindPrivateCache());
     node.setUseAsynchronousTargetResolve(isUseAsynchronousTargetResolve());
+    if (getFunctionBlacklistQuery() != null) {
+      node.setFunctionBlacklistQuery(getFunctionBlacklistQuery());
+    }
+    if (getFunctionBlacklistUpdate() != null) {
+      node.setFunctionBlacklistUpdate(getFunctionBlacklistUpdate());
+    }
+    if (getMaxJobItemExecution() != null) {
+      node.setMaxJobItemExecution(getMaxJobItemExecution());
+    }
     return node;
   }
 

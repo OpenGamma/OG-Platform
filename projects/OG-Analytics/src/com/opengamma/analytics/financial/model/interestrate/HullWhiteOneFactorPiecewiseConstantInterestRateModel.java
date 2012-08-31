@@ -216,7 +216,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModel {
    * @param hwParameters The model parameters.
    * @param u The start time.
    * @param v The end times.
-   * @return The volatility.
+   * @return The volatility. Same dimension as v.
    */
   public double[][] volatilityMaturityPart(final HullWhiteOneFactorPiecewiseConstantParameters hwParameters, double u, double[][] v) {
     double a = hwParameters.getMeanReversion();

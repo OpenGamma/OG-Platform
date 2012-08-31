@@ -14,6 +14,7 @@ import com.opengamma.util.timeseries.AbstractIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.AbstractLongDoubleTimeSeries;
 import com.opengamma.util.timeseries.DateTimeConverter;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeriesOperators.UnaryOperator;
 import com.opengamma.util.timeseries.FastBackedDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
@@ -38,6 +39,9 @@ public interface LocalDateDoubleTimeSeries extends DoubleTimeSeries<LocalDate>, 
 
   @Override
   LocalDateDoubleTimeSeries lag(final int lagCount);
+
+  @Override
+  LocalDateDoubleTimeSeries operate(UnaryOperator operator);
 
   //-------------------------------------------------------------------------
   /**
@@ -73,6 +77,11 @@ public interface LocalDateDoubleTimeSeries extends DoubleTimeSeries<LocalDate>, 
     @Override
     public LocalDateDoubleTimeSeries lag(final int lagCount) {
       return (LocalDateDoubleTimeSeries) super.lag(lagCount);
+    }
+
+    @Override
+    public LocalDateDoubleTimeSeries operate(final UnaryOperator operator) {
+      return (LocalDateDoubleTimeSeries) super.operate(operator);
     }
 
     @Override
@@ -122,6 +131,11 @@ public interface LocalDateDoubleTimeSeries extends DoubleTimeSeries<LocalDate>, 
     @Override
     public LocalDateDoubleTimeSeries lag(final int lagCount) {
       return (LocalDateDoubleTimeSeries) super.lag(lagCount);
+    }
+
+    @Override
+    public LocalDateDoubleTimeSeries operate(final UnaryOperator operator) {
+      return (LocalDateDoubleTimeSeries) super.operate(operator);
     }
 
     @Override

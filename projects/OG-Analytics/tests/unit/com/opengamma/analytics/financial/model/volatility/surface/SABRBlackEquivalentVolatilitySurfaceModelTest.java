@@ -37,7 +37,7 @@ public class SABRBlackEquivalentVolatilitySurfaceModelTest {
   private static final double RHO = -0.4;
   private static final double VOL_OF_VOL = 0.5;
   private static final double R = 0.05;
-  private static final YieldCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(R));
+  private static final YieldCurve CURVE = YieldCurve.from(ConstantDoublesCurve.from(R));
   private static final double B = R;
   private static final double S = 100 * Math.exp(-B * T);
   private static final VolatilitySurface ATM_VOL = new VolatilitySurface(ConstantDoublesSurface.from(0.3));

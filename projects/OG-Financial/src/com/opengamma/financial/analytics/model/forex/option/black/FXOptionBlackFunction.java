@@ -20,8 +20,11 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.option.definition.ForexOptionDataBundle;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
-import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParametersStrikeInterpolation;
+import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackForexTermStructureBundle;
+import com.opengamma.analytics.financial.model.volatility.curve.BlackForexTermStructureParameters;
+import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -41,11 +44,14 @@ import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
+import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
+import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -122,17 +128,19 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
     if (volatilitySurfaceObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + fxVolatilitySurfaceRequirement);
     }
-    final SmileDeltaTermStructureParametersStrikeInterpolation smiles = (SmileDeltaTermStructureParametersStrikeInterpolation) volatilitySurfaceObject;
     final FXMatrix fxMatrix = new FXMatrix(ccy1, ccy2, spot);
-    final ValueProperties.Builder properties = getResultProperties(putCurveName, callCurveName, putCurveConfig, callCurveConfig, surfaceName, interpolatorName,
-        leftExtrapolatorName, rightExtrapolatorName, target);
+    final ValueProperties.Builder properties = getResultProperties(target, desiredValue);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties.get());
-    final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(fxMatrix, curveCurrency, yieldCurves, smiles, Pair.of(ccy1, ccy2));
-    try {
-      return getResult(fxOption, smileBundle, spec);
-    } catch (final Exception e) {
-      throw new OpenGammaRuntimeException("Could not get " + _valueRequirementName + " for " + security, e);
+    final YieldCurveBundle curvesWithFX = new YieldCurveBundle(fxMatrix, curveCurrency, yieldCurves.getCurvesMap());
+    final ObjectsPair<Currency, Currency> currencyPair = Pair.of(ccy1, ccy2);
+    if (volatilitySurfaceObject instanceof SmileDeltaTermStructureParametersStrikeInterpolation) {
+      final SmileDeltaTermStructureParametersStrikeInterpolation smiles = (SmileDeltaTermStructureParametersStrikeInterpolation) volatilitySurfaceObject;
+      final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(curvesWithFX, smiles, currencyPair);
+      return getResult(fxOption, smileBundle, target, desiredValues, inputs, spec, executionContext);
     }
+    final BlackForexTermStructureParameters termStructure = (BlackForexTermStructureParameters) volatilitySurfaceObject;
+    final YieldCurveWithBlackForexTermStructureBundle flatData = new YieldCurveWithBlackForexTermStructureBundle(curvesWithFX, termStructure, currencyPair);
+    return getResult(fxOption, flatData, target, desiredValues, inputs, spec, executionContext);
   }
 
   @Override
@@ -147,9 +155,9 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
     }
     return target.getSecurity() instanceof FXOptionSecurity
         || target.getSecurity() instanceof FXBarrierOptionSecurity
-        //        || target.getSecurity() instanceof FXDigitalOptionSecurity
-        || target.getSecurity() instanceof NonDeliverableFXOptionSecurity;
-    //        || target.getSecurity() instanceof NonDeliverableFXDigitalOptionSecurity;
+        || target.getSecurity() instanceof FXDigitalOptionSecurity
+        || target.getSecurity() instanceof NonDeliverableFXOptionSecurity
+        || target.getSecurity() instanceof NonDeliverableFXDigitalOptionSecurity;
   }
 
   @Override
@@ -213,13 +221,13 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
 
   protected abstract ValueProperties.Builder getResultProperties(final ComputationTarget target);
 
-  protected abstract ValueProperties.Builder getResultProperties(final String putCurveName, final String callCurveName, final String putCurveCalculationConfig,
-      final String callCurveCalculationConfig, final String surfaceName, final String interpolatorName, final String leftExtrapolatorName,
-      final String rightExtrapolatorName, final ComputationTarget target);
+  protected abstract ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue);
 
-  protected abstract Set<ComputedValue> getResult(InstrumentDerivative forex, SmileDeltaTermStructureDataBundle data, ValueSpecification spec);
+  //TODO clumsy. Push the execute() method down into the functions and have getDerivative() and getData() methods
+  protected abstract Set<ComputedValue> getResult(final InstrumentDerivative forex, final ForexOptionDataBundle<?> data, final ComputationTarget target,
+      final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext);
 
-  private static ValueRequirement getCurveRequirement(final String curveName, final Currency currency, final String curveCalculationConfigName) {
+  protected static ValueRequirement getCurveRequirement(final String curveName, final Currency currency, final String curveCalculationConfigName) {
     final ValueProperties.Builder properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, curveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName);

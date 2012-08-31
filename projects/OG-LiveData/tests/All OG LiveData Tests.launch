@@ -4,7 +4,7 @@
 <listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.testng.remote.RemoteTestNG"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="OG LiveData"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="OG-LiveData"/>
 <mapAttribute key="org.testng.eclipse.ALL_CLASS_METHODS"/>
 <listAttribute key="org.testng.eclipse.CLASS_TEST_LIST"/>
 <listAttribute key="org.testng.eclipse.GROUP_LIST"/>
@@ -15,6 +15,7 @@
 <listEntry value="com.opengamma.livedata"/>
 <listEntry value="com.opengamma.livedata.client"/>
 <listEntry value="com.opengamma.livedata.entitlement"/>
+<listEntry value="com.opengamma.livedata.firehose"/>
 <listEntry value="com.opengamma.livedata.msg"/>
 <listEntry value="com.opengamma.livedata.normalization"/>
 <listEntry value="com.opengamma.livedata.resolver"/>

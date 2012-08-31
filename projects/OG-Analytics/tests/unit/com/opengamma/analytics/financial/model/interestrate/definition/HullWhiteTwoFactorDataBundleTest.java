@@ -14,7 +14,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteTwoFactorDataBundle;
 import com.opengamma.analytics.financial.model.volatility.curve.VolatilityCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.time.DateUtils;
@@ -28,9 +27,9 @@ public class HullWhiteTwoFactorDataBundleTest {
   private static final double SPEED_1 = 0.1;
   private static final double SPEED_2 = 0.15;
   private static final double U = 0.1;
-  private static final YieldCurve F = new YieldCurve(ConstantDoublesCurve.from(0.05));
+  private static final YieldCurve F = YieldCurve.from(ConstantDoublesCurve.from(0.05));
   private static final double RHO = 0.2;
-  private static final YieldAndDiscountCurve R_CURVE = new YieldCurve(ConstantDoublesCurve.from(R));
+  private static final YieldAndDiscountCurve R_CURVE = YieldCurve.from(ConstantDoublesCurve.from(R));
   private static final VolatilityCurve SIGMA_CURVE_1 = new VolatilityCurve(ConstantDoublesCurve.from(SIGMA));
   private static final VolatilityCurve SIGMA_CURVE_2 = new VolatilityCurve(ConstantDoublesCurve.from(2 * SIGMA));
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 7, 1);
@@ -94,7 +93,7 @@ public class HullWhiteTwoFactorDataBundleTest {
     HullWhiteTwoFactorDataBundle other = new HullWhiteTwoFactorDataBundle(R_CURVE, SIGMA_CURVE_1, SIGMA_CURVE_2, DATE, SPEED_1, SPEED_2, U, F, RHO);
     assertEquals(other, DATA);
     assertEquals(other.hashCode(), DATA.hashCode());
-    other = new HullWhiteTwoFactorDataBundle(new YieldCurve(ConstantDoublesCurve.from(R - 0.01)), SIGMA_CURVE_1, SIGMA_CURVE_2, DATE, SPEED_1, SPEED_2, U, F, RHO);
+    other = new HullWhiteTwoFactorDataBundle(YieldCurve.from(ConstantDoublesCurve.from(R - 0.01)), SIGMA_CURVE_1, SIGMA_CURVE_2, DATE, SPEED_1, SPEED_2, U, F, RHO);
     assertFalse(other.equals(DATA));
     other = new HullWhiteTwoFactorDataBundle(R_CURVE, new VolatilityCurve(ConstantDoublesCurve.from(SIGMA + 0.3)), SIGMA_CURVE_2, DATE, SPEED_1, SPEED_2, U, F, RHO);
     assertFalse(other.equals(DATA));
@@ -108,7 +107,7 @@ public class HullWhiteTwoFactorDataBundleTest {
     assertFalse(other.equals(DATA));
     other = new HullWhiteTwoFactorDataBundle(R_CURVE, SIGMA_CURVE_1, SIGMA_CURVE_2, DATE, SPEED_1, SPEED_2, U + 0.1, F, RHO);
     assertFalse(other.equals(DATA));
-    other = new HullWhiteTwoFactorDataBundle(R_CURVE, SIGMA_CURVE_1, SIGMA_CURVE_2, DATE, SPEED_1, SPEED_2, U, new YieldCurve(ConstantDoublesCurve.from(F.getInterestRate(0.) + 0.1)), RHO);
+    other = new HullWhiteTwoFactorDataBundle(R_CURVE, SIGMA_CURVE_1, SIGMA_CURVE_2, DATE, SPEED_1, SPEED_2, U, YieldCurve.from(ConstantDoublesCurve.from(F.getInterestRate(0.) + 0.1)), RHO);
     assertFalse(other.equals(DATA));
     other = new HullWhiteTwoFactorDataBundle(R_CURVE, SIGMA_CURVE_1, SIGMA_CURVE_2, DATE, SPEED_1, SPEED_2, U, F, RHO + 0.1);
     assertFalse(other.equals(DATA));

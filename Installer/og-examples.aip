@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT Type="Advanced Installer" CreateVersion="8.7.1" version="8.7.1" Modules="msm" RootPath="." Language="en" Id="{C20F40C5-7E2B-4DD7-B490-EF45BD11124B}">
+<DOCUMENT Type="Advanced Installer" CreateVersion="8.7.1" version="9.4" Modules="msm" RootPath="." Language="en" Id="{C20F40C5-7E2B-4DD7-B490-EF45BD11124B}">
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
     <ROW Property="JAVA_XMX" Value="JAVA_XMX"/>
     <ROW Property="M_START" Value="OpenGamma"/>
+    <ROW Property="TOOL_UI_FLAG" Value="TOOL_UI_FLAG"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiDirsComponent">
     <ROW Directory="APPDIR" Directory_Parent="TARGETDIR" DefaultDir="." IsPseudoRoot="1"/>
@@ -12,6 +13,7 @@
     <ROW Directory="bin_Dir" Directory_Parent="APPDIR" DefaultDir="bin"/>
     <ROW Directory="config_Dir" Directory_Parent="APPDIR" DefaultDir="config"/>
     <ROW Directory="db_Dir" Directory_Parent="install_Dir" DefaultDir="db"/>
+    <ROW Directory="exampledb.tmp_Dir" Directory_Parent="hsqldb_Dir" DefaultDir="exampl~1.tmp|example-db.tmp"/>
     <ROW Directory="fullstack_Dir" Directory_Parent="config_Dir" DefaultDir="fullst~1|fullstack"/>
     <ROW Directory="hsqldb_Dir" Directory_Parent="db_Dir" DefaultDir="hsqldb"/>
     <ROW Directory="install_Dir" Directory_Parent="APPDIR" DefaultDir="install"/>
@@ -45,13 +47,16 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.ModuleConfigurationComponent">
     <ROW Name="JAVA_XMX" Format="0" Type="Formatted" DefaultValue="[JAVA_XMX]" Attributes="0" DisplayName="-Xmx" Description="The -Xmx option"/>
+    <ROW Name="TOOL_UI_FLAG" Format="0" Type="Formatted" DefaultValue="[TOOL_UI_FLAG]" Attributes="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.ModuleSubstitutionComponent">
     <ROW Table="CustomAction" Row="JAVA_XMX_1" Column="Target" Value="[=JAVA_XMX]"/>
     <ROW Table="CustomAction" Row="JAVA_XMX_2" Column="Target" Value="[=JAVA_XMX]"/>
+    <ROW Table="CustomAction" Row="TOOL_UI_FLAG_1" Column="Target" Value="[=TOOL_UI_FLAG]"/>
+    <ROW Table="CustomAction" Row="TOOL_UI_FLAG_2" Column="Target" Value="[=TOOL_UI_FLAG]"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiActionTextComponent">
-    <ROW Action="Populate" Description="Creating and populating example database"/>
+    <ROW Action="PopulateExample" Description="Creating and populating example database" Template="Database:"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCreateFolderComponent">
     <ROW Directory_="M_START__Dir" Component_="StartMenu"/>
@@ -59,30 +64,24 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCustActComponent">
     <ROW Action="JAVA_XMX_1" Type="51" Source="JAVA_XMX" Target="[JAVA_XMX]"/>
     <ROW Action="JAVA_XMX_2" Type="51" Source="JAVA_XMX" Target="[JAVA_XMX]"/>
-    <ROW Action="Populate" Type="3106" Source="APPDIR" Target="&quot;[bin_Dir]MainRunner.exe&quot; &quot;[bin_Dir]og-example-populate.ini&quot;"/>
+    <ROW Action="PopulateExample" Type="3106" Source="APPDIR" Target="&quot;[bin_Dir]MainRunner.exe&quot; &quot;[bin_Dir]og-example-populate.ini&quot; [TOOL_UI_FLAG]"/>
+    <ROW Action="TOOL_UI_FLAG_1" Type="51" Source="TOOL_UI_FLAG" Target="[TOOL_UI_FLAG]"/>
+    <ROW Action="TOOL_UI_FLAG_2" Type="51" Source="TOOL_UI_FLAG" Target="[TOOL_UI_FLAG]"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiIniFileComponent">
     <ROW IniFile="URL" FileName="OpenGa~1.url|OpenGamma Web Interface.url" DirProperty="M_START__Dir" Section="InternetShortcut" Key="URL" Value="http://localhost:8080/" Action="0" Component_="StartMenu"/>
     <ROW IniFile="WorkingDirectory" FileName="OpenGa~1.url|OpenGamma Web Interface.url" DirProperty="M_START__Dir" Section="InternetShortcut" Key="WorkingDirectory" Value="[M_START__Dir]" Action="0" Component_="StartMenu"/>
-    <ROW IniFile="arg0" FileName="og-exa~1.ini|og-example-populate.ini" DirProperty="bin_Dir" Section="Arguments" Key="arg0" Value="-n" Action="0" Component_="Service.exe"/>
     <ROW IniFile="arg0_1" FileName="og-exa~2.ini|og-example.ini" DirProperty="bin_Dir" Section="Arguments" Key="arg0" Value="-q" Action="0" Component_="Service.exe"/>
-    <ROW IniFile="arg1" FileName="og-exa~1.ini|og-example-populate.ini" DirProperty="bin_Dir" Section="Arguments" Key="arg1" Value="3" Action="0" Component_="Service.exe"/>
-    <ROW IniFile="arg10" FileName="og-exa~1.ini|og-example-populate.ini" DirProperty="bin_Dir" Section="Arguments" Key="arg10" Value="-class2" Action="0" Component_="Service.exe"/>
-    <ROW IniFile="arg11" FileName="og-exa~1.ini|og-example-populate.ini" DirProperty="bin_Dir" Section="Arguments" Key="arg11" Value="com.opengamma.examples.tool.ExampleDatabasePopulator" Action="0" Component_="Service.exe"/>
-    <ROW IniFile="arg12" FileName="og-exa~1.ini|og-example-populate.ini" DirProperty="bin_Dir" Section="Arguments" Key="arg12" Value="-arg2" Action="0" Component_="Service.exe"/>
-    <ROW IniFile="arg13" FileName="og-exa~1.ini|og-example-populate.ini" DirProperty="bin_Dir" Section="Arguments" Key="arg13" Value="-c classpath:toolcontext/example-run.properties" Action="0" Component_="Service.exe"/>
+    <ROW IniFile="arg11" FileName="og-exa~1.ini|og-example-populate.ini" DirProperty="bin_Dir" Section="Arguments" Key="arg4" Value="com.opengamma.examples.tool.ExampleDatabasePopulator" Action="0" Component_="Service.exe"/>
+    <ROW IniFile="arg13" FileName="og-exa~1.ini|og-example-populate.ini" DirProperty="bin_Dir" Section="Arguments" Key="arg5" Value="-c classpath:toolcontext/example-run.properties" Action="0" Component_="Service.exe"/>
     <ROW IniFile="arg1_1" FileName="og-exa~2.ini|og-example.ini" DirProperty="bin_Dir" Section="Arguments" Key="arg1" Value="classpath:fullstack/example-run.properties" Action="0" Component_="Service.exe"/>
-    <ROW IniFile="arg2" FileName="og-exa~1.ini|og-example-populate.ini" DirProperty="bin_Dir" Section="Arguments" Key="arg2" Value="-class0" Action="0" Component_="Service.exe"/>
     <ROW IniFile="arg2_1" FileName="og-exa~2.ini|og-example.ini" DirProperty="bin_Dir" Section="Arguments" Key="arg2" Value="OpenGammaExample" Action="0" Component_="Service.exe"/>
-    <ROW IniFile="arg3" FileName="og-exa~1.ini|og-example-populate.ini" DirProperty="bin_Dir" Section="Arguments" Key="arg3" Value="com.opengamma.util.test.DbTool" Action="0" Component_="Service.exe"/>
-    <ROW IniFile="arg4" FileName="og-exa~1.ini|og-example-populate.ini" DirProperty="bin_Dir" Section="Arguments" Key="arg4" Value="-arg0" Action="0" Component_="Service.exe"/>
-    <ROW IniFile="arg5" FileName="og-exa~1.ini|og-example-populate.ini" DirProperty="bin_Dir" Section="Arguments" Key="arg5" Value="-jdbcUrl jdbc:hsqldb:file:install/db/hsqldb/example-db -database og-financial -user OpenGamma -password OpenGamma -drop true -create true -createtables true -dbscriptbasedir ." Action="0" Component_="Service.exe"/>
-    <ROW IniFile="arg6" FileName="og-exa~1.ini|og-example-populate.ini" DirProperty="bin_Dir" Section="Arguments" Key="arg6" Value="-class1" Action="0" Component_="Service.exe"/>
-    <ROW IniFile="arg7" FileName="og-exa~1.ini|og-example-populate.ini" DirProperty="bin_Dir" Section="Arguments" Key="arg7" Value="com.opengamma.util.test.DbTool" Action="0" Component_="Service.exe"/>
-    <ROW IniFile="arg8" FileName="og-exa~1.ini|og-example-populate.ini" DirProperty="bin_Dir" Section="Arguments" Key="arg8" Value="-arg1" Action="0" Component_="Service.exe"/>
-    <ROW IniFile="arg9" FileName="og-exa~1.ini|og-example-populate.ini" DirProperty="bin_Dir" Section="Arguments" Key="arg9" Value="-jdbcUrl jdbc:hsqldb:file:temp/hsqldb/og-fin-user -database og-financial -user OpenGamma -password OpenGamma -drop true -create true  -createtables true  -dbscriptbasedir ." Action="0" Component_="Service.exe"/>
+    <ROW IniFile="arg3" FileName="og-exa~1.ini|og-example-populate.ini" DirProperty="bin_Dir" Section="Arguments" Key="arg0" Value="com.opengamma.util.test.DbTool" Action="0" Component_="Service.exe"/>
+    <ROW IniFile="arg5" FileName="og-exa~1.ini|og-example-populate.ini" DirProperty="bin_Dir" Section="Arguments" Key="arg1" Value="-jdbcUrl jdbc:hsqldb:file:install/db/hsqldb/example-db -database og-financial -user OpenGamma -password OpenGamma -drop true -create true -createtables true -dbscriptbasedir ." Action="0" Component_="Service.exe"/>
+    <ROW IniFile="arg7" FileName="og-exa~1.ini|og-example-populate.ini" DirProperty="bin_Dir" Section="Arguments" Key="arg2" Value="com.opengamma.util.test.DbTool" Action="0" Component_="Service.exe"/>
+    <ROW IniFile="arg9" FileName="og-exa~1.ini|og-example-populate.ini" DirProperty="bin_Dir" Section="Arguments" Key="arg3" Value="-jdbcUrl jdbc:hsqldb:file:temp/hsqldb/og-fin-user -database og-financial -user OpenGamma -password OpenGamma -drop true -create true  -createtables true  -dbscriptbasedir ." Action="0" Component_="Service.exe"/>
     <ROW IniFile="class" FileName="og-exa~2.ini|og-example.ini" DirProperty="bin_Dir" Section="Invoke" Key="class" Value="com/opengamma/component/OpenGammaComponentService" Action="0" Component_="Service.exe"/>
-    <ROW IniFile="count" FileName="og-exa~1.ini|og-example-populate.ini" DirProperty="bin_Dir" Section="Arguments" Key="count" Value="14" Action="0" Component_="Service.exe"/>
+    <ROW IniFile="count" FileName="og-exa~1.ini|og-example-populate.ini" DirProperty="bin_Dir" Section="Arguments" Key="count" Value="6" Action="0" Component_="Service.exe"/>
     <ROW IniFile="count_1" FileName="og-exa~1.ini|og-example-populate.ini" DirProperty="bin_Dir" Section="Options" Key="count" Value="7" Action="0" Component_="Service.exe"/>
     <ROW IniFile="count_2" FileName="og-exa~1.ini|og-example-populate.ini" DirProperty="bin_Dir" Section="Classpath" Key="count" Value="3" Action="0" Component_="Service.exe"/>
     <ROW IniFile="count_3" FileName="og-exa~2.ini|og-example.ini" DirProperty="bin_Dir" Section="Arguments" Key="count" Value="3" Action="0" Component_="Service.exe"/>
@@ -115,8 +114,10 @@
     <ROW FileKey="__2" Component_="og_examples.jar" DirProperty="toolcontext_Dir" InstallMode="2"/>
     <ROW FileKey="__3" Component_="og_examples.jar" DirProperty="log_Dir" InstallMode="2"/>
     <ROW FileKey="__4" Component_="og_examples.jar" DirProperty="hsqldb_Dir" InstallMode="2"/>
+    <ROW FileKey="__5" Component_="og_examples.jar" DirProperty="exampledb.tmp_Dir" InstallMode="2"/>
     <ROW FileKey="__6" Component_="og_examples.jar" DirProperty="db_Dir" InstallMode="2"/>
     <ROW FileKey="__7" Component_="og_examples.jar" DirProperty="install_Dir" InstallMode="2"/>
+    <ROW FileKey="__8" Component_="og_examples.jar" FileName="*" DirProperty="exampledb.tmp_Dir" InstallMode="2"/>
     <ROW FileKey="example.log_" Component_="og_examples.jar" FileName="example.log*" DirProperty="log_Dir" InstallMode="2"/>
     <ROW FileKey="example__" Component_="og_examples.jar" FileName="example-*" DirProperty="hsqldb_Dir" InstallMode="2"/>
     <ROW FileKey="example_logback.xml" Component_="og_examples.jar" FileName="example-logback.xml" DirProperty="config_Dir" InstallMode="2"/>
@@ -130,17 +131,22 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiServInstComponent">
     <ROW ServiceInstall="Service.exe" Name="OpenGammaExample" DisplayName="OpenGamma Example Engine" ServiceType="16" StartType="2" ErrorControl="1" Arguments="&quot;[bin_Dir]og-example.ini&quot; OpenGammaExample" Component_="Service.exe" Description="An OpenGamma engine server running with example/fake data"/>
   </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiShortsComponent">
+    <ROW Shortcut="ExampleEngineService" Directory_="M_START__Dir" Name="Exampl~1|Example Engine Service" Component_="og_examples.jar" Target="[APPDIR]\bin\ServiceControl.exe" Arguments="OpenGammaExample" Description="Starts and stops the engine service" Hotkey="0" IconIndex="0" ShowCmd="1"/>
+  </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsmModuleDependencyComponent">
     <ROW RequiredID="Common.92192C01_228E_4B0B_9D23_68086A1B7449" RequiredLanguage="1033"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsmModuleInstExSeqComponent">
     <ROW Action="JAVA_XMX_2" BaseAction="ValidateProductID" After="1"/>
-    <ROW Action="Populate" BaseAction="InstallODBC" After="1" Condition="(Not Installed)"/>
+    <ROW Action="PopulateExample" BaseAction="InstallODBC" After="1" Condition="( NOT Installed ) AND ( $Service.exe=3 )"/>
+    <ROW Action="TOOL_UI_FLAG_2" BaseAction="MigrateFeatureStates" After="1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsmModuleSignatureComponent">
     <ROW ModuleID="OG_Examples" Version="1.0.0" GUID="896E213F_74AF_4B49_9E81_4168EAAE3507" Name="Example OpenGamma Engine" Manufacturer="OpenGamma Ltd" Comments="An example engine with a random market data source"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsmModuleUISeqComponent">
     <ROW Action="JAVA_XMX_1" BaseAction="ValidateProductID" After="1"/>
+    <ROW Action="TOOL_UI_FLAG_1" BaseAction="JAVA_XMX_1" After="1"/>
   </COMPONENT>
 </DOCUMENT>

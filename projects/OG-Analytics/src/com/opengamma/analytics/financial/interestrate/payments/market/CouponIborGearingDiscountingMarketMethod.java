@@ -70,11 +70,11 @@ public class CouponIborGearingDiscountingMarketMethod implements PricingMarketMe
     final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
     listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), -coupon.getPaymentTime() * df * dfBar));
-    resultMap.put(market.getCurve(coupon.getCurrency()).getCurve().getName(), listDiscounting);
+    resultMap.put(market.getCurve(coupon.getCurrency()).getName(), listDiscounting);
     final List<DoublesPair> listForward = new ArrayList<DoublesPair>();
     listForward.add(new DoublesPair(coupon.getFixingPeriodStartTime(), -coupon.getFixingPeriodStartTime() * dfForwardStart * dfForwardStartBar));
     listForward.add(new DoublesPair(coupon.getFixingPeriodEndTime(), -coupon.getFixingPeriodEndTime() * dfForwardEnd * dfForwardEndBar));
-    resultMap.put(market.getCurve(coupon.getIndex()).getCurve().getName(), listForward);
+    resultMap.put(market.getCurve(coupon.getIndex()).getName(), listForward);
     final PresentValueCurveSensitivityMarket result = new PresentValueCurveSensitivityMarket(resultMap);
     return result;
   }

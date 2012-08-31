@@ -111,9 +111,10 @@ import com.opengamma.util.async.Cancelable;
         assert itrNode.hasNext();
         final CalculationJobResultItem resultItem = itrResult.next();
         final DependencyNode node = itrNode.next();
-        getExecutor().markExecuted(node);
-        if (resultItem.failed()) {
+        if (resultItem.isFailed()) {
           getExecutor().markFailed(node);
+        } else {
+          getExecutor().markExecuted(node);
         }
       }
       assert !itrNode.hasNext();

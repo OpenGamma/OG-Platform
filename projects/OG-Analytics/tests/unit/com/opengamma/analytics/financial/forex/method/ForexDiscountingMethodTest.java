@@ -14,9 +14,9 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.calculator.PresentValueCurveSensitivityMCSCalculator;
 import com.opengamma.analytics.financial.forex.calculator.CurrencyExposureForexCalculator;
 import com.opengamma.analytics.financial.forex.calculator.ForwardRateForexCalculator;
-import com.opengamma.analytics.financial.forex.calculator.PresentValueCurveSensitivityForexCalculator;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.horizon.ConstantSpreadYieldCurveBundleRolldownFunction;
@@ -56,11 +56,11 @@ public class ForexDiscountingMethodTest {
 
   private static final ForexDiscountingMethod METHOD = ForexDiscountingMethod.getInstance();
   private static final com.opengamma.analytics.financial.interestrate.PresentValueCalculator PVC_IR = com.opengamma.analytics.financial.interestrate.PresentValueCalculator.getInstance();
-  private static final com.opengamma.analytics.financial.forex.calculator.PresentValueForexCalculator PVC_FX = com.opengamma.analytics.financial.forex.calculator.PresentValueForexCalculator
+  private static final com.opengamma.analytics.financial.calculator.PresentValueMCACalculator PVC_FX = com.opengamma.analytics.financial.calculator.PresentValueMCACalculator
       .getInstance();
   private static final PresentValueCurveSensitivityCalculator PVSC = PresentValueCurveSensitivityCalculator.getInstance();
   private static final CurrencyExposureForexCalculator CEC_FX = CurrencyExposureForexCalculator.getInstance();
-  private static final PresentValueCurveSensitivityForexCalculator PVCSC_FX = PresentValueCurveSensitivityForexCalculator.getInstance();
+  private static final PresentValueCurveSensitivityMCSCalculator PVCSC_FX = PresentValueCurveSensitivityMCSCalculator.getInstance();
   private static final TodayPaymentCalculator TPC = TodayPaymentCalculator.getInstance();
   private static final ConstantSpreadHorizonThetaCalculator THETAC = ConstantSpreadHorizonThetaCalculator.getInstance();
   private static final ConstantSpreadYieldCurveBundleRolldownFunction CURVE_ROLLDOWN = ConstantSpreadYieldCurveBundleRolldownFunction.getInstance();
@@ -117,7 +117,7 @@ public class ForexDiscountingMethodTest {
    */
   public void presentValueReverse() {
     final ForexDefinition fxReverseDefinition = new ForexDefinition(CUR_2, CUR_1, PAYMENT_DATE, -NOMINAL_1 * FX_RATE, 1.0 / FX_RATE);
-    final Forex fxReverse = fxReverseDefinition.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[1], CURVES_NAME[0] });
+    final Forex fxReverse = fxReverseDefinition.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[1], CURVES_NAME[0]});
     final MultipleCurrencyAmount pv = METHOD.presentValue(FX, CURVES);
     final MultipleCurrencyAmount pvReverse = METHOD.presentValue(fxReverse, CURVES);
     assertEquals("Forex present value: Reverse description", pv.getAmount(CUR_1), pvReverse.getAmount(CUR_1), TOLERANCE_PV);
@@ -143,7 +143,7 @@ public class ForexDiscountingMethodTest {
   public void forwardRate() {
     final double fxToday = 1.4123;
     final FXMatrix fxMatrix = new FXMatrix(CUR_1, CUR_2, fxToday);
-    final YieldCurveWithFXBundle curvesFx = new YieldCurveWithFXBundle(fxMatrix, CURVE_CURRENCY, CURVES);
+    final YieldCurveBundle curvesFx = new YieldCurveBundle(CURVES.getCurvesMap(), fxMatrix, CURVE_CURRENCY);
     final double fwd = METHOD.forwardForexRate(FX, curvesFx);
     final double dfDomestic = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(FX.getPaymentTime());
     final double dfForeign = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(FX.getPaymentTime());
@@ -158,7 +158,7 @@ public class ForexDiscountingMethodTest {
   public void forwardRateMethodVsCalculator() {
     final double fxToday = 1.4123;
     final FXMatrix fxMatrix = new FXMatrix(CUR_1, CUR_2, fxToday);
-    final YieldCurveWithFXBundle curvesFx = new YieldCurveWithFXBundle(fxMatrix, CURVE_CURRENCY, CURVES);
+    final YieldCurveBundle curvesFx = new YieldCurveBundle(CURVES.getCurvesMap(), fxMatrix, CURVE_CURRENCY);
     final double fwdMethod = METHOD.forwardForexRate(FX, curvesFx);
     final ForwardRateForexCalculator FWDC = ForwardRateForexCalculator.getInstance();
     final double fwdCalculator = FWDC.visit(FX, curvesFx);

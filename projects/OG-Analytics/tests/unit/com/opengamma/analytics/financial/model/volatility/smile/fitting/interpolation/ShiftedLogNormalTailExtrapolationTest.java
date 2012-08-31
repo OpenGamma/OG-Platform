@@ -13,6 +13,9 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.model.finitedifference.applications.PDEUtilityTools;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.math.function.Function;
+import com.opengamma.analytics.math.minimization.ParameterLimitsTransform;
+import com.opengamma.analytics.math.minimization.ParameterLimitsTransform.LimitType;
+import com.opengamma.analytics.math.minimization.SingleRangeLimitTransform;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 
 /**
@@ -23,6 +26,7 @@ public class ShiftedLogNormalTailExtrapolationTest {
   private static final double FORWARD = 0.04;
   private static final double EXPIARY = 2.5;
   private static final double[][] LEFT_STRIKES = {
+      {0.0057, 0.0061 },
       {0.02, 0.025 },
       {0.02, 0.021 },
       {0.015, 0.035 } };
@@ -31,6 +35,7 @@ public class ShiftedLogNormalTailExtrapolationTest {
       {0.045, 0.09 },
       {0.055, 0.065 } };
   private static final double[][] LEFT_VOLS = {
+      {0.7366, 0.7277 },
       {0.35, 0.3 },
       {0.4, 0.41 },
       {0.31, 0.15 } };
@@ -38,7 +43,7 @@ public class ShiftedLogNormalTailExtrapolationTest {
       {0.35, 0.348 },
       {0.4, 0.42 },
       {0.31, 0.37 } };
-  private static final double[] LEFT_DD = {0.1, 0.2, 0.1 };
+  private static final double[] LEFT_DD = {0.1, 0.1, 0.2, 0.1 };
   private static final double[] RIGHT_DD = {-0.4, -0.4, -0.3 };
   private static final double[] LEFT_DV_DK;
   private static final double[] RIGHT_DV_DK;
@@ -221,6 +226,7 @@ public class ShiftedLogNormalTailExtrapolationTest {
   @Test
       (enabled = false)
       public void rightTailVolPrint() {
+    System.out.println("ShiftedLogNormalTailExtrapolationTest");
     final int n = RIGHT_STRIKES.length;
     for (int i = 0; i < n; i++) {
       double[] res = FITTER.fitTwoVolatilities(FORWARD, RIGHT_STRIKES[i], RIGHT_VOLS[i], EXPIARY);
@@ -238,7 +244,7 @@ public class ShiftedLogNormalTailExtrapolationTest {
 
   @Test(enabled = false)
   public void printSeachSurfaceTest() {
-
+    System.out.println("ShiftedLogNormalTailExtrapolationTest");
     Function<Double, Double> func = new Function<Double, Double>() {
 
       @Override
@@ -252,6 +258,129 @@ public class ShiftedLogNormalTailExtrapolationTest {
     };
     FunctionalDoublesSurface surf = FunctionalDoublesSurface.from(func);
     PDEUtilityTools.printSurface("debug", surf, -0.7, -0.0, 0.01, 0.4, 200, 200);
+  }
+
+  @Test(enabled = false)
+  public void debugTest() {
+    double eps = 1e-300;
+    double f = 1.0;
+    double t = 2. / 52.;
+    //    double price = 0.0005;
+    //    double dd = -0.04;
+    double k = 1.24;
+
+    //    double mu = 0.1;
+    //    double theta = 0.4;
+
+    //    double p = ShiftedLogNormalTailExtrapolation.price(f, k, t, true, mu, theta);
+    //    double dd = ShiftedLogNormalTailExtrapolation.dualDelta(f, k, t, true, mu, theta);
+    //    System.out.println(p + "\t" + dd);
+
+    for (int i = 0; i < 100; i++) {
+      double mu = 0.172 + 0.0005 * i / 100.;
+      for (int j = 0; j < 100; j++) {
+        double theta = 0.125 + 0.001 * j / 100.;
+        double p = Math.max(eps, ShiftedLogNormalTailExtrapolation.price(f, k, t, true, mu, theta));
+        double dd = Math.min(-eps, ShiftedLogNormalTailExtrapolation.dualDelta(f, k, t, true, mu, theta));
+        System.out.println(mu + "\t" + theta + "\t" + p + "\t" + dd);
+      }
+    }
+
+    //    ShiftedLogNormalTailExtrapolationFitter fitter = new ShiftedLogNormalTailExtrapolationFitter();
+    //    double[] res = fitter.fitPriceAndGrad(f, k, price, dd, t, true);
+    //    System.out.println(res[0] + "\t" + res[1]);
+  }
+
+  @Test
+      (enabled = false)
+      public void debugTest2() {
+    final ParameterLimitsTransform trans = new SingleRangeLimitTransform(0.0, LimitType.GREATER_THAN);
+    ShiftedLogNormalTailExtrapolationFitter fitter = new ShiftedLogNormalTailExtrapolationFitter();
+    double f = 1.0;
+    double t = 2. / 52.;
+    double k = 1.1;
+
+    double mu = 0.133333;
+    double theta = 0.16;
+    double p = ShiftedLogNormalTailExtrapolation.price(f, k, t, true, mu, theta);
+    double dd = ShiftedLogNormalTailExtrapolation.dualDelta(f, k, t, true, mu, theta);
+    System.out.println("price and DD " + p + "\t" + dd);
+    System.out.println("trans " + trans.inverseTransform(-2.2521684610628063));
+
+    double[] res = fitter.fitPriceAndGrad(f, k, p, dd, t, true);
+    assertEquals("mu ", mu, res[0], 1e-8);
+    assertEquals("theta", theta, res[1], 1e-8);
+  }
+
+  @Test
+  public void roundTripTest() {
+    ShiftedLogNormalTailExtrapolationFitter fitter = new ShiftedLogNormalTailExtrapolationFitter();
+    double f = 1.0;
+    double t = 2. / 52.;
+    for (int i = 0; i < 10; i++) {
+      double mu = 0.0 + 0.2 * i / 9.;
+      for (int j = 0; j < 10; j++) {
+        double theta = 0.1 + 0.3 * j / 10.;
+        for (int k = 0; k < 10; k++) {
+          double strike = 1.1 + 0.1 * k;
+          double p = ShiftedLogNormalTailExtrapolation.price(f, strike, t, true, mu, theta);
+          double dd = ShiftedLogNormalTailExtrapolation.dualDelta(f, strike, t, true, mu, theta);
+          //  System.out.println(" ShiftedLogNormalTailExtrapolationTest " + mu + "\t" + theta + "\t" + strike + "\t" + p + "\t" + dd);
+          double[] res = fitter.fitPriceAndGrad(f, strike, p, dd, t, true);
+          assertEquals("mu (k = " + strike + ", mu = " + mu + ", theta = " + theta + ")", mu, res[0], 1e-7);
+          assertEquals("theta (k = " + strike + ", mu = " + mu + ", theta = " + theta + ")", theta, res[1], 1e-7);
+        }
+      }
+    }
+  }
+
+  @Test(enabled = false)
+  public void failingTest() {
+    double f = 1332.6440427977093;
+    double k = 500.0;
+    double t = 0.06557377049180328;
+    double vol = 1.173565;
+    double volGrad = -0.002302809210959822 / 1.1;
+    ShiftedLogNormalTailExtrapolationFitter fitter = new ShiftedLogNormalTailExtrapolationFitter();
+
+    double[] res = fitter.fitVolatilityAndGrad(f, k, vol, volGrad, t);
+    System.out.println(res[0] + "\t" + res[1]);
+  }
+
+  @Test
+      (enabled = false)
+      public void printSeachSurfaceTest2() {
+    final double f = 1332.6440427977093;
+    final double k = 500.0;
+    final double t = 0.06557377049180328;
+    final double vol = 1.173565;
+    final double volGrad = -0.002302809210959822 / 1.0;
+    final double p = BlackFormulaRepository.price(f, k, t, vol, false);
+    final double dd = BlackFormulaRepository.dualDelta(f, k, t, vol, false) + BlackFormulaRepository.vega(f, k, t, vol) * volGrad;
+
+    System.out.println("ShiftedLogNormalTailExtrapolationTest");
+    Function<Double, Double> func = new Function<Double, Double>() {
+
+      @Override
+      public Double evaluate(Double... x) {
+        double mu = x[0];
+        double sigma = x[1];
+        //  double sigma = 0.8 * mu + s;
+        double p1 = Math.log(ShiftedLogNormalTailExtrapolation.price(f, k, t, false, mu, sigma) / p);
+        double p2 = Math.log(ShiftedLogNormalTailExtrapolation.dualDelta(f, k, t, false, mu, sigma) / dd);
+        double temp = p1 * p1 + p2 * p2;
+        return Double.isInfinite(temp) ? 1e6 : temp;
+      }
+    };
+    FunctionalDoublesSurface surf = FunctionalDoublesSurface.from(func);
+    PDEUtilityTools.printSurface("debug", surf, 250, 300, 70, 90.0, 200, 200);
+
+    double mu = 0.1;
+    double sigma = 0.1;
+
+    double r1 = ShiftedLogNormalTailExtrapolation.impliedVolatility(f, k, t, mu, sigma);
+    double r2 = ShiftedLogNormalTailExtrapolation.dVdK(f, k, t, mu, sigma);
+    System.out.println(r1 + "\t" + r2);
   }
 
 }

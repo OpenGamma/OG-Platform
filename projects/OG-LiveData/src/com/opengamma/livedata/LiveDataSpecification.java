@@ -137,6 +137,7 @@ public class LiveDataSpecification {
     StringBuilder buf = new StringBuilder();
     buf.append("LiveDataSpecification[");
     buf.append(_externalIdBundle.toString());
+    buf.append(":").append(_normalizationRuleSetId);
     buf.append("]");
     return buf.toString();
   }

@@ -12,7 +12,6 @@ import org.apache.commons.lang.NotImplementedException;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -42,7 +41,7 @@ public class CouponTest {
     Coupon other = new MyCoupon(CCY, PAYMENT_TIME, NAME, ACCRUAL_TIME, NOTIONAL);
     assertEquals(COUPON, other);
     assertEquals(COUPON.hashCode(), other.hashCode());
-    assertEquals(COUPON.toString(), "\n Currency=AUD, Payment time=0.5, Funding curve=D, year fraction = 0.51, notional = 100.0");
+    assertEquals(COUPON.toString(), "Currency=AUD, Payment time=0.5, Funding curve=D, year fraction = 0.51, notional = 100.0");
     other = new MyCoupon(Currency.CAD, PAYMENT_TIME, NAME, ACCRUAL_TIME, NOTIONAL);
     assertFalse(other.equals(COUPON));
     other = new MyCoupon(CCY, PAYMENT_TIME + 1, NAME, ACCRUAL_TIME, NOTIONAL);

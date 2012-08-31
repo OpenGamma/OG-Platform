@@ -33,10 +33,10 @@ public class EuropeanVanillaOptionSkewKurtosisCrossModelPricingTest {
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2009, 1, 1);
   private static final Expiry EXPIRY = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 0.5));
   @SuppressWarnings("unused")
-  private static final SkewKurtosisOptionDataBundle NORMAL_DATA = new SkewKurtosisOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.08)), 0.08, new VolatilitySurface(
+  private static final SkewKurtosisOptionDataBundle NORMAL_DATA = new SkewKurtosisOptionDataBundle(YieldCurve.from(ConstantDoublesCurve.from(0.08)), 0.08, new VolatilitySurface(
       ConstantDoublesSurface.from(0.3)), 10., DATE, 0., 3.);
   @SuppressWarnings("unused")
-  private static final SkewKurtosisOptionDataBundle DATA = new SkewKurtosisOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.08)), 0.08, new VolatilitySurface(
+  private static final SkewKurtosisOptionDataBundle DATA = new SkewKurtosisOptionDataBundle(YieldCurve.from(ConstantDoublesCurve.from(0.08)), 0.08, new VolatilitySurface(
       ConstantDoublesSurface.from(0.3)), 10., DATE, 1., 3.);
   @SuppressWarnings("unused")
   private static final List<Greek> REQUIRED_GREEKS = Arrays.asList(Greek.FAIR_PRICE);

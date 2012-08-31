@@ -33,42 +33,42 @@ import org.springframework.context.Lifecycle;
 
 import com.bloomberglp.blpapi.CorrelationID;
 import com.bloomberglp.blpapi.Session;
-import com.bloomberglp.blpapi.SessionOptions;
 import com.bloomberglp.blpapi.Subscription;
 import com.bloomberglp.blpapi.SubscriptionList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.CachingReferenceDataProvider;
 import com.opengamma.bbg.PerSecurityReferenceDataResult;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.ReferenceDataResult;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.bbg.util.BloombergDomainIdentifierResolver;
+import com.opengamma.bbg.util.SessionOptionsUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
- * 
- * @author yomi
+ * Collects ticks from Bloomberg for later replay.
  */
 public class BloombergTicksCollector implements Lifecycle {
-  
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergTicksCollector.class);
-  
+
   private static final FudgeContext s_fudgeContext = new FudgeContext();
-  
+
   private static final String DEFAULT_TRACK_FILE = "/watchList.txt";
   private static final int DEFAULT_SESSION_SIZE = 4;
   private static final StorageMode DEFAULT_STORAGE_MODE = StorageMode.SINGLE;
-  
+
   /**
    * Default ticks root directory
    */
   public static final String DEFAULT_ROOT_DIR = "/tickData";
-  
-  private SessionOptions _sessionOptions;
+
+  private BloombergConnector _bloombergConnector;
   private List<Session> _sessionList = Lists.newArrayList();
       
   private List<String> _options = Lists.newArrayList();
@@ -85,11 +85,11 @@ public class BloombergTicksCollector implements Lifecycle {
   
   private StorageMode _storageMode;
   
-  public BloombergTicksCollector(SessionOptions sessionOptions, ReferenceDataProvider refDataProvider) {
+  public BloombergTicksCollector(BloombergConnector sessionOptions, ReferenceDataProvider refDataProvider) {
     this(sessionOptions, refDataProvider, DEFAULT_ROOT_DIR, DEFAULT_TRACK_FILE, DEFAULT_SESSION_SIZE, DEFAULT_STORAGE_MODE);
   }
   
-  public BloombergTicksCollector(SessionOptions sessionOptions, ReferenceDataProvider refDataProvider, String rootDir) {
+  public BloombergTicksCollector(BloombergConnector sessionOptions, ReferenceDataProvider refDataProvider, String rootDir) {
     this(sessionOptions, refDataProvider, rootDir, DEFAULT_TRACK_FILE, DEFAULT_SESSION_SIZE, DEFAULT_STORAGE_MODE);
   }
   
@@ -101,7 +101,7 @@ public class BloombergTicksCollector implements Lifecycle {
    * @param bbgSessions the number of bloomberg sessions to create, must be positive
    * @param storageMode the storage mode, not null
    */
-  public BloombergTicksCollector(SessionOptions sessionOptions, ReferenceDataProvider refDataProvider, 
+  public BloombergTicksCollector(BloombergConnector sessionOptions, ReferenceDataProvider refDataProvider, 
       String rootDir, String trackFile, int bbgSessions, StorageMode storageMode) {
     
     ArgumentChecker.notNull(sessionOptions, "SessionOptions");
@@ -113,7 +113,7 @@ public class BloombergTicksCollector implements Lifecycle {
       throw new IllegalArgumentException("Bloomberg sessions must be greater than zero");
     }
     _storageMode = storageMode;
-    _sessionOptions = sessionOptions;
+    _bloombergConnector = sessionOptions;
     _refDataProvider = refDataProvider;
     _rootDir = rootDir;
     _trackFile = trackFile;
@@ -121,9 +121,7 @@ public class BloombergTicksCollector implements Lifecycle {
     checkRootDir();
   }
 
-  /**
-   * 
-   */
+  //-------------------------------------------------------------------------
   private void checkRootDir() {
     File file = new File(_rootDir);
     if (!file.isDirectory()) { 
@@ -295,11 +293,10 @@ public class BloombergTicksCollector implements Lifecycle {
         session.stop();
       }
     }
-    s_logger.info("Connecting to {}:{} ", _sessionOptions.getServerHost(),
-        _sessionOptions.getServerPort());
+    s_logger.info("Connecting to {} ", SessionOptionsUtils.toString(_bloombergConnector.getSessionOptions()));
     BloombergTickCollectorHandler handler = new BloombergTickCollectorHandler(_allTicksQueue, this);
     for (int i = 0; i < _bbgSessions; i++) {
-      Session session = new Session(_sessionOptions, handler);
+      Session session = new Session(_bloombergConnector.getSessionOptions(), handler);
       if (!session.start()) {
         s_logger.info("Failed to start session");
         return false;
@@ -325,5 +322,5 @@ public class BloombergTicksCollector implements Lifecycle {
   public boolean isTickWriterAlive() {
     return _ticksWriterThread != null && _ticksWriterThread.isAlive();
   }
-  
+
 }

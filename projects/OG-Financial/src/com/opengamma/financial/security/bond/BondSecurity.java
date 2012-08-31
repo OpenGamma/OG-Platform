@@ -23,7 +23,6 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 
@@ -114,23 +113,23 @@ public abstract class BondSecurity extends FinancialSecurity {
   /**
    * The interest accrual date.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private ZonedDateTime _interestAccrualDate;
   /**
    * The settlement date.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private ZonedDateTime _settlementDate;
   /**
    * The first coupon date.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private ZonedDateTime _firstCouponDate;
   /**
    * The issuance price.
    */
   @PropertyDefinition
-  private double _issuancePrice;
+  private Double _issuancePrice;
   /**
    * The total amount issued.
    */
@@ -168,7 +167,7 @@ public abstract class BondSecurity extends FinancialSecurity {
   protected BondSecurity(String issuerName, String issuerType, String issuerDomicile, String market, Currency currency,
       YieldConvention yieldConvention, Expiry lastTradeDate, String couponType, double couponRate, Frequency couponFrequency,
       DayCount dayCountConvention, ZonedDateTime interestAccrualDate, ZonedDateTime settlementDate, ZonedDateTime firstCouponDate,
-      double issuancePrice, double totalAmountIssued, double minimumAmount, double minimumIncrement, double parAmount, double redemptionValue) {
+      Double issuancePrice, double totalAmountIssued, double minimumAmount, double minimumIncrement, double parAmount, double redemptionValue) {
     super(SECURITY_TYPE);
     setIssuerName(issuerName);
     setIssuerType(issuerType);
@@ -351,9 +350,6 @@ public abstract class BondSecurity extends FinancialSecurity {
     JodaBeanUtils.notNull(_couponType, "couponType");
     JodaBeanUtils.notNull(_couponFrequency, "couponFrequency");
     JodaBeanUtils.notNull(_dayCount, "dayCount");
-    JodaBeanUtils.notNull(_interestAccrualDate, "interestAccrualDate");
-    JodaBeanUtils.notNull(_settlementDate, "settlementDate");
-    JodaBeanUtils.notNull(_firstCouponDate, "firstCouponDate");
     super.validate();
   }
 
@@ -784,7 +780,7 @@ public abstract class BondSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   /**
    * Gets the interest accrual date.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public ZonedDateTime getInterestAccrualDate() {
     return _interestAccrualDate;
@@ -792,10 +788,9 @@ public abstract class BondSecurity extends FinancialSecurity {
 
   /**
    * Sets the interest accrual date.
-   * @param interestAccrualDate  the new value of the property, not null
+   * @param interestAccrualDate  the new value of the property
    */
   public void setInterestAccrualDate(ZonedDateTime interestAccrualDate) {
-    JodaBeanUtils.notNull(interestAccrualDate, "interestAccrualDate");
     this._interestAccrualDate = interestAccrualDate;
   }
 
@@ -810,7 +805,7 @@ public abstract class BondSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   /**
    * Gets the settlement date.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public ZonedDateTime getSettlementDate() {
     return _settlementDate;
@@ -818,10 +813,9 @@ public abstract class BondSecurity extends FinancialSecurity {
 
   /**
    * Sets the settlement date.
-   * @param settlementDate  the new value of the property, not null
+   * @param settlementDate  the new value of the property
    */
   public void setSettlementDate(ZonedDateTime settlementDate) {
-    JodaBeanUtils.notNull(settlementDate, "settlementDate");
     this._settlementDate = settlementDate;
   }
 
@@ -836,7 +830,7 @@ public abstract class BondSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   /**
    * Gets the first coupon date.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public ZonedDateTime getFirstCouponDate() {
     return _firstCouponDate;
@@ -844,10 +838,9 @@ public abstract class BondSecurity extends FinancialSecurity {
 
   /**
    * Sets the first coupon date.
-   * @param firstCouponDate  the new value of the property, not null
+   * @param firstCouponDate  the new value of the property
    */
   public void setFirstCouponDate(ZonedDateTime firstCouponDate) {
-    JodaBeanUtils.notNull(firstCouponDate, "firstCouponDate");
     this._firstCouponDate = firstCouponDate;
   }
 
@@ -864,7 +857,7 @@ public abstract class BondSecurity extends FinancialSecurity {
    * Gets the issuance price.
    * @return the value of the property
    */
-  public double getIssuancePrice() {
+  public Double getIssuancePrice() {
     return _issuancePrice;
   }
 
@@ -872,7 +865,7 @@ public abstract class BondSecurity extends FinancialSecurity {
    * Sets the issuance price.
    * @param issuancePrice  the new value of the property
    */
-  public void setIssuancePrice(double issuancePrice) {
+  public void setIssuancePrice(Double issuancePrice) {
     this._issuancePrice = issuancePrice;
   }
 
@@ -1108,7 +1101,7 @@ public abstract class BondSecurity extends FinancialSecurity {
      * The meta-property for the {@code issuancePrice} property.
      */
     private final MetaProperty<Double> _issuancePrice = DirectMetaProperty.ofReadWrite(
-        this, "issuancePrice", BondSecurity.class, Double.TYPE);
+        this, "issuancePrice", BondSecurity.class, Double.class);
     /**
      * The meta-property for the {@code totalAmountIssued} property.
      */

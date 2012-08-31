@@ -29,12 +29,16 @@ import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.impl.DataPositionSourceResource;
 import com.opengamma.core.position.impl.DelegatingPositionSource;
 import com.opengamma.core.position.impl.EHCachingPositionSource;
+import com.opengamma.core.position.impl.RemotePositionSource;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.impl.MasterPositionSource;
 
 /**
  * Component factory for the position source.
+ * <p>
+ * This factory creates position sources for the underlying and user masters
+ * as well as a combined source.
  */
 @BeanDefinition
 public class UserFinancialPositionSourceComponentFactory extends AbstractComponentFactory {
@@ -101,6 +105,8 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
     
     // register
     ComponentInfo info = new ComponentInfo(PositionSource.class, getClassifier());
+    info.addAttribute(ComponentInfoAttributes.LEVEL, 2);
+    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemotePositionSource.class);
     repo.registerComponent(info, source);
     if (isPublishRest()) {
       repo.getRestComponents().publish(info, new DataPositionSourceResource(source));
@@ -114,6 +120,8 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
     }
     if (getUnderlyingClassifier() != null) {
       ComponentInfo info = new ComponentInfo(PositionSource.class, getUnderlyingClassifier());
+      info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+      info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemotePositionSource.class);
       repo.registerComponent(info, source);
       if (isPublishRest()) {
         repo.getRestComponents().publish(info, new DataPositionSourceResource(source));
@@ -129,6 +137,8 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
     PositionSource source = new MasterPositionSource(getUserPortfolioMaster(), getUserPositionMaster());
     if (getUserClassifier() != null) {
       ComponentInfo info = new ComponentInfo(PositionSource.class, getUserClassifier());
+      info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+      info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemotePositionSource.class);
       repo.registerComponent(info, source);
       if (isPublishRest()) {
         repo.getRestComponents().publish(info, new DataPositionSourceResource(source));

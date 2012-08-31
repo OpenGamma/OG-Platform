@@ -8,7 +8,6 @@ package com.opengamma.livedata.normalization;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +39,7 @@ public class EHCachingSecurityRuleProvider implements SecurityRuleProvider {
     ArgumentChecker.notNull(cacheManager, "cacheManager");
     ArgumentChecker.notNull(cacheName, "cacheName");
     _underlying = underlying;
-    EHCacheUtils.addCache(cacheManager, cacheName, maxElementsInMemory, MemoryStoreEvictionPolicy.LRU, false, null, true, 0, 0, false, 0, null);
+    EHCacheUtils.addCache(cacheManager, cacheName);
     _cache = EHCacheUtils.getCacheFromManager(cacheManager, cacheName);
   }
   

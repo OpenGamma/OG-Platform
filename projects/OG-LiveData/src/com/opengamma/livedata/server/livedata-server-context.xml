@@ -137,20 +137,6 @@
         <constructor-arg index="0" ref="entitlementChecker"/>
     </bean>
 
-  <!-- Persistent subscriptions -->
-  <bean id="mongoConnector" class="com.opengamma.util.mongo.MongoConnectorFactoryBean">
-    <property name="name" value="PersistentSubscription" />
-    <property name="host" value="${mongodb.host}" />
-    <property name="port" value="${mongodb.port}" />
-    <property name="databaseName" value="${mongodb.db.name}" />
-  </bean>
-
-  <bean id="persistentSubscriptionManager" class="com.opengamma.livedata.server.MongoDBPersistentSubscriptionManager"
-    depends-on="liveDataServer" init-method="start">
-    <constructor-arg index="0" ref="liveDataServer"/>
-    <constructor-arg index="1" ref="mongoConnector"/>
-  </bean>
-
   <!-- reconnect -->
   <bean id="reconnectManager" class="com.opengamma.livedata.server.ReconnectManager"
         depends-on="liveDataServer" init-method="start">
@@ -174,33 +160,11 @@
     <property name="autodetect" value="true"/>
   </bean>
 
-  <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean">
-    <property name="locateExistingServerIfPossible" value="true" />
-  </bean>
-
-  <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
-    <property name="shared" value="true"/>
-  </bean>
-  <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-    <property name="staticMethod" value="net.sf.ehcache.management.ManagementService.registerMBeans"/>
-    <property name="arguments">
-      <list>
-        <ref bean="cacheManager" />
-        <ref bean="mbeanServer" />
-        <value>true</value>
-        <value>true</value>
-        <value>true</value>
-        <value>true</value>
-      </list>
-    </property>
-  </bean>
+  <alias name="standardCacheManager" alias="cacheManager"/>
+  <alias name="standardMBeanServer" alias="mbeanServer"/>
 
   <bean id="serverMBean" class="com.opengamma.livedata.server.LiveDataServerMBean">
     <constructor-arg ref="liveDataServer"/>
-  </bean>
-
-  <bean id="persistentSubscriptionManagerMBean" class="com.opengamma.livedata.server.PersistentSubscriptionManagerMBean">
-    <constructor-arg ref="persistentSubscriptionManager"/>
   </bean>
 
 </beans>

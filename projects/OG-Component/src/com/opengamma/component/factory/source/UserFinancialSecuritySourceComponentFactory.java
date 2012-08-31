@@ -31,10 +31,14 @@ import com.opengamma.financial.security.DelegatingFinancialSecuritySource;
 import com.opengamma.financial.security.EHCachingFinancialSecuritySource;
 import com.opengamma.financial.security.FinancialSecuritySource;
 import com.opengamma.financial.security.MasterFinancialSecuritySource;
+import com.opengamma.financial.security.RemoteFinancialSecuritySource;
 import com.opengamma.master.security.SecurityMaster;
 
 /**
  * Component factory for the security source.
+ * <p>
+ * This factory creates security sources for the underlying and user masters
+ * as well as a combined source.
  */
 @BeanDefinition
 public class UserFinancialSecuritySourceComponentFactory extends AbstractComponentFactory {
@@ -91,6 +95,8 @@ public class UserFinancialSecuritySourceComponentFactory extends AbstractCompone
     
     // register
     ComponentInfo info = new ComponentInfo(SecuritySource.class, getClassifier());
+    info.addAttribute(ComponentInfoAttributes.LEVEL, 2);
+    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteFinancialSecuritySource.class);
     repo.registerComponent(info, source);
     if (isPublishRest()) {
       repo.getRestComponents().publish(info, new DataFinancialSecuritySourceResource(source));
@@ -104,6 +110,8 @@ public class UserFinancialSecuritySourceComponentFactory extends AbstractCompone
     }
     if (getUnderlyingClassifier() != null) {
       ComponentInfo info = new ComponentInfo(SecuritySource.class, getUnderlyingClassifier());
+      info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+      info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteFinancialSecuritySource.class);
       repo.registerComponent(info, source);
       if (isPublishRest()) {
         repo.getRestComponents().publish(info, new DataFinancialSecuritySourceResource(source));
@@ -119,6 +127,8 @@ public class UserFinancialSecuritySourceComponentFactory extends AbstractCompone
     FinancialSecuritySource source = new MasterFinancialSecuritySource(getUserSecurityMaster());
     if (getUserClassifier() != null) {
       ComponentInfo info = new ComponentInfo(SecuritySource.class, getUserClassifier());
+      info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+      info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteFinancialSecuritySource.class);
       repo.registerComponent(info, source);
       if (isPublishRest()) {
         repo.getRestComponents().publish(info, new DataFinancialSecuritySourceResource(source));

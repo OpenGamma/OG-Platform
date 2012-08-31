@@ -31,7 +31,7 @@ public class EuropeanExchangeAssetOptionModelTest {
   private static final double Q2 = 1;
   private static final double B1 = 0.04;
   private static final double B2 = 0.06;
-  private static final YieldCurve R = new YieldCurve(ConstantDoublesCurve.from(0.1));
+  private static final YieldCurve R = YieldCurve.from(ConstantDoublesCurve.from(0.1));
   private static final VolatilitySurface SIGMA1 = new VolatilitySurface(ConstantDoublesSurface.from(0.2));
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 1, 1);
   private static final EuropeanExchangeAssetOptionModel MODEL = new EuropeanExchangeAssetOptionModel();

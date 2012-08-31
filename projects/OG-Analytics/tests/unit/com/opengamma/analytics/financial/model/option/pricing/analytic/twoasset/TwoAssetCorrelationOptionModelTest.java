@@ -28,7 +28,7 @@ import com.opengamma.util.time.Expiry;
 public class TwoAssetCorrelationOptionModelTest {
   private static final double S1 = 52;
   private static final double S2 = 65;
-  private static final YieldAndDiscountCurve R = new YieldCurve(ConstantDoublesCurve.from(0.1));
+  private static final YieldAndDiscountCurve R = YieldCurve.from(ConstantDoublesCurve.from(0.1));
   private static final double B1 = 0.1;
   private static final double B2 = 0.1;
   private static final VolatilitySurface SIGMA1 = new VolatilitySurface(ConstantDoublesSurface.from(0.2));

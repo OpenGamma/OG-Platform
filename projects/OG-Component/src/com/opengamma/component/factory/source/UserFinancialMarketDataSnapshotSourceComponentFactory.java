@@ -28,11 +28,15 @@ import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.impl.DataMarketDataSnapshotSourceResource;
 import com.opengamma.core.marketdatasnapshot.impl.DelegatingSnapshotSource;
+import com.opengamma.core.marketdatasnapshot.impl.RemoteMarketDataSnapshotSource;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.impl.MasterSnapshotSource;
 
 /**
  * Component factory for the snapshot source.
+ * <p>
+ * This factory creates snapshot sources for the underlying and user masters
+ * as well as a combined source.
  */
 @BeanDefinition
 public class UserFinancialMarketDataSnapshotSourceComponentFactory extends AbstractComponentFactory {
@@ -89,6 +93,8 @@ public class UserFinancialMarketDataSnapshotSourceComponentFactory extends Abstr
     
     // register
     ComponentInfo info = new ComponentInfo(MarketDataSnapshotSource.class, getClassifier());
+    info.addAttribute(ComponentInfoAttributes.LEVEL, 2);
+    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteMarketDataSnapshotSource.class);
     repo.registerComponent(info, source);
     if (isPublishRest()) {
       repo.getRestComponents().publish(info, new DataMarketDataSnapshotSourceResource(source));
@@ -99,6 +105,8 @@ public class UserFinancialMarketDataSnapshotSourceComponentFactory extends Abstr
     MarketDataSnapshotSource source = new MasterSnapshotSource(getUnderlyingMarketDataSnapshotMaster());
     if (getUnderlyingClassifier() != null) {
       ComponentInfo info = new ComponentInfo(MarketDataSnapshotSource.class, getUnderlyingClassifier());
+      info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+      info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteMarketDataSnapshotSource.class);
       repo.registerComponent(info, source);
       if (isPublishRest()) {
         repo.getRestComponents().publish(info, new DataMarketDataSnapshotSourceResource(source));
@@ -114,6 +122,8 @@ public class UserFinancialMarketDataSnapshotSourceComponentFactory extends Abstr
     MarketDataSnapshotSource source = new MasterSnapshotSource(getUserMarketDataSnapshotMaster());
     if (getUserClassifier() != null) {
       ComponentInfo info = new ComponentInfo(MarketDataSnapshotSource.class, getUserClassifier());
+      info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+      info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteMarketDataSnapshotSource.class);
       repo.registerComponent(info, source);
       if (isPublishRest()) {
         repo.getRestComponents().publish(info, new DataMarketDataSnapshotSourceResource(source));

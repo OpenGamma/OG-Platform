@@ -18,7 +18,9 @@ public class InterestRateTest {
   private static final InterestRate ANNUAL = new PeriodicInterestRate(RATE, 1);
   private static final ContinuousInterestRate CONTINUOUS = new ContinuousInterestRate(RATE);
   private static final PeriodicInterestRate QUARTERLY = new PeriodicInterestRate(RATE, 4);
-  private static final double EPS = 1e-15;
+  private static final InterestRateSimpleMoneyMarketBasis SIMPLE_MM = new InterestRateSimpleMoneyMarketBasis(RATE);
+  private static final InterestRateSimpleDiscountBasis SIMPLE_DSC = new InterestRateSimpleDiscountBasis(RATE);
+  private static final double EPS = 1e-10;
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeCompoundingPeriodsPerYear() {
@@ -90,6 +92,11 @@ public class InterestRateTest {
     QUARTERLY.toPeriodic(-3);
   }
 
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void simpleDiscountingNegativeDf() {
+    SIMPLE_DSC.getDiscountFactor(10000);
+  }
+
   @Test
   public void testEqualsAndHashCode() {
     final InterestRate annual = new PeriodicInterestRate(RATE, 1);
@@ -119,9 +126,14 @@ public class InterestRateTest {
 
   @Test
   public void testGetDiscountFactor() {
-    assertEquals(1. / ANNUAL.getDiscountFactor(1), 1 + RATE, EPS);
-    assertEquals(1. / CONTINUOUS.getDiscountFactor(1), Math.exp(RATE), EPS);
-    assertEquals(1. / QUARTERLY.getDiscountFactor(1), Math.pow(1 + RATE / 4, 4), EPS);
+    double[] time = {0.01, 1.0, 2.5, 10.0};
+    for (int looptime = 0; looptime < time.length; looptime++) {
+      assertEquals(1. / ANNUAL.getDiscountFactor(time[looptime]), Math.pow(1 + RATE, time[looptime]), EPS);
+      assertEquals(1. / CONTINUOUS.getDiscountFactor(time[looptime]), Math.exp(RATE * time[looptime]), EPS);
+      assertEquals(1. / QUARTERLY.getDiscountFactor(time[looptime]), Math.pow(1 + RATE / 4, 4 * time[looptime]), EPS);
+      assertEquals("InterestRate: simple money market basis - discount factor", SIMPLE_MM.getDiscountFactor(time[looptime]), 1.0 / (1.0 + RATE * time[looptime]), EPS);
+      assertEquals("InterestRate: simple discounting basis - discount factor", SIMPLE_DSC.getDiscountFactor(time[looptime]), 1.0 - RATE * time[looptime], EPS);
+    }
   }
 
   @Test

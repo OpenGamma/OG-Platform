@@ -13,14 +13,16 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
 public class MultipleYieldCurveFinderDataBundle {
+
   private final List<InstrumentDerivative> _derivatives;
   private final double[] _marketValues;
   private final YieldCurveBundle _knownCurves;
@@ -29,24 +31,21 @@ public class MultipleYieldCurveFinderDataBundle {
   private final int _totalNodes;
   private final List<String> _names;
   private final boolean _useFiniteDifferenceByDefault;
+  private final FXMatrix _fxMatrix;
 
-//  public MultipleYieldCurveFinderDataBundle(final List<InterestRateDerivative> derivatives, final double[] marketValues, final YieldCurveBundle knownCurves,
-//      final LinkedHashMap<String, double[]> unknownCurveNodePoints, final LinkedHashMap<String, Interpolator1D> unknownCurveInterpolators) {
-//    this(derivatives, marketValues, knownCurves, unknownCurveNodePoints, unknownCurveInterpolators, false);
-//  }
-  
   public MultipleYieldCurveFinderDataBundle(final List<InstrumentDerivative> derivatives, final double[] marketValues, final YieldCurveBundle knownCurves,
-      final LinkedHashMap<String, double[]> unknownCurveNodePoints, final LinkedHashMap<String, Interpolator1D> unknownCurveInterpolators, boolean useFiniteDifferenceByDefault) {
-    Validate.notNull(derivatives);
-    Validate.noNullElements(derivatives);
-    Validate.notNull(marketValues, "market values null");
-    Validate.notNull(unknownCurveNodePoints, "unknown curve node points");
-    Validate.notNull(unknownCurveInterpolators, "unknown curve interpolators");
-    Validate.notEmpty(unknownCurveNodePoints, "unknown curve node points");
-    Validate.notEmpty(unknownCurveInterpolators, "unknown curve interpolators");
-    Validate.isTrue(derivatives.size() == marketValues.length, "marketValues wrong length; must be one par rate per derivative (have " + marketValues.length + " values for " 
-        + derivatives.size() + " derivatives)");
-
+      final LinkedHashMap<String, double[]> unknownCurveNodePoints, final LinkedHashMap<String, Interpolator1D> unknownCurveInterpolators, final boolean useFiniteDifferenceByDefault,
+      final FXMatrix fxMatrix) {
+    ArgumentChecker.notNull(derivatives, "derivatives");
+    ArgumentChecker.noNulls(derivatives, "derivatives");
+    ArgumentChecker.notNull(marketValues, "market values null");
+    ArgumentChecker.notNull(unknownCurveNodePoints, "unknown curve node points");
+    ArgumentChecker.notNull(unknownCurveInterpolators, "unknown curve interpolators");
+    ArgumentChecker.notEmpty(unknownCurveNodePoints, "unknown curve node points");
+    ArgumentChecker.notEmpty(unknownCurveInterpolators, "unknown curve interpolators");
+    ArgumentChecker.isTrue(derivatives.size() == marketValues.length, "marketValues wrong length; must be one par rate per derivative (have {} values for {} derivatives",
+        marketValues.length, derivatives.size());
+    ArgumentChecker.notNull(fxMatrix, "FX matrix");
     if (knownCurves != null) {
       for (final String name : knownCurves.getAllNames()) {
         if (unknownCurveInterpolators.containsKey(name)) {
@@ -72,8 +71,8 @@ public class MultipleYieldCurveFinderDataBundle {
       if (!name1.equals(entry2.getKey())) {
         throw new IllegalArgumentException("Names must be the same");
       }
-      Validate.notNull(entry1.getValue(), "curve node points for " + name1);
-      Validate.notNull(entry2.getValue(), "interpolator for " + name1);
+      ArgumentChecker.notNull(entry1.getValue(), "curve node points for " + name1);
+      ArgumentChecker.notNull(entry2.getValue(), "interpolator for " + name1);
       _names.add(name1);
     }
     int nNodes = 0;
@@ -87,6 +86,7 @@ public class MultipleYieldCurveFinderDataBundle {
     _unknownCurveNodePoints = unknownCurveNodePoints;
     _unknownCurveInterpolators = unknownCurveInterpolators;
     _useFiniteDifferenceByDefault = useFiniteDifferenceByDefault;
+    _fxMatrix = fxMatrix;
   }
 
   public List<InstrumentDerivative> getDerivatives() {
@@ -124,9 +124,13 @@ public class MultipleYieldCurveFinderDataBundle {
   public boolean useFiniteDifferenceForNodeSensitivities() {
     return _useFiniteDifferenceByDefault;
   }
-  
+
+  public FXMatrix getFXMatrix() {
+    return _fxMatrix;
+  }
+
   public double[] getCurveNodePointsForCurve(final String name) {
-    Validate.notNull(name, "name");
+    ArgumentChecker.notNull(name, "name");
     final double[] result = _unknownCurveNodePoints.get(name);
     if (result == null) {
       throw new IllegalArgumentException("Data for name " + name + " not found");
@@ -135,7 +139,7 @@ public class MultipleYieldCurveFinderDataBundle {
   }
 
   public Interpolator1D getInterpolatorForCurve(final String name) {
-    Validate.notNull(name, "name");
+    ArgumentChecker.notNull(name, "name");
     final Interpolator1D result = _unknownCurveInterpolators.get(name);
     if (result == null) {
       throw new IllegalArgumentException("Data for name " + name + " not found");
@@ -151,17 +155,18 @@ public class MultipleYieldCurveFinderDataBundle {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((_derivatives == null) ? 0 : _derivatives.hashCode());
+    result = prime * result + _derivatives.hashCode();
     result = prime * result + ((_knownCurves == null) ? 0 : _knownCurves.hashCode());
     result = prime * result + Arrays.hashCode(_marketValues);
-    result = prime * result + ((_unknownCurveInterpolators == null) ? 0 : _unknownCurveInterpolators.hashCode());
-    result = prime * result + ((_unknownCurveNodePoints == null) ? 0 : _unknownCurveNodePoints.hashCode());
+    result = prime * result + _unknownCurveInterpolators.hashCode();
+    result = prime * result + _unknownCurveNodePoints.hashCode();
     result = prime * result + (_useFiniteDifferenceByDefault ? 1231 : 1237);
+    result = prime * result + _fxMatrix.hashCode();
     return result;
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -171,7 +176,7 @@ public class MultipleYieldCurveFinderDataBundle {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    MultipleYieldCurveFinderDataBundle other = (MultipleYieldCurveFinderDataBundle) obj;
+    final MultipleYieldCurveFinderDataBundle other = (MultipleYieldCurveFinderDataBundle) obj;
 
     if (!Arrays.equals(_marketValues, other._marketValues)) {
       return false;
@@ -189,6 +194,9 @@ public class MultipleYieldCurveFinderDataBundle {
       return false;
     }
     if (_useFiniteDifferenceByDefault != other._useFiniteDifferenceByDefault) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_fxMatrix, other._fxMatrix)) {
       return false;
     }
     return true;

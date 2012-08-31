@@ -35,4 +35,6 @@ public interface HistoricalTimeSeriesResolver {
    */
   HistoricalTimeSeriesResolutionResult resolve(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField, String resolutionKey);
 
+  // REVIEW 2012-07-10 Andrew -- Should this be in OG-Core rather than OG-Master? Should it be possible to obtain the resolver from the HistoricalTimeSeriesSource?
+
 }

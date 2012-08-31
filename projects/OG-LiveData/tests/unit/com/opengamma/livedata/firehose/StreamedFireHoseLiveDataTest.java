@@ -21,9 +21,9 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.test.Timeout;
 
 /**
- * Tests the {@link @StreamedFireHoseLiveData} class.
+ * Test.
  */
-@Test
+@Test(groups = "unit")
 public class StreamedFireHoseLiveDataTest {
 
   private ExecutorService _executorService;
@@ -43,7 +43,6 @@ public class StreamedFireHoseLiveDataTest {
     protected void recordReceived(final Void record) {
       // No-op
     }
-
   }
 
   @BeforeTest
@@ -56,6 +55,7 @@ public class StreamedFireHoseLiveDataTest {
     _executorService.shutdown();
   }
 
+  //-------------------------------------------------------------------------
   private ExecutorService getExecutorService() {
     return _executorService;
   }

@@ -19,7 +19,7 @@ abstract public class TransactionalHibernateTest extends HibernateTest {
   private HibernateTransactionManager _transactionManager;
   private TransactionStatus _transaction;
 
-  public TransactionalHibernateTest(String databaseType, final String databaseVersion) {
+  public TransactionalHibernateTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
   }
 

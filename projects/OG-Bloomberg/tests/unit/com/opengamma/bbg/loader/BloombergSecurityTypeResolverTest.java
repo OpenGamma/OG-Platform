@@ -26,13 +26,13 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
 
 /**
- * Test BloombergSecurityTypeResolver.
+ * Test.
  */
+@Test(groups = "integration")
 public class BloombergSecurityTypeResolverTest {
-  
+
   private ConfigurableApplicationContext _context;
   private SecurityTypeResolver _securityTypeResolver;
-  
 
   @BeforeMethod
   public void setUp() throws Exception {
@@ -52,6 +52,7 @@ public class BloombergSecurityTypeResolverTest {
     _securityTypeResolver = null;
   }
 
+  //-------------------------------------------------------------------------
   @Test
   public void testEquity() {
     Set<String> testEquities = Sets.newHashSet("AAPL US Equity", "UNG US Equity");
@@ -62,32 +63,32 @@ public class BloombergSecurityTypeResolverTest {
   public void testEquityOption() {
     assertSecurityType(Collections.singleton("APV US 01/16/10 C190 Equity"), SecurityType.EQUITY_OPTION);
   }
-  
+
   @Test
   public void testEquityIndexOption() {
     assertSecurityType(Collections.singleton("SPX US 12/18/10 C1100 Index"), SecurityType.EQUITY_INDEX_OPTION);
   }
-  
+
   @Test
   public void testBondFuture() {
     assertSecurityType(Collections.singleton("USM10 Comdty"), SecurityType.BOND_FUTURE);
   }
-  
+
   @Test
   public void testInterestRateFuture() {
     assertSecurityType(Collections.singleton("EDM10 Comdty"), SecurityType.INTEREST_RATE_FUTURE);
   }
-  
+
   @Test
   public void testIRFutureOptionSecurity() {
     assertSecurityType(Collections.singleton("EDZ2C 99.500 Comdty"), SecurityType.IR_FUTURE_OPTION);
   }
-  
+
   @Test
   public void testBondSecurity() {
     assertSecurityType(Collections.singleton("GV912810EL8"), ExternalSchemes.BLOOMBERG_BUID, SecurityType.BOND);
   }
-  
+
   private void assertSecurityType(final Set<String> identifiers, final ExternalScheme scheme, final SecurityType securityType) {
     Set<ExternalIdBundle> testBundles = Sets.newHashSet();
     for (String identifierValue : identifiers) {

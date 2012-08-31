@@ -24,7 +24,7 @@ public class TicksPlayerJob extends TerminatableJob {
 
   /** Logger/ */
   private static final Logger s_logger = LoggerFactory.getLogger(TicksPlayerJob.class);
-  
+
   private BlockingQueue<FudgeMsg> _ticksQueue;
   private BloombergTickReceiver _tickReceiver;
   private Mode _mode;

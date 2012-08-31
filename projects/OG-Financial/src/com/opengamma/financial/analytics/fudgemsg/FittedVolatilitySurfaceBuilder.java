@@ -36,7 +36,7 @@ import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.Sta
       final double[] expiries = deserializer.fieldValueToObject(double[].class, message.getByName(EXPIRIES_FIELD_NAME));
       final double[][] strikes = deserializer.fieldValueToObject(double[][].class, message.getByName(STRIKES_FIELD_NAME));
       final double[][] vols = deserializer.fieldValueToObject(double[][].class, message.getByName(VOLS_FIELD_NAME));
-      return new StandardSmileSurfaceDataBundle(forwardCurve, expiries, strikes, vols, true);
+      return new StandardSmileSurfaceDataBundle(forwardCurve, expiries, strikes, vols);
     }
 
     @Override

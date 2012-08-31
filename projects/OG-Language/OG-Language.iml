@@ -38,6 +38,7 @@
     <orderEntry type="module" module-name="OG-Engine" />
     <orderEntry type="module" module-name="OG-LiveData" />
     <orderEntry type="module" module-name="OG-Security" />
+    <orderEntry type="module" module-name="OG-Install" />
     <orderEntry type="module-library">
       <library name="IvyIDEA-OG-Language-default">
         <CLASSES>
@@ -51,7 +52,6 @@
         </SOURCES>
       </library>
     </orderEntry>
-    <orderEntry type="module" module-name="OG-Install" />
   </component>
   <component name="org.twodividedbyzero.idea.findbugs">
     <option name="_basePreferences">

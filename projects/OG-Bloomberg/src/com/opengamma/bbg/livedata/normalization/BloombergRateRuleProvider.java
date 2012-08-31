@@ -19,9 +19,10 @@ import com.opengamma.livedata.normalization.UnitChange;
  * Provider of normalization rules for Bloomberg rates, taking into account the security type.
  */
 public class BloombergRateRuleProvider implements SecurityRuleProvider {
-  
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergRateRuleProvider.class);
-  
+
   private static final NormalizationRule RULE_100 = new UnitChange(MarketDataRequirementNames.MARKET_VALUE, 0.01);
   private static final NormalizationRule RULE_10000 = new UnitChange(MarketDataRequirementNames.MARKET_VALUE, 0.00001);
 

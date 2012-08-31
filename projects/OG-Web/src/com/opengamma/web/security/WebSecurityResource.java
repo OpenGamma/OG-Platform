@@ -137,7 +137,8 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
     if (series != null) {
       tsObjectId = series.getUniqueId().getObjectId();
     }
-    
+
+    out.put("securityAttributes", doc.getSecurity().getAttributes());
     out.put("securityDoc", doc); 
     out.put("security", doc.getSecurity());
     out.put("timeSeriesId", tsObjectId);

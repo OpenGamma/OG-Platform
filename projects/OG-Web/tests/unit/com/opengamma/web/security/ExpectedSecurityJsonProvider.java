@@ -38,6 +38,7 @@ import com.opengamma.util.time.Expiry;
     Map<String, Object> templateData = Maps.newHashMap();
     addDefaultFields(security, templateData);
 
+    templateData.put("attributes", security.getAttributes());
     if (StringUtils.isNotBlank(security.getShortName())) {
       templateData.put("shortName", security.getShortName());
     }
@@ -141,6 +142,8 @@ import com.opengamma.util.time.Expiry;
           }
           templateData.put("underlyingBond", underlyingBond);
         }
+        templateData.put("unitAmount", security.getUnitAmount());
+        templateData.put("attributes", security.getAttributes());
         secMap.put(TEMPLATE_DATA, templateData);
         addExternalIds(security, secMap);
         return new JSONObject(secMap);

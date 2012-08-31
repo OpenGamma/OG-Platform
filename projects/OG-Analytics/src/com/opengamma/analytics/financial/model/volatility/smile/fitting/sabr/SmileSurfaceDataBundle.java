@@ -5,7 +5,6 @@
  */
 package com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.util.ArgumentChecker;
 
@@ -13,10 +12,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * 
  */
 public abstract class SmileSurfaceDataBundle {
+  private static final Logger s_logger = LoggerFactory.getLogger(SmileSurfaceDataBundle.class);
 
   public abstract int getNumExpiries();
 
@@ -96,7 +99,8 @@ public abstract class SmileSurfaceDataBundle {
       if (nVars > 1) {
         for (int t = 1; t < nVars; t++) {
           if (intVar.get(t) < intVar.get(t - 1)) {
-            throw new OpenGammaRuntimeException("Integrated variance not increasing, have " + intVar.get(t) + "," + intVar.get(t - 1));
+            // throw new OpenGammaRuntimeException("Integrated variance not increasing, have " + intVar.get(t - 1) + "," + intVar.get(t));
+            s_logger.error("Integrated variance not increasing, have (" + (t - 1) + "," + intVar.get(t - 1) + "),(" + t + "," + intVar.get(t) + ")");
           }
         }
       }

@@ -25,7 +25,7 @@ import com.opengamma.util.time.DateUtils;
  */
 public class BlackOptionDataBundleTest {
   private static final double R = 0.05;
-  private static final YieldAndDiscountCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(R));
+  private static final YieldAndDiscountCurve CURVE = YieldCurve.from(ConstantDoublesCurve.from(R));
   private static final VolatilitySurface SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(0.35));
   private static final double F = 100;
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 5, 1);
@@ -47,7 +47,7 @@ public class BlackOptionDataBundleTest {
     assertEquals(other.hashCode(), DATA.hashCode());
     other = new BlackOptionDataBundle(F + 1, CURVE, SURFACE, DATE);
     assertFalse(other.equals(DATA));
-    other = new BlackOptionDataBundle(F, new YieldCurve(ConstantDoublesCurve.from(0.06)), SURFACE, DATE);
+    other = new BlackOptionDataBundle(F, YieldCurve.from(ConstantDoublesCurve.from(0.06)), SURFACE, DATE);
     assertFalse(other.equals(DATA));
     other = new BlackOptionDataBundle(F, CURVE, new VolatilitySurface(ConstantDoublesSurface.from(0.6)), DATE);
     assertFalse(other.equals(DATA));
@@ -61,7 +61,7 @@ public class BlackOptionDataBundleTest {
     assertEquals(DATA.withDate(newDate), new BlackOptionDataBundle(F, CURVE, SURFACE, newDate));
     final double newForward = F + 1;
     assertEquals(DATA.withForward(newForward), new BlackOptionDataBundle(newForward, CURVE, SURFACE, DATE));
-    final YieldCurve newCurve = new YieldCurve(ConstantDoublesCurve.from(0.05));
+    final YieldCurve newCurve = YieldCurve.from(ConstantDoublesCurve.from(0.05));
     assertEquals(DATA.withInterestRateCurve(newCurve), new BlackOptionDataBundle(F, newCurve, SURFACE, DATE));
     final VolatilitySurface newSurface = new VolatilitySurface(ConstantDoublesSurface.from(0.9));
     assertEquals(DATA.withVolatilitySurface(newSurface), new BlackOptionDataBundle(F, CURVE, newSurface, DATE));

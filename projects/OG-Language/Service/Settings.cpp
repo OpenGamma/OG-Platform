@@ -91,8 +91,8 @@ private:
 #ifdef _WIN32
 
 	/// Checks for a valid JVM library indexed with a given version code. The default Java installation will
-	/// write the correct version code to the CurrentVersion value. When Java is bundled as part of the
-	/// OpenGamma distribution, we'll create additional keys.
+	/// write the correct version code to the CurrentVersion value which will be used. In the future we might
+	/// want to load a specific JVM (e.g. if a newer one raises compatability issues)
 	///
 	/// @return the path to the JVM DLL if found, or NULL if there is none
 	static TCHAR *SearchJavaVersion (HKEY hkeyJRE, const TCHAR *pszVersion) {
@@ -154,17 +154,10 @@ private:
 			} else {
 				LOGDEBUG (TEXT ("No default JVM installed"));
 			}
-			// TODO: remove these when we go to 1.1.x; they are a legacy from the 1.0.x installer
-			// Try the version bundled with OG-Language
-			pszPath = SearchJavaVersion (hkeyJRE, TEXT ("OG-Language"));
+			// Try v1.6 regardless
+			pszPath = SearchJavaVersion (hkeyJRE, TEXT ("1.6"));
 			if (pszPath) {
-				LOGINFO (TEXT ("Using JVM ") << pszPath << TEXT (" bundled with OG-Language distribution"));
-				break;
-			}
-			// Try the version bundled with OG-Platform
-			pszPath = SearchJavaVersion (hkeyJRE, TEXT ("OG-Platform"));
-			if (pszPath) {
-				LOGINFO (TEXT ("Using JVM ") << pszPath << TEXT (" bundled with OG-Platform distribution"));
+				LOGINFO (TEXT ("Found non-default JRE v1.6"));
 				break;
 			}
 		} while (false);
@@ -178,8 +171,8 @@ private:
 	static TCHAR *SearchRegistry () {
 		TCHAR *pszPath;
 		do {
-			if ((pszPath = SearchRegistry (TEXT ("JavaSoft"))) != NULL) break;
 			if ((pszPath = SearchRegistry (TEXT ("OpenGammaLtd"))) != NULL) break;
+			if ((pszPath = SearchRegistry (TEXT ("JavaSoft"))) != NULL) break;
 			LOGWARN (TEXT ("No default JVM or OpenGamma bundled JVM found in the registry"));
 		} while (false);
 		return pszPath;

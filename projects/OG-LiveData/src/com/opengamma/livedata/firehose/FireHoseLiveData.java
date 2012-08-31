@@ -57,6 +57,15 @@ public interface FireHoseLiveData extends LifeCycle {
    * @return true if full market data is available, false otherwise
    */
   boolean isMarketDataComplete();
+  
+  /**
+   * Returns true if there is some form of data being stored for the given UniqueId
+   * without having to package the result.
+   * 
+   * @param uniqueId The id to check
+   * @return true if there is data available, false otherwise
+   */
+  boolean isDataAvailable(String uniqueId);
 
   /**
    * Registers a listener to receive values as they are updated.

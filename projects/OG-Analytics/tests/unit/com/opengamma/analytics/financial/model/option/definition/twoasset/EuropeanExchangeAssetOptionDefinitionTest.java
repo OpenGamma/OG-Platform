@@ -28,7 +28,7 @@ public class EuropeanExchangeAssetOptionDefinitionTest {
   private static final double S1 = 100;
   private static final double S2 = 120;
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 1, 1);
-  private static final StandardTwoAssetOptionDataBundle DATA = new StandardTwoAssetOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.02)), 0, 0, new VolatilitySurface(
+  private static final StandardTwoAssetOptionDataBundle DATA = new StandardTwoAssetOptionDataBundle(YieldCurve.from(ConstantDoublesCurve.from(0.02)), 0, 0, new VolatilitySurface(
       ConstantDoublesSurface.from(0.2)), new VolatilitySurface(ConstantDoublesSurface.from(0.15)), S1, S2, 0.5, DATE);
   private static final Expiry EXPIRY = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 0.4));
 

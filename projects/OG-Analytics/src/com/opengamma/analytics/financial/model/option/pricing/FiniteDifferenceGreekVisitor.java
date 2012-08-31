@@ -75,8 +75,8 @@ public class FiniteDifferenceGreekVisitor<S extends StandardOptionDataBundle, T 
     final double t = _definition.getTimeToExpiry(date);
     final double r = _data.getInterestRate(t);
     final double b = _data.getCostOfCarry();
-    final YieldAndDiscountCurve upCurve = new YieldCurve(ConstantDoublesCurve.from(r + EPS));
-    final YieldAndDiscountCurve downCurve = new YieldCurve(ConstantDoublesCurve.from(r - EPS));
+    final YieldAndDiscountCurve upCurve = YieldCurve.from(ConstantDoublesCurve.from(r + EPS));
+    final YieldAndDiscountCurve downCurve = YieldCurve.from(ConstantDoublesCurve.from(r - EPS));
     final S dataUp = (S) _data.withCostOfCarry(b + EPS).withInterestRateCurve(upCurve);
     final S dataDown = (S) _data.withCostOfCarry(b - EPS).withInterestRateCurve(downCurve);
     return getFirstDerivative(dataUp, dataDown);

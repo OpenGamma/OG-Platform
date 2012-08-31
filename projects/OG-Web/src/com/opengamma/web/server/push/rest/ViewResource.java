@@ -21,12 +21,15 @@ public class ViewResource {
 
   private final AnalyticsView _view;
   private final AnalyticsViewManager _viewManager;
+  private final String _viewId;
 
-  public ViewResource(AnalyticsView view, AnalyticsViewManager viewManager) {
+  public ViewResource(AnalyticsView view, AnalyticsViewManager viewManager, String viewId) {
     ArgumentChecker.notNull(viewManager, "viewManager");
     ArgumentChecker.notNull(view, "view");
+    ArgumentChecker.notNull(viewId, "viewId");
     _viewManager = viewManager;
     _view = view;
+    _viewId = viewId;
   }
 
   @Path("portfolio")
@@ -39,10 +42,9 @@ public class ViewResource {
     return new MainGridResource(AnalyticsView.GridType.PRIMITIVES, _view);
   }
 
-  // TODO will the PathParam work? I don't think so. pass in? it's known at construction time
   @DELETE
-  public void deleteView(@PathParam("viewId") String viewId) {
-    _viewManager.deleteView(viewId);
+  public void deleteView() {
+    _viewManager.deleteView(_viewId);
   }
 
   @POST

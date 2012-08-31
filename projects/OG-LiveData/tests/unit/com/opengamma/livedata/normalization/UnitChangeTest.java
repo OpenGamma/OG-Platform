@@ -14,10 +14,11 @@ import com.opengamma.livedata.server.FieldHistoryStore;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = "unit")
 public class UnitChangeTest {
-  
+
   @Test
   public void unitChange() {
     UnitChange unitChange = new UnitChange("Foo", 10);

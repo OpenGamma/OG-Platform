@@ -22,6 +22,7 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class LogNormalBinomialTreeBuilder<T extends GeneralLogNormalOptionDataBundle> extends BinomialTreeBuilder<T> {
 
+  private static final double EPS = 1e-8;
   private static final RealSingleRootFinder s_root = new BrentSingleRootFinder();
   private static BracketRoot s_bracketRoot = new BracketRoot();
 
@@ -50,7 +51,9 @@ public class LogNormalBinomialTreeBuilder<T extends GeneralLogNormalOptionDataBu
   @Override
   protected double getNextHigherNode(double dt, double sigma, double forward, double lowerNode) {
     Function1D<Double, Double> func = new UpperNodes(dt, sigma, forward, lowerNode);
-    double[] limits = s_bracketRoot.getBracketedPoints(func, forward, forward * Math.exp(sigma * Math.sqrt(dt)));
+    double fTry = forward * Math.exp(sigma * Math.sqrt(dt));
+    //ensure we do not get p = 1 and thus a divide by zero
+    double[] limits = s_bracketRoot.getBracketedPoints(func, (forward - lowerNode) / 0.6 + lowerNode, (forward - lowerNode) / 0.4 + lowerNode, forward * (1 + EPS), 10 * fTry);
     return s_root.getRoot(func, limits[0], limits[1]);
   }
 

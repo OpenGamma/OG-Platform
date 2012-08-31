@@ -25,6 +25,7 @@ import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.change.JmsChangeManager;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.DataConfigMasterResource;
+import com.opengamma.master.config.impl.RemoteConfigMaster;
 import com.opengamma.masterdb.config.DbConfigMaster;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.jms.JmsConnector;
@@ -95,6 +96,8 @@ public class DbConfigMasterComponentFactory extends AbstractComponentFactory {
     }
     
     // register
+    info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteConfigMaster.class);
     info.addAttribute(ComponentInfoAttributes.UNIQUE_ID_SCHEME, master.getUniqueIdScheme());
     repo.registerComponent(info, master);
     

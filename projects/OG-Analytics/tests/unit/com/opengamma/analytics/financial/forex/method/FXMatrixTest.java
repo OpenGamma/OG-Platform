@@ -6,10 +6,10 @@
 package com.opengamma.analytics.financial.forex.method;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -28,41 +28,48 @@ public class FXMatrixTest {
   private static final double GBP_EUR = 1.20;
   private static final double USD_KRW = 1123.45;
 
+  private static final double TOLERANCE_RATE = 1.0E-10;
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void nullCurrencyConstructor1() {
+    new FXMatrix((Currency) null);
+  }
+
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullCurrency1() {
-    FXMatrix fxMatrix = new FXMatrix();
+    final FXMatrix fxMatrix = new FXMatrix();
     fxMatrix.addCurrency(null, USD, EUR_USD);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullCurrency2() {
-    FXMatrix fxMatrix = new FXMatrix();
+    final FXMatrix fxMatrix = new FXMatrix();
     fxMatrix.addCurrency(EUR, null, EUR_USD);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void sameCurrency() {
-    FXMatrix fxMatrix = new FXMatrix();
+    final FXMatrix fxMatrix = new FXMatrix();
     fxMatrix.addCurrency(EUR, EUR, EUR_USD);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void currency1NotPresent() {
-    FXMatrix fxMatrix = new FXMatrix();
+    final FXMatrix fxMatrix = new FXMatrix();
     fxMatrix.addCurrency(EUR, USD, EUR_USD);
     fxMatrix.getFxRate(GBP, USD);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void currency2NotPresent() {
-    FXMatrix fxMatrix = new FXMatrix();
+    final FXMatrix fxMatrix = new FXMatrix();
     fxMatrix.addCurrency(EUR, USD, EUR_USD);
     fxMatrix.getFxRate(USD, GBP);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void currencyAlreadyPresent() {
-    FXMatrix fxMatrix = new FXMatrix();
+    final FXMatrix fxMatrix = new FXMatrix();
     fxMatrix.addCurrency(EUR, USD, EUR_USD);
     fxMatrix.addCurrency(GBP, EUR, GBP_EUR);
     fxMatrix.addCurrency(GBP, USD, 1.234);
@@ -70,26 +77,36 @@ public class FXMatrixTest {
 
   @Test
   public void onePair() {
-    FXMatrix fxMatrix = new FXMatrix();
+    final FXMatrix fxMatrix = new FXMatrix();
     fxMatrix.addCurrency(EUR, USD, EUR_USD);
-    assertEquals("FXMatrix - first pair", EUR_USD, fxMatrix.getFxRate(EUR, USD), 1.0E-10);
-    assertEquals("FXMatrix - first pair", 1.0 / EUR_USD, fxMatrix.getFxRate(USD, EUR), 1.0E-10);
-    assertEquals("FXMatrix - first pair", 1.0, fxMatrix.getFxRate(USD, USD), 1.0E-10); // Is this useful? At least it is correct!
-    assertEquals("FXMatrix - first pair", 1.0, fxMatrix.getFxRate(EUR, EUR), 1.0E-10);
+    assertEquals("FXMatrix - first pair", EUR_USD, fxMatrix.getFxRate(EUR, USD), TOLERANCE_RATE);
+    assertEquals("FXMatrix - first pair", 1.0 / EUR_USD, fxMatrix.getFxRate(USD, EUR), TOLERANCE_RATE);
+    assertEquals("FXMatrix - first pair", 1.0, fxMatrix.getFxRate(USD, USD), TOLERANCE_RATE); // Is this useful? At least it is correct!
+    assertEquals("FXMatrix - first pair", 1.0, fxMatrix.getFxRate(EUR, EUR), TOLERANCE_RATE);
   }
 
   @Test
   public void onePairSecondConstructor() {
-    FXMatrix fxMatrix = new FXMatrix(EUR, USD, EUR_USD);
-    assertEquals("FXMatrix - first pair", EUR_USD, fxMatrix.getFxRate(EUR, USD), 1.0E-10);
-    assertEquals("FXMatrix - first pair", 1.0 / EUR_USD, fxMatrix.getFxRate(USD, EUR), 1.0E-10);
-    assertEquals("FXMatrix - first pair", 1.0, fxMatrix.getFxRate(USD, USD), 1.0E-10); // Is this useful? At least it is correct!
-    assertEquals("FXMatrix - first pair", 1.0, fxMatrix.getFxRate(EUR, EUR), 1.0E-10);
+    final FXMatrix fxMatrix = new FXMatrix(EUR, USD, EUR_USD);
+    assertEquals("FXMatrix - first pair", EUR_USD, fxMatrix.getFxRate(EUR, USD), TOLERANCE_RATE);
+    assertEquals("FXMatrix - first pair", 1.0 / EUR_USD, fxMatrix.getFxRate(USD, EUR), TOLERANCE_RATE);
+    assertEquals("FXMatrix - first pair", 1.0, fxMatrix.getFxRate(USD, USD), TOLERANCE_RATE); // Is this useful? At least it is correct!
+    assertEquals("FXMatrix - first pair", 1.0, fxMatrix.getFxRate(EUR, EUR), TOLERANCE_RATE);
+  }
+
+  @Test
+  public void onePairThirdConstructor() {
+    final FXMatrix fxMatrix = new FXMatrix(USD);
+    fxMatrix.addCurrency(EUR, USD, EUR_USD);
+    assertEquals("FXMatrix - first pair", EUR_USD, fxMatrix.getFxRate(EUR, USD), TOLERANCE_RATE);
+    assertEquals("FXMatrix - first pair", 1.0 / EUR_USD, fxMatrix.getFxRate(USD, EUR), TOLERANCE_RATE);
+    assertEquals("FXMatrix - first pair", 1.0, fxMatrix.getFxRate(USD, USD), TOLERANCE_RATE);
+    assertEquals("FXMatrix - first pair", 1.0, fxMatrix.getFxRate(EUR, EUR), TOLERANCE_RATE);
   }
 
   @Test
   public void twoPairs() {
-    FXMatrix fxMatrix = new FXMatrix();
+    final FXMatrix fxMatrix = new FXMatrix();
     fxMatrix.addCurrency(EUR, USD, EUR_USD);
     fxMatrix.addCurrency(GBP, EUR, GBP_EUR);
     assertEquals("FXMatrix - two pairs", EUR_USD, fxMatrix.getFxRate(EUR, USD), 1.0E-10);
@@ -103,7 +120,7 @@ public class FXMatrixTest {
 
   @Test
   public void threePairs() {
-    FXMatrix fxMatrix = new FXMatrix();
+    final FXMatrix fxMatrix = new FXMatrix();
     fxMatrix.addCurrency(EUR, USD, EUR_USD);
     fxMatrix.addCurrency(GBP, EUR, GBP_EUR);
     fxMatrix.addCurrency(KRW, USD, 1.0 / USD_KRW);
@@ -119,21 +136,30 @@ public class FXMatrixTest {
   }
 
   @Test
+  public void constructorFromExisitingFxMatrix() {
+    final FXMatrix fxMatrix1 = new FXMatrix(EUR, USD, EUR_USD);
+    final FXMatrix fxMatrix2 = new FXMatrix(fxMatrix1);
+    assertEquals("FXMatrix - constructor", fxMatrix1, fxMatrix2);
+    fxMatrix2.addCurrency(GBP, EUR, GBP_EUR);
+    assertFalse("FXMatrix - constructor", fxMatrix1.equals(fxMatrix2));
+  }
+
+  @Test
   /**
    * Check the conversion of a multiple currency amount.
    */
   public void convert() {
-    FXMatrix fxMatrix = new FXMatrix();
+    final FXMatrix fxMatrix = new FXMatrix();
     fxMatrix.addCurrency(EUR, USD, EUR_USD);
     fxMatrix.addCurrency(GBP, EUR, GBP_EUR);
-    double amountGBP = 1.0;
-    double amountEUR = 2.0;
-    double amountUSD = 3.0;
+    final double amountGBP = 1.0;
+    final double amountEUR = 2.0;
+    final double amountUSD = 3.0;
     MultipleCurrencyAmount amount = MultipleCurrencyAmount.of(GBP, amountGBP);
     amount = amount.plus(EUR, amountEUR);
     amount = amount.plus(USD, amountUSD);
-    CurrencyAmount totalUSDCalculated = fxMatrix.convert(amount, USD);
-    double totalUSDExpected = amountUSD + amountEUR * EUR_USD + amountGBP * GBP_EUR * EUR_USD;
+    final CurrencyAmount totalUSDCalculated = fxMatrix.convert(amount, USD);
+    final double totalUSDExpected = amountUSD + amountEUR * EUR_USD + amountGBP * GBP_EUR * EUR_USD;
     assertEquals("FXMatrix - convert", totalUSDExpected, totalUSDCalculated.getAmount(), 1.0E-10);
     assertEquals("FXMatrix - convert", USD, totalUSDCalculated.getCurrency());
   }
@@ -143,7 +169,7 @@ public class FXMatrixTest {
    * Check the update of one exchange rate in matrix.
    */
   public void update() {
-    FXMatrix fxMatrix = new FXMatrix();
+    final FXMatrix fxMatrix = new FXMatrix();
     fxMatrix.addCurrency(EUR, USD, EUR_USD);
     fxMatrix.addCurrency(GBP, EUR, GBP_EUR);
     fxMatrix.addCurrency(KRW, USD, 1.0 / USD_KRW);
@@ -151,7 +177,7 @@ public class FXMatrixTest {
     assertEquals("FXMatrix - update", GBP_EUR, fxMatrix.getFxRate(GBP, EUR), 1.0E-10);
     assertEquals("FXMatrix - update", GBP_EUR * EUR_USD, fxMatrix.getFxRate(GBP, USD), 1.0E-10);
     assertEquals("FXMatrix - update", USD_KRW, fxMatrix.getFxRate(USD, KRW), 1.0E-10);
-    double newGBPEUR = 1.10;
+    final double newGBPEUR = 1.10;
     fxMatrix.updateRates(GBP, EUR, newGBPEUR);
     assertEquals("FXMatrix - update", EUR_USD, fxMatrix.getFxRate(EUR, USD), 1.0E-10);
     assertEquals("FXMatrix - update", newGBPEUR, fxMatrix.getFxRate(GBP, EUR), 1.0E-10);
@@ -164,4 +190,21 @@ public class FXMatrixTest {
     assertEquals("FXMatrix - update", newGBPEUR * EUR_USD * USD_KRW, fxMatrix.getFxRate(GBP, KRW), 1.0E-10);
   }
 
+  @Test
+  public void testHashCodeEquals() {
+    final FXMatrix fxMatrix = new FXMatrix();
+    fxMatrix.addCurrency(EUR, USD, EUR_USD);
+    fxMatrix.addCurrency(GBP, EUR, GBP_EUR);
+    fxMatrix.addCurrency(KRW, USD, 1.0 / USD_KRW);
+    FXMatrix other = new FXMatrix();
+    other.addCurrency(EUR, USD, EUR_USD);
+    other.addCurrency(GBP, EUR, GBP_EUR);
+    other.addCurrency(KRW, USD, 1.0 / USD_KRW);
+    assertEquals(fxMatrix, other);
+    assertEquals(fxMatrix.hashCode(), other.hashCode());
+    other = new FXMatrix();
+    other.addCurrency(EUR, USD, EUR_USD);
+    other.addCurrency(GBP, EUR, GBP_EUR);
+    assertFalse(fxMatrix.equals(other));
+  }
 }

@@ -7,11 +7,13 @@ package com.opengamma.analytics.financial.interestrate;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
@@ -21,16 +23,17 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * Computes the present value change when the rate changes by 1 (it is not rescaled to 1 basis point). 
- * The meaning of "rate" will change for each instrument. 
+ * Computes the present value change when the rate/market quote changes by 1 (it is not rescaled to 1 basis point).
+ * The meaning of "rate/market quote" will change for each instrument.
  * For Coupon, FRA and Deposit the result is the discounted accrual factor multiplied by the notional.
  * For PaymentFixed, it is 0 (there is no rate).
  * For annuities, it is the sum of pvbp of all payments.
  * For swaps it is the pvbp of the first leg.
  */
-// TODO: Review overlap with PresentValueCouponSensitivityCalculator.
+// TODO: Maybe changing the name to "PresentValueMarketQuoteSensitivityCalculator" may be a good idea.
 public final class PresentValueBasisPointCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
 
   /**
@@ -64,11 +67,15 @@ public final class PresentValueBasisPointCalculator extends AbstractInstrumentDe
     return derivative.accept(this, curves);
   }
 
+  // -----     Deposit     ------
+
   @Override
   public Double visitCash(final Cash deposit, final YieldCurveBundle curves) {
     final YieldAndDiscountCurve discountingCurve = curves.getCurve(deposit.getYieldCurveName());
     return discountingCurve.getDiscountFactor(deposit.getEndTime()) * deposit.getAccrualFactor() * deposit.getNotional();
   }
+
+  // -----     Payment/Coupon     ------
 
   @Override
   public Double visitFixedPayment(final PaymentFixed payment, final YieldCurveBundle data) {
@@ -102,6 +109,17 @@ public final class PresentValueBasisPointCalculator extends AbstractInstrumentDe
     return METHOD_FRA.presentValueCouponSensitivity(fra, curves) * fra.getNotional();
   }
 
+  // -----     Futures     ------
+
+  @Override
+  public Double visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
+    ArgumentChecker.notNull(future, "Futures");
+    ArgumentChecker.notNull(curves, "Bundle");
+    return future.getNotional() * future.getPaymentAccrualFactor() * future.getQuantity();
+  }
+
+  // -----     Annuity     ------
+
   @Override
   public Double visitGenericAnnuity(final Annuity<? extends Payment> annuity, final YieldCurveBundle curves) {
     Validate.notNull(curves);
@@ -118,6 +136,8 @@ public final class PresentValueBasisPointCalculator extends AbstractInstrumentDe
     return visitGenericAnnuity(annuity, curves);
   }
 
+  // -----     Swap     ------
+
   @Override
   public Double visitSwap(final Swap<?, ?> swap, final YieldCurveBundle curves) {
     Validate.notNull(curves);
@@ -128,6 +148,15 @@ public final class PresentValueBasisPointCalculator extends AbstractInstrumentDe
   @Override
   public Double visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final YieldCurveBundle curves) {
     return visitSwap(swap, curves);
+  }
+
+  // -----     Forex     ------
+
+  @Override
+  public Double visitForexSwap(final ForexSwap derivative, final YieldCurveBundle curves) {
+    final YieldAndDiscountCurve dsc2 = curves.getCurve(derivative.getFarLeg().getPaymentCurrency2().getFundingCurveName());
+    final double pvPtCcy2 = dsc2.getDiscountFactor(derivative.getFarLeg().getPaymentTime()) * -derivative.getFarLeg().getPaymentCurrency1().getAmount();
+    return curves.getFxRates().getFxRate(derivative.getFarLeg().getCurrency2(), derivative.getFarLeg().getCurrency1()) * pvPtCcy2;
   }
 
 }

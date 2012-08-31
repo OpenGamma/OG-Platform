@@ -3,7 +3,6 @@
  *
  * Please see distribution for license.
  */
-
 package com.opengamma.bbg.util;
 
 import static org.testng.AssertJUnit.assertEquals;
@@ -21,31 +20,28 @@ import org.testng.annotations.Test;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
 
-
-
-
-
 /**
- * 
+ * Test.
  */
+@Test(groups = "unit")
 public class BloombergEQVanillaOptionChainTest {
+
   // ------------ FIELDS ------------
   private static LocalDate s_referenceDatePreExpiration;
   private static LocalDate s_referenceDatePostExpiration;
   private static LocalDate s_referenceDateForTestingMinus;
   private static List<ExternalId> s_identifiers;
   private static BloombergEQVanillaOptionChain s_chain;
-  
-  
+
   // ------------ METHODS ------------
   // -------- TESTS --------
   // ---- PRECONDITIONS - TEST DATA ----
-  @Test(groups="preTest")
-  public void testData () {
+  @Test
+  public void preTest() {
     // Make sure the test data itself is correct
-    assertEquals (1024, s_identifiers.size());
+    assertEquals(1024, s_identifiers.size());
   }
-  
+
   // ---- TEST ON EMPTY INPUT ----
   @Test
   public void testEmpty () {
@@ -59,9 +55,9 @@ public class BloombergEQVanillaOptionChainTest {
     chain = empty.narrowByExpiry(LocalDate.now(), 0);
     assertCount(0, chain);
   }
-  
+
   // ---- OPTION TYPE ----
-  @Test(dependsOnGroups="preTest")
+  @Test(dependsOnMethods="preTest")
   public void testOptionType_1 () {
     BloombergEQVanillaOptionChain callChain = s_chain.narrowByOptionType(OptionType.CALL);
     BloombergEQVanillaOptionChain putChain  = s_chain.narrowByOptionType(OptionType.PUT);
@@ -70,9 +66,9 @@ public class BloombergEQVanillaOptionChainTest {
     assertCount (512, putChain);
     assertOptionType (OptionType.PUT, putChain);
   }
-  
+
   // ---- STRIKE ----
-  @Test(dependsOnGroups="preTest")
+  @Test(dependsOnMethods="preTest")
   public void testStrike_0_On () {
     double referencePrice = 140;
     int offset = 0;
@@ -80,8 +76,8 @@ public class BloombergEQVanillaOptionChainTest {
     assertCount(6, referencePrice, offset, chain);
     assertStrike(140, referencePrice, offset, chain);
   }
-  
-  @Test(dependsOnGroups="preTest")
+
+  @Test(dependsOnMethods="preTest")
   public void testStrike_Plus_1 () {
     double referencePrice = 141;
     int offset = 1;
@@ -89,8 +85,8 @@ public class BloombergEQVanillaOptionChainTest {
     assertCount(6, referencePrice, offset, chain);
     assertStrike(145, referencePrice, offset, chain);
   }
-  
-  @Test(dependsOnGroups="preTest")
+
+  @Test(dependsOnMethods="preTest")
   public void testStrike_Plus_2 () {
     double referencePrice = 141;
     int offset = 2;
@@ -98,8 +94,8 @@ public class BloombergEQVanillaOptionChainTest {
     assertCount(6, referencePrice, offset, chain);
     assertStrike(150, referencePrice, offset, chain);
   }
-  
-  @Test(dependsOnGroups="preTest")
+
+  @Test(dependsOnMethods="preTest")
   public void testStrike_Plus_5 () {
     double referencePrice = 141;
     int offset = 5;
@@ -107,8 +103,8 @@ public class BloombergEQVanillaOptionChainTest {
     assertCount(10, referencePrice, offset, chain);
     assertStrike(165, referencePrice, offset, chain);
   }
-  
-  @Test(dependsOnGroups="preTest")
+
+  @Test(dependsOnMethods="preTest")
   public void testStrike_Plus_100 () {
     double referencePrice = 141;
     int offset = 100;
@@ -116,8 +112,8 @@ public class BloombergEQVanillaOptionChainTest {
     assertCount(10, referencePrice, offset, chain);
     assertStrike(540, referencePrice, offset, chain);
   }
-  
-  @Test(dependsOnGroups="preTest")
+
+  @Test(dependsOnMethods="preTest")
   public void testStrike_Plus_1_Interval () {
     int offset = 1;
     
@@ -130,7 +126,7 @@ public class BloombergEQVanillaOptionChainTest {
     }
   }
 
-  @Test(dependsOnGroups="preTest")
+  @Test(dependsOnMethods="preTest")
   public void testStrike_Minus_1 () {
     double referencePrice = 141;
     int offset = -1;
@@ -138,8 +134,8 @@ public class BloombergEQVanillaOptionChainTest {
     assertCount(6, referencePrice, offset, chain);
     assertStrike(140, referencePrice, offset, chain);
   }
-  
-  @Test(dependsOnGroups="preTest")
+
+  @Test(dependsOnMethods="preTest")
   public void testStrike_Minus_2 () {
     double referencePrice = 141;
     int offset = -2;
@@ -147,8 +143,8 @@ public class BloombergEQVanillaOptionChainTest {
     assertCount(6, referencePrice, offset, chain);
     assertStrike(135, referencePrice, offset, chain);
   }
-  
-  @Test(dependsOnGroups="preTest")
+
+  @Test(dependsOnMethods="preTest")
   public void testStrike_Minus_5 () {
     double referencePrice = 141;
     int offset = -5;
@@ -156,8 +152,8 @@ public class BloombergEQVanillaOptionChainTest {
     assertCount(4, referencePrice, offset, chain);
     assertStrike(120, referencePrice, offset, chain);
   }
-  
-  @Test(dependsOnGroups="preTest")
+
+  @Test(dependsOnMethods="preTest")
   public void testStrike_Minus_100 () {
     double referencePrice = 141;
     int offset = -100;
@@ -165,8 +161,8 @@ public class BloombergEQVanillaOptionChainTest {
     assertCount(2, referencePrice, offset, chain);
     assertStrike(100, referencePrice, offset, chain);
   }
-  
-  @Test(dependsOnGroups="preTest")
+
+  @Test(dependsOnMethods="preTest")
   public void testStrike_Minus_1_Interval () {
     int offset = -1;
     
@@ -178,8 +174,8 @@ public class BloombergEQVanillaOptionChainTest {
       assertStrike(530, referencePrice, offset, chain);
     }
   }
-  
-  @Test(dependsOnGroups="preTest")
+
+  @Test(dependsOnMethods="preTest")
   public void testStrike_Comprehensive () {
     testStrike_Comprehensive_Impl(190,0,190);
     testStrike_Comprehensive_Impl(190,1,195);
@@ -193,14 +189,14 @@ public class BloombergEQVanillaOptionChainTest {
     testStrike_Comprehensive_Impl(189,1,190);
     testStrike_Comprehensive_Impl(189,-1,185);
   }
-  
+
   private void testStrike_Comprehensive_Impl(double referencePrice, int offset, double expectedStrike) {
     BloombergEQVanillaOptionChain chain = s_chain.narrowByStrike(referencePrice, offset);
     assertStrike (expectedStrike, referencePrice, offset, chain);
   }
-  
+
   // ---- EXPIRY ----
-  @Test(dependsOnGroups="preTest")
+  @Test(dependsOnMethods="preTest")
   public void testExpiry_Plus_0_Pre () {
     LocalDate refDate = s_referenceDatePreExpiration;
     int months = 0;
@@ -209,7 +205,7 @@ public class BloombergEQVanillaOptionChainTest {
     assertExpiry(MonthOfYear.APRIL, 16, 2011, refDate, months, chain);
   }
   
-  @Test(dependsOnGroups="preTest")
+  @Test(dependsOnMethods="preTest")
   public void testExpiry_Plus_0_Post () {
     LocalDate refDate = s_referenceDatePostExpiration;
     int months = 0;
@@ -218,7 +214,7 @@ public class BloombergEQVanillaOptionChainTest {
     assertExpiry(MonthOfYear.MAY, 21, 2011, refDate, months, chain);
   }
 
-  @Test(dependsOnGroups="preTest")
+  @Test(dependsOnMethods="preTest")
   public void testExpiry_Plus_1_Pre () {
     LocalDate refDate = s_referenceDatePreExpiration;
     int months = 1;
@@ -227,7 +223,7 @@ public class BloombergEQVanillaOptionChainTest {
     assertExpiry(MonthOfYear.MAY, 21, 2011, refDate, months, chain);
   }
   
-  @Test(dependsOnGroups="preTest")
+  @Test(dependsOnMethods="preTest")
   public void testExpiry_Plus_1_Post () {
     LocalDate refDate = s_referenceDatePostExpiration;
     int months = 1;
@@ -236,7 +232,7 @@ public class BloombergEQVanillaOptionChainTest {
     assertExpiry(MonthOfYear.MAY, 21, 2011, refDate, months, chain);
   }
 
-  @Test(dependsOnGroups="preTest")
+  @Test(dependsOnMethods="preTest")
   public void testExpiry_Plus_2_Pre () {
     LocalDate refDate = s_referenceDatePreExpiration;
     int months = 2;
@@ -245,7 +241,7 @@ public class BloombergEQVanillaOptionChainTest {
     assertExpiry(MonthOfYear.JUNE, 18, 2011, refDate, months, chain);
   }
   
-  @Test(dependsOnGroups="preTest")
+  @Test(dependsOnMethods="preTest")
   public void testExpiry_Plus_2_Post () {
     LocalDate refDate = s_referenceDatePostExpiration;
     int months = 2;
@@ -254,7 +250,7 @@ public class BloombergEQVanillaOptionChainTest {
     assertExpiry(MonthOfYear.JUNE, 18, 2011, refDate, months, chain);
   }
   
-  @Test(dependsOnGroups="preTest")
+  @Test(dependsOnMethods="preTest")
   public void testExpiry_Plus_3_Pre () {
     LocalDate refDate = s_referenceDatePreExpiration;
     int months = 3;
@@ -263,7 +259,7 @@ public class BloombergEQVanillaOptionChainTest {
     assertExpiry(MonthOfYear.JULY, 16, 2011, refDate, months, chain);
   }
   
-  @Test(dependsOnGroups="preTest")
+  @Test(dependsOnMethods="preTest")
   public void testExpiry_Plus_3_Post () {
     LocalDate refDate = s_referenceDatePostExpiration;
     int months = 3;
@@ -272,7 +268,7 @@ public class BloombergEQVanillaOptionChainTest {
     assertExpiry(MonthOfYear.JULY, 16, 2011, refDate, months, chain);
   }
   
-  @Test(dependsOnGroups="preTest")
+  @Test(dependsOnMethods="preTest")
   public void testExpiry_Plus_4_Pre () {
     LocalDate refDate = s_referenceDatePreExpiration;
     int months = 4;
@@ -281,7 +277,7 @@ public class BloombergEQVanillaOptionChainTest {
     assertExpiry(MonthOfYear.JULY, 16, 2011, refDate, months, chain);
   }
   
-  @Test(dependsOnGroups="preTest")
+  @Test(dependsOnMethods="preTest")
   public void testExpiry_Plus_4_Post () {
     LocalDate refDate = s_referenceDatePostExpiration;
     int months = 4;
@@ -290,7 +286,7 @@ public class BloombergEQVanillaOptionChainTest {
     assertExpiry(MonthOfYear.JULY, 16, 2011, refDate, months, chain);
   }
   
-  @Test(dependsOnGroups="preTest")
+  @Test(dependsOnMethods="preTest")
   public void testExpiry_Plus_5_Pre () {
     LocalDate refDate = s_referenceDatePreExpiration;
     int months = 5;
@@ -299,7 +295,7 @@ public class BloombergEQVanillaOptionChainTest {
     assertExpiry(MonthOfYear.OCTOBER, 22, 2011, refDate, months, chain);
   }
   
-  @Test(dependsOnGroups="preTest")
+  @Test(dependsOnMethods="preTest")
   public void testExpiry_Plus_5_Post () {
     LocalDate refDate = s_referenceDatePostExpiration;
     int months = 5;
@@ -308,7 +304,7 @@ public class BloombergEQVanillaOptionChainTest {
     assertExpiry(MonthOfYear.OCTOBER, 22, 2011, refDate, months, chain);
   }
   
-  @Test(dependsOnGroups="preTest")
+  @Test(dependsOnMethods="preTest")
   public void testExpiry_Plus_6_Pre () {
     LocalDate refDate = s_referenceDatePreExpiration;
     int months = 6;
@@ -317,7 +313,7 @@ public class BloombergEQVanillaOptionChainTest {
     assertExpiry(MonthOfYear.OCTOBER, 22, 2011, refDate, months, chain);
   }
   
-  @Test(dependsOnGroups="preTest")
+  @Test(dependsOnMethods="preTest")
   public void testExpiry_Plus_6_Post () {
     LocalDate refDate = s_referenceDatePostExpiration;
     int months = 6;
@@ -326,7 +322,7 @@ public class BloombergEQVanillaOptionChainTest {
     assertExpiry(MonthOfYear.OCTOBER, 22, 2011, refDate, months, chain);
   }
   
-  @Test(dependsOnGroups="preTest")
+  @Test(dependsOnMethods="preTest")
   public void testExpiry_Plus_100 () {
     LocalDate refDate = s_referenceDatePreExpiration;
     int months = 100;
@@ -335,7 +331,7 @@ public class BloombergEQVanillaOptionChainTest {
     assertExpiry(MonthOfYear.JANUARY, 19, 2013, refDate, months, chain);
   }
   
-  @Test(dependsOnGroups="preTest")
+  @Test(dependsOnMethods="preTest")
   public void testExpiry_Forward_0 () {
     LocalDate refDate = LocalDate.of(2012, MonthOfYear.NOVEMBER, 11);
     int months = 0;
@@ -344,7 +340,7 @@ public class BloombergEQVanillaOptionChainTest {
     assertExpiry(MonthOfYear.JANUARY, 19, 2013, refDate, months, chain);
   }
 
-  @Test(dependsOnGroups="preTest")
+  @Test(dependsOnMethods="preTest")
   public void testExpiry_Minus_0 () {
     LocalDate refDate = s_referenceDateForTestingMinus;
     int months = 0;
@@ -353,7 +349,7 @@ public class BloombergEQVanillaOptionChainTest {
     assertExpiry(MonthOfYear.OCTOBER, 22, 2011, refDate, months, chain);
   }
   
-  @Test(dependsOnGroups="preTest")
+  @Test(dependsOnMethods="preTest")
   public void testExpiry_Minus_1 () {
     LocalDate refDate = s_referenceDateForTestingMinus;
     int months = -1;
@@ -362,7 +358,7 @@ public class BloombergEQVanillaOptionChainTest {
     assertExpiry(MonthOfYear.OCTOBER, 22, 2011, refDate, months, chain);
   }
   
-  @Test(dependsOnGroups="preTest")
+  @Test(dependsOnMethods="preTest")
   public void testExpiry_Minus_2 () {
     LocalDate refDate = s_referenceDateForTestingMinus;
     int months = -2;
@@ -371,7 +367,7 @@ public class BloombergEQVanillaOptionChainTest {
     assertExpiry(MonthOfYear.OCTOBER, 22, 2011, refDate, months, chain);
   }
   
-  @Test(dependsOnGroups="preTest")
+  @Test(dependsOnMethods="preTest")
   public void testExpiry_Minus_3 () {
     LocalDate refDate = s_referenceDateForTestingMinus;
     int months = -3;
@@ -380,7 +376,7 @@ public class BloombergEQVanillaOptionChainTest {
     assertExpiry(MonthOfYear.JULY, 16, 2011, refDate, months, chain);
   }
   
-  @Test(dependsOnGroups="preTest")
+  @Test(dependsOnMethods="preTest")
   public void testExpiry_Minus_4 () {
     LocalDate refDate = s_referenceDateForTestingMinus;
     int months = -4;
@@ -389,7 +385,7 @@ public class BloombergEQVanillaOptionChainTest {
     assertExpiry(MonthOfYear.JULY, 16, 2011, refDate, months, chain);
   }
   
-  @Test(dependsOnGroups="preTest")
+  @Test(dependsOnMethods="preTest")
   public void testExpiry_Minus_5 () {
     LocalDate refDate = s_referenceDateForTestingMinus;
     int months = -5;
@@ -398,7 +394,7 @@ public class BloombergEQVanillaOptionChainTest {
     assertExpiry(MonthOfYear.JUNE, 18, 2011, refDate, months, chain);
   }
   
-  @Test(dependsOnGroups="preTest")
+  @Test(dependsOnMethods="preTest")
   public void testExpiry_Minus_6 () {
     LocalDate refDate = s_referenceDateForTestingMinus;
     int months = -6;
@@ -407,7 +403,7 @@ public class BloombergEQVanillaOptionChainTest {
     assertExpiry(MonthOfYear.MAY, 21, 2011, refDate, months, chain);
   }
   
-  @Test(dependsOnGroups="preTest")
+  @Test(dependsOnMethods="preTest")
   public void testExpiry_Minus_100 () {
     LocalDate refDate = s_referenceDateForTestingMinus;
     int months = -100;
@@ -418,7 +414,7 @@ public class BloombergEQVanillaOptionChainTest {
 
   
   // ---- COMBINATIONS ----
-  @Test(dependsOnGroups="preTest")
+  @Test(dependsOnMethods="preTest")
   public void testCombo_1 () {
     LocalDate refDate = s_referenceDatePreExpiration;
     double refPrice = 162.3;
@@ -431,7 +427,7 @@ public class BloombergEQVanillaOptionChainTest {
     assertStrike(170, refPrice, strikeOffset, chain);
   }
   
-  @Test(dependsOnGroups="preTest")
+  @Test(dependsOnMethods="preTest")
   public void testCombo_2 () {
     LocalDate refDate = s_referenceDatePreExpiration;
     double refPrice = 162.3;

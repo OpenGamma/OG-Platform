@@ -155,44 +155,7 @@ import com.opengamma.util.tuple.Pair;
     if ((dependent != null) && dependent.hasParent(requirement)) {
       dependent.setRecursionDetected();
       s_logger.debug("Can't introduce a ValueRequirement loop");
-      return new ResolvedValueProducer() {
-
-        private int _refCount = 1;
-
-        @Override
-        public Cancelable addCallback(final GraphBuildingContext context, final ResolvedValueCallback callback) {
-          context.failed(callback, requirement, recursiveRequirement(requirement));
-          return null;
-        }
-
-        @Override
-        public String toString() {
-          return "ResolvedValueProducer[" + requirement + "]";
-        }
-
-        @Override
-        public synchronized void addRef() {
-          assert _refCount > 0;
-          _refCount++;
-        }
-
-        @Override
-        public synchronized int release(final GraphBuildingContext context) {
-          assert _refCount > 0;
-          return --_refCount;
-        }
-
-        @Override
-        public boolean hasActiveCallbacks() {
-          return false;
-        }
-
-        @Override
-        public ValueRequirement getValueRequirement() {
-          return requirement;
-        }
-
-      };
+      return new NullResolvedValueProducer(requirement, recursiveRequirement(requirement));
     }
     RequirementResolver resolver = null;
     final ResolveTask[] tasks = getTasksResolving(requirement);
@@ -305,15 +268,22 @@ import com.opengamma.util.tuple.Pair;
   }
 
   public void discardTask(final ResolveTask task) {
-    final Map<ResolveTask, ResolveTask> tasks = getBuilder().getTasks(task.getValueRequirement());
-    synchronized (tasks) {
-      if (tasks.remove(task) == null) {
-        // Wasn't in the set
+    do {
+      final Map<ResolveTask, ResolveTask> tasks = getBuilder().getTasks(task.getValueRequirement());
+      if (tasks == null) {
         return;
       }
-    }
-    task.release(this);
-    getBuilder().decrementActiveResolveTasks();
+      synchronized (tasks) {
+        if (tasks.containsKey(null)) {
+          continue;
+        }
+        if (tasks.remove(task) == null) {
+          return;
+        }
+      }
+      task.release(this);
+      getBuilder().decrementActiveResolveTasks();
+    } while (true);
   }
 
   public ResolvedValueProducer declareTaskProducing(final ValueSpecification valueSpecification, final ResolveTask task, final ResolvedValueProducer producer) {
@@ -441,6 +411,14 @@ import com.opengamma.util.tuple.Pair;
       return NullResolutionFailure.INSTANCE;
     } else {
       return ResolutionFailureImpl.marketDataMissing(valueRequirement);
+    }
+  }
+
+  public ResolutionFailure suppressed(final ValueRequirement valueRequirement) {
+    if (getBuilder().isDisableFailureReporting()) {
+      return NullResolutionFailure.INSTANCE;
+    } else {
+      return ResolutionFailureImpl.suppressed(valueRequirement);
     }
   }
 

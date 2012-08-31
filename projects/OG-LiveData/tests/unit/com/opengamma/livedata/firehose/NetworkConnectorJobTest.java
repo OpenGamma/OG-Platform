@@ -27,9 +27,9 @@ import com.opengamma.transport.socket.AbstractServerSocketProcess;
 import com.opengamma.util.test.Timeout;
 
 /**
- * Tests the {@link NetworkConnectorJob} class.
+ * Test.
  */
-@Test
+@Test(groups = "unit")
 public class NetworkConnectorJobTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(NetworkConnectorJobTest.class);
@@ -58,7 +58,6 @@ public class NetworkConnectorJobTest {
         }
       }
     }
-
   }
 
   public void testDummyServer() throws InterruptedException, IOException {

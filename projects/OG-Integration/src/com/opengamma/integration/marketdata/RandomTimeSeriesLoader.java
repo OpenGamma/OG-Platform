@@ -13,7 +13,7 @@ import java.util.Set;
 import javax.time.calendar.LocalDate;
 
 import com.google.common.collect.Sets;
-import com.opengamma.bbg.loader.BloombergHistoricalLoader;
+import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.id.ExternalIdWithDates;
@@ -36,10 +36,6 @@ public class RandomTimeSeriesLoader implements HistoricalTimeSeriesLoader {
 
   /** The data source name for the random data. */
   private static final String RANDOM_DATA_SOURCE_NAME = "RANDOM";
-  /** Unknown data provider. */
-  private static final String UNKNOWN_PROVIDER = "UNKNOWN";
-  /** Unknown observation time. */
-  private static final String UNKNOWN_OBSERVATION_TIME = "UNKNOWN";
   /** The time series master to populate. */
   private final HistoricalTimeSeriesMaster _htsMaster;
 
@@ -84,14 +80,8 @@ public class RandomTimeSeriesLoader implements HistoricalTimeSeriesLoader {
       ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
       info.setExternalIdBundle(ExternalIdBundleWithDates.of(ExternalIdWithDates.of(identifier, null, null)));
       info.setDataField(dataField);
-      if (dataProvider == null) {
-        info.setDataProvider(UNKNOWN_PROVIDER);
-        info.setObservationTime(UNKNOWN_OBSERVATION_TIME);
-      } else {
-        info.setDataProvider(dataProvider);
-        String derivedObservationTime = BloombergHistoricalLoader.resolveObservationTime(dataProvider);
-        info.setObservationTime(derivedObservationTime);
-      }
+      info.setDataProvider(BloombergDataUtils.resolveDataProvider(dataProvider));
+      info.setObservationTime(BloombergDataUtils.resolveObservationTime(dataProvider));
       info.setDataSource(RANDOM_DATA_SOURCE_NAME);
       HistoricalTimeSeriesInfoDocument addedDoc = _htsMaster.add(new HistoricalTimeSeriesInfoDocument(info));
       // add the series
@@ -124,11 +114,7 @@ public class RandomTimeSeriesLoader implements HistoricalTimeSeriesLoader {
   private boolean haveTimeSeries(final ExternalId identifier, final String dataProvider, final String dataField) {
     HistoricalTimeSeriesInfoSearchRequest searchRequest = new HistoricalTimeSeriesInfoSearchRequest(identifier);
     searchRequest.setDataField(dataField);
-    if (dataProvider == null) {
-      searchRequest.setDataProvider(UNKNOWN_PROVIDER);
-    } else {
-      searchRequest.setDataProvider(dataProvider);
-    }
+    searchRequest.setDataProvider(BloombergDataUtils.resolveDataProvider(dataProvider));
     searchRequest.setDataSource(RANDOM_DATA_SOURCE_NAME);
     HistoricalTimeSeriesInfoSearchResult searchTimeSeries = _htsMaster.search(searchRequest);
     List<HistoricalTimeSeriesInfoDocument> documents = searchTimeSeries.getDocuments();

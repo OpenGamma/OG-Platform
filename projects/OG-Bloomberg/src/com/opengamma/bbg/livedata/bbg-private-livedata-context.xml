@@ -42,8 +42,6 @@
     </constructor-arg>
   </bean>
   
-  
-  
   <bean id="bbgLiveDataServer" class="com.opengamma.bbg.livedata.faketicks.CombiningBloombergLiveDataServer" init-method="start">
     <constructor-arg index="0" ref="fakeBloombergLiveDataServer" />
     <constructor-arg index="1" ref="bloombergLiveDataServer" />
@@ -57,7 +55,7 @@
   </bean>
 
   <bean id="bloombergLiveDataServer" class="com.opengamma.bbg.livedata.BloombergLiveDataServer" init-method="start">
-    <constructor-arg index="0" ref="sessionOptions" />
+    <constructor-arg index="0" ref="bloombergConnector" />
     <constructor-arg index="1" ref="bbgReferenceDataProvider" />
     
     <property name="distributionSpecificationResolver" ref="bbgDistributionSpecificationResolver"/>
@@ -68,6 +66,7 @@
     
   <bean id="fakeBloombergLiveDataServer" class="com.opengamma.bbg.livedata.faketicks.FakeSubscriptionBloombergLiveDataServer" init-method="start">
     <constructor-arg index="0" ref="bloombergLiveDataServer" />
+    <constructor-arg index="1" ref="standardCacheManager" />
     
     <!-- NOTE: do not set distributionSpecificationResolver, it is derived from the underlying servers resolved-->
     <property name="entitlementChecker" ref="bbgEntitlementChecker"/>

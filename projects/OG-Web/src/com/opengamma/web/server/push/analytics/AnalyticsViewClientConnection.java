@@ -14,6 +14,7 @@ import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.calc.EngineResourceReference;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.engine.view.client.ViewResultMode;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
@@ -24,7 +25,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.AggregatedViewDefinitionManager;
 
 /**
- *
+ * Connects the engine to an {@link AnalyticsView}. Contains the logic for setting up a {@link ViewClient},
+ * connecting it to a view process, handling events from the engine and forwarding data to the {@code ViewClient}.
  */
 /* package */ class AnalyticsViewClientConnection extends AbstractViewResultListener {
 
@@ -32,6 +34,8 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
   private final ViewClient _viewClient;
   private final AggregatedViewDefinition _aggregatedViewDef;
   private final ViewExecutionOptions _executionOptions;
+
+  private EngineResourceReference<? extends ViewCycle> _cycleReference = EmptyViewCycle.REFERENCE;
 
   public AnalyticsViewClientConnection(ViewRequest viewRequest,
                                        ViewClient viewClient,
@@ -63,24 +67,27 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
 
   @Override
   public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
-    if (_viewClient.isViewCycleAccessSupported()) {
-      EngineResourceReference<? extends ViewCycle> cycleReference = null;
-      try {
-        cycleReference = _viewClient.createCycleReference(fullResult.getViewCycleId());
-        _view.updateResults(fullResult, cycleReference.get());
-      } finally {
-        if (cycleReference != null) {
-          cycleReference.release();
-        }
-      }
+    _cycleReference.release();
+    // always retain a reference to the most recent cycle so the dependency graphs are available at all times.
+    // without this it would be necessary to wait at least one cycle before it would be possible to access the graphs.
+    // this allows dependency graphs grids to be opened and populated without any delay
+    EngineResourceReference<? extends ViewCycle> cycleReference = _viewClient.createCycleReference(fullResult.getViewCycleId());
+    if (cycleReference == null) {
+      // this shouldn't happen if everything in the engine is working as it should
+      _cycleReference = EmptyViewCycle.REFERENCE;
     } else {
-      _view.updateResults(fullResult);
+      _cycleReference = cycleReference;
     }
-    _viewClient.setViewCycleAccessSupported(_view.isViewCycleRequired());
+    _view.updateResults(fullResult, _cycleReference.get());
   }
 
+  /**
+   * Connects to the engine in order to start receiving results. This should only be called once.
+   */
   /* package */ void start() {
     _viewClient.setResultListener(this);
+    _viewClient.setViewCycleAccessSupported(true);
+    _viewClient.setFragmentResultMode(ViewResultMode.FULL_THEN_DELTA);
     try {
       _viewClient.attachToViewProcess(_aggregatedViewDef.getUniqueId(), _executionOptions);
     } catch (Exception e) {
@@ -89,14 +96,21 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
     }
   }
 
+  /**
+   * Disconects from the engine and releases all resources. This should only be called once.
+   */
   /* package */ void close() {
     try {
       _viewClient.detachFromViewProcess();
     } finally {
+      _cycleReference.release();
       _aggregatedViewDef.close();
     }
   }
 
+  /**
+   * @return The view to which this object sends data received from the engine.
+   */
   /* package */ AnalyticsView getView() {
     return _view;
   }
@@ -108,7 +122,7 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
 
     private final AggregatedViewDefinitionManager _aggregatedViewDefManager;
     private final UniqueId _baseViewDefId;
-    private final String _aggregatorName;
+    private final List<String> _aggregatorNames;
     private final UniqueId _id;
 
     private AggregatedViewDefinition(AggregatedViewDefinitionManager aggregatedViewDefManager, ViewRequest viewRequest) {
@@ -116,15 +130,9 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
       ArgumentChecker.notNull(viewRequest, "viewRequest");
       _aggregatedViewDefManager = aggregatedViewDefManager;
       _baseViewDefId = viewRequest.getViewDefinitionId();
-      List<String> aggregators = viewRequest.getAggregators();
-      if (!aggregators.isEmpty()) {
-        // TODO support multiple aggregtors
-        _aggregatorName = aggregators.get(0);
-      } else {
-        _aggregatorName = null;
-      }
+      _aggregatorNames = viewRequest.getAggregators();
       try {
-        _id = _aggregatedViewDefManager.getViewDefinitionId(_baseViewDefId, _aggregatorName);
+        _id = _aggregatedViewDefManager.getViewDefinitionId(_baseViewDefId, _aggregatorNames);
       } catch (Exception e) {
         close();
         throw new OpenGammaRuntimeException("Failed to get aggregated view definition", e);
@@ -136,7 +144,7 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
     }
 
     private void close() {
-      _aggregatedViewDefManager.releaseViewDefinition(_baseViewDefId, _aggregatorName);
+      _aggregatedViewDefManager.releaseViewDefinition(_baseViewDefId, _aggregatorNames);
     }
   }
 }

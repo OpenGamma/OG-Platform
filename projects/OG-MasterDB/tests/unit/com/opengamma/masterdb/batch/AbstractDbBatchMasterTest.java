@@ -36,7 +36,7 @@ public abstract class AbstractDbBatchMasterTest extends DbTest {
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbBatchMasterTest.class);
 
   public AbstractDbBatchMasterTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
+    super(databaseType, databaseVersion, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }
 

@@ -49,7 +49,7 @@ public class ValueSpecificationFudgeBuilder implements FudgeBuilder<ValueSpecifi
     FudgeField fudgeField = message.getByName(VALUE_NAME_KEY);
     Validate.notNull(fudgeField, "Fudge message is not a ValueSpecification - field '" + VALUE_NAME_KEY + "' is not present");
     final String valueName = message.getFieldValue(String.class, fudgeField);
-    final ComputationTargetSpecification targetSpecification = ComputationTargetSpecificationFudgeBuilder.buildObjectImpl(message);
+    final ComputationTargetSpecification targetSpecification = ComputationTargetSpecificationFudgeBuilder.buildObjectImpl(deserializer, message);
     fudgeField = message.getByName(PROPERTIES_KEY);
     Validate.notNull(fudgeField, "Fudge message is not a ValueSpecification - field '" + PROPERTIES_KEY + "' is not present");
     final ValueProperties properties = deserializer.fieldValueToObject(ValueProperties.class, fudgeField);

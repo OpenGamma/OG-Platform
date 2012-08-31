@@ -133,9 +133,10 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<ExecutionResu
       int index = 0;
       for (CalculationJobResultItem item : result.getResultItems()) {
         DependencyNode node = future._nodes[index++];
-        _cycle.markExecuted(node);
-        if (item.failed()) {
+        if (item.isFailed()) {
           _cycle.markFailed(node);
+        } else {
+          _cycle.markExecuted(node);
         }
       }
       // mark Future complete

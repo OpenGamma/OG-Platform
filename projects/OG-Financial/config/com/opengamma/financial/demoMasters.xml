@@ -188,7 +188,7 @@
     <property name="dbConnector" ref="finDbConnector" />
     <property name="uniqueIdScheme" value="${opengamma.financial.db.portfoliomaster.scheme}" />
     <property name="jmsConnector" ref="jmsConnector" />
-    <property name="jmsChangeManagerTopic" value="dbPortfolioMasterChangeManager" />
+    <property name="jmsChangeManagerTopic" value="OpenGamma.MasterChange.PortfolioMaster.central" />
   </bean>
   <bean id="dbPositionMaster" class="com.opengamma.masterdb.spring.DbPositionMasterFactoryBean">
     <property name="dbConnector" ref="finDbConnector" />
@@ -228,7 +228,7 @@
     <property name="dbConnector" ref="finDbConnector" />
     <property name="uniqueIdScheme" value="${opengamma.financial.db.snapshotmaster.scheme}" />
     <property name="jmsConnector" ref="jmsConnector" />
-    <property name="jmsChangeManagerTopic" value="dbSnapshotMasterChangeManager" />
+    <property name="jmsChangeManagerTopic" value="OpenGamma.MasterChange.MarketDataSnapshotMaster.central" />
   </bean>
   <bean id="sharedSnapshotSource" class="com.opengamma.financial.spring.MarketDataSnapshotSourceFactoryBean">
     <property name="snapshotMaster" ref="dbSnapshotMaster"/>

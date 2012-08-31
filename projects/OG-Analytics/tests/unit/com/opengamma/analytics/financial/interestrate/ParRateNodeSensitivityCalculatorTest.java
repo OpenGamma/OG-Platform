@@ -12,12 +12,6 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.NodeSensitivityCalculator;
-import com.opengamma.analytics.financial.interestrate.ParRateCalculator;
-import com.opengamma.analytics.financial.interestrate.ParRateCurveSensitivityCalculator;
-import com.opengamma.analytics.financial.interestrate.ParRateNodeSensitivityCalculator;
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -25,12 +19,13 @@ import com.opengamma.util.tuple.DoublesPair;
  * 
  */
 public class ParRateNodeSensitivityCalculatorTest extends NodeSensitivityCalculatorTest {
+
   private static ParRateCalculator VALUE_CALCULATOR = ParRateCalculator.getInstance();
   private static ParRateCurveSensitivityCalculator SENSITIVITY_CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
   private static ParRateNodeSensitivityCalculator CALCULATOR = ParRateNodeSensitivityCalculator.getDefaultInstance();
 
   @Override
-  protected NodeSensitivityCalculator getCalculator() {
+  protected NodeYieldSensitivityCalculator getCalculator() {
     return CALCULATOR;
   }
 
@@ -38,7 +33,7 @@ public class ParRateNodeSensitivityCalculatorTest extends NodeSensitivityCalcula
   protected ParRateCurveSensitivityCalculator getSensitivityCalculator() {
     return SENSITIVITY_CALCULATOR;
   }
-  
+
   @Override
   protected ParRateCalculator getValueCalculator() {
     return VALUE_CALCULATOR;
@@ -58,8 +53,8 @@ public class ParRateNodeSensitivityCalculatorTest extends NodeSensitivityCalcula
   public void testParRateValue() {
     final InstrumentDerivativeVisitor<YieldCurveBundle, Double> valueCalculator = ParRateCalculator.getInstance();
     final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> senseCalculator = ParRateCurveSensitivityCalculator.getInstance();
-    final DoubleMatrix1D result = CALCULATOR.calculateSensitivities(IRD, senseCalculator, null, INTERPOLATED_CURVES);
-    final DoubleMatrix1D fdresult = finiteDiffNodeSensitivities(IRD, valueCalculator, null, INTERPOLATED_CURVES);
+    final DoubleMatrix1D result = CALCULATOR.calculateSensitivities(SWAP, senseCalculator, null, CURVE_BUNDLE_YIELD);
+    final DoubleMatrix1D fdresult = finiteDiffNodeSensitivitiesYield(SWAP, valueCalculator, null, CURVE_BUNDLE_YIELD);
     assertArrayEquals(result.getData(), fdresult.getData(), 1e-8);
   }
 }

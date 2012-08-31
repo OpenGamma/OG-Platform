@@ -35,7 +35,7 @@ public class EuropeanVanillaOptionDefinitionTest {
   private static final Expiry EXPIRY = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 1));
   private static final OptionDefinition CALL = new EuropeanVanillaOptionDefinition(SPOT, EXPIRY, true);
   private static final OptionDefinition PUT = new EuropeanVanillaOptionDefinition(SPOT, EXPIRY, false);
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.05)), 0., new VolatilitySurface(ConstantDoublesSurface.from(0.2)), 100.,
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(YieldCurve.from(ConstantDoublesCurve.from(0.05)), 0., new VolatilitySurface(ConstantDoublesSurface.from(0.2)), 100.,
       DATE);
   private static final double EPS = 1e-15;
 

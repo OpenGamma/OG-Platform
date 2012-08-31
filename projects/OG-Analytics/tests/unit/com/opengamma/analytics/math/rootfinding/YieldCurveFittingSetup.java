@@ -22,6 +22,7 @@ import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -46,7 +47,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.financial.interestrate.swap.derivative.CrossCurrencySwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.FixedFloatSwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.FloatingRateNote;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.OISSwap;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.TenorSwap;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -77,6 +78,7 @@ public abstract class YieldCurveFittingSetup {
   /** Replaces rates */
   protected static final RateReplacingInterestRateDerivativeVisitor REPLACE_RATE = RateReplacingInterestRateDerivativeVisitor.getInstance();
   private static final Currency DUMMY_CUR = Currency.USD;
+  protected static final FXMatrix FX_MATRIX = new FXMatrix(DUMMY_CUR);
   private static final IborIndex DUMMY_INDEX = new IborIndex(DUMMY_CUR, Period.ofMonths(1), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
       BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
   private static final IndexON DUMMY_OIS_INDEX = new IndexON("OIS", DUMMY_CUR, DayCountFactory.INSTANCE.getDayCount("Actual/365"), 0, new MondayToFridayCalendar("A"));
@@ -95,15 +97,15 @@ public abstract class YieldCurveFittingSetup {
   protected static YieldCurveFittingTestDataBundle getYieldCurveFittingTestDataBundle(final List<InstrumentDerivative> instruments, final YieldCurveBundle knownCurves, final List<String> curveNames,
       final List<double[]> curvesKnots, final Interpolator1D extrapolator, final InstrumentDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator,
       final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> marketValueSensitivityCalculator, final double[] marketRates, final DoubleMatrix1D startPosition,
-      final List<double[]> curveYields) {
+      final List<double[]> curveYields, final FXMatrix fxMatrix) {
     return getYieldCurveFittingTestDataBundle(instruments, knownCurves, curveNames, curvesKnots, extrapolator, marketValueCalculator, marketValueSensitivityCalculator, marketRates, startPosition,
-        curveYields, false);
+        curveYields, false, fxMatrix);
   }
 
   protected static YieldCurveFittingTestDataBundle getYieldCurveFittingTestDataBundle(final List<InstrumentDerivative> instruments, final YieldCurveBundle knownCurves, final List<String> curveNames,
       final List<double[]> curvesKnots, final Interpolator1D extrapolator, final InstrumentDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator,
       final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> marketValueSensitivityCalculator, final double[] marketRates, final DoubleMatrix1D startPosition,
-      final List<double[]> curveYields, final boolean useFiniteDifferenceByDefault) {
+      final List<double[]> curveYields, final boolean useFiniteDifferenceByDefault, final FXMatrix fxMatrix) {
 
     Validate.notNull(curveNames);
     Validate.notNull(curvesKnots);
@@ -128,7 +130,7 @@ public abstract class YieldCurveFittingSetup {
     }
     if (curveYields == null) {
       return new YieldCurveFittingTestDataBundle(instruments, knownCurves, unknownCurveNodes, unknownCurveInterpolators, marketValueCalculator, marketValueSensitivityCalculator, marketRates,
-          startPosition, useFiniteDifferenceByDefault);
+          startPosition, useFiniteDifferenceByDefault, fxMatrix);
     }
 
     Validate.isTrue(curveYields.size() == n, "wrong number of true yields");
@@ -137,7 +139,7 @@ public abstract class YieldCurveFittingSetup {
       yields.put(curveNames.get(i), curveYields.get(i));
     }
     return new YieldCurveFittingTestDataBundle(instruments, knownCurves, unknownCurveNodes, unknownCurveInterpolators, marketValueCalculator, marketValueSensitivityCalculator, marketRates,
-        startPosition, yields, useFiniteDifferenceByDefault);
+        startPosition, yields, useFiniteDifferenceByDefault, fxMatrix);
   }
 
   public void doHotSpot(final NewtonVectorRootFinder rootFinder, final YieldCurveFittingTestDataBundle data, final String name) {
@@ -250,13 +252,13 @@ public abstract class YieldCurveFittingSetup {
     if (n != times.length) {
       throw new IllegalArgumentException("rates and times different lengths");
     }
-    return new YieldCurve(InterpolatedDoublesCurve.from(times, yields, interpolator));
+    return YieldCurve.from(InterpolatedDoublesCurve.from(times, yields, interpolator));
   }
 
   protected static MultipleYieldCurveFinderDataBundle updateInstruments(final MultipleYieldCurveFinderDataBundle old, final List<InstrumentDerivative> instruments, final double[] marketRates) {
     Validate.isTrue(instruments.size() == marketRates.length);
     return new MultipleYieldCurveFinderDataBundle(instruments, marketRates, old.getKnownCurves(), old.getUnknownCurveNodePoints(), old.getUnknownCurveInterpolators(),
-        old.useFiniteDifferenceForNodeSensitivities());
+        old.useFiniteDifferenceForNodeSensitivities(), FX_MATRIX);
   }
 
   protected static InstrumentDerivative makeSingleCurrencyIRD(final String type, final double maturity, final SimpleFrequency paymentFreq, final String fundCurveName, final String indexCurveName,
@@ -272,8 +274,8 @@ public abstract class YieldCurveFittingSetup {
     } else if ("swap".equals(type)) {
       return makeSwap(maturity, paymentFreq, fundCurveName, indexCurveName, rate, notional);
     } else if ("OIS".equals(type)) {
-      return makeOISSwap(maturity, paymentFreq, fundCurveName, fundCurveName, rate, notional); //the OIS curve is the funding curve    
-    } else if ("basisSwap".equals(type)) { //TODO remove basis swap from here  
+      return makeOISSwap(maturity, paymentFreq, fundCurveName, fundCurveName, rate, notional); //the OIS curve is the funding curve
+    } else if ("basisSwap".equals(type)) { //TODO remove basis swap from here
       return makeBasisSwap(maturity, fundCurveName, indexCurveName, rate, notional);
     }
     throw new IllegalArgumentException("unknown IRD type " + type);
@@ -289,13 +291,13 @@ public abstract class YieldCurveFittingSetup {
 
   /**
    * makes a very simple FRA with  payment time, fixing time and fixing period start being identical and an amount tau before fixing period end. The payment and fixing year fractions are
-   * Identically equal to tau.   
+   * Identically equal to tau.
    * @param time The fixing period end (the last relevant date for the FRA)
-   * @param paymentFreq for a 3M FRA the payment freq is quarterly 
+   * @param paymentFreq for a 3M FRA the payment freq is quarterly
    * @param fundCurveName Name of funding curve
-   * @param indexCurveName Name of index curve 
+   * @param indexCurveName Name of index curve
    * @param rate The FRA rate
-   * @param notional the notional amount 
+   * @param notional the notional amount
    * @return A FRA
    */
   protected static InstrumentDerivative makeFRA(final double time, final SimpleFrequency paymentFreq, final String fundCurveName, final String indexCurveName, final double rate, final double notional) {
@@ -329,12 +331,13 @@ public abstract class YieldCurveFittingSetup {
     }
     final Annuity<CouponIborSpread> payLeg = new AnnuityCouponIborSpread(DUMMY_CUR, paymentTimes, indexFixing, DUMMY_INDEX, indexFixing, indexMaturity, yearFracs, yearFracs,
         new double[yearFracs.length], notional, fundCurveName, fundCurveName, true);
-    final Annuity<CouponIborSpread> receiveLeg = new AnnuityCouponIborSpread(DUMMY_CUR, paymentTimes, indexFixing, DUMMY_INDEX, indexFixing, indexMaturity, yearFracs, yearFracs, spreads,
-        notional, fundCurveName, liborCurveName, false);
+    final Annuity<CouponIborSpread> receiveLeg = new AnnuityCouponIborSpread(DUMMY_CUR, paymentTimes, indexFixing, DUMMY_INDEX, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, notional,
+        fundCurveName, liborCurveName, false);
     return new TenorSwap<CouponIborSpread>(payLeg, receiveLeg);
   }
 
-  protected static OISSwap makeOISSwap(final double time, final SimpleFrequency paymentFreq, final String fundingCurveName, final String indexCurveName, final double rate, final double notional) {
+  protected static SwapFixedCoupon<CouponOIS> makeOISSwap(final double time, final SimpleFrequency paymentFreq, final String fundingCurveName, final String indexCurveName, final double rate,
+      final double notional) {
 
     if (time < 1.0) {
       return makeSinglePaymentOISSwap(time, fundingCurveName, indexCurveName, rate, notional);
@@ -355,17 +358,17 @@ public abstract class YieldCurveFittingSetup {
     final AnnuityCouponFixed fixedLeg = new AnnuityCouponFixed(DUMMY_CUR, paymentTimes, notional, rate, fundingCurveName, true);
     final Annuity<CouponOIS> payLeg = new Annuity<CouponOIS>(oisCoupons);
 
-    return new OISSwap(fixedLeg, payLeg);
+    return new SwapFixedCoupon<CouponOIS>(fixedLeg, payLeg);
   }
 
-  protected static OISSwap makeSinglePaymentOISSwap(final double time, final String fundingCurveName, final String indexCurveName, final double rate, final double notional) {
+  protected static SwapFixedCoupon<CouponOIS> makeSinglePaymentOISSwap(final double time, final String fundingCurveName, final String indexCurveName, final double rate, final double notional) {
 
     final CouponOIS oisCoupon = new CouponOIS(DUMMY_CUR, time, fundingCurveName, time, notional, DUMMY_OIS_INDEX, 0, time, time, notional, indexCurveName);
 
     final CouponFixed fixedCoupon = new CouponFixed(DUMMY_CUR, time, fundingCurveName, time, -notional, rate);
 
     final AnnuityCouponFixed fixedLeg = new AnnuityCouponFixed(new CouponFixed[] {fixedCoupon});
-    return new OISSwap(fixedLeg, new Annuity<CouponOIS>(new CouponOIS[] {oisCoupon}));
+    return new SwapFixedCoupon<CouponOIS>(fixedLeg, new Annuity<CouponOIS>(new CouponOIS[] {oisCoupon}));
   }
 
   protected static FixedFloatSwap makeSwap(final double time, final SimpleFrequency floatLegFreq, final String fundingCurveName, final String liborCurveName, final double rate, final double notional) {
@@ -383,7 +386,7 @@ public abstract class YieldCurveFittingSetup {
     final double[] indexMaturity = new double[floatPayments];
     final double[] yearFrac = new double[floatPayments];
 
-    //turn on to randomised fixing/reset/payment dates 
+    //turn on to randomised fixing/reset/payment dates
     final double sigma = 0.0 / 365.0;
 
     for (int i = 0; i < fixedPayments; i++) {
@@ -420,7 +423,7 @@ public abstract class YieldCurveFittingSetup {
     final double[] indexMaturity = new double[floatPayments];
     final double[] yearFrac = new double[floatPayments];
 
-    //turn on to randomised fixing/reset/payment dates 
+    //turn on to randomised fixing/reset/payment dates
     final double sigma = 0.0 / 365.0;
 
     for (int i = 0; i < fixedPayments; i++) {
@@ -439,10 +442,10 @@ public abstract class YieldCurveFittingSetup {
   }
 
   /**
-   * Sets up a simple Floating rate note to test the analytics 
+   * Sets up a simple Floating rate note to test the analytics
    * @param notional An amount in a currency
    * @param nYears time to maturity in years
-   * @param freq Frequency of payments 
+   * @param freq Frequency of payments
    * @param discountCurve Name of discount curve
    * @param indexCurve Name of index curve
    * @param spread the spread paid
@@ -480,7 +483,7 @@ public abstract class YieldCurveFittingSetup {
     final FloatingRateNote domesticFRN = makeFRN(domesticNotional, swapLength, domesticPaymentFreq, domesticDiscountCurve, domesticIndexCurve, 0.0);
     final FloatingRateNote foreignFRN = makeFRN(foreignNotional, swapLength, foreignPaymentFreq, foreignDiscountCurve, foreignIndexCurve, spread);
 
-    final double spotFX = domesticNotional.getAmount() / foreignNotional.getAmount(); //assume the initial exchange of notionals cancels 
+    final double spotFX = domesticNotional.getAmount() / foreignNotional.getAmount(); //assume the initial exchange of notionals cancels
     return new CrossCurrencySwap(domesticFRN, foreignFRN, spotFX);
   }
 

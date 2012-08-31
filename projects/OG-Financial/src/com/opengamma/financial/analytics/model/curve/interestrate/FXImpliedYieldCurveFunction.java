@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderDataBundle;
 import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderFunction;
@@ -179,14 +180,16 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
         rightExtrapolatorName);
     curveNodes.put(fullDomesticCurveName, nodeTimes.toDoubleArray());
     interpolators.put(fullDomesticCurveName, interpolator);
+    final FXMatrix fxMatrix = new FXMatrix();
+    fxMatrix.addCurrency(foreignCurrency, domesticCurrency, spotFX);
     final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, marketValues.toDoubleArray(), knownCurve, curveNodes,
-        interpolators, useFiniteDifference);
+        interpolators, useFiniteDifference, fxMatrix);
     final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(absoluteTolerance, relativeTolerance, iterations, decomposition);
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MultipleYieldCurveFinderFunction(data, PAR_RATE_CALCULATOR);
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MultipleYieldCurveFinderJacobian(data, PAR_RATE_SENSITIVITY_CALCULATOR);
     final double[] fittedYields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess.toDoubleArray())).getData();
     final DoubleMatrix2D jacobianMatrix = jacobianCalculator.evaluate(new DoubleMatrix1D(fittedYields));
-    final YieldCurve curve = new YieldCurve(InterpolatedDoublesCurve.from(nodeTimes.toDoubleArray(), fittedYields, interpolator));
+    final YieldCurve curve = YieldCurve.from(InterpolatedDoublesCurve.from(nodeTimes.toDoubleArray(), fittedYields, interpolator));
     final Set<ComputedValue> result = Sets.newHashSetWithExpectedSize(2);
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     final ValueProperties curveProperties = getCurveProperties(curveCalculationConfigName, domesticCurveName, absoluteToleranceName, relativeToleranceName,
@@ -269,6 +272,9 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
       s_logger.error("Could not get domestic curve calculation config called {}", domesticCurveCalculationConfigName);
       return null;
     }
+    if (!domesticCurveCalculationConfig.getCalculationMethod().equals(FX_IMPLIED)) {
+      return null;
+    }
     if (domesticCurveCalculationConfig.getExogenousConfigData() == null) {
       s_logger.error("Need an externally-supplied curve to imply data; tried {}", domesticCurveCalculationConfigName);
       return null;
@@ -307,8 +313,7 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     final String foreignCurveName = foreignConfig.getYieldCurveNames()[0];
     final ValueProperties foreignCurveProperties = getForeignCurveProperties(foreignConfig, foreignCurveName);
     final FXForwardCurveInstrumentProvider provider = fxForwardCurveSpec.getCurveInstrumentProvider();
-    requirements
-    .add(new ValueRequirement(ValueRequirementNames.FX_FORWARD_CURVE_MARKET_DATA, new ComputationTargetSpecification(currencyPair), fxForwardCurveProperties));
+    requirements.add(new ValueRequirement(ValueRequirementNames.FX_FORWARD_CURVE_MARKET_DATA, new ComputationTargetSpecification(currencyPair), fxForwardCurveProperties));
     requirements.add(new ValueRequirement(provider.getDataFieldName(), provider.getSpotInstrument()));
     requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, new ComputationTargetSpecification(foreignCurrency), foreignCurveProperties));
     return requirements;
