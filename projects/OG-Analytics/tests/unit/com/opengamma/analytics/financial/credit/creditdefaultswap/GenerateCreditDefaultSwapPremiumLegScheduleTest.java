@@ -139,7 +139,7 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
     final GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
 
     // Go into the schedule generation method
-    cashflowSchedule.constructCreditDefaultSwapPremiumLegSchedule(cds);
+    ZonedDateTime[] sch = cashflowSchedule.constructCreditDefaultSwapPremiumLegSchedule(cds);
 
   }
 
