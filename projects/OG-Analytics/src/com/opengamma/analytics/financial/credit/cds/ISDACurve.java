@@ -34,6 +34,22 @@ public class ISDACurve {
   
   private final double _zeroDiscountFactor;
   
+  public static ISDACurve fromBoxed(String name, Double[] xData, Double[] yData, double offset) {
+    
+    double[] rawXData = new double[xData.length];
+    double[] rawYData = new double[yData.length];
+    
+    for (int i = 0; i < xData.length; ++i) {
+      rawXData[i] = xData[i].doubleValue();
+    }
+    
+    for (int i = 0; i < yData.length; ++i) {
+      rawYData[i] = yData[i].doubleValue();
+    }
+    
+    return new ISDACurve(name, rawXData, rawYData, offset);
+  }
+  
   public ISDACurve(final String name, final double[] xData, final double[] yData, final double offset) {
     
     _name = name;
