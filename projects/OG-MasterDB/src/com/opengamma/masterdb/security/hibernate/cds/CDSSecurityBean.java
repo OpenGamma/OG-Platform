@@ -21,9 +21,9 @@ import com.opengamma.financial.security.cds.CDSSecurity;
 import com.opengamma.masterdb.security.hibernate.BusinessDayConventionBean;
 import com.opengamma.masterdb.security.hibernate.CurrencyBean;
 import com.opengamma.masterdb.security.hibernate.DayCountBean;
-import com.opengamma.masterdb.security.hibernate.EnumBean;
 import com.opengamma.masterdb.security.hibernate.FrequencyBean;
 import com.opengamma.masterdb.security.hibernate.SecurityBean;
+import com.opengamma.masterdb.security.hibernate.StubTypeBean;
 import com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean;
 
 /**
@@ -61,7 +61,7 @@ public class CDSSecurityBean extends SecurityBean {
   private BusinessDayConventionBean _businessDayConvention;
   
   @PropertyDefinition(validate = "notNull")
-  private EnumBean _stubType;
+  private StubTypeBean _stubType;
   
   @PropertyDefinition
   private int _settlementDays;
@@ -164,7 +164,7 @@ public class CDSSecurityBean extends SecurityBean {
         setBusinessDayConvention((BusinessDayConventionBean) newValue);
         return;
       case 1873675528:  // stubType
-        setStubType((EnumBean) newValue);
+        setStubType((StubTypeBean) newValue);
         return;
       case -295948000:  // settlementDays
         setSettlementDays((Integer) newValue);
@@ -485,7 +485,7 @@ public class CDSSecurityBean extends SecurityBean {
    * Gets the stubType.
    * @return the value of the property, not null
    */
-  public EnumBean getStubType() {
+  public StubTypeBean getStubType() {
     return _stubType;
   }
 
@@ -493,7 +493,7 @@ public class CDSSecurityBean extends SecurityBean {
    * Sets the stubType.
    * @param stubType  the new value of the property, not null
    */
-  public void setStubType(EnumBean stubType) {
+  public void setStubType(StubTypeBean stubType) {
     JodaBeanUtils.notNull(stubType, "stubType");
     this._stubType = stubType;
   }
@@ -502,7 +502,7 @@ public class CDSSecurityBean extends SecurityBean {
    * Gets the the {@code stubType} property.
    * @return the property, not null
    */
-  public final Property<EnumBean> stubType() {
+  public final Property<StubTypeBean> stubType() {
     return metaBean().stubType().createProperty(this);
   }
 
@@ -693,8 +693,8 @@ public class CDSSecurityBean extends SecurityBean {
     /**
      * The meta-property for the {@code stubType} property.
      */
-    private final MetaProperty<EnumBean> _stubType = DirectMetaProperty.ofReadWrite(
-        this, "stubType", CDSSecurityBean.class, EnumBean.class);
+    private final MetaProperty<StubTypeBean> _stubType = DirectMetaProperty.ofReadWrite(
+        this, "stubType", CDSSecurityBean.class, StubTypeBean.class);
     /**
      * The meta-property for the {@code settlementDays} property.
      */
@@ -876,7 +876,7 @@ public class CDSSecurityBean extends SecurityBean {
      * The meta-property for the {@code stubType} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<EnumBean> stubType() {
+    public final MetaProperty<StubTypeBean> stubType() {
       return _stubType;
     }
 

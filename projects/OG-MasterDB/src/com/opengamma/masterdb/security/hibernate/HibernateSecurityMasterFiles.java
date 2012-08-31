@@ -53,6 +53,7 @@ public final class HibernateSecurityMasterFiles implements HibernateMappingFiles
       DayCountBean.class,
       ExchangeBean.class,
       FrequencyBean.class,
+      StubTypeBean.class,
       IdentifierAssociationBean.class,
       SecurityBean.class,
       

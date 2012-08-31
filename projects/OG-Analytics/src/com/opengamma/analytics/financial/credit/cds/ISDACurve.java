@@ -11,6 +11,7 @@ import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.analytics.math.interpolation.FlatExtrapolator1D;
+import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 
 /**
  * A curve that behaves according to the ISDA standard for CDS pricing.
@@ -23,7 +24,7 @@ import com.opengamma.analytics.math.interpolation.FlatExtrapolator1D;
  * @author Martin Traverse, Niels Stchedroff (Riskcare)
  */
 public class ISDACurve {
-  
+
   private final String _name;
   
   private final double _offset;
@@ -76,6 +77,15 @@ public class ISDACurve {
     
     _zeroDiscountFactor = Math.exp(_offset * getInterestRate(0.0));
   }
+  
+  // For fudge builder
+  public ISDACurve(final String name, final DoublesCurve curve, final double offset, final double zeroDiscountFactor, final double[] shiftedTimePoints) {
+    _name = name;
+    _curve = curve;
+    _offset = offset;
+    _zeroDiscountFactor = zeroDiscountFactor;
+    _shiftedTimePoints = shiftedTimePoints;
+  }
 
   public String getName() {
     return _name;
@@ -91,5 +101,17 @@ public class ISDACurve {
   
   public double[] getTimePoints() {
     return _shiftedTimePoints;
+  }
+  
+  public DoublesCurve getCurve() {
+    return _curve;
+  }
+  
+  public double getOffset() {
+    return _offset;
+  }
+  
+  public double getZeroDiscountFactor() {
+    return _zeroDiscountFactor;
   }
 }

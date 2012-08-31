@@ -632,5 +632,15 @@ public class HibernateSecurityMasterSession implements HibernateSecurityMasterDa
       throw new IllegalArgumentException("UniqueId is not from this security master: " + id, ex);
     }
   }
+  
+  public StubTypeBean getOrCreateStubTypeBean(String name) {
+    final Query query = getSession().getNamedQuery("StubTypeBean.one");
+    query.setString("name", name);
+    StubTypeBean bean = (StubTypeBean) query.uniqueResult();
+    if (bean == null) {
+      bean = persistBean(new StubTypeBean(name));
+    }
+    return bean;
+  }
 
 }

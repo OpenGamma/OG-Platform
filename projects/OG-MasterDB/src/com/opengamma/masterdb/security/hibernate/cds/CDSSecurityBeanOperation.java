@@ -10,9 +10,9 @@ import static com.opengamma.masterdb.security.hibernate.Converters.currencyBeanT
 import static com.opengamma.masterdb.security.hibernate.Converters.dateTimeWithZoneToZonedDateTimeBean;
 import static com.opengamma.masterdb.security.hibernate.Converters.dayCountBeanToDayCount;
 import static com.opengamma.masterdb.security.hibernate.Converters.frequencyBeanToFrequency;
+import static com.opengamma.masterdb.security.hibernate.Converters.stubTypeBeanToStubType;
 import static com.opengamma.masterdb.security.hibernate.Converters.zonedDateTimeBeanToDateTimeWithZone;
 
-import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.security.cds.CDSSecurity;
 import com.opengamma.masterdb.security.hibernate.AbstractSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDao;
@@ -44,17 +44,17 @@ public final class CDSSecurityBeanOperation extends AbstractSecurityBeanOperatio
     bean.setPremiumFrequency(secMasterSession.getOrCreateFrequencyBean(security.getPremiumFrequency().getConventionName()));
     bean.setDayCount(secMasterSession.getOrCreateDayCountBean(security.getDayCount().getConventionName()));
     bean.setBusinessDayConvention(secMasterSession.getOrCreateBusinessDayConventionBean(security.getBusinessDayConvention().getConventionName()));
-    //bean.setStubType(security.getStubType());
+    bean.setStubType(secMasterSession.getOrCreateStubTypeBean(security.getStubType().name()));
     bean.setSettlementDays(security.getSettlementDays());
     bean.setUnderlyingIssuer(security.getUnderlyingIssuer());
     bean.setUnderlyingCurrency(secMasterSession.getOrCreateCurrencyBean(security.getUnderlyingCurrency().getCode()));
     bean.setUnderlyingSeniority(security.getUnderlyingSeniority());
+    bean.setRestructuringClause(security.getRestructuringClause());
     return bean;
   }
 
   @Override
   public CDSSecurity createSecurity(OperationContext context, CDSSecurityBean bean) {
-
     return new CDSSecurity(
       bean.getNotional(),
       bean.getRecoveryRate(),
@@ -65,7 +65,7 @@ public final class CDSSecurityBeanOperation extends AbstractSecurityBeanOperatio
       frequencyBeanToFrequency(bean.getPremiumFrequency()),
       dayCountBeanToDayCount(bean.getDayCount()),
       businessDayConventionBeanToBusinessDayConvention(bean.getBusinessDayConvention()),
-      StubType.SHORT_START,
+      stubTypeBeanToStubType(bean.getStubType()),
       bean.getSettlementDays(),
       bean.getUnderlyingIssuer(),
       currencyBeanToCurrency(bean.getUnderlyingCurrency()),
