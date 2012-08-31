@@ -17,11 +17,13 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergIdentifierProvider;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.loader.BloombergBulkSecurityLoader;
 import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
 import com.opengamma.bbg.loader.BloombergSecurityLoader;
+import com.opengamma.bbg.tool.BloombergToolContext;
 import com.opengamma.bloombergexample.generator.BloombergExamplePortfolioGeneratorTool;
 import com.opengamma.bloombergexample.loader.CurveNodeHistoricalDataLoader;
 import com.opengamma.bloombergexample.loader.DemoEquityOptionCollarPortfolioLoader;
@@ -207,7 +209,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
     final Log log = new Log("Loading historical reference data");
     try {
       if (!(getToolContext() instanceof BloombergToolContext)) {
-        throw new OpenGammaRuntimeException("The " + BloombergTimeSeriesUpdateTool.class.getSimpleName() +
+        throw new OpenGammaRuntimeException("The " + getClass().getSimpleName() +
             " requires a tool context which implements " + BloombergToolContext.class.getName());
       }
       BloombergHistoricalTimeSeriesLoader loader = new BloombergHistoricalTimeSeriesLoader(
