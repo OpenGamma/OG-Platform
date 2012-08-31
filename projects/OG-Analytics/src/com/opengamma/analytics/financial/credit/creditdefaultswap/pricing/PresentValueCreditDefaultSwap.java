@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing;
 
+import javax.time.calendar.ZonedDateTime;
+
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -13,6 +15,24 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
  *  Class containing methods for the valuation of a legacy vanilla CDS (and its constituent legs)
  */
 public class PresentValueCreditDefaultSwap {
+
+  // -------------------------------------------------------------------------------------------------
+
+  public double getPresentValueCreditDefaultSwap(CreditDefaultSwapDefinition cds, ZonedDateTime[] cashflowSchedule) {
+
+    double presentValue = 0.0;
+
+    return presentValue;
+  }
+
+  // -------------------------------------------------------------------------------------------------
+
+  public double getParSpreadCreditDefaultSwap(CreditDefaultSwapDefinition cds, ZonedDateTime[] cashflowSchedule) {
+
+    double parSpread = 0.0;
+
+    return parSpread;
+  }
 
   // -------------------------------------------------------------------------------------------------
 
