@@ -15,7 +15,10 @@
                 xlabels = ismatrix ? data.labels[0] : data.labels,
                 ylabels = ismatrix ? data.labels[1] : null,
                 col_width = util.column_width(data, settings.max_col_width, ismatrix);
-            if (ismatrix) slick_columns.push({id: 'ylabelscol', name: '', field: 'ylabelscol', width: col_width});
+            if (ismatrix){
+                slick_columns.push({id: 'ylabelscol', name: '', field: 'ylabelscol', width: col_width});
+                $selector.addClass('matrix');
+            }
             xlabels.forEach(function (val) {
                 slick_columns.push({id: val, name: val, field: val, width: col_width});
             });
