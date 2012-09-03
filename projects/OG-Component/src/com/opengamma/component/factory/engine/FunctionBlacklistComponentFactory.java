@@ -10,7 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.testng.internal.PropertyUtils;
+import org.apache.commons.beanutils.PropertyUtils;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentInfo;
@@ -44,7 +44,7 @@ public class FunctionBlacklistComponentFactory extends AbstractComponentFactory 
       } else {
         try {
           if (conf.getValue().startsWith("::")) {
-            final Class<?> property = PropertyUtils.getPropertyType(_bean.getClass(), conf.getKey());
+            final Class<?> property = PropertyUtils.getPropertyType(_bean, conf.getKey());
             final ComponentInfo info = repo.findInfo(property, conf.getValue().substring(2));
             if (info != null) {
               BeanUtils.setProperty(_bean, conf.getKey(), repo.getInstance(info));
