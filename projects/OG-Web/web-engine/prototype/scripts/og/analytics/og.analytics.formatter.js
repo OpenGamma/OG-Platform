@@ -23,12 +23,11 @@ $.register_module({
                 }());
                 return !value ? ''
                     : (value.v || '') +
-                        (grid.sparklines ? '<span class="sp" values="' + value.h.join(',') + '"></span>' : '') +
+                        (grid.config.sparklines ? '<span class="sp" values="' + value.h.join(',') + '"></span>' : '') +
                         (value.h[0] ? '<span class="OG-icon og-icon-tick-'+ indicator +'"></span>' : '');
             };
             formatter.UNKNOWN = function (value) {
                 var type = value.t;
-                if (type === 'UNKNOWN') type = 'PRIMITIVE'; // TODO: remove this line
                 return value && formatter[type] ? formatter[type](value) : value && value.v || '';
             };
             grid.on('render', function () {

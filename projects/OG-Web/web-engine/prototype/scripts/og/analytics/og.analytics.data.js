@@ -41,7 +41,8 @@ $.register_module({
             };
             var fire = function (type) {
                 var args = Array.prototype.slice.call(arguments, 1);
-                events[type].forEach(function (value) {value.handler.apply(null, value.args.concat(args));});
+                events[type]
+                    .forEach(function (value) {value.handler.apply(value.context || null, value.args.concat(args));});
             };
             var grid_handler = function (result) {
                 if (depgraph && !graph_id) return;
@@ -86,9 +87,9 @@ $.register_module({
             data.id = id;
             data.meta = meta = {columns: {}};
             data.cols = cols = {};
-            data.on = function (type, handler) {
-                if (type in events)
-                    events[type].push({handler: handler, args: Array.prototype.slice.call(arguments, 2)});
+            data.on = function (type, handler, context) {
+                if (type in events) events[type]
+                    .push({handler: handler, args: Array.prototype.slice.call(arguments, 3), context: context});
                 return data;
             };
             data.viewport = function (new_viewport) {
