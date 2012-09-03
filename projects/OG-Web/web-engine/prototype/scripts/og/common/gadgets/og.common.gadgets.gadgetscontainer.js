@@ -71,6 +71,7 @@ $.register_module({
                                 case 'surface': url = prefix + type + ':' + id; break;
                                 case 'curve': url = prefix + type + ':' + id; break;
                                 case 'grid': url = prefix + type + ':' + id; break;
+                                case 'data': url = prefix + type + ':' + id; break;
                             }
                             if (!dropped) {
                                 window.open(url);
