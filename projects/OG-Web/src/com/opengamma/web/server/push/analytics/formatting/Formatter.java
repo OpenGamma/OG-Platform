@@ -8,7 +8,7 @@ package com.opengamma.web.server.push.analytics.formatting;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- *
+ * @param <T> Type of object formatted by the formatter
  */
 public interface Formatter<T> {
 

@@ -19,7 +19,6 @@ import com.opengamma.analytics.financial.credit.ScheduleGenerationMethod;
 import com.opengamma.analytics.financial.credit.Sector;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.PresentValueCreditDefaultSwapTest.MyCalendar;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.GenerateCreditDefaultSwapPremiumLegSchedule;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
@@ -136,10 +135,10 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
     System.out.println("Running schedule generation tests ...");
 
     // Construct a cashflow schedule object
-    final GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
+    //final GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
 
     // Go into the schedule generation method
-    ZonedDateTime[] sch = cashflowSchedule.constructCreditDefaultSwapPremiumLegSchedule(cds);
+    //ZonedDateTime[][] sch = cashflowSchedule.constructCreditDefaultSwapPremiumLegSchedule(cds);
 
   }
 

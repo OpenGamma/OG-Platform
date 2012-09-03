@@ -8,6 +8,8 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
+import org.testng.annotations.Test;
+
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.CouponFrequency;
 import com.opengamma.analytics.financial.credit.CreditRating;
@@ -17,6 +19,7 @@ import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.ScheduleGenerationMethod;
 import com.opengamma.analytics.financial.credit.Sector;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.PresentValueCreditDefaultSwap;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
@@ -29,6 +32,14 @@ import com.opengamma.util.time.DateUtils;
  *  Test of the implementation of the valuation model for a CDS 
  */
 public class PresentValueCreditDefaultSwapTest {
+
+  // ----------------------------------------------------------------------------------
+
+  // TODO : Add all the tests
+  // TODO : Move the calendar into a seperate TestCalendar class
+  // TODO : Sort out what exceptions to throw from the test cases
+
+  // ----------------------------------------------------------------------------------
 
   private static final BuySellProtection buySellProtection = BuySellProtection.BUY;
 
@@ -53,9 +64,9 @@ public class PresentValueCreditDefaultSwapTest {
   private static final Calendar calendar = new MyCalendar();
 
   private static final ZonedDateTime startDate = DateUtils.getUTCDate(2012, 8, 24);
-  private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2012, 8, 22);
+  private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2012, 8, 25);
   private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2017, 8, 26);
-  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2012, 8, 24);
+  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2014, 8, 24);
 
   private static final ScheduleGenerationMethod scheduleGenerationMethod = ScheduleGenerationMethod.BACKWARD;
   private static final CouponFrequency couponFrequency = CouponFrequency.QUARTERLY;
@@ -84,6 +95,8 @@ public class PresentValueCreditDefaultSwapTest {
 
   // Dummy rating curve (proxied by a yield curve for now)
   private static final YieldCurve ratingCurve = survivalCurve;
+
+  // ----------------------------------------------------------------------------------
 
   // Construct a CDS contract 
   private static final CreditDefaultSwapDefinition cds = new CreditDefaultSwapDefinition(buySellProtection,
@@ -120,60 +133,27 @@ public class PresentValueCreditDefaultSwapTest {
       survivalCurve,
       ratingCurve);
 
-  // TODO : Add all the tests
-
   // -----------------------------------------------------------------------------------------------
 
-  /*
-  // TODO : Sort out what exception to throw
-  @Test //(expectedExceptions = testng.TestException.class)
+  @Test
+  //(expectedExceptions = testng.TestException.class)
   public void testGetPresentValueCreditDefaultSwap() {
-    
-    // Hardcode the number of cashflows for testing purposes - will change this when implement the schedule generator
-    int n = 20;
-    
-    double pV = 0.0;
-    
-    // Array to hold the dummy cashflow schedule
-    double cashflowSchedule[][] = new double [n + 1][2];
-    
+
     // -----------------------------------------------------------------------------------------------
-    
-    // Generate a dummy cashflow schedule 'object'
-    for(int i = 0; i <= n; i++)
-    {
-      // Calculate the dummy time
-      double t = (double)i/4;
-      
-      // Store dummy time in the cashflow schedule 'object'
-      cashflowSchedule[i][0] = t;
-      
-      // Calculate the time difference (in years) between consecutive coupon payment dates 
-      if(i > 0) {
-        cashflowSchedule[i][1] = cashflowSchedule[i][0] - cashflowSchedule[i - 1][0];
-      }
-    }
-    
-    // -----------------------------------------------------------------------------------------------
-     
-    // TODO : Use the CDS contracts 'creditKey' to retreive the correct CDS par spread curve 
-    
+
     // Call the constructor to create a CDS
-    final PresentValueCreditDefaultSwap cds = new PresentValueCreditDefaultSwap();
-    
+    final PresentValueCreditDefaultSwap testCDS = new PresentValueCreditDefaultSwap();
+
     // Call the CDS PV calculator to get the current PV
-    pV = cds.getPresentValueCreditDefaultSwap(CDS_1, cashflowSchedule);
-    
+    double pV = testCDS.getPresentValueCreditDefaultSwap(cds);
+
     // Report the result
     System.out.println("CDS PV = " + pV);
-    
+
     // -----------------------------------------------------------------------------------------------
   }
-  */
 
   // -----------------------------------------------------------------------------------------------
-
-  // TODO : Move the calendar into a seperate TestCalendar class
 
   // Bespoke calendar class (have made this public - may want to change this)
   public static class MyCalendar implements Calendar {

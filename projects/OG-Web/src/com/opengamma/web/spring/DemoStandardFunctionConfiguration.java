@@ -432,6 +432,9 @@ import com.opengamma.financial.property.PrimitiveCalcConfigDefaultPropertyFuncti
 import com.opengamma.financial.property.SecurityCalcConfigDefaultPropertyFunction;
 import com.opengamma.financial.property.TradeCalcConfigDefaultPropertyFunction;
 import com.opengamma.financial.property.TradeDefaultPropertyFunction;
+import com.opengamma.financial.value.ForwardPricePositionRenamingFunction;
+import com.opengamma.financial.value.ForwardPriceSecurityRenamingFunction;
+import com.opengamma.financial.value.ForwardPriceTradeRenamingFunction;
 import com.opengamma.financial.value.PositionValueFunction;
 import com.opengamma.financial.value.SecurityValueFunction;
 import com.opengamma.util.SingletonFactoryBean;
@@ -461,6 +464,12 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addSummingFunction(functionConfigs, ValueRequirementNames.VALUE);
     functionConfigs.add(functionConfiguration(PositionValueFunction.class));
     functionConfigs.add(functionConfiguration(SecurityValueFunction.class));
+    functionConfigs.add(functionConfiguration(ForwardPricePositionRenamingFunction.class));
+    functionConfigs.add(functionConfiguration(ForwardPriceSecurityRenamingFunction.class));
+    functionConfigs.add(functionConfiguration(ForwardPriceTradeRenamingFunction.class));
+
+
+
   }
 
   public static void addScalingFunction(final List<FunctionConfiguration> functionConfigs, final String requirementName) {

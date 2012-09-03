@@ -5,9 +5,9 @@
  */
 package com.opengamma.web.server.push.analytics;
 
-import java.util.HashMap;
 import java.util.Map;
 
+import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.util.ArgumentChecker;
 
@@ -18,7 +18,7 @@ import com.opengamma.util.ArgumentChecker;
 /* package */ abstract class AnalyticsGrid<V extends AnalyticsViewport> {
 
   /** Viewports keyed by ID. */
-  protected final Map<String, V> _viewports = new HashMap<String, V>();
+  protected final Map<Integer, V> _viewports = Maps.newHashMap();
 
   /** ID that's passed to listeners when this grid's row and column structure changes. */
   private final String _gridId;
@@ -43,7 +43,7 @@ import com.opengamma.util.ArgumentChecker;
    * @return The viewort
    * @throws DataNotFoundException If no viewport exists with the specified ID
    */
-  protected V getViewport(String viewportId) {
+  protected V getViewport(int viewportId) {
     V viewport = _viewports.get(viewportId);
     if (viewport == null) {
       throw new DataNotFoundException("No viewport found with ID " + viewportId);
@@ -53,13 +53,13 @@ import com.opengamma.util.ArgumentChecker;
 
   /**
    * Creates a viewport for viewing this grid's data.
-   * @param viewportId ID of the viewport, can be any unique value, the grid makes no assuptions about its form
+   * @param viewportId ID of the viewport, must be unique
    * @param dataId ID that will be passed to listeners when the grid's data changes, can be any unique value, the
    * grid makes no assumptions about its form
    * @param viewportSpecification Defines the extent and properties of the viewport
    * @return The version number of the new viewport
    */
-  /* package */ long createViewport(String viewportId, String dataId, ViewportSpecification viewportSpecification) {
+  /* package */ long createViewport(int viewportId, String dataId, ViewportSpecification viewportSpecification) {
     if (_viewports.containsKey(viewportId)) {
       throw new IllegalArgumentException("Viewport ID " + viewportId + " is already in use");
     }
@@ -81,7 +81,7 @@ import com.opengamma.util.ArgumentChecker;
    * @param viewportId ID of the viewport
    * @throws DataNotFoundException If no viewport exists with the specified ID
    */
-  /* package */ void deleteViewport(String viewportId) {
+  /* package */ void deleteViewport(int viewportId) {
     AnalyticsViewport viewport = _viewports.remove(viewportId);
     if (viewport == null) {
       throw new DataNotFoundException("No viewport found with ID " + viewportId);
@@ -93,7 +93,7 @@ import com.opengamma.util.ArgumentChecker;
    * @param viewportId ID of the viewport
    * @return The current data displayed in the viewport
    */
-  /* package */ ViewportResults getData(String viewportId) {
+  /* package */ ViewportResults getData(int viewportId) {
     return getViewport(viewportId).getData();
   }
 

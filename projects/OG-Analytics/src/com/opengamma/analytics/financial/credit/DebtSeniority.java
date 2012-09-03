@@ -22,7 +22,7 @@ public enum DebtSeniority {
    */
   JRSUBUT2,
   /**
-   * Preference Shares orTier 1 Capital (Banks) - MarkIt notation
+   * Preference Shares or Tier 1 Capital (Banks) - MarkIt notation
    */
   PREFT1,
   /**
