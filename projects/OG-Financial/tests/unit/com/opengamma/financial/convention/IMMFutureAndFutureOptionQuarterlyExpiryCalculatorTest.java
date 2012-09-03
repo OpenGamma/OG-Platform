@@ -23,7 +23,7 @@ public class IMMFutureAndFutureOptionQuarterlyExpiryCalculatorTest {
   private static final Calendar CALENDAR = new MyCalendar();
   private static final LocalDate AUGUST = LocalDate.of(2012, 8, 1);
   private static final LocalDate SEPTEMBER_START = LocalDate.of(2012, 9, 1);
-  private static final LocalDate SEPTEMBER_END = LocalDate.of(2012, 9, 29);
+  private static final LocalDate SEPTEMBER_END = LocalDate.of(2012, 9, 18);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeN() {
