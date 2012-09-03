@@ -48,8 +48,7 @@ public class ISDATestGridHarness {
     selectedUnitTestGrids.put("corporate", new String[] { "EUR_20090525.xls" } );
   }
   
-  private static final double dirtyAbsoluteErrorLimit = 1E-4;
-  private static final double dirtyRelativeErrorLimit = 1E-10;
+  private static final double dirtyAbsoluteErrorLimit = 1E-5; // One thousandth of a cent
   private static final double cleanPercentageErrorLimit = 1E-8;
   
   private static final DateTimeFormatter formatter = DateTimeFormatters.pattern("dd/MM/yyyy");
@@ -226,7 +225,7 @@ public class ISDATestGridHarness {
       
       result = runTestCase(testCase, discountCurve);
       
-      if (result.dirtyRelativeError >= dirtyRelativeErrorLimit || result.dirtyAbsoluteError >= dirtyAbsoluteErrorLimit || result.cleanPercentageError >= cleanPercentageErrorLimit) {
+      if (result.dirtyAbsoluteError >= dirtyAbsoluteErrorLimit || result.cleanPercentageError >= cleanPercentageErrorLimit) {
         
         ++failures;
         

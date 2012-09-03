@@ -8,12 +8,14 @@ package com.opengamma.financial.analytics.model.cds;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.cds.CDSApproxISDAMethod;
 import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.instrument.cds.ISDACDSDefinition;
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -99,5 +101,5 @@ public class ISDAApproxCDSPriceFlatSpreadFunction extends ISDAApproxCDSPriceFunc
     
     return DoublesPair.of(cleanPrice, dirtyPrice);
   }
-
+  
 }

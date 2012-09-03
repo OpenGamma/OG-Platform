@@ -107,12 +107,17 @@ public class CDSApproxISDAMethod {
     final ISDACDSDefinition bootstrapCDSDefinition = makeBootstrapCDSDefinition(cds, flatSpread);
     final ISDACDSDerivative bootstrapCDS = bootstrapCDSDefinition.toDerivative(pricingDate, stepinDate, settlementDate, "IR_CURVE", "TEMP_CURVE");
 
-    SingleRootFinder<Double, Double> rootFinder = new BrentSingleRootFinder(1E-17);
+    // The root finder parameters differ from those used in the ISDA code
+    // However they result in stable solving of the hazard rate such that all ISDA test cases pass
+    final double lowerBound = 0;
+    final double upperBound = 10;
+    final double guess = dataPoints[0] / (1.0 - cds.getRecoveryRate());
+    final double initialStep = 0.0005;
+    final double initialDeriv = 0.0;
+    final double xTolerance = 1e-18;
+    final double yTolerance = 1e-18;
     
-    // TODO: Initial guess cannot be used until the solve interface is updated
-    //double guess = dataPoints[0] / (1 + cds.getRecoveryRate());
-    
-    dataPoints[0] = rootFinder.getRoot(
+    dataPoints[0] = ISDARootFinder.findRoot(
       new Function1D<Double, Double>() {
         @Override
         public Double evaluate(Double x) {
@@ -121,8 +126,13 @@ public class CDSApproxISDAMethod {
           return valueCDS(bootstrapCDS, tempCurve, paymentTimeline, accrualTimeline, contingentTimeline, offsetStepinTime, stepinDiscountFactor, settlementDiscountFactor, true);
         }  
       },
-      0.0, 100.0
+      lowerBound, upperBound, guess, initialStep, initialDeriv, xTolerance, yTolerance
     );
+
+    // TODO: Should lower bound be an error also?
+    if (dataPoints[0] == upperBound) {
+      throw new OpenGammaRuntimeException("Failed to converge finding hazard rate");
+    }
     
     final ISDACurve hazardRateCurve = new ISDACurve("HAZARD_RATE_CURVE", timePoints, dataPoints, 0.0);
       

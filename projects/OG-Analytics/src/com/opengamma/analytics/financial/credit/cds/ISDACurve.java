@@ -11,7 +11,6 @@ import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.analytics.math.interpolation.FlatExtrapolator1D;
-import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 
 /**
  * A curve that behaves according to the ISDA standard for CDS pricing.
