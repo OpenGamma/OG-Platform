@@ -65,17 +65,8 @@ public class ExampleCDSLoader extends AbstractExampleTool {
     
     final SecurityMaster secMaster = getToolContext().getSecurityMaster();
     
-    final ManageableSecurity und = makeOneBond();
-    final SecurityDocument undDoc = new SecurityDocument(und);
-    secMaster.add(undDoc);
-    
-    ManageableSecurity cds = makeOneCDS(und.externalIdBundle().get().getExternalId(ExternalSchemes.OG_SYNTHETIC_TICKER));
-    SecurityDocument cdsDoc = new SecurityDocument(cds);
-    
-    //secMaster.add(cdsDoc);
-    
-    cds = makeOneCDS(null);
-    cdsDoc = new SecurityDocument(cds);
+    final ManageableSecurity cds = makeOneCDS();
+    final SecurityDocument cdsDoc = new SecurityDocument(cds);
     
     secMaster.add(cdsDoc);
     
@@ -102,13 +93,14 @@ public class ExampleCDSLoader extends AbstractExampleTool {
 
   }
   
-  private CDSSecurity makeOneCDS(final ExternalId underlying) {
+  private CDSSecurity makeOneCDS() {
     
     ZonedDateTime maturity = ZonedDateTime.of(2020, 12, 20, 0, 0, 0, 0, TimeZone.UTC);
+    ZonedDateTime startDate = ZonedDateTime.of(2010, 12, 20, 0, 0, 0, 0, TimeZone.UTC);
     SimpleFrequency frequency = SimpleFrequency.ANNUAL;
     DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Actual/360");
     BusinessDayConvention businessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-    final CDSSecurity cds1 = new CDSSecurity(1.0, 0.6, 0.0025, Currency.GBP, maturity, ZonedDateTime.now(), 
+    final CDSSecurity cds1 = new CDSSecurity(1.0, 0.6, 0.0025, Currency.USD, maturity, startDate, 
                                              frequency, 
                                              dayCount, 
                                              businessDayConvention,  
@@ -118,22 +110,6 @@ public class ExampleCDSLoader extends AbstractExampleTool {
     cds1.setName("TEST CDS" + counter++);
     
     return cds1;
-  }
-  
-  private BondSecurity makeOneBond() {
-    
-    final GovernmentBondSecurity bond1 = new GovernmentBondSecurity("US TREASURY N/B", "Sovereign", "US", "US GOVERNMENT", 
-        Currency.USD, SimpleYieldConvention.US_STREET, 
-        new Expiry(ZonedDateTime.of(LocalDateTime.of(2013, 12, 15, 16, 0), TimeZone.UTC)), "FIXED", 2.625, 
-        SimpleFrequency.SEMI_ANNUAL, DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"), 
-        ZonedDateTime.of(LocalDateTime.of(2009, 5, 30, 18, 0), TimeZone.UTC), 
-        ZonedDateTime.of(LocalDateTime.of(2011, 5, 28, 11, 0), TimeZone.UTC), 
-        ZonedDateTime.of(LocalDateTime.of(2009, 12, 31, 11, 0), TimeZone.UTC), 
-        99.651404, 3.8075E10, 100.0, 100.0, 100.0, 100.0);
-    bond1.addExternalId(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "US912828KY53-A"));
-    bond1.setName("T 2 5/8 06/30/14 A");
-    
-    return bond1;
   }
   
   protected ManageablePosition makePositionAndTrade(Security security) {

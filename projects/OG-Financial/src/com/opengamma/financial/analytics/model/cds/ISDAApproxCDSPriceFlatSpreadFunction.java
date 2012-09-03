@@ -52,22 +52,19 @@ public class ISDAApproxCDSPriceFlatSpreadFunction extends ISDAApproxCDSPriceFunc
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
 
     requirements.add(new ValueRequirement(
-      ValueRequirementNames.YIELD_CURVE,
-      ComputationTargetType.PRIMITIVE,
-      cds.getCurrency().getUniqueId(),
-      ValueProperties
-        .with(ValuePropertyNames.CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)
-        .get()
-    ));
+      ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, cds.getCurrency().getUniqueId(),
+      ValueProperties.with(ValuePropertyNames.CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME).get()));
+    
+    // TODO: Are extra value properties needed here? (see ISDAApproxFlatSpreadFunction)
+    requirements.add(new ValueRequirement(
+      ValueRequirementNames.SPOT_RATE, ComputationTargetType.SECURITY, cds.getUniqueId(),
+      ValueProperties.none()));
     
     return requirements;
   }
   
   @Override
   public DoublesPair executeImpl(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
-
-    // TODO: Where to get flat spread
-    final double flatSpread = 100.0;
     
     // Set up converter (could this be compiled?)
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
@@ -87,6 +84,10 @@ public class ISDAApproxCDSPriceFlatSpreadFunction extends ISDAApproxCDSPriceFunc
       ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, cds.getCurrency().getUniqueId(),
       ValueProperties.with(ValuePropertyNames.CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME).get()
     ));
+    
+    final double flatSpread = (Double) inputs.getValue(new ValueRequirement(
+      ValueRequirementNames.SPOT_RATE, ComputationTargetType.SECURITY, cds.getUniqueId(),
+      ValueProperties.none()));
     
     // Convert security in to format suitable for pricing
     final ISDACDSDefinition cdsDefinition = (ISDACDSDefinition) cds.accept(converter);

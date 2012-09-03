@@ -78,8 +78,10 @@ import com.opengamma.financial.analytics.model.bond.BondZSpreadPresentValueSensi
 import com.opengamma.financial.analytics.model.bond.BondZSpreadPresentValueSensitivityFromMarketCleanPriceFunction;
 import com.opengamma.financial.analytics.model.bond.NelsonSiegelSvenssonBondCurveFunction;
 import com.opengamma.financial.analytics.model.cds.ISDAApproxCDSPriceFlatSpreadFunction;
-import com.opengamma.financial.analytics.model.cds.ISDAApproxCDSPriceTermSpreadFunction;
+import com.opengamma.financial.analytics.model.cds.ISDAApproxCDSPriceHazardCurveFunction;
 import com.opengamma.financial.analytics.model.cds.ISDAApproxDiscountCurveFunction;
+import com.opengamma.financial.analytics.model.cds.ISDAApproxFlatSpreadFunction;
+import com.opengamma.financial.analytics.model.cds.ISDAApproxHazardCurveFunction;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.curve.interestrate.InterpolatedYieldCurveDefaults;
 import com.opengamma.financial.analytics.model.curve.interestrate.InterpolatedYieldCurveFunction;
@@ -738,9 +740,12 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "FUNDING"));
     functionConfigs.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "SECONDARY"));
     
-    functionConfigs.add(functionConfiguration(ISDAApproxCDSPriceTermSpreadFunction.class));
     functionConfigs.add(functionConfiguration(ISDAApproxCDSPriceFlatSpreadFunction.class));
+    functionConfigs.add(functionConfiguration(ISDAApproxCDSPriceHazardCurveFunction.class));
+    functionConfigs.add(functionConfiguration(ISDAApproxFlatSpreadFunction.class));
+    functionConfigs.add(functionConfiguration(ISDAApproxHazardCurveFunction.class));
     functionConfigs.add(functionConfiguration(ISDAApproxDiscountCurveFunction.class));
+    
 
     final RepositoryConfiguration repoConfig = new RepositoryConfiguration(functionConfigs);
 

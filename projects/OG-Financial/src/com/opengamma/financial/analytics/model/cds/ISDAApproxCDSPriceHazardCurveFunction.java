@@ -35,7 +35,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * @author Martin Traverse, Niels Stchedroff (Riskcare)
  * @see CDSApproxISDAMethod
  */
-public class ISDAApproxCDSPriceTermSpreadFunction extends ISDAApproxCDSPriceFunction {
+public class ISDAApproxCDSPriceHazardCurveFunction extends ISDAApproxCDSPriceFunction {
 
   private static final CDSApproxISDAMethod ISDA_APPROX_METHOD = new CDSApproxISDAMethod();
   
