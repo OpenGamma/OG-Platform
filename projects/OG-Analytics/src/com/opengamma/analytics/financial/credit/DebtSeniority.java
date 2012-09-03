@@ -12,9 +12,29 @@ public enum DebtSeniority {
   /**
    * Senior debt
    */
-  SENIOR, 
+  SENIOR,
   /**
    * Sub-ordinate debt
    */
-  SUBORDINATED;
+  SUBORDINATED,
+  /**
+   * Junior Subordinated or Upper Tier 2 Debt (Banks) - MarkIt notation
+   */
+  JRSUBUT2,
+  /**
+   * Preference Shares or Tier 1 Capital (Banks) - MarkIt notation
+   */
+  PREFT1,
+  /**
+   * Secured Debt (Corporate/Financial) or Domestic Currency Sovereign Debt (Government) - MarkIt notation
+   */
+  SECDOM,
+  /**
+   * Senior Unsecured Debt (Corporate/Financial), Foreign Currency Sovereign Debt (Government) - MarkIt notation
+   */
+  SNRFOR,
+  /**
+   * Subordinated or Lower Tier 2 Debt (Banks) - MarkIt notation
+   */
+  SUBLT2;
 }

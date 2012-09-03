@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.irfutureoption;
@@ -19,7 +19,7 @@ import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
  * Utility Class for computing Expiries of IR Future Options from ordinals (i.e. nth future after valuationDate)
  */
 public class FutureOptionUtils {
-  private static final DateAdjuster NEXT_EXPIRY_ADJUSTER = new NextExpiryAdjuster();
+  private static final DateAdjuster NEXT_EXPIRY_ADJUSTER = new NextExpiryAdjuster(3, DayOfWeek.WEDNESDAY);
   private static final DateAdjuster THIRD_WED_ADJUSTER = DateAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY);
 
   /**

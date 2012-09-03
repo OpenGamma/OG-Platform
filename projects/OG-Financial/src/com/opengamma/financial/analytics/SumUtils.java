@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics;
@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilitySensitivity;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -19,7 +18,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ *
  */
 public class SumUtils {
 
@@ -56,8 +55,8 @@ public class SumUtils {
       final CurrencyLabelledMatrix1D currentMatrix = (CurrencyLabelledMatrix1D) value;
       return previousMatrix.addIgnoringLabel(currentMatrix);
     } else if (value instanceof MultipleCurrencyAmount) {
-      MultipleCurrencyAmount previousMCA = (MultipleCurrencyAmount) currentTotal;
-      MultipleCurrencyAmount currentMCA = (MultipleCurrencyAmount) value;
+      final MultipleCurrencyAmount previousMCA = (MultipleCurrencyAmount) currentTotal;
+      final MultipleCurrencyAmount currentMCA = (MultipleCurrencyAmount) value;
       return currentMCA.plus(previousMCA);
     } else if (value instanceof StringLabelledMatrix1D) {
       final StringLabelledMatrix1D previousMatrix = (StringLabelledMatrix1D) currentTotal;
@@ -98,10 +97,6 @@ public class SumUtils {
       final DoubleLabelledMatrix3D previousMatrix = (DoubleLabelledMatrix3D) currentTotal;
       final DoubleLabelledMatrix3D currentMatrix = (DoubleLabelledMatrix3D) value;
       return previousMatrix.add(currentMatrix, 0.005, 0.005, 0.005);
-    } else if (value instanceof PresentValueForexBlackVolatilitySensitivity) {
-      final PresentValueForexBlackVolatilitySensitivity previousValue = (PresentValueForexBlackVolatilitySensitivity) currentTotal;
-      final PresentValueForexBlackVolatilitySensitivity currentValue = (PresentValueForexBlackVolatilitySensitivity) value;
-      return currentValue.plus(previousValue);
     }
     throw new IllegalArgumentException("Cannot sum results of type " + value.getClass());
   }
@@ -109,9 +104,8 @@ public class SumUtils {
   public static ValueProperties addProperties(final ValueProperties currentIntersection, final ValueProperties properties) {
     if (currentIntersection == null) {
       return properties;
-    } else {
-      return currentIntersection.intersect(properties);
     }
+    return currentIntersection.intersect(properties);
   }
 
 }

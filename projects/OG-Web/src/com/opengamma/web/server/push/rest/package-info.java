@@ -33,9 +33,9 @@
  * <h2>Entities</h2>
  * <p>If a client requests an entity (for example a portfolio as shown above) it will receive a notification
  * if the entity is updated.  To enable this the REST method that returns the entity must have a parameter annotated
- * with {@link com.opengamma.web.server.push.rest.Subscribe}.  The annotation must be on a string parameter that can be parsed by
- * {@link com.opengamma.id.UniqueId#parse(String)} and the parameter must also have a {@link javax.ws.rs.PathParam} annotation.  See
- * {@link com.opengamma.web.portfolio.WebPortfoliosResource#findPortfolio(String)} for an example.</p>
+ * with {@link com.opengamma.web.server.push.rest.Subscribe}.  The annotation must be on a string parameter that can be
+ * parsed by {@link com.opengamma.id.UniqueId#parse} and the parameter must also have a {@link javax.ws.rs.PathParam}
+ * annotation.  See {@link com.opengamma.web.portfolio.WebPortfoliosResource#findPortfolio} for an example.</p>
  *
  * <h2>Queries</h2>
  * <p>If a client performs a query to search for multiple entities it will receive a notification if something
@@ -46,9 +46,10 @@
  * This is a very conservative approach which will often lead to a client re-running a query and receiving the same
  * results. A complete solution to this problem would be much more complex and this behaviour is not a problem if the
  * queries are cheap.</p>
- * <p>To enable subscriptions for queries the REST method must be annotated with {@link com.opengamma.web.server.push.rest.SubscribeMaster} and
- * the type(s) of master specified as annotation parameters.  See
- * {@link com.opengamma.web.portfolio.WebPortfoliosResource#getJSON(Integer, Integer, Integer, String, String, java.util.List, java.util.List, Boolean)}
+ * <p>To enable subscriptions for queries the REST method must be annotated with
+ * {@link com.opengamma.web.server.push.rest.SubscribeMaster} and the type(s) of master specified as annotation
+ * parameters.  See
+ * {@link com.opengamma.web.portfolio.WebPortfoliosResource#getJSON}
  * for an example.</p>
  *
  * <h2>Querying Available View Definitions, Market Data Snapshots and Aggregators</h2>
@@ -82,29 +83,23 @@
  *   /jax/views                                                                      POST to create view
  *   /jax/views/{viewId}                                                             POST to pause and resume, DELETE to close
  *
- *   /jax/views/{viewId}/portfolio/grid                                              GET column and row structure, notification on structure change
+ *   /jax/views/{viewId}/portfolio                                                   GET column and row structure, notification on structure change
  *   /jax/views/{viewId}/portfolio/viewports                                         POST to create viewport
- *   /jax/views/{viewId}/portfolio/viewports/{viewportId}                            PUT to update, DELETE to close
- *   /jax/views/{viewId}/portfolio/viewports/{viewportId}/data                       GET data, notification when new data is available
+ *   /jax/views/{viewId}/portfolio/viewports/{viewportId}                            GET data, PUT to update, DELETE to close, notification when new data is available
  *
  *   /jax/views/{viewId}/portfolio/depgraphs                                         POST to create dependency graph grid
- *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}                               DELETE to close
- *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}/grid                          GET column and row structure, notification on structure change
+ *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}                               GET column and row structure, DELETE to close, notification on structure change
  *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}/viewports                     POST to create viewport
- *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}/viewports/{viewportId}        PUT to update, DELETE to close
- *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}/viewports/{viewportId}/data   GET data, notification when new data is available
+ *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}/viewports/{viewportId}        GET data, PUT to update, DELETE to close, notification when new data is available
  *
- *   /jax/views/{viewId}/primitives/grid                                             GET column and row structure, notification on structure change
+ *   /jax/views/{viewId}/primitives                                                  GET column and row structure, notification on structure change
  *   /jax/views/{viewId}/primitives/viewports                                        POST to create viewport
- *   /jax/views/{viewId}/primitives/viewports/{viewportId}                           PUT to update, DELETE to close
- *   /jax/views/{viewId}/primitives/viewports/{viewportId}/data                      GET data, notification when new data is available
+ *   /jax/views/{viewId}/primitives/viewports/{viewportId}                           GET data, PUT to update, DELETE to close, notification when new data is available
  *
  *   /jax/views/{viewId}/primitives/depgraphs                                        POST to create dependency graph grid
- *   /jax/views/{viewId}/primitives/depgraphs/{graphId}                              DELETE to close
- *   /jax/views/{viewId}/primitives/depgraphs/{graphId}/grid                         GET column and row structure, notification on structure change
+ *   /jax/views/{viewId}/primitives/depgraphs/{graphId}                              GET column and row structure, DELETE to close, notification on structure change
  *   /jax/views/{viewId}/primitives/depgraphs/{graphId}/viewports                    POST to create viewport
- *   /jax/views/{viewId}/primitives/depgraphs/{graphId}/viewports/{viewportId}       PUT to update, DELETE to close
- *   /jax/views/{viewId}/primitives/depgraphs/{graphId}/viewports/{viewportId}/data  GET data, notification when new data is available
+ *   /jax/views/{viewId}/primitives/depgraphs/{graphId}/viewports/{viewportId}       GET data, PUT to update, DELETE to close, notification when new data is available
  * </pre>
  *
  * <h3>Views</h3>
@@ -117,7 +112,7 @@
  *   <li>{@code viewDefinitionId}: Unique ID of the view definition.</li>
  *   <li>{@code aggregators}: names of the aggregators used to aggregate the portfolio, omit for no aggregation.</li>
  *   <li>{@code live}: {@code true} or {@code false} - whether to use live market data or a snapshot.</li>
- *   <li>{@code provider}: name of the market data provider.  Only required for live data. <em>TODO use the value "Live market data (Bloomberg, Activ)" for testing</em>.</li>
+ *   <li>{@code provider}: name of the market data provider.  Only required for live data. <em>TODO use the value "Live market data (Bloomberg)" for testing</em>.</li>
  *   <li>{@code snapshotId}: ID of the market data snapshot.  Only required if using a market data snapshot.</li>
  *   <li>{@code versionDateTime}: time of the snapshot.  Only required if using a market data snapshot.</li>
  * </ul>
@@ -149,7 +144,7 @@
  * <p>The request must contain parameters called {@code rows} and {@code columns} with a list of the row and
  * column indices that define the viewport.</p>
  * <p>The response header will contain the location of the new viewport. To close the viewport the client should make
- * a {@code DELETE} request to the view's location.</p>
+ * a {@code DELETE} request to the viewport's location.</p>
  *
  * <h3>Viewport Data</h3>
  * <p>To retrieve data for the viewport the client must make a {@code GET} request to:</p>

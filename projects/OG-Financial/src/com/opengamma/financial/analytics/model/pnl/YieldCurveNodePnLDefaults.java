@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.pnl;
@@ -30,9 +30,10 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public class YieldCurveNodePnLDefaults extends DefaultPropertyFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveNodePnLDefaults.class);
@@ -73,7 +74,12 @@ public class YieldCurveNodePnLDefaults extends DefaultPropertyFunction {
     if (FXUtils.isFXSecurity(security)) {
       return false;
     }
-    final String currencyName = FinancialSecurityUtils.getCurrency(security).getCode();
+    final Currency currency = FinancialSecurityUtils.getCurrency(security);
+    if (currency == null) {
+      s_logger.error("Could not get currency for security {}", security);
+      return false;
+    }
+    final String currencyName = currency.getCode();
     if (!_currencyAndCurveConfigNames.containsKey(currencyName)) {
       return false;
     }

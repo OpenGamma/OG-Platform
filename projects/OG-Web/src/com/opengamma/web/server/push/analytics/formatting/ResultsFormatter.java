@@ -21,6 +21,8 @@ import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.MissingMarketDataSentinel;
+import com.opengamma.engine.view.cache.NotCalculatedSentinel;
+import com.opengamma.engine.view.calcnode.MissingInput;
 import com.opengamma.financial.analytics.LabelledMatrix1D;
 import com.opengamma.financial.analytics.LabelledMatrix2D;
 import com.opengamma.financial.analytics.LabelledMatrix3D;
@@ -65,7 +67,8 @@ public class ResultsFormatter {
     _formatters.put(LabelledMatrix3D.class, new LabelledMatrix3DFormatter());
     _formatters.put(Tenor.class, new TenorFormatter());
     _formatters.put(MultipleCurrencyAmount.class, new MultipleCurrencyAmountFormatter());
-    _formatters.put(MissingMarketDataSentinel.class, new FixedStringFormatter("Missing market data"));
+    _formatters.put(MissingMarketDataSentinel.class, new FixedValueFormatter("Missing market data", null, null));
+    _formatters.put(NotCalculatedSentinel.class, new NotCalculatedSentinelFormatter());
     _formatters.put(ForwardCurve.class, new ForwardCurveFormatter());
     _formatters.put(BlackVolatilitySurfaceMoneyness.class, new BlackVolatilitySurfaceMoneynessFormatter());
     _formatters.put(LocalVolatilitySurfaceMoneyness.class, new LocalVolatilitySurfaceMoneynessFormatter());
@@ -82,7 +85,7 @@ public class ResultsFormatter {
   private Formatter getFormatter(Object value, ValueSpecification valueSpec) {
     if (value == null) {
       return _nullFormatter;
-    } else if (valueSpec == null) {
+    } else if (isError(value) || valueSpec == null) {
       return getFormatterForType(value.getClass());
     } else {
       Class<?> type = ValueTypes.getTypeForValueName(valueSpec.getValueName());
@@ -104,6 +107,10 @@ public class ResultsFormatter {
     } else {
       return formatter;
     }
+  }
+
+  private static boolean isError(Object value) {
+    return value instanceof MissingInput;
   }
 
   /**

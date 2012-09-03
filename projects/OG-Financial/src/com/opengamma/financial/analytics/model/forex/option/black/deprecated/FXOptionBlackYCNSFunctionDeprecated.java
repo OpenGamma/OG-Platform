@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.forex.option.black.deprecated;
@@ -50,6 +50,7 @@ import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -59,7 +60,7 @@ import com.opengamma.util.tuple.DoublesPair;
 @Deprecated
 public class FXOptionBlackYCNSFunctionDeprecated extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(FXOptionBlackYCNSFunctionDeprecated.class);
-  private static final MarketQuoteSensitivityCalculator CALCULATOR = 
+  private static final MarketQuoteSensitivityCalculator CALCULATOR =
     new MarketQuoteSensitivityCalculator(new ParameterSensitivityCalculator(PresentValueCurveSensitivityIRSCalculator.getInstance()));
 
   @Override
@@ -128,10 +129,9 @@ public class FXOptionBlackYCNSFunctionDeprecated extends AbstractFunction.NonCom
     if (curveSpecObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + curveSpecRequirement);
     }
-    final ValueRequirement spotRequirement = security.accept(ForexVisitors.getSpotIdentifierVisitor());
-    final Object spotFXObject = inputs.getValue(spotRequirement);
+    final Object spotFXObject = inputs.getValue(ValueRequirementNames.SPOT_RATE);
     if (spotFXObject == null) {
-      throw new OpenGammaRuntimeException("Could not get " + spotRequirement);
+      throw new OpenGammaRuntimeException("Could not get spot rate");
     }
     final double spotFX = (Double) spotFXObject;
     final InterpolatedYieldCurveSpecificationWithSecurities curveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) curveSpecObject;
@@ -215,6 +215,7 @@ public class FXOptionBlackYCNSFunctionDeprecated extends AbstractFunction.NonCom
     final String putCurveCalculationMethod = putCurveCalculationMethods.iterator().next();
     final String callCurveCalculationMethod = callCurveCalculationMethods.iterator().next();
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
+    final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
     final String curveCalculationMethod;
     final String forwardCurveName;
     final Currency currency = Currency.of(currencies.iterator().next());
@@ -229,7 +230,7 @@ public class FXOptionBlackYCNSFunctionDeprecated extends AbstractFunction.NonCom
     final String interpolatorName = interpolatorNames.iterator().next();
     final String leftExtrapolatorName = leftExtrapolatorNames.iterator().next();
     final String rightExtrapolatorName = rightExtrapolatorNames.iterator().next();
-    final ValueRequirement spotRequirement = security.accept(ForexVisitors.getSpotIdentifierVisitor());
+    final ValueRequirement spotRequirement = new ValueRequirement(ValueRequirementNames.SPOT_RATE, UnorderedCurrencyPair.of(callCurrency, putCurrency));
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     requirements.add(spotRequirement);
     requirements.add(getCurveRequirement(curveName, forwardCurveName, curveName, curveCalculationMethod, currency));

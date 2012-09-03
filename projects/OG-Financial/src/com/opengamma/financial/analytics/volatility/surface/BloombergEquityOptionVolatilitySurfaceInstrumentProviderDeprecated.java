@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.volatility.surface;
@@ -20,9 +20,11 @@ import com.opengamma.id.ExternalScheme;
 
 /**
  * Generates equity option Bloomberg ticker codes from ATM strike (set via init()), tenor, double and date).
+ * @deprecated This has been replaced by BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider
  */
-public class BloombergEquityOptionVolatilitySurfaceInstrumentProvider implements SurfaceInstrumentProvider<LocalDate, Double> {
-  private static final Logger s_logger = LoggerFactory.getLogger(BloombergEquityOptionVolatilitySurfaceInstrumentProvider.class);
+@Deprecated
+public class BloombergEquityOptionVolatilitySurfaceInstrumentProviderDeprecated implements SurfaceInstrumentProvider<LocalDate, Double> {
+  private static final Logger s_logger = LoggerFactory.getLogger(BloombergEquityOptionVolatilitySurfaceInstrumentProviderDeprecated.class);
   private static final ExternalScheme SCHEME = ExternalSchemes.BLOOMBERG_TICKER_WEAK;
   private final String _underlyingPrefix; //expecting something like DJX
   private final String _postfix; //expecting Index or Equity
@@ -31,7 +33,7 @@ public class BloombergEquityOptionVolatilitySurfaceInstrumentProvider implements
 
   private Boolean _generatePuts;
 
-  public BloombergEquityOptionVolatilitySurfaceInstrumentProvider(final String underlyingPrefix, final String postfix, final String dataFieldName) {
+  public BloombergEquityOptionVolatilitySurfaceInstrumentProviderDeprecated(final String underlyingPrefix, final String postfix, final String dataFieldName) {
     Validate.notNull(underlyingPrefix, "underlying prefix");
     Validate.notNull(postfix, "postfix");
     Validate.notNull(dataFieldName, "data field name");
@@ -99,10 +101,10 @@ public class BloombergEquityOptionVolatilitySurfaceInstrumentProvider implements
     if (obj == null) {
       return false;
     }
-    if (!(obj instanceof BloombergEquityOptionVolatilitySurfaceInstrumentProvider)) {
+    if (!(obj instanceof BloombergEquityOptionVolatilitySurfaceInstrumentProviderDeprecated)) {
       return false;
     }
-    final BloombergEquityOptionVolatilitySurfaceInstrumentProvider other = (BloombergEquityOptionVolatilitySurfaceInstrumentProvider) obj;
+    final BloombergEquityOptionVolatilitySurfaceInstrumentProviderDeprecated other = (BloombergEquityOptionVolatilitySurfaceInstrumentProviderDeprecated) obj;
     return getUnderlyingPrefix().equals(other.getUnderlyingPrefix()) &&
         getPostfix().equals(other.getPostfix()) &&
         getDataFieldName().equals(other.getDataFieldName());

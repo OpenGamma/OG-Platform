@@ -196,7 +196,7 @@ public class EquityOptionVolatilitySurfaceDataFunctionDeprecated extends Abstrac
       final VolatilitySurfaceDefinition<X, Y> definition,
       final ZonedDateTime atInstant) {
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
-    final BloombergEquityOptionVolatilitySurfaceInstrumentProvider provider = (BloombergEquityOptionVolatilitySurfaceInstrumentProvider) specification.getSurfaceInstrumentProvider();
+    final BloombergEquityOptionVolatilitySurfaceInstrumentProviderDeprecated provider = (BloombergEquityOptionVolatilitySurfaceInstrumentProviderDeprecated) specification.getSurfaceInstrumentProvider();
     Object[] expiries = getExpirySet(atInstant.toLocalDate()).toArray();
     
     // !!!!!!!!! SUPPOSE We have some value in the definition that provides us with an estimate of the center strike
@@ -276,7 +276,7 @@ public class EquityOptionVolatilitySurfaceDataFunctionDeprecated extends Abstrac
           for (final Object y : _definition.getYs()) { 
             final double strike = (Double) y;
             final LocalDate expiry = (LocalDate) x;
-            final BloombergEquityOptionVolatilitySurfaceInstrumentProvider provider = (BloombergEquityOptionVolatilitySurfaceInstrumentProvider) _specification.getSurfaceInstrumentProvider();
+            final BloombergEquityOptionVolatilitySurfaceInstrumentProviderDeprecated provider = (BloombergEquityOptionVolatilitySurfaceInstrumentProviderDeprecated) _specification.getSurfaceInstrumentProvider();
             if (strike < underlyingSpot) {
               provider.init(false); // generate identifiers for call options
             } else {

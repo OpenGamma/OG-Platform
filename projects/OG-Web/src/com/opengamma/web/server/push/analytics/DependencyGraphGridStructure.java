@@ -24,12 +24,13 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Row and column structure for a grid that displays the dependency graph used when calculating a value.
+ * Each row contains one calcuated value from the results, all other columns in the row contain meta data about
+ * the value.
  */
 public class DependencyGraphGridStructure implements GridStructure {
 
-  private final AnalyticsNode _root;
-
+  /** The fixed set of columns used in all dependency graph grids. */
   public static final AnalyticsColumnGroups COLUMN_GROUPS = new AnalyticsColumnGroups(ImmutableList.of(
       // fixed column group with one column for the row label
       new AnalyticsColumnGroup("", ImmutableList.<AnalyticsColumn>of(
@@ -44,8 +45,10 @@ public class DependencyGraphGridStructure implements GridStructure {
 
   /** {@link ValueSpecification}s and function names for all rows in the grid in row index order. */
   private final List<Row> _rows;
-
+  /** For looking up calculation targets using their specification. */
   private final ComputationTargetResolver _computationTargetResolver;
+  /** The root node of the tree structure representing the rows. */
+  private final AnalyticsNode _root;
 
   /* package */ DependencyGraphGridStructure(AnalyticsNode root,
                                              List<Row> rows,
@@ -58,18 +61,36 @@ public class DependencyGraphGridStructure implements GridStructure {
     _computationTargetResolver = targetResolver;
   }
 
+  /**
+   * Returns the value specifications used to calculate the values for a range of rows.
+   * @param rows The row indices
+   * @return The value specifications used to calculate the row values
+   */
   /* package */ List<ValueSpecification> getValueSpecificationsForRows(List<Integer> rows) {
     List<ValueSpecification> valueSpecs = Lists.newArrayList();
     for (Integer rowIndex : rows) {
-      valueSpecs.add(getTargetForRow(rowIndex));
+      valueSpecs.add(getValueSpecificationForRow(rowIndex));
     }
     return valueSpecs;
   }
 
-  private ValueSpecification getTargetForRow(Integer rowIndex) {
+  /**
+   * Returns the value specification used to calculate the value for a row.
+   * @param rowIndex The row index
+   * @return The value specifications used to calculate the row value
+   */
+  private ValueSpecification getValueSpecificationForRow(Integer rowIndex) {
     return _rows.get(rowIndex).getValueSpec();
   }
 
+  /**
+   * Builds the results for a viewport given a set of results for the entire grid and a definition of the viewport.
+   * @param viewportSpec Defines the viewport
+   * @param results The results for each row, keyed on the row's {@link ValueSpecification}
+   * @param cache Cache of results for the grid, used for building the history
+   * @param calcConfigName Calculation configuration used when calculating the dependency graph
+   * @return The results for the rows in the viewport
+   */
   /* package */ List<List<ViewportResults.Cell>> createResultsForViewport(ViewportSpecification viewportSpec,
                                                                           Map<ValueSpecification, Object> results,
                                                                           ResultsCache cache,
@@ -81,25 +102,43 @@ public class DependencyGraphGridStructure implements GridStructure {
     return resultsList;
   }
 
+  /**
+   * Builds the results for a single row in the viewport.
+   * @param rowIndex The row index in the grid
+   * @param cols The columns visible in the viewport
+   * @param results The results for each row, keyed on the row's {@link ValueSpecification}
+   * @param cache Cache of results for the grid, used for building the history
+   * @param calcConfigName Calculation configuration used when calculating the dependency graph
+   * @return The results for the row
+   */
   private List<ViewportResults.Cell> createResultsForRow(int rowIndex,
                                                          SortedSet<Integer> cols,
                                                          Map<ValueSpecification, Object> results,
                                                          ResultsCache cache,
                                                          String calcConfigName) {
-    Object value = results.get(getTargetForRow(rowIndex));
+    Object value = results.get(getValueSpecificationForRow(rowIndex));
     Row row = _rows.get(rowIndex);
     List<ViewportResults.Cell> rowResults = Lists.newArrayListWithCapacity(cols.size());
     for (Integer colIndex : cols) {
-      rowResults.add(getValueForColumn(colIndex, row, value, cache, calcConfigName));
+      rowResults.add(createValueForColumn(colIndex, row, value, cache, calcConfigName));
     }
     return rowResults;
   }
 
-  /* package */ ViewportResults.Cell getValueForColumn(int colIndex,
-                                                       Row row,
-                                                       Object value,
-                                                       ResultsCache cache,
-                                                       String calcConfigName) {
+  /**
+   * Builds a the result for a single grid cell.
+   * @param colIndex Index of the column in the grid
+   * @param row Index of the row in the grid
+   * @param value The cell's value
+   * @param cache Cache of results for the grid, used for building the history of values for the cell
+   * @param calcConfigName Calculation configuration used when calculating the dependency graph
+   * @return Cell containing the result and possibly history
+   */
+  /* package */ ViewportResults.Cell createValueForColumn(int colIndex,
+                                                          Row row,
+                                                          Object value,
+                                                          ResultsCache cache,
+                                                          String calcConfigName) {
     ValueSpecification valueSpec = row.getValueSpec();
     switch (colIndex) {
       case 0: // target
@@ -120,6 +159,10 @@ public class DependencyGraphGridStructure implements GridStructure {
     }
   }
 
+  /**
+   * @param targetType The type of the row's target
+   * @return The string to display in the target type column
+   */
   /* package */ static String getTargetTypeName(ComputationTargetType targetType) {
     switch (targetType) {
       case PORTFOLIO_NODE:
@@ -137,6 +180,10 @@ public class DependencyGraphGridStructure implements GridStructure {
     }
   }
 
+  /**
+   * @param targetSpec Specification of the target for a grid row
+   * @return The name of the target
+   */
   private String getTargetName(final ComputationTargetSpecification targetSpec) {
     ComputationTarget target = _computationTargetResolver.resolve(targetSpec);
     if (target != null) {
@@ -151,7 +198,11 @@ public class DependencyGraphGridStructure implements GridStructure {
     }
   }
 
-
+  /**
+   * Formats a set of {@link ValueProperties} for display in the grid
+   * @param properties The value properties
+   * @return A formatted version of the properties
+   */
   /* package */ static String getValuePropertiesForDisplay(ValueProperties properties) {
     StringBuilder sb = new StringBuilder();
     boolean isFirst = true;
@@ -183,10 +234,19 @@ public class DependencyGraphGridStructure implements GridStructure {
     return sb.toString();
   }
 
+  /**
+   * @param header The column header string
+   * @return A column for displaying a string value
+   */
   private static AnalyticsColumn column(String header) {
     return column(header, String.class);
   }
 
+  /**
+   * @param header The column header string
+   * @param type The type of value the column contains
+   * @return A column for displaying values of the specified type
+   */
   private static AnalyticsColumn column(String header, Class<?> type) {
     return new AnalyticsColumn(header, header, type);
   }
@@ -206,14 +266,21 @@ public class DependencyGraphGridStructure implements GridStructure {
     return COLUMN_GROUPS;
   }
 
+  /**
+   * @return The root of the node structure representing the dependency graph
+   */
   public AnalyticsNode getRoot() {
     return _root;
   }
 
-  // TODO do I really want to do this up front for all rows? these grids are big
+  /**
+   * A row in the dependency graph grid.
+   */
   /* package */ static class Row {
 
+    /** Specification of the row's target. */
     private final ValueSpecification _valueSpec;
+    /** Name of the function used to calculate the row's value. */
     private final String _functionName;
 
     Row(ValueSpecification valueSpec, String functionName) {
@@ -223,10 +290,16 @@ public class DependencyGraphGridStructure implements GridStructure {
       _functionName = functionName;
     }
 
+    /**
+     * @return Specification of the row's target
+     */
     /* package */ ValueSpecification getValueSpec() {
       return _valueSpec;
     }
 
+    /**
+     * @return Name of the function used to calculate the row's value
+     */
     /* package */ String getFunctionName() {
       return _functionName;
     }

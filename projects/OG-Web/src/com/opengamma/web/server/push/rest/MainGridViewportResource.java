@@ -14,7 +14,7 @@ import com.opengamma.web.server.push.analytics.ViewportSpecification;
  */
 public class MainGridViewportResource extends AbstractViewportResource {
 
-  public MainGridViewportResource(AnalyticsView.GridType gridType, AnalyticsView view, String viewportId) {
+  public MainGridViewportResource(AnalyticsView.GridType gridType, AnalyticsView view, int viewportId) {
     super(gridType, view, viewportId);
   }
 

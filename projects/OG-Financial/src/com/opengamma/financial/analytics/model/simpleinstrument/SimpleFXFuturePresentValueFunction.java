@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.simpleinstrument;
@@ -19,6 +19,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 import com.opengamma.analytics.financial.simpleinstruments.derivative.SimpleInstrument;
 import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFXFutureDataBundle;
 import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFXFuturePresentValueCalculator;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -34,16 +35,20 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.SimpleFutureConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
+import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
+import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.future.FXFutureSecurity;
-import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
- * 
+ *
  */
 public class SimpleFXFuturePresentValueFunction extends AbstractFunction.NonCompiledInvoker {
   private static final SimpleFutureConverter CONVERTER = new SimpleFutureConverter();
@@ -73,13 +78,18 @@ public class SimpleFXFuturePresentValueFunction extends AbstractFunction.NonComp
     if (receiveCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + _receiveCurveName + " curve");
     }
-    final ExternalId underlyingIdentifier = getSpotIdentifier(security);
+    final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
+    final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
+    final CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
+    final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(payCurrency, receiveCurrency);
+    final Currency currencyBase = currencyPair.getBase();
+    final ExternalId underlyingIdentifier = getSpotIdentifier(security, currencyPair);
     final Object spotObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, underlyingIdentifier));
     if (spotObject == null) {
       throw new OpenGammaRuntimeException("Could not get market data for " + underlyingIdentifier);
     }
     double spot = (Double) spotObject;
-    if (!FXUtils.isInBaseQuoteOrder(payCurrency, receiveCurrency) && receiveCurrency.equals(security.getCurrency())) {
+    if (!receiveCurrency.equals(currencyBase) && receiveCurrency.equals(security.getCurrency())) {
       spot = 1. / spot;
     }
     final YieldAndDiscountCurve payCurve = (YieldAndDiscountCurve) payCurveObject;
@@ -121,18 +131,22 @@ public class SimpleFXFuturePresentValueFunction extends AbstractFunction.NonComp
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final FXFutureSecurity future = (FXFutureSecurity) target.getSecurity();
-    final ExternalId underlyingIdentifier = getSpotIdentifier(future);
+    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
+    final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
+    final CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
+    final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(future.getNumerator(), future.getDenominator());
+    final ExternalId underlyingIdentifier = getSpotIdentifier(future, currencyPair);
     final ValueRequirement payYieldCurve = YieldCurveFunction.getCurveRequirement(future.getNumerator(), _payCurveName, null, null);
     final ValueRequirement receiveYieldCurve = YieldCurveFunction.getCurveRequirement(future.getDenominator(), _receiveCurveName, null, null);
     final ValueRequirement spot = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, underlyingIdentifier);
     return Sets.newHashSet(payYieldCurve, receiveYieldCurve, spot);
   }
 
-  private ExternalId getSpotIdentifier(final FXFutureSecurity future) {
+  private ExternalId getSpotIdentifier(final FXFutureSecurity future, final CurrencyPair currencyPair) {
     ExternalId bloombergId;
     final Currency payCurrency = future.getNumerator();
     final Currency receiveCurrency = future.getDenominator();
-    if (FXUtils.isInBaseQuoteOrder(payCurrency, receiveCurrency)) {
+    if (payCurrency.equals(currencyPair.getBase())) {
       bloombergId = ExternalSchemes.bloombergTickerSecurityId(payCurrency.getCode() + receiveCurrency.getCode() + " Curncy");
     } else {
       bloombergId = ExternalSchemes.bloombergTickerSecurityId(receiveCurrency.getCode() + payCurrency.getCode() + " Curncy");

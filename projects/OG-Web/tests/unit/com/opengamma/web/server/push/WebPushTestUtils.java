@@ -39,25 +39,33 @@ import com.opengamma.util.tuple.Pair;
 
 public class WebPushTestUtils {
 
-  private static final int PORT = 8084;
-  private static final String URL_BASE = "http://localhost:" + PORT;
+  private static final int minPort = 55000;
+  private static final int maxPort = 60000;
+  private int _port;
+  private String URL_BASE;
 
-  private WebPushTestUtils() {
+  public WebPushTestUtils() {
+    this(minPort + (int)(Math.random() * ((maxPort - minPort) + 1)));
   }
 
-  /* package */ static URL url(String path) throws MalformedURLException {
+  public WebPushTestUtils(int port) {
+    _port = port;
+    URL_BASE = "http://localhost:" + port;
+  }
+
+  /* package */ URL url(String path) throws MalformedURLException {
     return new URL(URL_BASE + path);
   }
 
-  /* package */ public static String readFromPath(String path) throws IOException {
+  /* package */ public String readFromPath(String path) throws IOException {
     return readFromPath(path, null);
   }
-  /* package */ public static String readFromPath(String path, String clientId) throws IOException {
+  /* package */ public String readFromPath(String path, String clientId) throws IOException {
     return readFromPath(path, clientId, "GET");
   }
 
   /* package */
-  public static String handshake() throws IOException {
+  public String handshake() throws IOException {
     String json = readFromPath("/handshake");
     try {
       return new JSONObject(json).getString("clientId");
@@ -66,7 +74,7 @@ public class WebPushTestUtils {
     }
   }
 
-  /* package */ static String readFromPath(String path, String clientId, String requestMethod) throws IOException {
+  /* package */ String readFromPath(String path, String clientId, String requestMethod) throws IOException {
     String fullPath;
     if (clientId != null) {
       fullPath = path + "?clientId=" + clientId;
@@ -98,7 +106,7 @@ public class WebPushTestUtils {
     return builder.toString();
   }
 
-  public static HttpURLConnection connectToPath(String path) throws IOException {
+  public HttpURLConnection connectToPath(String path) throws IOException {
     URL url = url(path);
     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
     connection.setRequestMethod("GET");
@@ -132,9 +140,9 @@ public class WebPushTestUtils {
    * @return The server and the Spring context
    * @param springXml The location of the Spring XML config file
    */
-  public static Pair<Server, WebApplicationContext> createJettyServer(String springXml) throws Exception {
+  public Pair<Server, WebApplicationContext> createJettyServer(String springXml) throws Exception {
     SelectChannelConnector connector = new SelectChannelConnector();
-    connector.setPort(PORT);
+    connector.setPort(_port);
     WebAppContext context = new WebAppContext();
     context.setContextPath("/");
     context.setResourceBase("build/classes");
@@ -180,12 +188,12 @@ public class WebPushTestUtils {
   /**
    * @return The URL of the viewport relative to the root
    */
-  public static String createViewport(String clientId, String viewportDefJson) throws IOException, JSONException {
+  public String createViewport(String clientId, String viewportDefJson) throws IOException, JSONException {
     String viewportJson;
     BufferedReader reader = null;
     BufferedWriter writer = null;
     try {
-      URL url = new URL("http://localhost:" + PORT + "/jax/viewports?clientId=" + clientId);
+      URL url = new URL("http://localhost:" + _port + "/jax/viewports?clientId=" + clientId);
       HttpURLConnection connection = (HttpURLConnection) url.openConnection();
       connection.setDoOutput(true);
       connection.setRequestMethod("POST");

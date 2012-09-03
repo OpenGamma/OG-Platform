@@ -16,13 +16,17 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Wraps another {@link AnalyticsView} and protects it from concurrent access. The methods that can mutate the state of
  * the underlying view are locked with a write lock, the getters are locked with a read lock.
+ * @see com.opengamma.web.server.push.analytics Package concurrency notes
  */
 /* package */ class LockingAnalyticsView implements AnalyticsView {
 
   private final AnalyticsView _delegate;
   private final ReadWriteLock _lock = new ReentrantReadWriteLock();
 
-  LockingAnalyticsView(AnalyticsView delegate) {
+  /**
+   * @param delegate The delegate view (presumably not a thread safe implementation)
+   */
+  /* package */ LockingAnalyticsView(AnalyticsView delegate) {
     ArgumentChecker.notNull(delegate, "delegate");
     _delegate = delegate;
   }
@@ -58,7 +62,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public long createViewport(GridType gridType, String viewportId, String dataId, ViewportSpecification viewportSpec) {
+  public long createViewport(GridType gridType, int viewportId, String dataId, ViewportSpecification viewportSpec) {
     try {
       _lock.writeLock().lock();
       return _delegate.createViewport(gridType, viewportId, dataId, viewportSpec);
@@ -68,7 +72,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public long updateViewport(GridType gridType, String viewportId, ViewportSpecification viewportSpec) {
+  public long updateViewport(GridType gridType, int viewportId, ViewportSpecification viewportSpec) {
     try {
       _lock.writeLock().lock();
       return _delegate.updateViewport(gridType, viewportId, viewportSpec);
@@ -78,7 +82,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public void deleteViewport(GridType gridType, String viewportId) {
+  public void deleteViewport(GridType gridType, int viewportId) {
     try {
       _lock.writeLock().lock();
       _delegate.deleteViewport(gridType, viewportId);
@@ -88,7 +92,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public ViewportResults getData(GridType gridType, String viewportId) {
+  public ViewportResults getData(GridType gridType, int viewportId) {
     try {
       _lock.readLock().lock();
       return _delegate.getData(gridType, viewportId);
@@ -98,7 +102,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public void openDependencyGraph(GridType gridType, String graphId, String gridId, int row, int col) {
+  public void openDependencyGraph(GridType gridType, int graphId, String gridId, int row, int col) {
     try {
       _lock.writeLock().lock();
       _delegate.openDependencyGraph(gridType, graphId, gridId, row, col);
@@ -108,7 +112,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public void closeDependencyGraph(GridType gridType, String graphId) {
+  public void closeDependencyGraph(GridType gridType, int graphId) {
     try {
       _lock.writeLock().lock();
       _delegate.closeDependencyGraph(gridType, graphId);
@@ -118,7 +122,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public GridStructure getGridStructure(GridType gridType, String graphId) {
+  public GridStructure getGridStructure(GridType gridType, int graphId) {
     try {
       _lock.readLock().lock();
       return _delegate.getGridStructure(gridType, graphId);
@@ -128,7 +132,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public long createViewport(GridType gridType, String graphId, String viewportId, String dataId, ViewportSpecification viewportSpec) {
+  public long createViewport(GridType gridType, int graphId, int viewportId, String dataId, ViewportSpecification viewportSpec) {
     try {
       _lock.writeLock().lock();
       return _delegate.createViewport(gridType, graphId, viewportId, dataId, viewportSpec);
@@ -138,7 +142,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public long updateViewport(GridType gridType, String graphId, String viewportId, ViewportSpecification viewportSpec) {
+  public long updateViewport(GridType gridType, int graphId, int viewportId, ViewportSpecification viewportSpec) {
     try {
       _lock.writeLock().lock();
       return _delegate.updateViewport(gridType, graphId, viewportId, viewportSpec);
@@ -148,7 +152,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public void deleteViewport(GridType gridType, String graphId, String viewportId) {
+  public void deleteViewport(GridType gridType, int graphId, int viewportId) {
     try {
       _lock.writeLock().lock();
       _delegate.deleteViewport(gridType, graphId, viewportId);
@@ -158,7 +162,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public ViewportResults getData(GridType gridType, String graphId, String viewportId) {
+  public ViewportResults getData(GridType gridType, int graphId, int viewportId) {
     try {
       _lock.readLock().lock();
       return _delegate.getData(gridType, graphId, viewportId);

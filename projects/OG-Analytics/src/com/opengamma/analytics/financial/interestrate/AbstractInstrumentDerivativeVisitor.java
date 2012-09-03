@@ -53,6 +53,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFlo
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounded;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
@@ -131,41 +132,6 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
   @Override
   public T visitFixedCouponAnnuity(final AnnuityCouponFixed fixedCouponAnnuity, final S data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedCouponAnnuity()");
-  }
-
-  @Override
-  public T visitForexForward(final ForexForward fx, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexForward()");
-  }
-
-  @Override
-  public T visitCouponFixed(final CouponFixed payment, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedCouponPayment()");
-  }
-
-  @Override
-  public T visitCouponIbor(final CouponIbor payment, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIbor()");
-  }
-
-  @Override
-  public T visitCouponIborSpread(final CouponIborSpread payment, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIborSpread()");
-  }
-
-  @Override
-  public T visitCouponIborGearing(final CouponIborGearing payment, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIborGearing()");
-  }
-
-  @Override
-  public T visitCouponOIS(final CouponOIS payment, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponOIS()");
-  }
-
-  @Override
-  public T visitCouponCMS(final CouponCMS payment, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponCMS()");
   }
 
   @Override
@@ -259,11 +225,6 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
   }
 
   @Override
-  public T visitForexForward(final ForexForward fx) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexForward()");
-  }
-
-  @Override
   public T visitCash(final Cash cash, final S data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCash()");
   }
@@ -271,36 +232,6 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
   @Override
   public T visitCash(final Cash cash) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCash()");
-  }
-
-  @Override
-  public T visitCouponFixed(final CouponFixed payment) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedCouponPayment()");
-  }
-
-  @Override
-  public T visitCouponIbor(final CouponIbor payment) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIbor()");
-  }
-
-  @Override
-  public T visitCouponIborSpread(final CouponIborSpread payment) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIborSpread()");
-  }
-
-  @Override
-  public T visitCouponIborGearing(final CouponIborGearing payment) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIborGearing()");
-  }
-
-  @Override
-  public T visitCouponOIS(final CouponOIS payment) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponOIS()");
-  }
-
-  @Override
-  public T visitCouponCMS(final CouponCMS payment) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponCMS()");
   }
 
   @Override
@@ -357,6 +288,80 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
   public T visitFixedPayment(final PaymentFixed payment) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedPayment()");
   }
+
+  // -----     Payment and coupon     -----
+
+  @Override
+  public T visitCouponFixed(final CouponFixed payment, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedCouponPayment()");
+  }
+
+  @Override
+  public T visitCouponFixed(final CouponFixed payment) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedCouponPayment()");
+  }
+
+  @Override
+  public T visitCouponIbor(final CouponIbor payment, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIbor()");
+  }
+
+  @Override
+  public T visitCouponIbor(final CouponIbor payment) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIbor()");
+  }
+
+  @Override
+  public T visitCouponIborSpread(final CouponIborSpread payment, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIborSpread()");
+  }
+
+  @Override
+  public T visitCouponIborSpread(final CouponIborSpread payment) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIborSpread()");
+  }
+
+  @Override
+  public T visitCouponIborGearing(final CouponIborGearing payment, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIborGearing()");
+  }
+
+  @Override
+  public T visitCouponIborGearing(final CouponIborGearing payment) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIborGearing()");
+  }
+
+  @Override
+  public T visitCouponIborCompounded(final CouponIborCompounded payment, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIborCompounded()");
+  }
+
+  @Override
+  public T visitCouponIborCompounded(final CouponIborCompounded payment) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIborCompounded()");
+  }
+
+  @Override
+  public T visitCouponOIS(final CouponOIS payment, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponOIS()");
+  }
+
+  @Override
+  public T visitCouponCMS(final CouponCMS payment, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponCMS()");
+  }
+
+  @Override
+  public T visitCouponOIS(final CouponOIS payment) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponOIS()");
+  }
+
+  @Override
+  public T visitCouponCMS(final CouponCMS payment) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponCMS()");
+  }
+
+  // -----     Inflation     -----
 
   @Override
   public T visitCouponInflationZeroCouponMonthly(CouponInflationZeroCouponMonthly coupon) {
@@ -639,6 +644,16 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
   }
 
   //  -----     Deprecated     -----
+
+  @Override
+  public T visitForexForward(final ForexForward fx, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexForward()");
+  }
+
+  @Override
+  public T visitForexForward(final ForexForward fx) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexForward()");
+  }
 
   @Override
   public T visitAnnuityCouponIborSpread(final AnnuityCouponIborSpread annuity, final S data) {

@@ -12,9 +12,11 @@ public enum ScheduleGenerationMethod {
   /**
    * Step forward in time from the valuation date towards the maturity date
    */
-  FORWARD, 
+  FORWARD,
   /**
    * Step back from the maturity date towards the valuation date (applicable to standard CDS contracts)
    */
   BACKWARD;
+
+  // TODO: Extend this list
 }

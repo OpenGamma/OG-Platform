@@ -56,6 +56,7 @@ public class DbConfigMaster extends AbstractDbMaster implements ConfigMaster {
   public DbConfigMaster(DbConnector dbConnector) {
     super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
     _worker = new DbConfigWorker(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
+    setElSqlBundle(_worker.getElSqlBundle());
   }
 
   //-------------------------------------------------------------------------

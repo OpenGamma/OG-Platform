@@ -25,5 +25,5 @@ public interface DependencyGraphOwnerResource {
                                                @FormParam("col") int col);
 
   @Path("depgraphs/{graphId}")
-  public AbstractGridResource getDependencyGraph(@PathParam("graphId") String graphId);
+  public AbstractGridResource getDependencyGraph(@PathParam("graphId") int graphId);
 }

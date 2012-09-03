@@ -9,13 +9,12 @@ package com.opengamma.analytics.financial.credit;
  *  Flag to indicate if we are a buyer or seller of credit protection
  */
 public enum BuySellProtection {
-  
   /**
-   * BUY protection
+   * BUY protection (pay the premium leg - and accrued - and receive the protection leg)
    */
-  BUY, 
+  BUY,
   /**
-   * SELL protection
+   * SELL protection (receive the premium leg - and accrued - and pay the protection leg
    */
   SELL;
 }

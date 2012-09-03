@@ -7,20 +7,31 @@ package com.opengamma.util.test;
 
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.difference;
-import static com.google.common.collect.Sets.newTreeSet;
 import static com.opengamma.util.RegexUtils.extract;
 import static com.opengamma.util.RegexUtils.matches;
 
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
 import org.apache.commons.io.FileUtils;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
@@ -659,6 +670,41 @@ public class DbTool extends Task {
       throw new OpenGammaRuntimeException("No script directories found: " + _dbScriptDirs);
     }
     return scripts;
+  }
+  
+  public Map<String, Integer> getLatestVersions() {
+    Map<String, Integer> result = new HashMap<String, Integer>();
+    for (String scriptDir : _dbScriptDirs) {
+      File parentDirectory = new File(scriptDir, DATABASE_CREATE_FOLDER);
+      for (File dialectDir : parentDirectory.listFiles()) {
+        if (!dialectDir.isDirectory()) {
+          continue;
+        }
+        Map<File, Map<Integer, File>> scripts = getScripts(dialectDir, CREATE_SCRIPT_PATTERN);
+        for (Map.Entry<File, Map<Integer, File>> masterScripts : scripts.entrySet()) {
+          String masterName = masterScripts.getKey().getName(); 
+          Set<Integer> versions = masterScripts.getValue().keySet();
+          if (versions.isEmpty()) {
+            continue;
+          }
+          int maxVersion = -1;
+          for (int version : versions) {
+            if (version > maxVersion) {
+              maxVersion = version;
+            }
+          }
+          if (result.containsKey(masterName)) {
+            if (((int) result.get(masterName)) != maxVersion) {
+              throw new BuildException("Latest versions differ between database dialects for master '" + masterName +
+                  "'. Found latest versions of both " + result.get(masterName) + " and " + maxVersion + ".");
+            }
+          } else {
+            result.put(masterName, maxVersion);
+          }
+        }
+      }
+    }
+    return result;
   }
 
   public void createTables(String catalog, String schema, final TableCreationCallback callback) {

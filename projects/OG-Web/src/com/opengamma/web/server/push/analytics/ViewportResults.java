@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.List;
 
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.calcnode.MissingInput;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -16,12 +17,16 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ViewportResults {
 
-  /** Any empty grid cell. */
+  /** An empty grid cell. */
   private static final Cell s_emptyCell = new Cell(null, null, null);
 
+  /** The result values by row. */
   private final List<List<Cell>> _allResults;
+  /** The grid columns. */
   private final AnalyticsColumnGroups _columns;
+  /** Definition of the viewport. */
   private final ViewportSpecification _viewportSpec;
+  /** Version of the viewport used when building these results. */
   private final long _version;
 
   /**
@@ -62,7 +67,8 @@ public class ViewportResults {
   }
 
   /**
-   * @return The version of the viewport used when creating the results
+   * @return The version of the viewport used when creating the results, allows the client to that a set of results
+   * correspond to the current viewport state.
    */
   /* package */ long getVersion() {
     return _version;
@@ -152,6 +158,13 @@ public class ViewportResults {
      */
     /* package */ Collection<Object> getHistory() {
       return _history;
+    }
+
+    /**
+     * @return true if the cell's value couldn't be calculated because of an error
+     */
+    /* package */ boolean isError() {
+      return _value instanceof MissingInput;
     }
   }
 }

@@ -22,7 +22,7 @@ import com.opengamma.web.server.push.analytics.ViewportResults;
 import com.opengamma.web.server.push.analytics.ViewportResultsJsonWriter;
 
 /**
- *
+ * Writes an instance of {@link ViewportResults} to an HTTP response as JSON.
  */
 @Provider
 @Produces(MediaType.APPLICATION_JSON)

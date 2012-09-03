@@ -39,7 +39,6 @@ import com.opengamma.util.money.Currency;
 public class ForexSecurityConverterDeprecated extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
 
   @Override
-
   public InstrumentDefinition<?> visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity fxDigitalOptionSecurity) {
     Validate.notNull(fxDigitalOptionSecurity, "fx digital option (ndf) security");
     final Currency putCurrency = fxDigitalOptionSecurity.getPutCurrency();
