@@ -116,7 +116,7 @@ public abstract class ISDAApproxCDSPriceFunction extends NonCompiledInvoker {
             .with(ValuePropertyNames.CURRENCY, cds.getCurrency().getCode())
             .with(ValuePropertyNames.CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)
             .with(ISDAFunctionConstants.ISDA_IMPLEMENTATION, ISDAFunctionConstants.ISDA_IMPLEMENTATION_APPROX)
-            .with(ISDAFunctionConstants.ISDA_HAZARD_RATE_STRUCTURE, ISDAFunctionConstants.ISDA_HAZARD_RATE_TERM)
+            .with(ISDAFunctionConstants.ISDA_HAZARD_RATE_STRUCTURE, getHazardRateStructre())
             .get()),
         getUniqueId()),
       cleanPrice);
@@ -128,7 +128,7 @@ public abstract class ISDAApproxCDSPriceFunction extends NonCompiledInvoker {
             .with(ValuePropertyNames.CURRENCY, cds.getCurrency().getCode())
             .with(ValuePropertyNames.CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)
             .with(ISDAFunctionConstants.ISDA_IMPLEMENTATION, ISDAFunctionConstants.ISDA_IMPLEMENTATION_APPROX)
-            .with(ISDAFunctionConstants.ISDA_HAZARD_RATE_STRUCTURE, ISDAFunctionConstants.ISDA_HAZARD_RATE_TERM)
+            .with(ISDAFunctionConstants.ISDA_HAZARD_RATE_STRUCTURE, getHazardRateStructre())
             .get()),
         getUniqueId()),
       dirtyPrice);
@@ -143,7 +143,7 @@ public abstract class ISDAApproxCDSPriceFunction extends NonCompiledInvoker {
             .with(ValuePropertyNames.CURRENCY, cds.getCurrency().getCode())
             .with(ValuePropertyNames.CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)
             .with(ISDAFunctionConstants.ISDA_IMPLEMENTATION, ISDAFunctionConstants.ISDA_IMPLEMENTATION_APPROX)
-            .with(ISDAFunctionConstants.ISDA_HAZARD_RATE_STRUCTURE, ISDAFunctionConstants.ISDA_HAZARD_RATE_TERM)
+            .with(ISDAFunctionConstants.ISDA_HAZARD_RATE_STRUCTURE, getHazardRateStructre())
             .get()),
         getUniqueId()),
       cleanPrice);
