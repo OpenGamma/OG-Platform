@@ -130,7 +130,7 @@ import com.opengamma.util.tuple.Pair;
    * to the current state of the viewport
    * @throws DataNotFoundException If no viewport exists with the specified ID
    */
-  /* package */ long updateViewport(String viewportId, ViewportSpecification viewportSpecification) {
+  /* package */ long updateViewport(int viewportId, ViewportSpecification viewportSpecification) {
     return getViewport(viewportId).update(viewportSpecification, _cache);
   }
 
@@ -210,25 +210,20 @@ import com.opengamma.util.tuple.Pair;
    * @return Version number of the viewport, allows clients to ensure any data they receive for a viewport matches
    * the current viewport state
    */
-  /* package */ long createViewport(String graphId,
-                                    String viewportId,
-                                    String dataId,
-                                    ViewportSpecification viewportSpec) {
+  /* package */ long createViewport(String graphId, int viewportId, String dataId, ViewportSpecification viewportSpec) {
     return getDependencyGraph(graphId).createViewport(viewportId, dataId, viewportSpec);
   }
 
   /**
    * Updates an existing viewport on a dependency graph grid
    * @param graphId ID of the dependency graph
-   * @param viewportId ID of the viewport, can be any unique value
+   * @param viewportId ID of the viewport
    * @param viewportSpec Definition of the viewport
    * @return Version number of the viewport, allows clients to ensure any data they receive for a viewport matches
    * the current viewport state
    * @throws DataNotFoundException If no dependency graph exists with the specified ID
    */
-  /* package */ long updateViewport(String graphId,
-                                    String viewportId,
-                                    ViewportSpecification viewportSpec) {
+  /* package */ long updateViewport(String graphId, int viewportId, ViewportSpecification viewportSpec) {
     return getDependencyGraph(graphId).updateViewport(viewportId, viewportSpec, _cycle, _cache);
   }
 
@@ -238,7 +233,7 @@ import com.opengamma.util.tuple.Pair;
    * @param viewportId ID of the viewport, can be any unique value
    * @throws DataNotFoundException If no dependency graph exists with the specified ID
    */
-  /* package */ void deleteViewport(String graphId, String viewportId) {
+  /* package */ void deleteViewport(String graphId, int viewportId) {
     getDependencyGraph(graphId).deleteViewport(viewportId);
   }
 
@@ -249,7 +244,7 @@ import com.opengamma.util.tuple.Pair;
    * @return The current data for the viewport
    * @throws DataNotFoundException If no dependency graph exists with the specified ID
    */
-  /* package */ ViewportResults getData(String graphId, String viewportId) {
+  /* package */ ViewportResults getData(String graphId, int viewportId) {
     return getDependencyGraph(graphId).getData(viewportId);
   }
 
@@ -270,7 +265,7 @@ import com.opengamma.util.tuple.Pair;
    * @return The ID
    * @throws DataNotFoundException If no dependency graph and viewport exist with the specified IDs
    */
-  /* package */ String getDataId(String graphId, String viewportId) {
+  /* package */ String getDataId(String graphId, int viewportId) {
     return getDependencyGraph(graphId).getViewport(viewportId).getDataId();
   }
 

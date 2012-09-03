@@ -17,7 +17,7 @@ public class DependencyGraphViewportResource extends AbstractViewportResource {
 
   private final String _graphId;
 
-  public DependencyGraphViewportResource(AnalyticsView.GridType gridType, AnalyticsView view, String graphId, String viewportId) {
+  public DependencyGraphViewportResource(AnalyticsView.GridType gridType, AnalyticsView view, String graphId, int viewportId) {
     super(gridType,  view, viewportId);
     ArgumentChecker.notNull(graphId, "graphId");
     _graphId = graphId;

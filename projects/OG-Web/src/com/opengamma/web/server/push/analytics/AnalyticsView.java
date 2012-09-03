@@ -53,7 +53,7 @@ public interface AnalyticsView {
    * that changes in a calculation cycle is not part of a viewport then no update needs to be sent to the client.
    * There can be any number of viewports for each grid.
    * @param gridType Specifies the grid.
-   * @param viewportId A unique ID for the viewport. The server makes no assumptions about its format other
+   * @param viewportId A unique ID for the viewport
    * than the fact that it must be unique for each viewport in a view.
    * @param dataId A unique ID for the viewport's data - this is the value that is sent to the client with notification
    * that new data is available for the viewport. The server makes no assumptions about its format other
@@ -66,7 +66,7 @@ public interface AnalyticsView {
    * display the old viewport's data in the updated viewport. The viewport version allows this situation to be detected
    * and avoided.
    */
-  long createViewport(GridType gridType, String viewportId, String dataId, ViewportSpecification viewportSpec);
+  long createViewport(GridType gridType, int viewportId, String dataId, ViewportSpecification viewportSpec);
 
   /**
    * Updates a viewport. A viewport will be updated when the user scrolls the grid.
@@ -80,14 +80,14 @@ public interface AnalyticsView {
    * display the old viewport's data in the updated viewport. The viewport version allows this situation to be detected
    * and avoided.
    */
-  long updateViewport(GridType gridType, String viewportId, ViewportSpecification viewportSpec);
+  long updateViewport(GridType gridType, int viewportId, ViewportSpecification viewportSpec);
 
   /**
    * Deletes a viewport.
    * @param gridType Specifies the grid
    * @param viewportId ID of the viewport
    */
-  void deleteViewport(GridType gridType, String viewportId);
+  void deleteViewport(GridType gridType, int viewportId);
 
   /**
    * Returns the current data for a viewport.
@@ -95,7 +95,7 @@ public interface AnalyticsView {
    * @param viewportId ID of the viewport
    * @return The current data for the viewport.
    */
-  ViewportResults getData(GridType gridType, String viewportId);
+  ViewportResults getData(GridType gridType, int viewportId);
 
   // -------- dependency graph grids --------
 
@@ -143,8 +143,7 @@ public interface AnalyticsView {
    * There can be any number of viewports for each grid.
    * @param gridType Specifies which of the main grids the dependency graph grid belongs to
    * @param graphId The ID of the grid
-   * @param viewportId A unique ID for the viewport. The server makes no assumptions about its format other
-   * than the fact that it must be unique for each viewport in a view.
+   * @param viewportId A unique ID for the viewport
    * @param dataId A unique ID for the viewport's data - this is the value that is sent to the client with notification
    * that new data is available for the viewport. The server makes no assumptions about its format other
    * than the fact that it must be unique for each viewport in a view.
@@ -156,7 +155,7 @@ public interface AnalyticsView {
    * display the old viewport's data in the updated viewport. The viewport version allows this situation to be detected
    * and avoided.
    */
-  long createViewport(GridType gridType, String graphId, String viewportId, String dataId, ViewportSpecification viewportSpec);
+  long createViewport(GridType gridType, String graphId, int viewportId, String dataId, ViewportSpecification viewportSpec);
 
 
   /**
@@ -172,14 +171,14 @@ public interface AnalyticsView {
    * display the old viewport's data in the updated viewport. The viewport version allows this situation to be detected
    * and avoided.
    */
-  long updateViewport(GridType gridType, String graphId, String viewportId, ViewportSpecification viewportSpec);
+  long updateViewport(GridType gridType, String graphId, int viewportId, ViewportSpecification viewportSpec);
 
   /**
    * Deletes a viewport from a dependency graph grid.
    * @param gridType Specifies which of the main grids the dependency graph grid belongs to
    * @param viewportId ID of the viewport
    */
-  void deleteViewport(GridType gridType, String graphId, String viewportId);
+  void deleteViewport(GridType gridType, String graphId, int viewportId);
 
   /**
    * Returns the current data for a viewport of a dependency graph grid.
@@ -188,5 +187,5 @@ public interface AnalyticsView {
    * @param viewportId ID of the viewport
    * @return The current data for the viewport.
    */
-  ViewportResults getData(GridType gridType, String graphId, String viewportId);
+  ViewportResults getData(GridType gridType, String graphId, int viewportId);
 }
