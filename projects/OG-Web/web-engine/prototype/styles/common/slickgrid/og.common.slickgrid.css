@@ -197,9 +197,3 @@
 .OG-gadget-container .slick-row:hover {
     background-color: transparent;
 }
-
-.OG-gadget-container .matrix .slick-row .l0 {
-    background-color: #ecf5fa;
-    color: #555;
-    font-weight: bold;
-}

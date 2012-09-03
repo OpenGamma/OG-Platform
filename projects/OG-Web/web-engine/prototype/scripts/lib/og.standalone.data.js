@@ -10,6 +10,7 @@
          * @param num
          */
         gadget.add_grid = function (data, num) {
+            if (!data.labels) data.labels = ['Label', 'Value'];
             var ismatrix = ($.isArray(data.labels[0])),
                 slick_data, slick_columns = [],
                 xlabels = ismatrix ? data.labels[0] : data.labels,

@@ -26,7 +26,8 @@ $.register_module({
             },
             load_item: function (args) {
                 view.check_state({args: args, conditions: [{new_page: view.load}]});
-                new og.analytics.Grid({
+                // TODO: remove global
+                grid = new og.analytics.Grid({
                    selector: '.OG-layout-analytics-center',
                    source: {
                        type: 'portfolio',
@@ -36,6 +37,16 @@ $.register_module({
                        provider: 'Live market data (Bloomberg, Activ, TullettPrebon, ICAP)'
                    }
                 });
+                // TODO: remove timeout
+                setTimeout(function () {
+                    grid.on('cellselect', function (cell) {
+                        if (cell.type === 'LABELLED_MATRIX_1D') {
+                            routes.go(routes.hash(view.rules.load_item, routes.current().args, {
+                                add: {south: 'data:' + cell.col + '|' + cell.row}
+                            }));
+                        }
+                    });
+                }, 1000);
                 ['south', 'dock-north', 'dock-center', 'dock-south'].forEach(function (val) {
                     new GadgetsContainer('.OG-layout-analytics-', val).add(args[val]);
                 });
