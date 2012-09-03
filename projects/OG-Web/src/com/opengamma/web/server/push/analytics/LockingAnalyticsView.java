@@ -62,10 +62,10 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public long createViewport(GridType gridType, int viewportId, String dataId, ViewportSpecification viewportSpec) {
+  public long createViewport(GridType gridType, int viewportId, String callbackId, ViewportSpecification viewportSpec) {
     try {
       _lock.writeLock().lock();
-      return _delegate.createViewport(gridType, viewportId, dataId, viewportSpec);
+      return _delegate.createViewport(gridType, viewportId, callbackId, viewportSpec);
     } finally {
       _lock.writeLock().unlock();
     }
@@ -102,10 +102,10 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public void openDependencyGraph(GridType gridType, int graphId, String gridId, int row, int col) {
+  public void openDependencyGraph(GridType gridType, int graphId, String callbackId, int row, int col) {
     try {
       _lock.writeLock().lock();
-      _delegate.openDependencyGraph(gridType, graphId, gridId, row, col);
+      _delegate.openDependencyGraph(gridType, graphId, callbackId, row, col);
     } finally {
       _lock.writeLock().unlock();
     }
@@ -132,10 +132,10 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public long createViewport(GridType gridType, int graphId, int viewportId, String dataId, ViewportSpecification viewportSpec) {
+  public long createViewport(GridType gridType, int graphId, int viewportId, String callbackId, ViewportSpecification viewportSpec) {
     try {
       _lock.writeLock().lock();
-      return _delegate.createViewport(gridType, graphId, viewportId, dataId, viewportSpec);
+      return _delegate.createViewport(gridType, graphId, viewportId, callbackId, viewportSpec);
     } finally {
       _lock.writeLock().unlock();
     }

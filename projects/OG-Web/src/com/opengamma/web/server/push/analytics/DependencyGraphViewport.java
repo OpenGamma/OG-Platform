@@ -29,13 +29,21 @@ public class DependencyGraphViewport extends AnalyticsViewport {
   /** {@link ValueSpecification}s for all rows visible in the viewport. */
   private List<ValueSpecification> _viewportValueSpecs = Collections.emptyList();
 
+  /**
+   * @param viewportSpec Definition of the viewport
+   * @param calcConfigName Calculation configuration used to calculate the dependency graph
+   * @param gridStructure Row and column structure of the grid
+   * @param cycle Calculation cycle that produced the most recent results
+   * @param cache
+   * @param callbackId
+   */
   /* package */ DependencyGraphViewport(ViewportSpecification viewportSpec,
                                         String calcConfigName,
                                         DependencyGraphGridStructure gridStructure,
                                         ViewCycle cycle,
                                         ResultsCache cache,
-                                        String dataId) {
-    super(dataId);
+                                        String callbackId) {
+    super(callbackId);
     _calcConfigName = calcConfigName;
     _gridStructure = gridStructure;
     update(viewportSpec, cycle, cache);
@@ -86,6 +94,6 @@ public class DependencyGraphViewport extends AnalyticsViewport {
     _gridStructure.createResultsForViewport(_viewportSpec, resultsMap, cache, _calcConfigName);
     _latestResults = new ViewportResults(gridResults, _viewportSpec, _gridStructure.getColumnStructure(), _version);
     // TODO return null if nothing was updated
-    return _dataId;
+    return _callbackId;
   }
 }

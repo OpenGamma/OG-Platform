@@ -190,23 +190,23 @@ public class ClientConnection implements ChangeListener, MasterChangeListener, A
   }
 
   @Override
-  public void gridStructureChanged(String gridId) {
-    _listener.itemUpdated(gridId);
+  public void gridStructureChanged(String callbackId) {
+    _listener.itemUpdated(callbackId);
   }
 
   @Override
-  public void gridStructureChanged(List<String> gridIds) {
-    _listener.itemsUpdated(gridIds);
+  public void gridStructureChanged(List<String> callbackIds) {
+    _listener.itemsUpdated(callbackIds);
   }
 
   @Override
-  public void gridDataChanged(String dataId) {
-    _listener.itemUpdated(dataId);
+  public void gridDataChanged(String callbackId) {
+    _listener.itemUpdated(callbackId);
   }
 
   @Override
-  public void gridDataChanged(List<String> dataIds) {
-    _listener.itemsUpdated(dataIds);
+  public void gridDataChanged(List<String> callbackIds) {
+    _listener.itemsUpdated(callbackIds);
   }
 
   /**

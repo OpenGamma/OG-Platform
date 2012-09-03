@@ -29,7 +29,7 @@ import com.opengamma.web.server.push.analytics.AnalyticsViewManager;
 import com.opengamma.web.server.push.analytics.ViewRequest;
 
 /**
- * RESTful resource
+ * RESTful resource for creating and looking up views that calculate analytics data for a portfolio.
  */
 @Path("views")
 public class ViewsResource {
