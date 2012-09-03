@@ -37,17 +37,25 @@ import com.opengamma.util.ArgumentChecker;
   private MainAnalyticsGrid _primitivesGrid;
   private CompiledViewDefinition _compiledViewDefinition;
 
-  public SimpleAnalyticsView(AnalyticsViewListener listener,
-                             String portoflioGridId,
-                             String primitivesGridId,
-                             ComputationTargetResolver targetResolver) {
+  /**
+   * @param listener Listener that is notified of changes to grid structure and data
+   * @param portoflioCallbackId ID that is passed to the listener when the structure of the portfolio grid changes.
+   * This class makes no assumptions about its value
+   * @param primitivesCallbackId ID that is passed to the listener when the structure of the primitives grid changes.
+   * This class makes no assumptions about its value
+   * @param targetResolver For looking up calculation targets by specification
+   */
+  /* package */ SimpleAnalyticsView(AnalyticsViewListener listener,
+                                    String portoflioCallbackId,
+                                    String primitivesCallbackId,
+                                    ComputationTargetResolver targetResolver) {
     ArgumentChecker.notNull(listener, "listener");
-    ArgumentChecker.notNull(portoflioGridId, "portoflioGridId");
-    ArgumentChecker.notNull(primitivesGridId, "primitivesGridId");
+    ArgumentChecker.notNull(portoflioCallbackId, "portoflioGridId");
+    ArgumentChecker.notNull(primitivesCallbackId, "primitivesGridId");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
     _targetResolver = targetResolver;
-    _portfolioGrid = MainAnalyticsGrid.emptyPortfolio(portoflioGridId);
-    _primitivesGrid = MainAnalyticsGrid.emptyPrimitives(primitivesGridId);
+    _portfolioGrid = MainAnalyticsGrid.emptyPortfolio(portoflioCallbackId);
+    _primitivesGrid = MainAnalyticsGrid.emptyPrimitives(primitivesCallbackId);
     _listener = listener;
   }
 
@@ -55,11 +63,11 @@ import com.opengamma.util.ArgumentChecker;
   public void updateStructure(CompiledViewDefinition compiledViewDefinition) {
     _compiledViewDefinition = compiledViewDefinition;
     // TODO this loses all dependency graphs. new grid needs to rebuild graphs from old grid. need stable row and col IDs to do that
-    _portfolioGrid = MainAnalyticsGrid.portfolio(_compiledViewDefinition, _portfolioGrid.getGridId(), _targetResolver);
-    _primitivesGrid = MainAnalyticsGrid.primitives(_compiledViewDefinition, _primitivesGrid.getGridId(), _targetResolver);
+    _portfolioGrid = MainAnalyticsGrid.portfolio(_compiledViewDefinition, _portfolioGrid.getCallbackId(), _targetResolver);
+    _primitivesGrid = MainAnalyticsGrid.primitives(_compiledViewDefinition, _primitivesGrid.getCallbackId(), _targetResolver);
     List<String> gridIds = new ArrayList<String>();
-    gridIds.add(_portfolioGrid.getGridId());
-    gridIds.add(_primitivesGrid.getGridId());
+    gridIds.add(_portfolioGrid.getCallbackId());
+    gridIds.add(_primitivesGrid.getCallbackId());
     gridIds.addAll(_portfolioGrid.getDependencyGraphGridIds());
     gridIds.addAll(_primitivesGrid.getDependencyGraphGridIds());
     _listener.gridStructureChanged(gridIds);
@@ -92,9 +100,9 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public long createViewport(GridType gridType, int viewportId, String dataId, ViewportSpecification viewportSpec) {
-    long version = getGrid(gridType).createViewport(viewportId, dataId, viewportSpec);
-    _listener.gridDataChanged(dataId);
+  public long createViewport(GridType gridType, int viewportId, String callbackId, ViewportSpecification viewportSpec) {
+    long version = getGrid(gridType).createViewport(viewportId, callbackId, viewportSpec);
+    _listener.gridDataChanged(callbackId);
     s_logger.debug("Created viewport ID {} for the {} grid from {}", new Object[]{viewportId, gridType, viewportSpec});
     return version;
   }
@@ -103,7 +111,7 @@ import com.opengamma.util.ArgumentChecker;
   public long updateViewport(GridType gridType, int viewportId, ViewportSpecification viewportSpec) {
     s_logger.debug("Updating viewport {} for {} grid to {}", new Object[]{viewportId, gridType, viewportSpec});
     long version = getGrid(gridType).updateViewport(viewportId, viewportSpec);
-    _listener.gridDataChanged(getGrid(gridType).getViewport(viewportId).getDataId());
+    _listener.gridDataChanged(getGrid(gridType).getViewport(viewportId).getCallbackId());
     return version;
   }
 
@@ -120,9 +128,9 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public void openDependencyGraph(GridType gridType, int graphId, String gridId, int row, int col) {
+  public void openDependencyGraph(GridType gridType, int graphId, String callbackId, int row, int col) {
     s_logger.debug("Opening dependency graph for cell ({}, {}) of the {} grid", new Object[]{row, col, gridType});
-    getGrid(gridType).openDependencyGraph(graphId, gridId, row, col, _compiledViewDefinition);
+    getGrid(gridType).openDependencyGraph(graphId, callbackId, row, col, _compiledViewDefinition);
     _listener.gridStructureChanged(getGrid(gridType).getGridId(graphId));
   }
 
@@ -139,10 +147,10 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public long createViewport(GridType gridType, int graphId, int viewportId, String dataId, ViewportSpecification viewportSpec) {
-    long version = getGrid(gridType).createViewport(graphId, viewportId, dataId, viewportSpec);
+  public long createViewport(GridType gridType, int graphId, int viewportId, String callbackId, ViewportSpecification viewportSpec) {
+    long version = getGrid(gridType).createViewport(graphId, viewportId, callbackId, viewportSpec);
     s_logger.debug("Created viewport ID {} for dependency graph {} of the {} grid using {}", new Object[]{viewportId, graphId, gridType, viewportSpec});
-    _listener.gridDataChanged(dataId);
+    _listener.gridDataChanged(callbackId);
     return version;
   }
 

@@ -66,14 +66,21 @@ public abstract class AbstractGridResource {
     int viewportId = s_nextId.getAndIncrement();
     String viewportIdStr = Integer.toString(viewportId);
     URI viewportUri = uriInfo.getAbsolutePathBuilder().path(viewportIdStr).build();
-    URI dataUri = uriInfo.getAbsolutePathBuilder().path(viewportIdStr).path(AbstractViewportResource.class, "getData").build();
-    String dataId = dataUri.getPath();
-    long version = createViewport(viewportId, dataId, viewportSpecification);
+    String callbackId = viewportUri.getPath();
+    long version = createViewport(viewportId, callbackId, viewportSpecification);
     ViewportVersion viewportVersion = new ViewportVersion(version);
     return Response.status(Response.Status.CREATED).entity(viewportVersion).header(HttpHeaders.LOCATION, viewportUri).build();
   }
 
-  public abstract long createViewport(int viewportId, String dataId, ViewportSpecification viewportSpec);
+  /**
+   * Creates a viewport
+   * @param viewportId Unique ID for the viewport
+   * @param callbackId ID passed to listeners when the viewport data changes
+   * @param viewportSpec Definition of the viewport
+   * @return Viewport version number, allows clients to ensure the data they receive for a viewport corresponds to
+   * its current state
+   */
+  /* package */ abstract long createViewport(int viewportId, String callbackId, ViewportSpecification viewportSpec);
 
   @Path("viewports/{viewportId}")
   public abstract AbstractViewportResource getViewport(@PathParam("viewportId") int viewportId);

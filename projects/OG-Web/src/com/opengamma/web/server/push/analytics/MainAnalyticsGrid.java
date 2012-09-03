@@ -205,13 +205,13 @@ import com.opengamma.util.tuple.Pair;
    * Creates a viewport on a dependency graph grid.
    * @param graphId ID of the dependency graph
    * @param viewportId ID of the viewport, can be any unique value
-   * @param dataId ID passed to listeners when the viewport's data changes, can be any unique value
+   * @param callbackId ID passed to listeners when the viewport's data changes, can be any unique value
    * @param viewportSpec Definition of the viewport
    * @return Version number of the viewport, allows clients to ensure any data they receive for a viewport matches
    * the current viewport state
    */
-  /* package */ long createViewport(int graphId, int viewportId, String dataId, ViewportSpecification viewportSpec) {
-    return getDependencyGraph(graphId).createViewport(viewportId, dataId, viewportSpec);
+  /* package */ long createViewport(int graphId, int viewportId, String callbackId, ViewportSpecification viewportSpec) {
+    return getDependencyGraph(graphId).createViewport(viewportId, callbackId, viewportSpec);
   }
 
   /**
@@ -255,7 +255,7 @@ import com.opengamma.util.tuple.Pair;
    * @throws DataNotFoundException If no dependency graph exists with the specified ID
    */
   /* package */ String getGridId(int graphId) {
-    return getDependencyGraph(graphId).getGridId();
+    return getDependencyGraph(graphId).getCallbackId();
   }
 
   /**
@@ -266,7 +266,7 @@ import com.opengamma.util.tuple.Pair;
    * @throws DataNotFoundException If no dependency graph and viewport exist with the specified IDs
    */
   /* package */ String getDataId(int graphId, int viewportId) {
-    return getDependencyGraph(graphId).getViewport(viewportId).getDataId();
+    return getDependencyGraph(graphId).getViewport(viewportId).getCallbackId();
   }
 
   /**
@@ -275,7 +275,7 @@ import com.opengamma.util.tuple.Pair;
   /* package */ List<String> getDependencyGraphGridIds() {
     List<String> gridIds = new ArrayList<String>();
     for (AnalyticsGrid grid : _depGraphs.values()) {
-      gridIds.add(grid.getGridId());
+      gridIds.add(grid.getCallbackId());
     }
     return gridIds;
   }
@@ -289,8 +289,8 @@ import com.opengamma.util.tuple.Pair;
   }
 
   @Override
-  protected MainGridViewport createViewport(ViewportSpecification viewportSpecification, String dataId) {
-    return new MainGridViewport(viewportSpecification, _gridStructure, dataId, _cache);
+  protected MainGridViewport createViewport(ViewportSpecification viewportSpecification, String callbackId) {
+    return new MainGridViewport(viewportSpecification, _gridStructure, callbackId, _cache);
   }
 
   /**

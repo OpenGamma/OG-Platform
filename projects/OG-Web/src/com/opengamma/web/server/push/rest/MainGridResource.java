@@ -30,8 +30,8 @@ public class MainGridResource extends AbstractGridResource implements Dependency
   }
 
   @Override
-  public long createViewport(int viewportId, String dataId, ViewportSpecification viewportSpecification) {
-    return _view.createViewport(_gridType, viewportId, dataId, viewportSpecification);
+  /* package */ long createViewport(int viewportId, String callbackId, ViewportSpecification viewportSpecification) {
+    return _view.createViewport(_gridType, viewportId, callbackId, viewportSpecification);
   }
 
   @Override
@@ -44,9 +44,8 @@ public class MainGridResource extends AbstractGridResource implements Dependency
     int graphId = s_nextId.getAndIncrement();
     String graphIdStr = Integer.toString(graphId);
     URI graphUri = uriInfo.getAbsolutePathBuilder().path(graphIdStr).build();
-    URI gridUri = uriInfo.getAbsolutePathBuilder().path(graphIdStr).path(AbstractGridResource.class, "getGridStructure").build();
-    String gridId = gridUri.getPath();
-    _view.openDependencyGraph(_gridType, graphId, gridId, row, col);
+    String callbackId = graphUri.getPath();
+    _view.openDependencyGraph(_gridType, graphId, callbackId, row, col);
     return Response.status(Response.Status.CREATED).header(HttpHeaders.LOCATION, graphUri).build();
   }
 
