@@ -43,6 +43,22 @@
       <archive>http://forums.opengamma.com/forum/discussions</archive>
     </mailingList>
   </mailingLists>
+  <repositories>
+    <repository>
+      <id>og-maven-repo-public</id>
+      <name>OpenGamma public Maven Repo</name>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+        <updatePolicy>never</updatePolicy>
+      </snapshots>
+      <url>http://ivyrepos.opengamma.com/og-maven/public</url>
+      <layout>default</layout>
+    </repository>
+  </repositories>
 
   <licenses>
     <license>
