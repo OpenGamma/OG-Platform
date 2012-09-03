@@ -259,7 +259,7 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
     final HistoricalTimeSeriesResolver historicalTimeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     final ValueRequirement fxSpotRequirement = getFXSpotRequirement(historicalTimeSeriesResolver, security, new BloombergFXSpotRateIdentifierVisitor(currencyPairs), samplingPeriod);
     if (fxSpotRequirement == null) {
-      s_logger.error("Could not get time series for requirement " + fxSpotRequirement);
+      s_logger.error("Could not get time series for FX spot series {} / {}", payCurrencyName, receiveCurrencyName);
       return null;
     }
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();

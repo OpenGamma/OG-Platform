@@ -10,7 +10,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.financial.analytics.volatility.surface.BloombergEquityOptionVolatilitySurfaceInstrumentProviderDeprecated;
+import com.opengamma.financial.analytics.volatility.surface.BloombergEquityOptionVolatilitySurfaceInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.surface.BloombergSwaptionVolatilitySurfaceInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubeQuoteType;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
@@ -43,7 +43,7 @@ public class VolatilitySurfaceSpecificationFudgeEncodingTest extends FinancialTe
 
   @Test
   public void testEOCycle() {
-    final BloombergEquityOptionVolatilitySurfaceInstrumentProviderDeprecated instrumentProvider = new BloombergEquityOptionVolatilitySurfaceInstrumentProviderDeprecated("DJX", "Index", MarketDataRequirementNames.IMPLIED_VOLATILITY);
+    final BloombergEquityOptionVolatilitySurfaceInstrumentProvider instrumentProvider = new BloombergEquityOptionVolatilitySurfaceInstrumentProvider("DJX", "Index", MarketDataRequirementNames.IMPLIED_VOLATILITY);
     final VolatilitySurfaceSpecification spec = new VolatilitySurfaceSpecification("DEFAULT", UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), "DJX Index"),
         SurfaceAndCubeQuoteType.CALL_AND_PUT_STRIKE, instrumentProvider);
     AssertJUnit.assertEquals(spec, cycleObject(VolatilitySurfaceSpecification.class, spec));
@@ -51,6 +51,6 @@ public class VolatilitySurfaceSpecificationFudgeEncodingTest extends FinancialTe
         cycleObject(VolatilitySurfaceSpecification.class,
             new VolatilitySurfaceSpecification("DEFAULT", UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER.getName(), "DJX Index"),
                 SurfaceAndCubeQuoteType.CALL_AND_PUT_STRIKE,
-                new BloombergEquityOptionVolatilitySurfaceInstrumentProviderDeprecated("DJX", "Index", MarketDataRequirementNames.MID_IMPLIED_VOLATILITY)))));
+                new BloombergEquityOptionVolatilitySurfaceInstrumentProvider("DJX", "Index", MarketDataRequirementNames.MID_IMPLIED_VOLATILITY)))));
   }
 }

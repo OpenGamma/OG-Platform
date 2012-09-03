@@ -16,20 +16,19 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-public final class IMMFutureAndFutureOptionQuarterlyExpiryCalculator implements ExchangeTradedInstrumentExpiryCalculator {
+public final class IMMFutureAndFutureOptionMonthlyExpiryCalculator implements ExchangeTradedInstrumentExpiryCalculator {
   /** Name of the calculator */
-  public static final String NAME = "IMMFutureOptionQuarterlyExpiryCalculator";
+  public static final String NAME = "IMMFutureOptionMonthlyExpiryCalculator";
   private static final DateAdjuster THIRD_WEDNESDAY_ADJUSTER = DateAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY);
   private static final DateAdjuster THIRD_MONDAY_ADJUSTER = DateAdjusters.dayOfWeekInMonth(3, DayOfWeek.MONDAY);
-  private static final DateAdjuster MONTH_ADJUSTER = HMUZAdjuster.getInstance();
   private static final int WORKING_DAYS_TO_SETTLE = 2;
-  private static final IMMFutureAndFutureOptionQuarterlyExpiryCalculator INSTANCE = new IMMFutureAndFutureOptionQuarterlyExpiryCalculator();
+  private static final IMMFutureAndFutureOptionMonthlyExpiryCalculator INSTANCE = new IMMFutureAndFutureOptionMonthlyExpiryCalculator();
 
-  public static IMMFutureAndFutureOptionQuarterlyExpiryCalculator getInstance() {
+  public static IMMFutureAndFutureOptionMonthlyExpiryCalculator getInstance() {
     return INSTANCE;
   }
 
-  private IMMFutureAndFutureOptionQuarterlyExpiryCalculator() {
+  private IMMFutureAndFutureOptionMonthlyExpiryCalculator() {
   }
 
   @Override
@@ -37,13 +36,12 @@ public final class IMMFutureAndFutureOptionQuarterlyExpiryCalculator implements 
     ArgumentChecker.isTrue(n > 0, "n must be greater than zero");
     ArgumentChecker.notNull(today, "today");
     ArgumentChecker.notNull(holidayCalendar, "holiday calendar");
-    final LocalDate nextExpiryMonth = MONTH_ADJUSTER.adjustDate(today);
     LocalDate result;
     final LocalDate thirdWednesday = THIRD_WEDNESDAY_ADJUSTER.adjustDate(today);
     if (today.isAfter(adjustForSettlement(thirdWednesday, holidayCalendar))) {
-      result = THIRD_WEDNESDAY_ADJUSTER.adjustDate(nextExpiryMonth.plusMonths(3 * n));
+      result = THIRD_WEDNESDAY_ADJUSTER.adjustDate(today.plusMonths(n));
     } else {
-      result = THIRD_WEDNESDAY_ADJUSTER.adjustDate(nextExpiryMonth.plusMonths(3 * (n - 1)));
+      result = THIRD_WEDNESDAY_ADJUSTER.adjustDate(today.plusMonths(n - 1));
     }
     return adjustForSettlement(result, holidayCalendar);
   }
@@ -52,11 +50,10 @@ public final class IMMFutureAndFutureOptionQuarterlyExpiryCalculator implements 
   public LocalDate getExpiryMonth(final int n, final LocalDate today) {
     ArgumentChecker.isTrue(n > 0, "n must be greater than zero");
     ArgumentChecker.notNull(today, "today");
-    final LocalDate nextExpiryMonth = MONTH_ADJUSTER.adjustDate(today);
     if (today.isAfter(THIRD_MONDAY_ADJUSTER.adjustDate(today))) {
-      return nextExpiryMonth.plusMonths(3 * n);
+      return today.plusMonths(1);
     }
-    return nextExpiryMonth.plusMonths(3 * (n - 1));
+    return today.plusMonths(n - 1);
   }
 
   @Override

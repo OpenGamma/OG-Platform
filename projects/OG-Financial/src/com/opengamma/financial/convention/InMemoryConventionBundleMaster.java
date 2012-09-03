@@ -110,6 +110,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addITCorporateBondConvention();
     addHUTreasuryBondConvention();
     addHUCorporateBondConvention();
+
+    ExchangeConventions.addExchangeFutureOptionConventions(this);
   }
 
   @Override
