@@ -5,11 +5,12 @@
  */
 package com.opengamma.bloombergexample.loader;
 
+import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.integration.tool.IntegrationToolContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.bloombergexample.tool.AbstractExampleTool;
 import com.opengamma.bloombergexample.tool.ExampleDatabasePopulator;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
@@ -38,7 +39,7 @@ import com.opengamma.util.money.Currency;
  * It is designed to run against the HSQLDB example database.  
  */
 @Scriptable
-public class ExampleViewsPopulator extends AbstractExampleTool {
+public class ExampleViewsPopulator extends AbstractTool<IntegrationToolContext> {
 
   private static final String FORWARD_3M = "FORWARD_3M";
   private static final String FORWARD_6M = "FORWARD_6M";
@@ -55,7 +56,7 @@ public class ExampleViewsPopulator extends AbstractExampleTool {
    * @param args  the arguments, unused
    */
   public static void main(String[] args) { // CSIGNORE
-    new ExampleViewsPopulator().initAndRun(args);
+    new ExampleViewsPopulator().initAndRun(args, IntegrationToolContext.class);
     System.exit(0);
   }
 

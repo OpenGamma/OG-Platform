@@ -18,11 +18,12 @@ import java.util.Set;
 import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.integration.tool.IntegrationToolContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
-import com.opengamma.bloombergexample.tool.AbstractExampleTool;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.ircurve.ConfigDBInterpolatedYieldCurveSpecificationBuilder;
@@ -56,7 +57,7 @@ import com.opengamma.util.money.Currency;
  * It is designed to run against the HSQLDB example database.
  */
 @Scriptable
-public class CurveNodeHistoricalDataLoader extends AbstractExampleTool {
+public class CurveNodeHistoricalDataLoader extends AbstractTool<IntegrationToolContext> {
   /**
    * Logger.
    */
@@ -89,7 +90,7 @@ public class CurveNodeHistoricalDataLoader extends AbstractExampleTool {
    * @param args  the arguments, unused
    */
   public static void main(String[] args) {  // CSIGNORE
-    new CurveNodeHistoricalDataLoader().initAndRun(args);
+    new CurveNodeHistoricalDataLoader().initAndRun(args, IntegrationToolContext.class);
     System.exit(0);
   }
 

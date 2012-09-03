@@ -27,7 +27,7 @@ import com.opengamma.util.generate.scripts.Scriptable;
  * The portfolio loader tool
  */
 @Scriptable
-public class PortfolioLoaderTool extends AbstractTool {
+public class PortfolioLoaderTool extends AbstractTool<ToolContext> {
 
   /** File name option flag */
   private static final String FILE_NAME_OPT = "f";

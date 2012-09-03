@@ -18,6 +18,8 @@ import java.util.Map;
 
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.integration.tool.IntegrationToolContext;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
@@ -29,7 +31,6 @@ import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.loader.BloombergBulkSecurityLoader;
 import com.opengamma.bbg.loader.BloombergSecurityLoader;
 import com.opengamma.bbg.tool.BloombergToolContext;
-import com.opengamma.bloombergexample.tool.AbstractExampleTool;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.GICSCode;
@@ -58,7 +59,7 @@ import com.opengamma.util.generate.scripts.Scriptable;
  * It is designed to run against the HSQLDB example database.
  */
 @Scriptable
-public class ExampleEquityPortfolioLoader extends AbstractExampleTool {
+public class ExampleEquityPortfolioLoader extends AbstractTool<IntegrationToolContext> {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleEquityPortfolioLoader.class);
@@ -94,7 +95,7 @@ public class ExampleEquityPortfolioLoader extends AbstractExampleTool {
    * @param args  the arguments, unused
    */
   public static void main(String[] args) {  // CSIGNORE
-    new ExampleEquityPortfolioLoader().initAndRun(args);
+    new ExampleEquityPortfolioLoader().initAndRun(args, IntegrationToolContext.class);
     System.exit(0);
   }
   

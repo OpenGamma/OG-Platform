@@ -26,6 +26,7 @@ import com.opengamma.bloombergexample.loader.ExampleEquityPortfolioLoader;
 import com.opengamma.bloombergexample.loader.ExampleMultiCurrencySwapPortfolioLoader;
 import com.opengamma.bloombergexample.loader.ExampleTimeSeriesRatingLoader;
 import com.opengamma.bloombergexample.loader.ExampleViewsPopulator;
+import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.volatility.surface.FXOptionVolatilitySurfaceConfigPopulator;
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
@@ -35,6 +36,7 @@ import com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider;
 import com.opengamma.financial.timeseries.exchange.ExchangeDataProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
@@ -48,8 +50,13 @@ import com.opengamma.util.money.Currency;
  * It is designed to run against the HSQLDB example database.  
  */
 @Scriptable
-public class ExampleDatabasePopulator extends AbstractExampleTool {
-  
+public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContext> {
+
+  /**
+   * Example configuration for tools.
+   */
+  public static final String TOOLCONTEXT_EXAMPLE_PROPERTIES = "classpath:toolcontext/toolcontext-bloombergexample.properties";
+
   /**
    * The name of the generated example FX portfolio.
    */
@@ -75,7 +82,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
    * @param args  the arguments, unused
    */
   public static void main(String[] args) {  // CSIGNORE
-    new ExampleDatabasePopulator().initAndRun(args);
+    new ExampleDatabasePopulator().initAndRun(args, TOOLCONTEXT_EXAMPLE_PROPERTIES, null, IntegrationToolContext.class);
     System.exit(0);
   }
 
@@ -140,7 +147,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
 
   private void loadFutures(Set<ExternalIdBundle> identifiers) {
     SecurityMaster secMaster = getToolContext().getSecurityMaster();
-    ReferenceDataProvider referenceDataProvider = getBloombergToolContext().getBloombergReferenceDataProvider();
+    ReferenceDataProvider referenceDataProvider = getToolContext().getBloombergReferenceDataProvider();
     ExchangeDataProvider exchangeDataProvider = new DefaultExchangeDataProvider();
     BloombergBulkSecurityLoader bulkSecurityLoader = new BloombergBulkSecurityLoader(referenceDataProvider, exchangeDataProvider);
     BloombergSecurityLoader securityLoader = new BloombergSecurityLoader(secMaster, bulkSecurityLoader);
@@ -150,8 +157,8 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
   private void loadHistoricalData(Set<ExternalId>... externalIdSets) {
     BloombergHistoricalTimeSeriesLoader loader = new BloombergHistoricalTimeSeriesLoader(
       getToolContext().getHistoricalTimeSeriesMaster(),
-      getBloombergToolContext().getBloombergHistoricalTimeSeriesSource(),
-      new BloombergIdentifierProvider(getBloombergToolContext().getBloombergReferenceDataProvider()));
+      getToolContext().getBloombergHistoricalTimeSeriesSource(),
+      new BloombergIdentifierProvider(getToolContext().getBloombergReferenceDataProvider()));
 
     Collection<EquitySecurity> securities = readEquitySecurities();
     for (final EquitySecurity security : securities) {

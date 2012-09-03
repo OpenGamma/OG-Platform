@@ -7,6 +7,7 @@ package com.opengamma.bloombergexample.component;
 
 import java.util.Map;
 
+import com.opengamma.integration.tool.IntegrationToolContext;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -19,7 +20,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.bbg.BloombergSecuritySource;
 import com.opengamma.bbg.ReferenceDataProvider;
-import com.opengamma.bloombergexample.loader.ExampleToolContext;
 import com.opengamma.component.factory.tool.ToolContextComponentFactory;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.financial.tool.ToolContext;
@@ -53,7 +53,7 @@ public class ExampleToolContextComponentFactory extends ToolContextComponentFact
    * @return the empty tool context, not null
    */
   protected ToolContext createToolContext() {
-    ExampleToolContext exampleToolContext = new ExampleToolContext();
+    IntegrationToolContext exampleToolContext = new IntegrationToolContext();
     exampleToolContext.setBloombergHistoricalTimeSeriesSource(getBloombergHistoricalTimeSeriesSource());
     exampleToolContext.setBloombergReferenceDataProvider(getBloombergReferenceDataProvider());
     exampleToolContext.setBloombergSecuritySource(getBloombergSecuritySource());

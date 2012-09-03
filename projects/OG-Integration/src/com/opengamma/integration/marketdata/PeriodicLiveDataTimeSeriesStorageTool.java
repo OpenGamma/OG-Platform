@@ -5,6 +5,7 @@
  */
 package com.opengamma.integration.marketdata;
 
+import com.opengamma.financial.tool.ToolContext;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
@@ -15,7 +16,7 @@ import com.opengamma.livedata.LiveDataClient;
 /**
  * 
  */
-public class PeriodicLiveDataTimeSeriesStorageTool extends AbstractTool {
+public class PeriodicLiveDataTimeSeriesStorageTool extends AbstractTool<ToolContext> {
   /** File name option flag */
   public static final String FILE_NAME_OPT = "f";
   /** Time series data source option flag*/
