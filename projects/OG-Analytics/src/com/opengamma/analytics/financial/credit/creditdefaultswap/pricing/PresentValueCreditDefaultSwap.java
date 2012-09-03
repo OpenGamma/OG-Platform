@@ -10,11 +10,18 @@ import javax.time.calendar.ZonedDateTime;
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.util.time.TimeCalculator;
 
 /**
  *  Class containing methods for the valuation of a legacy vanilla CDS (and its constituent legs)
  */
 public class PresentValueCreditDefaultSwap {
+
+  // -------------------------------------------------------------------------------------------------
+
+  // TODO : Lots of work to do in this file
+  // TODO : Seperate out the accrued premium calc out into another method (so users can see contribution of this directly)
+  // TODO : Add a method to calc both the legs in one go (is this useful or not? Might be useful from a speed perspective - remember can have O(10^5) positions in a book)
 
   // -------------------------------------------------------------------------------------------------
 
@@ -55,30 +62,18 @@ public class PresentValueCreditDefaultSwap {
 
   //-------------------------------------------------------------------------------------------------
 
-  // TODO : Seperate out the accrued premium calc out into another method (so users can see contribution of this directly)
-  // TODO : Add a method to calc both the legs in one go (is this useful or not? Might be useful from a speed perspective - remember can have O(10^5) positions in a book)
-
-  // We assume the discount factors have been computed externally and are passed in with the CDS object
-  // We assume the 'calibrated' survival probabilities have been computed externally and are passed in with the CDS object
-  // Will replace these three dummy 'objects' with suitably computed objects in due course
-  // For now, assuming we are on a cashflow date (for testing purposes) - will need to add the corrections for a seasoned trade
-
-  // -------------------------------------------------------------------------------------------------
-
   // Method to calculate the value of the premium leg of a CDS 
   double calculatePremiumLeg(CreditDefaultSwapDefinition cds, ZonedDateTime[][] cashflowSchedule) {
 
     // -------------------------------------------------------------
 
-    double dcf = 360.0;
+    double dcf = 0.0;
     double presentValuePremiumLeg = 0.0;
     double presentValueAccruedPremium = 0.0;
 
     // -------------------------------------------------------------
 
     // Get the relevant contract date needed to value the premium leg
-
-    //String daycountConvention = cds.getDayCountFractionConvention();
 
     // Get the notional amount to multiply the premium leg by
     double notional = cds.getNotional();
@@ -97,37 +92,21 @@ public class PresentValueCreditDefaultSwap {
 
     // -------------------------------------------------------------
 
-    // TODO : Rework this code when add the enum
-    /*
-    switch (daycountConvention) {
-      case "ACT/360":
-        dcf = 360.0;
-        break;
-
-      default:
-        dcf = 360.0;
-        break;
-    }
-    */
-
-    // -------------------------------------------------------------
-
     // Loop through all the elements in the cashflow schedule (note limits of loop)
     for (int i = 1; i < cashflowSchedule.length; i++) {
 
-      System.out.println("Cashflow i = " + i + ", on adj date " + cashflowSchedule[i][0]);
+      dcf = cds.getDayCountFractionConvention().getDayCountFraction(cashflowSchedule[i - 1][0], cashflowSchedule[i][0]);
 
-      // TODO : Is there a better way of doing this?
-      //long t = cashflowSchedule[i].toEpochSeconds();
+      // Need to use the adjusted effective date
+      // TimeCalc seems to use Act/366 convention (because dates are in 2012 and 2012 is a leap year)
+      double t = TimeCalculator.getTimeBetween(cds.getEffectiveDate(), cashflowSchedule[i][0]);
 
-      // TODO : Is there a better way of doing this?
-      //long dcf = (((cashflowSchedule[i].toEpochSeconds() - cashflowSchedule[i - 1].toEpochSeconds())) / (long) (24.0 * 60.0 * 60.0)) / (long) 360.0;
+      System.out.println("Cashflow i = " + i + ", on adj date " + cashflowSchedule[i][0] + ",  = " + t);
 
-      // TODO : This is getting silly now
-      //long discountFactor = (long) yieldCurve.getDiscountFactor(t);
-      //long survivalProbability = (long) survivalCurve.getDiscountFactor(t);
+      double discountFactor = yieldCurve.getDiscountFactor(t);
+      double survivalProbability = survivalCurve.getDiscountFactor(t);
 
-      //presentValuePremiumLeg += dcf * discountFactor * survivalProbability;
+      presentValuePremiumLeg += dcf * discountFactor * survivalProbability;
 
       // If required, calculate the accrued premium contribution to the overall premium leg
       if (includeAccruedPremium) {
@@ -150,8 +129,6 @@ public class PresentValueCreditDefaultSwap {
 
   // Method to calculate the accrued premium of a CDS premium leg (this method is just to allow a user to calculate the accrued on its own)
   double calculateAccruedPremium(CreditDefaultSwapDefinition cds) {
-
-    // TODO : Add this code
 
     double presentValueAccruedPremium = 0.0;
 

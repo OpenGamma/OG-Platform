@@ -7,16 +7,20 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing;
 
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.analytics.financial.credit.CouponFrequency;
 import com.opengamma.analytics.financial.credit.ScheduleGenerationMethod;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.util.time.DateUtils;
 
 /**
  *  Class containing methods to generate the premium leg cashflow schedule for a CDS (following the market conventions for CDS)
  */
 public class GenerateCreditDefaultSwapPremiumLegSchedule {
+  private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("Act/360");
 
   // -------------------------------------------------------------------------------------------
 
@@ -30,6 +34,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // TODO : Extract out the IMM dates into a seperate IMMDate class
   // TODO : Is there a more elegant way of determining if a date is an IMM date?
   // TODO : In businessDayAdjustDate add code to determine if we move forwward or backward to find the next business day
+  // TODO : Add the calculations for the accrual begin/end periods
 
   // -------------------------------------------------------------------------------------------
 
@@ -46,9 +51,11 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     Calendar calendar = cds.getCalendar();
     ScheduleGenerationMethod scheduleGenerationMethod = cds.getScheduleGenerationMethod();
-    CouponFrequency couponFrequency = cds.getCouponFrequency();
-    String daycountFractionConvention = cds.getDayCountFractionConvention();
-    String businessdayAdjustmentConvention = cds.getBusinessDayAdjustmentConvention();
+    PeriodFrequency couponFrequency = cds.getCouponFrequency();
+
+    DayCount daycountFractionConvention = cds.getDayCountFractionConvention();
+    BusinessDayConvention businessdayAdjustmentConvention = cds.getBusinessDayAdjustmentConvention();
+
     boolean adjustMaturityDate = cds.getAdjustMaturityDate();
 
     // ------------------------------------------------
@@ -73,8 +80,8 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     // ------------------------------------------------
 
-    // Calculate the fraction of a year between adjacent cashflows
-    //double[] daycountFraction = calculateDaycountFraction(adjustedEffectiveDate, cashflowSchedule, daycountFractionConvention);
+    // Calculate the fraction of a year between adjacent cashflows (might do this on the fly in the valuation routine)
+    double[] daycountFraction = calculateDaycountFraction(adjustedEffectiveDate, cashflowSchedule, daycountFractionConvention);
 
     // ------------------------------------------------
 
@@ -85,14 +92,12 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     // ------------------------------------------------
 
-    /*
     System.out.println("Start Date (Unadjusted user input) = " + startDate);
     System.out.println("Effective Date (Unadjusted user input) = " + effectiveDate);
     System.out.println("Maturity Date (Unadjusted user input) = " + maturityDate);
     System.out.println("");
     System.out.println("Effective Date (bda) = " + adjustedEffectiveDate);
     System.out.println("Maturity Date (IMM adjusted) = " + immAdjustedMaturityDate);
-    */
 
     // ------------------------------------------------
 
@@ -101,17 +106,15 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
   // -------------------------------------------------------------------------------------------
 
-  // Don't really use this function
-  double[] calculateDaycountFraction(ZonedDateTime adjustedEffectiveDate, ZonedDateTime[] cashflowSchedule, String daycountFractionConvention) {
+  // Function to return a vector of daycount fractions given an input cashflow schedule
+  double[] calculateDaycountFraction(ZonedDateTime adjustedEffectiveDate, ZonedDateTime[][] cashflowSchedule, DayCount daycountFractionConvention) {
 
     int numberOfCashflows = cashflowSchedule.length;
 
     double[] dcf = new double[numberOfCashflows];
 
     for (int i = 1; i < numberOfCashflows; i++) {
-      dcf[i] = ((cashflowSchedule[i].toEpochSeconds() - cashflowSchedule[i - 1].toEpochSeconds()) / (24.0 * 60.0 * 60.0)) / 360.0;
-
-      //System.out.println("i = " + i + ", adj date = " + cashflowSchedule[i] + ", dcf = " + dcf[i]);
+      dcf[i] = ACT_360.getDayCountFraction(cashflowSchedule[i - 1][0], cashflowSchedule[i][0]);
     }
 
     return dcf;
@@ -120,7 +123,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // -------------------------------------------------------------------------------------------
 
   // Method to business day adjust an input cashflow schedule
-  ZonedDateTime[][] businessDayAdjustcashflowSchedule(ZonedDateTime[][] cashflowSchedule, Calendar calendar, String businessdayAdjustmentConvention) {
+  ZonedDateTime[][] businessDayAdjustcashflowSchedule(ZonedDateTime[][] cashflowSchedule, Calendar calendar, BusinessDayConvention businessdayAdjustmentConvention) {
 
     int numberOfCashflows = cashflowSchedule.length;
 
@@ -129,7 +132,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     for (int i = 0; i < numberOfCashflows; i++) {
       adjustedCashflowSchedule[i][0] = businessDayAdjustDate(cashflowSchedule[i][0], calendar, businessdayAdjustmentConvention);
 
-      //System.out.println("i = " + i + ", adj date = " + adjustedCashflowSchedule[i]);
+      //System.out.println("i = " + i + ", adj date = " + adjustedCashflowSchedule[i][0]);
     }
 
     //System.out.println("");
@@ -140,11 +143,13 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // -------------------------------------------------------------------------------------------
 
   // Method to calculate the premium leg cashflow dates given the adjusted effective and maturity dates 
-  ZonedDateTime[][] calculateCashflowDates(ZonedDateTime adjustedEffectiveDate, ZonedDateTime immAdjustedMaturityDate, CouponFrequency couponFrequency) {
+  ZonedDateTime[][] calculateCashflowDates(ZonedDateTime adjustedEffectiveDate, ZonedDateTime immAdjustedMaturityDate, PeriodFrequency couponFrequency) {
 
-    // The amount (in months) by which to jump between cashflows 
+    // The amount (in months) by which to jump between cashflows
+    // Need to sort this out somehow
     int deltaMonths = 3;
 
+    /*
     // Determine the jump amount according to the contract specifications
     switch (couponFrequency) {
       case MONTHLY:
@@ -167,6 +172,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
         deltaMonths = 3;
         break;
     }
+    */
 
     // Compute the number of cashflows in the premium leg schedule (based on the adjusted dates)
     int numberOfCashflows = calculateNumberOfPremiumLegCashflows(adjustedEffectiveDate, immAdjustedMaturityDate, deltaMonths);
@@ -186,14 +192,11 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
       cashflowSchedule[i][0] = cashflowDate;
 
       // Step back in time by the specified number of months
-      cashflowDate = cashflowDate.minusMonths(deltaMonths);
+      cashflowDate = cashflowDate.minus(couponFrequency.getPeriod());
     }
 
     // Append the timenode at the adjusted effective date at the beginning of the cashflow schedule vector
     cashflowSchedule[0][0] = adjustedEffectiveDate;
-
-    //System.out.println("Cashflow number " + 0 + " on adj effective date " + cashflowSchedule[0]);
-    //System.out.println("");
 
     return cashflowSchedule;
   }
@@ -232,10 +235,12 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     final int year = maturityDate.getYear();
 
     final ZonedDateTime immDatePreviousDecember = DateUtils.getUTCDate(year - 1, 12, 20);
+
     final ZonedDateTime immDateMarch = DateUtils.getUTCDate(year, 3, 20);
     final ZonedDateTime immDateJune = DateUtils.getUTCDate(year, 6, 20);
     final ZonedDateTime immDateSeptember = DateUtils.getUTCDate(year, 9, 20);
     final ZonedDateTime immDateDecember = DateUtils.getUTCDate(year, 12, 20);
+
     final ZonedDateTime immDateNextMarch = DateUtils.getUTCDate(year + 1, 3, 20);
 
     // -------------------------------------------------------------------
@@ -298,7 +303,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
   // -------------------------------------------------------------------------------------------
 
-  ZonedDateTime businessDayAdjustDate(ZonedDateTime date, Calendar calendar, String businessdayAdjustmentConvention) {
+  ZonedDateTime businessDayAdjustDate(ZonedDateTime date, Calendar calendar, BusinessDayConvention businessdayAdjustmentConvention) {
 
     ZonedDateTime adjustedDate = date;
 
