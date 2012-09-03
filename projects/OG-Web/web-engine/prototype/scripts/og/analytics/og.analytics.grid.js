@@ -4,10 +4,10 @@
  */
 $.register_module({
     name: 'og.analytics.Grid',
-    dependencies: ['og.api.text', 'og.analytics.Data'],
+    dependencies: ['og.api.text', 'og.analytics.events', 'og.analytics.Data'],
     obj: function () {
         var module = this, counter = 1, header_height = 55, row_height = 19, templates = null,
-            scrollbar_size = (function () {
+            fire = og.analytics.events.fire, scrollbar_size = (function () {
                 var html = '<div style="width: 100px; height: 100px; position: absolute; \
                     visibility: hidden; overflow: auto; left: -10000px; z-index: -10000; bottom: 100px" />';
                 return 100 - $(html).appendTo('body').append('<div />').find('div').css('height', '200px').width();
@@ -44,7 +44,7 @@ $.register_module({
                 return (partial_width += val.width), css;
             });
         };
-        var compile_templates = function (handler) {
+        var compile_templates = function (handler, context) {
             var css = og.api.text({url: module.html_root + 'analytics/grid/og.analytics.grid_tash.css'}),
                 header = og.api.text({module: 'og.analytics.grid.header_tash'}),
                 container = og.api.text({module: 'og.analytics.grid.container_tash'}),
@@ -53,7 +53,7 @@ $.register_module({
                 templates = {
                     css: compile(css), header: compile(header), container: compile(container), row: compile(row)
                 };
-                handler();
+                handler.call(context);
             });
         };
         var constructor = function (config, dollar) {
@@ -66,13 +66,7 @@ $.register_module({
             grid.meta = null;
             grid.formatter = new og.analytics.Formatter(grid);
             grid.source = config.source;
-            if (templates) grid.init_data(); else compile_templates(function () {grid.init_data();});
-        };
-        var fire = function (events) {
-            var args = Array.prototype.slice.call(arguments, 1), lcv, len = events.length;
-            for (lcv = 0; lcv < len; lcv += 1)
-                if (false === events[lcv].handler.apply(events[lcv].context || null, events[lcv].args.concat(args)))
-                    break;
+            if (templates) grid.init_data(); else compile_templates(grid.init_data, grid);
         };
         var set_css = function (id, sets, offset) {
             var partial_width = 0,
@@ -94,7 +88,7 @@ $.register_module({
         constructor.prototype.init_data = function () {
             var grid = this, config = grid.config;
             (grid.dataman = new og.analytics.Data(grid.source))
-                .on('meta', grid.init_grid, grid, config)
+                .on('meta', grid.init_grid, grid)
                 .on('data', grid.render_rows, grid);
             grid.on('render', function () {
                 grid.elements.main.find('.node').each(function (idx, val) {
@@ -159,8 +153,8 @@ $.register_module({
             og.common.gadgets.manager.register({alive: grid.alive, resize: grid.resize, context: grid});
             elements.empty = false;
         };
-        constructor.prototype.init_grid = function (config, metadata) {
-            var grid = this, $ = grid.$, columns = metadata.columns;
+        constructor.prototype.init_grid = function (metadata) {
+            var grid = this, config = grid.config, $ = grid.$, columns = metadata.columns;
             grid.meta = metadata;
             grid.meta.row_height = row_height;
             grid.meta.header_height = header_height;
@@ -174,15 +168,9 @@ $.register_module({
                 }, []));
             grid.unravel_structure();
             if (grid.elements.empty) grid.init_elements();
-            grid.resize();
-            grid.render_header();
+            grid.resize(grid.render_header);
         };
-        constructor.prototype.on = function (type, handler, context) {
-            var grid = this;
-            if (type in grid.events) grid.events[type]
-                .push({handler: handler, args: Array.prototype.slice.call(arguments, 3), context: context});
-            return grid;
-        };
+        constructor.prototype.on = og.analytics.events.on;
         constructor.prototype.render_header = (function () {
             var head_data = function (meta, sets, col_offset, set_offset) {
                 var width = meta.columns.width, index = 0;
@@ -234,9 +222,9 @@ $.register_module({
                 grid.elements.scroll_body.focus(); // focus on scroll body so arrow keys will work
             };
         })();
-        constructor.prototype.resize = function () {
+        constructor.prototype.resize = function (handler) {
             var grid = this, config = grid.config, meta = grid.meta, columns = meta.columns, id = grid.id, css,
-                width = config.width || grid.elements.parent.width(),
+                width = config.width || grid.elements.parent.width(), data_width,
                 height = config.height || grid.elements.parent.height();
             meta.columns.width = {
                 fixed: meta.columns.fixed.reduce(function (acc, set) {
@@ -258,8 +246,11 @@ $.register_module({
             };
             meta.columns.scan.all = meta.columns.scan.fixed
                 .concat(meta.columns.scan.scroll.map(function (val) {return val + meta.columns.width.fixed;}));
+            data_width = meta.columns.scan.all[meta.columns.scan.all.length - 1] + scrollbar_size;
             meta.rows = (meta.available = available(grid.meta)).length;
-            meta.viewport = {height: meta.rows * row_height, width: width - meta.columns.width.fixed};
+            meta.viewport = {
+                height: meta.rows * row_height, width: Math.min(width, data_width) - meta.columns.width.fixed
+            };
             meta.visible_rows = Math.min(Math.ceil((height - header_height) / row_height), meta.rows);
             css = templates.css({
                 id: id, viewport_width: meta.viewport.width,
@@ -273,7 +264,7 @@ $.register_module({
             });
             if (grid.elements.style[0].styleSheet) grid.elements.style[0].styleSheet.cssText = css; // IE
             else grid.elements.style[0].appendChild(document.createTextNode(css));
-            return grid.viewport();
+            return grid.viewport(handler);
         };
         constructor.prototype.unravel_structure = (function () {
             var times = function (str, rep) {var result = ''; if (rep) while (--rep) result += str; return result;};
@@ -318,7 +309,7 @@ $.register_module({
                 return acc;
             }, {scan: 0, cols: []}).cols);
             grid.dataman.viewport(grid.meta.viewport);
-            if (handler) handler();
+            if (handler) handler.call(grid);
             return grid;
         };
         return constructor;

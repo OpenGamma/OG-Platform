@@ -281,6 +281,7 @@
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.gadgetscontainer.js</fragment>
   </bundle>
   <bundle id="grid.js">
+    <fragment>/scripts/og/analytics/og.analytics.events.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.data.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.cell.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.grid.js</fragment>

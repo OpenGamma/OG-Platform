@@ -4,11 +4,11 @@
  */
 $.register_module({
     name: 'og.analytics.Selector',
-    dependencies: ['og.analytics.Grid'],
+    dependencies: ['og.analytics.Grid', 'og.analytics.events'],
     obj: function () {
         var module = this, namespace = '.og_analytics_selector', overlay = '.OG-g-sel', cell = '.OG-g-cell';
-        return function (grid) {
-            var selector = this, $ = grid.$, grid_offset, grid_width, grid_height, fixed_width, events = {select: []};
+        var constructor = function (grid) {
+            var selector = this, $ = grid.$, grid_offset, grid_width, grid_height, fixed_width;
             var auto_scroll = function (event, scroll_top, scroll_left, start) {
                 var x = event.pageX - grid_offset.left, y = event.pageY - grid_offset.top, increment = 35,
                     interval = 100, scroll_body = grid.elements.scroll_body, over_fixed = x < fixed_width;
@@ -28,12 +28,7 @@ $.register_module({
                 var selection = selector.selection();
                 $(document).off(namespace);
                 (auto_scroll.timeout = clearTimeout(auto_scroll.timeout)), (auto_scroll.scroll = false);
-                if (selection) fire('select', selection);
-            };
-            var fire = function (type) {
-                var args = Array.prototype.slice.call(arguments, 1), lcv, len = events[type].length;
-                for (lcv = 0; lcv < len; lcv += 1)
-                    if (false === events[type][lcv].handler.apply(null, events[type][lcv].args.concat(args))) break;
+                if (selection) og.analytics.events.fire(selector.events.select, selection);
             };
             var initialize = function () {
                 grid_offset = grid.elements.parent.offset();
@@ -72,8 +67,8 @@ $.register_module({
                         y = event.pageY - grid_offset.top + scroll_top - grid.meta.header_height,
                         regions = [], rectangle = {};
                     auto_scroll(event, scroll_top, scroll_left, start);
-                    rectangle.top_left = nearest_cell(Math.min(start.x, x), Math.min(start.y, y));
-                    rectangle.bottom_right = nearest_cell(Math.max(start.x, x), Math.max(start.y, y));
+                    rectangle.top_left = nearest_cell(grid, Math.min(start.x, x), Math.min(start.y, y));
+                    rectangle.bottom_right = nearest_cell(grid, Math.max(start.x, x), Math.max(start.y, y));
                     rectangle.width = rectangle.bottom_right.right - rectangle.top_left.left;
                     rectangle.height = rectangle.bottom_right.bottom - rectangle.top_left.top;
                     if (rectangle.top_left.left < fixed_width) regions.push({ // fixed overlay
@@ -99,13 +94,6 @@ $.register_module({
                     render(regions, rectangle);
                 }
             })();
-            var nearest_cell = function (x, y) {
-                var top, bottom, lcv, scan = grid.meta.columns.scan.all, len = scan.length;
-                for (lcv = 0; lcv < len; lcv += 1) if (scan[lcv] > x) break;
-                bottom = (Math.floor(y / grid.meta.row_height) + 1) * grid.meta.row_height;
-                top = bottom - grid.meta.row_height;
-                return {top: top, bottom: bottom, left: scan[lcv - 1] || 0, right: scan[lcv]};
-            };
             var render = function (regions, rectangle) {
                 if (!render.regions && !regions) return;
                 if (regions) (render.regions = regions), (render.rectangle = rectangle);
@@ -119,11 +107,7 @@ $.register_module({
             selector.clear = function () {
                 $(grid.id + ' ' + overlay).remove(), (render.regions = null), (render.rectangle = null);
             };
-            selector.on = function (type, handler) {
-                if (type in events)
-                    events[type].push({handler: handler, args: Array.prototype.slice.call(arguments, 2)});
-                return selector;
-            };
+            selector.events = {select: []};
             selector.selection = function () {
                 if (!render.rectangle) return null;
                 var bottom_right = render.rectangle.bottom_right,
@@ -139,5 +123,14 @@ $.register_module({
             };
             grid.on('mousedown', mousedown_observer).on('render', render); // initialize
         };
+        var nearest_cell = function (grid, x, y) {
+            var top, bottom, lcv, scan = grid.meta.columns.scan.all, len = scan.length;
+            for (lcv = 0; lcv < len; lcv += 1) if (scan[lcv] > x) break;
+            bottom = (Math.floor(y / grid.meta.row_height) + 1) * grid.meta.row_height;
+            top = bottom - grid.meta.row_height;
+            return {top: top, bottom: bottom, left: scan[lcv - 1] || 0, right: scan[lcv]};
+        };
+        constructor.prototype.on = og.analytics.events.on;
+        return constructor;
     }
 });

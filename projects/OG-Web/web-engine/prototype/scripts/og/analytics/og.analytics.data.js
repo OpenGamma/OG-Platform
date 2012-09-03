@@ -7,8 +7,8 @@ $.register_module({
     dependencies: ['og.api.rest'],
     obj: function () {
         var module = this, counter = 1, api = og.api.rest.views;
-        return function (config) {
-            var data = this, events = {meta: [], data: []}, id = 'data_' + counter++, meta, cols,
+        var constructor = function (config) {
+            var data = this, id = 'data_' + counter++, meta, cols, fire = og.analytics.events.fire,
                 viewport = null, view_id = config.view, graph_id, viewport_id, viewport_version, subscribed = false,
                 ROOT = 'rootNode', SETS = 'columnSets', ROWS = 'rowCount',
                 grid_type = config.type, depgraph = !!config.depgraph,
@@ -16,8 +16,8 @@ $.register_module({
             var data_handler = function (result) {
                 if (!result || result.error)
                     return og.dev.warn(result && result.message || module.name + ': reset connection');
-                if (!events.data.length || !result.data) return; // if a tree falls or there's no tree, etc.
-                if (result.data.version === viewport_version) return fire('data', result.data.data);
+                if (!data.events.data.length || !result.data) return; // if a tree falls or there's no tree, etc.
+                if (result.data.version === viewport_version) fire(data.events.data, result.data.data);
             };
             var data_setup = function () {
                 if (!viewport) return;
@@ -39,11 +39,6 @@ $.register_module({
                     })
                 ).pipe(data_handler);
             };
-            var fire = function (type) {
-                var args = Array.prototype.slice.call(arguments, 1);
-                events[type]
-                    .forEach(function (value) {value.handler.apply(value.context || null, value.args.concat(args));});
-            };
             var grid_handler = function (result) {
                 if (depgraph && !graph_id) return;
                 if (!result || result.error) return (view_id = graph_id = viewport_id = subscribed = null),
@@ -58,7 +53,7 @@ $.register_module({
                 meta.columns.scroll = result.data[SETS].slice(1).map(function (set) {
                     return set.columns.forEach(function (col) {return (col.width = 175), col;}), set;
                 });
-                fire('meta', meta);
+                fire(data.events.meta, meta);
                 if (!subscribed) return data_setup();
             };
             var grid_setup = function () {
@@ -84,14 +79,10 @@ $.register_module({
             data.busy = (function (busy) {
                 return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
             })(false);
+            data.events = {meta: [], data: []};
             data.id = id;
             data.meta = meta = {columns: {}};
             data.cols = cols = {};
-            data.on = function (type, handler, context) {
-                if (type in events) events[type]
-                    .push({handler: handler, args: Array.prototype.slice.call(arguments, 3), context: context});
-                return data;
-            };
             data.viewport = function (new_viewport) {
                 var viewports = (depgraph ? api[grid_type].depgraphs : api[grid_type]).viewports;
                 viewport = new_viewport;
@@ -107,5 +98,7 @@ $.register_module({
             };
             initialize();
         };
+        constructor.prototype.on = og.analytics.events.on;
+        return constructor;
     }
 });
