@@ -576,7 +576,7 @@ $.register_module({
                         del: not_implemented.partial('del'),
                         get: not_available.partial('get'),
                         grid: {
-                            root: 'views/{{view_id}}/portfolio/depgraphs/{{graph_id}}/grid',
+                            root: 'views/{{view_id}}/portfolio/depgraphs/{{graph_id}}/',
                             get: function (config) {
                                 var root = this.root, method = root.split('/'), data = {}, meta;
                                 meta = check({
@@ -613,7 +613,7 @@ $.register_module({
                                 });
                                 method[1] = config.view_id;
                                 method[4] = config.graph_id;
-                                method.push(config.viewport_id, 'data');
+                                method.push(config.viewport_id);
                                 return request(method, {data: data, meta: meta});
                             },
                             put: function (config) {
@@ -638,7 +638,7 @@ $.register_module({
                         }
                     },
                     grid: {
-                        root: 'views/{{view_id}}/portfolio/grid',
+                        root: 'views/{{view_id}}/portfolio/',
                         get: function (config) {
                             config = config || {};
                             var root = this.root, method = root.split('/'), data = {}, meta;
@@ -661,7 +661,7 @@ $.register_module({
                                 required: [{all_of: ['view_id', 'viewport_id']}]
                             });
                             method[1] = config.view_id;
-                            method.push(config.viewport_id, 'data');
+                            method.push(config.viewport_id);
                             return request(method, {data: data, meta: meta});
                         },
                         put: function (config) {
@@ -686,7 +686,7 @@ $.register_module({
                 },
                 primitives: {
                     grid: {
-                        root: 'views/{{id}}/primitives/grid',
+                        root: 'views/{{id}}/primitives/',
                         get: function (config) {
                             config = config || {};
                             var root = this.root, method = root.split('/'), data = {}, meta;

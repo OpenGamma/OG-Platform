@@ -28,6 +28,7 @@ $.register_module({
             };
             formatter.UNKNOWN = function (value) {
                 var type = value.t;
+                if (type === 'UNKNOWN') type = 'PRIMITIVE'; // TODO: remove this line
                 return value && formatter[type] ? formatter[type](value) : value && value.v || '';
             };
             grid.on('render', function () {
