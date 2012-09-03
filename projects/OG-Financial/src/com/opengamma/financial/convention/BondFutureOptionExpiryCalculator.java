@@ -32,12 +32,20 @@ public final class BondFutureOptionExpiryCalculator implements ExchangeTradedIns
   }
 
   @Override
-  public LocalDate getExpiry(final int n, final LocalDate today, final Calendar holidayCalendar) {
+  public LocalDate getExpiryDate(final int n, final LocalDate today, final Calendar holidayCalendar) {
     ArgumentChecker.isTrue(n > 0, "n must be greater than zero");
     ArgumentChecker.notNull(today, "today");
     ArgumentChecker.notNull(holidayCalendar, "holiday calendar");
-    final LocalDate lastDayOfMonth = LAST_DAY_ADJUSTER.adjustDate(today.plusMonths(n - 1));
-    LocalDate lastFridayOfMonth = PREVIOUS_OR_CURRENT_FRIDAY_ADJUSTER.adjustDate(lastDayOfMonth);
+    final LocalDate lastFridayOfThisMonth = PREVIOUS_OR_CURRENT_FRIDAY_ADJUSTER.adjustDate(LAST_DAY_ADJUSTER.adjustDate(today));
+    LocalDate lastDayOfMonth;
+    LocalDate lastFridayOfMonth;
+    if (today.isAfter(lastFridayOfThisMonth)) {
+      lastDayOfMonth = LAST_DAY_ADJUSTER.adjustDate(today.plusMonths(n));
+      lastFridayOfMonth = PREVIOUS_OR_CURRENT_FRIDAY_ADJUSTER.adjustDate(lastDayOfMonth);
+    } else {
+      lastDayOfMonth = LAST_DAY_ADJUSTER.adjustDate(today.plusMonths(n - 1));
+      lastFridayOfMonth = PREVIOUS_OR_CURRENT_FRIDAY_ADJUSTER.adjustDate(lastDayOfMonth);
+    }
     int nBusinessDays = 0;
     LocalDate date = lastFridayOfMonth.plusDays(1);
     while (!date.isAfter(lastDayOfMonth)) {
@@ -57,6 +65,13 @@ public final class BondFutureOptionExpiryCalculator implements ExchangeTradedIns
       result = result.minusDays(1);
     }
     return result;
+  }
+
+  @Override
+  public LocalDate getExpiryMonth(final int n, final LocalDate today) {
+    ArgumentChecker.isTrue(n > 0, "n must be greater than zero");
+    ArgumentChecker.notNull(today, "today");
+    return today.plusMonths(n - 1);
   }
 
   @Override

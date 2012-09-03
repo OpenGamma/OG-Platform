@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.curve.future;
@@ -38,18 +38,21 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.model.irfutureoption.FutureOptionUtils;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBFuturePriceCurveDefinitionSource;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBFuturePriceCurveSpecificationSource;
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveDefinition;
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveSpecification;
+import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public abstract class FuturePriceCurveFunction extends AbstractFunction {
 
@@ -79,6 +82,8 @@ public abstract class FuturePriceCurveFunction extends AbstractFunction {
     }
     return result;
   }
+
+  protected abstract Double getTimeToMaturity(int n, LocalDate date, Calendar calendar);
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstantProvider) {
@@ -157,6 +162,8 @@ public abstract class FuturePriceCurveFunction extends AbstractFunction {
           final Set<ValueRequirement> desiredValues) {
         final ValueRequirement desiredValue = desiredValues.iterator().next();
         final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
+        final Currency currency = Currency.of(((UniqueId) target.getValue()).getValue());
+        final Calendar calendar = new HolidaySourceCalendarAdapter(OpenGammaExecutionContext.getHolidaySource(executionContext), currency);
         //TODO use separate definition and specification names?
         final String curveDefinitionName = curveName;
         final String curveSpecificationName = curveName;
@@ -179,7 +186,7 @@ public abstract class FuturePriceCurveFunction extends AbstractFunction {
           if (inputs.getValue(requirement) != null) {
             futurePrice = (Double) inputs.getValue(requirement);
             if (futurePrice != null) {
-              final Double ttm = FutureOptionUtils.getFutureTtm(xNum.intValue(), valDate);
+              final Double ttm = getTimeToMaturity(xNum.intValue(), valDate, calendar);
               xList.add(ttm);
               prices.add(futurePrice);
             }
@@ -194,6 +201,7 @@ public abstract class FuturePriceCurveFunction extends AbstractFunction {
         final ComputedValue futurePriceCurveResultValue = new ComputedValue(futurePriceCurveResult, curve);
         return Sets.newHashSet(futurePriceCurveResultValue);
       }
+
     };
   }
 }

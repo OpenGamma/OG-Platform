@@ -32,7 +32,7 @@ public final class IMMFutureAndFutureOptionQuarterlyExpiryCalculator implements 
   }
 
   @Override
-  public LocalDate getExpiry(final int n, final LocalDate today, final Calendar holidayCalendar) {
+  public LocalDate getExpiryDate(final int n, final LocalDate today, final Calendar holidayCalendar) {
     ArgumentChecker.isTrue(n > 0, "n must be greater than zero");
     ArgumentChecker.notNull(today, "today");
     ArgumentChecker.notNull(holidayCalendar, "holiday calendar");
@@ -49,6 +49,20 @@ public final class IMMFutureAndFutureOptionQuarterlyExpiryCalculator implements 
       if (holidayCalendar.isWorkingDay(result)) {
         days++;
       }
+    }
+    return result;
+  }
+
+  @Override
+  public LocalDate getExpiryMonth(final int n, final LocalDate today) {
+    ArgumentChecker.isTrue(n > 0, "n must be greater than zero");
+    ArgumentChecker.notNull(today, "today");
+    final LocalDate nextExpiryMonth = MONTH_ADJUSTER.adjustDate(today);
+    LocalDate result;
+    if (nextExpiryMonth.getMonthOfYear() == today.getMonthOfYear() && today.isAfter(THIRD_WEDNESDAY_ADJUSTER.adjustDate(today))) {
+      result = nextExpiryMonth.plusMonths(3 * n);
+    } else {
+      result = nextExpiryMonth.plusMonths(3 * (n - 1));
     }
     return result;
   }

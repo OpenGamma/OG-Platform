@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.fudgemsg;
@@ -11,20 +11,23 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.volatility.surface.BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider;
+import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
+import com.opengamma.id.ExternalId;
 
 /**
- * 
+ *
  */
 public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProviderBuilderFudgeEncodingTest extends FinancialTestBase {
   private static final double CALL_ABOVE_STRIKE = 99.;
   private static final String DATA_FIELD_NAME = MarketDataRequirementNames.IMPLIED_VOLATILITY;
   private static final String FUTURE_OPTION_PREFIX = "ED";
   private static final String POSTFIX = "Comdty";
+  private static final ExternalId EXCHANGE = InMemoryConventionBundleMaster.simpleExchangeNameSecurityId("EUX");
 
   @Test
   public void testCycle() {
     final BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider provider = new BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider(FUTURE_OPTION_PREFIX, POSTFIX,
-        DATA_FIELD_NAME, CALL_ABOVE_STRIKE);
+        DATA_FIELD_NAME, CALL_ABOVE_STRIKE, EXCHANGE);
     assertEquals(provider, cycleObject(BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider.class, provider));
   }
 }

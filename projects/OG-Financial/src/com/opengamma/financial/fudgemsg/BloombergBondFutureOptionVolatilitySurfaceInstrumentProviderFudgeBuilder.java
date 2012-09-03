@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.fudgemsg;
@@ -17,12 +17,18 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.analytics.volatility.surface.BloombergBondFutureOptionVolatilitySurfaceInstrumentProvider;
+import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
+import com.opengamma.id.ExternalId;
 
 /**
- * 
+ *
  */
 @FudgeBuilderFor(BloombergBondFutureOptionVolatilitySurfaceInstrumentProvider.class)
 public class BloombergBondFutureOptionVolatilitySurfaceInstrumentProviderFudgeBuilder implements FudgeBuilder<BloombergBondFutureOptionVolatilitySurfaceInstrumentProvider> {
+  private static final String CALL_FIELD_NAME = "useCallAboveStrikeValue";
+  private static final String EXCHANGE_ID_FIELD_NAME = "exchangeId";
+  // backwards compatibility
+  private static final ExternalId DEFAULT_EXCHANGE_ID = InMemoryConventionBundleMaster.simpleExchangeNameSecurityId("CBT");
 
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final BloombergBondFutureOptionVolatilitySurfaceInstrumentProvider object) {
@@ -31,7 +37,8 @@ public class BloombergBondFutureOptionVolatilitySurfaceInstrumentProviderFudgeBu
     message.add(PREFIX_FIELD_NAME, object.getFutureOptionPrefix());
     message.add(POSTFIX_FIELD_NAME, object.getPostfix());
     message.add(DATA_FIELD_NAME, object.getDataFieldName());
-    message.add("useCallAboveStrikeValue", object.useCallAboveStrike());
+    message.add(CALL_FIELD_NAME, object.useCallAboveStrike());
+    serializer.addToMessage(message, EXCHANGE_ID_FIELD_NAME, null, object.getExchangeId());
     return message;
   }
 
@@ -52,8 +59,12 @@ public class BloombergBondFutureOptionVolatilitySurfaceInstrumentProviderFudgeBu
     if (dataFieldName == null) {
       dataFieldName = message.getString("dataFieldName");
     }
-    return new BloombergBondFutureOptionVolatilitySurfaceInstrumentProvider(futureOptionPrefix,
-        postfix, dataFieldName, Double.parseDouble(message.getString("useCallAboveStrikeValue")));
+    final Double useCallAboveValue = message.getDouble(CALL_FIELD_NAME);
+    if (message.hasField(EXCHANGE_ID_FIELD_NAME)) {
+      final ExternalId exchangeId = deserializer.fieldValueToObject(ExternalId.class, message.getByName(EXCHANGE_ID_FIELD_NAME));
+      return new BloombergBondFutureOptionVolatilitySurfaceInstrumentProvider(futureOptionPrefix, postfix, dataFieldName, useCallAboveValue, exchangeId);
+    }
+    return new BloombergBondFutureOptionVolatilitySurfaceInstrumentProvider(futureOptionPrefix, postfix, dataFieldName, useCallAboveValue, DEFAULT_EXCHANGE_ID);
   }
 
 }

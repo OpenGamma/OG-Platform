@@ -59,7 +59,7 @@ public final class FutureOptionExpiries { //TODO
    * @param offset Integer offset, positive or negative from the result of week,day.
    * @return New instance of FutureOptionExpiries
    */
-  public static FutureOptionExpiries of(int week, DayOfWeek day, int offset) {
+  public static FutureOptionExpiries of(final int week, final DayOfWeek day, final int offset) {
     final NextExpiryAdjuster nextExpiryAdjuster = new NextExpiryAdjuster(week, day, offset);
     return new FutureOptionExpiries(nextExpiryAdjuster);
   }
@@ -73,7 +73,7 @@ public final class FutureOptionExpiries { //TODO
    */
   public Double getFutureOptionTtm(final int n, final LocalDate today) {
     final LocalDate expiry = getFutureOptionExpiry(n, today);
-    final LocalDate previousMonday = expiry; //.minusDays(2); //TODO this should take a calendar and an additional input of number of days, or an adjuster that's part of the class
+    final LocalDate previousMonday = expiry;
     return TimeCalculator.getTimeBetween(today, previousMonday);
   }
 

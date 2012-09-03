@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.volatility.surface;
@@ -30,9 +30,11 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider extends 
    * @param postfix the postfix to the resulting code
    * @param dataFieldName the name of the data field. Expecting MarketDataRequirementNames.IMPLIED_VOLATILITY or OPT_IMPLIED_VOLATILITY_MID
    * @param useCallAboveStrike the strike above which to use calls rather than puts
+   * @param exchangeId the exchange id
    */
-  public BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider(final String futureOptionPrefix, final String postfix, final String dataFieldName, final Double useCallAboveStrike) {
-    super(futureOptionPrefix, postfix, dataFieldName, useCallAboveStrike);
+  public BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider(final String futureOptionPrefix, final String postfix, final String dataFieldName, final Double useCallAboveStrike,
+      final ExternalId exchangeId) {
+    super(futureOptionPrefix, postfix, dataFieldName, useCallAboveStrike, exchangeId);
   }
 
   @Override
@@ -40,7 +42,7 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider extends 
    * Provides ExternalID for Bloomberg ticker, eg EDZ3C  99.250 Comdty,
    * given a reference date and an integer offset, the n'th subsequent option
    * The format is futurePrefix + month + year + callPutFlag + strike + postfix
-   * 
+   *
    * @param futureNumber n'th future following curve date
    * @param strike option's strike, expressed as price in %, e.g. 98.750
    * @param surfaceDate date of curve validity; valuation date

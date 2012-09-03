@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.volatility.surface;
@@ -24,6 +24,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.curve.NodalDoublesCurve;
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
@@ -41,13 +42,16 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.model.irfutureoption.FutureOptionUtils;
+import com.opengamma.financial.convention.BondFutureOptionExpiryCalculator;
+import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
+import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.CompareUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ *
  */
 public class BondFutureOptionVolatilitySurfaceDataFunction extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(BondFutureOptionVolatilitySurfaceDataFunction.class);
@@ -55,6 +59,8 @@ public class BondFutureOptionVolatilitySurfaceDataFunction extends AbstractFunct
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ValueRequirement desiredValue = desiredValues.iterator().next();
+    final Currency currency = Currency.of(((UniqueId) target.getValue()).getValue());
+    final Calendar calendar = new HolidaySourceCalendarAdapter(OpenGammaExecutionContext.getHolidaySource(executionContext), currency);
     final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
     final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
     final ConfigDBVolatilitySurfaceSpecificationSource source = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
@@ -101,10 +107,10 @@ public class BondFutureOptionVolatilitySurfaceDataFunction extends AbstractFunct
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.BOND_FUTURE_OPTION).get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, target.toSpecification(), properties);
     if (surfaceQuoteUnits.equals(SurfaceAndCubePropertyNames.VOLATILITY_QUOTE)) {
-      return Collections.singleton(new ComputedValue(spec, getSurfaceFromVolatilityQuote(surfaceData, now)));
+      return Collections.singleton(new ComputedValue(spec, getSurfaceFromVolatilityQuote(surfaceData, now, calendar)));
     } else if (surfaceQuoteUnits.equals(SurfaceAndCubePropertyNames.PRICE_QUOTE)) {
       final NodalDoublesCurve futuresPrices = getFuturePricesCurve(target, curveName, inputs);
-      final VolatilitySurfaceData<Double, Double> volSurface = getSurfaceFromPriceQuote(specification, surfaceData, futuresPrices, now, surfaceQuoteType);
+      final VolatilitySurfaceData<Double, Double> volSurface = getSurfaceFromPriceQuote(specification, surfaceData, futuresPrices, now, surfaceQuoteType, calendar);
       if (volSurface != null) {
         return Collections.singleton(new ComputedValue(spec, volSurface));
       }
@@ -179,13 +185,15 @@ public class BondFutureOptionVolatilitySurfaceDataFunction extends AbstractFunct
     return requirements;
   }
 
-  private static VolatilitySurfaceData<Double, Double> getSurfaceFromVolatilityQuote(final VolatilitySurfaceData<Number, Double> optionVolatilities, final ZonedDateTime now) {
+  private static VolatilitySurfaceData<Double, Double> getSurfaceFromVolatilityQuote(final VolatilitySurfaceData<Number, Double> optionVolatilities, final ZonedDateTime now,
+      final Calendar calendar) {
+    final BondFutureOptionExpiryCalculator expiryCalculator = BondFutureOptionExpiryCalculator.getInstance();
     final Map<Pair<Double, Double>, Double> volatilityValues = new HashMap<Pair<Double, Double>, Double>();
     final DoubleArrayList tList = new DoubleArrayList();
     final DoubleArrayList kList = new DoubleArrayList();
     final LocalDate today = now.toLocalDate();
     for (final Number x : optionVolatilities.getXs()) {
-      final Double t = FutureOptionUtils.getFutureOptionTtm(x.intValue(), today);
+      final Double t = TimeCalculator.getTimeBetween(today, expiryCalculator.getExpiryDate(0, today, calendar));
       for (final Double y : optionVolatilities.getYs()) {
         final Double volatility = optionVolatilities.getVolatility(x, y);
         if (volatility != null) {
@@ -200,7 +208,9 @@ public class BondFutureOptionVolatilitySurfaceDataFunction extends AbstractFunct
   }
 
   private static VolatilitySurfaceData<Double, Double> getSurfaceFromPriceQuote(final VolatilitySurfaceSpecification specification,
-      final VolatilitySurfaceData<Number, Double> optionPrices, final NodalDoublesCurve futurePrices, final ZonedDateTime now, final String surfaceQuoteType) {
+      final VolatilitySurfaceData<Number, Double> optionPrices, final NodalDoublesCurve futurePrices, final ZonedDateTime now, final String surfaceQuoteType,
+      final Calendar calendar) {
+    final BondFutureOptionExpiryCalculator expiryCalculator = BondFutureOptionExpiryCalculator.getInstance();
     double callAboveStrike = 0;
     if (specification.getSurfaceInstrumentProvider() instanceof CallPutSurfaceInstrumentProvider) {
       callAboveStrike = ((CallPutSurfaceInstrumentProvider<?, ?>) specification.getSurfaceInstrumentProvider()).useCallAboveStrike();
@@ -211,7 +221,7 @@ public class BondFutureOptionVolatilitySurfaceDataFunction extends AbstractFunct
     final LocalDate today = now.toLocalDate();
     for (final Number x : optionPrices.getXs()) {
       // Loop over option expiries
-      final Double optionTtm = FutureOptionUtils.getFutureOptionTtm(x.intValue(), today);
+      final Double optionTtm = TimeCalculator.getTimeBetween(today, expiryCalculator.getExpiryDate(0, today, calendar));
       // Get the corresponding future, which may not share the same expiries as the option itself
       final Double[] futureExpiries = futurePrices.getXData();
       final int nFutures = futureExpiries.length;

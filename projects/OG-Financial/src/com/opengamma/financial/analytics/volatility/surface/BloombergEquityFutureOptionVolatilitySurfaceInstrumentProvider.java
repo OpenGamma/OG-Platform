@@ -32,28 +32,31 @@ public class BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider exte
    * @param postfix the postfix to the resulting code (eg Index)
    * @param dataFieldName the name of the data field. Expecting MarketDataRequirementNames.IMPLIED_VOLATILITY or OPT_IMPLIED_VOLATILITY_MID
    * @param useCallAboveStrike the strike above which to use calls rather than puts
+   * @param exchangeId the exchange id
    */
-  public BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider(String futureOptionPrefix, String postfix, String dataFieldName, Double useCallAboveStrike) {
-    super(futureOptionPrefix, postfix, dataFieldName, useCallAboveStrike);
+  public BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider(final String futureOptionPrefix, final String postfix, final String dataFieldName, final Double useCallAboveStrike,
+      final ExternalId exchangeId) {
+    super(futureOptionPrefix, postfix, dataFieldName, useCallAboveStrike, exchangeId);
   }
 
-  @Override
   /**
    * Provides ExternalID for Bloomberg ticker,
    * given a reference date and an integer offset, the n'th subsequent option <p>
    * The format is prefix + date + callPutFlag + strike + postfix <p>
-   * eg DJX 12/21/13 C145.0 Index
+   * e.g. DJX 12/21/13 C145.0 Index
    * <p>
-   * @param futureNumber n'th future following curve date
+   * @param futureOptionNumber n'th future following curve date
    * @param strike option's strike, expressed as price in %, e.g. 98.750
    * @param surfaceDate date of curve validity; valuation date
+   * @return the id of the Bloomberg ticker
    */
-  public ExternalId getInstrument(Number futureOptionNumber, Double strike, LocalDate surfaceDate) {
+  @Override
+  public ExternalId getInstrument(final Number futureOptionNumber, final Double strike, final LocalDate surfaceDate) {
     Validate.notNull(futureOptionNumber, "futureOptionNumber");
     final StringBuffer ticker = new StringBuffer();
     ticker.append(getFutureOptionPrefix());
     ticker.append(" ");
-    LocalDate expiry = EXPIRY_UTILS.getFutureOptionExpiry(futureOptionNumber.intValue(), surfaceDate);
+    final LocalDate expiry = EXPIRY_UTILS.getFutureOptionExpiry(futureOptionNumber.intValue(), surfaceDate);
     ticker.append(FORMAT.print(expiry));
     ticker.append(" ");
     ticker.append(strike > useCallAboveStrike() ? "C" : "P");

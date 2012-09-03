@@ -15,6 +15,7 @@ import org.testng.annotations.Test;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
 import com.opengamma.financial.analytics.model.FutureOptionExpiries;
+import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.id.ExternalId;
 
 /**
@@ -36,13 +37,15 @@ public class BloombergEquityFutureOptionVolatilitySurfaceInstrumentProviderTest 
 
   private static final FutureOptionExpiries UTILS = FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY, 1));
   private static LocalDate[] EXPIRY_DATES = new LocalDate[3];
+  private static final ExternalId EXCHANGE = InMemoryConventionBundleMaster.simpleExchangeNameSecurityId("OSE");
   static {
     for (int i = 0; i < EXPIRY_OFFSETS.length; i++) {
       EXPIRY_DATES[i] = FutureOptionExpiries.EQUITY.getFutureOptionExpiry(EXPIRY_OFFSETS[i], DATE);
     }
   }
 
-  private static final BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider PROVIDER = new BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider(PREFIX, POSTFIX, DATA_FIELD_NAME, 150.25);
+  private static final BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider PROVIDER =
+      new BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider(PREFIX, POSTFIX, DATA_FIELD_NAME, 150.25, EXCHANGE);
 
 
   @Test
@@ -56,6 +59,7 @@ public class BloombergEquityFutureOptionVolatilitySurfaceInstrumentProviderTest 
       }
     }
   }
+
   @Test
   public void testUtils() {
     assertEquals(EXPIRY_DATES[0], FutureOptionExpiries.EQUITY.getMonthlyExpiry(1, DATE));
