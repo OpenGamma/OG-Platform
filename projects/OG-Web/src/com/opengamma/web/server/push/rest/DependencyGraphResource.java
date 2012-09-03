@@ -16,14 +16,14 @@ import com.opengamma.web.server.push.analytics.ViewportSpecification;
  */
 public class DependencyGraphResource extends AbstractGridResource {
 
-  private final String _graphId;
+  private final int _graphId;
 
   /**
    * @param gridType
    * @param view The view whose data the grid displays.
    * @param graphId The ID of the dependency graph
    */
-  public DependencyGraphResource(AnalyticsView.GridType gridType, AnalyticsView view, String graphId) {
+  public DependencyGraphResource(AnalyticsView.GridType gridType, AnalyticsView view, int graphId) {
     super(gridType, view);
     _graphId = graphId;
   }

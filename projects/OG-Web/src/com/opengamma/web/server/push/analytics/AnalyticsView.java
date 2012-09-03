@@ -110,30 +110,29 @@ public interface AnalyticsView {
   /**
    * Opens a grid showing the dependency graph of calculations for a cell in one of the main grids.
    * @param gridType Specifies which of the main grids
-   * @param graphId A unique ID for the dependency graph grid. The server makes no assumptions about its format other
-   * than the fact that it must be unique for each dependency graph grid in a view.
+   * @param graphId A unique ID for the dependency graph grid
    * @param gridId A unique ID for the grid's structure - this is the value that is sent to the client with notification
    * that the structure has changed. The server makes no assumptions about its format other than the fact that it
    * must be unique for each grid in a view.
    * @param row The row of the cell whose dependency graph should be opened
    * @param col The column of the cell whose dependency graph should be opened
    */
-  void openDependencyGraph(GridType gridType, String graphId, String gridId, int row, int col);
+  void openDependencyGraph(GridType gridType, int graphId, String gridId, int row, int col);
 
   /**
    * Closes a depdency graph.
    * @param gridType Specifies which of the main grids the dependency graph grid belongs to
-   * @param graphId The ID of the grid
+   * @param graphId The ID of the dependency graph
    */
-  void closeDependencyGraph(GridType gridType, String graphId);
+  void closeDependencyGraph(GridType gridType, int graphId);
 
   /**
    * Returns the grid structure for a dependency graph grid.
    * @param gridType Specifies which of the main grids the dependency graph grid belongs to
-   * @param graphId The ID of the grid
+   * @param graphId The ID of the dependency graph
    * @return The row and column structure of the grid
    */
-  GridStructure getGridStructure(GridType gridType, String graphId);
+  GridStructure getGridStructure(GridType gridType, int graphId);
 
   /**
    * Creates a viewport for a dependency graph grid. A viewport represents the visible portion of the grid. Any
@@ -142,7 +141,7 @@ public interface AnalyticsView {
    * that changes in a calculation cycle is not part of a viewport then no update needs to be sent to the client.
    * There can be any number of viewports for each grid.
    * @param gridType Specifies which of the main grids the dependency graph grid belongs to
-   * @param graphId The ID of the grid
+   * @param graphId The ID of the dependency graph
    * @param viewportId A unique ID for the viewport
    * @param dataId A unique ID for the viewport's data - this is the value that is sent to the client with notification
    * that new data is available for the viewport. The server makes no assumptions about its format other
@@ -155,13 +154,13 @@ public interface AnalyticsView {
    * display the old viewport's data in the updated viewport. The viewport version allows this situation to be detected
    * and avoided.
    */
-  long createViewport(GridType gridType, String graphId, int viewportId, String dataId, ViewportSpecification viewportSpec);
+  long createViewport(GridType gridType, int graphId, int viewportId, String dataId, ViewportSpecification viewportSpec);
 
 
   /**
    * Updates a viewport of a dependency graph grid. A viewport will be updated when the user scrolls the grid.
    * @param gridType Specifies which of the main grids the dependency graph grid belongs to
-   * @param graphId The ID of the grid
+   * @param graphId The ID of the dependency graph
    * @param viewportId ID of the viewport
    * @param viewportSpec Defines the rows and columns in the viewport and whether the viewport's data should be
    * expanded or a summary for data types which can't fit in a cell, e.g. vectors, matrices, curves.
@@ -171,21 +170,22 @@ public interface AnalyticsView {
    * display the old viewport's data in the updated viewport. The viewport version allows this situation to be detected
    * and avoided.
    */
-  long updateViewport(GridType gridType, String graphId, int viewportId, ViewportSpecification viewportSpec);
+  long updateViewport(GridType gridType, int graphId, int viewportId, ViewportSpecification viewportSpec);
 
   /**
    * Deletes a viewport from a dependency graph grid.
    * @param gridType Specifies which of the main grids the dependency graph grid belongs to
+   * @param graphId ID of the dependency graph
    * @param viewportId ID of the viewport
    */
-  void deleteViewport(GridType gridType, String graphId, int viewportId);
+  void deleteViewport(GridType gridType, int graphId, int viewportId);
 
   /**
    * Returns the current data for a viewport of a dependency graph grid.
    * @param gridType Specifies which of the main grids the dependency graph grid belongs to
-   * @param graphId The ID of the grid
+   * @param graphId The ID of the dependency graph
    * @param viewportId ID of the viewport
    * @return The current data for the viewport.
    */
-  ViewportResults getData(GridType gridType, String graphId, int viewportId);
+  ViewportResults getData(GridType gridType, int graphId, int viewportId);
 }

@@ -5,7 +5,6 @@
  */
 package com.opengamma.web.server.push.rest;
 
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.push.analytics.AnalyticsView;
 import com.opengamma.web.server.push.analytics.ViewportResults;
 import com.opengamma.web.server.push.analytics.ViewportSpecification;
@@ -15,11 +14,10 @@ import com.opengamma.web.server.push.analytics.ViewportSpecification;
  */
 public class DependencyGraphViewportResource extends AbstractViewportResource {
 
-  private final String _graphId;
+  private final int _graphId;
 
-  public DependencyGraphViewportResource(AnalyticsView.GridType gridType, AnalyticsView view, String graphId, int viewportId) {
-    super(gridType,  view, viewportId);
-    ArgumentChecker.notNull(graphId, "graphId");
+  public DependencyGraphViewportResource(AnalyticsView.GridType gridType, AnalyticsView view, int graphId, int viewportId) {
+    super(gridType, view, viewportId);
     _graphId = graphId;
   }
 
