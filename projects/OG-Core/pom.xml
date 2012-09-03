@@ -26,10 +26,6 @@
       <artifactId>og-util</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.mindrot</groupId>
-      <artifactId>jbcrypt</artifactId>
-    </dependency>
   </dependencies>
 
 </project>

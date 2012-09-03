@@ -247,13 +247,6 @@
         </executions>
       </plugin>
     </plugins>
-    <extensions>
-      <extension>
-        <groupId>org.apache.maven.wagon</groupId>
-        <artifactId>wagon-ssh</artifactId>
-        <version>2.2</version>
-      </extension>
-    </extensions>
   </build>
 
   <!-- ==================================================================== -->
@@ -303,11 +296,6 @@
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-math</artifactId>
         <version>2.1</version>
-      </dependency>
-      <dependency>
-        <groupId>commons-pool</groupId>
-        <artifactId>commons-pool</artifactId>
-        <version>1.5.5</version>
       </dependency>
 
       <!-- Joda/Guava/Fudge/ThreeTen low-level libraries -->
@@ -773,11 +761,6 @@
         <artifactId>je</artifactId>
         <version>4.0.92</version>
         <!--version>4.1.21</version--><!-- needs Oracle repo - http://download.oracle.com/maven -->
-      </dependency>
-      <dependency>
-        <groupId>redis.clients</groupId>
-        <artifactId>jedis</artifactId>
-        <version>2.1.0</version>
       </dependency>
 
       <!-- Testing -->
