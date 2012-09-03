@@ -69,7 +69,7 @@ public class FutureOptionUtils {
     }   // And for Quarterly expiries thereafter
     final int nthExpiryAfterSixMonths = nthFuture - 6;
     final LocalDate sixMonthsForward = valDate.plusMonths(6);
-    return getIRFutureApproximateQuarterlyExpiry(nthExpiryAfterSixMonths, sixMonthsForward);
+    return getApproximateIRFutureQuarterlyExpiry(nthExpiryAfterSixMonths, sixMonthsForward);
   }
 
   public static LocalDate getIRFutureMonthlyExpiry(final int nthMonth, final LocalDate valDate) {
@@ -88,7 +88,8 @@ public class FutureOptionUtils {
     return IMMFutureAndFutureOptionQuarterlyExpiryCalculator.getInstance().getExpiryDate(nthFuture, valDate, holidayCalendar);
   }
 
-  public static LocalDate getIRFutureApproximateQuarterlyExpiry(final int nthFuture, final LocalDate valDate) {
+  public static LocalDate getApproximateIRFutureQuarterlyExpiry(final int nthFuture, final LocalDate valDate) {
     return IMMFutureAndFutureOptionQuarterlyExpiryCalculator.getInstance().getExpiryMonth(nthFuture, valDate);
   }
+
 }
