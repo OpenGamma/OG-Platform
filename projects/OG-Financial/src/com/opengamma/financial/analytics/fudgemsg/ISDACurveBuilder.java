@@ -32,7 +32,7 @@ public class ISDACurveBuilder extends AbstractFudgeBuilder<ISDACurve> {
   @Override
   public ISDACurve buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
     
-    final DoublesCurve curve = deserializer.fieldValueToObject(DoublesCurve.class, message.getByName(CURVE_FIELD_NAME));
+    final DoublesCurve curve = (DoublesCurve) deserializer.fieldValueToObject(message.getByName(CURVE_FIELD_NAME));
     
     final String name;
     if (message.hasField(NAME_FIELD_NAME)) {
@@ -50,8 +50,8 @@ public class ISDACurveBuilder extends AbstractFudgeBuilder<ISDACurve> {
 
   @Override
   protected void buildMessage(FudgeSerializer serializer, MutableFudgeMsg message, ISDACurve object) {
-    //serializer.addToMessageWithClassHeaders(message, NAME_FIELD_NAME, null, object.getName(), String.class);
-    serializer.addToMessageWithClassHeaders(message, CURVE_FIELD_NAME, null, object.getCurve(), DoublesCurve.class);
+    serializer.addToMessageWithClassHeaders(message, NAME_FIELD_NAME, null, object.getName(), String.class);
+    serializer.addToMessageWithClassHeaders(message, CURVE_FIELD_NAME, null, object.getCurve());
     serializer.addToMessageWithClassHeaders(message, OFFSET_FIELD_NAME, null, object.getOffset(), double.class);
     serializer.addToMessageWithClassHeaders(message, ZERO_DISCOUNT_FACTOR_FIELD_NAME, null, object.getZeroDiscountFactor(), double.class);
     serializer.addToMessageWithClassHeaders(message, SHIFTED_TIME_POINTS_FIELD_NAME, null, object.getTimePoints(), double[].class);
