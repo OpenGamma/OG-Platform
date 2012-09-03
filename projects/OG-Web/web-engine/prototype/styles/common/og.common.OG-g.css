@@ -115,3 +115,12 @@
     z-index: 1;
     position: absolute;
 }
+
+/* Indicator arrows */
+.OG-g-cell .og-icon-tick-down,
+.OG-g-cell .og-icon-tick-up,
+.OG-g-cell .og-icon-tick-static {
+    position: absolute;
+    top: 5px;
+    right: 13px;
+}
