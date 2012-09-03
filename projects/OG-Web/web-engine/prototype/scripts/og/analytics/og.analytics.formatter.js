@@ -27,7 +27,7 @@ $.register_module({
                         (value.h[0] ? '<span class="OG-icon og-icon-tick-'+ indicator +'"></span>' : '');
             };
             formatter.UNKNOWN = function (value) {
-                var type = value.t; delete value.t;
+                var type = value.t;
                 return value && formatter[type] ? formatter[type](value) : value && value.v || '';
             };
             grid.on('render', function () {

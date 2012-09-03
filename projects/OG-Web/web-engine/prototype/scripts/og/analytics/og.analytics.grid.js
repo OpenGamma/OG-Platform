@@ -115,15 +115,16 @@ $.register_module({
                 })(null));
             })();
             grid.selector = new og.analytics.Selector(grid).on('select', function (raw) {
-                var selection = {
+                var cell, meta = grid.meta, viewport = meta.viewport, selection = {
                     cols: raw.cols,
-                    rows: raw.rows.map(function (row) {return grid.meta.available[row];}),
-                    type: raw.cols.map(function (col) {return grid.meta.columns.types[col];})
+                    rows: raw.rows.map(function (row) {return meta.available[row];}),
+                    type: raw.cols.map(function (col) {return meta.columns.types[col];})
                 };
-                if (1 === selection.rows.length && 1 === selection.cols.length)
-                    fire(grid, 'cellselect', {row: selection.rows[0], col: selection.cols[0], type: selection.type[0]});
-                else
-                    fire(grid, 'rangeselect', selection);
+                if (1 === selection.rows.length && 1 === selection.cols.length) fire(grid, 'cellselect', {
+                    row: selection.rows[0], col: selection.cols[0], value: cell = grid
+                        .data[viewport.rows.indexOf(selection.rows[0])][viewport.cols.indexOf(selection.cols[0])],
+                    type: cell.t || selection.type[0]
+                }); else fire(grid, 'rangeselect', selection);
                 fire(grid, 'select', selection); // fire for both single and multiple selection
             });
             og.common.gadgets.manager.register({alive: grid.alive, resize: grid.resize});
@@ -188,6 +189,7 @@ $.register_module({
             };
             return function (grid, data) {
                 if (grid.dataman.busy()) return; else grid.dataman.busy(true); // don't accept more data if rendering
+                grid.data = data;
                 grid.elements.fixed_body.html(templates.row(row_data(grid, data, true)));
                 grid.elements.scroll_body.html(templates.row(row_data(grid, data, false)));
                 fire(grid, 'render');
