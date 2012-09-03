@@ -232,27 +232,27 @@ $.register_module({
                         return {
                             gadget: 'og.common.gadgets.timeseries',
                             options: {id: id, datapoints_link: false, child: true},
-                            name: 'Timeseries ' + id
+                            name: 'Timeseries: ' + id
                         }
                     };
                     options.surface = function (id) {
                         return {
                             gadget: 'og.common.gadgets.surface',
-                            name: 'Surface ' + id,
+                            name: 'Surface: ' + id,
                             options: {id: id, child: true}
                         }
                     };
                     options.curve = function (id) {
                         return {
                             gadget: 'og.common.gadgets.curve',
-                            name: 'Curve ' + id,
+                            name: 'Curve: ' + id,
                             options: {id: id, child: true}
                         }
                     };
                     options.data = function (id) {
                         return {
                             gadget: 'og.common.gadgets.data',
-                            name: 'Data ' + id,
+                            name: 'Data: ' + id,
                             options: {id: id, child: true}
                         }
                     };
