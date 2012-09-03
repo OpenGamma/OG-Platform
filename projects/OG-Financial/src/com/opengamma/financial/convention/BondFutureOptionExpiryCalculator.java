@@ -33,7 +33,7 @@ public final class BondFutureOptionExpiryCalculator implements ExchangeTradedIns
 
   @Override
   public LocalDate getExpiryDate(final int n, final LocalDate today, final Calendar holidayCalendar) {
-    ArgumentChecker.isTrue(n > 0, "n must be greater than zero");
+    ArgumentChecker.isTrue(n > 0, "n must be greater than zero; have {}", n);
     ArgumentChecker.notNull(today, "today");
     ArgumentChecker.notNull(holidayCalendar, "holiday calendar");
     final LocalDate lastFridayOfThisMonth = PREVIOUS_OR_CURRENT_FRIDAY_ADJUSTER.adjustDate(LAST_DAY_ADJUSTER.adjustDate(today));

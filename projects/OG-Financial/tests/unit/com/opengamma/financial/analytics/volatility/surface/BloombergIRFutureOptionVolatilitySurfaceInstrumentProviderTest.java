@@ -16,7 +16,6 @@ import org.testng.annotations.Test;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
 import com.opengamma.financial.analytics.model.FutureOptionExpiries;
-import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.id.ExternalId;
 
 /**
@@ -32,7 +31,7 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProviderTest {
   private static final String[][] RESULTS = new String[][] {new String[] {"EDN1P 96.000 Comdty", "EDN1P 97.250 Comdty", "EDN1C 98.500 Comdty", "EDN1C 99.750 Comdty"},
     new String[] {"EDH2P 96.000 Comdty", "EDH2P 97.250 Comdty", "EDH2C 98.500 Comdty", "EDH2C 99.750 Comdty"},
     new String[] {"EDZ2P 96.000 Comdty", "EDZ2P 97.250 Comdty", "EDZ2C 98.500 Comdty", "EDZ2C 99.750 Comdty"}};
-  private static final ExternalId EXCHANGE = InMemoryConventionBundleMaster.simpleExchangeNameSecurityId("EUX");
+  private static final String EXCHANGE = "EUX";
 
   private static final FutureOptionExpiries UTILS =  FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.WEDNESDAY));
   private static final LocalDate[] EXPIRY_DATES = new LocalDate[] {

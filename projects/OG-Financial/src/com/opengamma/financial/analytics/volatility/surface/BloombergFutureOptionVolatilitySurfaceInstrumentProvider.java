@@ -11,6 +11,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalScheme;
 
 /**
  * Provides ExternalId's for FutureOptions used to build the Volatility Surface
@@ -21,17 +22,17 @@ public abstract class BloombergFutureOptionVolatilitySurfaceInstrumentProvider i
   private final String _postfix;
   private final String _dataFieldName;
   private final Double _useCallAboveStrike;
-  private final ExternalId _exchangeId;
+  private final String _exchangeIdName;
 
   /**
    * @param futureOptionPrefix the prefix to the resulting code
    * @param postfix the postfix to the resulting code
    * @param dataFieldName the name of the data field. Expecting MarketDataRequirementNames.IMPLIED_VOLATILITY or OPT_IMPLIED_VOLATILITY_MID
    * @param useCallAboveStrike the strike above which to use calls rather than puts
-   * @param exchangeId the id of the exchange
+   * @param exchangeIdName the id of the exchange
    */
   protected BloombergFutureOptionVolatilitySurfaceInstrumentProvider(final String futureOptionPrefix, final String postfix, final String dataFieldName, final Double useCallAboveStrike,
-      final ExternalId exchangeId) {
+      final String exchangeIdName) {
     Validate.notNull(futureOptionPrefix, "future option prefix");
     Validate.notNull(postfix, "postfix");
     Validate.notNull(dataFieldName, "data field name");
@@ -40,7 +41,7 @@ public abstract class BloombergFutureOptionVolatilitySurfaceInstrumentProvider i
     _postfix = postfix;
     _dataFieldName = dataFieldName;
     _useCallAboveStrike = useCallAboveStrike;
-    _exchangeId = exchangeId;
+    _exchangeIdName = exchangeIdName;
   }
 
   @Override
@@ -53,8 +54,12 @@ public abstract class BloombergFutureOptionVolatilitySurfaceInstrumentProvider i
    */
   public abstract ExternalId getInstrument(final Number futureOptionNumber, final Double strike, final LocalDate surfaceDate);
 
-  public ExternalId getExchangeId() {
-    return _exchangeId;
+  public String getExchangeIdName() {
+    return _exchangeIdName;
+  }
+
+  public ExternalId getExchangeId(final ExternalScheme scheme) {
+    return ExternalId.of(scheme, _exchangeIdName);
   }
 
   @Override
@@ -83,7 +88,7 @@ public abstract class BloombergFutureOptionVolatilitySurfaceInstrumentProvider i
   @Override
   public int hashCode() {
     return getFutureOptionPrefix().hashCode() + getPostfix().hashCode() + getDataFieldName().hashCode() + useCallAboveStrike().hashCode()
-        + getExchangeId().hashCode();
+        + getExchangeIdName().hashCode();
   }
 
   @Override
@@ -99,6 +104,6 @@ public abstract class BloombergFutureOptionVolatilitySurfaceInstrumentProvider i
         getPostfix().equals(other.getPostfix()) &&
         useCallAboveStrike().equals(other.useCallAboveStrike()) &&
         getDataFieldName().equals(other.getDataFieldName()) &&
-        getExchangeId().equals(other.getExchangeId());
+        getExchangeIdName().equals(other.getExchangeIdName());
   }
 }

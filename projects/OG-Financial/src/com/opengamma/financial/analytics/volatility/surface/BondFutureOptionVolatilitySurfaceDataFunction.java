@@ -193,7 +193,7 @@ public class BondFutureOptionVolatilitySurfaceDataFunction extends AbstractFunct
     final DoubleArrayList kList = new DoubleArrayList();
     final LocalDate today = now.toLocalDate();
     for (final Number x : optionVolatilities.getXs()) {
-      final Double t = TimeCalculator.getTimeBetween(today, expiryCalculator.getExpiryDate(0, today, calendar));
+      final Double t = TimeCalculator.getTimeBetween(today, expiryCalculator.getExpiryDate(x.intValue(), today, calendar));
       for (final Double y : optionVolatilities.getYs()) {
         final Double volatility = optionVolatilities.getVolatility(x, y);
         if (volatility != null) {

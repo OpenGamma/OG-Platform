@@ -32,11 +32,11 @@ public class BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider exte
    * @param postfix the postfix to the resulting code (eg Index)
    * @param dataFieldName the name of the data field. Expecting MarketDataRequirementNames.IMPLIED_VOLATILITY or OPT_IMPLIED_VOLATILITY_MID
    * @param useCallAboveStrike the strike above which to use calls rather than puts
-   * @param exchangeId the exchange id
+   * @param exchangeIdName the exchange id
    */
   public BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider(final String futureOptionPrefix, final String postfix, final String dataFieldName, final Double useCallAboveStrike,
-      final ExternalId exchangeId) {
-    super(futureOptionPrefix, postfix, dataFieldName, useCallAboveStrike, exchangeId);
+      final String exchangeIdName) {
+    super(futureOptionPrefix, postfix, dataFieldName, useCallAboveStrike, exchangeIdName);
   }
 
   /**

@@ -11,8 +11,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.volatility.surface.BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider;
-import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
-import com.opengamma.id.ExternalId;
 
 /**
  *
@@ -22,7 +20,7 @@ public class BloombergEquityFutureOptionVolatilitySurfaceInstrumentProviderBuild
   private static final String DATA_FIELD_NAME = MarketDataRequirementNames.IMPLIED_VOLATILITY;
   private static final String FUTURE_OPTION_PREFIX = "DJX";
   private static final String POSTFIX = "Index";
-  private static final ExternalId EXCHANGE = InMemoryConventionBundleMaster.simpleExchangeNameSecurityId("OSE");
+  private static final String EXCHANGE = "OSE";
 
   @Test
   public void testCycle() {

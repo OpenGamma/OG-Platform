@@ -16,19 +16,19 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.opengamma.financial.analytics.volatility.surface.BloombergEquityOptionVolatilitySurfaceInstrumentProviderDeprecated;
+import com.opengamma.financial.analytics.volatility.surface.BloombergEquityOptionVolatilitySurfaceInstrumentProvider;
 
 /**
  * @deprecated The instrument provider for which this is a fudge builder has been deprecated
  */
 @Deprecated
-@FudgeBuilderFor(BloombergEquityOptionVolatilitySurfaceInstrumentProviderDeprecated.class)
-public class BloombergEquityOptionVolatilitySurfaceInstrumentProviderFudgeBuilderDeprecated implements FudgeBuilder<BloombergEquityOptionVolatilitySurfaceInstrumentProviderDeprecated> {
+@FudgeBuilderFor(BloombergEquityOptionVolatilitySurfaceInstrumentProvider.class)
+public class BloombergEquityOptionVolatilitySurfaceInstrumentProviderFudgeBuilderDeprecated implements FudgeBuilder<BloombergEquityOptionVolatilitySurfaceInstrumentProvider> {
 
   @Override
-  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final BloombergEquityOptionVolatilitySurfaceInstrumentProviderDeprecated object) {
+  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final BloombergEquityOptionVolatilitySurfaceInstrumentProvider object) {
     final MutableFudgeMsg message = serializer.newMessage();
-    FudgeSerializer.addClassHeader(message, BloombergEquityOptionVolatilitySurfaceInstrumentProviderDeprecated.class);
+    FudgeSerializer.addClassHeader(message, BloombergEquityOptionVolatilitySurfaceInstrumentProvider.class);
     message.add(PREFIX_FIELD_NAME, object.getUnderlyingPrefix());
     message.add(POSTFIX_FIELD_NAME, object.getPostfix());
     message.add(DATA_FIELD_NAME, object.getDataFieldName());
@@ -36,7 +36,7 @@ public class BloombergEquityOptionVolatilitySurfaceInstrumentProviderFudgeBuilde
   }
 
   @Override
-  public BloombergEquityOptionVolatilitySurfaceInstrumentProviderDeprecated buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+  public BloombergEquityOptionVolatilitySurfaceInstrumentProvider buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
     String prefix = message.getString(PREFIX_FIELD_NAME);
     //backward compatibility
     if (prefix == null) {
@@ -52,7 +52,7 @@ public class BloombergEquityOptionVolatilitySurfaceInstrumentProviderFudgeBuilde
     if (dataField == null) {
       dataField = message.getString("dataFieldName");
     }
-    return new BloombergEquityOptionVolatilitySurfaceInstrumentProviderDeprecated(prefix, postfix, dataField);
+    return new BloombergEquityOptionVolatilitySurfaceInstrumentProvider(prefix, postfix, dataField);
   }
 
 }
