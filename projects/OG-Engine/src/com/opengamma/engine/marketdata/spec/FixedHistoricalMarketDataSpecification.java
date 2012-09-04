@@ -77,7 +77,7 @@ public class FixedHistoricalMarketDataSpecification extends com.opengamma.engine
       _snapshotDate = snapshotDate.toLocalDate ();
     }
   }
-  public boolean fequals (final Object o) {
+  public boolean equals (final Object o) {
     if (o == this) return true;
     if (!(o instanceof FixedHistoricalMarketDataSpecification)) return false;
     FixedHistoricalMarketDataSpecification msg = (FixedHistoricalMarketDataSpecification)o;
