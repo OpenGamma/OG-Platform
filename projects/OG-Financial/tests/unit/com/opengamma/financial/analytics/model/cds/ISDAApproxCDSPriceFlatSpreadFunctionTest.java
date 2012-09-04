@@ -38,7 +38,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 
-public class CDSPresentValueFunctionTest {
+public class ISDAApproxCDSPriceFlatSpreadFunctionTest {
 
   private static final Security SECURITY = new SimpleSecurity(UniqueId.of("Test", "SEC"), ExternalIdBundle.EMPTY, "Test security", "EQUITY");
   private static MockSecuritySource securitySource;
