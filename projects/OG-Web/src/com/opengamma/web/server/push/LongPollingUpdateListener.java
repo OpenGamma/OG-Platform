@@ -18,12 +18,12 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * {@link RestUpdateListener} that pushes updates over a long-polling HTTP connection using Jetty's continuations.
+ * {@link UpdateListener} that pushes updates over a long-polling HTTP connection using Jetty's continuations.
  * If any updates arrive while there is no connection they are queued and sent as soon as the connection
  * is re-established.  If multiple updates for the same object are queued only one is sent.  All updates
  * only contain the REST URL of the updated object so they are identical.
  */
-/* package */ class LongPollingUpdateListener implements RestUpdateListener {
+/* package */ class LongPollingUpdateListener implements UpdateListener {
 
   private static final Logger s_logger = LoggerFactory.getLogger(LongPollingUpdateListener.class);
 
@@ -51,21 +51,21 @@ import com.opengamma.util.ArgumentChecker;
    * Publishes {@code url} to the client as JSON.  If the client is connected (i.e. this listener has a
    * continuation) the URL is sent immediately.  If the client isn't connected it is queued until the
    * connection is re-established.
-   * @param url REST URL of the item that has been updated
+   * @param callbackId REST URL of the item that has been updated
    */
   @Override
-  public void itemUpdated(String url) {
-    ArgumentChecker.notNull(url, "url");
+  public void itemUpdated(String callbackId) {
+    ArgumentChecker.notNull(callbackId, "url");
     synchronized (_lock) {
       if (_continuation != null) {
         try {
-          sendUpdate(formatUpdate(url));
+          sendUpdate(formatUpdate(callbackId));
         } catch (JSONException e) {
           // this shouldn't ever happen
-          s_logger.warn("Unable to format URL as JSON: " + url, e);
+          s_logger.warn("Unable to format URL as JSON: " + callbackId, e);
         }
       } else {
-        _updates.add(url);
+        _updates.add(callbackId);
       }
     }
   }
@@ -74,24 +74,24 @@ import com.opengamma.util.ArgumentChecker;
    * Publishes {@code urls} to the client as JSON.  If the client is connected (i.e. this listener has a
    * continuation) the URLs are sent immediately.  If the client isn't connected they are queued until the
    * connection is re-established.
-   * @param urls REST URLs of the items that have been updated
+   * @param callbackIds REST URLs of the items that have been updated
    */
   @Override
-  public void itemsUpdated(Collection<String> urls) {
-    ArgumentChecker.notNull(urls, "urls");
-    if (urls.isEmpty()) {
+  public void itemsUpdated(Collection<String> callbackIds) {
+    ArgumentChecker.notNull(callbackIds, "urls");
+    if (callbackIds.isEmpty()) {
       return;
     }
     synchronized (_lock) {
       if (_continuation != null) {
         try {
-          sendUpdate(formatUpdate(urls));
+          sendUpdate(formatUpdate(callbackIds));
         } catch (JSONException e) {
           // this shouldn't ever happen, the updates are all URLs
-          s_logger.warn("Unable to format URLs as JSON. URLs: " + urls, e);
+          s_logger.warn("Unable to format URLs as JSON. URLs: " + callbackIds, e);
         }
       } else {
-        _updates.addAll(urls);
+        _updates.addAll(callbackIds);
       }
     }
   }
