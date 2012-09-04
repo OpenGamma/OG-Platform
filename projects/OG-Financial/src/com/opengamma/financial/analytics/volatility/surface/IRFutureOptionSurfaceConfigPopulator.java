@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.volatility.surface;
@@ -12,7 +12,7 @@ import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public class IRFutureOptionSurfaceConfigPopulator {
 
@@ -79,8 +79,8 @@ public class IRFutureOptionSurfaceConfigPopulator {
 
   private static void populateVolatilitySurfaceSpecifications(final ConfigMaster configMaster) {
     final BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider usSurfaceInstrumentProvider = new BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider("ED", "Comdty",
-        MarketDataRequirementNames.IMPLIED_VOLATILITY, 97.775);
-    final FuturePriceCurveInstrumentProvider<Number> usCurveInstrumentProvider = new BloombergIRFuturePriceCurveInstrumentProvider("ED", "Comdty", 
+        MarketDataRequirementNames.IMPLIED_VOLATILITY, 97.775, "CME");
+    final FuturePriceCurveInstrumentProvider<Number> usCurveInstrumentProvider = new BloombergIRFuturePriceCurveInstrumentProvider("ED", "Comdty",
         MarketDataRequirementNames.MARKET_VALUE, "BLOOMBERG_TICKER_WEAK");
     final VolatilitySurfaceSpecification usVolSurfaceDefinition = new VolatilitySurfaceSpecification("DEFAULT_USD_IR_FUTURE_OPTION", Currency.USD,
         SurfaceAndCubeQuoteType.CALL_AND_PUT_STRIKE,
@@ -89,8 +89,8 @@ public class IRFutureOptionSurfaceConfigPopulator {
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(usVolSurfaceDefinition));
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(usFutureCurveDefinition));
     final BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider euSurfaceInstrumentProvider = new BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider("ER", "Comdty",
-        MarketDataRequirementNames.IMPLIED_VOLATILITY, 97.775);
-    final FuturePriceCurveInstrumentProvider<Number> euCurveInstrumentProvider = new BloombergIRFuturePriceCurveInstrumentProvider("ER", "Comdty", 
+        MarketDataRequirementNames.IMPLIED_VOLATILITY, 97.775, "CME");
+    final FuturePriceCurveInstrumentProvider<Number> euCurveInstrumentProvider = new BloombergIRFuturePriceCurveInstrumentProvider("ER", "Comdty",
         MarketDataRequirementNames.MARKET_VALUE, "BLOOMBERG_TICKER_WEAK");
     final VolatilitySurfaceSpecification euVolSurfaceDefinition = new VolatilitySurfaceSpecification("DEFAULT_EUR_IR_FUTURE_OPTION", Currency.EUR,
         SurfaceAndCubeQuoteType.CALL_AND_PUT_STRIKE,

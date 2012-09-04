@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.opengamma</groupId>
     <artifactId>og-parent</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.2-SNAPSHOT</version>
     <relativePath>../..</relativePath>
   </parent>
   <artifactId>og-core</artifactId>
@@ -25,6 +25,10 @@
       <groupId>com.opengamma</groupId>
       <artifactId>og-util</artifactId>
       <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.mindrot</groupId>
+      <artifactId>jbcrypt</artifactId>
     </dependency>
   </dependencies>
 

@@ -14,25 +14,25 @@ public interface AnalyticsViewListener {
 
   /**
    * Notification that the row and column structure of a grid has changed
-   * @param gridId ID of the grid. This is the ID that was passed in when the grid or view was created
+   * @param callbackId The ID that was passed in when the grid or view was created
    */
-  void gridStructureChanged(String gridId);
+  void gridStructureChanged(String callbackId);
 
   /**
    * Notification that the row and column structure has changed for multiple grids
-   * @param gridIds IDs of the grid. These are the IDs that were passed in when the grids or view were created
+   * @param callbackIds IDs that were passed in when the grids or view were created
    */
-  void gridStructureChanged(List<String> gridIds);
+  void gridStructureChanged(List<String> callbackIds);
 
   /**
    * Notification that the data displayed in a grid has changed
-   * @param dataId ID of the data. This is the ID that was passed in when the the viewport was created
+   * @param callbackId The ID that was passed in when the the viewport was created
    */
-  void gridDataChanged(String dataId);
+  void gridDataChanged(String callbackId);
 
   /**
    * Notification that the data displayed in has changed in multiple grids
-   * @param dataIds IDs of the data. These are the IDs that were passed in when the the viewports were created
+   * @param callbackIds IDs that were passed in when the the viewports were created
    */
-  void gridDataChanged(List<String> dataIds);
+  void gridDataChanged(List<String> callbackIds);
 }

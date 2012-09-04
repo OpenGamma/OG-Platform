@@ -17,10 +17,11 @@ import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Tenor;
 
 /**
- * An implementation of ConventionBundle for use by the InMemoryConventionBundleMaster.  Note it is NOT immutable, because the master needs to be able to assign 
+ * An implementation of ConventionBundle for use by the InMemoryConventionBundleMaster.  Note it is NOT immutable, because the master needs to be able to assign
  * UniqueIds to it retrospectively, and to be able to update the bundle.
  */
 public class ConventionBundleImpl implements ConventionBundle {
@@ -81,6 +82,9 @@ public class ConventionBundleImpl implements ConventionBundle {
   //swaptions
   private boolean _isCashSettled;
 
+  //option expiries on exchanges
+  private String _optionExpiryCalculator;
+
   /**
    * Constructor to create a convention bundle for cash/general types
    * @param initialBundle the bundle of ids associated with the type
@@ -104,7 +108,7 @@ public class ConventionBundleImpl implements ConventionBundle {
    * Constructor to create a convention bundle for generic cash (no frequency applicable)
    * @param initialBundle the bundle of ExternalIds associated with the type
    * @param name the descriptive name of the type
-   * @param dayCount the day count convention 
+   * @param dayCount the day count convention
    * @param businessDayConvention the business day convention
    * @param settlementDays the number of days to settle
    */
@@ -146,7 +150,7 @@ public class ConventionBundleImpl implements ConventionBundle {
    * @param businessDayConvention the business day convention
    * @param period the period
    * @param settlementDays the number of days to settle
-   * @param isEOM whether the End-of-month convention is used in schedule generation 
+   * @param isEOM whether the End-of-month convention is used in schedule generation
    * @param region the ExternalId of the region associated with this type
    */
   public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
@@ -168,7 +172,7 @@ public class ConventionBundleImpl implements ConventionBundle {
    * @param dayCount the day count convention
    * @param businessDayConvention the business day convention
    * @param settlementDays the number of days to settle
-   * @param isEOMConvention whether the End-of-month convention is used in schedule generation 
+   * @param isEOMConvention whether the End-of-month convention is used in schedule generation
    */
   public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
       final int settlementDays, final boolean isEOMConvention) {
@@ -188,7 +192,7 @@ public class ConventionBundleImpl implements ConventionBundle {
    * @param businessDayConvention the business day convention
    * @param period the tenor of the index (e.g. 3M)
    * @param settlementDays the number of days to settle
-   * @param isEOM whether the End-of-month convention is used in schedule generation 
+   * @param isEOM whether the End-of-month convention is used in schedule generation
    * @param region the ExternalId of the region associated with this type
    * @param publicationLag the lag in publication from start of the period to publication of the index (e.g. USD = 1, most 0)
    */
@@ -543,6 +547,15 @@ public class ConventionBundleImpl implements ConventionBundle {
     _isCashSettled = isCashSettled;
   }
 
+  public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final String optionExpiryCalculator) {
+    ArgumentChecker.notNull(initialBundle, "initial bundle");
+    ArgumentChecker.notNull(name, "name");
+    ArgumentChecker.notNull(optionExpiryCalculator, "option expiry calculator");
+    _bundle = initialBundle;
+    _name = name;
+    _optionExpiryCalculator = optionExpiryCalculator;
+  }
+
   @Override
   public Frequency getFrequency() {
     return _frequency;
@@ -828,4 +841,8 @@ public class ConventionBundleImpl implements ConventionBundle {
     return _publicationLag;
   }
 
+  @Override
+  public String getOptionExpiryCalculator() {
+    return _optionExpiryCalculator;
+  }
 }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.fudgemsg;
@@ -19,10 +19,11 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import com.opengamma.financial.analytics.volatility.surface.BloombergEquityOptionVolatilitySurfaceInstrumentProvider;
 
 /**
- * 
+ * @deprecated The instrument provider for which this is a fudge builder has been deprecated
  */
+@Deprecated
 @FudgeBuilderFor(BloombergEquityOptionVolatilitySurfaceInstrumentProvider.class)
-public class BloombergEquityOptionVolatilitySurfaceInstrumentProviderFudgeBuilder implements FudgeBuilder<BloombergEquityOptionVolatilitySurfaceInstrumentProvider> {
+public class BloombergEquityOptionVolatilitySurfaceInstrumentProviderFudgeBuilderDeprecated implements FudgeBuilder<BloombergEquityOptionVolatilitySurfaceInstrumentProvider> {
 
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final BloombergEquityOptionVolatilitySurfaceInstrumentProvider object) {
