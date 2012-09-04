@@ -53,7 +53,6 @@ public abstract class AbstractGridResource {
    * @return The structure of the grid
    */
   @GET
-  @Path("/")
   public abstract GridStructure getGridStructure();
 
   @POST

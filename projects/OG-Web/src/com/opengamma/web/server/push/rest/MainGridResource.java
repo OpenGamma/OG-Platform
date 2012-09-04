@@ -31,7 +31,7 @@ public class MainGridResource extends AbstractGridResource implements Dependency
 
   @Override
   /* package */ long createViewport(int viewportId, String callbackId, ViewportSpecification viewportSpecification) {
-    return _view.createViewport(_gridType, viewportId, callbackId, viewportSpecification);
+    return _view.createViewport(_gridType, viewportId, callbackId, viewportSpecification).getFirst();
   }
 
   @Override

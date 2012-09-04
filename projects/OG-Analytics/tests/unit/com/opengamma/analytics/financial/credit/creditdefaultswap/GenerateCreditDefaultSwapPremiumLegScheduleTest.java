@@ -10,7 +10,6 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
-import com.opengamma.analytics.financial.credit.CouponFrequency;
 import com.opengamma.analytics.financial.credit.CreditRating;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.Region;
@@ -19,10 +18,16 @@ import com.opengamma.analytics.financial.credit.ScheduleGenerationMethod;
 import com.opengamma.analytics.financial.credit.Sector;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.PresentValueCreditDefaultSwapTest.MyCalendar;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.GenerateCreditDefaultSwapPremiumLegSchedule;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
@@ -57,13 +62,14 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
 
   private static final ZonedDateTime startDate = DateUtils.getUTCDate(2012, 8, 24);
   private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2012, 8, 25);
-  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2017, 8, 28);
-  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2014, 8, 24);
+  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2017, 8, 26);
+  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2013, 8, 25);
 
   private static final ScheduleGenerationMethod scheduleGenerationMethod = ScheduleGenerationMethod.BACKWARD;
-  private static final CouponFrequency couponFrequency = CouponFrequency.QUARTERLY;
-  private static final String daycountFractionConvention = "ACT/360";
-  private static final String businessdayAdjustmentConvention = "Following";
+  private static final PeriodFrequency couponFrequency = PeriodFrequency.QUARTERLY;
+  private static final DayCount daycountFractionConvention = DayCountFactory.INSTANCE.getDayCount("ACT/360");
+  private static final BusinessDayConvention businessdayAdjustmentConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+
   private static final boolean adjustMaturityDate = true;
 
   private static final double notional = 10000000.0;
@@ -135,10 +141,10 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
     System.out.println("Running schedule generation tests ...");
 
     // Construct a cashflow schedule object
-    //final GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
+    final GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
 
     // Go into the schedule generation method
-    //ZonedDateTime[][] sch = cashflowSchedule.constructCreditDefaultSwapPremiumLegSchedule(cds);
+    ZonedDateTime[][] schedule = cashflowSchedule.constructCreditDefaultSwapPremiumLegSchedule(cds);
 
   }
 
