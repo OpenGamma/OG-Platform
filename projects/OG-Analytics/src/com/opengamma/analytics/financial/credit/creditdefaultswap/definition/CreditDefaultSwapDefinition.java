@@ -29,11 +29,9 @@ public class CreditDefaultSwapDefinition {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // Member variables of the CDS contract (defines what a CDS is)
-
   // Cashflow Conventions are assumed to be as below
 
-  // Notional amount > 0 always - long/short positions are captured by the setting of 'BuySellProtection'
+  // Notional amount > 0 always - long/short positions are captured by the setting of the 'BuySellProtection' flag
 
   // Buy protection   -> Pay premium leg, receive contingent leg  -> 'long' protection  -> 'short' credit risk
   // Sell protection  -> Receive premium leg, pay contingent leg  -> 'short' protection -> 'long' credit risk
@@ -51,7 +49,9 @@ public class CreditDefaultSwapDefinition {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // From the users perspective, are we buying or selling protection - User input
+  // Member variables of the CDS contract (defines what a CDS is)
+
+  // From the users perspective, are we buying or selling protection - User input see enum
   private final BuySellProtection _buySellProtection;
 
   // Identifiers for the (three) counterparties in the trade - User input
@@ -70,19 +70,19 @@ public class CreditDefaultSwapDefinition {
   // The restructuring type in the event of a credit event deemed to be a restructuring of the reference entities debt - User input, see enum
   private final RestructuringClause _restructuringClause;
 
-  // The composite credit (curve) rating of the reference entity (MarkIt field)
+  // The composite credit (curve) rating of the reference entity (MarkIt field) - User input, see enum
   private final CreditRating _compositeRating;
 
-  // The implied credit rating of the reference entity (MarkIt field)
+  // The implied credit rating of the reference entity (MarkIt field) - User input, see enum
   private final CreditRating _impliedRating;
 
-  // The industrial classification of the reference entity
+  // The industrial classification of the reference entity - User input, see enum
   private final Sector _sector;
 
-  // The geographical domicile of the reference entity
+  // The geographical domicile of the reference entity - User input, see enum
   private final Region _region;
 
-  // The country of domicile of the reference entity
+  // The country of domicile of the reference entity - User input
   private final String _country;
 
   // Holiday calendar for the determination of adjusted business days in the cashflow schedule - User input
@@ -106,10 +106,10 @@ public class CreditDefaultSwapDefinition {
   // The frequency of coupon payments (usually quarterly) - User input see enum
   private final PeriodFrequency _couponFrequency;
 
-  // Day-count convention (usually Act/360) - User input
+  // Day-count convention (usually Act/360) - User input, see enum
   private final DayCount _daycountFractionConvention;
 
-  // Business day adjustment convention (usually following) - User input
+  // Business day adjustment convention (usually following) - User input, see enum
   private final BusinessDayConvention _businessdayAdjustmentConvention;
 
   // Flag to determine if we business day adjust the final maturity date - User input
