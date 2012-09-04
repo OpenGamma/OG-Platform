@@ -375,12 +375,17 @@ public abstract class BlackFormulaRepository {
    */
   @ExternalFunction
   public static double impliedVolatility(final double price, final double forward, final double strike, final double timeToExpiry, final boolean isCall) {
-    final double intrinsicPrice = Math.max(0, (isCall ? 1 : -1) * (forward - strike));
     Validate.isTrue(strike > 0, "Cannot find an implied volatility when strike is zero as there is no optionality");
+    if (isCall) {
+      ArgumentChecker.isTrue(strike >= forward, "Call is not OTM (strike >= 0); have strike {} and forward {}", strike, forward);
+    } else {
+      ArgumentChecker.isTrue(strike < forward, "Put is not OTM (strike < forward); have strike {} and forward {}", strike, forward);
+    }
+    final double intrinsicPrice = Math.max(0, (isCall ? 1 : -1) * (forward - strike));
     //    if (price == intrinsicPrice) {
     //      return 0.0;
     //    }
-    //  ArgumentChecker.isTrue(price > intrinsicPrice, "price of {} less that intrinsic price of {}", price, intrinsicPrice);
+    ArgumentChecker.isTrue(price > intrinsicPrice, "price of {} less that intrinsic price of {}", price, intrinsicPrice);
     //
     //    if (isCall) {
     //      Validate.isTrue(price < forward, "call price must be less than forward");

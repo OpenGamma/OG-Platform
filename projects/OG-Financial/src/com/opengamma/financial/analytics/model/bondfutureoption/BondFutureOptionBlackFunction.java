@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.bondfutureoption;
@@ -20,14 +20,18 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
+import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
+import com.opengamma.analytics.math.surface.Surface;
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -61,7 +65,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public abstract class BondFutureOptionBlackFunction extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(BondFutureOptionBlackFunction.class);
@@ -93,9 +97,6 @@ public abstract class BondFutureOptionBlackFunction extends AbstractFunction.Non
     final Trade trade = target.getTrade();
     final BondFutureOptionSecurity security = (BondFutureOptionSecurity) trade.getSecurity();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final Currency currency = FinancialSecurityUtils.getCurrency(security);
-    final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
-    final String surfaceNameWithPrefix = surfaceName + "_" + getFutureOptionPrefix(target); // Done to enable standard and midcurve options to share the same default name
     final String curveCalculationConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
     final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
@@ -105,7 +106,7 @@ public abstract class BondFutureOptionBlackFunction extends AbstractFunction.Non
     }
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
     final YieldCurveBundle curves = YieldCurveFunctionUtils.getAllYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
-    final Object volatilitySurfaceObject = inputs.getValue(getVolatilityRequirement(surfaceNameWithPrefix, currency));
+    final Object volatilitySurfaceObject = inputs.getValue(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE);
     if (volatilitySurfaceObject == null) {
       throw new OpenGammaRuntimeException("Could not get volatility surface");
     }
@@ -113,11 +114,22 @@ public abstract class BondFutureOptionBlackFunction extends AbstractFunction.Non
     if (!(volatilitySurface.getSurface() instanceof InterpolatedDoublesSurface)) {
       throw new OpenGammaRuntimeException("Expecting an InterpolatedDoublesSurface; got " + volatilitySurface.getSurface().getClass());
     }
+    final Object futureOptionPriceObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.SETTLE_PRICE, ComputationTargetType.SECURITY, security.getUniqueId()));
+    if (futureOptionPriceObject == null) {
+      throw new OpenGammaRuntimeException("Could not get bond future option price for " + security.getUniqueId());
+    }
+    final Object futurePriceObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.SETTLE_PRICE, security.getUnderlyingId()));
+    if (futurePriceObject == null) {
+      throw new OpenGammaRuntimeException("Could not get bond future price for " + security.getUnderlyingId());
+    }
+    final double futureOptionPrice = (Double) futureOptionPriceObject;
+    final double futurePrice = (Double) futurePriceObject;
     final InstrumentDefinition<?> bondFutureOptionDefinition = _converter.convert(trade);
     final InstrumentDerivative bondFutureOption = _dataConverter.convert(security, bondFutureOptionDefinition, now, curveNames, timeSeries);
     final ValueProperties properties = getResultProperties(desiredValue, security);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties);
-    final YieldCurveWithBlackCubeBundle data = new YieldCurveWithBlackCubeBundle(volatilitySurface.getSurface(), curves);
+    final YieldCurveWithBlackCubeBundle data = new YieldCurveWithBlackCubeBundle(getVolatilitySurface(volatilitySurface.getSurface(), futureOptionPrice, futurePrice,
+        security, now), curves);
     return getResult(bondFutureOption, data, curveCalculationConfig, spec, inputs, desiredValues, security);
   }
 
@@ -173,6 +185,9 @@ public abstract class BondFutureOptionBlackFunction extends AbstractFunction.Non
     if (tsRequirements == null) {
       return null;
     }
+    final BondFutureOptionSecurity security = (BondFutureOptionSecurity) target.getTrade().getSecurity();
+    requirements.add(new ValueRequirement(MarketDataRequirementNames.SETTLE_PRICE, ComputationTargetType.SECURITY, security.getUniqueId()));
+    requirements.add(new ValueRequirement(MarketDataRequirementNames.SETTLE_PRICE, security.getUnderlyingId()));
     requirements.addAll(tsRequirements);
     return requirements;
   }
@@ -224,4 +239,22 @@ public abstract class BondFutureOptionBlackFunction extends AbstractFunction.Non
     throw new OpenGammaRuntimeException("Could not find option ticker");
   }
 
+  private Surface<Double, Double, Double> getVolatilitySurface(final Surface<Double, Double, Double> surface, final double futureOptionPrice, final double futurePrice,
+      final BondFutureOptionSecurity security, final ZonedDateTime now) {
+    final double strike = security.getStrike() * 100;
+    final double t = TimeCalculator.getTimeBetween(now, security.getExpiry().getExpiry());
+    final double impliedVolatility = BlackFormulaRepository.impliedVolatility(futureOptionPrice, futurePrice, strike, t, 0.3);
+    if (!(surface instanceof InterpolatedDoublesSurface)) {
+      throw new OpenGammaRuntimeException("Can only handle interpolated surfaces");
+    }
+    final InterpolatedDoublesSurface interpolatedSurface = (InterpolatedDoublesSurface) surface;
+    final double[] x = interpolatedSurface.getXDataAsPrimitive();
+    final double[] y = interpolatedSurface.getYDataAsPrimitive();
+    final int n = x.length;
+    final double[] z = new double[n];
+    for (int i = 0; i < n; i++) {
+      z[i] = impliedVolatility;
+    }
+    return InterpolatedDoublesSurface.from(x, y, z, interpolatedSurface.getInterpolator());
+  }
 }

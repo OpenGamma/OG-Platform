@@ -9,7 +9,7 @@ import javax.time.calendar.LocalDate;
 
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.convention.BondFutureOptionExpiryCalculator;
+import com.opengamma.financial.convention.BondFutureExpiryCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 
 /**
@@ -24,7 +24,7 @@ public class BondFuturePriceCurveFunction extends FuturePriceCurveFunction {
 
   @Override
   protected Double getTimeToMaturity(final int n, final LocalDate date, final Calendar calendar) {
-    return TimeCalculator.getTimeBetween(date, BondFutureOptionExpiryCalculator.getInstance().getExpiryDate(n, date, calendar));
+    return TimeCalculator.getTimeBetween(date, BondFutureExpiryCalculator.getInstance().getExpiryDate(n, date, calendar));
   }
 
 }

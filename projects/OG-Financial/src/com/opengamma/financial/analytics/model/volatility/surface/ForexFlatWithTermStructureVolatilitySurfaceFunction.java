@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.volatility.surface;
@@ -38,7 +38,7 @@ import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ *
  */
 public class ForexFlatWithTermStructureVolatilitySurfaceFunction extends ForexVolatilitySurfaceFunction {
 
@@ -78,10 +78,15 @@ public class ForexFlatWithTermStructureVolatilitySurfaceFunction extends ForexVo
         Double volatility = fxVolatilitySurface.getVolatility(tenor, y);
         if (volatility != null) {
           volatility *= shiftMultiplier;
-          volsList.add(volatility);
+          if (y.getValue().equals(FXVolQuoteType.ATM)) {
+            volsList.add(volatility);
+            timesList.add(t);
+          }
         }
       }
-      timesList.add(t);
+    }
+    if (volsList.size() == 0) {
+      throw new OpenGammaRuntimeException("No volatility surface data for FX surface " + target.getUniqueId());
     }
     final ValueProperties.Builder resultProperties = createValueProperties()
         .with(ValuePropertyNames.SURFACE, surfaceName)
