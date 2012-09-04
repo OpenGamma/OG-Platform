@@ -512,6 +512,7 @@ public final class DependencyGraphBuilder implements Cancelable {
    * Tests if the graph has been built or if work is still required. Graphs are only built in the background if additional threads is set to non-zero.
    * 
    * @return true if the graph has been built, false if it is outstanding
+   * @throws CancellationException if the graph build has been canceled
    */
   public boolean isGraphBuilt() {
     synchronized (_buildCompleteLock) {
