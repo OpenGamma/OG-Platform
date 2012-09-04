@@ -81,7 +81,6 @@ import com.opengamma.financial.analytics.model.cds.ISDAApproxCDSPriceFlatSpreadF
 import com.opengamma.financial.analytics.model.cds.ISDAApproxCDSPriceHazardCurveFunction;
 import com.opengamma.financial.analytics.model.cds.ISDAApproxDiscountCurveFunction;
 import com.opengamma.financial.analytics.model.cds.ISDAApproxFlatSpreadFunction;
-import com.opengamma.financial.analytics.model.cds.ISDAApproxHazardCurveFunction;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.curve.interestrate.InterpolatedYieldCurveDefaults;
 import com.opengamma.financial.analytics.model.curve.interestrate.InterpolatedYieldCurveFunction;
@@ -743,7 +742,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(ISDAApproxCDSPriceFlatSpreadFunction.class));
     functionConfigs.add(functionConfiguration(ISDAApproxCDSPriceHazardCurveFunction.class));
     functionConfigs.add(functionConfiguration(ISDAApproxFlatSpreadFunction.class));
-    functionConfigs.add(functionConfiguration(ISDAApproxHazardCurveFunction.class));
     functionConfigs.add(functionConfiguration(ISDAApproxDiscountCurveFunction.class));
     
 

@@ -30,7 +30,16 @@ import com.opengamma.financial.security.cds.CDSSecurity;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Price CDS contracts according to the ISDA model using a hazard rate term structure
+ * Price CDS contracts according to the ISDA model using a hazard rate term structure.
+ * 
+ * This is provided as a placeholder only and more work is required before the ISDA approximate
+ * pricer can be used with a hazard rate term structure. In particular a hazard curve function
+ * is required to fulfil the hazard curve requirement, which will require adding an extra method
+ * in the pricing method class. For an example of how to do this see the version of
+ * {@see ISDAApproxCDSPricingMethod#calculateUpfrontCharge} which takes a flat spread as input
+ * for the hazard rate solver.
+ * 
+ * For a complete ISDA pricing implementation use {@see ISDAApproxCDSPriceFlatSpreadFunction}.
  * 
  * @author Martin Traverse, Niels Stchedroff (Riskcare)
  * @see ISDAApproxCDSPricingMethod
