@@ -51,9 +51,9 @@ public class EHCachingMasterConfigSourceTest {
  
   @BeforeMethod
   public void setUp() throws Exception {
-    EHCacheUtils.clearAll();
     _underlyingConfigMaster = new UnitTestConfigMaster();
     CacheManager cm = EHCacheUtils.createCacheManager();
+    cm.getCache(EHCachingMasterConfigSource.CONFIG_CACHE).removeAll();
     _cachingSource = new EHCachingMasterConfigSource(_underlyingConfigMaster, cm);
   }
 

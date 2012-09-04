@@ -28,6 +28,7 @@ public final class SwaptionPhysicalFixedIbor extends EuropeanVanillaOption imple
     /**
      * The calibration instruments are long swaptions with one maturity for each fixed coupon and strikes equal to the original strikes on the relevant periods.
      * The notional for all coupons is set to the first fixed leg coupon notional.
+     * TODO: Should this be in the Definition or in a "Calculator"?
      */
     FIXEDLEG_STRIKE
   }
@@ -128,6 +129,7 @@ public final class SwaptionPhysicalFixedIbor extends EuropeanVanillaOption imple
    * Create a calibration basket for the swaption.
    * @param type The calibration type.
    * @return The basket.
+   * TODO: Should this be in the Definition or in a "Calculator"?
    */
   public SwaptionPhysicalFixedIbor[] calibrationBasket(final SwaptionPhysicalFixedIborCalibrationType type) { //, final YieldCurveBundle curves
     SwaptionPhysicalFixedIbor[] calibration = new SwaptionPhysicalFixedIbor[0];

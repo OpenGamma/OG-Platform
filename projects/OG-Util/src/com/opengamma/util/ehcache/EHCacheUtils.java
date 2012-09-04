@@ -28,7 +28,9 @@ public final class EHCacheUtils {
 
   /**
    * Creates a cache manager using the default configuration. This should be used only in a test environment; in other
-   * environments a shared, configured cache manager should be injected.
+   * environments a properly configured cache manager should be injected.
+   * <p>
+   * Beware that this returns a singleton cache manager instance, and certain operations may not be thread-safe or may interfere with concurrently-running tests.
    * 
    * @return the cache manager, not null
    */
@@ -38,6 +40,17 @@ public final class EHCacheUtils {
     } catch (CacheException ex) {
       throw new OpenGammaRuntimeException("Unable to create CacheManager", ex);
     }
+  }
+  
+  /**
+   * Clears the contents of all caches (without deleting the caches themselves). Should be called e.g. between tests.
+   * 
+   * @deprecated  This method is not thread-safe, affects the entire singleton CacheManager, and is likely to cause
+   *              problems if used in concurrently-running tests.
+   */
+  @Deprecated
+  public static void clearAll() {
+    CacheManager.create().clearAll();
   }
 
   /**
@@ -91,14 +104,6 @@ public final class EHCacheUtils {
       throw new OpenGammaRuntimeException(
           "Unable to retrieve from CacheManager, cache: " + name, ex);
     }
-  }
-  
-  /**
-   * Clears the contents of all caches (wihtout deleting the caches
-   * themselves). Should be called e.g. between tests.
-   */
-  public static void clearAll() {
-    CacheManager.create().clearAll();
   }
   
   @SuppressWarnings("unchecked")

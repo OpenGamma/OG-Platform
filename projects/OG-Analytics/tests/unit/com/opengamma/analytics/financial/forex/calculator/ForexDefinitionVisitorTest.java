@@ -68,6 +68,7 @@ import com.opengamma.analytics.financial.instrument.swap.SwapXCcyIborIborDefinit
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionBermudaFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
+import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborSpreadDefinition;
 
 /**
  * Tests the visitor of Forex definitions.
@@ -699,6 +700,16 @@ public class ForexDefinitionVisitorTest {
     @Override
     public String visitCouponIborCompounded(CouponIborCompoundedDefinition payment) {
       // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitSwaptionPhysicalFixedIborSpreadDefinition(SwaptionPhysicalFixedIborSpreadDefinition swaption, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitSwaptionPhysicalFixedIborSpreadDefinition(SwaptionPhysicalFixedIborSpreadDefinition swaption) {
       return null;
     }
 
