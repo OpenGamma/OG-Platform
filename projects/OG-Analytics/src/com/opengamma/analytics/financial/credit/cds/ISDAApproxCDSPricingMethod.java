@@ -92,7 +92,7 @@ public class ISDAApproxCDSPricingMethod {
     final double[] dataPoints = {flatSpread};
 
     final ISDACDSDefinition bootstrapCDSDefinition = makeBootstrapCDSDefinition(cds, flatSpread);
-    final ISDACDSDerivative bootstrapCDS = bootstrapCDSDefinition.toDerivative(pricingDate, stepinDate, settlementDate, "IR_CURVE", "TEMP_CURVE");
+    final ISDACDSDerivative bootstrapCDS = bootstrapCDSDefinition.toDerivative(pricingDate, stepinDate, settlementDate, cds.getDiscountCurveName(), cds.getSpreadCurveName());
 
     final double guess = dataPoints[0] / (1.0 - cds.getRecoveryRate());
     
@@ -101,7 +101,7 @@ public class ISDAApproxCDSPricingMethod {
         @Override
         public Double evaluate(Double x) {
           dataPoints[0] = x;   
-          ISDACurve tempCurve = new ISDACurve("TEMP_CURVE", timePoints, dataPoints, 0.0);
+          ISDACurve tempCurve = new ISDACurve(cds.getSpreadCurveName(), timePoints, dataPoints, 0.0);
           return valueCDS(bootstrapCDS, tempCurve, paymentTimeline, accrualTimeline, contingentTimeline, offsetStepinTime, stepinDiscountFactor, settlementDiscountFactor, true);
         }  
       },
@@ -114,7 +114,7 @@ public class ISDAApproxCDSPricingMethod {
       throw new OpenGammaRuntimeException("Failed to converge finding hazard rate");
     }
     
-    final ISDACurve hazardRateCurve = new ISDACurve("HAZARD_RATE_CURVE", timePoints, dataPoints, 0.0);
+    final ISDACurve hazardRateCurve = new ISDACurve(cds.getSpreadCurveName(), timePoints, dataPoints, 0.0);
       
     return valueCDS(cds, hazardRateCurve, paymentTimeline, accrualTimeline, contingentTimeline, offsetStepinTime, stepinDiscountFactor, settlementDiscountFactor, cleanPrice);
   }
