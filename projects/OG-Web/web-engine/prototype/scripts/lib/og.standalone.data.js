@@ -4,25 +4,36 @@
         max_col_width: 300 // the maximum default width for a column
     };
     $.fn.ogdata = function (input) {
-        var $selector = $(this), grid_width = $selector.width() / input.length, util = {}, gadget = {}, grid;
+        var $selector = $(this), grid_width = $selector.width() / input.length, util = {}, gadget = {}, grid, cols,
+            data, json_strify = JSON.stringify, json_parse = JSON.parse;
         /**
-         * @param data {Object} object with data & labels arrays
+         * @param d {Object} object with data & labels arrays
          * @param num
          */
-        gadget.add_grid = function (data, num) {
-            var pdata = util.process_data(data);
+        gadget.add_grid = function (d, num) {
+            var pdata = util.process_data(d); cols = json_strify(pdata.columns); data = json_strify(pdata.data);
             grid = new Slick.Grid($selector.find('.data_' + num), pdata.data, pdata.columns);
+            grid.onColumnsResized.subscribe(gadget.on_column_resize);
         };
         gadget.load = function () {
             $selector.css('backgroundColor', settings.background_color);
             util.setup_framework();
             input.forEach(function (val, i) {gadget.add_grid(input[i], i);});
         };
-        gadget.update = function(input){
+        gadget.update = function(input) {
             var pdata = util.process_data(input);
-            grid.setData(pdata.data);
-            grid.setColumns(pdata.columns);
-            grid.invalidate();
+            if (data !== json_strify(pdata.data)) data = json_strify(pdata.data), grid.setData(pdata.data);
+            /**
+             * TODO AG: check if the column headings are different and if the column widths have changed, persist 
+             */
+            if (cols !== json_strify(pdata.columns)) cols = json_strify(pdata.columns), grid.setColumns(pdata.columns);
+        };
+        gadget.on_column_resize = function(e, args) {
+            var columns = args.grid.getColumns(), len = columns.length-1, i = 0, c = json_parse(cols), w;
+            for (; i < len; i++) {
+                if (columns[i].width !== c[i].width) c[i].width = columns[i].width;
+            }
+            cols = json_strify(c);
         };
         /**
          * Create html columns to house the grids
@@ -34,7 +45,7 @@
                 css = width + '; float: left; ' + height,
                 html = '';
             for (; i < input.length; i++) {
-                html += '<div class="data_' + i + '" style="' + css + '"></div>'
+                html += '<div class="data_' + i + '" style="' + css + '"></div>';
             }
             $selector.html(html);
         };
@@ -43,7 +54,7 @@
             var ismatrix = ($.isArray(data.labels[0])),
                 xlabels = ismatrix ? data.labels[0] : data.labels,
                 ylabels = ismatrix ? data.labels[1] : null,
-                col_width = util.column_width(data, settings.max_col_width, ismatrix);
+                col_width = util.column_width(data, settings.max_col_width, ismatrix),
                 cols = [];
             if (ismatrix){
                 cols.push({id: 'ylabelscol', name: '', field: 'ylabelscol', width: col_width});
@@ -79,5 +90,5 @@
         };
         gadget.load();
         return gadget;
-    }
+    };
 })(jQuery);

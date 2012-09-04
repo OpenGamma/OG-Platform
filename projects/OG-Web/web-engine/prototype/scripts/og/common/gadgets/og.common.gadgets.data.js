@@ -23,8 +23,8 @@ $.register_module({
                     .css({position: 'absolute', top: '0', left: 0, right: 0, bottom: 0});
                 (new og.analytics.Cell({source: source, col: col, row: row}))
                     .on('data', function (data) {
-                        if(data){            
-                            if(!inst) gadget.update = ($(config.selector).ogdata([{data: data}])).update, inst = true;
+                        if (data) {                
+                            if (!inst) gadget.update = ($(config.selector).ogdata([{data: data}])).update, inst = true;
                             else gadget.update({data:data});
                         }
                     });
