@@ -27,7 +27,7 @@ import com.opengamma.util.LogUtils;
  * The command line tools generally require access to key parts of the infrastructure. These are provided via {@link ToolContext} which is setup and closed by this class using {@link ComponentManager}
  * . Normally the file is named {@code toolcontext.ini}.
  */
-public abstract class AbstractTool {
+public abstract class AbstractTool<T extends ToolContext> {
   
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractTool.class);
   /**
@@ -49,7 +49,7 @@ public abstract class AbstractTool {
   /**
    * The tool context.
    */
-  private ToolContext _toolContext;
+  private T _toolContext;
 
   /**
    * Initializes the tool statically.
@@ -80,7 +80,11 @@ public abstract class AbstractTool {
    * @return true if successful, false otherwise
    */
   public boolean initAndRun(String[] args) {
-    return initAndRun(args, null, null);
+    return initAndRun(args, (Class<T>) ToolContext.class);
+  }
+
+  public boolean initAndRun(String[] args, Class<? extends T> toolContextClass) {
+    return initAndRun(args, null, null, toolContextClass);
   }
 
   /**
@@ -97,6 +101,11 @@ public abstract class AbstractTool {
    * @return true if successful, false otherwise
    */
   public boolean initAndRun(String[] args, String defaultConfigResource, String defaultLogbackResource) {
+    return initAndRun(args, defaultConfigResource, defaultLogbackResource, (Class<T>) ToolContext.class);
+  }
+
+  public boolean initAndRun(String[] args, String defaultConfigResource, String defaultLogbackResource,
+                            Class<? extends T> toolContextClass) {
     ArgumentChecker.notNull(args, "args");
 
     Options options = createOptions(defaultConfigResource == null);
@@ -117,7 +126,7 @@ public abstract class AbstractTool {
     logbackResource = StringUtils.defaultIfEmpty(logbackResource, TOOL_LOGBACK_XML);
     String configResource = line.getOptionValue(CONFIG_RESOURCE_OPTION);
     configResource = StringUtils.defaultString(configResource, defaultConfigResource);
-    return init(logbackResource) && run(configResource);
+    return init(logbackResource) && run(configResource, toolContextClass);
   }
 
   /**
@@ -129,10 +138,14 @@ public abstract class AbstractTool {
    * @return true if successful
    */
   public final boolean run(String configResource) {
+    return run(configResource, (Class<T>) ToolContext.class);
+  }
+
+  public final boolean run(String configResource, Class<? extends T> toolContextClass) {
     try {
       ArgumentChecker.notNull(configResource, "configResourceLocation");
       s_logger.info("Starting " + getClass().getSimpleName());
-      ToolContext toolContext = ToolContextUtils.getToolContext(configResource);
+      T toolContext = (T) ToolContextUtils.getToolContext(configResource, toolContextClass);
       s_logger.info("Running " + getClass().getSimpleName());
       run(toolContext);
       s_logger.info("Finished " + getClass().getSimpleName());
@@ -155,7 +168,7 @@ public abstract class AbstractTool {
    * @param toolContext the tool context, not null
    * @throws RuntimeException if an error occurs
    */
-  public final void run(ToolContext toolContext) {
+  public final void run(T toolContext) {
     _toolContext = toolContext;
     try {
       doRun();
@@ -180,7 +193,7 @@ public abstract class AbstractTool {
    * 
    * @return the context, not null during {@code doRun}
    */
-  protected ToolContext getToolContext() {
+  protected T getToolContext() {
     return _toolContext;
   }
 

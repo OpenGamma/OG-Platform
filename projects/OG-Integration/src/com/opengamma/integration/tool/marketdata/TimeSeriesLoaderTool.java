@@ -9,6 +9,7 @@ import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
+import com.opengamma.financial.tool.ToolContext;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
@@ -22,7 +23,7 @@ import com.opengamma.util.generate.scripts.Scriptable;
  * The timeseries loader tool
  */
 @Scriptable
-public class TimeSeriesLoaderTool extends AbstractTool {
+public class TimeSeriesLoaderTool extends AbstractTool<ToolContext> {
 
   /** File name option flag */
   public static final String FILE_NAME_OPT = "f";
@@ -47,7 +48,7 @@ public class TimeSeriesLoaderTool extends AbstractTool {
    * @param args  the arguments, not null
    */
   public static void main(String[] args) { //CSIGNORE
-    new TimeSeriesLoaderTool().initAndRun(args);
+    new TimeSeriesLoaderTool().initAndRun(args, ToolContext.class);
     System.exit(0);
   }
 

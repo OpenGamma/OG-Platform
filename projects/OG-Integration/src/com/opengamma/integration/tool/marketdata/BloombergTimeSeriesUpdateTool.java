@@ -3,8 +3,10 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.bbg.tool;
+package com.opengamma.integration.tool.marketdata;
 
+import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.integration.tool.IntegrationToolContext;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
@@ -16,14 +18,14 @@ import com.opengamma.util.generate.scripts.Scriptable;
  * Updates time-series using the Bloomberg historical loader.
  */
 @Scriptable
-public class BloombergTimeSeriesUpdateTool extends AbstractBloombergTool {
+public class BloombergTimeSeriesUpdateTool extends AbstractTool<IntegrationToolContext> {
 
   @Override
   protected void doRun() throws Exception {
     BloombergHistoricalLoader loader = new BloombergHistoricalLoader(
         getToolContext().getHistoricalTimeSeriesMaster(),
-        getBloombergToolContext().getBloombergHistoricalTimeSeriesSource(),
-        new BloombergIdentifierProvider(getBloombergToolContext().getBloombergReferenceDataProvider()));
+        getToolContext().getBloombergHistoricalTimeSeriesSource(),
+        new BloombergIdentifierProvider(getToolContext().getBloombergReferenceDataProvider()));
     loader.setUpdateDb(true);
     loader.setReload(getCommandLine().hasOption("reload"));
     loader.run();
@@ -42,7 +44,7 @@ public class BloombergTimeSeriesUpdateTool extends AbstractBloombergTool {
    * @param args  the arguments
    */
   public static void main(String[] args) { // CSIGNORE
-    boolean success = new BloombergTimeSeriesUpdateTool().initAndRun(args);
+    boolean success = new BloombergTimeSeriesUpdateTool().initAndRun(args, IntegrationToolContext.class);
     System.exit(success ? 0 : 1);
   }
 

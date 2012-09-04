@@ -31,7 +31,7 @@ import com.opengamma.util.generate.scripts.Scriptable;
  * The portfolio saver tool
  */
 @Scriptable
-public class PortfolioSaverTool extends AbstractTool {
+public class PortfolioSaverTool extends AbstractTool<ToolContext> {
 
   /** File name option flag */
   private static final String FILE_NAME_OPT = "f";
