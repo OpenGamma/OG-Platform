@@ -16,6 +16,7 @@ import com.opengamma.analytics.financial.credit.Region;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.ScheduleGenerationMethod;
 import com.opengamma.analytics.financial.credit.Sector;
+import com.opengamma.analytics.financial.credit.SurvivalCurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.PresentValueCreditDefaultSwapTest.MyCalendar;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.GenerateCreditDefaultSwapPremiumLegSchedule;
@@ -60,10 +61,10 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
 
   private static final Calendar calendar = new MyCalendar();
 
-  private static final ZonedDateTime startDate = DateUtils.getUTCDate(2012, 8, 24);
-  private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2012, 8, 25);
-  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2017, 8, 26);
-  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2013, 8, 25);
+  private static final ZonedDateTime startDate = DateUtils.getUTCDate(2007, 10, 22);
+  private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2007, 10, 23);
+  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2012, 12, 20);
+  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2010, 4, 25);
 
   private static final ScheduleGenerationMethod scheduleGenerationMethod = ScheduleGenerationMethod.BACKWARD;
   private static final PeriodFrequency couponFrequency = PeriodFrequency.QUARTERLY;
@@ -76,23 +77,20 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
   private static final double parSpread = 60.0;
   private static final double valuationRecoveryRate = 0.40;
   private static final double curveRecoveryRate = 0.40;
-  private static final boolean includeAccruedPremium = true;
-  private static final int numberOfIntegrationSteps = 12;
+  private static final boolean includeAccruedPremium = false;
+  private static final int numberOfIntegrationSteps = 100;
 
   // Dummy yield curve
-  private static final double[] TIME = new double[] {0, 3, 5 };
-  private static final double[] RATES = new double[] {0.05, 0.05, 0.05 };
+  private static final double interestRate = 0.0;
+  private static final double[] TIME = new double[] {0, 3, 5, 10 };
+  private static final double[] RATES = new double[] {interestRate, interestRate, interestRate, interestRate };
   private static final InterpolatedDoublesCurve R = InterpolatedDoublesCurve.from(TIME, RATES, new LinearInterpolator1D());
   private static final YieldCurve yieldCurve = YieldCurve.from(R);
 
-  // Dummy survival curve (proxied by a yield curve for now)
-  private static final double[] survivalTIME = new double[] {0, 3, 5 };
-  private static final double[] survivalProbs = new double[] {0.01, 0.01, 0.01 };
-  private static final InterpolatedDoublesCurve S = InterpolatedDoublesCurve.from(survivalTIME, survivalProbs, new LinearInterpolator1D());
-  private static final YieldCurve survivalCurve = YieldCurve.from(S);
+  private static final SurvivalCurve survivalCurve = new SurvivalCurve();
 
   // Dummy rating curve (proxied by a yield curve for now)
-  private static final YieldCurve ratingCurve = survivalCurve;
+  private static final YieldCurve ratingCurve = yieldCurve;
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -143,7 +141,7 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
     // Construct a cashflow schedule object
     final GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
 
-    // Go into the schedule generation method
+    // Call the schedule generation method for the CDS contract
     ZonedDateTime[][] schedule = cashflowSchedule.constructCreditDefaultSwapPremiumLegSchedule(cds);
 
   }

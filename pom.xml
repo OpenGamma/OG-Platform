@@ -152,6 +152,10 @@
             <logback.configurationFile>${junit.logback}</logback.configurationFile>
             <test.database.type>hsqldb</test.database.type>
           </systemPropertyVariables>
+          <parallel>${tests.testng.parallel}</parallel>
+          <threadCount>${tests.testng.threads}</threadCount>
+          <groups>${tests.testng.includedgroups}</groups>
+          <excludedGroups>${tests.testng.exludedgroups}</excludedGroups>
         </configuration>
       </plugin>
       <plugin>

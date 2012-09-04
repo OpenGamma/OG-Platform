@@ -47,7 +47,6 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     // Extract the relevant CDS contract parameters necessary to build the premium schedule
 
-    ZonedDateTime startDate = cds.getStartDate();
     ZonedDateTime effectiveDate = cds.getEffectiveDate();
     ZonedDateTime maturityDate = cds.getMaturityDate();
 

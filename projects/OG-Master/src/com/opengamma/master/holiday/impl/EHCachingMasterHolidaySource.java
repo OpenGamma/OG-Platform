@@ -30,7 +30,7 @@ public class EHCachingMasterHolidaySource extends MasterHolidaySource {
   /**
    * Cache key for holidays.
    */
-  private static final String HOLIDAY_CACHE = "holiday";
+  /*pacakge*/ static final String HOLIDAY_CACHE = "holiday";
 
   /**
    * The cache manager.

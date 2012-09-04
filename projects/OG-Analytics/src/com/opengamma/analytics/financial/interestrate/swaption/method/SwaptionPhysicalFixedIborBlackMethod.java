@@ -24,12 +24,15 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.B
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- *  Class used to compute the price and sensitivity of a physical delivery swaption with SABR model.
+ *  Class used to compute the price and sensitivity of a physical delivery swaption with Black model. 
+ *  The implied Black volatilities are expiry and underlying maturity dependent.
+ *  The swap underlying the swaption should be a Fixed for Ibor (without spread) swap.
  */
 public final class SwaptionPhysicalFixedIborBlackMethod implements PricingMethod {
 
@@ -75,16 +78,14 @@ public final class SwaptionPhysicalFixedIborBlackMethod implements PricingMethod
     Validate.notNull(swaption, "Swaption");
     Validate.notNull(curveBlack, "Curves with Black volatility");
     Validate.isTrue(curveBlack.getBlackParameters().getGeneratorSwap().getCurrency() == swaption.getCurrency(), "Black data currency should be equal to swaption currency");
-    final double pvbp = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), curveBlack);
     final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), curveBlack.getBlackParameters().getGeneratorSwap().getFixedLegDayCount(), curveBlack);
-    final double forward = PRC.visit(swaption.getUnderlyingSwap(), curveBlack);
-    final double forwardModified = forward * pvbp / pvbpModified;
-    final double strikeModified = SwapFixedCouponDiscountingMethod.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, curveBlack);
-    final double tenor = swaption.getMaturityTime();
+    final double forwardModified = PRC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), curveBlack.getBlackParameters().getGeneratorSwap().getFixedLegDayCount(), curveBlack);
+    final double strikeModified = METHOD_SWAP.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, curveBlack);
+    final double maturity = swaption.getMaturityTime();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strikeModified, swaption.getTimeToExpiry(), swaption.isCall());
     // Implementation note: option required to pass the strike (in case the swap has non-constant coupon).
     final BlackPriceFunction blackFunction = new BlackPriceFunction();
-    final double volatility = curveBlack.getBlackParameters().getVolatility(swaption.getTimeToExpiry(), tenor);
+    final double volatility = curveBlack.getBlackParameters().getVolatility(swaption.getTimeToExpiry(), maturity);
     final BlackFunctionData dataBlack = new BlackFunctionData(forwardModified, pvbpModified, volatility);
     final Function1D<BlackFunctionData, Double> func = blackFunction.getPriceFunction(option);
     final double pv = func.evaluate(dataBlack) * (swaption.isLong() ? 1.0 : -1.0);
@@ -124,23 +125,23 @@ public final class SwaptionPhysicalFixedIborBlackMethod implements PricingMethod
     Validate.notNull(swaption, "Swaption");
     Validate.notNull(curveBlack, "Curves with Black volatility");
     Validate.isTrue(curveBlack.getBlackParameters().getGeneratorSwap().getCurrency() == swaption.getCurrency(), "Black data currency should be equal to swaption currency");
-    final double forward = PRC.visit(swaption.getUnderlyingSwap(), curveBlack);
-    // Derivative of the forward with respect to the rates.
-    final InterestRateCurveSensitivity forwardDr = new InterestRateCurveSensitivity(PRSC.visit(swaption.getUnderlyingSwap(), curveBlack));
-    final double pvbp = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), curveBlack);
-    // Derivative of the PVBP with respect to the rates.
-    final InterestRateCurveSensitivity pvbpDr = METHOD_SWAP.presentValueBasisPointCurveSensitivity(swaption.getUnderlyingSwap(), curveBlack);
+    final DayCount dayCountModification = curveBlack.getBlackParameters().getGeneratorSwap().getFixedLegDayCount();
+    final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), dayCountModification, curveBlack);
+    final double forwardModified = PRC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, curveBlack);
+    final double strikeModified = METHOD_SWAP.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, curveBlack);
+    final double maturity = swaption.getMaturityTime();
+    // Derivative of the forward and pvbp with respect to the rates.
+    final InterestRateCurveSensitivity pvbpModifiedDr = METHOD_SWAP.presentValueBasisPointCurveSensitivity(swaption.getUnderlyingSwap(), dayCountModification, curveBlack);
+    final InterestRateCurveSensitivity forwardModifiedDr = new InterestRateCurveSensitivity(PRSC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, curveBlack));
     // Implementation note: strictly speaking, the strike equivalent is curve dependent; that dependency is ignored.
-    final double strike = SwapFixedCouponDiscountingMethod.couponEquivalent(swaption.getUnderlyingSwap(), pvbp, curveBlack);
-    final double tenor = swaption.getMaturityTime();
-    final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, swaption.getTimeToExpiry(), swaption.isCall());
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(strikeModified, swaption.getTimeToExpiry(), swaption.isCall());
     // Implementation note: option required to pass the strike (in case the swap has non-constant coupon).
     final BlackPriceFunction blackFunction = new BlackPriceFunction();
-    final double volatility = curveBlack.getBlackParameters().getVolatility(swaption.getTimeToExpiry(), tenor);
-    final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
+    final double volatility = curveBlack.getBlackParameters().getVolatility(swaption.getTimeToExpiry(), maturity);
+    final BlackFunctionData dataBlack = new BlackFunctionData(forwardModified, 1.0, volatility);
     final double[] bsAdjoint = blackFunction.getPriceAdjoint(option, dataBlack);
-    InterestRateCurveSensitivity result = pvbpDr.multiply(bsAdjoint[0]);
-    result = result.plus(forwardDr.multiply(pvbp * bsAdjoint[1]));
+    InterestRateCurveSensitivity result = pvbpModifiedDr.multiply(bsAdjoint[0]);
+    result = result.plus(forwardModifiedDr.multiply(pvbpModified * bsAdjoint[1]));
     if (!swaption.isLong()) {
       result = result.multiply(-1);
     }
@@ -157,20 +158,20 @@ public final class SwaptionPhysicalFixedIborBlackMethod implements PricingMethod
     Validate.notNull(swaption, "Swaption");
     Validate.notNull(curveBlack, "Curves with Black volatility");
     Validate.isTrue(curveBlack.getBlackParameters().getGeneratorSwap().getCurrency() == swaption.getCurrency(), "Black data currency should be equal to swaption currency");
-    final double forward = PRC.visit(swaption.getUnderlyingSwap(), curveBlack);
-    final double pvbp = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), curveBlack);
-    // Implementation note: strictly speaking, the strike equivalent is curve dependent; that dependency is ignored.
-    final double strike = SwapFixedCouponDiscountingMethod.couponEquivalent(swaption.getUnderlyingSwap(), pvbp, curveBlack);
-    final double tenor = swaption.getMaturityTime();
-    final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, swaption.getTimeToExpiry(), swaption.isCall());
+    final DayCount dayCountModification = curveBlack.getBlackParameters().getGeneratorSwap().getFixedLegDayCount();
+    final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), dayCountModification, curveBlack);
+    final double forwardModified = PRC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, curveBlack);
+    final double strikeModified = METHOD_SWAP.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, curveBlack);
+    final double maturity = swaption.getMaturityTime();
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(strikeModified, swaption.getTimeToExpiry(), swaption.isCall());
     // Implementation note: option required to pass the strike (in case the swap has non-constant coupon).
-    DoublesPair point = new DoublesPair(swaption.getTimeToExpiry(), tenor);
+    DoublesPair point = new DoublesPair(swaption.getTimeToExpiry(), maturity);
     final BlackPriceFunction blackFunction = new BlackPriceFunction();
     final double volatility = curveBlack.getBlackParameters().getVolatility(point);
-    final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
+    final BlackFunctionData dataBlack = new BlackFunctionData(forwardModified, 1.0, volatility);
     final double[] bsAdjoint = blackFunction.getPriceAdjoint(option, dataBlack);
     Map<DoublesPair, Double> sensitivity = new HashMap<DoublesPair, Double>();
-    sensitivity.put(point, bsAdjoint[2] * pvbp * (swaption.isLong() ? 1.0 : -1.0));
+    sensitivity.put(point, bsAdjoint[2] * pvbpModified * (swaption.isLong() ? 1.0 : -1.0));
     return new PresentValueBlackSwaptionSensitivity(sensitivity, curveBlack.getBlackParameters().getGeneratorSwap());
   }
 

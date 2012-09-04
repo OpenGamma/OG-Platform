@@ -25,7 +25,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Class to compute the quantities related to swaps (annuity, PVBP, coupon equivalent).
  */
-public final class SwapFixedCouponDiscountingMethod {
+public class SwapFixedCouponDiscountingMethod {
 
   /**
    * The method unique instance.
@@ -43,13 +43,13 @@ public final class SwapFixedCouponDiscountingMethod {
   /**
    * Private constructor.
    */
-  private SwapFixedCouponDiscountingMethod() {
+  protected SwapFixedCouponDiscountingMethod() {
   }
 
   /**
    * The methods.
    */
-  private static final AnnuityDiscountingMethod METHOD_ANNUITY = AnnuityDiscountingMethod.getInstance();
+  protected static final AnnuityDiscountingMethod METHOD_ANNUITY = AnnuityDiscountingMethod.getInstance();
 
   /**
    * Computes the conventional cash annuity of a swap. The computation is relevant only for standard swaps with constant notional and regular payments.
@@ -78,7 +78,6 @@ public final class SwapFixedCouponDiscountingMethod {
     double annuityCashDerivative = -1.0 / (forward * forward) * (1.0 - 1.0 / Math.pow(1 + forward / nbFixedPaymentYear, nbFixedPeriod)) * notional;
     annuityCashDerivative += 1.0 / (forward * nbFixedPaymentYear) * nbFixedPeriod * Math.pow(1 + forward / nbFixedPaymentYear, -nbFixedPeriod - 1.0) * notional;
     return annuityCashDerivative;
-
   }
 
   /**
@@ -218,8 +217,8 @@ public final class SwapFixedCouponDiscountingMethod {
    * @param curves The curves.
    * @return The coupon equivalent.
    */
-  public static double couponEquivalent(final SwapFixedCoupon<? extends Payment> fixedCouponSwap, final double pvbp, final YieldCurveBundle curves) {
-    return Math.abs(METHOD_ANNUITY.presentValue(fixedCouponSwap.getFixedLeg(), curves).getAmount()) / pvbp;
+  public double couponEquivalent(final SwapFixedCoupon<? extends Payment> fixedCouponSwap, final double pvbp, final YieldCurveBundle curves) {
+    return METHOD_ANNUITY.presentValuePositiveNotional(fixedCouponSwap.getFixedLeg(), curves).getAmount() / pvbp;
   }
 
   /**

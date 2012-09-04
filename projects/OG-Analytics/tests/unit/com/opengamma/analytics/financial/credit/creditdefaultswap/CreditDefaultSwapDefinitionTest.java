@@ -16,6 +16,7 @@ import com.opengamma.analytics.financial.credit.Region;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.ScheduleGenerationMethod;
 import com.opengamma.analytics.financial.credit.Sector;
+import com.opengamma.analytics.financial.credit.SurvivalCurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.PresentValueCreditDefaultSwapTest.MyCalendar;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -86,14 +87,10 @@ public class CreditDefaultSwapDefinitionTest {
   private static final InterpolatedDoublesCurve R = InterpolatedDoublesCurve.from(TIME, RATES, new LinearInterpolator1D());
   private static final YieldCurve yieldCurve = YieldCurve.from(R);
 
-  // Dummy survival curve (proxied by a yield curve for now)
-  private static final double[] survivalTIME = new double[] {0, 3, 5 };
-  private static final double[] survivalProbs = new double[] {0.01, 0.01, 0.01 };
-  private static final InterpolatedDoublesCurve S = InterpolatedDoublesCurve.from(survivalTIME, survivalProbs, new LinearInterpolator1D());
-  private static final YieldCurve survivalCurve = YieldCurve.from(S);
+  private static final SurvivalCurve survivalCurve = new SurvivalCurve();
 
   // Dummy rating curve (proxied by a yield curve for now)
-  private static final YieldCurve ratingCurve = survivalCurve;
+  private static final YieldCurve ratingCurve = yieldCurve;
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 

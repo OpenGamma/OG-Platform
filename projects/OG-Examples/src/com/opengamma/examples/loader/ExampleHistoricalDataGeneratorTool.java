@@ -5,15 +5,16 @@
  */
 package com.opengamma.examples.loader;
 
+import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.examples.historical.SimulatedHistoricalDataGenerator;
-import com.opengamma.examples.tool.AbstractExampleTool;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.util.generate.scripts.Scriptable;
 
 /**
  * Example tool to initialize historical data.
  */
 @Scriptable
-public class ExampleHistoricalDataGeneratorTool extends AbstractExampleTool {
+public class ExampleHistoricalDataGeneratorTool extends AbstractTool<ToolContext> {
 
   //-------------------------------------------------------------------------
   /**
@@ -23,7 +24,7 @@ public class ExampleHistoricalDataGeneratorTool extends AbstractExampleTool {
    * @param args  the arguments, unused
    */
   public static void main(String[] args) {  // CSIGNORE
-    new ExampleHistoricalDataGeneratorTool().initAndRun(args);
+    new ExampleHistoricalDataGeneratorTool().initAndRun(args, ToolContext.class);
     System.exit(0);
   }
 

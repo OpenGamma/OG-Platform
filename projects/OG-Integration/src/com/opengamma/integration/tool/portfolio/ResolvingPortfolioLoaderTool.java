@@ -10,6 +10,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
+import com.opengamma.component.tool.AbstractTool;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
@@ -26,7 +27,6 @@ import com.opengamma.integration.copier.portfolio.writer.PrettyPrintingPortfolio
 import com.opengamma.integration.copier.portfolio.writer.MasterPortfolioWriter;
 import com.opengamma.integration.copier.portfolio.writer.PortfolioWriter;
 import com.opengamma.integration.copier.sheet.SheetFormat;
-import com.opengamma.integration.tool.AbstractIntegrationTool;
 import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
@@ -37,7 +37,7 @@ import com.opengamma.util.generate.scripts.Scriptable;
  * The portfolio loader tool
  */
 @Scriptable
-public class ResolvingPortfolioLoaderTool extends AbstractIntegrationTool {
+public class ResolvingPortfolioLoaderTool extends AbstractTool<IntegrationToolContext> {
 
   /** File name option flag */
   private static final String FILE_NAME_OPT = "f";
@@ -61,7 +61,7 @@ public class ResolvingPortfolioLoaderTool extends AbstractIntegrationTool {
    * @param args  the arguments, not null
    */
   public static void main(String[] args) { //CSIGNORE
-    new ResolvingPortfolioLoaderTool().initAndRun(args);
+    new ResolvingPortfolioLoaderTool().initAndRun(args, IntegrationToolContext.class);
     System.exit(0);
   }
 

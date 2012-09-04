@@ -13,7 +13,7 @@ import com.opengamma.util.money.Currency;
 /**
  * A market bundle decorated for a given discounting curve.
  */
-public class MarketDiscountingDecorated extends MarketBundle {
+public class MarketDiscountingDecorated extends MarketCurveBundle {
 
   /**
    * The currency for which the discounting curve is decorated.
@@ -30,7 +30,7 @@ public class MarketDiscountingDecorated extends MarketBundle {
    * @param ccy The currency for which the discounting curve will be decorated.
    * @param curve The replacing curve for the discounting.
    */
-  public MarketDiscountingDecorated(MarketBundle market, Currency ccy, YieldAndDiscountCurve curve) {
+  public MarketDiscountingDecorated(MarketCurveBundle market, Currency ccy, YieldAndDiscountCurve curve) {
     super(market);
     Validate.notNull(ccy, "Currency");
     Validate.notNull(curve, "Curve");

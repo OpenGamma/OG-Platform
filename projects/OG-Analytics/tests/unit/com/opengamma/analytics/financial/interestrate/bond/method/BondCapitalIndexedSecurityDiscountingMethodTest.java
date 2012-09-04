@@ -19,10 +19,9 @@ import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZer
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyGearingDefinition;
 import com.opengamma.analytics.financial.interestrate.PresentValueInflationCalculator;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
-import com.opengamma.analytics.financial.interestrate.bond.method.BondCapitalIndexedSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.inflation.method.CouponInflationZeroCouponInterpolationGearingDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.inflation.method.CouponInflationZeroCouponMonthlyGearingDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.market.MarketBundle;
+import com.opengamma.analytics.financial.interestrate.market.MarketCurveBundle;
 import com.opengamma.analytics.financial.interestrate.market.MarketDataSets;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -44,13 +43,14 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * Tests the present value of Capital inflation indexed bonds.
  */
 public class BondCapitalIndexedSecurityDiscountingMethodTest {
-  private static final MarketBundle MARKET = MarketDataSets.createMarket1();
+
+  private static final MarketCurveBundle MARKET = MarketDataSets.createMarket1();
   private static final IndexPrice[] PRICE_INDEXES = MARKET.getPriceIndexes().toArray(new IndexPrice[0]);
   private static final IndexPrice PRICE_INDEX_USCPI = PRICE_INDEXES[0];
   private static final IndexPrice PRICE_INDEX_UKRPI = PRICE_INDEXES[2];
-  private static final String[] ISSUER_NAMES = MARKET.getIssuers().toArray(new String[0]);
-  private static final String ISSUER_UK_GOVT = ISSUER_NAMES[0];
-  private static final String ISSUER_US_GOVT = ISSUER_NAMES[1];
+  private static final String[] ISSUER_NAMES = MarketDataSets.getIssuerNames();
+  private static final String ISSUER_US_GOVT = ISSUER_NAMES[0];
+  private static final String ISSUER_UK_GOVT = ISSUER_NAMES[1];
 
   private static final ZonedDateTime PRICING_DATE = DateUtils.getUTCDate(2011, 8, 8);
   private static final BondCapitalIndexedSecurityDiscountingMethod METHOD_BOND_INFLATION = new BondCapitalIndexedSecurityDiscountingMethod();
@@ -85,8 +85,8 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
    * Tests the present value computation.
    */
   public void presentValueGilt1() {
-    MarketBundle marketUKGovt = new MarketBundle();
-    marketUKGovt.setCurve(BOND_SECURITY_GILT_1.getCurrency(), MARKET.getCurve(ISSUER_UK_GOVT));
+    MarketCurveBundle marketUKGovt = new MarketCurveBundle();
+    marketUKGovt.setCurve(BOND_SECURITY_GILT_1.getCurrency(), MARKET.getCurve(BOND_SECURITY_GILT_1.getIssuerCurrency()));
     marketUKGovt.setCurve(PRICE_INDEX_UKRPI, MARKET.getCurve(PRICE_INDEX_UKRPI));
     CurrencyAmount pvNominal = METHOD_INFLATION_ZC_MONTHLY.presentValue(BOND_SECURITY_GILT_1.getNominal().getNthPayment(0), marketUKGovt);
     CurrencyAmount pvCoupon = CurrencyAmount.of(BOND_SECURITY_GILT_1.getCurrency(), 0.0);
@@ -135,8 +135,8 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
    * Tests the present value computation.
    */
   public void presentValueTips1() {
-    MarketBundle marketUSGovt = new MarketBundle();
-    marketUSGovt.setCurve(BOND_SECURITY_TIPS_1.getCurrency(), MARKET.getCurve(ISSUER_US_GOVT));
+    MarketCurveBundle marketUSGovt = new MarketCurveBundle();
+    marketUSGovt.setCurve(BOND_SECURITY_TIPS_1.getCurrency(), MARKET.getCurve(BOND_SECURITY_TIPS_1.getIssuerCurrency()));
     marketUSGovt.setCurve(PRICE_INDEX_USCPI, MARKET.getCurve(PRICE_INDEX_USCPI));
     CurrencyAmount pvNominal = METHOD_INFLATION_ZC_INTERPOLATION.presentValue(BOND_SECURITY_TIPS_1.getNominal().getNthPayment(0), marketUSGovt);
     CurrencyAmount pvCoupon = CurrencyAmount.of(BOND_SECURITY_TIPS_1.getCurrency(), 0.0);
@@ -233,7 +233,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
   public void priceYieldExternalValues1() {
     double m1 = 1000000; // Notional of the external figures.
     final ZonedDateTime pricingDate20110817 = DateUtils.getUTCDate(2011, 8, 17); // Spot 18-Aug-2011
-    MarketBundle market = MarketDataSets.createMarket1(pricingDate20110817);
+    MarketCurveBundle market = MarketDataSets.createMarket1(pricingDate20110817);
     double cleanRealPrice = 1.00;
     final BondCapitalIndexedSecurity<Coupon> bond_110817 = BOND_SECURITY_TIPS_1_DEFINITION.toDerivative(pricingDate20110817, US_CPI, "Not used");
     double referenceIndexExpected = 225.83129;
@@ -263,7 +263,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
   public void priceYieldExternalValues2() {
     double m1 = 1000000; // Notional of the external figures.
     final ZonedDateTime pricingDate20110817 = DateUtils.getUTCDate(2011, 8, 17); // Spot 18-Aug-2011
-    MarketBundle market = MarketDataSets.createMarket1(pricingDate20110817);
+    MarketCurveBundle market = MarketDataSets.createMarket1(pricingDate20110817);
     double cleanRealPrice = 1.13 + 0.01 / 32;
     final BondCapitalIndexedSecurity<Coupon> bond_110817 = BOND_SECURITY_TIPS_1_DEFINITION.toDerivative(pricingDate20110817, US_CPI, "Not used");
     double referenceIndexExpected = 225.83129;
@@ -293,7 +293,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
   public void priceYieldExternalValues3() {
     double m1 = 1000000; // Notional of the external figures.
     final ZonedDateTime pricingDate20110817 = DateUtils.getUTCDate(2011, 8, 18); // Spot 19-Aug-2011
-    MarketBundle market = MarketDataSets.createMarket1(pricingDate20110817);
+    MarketCurveBundle market = MarketDataSets.createMarket1(pricingDate20110817);
     double cleanRealPrice = 1.00;
     final BondCapitalIndexedSecurity<Coupon> bond_110817 = BOND_SECURITY_TIPS_1_DEFINITION.toDerivative(pricingDate20110817, US_CPI, "Not used");
     double referenceIndexExpected = 225.82348;

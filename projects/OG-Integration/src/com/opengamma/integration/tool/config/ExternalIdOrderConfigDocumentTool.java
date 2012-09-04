@@ -5,7 +5,8 @@
  */
 package com.opengamma.integration.tool.config;
 
-import com.opengamma.integration.tool.AbstractIntegrationTool;
+import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.util.generate.scripts.Scriptable;
 
@@ -14,7 +15,7 @@ import com.opengamma.util.generate.scripts.Scriptable;
  * The pairs must be in the format AAA/BBB, one per line in the file.
  */
 @Scriptable
-public class ExternalIdOrderConfigDocumentTool extends AbstractIntegrationTool {
+public class ExternalIdOrderConfigDocumentTool extends AbstractTool<IntegrationToolContext> {
 
   private static final String DEFAULT_CONFIG_NAME = "DEFAULT";
 
@@ -22,7 +23,7 @@ public class ExternalIdOrderConfigDocumentTool extends AbstractIntegrationTool {
    * Main method to run the tool.
    */
   public static void main(String[] args) {  // CSIGNORE
-    new ExternalIdOrderConfigDocumentTool().initAndRun(args);
+    new ExternalIdOrderConfigDocumentTool().initAndRun(args, IntegrationToolContext.class);
     System.exit(0);
   }
 
