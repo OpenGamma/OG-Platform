@@ -5,7 +5,6 @@
  */
 package com.opengamma.util.db;
 
-
 import static com.opengamma.util.db.HibernateDbUtils.fixSQLExceptionCause;
 
 import java.sql.Timestamp;
@@ -31,17 +30,17 @@ import com.opengamma.util.Connector;
 import com.opengamma.util.ReflectionUtils;
 import com.opengamma.util.time.DateUtils;
 
-
 /**
  * Connector used to access SQL databases.
  * <p>
- * This class provides a simple-to-setup and simple-to-use way to access databases.
- * It can be configured for access via JDBC, Hibernate or both.
- * The main benefit is simpler configuration, especially if that configuration is in XML.
+ * This class provides a simple-to-setup and simple-to-use way to access databases. It can be configured for access via JDBC, Hibernate or both. The main benefit is simpler configuration, especially
+ * if that configuration is in XML.
  * <p>
  * This class is usually configured using the associated factory bean.
  */
 public class DbConnector implements Connector {
+
+  private static final long NOW_CACHE_TTL = 500000000;
 
   static {
     DateUtils.initTimeZone();
@@ -73,14 +72,24 @@ public class DbConnector implements Connector {
   private final TransactionTemplate _transactionTemplate;
 
   /**
+   * The current {@link #now} time. This is a cached value based on the {@link System#nanoTime} clock for up to {@link #NOW_CACHE_TTL} to avoid hammering the database with "SELECT NOW" queries.
+   */
+  private volatile Instant _now;
+
+  /**
+   * The {@link System#nanoTime} clock when {@link #_now} was retrieved.
+   */
+  private volatile long _nowTimestamp;
+
+  /**
    * Creates an instance.
    * 
-   * @param name  the configuration name, not null
-   * @param dialect  the database dialect, not null
-   * @param dataSource  the data source, not null
-   * @param jdbcTemplate  the JDBC template, not null
-   * @param hibernateTemplate  the Hibernate template, may be null
-   * @param transactionTemplate  the transaction template, not null
+   * @param name the configuration name, not null
+   * @param dialect the database dialect, not null
+   * @param dataSource the data source, not null
+   * @param jdbcTemplate the JDBC template, not null
+   * @param hibernateTemplate the Hibernate template, may be null
+   * @param transactionTemplate the transaction template, not null
    */
   public DbConnector(
       String name, DbDialect dialect, DataSource dataSource,
@@ -205,10 +214,10 @@ public class DbConnector implements Connector {
     return _transactionTemplate;
   }
 
-
   /**
    * Gets the retrying transaction template.
    * <p>
+   * 
    * @param retries how many maximum retires should be tried
    * @return the retrying transaction template
    */
@@ -223,8 +232,14 @@ public class DbConnector implements Connector {
    * @return the current database instant, may be null
    */
   public Instant now() {
-    Timestamp ts = getJdbcTemplate().queryForObject(getDialect().sqlSelectNow(), Timestamp.class);
-    return DbDateUtils.fromSqlTimestamp(ts);
+    final long sysTime = System.nanoTime();
+    long diff = sysTime - _nowTimestamp;
+    if ((_now == null) || (diff < 0) || (diff > NOW_CACHE_TTL)) {
+      final Timestamp ts = getJdbcTemplate().queryForObject(getDialect().sqlSelectNow(), Timestamp.class);
+      _now = DbDateUtils.fromSqlTimestamp(ts);
+      _nowTimestamp = sysTime;
+    }
+    return _now;
   }
 
   /**
@@ -280,7 +295,7 @@ public class DbConnector implements Connector {
      * Executes the template, which will retry the code in the event of failure.
      * 
      * @param <T> the type of the result
-     * @param action  the underlying Spring-based template containing the action to perform, not null
+     * @param action the underlying Spring-based template containing the action to perform, not null
      * @return the result of the underlying template
      * @throws TransactionException if an error occurs
      */
@@ -317,7 +332,7 @@ public class DbConnector implements Connector {
      * Executes the underlying template in a transaction.
      * 
      * @param <T> the type of the result
-     * @param action  the underlying Hibernate template containing the action to perform, not null
+     * @param action the underlying Hibernate template containing the action to perform, not null
      * @return the result of the underlying template
      * @throws TransactionException if an error occurs
      */
@@ -355,7 +370,7 @@ public class DbConnector implements Connector {
      * Executes the template, which will retry the code in the event of failure.
      * 
      * @param <T> the type of the result
-     * @param action  the underlying Hibernate template containing the action to perform, not null
+     * @param action the underlying Hibernate template containing the action to perform, not null
      * @return the result of the underlying template
      * @throws TransactionException if an error occurs
      */
