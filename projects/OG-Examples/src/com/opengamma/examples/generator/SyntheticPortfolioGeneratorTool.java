@@ -6,7 +6,7 @@
 package com.opengamma.examples.generator;
 
 import com.opengamma.component.tool.AbstractTool;
-import com.opengamma.component.tool.ToolContext;
+import com.opengamma.financial.tool.ToolContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 

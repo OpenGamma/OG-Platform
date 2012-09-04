@@ -29,7 +29,7 @@ import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeConfigPop
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition;
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
 import com.opengamma.financial.generator.StaticNameGenerator;
-import com.opengamma.component.tool.ToolContext;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;

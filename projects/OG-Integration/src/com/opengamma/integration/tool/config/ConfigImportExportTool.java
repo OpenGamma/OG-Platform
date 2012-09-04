@@ -24,7 +24,7 @@ import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.component.tool.ToolContext;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 

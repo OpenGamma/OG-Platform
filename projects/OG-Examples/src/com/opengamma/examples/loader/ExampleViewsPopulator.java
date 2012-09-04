@@ -30,7 +30,7 @@ import static com.opengamma.examples.tool.ExampleDatabasePopulator.SWAPTION_PORT
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING;
 
 import com.opengamma.component.tool.AbstractTool;
-import com.opengamma.component.tool.ToolContext;
+import com.opengamma.financial.tool.ToolContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -11,7 +11,10 @@ import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.ComponentServer;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.component.rest.RemoteComponentServer;
+import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.util.ArgumentChecker;
 import org.joda.beans.MetaProperty;
+import org.joda.beans.impl.direct.DirectBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -9,7 +9,7 @@ import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
-import com.opengamma.component.tool.ToolContext;
+import com.opengamma.financial.tool.ToolContext;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
