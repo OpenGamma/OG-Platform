@@ -26,7 +26,7 @@ public class PresentValueCreditDefaultSwap {
 
   // -------------------------------------------------------------------------------------------------
 
-  // Method for computing the PV of a CDS based on an input CDS contract
+  // Public method for computing the PV of a CDS based on an input CDS contract
   public double getPresentValueCreditDefaultSwap(CreditDefaultSwapDefinition cds) {
 
     // Construct a cashflow schedule object
@@ -42,7 +42,7 @@ public class PresentValueCreditDefaultSwap {
     double presentValueContingentLeg = calculateContingentLeg(cds, premiumLegSchedule);
 
     // Calculate the PV of the CDS (assumes we are buying protection i.e. paying the premium leg, receiving the contingent leg)
-    double presentValue = -presentValuePremiumLeg + presentValueContingentLeg;
+    double presentValue = -presentValuePremiumLeg; // + presentValueContingentLeg;
 
     // If we are selling protection, then reverse the direction of the premium and contingent leg cashflows
     if (cds.getBuySellProtection() == BuySellProtection.SELL) {
@@ -54,7 +54,7 @@ public class PresentValueCreditDefaultSwap {
 
   // -------------------------------------------------------------------------------------------------
 
-  // Method to calculate the par spread of a CDS at contract inception
+  // Public method to calculate the par spread of a CDS at contract inception
   public double getParSpreadCreditDefaultSwap(CreditDefaultSwapDefinition cds, ZonedDateTime[] cashflowSchedule) {
 
     double parSpread = 0.0;

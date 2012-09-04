@@ -80,10 +80,10 @@ public class PresentValueCreditDefaultSwapTest {
   private static final boolean adjustMaturityDate = true;
 
   private static final double notional = 10000000.0;
-  private static final double parSpread = 60.0;
+  private static final double parSpread = 10000.0;
   private static final double valuationRecoveryRate = 0.40;
   private static final double curveRecoveryRate = 0.40;
-  private static final boolean includeAccruedPremium = true;
+  private static final boolean includeAccruedPremium = false;
   private static final int numberOfIntegrationSteps = 100;
 
   // Dummy yield curve
@@ -94,7 +94,8 @@ public class PresentValueCreditDefaultSwapTest {
 
   // Dummy survival curve (proxied by a yield curve for now)
   private static final double[] survivalTIME = new double[] {0, 3, 5, 10 };
-  private static final double[] survivalProbs = new double[] {0.01, 0.01, 0.01, 0.01 };
+  private static double hazardRate = (parSpread / 10000.0) / (1 - curveRecoveryRate);
+  private static final double[] survivalProbs = new double[] {hazardRate, hazardRate, hazardRate, hazardRate };
   private static final InterpolatedDoublesCurve S = InterpolatedDoublesCurve.from(survivalTIME, survivalProbs, new LinearInterpolator1D());
   private static final YieldCurve survivalCurve = YieldCurve.from(S);
 
