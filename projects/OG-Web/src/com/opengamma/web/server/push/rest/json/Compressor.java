@@ -15,12 +15,10 @@ import java.io.OutputStream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -63,9 +61,9 @@ public class Compressor {
   @POST
   @Path("decompress")
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-  public Response decompress(@FormParam("content") String content, @Context HttpServletResponse response) throws IOException {
+  public Response decompress(@FormParam("content") String content) throws IOException {
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    decompressStream(new ByteArrayInputStream(content.getBytes()), response.getOutputStream());
+    decompressStream(new ByteArrayInputStream(content.getBytes()), outputStream);
     ImmutableMap<String, String> data = ImmutableMap.of("data", outputStream.toString());
     return Response.status(Response.Status.OK).entity(new JSONObject(data).toString()).build();
   }
