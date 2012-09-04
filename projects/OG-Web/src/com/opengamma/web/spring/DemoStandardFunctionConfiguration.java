@@ -231,6 +231,7 @@ import com.opengamma.financial.analytics.model.horizon.InterestRateFutureOptionC
 import com.opengamma.financial.analytics.model.horizon.SwaptionBlackThetaDefaults;
 import com.opengamma.financial.analytics.model.horizon.SwaptionConstantSpreadThetaFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackDefaultPropertiesFunctionDeprecated;
+import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackDefaults;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackGammaFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackGammaFunctionDeprecated;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackImpliedVolatilityFunction;
@@ -431,6 +432,9 @@ import com.opengamma.financial.property.PrimitiveCalcConfigDefaultPropertyFuncti
 import com.opengamma.financial.property.SecurityCalcConfigDefaultPropertyFunction;
 import com.opengamma.financial.property.TradeCalcConfigDefaultPropertyFunction;
 import com.opengamma.financial.property.TradeDefaultPropertyFunction;
+import com.opengamma.financial.value.ForwardPricePositionRenamingFunction;
+import com.opengamma.financial.value.ForwardPriceSecurityRenamingFunction;
+import com.opengamma.financial.value.ForwardPriceTradeRenamingFunction;
 import com.opengamma.financial.value.PositionValueFunction;
 import com.opengamma.financial.value.SecurityValueFunction;
 import com.opengamma.util.SingletonFactoryBean;
@@ -460,6 +464,12 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addSummingFunction(functionConfigs, ValueRequirementNames.VALUE);
     functionConfigs.add(functionConfiguration(PositionValueFunction.class));
     functionConfigs.add(functionConfiguration(SecurityValueFunction.class));
+    functionConfigs.add(functionConfiguration(ForwardPricePositionRenamingFunction.class));
+    functionConfigs.add(functionConfiguration(ForwardPriceSecurityRenamingFunction.class));
+    functionConfigs.add(functionConfiguration(ForwardPriceTradeRenamingFunction.class));
+
+
+
   }
 
   public static void addScalingFunction(final List<FunctionConfiguration> functionConfigs, final String requirementName) {
@@ -1502,6 +1512,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackGammaFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackPriceFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionConstantSpreadThetaFunction.class));
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackDefaults.class, PriorityClass.ABOVE_NORMAL.name(),
+        "USD", "DefaultTwoCurveUSDConfig", "DEFAULT"));
     functionConfigs.add(functionConfiguration(MarginPriceFunction.class));
     functionConfigs.add(functionConfiguration(SwaptionBlackPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(SwaptionBlackVolatilitySensitivityFunction.class));

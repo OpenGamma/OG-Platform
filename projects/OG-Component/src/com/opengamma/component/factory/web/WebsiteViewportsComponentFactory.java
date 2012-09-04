@@ -60,6 +60,7 @@ import com.opengamma.web.server.push.rest.MasterType;
 import com.opengamma.web.server.push.rest.ViewDefinitionEntriesResource;
 import com.opengamma.web.server.push.rest.ViewsResource;
 import com.opengamma.web.server.push.rest.json.AnalyticsColumnGroupsMessageBodyWriter;
+import com.opengamma.web.server.push.rest.json.Compressor;
 import com.opengamma.web.server.push.rest.json.DependencyGraphGridStructureMessageBodyWriter;
 import com.opengamma.web.server.push.rest.json.PortfolioGridStructureMessageBodyWriter;
 import com.opengamma.web.server.push.rest.json.PrimitivesGridStructureMessageBodyWriter;
@@ -187,6 +188,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     repo.getRestComponents().publishResource(aggregatorsResource);
     repo.getRestComponents().publishResource(snapshotResource);
     repo.getRestComponents().publishResource(new ViewsResource(analyticsViewManager, connectionMgr));
+    repo.getRestComponents().publishResource(new Compressor());
     repo.getRestComponents().publishHelper(new ViewportVersionMessageBodyWriter());
     repo.getRestComponents().publishHelper(new PrimitivesGridStructureMessageBodyWriter(columnWriter));
     repo.getRestComponents().publishHelper(new PortfolioGridStructureMessageBodyWriter(columnWriter));

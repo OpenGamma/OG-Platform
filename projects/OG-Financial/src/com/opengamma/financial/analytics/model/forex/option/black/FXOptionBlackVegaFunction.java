@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.forex.option.black;
@@ -45,7 +45,7 @@ public class FXOptionBlackVegaFunction extends FXOptionBlackSingleValuedFunction
       final CurrencyAmount vegaValue = result.toSingleValue();
       return Collections.singleton(new ComputedValue(spec, vegaValue.getAmount()));
     }
-    throw new OpenGammaRuntimeException("Can only calculated vega for surfaces with smiles");
+    throw new OpenGammaRuntimeException("Can only calculate vega for surfaces with smiles");
   }
 
 }

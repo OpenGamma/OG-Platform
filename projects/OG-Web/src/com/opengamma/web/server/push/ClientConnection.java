@@ -25,7 +25,6 @@ import com.opengamma.core.change.ChangeType;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.server.push.analytics.AnalyticsViewListener;
 import com.opengamma.web.server.push.rest.MasterType;
 
 /**
@@ -36,7 +35,7 @@ import com.opengamma.web.server.push.rest.MasterType;
  * and must be re-established every time the client accesses the URL.  This class is thread safe.
  * TODO should this be package-private and everything moved into the same package?
  */
-public class ClientConnection implements ChangeListener, MasterChangeListener, AnalyticsViewListener {
+public class ClientConnection implements ChangeListener, MasterChangeListener, UpdateListener {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ClientConnection.class);
   
@@ -47,7 +46,7 @@ public class ClientConnection implements ChangeListener, MasterChangeListener, A
   /** Task that closes this connection if it is idle for too long */
   private final ConnectionTimeoutTask _timeoutTask;
   /** Listener that forwards changes over HTTP whenever any updates occur to which this connection subscribes */
-  private final RestUpdateListener _listener;
+  private final UpdateListener _listener;
   /** Listeners that are called when this connection closes. */
   private final List<DisconnectionListener> _disconnectionListeners = new CopyOnWriteArrayList<DisconnectionListener>();
 
@@ -70,7 +69,7 @@ public class ClientConnection implements ChangeListener, MasterChangeListener, A
    */
   /* package */ ClientConnection(String userId,
                                  String clientId,
-                                 RestUpdateListener listener,
+                                 UpdateListener listener,
                                  ConnectionTimeoutTask timeoutTask) {
     //ArgumentChecker.notNull(userId, "userId"); // TODO user login not done
     ArgumentChecker.notNull(listener, "listener");
@@ -190,23 +189,13 @@ public class ClientConnection implements ChangeListener, MasterChangeListener, A
   }
 
   @Override
-  public void gridStructureChanged(String gridId) {
-    _listener.itemUpdated(gridId);
+  public void itemUpdated(String callbackId) {
+    _listener.itemUpdated(callbackId);
   }
 
   @Override
-  public void gridStructureChanged(List<String> gridIds) {
-    _listener.itemsUpdated(gridIds);
-  }
-
-  @Override
-  public void gridDataChanged(String dataId) {
-    _listener.itemUpdated(dataId);
-  }
-
-  @Override
-  public void gridDataChanged(List<String> dataIds) {
-    _listener.itemsUpdated(dataIds);
+  public void itemsUpdated(Collection<String> callbackIds) {
+    _listener.itemsUpdated(callbackIds);
   }
 
   /**

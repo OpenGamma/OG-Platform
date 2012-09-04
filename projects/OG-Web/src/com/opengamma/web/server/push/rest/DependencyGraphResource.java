@@ -16,14 +16,14 @@ import com.opengamma.web.server.push.analytics.ViewportSpecification;
  */
 public class DependencyGraphResource extends AbstractGridResource {
 
-  private final String _graphId;
+  private final int _graphId;
 
   /**
    * @param gridType
    * @param view The view whose data the grid displays.
    * @param graphId The ID of the dependency graph
    */
-  public DependencyGraphResource(AnalyticsView.GridType gridType, AnalyticsView view, String graphId) {
+  public DependencyGraphResource(AnalyticsView.GridType gridType, AnalyticsView view, int graphId) {
     super(gridType, view);
     _graphId = graphId;
   }
@@ -34,12 +34,12 @@ public class DependencyGraphResource extends AbstractGridResource {
   }
 
   @Override
-  public long createViewport(String viewportId, String dataId, ViewportSpecification viewportSpecification) {
-    return _view.createViewport(_gridType, _graphId, viewportId, dataId, viewportSpecification);
+  /* package */ long createViewport(int viewportId, String callbackId, ViewportSpecification viewportSpecification) {
+    return _view.createViewport(_gridType, _graphId, viewportId, callbackId, viewportSpecification).getFirst();
   }
 
   @Override
-  public AbstractViewportResource getViewport(String viewportId) {
+  public AbstractViewportResource getViewport(int viewportId) {
     return new DependencyGraphViewportResource(_gridType, _view, _graphId, viewportId);
   }
 

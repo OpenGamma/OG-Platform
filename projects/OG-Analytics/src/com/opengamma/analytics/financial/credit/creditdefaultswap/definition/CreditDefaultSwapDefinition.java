@@ -8,7 +8,6 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.definition;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
-import com.opengamma.analytics.financial.credit.CouponFrequency;
 import com.opengamma.analytics.financial.credit.CreditRating;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.Region;
@@ -16,7 +15,10 @@ import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.ScheduleGenerationMethod;
 import com.opengamma.analytics.financial.credit.Sector;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -27,34 +29,29 @@ public class CreditDefaultSwapDefinition {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // Member variables of the CDS contract (defines what a CDS is)
-
   // Cashflow Conventions are assumed to be as below
 
-  // Notional amount > 0 always - long/short positions are captured by the setting of 'BuySellProtection'
+  // Notional amount > 0 always - long/short positions are captured by the setting of the 'BuySellProtection' flag
 
   // Buy protection   -> Pay premium leg, receive contingent leg  -> 'long' protection  -> 'short' credit risk
   // Sell protection  -> Receive premium leg, pay contingent leg  -> 'short' protection -> 'long' credit risk
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // TODO : Convert _daycountFractionConvention string to an enum
-  // TODO : Convert _businessdayAdjustmentConvention string to an enum
-  // TODO : Add the argument checks for daycountConvention and businessdayAdjustmentConvention when replace the strings with enums
   // TODO : Should really have more identifiers for the counterparty we are trading with (will be useful for CVA related purposes)
   // TODO : Allow the case valuationDate = startDate
   // TODO : Allow the case effectiveDate = startDate
   // TODO : Allow the case maturityDate = startDate (e.g. startDate = 21/03/YY, maturityDate = 21/03/YY but IMM adjusted maturityDate = 20/06/YY)
   // TODO : Allow the case valuationDate = maturityDate (should return a MtM of zero)
   // TODO : Allow the case valuationDate = effectiveDate
-  // TODO : Verify don't have to argument check boolean adjustMaturityDate for null
-  // TODO : Verify don't have to argument check boolean includeAccruedPremium for null
   // TODO : Should we impose an upper limit on the number of integration steps in the calculation of the contingent leg?
   // TODO : Add a seperate 'SurvivalCurve' class whose function is to generate the calibrated survival probabilities from the input CDS par spread term structure
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // From the users perspective, are we buying or selling protection - User input
+  // Member variables of the CDS contract (defines what a CDS is)
+
+  // From the users perspective, are we buying or selling protection - User input see enum
   private final BuySellProtection _buySellProtection;
 
   // Identifiers for the (three) counterparties in the trade - User input
@@ -73,19 +70,19 @@ public class CreditDefaultSwapDefinition {
   // The restructuring type in the event of a credit event deemed to be a restructuring of the reference entities debt - User input, see enum
   private final RestructuringClause _restructuringClause;
 
-  // The composite credit (curve) rating of the reference entity (MarkIt field)
+  // The composite credit (curve) rating of the reference entity (MarkIt field) - User input, see enum
   private final CreditRating _compositeRating;
 
-  // The implied credit rating of the reference entity (MarkIt field)
+  // The implied credit rating of the reference entity (MarkIt field) - User input, see enum
   private final CreditRating _impliedRating;
 
-  // The industrial classification of the reference entity
+  // The industrial classification of the reference entity - User input, see enum
   private final Sector _sector;
 
-  // The geographical domicile of the reference entity
+  // The geographical domicile of the reference entity - User input, see enum
   private final Region _region;
 
-  // The country of domicile of the reference entity
+  // The country of domicile of the reference entity - User input
   private final String _country;
 
   // Holiday calendar for the determination of adjusted business days in the cashflow schedule - User input
@@ -107,13 +104,13 @@ public class CreditDefaultSwapDefinition {
   private final ScheduleGenerationMethod _scheduleGenerationMethod;
 
   // The frequency of coupon payments (usually quarterly) - User input see enum
-  private final CouponFrequency _couponFrequency;
+  private final PeriodFrequency _couponFrequency;
 
-  // Day-count convention (usually Act/360) - User input
-  private final String _daycountFractionConvention;
+  // Day-count convention (usually Act/360) - User input, see enum
+  private final DayCount _daycountFractionConvention;
 
-  // Business day adjustment convention (usually following) - User input
-  private final String _businessdayAdjustmentConvention;
+  // Business day adjustment convention (usually following) - User input, see enum
+  private final BusinessDayConvention _businessdayAdjustmentConvention;
 
   // Flag to determine if we business day adjust the final maturity date - User input
   private final boolean _adjustMaturityDate;
@@ -173,9 +170,9 @@ public class CreditDefaultSwapDefinition {
       ZonedDateTime maturityDate,
       ZonedDateTime valuationDate,
       ScheduleGenerationMethod scheduleGenerationMethod,
-      CouponFrequency couponFrequency,
-      String daycountFractionConvention,
-      String businessdayAdjustmentConvention,
+      PeriodFrequency couponFrequency,
+      DayCount daycountFractionConvention,
+      BusinessDayConvention businessdayAdjustmentConvention,
       boolean adjustMaturityDate,
       double notional,
       double parSpread,
@@ -259,6 +256,12 @@ public class CreditDefaultSwapDefinition {
     // Do we need to check for ""?
 
     ArgumentChecker.notNull(couponFrequency, "Coupon frequency field is null");
+    // Do we need to check for ""?
+
+    ArgumentChecker.notNull(daycountFractionConvention, "Daycount convention field is null");
+    // Do we need to check for ""?
+
+    ArgumentChecker.notNull(businessdayAdjustmentConvention, "Business day adjustment convention field is null");
     // Do we need to check for ""?
 
     ArgumentChecker.isTrue(notional >= 0.0, "Notional amount should be greater than or equal to zero");
@@ -421,15 +424,15 @@ public class CreditDefaultSwapDefinition {
     return _scheduleGenerationMethod;
   }
 
-  public CouponFrequency getCouponFrequency() {
+  public PeriodFrequency getCouponFrequency() {
     return _couponFrequency;
   }
 
-  public String getDayCountFractionConvention() {
+  public DayCount getDayCountFractionConvention() {
     return _daycountFractionConvention;
   }
 
-  public String getBusinessDayAdjustmentConvention() {
+  public BusinessDayConvention getBusinessDayAdjustmentConvention() {
     return _businessdayAdjustmentConvention;
   }
 

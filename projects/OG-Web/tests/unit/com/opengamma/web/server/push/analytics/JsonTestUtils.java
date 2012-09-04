@@ -24,7 +24,7 @@ public class JsonTestUtils {
    * @return {@code true} if the arrays are the same size and every corresponding element is equal
    * @throws JSONException Never
    */
-  static boolean equal(JSONArray array1, JSONArray array2) throws JSONException {
+  /* package */ static boolean equal(JSONArray array1, JSONArray array2) throws JSONException {
     if (array1.length() != array2.length()) {
       return false;
     }
@@ -46,7 +46,7 @@ public class JsonTestUtils {
    * @return {@code true} if the objects contains the same mappings and every corresponding value is equal.
    * @throws JSONException Never
    */
-  static boolean equal(JSONObject object1, JSONObject object2) throws JSONException {
+  /* package */ static boolean equal(JSONObject object1, JSONObject object2) throws JSONException {
     if (object1.length() != object2.length()) {
       return false;
     }
@@ -70,7 +70,7 @@ public class JsonTestUtils {
    * @return
    * @throws JSONException
    */
-  static boolean equal(Object value1, Object value2) throws JSONException {
+  /* package */ static boolean equal(Object value1, Object value2) throws JSONException {
     if (value1 instanceof JSONArray && value2 instanceof JSONArray) {
       return equal((JSONArray) value1, (JSONArray) value2);
     } else if (value1 instanceof JSONObject && value2 instanceof JSONObject) {

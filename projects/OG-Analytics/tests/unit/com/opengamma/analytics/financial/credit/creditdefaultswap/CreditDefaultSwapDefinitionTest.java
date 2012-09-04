@@ -10,7 +10,6 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
-import com.opengamma.analytics.financial.credit.CouponFrequency;
 import com.opengamma.analytics.financial.credit.CreditRating;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.Region;
@@ -22,7 +21,12 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.Cre
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
@@ -63,9 +67,10 @@ public class CreditDefaultSwapDefinitionTest {
   private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2013, 8, 25);
 
   private static final ScheduleGenerationMethod scheduleGenerationMethod = ScheduleGenerationMethod.BACKWARD;
-  private static final CouponFrequency couponFrequency = CouponFrequency.QUARTERLY;
-  private static final String daycountFractionConvention = "ACT/360";
-  private static final String businessdayAdjustmentConvention = "Following";
+  private static final PeriodFrequency couponFrequency = PeriodFrequency.QUARTERLY;
+  private static final DayCount daycountFractionConvention = DayCountFactory.INSTANCE.getDayCount("ACT/360");
+  private static final BusinessDayConvention businessdayAdjustmentConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+
   private static final boolean adjustMaturityDate = true;
 
   private static final double notional = 10000000.0;
@@ -445,6 +450,28 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
         scheduleGenerationMethod, null, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
+        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+  }
+
+  // --------------------------------------------------------------------------------------------------------------------------------------------------
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullDaycountFractionConvention() {
+    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
+        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
+        impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
+        scheduleGenerationMethod, couponFrequency, null, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
+        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+  }
+
+  // --------------------------------------------------------------------------------------------------------------------------------------------------
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullBusinessdayAdjustmentConvention() {
+    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
+        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
+        impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
+        scheduleGenerationMethod, couponFrequency, daycountFractionConvention, null, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
         curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
   }
 

@@ -7,7 +7,7 @@ package com.opengamma.web.server.push.rest;
 
 import java.net.URI;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -31,7 +31,7 @@ import com.opengamma.web.server.push.analytics.ViewportSpecification;
 public abstract class AbstractGridResource {
 
   /** For generating IDs for grids and viewports. */
-  protected static final AtomicLong s_nextId = new AtomicLong(0);
+  protected static final AtomicInteger s_nextId = new AtomicInteger(0);
 
   /** The view whose data the grid displays. */
   protected final AnalyticsView _view;
@@ -53,7 +53,6 @@ public abstract class AbstractGridResource {
    * @return The structure of the grid
    */
   @GET
-  @Path("grid")
   public abstract GridStructure getGridStructure();
 
   @POST
@@ -63,18 +62,26 @@ public abstract class AbstractGridResource {
                                  @FormParam("columns") List<Integer> columns,
                                  @FormParam("expanded") boolean expanded) {
     ViewportSpecification viewportSpecification = new ViewportSpecification(rows, columns, expanded);
-    String viewportId = Long.toString(s_nextId.getAndIncrement());
-    URI viewportUri = uriInfo.getAbsolutePathBuilder().path(viewportId).build();
-    URI dataUri = uriInfo.getAbsolutePathBuilder().path(viewportId).path(AbstractViewportResource.class, "getData").build();
-    String dataId = dataUri.getPath();
-    long version = createViewport(viewportId, dataId, viewportSpecification);
+    int viewportId = s_nextId.getAndIncrement();
+    String viewportIdStr = Integer.toString(viewportId);
+    URI viewportUri = uriInfo.getAbsolutePathBuilder().path(viewportIdStr).build();
+    String callbackId = viewportUri.getPath();
+    long version = createViewport(viewportId, callbackId, viewportSpecification);
     ViewportVersion viewportVersion = new ViewportVersion(version);
     return Response.status(Response.Status.CREATED).entity(viewportVersion).header(HttpHeaders.LOCATION, viewportUri).build();
   }
 
-  public abstract long createViewport(String viewportId, String dataId, ViewportSpecification viewportSpec);
+  /**
+   * Creates a viewport
+   * @param viewportId Unique ID for the viewport
+   * @param callbackId ID passed to listeners when the viewport data changes
+   * @param viewportSpec Definition of the viewport
+   * @return Viewport version number, allows clients to ensure the data they receive for a viewport corresponds to
+   * its current state
+   */
+  /* package */ abstract long createViewport(int viewportId, String callbackId, ViewportSpecification viewportSpec);
 
   @Path("viewports/{viewportId}")
-  public abstract AbstractViewportResource getViewport(@PathParam("viewportId") String viewportId);
+  public abstract AbstractViewportResource getViewport(@PathParam("viewportId") int viewportId);
 
 }

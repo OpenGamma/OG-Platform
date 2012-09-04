@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.analytics.model;
 
-import javax.time.calendar.DateAdjuster;
-import javax.time.calendar.DateAdjusters;
 import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 
@@ -14,48 +12,56 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
-import com.opengamma.financial.analytics.model.equity.NextEquityExpiryAdjuster;
-import com.opengamma.financial.analytics.model.equity.SaturdayAfterThirdFridayAdjuster;
 
 /**
  *  Utility Class for computing Expiries of Future Options from ordinals (i.e. nth future after valuationDate)
  *  For IR Options use: DateAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY), new NextExpiryAdjuster()
  *  For Equity Options use: new SaturdayAfterThirdFridayAdjuster(), new NextEquityExpiryAdjuster()
  */
-public final class FutureOptionExpiries {
+public final class FutureOptionExpiries { //TODO
 
   /** Instance of {@code FutureOptionExpiries} used for Interest Rate Future Options. (Expiries on 3rd Wednesdays) */
-  public static final FutureOptionExpiries IR = FutureOptionExpiries.of(DateAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY), new NextExpiryAdjuster());
+  public static final FutureOptionExpiries IR = FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.WEDNESDAY));
   /** Instance of {@code FutureOptionExpiries} used for Equity Future Options. (Expiries on Saturdays after 3rd Fridays) */
-  public static final FutureOptionExpiries EQUITY = FutureOptionExpiries.of(new SaturdayAfterThirdFridayAdjuster(), new NextEquityExpiryAdjuster());
+  public static final FutureOptionExpiries EQUITY = FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY, 1));
 
-  /** Adjuster moves date to day within month. eg 3rd Wednesday */
-  private final DateAdjuster _dayOfMonthAdjuster;
-  private final DateAdjuster _nextExpiryAdjuster;
+  /** The adjuster moves forward to the next IMM month, to the specified day in month*/
+  private final NextExpiryAdjuster _nextExpiryAdjuster;
+  /** _nextExpiryAdjuster.getDayOfMonthAdjuster() moves date to day within month. eg 3rd Wednesday */
 
   /**
    * Utility Class for computing Expiries of Future Options from ordinals (i.e. nth future after valuationDate)
-   * @param dayOfMonthAdjuster Examples: DateAdjusters.dayOfWeekInMonth(), SaturdayAfterThirdFridayAdjuster
    * @param nextExpiryAdjuster Examples: NextExpiryAdjuster, NextExpiryAdjuster
    */
-  private FutureOptionExpiries(final DateAdjuster dayOfMonthAdjuster, final DateAdjuster nextExpiryAdjuster) {
-    Validate.notNull(dayOfMonthAdjuster, "dayOfMonthAdjuster was null. Example: DateAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY)");
+  private FutureOptionExpiries(final NextExpiryAdjuster nextExpiryAdjuster) {
     Validate.notNull(nextExpiryAdjuster, "nextExpiryAdjuster was null. Example: NextExpiryAdjuster");
-    _dayOfMonthAdjuster = dayOfMonthAdjuster;
     _nextExpiryAdjuster = nextExpiryAdjuster;
   }
 
   /**
    * Create instance of {@code FutureOptionExpiries},
    * a utility Class for computing Expiries of Future Options from ordinals (i.e. nth option after valuationDate)
-   * @param dayOfMonthAdjuster Examples: DateAdjusters.dayOfWeekInMonth(), SaturdayAfterThirdFridayAdjuster
    * @param nextExpiryAdjuster Examples: NextExpiryAdjuster, NextExpiryAdjuster
    * @return the FutureOptionExpiries class, never null
    */
-  public static FutureOptionExpiries of(final DateAdjuster dayOfMonthAdjuster, final DateAdjuster nextExpiryAdjuster) {
-    Validate.notNull(dayOfMonthAdjuster, "dayOfMonthAdjuster was null. Example: DateAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY)");
+  public static FutureOptionExpiries of(final NextExpiryAdjuster nextExpiryAdjuster) {
     Validate.notNull(nextExpiryAdjuster, "nextExpiryAdjuster was null. Example: NextExpiryAdjuster");
-    return new FutureOptionExpiries(dayOfMonthAdjuster, nextExpiryAdjuster);
+    return new FutureOptionExpiries(nextExpiryAdjuster);
+  }
+
+  /**
+   * Create instance of {@code FutureOptionExpiries},
+   * a utility Class for computing Expiries of Future Options from ordinals (i.e. nth option after valuationDate). <p>
+   * Specify the day and week in the month, plus an offset in number of days. <p>
+   *  e.g. (3,DayOfWeek.FRIDAY,1) is the Saturday after the 3rd Friday in the month. This is different from the 3rd Saturday.
+   * @param week Ordinal of week in month, beginning from 1.
+   * @param day DayOfWeek
+   * @param offset Integer offset, positive or negative from the result of week,day.
+   * @return New instance of FutureOptionExpiries
+   */
+  public static FutureOptionExpiries of(final int week, final DayOfWeek day, final int offset) {
+    final NextExpiryAdjuster nextExpiryAdjuster = new NextExpiryAdjuster(week, day, offset);
+    return new FutureOptionExpiries(nextExpiryAdjuster);
   }
 
   /**
@@ -67,7 +73,7 @@ public final class FutureOptionExpiries {
    */
   public Double getFutureOptionTtm(final int n, final LocalDate today) {
     final LocalDate expiry = getFutureOptionExpiry(n, today);
-    final LocalDate previousMonday = expiry; //.minusDays(2); //TODO this should take a calendar and an additional input of number of days, or an adjuster that's part of the class
+    final LocalDate previousMonday = expiry;
     return TimeCalculator.getTimeBetween(today, previousMonday);
   }
 
@@ -97,12 +103,12 @@ public final class FutureOptionExpiries {
 
   public LocalDate getMonthlyExpiry(final int nthMonth, final LocalDate valDate) {
     Validate.isTrue(nthMonth > 0, "nthFuture must be greater than 0.");
-    LocalDate expiry = valDate.with(_dayOfMonthAdjuster); // Compute the expiry of valuationDate's month
+    LocalDate expiry = valDate.with(_nextExpiryAdjuster.getDayOfMonthAdjuster()); // Compute the expiry of valuationDate's month
     if (!expiry.isAfter(valDate)) { // If it is not strictly after valuationDate...
-      expiry = (valDate.plusMonths(1)).with(_dayOfMonthAdjuster);  // nextExpiry is third Wednesday of next month
+      expiry = (valDate.plusMonths(1)).with(_nextExpiryAdjuster.getDayOfMonthAdjuster());  // nextExpiry is third Wednesday of next month
     }
     if (nthMonth > 1) {
-      expiry = (expiry.plusMonths(nthMonth - 1)).with(_dayOfMonthAdjuster);
+      expiry = (expiry.plusMonths(nthMonth - 1)).with(_nextExpiryAdjuster.getDayOfMonthAdjuster());
     }
     return expiry;
   }
