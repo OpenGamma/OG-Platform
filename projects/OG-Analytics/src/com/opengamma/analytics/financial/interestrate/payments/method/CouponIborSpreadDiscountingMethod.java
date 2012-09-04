@@ -67,6 +67,23 @@ public final class CouponIborSpreadDiscountingMethod implements PricingMethod {
   }
 
   /**
+   * Computes the present value of the coupon without the spread part and with a positive notional.
+   * @param coupon The coupon.
+   * @param curves The yield curves. Should contain the discounting and forward curves associated. 
+   * @return The present value.
+   */
+  public CurrencyAmount presentValueNoSpreadPositiveNotional(final CouponIborSpread coupon, final YieldCurveBundle curves) {
+    Validate.notNull(coupon, "Coupon");
+    Validate.notNull(curves, "Curves");
+    final YieldAndDiscountCurve forwardCurve = curves.getCurve(coupon.getForwardCurveName());
+    final YieldAndDiscountCurve discountingCurve = curves.getCurve(coupon.getFundingCurveName());
+    final double forward = (forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTime()) / forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTime()) - 1) / coupon.getFixingYearFraction();
+    final double df = discountingCurve.getDiscountFactor(coupon.getPaymentTime());
+    final double value = (Math.abs(coupon.getNotional()) * coupon.getPaymentYearFraction() * forward) * df;
+    return CurrencyAmount.of(coupon.getCurrency(), value);
+  }
+
+  /**
    * Compute the present value sensitivity to rates of a Ibor coupon by discounting.
    * @param coupon The coupon.
    * @param curves The yield curves. Should contain the discounting and forward curves associated. 
@@ -100,7 +117,7 @@ public final class CouponIborSpreadDiscountingMethod implements PricingMethod {
   }
 
   /**
-   * Compute the par rate (Ibor forward) of a Ibor coupon by discounting.
+   * Compute the par rate (Ibor forward) of a Ibor coupon by discounting. The par rate is the same with or without spread.
    * @param coupon The coupon.
    * @param curves The yield curves. Should contain the discounting and forward curves associated. 
    * @return The present value.

@@ -14,7 +14,8 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthly;
-import com.opengamma.analytics.financial.interestrate.market.MarketBundle;
+import com.opengamma.analytics.financial.interestrate.market.IMarketBundle;
+import com.opengamma.analytics.financial.interestrate.market.MarketCurveBundle;
 import com.opengamma.analytics.financial.interestrate.market.PresentValueCurveSensitivityMarket;
 import com.opengamma.analytics.financial.interestrate.method.PricingMarketMethod;
 import com.opengamma.util.money.CurrencyAmount;
@@ -31,7 +32,7 @@ public class CouponInflationZeroCouponMonthlyDiscountingMethod implements Pricin
    * @param market The market bundle.
    * @return The present value.
    */
-  public CurrencyAmount presentValue(CouponInflationZeroCouponMonthly coupon, MarketBundle market) {
+  public CurrencyAmount presentValue(CouponInflationZeroCouponMonthly coupon, IMarketBundle market) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(market, "Market");
     double estimatedIndex = market.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime());
@@ -41,7 +42,7 @@ public class CouponInflationZeroCouponMonthlyDiscountingMethod implements Pricin
   }
 
   @Override
-  public CurrencyAmount presentValue(InstrumentDerivative instrument, MarketBundle market) {
+  public CurrencyAmount presentValue(InstrumentDerivative instrument, IMarketBundle market) {
     Validate.isTrue(instrument instanceof CouponInflationZeroCouponMonthly, "Zero-coupon inflation with start of month reference date.");
     return presentValue((CouponInflationZeroCouponMonthly) instrument, market);
   }
@@ -52,7 +53,7 @@ public class CouponInflationZeroCouponMonthlyDiscountingMethod implements Pricin
    * @param market The market curves.
    * @return The present value sensitivity.
    */
-  public PresentValueCurveSensitivityMarket presentValueCurveSensitivity(final CouponInflationZeroCouponMonthly coupon, final MarketBundle market) {
+  public PresentValueCurveSensitivityMarket presentValueCurveSensitivity(final CouponInflationZeroCouponMonthly coupon, final MarketCurveBundle market) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(market, "Market");
     double estimatedIndex = market.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime());

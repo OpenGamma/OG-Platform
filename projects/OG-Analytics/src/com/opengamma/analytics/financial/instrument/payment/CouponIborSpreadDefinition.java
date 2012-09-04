@@ -79,6 +79,22 @@ public class CouponIborSpreadDefinition extends CouponFloatingDefinition {
   }
 
   /**
+   * Builder of a coupon from the accrual dates and the index. The fixing dates are calculated using the index. The payment date is the end accrual date.
+   * @param accrualStartDate Start date of the accrual period.
+   * @param accrualEndDate End date of the accrual period.
+   * @param accrualFactor Accrual factor of the accrual period.
+   * @param notional The coupon notional.
+   * @param index The coupon Ibor index. Should of the same currency as the payment.
+   * @param spread The spread paid above the Ibor rate.
+   * @return The coupon.
+   */
+  public static CouponIborSpreadDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor, final double notional, final IborIndex index,
+      final double spread) {
+    final ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(accrualStartDate, -index.getSpotLag(), index.getCalendar());
+    return new CouponIborSpreadDefinition(index.getCurrency(), accrualEndDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, index, spread);
+  }
+
+  /**
    * Builder from an Ibor coupon and the spread.
    * @param couponIbor An Ibor coupon.
    * @param spread The spread.

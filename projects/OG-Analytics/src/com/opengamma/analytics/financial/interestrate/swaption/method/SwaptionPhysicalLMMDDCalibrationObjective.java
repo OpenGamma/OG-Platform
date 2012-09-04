@@ -21,7 +21,7 @@ public class SwaptionPhysicalLMMDDCalibrationObjective extends SuccessiveRootFin
    */
   private static final SwaptionPhysicalFixedIborLMMDDMethod METHOD_LMM_SWAPTION = new SwaptionPhysicalFixedIborLMMDDMethod();
   /**
-   * The LMM parameters. The calibration is done on the black of parameters between _startIndex and _endIndex.
+   * The LMM parameters. The calibration is done on the block of parameters between _startIndex and _endIndex.
    */
   private final LiborMarketModelDisplacedDiffusionParameters _lmmParameters;
   /**

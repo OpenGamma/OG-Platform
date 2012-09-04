@@ -28,7 +28,7 @@ public class MarketBundleTest {
 
   private static final Calendar CALENDAR_EUR = new MondayToFridayCalendar("EUR");
   private static final Calendar CALENDAR_USD = new MondayToFridayCalendar("USD");
-  private static final MarketBundle MARKET_1 = new MarketBundle();
+  private static final MarketCurveBundle MARKET_1 = new MarketCurveBundle();
   private static final YieldAndDiscountCurve CURVE_50 = YieldCurve.from(ConstantDoublesCurve.from(0.0500));
   private static final YieldAndDiscountCurve CURVE_45 = YieldCurve.from(ConstantDoublesCurve.from(0.0450));
   private static final YieldAndDiscountCurve CURVE_40 = YieldCurve.from(ConstantDoublesCurve.from(0.0400));
