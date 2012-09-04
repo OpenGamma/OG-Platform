@@ -43,9 +43,9 @@ public class EHCachingConfigSourceTest {
 
   @BeforeMethod
   public void setUp() throws Exception {
-    EHCacheUtils.clearAll();
     _underlyingSource = mock(ConfigSource.class);
     CacheManager cm = EHCacheUtils.createCacheManager();
+    cm.getCache(EHCachingConfigSource.CACHE_NAME).removeAll();
     _cachingSource = new EHCachingConfigSource(_underlyingSource, cm);
   }
 

@@ -30,7 +30,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
  */
 public class EHCachingConfigSource implements ConfigSource {
 
-  private static final String CACHE_NAME = "config";
+  /*pacakge*/ static final String CACHE_NAME = "config";
   private final ConfigSource _underlying;
   private final Cache _cache;
 

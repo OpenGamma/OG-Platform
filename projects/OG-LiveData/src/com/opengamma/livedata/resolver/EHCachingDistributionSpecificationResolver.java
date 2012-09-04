@@ -31,9 +31,13 @@ public class EHCachingDistributionSpecificationResolver
   implements DistributionSpecificationResolver {
   
   /**
+   * Cache key prefix.
+   */
+  /*package*/ static final String DISTRIBUTION_SPEC_CACHE_PREFIX = "distributionSpecification";
+  /**
    * Cache key format for distribution specs.
    */
-  private static final String DISTRIBUTION_SPEC_CACHE_FORMAT = "distributionSpecification.{0}";
+  private static final String DISTRIBUTION_SPEC_CACHE_FORMAT = DISTRIBUTION_SPEC_CACHE_PREFIX + ".{0}";
   /**
    * Default cache key format arg distribution specs.
    */

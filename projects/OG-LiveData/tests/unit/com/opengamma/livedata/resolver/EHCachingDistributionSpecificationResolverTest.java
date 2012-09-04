@@ -15,7 +15,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.testng.annotations.AfterMethod;
+import net.sf.ehcache.CacheManager;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalId;
@@ -30,12 +31,6 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 @Test(groups = "unit")
 public class EHCachingDistributionSpecificationResolverTest {
 
-  @AfterMethod
-  public void cleanUp() {
-    EHCacheUtils.clearAll();
-  }
-
-  //-------------------------------------------------------------------------
   public void testCaching() {
     ExternalId id = ExternalId.of("foo", "bar");
     
@@ -53,7 +48,9 @@ public class EHCachingDistributionSpecificationResolverTest {
     DistributionSpecificationResolver underlying = mock(DistributionSpecificationResolver.class);
     when(underlying.resolve(Collections.singletonList(request))).thenReturn(returnValue);
     
-    EHCachingDistributionSpecificationResolver resolver = new EHCachingDistributionSpecificationResolver(underlying, EHCacheUtils.createCacheManager());
+    CacheManager cm = EHCacheUtils.createCacheManager();
+    cm.clearAllStartingWith(EHCachingDistributionSpecificationResolver.DISTRIBUTION_SPEC_CACHE_PREFIX);
+    EHCachingDistributionSpecificationResolver resolver = new EHCachingDistributionSpecificationResolver(underlying, cm);
     assertEquals(distributionSpec, resolver.resolve(request));
     assertEquals(distributionSpec, resolver.resolve(request));
     
