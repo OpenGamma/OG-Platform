@@ -24,7 +24,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
-import com.opengamma.component.tool.ToolContext;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.security.RawSecurity;
 import com.opengamma.master.security.SecurityDocument;

@@ -21,6 +21,7 @@ import com.opengamma.bbg.BloombergSecuritySource;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.component.factory.tool.ToolContextComponentFactory;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.integration.tool.IntegrationToolContext;
 
 /**

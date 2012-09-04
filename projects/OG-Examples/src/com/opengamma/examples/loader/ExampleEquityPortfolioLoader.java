@@ -21,7 +21,7 @@ import java.util.Map;
 import javax.time.calendar.LocalDate;
 
 import com.opengamma.component.tool.AbstractTool;
-import com.opengamma.component.tool.ToolContext;
+import com.opengamma.financial.tool.ToolContext;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.slf4j.Logger;
