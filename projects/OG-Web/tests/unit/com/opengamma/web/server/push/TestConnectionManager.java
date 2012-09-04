@@ -15,7 +15,7 @@ import com.opengamma.web.server.push.rest.MasterType;
  */
 public class TestConnectionManager implements ConnectionManager {
 
-  private volatile RestUpdateListener _listener;
+  private volatile UpdateListener _listener;
   private final LongPollingConnectionManager _longPollingConnectionManager;
 
   public TestConnectionManager() {

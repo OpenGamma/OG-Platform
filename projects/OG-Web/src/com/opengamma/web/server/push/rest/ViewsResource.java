@@ -77,11 +77,11 @@ public class ViewsResource {
     URI portfolioGridUri = uriInfo.getAbsolutePathBuilder()
         .path(viewId)
         .path(ViewResource.class, "getPortfolioGrid")
-        .path(AbstractGridResource.class, "getGridStructure").build();
+        .build();
     URI primitivesGridUri = uriInfo.getAbsolutePathBuilder()
         .path(viewId)
         .path(ViewResource.class, "getPrimitivesGrid")
-        .path(AbstractGridResource.class, "getGridStructure").build();
+        .build();
     // TODO this is very obviously wrong - where can I get the user?
     UserPrincipal user = UserPrincipal.getTestUser();
     String userName = null;

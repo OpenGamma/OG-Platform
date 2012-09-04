@@ -254,7 +254,7 @@ import com.opengamma.util.tuple.Pair;
    * @return The ID
    * @throws DataNotFoundException If no dependency graph exists with the specified ID
    */
-  /* package */ String getGridId(int graphId) {
+  /* package */ String getCallbackId(int graphId) {
     return getDependencyGraph(graphId).getCallbackId();
   }
 
@@ -265,14 +265,14 @@ import com.opengamma.util.tuple.Pair;
    * @return The ID
    * @throws DataNotFoundException If no dependency graph and viewport exist with the specified IDs
    */
-  /* package */ String getDataId(int graphId, int viewportId) {
+  /* package */ String getCallbackId(int graphId, int viewportId) {
     return getDependencyGraph(graphId).getViewport(viewportId).getCallbackId();
   }
 
   /**
    * @return The IDs for all depdendency graph grids that are sent to listeners when the grid structure changes
    */
-  /* package */ List<String> getDependencyGraphGridIds() {
+  /* package */ List<String> getDependencyGraphCallbackIds() {
     List<String> gridIds = new ArrayList<String>();
     for (AnalyticsGrid grid : _depGraphs.values()) {
       gridIds.add(grid.getCallbackId());

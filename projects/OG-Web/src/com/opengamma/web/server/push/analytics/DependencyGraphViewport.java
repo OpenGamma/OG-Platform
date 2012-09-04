@@ -34,8 +34,8 @@ public class DependencyGraphViewport extends AnalyticsViewport {
    * @param calcConfigName Calculation configuration used to calculate the dependency graph
    * @param gridStructure Row and column structure of the grid
    * @param cycle Calculation cycle that produced the most recent results
-   * @param cache
-   * @param callbackId
+   * @param cache Cache of calculation results used to populate the viewport's data
+   * @param callbackId ID that's passed to listeners when the viewport's data changes
    */
   /* package */ DependencyGraphViewport(ViewportSpecification viewportSpec,
                                         String calcConfigName,

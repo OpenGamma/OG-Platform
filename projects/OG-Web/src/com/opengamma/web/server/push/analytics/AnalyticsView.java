@@ -5,9 +5,12 @@
  */
 package com.opengamma.web.server.push.analytics;
 
+import java.util.List;
+
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * <p>This is the top level object of the back-end of the the analytics user interface. A view displays analytics data
@@ -27,15 +30,17 @@ public interface AnalyticsView {
   /**
    * Updates the grid structures when the view definition compliles and its struture is available.
    * @param compiledViewDefinition The compiled view definition whose data will be displayed in the grids
+   * @return Callback IDs of grids that were updated
    */
-  void updateStructure(CompiledViewDefinition compiledViewDefinition);
+  List<String> updateStructure(CompiledViewDefinition compiledViewDefinition);
 
   /**
    * Updates the data in the grids when a cycle completes in the calculation engine.
    * @param results The results of the calculation cycle.
    * @param viewCycle Data associated with the calculation cycle.
+   * @return Callback IDs of the viewports whose data changed
    */
-  void updateResults(ViewResultModel results, ViewCycle viewCycle);
+  List<String> updateResults(ViewResultModel results, ViewCycle viewCycle);
 
 // -------- main grid --------
 
@@ -60,13 +65,13 @@ public interface AnalyticsView {
    * viewport in a view.
    * @param viewportSpec Defines the rows and columns in the viewport and whether the viewport's data should be
    * expanded or a summary for data types which can't fit in a cell, e.g. vectors, matrices, curves.
-   * @return The version of the viewport. This allows the client to ensure that data received for the viewport
-   * corresponds to the current viewport structure. If the client makes an asynchronous request for data and the
-   * viewport structure changes at the same time then there is a race condition and it is possible the client could
-   * display the old viewport's data in the updated viewport. The viewport version allows this situation to be detected
-   * and avoided.
+   * @return The version of the viewport and the viewport's callback ID. The version allows the client to ensure
+   * that data received for the viewport corresponds to the current viewport structure. If the client makes an
+   * asynchronous request for data and the viewport structure changes at the same time then there is a race condition
+   * and it is possible the client could display the old viewport's data in the updated viewport. The viewport version
+   * allows this situation to be detected and avoided.
    */
-  long createViewport(GridType gridType, int viewportId, String callbackId, ViewportSpecification viewportSpec);
+  Pair<Long, String> createViewport(GridType gridType, int viewportId, String callbackId, ViewportSpecification viewportSpec);
 
   /**
    * Updates a viewport. A viewport will be updated when the user scrolls the grid.
@@ -74,13 +79,13 @@ public interface AnalyticsView {
    * @param viewportId ID of the viewport
    * @param viewportSpec Defines the rows and columns in the viewport and whether the viewport's data should be
    * expanded or a summary for data types which can't fit in a cell, e.g. vectors, matrices, curves.
-   * @return The version of the viewport. This allows the client to ensure that data received for the viewport
-   * corresponds to the current viewport structure. If the client makes an asynchronous request for data and the
-   * viewport structure changes at the same time then there is a race condition and it is possible the client could
-   * display the old viewport's data in the updated viewport. The viewport version allows this situation to be detected
-   * and avoided.
+   * @return The version of the viewport and the viewport's callback ID. The version allows the client to ensure
+   * that data received for the viewport corresponds to the current viewport structure. If the client makes an
+   * asynchronous request for data and the viewport structure changes at the same time then there is a race condition
+   * and it is possible the client could display the old viewport's data in the updated viewport. The viewport version
+   * allows this situation to be detected and avoided.
    */
-  long updateViewport(GridType gridType, int viewportId, ViewportSpecification viewportSpec);
+  Pair<Long, String> updateViewport(GridType gridType, int viewportId, ViewportSpecification viewportSpec);
 
   /**
    * Deletes a viewport.
@@ -115,8 +120,9 @@ public interface AnalyticsView {
    * The server makes no assumptions about its format other than the fact that it must be unique for each grid in a view.
    * @param row The row of the cell whose dependency graph should be opened
    * @param col The column of the cell whose dependency graph should be opened
+   * @return The callback ID TODO is this really necessary?
    */
-  void openDependencyGraph(GridType gridType, int graphId, String callbackId, int row, int col);
+  String openDependencyGraph(GridType gridType, int graphId, String callbackId, int row, int col);
 
   /**
    * Closes a depdency graph.
@@ -147,13 +153,13 @@ public interface AnalyticsView {
    * viewport in a view.
    * @param viewportSpec Defines the rows and columns in the viewport and whether the viewport's data should be
    * expanded or a summary for data types which can't fit in a cell, e.g. vectors, matrices, curves.
-   * @return The version of the viewport. This allows the client to ensure that data received for the viewport
-   * corresponds to the current viewport structure. If the client makes an asynchronous request for data and the
-   * viewport structure changes at the same time then there is a race condition and it is possible the client could
-   * display the old viewport's data in the updated viewport. The viewport version allows this situation to be detected
-   * and avoided.
+   * @return The version of the viewport and the viewport's callback ID. The version allows the client to ensure
+   * that data received for the viewport corresponds to the current viewport structure. If the client makes an
+   * asynchronous request for data and the viewport structure changes at the same time then there is a race condition
+   * and it is possible the client could display the old viewport's data in the updated viewport. The viewport version
+   * allows this situation to be detected and avoided.
    */
-  long createViewport(GridType gridType, int graphId, int viewportId, String callbackId, ViewportSpecification viewportSpec);
+  Pair<Long, String> createViewport(GridType gridType, int graphId, int viewportId, String callbackId, ViewportSpecification viewportSpec);
 
   /**
    * Updates a viewport of a dependency graph grid. A viewport will be updated when the user scrolls the grid.
@@ -162,13 +168,13 @@ public interface AnalyticsView {
    * @param viewportId ID of the viewport
    * @param viewportSpec Defines the rows and columns in the viewport and whether the viewport's data should be
    * expanded or a summary for data types which can't fit in a cell, e.g. vectors, matrices, curves.
-   * @return The version of the viewport. This allows the client to ensure that data received for the viewport
-   * corresponds to the current viewport structure. If the client makes an asynchronous request for data and the
-   * viewport structure changes at the same time then there is a race condition and it is possible the client could
-   * display the old viewport's data in the updated viewport. The viewport version allows this situation to be detected
-   * and avoided.
+   * @return The version of the viewport and the viewport's callback ID. The version allows the client to ensure
+   * that data received for the viewport corresponds to the current viewport structure. If the client makes an
+   * asynchronous request for data and the viewport structure changes at the same time then there is a race condition
+   * and it is possible the client could display the old viewport's data in the updated viewport. The viewport version
+   * allows this situation to be detected and avoided.
    */
-  long updateViewport(GridType gridType, int graphId, int viewportId, ViewportSpecification viewportSpec);
+  Pair<Long, String> updateViewport(GridType gridType, int graphId, int viewportId, ViewportSpecification viewportSpec);
 
   /**
    * Deletes a viewport from a dependency graph grid.
