@@ -19,7 +19,10 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.MapComputationTargetResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.test.MockSecuritySource;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -38,37 +41,30 @@ import com.opengamma.util.time.Expiry;
 public class CDSPresentValueFunctionTest {
 
   private static final Security SECURITY = new SimpleSecurity(UniqueId.of("Test", "SEC"), ExternalIdBundle.EMPTY, "Test security", "EQUITY");
-  private static ExternalId underlying = ExternalSchemes.bloombergBuidSecurityId("dummy");
-  private static GovernmentBondSecurity target;
   private static MockSecuritySource securitySource;
   private static FunctionCompilationContext functionCompilationContext;
-  private static final Security CDS_SECURITY = new CDSSecurity(1.0, 0.6, 0.0025, Currency.GBP, ZonedDateTime.of(2020, 12, 20, 0, 0, 0, 0, TimeZone.UTC), ZonedDateTime.now(), SimpleFrequency.ANNUAL,
+  private static final CDSSecurity CDS_SECURITY = new CDSSecurity(1.0, 0.6, 0.0025, Currency.GBP, ZonedDateTime.of(2020, 12, 20, 0, 0, 0, 0, TimeZone.UTC), ZonedDateTime.now(), SimpleFrequency.ANNUAL,
     DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), StubType.SHORT_START, 3,
     "US Treasury", Currency.USD, "Senior", "No Restructuring");
-  private ISDAApproxCDSPriceHazardCurveFunction testItem;
+  private ISDAApproxCDSPriceFlatSpreadFunction testItem;
 
   @BeforeClass
   public static void initBeforeClass()
   {
-    target = new GovernmentBondSecurity("US TREASURY N/B", "Government", "US", "Treasury", Currency.USD,
-      YieldConventionFactory.INSTANCE.getYieldConvention("US Treasury equivalent"), new Expiry(ZonedDateTime.of(2011, 2, 1, 12, 0, 0, 0, TimeZone.UTC)), "", 200,
-      SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.SEMI_ANNUAL_NAME), DayCountFactory.INSTANCE.getDayCount("Actual/Actual"),
-      ZonedDateTime.of(2011, 2, 1, 12, 0, 0, 0, TimeZone.UTC), ZonedDateTime.of(2011, 2, 1, 12, 0, 0, 0, TimeZone.UTC),
-      ZonedDateTime.of(2011, 2, 1, 12, 0, 0, 0, TimeZone.UTC), 100d, 100000000, 5000, 1000, 100, 100);
-    target.setExternalIdBundle(ExternalIdBundle.of(underlying));
     securitySource = new MockSecuritySource();
-    securitySource.addSecurity(target);
     functionCompilationContext = new FunctionCompilationContext();
     functionCompilationContext.setFunctionInitId(123);
     functionCompilationContext.setSecuritySource(securitySource);
     final MapComputationTargetResolver targetResolver = new MapComputationTargetResolver();
     functionCompilationContext.setComputationTargetResolver(targetResolver);
+    
+    CDS_SECURITY.setUniqueId(UniqueId.of("dummy_scheme", "dummy_value"));
   }
 
   @BeforeMethod
   public void beforeEachMethod()
   {
-    testItem = new ISDAApproxCDSPriceHazardCurveFunction();
+    testItem = new ISDAApproxCDSPriceFlatSpreadFunction();
   }
 
   @Test
@@ -96,9 +92,18 @@ public class CDSPresentValueFunctionTest {
 
   @Test
   public void getRequirements() {
-    Set<ValueRequirement> result = testItem.getRequirements(functionCompilationContext, new ComputationTarget(CDS_SECURITY), null);
+    
+    ValueRequirement requirement = new ValueRequirement(ValueRequirementNames.CLEAN_PRICE, ComputationTargetType.SECURITY, CDS_SECURITY.getUniqueId(),
+        ValueProperties
+          .with(ValuePropertyNames.CURRENCY, Currency.USD.getCode())
+          .with(ValuePropertyNames.CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)
+          .with(ISDAFunctionConstants.ISDA_IMPLEMENTATION, ISDAFunctionConstants.ISDA_IMPLEMENTATION_APPROX)
+          .with(ISDAFunctionConstants.ISDA_HAZARD_RATE_STRUCTURE, ISDAFunctionConstants.ISDA_HAZARD_RATE_FLAT)
+          .get());
+    
+    Set<ValueRequirement> result = testItem.getRequirements(functionCompilationContext, new ComputationTarget(CDS_SECURITY), requirement);
     Assert.assertNotNull(result);
-    Assert.assertEquals(result.size(), 3);
+    Assert.assertEquals(result.size(), 2);
 
     TreeSet<String> r = new TreeSet<String>();
     for (ValueRequirement valueRequirement : result)
@@ -109,7 +114,7 @@ public class CDSPresentValueFunctionTest {
     Assert
       .assertEquals(
         r.toString(),
-        "[ValueReq[YieldCurve, CTSpec[PRIMITIVE, CurrencyISO~GBP], {Curve=[CDS_US TREASURY N/B]}], ValueReq[YieldCurve, CTSpec[PRIMITIVE, CurrencyISO~GBP], {CurveCalculationMethod=[ParRate],Curve=[SECONDARY],FundingCurve=[SECONDARY],ForwardCurve=[SECONDARY]}], ValueReq[YieldCurve, CTSpec[PRIMITIVE, CurrencyISO~USD], {CurveCalculationMethod=[ParRate],Curve=[SECONDARY],FundingCurve=[SECONDARY],ForwardCurve=[SECONDARY]}]]");
+        "[ValueReq[SpotRate, CTSpec[SECURITY, dummy_scheme~dummy_value], EMPTY], ValueReq[YieldCurve, CTSpec[PRIMITIVE, CurrencyISO~GBP], {CalculationMethod=[ISDA]}]]");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

@@ -486,7 +486,7 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
         return randomBytes;
       }
     });
-    s_dataProviders.put(Integer.class, new TestDataProvider<Integer>() {
+    s_dataProviders.put(int.class, new TestDataProvider<Integer>() {
       @Override
       public void getValues(Collection<Integer> values) {
         values.add(0);
