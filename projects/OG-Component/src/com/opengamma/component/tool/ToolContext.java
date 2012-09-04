@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.tool;
+package com.opengamma.component.tool;
 
 import java.io.Closeable;
 import java.util.Map;

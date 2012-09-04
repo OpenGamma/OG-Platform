@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.opengamma.component.tool.AbstractTool;
-import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.component.tool.ToolContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -5,7 +5,7 @@
  */
 package com.opengamma.integration.tool.portfolio;
 
-import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.component.tool.ToolContext;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 

@@ -11,7 +11,7 @@ import java.util.List;
 import com.opengamma.component.factory.RemoteComponentFactory;
 import com.opengamma.financial.convention.DefaultConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
-import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.component.tool.ToolContext;
 
 /**
  * A convenience class to pull the most likely desired masters and sources from a RemoteComponentFactory
