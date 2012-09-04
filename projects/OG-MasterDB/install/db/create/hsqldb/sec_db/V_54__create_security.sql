@@ -11,7 +11,7 @@ CREATE TABLE sec_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT INTO sec_schema_version (version_key, version_value) VALUES ('schema_patch', '52');
+INSERT INTO sec_schema_version (version_key, version_value) VALUES ('schema_patch', '54');
 
 CREATE SEQUENCE sec_security_seq AS bigint
     START WITH 1000 INCREMENT BY 1 NO CYCLE;
@@ -447,6 +447,12 @@ CREATE TABLE sec_coupontype (
     name varchar(255) NOT NULL UNIQUE,
     PRIMARY KEY (id)
  );
+ 
+CREATE TABLE sec_stubtype (
+     id bigint NOT NULL,
+     name varchar(255) NOT NULL UNIQUE,
+     PRIMARY KEY (id)
+ );
 
 CREATE TABLE sec_bond (
     id bigint NOT NULL,
@@ -830,3 +836,35 @@ CREATE TABLE sec_security_attribute (
 -- sec_security_attribute is fully dependent of sec_security
 CREATE INDEX ix_sec_security_attr_security_oid ON sec_security_attribute(security_oid);
 CREATE INDEX ix_sec_security_attr_key ON sec_security_attribute(attr_key);
+
+
+CREATE TABLE sec_cds (
+  id bigint NOT NULL,
+  security_id bigint NOT NULL,
+  notional double precision NOT NULL,
+  recovery_rate double precision NOT NULL,
+  spread double precision NOT NULL,
+  currency_id bigint NOT NULL,
+  maturity_date timestamp without time zone NOT NULL,
+  maturity_date_zone varchar(50) NOT NULL,
+  start_date timestamp without time zone NOT NULL,
+  start_date_zone varchar(50) NOT NULL,
+  premium_frequency_id bigint NOT NULL,
+  daycountconvention_id bigint NOT NULL,
+  businessdayconvention_id bigint NOT NULL,
+  stubtype_id bigint NOT NULL,
+  settlement_days int NOT NULL,
+  underlying_issuer varchar(255) NOT NULL,
+  underlying_currency_id bigint NOT NULL,
+  underlying_seniority varchar(255) NOT NULL,
+  restructuring_clause varchar(255) NOT NULL,
+  
+  PRIMARY KEY (id),
+  CONSTRAINT sec_fk_cds2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
+  CONSTRAINT sec_fk_cds2currency FOREIGN KEY (currency_id) REFERENCES sec_currency (id),
+  CONSTRAINT sec_fk_cds2daycount FOREIGN KEY (daycountconvention_id) REFERENCES sec_daycount (id),
+  CONSTRAINT sec_fk_cds2businessdayconvention FOREIGN KEY (businessdayconvention_id) REFERENCES sec_businessdayconvention (id),
+  CONSTRAINT sec_fk_cds2frequency FOREIGN KEY (premium_frequency_id) REFERENCES sec_frequency (id),
+  CONSTRAINT sec_fk_cds2stubtype FOREIGN KEY (stubtype_id) REFERENCES sec_stubtype (id),
+  CONSTRAINT sec_fk_cds_underlying2currency FOREIGN KEY (underlying_currency_id) REFERENCES sec_currency (id)
+);

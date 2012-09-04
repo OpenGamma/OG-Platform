@@ -449,6 +449,12 @@ CREATE TABLE sec_coupontype (
     name varchar(255) NOT NULL UNIQUE,
     PRIMARY KEY (id)
  );
+ 
+CREATE TABLE sec_stubtype (
+    id bigint NOT NULL,
+    name varchar(255) NOT NULL UNIQUE,
+    PRIMARY KEY (id)
+);
 
 CREATE TABLE sec_bond (
     id bigint NOT NULL,
@@ -845,15 +851,21 @@ CREATE TABLE sec_cds (
   start_date timestamp without time zone NOT NULL,
   start_date_zone varchar(50) NOT NULL,
   premium_frequency_id bigint NOT NULL,
-  underlying_scheme varchar(255),
-  underlying_identifier varchar(255),
   daycountconvention_id bigint NOT NULL,
   businessdayconvention_id bigint NOT NULL,
+  stubtype_id bigint NOT NULL,
+  settlement_days int NOT NULL,
+  underlying_issuer varchar(255) NOT NULL,
+  underlying_currency_id bigint NOT NULL,
+  underlying_seniority varchar(255) NOT NULL,
+  restructuring_clause varchar(255) NOT NULL,
   
   PRIMARY KEY (id),
   CONSTRAINT sec_fk_cds2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
   CONSTRAINT sec_fk_cds2currency FOREIGN KEY (currency_id) REFERENCES sec_currency (id),
   CONSTRAINT sec_fk_cds2daycount FOREIGN KEY (daycountconvention_id) REFERENCES sec_daycount (id),
   CONSTRAINT sec_fk_cds2businessdayconvention FOREIGN KEY (businessdayconvention_id) REFERENCES sec_businessdayconvention (id),
-  CONSTRAINT sec_fk_cds2frequency FOREIGN KEY (premium_frequency_id) REFERENCES sec_frequency (id)
+  CONSTRAINT sec_fk_cds2frequency FOREIGN KEY (premium_frequency_id) REFERENCES sec_frequency (id),
+  CONSTRAINT sec_fk_cds2stubtype FOREIGN KEY (stubtype_id) REFERENCES sec_stubtype (id),
+  CONSTRAINT sec_fk_cds_underlying2currency FOREIGN KEY (underlying_currency_id) REFERENCES sec_currency (id)
 );
