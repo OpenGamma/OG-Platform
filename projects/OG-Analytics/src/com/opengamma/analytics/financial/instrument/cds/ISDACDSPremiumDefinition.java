@@ -29,6 +29,10 @@ import com.opengamma.util.money.Currency;
  * This class encodes only the structure of the payment schedule, it does not represent
  * survival probabilities.
  * 
+ * Note the dates recorded for accrual period start and end are not offset as per ISDA,
+ * they are the actual start and end dates. Instead, offsetting happens when the ISDA
+ * method is applied.
+ * 
  * @author Martin Traverse, Niels Stchedroff (Riskcare)
  * 
  * @see ISDACDSDefinition

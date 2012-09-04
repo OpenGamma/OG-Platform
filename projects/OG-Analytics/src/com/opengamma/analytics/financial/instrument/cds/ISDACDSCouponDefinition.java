@@ -55,8 +55,10 @@ public class ISDACDSCouponDefinition extends CouponFixedDefinition {
   
   private static double getTimeBetween(final ZonedDateTime date1, final ZonedDateTime date2) {
     
-    return date2.isBefore(date1)
-      ? -ACT_365F.getDayCountFraction(date2, date1)
-      :  ACT_365F.getDayCountFraction(date1, date2);
+    final ZonedDateTime rebasedDate2 = date2.withZoneSameInstant(date1.getZone());
+    
+    return rebasedDate2.isBefore(date1)
+      ? -ACT_365F.getDayCountFraction(rebasedDate2, date1)
+      :  ACT_365F.getDayCountFraction(date1, rebasedDate2);
   }
 }

@@ -8,6 +8,10 @@ package com.opengamma.financial.analytics.model.cds;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.time.calendar.DateAdjuster;
+import javax.time.calendar.ZonedDateTime;
+
+import com.opengamma.analytics.financial.instrument.Convention;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction.NonCompiledInvoker;
@@ -157,6 +161,19 @@ public abstract class ISDAApproxCDSPriceFunction extends NonCompiledInvoker {
     results.add(presentValue);
     
     return results;
+  }
+  
+  protected ZonedDateTime findSettlementDate(final ZonedDateTime startDate, final Convention convention) {
+    
+    final DateAdjuster adjuster = convention.getBusinessDayConvention().getDateAdjuster(convention.getWorkingDayCalendar());
+    
+    ZonedDateTime result = startDate;
+    
+    for (int i = 0, n = convention.getSettlementDays(); i < n; ++i) {
+      result = result.plusDays(1).with(adjuster);
+    }
+    
+    return result;
   }
 
 }

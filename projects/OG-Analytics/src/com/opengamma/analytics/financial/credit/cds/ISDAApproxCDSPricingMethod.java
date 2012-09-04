@@ -15,59 +15,46 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.cds.ISDACDSDefinition;
 import com.opengamma.analytics.financial.instrument.cds.ISDACDSPremiumDefinition;
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
-import com.opengamma.analytics.math.rootfinding.SingleRootFinder;
 /**
- * An approximation to the calculation method for the ISDA CDS model
+ * A pricing algorithm that approximates the ISDA standard model.
  * 
  * @author Martin Traverse, Niels Stchedroff (Riskcare)
  */
-public class CDSApproxISDAMethod {
+public class ISDAApproxCDSPricingMethod {
   
   private static final double PRICING_TIME = 0.0;
   private static final double ONE_DAY_ACT_365F = 1.0 / 365.0;
   private static final double HALF_DAY_ACT_365F = 0.5 / 365.0;
   
+  // The root finder parameters differ from those used in the ISDA code
+  // However they result in stable solving of the hazard rate such that all ISDA test cases pass
+  private static final double HAZARD_SOLVER_LOWER_BOUND = 0;
+  private static final double HAZARD_SOLVER_UPPER_BOUND = 10;
+  private static final double HAZARD_SOLVER_INITIAL_STEP = 0.0005;
+  private static final double HAZARD_SOLVER_INITIAL_DERIVATIVE = 0.0;
+  private static final double HAZARD_SOLVER_TOLERANCE = 1e-17;
+  
+  private static final ISDARootFinder HAZARD_SOLVER = new ISDARootFinder(HAZARD_SOLVER_TOLERANCE);
+  
+  // ISDA uses time lines extensively in pricing
+  // A time line describes a series of t values, which are the points to consider when evaluating an integral numerically
+  // As an optimisation, the discount factors for those points are also calculated and stored
   private static class Timeline {
-    public final double[] timePoints;
-    public final double[] discountFactors;
+    private final double[] _timePoints;
+    private final double[] _discountFactors;
     
     public Timeline(final double[] timePoints, final double[] discountFactors) {
-      this.timePoints = timePoints;
-      this.discountFactors = discountFactors;
+      _timePoints = timePoints;
+      _discountFactors = discountFactors;
     }
-  }
 
-  /**
-   * Calculate the up-front charge of for a CDS according to the ISDA model,
-   * given ISDA representations of the discount curve and hazard rate function.
-   * 
-   * @param cds The CDS to be valued
-   * @param discountCurve The discount curve
-   * @param hazardRateCurve The credit spread curve
-   * @param cleanPrice Whether the price is clean (true) or dirty (false)
-   * @return The clean or dirty price of the CDS contract, depending on the cleanPrice flag
-   */
-  public double calculateUpfrontCharge(final ISDACDSDerivative cds, final ISDACurve discountCurve, final ISDACurve hazardRateCurve, boolean cleanPrice) {
-    
-    // Offset time values
-    final double offset = cds.isProtectStart() ? ONE_DAY_ACT_365F : 0.0;
-    final double offsetPricingTime = -offset;
-    final double offsetStepinTime = cds.getStepinTime() - offset;
-    final double offsetMaturityTime = cds.getMaturity() + offset;
-    final double protectionStartTime = Math.max(Math.max(cds.getStartTime(), offsetStepinTime), offsetPricingTime);
-   
-    // Constant time lines used in pricing
-    final Timeline paymentTimeline = buildPaymentTimeline(cds, discountCurve);
-    final Timeline accrualTimeline = buildTimeline(cds, discountCurve, hazardRateCurve, cds.getStartTime(), offsetMaturityTime, true);
-    final Timeline contingentTimeline = buildTimeline(cds, discountCurve, hazardRateCurve, protectionStartTime, cds.getMaturity(), false);
-    
-    // Constant discount factors used in pricing
-    final double settlementDiscountFactor = discountCurve.getDiscountFactor(cds.getSettlementTime());
-    final double stepinDiscountFactor = offsetStepinTime > 0.0 ? discountCurve.getDiscountFactor(offsetStepinTime) : discountCurve.getDiscountFactor(0.0);
-    
-    // Now value CDS, discount curve not needed since discount factors remain constant and are pre-computed
-    return valueCDS(cds, hazardRateCurve, paymentTimeline, accrualTimeline, contingentTimeline, offsetStepinTime, stepinDiscountFactor, settlementDiscountFactor, cleanPrice);
+    public double[] getTimePoints() {
+      return _timePoints;
+    }
+
+    public double[] getDiscountFactors() {
+      return _discountFactors;
+    }
   }
 
   /**
@@ -107,17 +94,9 @@ public class CDSApproxISDAMethod {
     final ISDACDSDefinition bootstrapCDSDefinition = makeBootstrapCDSDefinition(cds, flatSpread);
     final ISDACDSDerivative bootstrapCDS = bootstrapCDSDefinition.toDerivative(pricingDate, stepinDate, settlementDate, "IR_CURVE", "TEMP_CURVE");
 
-    // The root finder parameters differ from those used in the ISDA code
-    // However they result in stable solving of the hazard rate such that all ISDA test cases pass
-    final double lowerBound = 0;
-    final double upperBound = 10;
     final double guess = dataPoints[0] / (1.0 - cds.getRecoveryRate());
-    final double initialStep = 0.0005;
-    final double initialDeriv = 0.0;
-    final double xTolerance = 1e-18;
-    final double yTolerance = 1e-18;
     
-    dataPoints[0] = ISDARootFinder.findRoot(
+    dataPoints[0] = HAZARD_SOLVER.findRoot(
       new Function1D<Double, Double>() {
         @Override
         public Double evaluate(Double x) {
@@ -126,16 +105,49 @@ public class CDSApproxISDAMethod {
           return valueCDS(bootstrapCDS, tempCurve, paymentTimeline, accrualTimeline, contingentTimeline, offsetStepinTime, stepinDiscountFactor, settlementDiscountFactor, true);
         }  
       },
-      lowerBound, upperBound, guess, initialStep, initialDeriv, xTolerance, yTolerance
+      guess, HAZARD_SOLVER_LOWER_BOUND, HAZARD_SOLVER_UPPER_BOUND, HAZARD_SOLVER_INITIAL_STEP, HAZARD_SOLVER_INITIAL_DERIVATIVE
     );
 
-    // TODO: Should lower bound be an error also?
-    if (dataPoints[0] == upperBound) {
+    // In some cases the solver can diverge and report a root found at the upper bound
+    // This needs to be reported as an error
+    if (dataPoints[0] == HAZARD_SOLVER_UPPER_BOUND) {
       throw new OpenGammaRuntimeException("Failed to converge finding hazard rate");
     }
     
     final ISDACurve hazardRateCurve = new ISDACurve("HAZARD_RATE_CURVE", timePoints, dataPoints, 0.0);
       
+    return valueCDS(cds, hazardRateCurve, paymentTimeline, accrualTimeline, contingentTimeline, offsetStepinTime, stepinDiscountFactor, settlementDiscountFactor, cleanPrice);
+  }
+  
+  /**
+   * Calculate the up-front charge of for a CDS according to the ISDA model,
+   * given ISDA representations of the discount curve and hazard rate function.
+   * 
+   * @param cds The CDS to be valued
+   * @param discountCurve The discount curve
+   * @param hazardRateCurve The credit spread curve
+   * @param cleanPrice Whether the price is clean (true) or dirty (false)
+   * @return The clean or dirty price of the CDS contract, depending on the cleanPrice flag
+   */
+  public double calculateUpfrontCharge(final ISDACDSDerivative cds, final ISDACurve discountCurve, final ISDACurve hazardRateCurve, boolean cleanPrice) {
+    
+    // Offset time values
+    final double offset = cds.isProtectStart() ? ONE_DAY_ACT_365F : 0.0;
+    final double offsetPricingTime = -offset;
+    final double offsetStepinTime = cds.getStepinTime() - offset;
+    final double offsetMaturityTime = cds.getMaturity() + offset;
+    final double protectionStartTime = Math.max(Math.max(cds.getStartTime(), offsetStepinTime), offsetPricingTime);
+   
+    // Constant time lines used in pricing
+    final Timeline paymentTimeline = buildPaymentTimeline(cds, discountCurve);
+    final Timeline accrualTimeline = buildTimeline(cds, discountCurve, hazardRateCurve, cds.getStartTime(), offsetMaturityTime, true);
+    final Timeline contingentTimeline = buildTimeline(cds, discountCurve, hazardRateCurve, protectionStartTime, cds.getMaturity(), false);
+    
+    // Constant discount factors used in pricing
+    final double settlementDiscountFactor = discountCurve.getDiscountFactor(cds.getSettlementTime());
+    final double stepinDiscountFactor = offsetStepinTime > 0.0 ? discountCurve.getDiscountFactor(offsetStepinTime) : discountCurve.getDiscountFactor(0.0);
+    
+    // Now value CDS, discount curve not needed since discount factors remain constant and are pre-computed
     return valueCDS(cds, hazardRateCurve, paymentTimeline, accrualTimeline, contingentTimeline, offsetStepinTime, stepinDiscountFactor, settlementDiscountFactor, cleanPrice);
   }
   
@@ -234,13 +246,13 @@ public class CDSApproxISDAMethod {
       
       amount = payment.getFixedRate() * payment.getPaymentYearFraction();
       survival = hazardRateCurve.getDiscountFactor(periodEndTime);
-      discount = paymentTimeline.discountFactors[i];
+      discount = paymentTimeline.getDiscountFactors()[i];
       result += amount * survival * discount;
       
       if (cds.isAccrualOnDefault()) {
         
         startIndex = endIndex;
-        while (accrualTimeline.timePoints[endIndex] < periodEndTime) { ++endIndex; }
+        while (accrualTimeline.getTimePoints()[endIndex] < periodEndTime) { ++endIndex; }
           
         result += valueFeeLegAccrualOnDefault(amount, accrualTimeline, hazardRateCurve, startIndex, endIndex, stepinTime, stepinDiscountFactor);
       }
@@ -264,8 +276,11 @@ public class CDSApproxISDAMethod {
   private double valueFeeLegAccrualOnDefault(final double amount, final Timeline timeline, final ISDACurve hazardRateCurve, final int startIndex,
     final int endIndex, final double stepinTime, final double stepinDiscountFactor) {
     
-    final double startTime = timeline.timePoints[startIndex];
-    final double endTime = timeline.timePoints[endIndex];
+    final double[] timePoints = timeline.getTimePoints();
+    final double[] discountFactors = timeline.getDiscountFactors();
+    
+    final double startTime = timePoints[startIndex];
+    final double endTime = timePoints[endIndex];
     final double subStartTime = stepinTime > startTime ? stepinTime : startTime;
     final double accrualRate = amount / (endTime - startTime);
 
@@ -274,21 +289,21 @@ public class CDSApproxISDAMethod {
     
     t0 = subStartTime - startTime + HALF_DAY_ACT_365F;
     survival0 = hazardRateCurve.getDiscountFactor(subStartTime);
-    discount0 = startTime < stepinTime || startTime < PRICING_TIME ? stepinDiscountFactor : timeline.discountFactors[startIndex];
+    discount0 = startTime < stepinTime || startTime < PRICING_TIME ? stepinDiscountFactor : discountFactors[startIndex];
     
     value = 0.0;
     
     for (int i = startIndex + 1; i <= endIndex; ++i) { 
       
-      if (timeline.timePoints[i] <= stepinTime) {
+      if (timePoints[i] <= stepinTime) {
         continue;
       }
 
-      t1 = timeline.timePoints[i] - startTime + HALF_DAY_ACT_365F;
+      t1 = timePoints[i] - startTime + HALF_DAY_ACT_365F;
       dt = t1 - t0;
       
-      survival1 = hazardRateCurve.getDiscountFactor(timeline.timePoints[i]);
-      discount1 = timeline.discountFactors[i];
+      survival1 = hazardRateCurve.getDiscountFactor(timePoints[i]);
+      discount1 = discountFactors[i];
 
       lambda = Math.log(survival0 / survival1) / dt;
       fwdRate = Math.log(discount0 / discount1) / dt;
@@ -334,7 +349,10 @@ public class CDSApproxISDAMethod {
    */
   private double valueContingentLegPayOnDefault(final double recoveryRate, final Timeline timeline, final ISDACurve hazardRateCurve) {
     
-    final double maturity = timeline.timePoints[timeline.timePoints.length - 1];
+    final double[] timePoints = timeline.getTimePoints();
+    final double[] discountFactors = timeline.getDiscountFactors();
+    
+    final double maturity = timePoints[timePoints.length - 1];
     final double loss = 1.0 - recoveryRate;
     
     if (maturity < PRICING_TIME) {
@@ -344,18 +362,18 @@ public class CDSApproxISDAMethod {
     double dt, survival0, survival1, discount0, discount1;
     double lambda, fwdRate, valueForTimeStep, value;
     
-    survival1 = hazardRateCurve.getDiscountFactor(timeline.timePoints[0]);
-    discount1 = timeline.timePoints[0] > PRICING_TIME ? timeline.discountFactors[0] : 1.0;
+    survival1 = hazardRateCurve.getDiscountFactor(timePoints[0]);
+    discount1 = timePoints[0] > PRICING_TIME ? discountFactors[0] : 1.0;
     value = 0.0;
 
-    for (int i = 1; i < timeline.timePoints.length; ++i) {
+    for (int i = 1; i < timePoints.length; ++i) {
       
-      dt = timeline.timePoints[i] - timeline.timePoints[i - 1];
+      dt = timePoints[i] - timePoints[i - 1];
 
       survival0 = survival1;
       discount0 = discount1;
-      survival1 = hazardRateCurve.getDiscountFactor(timeline.timePoints[i]);
-      discount1 = timeline.discountFactors[i];
+      survival1 = hazardRateCurve.getDiscountFactor(timePoints[i]);
+      discount1 = discountFactors[i];
 
       lambda = Math.log(survival0 / survival1) / dt;
       fwdRate = Math.log(discount0 / discount1) / dt;
@@ -377,16 +395,16 @@ public class CDSApproxISDAMethod {
    */
   private double valueContingentLegPayOnMaturity(final double recoveryRate, final Timeline timeline, final ISDACurve hazardRateCurve) {
     
-    final int maturityIndex = timeline.timePoints.length - 1; 
+    final int maturityIndex = timeline.getTimePoints().length - 1; 
     
-    if (timeline.timePoints[maturityIndex] < PRICING_TIME) {
+    if (timeline.getTimePoints()[maturityIndex] < PRICING_TIME) {
       return 0.0;
     }
     
     final double loss = 1.0 - recoveryRate;
-    final double survival0 = hazardRateCurve.getDiscountFactor(timeline.timePoints[0]);
-    final double survival1 = hazardRateCurve.getDiscountFactor(timeline.timePoints[maturityIndex]);
-    final double discount = timeline.discountFactors[maturityIndex];
+    final double survival0 = hazardRateCurve.getDiscountFactor(timeline.getTimePoints()[0]);
+    final double survival1 = hazardRateCurve.getDiscountFactor(timeline.getTimePoints()[maturityIndex]);
+    final double discount = timeline.getDiscountFactors()[maturityIndex];
     
     return (survival0 - survival1) * discount * loss;
   }

@@ -41,19 +41,24 @@ import com.opengamma.util.money.Currency;
 
 public class ISDATestGridHarness {
   
-  private static final Map<String,String[]> selectedUnitTestGrids;
-  static {
-    selectedUnitTestGrids = new HashMap<String,String[]>();
-    //selectedUnitTestGrids.put("benchmark", new String[] { "HKD_20090908.xls", "USD_20090911.xls" } );
-    selectedUnitTestGrids.put("corporate", new String[] { "EUR_20090525.xls" } );
-  }
-  
   private static final double dirtyAbsoluteErrorLimit = 1E-5; // One thousandth of a cent
   private static final double cleanPercentageErrorLimit = 1E-8;
   
+  // This test file is missing the last four d.p. for each result
+  final String lowResTest = "EUR_20090525.xls";
+  final double lowResAbsoluteErrorLimit = 1E-1;
+  final double lowResPercentageErrorLimit = 1E-6;
+  
+  private static final Map<String,String[]> selectedUnitTestGrids;
+  static {
+    selectedUnitTestGrids = new HashMap<String,String[]>();
+    selectedUnitTestGrids.put("benchmark", new String[] { "USD_20090911.xls", "HKD_20090908.xls", "SGD_20090909.xls" } );
+    selectedUnitTestGrids.put("corporate", new String[] { "CAD_20090501.xls", "CHF_20090507.xls", "EUR_20090525.xls", "GBP_20090512.xls", "JPY_20090526.xls", "USD_20090528.xls" } );
+  }
+  
   private static final DateTimeFormatter formatter = DateTimeFormatters.pattern("dd/MM/yyyy");
   private static final DayCount dayCount = new ActualThreeSixtyFive();
-  private static final CDSApproxISDAMethod calculator = new CDSApproxISDAMethod();
+  private static final ISDAApproxCDSPricingMethod calculator = new ISDAApproxCDSPricingMethod();
   
   private ISDATestGridManager testGridManager;
   private ISDAStagedDataManager stagedDataManager;
@@ -209,6 +214,13 @@ public class ISDATestGridHarness {
   
   public TestGridResult runTestGrid(ISDATestGrid testGrid, ISDACurve discountCurve, String testGridFileName) throws Exception {
     
+    if (lowResTest.equals(testGridFileName)) {
+      System.out.println("This is a low resolution test file, using low resolution error limits");
+    }
+    
+    final double absoluteErrorLimit = lowResTest.equals(testGridFileName) ? lowResAbsoluteErrorLimit : dirtyAbsoluteErrorLimit;
+    final double percentageErrorLimit = lowResTest.equals(testGridFileName) ? lowResPercentageErrorLimit : cleanPercentageErrorLimit;
+    
     int i = 0, failures = 0;
     TestResult result;
     double maxAbsoluteError = 0.0;
@@ -225,7 +237,7 @@ public class ISDATestGridHarness {
       
       result = runTestCase(testCase, discountCurve);
       
-      if (result.dirtyAbsoluteError >= dirtyAbsoluteErrorLimit || result.cleanPercentageError >= cleanPercentageErrorLimit) {
+      if (result.dirtyAbsoluteError >= absoluteErrorLimit || result.cleanPercentageError >= percentageErrorLimit) {
         
         ++failures;
         

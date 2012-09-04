@@ -10,7 +10,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class CDSApproxISDAMethodTest extends CDSTestSetup {
+public class ISDAApproxCDSPricingMethodTest extends ISDAApproxCDSPricingMethodTestData {
 
   /**
    * Test against the same data as in the ISDA example (main.c)
@@ -25,7 +25,7 @@ public class CDSApproxISDAMethodTest extends CDSTestSetup {
     final ISDACurve discountCurve = loadDiscountCurve_ISDAExampleMainC();
     final ISDACurve hazardRateCurve = loadHazardRateCurve_ISDAExampleMainC();
     
-    final CDSApproxISDAMethod method = new CDSApproxISDAMethod();
+    final ISDAApproxCDSPricingMethod method = new ISDAApproxCDSPricingMethod();
     
     final Map<Double, Double> testCases = new HashMap<Double, Double>();
     testCases.put(0.0, 38651.94460867186700000000);
@@ -51,7 +51,7 @@ public class CDSApproxISDAMethodTest extends CDSTestSetup {
     final ISDACurve discountCurve = loadDiscountCurve_ISDAExampleCDSExcelFlat();
     final ISDACurve hazardRateCurve = loadHazardRateCurve_ISDAExampleCDSCalculator_FlatIRCurve();
     
-    final CDSApproxISDAMethod method = new CDSApproxISDAMethod();
+    final ISDAApproxCDSPricingMethod method = new ISDAApproxCDSPricingMethod();
 
     final double cleanPrice = method.calculateUpfrontCharge(cds, discountCurve, hazardRateCurve, true);
     final double dirtyPrice = method.calculateUpfrontCharge(cds, discountCurve, hazardRateCurve, false);
@@ -71,7 +71,7 @@ public class CDSApproxISDAMethodTest extends CDSTestSetup {
     final ISDACurve discountCurve = loadDiscountCurve_ISDAExampleExcel();
     final ISDACurve hazardRateCurve = loadHazardRateCurve_ISDAExampleCDSCalculator();
     
-    final CDSApproxISDAMethod method = new CDSApproxISDAMethod();
+    final ISDAApproxCDSPricingMethod method = new ISDAApproxCDSPricingMethod();
 
     final double cleanPrice = method.calculateUpfrontCharge(cds, discountCurve, hazardRateCurve, true);
     final double dirtyPrice = method.calculateUpfrontCharge(cds, discountCurve, hazardRateCurve, false);
@@ -92,17 +92,17 @@ public class CDSApproxISDAMethodTest extends CDSTestSetup {
     final ISDACDSDerivative cds = loadCDS_ISDAExampleUpfrontConverter().toDerivative(pricingDate, "IR_CURVE", "HAZARD_RATE_CURVE"); 
     final ISDACurve discountCurve = loadDiscountCurve_ISDAExampleExcel();
     
-    final CDSApproxISDAMethod method = new CDSApproxISDAMethod();
+    final ISDAApproxCDSPricingMethod method = new ISDAApproxCDSPricingMethod();
 
     final double cleanPrice = method.calculateUpfrontCharge(cds, discountCurve, 0.055, true, pricingDate, stepinDate, settlementDate);
     final double dirtyPrice = method.calculateUpfrontCharge(cds, discountCurve, 0.055, false, pricingDate, stepinDate, settlementDate);
     final double cleanPriceError = Math.abs( (cleanPrice - 185852.587288133) / cds.getNotional() );
     final double dirtyPriceError = Math.abs( (dirtyPrice - 59463.6983992436) / cds.getNotional() );
     
-    System.out.println(cleanPriceError + ", " + dirtyPriceError);
-    
-    Assert.assertTrue(cleanPriceError < 1E-15);
-    Assert.assertTrue(dirtyPriceError < 1E-15);
+    // The approximate method can't quite get 1E-15 accuracy when using the hazard rate solver
+    // The tolerance of the solver in the ISDA C code is hard coded to 1E-10, so this is reasonable
+    Assert.assertTrue(cleanPriceError < 1E-14);
+    Assert.assertTrue(dirtyPriceError < 1E-14);
   }
   
 }

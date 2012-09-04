@@ -1,7 +1,6 @@
 package com.opengamma.analytics.financial.credit.cds;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
@@ -215,9 +214,5 @@ public class ISDATestGrid {
 
 	public List<ISDATestGridRow> getData() {
 		return _data;
-	}
-
-	private void setData(List<ISDATestGridRow> _data) {
-		this._data = _data;
 	}
 }

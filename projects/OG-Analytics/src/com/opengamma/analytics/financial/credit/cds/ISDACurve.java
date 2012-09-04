@@ -15,7 +15,7 @@ import com.opengamma.analytics.math.interpolation.FlatExtrapolator1D;
 /**
  * A curve that behaves according to the ISDA standard for CDS pricing.
  * 
- * This curve is intended for use with {@link CDSApproxISDAMethod} in order
+ * This curve is intended for use with {@link ISDAApproxCDSPricingMethod} in order
  * to produce numbers that match the ISDA standard pricing model for CDS. It
  * may be useful in other situations where ISDA standard discount factors
  * are assumed.

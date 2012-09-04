@@ -11,125 +11,118 @@ import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Numerical solver replicating the ISDA Brent root finder algorithm
+ * Numerical solver replicating the ISDA 'Brent' root finder algorithm. This
+ * algorithm is only intended for use with the ISDA CDS pricing method.
+ * 
+ * Bounds for an initial interval are taken from the guess parameter. Then
+ * the secant method is called to find an interval where the function straddles
+ * zero. If the secant method fails to find an interval, the intervals between the
+ * initial guess and the upper and lower bounds are tried. Once an interval straddling
+ * zero is found, the brent solver is called for that interval.
+ * 
+ * @see BrentSingleRootFinder
+ * @see ISDAApproxCDSPricingMethod
  */
 public class ISDARootFinder {
   
   private static final int MAX_ITER = 100;
+  private static final double ONE_PERCENT = 0.01;
+  private static final double DEFAULT_TOLERANCE = 1E-15;
   
-  private static final BrentSingleRootFinder brent = new BrentSingleRootFinder(1e-18);
+  private final double _tolerance;
+  private final BrentSingleRootFinder _brentRootFinder;
+  
+  public ISDARootFinder() {
+    _tolerance = DEFAULT_TOLERANCE;
+    _brentRootFinder = new BrentSingleRootFinder(DEFAULT_TOLERANCE);
+  }
+  
+  public ISDARootFinder(final double tolerance) {
+    _tolerance = tolerance;
+    _brentRootFinder = new BrentSingleRootFinder(tolerance);
+  }
+  
+  public double findRoot(final Function1D<Double, Double> function, final double guess, final double lowerBound, final double upperBound,
+    final double initialStep, final double initialDerivative) {
 
-  public static double findRoot(final Function1D<Double, Double> function, final double xLower, final double xUpper, final double xGuess,
-      final double initialStep, final double initialDeriv, final double xTolerance, double yTolerance) {
+    ArgumentChecker.isTrue(upperBound > lowerBound, "Upper bound must be greater than lower bound");
+    ArgumentChecker.isTrue(guess >= lowerBound, "Guess is out of range");
+    ArgumentChecker.isTrue(guess <= upperBound, "Guess is out of range");
 
-    ArgumentChecker.isTrue(xUpper > xLower, "Upper bound must be greater than lower bound");
-    ArgumentChecker.isTrue(xGuess >= xLower, "Guess is out of range");
-    ArgumentChecker.isTrue(xGuess <= xUpper, "Guess is out of range");
-
-    double x1, x2, x3, y1, y2, y3, temp;
+    double x1, x2, y1, y2, temp;
     
-    x1 = xGuess;
+    x1 = guess;
     y1 = function.evaluate(x1);
 
-    if (Math.abs(y1) <= yTolerance && (Math.abs(x1 - xLower) <= xTolerance || Math.abs(x1 - xUpper) <= xTolerance)) {
+    if (Math.abs(y1) <= _tolerance && (Math.abs(x1 - lowerBound) <= _tolerance || Math.abs(x1 - upperBound) <= _tolerance)) {
       return y1;
     }
     
-    x3 = initialDeriv == 0.0 ? xGuess + initialStep : xGuess - (y1 / initialDeriv);
+    x2 = initialDerivative == 0.0 ? guess + initialStep : guess - (y1 / initialDerivative);
 
-    if (x3 < xLower || x3 > xUpper) {
-      final double x_ = xGuess - initialStep;
-      final double boundSpread = xUpper - xLower;
+    if (x2 < lowerBound || x2 > upperBound) {
+      final double nextGuess = guess - initialStep;
+      final double boundSpread = upperBound - lowerBound;
 
-      x3 =
-        x_ < xLower ? xLower :
-        x_ > xUpper ? xUpper :
-        x_;
+      x2 =
+        nextGuess < lowerBound ? lowerBound :
+        nextGuess > upperBound ? upperBound :
+        nextGuess;
 
-      if (x3 == x1) {
-        x3 = x3 == xLower ? xLower + 0.01 * boundSpread : xUpper - 0.01 * boundSpread;
+      if (x2 == x1) {
+        x2 = x2 == lowerBound ? lowerBound + ONE_PERCENT * boundSpread : upperBound - ONE_PERCENT * boundSpread;
       }
     }
     
-    y3 = function.evaluate(x3);
+    y2 = function.evaluate(x2);
     
-    if (Math.abs(y3) <= yTolerance && (Math.abs(x3 - xLower) <= xTolerance || Math.abs(x3 - xUpper) <= xTolerance)) {
-      return y3;
+    if (Math.abs(y2) <= _tolerance && (Math.abs(x2 - lowerBound) <= _tolerance || Math.abs(x2 - upperBound) <= _tolerance)) {
+      return y2;
     }
     
-    SecantResultData secant = secantMethod(function, xLower, xUpper, xTolerance, yTolerance, x1, x3, y1, y3);
+    SecantResultData secant = secantMethod(function, lowerBound, upperBound, x1, x2, y1, y2);
     
-    if (secant.result == SecantResult.FOUND) {
-      return secant.root;
+    if (secant.getResult() == SecantResult.FOUND) {
+      return secant.getRoot();
     }
     
-    if (secant.result == SecantResult.BRACKETED) {
-      x1 = secant.lower;
-      x3 = secant.upper;
+    if (secant.getResult() == SecantResult.BRACKETED) {
+      x1 = secant.getLower();
+      x2 = secant.getUpper();
     } else {
       
-      final double yLo = function.evaluate(xLower);
-      final double yHi = function.evaluate(xUpper);
+      final double yLo = function.evaluate(lowerBound);
+      final double yHi = function.evaluate(upperBound);
       
-      if (Math.abs(yLo) <= yTolerance && Math.abs(xLower - x1) <= xTolerance) {
-        return xLower;
+      if (Math.abs(yLo) <= _tolerance && Math.abs(lowerBound - x1) <= _tolerance) {
+        return lowerBound;
       }
       
-      if (Math.abs(yHi) <= yTolerance && Math.abs(xUpper - x1) <= xTolerance) {
-        return xUpper;
+      if (Math.abs(yHi) <= _tolerance && Math.abs(upperBound - x1) <= _tolerance) {
+        return upperBound;
       }
       
       if (y1 * yLo < 0.0) {
-        x3 = x1;
-        x1 = xLower;
-        y3 = y1;
+        x2 = x1;
+        x1 = lowerBound;
+        y2 = y1;
         y1 = yLo;
       } else if (y1 * yHi < 0.0) {
-        x3 = xUpper;
-        y3 = yHi;
+        x2 = upperBound;
+        y2 = yHi;
       } else {
         throw new OpenGammaRuntimeException("Failed to find root");
       } 
     }
     
-    if (x1 > x3) {
-      temp = x1; x1 = x3; x3 = temp;
+    if (x1 > x2) {
+      temp = x1; x1 = x2; x2 = temp;
     }
 
-    return brent.getRoot(function, x1, x3);
+    return _brentRootFinder.getRoot(function, x1, x2);
   }
   
-  private enum SecantResult { FOUND, BRACKETED, NOT_FOUND };
-  
-  private static class SecantResultData {
-    
-    public final SecantResult result;
-    public final double root;
-    public final double lower, upper;
-    
-    public SecantResultData(final double root) {
-      this.result = SecantResult.FOUND;
-      this.root = root;
-      this.lower = Double.NaN;
-      this.upper = Double.NaN;
-    }
-    
-    public SecantResultData(final double lower, final double upper) {
-      this.result = SecantResult.BRACKETED;
-      this.root = Double.NaN;
-      this.lower = lower;
-      this.upper = upper;
-    }
-    
-    public SecantResultData() {
-      this.result = SecantResult.NOT_FOUND;
-      this.root = Double.NaN;
-      this.lower = Double.NaN;
-      this.upper = Double.NaN;
-    }
-  }
-  
-  public static SecantResultData secantMethod(final Function1D<Double, Double> function, final double xLower, final double xUpper, final double xTolerance, double yTolerance,
+  private SecantResultData secantMethod(final Function1D<Double, Double> function, final double lowerBound, final double upperBound,
     final double xLow, final double xHigh, final double yLow, final double yHigh) {
     
     double x1, x2, x3, y1, y2, y3, dx, temp;
@@ -146,21 +139,23 @@ public class ISDARootFinder {
         temp = y1; y1 = y3; y3 = temp;
       }
       
-      dx = Math.abs(y1 - y3) <= yTolerance
+      dx = Math.abs(y1 - y3) <= _tolerance
         ? y1 - y3 > 0
-          ? -y1 * (x1 - x3) / yTolerance
-          :  y1 * (x1 - x3) / yTolerance
+          ? -y1 * (x1 - x3) / _tolerance
+          :  y1 * (x1 - x3) / _tolerance
         : (x3 - x1) * y1 / (y1 - y3);
       
       x2 = x1 + dx;
       
-      if (x2 < xLower || x2 > xUpper) {
+      if (x2 < lowerBound || x2 > upperBound) {
+        // Root cannot be found or bracketed
         return new SecantResultData();
       }
       
       y2 = function.evaluate(x2);
       
-      if (Math.abs(y2) <= yTolerance && (Math.abs(x2 - xLower) <= xTolerance || Math.abs(x2 - xUpper) <= xTolerance)) {
+      if (Math.abs(y2) <= _tolerance && (Math.abs(x2 - lowerBound) <= _tolerance || Math.abs(x2 - upperBound) <= _tolerance)) {
+        // Root found
         return new SecantResultData(x2);
       }
       
@@ -191,6 +186,7 @@ public class ISDARootFinder {
           }
         }
         
+        // Interval found
         return new SecantResultData(x1, x3);
       }
     }
@@ -198,6 +194,41 @@ public class ISDARootFinder {
     // Root not found or bracketed
     return new SecantResultData();
   }
+  
+  private static class SecantResultData {
+    
+    private final SecantResult _result;
+    private final double _root;
+    private final double _lower, _upper;
+    
+    public SecantResult getResult() { return _result; }
+    public double getRoot() { return _root; }
+    public double getLower() { return _lower; }
+    public double getUpper() { return _upper; }
+    
+    public SecantResultData(final double root) {
+      this._result = SecantResult.FOUND;
+      this._root = root;
+      this._lower = Double.NaN;
+      this._upper = Double.NaN;
+    }
+    
+    public SecantResultData(final double lower, final double upper) {
+      this._result = SecantResult.BRACKETED;
+      this._root = Double.NaN;
+      this._lower = lower;
+      this._upper = upper;
+    }
+    
+    public SecantResultData() {
+      this._result = SecantResult.NOT_FOUND;
+      this._root = Double.NaN;
+      this._lower = Double.NaN;
+      this._upper = Double.NaN;
+    }
+  }
+  
+  private enum SecantResult { FOUND, BRACKETED, NOT_FOUND };
 }
 
 

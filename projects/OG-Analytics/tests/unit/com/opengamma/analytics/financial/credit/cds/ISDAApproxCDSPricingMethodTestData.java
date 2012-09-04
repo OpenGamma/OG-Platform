@@ -19,7 +19,7 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.util.money.Currency;
 
-public class CDSTestSetup {
+public class ISDAApproxCDSPricingMethodTestData {
   
   protected static DayCount s_act365 = new ActualThreeSixtyFive();
   

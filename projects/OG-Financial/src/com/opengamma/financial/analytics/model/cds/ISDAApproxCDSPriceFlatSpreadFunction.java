@@ -8,14 +8,12 @@ package com.opengamma.financial.analytics.model.cds;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.analytics.financial.credit.cds.CDSApproxISDAMethod;
+import com.opengamma.analytics.financial.credit.cds.ISDAApproxCDSPricingMethod;
 import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.instrument.cds.ISDACDSDefinition;
-import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -35,11 +33,11 @@ import com.opengamma.util.tuple.DoublesPair;
  * Price CDS contracts according to the ISDA model using a flat spread
  * 
  * @author Martin Traverse, Niels Stchedroff (Riskcare)
- * @see CDSApproxISDAMethod
+ * @see ISDAApproxCDSPricingMethod
  */
 public class ISDAApproxCDSPriceFlatSpreadFunction extends ISDAApproxCDSPriceFunction {
 
-  private static final CDSApproxISDAMethod ISDA_APPROX_METHOD = new CDSApproxISDAMethod();
+  private static final ISDAApproxCDSPricingMethod ISDA_APPROX_METHOD = new ISDAApproxCDSPricingMethod();
   
   @Override
   protected String getHazardRateStructre() {
@@ -72,14 +70,15 @@ public class ISDAApproxCDSPriceFlatSpreadFunction extends ISDAApproxCDSPriceFunc
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
     final ISDACDSSecurityConverter converter = new ISDACDSSecurityConverter(holidaySource);
     
-    // Time point to price for
-    // TODO: Where to get step-in and settlement
-    final ZonedDateTime pricingDate = executionContext.getValuationClock().zonedDateTime();
-    final ZonedDateTime stepinDate = pricingDate.plusDays(1);
-    final ZonedDateTime settlementDate = pricingDate.plusDays(3);
-    
     // Security being priced
     final CDSSecurity cds = (CDSSecurity) target.getSecurity();
+    final ISDACDSDefinition cdsDefinition = (ISDACDSDefinition) cds.accept(converter);
+    
+    // Time point to price for
+    // TODO: Supply an option for the user to specify non-standard step-in and settlement dates
+    final ZonedDateTime pricingDate = executionContext.getValuationClock().zonedDateTime();
+    final ZonedDateTime stepinDate = pricingDate.plusDays(1);
+    final ZonedDateTime settlementDate = findSettlementDate(pricingDate, cdsDefinition.getConvention());
 
     // Discount curve
     final ISDACurve discountCurve = (ISDACurve) inputs.getValue(new ValueRequirement(
@@ -92,7 +91,6 @@ public class ISDAApproxCDSPriceFlatSpreadFunction extends ISDAApproxCDSPriceFunc
       ValueProperties.none()));
     
     // Convert security in to format suitable for pricing
-    final ISDACDSDefinition cdsDefinition = (ISDACDSDefinition) cds.accept(converter);
     final ISDACDSDerivative cdsDerivative = cdsDefinition.toDerivative(pricingDate, stepinDate, settlementDate, discountCurve.getName());
     
     // Go price!

@@ -141,9 +141,11 @@ public class ISDACDSDefinition implements InstrumentDefinition<ISDACDSDerivative
   
   private static double getTimeBetween(final ZonedDateTime date1, final ZonedDateTime date2) {
     
-    return date2.isBefore(date1)
-      ? -ACT_365F.getDayCountFraction(date2, date1)
-      :  ACT_365F.getDayCountFraction(date1, date2);
+    final ZonedDateTime rebasedDate2 = date2.withZoneSameInstant(date1.getZone());
+    
+    return rebasedDate2.isBefore(date1)
+      ? -ACT_365F.getDayCountFraction(rebasedDate2, date1)
+      :  ACT_365F.getDayCountFraction(date1, rebasedDate2);
   }
   
   public double accruedInterest(final ZonedDateTime stepinDate) {
@@ -181,6 +183,54 @@ public class ISDACDSDefinition implements InstrumentDefinition<ISDACDSDerivative
   @Override
   public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitCDSDefinition(this);
+  }
+
+  public ZonedDateTime getStartDate() {
+    return _startDate;
+  }
+
+  public ZonedDateTime getMaturity() {
+    return _maturity;
+  }
+
+  public ISDACDSPremiumDefinition getPremium() {
+    return _premium;
+  }
+
+  public double getNotional() {
+    return _notional;
+  }
+
+  public double getSpread() {
+    return _spread;
+  }
+
+  public double getRecoveryRate() {
+    return _recoveryRate;
+  }
+
+  public boolean isAccrualOnDefault() {
+    return _accrualOnDefault;
+  }
+
+  public boolean isPayOnDefault() {
+    return _payOnDefault;
+  }
+
+  public boolean isProtectStart() {
+    return _protectStart;
+  }
+
+  public Frequency getCouponFrequency() {
+    return _couponFrequency;
+  }
+
+  public Convention getConvention() {
+    return _convention;
+  }
+
+  public StubType getStubType() {
+    return _stubType;
   }
 
 }
