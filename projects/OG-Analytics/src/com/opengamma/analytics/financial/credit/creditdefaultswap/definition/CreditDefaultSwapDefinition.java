@@ -14,6 +14,7 @@ import com.opengamma.analytics.financial.credit.Region;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.ScheduleGenerationMethod;
 import com.opengamma.analytics.financial.credit.Sector;
+import com.opengamma.analytics.financial.credit.SurvivalCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -137,8 +138,8 @@ public class CreditDefaultSwapDefinition {
   // The yield curve object for discount factors - Constructed from market data
   private final YieldCurve _yieldCurve;
 
-  // The survival curve object for survival probabilities (proxy with a YieldCurve object for now) - Constructed from market data
-  private final YieldCurve _survivalCurve;
+  // The survival curve object containing the term structure of survival probabilities - Constructed from market data
+  private final SurvivalCurve _survivalCurve;
 
   // The term structure of rating of the reference entity (supplied by MarkIt) - proxy with a simple YieldCurve object for now
   private final YieldCurve _ratingCurve;
@@ -181,7 +182,7 @@ public class CreditDefaultSwapDefinition {
       boolean includeAccruedPremium,
       int numberOfIntegrationSteps,
       YieldCurve yieldCurve,
-      YieldCurve survivalCurve,
+      SurvivalCurve survivalCurve,
       YieldCurve ratingCurve) {
 
     // ------------------------------------------------------------------------------------------------
@@ -472,7 +473,7 @@ public class CreditDefaultSwapDefinition {
     return _yieldCurve;
   }
 
-  public YieldCurve getSurvivalCurve() {
+  public SurvivalCurve getSurvivalCurve() {
     return _survivalCurve;
   }
 
