@@ -204,15 +204,17 @@ public class ISDATestGridHarness {
   		  maxCleanPercentageError = result.maxCleanPercentageError > maxCleanPercentageError ? result.maxCleanPercentageError : maxCleanPercentageError;
   		  
   		  if (result.failures > 0) {
-  		    failedGrids.add(batch.getKey() + " " + fileName + " (" + result.failures + " failures)");
+  		    failedGrids.add(batch.getKey() + " " + fileName + " (" + result.failures + " failures"
+  		      + (considerRelativeErrorForFailures ? ", " + result.marginals + " marginal" : "")
+  		      +")");
   		  } else if (result.marginals > 0) {
   		    marginalGrids.add(batch.getKey() + " " + fileName + " (" + result.marginals + " marginal cases)");
   		  }
   	  }
 	  }
 	  
-	  final double failureRate = caseFailures / cases;
-	  final double marginalRate = (caseFailures + casesMarginal) / cases;
+	  final double failureRate = (double)caseFailures / (double)cases;
+	  final double marginalRate = (double)(caseFailures + casesMarginal) / (double)cases;
 	  
 	  System.out.println(" --- ISDA Test Grid run complete --- ");
 	  System.out.println("Failure rate: " + (failureRate * 100.0) + "%");
@@ -225,7 +227,7 @@ public class ISDATestGridHarness {
 	  System.out.println("Total test grids marginal: " + gridsMarginal);
 	  System.out.println("Total test grids with missing data: " + gridsMissingData);
 	  System.out.println("Total test cases executed: " + cases);
-	  System.out.println("Total test cases faield: " + caseFailures);
+	  System.out.println("Total test cases failed: " + caseFailures);
 	  System.out.println("Total test cases marginal: " + casesMarginal);
 	  System.out.println("Total execution time: " + totalTime + "s");
 	  
