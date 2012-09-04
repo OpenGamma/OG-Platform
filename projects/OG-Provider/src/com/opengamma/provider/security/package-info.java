@@ -5,7 +5,7 @@
  */
 
 /**
- * Historical security provider SPI.
+ * Security provider SPI.
  * <p>
  * This is implemented on top of major data sources that can provide security market data.
  */
