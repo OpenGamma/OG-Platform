@@ -228,6 +228,26 @@ $.register_module({
                 registrations.filter(request_expired.partial(void 0, current)).pluck('id')
                     .forEach(function (id) {api.abort({id: id});});
             },
+            compressor: { // all requests that begin with /compressor
+                root: 'compressor',
+                get: function (config) {
+                    config = config || {};
+                    var root = this.root, method = [root, 'decompress'], data = {}, meta;
+                    meta = check({bundle: {method: root + '#get', config: config}, required: [{all_of: ['content']}]});
+                    meta.type = 'POST';
+                    data.content = config.content;
+                    return request(method, {data: data, meta: meta});
+                },
+                put: function (config) {
+                    config = config || {};
+                    var root = this.root, method = [root, 'compress'], data = {}, meta;
+                    meta = check({bundle: {method: root + '#get', config: config}, required: [{all_of: ['content']}]});
+                    meta.type = 'POST';
+                    data.content = JSON.stringify(config.content);
+                    return request(method, {data: data, meta: meta});
+                },
+                del: not_available.partial('del')
+            },
             configs: { // all requests that begin with /configs
                 root: 'configs',
                 get: function (config) {
@@ -576,7 +596,7 @@ $.register_module({
                         del: not_implemented.partial('del'),
                         get: not_available.partial('get'),
                         grid: {
-                            root: 'views/{{view_id}}/portfolio/depgraphs/{{graph_id}}/',
+                            root: 'views/{{view_id}}/portfolio/depgraphs/{{graph_id}}',
                             get: function (config) {
                                 var root = this.root, method = root.split('/'), data = {}, meta;
                                 meta = check({
@@ -638,7 +658,7 @@ $.register_module({
                         }
                     },
                     grid: {
-                        root: 'views/{{view_id}}/portfolio/',
+                        root: 'views/{{view_id}}/portfolio',
                         get: function (config) {
                             config = config || {};
                             var root = this.root, method = root.split('/'), data = {}, meta;
@@ -686,7 +706,7 @@ $.register_module({
                 },
                 primitives: {
                     grid: {
-                        root: 'views/{{id}}/primitives/',
+                        root: 'views/{{id}}/primitives',
                         get: function (config) {
                             config = config || {};
                             var root = this.root, method = root.split('/'), data = {}, meta;
