@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.forex.option.black.deprecated;
@@ -21,7 +21,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
-import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParametersStrikeInterpolation;
+import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -34,11 +34,12 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
+import com.opengamma.financial.analytics.conversion.ForexSecurityConverterDeprecated;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
@@ -71,7 +72,7 @@ public abstract class FXOptionBlackFunctionDeprecated extends AbstractFunction.N
   public static final String PROPERTY_CALL_FORWARD_CURVE = "CallForwardCurve";
   /** The property for the calculation method for the call currency curves */
   public static final String PROPERTY_CALL_CURVE_CALCULATION_METHOD = "CallCurveCalculationMethod";
-  private static final ForexSecurityConverter VISITOR = new ForexSecurityConverter();
+  private static final ForexSecurityConverterDeprecated VISITOR = new ForexSecurityConverterDeprecated();
   private final String _valueRequirementName;
 
   public FXOptionBlackFunctionDeprecated(final String valueRequirementName) {
@@ -128,10 +129,9 @@ public abstract class FXOptionBlackFunctionDeprecated extends AbstractFunction.N
     }
     final InstrumentDerivative fxOption = definition.toDerivative(now, curveNames);
     final YieldCurveBundle yieldCurves = new YieldCurveBundle(allCurveNames, curves);
-    final ValueRequirement spotRequirement = security.accept(ForexVisitors.getSpotIdentifierVisitor());
-    final Object spotObject = inputs.getValue(spotRequirement);
+    final Object spotObject = inputs.getValue(ValueRequirementNames.SPOT_RATE);
     if (spotObject == null) {
-      throw new OpenGammaRuntimeException("Could not get spot requirement " + spotRequirement);
+      throw new OpenGammaRuntimeException("Could not get spot rate");
     }
     final double spot = (Double) spotObject;
     final ValueRequirement fxVolatilitySurfaceRequirement = getSurfaceRequirement(surfaceName, putCurrency, callCurrency, interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
@@ -144,7 +144,8 @@ public abstract class FXOptionBlackFunctionDeprecated extends AbstractFunction.N
     final ValueProperties.Builder properties = getResultProperties(putCurveName, putForwardCurveName, putCurveCalculationMethod, callCurveName, callForwardCurveName,
         callCurveCalculationMethod, surfaceName, interpolatorName, leftExtrapolatorName, rightExtrapolatorName, target);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties.get());
-    final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(fxMatrix, curveCurrency, yieldCurves, smiles, Pair.of(ccy1, ccy2));
+    final YieldCurveBundle curvesWithFX = new YieldCurveBundle(fxMatrix, curveCurrency, yieldCurves.getCurvesMap());
+    final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(curvesWithFX, smiles, Pair.of(ccy1, ccy2));
     return getResult(fxOption, smileBundle, spec);
   }
 
@@ -230,7 +231,7 @@ public abstract class FXOptionBlackFunctionDeprecated extends AbstractFunction.N
     final ValueRequirement putFundingCurve = getCurveRequirement(putCurveName, putForwardCurveName, putCurveName, putCurveCalculationMethod, putCurrency);
     final ValueRequirement callFundingCurve = getCurveRequirement(callCurveName, callForwardCurveName, callCurveName, callCurveCalculationMethod, callCurrency);
     final ValueRequirement fxVolatilitySurface = getSurfaceRequirement(surfaceName, putCurrency, callCurrency, interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
-    final ValueRequirement spotRequirement = security.accept(ForexVisitors.getSpotIdentifierVisitor());
+    final ValueRequirement spotRequirement = new ValueRequirement(ValueRequirementNames.SPOT_RATE, UnorderedCurrencyPair.of(callCurrency, putCurrency));
     return Sets.newHashSet(putFundingCurve, callFundingCurve, fxVolatilitySurface, spotRequirement);
   }
 

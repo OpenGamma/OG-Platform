@@ -36,6 +36,9 @@ import com.opengamma.master.security.SecurityMaster;
 
 /**
  * Component factory for the security source.
+ * <p>
+ * This factory creates security sources for the underlying and user masters
+ * as well as a combined source.
  */
 @BeanDefinition
 public class UserFinancialSecuritySourceComponentFactory extends AbstractComponentFactory {

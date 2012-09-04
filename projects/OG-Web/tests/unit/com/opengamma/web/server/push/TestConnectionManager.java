@@ -7,8 +7,6 @@ package com.opengamma.web.server.push;
 
 import static org.mockito.Mockito.mock;
 
-import java.util.concurrent.ConcurrentHashMap;
-
 import com.opengamma.id.UniqueId;
 import com.opengamma.web.server.push.rest.MasterType;
 
@@ -17,7 +15,7 @@ import com.opengamma.web.server.push.rest.MasterType;
  */
 public class TestConnectionManager implements ConnectionManager {
 
-  private volatile RestUpdateListener _listener;
+  private volatile UpdateListener _listener;
   private final LongPollingConnectionManager _longPollingConnectionManager;
 
   public TestConnectionManager() {
@@ -49,7 +47,12 @@ public class TestConnectionManager implements ConnectionManager {
   public void subscribe(String userId, String clientId, MasterType masterType, String url) {
     throw new UnsupportedOperationException("subscribe not implemented");
   }
-  
+
+  @Override
+  public ClientConnection getConnectionByClientId(String userId, String clientId) {
+    throw new UnsupportedOperationException("getConnectionByClientId not implemented");
+  }
+
   public void sendUpdate(String update) {
     _listener.itemUpdated(update);
   }

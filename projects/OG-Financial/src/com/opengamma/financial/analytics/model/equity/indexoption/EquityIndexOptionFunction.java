@@ -45,7 +45,6 @@ import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.equity.EquityIndexOptionConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.model.curve.future.FuturePriceCurveFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -62,7 +61,7 @@ import com.opengamma.util.async.AsynchronousExecution;
  *
  */
 public abstract class EquityIndexOptionFunction extends AbstractFunction.NonCompiledInvoker {
-
+  private static final Logger s_logger = LoggerFactory.getLogger(EquityIndexOptionFunction.class);
   private final String _valueRequirementName;
   private EquityIndexOptionConverter _converter; // set in init(), not constructor
 
@@ -85,7 +84,8 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
   }
 
   @Override
-  public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+      final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     // 1. Build the analytic derivative to be priced
     final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
     final EquityIndexOptionSecurity security = getEquityIndexOptionSecurity(target);
@@ -106,13 +106,13 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
   }
 
   // This is re-used by EquityIndexVanillaBarrierOptionFunction, hence is available to call  */
-  protected StaticReplicationDataBundle buildMarketBundle(final ExternalId underlyingId, FunctionExecutionContext executionContext,
-      FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
+  protected StaticReplicationDataBundle buildMarketBundle(final ExternalId underlyingId, final FunctionExecutionContext executionContext,
+      final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Security security = target.getSecurity();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
 
     // a. The Spot Index
-    Object spotObject = inputs.getValue(getSpotRequirement(underlyingId));
+    final Object spotObject = inputs.getValue(getSpotRequirement(underlyingId));
     if (spotObject == null) {
       throw new OpenGammaRuntimeException("Could not get Underlying's Spot value");
     }
@@ -180,7 +180,7 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
    * Get the set of ValueRequirements
    * If null, engine will attempt to find a default, and call function again
    */
-  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
 
     final ValueProperties constraints = desiredValue.getConstraints();
     // Get security and its underlying's ExternalId.
@@ -231,25 +231,25 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     // Targets for equity vol surfaces are the underlying tickers
     String bbgTicker;
     if (tsSource != null) {
-      HistoricalTimeSeries historicalTimeSeries = tsSource.getHistoricalTimeSeries("PX_LAST", ExternalIdBundle.of(underlyingBuid), null, null, true, null, true, 1);
+      final HistoricalTimeSeries historicalTimeSeries = tsSource.getHistoricalTimeSeries("PX_LAST", ExternalIdBundle.of(underlyingBuid), null, null, true, null, true, 1);
       if (historicalTimeSeries == null) {
         throw new OpenGammaRuntimeException("We require a time series for " + underlyingBuid);
       }
-      ExternalIdBundle idBundle = tsSource.getExternalIdBundle(historicalTimeSeries.getUniqueId());
+      final ExternalIdBundle idBundle = tsSource.getExternalIdBundle(historicalTimeSeries.getUniqueId());
       bbgTicker = (idBundle.getExternalId(ExternalSchemes.BLOOMBERG_TICKER)).getValue();
     } else {
       throw new OpenGammaRuntimeException("Unable to find Vol Surface as we couldn't get the option underlyer's ticker from the ExternalIdBundle");
     }
-    UniqueId newId = UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), bbgTicker);
+    final UniqueId newId = UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), bbgTicker);
 
     // Set Forward Curve Currency Property
-    String curveCurrency = FinancialSecurityUtils.getCurrency(security).toString();
+    final String curveCurrency = FinancialSecurityUtils.getCurrency(security).toString();
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, smileInterpolator)
         .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
         .with(ValuePropertyNames.CURVE_CURRENCY, curveCurrency)
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, "EQUITY_OPTION")
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_OPTION)
         .get();
     return new ValueRequirement(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, newId, properties);
   }
@@ -267,5 +267,4 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     return _valueRequirementName;
   }
 
-  private static final Logger s_logger = LoggerFactory.getLogger(FuturePriceCurveFunction.class);
 }

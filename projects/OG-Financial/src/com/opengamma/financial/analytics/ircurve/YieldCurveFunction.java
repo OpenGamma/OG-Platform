@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.ircurve;
@@ -32,13 +32,17 @@ public final class YieldCurveFunction {
   /**
    * Identifies the name of the forward curve used for a value. A value dependent on just one
    * curve should use the default "CURVE" name and not this prefixed name.
+   * @deprecated This is used in old yield curve code - do not use
    */
+  @Deprecated
   public static final String PROPERTY_FORWARD_CURVE = "Forward" + ValuePropertyNames.CURVE;
 
   /**
    * Identifies the name of the funding curve used for a value. A value dependent on just one
    * curve should use the default "CURVE" name and not this prefixed name.
+   * @deprecated This is used in old yield curve code - do not use
    */
+  @Deprecated
   public static final String PROPERTY_FUNDING_CURVE = "Funding" + ValuePropertyNames.CURVE;
 
   /**
@@ -55,7 +59,6 @@ public final class YieldCurveFunction {
    * Identifies the right extrapolator to be used
    */
   public static final String PROPERTY_RIGHT_EXTRAPOLATOR = "RightExtrapolator";
-  // TODO: Should the FORWARD_CURVE and FUNDING_CURVE be promoted into ValuePropertyNames as "convention"
 
   private YieldCurveFunction() {
   }
@@ -121,7 +124,7 @@ public final class YieldCurveFunction {
   /**
    * Returns the curve name specified as a requirement constraint, null if there is no constraint
    * or a wildcard.
-   * 
+   *
    * @param requirement the requirement
    * @return the curve name, may be null
    */
@@ -132,7 +135,7 @@ public final class YieldCurveFunction {
   /**
    * Returns the curve name specified as a requirement constraint or the view's default curve name if there is
    * no constraint or a wildcard.
-   * 
+   *
    * @param context the function compilation context
    * @param requirement the requirement
    * @return the curve name, not null
@@ -196,7 +199,7 @@ public final class YieldCurveFunction {
   }
 
   public static ValueRequirement getCouponSensitivityRequirement(final Currency currency, final String forwardCurveName, final String fundingCurveName) {
-    return new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), 
+    return new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY, ComputationTargetType.PRIMITIVE, currency.getUniqueId(),
         ValueProperties.builder()
         .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
         .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName).get());

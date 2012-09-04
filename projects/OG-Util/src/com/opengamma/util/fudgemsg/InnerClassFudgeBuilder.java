@@ -12,7 +12,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import org.fudgemsg.FudgeField;
@@ -56,39 +58,38 @@ public final class InnerClassFudgeBuilder<T extends AutoFudgable<K>, K> implemen
         public List<Object> run() {
           try {
             final Constructor<?>[] ctors = inner.getClass().getDeclaredConstructors();
-            //We require that inner classes got only one ctor (anonymous inner classes will do)
-            //in order to avoid disambiguity
-            if (ctors.length == 1) {
-              final Constructor<?> ctor = ctors[0];
-              // types of parameters of ctor
-              final Class<?>[] parameterTypes = ctor.getParameterTypes();
-              // all declared parameters of the inner class
-              final Field[] fs = inner.getClass().getDeclaredFields();
-              // extracting copiler synthetized fields of inner class
-              // first are the not sinthetized fields (regular ones) we need to skip
-              // then there are compiler synthetized fields with corresponds to ctor parameters
-              // the last field is the reference to enclosing object so we need to skipp it as well
-              final Field[] paramFields = Arrays.copyOfRange(fs, fs.length - parameterTypes.length, fs.length - 1);
-              final List<Object> parameters = newArrayList();
-              for (Field paramField : paramFields) {
-                paramField.setAccessible(true);
-                parameters.add(paramField.get(inner));
-              }
-              return parameters;
+            if (ctors.length != 1) {
+              throw new IllegalArgumentException("Inner class does not have a single constructor: " + inner.getClass());
             }
-          } catch (IllegalAccessException e) {
-            // Ignore
+            // find all declared parameters of the inner class
+            final List<Field> fs = new ArrayList<Field>(Arrays.asList(inner.getClass().getDeclaredFields()));
+            // remove the field representing the parent object from the list
+            // only want the compiler synthesized fields which corresponds to ctor parameters
+            for (Iterator<Field> it = fs.iterator(); it.hasNext(); ) {
+              Field field = it.next();
+              if (field.getType().isAssignableFrom(inner.getClass().getEnclosingClass())) {
+                it.remove();
+              }
+            }
+            final List<Object> parameters = newArrayList();
+            for (Field paramField : fs) {
+              paramField.setAccessible(true);
+              parameters.add(paramField.get(inner));
+            }
+            return parameters;
+            
+          } catch (IllegalAccessException ex) {
+            throw new OpenGammaRuntimeException(ex.getMessage());
           }
-          return null;
         }
       });
-
+      
       for (Object parameter : parameters) {
         //save the ctor parameter                  
         serializer.addToMessageWithClassHeaders(msg, null, 1, parameter);
       }
       return outerMsg;
-
+      
     } catch (RuntimeException ex) {
       throw new FudgeRuntimeException("Unable to serialize: " + inner.getClass().getName(), ex);
     }
@@ -109,31 +110,37 @@ public final class InnerClassFudgeBuilder<T extends AutoFudgable<K>, K> implemen
       for (FudgeField parameterField : msg.getAllByOrdinal(1)) {
         parameters.add(deserializer.fieldValueToObject(parameterField));
       }
-
+      
       return (T) AccessController.doPrivileged(new PrivilegedAction<Object>() {
         @Override
         public Object run() {
+          final Object[] array = parameters.toArray();
+          // find constructor
+          Constructor<?> ctor = null;
           try {
             final Class<?> innerClass = Class.forName(className);
             final Constructor<?>[] ctors = innerClass.getDeclaredConstructors();
-            // We require that inner classes got only one ctor (anonymous inner classes will do)
-            // in order to avoid disambiguity
-            if (ctors.length == 1) {
-              final Constructor<?> ctor = ctors[0];
-              ctor.setAccessible(true);   // solution
-              Object inner = ctor.newInstance(parameters.toArray());
-              return new AutoFudgable<Object>(inner);
+            if (ctors.length != 1) {
+              throw new IllegalArgumentException("Inner class does not have a single constructor: " + className);
             }
-          } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-          } catch (InstantiationException e) {
-            throw new RuntimeException(e);
-          } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
-          } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            ctor = ctors[0];
+            ctor.setAccessible(true);   // solution
+          } catch (ClassNotFoundException ex) {
+            throw new RuntimeException(ex);
           }
-          return null;
+          
+          // invoke constructor
+          try {
+            Object inner = ctor.newInstance(array);
+            return new AutoFudgable<Object>(inner);
+            
+          } catch (IllegalAccessException ex) {
+            throw new RuntimeException(ex);
+          } catch (InstantiationException ex) {
+            throw new RuntimeException(ex);
+          } catch (InvocationTargetException ex) {
+            throw new RuntimeException(ex);
+          }
         }
       });
 

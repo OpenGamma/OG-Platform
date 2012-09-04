@@ -35,6 +35,7 @@ import com.opengamma.livedata.server.distribution.EmptyMarketDataSenderFactory;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.NamedThreadPoolFactory;
 import com.opengamma.util.TerminatableJob;
+import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
  * OpenGamma Live Data Server implementation built on top of a {@link FireHoseLiveData} implementation.
@@ -52,6 +53,7 @@ public class FireHoseLiveDataServer extends AbstractLiveDataServer {
   private long _marketDataTimeout = 30000000000L;
 
   public FireHoseLiveDataServer(final ExternalScheme uniqueIdDomain, final FireHoseLiveData fireHose) {
+    super(EHCacheUtils.createCacheManager());
     ArgumentChecker.notNull(uniqueIdDomain, "uniqueIdDomain");
     ArgumentChecker.notNull(fireHose, "fireHose");
     _uniqueIdDomain = uniqueIdDomain;
@@ -240,7 +242,7 @@ public class FireHoseLiveDataServer extends AbstractLiveDataServer {
     _dispatcher.terminate();
     _dispatcher = null;
     // Poke it with a NULL message to release the "take" method
-    _received.add(new Subscription("", new EmptyMarketDataSenderFactory()));
+    _received.add(new Subscription("", new EmptyMarketDataSenderFactory(), getLkvStoreProvider()));
   }
 
   @Override

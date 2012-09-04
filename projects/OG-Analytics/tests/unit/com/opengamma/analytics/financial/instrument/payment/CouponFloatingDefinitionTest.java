@@ -13,7 +13,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.NotImplementedException;
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.instrument.payment.CouponFloatingDefinition;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -97,6 +97,18 @@ public class CouponFloatingDefinitionTest {
     @Override
     public Payment toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
       throw new NotImplementedException();
+    }
+
+    @Override
+    public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
+      // TODO Auto-generated method stub
+      return null;
     }
 
   }

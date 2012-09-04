@@ -107,4 +107,13 @@ public interface MarketDataRequirementNames {
    */
   String COST_OF_CARRY = "Market_CostOfCarry";
 
+  /**
+   * High value. Sometimes sent as part of a candle or EOD message.
+   */
+  String HIGH = "Market_High";
+
+  /**
+   * Low value. Sometimes sent as part of a candle or EOD message.
+   */
+  String LOW = "Market_Low";
 }

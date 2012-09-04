@@ -5,6 +5,7 @@
  */
 package com.opengamma.integration.tool.portfolio;
 
+import com.opengamma.financial.tool.ToolContext;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
@@ -20,7 +21,7 @@ import com.opengamma.util.generate.scripts.Scriptable;
  * The portfolio saver tool
  */
 @Scriptable
-public class PortfolioTemplateCreationTool extends AbstractTool {
+public class PortfolioTemplateCreationTool extends AbstractTool<ToolContext> {
 
   /** File name option flag */
   private static final String FILE_NAME_OPT = "f";

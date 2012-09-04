@@ -17,9 +17,11 @@ import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
 import com.opengamma.engine.function.config.StaticFunctionConfiguration;
 import com.opengamma.financial.analytics.model.volatility.surface.ForexCallDeltaVolatilitySurfaceFunction;
+import com.opengamma.financial.analytics.model.volatility.surface.ForexFlatWithTermStructureVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.ForexStrangleRiskReversalVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.InterpolatedVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.volatility.VolatilitySurfaceSpecificationFunction;
+import com.opengamma.financial.analytics.volatility.surface.BondFutureOptionVolatilitySurfaceDataFunction;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBFuturePriceCurveDefinitionSource;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBFuturePriceCurveSpecificationSource;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceDefinitionSource;
@@ -29,6 +31,7 @@ import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveDefi
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveSpecification;
 import com.opengamma.financial.analytics.volatility.surface.IRFutureOptionVolatilitySurfaceDataFunction;
 import com.opengamma.financial.analytics.volatility.surface.InterpolatedVolatilitySurfaceDefaultPropertiesFunction;
+import com.opengamma.financial.analytics.volatility.surface.RawBondFutureOptionVolatilitySurfaceDataFunction;
 import com.opengamma.financial.analytics.volatility.surface.RawEquityOptionVolatilitySurfaceDataFunction;
 import com.opengamma.financial.analytics.volatility.surface.RawFXVolatilitySurfaceDataFunction;
 import com.opengamma.financial.analytics.volatility.surface.RawIRFutureOptionVolatilitySurfaceDataFunction;
@@ -67,17 +70,22 @@ public class DemoSurfaceFunctionConfiguration extends SingletonFactoryBean<Repos
     final List<FunctionConfiguration> configs = new ArrayList<FunctionConfiguration>();
     addConfigFor(configs, VolatilitySurfaceSpecificationFunction.class.getName());
     addConfigFor(configs, RawIRFutureOptionVolatilitySurfaceDataFunction.class.getName());
+    addConfigFor(configs, RawBondFutureOptionVolatilitySurfaceDataFunction.class.getName());
     addConfigFor(configs, RawFXVolatilitySurfaceDataFunction.class.getName());
     addConfigFor(configs, RawSwaptionATMVolatilitySurfaceDataFunction.class.getName());
     addConfigFor(configs, RawEquityOptionVolatilitySurfaceDataFunction.class.getName());
     addConfigFor(configs, IRFutureOptionVolatilitySurfaceDataFunction.class.getName());
+    addConfigFor(configs, BondFutureOptionVolatilitySurfaceDataFunction.class.getName());
     addConfigFor(configs, EquityOptionVolatilitySurfaceDataFunction.class.getName());
     addConfigFor(configs, ForexStrangleRiskReversalVolatilitySurfaceFunction.class.getName());
     addConfigFor(configs, ForexCallDeltaVolatilitySurfaceFunction.class.getName());
+    addConfigFor(configs, ForexFlatWithTermStructureVolatilitySurfaceFunction.class.getName());
     addConfigFor(configs, SwaptionATMVolatilitySurfaceDataFunction.class.getName());
     addConfigFor(configs, InterpolatedVolatilitySurfaceFunction.class.getName());
     configs.add(new ParameterizedFunctionConfiguration(InterpolatedVolatilitySurfaceDefaultPropertiesFunction.class.getName(),
-        Arrays.asList("LinearExtrapolator", "LinearExtrapolator", "Linear", "FlatExtrapolator", "FlatExtrapolator", "Linear")));
+        Arrays.asList("FlatExtrapolator", "FlatExtrapolator", "Linear", "FlatExtrapolator", "FlatExtrapolator", "Linear")));
+//    configs.add(new ParameterizedFunctionConfiguration(InterpolatedVolatilitySurfaceDefaultPropertiesFunction.class.getName(),
+//        Arrays.asList("LinearExtrapolator", "LinearExtrapolator", "Linear", "FlatExtrapolator", "FlatExtrapolator", "Linear")));
     return new RepositoryConfiguration(configs);
   }
 

@@ -15,7 +15,6 @@ import com.opengamma.component.tool.ToolContextUtils;
 import com.opengamma.examples.DBTestUtils;
 import com.opengamma.examples.loader.ExampleEquityPortfolioLoader;
 import com.opengamma.examples.loader.ExampleMultiAssetPortfolioLoader;
-import com.opengamma.examples.loader.ExampleSwapPortfolioLoader;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
@@ -42,7 +41,7 @@ public class ExampleDatabasePopulatorTest {
   public void testPortfolioAndDataLoaded() throws Exception {
     DBTestUtils.createTestHsqlDB(CONFIG_RESOURCE_LOCATION);
     
-    if (new ExampleDatabasePopulator().run(AbstractExampleTool.TOOLCONTEXT_EXAMPLE_PROPERTIES) == false) {
+    if (new ExampleDatabasePopulator().run(CONFIG_RESOURCE_LOCATION) == false) {
       fail();
     }
     
@@ -50,7 +49,6 @@ public class ExampleDatabasePopulatorTest {
     try {
       assertMultiAssetPortfolio(toolContext);
       assertEquityPortfolio(toolContext);
-      assertSwapPortfolio(toolContext);
       assertMultiCurrencySwapPortfolio(toolContext);
       
     } finally {
@@ -71,11 +69,6 @@ public class ExampleDatabasePopulatorTest {
     assertPortfolio(portfolioMaster, ExampleEquityPortfolioLoader.PORTFOLIO_NAME);
   }
 
-  private void assertSwapPortfolio(ToolContext toolContext) {
-    PortfolioMaster portfolioMaster = toolContext.getPortfolioMaster();
-    assertPortfolio(portfolioMaster, ExampleSwapPortfolioLoader.PORTFOLIO_NAME);
-  }
-
   private void assertMultiCurrencySwapPortfolio(ToolContext toolContext) {
     PortfolioMaster portfolioMaster = toolContext.getPortfolioMaster();
     assertPortfolio(portfolioMaster, ExampleDatabasePopulator.MULTI_CURRENCY_SWAP_PORTFOLIO_NAME);
@@ -90,6 +83,6 @@ public class ExampleDatabasePopulatorTest {
   }
 
   private ToolContext getToolContext() {
-    return ToolContextUtils.getToolContext(CONFIG_RESOURCE_LOCATION);
+    return ToolContextUtils.getToolContext(CONFIG_RESOURCE_LOCATION, ToolContext.class);
   }
 }

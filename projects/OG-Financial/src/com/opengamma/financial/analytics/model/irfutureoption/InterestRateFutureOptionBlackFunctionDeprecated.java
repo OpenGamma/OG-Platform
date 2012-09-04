@@ -46,7 +46,6 @@ import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionSecu
 import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionTradeConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.model.curve.future.FuturePriceCurveFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackFunctionDeprecated;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
@@ -65,7 +64,7 @@ import com.opengamma.util.money.Currency;
  */
 @Deprecated
 public abstract class InterestRateFutureOptionBlackFunctionDeprecated extends AbstractFunction.NonCompiledInvoker {
-  private static final Logger s_logger = LoggerFactory.getLogger(FuturePriceCurveFunction.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionBlackFunctionDeprecated.class);
   private final String _valueRequirementName;
   private InterestRateFutureOptionTradeConverter _converter;
   private FixedIncomeConverterDataProvider _dataConverter;

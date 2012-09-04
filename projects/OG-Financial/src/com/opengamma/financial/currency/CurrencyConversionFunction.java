@@ -111,7 +111,7 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
   }
 
   /**
-   * Divides the value by the conversion rate. Override this in a subclass for anything more elaborate - e.g. if 
+   * Divides the value by the conversion rate. Override this in a subclass for anything more elaborate - e.g. if
    * the value is in "somethings per currency unit foo" so needs multiplying by the rate instead.
    * 
    * @param value input value to convert
@@ -133,7 +133,7 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
   protected DoubleLabelledMatrix1D convertDoubleLabelledMatrix1D(final DoubleLabelledMatrix1D value, final double conversionRate) {
     return new DoubleLabelledMatrix1D(value.getKeys(), value.getLabels(), convertDoubleArray(value.getValues(), conversionRate));
   }
-  
+
   /**
    * Delegates off to the other convert methods depending on the type of value.
    * 
@@ -147,9 +147,9 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
     if (value instanceof Double) {
       return convertDouble((Double) value, conversionRate);
     } else if (value instanceof DoubleLabelledMatrix1D) {
-      return convertDoubleLabelledMatrix1D((DoubleLabelledMatrix1D) value, conversionRate);    
-    } else { 
-      s_logger.warn("Can't convert {} to {}", inputValue, desiredValue);
+      return convertDoubleLabelledMatrix1D((DoubleLabelledMatrix1D) value, conversionRate);
+    } else {
+      s_logger.error("Can't convert object with type {} to {}", inputValue.getValue().getClass(), desiredValue);
       return null;
     }
   }
@@ -158,7 +158,7 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     ComputedValue inputValue = null;
     double exchangeRate = 0;
-    for (ComputedValue input : inputs.getAllValues()) {
+    for (final ComputedValue input : inputs.getAllValues()) {
       if (getRateLookupValueName().equals(input.getSpecification().getValueName())) {
         if (input.getValue() instanceof Double) {
           exchangeRate = (Double) input.getValue();
@@ -178,15 +178,13 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
     if (outputCurrency.equals(inputCurrency)) {
       // Don't think this should happen
       return Collections.singleton(inputValue);
-    } else {
-      s_logger.debug("Converting from {} to {}", inputCurrency, outputCurrency);
-      final Object converted = convertValue(inputValue, desiredValue, exchangeRate);
-      if (converted != null) {
-        return Collections.singleton(new ComputedValue(new ValueSpecification(desiredValue, desiredValue.getConstraints()), converted));
-      } else {
-        return null;
-      }
     }
+    s_logger.debug("Converting from {} to {}", inputCurrency, outputCurrency);
+    final Object converted = convertValue(inputValue, desiredValue, exchangeRate);
+    if (converted != null) {
+      return Collections.singleton(new ComputedValue(new ValueSpecification(desiredValue, desiredValue.getConstraints()), converted));
+    }
+    return null;
   }
 
   @Override
@@ -210,10 +208,9 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
         }
         s_logger.debug("Injecting view default currency {}", defaultCurrencyISO);
         return Collections.singleton(getInputValueRequirement(desiredValue, defaultCurrencyISO));
-      } else {
-        s_logger.debug("Cannot satisfy a wildcard currency constraint");
-        return null;
       }
+      s_logger.debug("Cannot satisfy a wildcard currency constraint");
+      return null;
     } else {
       // Actual input requirement is desired requirement with the currency wild-carded
       return Collections.singleton(getInputValueRequirement(desiredValue));
@@ -226,13 +223,12 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     if (getValueNames().size() == 1) {
       return Collections.singleton(new ValueSpecification(getValueNames().iterator().next(), targetSpec, ValueProperties.all()));
-    } else {
-      final Set<ValueSpecification> result = new HashSet<ValueSpecification>();
-      for (String valueName : getValueNames()) {
-        result.add(new ValueSpecification(valueName, targetSpec, ValueProperties.all()));
-      }
-      return result;
     }
+    final Set<ValueSpecification> result = new HashSet<ValueSpecification>();
+    for (final String valueName : getValueNames()) {
+      result.add(new ValueSpecification(valueName, targetSpec, ValueProperties.all()));
+    }
+    return result;
   }
 
   @Override
@@ -243,10 +239,9 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
       // be removed from the graph)
       final ValueSpecification value = input.getKey();
       return Collections.singleton(new ValueSpecification(value.getValueName(), value.getTargetSpecification(), value.getProperties().copy().withAny(ValuePropertyNames.CURRENCY).get()));
-    } else {
-      // The input was requested with the converted currency, so return the same specification to remove this node from the graph 
-      return Collections.singleton(input.getKey());
     }
+    // The input was requested with the converted currency, so return the same specification to remove this node from the graph
+    return Collections.singleton(input.getKey());
   }
 
   private String getCurrency(final Collection<ValueSpecification> specifications) {
@@ -277,9 +272,8 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
     }
     if (inputCurrency.equals(outputCurrency)) {
       return Collections.emptySet();
-    } else {
-      return Collections.singleton(getCurrencyConversion(inputCurrency, outputCurrency));
     }
+    return Collections.singleton(getCurrencyConversion(inputCurrency, outputCurrency));
   }
 
   @Override

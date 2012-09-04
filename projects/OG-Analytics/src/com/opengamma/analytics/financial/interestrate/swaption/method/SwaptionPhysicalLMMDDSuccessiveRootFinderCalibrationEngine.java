@@ -20,7 +20,7 @@ import com.opengamma.analytics.math.rootfinding.BracketRoot;
 import com.opengamma.analytics.math.rootfinding.RidderSingleRootFinder;
 
 /**
- * Specific calibration engine for the Hull-White one factor model with swaption.
+ * Specific calibration engine for the LMM model with swaption.
  */
 public class SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationEngine extends SuccessiveRootFinderCalibrationEngine {
 

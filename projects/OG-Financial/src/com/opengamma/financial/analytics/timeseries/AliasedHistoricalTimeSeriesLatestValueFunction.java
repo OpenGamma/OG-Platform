@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.timeseries;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -27,6 +28,7 @@ public class AliasedHistoricalTimeSeriesLatestValueFunction extends ValueRequire
     super(aliasedValueRequirementName,
         ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST,
         ValueProperties.with(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY, htsDataField).get(),
+        ImmutableSet.of(HistoricalTimeSeriesFunctionUtils.AGE_LIMIT_PROPERTY),
         targetType);
   }
 

@@ -82,6 +82,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
   <alias name="standardJmsConnector" alias="cfgJmsConnector"/>
   <alias name="standardJmsConnector" alias="exgJmsConnector"/>
   <alias name="standardJmsConnector" alias="holJmsConnector"/>
+  <alias name="standardJmsConnector" alias="regJmsConnector"/>
   <alias name="standardJmsConnector" alias="htsJmsConnector"/>
   <alias name="standardJmsConnector" alias="snpJmsConnector"/>
   <alias name="standardJmsConnector" alias="secJmsConnector"/>
@@ -91,10 +92,13 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
   <!-- ================================================================== -->
   <bean id="standardCacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
     <property name="shared" value="true"/>
+    <property name="configLocation" value="${ehcache.configFile}" />
   </bean>
   <alias name="standardCacheManager" alias="cfgCacheManager"/>
   <alias name="standardCacheManager" alias="exgCacheManager"/>
   <alias name="standardCacheManager" alias="holCacheManager"/>
+  <alias name="standardCacheManager" alias="regCacheManager"/>
+  <alias name="standardCacheManager" alias="htsCacheManager"/>
   <alias name="standardCacheManager" alias="snpCacheManager"/>
   <alias name="standardCacheManager" alias="secCacheManager"/>
   <alias name="standardCacheManager" alias="posCacheManager"/>

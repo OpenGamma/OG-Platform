@@ -48,12 +48,14 @@ public class MongoDBPermanentErrorCachingReferenceDataProvider extends AbstractP
 
   /**
    * Creates an instance.
+   * <p>
+   * This will use the statistics tool in the connector.
    * 
    * @param bloombergConnector  the Bloomberg connector, not null
    * @param mongoConnector  the Mongo connector, not null
    */
   public MongoDBPermanentErrorCachingReferenceDataProvider(BloombergConnector bloombergConnector, MongoConnector mongoConnector) {
-    this(bloombergConnector, mongoConnector, NullBloombergReferenceDataStatistics.INSTANCE);
+    this(bloombergConnector, mongoConnector, bloombergConnector.getReferenceDataStatistics());
   }
 
   /**
@@ -64,9 +66,7 @@ public class MongoDBPermanentErrorCachingReferenceDataProvider extends AbstractP
    * @param statistics  the statistics to collect, not null
    */
   public MongoDBPermanentErrorCachingReferenceDataProvider(
-      BloombergConnector bloombergConnector,
-      MongoConnector mongoConnector,
-      BloombergReferenceDataStatistics statistics) {
+      BloombergConnector bloombergConnector, MongoConnector mongoConnector, BloombergReferenceDataStatistics statistics) {
     this(bloombergConnector, mongoConnector, statistics, OpenGammaFudgeContext.getInstance());
   }
 

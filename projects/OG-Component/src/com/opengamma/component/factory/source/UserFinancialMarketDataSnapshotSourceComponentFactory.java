@@ -34,6 +34,9 @@ import com.opengamma.master.marketdatasnapshot.impl.MasterSnapshotSource;
 
 /**
  * Component factory for the snapshot source.
+ * <p>
+ * This factory creates snapshot sources for the underlying and user masters
+ * as well as a combined source.
  */
 @BeanDefinition
 public class UserFinancialMarketDataSnapshotSourceComponentFactory extends AbstractComponentFactory {

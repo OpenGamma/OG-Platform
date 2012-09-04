@@ -218,8 +218,8 @@ public class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod {
   }
 
   /**
-   * Computes the present value sensitivity to LMM parameters of the Physical delivery swaption.
-   * @param swaption The swaption.
+   * Computes the present value sensitivity to LMM volatility parameters.
+   * @param swaption The (physical delivery) swaption.
    * @param lmmBundle The LMM parameters and the curves.
    * @return The present value.
    */

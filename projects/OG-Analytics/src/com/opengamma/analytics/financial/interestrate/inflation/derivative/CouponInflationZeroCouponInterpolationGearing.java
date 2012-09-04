@@ -12,7 +12,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationGearing;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.market.MarketBundle;
+import com.opengamma.analytics.financial.interestrate.market.IMarketBundle;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -129,7 +129,7 @@ public class CouponInflationZeroCouponInterpolationGearing extends CouponInflati
   }
 
   @Override
-  public double estimatedIndex(MarketBundle market) {
+  public double estimatedIndex(IMarketBundle market) {
     Validate.isTrue(_referenceEndTime.length == 2, "Incorrect number of reference time");
     double estimatedIndexMonth0 = market.getPriceIndex(getPriceIndex(), _referenceEndTime[0]);
     double estimatedIndexMonth1 = market.getPriceIndex(getPriceIndex(), _referenceEndTime[1]);

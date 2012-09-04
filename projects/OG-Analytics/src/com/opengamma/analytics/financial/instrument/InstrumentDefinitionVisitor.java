@@ -42,10 +42,14 @@ import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZer
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyGearingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CapFloorIborDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponFloatingDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborGearingDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborRatchetDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponOISDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponOISSimplifiedDefinition;
@@ -59,6 +63,7 @@ import com.opengamma.analytics.financial.instrument.swap.SwapXCcyIborIborDefinit
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionBermudaFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
+import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborSpreadDefinition;
 
 /**
  * 
@@ -70,6 +75,8 @@ public interface InstrumentDefinitionVisitor<T, U> {
   U visit(InstrumentDefinition<?> definition, T data);
 
   U visit(InstrumentDefinition<?> definition);
+
+  // -----     Bond and bill     -----
 
   U visitBondFixedSecurityDefinition(BondFixedSecurityDefinition bond, T data);
 
@@ -106,6 +113,8 @@ public interface InstrumentDefinitionVisitor<T, U> {
   U visitBillTransactionDefinition(BillTransactionDefinition bill, T data);
 
   U visitBillTransactionDefinition(BillTransactionDefinition bill);
+
+  // -----     Deposit     -----
 
   U visitCashDefinition(CashDefinition cash, T data);
 
@@ -155,6 +164,8 @@ public interface InstrumentDefinitionVisitor<T, U> {
 
   U visitInterestRateFutureOptionMarginTransactionDefinition(InterestRateFutureOptionMarginTransactionDefinition future);
 
+  // -----     Payment and coupon     -----
+
   U visitPaymentFixed(PaymentFixedDefinition payment, T data);
 
   U visitPaymentFixed(PaymentFixedDefinition payment);
@@ -163,10 +174,6 @@ public interface InstrumentDefinitionVisitor<T, U> {
 
   U visitCouponFixed(CouponFixedDefinition payment);
 
-  U visitCouponFloating(CouponFloatingDefinition payment, T data);
-
-  U visitCouponFloating(CouponFloatingDefinition payment);
-
   U visitCouponIbor(CouponIborDefinition payment, T data);
 
   U visitCouponIbor(CouponIborDefinition payment);
@@ -174,6 +181,26 @@ public interface InstrumentDefinitionVisitor<T, U> {
   U visitCouponIborSpread(CouponIborSpreadDefinition payment, T data);
 
   U visitCouponIborSpread(CouponIborSpreadDefinition payment);
+
+  U visitCouponIborGearing(CouponIborGearingDefinition payment, T data);
+
+  U visitCouponIborGearing(CouponIborGearingDefinition payment);
+
+  U visitCouponIborCompounded(CouponIborCompoundedDefinition payment, T data);
+
+  U visitCouponIborCompounded(CouponIborCompoundedDefinition payment);
+
+  U visitForwardRateAgreement(ForwardRateAgreementDefinition payment, T data);
+
+  U visitForwardRateAgreement(ForwardRateAgreementDefinition payment);
+
+  U visitCouponIborRatchet(CouponIborRatchetDefinition payment, T data);
+
+  U visitCouponIborRatchet(CouponIborRatchetDefinition payment);
+
+  U visitCapFloorIbor(CapFloorIborDefinition payment, T data);
+
+  U visitCapFloorIbor(CapFloorIborDefinition payment);
 
   U visitCouponOISSimplified(CouponOISSimplifiedDefinition payment, T data);
 
@@ -191,9 +218,17 @@ public interface InstrumentDefinitionVisitor<T, U> {
 
   U visitCapFloorCMS(CapFloorCMSDefinition payment);
 
+  U visitCapFloorCMSSpread(CapFloorCMSSpreadDefinition payment, T data);
+
+  U visitCapFloorCMSSpread(CapFloorCMSSpreadDefinition payment);
+
+  // -----     Annuity     -----
+
   U visitAnnuityDefinition(AnnuityDefinition<? extends PaymentDefinition> annuity, T data);
 
   U visitAnnuityDefinition(AnnuityDefinition<? extends PaymentDefinition> annuity);
+
+  // -----     Swap     -----
 
   U visitSwapDefinition(SwapDefinition swap, T data);
 
@@ -215,6 +250,8 @@ public interface InstrumentDefinitionVisitor<T, U> {
 
   U visitSwapXCcyIborIborDefinition(SwapXCcyIborIborDefinition swap);
 
+  // -----     Swaption     -----
+
   U visitSwaptionCashFixedIborDefinition(SwaptionCashFixedIborDefinition swaption, T data);
 
   U visitSwaptionCashFixedIborDefinition(SwaptionCashFixedIborDefinition swaption);
@@ -223,9 +260,15 @@ public interface InstrumentDefinitionVisitor<T, U> {
 
   U visitSwaptionPhysicalFixedIborDefinition(SwaptionPhysicalFixedIborDefinition swaption);
 
+  U visitSwaptionPhysicalFixedIborSpreadDefinition(SwaptionPhysicalFixedIborSpreadDefinition swaption, T data);
+
+  U visitSwaptionPhysicalFixedIborSpreadDefinition(SwaptionPhysicalFixedIborSpreadDefinition swaption);
+
   U visitSwaptionBermudaFixedIborDefinition(SwaptionBermudaFixedIborDefinition swaption, T data);
 
   U visitSwaptionBermudaFixedIborDefinition(SwaptionBermudaFixedIborDefinition swaption);
+
+  // -----     Inflation     -----
 
   U visitCouponInflationZeroCouponFirstOfMonth(CouponInflationZeroCouponMonthlyDefinition coupon, T data);
 

@@ -66,7 +66,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
    * null to not match by identifier value.
    * This matches against the {@link ExternalId#getValue() value} of the identifier
    * and does not match against the key. Wildcards are allowed.
-   * This method is suitable for human searching, whereas the {@code securityKeys}
+   * This method is suitable for human searching, whereas the {@code externalIdSearch}
    * search is useful for exact machine searching.
    */
   @PropertyDefinition
@@ -417,7 +417,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
    * null to not match by identifier value.
    * This matches against the {@link ExternalId#getValue() value} of the identifier
    * and does not match against the key. Wildcards are allowed.
-   * This method is suitable for human searching, whereas the {@code securityKeys}
+   * This method is suitable for human searching, whereas the {@code externalIdSearch}
    * search is useful for exact machine searching.
    * @return the value of the property
    */
@@ -430,7 +430,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
    * null to not match by identifier value.
    * This matches against the {@link ExternalId#getValue() value} of the identifier
    * and does not match against the key. Wildcards are allowed.
-   * This method is suitable for human searching, whereas the {@code securityKeys}
+   * This method is suitable for human searching, whereas the {@code externalIdSearch}
    * search is useful for exact machine searching.
    * @param securityIdValue  the new value of the property
    */
@@ -443,7 +443,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
    * null to not match by identifier value.
    * This matches against the {@link ExternalId#getValue() value} of the identifier
    * and does not match against the key. Wildcards are allowed.
-   * This method is suitable for human searching, whereas the {@code securityKeys}
+   * This method is suitable for human searching, whereas the {@code externalIdSearch}
    * search is useful for exact machine searching.
    * @return the property, not null
    */

@@ -7,34 +7,45 @@ package com.opengamma.bloombergexample.loader;
 
 import static com.opengamma.util.functional.Functional.map;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.integration.tool.IntegrationToolContext;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.loader.BloombergBulkSecurityLoader;
 import com.opengamma.bbg.loader.BloombergSecurityLoader;
 import com.opengamma.bbg.tool.BloombergToolContext;
-import com.opengamma.bloombergexample.tool.AbstractExampleTool;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.GICSCode;
 import com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider;
 import com.opengamma.financial.timeseries.exchange.ExchangeDataProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
+import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.functional.Function1;
 import com.opengamma.util.generate.scripts.Scriptable;
@@ -48,12 +59,14 @@ import com.opengamma.util.generate.scripts.Scriptable;
  * It is designed to run against the HSQLDB example database.
  */
 @Scriptable
-public class ExampleEquityPortfolioLoader extends AbstractExampleTool {
+public class ExampleEquityPortfolioLoader extends AbstractTool<IntegrationToolContext> {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleEquityPortfolioLoader.class);
 
   private static final Map<String, String> SECTORS = new HashMap<String, String>();
+  
+  private static final String EXAMPLE_EQUITY_FILE = "example-equity.csv";
 
   static {
     SECTORS.put("10", "10 Energy");
@@ -71,7 +84,7 @@ public class ExampleEquityPortfolioLoader extends AbstractExampleTool {
   /**
    * The name of the portfolio.
    */
-  public static final String PORTFOLIO_NAME = "Example Equity Portfolio";
+  public static final String PORTFOLIO_NAME = "Equity Portfolio";
 
   //-------------------------------------------------------------------------
 
@@ -82,26 +95,21 @@ public class ExampleEquityPortfolioLoader extends AbstractExampleTool {
    * @param args  the arguments, unused
    */
   public static void main(String[] args) {  // CSIGNORE
-    new ExampleEquityPortfolioLoader().initAndRun(args);
+    new ExampleEquityPortfolioLoader().initAndRun(args, IntegrationToolContext.class);
     System.exit(0);
   }
   
-  protected void createPortfolio(Collection<EquitySecurity> securities) {
+  protected void createPortfolio(Collection<ExternalId> tickers) {
 
     // create shell portfolio
     final ManageablePortfolio portfolio = createEmptyPortfolio();
     final ManageablePortfolioNode rootNode = portfolio.getRootNode();
 
-    loadSecurities(
-      map(securities, new Function1<EquitySecurity, ExternalIdBundle>() {
-        @Override
-        public ExternalIdBundle execute(EquitySecurity security) {
-          return security.getExternalIdBundle();
-        }
-      }));
-
-    // add each security to the portfolio
-    for (EquitySecurity security : securities) {
+    Collection<UniqueId> loadSecurities = loadSecurities(tickers);
+    SecurityMaster secMaster = getToolContext().getSecurityMaster();
+    for (UniqueId uniqueId : loadSecurities) {
+      SecurityDocument securityDocument = secMaster.get(uniqueId);
+      EquitySecurity security = (EquitySecurity) securityDocument.getSecurity();
       GICSCode gics = security.getGicsCode();
       if (gics == null || gics.isPartial()) {
         continue;
@@ -153,17 +161,24 @@ public class ExampleEquityPortfolioLoader extends AbstractExampleTool {
   @Override
   protected void doRun() {
     // load all equity securities
-    final Collection<EquitySecurity> securities = readEquitySecurities();
-    createPortfolio(securities);    
+    final Collection<ExternalId> tickers = readEquityTickers();
+    createPortfolio(tickers);    
   }
 
-  private void loadSecurities(Collection<ExternalIdBundle> identifiers) {
+  private Collection<UniqueId> loadSecurities(Collection<ExternalId> identifiers) {
     SecurityMaster secMaster = getToolContext().getSecurityMaster();
     ReferenceDataProvider referenceDataProvider = ((BloombergToolContext) getToolContext()).getBloombergReferenceDataProvider();
     ExchangeDataProvider exchangeDataProvider = new DefaultExchangeDataProvider();
     BloombergBulkSecurityLoader bulkSecurityLoader = new BloombergBulkSecurityLoader(referenceDataProvider, exchangeDataProvider);
     BloombergSecurityLoader securityLoader = new BloombergSecurityLoader(secMaster, bulkSecurityLoader);
-    securityLoader.loadSecurity(identifiers);
+    
+    final Map<ExternalIdBundle, UniqueId> loadedSecurities = securityLoader.loadSecurity(map(identifiers, new Function1<ExternalId, ExternalIdBundle>() {
+      @Override
+      public ExternalIdBundle execute(ExternalId ticker) {
+        return ExternalIdBundle.of(ticker);
+      }
+    }));
+    return loadedSecurities.values();
   }
 
   /**
@@ -228,6 +243,36 @@ public class ExampleEquityPortfolioLoader extends AbstractExampleTool {
    */
   protected PortfolioDocument addPortfolio(ManageablePortfolio portfolio) {
     return getToolContext().getPortfolioMaster().add(new PortfolioDocument(portfolio));
+  }
+  
+  protected Collection<ExternalId> readEquityTickers() {
+    Collection<ExternalId> result = new ArrayList<ExternalId>();
+    InputStream inputStream = ExampleEquityPortfolioLoader.class.getResourceAsStream("example-equity.csv");
+    try {
+      if (inputStream != null) {
+        List<String> equityTickers = IOUtils.readLines(inputStream);
+        for (String idStr : equityTickers) {
+          idStr = StringUtils.trimToNull(idStr);
+          if (idStr != null && !idStr.startsWith("#")) {
+            result.add(ExternalSchemes.bloombergTickerSecurityId(idStr));
+          }
+        }
+      } else {
+        throw new OpenGammaRuntimeException("File '" + EXAMPLE_EQUITY_FILE + "' could not be found");
+      }
+    } catch (IOException ex) {
+      throw new OpenGammaRuntimeException("An error occurred while reading file '" + EXAMPLE_EQUITY_FILE + "'");
+    } finally {
+      IOUtils.closeQuietly(inputStream);
+    }
+   
+    StringBuilder sb = new StringBuilder();
+    sb.append("Parsed ").append(result.size()).append(" equities:\n");
+    for (ExternalId equityId : result) {
+      sb.append("\t").append(equityId.getValue()).append("\n");
+    }
+    s_logger.info(sb.toString());
+    return result;
   }
 
 }

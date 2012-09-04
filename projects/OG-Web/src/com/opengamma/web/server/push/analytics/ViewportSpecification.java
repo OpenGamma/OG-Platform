@@ -16,20 +16,33 @@ import com.google.common.collect.ImmutableSortedSet;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * TODO should there be subclasses for portfolio, depgraph, primitives? and associated visitors
- * TODO expanded cells that need full data (matrices, vectors, curves etc)
+ * Definition of a viewport on an grid displaying analytics data. A viewport represents the visible part of a grid.
+ * A viewport is defined by collections of row and column indices of the visible cells. These are non-contiguous
+ * ordered sets. Row indices can be non-contiguous if the grid rows have a tree structure and parts of the
+ * structure are collapsed and therefore not visible. Column indices can be non-contiguous if there is a fixed
+ * set of columns and the non-fixed columns have been scrolled.
  */
 public class ViewportSpecification {
 
+  /** Zero-based indices of the rows in the viewport. */
   private final List<Integer> _rows;
+  /** Zero-based indices of the columns in the viewport. */
   private final SortedSet<Integer> _columnSet;
+  /** Zero-based indices of the columns in the viewport. Same as {@link #_columnSet} but allows random access. */
   private final List<Integer> _columnList;
+  /**
+   * Whether the viewport's data should be displayed as a summary or in full. Summary data fits in a single
+   * grid cell whereas the full data might need more space. e.g. displaying matrix data in a window that pops
+   * up over the main grid.
+   */
   private final boolean _expanded;
 
   /**
    * @param rows The rows visible in the viewport
    * @param columns The columns visible in the viewport
-   * @param expanded Whether the data values should be a single summary value or a full object
+   * @param expanded Whether the viewport's data should be displayed as a summary or in full. Summary data fits in a
+   * single grid cell whereas the full data might need more space. e.g. displaying matrix data in a window that pops
+   * up over the main grid.
    */
   public ViewportSpecification(List<Integer> rows, List<Integer> columns, boolean expanded) {
     ArgumentChecker.notNull(rows, "rows");
@@ -54,18 +67,25 @@ public class ViewportSpecification {
     _expanded = expanded;
   }
 
-  /* package */ static ViewportSpecification empty() {
-    return new ViewportSpecification(Collections.<Integer>emptyList(), Collections.<Integer>emptyList(), false);
-  }
-
+  /**
+   * @return Zero-based indices of the rows that are visible in the viewport
+   */
   /* package */ List<Integer> getRows() {
     return _rows;
   }
 
+  /**
+   * @return Zero-based indices of the columns that are visible in the viewport
+   */
   /* package */ SortedSet<Integer> getColumns() {
     return _columnSet;
   }
 
+  /**
+   * Returns the index of a column in the grid given its index in the viewport's list of columns.
+   * @param viewportColumnIndex Column index in the viewport
+   * @return Column index in the underlying grid
+   */
   /* package */ int getGridColumnIndex(int viewportColumnIndex) {
     return _columnList.get(viewportColumnIndex);
   }
@@ -91,6 +111,11 @@ public class ViewportSpecification {
     return true;
   }
 
+  /**
+   * @return Whether the viewport's data should be displayed as a summary or in full. Summary data fits in a single
+   * grid cell whereas the full data might need more space. e.g. displaying matrix data in a window that pops
+   * up over the main grid.
+   */
   /* package */ boolean isExpanded() {
     return _expanded;
   }

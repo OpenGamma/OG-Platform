@@ -5,6 +5,10 @@
  */
 package com.opengamma.core.holiday.impl;
 
+import static com.opengamma.util.ehcache.EHCacheUtils.get;
+import static com.opengamma.util.ehcache.EHCacheUtils.putException;
+import static com.opengamma.util.ehcache.EHCacheUtils.putValue;
+
 import java.util.Arrays;
 
 import javax.time.calendar.LocalDate;
@@ -30,9 +34,7 @@ import com.opengamma.util.money.Currency;
  */
 public class EHCachingHolidaySource implements HolidaySource {
 
-  private static final String CACHE_NAME = "holiday";
-  private static final Object NULL = new Object();
-
+  /*package*/ static final String CACHE_NAME = "holiday";
   private final HolidaySource _underlying;
   private final Cache _cache;
 
@@ -52,34 +54,6 @@ public class EHCachingHolidaySource implements HolidaySource {
     return _cache;
   }
 
-  @SuppressWarnings("unchecked")
-  private <T> T get(final Element e) {
-    final Object o = e.getObjectValue();
-    if (o == NULL) {
-      return null;
-    }
-    if (o instanceof RuntimeException) {
-      throw (RuntimeException) o;
-    }
-    return (T) o;
-  }
-
-  private <T> T putValue(final Object key, final T value) {
-    final Element e;
-    if (value == null) {
-      e = new Element(key, NULL);
-    } else {
-      e = new Element(key, value);
-    }
-    getCache().put(e);
-    return value;
-  }
-
-  private <T> T putException(final Object key, final RuntimeException e) {
-    getCache().put(new Element(key, e));
-    throw e;
-  }
-
   @Override
   public Holiday getHoliday(final UniqueId uniqueId) {
     final Element e = getCache().get(uniqueId);
@@ -87,9 +61,9 @@ public class EHCachingHolidaySource implements HolidaySource {
       return get(e);
     }
     try {
-      return putValue(uniqueId, getUnderlying().getHoliday(uniqueId));
+      return putValue(uniqueId, getUnderlying().getHoliday(uniqueId), getCache());
     } catch (RuntimeException ex) {
-      return putException(uniqueId, ex);
+      return putException(uniqueId, ex, getCache());
     }
   }
 
@@ -102,9 +76,9 @@ public class EHCachingHolidaySource implements HolidaySource {
       return get(e);
     }
     try {
-      return putValue(key, getUnderlying().getHoliday(objectId, versionCorrection));
+      return putValue(key, getUnderlying().getHoliday(objectId, versionCorrection), getCache());
     } catch (RuntimeException ex) {
-      return putException(key, ex);
+      return putException(key, ex, getCache());
     }
   }
 
@@ -117,9 +91,9 @@ public class EHCachingHolidaySource implements HolidaySource {
       return (Boolean) get(e);
     }
     try {
-      return (Boolean) putValue(key, getUnderlying().isHoliday(dateToCheck, currency));
+      return (Boolean) putValue(key, getUnderlying().isHoliday(dateToCheck, currency), getCache());
     } catch (RuntimeException ex) {
-      return (Boolean) putException(key, ex);
+      return (Boolean) putException(key, ex, getCache());
     }
   }
 
@@ -132,9 +106,9 @@ public class EHCachingHolidaySource implements HolidaySource {
       return (Boolean) get(e);
     }
     try {
-      return (Boolean) putValue(key, getUnderlying().isHoliday(dateToCheck, holidayType, regionOrExchangeIds));
+      return (Boolean) putValue(key, getUnderlying().isHoliday(dateToCheck, holidayType, regionOrExchangeIds), getCache());
     } catch (RuntimeException ex) {
-      return (Boolean) putException(key, ex);
+      return (Boolean) putException(key, ex, getCache());
     }
   }
 
@@ -147,9 +121,9 @@ public class EHCachingHolidaySource implements HolidaySource {
       return (Boolean) get(e);
     }
     try {
-      return (Boolean) putValue(key, getUnderlying().isHoliday(dateToCheck, holidayType, regionOrExchangeId));
+      return (Boolean) putValue(key, getUnderlying().isHoliday(dateToCheck, holidayType, regionOrExchangeId), getCache());
     } catch (RuntimeException ex) {
-      return (Boolean) putException(key, ex);
+      return (Boolean) putException(key, ex, getCache());
     }
   }
 

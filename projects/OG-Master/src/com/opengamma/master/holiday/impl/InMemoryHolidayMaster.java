@@ -89,7 +89,6 @@ public class InMemoryHolidayMaster implements HolidayMaster {
     this(objectIdSupplier, new BasicChangeManager());
   }
 
-
   /**
    * Creates an instance specifying the supplier of object identifiers and change manager.
    * 
@@ -105,7 +104,7 @@ public class InMemoryHolidayMaster implements HolidayMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public HolidayMetaDataResult metaData(HolidayMetaDataRequest request) {
+  public HolidayMetaDataResult metaData(final HolidayMetaDataRequest request) {
     ArgumentChecker.notNull(request, "request");
     HolidayMetaDataResult result = new HolidayMetaDataResult();
     if (request.isHolidayTypes()) {

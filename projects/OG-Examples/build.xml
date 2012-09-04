@@ -8,14 +8,21 @@
 	<property name="sql.dir" value="${lib.dir}/sql/com.opengamma/og-masterdb" />
 
 	<target name="new-hsqldb" depends="jetty-stop" description="creates a new hsql database">
+		<property name="exampleDb.parent" value="${basedir}/install/db/hsqldb" />
+		<property name="exampleDb.dir" value="${basedir}/install/db/hsqldb/example-db" />
+		<property name="finUserDb.dir" value="${basedir}/temp/hsqldb/og-fin-user" />
+		
 		<unzip dest="${basedir}/temp" overwrite="true">
 			<fileset dir="${sql.dir}">
 				<include name="*.zip" />
 			</fileset>
 		</unzip>
 
-		<new-hsqldb-db path="${basedir}/install/db/hsqldb/example-db" scriptdir="${basedir}/temp" catalog="og-financial" />
-		<new-hsqldb-db path="${basedir}/temp/hsqldb/og-fin-user" scriptdir="${basedir}/temp" catalog="og-financial" />
+		<delete dir="${exampleDb.parent}" failonerror="false" />
+		<delete dir="${finUserDb.dir}" failonerror="false" />
+		
+		<new-hsqldb-db path="${exampleDb.dir}" scriptdir="${basedir}/temp" catalog="og-financial" />
+		<new-hsqldb-db path="${finUserDb.dir}" scriptdir="${basedir}/temp" catalog="og-financial" />
 	</target>
 
 	<!-- NOTE jonathan 2011-02-04 - Note that that the following Jetty targets operate only on web-engine, not web-marketdata -->
@@ -92,7 +99,7 @@
 		<echo>${jetty.stop.status}</echo>
 	</target>
 
-	<target name="init-database" depends="compile-src,jetty-stop" description="initialize example portfolio and view in database">
+	<target name="init-database" depends="compile-src,jetty-stop,new-hsqldb" description="initialize example portfolio and view in database">
 		<java classname="com.opengamma.examples.tool.ExampleDatabasePopulator" classpathref="jetty.run.path" failonerror="true" fork="true">
 			<jvmarg value="-Dlogback.configurationFile=${jetty.logback}" />
 			<jvmarg value="-Xms${jvm.initialheap}" />

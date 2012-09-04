@@ -13,13 +13,13 @@ import java.util.Map;
 import javax.time.calendar.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
-import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.id.ExternalId;
 
 /**
- * 
+ *
  */
 public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements InterpolatedYieldCurveSpecificationBuilder {
   private final ConfigSource _configSource;
@@ -91,6 +91,9 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
         case SWAP_6M:
           identifier = builderConfig.getSwap6MSecurity(curveDate, strip.getCurveNodePointTime());
           break;
+        case SWAP_12M:
+          identifier = builderConfig.getSwap12MSecurity(curveDate, strip.getCurveNodePointTime());
+          break;
         case SWAP:
           // assume that all old swaps are 3m - shouldn't be used but just for consistency
           identifier = builderConfig.getSwap3MSecurity(curveDate, strip.getCurveNodePointTime());
@@ -118,7 +121,12 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
       }
       securities.add(new FixedIncomeStripWithIdentifier(strip, identifier));
     }
-    final Interpolator1D interpolator = Interpolator1DFactory.getInterpolator(curveDefinition.getInterpolatorName());
-    return new InterpolatedYieldCurveSpecification(curveDate, curveDefinition.getName(), curveDefinition.getCurrency(), interpolator, securities, curveDefinition.getRegionId());
+    final String interpolatorName = curveDefinition.getInterpolatorName();
+    final String leftExtrapolatorName = curveDefinition.getLeftExtrapolatorName();
+    final String rightExtrapolatorName = curveDefinition.getRightExtrapolatorName();
+    final boolean interpolateYield = curveDefinition.isInterpolateYields();
+    final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
+    return new InterpolatedYieldCurveSpecification(curveDate, curveDefinition.getName(), curveDefinition.getCurrency(), interpolator, interpolateYield,
+        securities, curveDefinition.getRegionId());
   }
 }

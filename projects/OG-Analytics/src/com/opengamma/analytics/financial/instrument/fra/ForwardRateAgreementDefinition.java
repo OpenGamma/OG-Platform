@@ -13,6 +13,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.payment.CouponDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFloatingDefinition;
@@ -21,7 +22,6 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
-import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.money.Currency;
@@ -130,13 +130,9 @@ public class ForwardRateAgreementDefinition extends CouponFloatingDefinition {
     Validate.notNull(accrualStartDate, "accrual start date");
     Validate.notNull(accrualEndDate, "accrual end date");
     Validate.notNull(index, "index");
-    final ZonedDateTime fixingDate = accrualStartDate.minusDays(index.getSpotLag());
-    final Calendar calendar = index.getCalendar();
-    final int settlementDays = index.getSpotLag();
-    final ZonedDateTime adjustedStartDate = ScheduleCalculator.getAdjustedDate(accrualStartDate, settlementDays, calendar);
-    final ZonedDateTime adjustedEndDate = ScheduleCalculator.getAdjustedDate(accrualEndDate, settlementDays, calendar);
-    final double paymentYearFraction = index.getDayCount().getDayCountFraction(adjustedStartDate, adjustedEndDate);
-    return new ForwardRateAgreementDefinition(index.getCurrency(), adjustedStartDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional, fixingDate, index, rate);
+    final ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(accrualStartDate, -index.getSpotLag(), index.getCalendar());
+    final double paymentAccrualFactor = index.getDayCount().getDayCountFraction(accrualStartDate, accrualEndDate);
+    return new ForwardRateAgreementDefinition(index.getCurrency(), accrualStartDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional, fixingDate, index, rate);
   }
 
   /**
@@ -177,6 +173,16 @@ public class ForwardRateAgreementDefinition extends CouponFloatingDefinition {
    */
   public double getRate() {
     return _rate;
+  }
+
+  @Override
+  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
+    return visitor.visitForwardRateAgreement(this, data);
+  }
+
+  @Override
+  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
+    return visitor.visitForwardRateAgreement(this);
   }
 
   @Override

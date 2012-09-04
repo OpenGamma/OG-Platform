@@ -8,6 +8,7 @@ package com.opengamma.integration.tool.portfolio;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.opengamma.financial.tool.ToolContext;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
@@ -25,7 +26,7 @@ import com.opengamma.util.generate.scripts.Scriptable;
  * The portfolio loader tool
  */
 @Scriptable
-public class SecurityDeleteTool extends AbstractTool {
+public class SecurityDeleteTool extends AbstractTool<ToolContext> {
 
   private static final Logger s_logger = LoggerFactory.getLogger(SecurityDeleteTool.class);
 
@@ -85,7 +86,7 @@ public class SecurityDeleteTool extends AbstractTool {
 
     for (SecurityDocument securityDocument : securitySearchResult.getDocuments()) {
       if (getCommandLine().hasOption(WRITE_OPT)) {
-        getToolContext().getPositionMaster().remove(securityDocument.getUniqueId());
+        getToolContext().getSecurityMaster().remove(securityDocument.getUniqueId());
         s_logger.warn("Deleted " + securityDocument.getSecurity().getUniqueId() + 
             " (" + securityDocument.getSecurity().getName() + ")");
       } else {

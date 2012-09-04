@@ -11,6 +11,7 @@ import com.opengamma.engine.marketdata.MarketDataProviderFactory;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
+import com.opengamma.livedata.UserPrincipal;
 
 /**
  * A factory for {@link UserMarketDataProvider} instances.
@@ -30,7 +31,8 @@ public class UserMarketDataProviderFactory implements MarketDataProviderFactory 
   }
   
   @Override
-  public MarketDataProvider create(MarketDataSpecification marketDataSpec) {
+  public MarketDataProvider create(UserPrincipal marketDataUser,
+                                   MarketDataSpecification marketDataSpec) {
     UserMarketDataSpecification userMarketDataSpec = (UserMarketDataSpecification) marketDataSpec;
     UserMarketDataProvider marketDataProvider = new UserMarketDataProvider(getSnapshotSource(), userMarketDataSpec.getUserSnapshotId());
     marketDataProvider.setBaseMarketDataAvailabilityProvider(getBaseMarketDataAvailabilityProvider());

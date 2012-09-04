@@ -10,6 +10,9 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+/**
+ * Test cases taken from the ISDA example C code and Excel sheet
+ */
 public class ISDAApproxCDSPricingMethodTest extends ISDAApproxCDSPricingMethodTestData {
 
   /**

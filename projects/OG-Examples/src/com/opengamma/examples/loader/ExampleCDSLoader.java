@@ -8,26 +8,22 @@ package com.opengamma.examples.loader;
 import java.math.BigDecimal;
 
 import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.math.RandomUtils;
 
+import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.Security;
-import com.opengamma.examples.tool.AbstractExampleTool;
-
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
-import com.opengamma.financial.convention.yield.SimpleYieldConvention;
-import com.opengamma.financial.security.bond.BondSecurity;
-import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.portfolio.ManageablePortfolio;
@@ -42,7 +38,6 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.Expiry;
 
 /**
  * Load example CDS security and store for testing
@@ -50,7 +45,7 @@ import com.opengamma.util.time.Expiry;
  * @see CDSSecurity
  * @see CDSSimplePresentValueFunction
  */
-public class ExampleCDSLoader extends AbstractExampleTool {
+public class ExampleCDSLoader extends AbstractTool<ToolContext> {
 
   public static void main(String[] args) {  // CSIGNORE
     

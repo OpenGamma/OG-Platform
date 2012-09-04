@@ -452,7 +452,7 @@ public class NonLinearLeastSquare {
           while (newChiSqr > oldChiSqr) {
             //if even a tiny move along the negative eigenvalue cannot improve chiSqr, then exit
             if (counter > 10 || Math.abs(newChiSqr - oldChiSqr) / (1 + oldChiSqr) < _eps) {
-              LOGGER.warn("Saddle point detected, but no improvment to chi^2 possible by moving away. It is recomended that a different starting point is used.");
+              LOGGER.warn("Saddle point detected, but no improvment to chi^2 possible by moving away. It is recommended that a different starting point is used.");
               return finish(newAlpha, decmp, oldChiSqr, jacobian, theta, sigma);
             }
             scale /= 2.0;

@@ -11,6 +11,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
@@ -225,6 +226,16 @@ public class CouponIborGearingDefinition extends CouponFloatingDefinition {
     final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(dateTime, getFixingPeriodEndDate());
     return new CouponIborGearing(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixingTime, getIndex(), fixingPeriodStartTime, fixingPeriodEndTime,
         getFixingPeriodAccrualFactor(), _spread, _factor, forwardCurveName);
+  }
+
+  @Override
+  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
+    return visitor.visitCouponIborGearing(this, data);
+  }
+
+  @Override
+  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
+    return visitor.visitCouponIborGearing(this);
   }
 
   @Override

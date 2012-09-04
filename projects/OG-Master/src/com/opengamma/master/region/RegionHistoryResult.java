@@ -39,7 +39,7 @@ public class RegionHistoryResult extends AbstractHistoryResult<RegionDocument> {
   }
 
   /**
-   * Creates an instance.
+   * Creates an instance from a collection of documents.
    * 
    * @param coll  the collection of documents to add, not null
    */

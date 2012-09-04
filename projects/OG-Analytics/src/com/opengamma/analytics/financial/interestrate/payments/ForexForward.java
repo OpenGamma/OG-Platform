@@ -10,8 +10,9 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 
 /**
- * TODO This is a temporary class until ForexDerivative and InterestRateDerivative are in some way unified
+ * @deprecated This is a temporary class until ForexDerivative and InterestRateDerivative are in some way unified
  */
+@Deprecated
 public class ForexForward extends Forex {
 
   private final double _spotFX;

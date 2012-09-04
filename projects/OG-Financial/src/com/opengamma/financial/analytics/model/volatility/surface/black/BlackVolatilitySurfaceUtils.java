@@ -20,6 +20,7 @@ import static com.opengamma.financial.analytics.model.volatility.surface.black.B
 import static com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SABR_USE_EXTERNAL_BETA;
 import static com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SABR_WEIGHTING_FUNCTION;
 import static com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR;
+import static com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_EXTRAPOLATOR_FAILURE;
 import static com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_INTERPOLATOR;
 import static com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_LEFT_EXTRAPOLATOR;
 import static com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_RIGHT_EXTRAPOLATOR;
@@ -138,17 +139,22 @@ public class BlackVolatilitySurfaceUtils {
     return addCommonVolatilityInterpolatorProperties(properties.copy()
         .withAny(PROPERTY_SPLINE_INTERPOLATOR)
         .withAny(PROPERTY_SPLINE_LEFT_EXTRAPOLATOR)
-        .withAny(PROPERTY_SPLINE_RIGHT_EXTRAPOLATOR).get(), SPLINE);
+        .withAny(PROPERTY_SPLINE_RIGHT_EXTRAPOLATOR)
+        .withAny(PROPERTY_SPLINE_EXTRAPOLATOR_FAILURE)
+        .get(), SPLINE);
   }
 
   public static ValueProperties.Builder addSplineVolatilityInterpolatorProperties(final ValueProperties properties, final ValueRequirement desiredValue) {
     final String interpolatorName = desiredValue.getConstraint(PROPERTY_SPLINE_INTERPOLATOR);
     final String leftExtrapolatorName = desiredValue.getConstraint(PROPERTY_SPLINE_LEFT_EXTRAPOLATOR);
     final String rightExtrapolatorName = desiredValue.getConstraint(PROPERTY_SPLINE_RIGHT_EXTRAPOLATOR);
+    final String extrapolatorFailureBehaviour = desiredValue.getConstraint(PROPERTY_SPLINE_EXTRAPOLATOR_FAILURE);
     return addCommonVolatilityInterpolatorProperties(properties.copy()
         .with(PROPERTY_SPLINE_INTERPOLATOR, interpolatorName)
         .with(PROPERTY_SPLINE_LEFT_EXTRAPOLATOR, leftExtrapolatorName)
-        .with(PROPERTY_SPLINE_RIGHT_EXTRAPOLATOR, rightExtrapolatorName).get(), desiredValue, SPLINE);
+        .with(PROPERTY_SPLINE_RIGHT_EXTRAPOLATOR, rightExtrapolatorName)
+        .with(PROPERTY_SPLINE_EXTRAPOLATOR_FAILURE, extrapolatorFailureBehaviour)
+        .get(), desiredValue, SPLINE);
   }
 
   public static Set<ValueRequirement> ensureSplineVolatilityInterpolatorProperties(final ValueProperties constraints) {
@@ -166,6 +172,10 @@ public class BlackVolatilitySurfaceUtils {
     }
     final Set<String> rightExtrapolatorNames = constraints.getValues(PROPERTY_SPLINE_RIGHT_EXTRAPOLATOR);
     if (rightExtrapolatorNames == null || rightExtrapolatorNames.size() != 1) {
+      return null;
+    }
+    final Set<String> extrapolatorFailureNames = constraints.getValues(PROPERTY_SPLINE_EXTRAPOLATOR_FAILURE);
+    if (extrapolatorFailureNames == null || extrapolatorFailureNames.size() != 1) {
       return null;
     }
     return Collections.emptySet();

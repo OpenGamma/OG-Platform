@@ -97,9 +97,9 @@ public final class ForexSwapDiscountingMethod implements ForexPricingMethod {
   public double parSpread(final ForexSwap fx, final YieldCurveBundle curves) {
     ArgumentChecker.notNull(fx, "Forex swap");
     ArgumentChecker.notNull(curves, "Curve bundle");
-    double pv2 = curves.convert(presentValue(fx, curves), fx.getNearLeg().getCurrency2()).getAmount();
-    double dfEnd = curves.getCurve(fx.getFarLeg().getPaymentCurrency2().getFundingCurveName()).getDiscountFactor(fx.getFarLeg().getPaymentTime());
-    double notional1 = fx.getNearLeg().getPaymentCurrency1().getAmount();
+    final double pv2 = curves.getFxRates().convert(presentValue(fx, curves), fx.getNearLeg().getCurrency2()).getAmount();
+    final double dfEnd = curves.getCurve(fx.getFarLeg().getPaymentCurrency2().getFundingCurveName()).getDiscountFactor(fx.getFarLeg().getPaymentTime());
+    final double notional1 = fx.getNearLeg().getPaymentCurrency1().getAmount();
     return -pv2 / (notional1 * dfEnd);
   }
 
@@ -112,22 +112,22 @@ public final class ForexSwapDiscountingMethod implements ForexPricingMethod {
   public InterestRateCurveSensitivity parSpreadCurveSensitivity(final ForexSwap fx, final YieldCurveBundle curves) {
     ArgumentChecker.notNull(fx, "Forex swap");
     ArgumentChecker.notNull(curves, "Curve bundle");
-    Currency ccy2 = fx.getNearLeg().getCurrency2();
-    String name2 = fx.getFarLeg().getPaymentCurrency2().getFundingCurveName();
-    double payTime = fx.getFarLeg().getPaymentTime();
-    double pv2 = curves.convert(presentValue(fx, curves), ccy2).getAmount();
-    double dfEnd = curves.getCurve(name2).getDiscountFactor(payTime);
-    double notional1 = fx.getNearLeg().getPaymentCurrency1().getAmount();
+    final Currency ccy2 = fx.getNearLeg().getCurrency2();
+    final String name2 = fx.getFarLeg().getPaymentCurrency2().getFundingCurveName();
+    final double payTime = fx.getFarLeg().getPaymentTime();
+    final double pv2 = curves.getFxRates().convert(presentValue(fx, curves), ccy2).getAmount();
+    final double dfEnd = curves.getCurve(name2).getDiscountFactor(payTime);
+    final double notional1 = fx.getNearLeg().getPaymentCurrency1().getAmount();
     //    double spread = -pv2 / (notional1 * dfEnd);
     // Backward sweep
-    double spreadBar = 1.0;
-    double dfEndBar = pv2 / (notional1 * dfEnd * dfEnd) * spreadBar;
-    double pv2Bar = -spreadBar / (notional1 * dfEnd);
-    MultipleCurrencyInterestRateCurveSensitivity pv2DrMC = presentValueCurveSensitivity(fx, curves);
-    InterestRateCurveSensitivity pv2Dr = pv2DrMC.convert(ccy2, curves.getFxRates());
-    List<DoublesPair> list = new ArrayList<DoublesPair>();
+    final double spreadBar = 1.0;
+    final double dfEndBar = pv2 / (notional1 * dfEnd * dfEnd) * spreadBar;
+    final double pv2Bar = -spreadBar / (notional1 * dfEnd);
+    final MultipleCurrencyInterestRateCurveSensitivity pv2DrMC = presentValueCurveSensitivity(fx, curves);
+    final InterestRateCurveSensitivity pv2Dr = pv2DrMC.convert(ccy2, curves.getFxRates());
+    final List<DoublesPair> list = new ArrayList<DoublesPair>();
     list.add(new DoublesPair(payTime, -payTime * dfEnd * dfEndBar));
-    InterestRateCurveSensitivity dfEndDr = InterestRateCurveSensitivity.from(name2, list);
+    final InterestRateCurveSensitivity dfEndDr = InterestRateCurveSensitivity.from(name2, list);
     return pv2Dr.multiply(pv2Bar).plus(dfEndDr);
   }
 

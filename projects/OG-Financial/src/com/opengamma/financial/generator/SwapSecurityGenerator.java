@@ -132,7 +132,7 @@ public class SwapSecurityGenerator extends SecurityGenerator<SwapSecurity> {
       return null;
     }
     Double fixedRate = (fixedRateSeries.getTimeSeries().getEarliestValue() + getRandom().nextDouble()) / 100d;
-    Double notional = (double) getRandom(100000) * 1000;
+    Double notional = (double) (getRandom(99999) + 1) * 1000;
     ZonedDateTime tradeDateTime = ZonedDateTime.of(tradeDate, LocalTime.MIDNIGHT, TimeZone.UTC);
     ZonedDateTime maturityDateTime = ZonedDateTime.of(tradeDate.plus(maturity.getPeriod()), LocalTime.MIDNIGHT, TimeZone.UTC);
     String counterparty = "CParty";

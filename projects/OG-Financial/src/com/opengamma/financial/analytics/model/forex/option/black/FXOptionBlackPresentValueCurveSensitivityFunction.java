@@ -8,10 +8,12 @@ package com.opengamma.financial.analytics.model.forex.option.black;
 import java.util.Collections;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.forex.calculator.PresentValueCurveSensitivityBlackForexCalculator;
+import com.opengamma.analytics.financial.forex.calculator.PresentValueCurveSensitivityBlackSmileForexCalculator;
+import com.opengamma.analytics.financial.forex.calculator.PresentValueCurveSensitivityBlackTermStructureForexCalculator;
 import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
+import com.opengamma.analytics.financial.model.option.definition.ForexOptionDataBundle;
+import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackForexTermStructureBundle;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -25,16 +27,22 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 public class FXOptionBlackPresentValueCurveSensitivityFunction extends FXOptionBlackMultiValuedFunction {
-  private static final PresentValueCurveSensitivityBlackForexCalculator CALCULATOR = PresentValueCurveSensitivityBlackForexCalculator.getInstance();
+  private static final PresentValueCurveSensitivityBlackSmileForexCalculator SMILE_CALCULATOR = PresentValueCurveSensitivityBlackSmileForexCalculator.getInstance();
+  private static final PresentValueCurveSensitivityBlackTermStructureForexCalculator FLAT_CALCULATOR = PresentValueCurveSensitivityBlackTermStructureForexCalculator.getInstance();
 
   public FXOptionBlackPresentValueCurveSensitivityFunction() {
     super(ValueRequirementNames.FX_CURVE_SENSITIVITIES);
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative forex, final SmileDeltaTermStructureDataBundle data, final ComputationTarget target,
+  protected Set<ComputedValue> getResult(final InstrumentDerivative forex, final ForexOptionDataBundle<?> data, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
-    final MultipleCurrencyInterestRateCurveSensitivity result = CALCULATOR.visit(forex, data);
+    if (data instanceof YieldCurveWithBlackForexTermStructureBundle) {
+      final MultipleCurrencyInterestRateCurveSensitivity result = FLAT_CALCULATOR.visit(forex, data);
+      ArgumentChecker.isTrue(result.getCurrencies().size() == 1, "Only one currency");
+      return Collections.singleton(new ComputedValue(spec, result));
+    }
+    final MultipleCurrencyInterestRateCurveSensitivity result = SMILE_CALCULATOR.visit(forex, data);
     ArgumentChecker.isTrue(result.getCurrencies().size() == 1, "Only one currency");
     return Collections.singleton(new ComputedValue(spec, result));
   }

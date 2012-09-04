@@ -3,50 +3,67 @@
 
   <import file="${common.dir}/common.xml" />
 
-	<property file="${test.properties.dir}/db.properties"/>
+  <property file="${test.properties.dir}/db.properties"/>
 
-	<target name="create-postgres-fin" description="--> run scripts to create database/user/schema/tables for financial db">
-		<exec executable="${psql.path}" failonerror="true">
-			<arg value="--username"/>
-			<arg value="${postgres.username}"/>
-			<arg value="--host"/>
-			<arg value="${postgres.host}"/>
-			<arg value="--file"/>
-			<arg value="db/postgres/create-og-fin-db-users.sql"/>
-			<arg value="--dbname"/>
-			<arg value="postgres"/>
-		</exec>
-		<exec executable="${psql.path}" failonerror="true">
-			<arg value="--username"/>
-			<arg value="${postgres.username}"/>
-			<arg value="--host"/>
-			<arg value="${postgres.host}"/>
-			<arg value="--file"/>
-			<arg value="db/postgres/create-og-fin-schema.sql"/>
-			<arg value="--dbname"/>
-			<arg value="og_financial"/>
-		</exec>
-		<exec executable="${psql.path}" failonerror="true">
-			<arg value="--username"/>
-			<arg value="${postgres.username.financial}"/>
-			<arg value="--host"/>
-			<arg value="${postgres.host}"/>
-			<arg value="--file"/>
-			<arg value="db/postgres/create-og-fin-tables.sql"/>
-			<arg value="--dbname"/>
-			<arg value="og_financial"/>
-		</exec>
-	</target>
+  <target name="create-postgres-fin" description="--> run scripts to create database/user/schema/tables for financial db">
+    <exec executable="${psql.path}" failonerror="true">
+      <arg value="--username"/>
+      <arg value="${postgres.username}"/>
+      <arg value="--host"/>
+      <arg value="${postgres.host}"/>
+      <arg value="--file"/>
+      <arg value="db/postgres/create-og-fin-db-users.sql"/>
+      <arg value="--dbname"/>
+      <arg value="postgres"/>
+    </exec>
+    <exec executable="${psql.path}" failonerror="true">
+      <arg value="--username"/>
+      <arg value="${postgres.username}"/>
+      <arg value="--host"/>
+      <arg value="${postgres.host}"/>
+      <arg value="--file"/>
+      <arg value="db/postgres/create-og-fin-schema.sql"/>
+      <arg value="--dbname"/>
+      <arg value="og_financial"/>
+    </exec>
+    <exec executable="${psql.path}" failonerror="true">
+      <arg value="--username"/>
+      <arg value="${postgres.username.financial}"/>
+      <arg value="--host"/>
+      <arg value="${postgres.host}"/>
+      <arg value="--file"/>
+      <arg value="db/postgres/create-og-fin-tables.sql"/>
+      <arg value="--dbname"/>
+      <arg value="og_financial"/>
+    </exec>
+  </target>
+
+  <target name="compile-src" depends="common.compile-src,compile-schema-versions" description="compile all source code" />
   
-    <target name="publish" depends="zip-resources,common.publish" />
+  <target name="compile-schema-versions" description="compiles schema version metadata">
+    <taskdef name="schemaversiontool" classname="com.opengamma.masterdb.schema.SchemaVersionTool">
+      <classpath>
+        <path refid="lib.path.id" />
+        <pathelement path="${classes.dir}" />
+      </classpath>
+    </taskdef>
+    <schemaversiontool dbScriptDir="${basedir}" outputDir="${src.dir}" />
+      <copy todir="${classes.dir}">
+        <fileset dir="${src.dir}">
+          <include name="**/*_db" />
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="publish" depends="zip-resources,common.publish" />
     
-    <target name="publish-local" depends="zip-resources,common.publish-local" />
-    
-    <target name="zip-resources" description="--> create resources file for publishing">
-        <mkdir dir="${dist.dir}" />
-        <zip destfile="${dist.dir}/og-masterdb-sql.zip">
-            <zipfileset prefix="install" dir="${basedir}/install" />
-        </zip>
-    </target>
+  <target name="publish-local" depends="zip-resources,common.publish-local" />
+  
+  <target name="zip-resources" description="--> create resources file for publishing">
+    <mkdir dir="${dist.dir}" />
+      <zip destfile="${dist.dir}/og-masterdb-sql.zip">
+        <zipfileset prefix="install" dir="${basedir}/install" />
+      </zip>
+  </target>
   
 </project>

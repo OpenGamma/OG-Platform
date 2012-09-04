@@ -25,7 +25,7 @@ public final class NullBloombergReferenceDataStatistics implements BloombergRefe
   }
 
   @Override
-  public void gotFields(Set<String> securities, Set<String> fields) {
+  public void recordStatistics(Set<String> securities, Set<String> fields) {
     // do nothing
   }
 

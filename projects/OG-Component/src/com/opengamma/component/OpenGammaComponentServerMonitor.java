@@ -85,6 +85,10 @@ public final class OpenGammaComponentServerMonitor extends Thread {
     }
   }
 
+  private boolean isReady() {
+    return _socket != null;
+  }
+
   private void handleStop() {
     if (_repo.isRunning()) {
       _repo.stop();
@@ -119,7 +123,9 @@ public final class OpenGammaComponentServerMonitor extends Thread {
    */
   public static void create(ComponentRepository repo, String secret, int port) {
     OpenGammaComponentServerMonitor monitor = new OpenGammaComponentServerMonitor(repo, secret, port);
-    monitor.start();
+    if (monitor.isReady()) {
+      monitor.start();
+    }
   }
 
   //-------------------------------------------------------------------------

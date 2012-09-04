@@ -59,6 +59,20 @@ public final class CouponFixedDiscountingMethod {
   }
 
   /**
+   * Computes the present value of the fixed coupon with positive notional (abs(notional) is used) by discounting.
+   * @param cpn The coupon.
+   * @param curves The curve bundle.
+   * @return The present value.
+   */
+  public CurrencyAmount presentValuePositiveNotional(CouponFixed cpn, YieldCurveBundle curves) {
+    Validate.notNull(curves);
+    Validate.notNull(cpn);
+    final YieldAndDiscountCurve fundingCurve = curves.getCurve(cpn.getFundingCurveName());
+    double pv = cpn.getPaymentYearFraction() * Math.abs(cpn.getNotional()) * cpn.getFixedRate() * fundingCurve.getDiscountFactor(cpn.getPaymentTime());
+    return CurrencyAmount.of(cpn.getCurrency(), pv);
+  }
+
+  /**
    * Computes the present value curve sensitivity of a fixed coupon by discounting.
    * @param cpn The coupon.
    * @param curves The curve bundle.

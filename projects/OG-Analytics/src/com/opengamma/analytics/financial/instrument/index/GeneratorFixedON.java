@@ -11,7 +11,6 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedONDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -21,7 +20,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 /**
  * Generator (or template) for OIS.
  */
-public class GeneratorFixedON extends Generator {
+public class GeneratorFixedON extends GeneratorInstrument {
 
   /**
    * The ON index of the floating leg.
@@ -71,8 +70,7 @@ public class GeneratorFixedON extends Generator {
    * @param spotLag The index spot lag in days between trade and settlement date (usually 2 or 0).
    */
   public GeneratorFixedON(final String name, final IndexON index, final Period legsPeriod, final DayCount fixedLegDayCount, final BusinessDayConvention businessDayConvention,
-      final boolean endOfMonth,
-      final int spotLag) {
+      final boolean endOfMonth, final int spotLag) {
     super(name);
     Validate.notNull(legsPeriod, "Period");
     Validate.notNull(fixedLegDayCount, "Fixed leg day count");
@@ -101,8 +99,7 @@ public class GeneratorFixedON extends Generator {
    * @param paymentLag The lag in days between the last ON fixing date and the coupon payment.
    */
   public GeneratorFixedON(final String name, final IndexON index, final Period legsPeriod, final DayCount fixedLegDayCount, final BusinessDayConvention businessDayConvention,
-      final boolean endOfMonth,
-      final int spotLag, final int paymentLag) {
+      final boolean endOfMonth, final int spotLag, final int paymentLag) {
     super(name);
     Validate.notNull(legsPeriod, "Period");
     Validate.notNull(fixedLegDayCount, "Fixed leg day count");
@@ -200,7 +197,7 @@ public class GeneratorFixedON extends Generator {
   }
 
   @Override
-  public InstrumentDefinition<?> generateInstrument(ZonedDateTime date, Period tenor, double fixedRate, double notional, Object... objects) {
+  public SwapFixedONDefinition generateInstrument(ZonedDateTime date, Period tenor, double fixedRate, double notional, Object... objects) {
     final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(date, _spotLag, _index.getCalendar());
     return SwapFixedONDefinition.from(startDate, tenor, notional, this, fixedRate, true);
   }

@@ -26,7 +26,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
@@ -69,6 +68,10 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
   public static <X, Y> Set<ValueRequirement> buildDataRequirements(final VolatilitySurfaceSpecification specification, final VolatilitySurfaceDefinition<X, Y> definition,
       final ZonedDateTime atInstant, final String surfaceName, final String instrumentType) {
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
+    if (specification == null) {
+      s_logger.error("Volatility surface specification called {} for instrument type {} was null", surfaceName, instrumentType);
+      return null;
+    }
     final SurfaceInstrumentProvider<X, Y> provider = (SurfaceInstrumentProvider<X, Y>) specification.getSurfaceInstrumentProvider();
     for (final X x : definition.getXs()) {
       for (final Y y : definition.getYs()) {
@@ -148,7 +151,6 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
         throw new OpenGammaRuntimeException("Instrument type was null");
       }
       final VolatilitySurfaceDefinition<Object, Object> definition = getSurfaceDefinition(target, surfaceName, instrumentType);
-      //TODO should be calling something that provides volatility surface market data
       final VolatilitySurfaceSpecification specification = getSurfaceSpecification(target, surfaceName, instrumentType);
       return buildDataRequirements(specification, definition, _now, surfaceName, instrumentType);
     }
@@ -213,13 +215,13 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
             yList.add(y);
             volatilityValues.put(Pair.of(x, y), volatility);
           } else {
-            s_logger.debug("Missing value {}", identifier.toString());
+            s_logger.info("Missing value {}", identifier.toString());
           }
         }
       }
       final VolatilitySurfaceData<Object, Object> volSurfaceData = new VolatilitySurfaceData<Object, Object>(definition.getName(), specification.getName(),
           definition.getTarget(), definition.getXs(), definition.getYs(), volatilityValues);
-      final ValueSpecification result = new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_DATA, new ComputationTargetSpecification(definition.getTarget()),
+      final ValueSpecification result = new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target.toSpecification(),
           createValueProperties()
           .with(ValuePropertyNames.SURFACE, surfaceName)
           .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, instrumentType)

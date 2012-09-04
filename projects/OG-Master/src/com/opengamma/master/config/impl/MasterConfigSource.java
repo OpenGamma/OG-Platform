@@ -134,12 +134,16 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
     ArgumentChecker.notNull(configName, "configName");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     
+    ConfigSearchResult<T> searchResult = searchDocuments(clazz, configName, versionCorrection);
+    return searchResult.getValues();
+  }
+
+  protected <T> ConfigSearchResult<T> searchDocuments(Class<T> clazz, String configName, VersionCorrection versionCorrection) {
     ConfigSearchRequest<T> request = new ConfigSearchRequest<T>();
     request.setVersionCorrection(versionCorrection);
     request.setName(configName);
     request.setType(clazz);
-    ConfigSearchResult<T> searchResult = getMaster().search(request);
-    return searchResult.getValues();
+    return getMaster().search(request);
   }
 
   @Override

@@ -5,8 +5,8 @@
  */
 package com.opengamma.web.server.push.rest;
 
-import com.opengamma.web.server.push.analytics.ViewportResults;
 import com.opengamma.web.server.push.analytics.AnalyticsView;
+import com.opengamma.web.server.push.analytics.ViewportResults;
 import com.opengamma.web.server.push.analytics.ViewportSpecification;
 
 /**
@@ -14,13 +14,13 @@ import com.opengamma.web.server.push.analytics.ViewportSpecification;
  */
 public class MainGridViewportResource extends AbstractViewportResource {
 
-  public MainGridViewportResource(AnalyticsView.GridType gridType, AnalyticsView view, String viewportId) {
+  public MainGridViewportResource(AnalyticsView.GridType gridType, AnalyticsView view, int viewportId) {
     super(gridType, view, viewportId);
   }
 
   @Override
-  public void update(ViewportSpecification viewportSpec) {
-    _view.updateViewport(_gridType, _viewportId, viewportSpec);
+  public long update(ViewportSpecification viewportSpec) {
+    return _view.updateViewport(_gridType, _viewportId, viewportSpec).getFirst();
   }
 
   @Override

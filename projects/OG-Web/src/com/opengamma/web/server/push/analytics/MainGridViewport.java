@@ -20,8 +20,17 @@ public class MainGridViewport extends AnalyticsViewport {
 
   private final MainGridStructure _gridStructure;
 
-  MainGridViewport(ViewportSpecification viewportSpec, MainGridStructure gridStructure, String dataId, ResultsCache cache) {
-    super(dataId);
+  /**
+   * @param viewportSpec Definition of the viewport
+   * @param gridStructure Row and column structure of the grid
+   * @param callbackId ID that's passed to listeners when the grid structure changes
+   * @param cache Cache of calculation results used to populate the viewport's data
+   */
+  /* package */ MainGridViewport(ViewportSpecification viewportSpec,
+                                 MainGridStructure gridStructure,
+                                 String callbackId,
+                                 ResultsCache cache) {
+    super(callbackId);
     ArgumentChecker.notNull(gridStructure, "gridStructure");
     _gridStructure = gridStructure;
     update(viewportSpec, cache);
@@ -57,15 +66,15 @@ public class MainGridViewport extends AnalyticsViewport {
       }
       allResults.add(rowResults);
     }
+    _latestResults = new ViewportResults(allResults, _viewportSpec, _gridStructure.getColumnStructure(), _version);
     if (updated) {
-      _latestResults = new ViewportResults(allResults, _viewportSpec, _gridStructure.getColumnStructure());
-      return _dataId;
+      return _callbackId;
     } else {
       return null;
     }
   }
 
-  public void update(ViewportSpecification viewportSpec, ResultsCache cache) {
+  public long update(ViewportSpecification viewportSpec, ResultsCache cache) {
     ArgumentChecker.notNull(viewportSpec, "viewportSpec");
     ArgumentChecker.notNull(cache, "cache");
     if (!viewportSpec.isValidFor(_gridStructure)) {
@@ -73,6 +82,8 @@ public class MainGridViewport extends AnalyticsViewport {
                                              viewportSpec + ", grid: " + _gridStructure);
     }
     _viewportSpec = viewportSpec;
+    _version++;
     updateResults(cache);
+    return _version;
   }
 }

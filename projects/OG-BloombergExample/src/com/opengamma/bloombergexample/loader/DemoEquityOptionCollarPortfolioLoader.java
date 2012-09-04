@@ -21,6 +21,8 @@ import java.util.TreeMap;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.Period;
 
+import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.integration.tool.IntegrationToolContext;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
@@ -36,10 +38,8 @@ import com.opengamma.bbg.BloombergFields;
 import com.opengamma.bbg.PerSecurityReferenceDataResult;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.ReferenceDataResult;
-import com.opengamma.bbg.tool.BloombergToolContext;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.bbg.util.BloombergTickerParserEQOption;
-import com.opengamma.bloombergexample.tool.AbstractExampleTool;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.equity.EquitySecurity;
@@ -71,7 +71,7 @@ import com.opengamma.util.tuple.Pair;
  * Also see DemoEquityOptionPortfolioLoader.
  */
 @Scriptable
-public class DemoEquityOptionCollarPortfolioLoader extends AbstractExampleTool {
+public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<IntegrationToolContext> {
 
   private static final String TOOL_NAME = "Demo Equity Option Portfolio Loader";
   private static final String PORTFOLIO_NAME_OPT = "p";
@@ -100,7 +100,7 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractExampleTool {
   /**
    * The default genearted portfolio name.
    */
-  public static final String PORTFOLIO_NAME = "Example Equity Option Portfolio";
+  public static final String PORTFOLIO_NAME = "Equity Option Portfolio";
 
   private static Map<String, String> getIndexToExchangeMap() {
     Map<String, String> ret = new HashMap<String, String>();
@@ -118,13 +118,13 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractExampleTool {
    * @param args  the arguments, unused
    */
   public static void main(String[] args) { // CSIGNORE
-    boolean success = new DemoEquityOptionCollarPortfolioLoader().initAndRun(args);
+    boolean success = new DemoEquityOptionCollarPortfolioLoader().initAndRun(args, IntegrationToolContext.class);
     System.exit(success ? 0 : 1);
   }
 
   //-------------------------------------------------------------------------
   protected ManageablePortfolio generatePortfolio(String portfolioName) {
-    ReferenceDataProvider referenceDataProvider = ((BloombergToolContext) getToolContext()).getBloombergReferenceDataProvider();
+    ReferenceDataProvider referenceDataProvider = getToolContext().getBloombergReferenceDataProvider();
 
     ManageablePortfolio portfolio = new ManageablePortfolio(portfolioName);
 
@@ -418,7 +418,7 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractExampleTool {
     if (ticker.getScheme() != ExternalSchemes.BLOOMBERG_TICKER) {
       throw new OpenGammaRuntimeException("Not a bloomberg ticker " + ticker);
     }    
-    ReferenceDataProvider referenceDataProvider = ((BloombergToolContext) getToolContext()).getBloombergReferenceDataProvider();
+    ReferenceDataProvider referenceDataProvider = getToolContext().getBloombergReferenceDataProvider();
 
     Set<ExternalId> optionChain = BloombergDataUtils.getOptionChain(referenceDataProvider, ticker.getValue()); //TODO [BBG-88] this query shouldn't get cached permanently
     if (optionChain == null) {
@@ -478,7 +478,7 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractExampleTool {
   }
 
   private HistoricalTimeSeriesInfoDocument loadTimeSeries(ExternalIdBundle idBundle) {    
-    ReferenceDataProvider referenceDataProvider = ((BloombergToolContext) getToolContext()).getBloombergReferenceDataProvider();
+    ReferenceDataProvider referenceDataProvider = getToolContext().getBloombergReferenceDataProvider();
     if (idBundle.getExternalId(ExternalSchemes.BLOOMBERG_BUID) == null && idBundle.getExternalId(ExternalSchemes.BLOOMBERG_TICKER) != null) {
       //For some reason loading some series by TICKER fails, but BUID works 
       BiMap<String, ExternalIdBundle> map = BloombergDataUtils.convertToBloombergBuidKeys(Collections.singleton(idBundle), referenceDataProvider);
@@ -633,10 +633,6 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractExampleTool {
   protected void doRun() throws Exception {
     s_logger.info(TOOL_NAME + " is initialising...");
     s_logger.info("Current working directory is " + System.getProperty("user.dir"));
-
-    if (getToolContext() instanceof BloombergToolContext == false) {
-      throw new OpenGammaRuntimeException("The " + DemoEquityOptionCollarPortfolioLoader.class.getSimpleName() + " requires a tool context which implements " + BloombergToolContext.class.getName());
-    }
 
     s_logger.info("Using portfolio \"{}\"", PORTFOLIO_NAME);
     s_logger.info("num index members: " + _numMembers);

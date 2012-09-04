@@ -17,8 +17,6 @@ import javax.time.calendar.LocalDate;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.event.RegisteredEventListeners;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
@@ -51,14 +49,19 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
   private static final Logger s_logger = LoggerFactory.getLogger(EHCachingHistoricalTimeSeriesSource.class);
 
   /**
+   * The cache prefix.
+   */
+  /*package*/ static final String CACHE_PREFIX = "HistoricalTimeSeries";
+  
+  /**
    * The cache name.
    */
-  private static final String DATA_CACHE_NAME = "HistoricalTimeSeriesDataCache";
+  private static final String DATA_CACHE_NAME = CACHE_PREFIX + "DataCache";
   
   /**
    * Id bundle cache name.
    */
-  private static final String ID_BUNDLE_CACHE_NAME = "HistoricalTimeSeriesIdBundleCache";
+  private static final String ID_BUNDLE_CACHE_NAME = CACHE_PREFIX + "IdBundleCache";
 
   /**
    * Listens for changes in the underlying security source.
@@ -118,42 +121,6 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
    * The clock.
    */
   private final Clock _clock = OpenGammaClock.getInstance();
-
-  /**
-   * Creates an instance.
-   * 
-   * @param underlying  the underlying source, not null
-   * @param cacheManager  the cache manager, not null
-   * @param maxElementsInMemory  cache configuration
-   * @param memoryStoreEvictionPolicy  cache configuration
-   * @param overflowToDisk  cache configuration
-   * @param diskStorePath  cache configuration
-   * @param eternal  cache configuration
-   * @param timeToLiveSeconds  cache configuration
-   * @param timeToIdleSeconds  cache configuration
-   * @param diskPersistent  cache configuration
-   * @param diskExpiryThreadIntervalSeconds  cache configuration
-   * @param registeredEventListeners  cache configuration
-   */
-  public EHCachingHistoricalTimeSeriesSource(
-      final HistoricalTimeSeriesSource underlying, final CacheManager cacheManager, final int maxElementsInMemory,
-      final MemoryStoreEvictionPolicy memoryStoreEvictionPolicy, final boolean overflowToDisk, final String diskStorePath,
-      final boolean eternal, final long timeToLiveSeconds, final long timeToIdleSeconds, final boolean diskPersistent,
-      final long diskExpiryThreadIntervalSeconds, final RegisteredEventListeners registeredEventListeners) {
-    ArgumentChecker.notNull(underlying, "underlying");
-    ArgumentChecker.notNull(cacheManager, "cacheManager");
-    _underlying = underlying;
-    EHCacheUtils.addCache(cacheManager, DATA_CACHE_NAME, maxElementsInMemory, memoryStoreEvictionPolicy, overflowToDisk, diskStorePath,
-        eternal, timeToLiveSeconds, timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, registeredEventListeners);
-    _dataCache = EHCacheUtils.getCacheFromManager(cacheManager, DATA_CACHE_NAME);
-    EHCacheUtils.addCache(cacheManager, ID_BUNDLE_CACHE_NAME, maxElementsInMemory, memoryStoreEvictionPolicy, overflowToDisk, diskStorePath,
-        eternal, timeToLiveSeconds, timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, registeredEventListeners);
-    _identifierBundleCache = EHCacheUtils.getCacheFromManager(cacheManager, ID_BUNDLE_CACHE_NAME);
-
-    _changeListener = createChangeListener();
-    _underlying.changeManager().addChangeListener(_changeListener);
-    _changeManager = new BasicChangeManager();
-  } 
 
   /**
    * Creates an instance.
@@ -303,7 +270,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     Element element = _dataCache.get(key);
     HistoricalTimeSeries hts;
     if (element != null) {
-      hts = (HistoricalTimeSeries) element.getValue();
+      hts = (HistoricalTimeSeries) element.getObjectValue();
       if (MISS.equals(hts)) {
         hts = null;
       }
@@ -311,7 +278,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       // If we have the full series cached computing a sub-series could be faster
       Element fullHtsElement = _dataCache.get(uniqueId);
       if (fullHtsElement != null) {
-        hts = getSubSeries((HistoricalTimeSeries) fullHtsElement.getValue(), start, includeStart, end, includeEnd, maxPoints);
+        hts = getSubSeries((HistoricalTimeSeries) fullHtsElement.getObjectValue(), start, includeStart, end, includeEnd, maxPoints);
       } else {
         if (maxPoints == null) {
           hts = _underlying.getHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd);
@@ -438,7 +405,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     Element element = _dataCache.get(key);
     HistoricalTimeSeries hts;
     if (element != null) {
-      hts = (HistoricalTimeSeries) element.getValue();
+      hts = (HistoricalTimeSeries) element.getObjectValue();
       if (MISS.equals(hts)) {
         hts = null;
       }
@@ -446,7 +413,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       // If we have the full series cached computing a sub-series could be faster
       Element fullHtsElement = _dataCache.get(seriesKey);
       if (fullHtsElement != null) {
-        hts = getSubSeries((HistoricalTimeSeries) fullHtsElement.getValue(), start, includeStart, end, includeEnd, maxPoints);
+        hts = getSubSeries((HistoricalTimeSeries) fullHtsElement.getObjectValue(), start, includeStart, end, includeEnd, maxPoints);
       } else {
         if (maxPoints == null) {
           hts = _underlying.getHistoricalTimeSeries(identifiers, currentDate, dataSource, dataProvider, dataField, 
@@ -635,7 +602,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     Element element = _dataCache.get(key);
     HistoricalTimeSeries hts;
     if (element != null) {
-      hts = (HistoricalTimeSeries) element.getValue();
+      hts = (HistoricalTimeSeries) element.getObjectValue();
       if (MISS.equals(hts)) {
         hts = null;
       }
@@ -643,7 +610,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       // If we have the full series cached computing a sub-series could be faster
       Element fullHtsElement = _dataCache.get(seriesKey);
       if (fullHtsElement != null) {
-        hts = getSubSeries((HistoricalTimeSeries) fullHtsElement.getValue(), start, includeStart, end, includeEnd, maxPoints);
+        hts = getSubSeries((HistoricalTimeSeries) fullHtsElement.getObjectValue(), start, includeStart, end, includeEnd, maxPoints);
       } else {
         if (maxPoints == null) {
           hts = _underlying.getHistoricalTimeSeries(dataField, identifierBundle, identifierValidityDate, resolutionKey, start, includeStart, end, includeEnd);
@@ -722,7 +689,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       return null;
     }
     s_logger.debug("Cache hit on {}", key);
-    return (HistoricalTimeSeries) element.getValue();
+    return (HistoricalTimeSeries) element.getObjectValue();
   }
 
   /**
@@ -738,7 +705,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       return null;
     }
     s_logger.debug("Cache hit on {}", uniqueId);
-    return (HistoricalTimeSeries) element.getValue();
+    return (HistoricalTimeSeries) element.getObjectValue();
   }
 
   /**
@@ -793,7 +760,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       _identifierBundleCache.put(new Element(uniqueId, idBundle));
       return idBundle;
     } else {
-      return (ExternalIdBundle) idBundleCacheElement.getValue();
+      return (ExternalIdBundle) idBundleCacheElement.getObjectValue();
     }
   }
 

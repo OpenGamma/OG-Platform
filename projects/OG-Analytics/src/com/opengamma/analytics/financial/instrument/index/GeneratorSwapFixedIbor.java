@@ -11,7 +11,6 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -22,7 +21,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Class with the description of swap characteristics.
  */
-public class GeneratorSwapFixedIbor extends Generator {
+public class GeneratorSwapFixedIbor extends GeneratorInstrument {
 
   /**
    * The fixed leg period of payments.
@@ -162,7 +161,7 @@ public class GeneratorSwapFixedIbor extends Generator {
   }
 
   @Override
-  public InstrumentDefinition<?> generateInstrument(ZonedDateTime date, Period tenor, double fixedRate, double notional, Object... objects) {
+  public SwapFixedIborDefinition generateInstrument(ZonedDateTime date, Period tenor, double fixedRate, double notional, Object... objects) {
     final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(date, _spotLag, _iborIndex.getCalendar());
     return SwapFixedIborDefinition.from(startDate, tenor, this, notional, fixedRate, true);
   }

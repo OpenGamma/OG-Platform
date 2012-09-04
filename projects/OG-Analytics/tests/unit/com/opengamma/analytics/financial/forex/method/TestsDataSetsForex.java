@@ -5,6 +5,10 @@
  */
 package com.opengamma.analytics.financial.forex.method;
 
+import static com.opengamma.util.money.Currency.EUR;
+import static com.opengamma.util.money.Currency.GBP;
+import static com.opengamma.util.money.Currency.USD;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,7 +18,7 @@ import javax.time.calendar.ZonedDateTime;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParametersStrikeInterpolation;
+import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -29,23 +33,35 @@ import com.opengamma.util.money.Currency;
  * Sets of market data used in Forex tests.
  */
 public class TestsDataSetsForex {
-
+  private static final Currency KRW = Currency.of("KRW");
   private static final String DISCOUNTING_EUR = "Discounting EUR";
   private static final String DISCOUNTING_USD = "Discounting USD";
   private static final String DISCOUNTING_GBP = "Discounting GBP";
   private static final String DISCOUNTING_KRW = "Discounting KRW";
+  private static final double EUR_USD = 1.40;
+  private static final double KRW_USD = 1111.11;
+  private static final double GBP_USD = 0.6;
+  private static final FXMatrix FX_MATRIX;
+
+  static {
+    FX_MATRIX = new FXMatrix(EUR, USD, EUR_USD);
+    FX_MATRIX.addCurrency(KRW, USD, KRW_USD);
+    FX_MATRIX.addCurrency(GBP, USD, GBP_USD);
+  }
+
 
   /**
    * Create a yield curve bundle with three curves. One called "Discounting EUR" with a constant rate of 2.50%, one called "Discounting USD" with a constant rate of 1.00%
-   * and one called "Discounting GBP" with a constant rate of 2.00%; "Discounting KRW" with a constant rate of 3.21%; 
+   * and one called "Discounting GBP" with a constant rate of 2.00%; "Discounting KRW" with a constant rate of 3.21%;
    * @return The yield curve bundle.
    */
   public static YieldCurveBundle createCurvesForex() {
+    final Map<String, Currency> curveCurrency = TestsDataSetsForex.curveCurrency();
     final YieldAndDiscountCurve CURVE_EUR = YieldCurve.from(ConstantDoublesCurve.from(0.0250));
     final YieldAndDiscountCurve CURVE_USD = YieldCurve.from(ConstantDoublesCurve.from(0.0100));
     final YieldAndDiscountCurve CURVE_GBP = YieldCurve.from(ConstantDoublesCurve.from(0.0200));
     final YieldAndDiscountCurve CURVE_KRW = YieldCurve.from(ConstantDoublesCurve.from(0.0321));
-    YieldCurveBundle curves = new YieldCurveBundle();
+    final YieldCurveBundle curves = new YieldCurveBundle(FX_MATRIX, curveCurrency);
     curves.setCurve(DISCOUNTING_EUR, CURVE_EUR);
     curves.setCurve(DISCOUNTING_USD, CURVE_USD);
     curves.setCurve(DISCOUNTING_GBP, CURVE_GBP);
@@ -58,7 +74,7 @@ public class TestsDataSetsForex {
   }
 
   public static Map<String, Currency> curveCurrency() {
-    Map<String, Currency> map = new HashMap<String, Currency>();
+    final Map<String, Currency> map = new HashMap<String, Currency>();
     map.put(DISCOUNTING_EUR, EUR);
     map.put(DISCOUNTING_USD, USD);
     map.put(DISCOUNTING_GBP, Currency.GBP);
@@ -69,12 +85,8 @@ public class TestsDataSetsForex {
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   //  private static final int SETTLEMENT_DAYS = 2;
-  private static final Currency EUR = Currency.EUR;
-  private static final Currency USD = Currency.USD;
   private static final Period[] EXPIRY_PERIOD = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(5)};
   private static final int NB_EXP = EXPIRY_PERIOD.length;
-  private static final double SPOT = 1.40;
-  private static final FXMatrix FX_MATRIX = new FXMatrix(EUR, USD, SPOT);
   private static final double[] ATM = {0.185, 0.18, 0.17, 0.16, 0.16};
 
   private static final double[] DELTA_2 = new double[] {0.10, 0.25};
@@ -90,7 +102,7 @@ public class TestsDataSetsForex {
 
   public static SmileDeltaTermStructureParametersStrikeInterpolation smile5points(final ZonedDateTime referenceDate) {
     final ZonedDateTime[] expiryDate = new ZonedDateTime[NB_EXP];
-    double[] timeToExpiry = new double[NB_EXP];
+    final double[] timeToExpiry = new double[NB_EXP];
     for (int loopexp = 0; loopexp < NB_EXP; loopexp++) {
       expiryDate[loopexp] = ScheduleCalculator.getAdjustedDate(referenceDate, EXPIRY_PERIOD[loopexp], BUSINESS_DAY, CALENDAR, true);
       timeToExpiry[loopexp] = TimeCalculator.getTimeBetween(referenceDate, expiryDate[loopexp]);
@@ -100,7 +112,7 @@ public class TestsDataSetsForex {
 
   public static SmileDeltaTermStructureParametersStrikeInterpolation smile5points(final ZonedDateTime referenceDate, final Interpolator1D interpolator) {
     final ZonedDateTime[] expiryDate = new ZonedDateTime[NB_EXP];
-    double[] timeToExpiry = new double[NB_EXP];
+    final double[] timeToExpiry = new double[NB_EXP];
     for (int loopexp = 0; loopexp < NB_EXP; loopexp++) {
       expiryDate[loopexp] = ScheduleCalculator.getAdjustedDate(referenceDate, EXPIRY_PERIOD[loopexp], BUSINESS_DAY, CALENDAR, true);
       timeToExpiry[loopexp] = TimeCalculator.getTimeBetween(referenceDate, expiryDate[loopexp]);
@@ -110,7 +122,7 @@ public class TestsDataSetsForex {
 
   public static SmileDeltaTermStructureParametersStrikeInterpolation smile3points(final ZonedDateTime referenceDate, final Interpolator1D interpolator) {
     final ZonedDateTime[] expiryDate = new ZonedDateTime[NB_EXP];
-    double[] timeToExpiry = new double[NB_EXP];
+    final double[] timeToExpiry = new double[NB_EXP];
     for (int loopexp = 0; loopexp < NB_EXP; loopexp++) {
       expiryDate[loopexp] = ScheduleCalculator.getAdjustedDate(referenceDate, EXPIRY_PERIOD[loopexp], BUSINESS_DAY, CALENDAR, true);
       timeToExpiry[loopexp] = TimeCalculator.getTimeBetween(referenceDate, expiryDate[loopexp]);
@@ -119,9 +131,9 @@ public class TestsDataSetsForex {
   }
 
   public static SmileDeltaTermStructureParametersStrikeInterpolation smile5points(final ZonedDateTime referenceDate, final double shift) {
-    double[] atmShift = ATM.clone();
+    final double[] atmShift = ATM.clone();
     final ZonedDateTime[] expiryDate = new ZonedDateTime[NB_EXP];
-    double[] timeToExpiry = new double[NB_EXP];
+    final double[] timeToExpiry = new double[NB_EXP];
     for (int loopexp = 0; loopexp < NB_EXP; loopexp++) {
       atmShift[loopexp] += shift;
       expiryDate[loopexp] = ScheduleCalculator.getAdjustedDate(referenceDate, EXPIRY_PERIOD[loopexp], BUSINESS_DAY, CALENDAR, true);
@@ -132,7 +144,7 @@ public class TestsDataSetsForex {
 
   public static SmileDeltaTermStructureParametersStrikeInterpolation smileFlat(final ZonedDateTime referenceDate) {
     final ZonedDateTime[] expiryDate = new ZonedDateTime[NB_EXP];
-    double[] timeToExpiry = new double[NB_EXP];
+    final double[] timeToExpiry = new double[NB_EXP];
     for (int loopexp = 0; loopexp < NB_EXP; loopexp++) {
       expiryDate[loopexp] = ScheduleCalculator.getAdjustedDate(referenceDate, EXPIRY_PERIOD[loopexp], BUSINESS_DAY, CALENDAR, true);
       timeToExpiry[loopexp] = TimeCalculator.getTimeBetween(referenceDate, expiryDate[loopexp]);

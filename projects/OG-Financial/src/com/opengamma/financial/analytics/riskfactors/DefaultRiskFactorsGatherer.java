@@ -260,9 +260,7 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
   @Override
   public Set<Pair<String, ValueProperties>> visitEquityOptionSecurity(final EquityOptionSecurity security) {
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
-      .addAll(getSabrSensitivities())
-      .add(getPresentValue(ValueProperties.builder()))
-      .add(getVegaMatrix(ValueProperties.builder())).build();
+      .add(getValueDelta()).build();
   }
 
   @Override
@@ -574,6 +572,10 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
   private Pair<String, ValueProperties> getVegaCubeMatrix(final ValueProperties.Builder constraints) {
     return getRiskFactor(ValueRequirementNames.VEGA_QUOTE_CUBE, constraints, false);
   }
+  
+  private Pair<String, ValueProperties> getValueDelta() {
+    return getRiskFactor(ValueRequirementNames.VALUE_DELTA, ValueProperties.builder());
+  } 
 
   private Pair<String, ValueProperties> getPV01(final String curveName) {
     final ValueProperties.Builder constraints = ValueProperties

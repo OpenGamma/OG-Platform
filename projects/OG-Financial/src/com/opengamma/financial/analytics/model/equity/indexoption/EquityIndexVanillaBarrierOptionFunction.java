@@ -28,7 +28,6 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.curve.future.FuturePriceCurveFunction;
 import com.opengamma.financial.security.option.BarrierDirection;
 import com.opengamma.financial.security.option.BarrierType;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
@@ -48,7 +47,7 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
   /**
    * @param requirementName The desired output
    */
-  public EquityIndexVanillaBarrierOptionFunction(String requirementName) {
+  public EquityIndexVanillaBarrierOptionFunction(final String requirementName) {
     super(requirementName);
   }
 
@@ -61,7 +60,8 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
   protected abstract Object computeValues(Set<EquityIndexOption> vanillaOptions, StaticReplicationDataBundle market);
 
   @Override
-  public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues)
+    throws AsynchronousExecution {
 
     final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
     final EquityBarrierOptionSecurity barrierSec = getEquityBarrierOptionSecurity(target);
@@ -82,7 +82,7 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
     final Double smoothing = Double.parseDouble(strSmooth);
 
     // 2. Break the barrier security into it's vanilla analytic derivatives
-    Set<EquityIndexOption> vanillas = vanillaDecomposition(now, barrierSec, smoothing, overhedge);
+    final Set<EquityIndexOption> vanillas = vanillaDecomposition(now, barrierSec, smoothing, overhedge);
 
     // 3. Build up the market data bundle
     final StaticReplicationDataBundle market = buildMarketBundle(underlyingId, executionContext, inputs, target, desiredValues);
@@ -108,11 +108,11 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    Security security = target.getSecurity();
+    final Security security = target.getSecurity();
     if (!(security instanceof EquityBarrierOptionSecurity)) {
       return false;
     }
-    ExerciseType exerciseType = ((EquityBarrierOptionSecurity) security).getExerciseType();
+    final ExerciseType exerciseType = ((EquityBarrierOptionSecurity) security).getExerciseType();
     if (!(exerciseType instanceof EuropeanExerciseType)) {
       return false;
     } else {
@@ -121,9 +121,9 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     // Get requirements common to all EquityIndexOptions's
-    Set<ValueRequirement> commonReqs = super.getRequirements(context, target, desiredValue);
+    final Set<ValueRequirement> commonReqs = super.getRequirements(context, target, desiredValue);
     if (commonReqs == null) {
       return null;
     }
@@ -161,7 +161,7 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
   private Set<EquityIndexOption> vanillaDecomposition(final ZonedDateTime valuation, final EquityBarrierOptionSecurity barrierOption,
       final double smoothingFullWidth, final double overhedge) {
 
-    Set<EquityIndexOption> vanillas = new HashSet<EquityIndexOption>();
+    final Set<EquityIndexOption> vanillas = new HashSet<EquityIndexOption>();
     // Unpack the barrier security
     final BarrierDirection bInOut = barrierOption.getBarrierDirection(); //   KNOCK_IN, KNOCK_OUT,
     final BarrierType bUpDown = barrierOption.getBarrierType(); //   UP, DOWN, DOUBLE
@@ -174,7 +174,7 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
 
     // parameters to model binary as call/put spread
     final double oh = overhedge;
-    final double width = strike * smoothingFullWidth;
+    final double width = strike * smoothingFullWidth; // we specify smoothing as relative value
     final double size; // = (barrier - strike ) / smoothingFullWidth;
 
     // There are four cases: UP and IN, UP and OUT, DOWN and IN, DOWN and OUT
@@ -197,7 +197,7 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
         if (barrier > strike) {
           throw new OpenGammaRuntimeException("Encountered a DOWN / PUT type of BarrierOption where barrier, " + barrier + ", is above strike, " + strike);
         }
-        size = (strike - barrier) / smoothingFullWidth;
+        size = (strike - barrier) / width;
         nearStrike = barrier + oh + 0.5 * width;
         farStrike = barrier + oh - 0.5 * width;
         break;
@@ -210,20 +210,20 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
     // Switch  on type
     switch (bInOut) {
       case KNOCK_OUT: // Long a linear at strike, short a binary at barrier of size (barrier-strike)
-        EquityIndexOption longlinearK = new EquityIndexOption(ttm, ttm, strike, isCall, ccy, ptVal);
+        final EquityIndexOption longlinearK = new EquityIndexOption(ttm, ttm, strike, isCall, ccy, ptVal);
         vanillas.add(longlinearK);
         // Short a binary of size, barrier - strike. Modelled as call spread struck around strike + oh, with spread of 2*eps
-        EquityIndexOption shortNear = new EquityIndexOption(ttm, ttm, nearStrike, isCall, ccy, -1 * ptVal * size);
-        EquityIndexOption longFar = new EquityIndexOption(ttm, ttm, farStrike, isCall, ccy, ptVal * size);
+        final EquityIndexOption shortNear = new EquityIndexOption(ttm, ttm, nearStrike, isCall, ccy, -1 * ptVal * size);
+        final EquityIndexOption longFar = new EquityIndexOption(ttm, ttm, farStrike, isCall, ccy, ptVal * size);
         vanillas.add(shortNear);
         vanillas.add(longFar);
         break;
       case KNOCK_IN:  // Long a linear at *barrier*, long a binary at barrier of size (barrier - strike)
-        EquityIndexOption longLinearB = new EquityIndexOption(ttm, ttm, barrier, isCall, ccy, ptVal);
+        final EquityIndexOption longLinearB = new EquityIndexOption(ttm, ttm, barrier, isCall, ccy, ptVal);
         vanillas.add(longLinearB);
         // Long a binary of size, barrier - strike. Modelled as call spread struck around strike + oh, with spread of 2*eps
-        EquityIndexOption longNear = new EquityIndexOption(ttm, ttm, nearStrike, isCall, ccy, ptVal * size);
-        EquityIndexOption shortFar = new EquityIndexOption(ttm, ttm, farStrike, isCall, ccy, -1 * ptVal * size);
+        final EquityIndexOption longNear = new EquityIndexOption(ttm, ttm, nearStrike, isCall, ccy, ptVal * size);
+        final EquityIndexOption shortFar = new EquityIndexOption(ttm, ttm, farStrike, isCall, ccy, -1 * ptVal * size);
         vanillas.add(longNear);
         vanillas.add(shortFar);
         break;
@@ -233,10 +233,10 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
     return vanillas;
   }
 
-  private static final Logger s_logger = LoggerFactory.getLogger(FuturePriceCurveFunction.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(EquityIndexVanillaBarrierOptionFunction.class);
 
   @Override
-  protected Object computeValues(EquityIndexOption derivative, StaticReplicationDataBundle market) {
+  protected Object computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market) {
     throw new OpenGammaRuntimeException("Execution wasn't intended to go here. Please review.");
   }
 

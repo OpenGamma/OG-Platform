@@ -6,20 +6,21 @@
 
 package com.opengamma.analytics.financial.model.volatility.local;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
 import com.opengamma.analytics.financial.model.volatility.surface.PriceSurface;
+import com.opengamma.analytics.financial.model.volatility.surface.PureImpliedVolatilitySurface;
 import com.opengamma.analytics.financial.model.volatility.surface.StrikeType;
 import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.analytics.util.serialization.InvokedSerializedForm;
-
-import org.apache.commons.lang.Validate;
 
 /**
  * 
@@ -221,6 +222,17 @@ public class DupireLocalVolatilityCalculator {
   }
 
   /**
+   * Get the <b>pure</b> local volatility surface (i.e. if the pure stock $x$ follows the SDE $\frac{dx}{x} = \sigma(t,x) dW$ then $\sigma(t,x)$ is the pure local volatility<p>
+   * See White, R (2012) Equity Variance Swap with Dividends
+   * @param pureImpliedVolatilitySurface The pure implied volatility surface - i.e. the volatility that put into the Black formula will give the price of an option on the pure stock 
+   * @return pure local volatility surface 
+   */
+  public PureLocalVolatilitySurface getLocalVolatility(final PureImpliedVolatilitySurface pureImpliedVolatilitySurface) {
+    final Surface<Double, Double, Double> lv = getLocalVolatility(pureImpliedVolatilitySurface.getSurface());
+    return new PureLocalVolatilitySurface(lv);
+  }
+
+  /**
    * Get the local volatility surface (parameterised by expiry and moneyness = strike/forward) from a Black volatility surface (also parameterised by expiry and moneyness).
    * <b>Note</b> this is the cleanest method as is does not require any knowledge of instantaneous rates (i.e. r & q). If the Black volatility surface is parameterised by strike and/or the
    * local volatility surface is required to be parameterised by strike use can use the converters BlackVolatilitySurfaceConverter and/or LocalVolatilitySurfaceConverter
@@ -228,45 +240,8 @@ public class DupireLocalVolatilityCalculator {
    * @return local volatility surface (parameterised by expiry and moneyness)
    */
   public LocalVolatilitySurfaceMoneyness getLocalVolatility(final BlackVolatilitySurfaceMoneyness impliedVolatilitySurface) {
-
-    final Function<Double, Double> locVol = new Function<Double, Double>() {
-
-      @SuppressWarnings("synthetic-access")
-      @Override
-      public Double evaluate(final Double... tm) {
-        final double t = tm[0];
-        final double m = tm[1];
-
-        Validate.isTrue(t >= 0, "negative t");
-        Validate.isTrue(m >= 0, "negative m");
-
-        final double vol = impliedVolatilitySurface.getVolatilityForMoneyness(t, m);
-
-        final double divT = getFirstTimeDev(impliedVolatilitySurface.getSurface(), t, m, vol);
-        double var;
-        if (m == 0) {
-          var = vol * vol + 2 * vol * t * (divT);
-        } else {
-          final double divM = getFirstStrikeDev(impliedVolatilitySurface.getSurface(), t, m, vol, 1.0);
-          final double divM2 = getSecondStrikeDev(impliedVolatilitySurface.getSurface(), t, m, vol, 1.0);
-          final double h1 = (-Math.log(m) + (vol * vol / 2) * t) / vol;
-          final double h2 = h1 - vol * t;
-          var = (vol * vol + 2 * vol * t * divT) / (1 + 2 * h1 * m * divM + m * m * (h1 * h2 * divM * divM + t * vol * divM2));
-          if (var < 0.0) {
-            //throw new MathException("negative variance");
-            var = 0.0;
-            //TODO log error
-          }
-        }
-        return Math.sqrt(var);
-      }
-
-      public Object writeReplace() {
-        return new InvokedSerializedForm(DupireLocalVolatilityCalculator.this, "getLocalVolatility", impliedVolatilitySurface);
-      }
-    };
-
-    return new LocalVolatilitySurfaceMoneyness(FunctionalDoublesSurface.from(locVol), impliedVolatilitySurface.getForwardCurve());
+    final Surface<Double, Double, Double> lv = getLocalVolatility(impliedVolatilitySurface.getSurface());
+    return new LocalVolatilitySurfaceMoneyness(lv, impliedVolatilitySurface.getForwardCurve());
   }
 
   public LocalVolatilitySurfaceMoneyness getLocalVolatilityDebug(final BlackVolatilitySurfaceMoneyness impliedVolatilitySurface) {
@@ -303,6 +278,12 @@ public class DupireLocalVolatilityCalculator {
     return new LocalVolatilitySurfaceMoneyness(FunctionalDoublesSurface.from(locVol), impliedVolatilitySurface.getForwardCurve());
   }
 
+  /**
+   * Get the theta surface - the rate of change of an option with respect to the time-to-expiry (<b>Note</b> this is the negative of the normal definition as change of an 
+   * option with respect to (calendar) time)
+   * @param impliedVolatilitySurface Black volatility surface (parameterised by expiry and moneyness)
+   * @return Theta surface (parameterised by moneyness) 
+   */
   public Surface<Double, Double, Double> getTheta(final BlackVolatilitySurfaceMoneyness impliedVolatilitySurface) {
 
     final Function<Double, Double> theta = new Function<Double, Double>() {
@@ -329,6 +310,12 @@ public class DupireLocalVolatilityCalculator {
     return FunctionalDoublesSurface.from(theta);
   }
 
+  /**
+   * Get the transition density surface - each time slice through this surface is the Probably Density Function (PDF), in the risk neutral measure, for the underlying 
+   * at that time (parameterised by moneyness) 
+   * @param impliedVolatilitySurface Black volatility surface (parameterised by expiry and moneyness)
+   * @return The transition density surface
+   */
   public Surface<Double, Double, Double> getDensity(final BlackVolatilitySurfaceMoneyness impliedVolatilitySurface) {
 
     final Function<Double, Double> density = new Function<Double, Double>() {
@@ -357,6 +344,47 @@ public class DupireLocalVolatilityCalculator {
     };
 
     return FunctionalDoublesSurface.from(density);
+  }
+
+  private Surface<Double, Double, Double> getLocalVolatility(final Surface<Double, Double, Double> surf) {
+    final Function<Double, Double> locVol = new Function<Double, Double>() {
+
+      @SuppressWarnings("synthetic-access")
+      @Override
+      public Double evaluate(final Double... tm) {
+        final double t = tm[0];
+        final double m = tm[1];
+
+        Validate.isTrue(t >= 0, "negative t");
+        Validate.isTrue(m >= 0, "negative m");
+
+        final double vol = surf.getZValue(t, m);
+
+        final double divT = getFirstTimeDev(surf, t, m, vol);
+        double var;
+        if (m == 0) {
+          var = vol * vol + 2 * vol * t * (divT);
+        } else {
+          final double divM = getFirstStrikeDev(surf, t, m, vol, 1.0);
+          final double divM2 = getSecondStrikeDev(surf, t, m, vol, 1.0);
+          final double h1 = (-Math.log(m) + (vol * vol / 2) * t) / vol;
+          final double h2 = h1 - vol * t;
+          var = (vol * vol + 2 * vol * t * divT) / (1 + 2 * h1 * m * divM + m * m * (h1 * h2 * divM * divM + t * vol * divM2));
+          if (var < 0.0) {
+            //throw new MathException("negative variance");
+            var = 0.0;
+            //TODO log error
+          }
+        }
+        return Math.sqrt(var);
+      }
+
+      public Object writeReplace() {
+        return new InvokedSerializedForm(DupireLocalVolatilityCalculator.this, "getLocalVolatility", surf);
+      }
+    };
+
+    return FunctionalDoublesSurface.from(locVol);
   }
 
   private double getFirstTimeDev(final Surface<Double, Double, Double> surface, final double t, final double k, final double mid) {

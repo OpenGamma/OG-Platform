@@ -18,7 +18,8 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 
 /**
- *
+ * TODO: REVIEW- These options, if priced under Black, fail as the vol surface is functional => No X-Y nodes. It seems desirable to be able to establish where the risk is, so that we can sum it up.
+ * We can rework so that the requirement is VALUE_VEGA and the Initial Vol Matrix, which still has X-Y nodes, and each option shows risk only in itself.
  */
 public class EquityIndexOptionVegaMatrixFunction extends EquityIndexOptionFunction {
   private static final EquityIndexOptionPresentValueCalculator PVC = EquityIndexOptionPresentValueCalculator.getInstance();

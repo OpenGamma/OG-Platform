@@ -73,7 +73,7 @@ public interface ConventionBundle extends UniqueIdentifiable {
   int getSettlementDays();
 
   /**
-   * The time from now to when the bond coupon is paid, in days. If the number of settlement days depends on the length of the bond, this is 
+   * The time from now to when the bond coupon is paid, in days. If the number of settlement days depends on the length of the bond, this is
    * taken into account
    * @param bondSettlementDate The bond settlement date
    * @param bondMaturityDate The bond maturity date
@@ -238,7 +238,7 @@ public interface ConventionBundle extends UniqueIdentifiable {
   ExternalId getBasisSwapReceiveFloatingLegRegion();
 
   /**
-   * Gets the PublicationLag for an OvernightIndexSwap Rate. 
+   * Gets the PublicationLag for an OvernightIndexSwap Rate.
    * 0 if rate is published on the day corresponding to that day's interest accrual
    * 1 if rate is published on the day *following* its corresponding interest accrual period
    * @return the OvernightIndexSwapPublicationLag
@@ -271,7 +271,7 @@ public interface ConventionBundle extends UniqueIdentifiable {
   YieldConvention getYieldConvention();
 
   /**
-   * Field for bonds that determines whether the payment dates should be rolled to settlement. In general, this will be 
+   * Field for bonds that determines whether the payment dates should be rolled to settlement. In general, this will be
    * true for bonds but is hard-coded to false for deliverables in a bond future basket
    * @return Whether or not to roll to settlement
    */
@@ -288,4 +288,10 @@ public interface ConventionBundle extends UniqueIdentifiable {
    * @return Whether the swaption is cash-settled
    */
   boolean isCashSettled();
+
+
+  /**
+   * @return An exchange-specific calculator of option expiries
+   */
+  String getOptionExpiryCalculator();
 }

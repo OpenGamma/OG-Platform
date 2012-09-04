@@ -27,7 +27,7 @@ import com.opengamma.util.generate.scripts.Scriptable;
  * The portfolio loader tool
  */
 @Scriptable
-public class PortfolioLoaderTool extends AbstractTool {
+public class PortfolioLoaderTool extends AbstractTool<ToolContext> {
 
   /** File name option flag */
   private static final String FILE_NAME_OPT = "f";
@@ -113,7 +113,7 @@ public class PortfolioLoaderTool extends AbstractTool {
           s_context.getPortfolioMaster(), 
           s_context.getPositionMaster(), 
           s_context.getSecurityMaster(),
-          overwrite);
+          overwrite, false, false);
     } else {
       System.out.println("Write option not specified, not persisting to OpenGamma masters");
 

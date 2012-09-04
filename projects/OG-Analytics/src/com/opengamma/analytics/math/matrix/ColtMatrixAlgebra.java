@@ -79,7 +79,9 @@ public class ColtMatrixAlgebra extends MatrixAlgebra {
   public Matrix<?> multiply(final Matrix<?> m1, final Matrix<?> m2) {
     Validate.notNull(m1, "m1");
     Validate.notNull(m2, "m2");
-    Validate.isTrue(!(m1 instanceof DoubleMatrix1D), "Cannot have 1D matrix as first argument");
+    if (m1 instanceof DoubleMatrix1D) {
+      return new OGMatrixAlgebra().multiply(m1, m2);
+    }
     if (m1 instanceof DoubleMatrix2D) {
       final DoubleMatrix2D x = (DoubleMatrix2D) m1;
       if (m2 instanceof DoubleMatrix1D) {

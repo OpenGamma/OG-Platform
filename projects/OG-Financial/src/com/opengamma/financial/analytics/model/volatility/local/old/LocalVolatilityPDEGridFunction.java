@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.volatility.local.old;
@@ -40,6 +40,7 @@ import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpol
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
 import com.opengamma.analytics.financial.model.volatility.surface.Moneyness;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurfaceInterpolator;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -52,12 +53,17 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
+import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.id.UniqueId;
 
 /**
- * 
+ *
  */
 public abstract class LocalVolatilityPDEGridFunction extends AbstractFunction.NonCompiledInvoker {
   private final String _instrumentType;
@@ -129,7 +135,12 @@ public abstract class LocalVolatilityPDEGridFunction extends AbstractFunction.No
     final ForwardCurve forwardCurve = (ForwardCurve) forwardCurveObject;
     final ValueRequirement volDataRequirement = getUnderlyingVolatilityDataRequirement(surfaceName, id);
     final SmileSurfaceDataBundle data = getData(inputs, volDataRequirement, forwardCurveRequirement);
-    final EuropeanVanillaOption option = getOption(security, now);
+    final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
+    final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
+    final FXOptionSecurity fxOption = (FXOptionSecurity) security;
+    final CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
+    final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(fxOption.getPutCurrency(), fxOption.getCallCurrency());
+    final EuropeanVanillaOption option = getOption(security, now, currencyPair);
     return Collections.singleton(new ComputedValue(spec, getResult(calculator, localVolatilitySurface, forwardCurve, data, option)));
   }
 
@@ -297,7 +308,7 @@ public abstract class LocalVolatilityPDEGridFunction extends AbstractFunction.No
 
   protected abstract UniqueId getUniqueIdForUnderlyings(final ComputationTarget target);
 
-  protected abstract EuropeanVanillaOption getOption(final FinancialSecurity security, final ZonedDateTime date);
+  protected abstract EuropeanVanillaOption getOption(final FinancialSecurity security, final ZonedDateTime date, final CurrencyPair currencyPair);
 
   //TODO shouldn't need to do this - write a fudge builder for the data bundle and have it as an input
   protected abstract SmileSurfaceDataBundle getData(final FunctionInputs inputs, final ValueRequirement volDataRequirement, final ValueRequirement forwardCurveRequirement);

@@ -75,6 +75,11 @@ public class BloombergSecurityTypeResolver implements SecurityTypeResolver {
     addValidTypes(s_miscTypes, NonLoadedSecurityTypes.VALID_VOLATILITY_QUOTE_TYPES, SecurityType.VOLATILITY_QUOTE);
     addValidTypes(s_miscTypes, NonLoadedSecurityTypes.VALID_FX_FORWARD_TYPES, SecurityType.FX_FORWARD);
   }
+  
+  //private static final Map<String, SecurityType> s_cdsTypes = Maps.newConcurrentMap();
+  static {
+    addValidTypes(s_swapTypes, NonLoadedSecurityTypes.VALID_CDS_TYPES, SecurityType.CREDIT_DEFAULT_SWAP);
+  }
 
   private static final Set<String> BBG_FIELDS = Sets.newHashSet(BloombergConstants.FIELD_SECURITY_TYPE, BloombergConstants.FIELD_FUTURES_CATEGORY);
 

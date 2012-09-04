@@ -119,7 +119,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
           // TODO: jim 17-Aug-2010 -- we need to sort out the zoned date time related to the expiry.
           final FutureSecurity futureSecurity = getFuture(strip);
           if (futureSecurity == null) {
-            throw new OpenGammaRuntimeException("Could not resolve future curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
+            throw new OpenGammaRuntimeException("Security source did not contain future curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
           }
           maturity = futureSecurity.getExpiry().getExpiry();
           security = futureSecurity;
@@ -213,6 +213,15 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
           security = swapSecurity;
           break;
         }
+        case SWAP_12M: {
+          final SwapSecurity swapSecurity = getSwap(curveSpecification, strip, marketValues, Tenor.ONE_YEAR);
+          if (swapSecurity == null) {
+            throw new OpenGammaRuntimeException("Could not resolve swap curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
+          }
+          maturity = swapSecurity.getMaturityDate();
+          security = swapSecurity;
+          break;
+        }
         case TENOR_SWAP:
           final SwapSecurity tenorSwapSecurity = getTenorSwap(curveSpecification, strip, marketValues);
           if (tenorSwapSecurity == null) {
@@ -244,7 +253,8 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
       final Tenor resolvedTenor = new Tenor(Period.between(curveDate, maturity.toLocalDate()));
       securityStrips.add(new FixedIncomeStripWithSecurity(strip.getStrip(), resolvedTenor, maturity, strip.getSecurity(), security));
     }
-    return new InterpolatedYieldCurveSpecificationWithSecurities(curveDate, curveSpecification.getName(), curveSpecification.getCurrency(), curveSpecification.getInterpolator(), securityStrips);
+    return new InterpolatedYieldCurveSpecificationWithSecurities(curveDate, curveSpecification.getName(), curveSpecification.getCurrency(), curveSpecification.getInterpolator(),
+        curveSpecification.interpolateYield(), securityStrips);
   }
 
   private CashSecurity getCash(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip, final Map<ExternalId, Double> marketValues) {

@@ -12,6 +12,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.opengamma.util.ArgumentChecker;
 
+/**
+ * Collection of {@link AnalyticsColumnGroup}s that make up the columns in a grid.
+ */
 public class AnalyticsColumnGroups {
 
   private final List<AnalyticsColumn> _columns = Lists.newArrayList();
@@ -26,19 +29,32 @@ public class AnalyticsColumnGroups {
     _columnGroups = ImmutableList.copyOf(columnGroups);
   }
 
-  /* package */
-  static AnalyticsColumnGroups empty() {
+  /**
+   * @return A instance containing no column groups
+   */
+  /* package */ static AnalyticsColumnGroups empty() {
     return new AnalyticsColumnGroups(Collections.<AnalyticsColumnGroup>emptyList());
   }
 
+  /**
+   * @return Total number of columns in all column groups
+   */
   /* package */ int getColumnCount() {
     return _columns.size();
   }
 
+  /**
+   * Returns the column at an index
+   * @param index The column index, zero based
+   * @return The column at the specified index
+   */
   public AnalyticsColumn getColumn(int index) {
     return _columns.get(index);
   }
 
+  /**
+   * @return The column groups in the order they should be displayed
+   */
   public List<AnalyticsColumnGroup> getGroups() {
     return _columnGroups;
   }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.pnl;
@@ -44,6 +44,7 @@ import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
+import com.opengamma.financial.analytics.model.forex.BloombergFXSpotRateIdentifierVisitor;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
@@ -56,9 +57,10 @@ import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDef
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
+import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.security.fx.FXUtils;
-import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.id.ExternalId;
@@ -70,7 +72,7 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
- * 
+ *
  */
 public class FXOptionBlackVegaPnLFunction extends AbstractFunction.NonCompiledInvoker {
   private static final HolidayDateRemovalFunction HOLIDAY_REMOVER = HolidayDateRemovalFunction.getInstance();
@@ -113,8 +115,11 @@ public class FXOptionBlackVegaPnLFunction extends AbstractFunction.NonCompiledIn
     final LocalDate[] schedule = HOLIDAY_REMOVER.getStrippedSchedule(scheduleCalculator.getSchedule(startDate, now, true, false), WEEKEND_CALENDAR);
     DoubleTimeSeries<?> vegaPnL = getPnLSeries(definition, specification, timeSeriesBundle, vegaMatrix, now, schedule, samplingFunction);
     vegaPnL = vegaPnL.multiply(position.getQuantity().doubleValue());
-    final String vegaResultCurrency = getResultCurrency(target);
-    final String currencyBase = FXUtils.baseCurrency(putCurrency, callCurrency).getCode();
+    final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
+    final CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
+    final CurrencyPair baseCounterPair = currencyPairs.getCurrencyPair(putCurrency, callCurrency);
+    final String vegaResultCurrency = getResultCurrency(target, baseCounterPair);
+    final String currencyBase = baseCounterPair.getBase().getCode();
     if (!currencyBase.equals(vegaResultCurrency)) {
       final Object spotFXObject = inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
       if (spotFXObject == null) {
@@ -144,7 +149,11 @@ public class FXOptionBlackVegaPnLFunction extends AbstractFunction.NonCompiledIn
     final FinancialSecurity security = (FinancialSecurity) target.getPosition().getSecurity();
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
-    final String currencyBase = FXUtils.baseCurrency(putCurrency, callCurrency).getCode(); // The base currency
+    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
+    final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
+    final CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
+    final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(putCurrency, callCurrency);
+    final String currencyBase = currencyPair.getBase().getCode(); // The base currency
     final ValueProperties properties = createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
         .withAny(FXOptionBlackFunction.PUT_CURVE)
@@ -209,8 +218,12 @@ public class FXOptionBlackVegaPnLFunction extends AbstractFunction.NonCompiledIn
     final UnorderedCurrencyPair currencies = UnorderedCurrencyPair.of(putCurrency, callCurrency);
     final String surfaceName = Iterables.getOnlyElement(surfaceNames);
     final String samplingPeriod = Iterables.getOnlyElement(samplingPeriods);
-    final String vegaResultCurrency = getResultCurrency(target);
-    final String currencyBase = FXUtils.baseCurrency(putCurrency, callCurrency).getCode();
+    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
+    final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
+    final CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
+    final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(putCurrency, callCurrency);
+    final String vegaResultCurrency = getResultCurrency(target, currencyPair);
+    final String currencyBase = currencyPair.getBase().getCode(); // The base currency
     final ValueRequirement vegaMatrixRequirement = new ValueRequirement(ValueRequirementNames.VEGA_QUOTE_MATRIX, security,
         ValueProperties.builder()
         .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
@@ -228,14 +241,7 @@ public class FXOptionBlackVegaPnLFunction extends AbstractFunction.NonCompiledIn
     requirements.add(vegaMatrixRequirement);
     requirements.add(surfaceHTSRequirement);
     if (!currencyBase.equals(vegaResultCurrency)) {
-      final ExternalIdBundle spotIdentifier;
-      if (security instanceof FXOptionSecurity) {
-        spotIdentifier = ExternalIdBundle.of(FXUtils.getSpotIdentifier((FXOptionSecurity) security));
-      } else if (security instanceof FXDigitalOptionSecurity) {
-        spotIdentifier = ExternalIdBundle.of(FXUtils.getSpotIdentifier((FXDigitalOptionSecurity) security));
-      } else {
-        throw new IllegalStateException(security.toString());
-      }
+      final ExternalIdBundle spotIdentifier = ExternalIdBundle.of(security.accept(new BloombergFXSpotRateIdentifierVisitor(currencyPairs)));
       final HistoricalTimeSeriesResolutionResult timeSeries = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context).resolve(spotIdentifier, null, null, null,
           MarketDataRequirementNames.MARKET_VALUE, null);
       if (timeSeries == null) {
@@ -352,12 +358,12 @@ public class FXOptionBlackVegaPnLFunction extends AbstractFunction.NonCompiledIn
         .get();
   }
 
-  private String getResultCurrency(final ComputationTarget target) {
+  private String getResultCurrency(final ComputationTarget target, final CurrencyPair currencyPair) {
     final FinancialSecurity security = (FinancialSecurity) target.getPosition().getSecurity();
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
     Currency ccy;
-    if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
+    if (putCurrency.equals(currencyPair.getBase())) {
       ccy = callCurrency;
     } else {
       ccy = putCurrency;

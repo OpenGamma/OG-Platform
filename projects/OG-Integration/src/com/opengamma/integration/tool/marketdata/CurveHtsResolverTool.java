@@ -18,16 +18,15 @@ import java.util.Set;
 import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.integration.tool.IntegrationToolContext;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.opengamma.OpenGammaRuntimeException;
+
 import com.opengamma.bbg.BloombergIdentifierProvider;
-import com.opengamma.bbg.component.BloombergTimeSeriesUpdateTool;
-import com.opengamma.bbg.loader.BloombergHistoricalLoader;
-import com.opengamma.bbg.tool.BloombergToolContext;
-import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.ircurve.ConfigDBInterpolatedYieldCurveSpecificationBuilder;
@@ -52,7 +51,7 @@ import com.opengamma.util.money.Currency;
 /**
  */
 @Scriptable
-public class CurveHtsResolverTool extends AbstractTool {
+public class CurveHtsResolverTool extends AbstractTool<IntegrationToolContext> {
   /**
    * Logger.
    */
@@ -78,7 +77,7 @@ public class CurveHtsResolverTool extends AbstractTool {
    * @param args  the arguments, unused
    */
   public static void main(String[] args) {  // CSIGNORE
-    new CurveHtsResolverTool().initAndRun(args);
+    new CurveHtsResolverTool().initAndRun(args, IntegrationToolContext.class);
     System.exit(0);
   }
 
@@ -195,10 +194,14 @@ public class CurveHtsResolverTool extends AbstractTool {
         InterpolatedYieldCurveSpecificationBuilder builder = new ConfigDBInterpolatedYieldCurveSpecificationBuilder(configSource);
         for (LocalDate date : dates) {
           s_logger.info("Processing curve date " + date);
-          InterpolatedYieldCurveSpecification curveSpec = builder.buildCurve(date, curveDefinition);
-          for (FixedIncomeStripWithIdentifier strip : curveSpec.getStrips()) {
-            s_logger.info("Processing strip " + strip.getSecurity());
-            externalIds.add(strip.getSecurity());
+          try {
+            InterpolatedYieldCurveSpecification curveSpec = builder.buildCurve(date, curveDefinition);
+            for (FixedIncomeStripWithIdentifier strip : curveSpec.getStrips()) {
+              s_logger.info("Processing strip " + strip.getSecurity());
+              externalIds.add(strip.getSecurity());
+            }
+          } catch (Throwable t) {
+            s_logger.warn("Unable to build curve " + t.getMessage());
           }
         }
       } else {
@@ -209,15 +212,10 @@ public class CurveHtsResolverTool extends AbstractTool {
   }
   
   private void loadHistoricalData(boolean write, String[] dataFields, String dataProvider, Set<ExternalId>... externalIdSets) {
-    if (!(getToolContext() instanceof BloombergToolContext)) {
-      throw new OpenGammaRuntimeException("The " + BloombergTimeSeriesUpdateTool.class.getSimpleName() +
-        " requires a tool context which implements " + BloombergToolContext.class.getName());
-    }
-    BloombergHistoricalLoader loader = new BloombergHistoricalLoader(
+    BloombergHistoricalTimeSeriesLoader loader = new BloombergHistoricalTimeSeriesLoader(
       getToolContext().getHistoricalTimeSeriesMaster(),
-      ((BloombergToolContext) getToolContext()).getBloombergHistoricalTimeSeriesSource(),
-      new BloombergIdentifierProvider(((BloombergToolContext) getToolContext()).getBloombergReferenceDataProvider()));
-    loader.setReload(true);
+      getToolContext().getBloombergHistoricalTimeSeriesSource(),
+      new BloombergIdentifierProvider(getToolContext().getBloombergReferenceDataProvider()));
 
     for (Set<ExternalId> externalIds : externalIdSets) {
       if (externalIds.size() > 0) {

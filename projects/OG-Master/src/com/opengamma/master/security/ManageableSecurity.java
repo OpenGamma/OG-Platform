@@ -51,8 +51,8 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
   private UniqueId _uniqueId;
   /**
    * The bundle of external identifiers that define the security.
-  * Each external system will typically refer to a security using a different identifier.
-  * Thus the bundle consists of a set of identifiers, one for each external system.
+   * Each external system will typically refer to a security using a different identifier.
+   * Thus the bundle consists of a set of identifiers, one for each external system.
    */
   @PropertyDefinition(validate = "notNull")
   private ExternalIdBundle _externalIdBundle = ExternalIdBundle.EMPTY;

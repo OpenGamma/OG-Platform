@@ -25,9 +25,10 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.AggregatedViewDefinitionManager;
 
 /**
- *
+ * Connects the engine to an {@link AnalyticsView}. Contains the logic for setting up a {@link ViewClient},
+ * connecting it to a view process, handling events from the engine and forwarding data to the {@code ViewClient}.
  */
-/* package */ class AnalyticsViewClientConnection extends AbstractViewResultListener {
+/* package */ class AnalyticsViewClientConnection {
 
   private final AnalyticsView _view;
   private final ViewClient _viewClient;
@@ -36,12 +37,20 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
 
   private EngineResourceReference<? extends ViewCycle> _cycleReference = EmptyViewCycle.REFERENCE;
 
-  public AnalyticsViewClientConnection(ViewRequest viewRequest,
-                                       ViewClient viewClient,
-                                       AnalyticsView view,
-                                       NamedMarketDataSpecificationRepository namedMarketDataSpecRepo,
-                                       AggregatedViewDefinitionManager aggregatedViewDefManager,
-                                       MarketDataSnapshotMaster snapshotMaster) {
+  /**
+   * @param viewRequest Defines the view that should be created
+   * @param viewClient Connects this class to the calculation engine
+   * @param view The object that encapsulates the state of the view user interface
+   * @param namedMarketDataSpecRepo For looking up sources of market data
+   * @param aggregatedViewDefManager For looking up view definitions
+   * @param snapshotMaster For looking up snapshots
+   */
+  /* package */ AnalyticsViewClientConnection(ViewRequest viewRequest,
+                                              ViewClient viewClient,
+                                              AnalyticsView view,
+                                              NamedMarketDataSpecificationRepository namedMarketDataSpecRepo,
+                                              AggregatedViewDefinitionManager aggregatedViewDefManager,
+                                              MarketDataSnapshotMaster snapshotMaster) {
     ArgumentChecker.notNull(viewRequest, "viewRequest");
     ArgumentChecker.notNull(viewClient, "viewClient");
     ArgumentChecker.notNull(view, "view");
@@ -54,31 +63,11 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
     _executionOptions = viewRequest.getMarketData().createExecutionOptions(snapshotMaster, namedMarketDataSpecRepo);
   }
 
-  @Override
-  public UserPrincipal getUser() {
-    return _viewClient.getUser();
-  }
-
-  @Override
-  public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {
-    _view.updateStructure(compiledViewDefinition);
-  }
-
-  @Override
-  public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
-    _cycleReference.release();
-    EngineResourceReference<? extends ViewCycle> cycleReference = _viewClient.createCycleReference(fullResult.getViewCycleId());
-    if (cycleReference == null) {
-      // this shouldn't happen if everything in the engine is working as it should
-      _cycleReference = EmptyViewCycle.REFERENCE;
-    } else {
-      _cycleReference = cycleReference;
-    }
-    _view.updateResults(fullResult, _cycleReference.get());
-  }
-
+  /**
+   * Connects to the engine in order to start receiving results. This should only be called once.
+   */
   /* package */ void start() {
-    _viewClient.setResultListener(this);
+    _viewClient.setResultListener(new Listener());
     _viewClient.setViewCycleAccessSupported(true);
     _viewClient.setFragmentResultMode(ViewResultMode.FULL_THEN_DELTA);
     try {
@@ -89,6 +78,9 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
     }
   }
 
+  /**
+   * Disconects from the engine and releases all resources. This should only be called once.
+   */
   /* package */ void close() {
     try {
       _viewClient.detachFromViewProcess();
@@ -98,8 +90,44 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
     }
   }
 
+  /**
+   * @return The view to which this object sends data received from the engine.
+   */
   /* package */ AnalyticsView getView() {
     return _view;
+  }
+
+  /**
+   * Listener for view results. This is an inner class to avoid polluting the interface of the parent class with
+   * public callback methods.
+   */
+  private class Listener extends AbstractViewResultListener {
+
+    @Override
+    public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
+      _cycleReference.release();
+      // always retain a reference to the most recent cycle so the dependency graphs are available at all times.
+      // without this it would be necessary to wait at least one cycle before it would be possible to access the graphs.
+      // this allows dependency graphs grids to be opened and populated without any delay
+      EngineResourceReference<? extends ViewCycle> cycleReference = _viewClient.createCycleReference(fullResult.getViewCycleId());
+      if (cycleReference == null) {
+        // this shouldn't happen if everything in the engine is working as it should
+        _cycleReference = EmptyViewCycle.REFERENCE;
+      } else {
+        _cycleReference = cycleReference;
+      }
+      _view.updateResults(fullResult, _cycleReference.get());
+    }
+
+    @Override
+    public UserPrincipal getUser() {
+      return _viewClient.getUser();
+    }
+
+    @Override
+    public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {
+      _view.updateStructure(compiledViewDefinition);
+    }
   }
 
   /**

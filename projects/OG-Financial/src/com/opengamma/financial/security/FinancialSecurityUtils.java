@@ -183,7 +183,6 @@ public class FinancialSecurityUtils {
         }
       });
 
-
       return regionId;
     }
     return null;
@@ -373,8 +372,8 @@ public class FinancialSecurityUtils {
         }
 
         @Override
-        public Currency visitBondFutureOptionSecurity(BondFutureOptionSecurity security) {
-          return null;
+        public Currency visitBondFutureOptionSecurity(final BondFutureOptionSecurity security) {
+          return security.getCurrency();
         }
 
         @Override
@@ -642,8 +641,8 @@ public class FinancialSecurityUtils {
         }
 
         @Override
-        public Collection<Currency> visitBondFutureOptionSecurity(BondFutureOptionSecurity security) {
-          return null;
+        public Collection<Currency> visitBondFutureOptionSecurity(final BondFutureOptionSecurity security) {
+          return Collections.singletonList(security.getCurrency());
         }
 
         @Override
@@ -809,7 +808,7 @@ public class FinancialSecurityUtils {
    * @param security the security to be examined.
    * @return true if exchange traded or false otherwise.
    */
-  public static boolean isExchangedTraded(final Security security) {
+  public static boolean isExchangeTraded(final Security security) {
     boolean result = false;
     if (security instanceof FinancialSecurity) {
       final FinancialSecurity finSec = (FinancialSecurity) security;
@@ -821,7 +820,8 @@ public class FinancialSecurityUtils {
           futureSecurityVisitor(true).
           equityIndexOptionVisitor(true).
           equityOptionVisitor(true).
-          equityBarrierOptionVisitor(true).create());
+          equityBarrierOptionVisitor(true).
+          bondFutureOptionSecurityVisitor(true).create());
 
       result = isExchangeTraded == null ? false : isExchangeTraded;
     }

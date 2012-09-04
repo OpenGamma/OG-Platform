@@ -48,7 +48,7 @@ public class ValueRequirementFudgeBuilder implements FudgeBuilder<ValueRequireme
   public ValueRequirement buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
     String valueName = message.getString(VALUE_NAME_FIELD_NAME);
     Validate.notNull(valueName, "Fudge message is not a ValueRequirement - field 'valueName' is not present");
-    ComputationTargetSpecification targetSpecification = ComputationTargetSpecificationFudgeBuilder.buildObjectImpl(message);
+    ComputationTargetSpecification targetSpecification = ComputationTargetSpecificationFudgeBuilder.buildObjectImpl(deserializer, message);
     Validate.notNull(targetSpecification, "Fudge message is not a ValueRequirement - field 'computationTargetSpecification' is not present");
     FudgeField constraints = message.getByName(CONSTRAINTS_FIELD_NAME);
     if (constraints != null) {

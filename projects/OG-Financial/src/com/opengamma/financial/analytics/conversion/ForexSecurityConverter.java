@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.conversion;
@@ -19,9 +19,10 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.model.option.definition.Barrier;
 import com.opengamma.analytics.financial.model.option.definition.Barrier.KnockType;
 import com.opengamma.analytics.financial.model.option.definition.Barrier.ObservationType;
+import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.BarrierDirection;
 import com.opengamma.financial.security.option.BarrierType;
@@ -31,13 +32,19 @@ import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.MonitoringType;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
-//TODO use the visitor adapter
 public class ForexSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
+  private final CurrencyPairs _currencyPairs;
+
+  public ForexSecurityConverter(final CurrencyPairs currencyPairs) {
+    ArgumentChecker.notNull(currencyPairs, "currency pairs");
+    _currencyPairs = currencyPairs;
+  }
 
   @Override
   public InstrumentDefinition<?> visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity fxDigitalOptionSecurity) {
@@ -52,16 +59,19 @@ public class ForexSecurityConverter extends FinancialSecurityVisitorAdapter<Inst
     final ForexDefinition underlying;
     final Currency payCurrency = fxDigitalOptionSecurity.getPaymentCurrency();
     final boolean payDomestic;
-    final boolean order = FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency);
+    final CurrencyPair baseQuotePair = _currencyPairs.getCurrencyPair(putCurrency, callCurrency);
+    if (baseQuotePair == null) {
+      throw new OpenGammaRuntimeException("Could not get base/quote order for currency pair (" + putCurrency + ", " + callCurrency + ")");
+    }
     // Implementation note: To get Base/quote in market standard order.
-    if (order) {
+    if (baseQuotePair.getBase().equals(putCurrency)) {
       underlying = ForexDefinition.fromAmounts(putCurrency, callCurrency, settlementDate, putAmount, -callAmount);
       payDomestic = (payCurrency.equals(callCurrency));
-    } else {
-      underlying = ForexDefinition.fromAmounts(callCurrency, putCurrency, settlementDate, callAmount, -putAmount);
-      payDomestic = (payCurrency.equals(putCurrency));
+      return new ForexOptionDigitalDefinition(underlying, expiry, false, isLong, payDomestic);
     }
-    return new ForexOptionDigitalDefinition(underlying, expiry, !order, isLong, payDomestic);
+    underlying = ForexDefinition.fromAmounts(callCurrency, putCurrency, settlementDate, callAmount, -putAmount);
+    payDomestic = (payCurrency.equals(putCurrency));
+    return new ForexOptionDigitalDefinition(underlying, expiry, true, isLong, payDomestic);
   }
 
   @Override
@@ -75,8 +85,12 @@ public class ForexSecurityConverter extends FinancialSecurityVisitorAdapter<Inst
     final ZonedDateTime settlementDate = fxNDFDigitalOptionSecurity.getSettlementDate();
     final boolean isLong = fxNDFDigitalOptionSecurity.isLong();
     final ForexDefinition underlying;
+    final CurrencyPair baseQuotePair = _currencyPairs.getCurrencyPair(putCurrency, callCurrency);
+    if (baseQuotePair == null) {
+      throw new OpenGammaRuntimeException("Could not get base/quote order for currency pair (" + putCurrency + ", " + callCurrency + ")");
+    }
     // TODO: Review this part (see digital options)
-    if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) { // To get Base/quote in market standard order.
+    if (baseQuotePair.getBase().equals(putCurrency)) { // To get Base/quote in market standard order.
       final double fxRate = callAmount / putAmount;
       underlying = new ForexDefinition(putCurrency, callCurrency, settlementDate, putAmount, fxRate);
       return new ForexOptionDigitalDefinition(underlying, expiry, false, isLong);
@@ -97,13 +111,16 @@ public class ForexSecurityConverter extends FinancialSecurityVisitorAdapter<Inst
     final ZonedDateTime settlementDate = fxOptionSecurity.getSettlementDate();
     final boolean isLong = fxOptionSecurity.isLong();
     ForexDefinition underlying;
-    final boolean order = FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency); // To get Base/quote in market standard order.
-    if (order) {
-      underlying = ForexDefinition.fromAmounts(putCurrency, callCurrency, settlementDate, putAmount, -callAmount);
-    } else {
-      underlying = ForexDefinition.fromAmounts(callCurrency, putCurrency, settlementDate, callAmount, -putAmount);
+    final CurrencyPair baseQuotePair = _currencyPairs.getCurrencyPair(putCurrency, callCurrency);
+    if (baseQuotePair == null) {
+      throw new OpenGammaRuntimeException("Could not get base/quote order for currency pair (" + putCurrency + ", " + callCurrency + ")");
     }
-    return new ForexOptionVanillaDefinition(underlying, expiry, !order, isLong);
+    if (baseQuotePair.getBase().equals(putCurrency)) {
+      underlying = ForexDefinition.fromAmounts(putCurrency, callCurrency, settlementDate, putAmount, -callAmount);
+      return new ForexOptionVanillaDefinition(underlying, expiry, false, isLong);
+    }
+    underlying = ForexDefinition.fromAmounts(callCurrency, putCurrency, settlementDate, callAmount, -putAmount);
+    return new ForexOptionVanillaDefinition(underlying, expiry, true, isLong);
   }
 
   @Override
@@ -117,13 +134,16 @@ public class ForexSecurityConverter extends FinancialSecurityVisitorAdapter<Inst
     final ZonedDateTime settlementDate = fxOptionSecurity.getSettlementDate();
     final boolean isLong = fxOptionSecurity.isLong();
     ForexDefinition underlying;
-    final boolean order = FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency); // To get Base/quote in market standard order.
-    if (order) {
-      underlying = ForexDefinition.fromAmounts(putCurrency, callCurrency, settlementDate, putAmount, -callAmount);
-    } else {
-      underlying = ForexDefinition.fromAmounts(callCurrency, putCurrency, settlementDate, callAmount, -putAmount);
+    final CurrencyPair baseQuotePair = _currencyPairs.getCurrencyPair(putCurrency, callCurrency);
+    if (baseQuotePair == null) {
+      throw new OpenGammaRuntimeException("Could not get base/quote order for currency pair (" + putCurrency + ", " + callCurrency + ")");
     }
-    return new ForexOptionVanillaDefinition(underlying, expiry, !order, isLong);
+    if (baseQuotePair.getBase().equals(putCurrency)) {
+      underlying = ForexDefinition.fromAmounts(putCurrency, callCurrency, settlementDate, putAmount, -callAmount);
+      return new ForexOptionVanillaDefinition(underlying, expiry, false, isLong);
+    }
+    underlying = ForexDefinition.fromAmounts(callCurrency, putCurrency, settlementDate, callAmount, -putAmount);
+    return new ForexOptionVanillaDefinition(underlying, expiry, true, isLong);
   }
 
   @Override

@@ -55,7 +55,7 @@ public class ConventionBundleMasterUtils {
     return add(bundle, convention);
   }
 
-  // (Case) Overnight Indices 
+  // (Case) Overnight Indices
   public synchronized UniqueId addConventionBundle(final ExternalIdBundle bundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Period period,
       final int settlementDays, final boolean isEOM, final ExternalId region, final Integer publicationLag) {
     final ConventionBundleImpl convention = new ConventionBundleImpl(bundle, name, dayCount, businessDayConvention, period, settlementDays, isEOM, region, publicationLag);
@@ -154,6 +154,11 @@ public class ConventionBundleMasterUtils {
 
   public synchronized UniqueId addConventionBundle(final ExternalIdBundle bundle, final String name, final DayCount dayCount) {
     final ConventionBundleImpl convention = new ConventionBundleImpl(bundle, name, dayCount, null, null, 0);
+    return add(bundle, convention);
+  }
+
+  public synchronized UniqueId addConventionBundle(final ExternalIdBundle bundle, final String name, final String expiryCalculatorName) {
+    final ConventionBundleImpl convention = new ConventionBundleImpl(bundle, name, expiryCalculatorName);
     return add(bundle, convention);
   }
 }

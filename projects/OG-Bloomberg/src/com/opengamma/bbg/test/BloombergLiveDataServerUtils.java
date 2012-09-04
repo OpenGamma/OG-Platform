@@ -7,6 +7,8 @@ package com.opengamma.bbg.test;
 
 import java.lang.reflect.Method;
 
+import net.sf.ehcache.CacheManager;
+
 import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.BloombergReferenceDataProvider;
 import com.opengamma.bbg.CachingReferenceDataProvider;
@@ -18,6 +20,7 @@ import com.opengamma.bbg.livedata.faketicks.FakeSubscriptionSelector;
 import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
 import com.opengamma.livedata.server.AbstractLiveDataServer;
 import com.opengamma.livedata.server.CombiningLiveDataServer;
+import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
  * Test utilities for Bloomberg.
@@ -102,7 +105,7 @@ public class BloombergLiveDataServerUtils {
 
   public static BloombergLiveDataServer getTestServer(CachingReferenceDataProvider cachingRefDataProvider) {
     
-    BloombergLiveDataServer server = new BloombergLiveDataServer(BloombergTestUtils.getBloombergConnector(), cachingRefDataProvider);
+    BloombergLiveDataServer server = new BloombergLiveDataServer(BloombergTestUtils.getBloombergConnector(), cachingRefDataProvider, EHCacheUtils.createCacheManager());
     DistributionSpecificationResolver distributionSpecificationResolver = server.getDefaultDistributionSpecificationResolver();
     server.setDistributionSpecificationResolver(distributionSpecificationResolver);
     
@@ -114,10 +117,11 @@ public class BloombergLiveDataServerUtils {
     CachingReferenceDataProvider cachingRefDataProvider = getCachingReferenceDataProvider(refDataProvider, testClass);
     BloombergLiveDataServer underlying = getTestServer(cachingRefDataProvider);
     
-    FakeSubscriptionBloombergLiveDataServer fakeServer = new FakeSubscriptionBloombergLiveDataServer(underlying);
+    CacheManager cacheManager = EHCacheUtils.createCacheManager();
+    FakeSubscriptionBloombergLiveDataServer fakeServer = new FakeSubscriptionBloombergLiveDataServer(underlying, cacheManager);
     fakeServer.start();
     
-    CombiningBloombergLiveDataServer combinedServer = new CombiningBloombergLiveDataServer(fakeServer, underlying, subscriptionSelector);
+    CombiningBloombergLiveDataServer combinedServer = new CombiningBloombergLiveDataServer(fakeServer, underlying, subscriptionSelector, cacheManager);
         
     combinedServer.start();
     return combinedServer;

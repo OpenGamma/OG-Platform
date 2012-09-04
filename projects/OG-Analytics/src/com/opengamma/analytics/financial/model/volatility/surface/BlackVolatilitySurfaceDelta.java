@@ -9,8 +9,6 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
-import com.opengamma.analytics.math.rootfinding.BisectionSingleRootFinder;
-import com.opengamma.analytics.math.rootfinding.BracketRoot;
 import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.analytics.math.surface.SurfaceShiftFunctionFactory;
 
@@ -20,9 +18,6 @@ import com.opengamma.analytics.math.surface.SurfaceShiftFunctionFactory;
  *  by OTM puts (Delta_put > -0.5, since Delta_call - Delta_put = 1 always holds).
  */
 public class BlackVolatilitySurfaceDelta extends BlackVolatilitySurface<Delta> {
-  private static final double EPS = 1e-6;
-  private static final BracketRoot BRACKETER = new BracketRoot();
-  private static final BisectionSingleRootFinder ROOT_FINDER = new BisectionSingleRootFinder(EPS);
   private final ForwardCurve _fc;
 
   /**

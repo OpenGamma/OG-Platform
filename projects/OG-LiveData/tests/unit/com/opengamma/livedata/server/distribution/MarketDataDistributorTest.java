@@ -15,6 +15,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.LiveDataValueUpdate;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.livedata.server.DistributionSpecification;
+import com.opengamma.livedata.server.MapLastKnownValueStoreProvider;
 import com.opengamma.livedata.server.Subscription;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
@@ -23,15 +24,16 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  */
 @Test(groups = "unit")
 public class MarketDataDistributorTest {
-
-  static MarketDataDistributor getTestDistributor(MarketDataSenderFactory factory) {
+  public static MarketDataDistributor getTestDistributor(MarketDataSenderFactory factory) {
+    MapLastKnownValueStoreProvider lkvStoreProvider = new MapLastKnownValueStoreProvider();
     return new MarketDataDistributor(new DistributionSpecification(
         ExternalId.of("RIC", "AAPL.O"),
         StandardRules.getNoNormalization(),
         "LiveData.Bloomberg.Equity.AAPL"),
-        new Subscription("", factory),
+        new Subscription("", factory, lkvStoreProvider),
         factory,
-        false);
+        false,
+        lkvStoreProvider);
   }
 
   static MarketDataDistributor getTestDistributor() {

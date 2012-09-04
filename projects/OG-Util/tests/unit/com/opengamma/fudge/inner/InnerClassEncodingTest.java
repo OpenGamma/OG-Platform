@@ -57,7 +57,23 @@ public class InnerClassEncodingTest extends AbstractFudgeBuilderTestCase {
       assertEquals(inner.eval(randomArg), cycled.eval(randomArg));
     }
   }
-
+  
+  public void test_inner_with_two_primitive_contexts() {
+    final double some_context_a = 1.0;
+    final double some_context_b = 2.0;
+    TestOuterClass inner = new TestOuterClass() {
+      @Override
+      public double eval(double arg) {
+        return arg * some_context_a + some_context_b;
+      }
+    };
+    
+    TestOuterClass cycled = cycleObjectOverBytes(autoFudge(inner)).object();
+    for (int i = 0; i < 100; i++) {
+      double randomArg = generator.nextDouble();
+      assertEquals(inner.eval(randomArg), cycled.eval(randomArg));
+    }
+  }  
 
   public void test_inner_with_array_of_primitives_context() {
 

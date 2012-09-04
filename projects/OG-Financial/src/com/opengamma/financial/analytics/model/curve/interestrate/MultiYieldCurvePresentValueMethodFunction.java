@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.curve.interestrate;
@@ -41,9 +41,7 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
-import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.linearalgebra.Decomposition;
 import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
@@ -82,15 +80,13 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFunction {
   private static final PresentValueCalculator PV_CALCULATOR = PresentValueCalculator.getInstance();
   private static final PresentValueCurveSensitivityCalculator PV_SENSITIVITY_CALCULATOR = PresentValueCurveSensitivityCalculator.getInstance();
   private static final PresentValueCouponSensitivityCalculator PV_COUPON_SENSITIVITY_CALCULATOR = PresentValueCouponSensitivityCalculator.getInstance();
   private static final LastTimeCalculator LAST_TIME_CALCULATOR = LastTimeCalculator.getInstance();
-  private static final String LEFT_EXTRAPOLATOR_NAME = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
-  private static final String RIGHT_EXTRAPOLATOR_NAME = Interpolator1DFactory.FLAT_EXTRAPOLATOR;
   private InterestRateInstrumentTradeOrSecurityConverter _securityConverter;
   private FixedIncomeConverterDataProvider _definitionConverter;
 
@@ -133,6 +129,7 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
     for (final String curveName : curveNames) {
       int nInstruments = 0;
       final InterpolatedYieldCurveSpecificationWithSecurities spec = getYieldCurveSpecification(inputs, targetSpec, curveName);
+      final Interpolator1D interpolator = spec.getInterpolator();
       final Map<ExternalId, Double> marketDataMap = getMarketData(inputs, targetSpec, curveName);
       final DoubleArrayList nodeTimes = new DoubleArrayList();
       for (final FixedIncomeStripWithSecurity strip : spec.getStrips()) {
@@ -162,8 +159,7 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
       }
       nodesPerCurve.put(curveName, nInstruments);
       curveNodes.put(curveName, nodeTimes.toDoubleArray());
-      interpolators.put(curveName,
-          CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.getInterpolatorName(spec.getInterpolator()), LEFT_EXTRAPOLATOR_NAME, RIGHT_EXTRAPOLATOR_NAME));
+      interpolators.put(curveName, interpolator);
     }
     final YieldCurveBundle knownCurves = getKnownCurves(curveCalculationConfig, targetSpec, inputs);
     final double absoluteTolerance = Double.parseDouble(absoluteToleranceName);

@@ -14,7 +14,6 @@ import java.util.Map;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
@@ -34,11 +33,11 @@ public class CachingFudgeMessageStore implements FudgeMessageStore {
   private final Cache _cache;
 
   public CachingFudgeMessageStore(final FudgeMessageStore underlying, final CacheManager cacheManager,
-      final ViewComputationCacheKey cacheKey, final int maxCachedElements) {
+      final ViewComputationCacheKey cacheKey) {
     _underlying = underlying;
     _cacheManager = cacheManager;
     final String cacheName = cacheKey.toString();
-    EHCacheUtils.addCache(cacheManager, cacheKey.toString(), maxCachedElements, MemoryStoreEvictionPolicy.LFU, false, null, true, 0, 0, false, 0, null);
+    EHCacheUtils.addCache(cacheManager, cacheKey.toString());
     _cache = EHCacheUtils.getCacheFromManager(cacheManager, cacheName);
   }
 

@@ -22,6 +22,9 @@ public class LocalDateDoubleTimeSeriesConverter implements ResultConverter<Local
 
   /* package */static Object convertForDisplayImpl(ResultConverterCache context, ValueSpecification valueSpec, LocalDateDoubleTimeSeries value, ConversionMode mode) {
     Map<String, Object> result = new HashMap<String, Object>();
+    if (value.isEmpty()) {
+      return result;
+    }
     Map<String, Object> summary = ImmutableMap.<String, Object>of(
         "from", value.getEarliestTime().toLocalDate().toString(),
         "to", value.getLatestTime().toLocalDate().toString());

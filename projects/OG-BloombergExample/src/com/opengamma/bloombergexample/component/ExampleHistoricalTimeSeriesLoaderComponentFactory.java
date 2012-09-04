@@ -20,7 +20,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.bbg.BloombergIdentifierProvider;
 import com.opengamma.bbg.ReferenceDataProvider;
-import com.opengamma.bbg.loader.BloombergHistoricalLoader;
+import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
@@ -61,7 +61,8 @@ public class ExampleHistoricalTimeSeriesLoaderComponentFactory extends AbstractC
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
-    HistoricalTimeSeriesLoader htsLoader = new BloombergHistoricalLoader(getHistoricalTimeSeriesMaster(), getHistoricalTimeSeriesSource(), new BloombergIdentifierProvider(getReferenceDataProvider()));
+    BloombergHistoricalTimeSeriesLoader htsLoader = new BloombergHistoricalTimeSeriesLoader(
+        getHistoricalTimeSeriesMaster(), getHistoricalTimeSeriesSource(), new BloombergIdentifierProvider(getReferenceDataProvider()));
 
     ComponentInfo info = new ComponentInfo(HistoricalTimeSeriesLoader.class, getClassifier());
     repo.registerComponent(info, htsLoader);

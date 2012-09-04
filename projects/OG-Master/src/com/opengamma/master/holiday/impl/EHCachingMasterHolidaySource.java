@@ -30,7 +30,7 @@ public class EHCachingMasterHolidaySource extends MasterHolidaySource {
   /**
    * Cache key for holidays.
    */
-  private static final String HOLIDAY_CACHE = "holiday";
+  /*pacakge*/ static final String HOLIDAY_CACHE = "holiday";
 
   /**
    * The cache manager.
@@ -71,7 +71,7 @@ public class EHCachingMasterHolidaySource extends MasterHolidaySource {
     }
     Element e = _holidayCache.get(request);
     if (e != null) {
-      HolidayDocument doc = (HolidayDocument) e.getValue();
+      HolidayDocument doc = (HolidayDocument) e.getObjectValue();
       return isHoliday(doc, dateToCheck);
     } else {
       HolidayDocument doc = getMaster().search(request).getFirstDocument();

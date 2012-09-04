@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.volatility.surface;
@@ -42,14 +42,12 @@ import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
-
 /**
- * 
+ *
  */
 public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.NonCompiledInvoker {
-
   private static final Logger s_logger = LoggerFactory.getLogger(EquityOptionVolatilitySurfaceDataFunction.class);
-  
+
   @Override
   /**
    * {@inheritDoc} <p>
@@ -67,7 +65,7 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
     final String fullName = surfaceName + "_" + target.getUniqueId().getValue();  // e.g. FOO_DJX
 
     // 2. We (MAY) need the definition and the specification, to loop over axes, and to get inputs respectively.
-    final ConfigSource configSrc =  OpenGammaExecutionContext.getConfigSource(executionContext);
+    final ConfigSource configSrc = OpenGammaExecutionContext.getConfigSource(executionContext);
     final ConfigDBVolatilitySurfaceSpecificationSource specSrc = new ConfigDBVolatilitySurfaceSpecificationSource(configSrc);
     final VolatilitySurfaceSpecification specification = specSrc.getSpecification(fullName, InstrumentTypeProperties.EQUITY_OPTION);
 
@@ -83,8 +81,7 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
       throw new OpenGammaRuntimeException("Could not get volatility surface");
     }
     @SuppressWarnings("unchecked")
-    final
-    VolatilitySurfaceData<Number, Double> rawSurface = (VolatilitySurfaceData<Number, Double>) rawSurfaceObject;
+    final VolatilitySurfaceData<Number, Double> rawSurface = (VolatilitySurfaceData<Number, Double>) rawSurfaceObject;
 
     // 4. Remove empties, convert expiries from number to years, and scale vols
     final Map<Pair<Double, Double>, Double> volValues = new HashMap<Pair<Double, Double>, Double>();
@@ -129,17 +126,15 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
     }
     final String targetScheme = target.getUniqueId().getScheme();
     return (targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName()) ||
-        targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName()) ||
-        targetScheme.equalsIgnoreCase(Currency.OBJECT_SCHEME)
-        );
+        targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName()) || targetScheme.equalsIgnoreCase(Currency.OBJECT_SCHEME));
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, target.toSpecification(),
         createValueProperties().withAny(ValuePropertyNames.SURFACE)
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_OPTION)
-        .get());
+            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_OPTION)
+            .get());
     return Collections.singleton(spec);
   }
 
@@ -158,6 +153,10 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBVolatilitySurfaceSpecificationSource volSpecSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
     final VolatilitySurfaceSpecification specification = volSpecSource.getSpecification(fullName, InstrumentTypeProperties.EQUITY_OPTION);
+    if (specification == null) {
+      s_logger.error("Could not get volatility surface specification with name " + fullName);
+      return null;
+    }
     // 3. Build the ValueRequirements' constraints
     final ValueProperties constraints = ValueProperties.builder()
         .with(ValuePropertyNames.SURFACE, givenName)

@@ -39,6 +39,8 @@ public final class Interpolator1DFactory {
   public static final String FLAT_EXTRAPOLATOR = "FlatExtrapolator";
   /** Linear extrapolator */
   public static final String LINEAR_EXTRAPOLATOR = "LinearExtrapolator";
+  /** Linear extrapolator */
+  public static final String EXPONENTIAL_EXTRAPOLATOR = "ExponentialExtrapolator";
   /** Linear instance */
   public static final LinearInterpolator1D LINEAR_INSTANCE = new LinearInterpolator1D();
   /** Exponential instance */
@@ -115,6 +117,9 @@ public final class Interpolator1DFactory {
     }
     if (interpolator instanceof FlatExtrapolator1D) {
       return FLAT_EXTRAPOLATOR;
+    }
+    if (interpolator instanceof ExponentialExtrapolator1D) {
+      return EXPONENTIAL_EXTRAPOLATOR;
     }
     return interpolatorName;
   }

@@ -191,6 +191,13 @@ public abstract class InterestRateInstrumentCurveSpecificFunctionDeprecated exte
     }
     final String calculationMethod = calculationMethodNames.iterator().next();
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final Set<ValueRequirement> timeSeriesRequirements = _definitionConverter.getConversionTimeSeriesRequirements(security, security.accept(_visitor),
+        new String[] {fundingCurveName, forwardCurveName });
+    if (timeSeriesRequirements == null) {
+      return null;
+    }
+    requirements.addAll(timeSeriesRequirements);
     if (forwardCurveName.equals(fundingCurveName)) {
       requirements.add(getCurveRequirement(target, curveName, null, null, calculationMethod));
       requirements.add(getCurveSpecRequirement(target, curveName));
@@ -199,13 +206,6 @@ public abstract class InterestRateInstrumentCurveSpecificFunctionDeprecated exte
     requirements.add(getCurveRequirement(target, forwardCurveName, forwardCurveName, fundingCurveName, calculationMethod));
     requirements.add(getCurveRequirement(target, fundingCurveName, forwardCurveName, fundingCurveName, calculationMethod));
     requirements.add(getCurveSpecRequirement(target, curveName));
-    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final Set<ValueRequirement> timeSeriesRequirements = _definitionConverter.getConversionTimeSeriesRequirements(security, security.accept(_visitor),
-        new String[] {fundingCurveName, forwardCurveName });
-    if (timeSeriesRequirements == null) {
-      return null;
-    }
-    requirements.addAll(timeSeriesRequirements);
     return requirements;
   }
 

@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr;
 
 import java.util.Arrays;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
@@ -27,7 +28,7 @@ public class StandardSmileSurfaceDataBundle extends SmileSurfaceDataBundle {
 
   // private final boolean _isCallData;
 
-  public StandardSmileSurfaceDataBundle(final double[] forwards, final double[] expiries, final double[][] strikes, final double[][] impliedVols,
+  public StandardSmileSurfaceDataBundle(final double spot, final double[] forwards, final double[] expiries, final double[][] strikes, final double[][] impliedVols,
       final Interpolator1D forwardCurveInterpolator) {
     ArgumentChecker.notNull(forwards, "forwards");
     ArgumentChecker.notNull(expiries, "expiries");
@@ -45,7 +46,10 @@ public class StandardSmileSurfaceDataBundle extends SmileSurfaceDataBundle {
     // checkVolatilities(expiries, strikes, impliedVols); // Put this check in place, if desired, after construction.
     _expiries = expiries;
     _forwards = forwards;
-    _forwardCurve = new ForwardCurve(InterpolatedDoublesCurve.from(_expiries, _forwards, forwardCurveInterpolator));
+
+    double[] t = ArrayUtils.add(expiries, 0, 0.0);
+    double[] f = ArrayUtils.add(forwards, 0, spot);
+    _forwardCurve = new ForwardCurve(InterpolatedDoublesCurve.from(t, f, forwardCurveInterpolator));
     _strikes = strikes;
     _impliedVols = impliedVols;
     //   _isCallData = isCallData;

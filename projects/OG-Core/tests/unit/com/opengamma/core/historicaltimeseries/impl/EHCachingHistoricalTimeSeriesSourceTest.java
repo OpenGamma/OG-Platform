@@ -41,10 +41,10 @@ public class EHCachingHistoricalTimeSeriesSourceTest {
 
   @BeforeMethod
   public void setUp() throws Exception {
-    EHCacheUtils.clearAll();
     _underlyingSource = mock(HistoricalTimeSeriesSource.class);
     when(_underlyingSource.changeManager()).thenReturn(new BasicChangeManager());
     CacheManager cm = EHCacheUtils.createCacheManager();
+    cm.clearAllStartingWith(EHCachingHistoricalTimeSeriesSource.CACHE_PREFIX);
     _cachingSource = new EHCachingHistoricalTimeSeriesSource(_underlyingSource, cm);
   }
 

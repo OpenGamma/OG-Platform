@@ -27,9 +27,10 @@ import static com.opengamma.examples.tool.ExampleDatabasePopulator.AUD_SWAP_PORF
 import static com.opengamma.examples.tool.ExampleDatabasePopulator.MIXED_CMS_PORTFOLIO_NAME;
 import static com.opengamma.examples.tool.ExampleDatabasePopulator.MULTI_CURRENCY_SWAP_PORTFOLIO_NAME;
 import static com.opengamma.examples.tool.ExampleDatabasePopulator.SWAPTION_PORTFOLIO_NAME;
-import static com.opengamma.examples.tool.ExampleDatabasePopulator.VANILLA_FX_OPTION_PORTFOLIO_NAME;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING;
 
+import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.financial.tool.ToolContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,13 +42,10 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.examples.tool.AbstractExampleTool;
 import com.opengamma.financial.analytics.model.sabrcube.SABRFunction;
-import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
-import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.UniqueId;
@@ -58,7 +56,6 @@ import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
 import com.opengamma.util.generate.scripts.Scriptable;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
  * Example code to create a set of example views.
@@ -66,7 +63,7 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
  * It is designed to run against the HSQLDB example database.
  */
 @Scriptable
-public class ExampleViewsPopulator extends AbstractExampleTool {
+public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
 
   private static final String DEFAULT_CALC_CONFIG = "Default";
   /** Logger. */
@@ -84,7 +81,7 @@ public class ExampleViewsPopulator extends AbstractExampleTool {
    * @param args  the arguments, unused
    */
   public static void main(final String[] args) { // CSIGNORE
-    new ExampleViewsPopulator().initAndRun(args);
+    new ExampleViewsPopulator().initAndRun(args, ToolContext.class);
     System.exit(0);
   }
 
@@ -99,11 +96,11 @@ public class ExampleViewsPopulator extends AbstractExampleTool {
     storeViewDefinition(getAUDSwapView3Definition(AUD_SWAP_PORFOLIO_NAME));
     storeViewDefinition(getSwaptionParityViewDefinition(SWAPTION_PORTFOLIO_NAME));
     storeViewDefinition(getSABRExtrapolationViewDefinition(MIXED_CMS_PORTFOLIO_NAME));
-    storeViewDefinition(getFXLocalVolatilityViewDefinition(VANILLA_FX_OPTION_PORTFOLIO_NAME));
+//    storeViewDefinition(getFXLocalVolatilityViewDefinition(VANILLA_FX_OPTION_PORTFOLIO_NAME));
   }
 
   private ViewDefinition getEquityViewDefinition(final String portfolioName) {
-    final UniqueId portfolioId = getPortfolioId(portfolioName);
+    final UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
     final ViewDefinition viewDefinition = new ViewDefinition(portfolioName + " View", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.USD);
     viewDefinition.setMaxFullCalculationPeriod(30000L);
@@ -112,22 +109,17 @@ public class ExampleViewsPopulator extends AbstractExampleTool {
     viewDefinition.setMaxDeltaCalculationPeriod(30000L);
 
     final ViewCalculationConfiguration defaultCalc = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
-    addValueRequirements(defaultCalc, EquitySecurity.SECURITY_TYPE,
-        new String[] {
-        ValueRequirementNames.FAIR_VALUE,
-        ValueRequirementNames.CAPM_BETA,
-        ValueRequirementNames.HISTORICAL_VAR,
-        ValueRequirementNames.SHARPE_RATIO,
-        ValueRequirementNames.TREYNOR_RATIO,
-        ValueRequirementNames.JENSENS_ALPHA,
-        ValueRequirementNames.TOTAL_RISK_ALPHA});
+    addValueRequirements(defaultCalc, EquitySecurity.SECURITY_TYPE, 
+        new String[] {ValueRequirementNames.FAIR_VALUE, ValueRequirementNames.CAPM_BETA, ValueRequirementNames.HISTORICAL_VAR,
+          ValueRequirementNames.SHARPE_RATIO, ValueRequirementNames.TREYNOR_RATIO, ValueRequirementNames.JENSENS_ALPHA, 
+          ValueRequirementNames.TOTAL_RISK_ALPHA });
     defaultCalc.addPortfolioRequirement(EquitySecurity.SECURITY_TYPE, ValueRequirementNames.PNL, ValueProperties.with(ValuePropertyNames.CURRENCY, Currency.USD.getCode()).get());
     viewDefinition.addViewCalculationConfiguration(defaultCalc);
     return viewDefinition;
   }
 
   private ViewDefinition getMultiCurrencySwapViewDeprecatedDefinition(final String swapPortfolioName) {
-    final UniqueId portfolioId = getPortfolioId(swapPortfolioName);
+    final UniqueId portfolioId = getPortfolioId(swapPortfolioName).toLatest();
     final ViewDefinition viewDefinition = new ViewDefinition("Multi-currency Swap View (Deprecated)", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.USD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);
@@ -152,7 +144,7 @@ public class ExampleViewsPopulator extends AbstractExampleTool {
   }
 
   private ViewDefinition getMultiCurrencySwapViewDefinition(final String portfolioName) {
-    final UniqueId portfolioId = getPortfolioId(portfolioName);
+    final UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
     final ViewDefinition viewDefinition = new ViewDefinition("Multi-currency Swap View", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.USD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);
@@ -193,7 +185,7 @@ public class ExampleViewsPopulator extends AbstractExampleTool {
   }
 
   private ViewDefinition getAUDSwapView1Definition(final String portfolioName) {
-    final UniqueId portfolioId = getPortfolioId(portfolioName);
+    final UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
     final ViewDefinition viewDefinition = new ViewDefinition("AUD Swaps (3m / 6m basis) (1)", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.AUD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);
@@ -223,7 +215,7 @@ public class ExampleViewsPopulator extends AbstractExampleTool {
   }
 
   private ViewDefinition getAUDSwapView2Definition(final String portfolioName) {
-    final UniqueId portfolioId = getPortfolioId(portfolioName);
+    final UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
     final ViewDefinition viewDefinition = new ViewDefinition("AUD Swaps (3m / 6m basis) (2)", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.AUD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);
@@ -251,7 +243,7 @@ public class ExampleViewsPopulator extends AbstractExampleTool {
   }
 
   private ViewDefinition getAUDSwapView3Definition(final String portfolioName) {
-    final UniqueId portfolioId = getPortfolioId(portfolioName);
+    final UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
     final ViewDefinition viewDefinition = new ViewDefinition("AUD Swaps (no basis)", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.AUD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);
@@ -273,7 +265,7 @@ public class ExampleViewsPopulator extends AbstractExampleTool {
   }
 
   private ViewDefinition getSABRExtrapolationViewDefinition(final String portfolioName) {
-    final UniqueId portfolioId = getPortfolioId(portfolioName);
+    final UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
     final ViewDefinition viewDefinition = new ViewDefinition("Mixed CM", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.USD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);
@@ -316,7 +308,7 @@ public class ExampleViewsPopulator extends AbstractExampleTool {
   }
 
   private ViewDefinition getSwaptionParityViewDefinition(final String portfolioName) {
-    final UniqueId portfolioId = getPortfolioId(portfolioName);
+    final UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
     final ViewDefinition viewDefinition = new ViewDefinition("Swap / Swaption Parity", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.USD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);
@@ -355,43 +347,43 @@ public class ExampleViewsPopulator extends AbstractExampleTool {
     return viewDefinition;
   }
 
-  private ViewDefinition getFXLocalVolatilityViewDefinition(final String portfolioName) {
-    final UniqueId portfolioId = getPortfolioId(portfolioName);
-    final ViewDefinition viewDefinition = new ViewDefinition("Local Volatility", portfolioId, UserPrincipal.getTestUser());
-    viewDefinition.setDefaultCurrency(Currency.USD);
-    viewDefinition.setMaxDeltaCalculationPeriod(500L);
-    viewDefinition.setMaxFullCalculationPeriod(500L);
-    viewDefinition.setMinDeltaCalculationPeriod(500L);
-    viewDefinition.setMinFullCalculationPeriod(500L);
-    final ViewCalculationConfiguration defaultCalConfig = new ViewCalculationConfiguration(viewDefinition, "LV");
-    final UniqueId pairId = UnorderedCurrencyPair.of(Currency.USD, Currency.EUR).getUniqueId();
-    final ValueProperties properties = ValueProperties.builder()
-        .with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, BlackVolatilitySurfacePropertyNamesAndValues.SABR)
-        .with(CALCULATION_METHOD, "LocalVolatilityPDE")
-        .with("PDEDirection", "Forward").get();
-    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, PRESENT_VALUE, properties);
-    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GRID_PRESENT_VALUE, properties);
-    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FORWARD_DELTA, properties);
-    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GRID_FORWARD_DELTA, properties);
-    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FORWARD_GAMMA, properties);
-    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GRID_FORWARD_GAMMA, properties);
-    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FORWARD_VEGA, properties);
-    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GRID_FORWARD_VEGA, properties);
-    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FORWARD_VANNA, properties);
-    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GRID_FORWARD_VANNA, properties);
-    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FORWARD_VOMMA, properties);
-    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GRID_FORWARD_VOMMA, properties);
-    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.DUAL_DELTA, properties);
-    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GRID_DUAL_DELTA, properties);
-    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.DUAL_GAMMA, properties);
-    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GRID_DUAL_GAMMA, properties);
-    defaultCalConfig.addSpecificRequirement(new ValueRequirement(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, pairId,
-        ValueProperties.with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, BlackVolatilitySurfacePropertyNamesAndValues.SABR).get()));
-    defaultCalConfig.addSpecificRequirement(new ValueRequirement(ValueRequirementNames.LOCAL_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, pairId,
-        ValueProperties.with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, BlackVolatilitySurfacePropertyNamesAndValues.SABR).get()));
-    viewDefinition.addViewCalculationConfiguration(defaultCalConfig);
-    return viewDefinition;
-  }
+//  private ViewDefinition getFXLocalVolatilityViewDefinition(final String portfolioName) {
+//    final UniqueId portfolioId = getPortfolioId(portfolioName);
+//    final ViewDefinition viewDefinition = new ViewDefinition("Local Volatility", portfolioId, UserPrincipal.getTestUser());
+//    viewDefinition.setDefaultCurrency(Currency.USD);
+//    viewDefinition.setMaxDeltaCalculationPeriod(500L);
+//    viewDefinition.setMaxFullCalculationPeriod(500L);
+//    viewDefinition.setMinDeltaCalculationPeriod(500L);
+//    viewDefinition.setMinFullCalculationPeriod(500L);
+//    final ViewCalculationConfiguration defaultCalConfig = new ViewCalculationConfiguration(viewDefinition, "LV");
+//    final UniqueId pairId = UnorderedCurrencyPair.of(Currency.USD, Currency.EUR).getUniqueId();
+//    final ValueProperties properties = ValueProperties.builder()
+//        .with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, BlackVolatilitySurfacePropertyNamesAndValues.SABR)
+//        .with(CALCULATION_METHOD, "LocalVolatilityPDE")
+//        .with("PDEDirection", "Forward").get();
+//    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, PRESENT_VALUE, properties);
+//    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GRID_PRESENT_VALUE, properties);
+//    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FORWARD_DELTA, properties);
+//    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GRID_FORWARD_DELTA, properties);
+//    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FORWARD_GAMMA, properties);
+//    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GRID_FORWARD_GAMMA, properties);
+//    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FORWARD_VEGA, properties);
+//    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GRID_FORWARD_VEGA, properties);
+//    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FORWARD_VANNA, properties);
+//    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GRID_FORWARD_VANNA, properties);
+//    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FORWARD_VOMMA, properties);
+//    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GRID_FORWARD_VOMMA, properties);
+//    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.DUAL_DELTA, properties);
+//    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GRID_DUAL_DELTA, properties);
+//    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.DUAL_GAMMA, properties);
+//    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GRID_DUAL_GAMMA, properties);
+//    defaultCalConfig.addSpecificRequirement(new ValueRequirement(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, pairId,
+//        ValueProperties.with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, BlackVolatilitySurfacePropertyNamesAndValues.SABR).get()));
+//    defaultCalConfig.addSpecificRequirement(new ValueRequirement(ValueRequirementNames.LOCAL_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, pairId,
+//        ValueProperties.with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, BlackVolatilitySurfacePropertyNamesAndValues.SABR).get()));
+//    viewDefinition.addViewCalculationConfiguration(defaultCalConfig);
+//    return viewDefinition;
+//  }
 
   private void addValueRequirements(final ViewCalculationConfiguration calcConfiguration, final String securityType, final String[] valueRequirementNames) {
     for (final String valueRequirementName : valueRequirementNames) {

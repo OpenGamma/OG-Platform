@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT Type="Advanced Installer" CreateVersion="8.7.1" version="8.7.1" Modules="msm" RootPath="." Language="en" Id="{9F269738-F836-4C80-A42A-3161F3E4DFEF}">
+<DOCUMENT Type="Advanced Installer" CreateVersion="8.7.1" version="9.4" Modules="msm" RootPath="." Language="en" Id="{9F269738-F836-4C80-A42A-3161F3E4DFEF}">
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
     <ROW Property="M_REG32" Value="OpenGammaLtd"/>
   </COMPONENT>
@@ -839,13 +839,13 @@
     <ROW Signature_="AppSearchSign_3" Root="2" Key="SOFTWARE\[M_REG32]\Java Runtime Environment\1.6" Name="CurrentVersion" Type="2"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiRegsComponent">
-    <ROW Registry="CurrentVersion" Root="2" Key="SOFTWARE\[M_REG32.DA2B6784_9C2E_43D2_AAB2_904EF63905D3]\Java Runtime Environment" Name="CurrentVersion" Value="1.6" Component_="RegOGCurrentVersion"/>
+    <ROW Registry="CurrentVersion" Root="2" Key="SOFTWARE\[M_REG32]\Java Runtime Environment" Name="CurrentVersion" Value="1.6" Component_="RegOGCurrentVersion"/>
     <ROW Registry="CurrentVersion_1" Root="2" Key="SOFTWARE\JavaSoft\Java Runtime Environment" Name="CurrentVersion" Value="1.6" Component_="RegJSCurrentVersion"/>
-    <ROW Registry="JavaHome" Root="2" Key="SOFTWARE\[M_REG32.DA2B6784_9C2E_43D2_AAB2_904EF63905D3]\Java Runtime Environment\1.6" Name="JavaHome" Value="#%[jre_Dir]" Component_="RegOG1.6"/>
+    <ROW Registry="JavaHome" Root="2" Key="SOFTWARE\[M_REG32]\Java Runtime Environment\1.6" Name="JavaHome" Value="#%[jre_Dir]" Component_="RegOG1.6"/>
     <ROW Registry="JavaHome_1" Root="2" Key="SOFTWARE\JavaSoft\Java Runtime Environment\1.6" Name="JavaHome" Value="#%[jre_Dir]" Component_="RegJS1.6"/>
-    <ROW Registry="MicroVersion" Root="2" Key="SOFTWARE\[M_REG32.DA2B6784_9C2E_43D2_AAB2_904EF63905D3]\Java Runtime Environment\1.6" Name="MicroVersion" Value="#%0" Component_="RegOG1.6"/>
+    <ROW Registry="MicroVersion" Root="2" Key="SOFTWARE\[M_REG32]\Java Runtime Environment\1.6" Name="MicroVersion" Value="#%0" Component_="RegOG1.6"/>
     <ROW Registry="MicroVersion_1" Root="2" Key="SOFTWARE\JavaSoft\Java Runtime Environment\1.6" Name="MicroVersion" Value="#%0" Component_="RegJS1.6"/>
-    <ROW Registry="RuntimeLib" Root="2" Key="SOFTWARE\[M_REG32.DA2B6784_9C2E_43D2_AAB2_904EF63905D3]\Java Runtime Environment\1.6" Name="RuntimeLib" Value="[#jvm.dll]" Component_="RegOG1.6"/>
+    <ROW Registry="RuntimeLib" Root="2" Key="SOFTWARE\[M_REG32]\Java Runtime Environment\1.6" Name="RuntimeLib" Value="[#jvm.dll]" Component_="RegOG1.6"/>
     <ROW Registry="RuntimeLib_1" Root="2" Key="SOFTWARE\JavaSoft\Java Runtime Environment\1.6" Name="RuntimeLib" Value="[#jvm.dll]" Component_="RegJS1.6"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsmModuleSignatureComponent">

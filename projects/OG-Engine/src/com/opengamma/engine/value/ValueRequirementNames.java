@@ -74,6 +74,14 @@ public final class ValueRequirementNames {
    */
   public static final String SPOT_RATE = "SpotRate";
   /**
+   * The spot rate for an FX option
+   */
+  public static final String SPOT_RATE_FOR_SECURITY = "Spot Rate For Security";
+  /**
+   * The percentage change between the last close price and live
+   */
+  public static final String SPOT_FX_PERCENTAGE_CHANGE = "Spot FX % Change";
+  /**
    * The market price of the security underlying a trade or position.
    */
   public static final String SECURITY_MARKET_PRICE = "Security Market Price";
@@ -89,7 +97,10 @@ public final class ValueRequirementNames {
    * The latest point from a historical time series of a quantity.
    */
   public static final String HISTORICAL_TIME_SERIES_LATEST = "Historical Time Series (latest value)";
-
+  /**
+   * A FX series for a security
+   */
+  public static final String HISTORICAL_FX_TIME_SERIES = "Historical FX Time Series";
   ///// Curves
 
   /**
@@ -152,6 +163,10 @@ public final class ValueRequirementNames {
    * FX forward curve property metadata
    */
   public static final String FX_FORWARD_CURVE_SPEC = "FXForwardCurveSpec";
+  /**
+   * Currency pairs property metadata
+   */
+  public static final String CURRENCY_PAIRS = "CurrencyPairs";
 
   ///// Surfaces
 
@@ -946,9 +961,15 @@ public final class ValueRequirementNames {
   ///// Fixed Income
 
   /**
-   * The forward price of a security
+   * The forward value of a security
    */
   public static final String FORWARD = "Forward";
+
+  /**
+   * The forward price of a security
+   */
+  public static final String FORWARD_PRICE = "Forward Price";
+
   /**
    * The sensitivity of the par rate of a cash-flow instrument to a shift of 100 percent in the (named) yield curve.
    */
@@ -1157,7 +1178,7 @@ public final class ValueRequirementNames {
    * The PDE space grid values of the price
    */
   public static final String GRID_PRESENT_VALUE = "Grid Present Value";
-  
+
   ///// Externally-sourced values
   // Existing value requirement names with a suffix
   // NOTE jonathan 2012-07-13 -- simply to allow clearer column headers. Should be removed once we have a better solution.
@@ -1182,5 +1203,5 @@ public final class ValueRequirementNames {
    * External position quantity.
    */
   public static final String EXTERNAL_QUANTITY = "Quantity" + EXTERNAL_SUFFIX;
-  
+
 }

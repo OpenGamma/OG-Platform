@@ -49,7 +49,10 @@ public class SecondaryCurveDefinitionAndSpecifications {
     for (final Tenor tenorSwapTenor : tenorSwaps) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.TENOR_SWAP, tenorSwapTenor, SPEC_NAME));
     }
-    final YieldCurveDefinition definition = new YieldCurveDefinition(ccy, region, "FUNDING", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
+    final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
+    final String rightExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
+    final boolean interpolateYields = true;    final YieldCurveDefinition definition = new YieldCurveDefinition(ccy, region, "FUNDING", Interpolator1DFactory.DOUBLE_QUADRATIC,
+        leftExtrapolatorName, rightExtrapolatorName, interpolateYields, strips);
     return definition;
   }
 
@@ -67,7 +70,10 @@ public class SecondaryCurveDefinitionAndSpecifications {
     for (final Tenor swapTenor : swaps) {
       strips.add(new FixedIncomeStrip(swapType, swapTenor, SPEC_NAME));
     }
-    final YieldCurveDefinition definition = new YieldCurveDefinition(ccy, region, "FORWARD", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
+    final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
+    final String rightExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
+    final boolean interpolateYields = true;    final YieldCurveDefinition definition = new YieldCurveDefinition(ccy, region, "FORWARD", Interpolator1DFactory.DOUBLE_QUADRATIC,
+        leftExtrapolatorName, rightExtrapolatorName, interpolateYields, strips);
     return definition;
   }
 
@@ -85,7 +91,10 @@ public class SecondaryCurveDefinitionAndSpecifications {
     for (final Tenor tenorSwapTenor : swaps) {
       strips.add(new FixedIncomeStrip(swapType, tenorSwapTenor, SPEC_NAME));
     }
-    final YieldCurveDefinition definition = new YieldCurveDefinition(ccy, region, "SECONDARY", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
+    final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
+    final String rightExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
+    final boolean interpolateYields = true;    final YieldCurveDefinition definition = new YieldCurveDefinition(ccy, region, "SECONDARY", Interpolator1DFactory.DOUBLE_QUADRATIC,
+        leftExtrapolatorName, rightExtrapolatorName, interpolateYields, strips);
     return definition;
   }
 
@@ -205,8 +214,8 @@ public class SecondaryCurveDefinitionAndSpecifications {
     final Map<Tenor, CurveInstrumentProvider> oisSwapInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
 
     final Tenor[] tenors = new Tenor[] {Tenor.ONE_DAY, Tenor.ONE_MONTH, Tenor.TWO_MONTHS, Tenor.THREE_MONTHS, Tenor.FOUR_MONTHS, Tenor.FIVE_MONTHS, Tenor.SIX_MONTHS, Tenor.SEVEN_MONTHS,
-      Tenor.EIGHT_MONTHS, Tenor.NINE_MONTHS, Tenor.TEN_MONTHS, Tenor.ELEVEN_MONTHS, Tenor.TWELVE_MONTHS, Tenor.ONE_YEAR, Tenor.TWO_YEARS, Tenor.THREE_YEARS, Tenor.FOUR_YEARS, 
-      Tenor.FIVE_YEARS, Tenor.ofYears(6), Tenor.ofYears(7), Tenor.ofYears(8), Tenor.ofYears(9), Tenor.ofYears(10), Tenor.ofYears(11), Tenor.ofYears(12), Tenor.ofYears(15), 
+      Tenor.EIGHT_MONTHS, Tenor.NINE_MONTHS, Tenor.TEN_MONTHS, Tenor.ELEVEN_MONTHS, Tenor.TWELVE_MONTHS, Tenor.ONE_YEAR, Tenor.TWO_YEARS, Tenor.THREE_YEARS, Tenor.FOUR_YEARS,
+      Tenor.FIVE_YEARS, Tenor.ofYears(6), Tenor.ofYears(7), Tenor.ofYears(8), Tenor.ofYears(9), Tenor.ofYears(10), Tenor.ofYears(11), Tenor.ofYears(12), Tenor.ofYears(15),
       Tenor.ofYears(20), Tenor.ofYears(25), Tenor.ofYears(30), Tenor.ofYears(40), Tenor.ofYears(50), Tenor.ofYears(80)};
 
     for (final Tenor tenor : tenors) {
@@ -227,7 +236,7 @@ public class SecondaryCurveDefinitionAndSpecifications {
     }
     final CurveSpecificationBuilderConfiguration config = new CurveSpecificationBuilderConfiguration(cashInstrumentProviders, fra3MInstrumentProviders, fra6MInstrumentProviders,
         liborInstrumentProviders, euriborInstrumentProviders, cdorInstrumentProviders, ciborInstrumentProviders, stiborInstrumentProviders, futureInstrumentProviders, swap6MInstrumentProviders,
-        swap3MInstrumentProviders, basisSwapInstrumentProviders, tenorSwapInstrumentProviders, oisSwapInstrumentProviders, null, null, null);
+        swap3MInstrumentProviders, basisSwapInstrumentProviders, tenorSwapInstrumentProviders, oisSwapInstrumentProviders, null, null, null, null);
     return config;
   }
 

@@ -10,12 +10,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import com.opengamma.component.tool.AbstractTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.opengamma.examples.generator.PortfolioGeneratorTool;
+import com.opengamma.examples.generator.SyntheticPortfolioGeneratorTool;
 import com.opengamma.examples.loader.ExampleCurveAndSurfaceDefinitionLoader;
 import com.opengamma.examples.loader.ExampleCurveConfigurationLoader;
 import com.opengamma.examples.loader.ExampleEquityPortfolioLoader;
@@ -42,8 +43,9 @@ import com.opengamma.util.time.Tenor;
  * It is designed to run against the HSQLDB example database.
  */
 @Scriptable
-public class ExampleDatabasePopulator extends AbstractExampleTool {
+public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
 
+  public static final String TOOLCONTEXT_EXAMPLE_PROPERTIES = "classpath:toolcontext/toolcontext-example.properties";
 
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabasePopulator.class);
   /**
@@ -83,7 +85,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
    */
   public static void main(final String[] args) { // CSIGNORE
     try {
-      new ExampleDatabasePopulator().initAndRun(args);
+      new ExampleDatabasePopulator().initAndRun(args, TOOLCONTEXT_EXAMPLE_PROPERTIES, null, ToolContext.class);
     } catch (final Exception e) {
       e.printStackTrace();
     }
@@ -201,8 +203,8 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
     }
   }
 
-  private PortfolioGeneratorTool portfolioGeneratorTool() {
-    final PortfolioGeneratorTool tool = new PortfolioGeneratorTool();
+  private SyntheticPortfolioGeneratorTool portfolioGeneratorTool() {
+    final SyntheticPortfolioGeneratorTool tool = new SyntheticPortfolioGeneratorTool();
     tool.setCounterPartyGenerator(new StaticNameGenerator(AbstractPortfolioGeneratorTool.DEFAULT_COUNTER_PARTY));
     return tool;
   }

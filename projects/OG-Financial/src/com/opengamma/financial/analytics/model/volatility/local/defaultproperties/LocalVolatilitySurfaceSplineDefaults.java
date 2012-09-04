@@ -22,17 +22,20 @@ public class LocalVolatilitySurfaceSplineDefaults extends LocalVolatilitySurface
   private final String _yInterpolator;
   private final String _yLeftExtrapolator;
   private final String _yRightExtrapolator;
+  private final String _splineExtrapolatorFailBehaviour;
 
   public LocalVolatilitySurfaceSplineDefaults(final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
       final String timeLeftExtrapolator, final String timeRightExtrapolator, final String forwardCurveName, final String forwardCurveCalculationMethod, final String surfaceName,
-      final String eps, final String yInterpolator, final String yLeftExtrapolator, final String yRightExtrapolator) {
+      final String eps, final String yInterpolator, final String yLeftExtrapolator, final String yRightExtrapolator, final String splineExtrapolatorFailBehaviour) {
     super(timeAxis, yAxis, volatilityTransform, timeInterpolator, timeLeftExtrapolator, timeRightExtrapolator, forwardCurveName, forwardCurveCalculationMethod, surfaceName, eps);
     ArgumentChecker.notNull(yInterpolator, "y interpolator");
     ArgumentChecker.notNull(yLeftExtrapolator, "y left extrapolator");
     ArgumentChecker.notNull(yRightExtrapolator, "y right extrapolator");
+    ArgumentChecker.notNull(splineExtrapolatorFailBehaviour, "spline extrapolator failure behaviour not set");
     _yInterpolator = yInterpolator;
     _yLeftExtrapolator = yLeftExtrapolator;
     _yRightExtrapolator = yRightExtrapolator;
+    _splineExtrapolatorFailBehaviour = splineExtrapolatorFailBehaviour;
   }
 
   @Override
@@ -41,6 +44,7 @@ public class LocalVolatilitySurfaceSplineDefaults extends LocalVolatilitySurface
     defaults.addValuePropertyName(ValueRequirementNames.LOCAL_VOLATILITY_SURFACE, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_INTERPOLATOR);
     defaults.addValuePropertyName(ValueRequirementNames.LOCAL_VOLATILITY_SURFACE, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_LEFT_EXTRAPOLATOR);
     defaults.addValuePropertyName(ValueRequirementNames.LOCAL_VOLATILITY_SURFACE, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_RIGHT_EXTRAPOLATOR);
+    defaults.addValuePropertyName(ValueRequirementNames.LOCAL_VOLATILITY_SURFACE, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_EXTRAPOLATOR_FAILURE);
   }
 
   @Override
@@ -57,6 +61,9 @@ public class LocalVolatilitySurfaceSplineDefaults extends LocalVolatilitySurface
     }
     if (BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_RIGHT_EXTRAPOLATOR.equals(propertyName)) {
       return Collections.singleton(_yRightExtrapolator);
+    }
+    if (BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_EXTRAPOLATOR_FAILURE.equals(propertyName)) {
+      return Collections.singleton(_splineExtrapolatorFailBehaviour);
     }
     return null;
   }

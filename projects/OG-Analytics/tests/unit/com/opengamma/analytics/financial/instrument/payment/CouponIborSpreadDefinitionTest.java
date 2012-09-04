@@ -14,8 +14,6 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
@@ -81,6 +79,22 @@ public class CouponIborSpreadDefinitionTest {
   }
 
   @Test
+  public void from() {
+    ZonedDateTime accrualStartDate = DateUtils.getUTCDate(2011, 1, 3);
+    ZonedDateTime accrualEndDate = DateUtils.getUTCDate(2011, 4, 1);
+    double accrualFactor = 0.25;
+    CouponIborSpreadDefinition cpn = CouponIborSpreadDefinition.from(accrualStartDate, accrualEndDate, accrualFactor, NOTIONAL, INDEX, SPREAD);
+    assertEquals("CouponIborSpreadDefinition: from", NOTIONAL, cpn.getNotional());
+    assertEquals("CouponIborSpreadDefinition: from", SPREAD, cpn.getSpread());
+    assertEquals("CouponIborSpreadDefinition: from", accrualStartDate, cpn.getAccrualStartDate());
+    ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(accrualStartDate, -INDEX.getSpotLag(), CALENDAR);
+    assertEquals("CouponIborSpreadDefinition: from", fixingDate, cpn.getFixingDate());
+    assertEquals("CouponIborSpreadDefinition: from", accrualStartDate, cpn.getFixingPeriodStartDate());
+    ZonedDateTime fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(accrualStartDate, INDEX);
+    assertEquals("CouponIborSpreadDefinition: from", fixingPeriodEndDate, cpn.getFixingPeriodEndDate());
+  }
+
+  @Test
   public void testObject() {
     CouponIborSpreadDefinition other = CouponIborSpreadDefinition.from(IBOR_COUPON_DEFINITION, SPREAD);
     assertEquals(IBOR_COUPON_SPREAD_DEFINITION, other);
@@ -128,8 +142,8 @@ public class CouponIborSpreadDefinitionTest {
     final String fundingCurve = "Funding";
     final String forwardCurve = "Forward";
     final String[] curves = {fundingCurve, forwardCurve};
-    final CouponIborSpread couponIbor = new CouponIborSpread(CUR, paymentTime, fundingCurve, IBOR_COUPON_SPREAD_DEFINITION.getPaymentYearFraction(), NOTIONAL, fixingTime, INDEX, fixingPeriodStartTime,
-        fixingPeriodEndTime, IBOR_COUPON_SPREAD_DEFINITION.getFixingPeriodAccrualFactor(), SPREAD, forwardCurve);
+    final CouponIborSpread couponIbor = new CouponIborSpread(CUR, paymentTime, fundingCurve, IBOR_COUPON_SPREAD_DEFINITION.getPaymentYearFraction(), NOTIONAL, fixingTime, INDEX,
+        fixingPeriodStartTime, fixingPeriodEndTime, IBOR_COUPON_SPREAD_DEFINITION.getFixingPeriodAccrualFactor(), SPREAD, forwardCurve);
     CouponIborSpread convertedDefinition = (CouponIborSpread) IBOR_COUPON_SPREAD_DEFINITION.toDerivative(REFERENCE_DATE, curves);
     assertEquals(couponIbor, convertedDefinition);
     convertedDefinition = (CouponIborSpread) IBOR_COUPON_SPREAD_DEFINITION.toDerivative(REFERENCE_DATE, FIXING_TS, curves);

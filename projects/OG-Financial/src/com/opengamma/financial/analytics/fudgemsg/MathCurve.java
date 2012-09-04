@@ -90,7 +90,7 @@ final class MathCurve {
       final Object function = deserializer.fieldValueToObject(message.getByName(CURVE_FUNCTION_FIELD_NAME));
       if (function instanceof Function) {
         return FunctionalDoublesCurve.from((Function) function, name);
-      } 
+      }
       throw new OpenGammaRuntimeException("Expected serialized function, got " + function);
     }
 
@@ -99,6 +99,31 @@ final class MathCurve {
       serializer.addToMessage(message, CURVE_NAME_FIELD_NAME, null, object.getName());
       serializer.addToMessage(message, CURVE_FUNCTION_FIELD_NAME, null, substituteObject(object.getFunction()));
       return;
+    }
+  }
+
+  /**
+   * Fudge builder for {@code NodalDoublesCurve}
+   */
+  @FudgeBuilderFor(NodalDoublesCurve.class)
+  public static final class NodalDoublesCurveBuilder extends AbstractFudgeBuilder<NodalDoublesCurve> {
+    private static final String X_DATA_FIELD_NAME = "x data";
+    private static final String Y_DATA_FIELD_NAME = "y data";
+    private static final String CURVE_NAME_FIELD_NAME = "curve name";
+
+    @Override
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final NodalDoublesCurve object) {
+      serializer.addToMessage(message, X_DATA_FIELD_NAME, null, object.getXDataAsPrimitive());
+      serializer.addToMessage(message, Y_DATA_FIELD_NAME, null, object.getYDataAsPrimitive());
+      serializer.addToMessage(message, CURVE_NAME_FIELD_NAME, null, object.getName());
+    }
+
+    @Override
+    public NodalDoublesCurve buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final double[] x = deserializer.fieldValueToObject(double[].class, message.getByName(X_DATA_FIELD_NAME));
+      final double[] y = deserializer.fieldValueToObject(double[].class, message.getByName(Y_DATA_FIELD_NAME));
+      final String name = deserializer.fieldValueToObject(String.class, message.getByName(CURVE_NAME_FIELD_NAME));
+      return NodalDoublesCurve.fromSorted(x, y, name);
     }
   }
 }

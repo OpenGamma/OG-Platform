@@ -29,12 +29,11 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNamesHelper;
 import com.opengamma.engine.marketdata.InMemoryNamedMarketDataSpecificationRepository;
-import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataProviderFactory;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
 import com.opengamma.engine.marketdata.availability.DomainMarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
-import com.opengamma.engine.marketdata.live.LiveMarketDataProvider;
+import com.opengamma.engine.marketdata.live.LiveDataFactory;
 import com.opengamma.engine.marketdata.live.LiveMarketDataProviderFactory;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.id.ExternalScheme;
@@ -97,13 +96,13 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
   }
 
   private MarketDataProviderFactory initLiveMarketDataProviderFactory(ComponentRepository repo) {
-    LiveDataClient liveDataClient = createLiveDataClient(getSubscriptionTopic(), getEntitlementTopic(), getHeartbeatTopic());
+    LiveDataClient liveDataClient = createLiveDataClient(getSubscriptionTopic(),
+                                                         getEntitlementTopic(),
+                                                         getHeartbeatTopic());
     MarketDataAvailabilityProvider availabilityProvider = createAvailabilityProvider();
-    MarketDataProvider marketDataProvider = new LiveMarketDataProvider(liveDataClient, getSecuritySource(), availabilityProvider);
-    
-    Map<String, MarketDataProvider> sourceToProviderMap = ImmutableMap.<String, MarketDataProvider>builder()
-        .put(SIMULATED_LIVE_SOURCE_NAME, marketDataProvider).build();
-    LiveMarketDataProviderFactory marketDataProviderFactory = new LiveMarketDataProviderFactory(marketDataProvider, sourceToProviderMap);
+    LiveDataFactory defaultFactory = new LiveDataFactory(liveDataClient, availabilityProvider, getSecuritySource());
+    Map<String, LiveDataFactory> factoryMap = ImmutableMap.of(SIMULATED_LIVE_SOURCE_NAME, defaultFactory);
+    LiveMarketDataProviderFactory marketDataProviderFactory = new LiveMarketDataProviderFactory(defaultFactory, factoryMap);
     ComponentInfo info = new ComponentInfo(MarketDataProviderFactory.class, getClassifier());
     repo.registerComponent(info, marketDataProviderFactory);
     return marketDataProviderFactory;

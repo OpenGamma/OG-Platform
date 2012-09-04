@@ -40,7 +40,8 @@ public class ConfigSearchResult<T> extends AbstractSearchResult<ConfigDocument<T
   }
 
   /**
-   * Creates an instance.
+   * Creates an instance from a collection of documents.
+   * 
    * @param coll  the collection of documents to add, not null
    */
   public ConfigSearchResult(Collection<ConfigDocument<T>> coll) {

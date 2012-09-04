@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.forex.option.black;
@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
 import com.opengamma.engine.ComputationTarget;
@@ -27,6 +28,8 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
+import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
@@ -39,7 +42,7 @@ import com.opengamma.util.tuple.DoublesPair;
 
 
 /**
- * 
+ *
  */
 public class FXOptionBlackRhoFunction extends AbstractFunction.NonCompiledInvoker {
 
@@ -52,13 +55,24 @@ public class FXOptionBlackRhoFunction extends AbstractFunction.NonCompiledInvoke
     if (curveSensitivitiesObject == null) {
       throw new OpenGammaRuntimeException("Could not get curve sensitivities");
     }
-    final String callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor()).getCode();
+    final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
+    final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
+    final Object baseQuotePairsObject = inputs.getValue(ValueRequirementNames.CURRENCY_PAIRS);
+    if (baseQuotePairsObject == null) {
+      throw new OpenGammaRuntimeException("Could not get base/quote pair data");
+    }
+    final CurrencyPairs baseQuotePairs = (CurrencyPairs) baseQuotePairsObject;
+    final CurrencyPair baseQuotePair = baseQuotePairs.getCurrencyPair(putCurrency, callCurrency);
+    if (baseQuotePair == null) {
+      throw new OpenGammaRuntimeException("Could not get base/quote pair for currency pair (" + putCurrency + ", " + callCurrency + ")");
+    }
+    //final String callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor()).getCode();
     final String callCurrencyCurve = desiredValue.getConstraint(FXOptionBlackFunction.CALL_CURVE);
-    final String resultCurrency = FXOptionBlackSingleValuedFunction.getResultCurrency(target);
-    final String fullCurveName = callCurrencyCurve + "_" + callCurrency;
+    final String resultCurrency = FXOptionBlackSingleValuedFunction.getResultCurrency(target, baseQuotePair);
+    final String fullCurveName = callCurrencyCurve + "_" + callCurrency.getCode();
     final MultipleCurrencyInterestRateCurveSensitivity curveSensitivities = (MultipleCurrencyInterestRateCurveSensitivity) curveSensitivitiesObject;
     final Map<String, List<DoublesPair>> sensitivitiesForCurrency = curveSensitivities.getSensitivity(Currency.of(resultCurrency)).getSensitivities();
-    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.VALUE_RHO, target.toSpecification(), getResultProperties(target, desiredValue).get());
+    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.VALUE_RHO, target.toSpecification(), getResultProperties(target, desiredValue, baseQuotePair).get());
     final double rho = sensitivitiesForCurrency.get(fullCurveName).get(0).second;
     return Collections.singleton(new ComputedValue(spec, rho));
   }
@@ -129,8 +143,10 @@ public class FXOptionBlackRhoFunction extends AbstractFunction.NonCompiledInvoke
     final String interpolatorName = interpolatorNames.iterator().next();
     final String leftExtrapolatorName = leftExtrapolatorNames.iterator().next();
     final String rightExtrapolatorName = rightExtrapolatorNames.iterator().next();
-    return Collections.singleton(getCurveSensitivitiesRequirement(putCurveName, putCurveCalculationConfig,
-        callCurveName, callCurveCalculationConfig, surfaceName, interpolatorName, leftExtrapolatorName, rightExtrapolatorName, target));
+    final ValueRequirement pairQuoteRequirement = new ValueRequirement(ValueRequirementNames.CURRENCY_PAIRS, target.toSpecification());
+    final ValueRequirement sensitivitiesRequirement = getCurveSensitivitiesRequirement(putCurveName, putCurveCalculationConfig,
+        callCurveName, callCurveCalculationConfig, surfaceName, interpolatorName, leftExtrapolatorName, rightExtrapolatorName, target);
+    return Sets.newHashSet(pairQuoteRequirement, sensitivitiesRequirement);
   }
 
   private ValueProperties.Builder getResultProperties(final ComputationTarget target) {
@@ -144,10 +160,11 @@ public class FXOptionBlackRhoFunction extends AbstractFunction.NonCompiledInvoke
         .withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
         .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
         .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
-        .with(ValuePropertyNames.CURRENCY, FXOptionBlackSingleValuedFunction.getResultCurrency(target));
+        .withAny(ValuePropertyNames.CURRENCY);
+//        .with(ValuePropertyNames.CURRENCY, FXOptionBlackSingleValuedFunction.getResultCurrency(target));
   }
 
-  private ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
+  private ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue, final CurrencyPair baseQuotePair) {
     final String putCurveName = desiredValue.getConstraint(FXOptionBlackFunction.PUT_CURVE);
     final String callCurveName = desiredValue.getConstraint(FXOptionBlackFunction.CALL_CURVE);
     final String putCurveCalculationConfig = desiredValue.getConstraint(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG);
@@ -166,7 +183,7 @@ public class FXOptionBlackRhoFunction extends AbstractFunction.NonCompiledInvoke
         .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorName)
         .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
         .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName)
-        .with(ValuePropertyNames.CURRENCY, FXOptionBlackSingleValuedFunction.getResultCurrency(target));
+        .with(ValuePropertyNames.CURRENCY, FXOptionBlackSingleValuedFunction.getResultCurrency(target, baseQuotePair));
   }
 
   private static ValueRequirement getCurveSensitivitiesRequirement(final String putCurveName, final String putCurveCalculationConfig, final String callCurveName,

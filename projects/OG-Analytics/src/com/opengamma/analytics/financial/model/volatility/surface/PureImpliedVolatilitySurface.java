@@ -13,9 +13,9 @@ import com.opengamma.analytics.math.surface.Surface;
 public class PureImpliedVolatilitySurface extends VolatilitySurface {
 
   /**
-   * @param surface
+   * @param surface The volatility surface
    */
-  public PureImpliedVolatilitySurface(Surface<Double, Double, Double> surface) {
+  public PureImpliedVolatilitySurface(final Surface<Double, Double, Double> surface) {
     super(surface);
   }
 

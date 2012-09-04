@@ -10,7 +10,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapIborIborDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -19,7 +18,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Class with the description of swap characteristics.
  */
-public class GeneratorSwapIborIbor extends Generator {
+public class GeneratorSwapIborIbor extends GeneratorInstrument {
 
   /**
    * The Ibor index of the first leg.
@@ -71,8 +70,7 @@ public class GeneratorSwapIborIbor extends Generator {
    * @param endOfMonth The end-of-month flag.
    * @param spotLag The swap spot lag (usually 2 or 0).
    */
-  public GeneratorSwapIborIbor(final String name, final IborIndex iborIndex1, final IborIndex iborIndex2, final BusinessDayConvention businessDayConvention, final boolean endOfMonth,
-      final int spotLag) {
+  public GeneratorSwapIborIbor(final String name, final IborIndex iborIndex1, final IborIndex iborIndex2, final BusinessDayConvention businessDayConvention, final boolean endOfMonth, final int spotLag) {
     super(name);
     ArgumentChecker.notNull(iborIndex1, "ibor index 1");
     ArgumentChecker.notNull(iborIndex2, "ibor index 2");
@@ -125,7 +123,7 @@ public class GeneratorSwapIborIbor extends Generator {
   }
 
   @Override
-  public InstrumentDefinition<?> generateInstrument(ZonedDateTime date, Period tenor, double spread, double notional, Object... objects) {
+  public SwapIborIborDefinition generateInstrument(ZonedDateTime date, Period tenor, double spread, double notional, Object... objects) {
     final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(date, _spotLag, _iborIndex1.getCalendar());
     return SwapIborIborDefinition.from(startDate, tenor, this, notional, spread, true);
   }

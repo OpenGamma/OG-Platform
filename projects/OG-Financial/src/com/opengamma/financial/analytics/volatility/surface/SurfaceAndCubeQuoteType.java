@@ -27,4 +27,6 @@ public class SurfaceAndCubeQuoteType {
   public static final String EXPIRY_MATURITY_ATM = "ExpiryMaturityATM";
   /** Surfaces or cubes defined using relative (to the forward) strikes */
   public static final String RELATIVE_STRIKE = "RelativeStrike";
+  /** Surfaces or cubes defined as flat (i.e. no smile) with a term structure */
+  public static final String FLAT_WITH_TERM_STRUCTURE = "FlatWithTermStructure";
 }

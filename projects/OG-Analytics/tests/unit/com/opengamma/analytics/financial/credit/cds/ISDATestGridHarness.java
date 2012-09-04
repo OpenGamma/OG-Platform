@@ -42,6 +42,9 @@ import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.util.money.Currency;
 
 
+/**
+ * Test harness to run through the official ISDA test grids
+ */
 public class ISDATestGridHarness {
   
   private static final Logger s_logger = LoggerFactory.getLogger(ISDATestGridHarness.class);
@@ -289,7 +292,7 @@ public class ISDATestGridHarness {
         if (considerRelativeErrorForFailures && result.dirtyRelativeError <= dirtyRelativeErrorConsideration && result.cleanPercentageError <= percentageErrorLimit) {
           
           ++marginalCases;
-          s_logger.info("Test case marginal: " + testGridFileName + " row " + (i+2) + ": "
+          s_logger.debug("Test case marginal: " + testGridFileName + " row " + (i+2) + ": "
             + "dirty = " + result.dirty + " (exepcted = " + result.dirtyExpected + "), "
             + "clean = " + result.clean + " (expected = " + result.cleanExpected + "), "
             + "absolute error = " + result.dirtyAbsoluteError + ", relative error = " + result.dirtyRelativeError + ", percentage error = " + result.cleanPercentageError);
@@ -297,7 +300,7 @@ public class ISDATestGridHarness {
         } else {
           
           ++failures;
-          s_logger.warn("Test case exceeds bounds: " + testGridFileName + " row " + (i+2) + ": "
+          s_logger.debug("Test case exceeds bounds: " + testGridFileName + " row " + (i+2) + ": "
             + "dirty = " + result.dirty + " (exepcted = " + result.dirtyExpected + "), "
             + "clean = " + result.clean + " (expected = " + result.cleanExpected + "), "
             + "absolute error = " + result.dirtyAbsoluteError + ", relative error = " + result.dirtyRelativeError + ", percentage error = " + result.cleanPercentageError);

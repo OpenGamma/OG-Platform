@@ -26,15 +26,22 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public final class CouponIborGearingDiscountingMethod implements PricingMethod {
 
+  /**
+   * The method unique instance.
+   */
   private static final CouponIborGearingDiscountingMethod INSTANCE = new CouponIborGearingDiscountingMethod();
 
   /**
-   * @return A static instance
+   * Return the unique instance of the class.
+   * @return The instance.
    */
   public static CouponIborGearingDiscountingMethod getInstance() {
     return INSTANCE;
   }
 
+  /**
+   * Private constructor.
+   */
   private CouponIborGearingDiscountingMethod() {
   }
 

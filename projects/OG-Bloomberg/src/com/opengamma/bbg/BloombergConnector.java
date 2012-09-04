@@ -8,6 +8,8 @@ package com.opengamma.bbg;
 import com.bloomberglp.blpapi.Session;
 import com.bloomberglp.blpapi.SessionOptions;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.bbg.referencedata.statistics.BloombergReferenceDataStatistics;
+import com.opengamma.bbg.referencedata.statistics.NullBloombergReferenceDataStatistics;
 import com.opengamma.bbg.util.SessionOptionsUtils;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.Connector;
@@ -30,6 +32,10 @@ public class BloombergConnector implements Connector {
    * The Bloomberg Session Options.
    */
   private final SessionOptions _sessionOptions;
+  /**
+   * The Bloomberg statistics.
+   */
+  private final BloombergReferenceDataStatistics _referenceDataStatistics;
 
   /**
    * Creates an instance.
@@ -38,10 +44,23 @@ public class BloombergConnector implements Connector {
    * @param sessionOptions  the Bloomberg session options, not null
    */
   public BloombergConnector(String name, SessionOptions sessionOptions) {
+    this(name, sessionOptions, NullBloombergReferenceDataStatistics.INSTANCE);
+  }
+
+  /**
+   * Creates an instance.
+   * 
+   * @param name  the configuration name, not null
+   * @param sessionOptions  the Bloomberg session options, not null
+   * @param statistics  the Bloomberg statistics, not null
+   */
+  public BloombergConnector(String name, SessionOptions sessionOptions, BloombergReferenceDataStatistics statistics) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(sessionOptions, "sessionOptions");
+    ArgumentChecker.notNull(statistics, "statistics");
     _name = name;
     _sessionOptions = sessionOptions;
+    _referenceDataStatistics = statistics;
   }
 
   /**
@@ -50,11 +69,14 @@ public class BloombergConnector implements Connector {
    * Subclasses must override the session options getter.
    * 
    * @param name  the configuration name, not null
+   * @param statistics  the Bloomberg statistics, not null
    */
-  protected BloombergConnector(String name) {
+  protected BloombergConnector(String name, BloombergReferenceDataStatistics statistics) {
     ArgumentChecker.notNull(name, "name");
+    ArgumentChecker.notNull(statistics, "statistics");
     _name = name;
     _sessionOptions = null;
+    _referenceDataStatistics = statistics;
   }
 
   //-------------------------------------------------------------------------
@@ -78,6 +100,17 @@ public class BloombergConnector implements Connector {
    */
   public SessionOptions getSessionOptions() {
     return _sessionOptions;
+  }
+
+  /**
+   * Gets the Bloomberg reference data statistics.
+   * <p>
+   * This is used to capture statistics about Bloomberg use.
+   * 
+   * @return the Bloomberg statistics recorder, not null
+   */
+  public BloombergReferenceDataStatistics getReferenceDataStatistics() {
+    return _referenceDataStatistics;
   }
 
   //-------------------------------------------------------------------------

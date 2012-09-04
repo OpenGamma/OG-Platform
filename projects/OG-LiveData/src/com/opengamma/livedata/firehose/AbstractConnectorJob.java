@@ -155,6 +155,7 @@ public abstract class AbstractConnectorJob<Record> implements Runnable {
           } while (true);
         }
       } catch (IOException e) {
+        ioExceptionInRead(e);
         s_logger.warn("I/O exception caught - {}", e.toString());
         s_logger.debug("I/O exception", e);
       } finally {
@@ -169,6 +170,9 @@ public abstract class AbstractConnectorJob<Record> implements Runnable {
       }
     }
     s_logger.info("Stopped connection job");
+  }
+
+  protected void ioExceptionInRead(IOException e) {
   }
 
   public void poison() {

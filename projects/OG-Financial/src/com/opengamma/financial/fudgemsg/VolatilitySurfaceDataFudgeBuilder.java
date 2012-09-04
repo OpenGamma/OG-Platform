@@ -59,7 +59,6 @@ public class VolatilitySurfaceDataFudgeBuilder implements FudgeBuilder<Volatilit
       }
     }
     for (final Entry<?, Double> entry : object.asMap().entrySet()) {
-      @SuppressWarnings("unchecked")
       final Pair<Object, Object> pair = (Pair<Object, Object>) entry.getKey();
       final MutableFudgeMsg subMessage = serializer.newMessage();
       if (pair.getFirst() != null && pair.getSecond() != null) {
@@ -115,9 +114,8 @@ public class VolatilitySurfaceDataFudgeBuilder implements FudgeBuilder<Volatilit
         values.put(Pair.of(x, y), value);
       }
       return new VolatilitySurfaceData<Object, Object>(definitionName, specificationName, target, xs.toArray(xsArray), ys.toArray(ysArray), values);
-    } else {
-      return new VolatilitySurfaceData<Object, Object>(definitionName, specificationName, target, xs.toArray(), ys.toArray(), Collections.<Pair<Object, Object>, Double>emptyMap());
     }
+    return new VolatilitySurfaceData<Object, Object>(definitionName, specificationName, target, xs.toArray(), ys.toArray(), Collections.<Pair<Object, Object>, Double>emptyMap());
   }
 
 }

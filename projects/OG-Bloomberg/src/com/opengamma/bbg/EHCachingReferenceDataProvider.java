@@ -36,7 +36,7 @@ public class EHCachingReferenceDataProvider extends AbstractCachingReferenceData
   /**
    * Cache key for reference data.
    */
-  private static final String REFERENCE_DATA_CACHE = "referenceData";
+  /*package*/ static final String REFERENCE_DATA_CACHE = "referenceData";
 
   /**
    * The cache manager.
@@ -122,7 +122,7 @@ public class EHCachingReferenceDataProvider extends AbstractCachingReferenceData
     Element element = _cache.get(securityKey);
     if (element != null) {
       s_logger.debug("Have security data for des {} in cache", securityKey);
-      CachedPerSecurityReferenceDataResult fromCache = (CachedPerSecurityReferenceDataResult) element.getValue();
+      CachedPerSecurityReferenceDataResult fromCache = (CachedPerSecurityReferenceDataResult) element.getObjectValue();
       s_logger.debug("cachedObject={}", fromCache);
       PerSecurityReferenceDataResult result = parseCachedObject(fromCache);
       return result;
