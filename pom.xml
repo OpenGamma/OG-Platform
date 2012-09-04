@@ -154,6 +154,8 @@
           </systemPropertyVariables>
           <parallel>${tests.testng.parallel}</parallel>
           <threadCount>${tests.testng.threads}</threadCount>
+          <groups>${tests.testng.includedgroups}</groups>
+          <excludedGroups>${tests.testng.exludedgroups}</excludedGroups>
         </configuration>
       </plugin>
       <plugin>
