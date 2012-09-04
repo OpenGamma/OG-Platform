@@ -7,6 +7,7 @@ package com.opengamma.web.server.push.rest.json;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -23,7 +24,6 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.codec.binary.Base64InputStream;
 import org.apache.commons.codec.binary.Base64OutputStream;
-import org.apache.tools.ant.filters.StringInputStream;
 
 /**
  * REST endpoint for compressing and decompressing the state of the web UI using GZIP and encoding it using base64.
@@ -41,7 +41,7 @@ public class Compressor {
   @Path("compress")
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   public void compress(@FormParam("content") String content, @Context HttpServletResponse response) throws IOException {
-    compressStream(new StringInputStream(content), response.getOutputStream());
+    compressStream(new ByteArrayInputStream(content.getBytes()), response.getOutputStream());
   }
 
   /**
@@ -54,7 +54,7 @@ public class Compressor {
   @Path("decompress")
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   public void decompress(@FormParam("content") String content, @Context HttpServletResponse response) throws IOException {
-    decompressStream(new StringInputStream(content), response.getOutputStream());
+    decompressStream(new ByteArrayInputStream(content.getBytes()), response.getOutputStream());
   }
 
   /* package */ static void compressStream(InputStream inputStream, OutputStream outputStream) throws IOException {
