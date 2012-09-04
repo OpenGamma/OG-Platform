@@ -15,7 +15,7 @@ import com.opengamma.component.tool.ToolContextUtils;
 import com.opengamma.examples.DBTestUtils;
 import com.opengamma.examples.loader.ExampleEquityPortfolioLoader;
 import com.opengamma.examples.loader.ExampleMultiAssetPortfolioLoader;
-import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.component.tool.ToolContext;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;

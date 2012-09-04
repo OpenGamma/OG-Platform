@@ -9,7 +9,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.tool.AbstractTool;
-import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.component.tool.ToolContext;
 import com.opengamma.integration.copier.portfolio.PortfolioCopierVisitor;
 import com.opengamma.integration.copier.portfolio.QuietPortfolioCopierVisitor;
 import com.opengamma.integration.copier.portfolio.SimplePortfolioCopier;

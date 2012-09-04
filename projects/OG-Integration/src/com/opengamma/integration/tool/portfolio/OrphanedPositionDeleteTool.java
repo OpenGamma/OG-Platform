@@ -10,7 +10,7 @@ import com.opengamma.integration.tool.IntegrationToolContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.component.tool.ToolContext;
 import com.opengamma.util.generate.scripts.Scriptable;
 
 /**

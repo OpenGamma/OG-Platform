@@ -16,7 +16,7 @@ import com.opengamma.financial.analytics.volatility.surface.IRFutureOptionSurfac
 import com.opengamma.financial.analytics.volatility.surface.SwaptionVolatilitySurfaceConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.financial.currency.CurrencyPairsConfigPopulator;
-import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.component.tool.ToolContext;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.util.generate.scripts.Scriptable;
 
