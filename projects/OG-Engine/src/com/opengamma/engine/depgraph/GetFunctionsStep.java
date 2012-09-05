@@ -16,7 +16,9 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.MemoryUtils;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.function.ParameterizedFunction;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailability;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.async.BlockingOperation;
 import com.opengamma.util.tuple.Triple;
 
 /* package */final class GetFunctionsStep extends ResolveTask.State {
@@ -28,8 +30,17 @@ import com.opengamma.util.tuple.Triple;
   }
 
   @Override
-  protected void run(final GraphBuildingContext context) {
-    switch (context.getMarketDataAvailabilityProvider().getAvailability(getValueRequirement())) {
+  protected boolean run(final GraphBuildingContext context) {
+    final MarketDataAvailability mda;
+    BlockingOperation.off();
+    try {
+      mda = context.getMarketDataAvailabilityProvider().getAvailability(getValueRequirement());
+    } catch (BlockingOperation e) {
+      return false;
+    } finally {
+      BlockingOperation.on();
+    }
+    switch (mda) {
       case AVAILABLE:
         s_logger.info("Found live data for {}", getValueRequirement());
         final MarketDataSourcingFunction function = new MarketDataSourcingFunction(getValueRequirement());
@@ -67,6 +78,7 @@ import com.opengamma.util.tuple.Triple;
       default:
         throw new IllegalStateException();
     }
+    return true;
   }
 
   @Override
