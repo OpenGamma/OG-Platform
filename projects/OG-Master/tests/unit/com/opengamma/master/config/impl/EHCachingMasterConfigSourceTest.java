@@ -53,7 +53,7 @@ public class EHCachingMasterConfigSourceTest {
   public void setUp() throws Exception {
     _underlyingConfigMaster = new UnitTestConfigMaster();
     CacheManager cm = EHCacheUtils.createCacheManager();
-    cm.getCache(EHCachingMasterConfigSource.CONFIG_CACHE).removeAll();
+    EHCacheUtils.clear(cm, EHCachingMasterConfigSource.CONFIG_CACHE);
     _cachingSource = new EHCachingMasterConfigSource(_underlyingConfigMaster, cm);
   }
 
