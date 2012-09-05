@@ -130,6 +130,45 @@ public class EHCachingHistoricalTimeSeriesResolver implements HistoricalTimeSeri
         _cache.put(new Element(key, returnValue));
 
       }
+    } else {
+      // PLAT-2633: Record resolution failures (misses) in the cache as well
+      for (ExternalId id : identifierBundle) {
+        String key =
+            id.toString() + SEPARATOR +
+            dataField + SEPARATOR +
+            dataSource + SEPARATOR +
+            dataProvider + SEPARATOR +
+            resolutionKey + SEPARATOR +
+            (identifierValidityDate != null ? identifierValidityDate.toString() : "");
+        _cache.put(new Element(key, null));
+
+        key =
+            id.toString() + SEPARATOR +
+            dataField + SEPARATOR +
+            SEPARATOR +
+            dataProvider + SEPARATOR +
+            resolutionKey + SEPARATOR +
+            (identifierValidityDate != null ? identifierValidityDate.toString() : "");
+        _cache.put(new Element(key, null));
+
+        key =
+            id.toString() + SEPARATOR +
+            dataField + SEPARATOR +
+            dataSource + SEPARATOR +
+            SEPARATOR +
+            resolutionKey + SEPARATOR +
+            (identifierValidityDate != null ? identifierValidityDate.toString() : "");
+        _cache.put(new Element(key, null));
+
+        key =
+            id.toString() + SEPARATOR +
+            dataField + SEPARATOR +
+            SEPARATOR +
+            SEPARATOR +
+            resolutionKey + SEPARATOR +
+            (identifierValidityDate != null ? identifierValidityDate.toString() : "");
+        _cache.put(new Element(key, null));
+      }
     }
 
     return returnValue;
