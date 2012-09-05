@@ -77,12 +77,9 @@ public abstract class AbstractTool<T extends ToolContext> {
    * h/help - prints the help tool<br />
    * 
    * @param args the command-line arguments, not null
+   * @param toolContextClass the type of tool context to create, should match the generic type argument
    * @return true if successful, false otherwise
    */
-  public boolean initAndRun(String[] args) {
-    return initAndRun(args, (Class<T>) ToolContext.class);
-  }
-
   public boolean initAndRun(String[] args, Class<? extends T> toolContextClass) {
     return initAndRun(args, null, null, toolContextClass);
   }
@@ -98,12 +95,9 @@ public abstract class AbstractTool<T extends ToolContext> {
    * @param args the command-line arguments, not null
    * @param defaultConfigResource the default configuration resource location, null if mandatory on command line
    * @param defaultLogbackResource the default logback resource, null to use tool-logback.xml as the default
+   * @param toolContextClass the type of tool context to create, should match the generic type argument
    * @return true if successful, false otherwise
    */
-  public boolean initAndRun(String[] args, String defaultConfigResource, String defaultLogbackResource) {
-    return initAndRun(args, defaultConfigResource, defaultLogbackResource, (Class<T>) ToolContext.class);
-  }
-
   public boolean initAndRun(String[] args, String defaultConfigResource, String defaultLogbackResource,
                             Class<? extends T> toolContextClass) {
     ArgumentChecker.notNull(args, "args");
@@ -135,12 +129,9 @@ public abstract class AbstractTool<T extends ToolContext> {
    * This starts the tool context and calls {@link #run(ToolContext)}. This will catch exceptions and print a stack trace.
    * 
    * @param configResource the config resource location, not null
+   * @param toolContextClass the type of tool context to create, should match the generic type argument
    * @return true if successful
    */
-  public final boolean run(String configResource) {
-    return run(configResource, (Class<T>) ToolContext.class);
-  }
-
   public final boolean run(String configResource, Class<? extends T> toolContextClass) {
     try {
       ArgumentChecker.notNull(configResource, "configResourceLocation");

@@ -53,7 +53,7 @@ public class PortfolioSaverTool extends AbstractTool<ToolContext> {
    * @param args  the arguments, not null
    */
   public static void main(String[] args) { //CSIGNORE
-    new PortfolioSaverTool().initAndRun(args);
+    new PortfolioSaverTool().initAndRun(args, ToolContext.class);
     System.exit(0);
   }
 

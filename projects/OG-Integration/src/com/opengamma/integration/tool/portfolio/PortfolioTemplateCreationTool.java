@@ -35,7 +35,7 @@ public class PortfolioTemplateCreationTool extends AbstractTool<ToolContext> {
    * @param args  the arguments, not null
    */
   public static void main(String[] args) { //CSIGNORE
-    new PortfolioTemplateCreationTool().initAndRun(args);
+    new PortfolioTemplateCreationTool().initAndRun(args, ToolContext.class);
     System.exit(0);
   }
 
