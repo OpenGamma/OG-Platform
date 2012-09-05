@@ -538,16 +538,18 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
 
   //-------------------------------------------------------------------------
   /**
-   * Registers an instance that should be treated as a JMX Managed Resource
+   * Registers an instance that should be treated as a JMX Managed Resource.
    * 
-   * @param managedResource the object that should be treated as an MBean
+   * @param managedResource  the object that should be treated as an MBean, not null
    */
   public void registerMBean(Object managedResource) {
+    ArgumentChecker.notNull(managedResource, "managedResource");
+    checkStatus(Status.CREATING);
     registerMBean(managedResource, generateObjectName(managedResource));
   }
 
   /**
-   * Registers an instance that should be treated as a JMX Managed Resource
+   * Registers an instance that should be treated as a JMX Managed Resource.
    * 
    * @param managedResource the object that should be treated as an MBean
    * @param name The fully qualified JMX ObjectName
@@ -568,15 +570,21 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
   }
 
   /**
-   * Registers an instance that should be treated as a JMX Managed Resource
+   * Registers an instance that should be treated as a JMX Managed Resource.
    * 
-   * @param managedResource the object that should be treated as an MBean
+   * @param managedResource  the object that should be treated as an MBean, not null
    */
   private void registerMBean0(Object managedResource, ObjectName name) {
     _managedResources.put(name, managedResource);
   }
-  
-  protected ObjectName generateObjectName(Object managedResource) {
+
+  /**
+   * Creates an object name for the MBean.
+   * 
+   * @param managedResource  the object that should be treated as an MBean, not null
+   * @return the object name, not null
+   */
+  private ObjectName generateObjectName(Object managedResource) {
     ObjectName objectName;
     try {
       objectName = new ObjectName("com.opengamma:name=" + managedResource.getClass().getSimpleName());
@@ -585,7 +593,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
     }
     return objectName;
   }
-  
+
   //-------------------------------------------------------------------------
   /**
    * Called whenever an instance is registered.
@@ -619,14 +627,18 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
       return;  // another thread just beat this one
     }
     try {
+      // Spring interfaces
       for (Lifecycle obj : _lifecycles) {
         obj.start();
       }
+      
+      // JMX managed resources
       MBeanExporter exporter = new MBeanExporter();
       exporter.setServer(JmxUtils.locateMBeanServer());
       for (Map.Entry<ObjectName, Object> resourceEntry : _managedResources.entrySet()) {
         exporter.registerManagedResource(resourceEntry.getValue(), resourceEntry.getKey());
       }
+      
       _status.set(Status.RUNNING);
       
     } catch (RuntimeException ex) {
