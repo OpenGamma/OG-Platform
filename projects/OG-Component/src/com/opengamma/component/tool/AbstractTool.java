@@ -5,6 +5,7 @@
  */
 package com.opengamma.component.tool;
 
+import com.opengamma.OpenGammaRuntimeException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -229,7 +230,12 @@ public abstract class AbstractTool<T extends ToolContext> {
    * @return the i-th context, not null during {@code doRun}
    */
   protected T getToolContext(int i) {
-    return getToolContexts()[i];
+    ArgumentChecker.notNegative(i, "ToolContext index");
+    if (getToolContexts().length > i) {
+      return getToolContexts()[i];
+    } else {
+      throw new OpenGammaRuntimeException("ToolContext " + i + " does not exist");
+    }
   }
 
    //-------------------------------------------------------------------------
