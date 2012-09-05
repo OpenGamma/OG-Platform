@@ -377,7 +377,7 @@ public abstract class BlackFormulaRepository {
   public static double impliedVolatility(final double price, final double forward, final double strike, final double timeToExpiry, final boolean isCall) {
     Validate.isTrue(strike > 0, "Cannot find an implied volatility when strike is zero as there is no optionality");
     if (isCall) {
-      ArgumentChecker.isTrue(strike >= forward, "Call is not OTM (strike >= 0); have strike {} and forward {}", strike, forward);
+      ArgumentChecker.isTrue(strike >= forward, "Call is not OTM (strike >= forward); have strike {} and forward {}", strike, forward);
     } else {
       ArgumentChecker.isTrue(strike < forward, "Put is not OTM (strike < forward); have strike {} and forward {}", strike, forward);
     }
@@ -396,7 +396,7 @@ public abstract class BlackFormulaRepository {
     final double targetPrice = price - intrinsicPrice;
     double sigmaGuess = 0.3;
 
-    return impliedVolatility(targetPrice, forward, strike, timeToExpiry, sigmaGuess);
+    return impliedVolatility(targetPrice, forward, strike, timeToExpiry, sigmaGuess, isCall);
   }
 
   /**
@@ -406,11 +406,28 @@ public abstract class BlackFormulaRepository {
    * @param forward The forward value of the underlying
    * @param strike The Strike
    * @param timeToExpiry The time-to-expiry
-   * @param volGuess a guess of the implied volatility 
+   * @param volGuess a guess of the implied volatility
    * @return log-normal (Black) implied volatility
    */
   @ExternalFunction
   public static double impliedVolatility(final double otmPrice, final double forward, final double strike, final double timeToExpiry, final double volGuess) {
+    boolean isCall = strike >= forward;
+    return impliedVolatility(otmPrice, forward, strike, timeToExpiry, volGuess, isCall);
+  }
+    /**
+     * Get the log-normal (Black) implied volatility of an out-the-money European option starting from an initial guess 
+     * @param otmPrice The <b>forward</b> price - i.e. the market price divided by the numeraire (i.e. the zero bond p(0,T) for the T-forward measure)
+     * <b>Note</b> This MUST be an OTM price - i.e. a call price for strike >= forward and a put price otherwise 
+     * @param forward The forward value of the underlying
+     * @param strike The Strike
+     * @param timeToExpiry The time-to-expiry
+     * @param volGuess a guess of the implied volatility
+     * @param isCall is the option a put or call 
+     * @return log-normal (Black) implied volatility
+     */
+  @ExternalFunction
+  public static double impliedVolatility(final double otmPrice, final double forward, final double strike, final double timeToExpiry, final double volGuess, 
+        final boolean isCall) {
     if (otmPrice == 0) {
       return 0;
     }
@@ -421,12 +438,8 @@ public abstract class BlackFormulaRepository {
     if (forward == strike) {
       return NORMAL.getInverseCDF(0.5 * (otmPrice / forward + 1)) * 2 / Math.sqrt(timeToExpiry);
     }
-
-    boolean isCall = strike >= forward;
-
     double lowerSigma;
     double upperSigma;
-
     try {
       final double[] temp = bracketRoot(otmPrice, forward, strike, timeToExpiry, isCall, volGuess, Math.min(volGuess, 0.1));
       lowerSigma = temp[0];
