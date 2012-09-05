@@ -21,6 +21,7 @@ import javax.servlet.ServletContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.Lifecycle;
 import org.springframework.jmx.export.MBeanExporter;
 import org.springframework.jmx.support.JmxUtils;
@@ -77,6 +78,10 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * The objects that should be registered as managed resources.
    */
   private final Map<ObjectName, Object> _managedResources = new TreeMap<ObjectName, Object>();
+  /**
+   * The objects that have already been initialized.
+   */
+  private final List<InitializingBean> _initialized = new ArrayList<InitializingBean>();
   /**
    * The status.
    */
@@ -349,11 +354,65 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
 
   //-------------------------------------------------------------------------
   /**
+   * Initializes the specified object.
+   * <p>
+   * This initializes the object as per the standard {@code InitializingBean} contract.
+   * It can be called manually using this method, however it is normally invoked
+   * automatically by registering a component. Thus this method is primarily
+   * useful for objects that need initialization but are not components.
+   * <p>
+   * The object is retained to ensure that it is not initialized twice.
+   * 
+   * @param object  the object to initialize, not null
+   * @throws OpenGammaRuntimeException if an error is thrown during initialization
+   */
+  public void initialize(InitializingBean object) {
+    if (isInitialized(object) == false) {
+      try {
+        object.afterPropertiesSet();
+      } catch (Exception ex) {
+        throw new OpenGammaRuntimeException(ex.getMessage(), ex);
+      }
+      _initialized.add(object);
+    }
+  }
+
+  /**
+   * Checks if the object has been initialized.
+   * 
+   * @return true if initialized
+   */
+  private boolean isInitialized(InitializingBean object) {
+    for (InitializingBean initialized : _initialized) {
+      if (initialized == object) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Initializes an {@code InitializingBean} instance.
+   * 
+   * @param object  the object to check, not null
+   */
+  private void initialize0(Object object) {
+    if (object instanceof InitializingBean) {
+      initialize((InitializingBean) object);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Registers the component specifying the info that describes it.
    * <p>
-   * If the component implements {@code Lifecycle} or {@code ServletContextAware},
-   * it will be registered as though using {@link #registerLifecycle(Lifecycle)} or
-   * {@link #registerServletContextAware(ServletContextAware)}.
+   * Certain interfaces are automatically detected.
+   * If the component implements {@code Lifecycle}, it will be registered as
+   * though using {@link #registerLifecycle(Lifecycle)}.
+   * If it implements {@code ServletContextAware}, then it will be registered
+   * as though using {@link #registerServletContextAware(ServletContextAware)}.
+   * If it implements {@code InitializingBean}, then it will be initialized
+   * as though using {@link #initialize(InitializingBean)}.
    * 
    * @param info  the component info to register, not null
    * @param instance  the component instance to register, not null
@@ -366,6 +425,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
     
     ComponentKey key = info.toComponentKey();
     try {
+      initialize0(instance);
       registerInstance0(key, instance);
       
       _infoMap.putIfAbsent(info.getType(), new ComponentTypeInfo(info.getType()));
@@ -382,9 +442,13 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
   /**
    * Registers the component automatically creating the info that describes it.
    * <p>
-   * If the component implements {@code Lifecycle} or {@code ServletContextAware},
-   * it will be registered as though using {@link #registerLifecycle(Lifecycle)} or
-   * {@link #registerServletContextAware(ServletContextAware)}.
+   * Certain interfaces are automatically detected.
+   * If the component implements {@code Lifecycle}, it will be registered as
+   * though using {@link #registerLifecycle(Lifecycle)}.
+   * If it implements {@code ServletContextAware}, then it will be registered
+   * as though using {@link #registerServletContextAware(ServletContextAware)}.
+   * If it implements {@code InitializingBean}, then it will be initialized
+   * as though using {@link #initialize(InitializingBean)}.
    * 
    * @param <T>  the type
    * @param type  the type to register under, not null
@@ -450,6 +514,10 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
   /**
    * Registers a non-component object that requires closing or shutdown when
    * the repository stops.
+   * <p>
+   * Certain interfaces are automatically detected.
+   * If it implements {@code InitializingBean}, then it will be initialized
+   * as though using {@link #initialize(InitializingBean)}.
    * 
    * @param obj  the object to close/shutdown, not null
    * @param methodName  the method name to call, not null
@@ -459,6 +527,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
     ArgumentChecker.notNull(methodName, "methodName");
     checkStatus(Status.CREATING);
     
+    initialize0(obj);
     registerLifecycle0(new Lifecycle() {
       @Override
       public void stop() {
@@ -481,6 +550,10 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
 
   /**
    * Registers a non-component object implementing {@code Lifecycle}.
+   * <p>
+   * Certain interfaces are automatically detected.
+   * If it implements {@code InitializingBean}, then it will be initialized
+   * as though using {@link #initialize(InitializingBean)}.
    * 
    * @param lifecycleObject  the object that has a lifecycle, not null
    */
@@ -489,6 +562,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
     checkStatus(Status.CREATING);
     
     try {
+      initialize0(lifecycleObject);
       registerLifecycle0(lifecycleObject);
       registered(null, lifecycleObject);
       
@@ -510,6 +584,10 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
   //-------------------------------------------------------------------------
   /**
    * Registers a non-component object implementing {@code Lifecycle}.
+   * <p>
+   * Certain interfaces are automatically detected.
+   * If it implements {@code InitializingBean}, then it will be initialized
+   * as though using {@link #initialize(InitializingBean)}.
    * 
    * @param servletContextAware  the object that requires a servlet context, not null
    */
@@ -518,6 +596,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
     checkStatus(Status.CREATING);
     
     try {
+      initialize0(servletContextAware);
       registerServletContextAware0(servletContextAware);
       registered(null, servletContextAware);
       
@@ -560,6 +639,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
     checkStatus(Status.CREATING);
     
     try {
+      initialize0(managedResource);
       registerMBean0(managedResource, name);
       registered(null, managedResource);
       
@@ -644,6 +724,10 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
     } catch (RuntimeException ex) {
       _status.set(Status.FAILED);
       throw ex;
+    } finally {
+      // reduce memory usage and avoid memory leaks
+      _managedResources.clear();
+      _initialized.clear();
     }
   }
 
