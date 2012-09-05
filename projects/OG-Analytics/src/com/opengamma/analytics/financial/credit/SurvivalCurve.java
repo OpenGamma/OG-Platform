@@ -25,7 +25,7 @@ public class SurvivalCurve {
 
   // ------------------------------------------------------------------------
 
-  // Member variables
+  // Private member variables
 
   // Flat hazard rate value (mostly used for testing purposes only)
   private final double _flatHazardRate;
@@ -50,6 +50,7 @@ public class SurvivalCurve {
   public double[][] calibrateSurvivalCurve(CreditDefaultSwapDefinition cds, ZonedDateTime[] tenors, double[] parCDSSpreads) {
 
     int numberOfTenors = tenors.length;
+    int numberOfSpreads = parCDSSpreads.length;
 
     double[][] survivalCurve = new double[numberOfTenors][2];
 

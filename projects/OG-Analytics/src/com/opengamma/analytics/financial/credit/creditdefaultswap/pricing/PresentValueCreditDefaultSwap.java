@@ -28,6 +28,7 @@ public class PresentValueCreditDefaultSwap {
 
   // -------------------------------------------------------------------------------------------------
 
+  // Public method for computing the PV of a CDS based on an input CDS contract (work-in-progress) 
   public double getNewPresentValueCreditDefaultSwap(CreditDefaultSwapDefinition cds) {
 
     // -------------------------------------------------------------
