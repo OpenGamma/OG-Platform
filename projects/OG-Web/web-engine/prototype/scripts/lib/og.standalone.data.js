@@ -13,7 +13,6 @@
         gadget.add_grid = function (d, num) {
             var pdata = util.process_data(d); cols = json_strify(pdata.columns); data = json_strify(pdata.data);
             grid = new Slick.Grid($selector.find('.data_' + num), pdata.data, pdata.columns);
-            grid.onColumnsResized.subscribe(gadget.on_column_resize);
         };
         gadget.load = function () {
             $selector.css('backgroundColor', settings.background_color);
@@ -23,9 +22,6 @@
         gadget.update = function(input) {
             var pdata = util.process_data(input);
             if (data !== json_strify(pdata.data)) data = json_strify(pdata.data), grid.setData(pdata.data);
-            /**
-             * TODO AG: check if the column headings are different and if the column widths have changed, persist 
-             */
             if (cols !== json_strify(pdata.columns)) cols = json_strify(pdata.columns), grid.setColumns(pdata.columns);
         };
         gadget.on_column_resize = function(e, args) {
