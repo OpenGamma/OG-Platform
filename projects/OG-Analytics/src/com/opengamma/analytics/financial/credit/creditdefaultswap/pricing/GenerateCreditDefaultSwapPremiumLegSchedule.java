@@ -20,6 +20,7 @@ import com.opengamma.financial.convention.frequency.PeriodFrequency;
  *  Class containing methods to generate the premium leg cashflow schedule for a CDS (following the market conventions for CDS)
  */
 public class GenerateCreditDefaultSwapPremiumLegSchedule {
+
   private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("Act/360");
 
   // -------------------------------------------------------------------------------------------
@@ -29,6 +30,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // TODO : In businessDayAdjustDate add code to determine if we move forward or backward to find the next business day
   // TODO : Add the calculations for the accrual begin/end periods
   // TODO : Is there a better way of storing the generated dates than an n x 3 matrix?
+  // TODO : Check the level of access to these ctors/methods (private, public etc)
 
   // -------------------------------------------------------------------------------------------
 

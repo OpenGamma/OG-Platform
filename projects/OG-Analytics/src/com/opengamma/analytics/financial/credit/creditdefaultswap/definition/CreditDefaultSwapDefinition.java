@@ -14,7 +14,7 @@ import com.opengamma.analytics.financial.credit.Region;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.ScheduleGenerationMethod;
 import com.opengamma.analytics.financial.credit.Sector;
-import com.opengamma.analytics.financial.credit.SurvivalCurve;
+import com.opengamma.analytics.financial.credit.FlatSurvivalCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -47,10 +47,11 @@ public class CreditDefaultSwapDefinition {
   // TODO : Allow the case valuationDate = maturityDate (should return a MtM of zero)
   // TODO : Allow the case valuationDate = effectiveDate
   // TODO : Should we impose an upper limit on the number of integration steps in the calculation of the contingent leg?
+  // TODO : Check the level of access to these ctors/methods (private, public etc)
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // Member variables (all private) of the CDS contract (defines what a CDS is)
+  // Member variables (all private and final) of the CDS contract (defines what a CDS is)
 
   // From the users perspective, are we buying or selling protection - User input see enum
   private final BuySellProtection _buySellProtection;
@@ -139,7 +140,7 @@ public class CreditDefaultSwapDefinition {
   private final YieldCurve _yieldCurve;
 
   // The survival curve object containing the term structure of survival probabilities - Constructed from market data
-  private final SurvivalCurve _survivalCurve;
+  private final FlatSurvivalCurve _survivalCurve;
 
   // The term structure of rating of the reference entity (supplied by MarkIt) - proxy with a simple YieldCurve object for now
   private final YieldCurve _ratingCurve;
@@ -182,7 +183,7 @@ public class CreditDefaultSwapDefinition {
       boolean includeAccruedPremium,
       int numberOfIntegrationSteps,
       YieldCurve yieldCurve,
-      SurvivalCurve survivalCurve,
+      FlatSurvivalCurve survivalCurve,
       YieldCurve ratingCurve) {
 
     // ------------------------------------------------------------------------------------------------
@@ -473,7 +474,7 @@ public class CreditDefaultSwapDefinition {
     return _yieldCurve;
   }
 
-  public SurvivalCurve getSurvivalCurve() {
+  public FlatSurvivalCurve getSurvivalCurve() {
     return _survivalCurve;
   }
 

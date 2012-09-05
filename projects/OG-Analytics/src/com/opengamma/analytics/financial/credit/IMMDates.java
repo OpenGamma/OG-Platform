@@ -17,7 +17,12 @@ public class IMMDates {
 
   // ------------------------------------------------------------------------
 
-  // Private member variables
+  // TODO : Check the level of access to these ctors/methods (private, public etc)
+  // TODO : Remove the previous December date (not needed)
+
+  // ------------------------------------------------------------------------
+
+  // Private (final) member variables
 
   private final ZonedDateTime _immDatePreviousDecember;
   private final ZonedDateTime _immDateMarch;
