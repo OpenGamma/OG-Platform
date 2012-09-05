@@ -89,9 +89,13 @@
         <includes>
           <include>**/*.properties</include>
           <include>**/*.csv</include>
+          <include>**/*.dat</include>
+          <include>**/*.elsql</include>
+          <include>**/*.ftl</include>
           <include>**/*.proto</include>
           <include>**/*.txt</include>
           <include>**/*.xml</include>
+          <include
         </includes>
       </resource>
     </resources>
@@ -102,6 +106,9 @@
         <includes>
           <include>**/*.properties</include>
           <include>**/*.csv</include>
+          <include>**/*.dat</include>
+          <include>**/*.elsql</include>
+          <include>**/*.ftl</include>
           <include>**/*.proto</include>
           <include>**/*.txt</include>
           <include>**/*.xml</include>
