@@ -31,6 +31,9 @@
             }
             cols = json_strify(c);
         };
+        gadget.die = function () {
+            if (grid !== undefined) grid.invalidate(), grid.destroy(), grid = undefined;
+        };
         /**
          * Create html columns to house the grids
          */
