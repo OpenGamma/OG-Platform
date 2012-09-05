@@ -95,7 +95,6 @@
           <include>**/*.proto</include>
           <include>**/*.txt</include>
           <include>**/*.xml</include>
-          <include
         </includes>
       </resource>
     </resources>
