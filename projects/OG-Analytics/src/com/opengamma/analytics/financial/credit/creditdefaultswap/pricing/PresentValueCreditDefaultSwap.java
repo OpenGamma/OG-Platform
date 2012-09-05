@@ -28,6 +28,55 @@ public class PresentValueCreditDefaultSwap {
 
   // -------------------------------------------------------------------------------------------------
 
+  public double getNewPresentValueCreditDefaultSwap(CreditDefaultSwapDefinition cds) {
+
+    // -------------------------------------------------------------
+
+    //double presentValue = 0.0;
+    double presentValuePremiumLeg = 0.0;
+    double presentValueAccruedPremium = 0.0;
+    double presentValueContingentLeg = 0.0;
+
+    // -------------------------------------------------------------
+
+    // Get the relevant contract data needed to value the premium leg
+
+    // Get the notional amount and par CDS spread (in bps, therefore divide by 10,000) to multiply the premium leg by
+    double notional = cds.getNotional();
+    double parSpread = cds.getParSpread() / 10000.0;
+
+    //double curveRecoveryRate = cds.getCurveRecoveryRate();
+    //double hazardRate = parSpread / (1 - curveRecoveryRate);
+
+    // get the yield and survival curves
+    YieldCurve yieldCurve = cds.getYieldCurve();
+    SurvivalCurve survivalCurve = cds.getSurvivalCurve();
+
+    double hazardRate = survivalCurve.getFlatHazardRate();
+
+    // Do we need to calculate the accrued premium as well
+    boolean includeAccruedPremium = cds.getIncludeAccruedPremium();
+
+    // Extract the adjusted effective date from the computed cashflow schedule
+    //ZonedDateTime adjustedEffectiveDate = cashflowSchedule[0][0];
+
+    ZonedDateTime valuationDate = cds.getValuationDate();
+
+    // -------------------------------------------------------------
+
+    // Calculate the PV of the CDS (assumes we are buying protection i.e. paying the premium leg, receiving the contingent leg)
+    double presentValue = -presentValuePremiumLeg + presentValueContingentLeg;
+
+    // If we are selling protection, then reverse the direction of the premium and contingent leg cashflows
+    if (cds.getBuySellProtection() == BuySellProtection.SELL) {
+      presentValue = -1 * presentValue;
+    }
+
+    return presentValue;
+  }
+
+  // -------------------------------------------------------------------------------------------------
+
   // Public method for computing the PV of a CDS based on an input CDS contract
   public double getPresentValueCreditDefaultSwap(CreditDefaultSwapDefinition cds) {
 
@@ -76,18 +125,18 @@ public class PresentValueCreditDefaultSwap {
 
     // -------------------------------------------------------------
 
-    // Get the relevant contract date needed to value the premium leg
+    // Get the relevant contract data needed to value the premium leg
 
     // Get the notional amount and par CDS spread (in bps, therefore divide by 10,000) to multiply the premium leg by
     double notional = cds.getNotional();
     double parSpread = cds.getParSpread() / 10000.0;
 
-    double curveRecoveryRate = cds.getCurveRecoveryRate();
-    double hazardRate = parSpread / (1 - curveRecoveryRate);
-
     // get the yield and survival curves
     YieldCurve yieldCurve = cds.getYieldCurve();
     SurvivalCurve survivalCurve = cds.getSurvivalCurve();
+
+    // Compute the (flat) hazard rate for this simple curve
+    double hazardRate = survivalCurve.getFlatHazardRate();
 
     // Do we need to calculate the accrued premium as well
     boolean includeAccruedPremium = cds.getIncludeAccruedPremium();
@@ -114,7 +163,6 @@ public class PresentValueCreditDefaultSwap {
 
       // If required, calculate the accrued premium contribution to the overall premium leg
       if (includeAccruedPremium) {
-
         double tPrevious = TimeCalculator.getTimeBetween(cds.getEffectiveDate(), cashflowSchedule[i - 1][0]);
         double survivalProbabilityPrevious = survivalCurve.getSurvivalProbability(hazardRate, tPrevious);
 
@@ -151,12 +199,13 @@ public class PresentValueCreditDefaultSwap {
     double parSpread = cds.getParSpread() / 10000.0;
 
     double valuationRecoveryRate = cds.getValuationRecoveryRate();
-    double curveRecoveryRate = cds.getCurveRecoveryRate();
-    double hazardRate = parSpread / (1 - curveRecoveryRate);
 
     // get the yield and survival curves
     YieldCurve yieldCurve = cds.getYieldCurve();
     SurvivalCurve survivalCurve = cds.getSurvivalCurve();
+
+    // Get the (flat) hazard rate
+    double hazardRate = survivalCurve.getFlatHazardRate();
 
     int numberOfIntegrationSteps = cds.getNumberOfIntegrationSteps();
 
@@ -169,13 +218,8 @@ public class PresentValueCreditDefaultSwap {
     int numberOfPartitions = (int) (numberOfIntegrationSteps * timeInterval + 0.5);
     double epsilon = timeInterval / numberOfPartitions;
 
-    System.out.println(timeInterval);
-    System.out.println(numberOfPartitions);
-    System.out.println(epsilon);
-
     // Calculate the integral for the contingent leg
     for (int k = 1; k <= numberOfPartitions; k++) {
-
       double t = k * epsilon;
       double tPrevious = (k - 1) * epsilon;
 

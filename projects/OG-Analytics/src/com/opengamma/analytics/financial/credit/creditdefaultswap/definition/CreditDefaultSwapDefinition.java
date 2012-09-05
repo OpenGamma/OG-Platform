@@ -40,17 +40,17 @@ public class CreditDefaultSwapDefinition {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // TODO : Should really have more identifiers for the counterparty we are trading with (will be useful for CVA related purposes)
+  // TODO : Sort out the final argument checkers
   // TODO : Allow the case valuationDate = startDate
   // TODO : Allow the case effectiveDate = startDate
   // TODO : Allow the case maturityDate = startDate (e.g. startDate = 21/03/YY, maturityDate = 21/03/YY but IMM adjusted maturityDate = 20/06/YY)
   // TODO : Allow the case valuationDate = maturityDate (should return a MtM of zero)
   // TODO : Allow the case valuationDate = effectiveDate
   // TODO : Should we impose an upper limit on the number of integration steps in the calculation of the contingent leg?
-  // TODO : Add a seperate 'SurvivalCurve' class whose function is to generate the calibrated survival probabilities from the input CDS par spread term structure
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // Member variables of the CDS contract (defines what a CDS is)
+  // Member variables (all private) of the CDS contract (defines what a CDS is)
 
   // From the users perspective, are we buying or selling protection - User input see enum
   private final BuySellProtection _buySellProtection;
@@ -337,7 +337,7 @@ public class CreditDefaultSwapDefinition {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // Member variable accessor functions
+  // Member variable accessor functions (all public)
 
   public BuySellProtection getBuySellProtection() {
     return _buySellProtection;

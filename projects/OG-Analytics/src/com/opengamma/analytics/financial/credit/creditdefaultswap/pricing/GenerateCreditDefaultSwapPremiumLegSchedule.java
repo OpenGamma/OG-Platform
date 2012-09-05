@@ -264,10 +264,10 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     ZonedDateTime adjustedDate = date;
 
-    int delta = 1;
+    int deltaDays = 1;
 
     while (!calendar.isWorkingDay(adjustedDate.toLocalDate())) {
-      adjustedDate = adjustedDate.plusDays(delta);
+      adjustedDate = adjustedDate.plusDays(deltaDays);
     }
 
     return adjustedDate;

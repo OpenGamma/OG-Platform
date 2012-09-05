@@ -88,13 +88,14 @@ public class PresentValueCreditDefaultSwapTest {
   private static final int numberOfIntegrationSteps = 100;
 
   // Dummy yield curve
-  private static final double interestRate = 0.0;
+  private static final double interestRate = 0.05;
   private static final double[] TIME = new double[] {0, 3, 5, 10 };
   private static final double[] RATES = new double[] {interestRate, interestRate, interestRate, interestRate };
   private static final InterpolatedDoublesCurve R = InterpolatedDoublesCurve.from(TIME, RATES, new LinearInterpolator1D());
   private static final YieldCurve yieldCurve = YieldCurve.from(R);
 
-  private static final SurvivalCurve survivalCurve = new SurvivalCurve();
+  // Construct a survival curve based on a flat hazard rate term structure (for testing purposes only)
+  private static final SurvivalCurve survivalCurve = new SurvivalCurve(parSpread, curveRecoveryRate);
 
   // Dummy rating curve (proxied by a yield curve for now)
   private static final YieldCurve ratingCurve = yieldCurve;
