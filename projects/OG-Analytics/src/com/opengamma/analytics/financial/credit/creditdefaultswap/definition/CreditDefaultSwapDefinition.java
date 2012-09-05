@@ -7,14 +7,16 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.definition;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.CreditRating;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
+import com.opengamma.analytics.financial.credit.FlatSurvivalCurve;
 import com.opengamma.analytics.financial.credit.Region;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.ScheduleGenerationMethod;
 import com.opengamma.analytics.financial.credit.Sector;
-import com.opengamma.analytics.financial.credit.FlatSurvivalCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -191,7 +193,7 @@ public class CreditDefaultSwapDefinition {
     // Check the validity of the input arguments
 
     ArgumentChecker.notNull(buySellProtection, "Buy/Sell field is null");
-    // Do we need to check for ""?
+    // Do we need to check for ""? - NO
 
     ArgumentChecker.notNull(protectionBuyer, "Protection buyer field is null");
     ArgumentChecker.isFalse(protectionBuyer.isEmpty(), "Protection buyer field is empty");
@@ -517,7 +519,7 @@ public class CreditDefaultSwapDefinition {
     result = prime * result + _numberOfIntegrationSteps;
     temp = Double.doubleToLongBits(_parSpread);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + ((_protectionBuyer == null) ? 0 : _protectionBuyer.hashCode());
+    result = prime * result + _protectionBuyer.hashCode();
     result = prime * result + ((_protectionSeller == null) ? 0 : _protectionSeller.hashCode());
     result = prime * result + ((_ratingCurve == null) ? 0 : _ratingCurve.hashCode());
     result = prime * result + ((_referenceEntityREDCode == null) ? 0 : _referenceEntityREDCode.hashCode());
@@ -540,22 +542,25 @@ public class CreditDefaultSwapDefinition {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     CreditDefaultSwapDefinition other = (CreditDefaultSwapDefinition) obj;
-    if (_adjustMaturityDate != other._adjustMaturityDate)
+    if (_adjustMaturityDate != other._adjustMaturityDate) {
       return false;
-    if (_businessdayAdjustmentConvention == null) {
-      if (other._businessdayAdjustmentConvention != null)
-        return false;
-    } else if (!_businessdayAdjustmentConvention.equals(other._businessdayAdjustmentConvention))
+    }
+    if (!ObjectUtils.equals(_businessdayAdjustmentConvention, other._businessdayAdjustmentConvention)) {
       return false;
-    if (_buySellProtection != other._buySellProtection)
+    }
+    if (_buySellProtection != other._buySellProtection) {
       return false;
+    }
     if (_calendar == null) {
       if (other._calendar != null)
         return false;
@@ -570,18 +575,23 @@ public class CreditDefaultSwapDefinition {
       return false;
     if (_couponFrequency != other._couponFrequency)
       return false;
+
     if (_creditKey == null) {
-      if (other._creditKey != null)
+      if (other._creditKey != null) {
         return false;
-    } else if (!_creditKey.equals(other._creditKey))
+      }
+    } else if (!_creditKey.equals(other._creditKey)) {
       return false;
+    }
+
     if (_currency == null) {
       if (other._currency != null)
         return false;
     } else if (!_currency.equals(other._currency))
       return false;
-    if (Double.doubleToLongBits(_curveRecoveryRate) != Double.doubleToLongBits(other._curveRecoveryRate))
+    if (Double.doubleToLongBits(_curveRecoveryRate) != Double.doubleToLongBits(other._curveRecoveryRate)) {
       return false;
+    }
     if (_daycountFractionConvention == null) {
       if (other._daycountFractionConvention != null)
         return false;

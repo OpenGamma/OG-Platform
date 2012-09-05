@@ -18,6 +18,17 @@ import com.opengamma.analytics.util.time.TimeCalculator;
  */
 public class PresentValueCreditDefaultSwap {
 
+  private static final int DEFAULT_N_POINTS = 100;
+  private final int _numberOfIntegrationSteps;
+
+  public PresentValueCreditDefaultSwap() {
+    this(DEFAULT_N_POINTS);
+  }
+
+  public PresentValueCreditDefaultSwap(int numberOfIntegrationPoints) {
+    _numberOfIntegrationSteps = numberOfIntegrationPoints;
+  }
+
   // -------------------------------------------------------------------------------------------------
 
   // TODO : Lots of work to do in this file
@@ -79,6 +90,8 @@ public class PresentValueCreditDefaultSwap {
 
   // -------------------------------------------------------------------------------------------------
 
+  //public double xxx(cds, yc, sc, rc);
+
   // Public method for computing the PV of a CDS based on an input CDS contract
   public double getPresentValueCreditDefaultSwap(CreditDefaultSwapDefinition cds) {
 
@@ -116,6 +129,8 @@ public class PresentValueCreditDefaultSwap {
   }
 
   //-------------------------------------------------------------------------------------------------
+
+  // Make private
 
   // Method (private) to calculate the value of the premium leg of a CDS 
   double calculatePremiumLeg(CreditDefaultSwapDefinition cds, ZonedDateTime[][] cashflowSchedule) {
@@ -209,16 +224,13 @@ public class PresentValueCreditDefaultSwap {
     // Get the (flat) hazard rate from the survival curve
     double hazardRate = survivalCurve.getFlatHazardRate();
 
-    // Get the number of time intervals per year for the numerical integration of the contingent leg
-    int numberOfIntegrationSteps = cds.getNumberOfIntegrationSteps();
-
     // Calculate the protection leg integral between the adjustedEffectiveDate (when protection begins) and maturityDate (when protection ends)
     ZonedDateTime adjustedEffectiveDate = cashflowSchedule[0][0];
     ZonedDateTime immAdjustedMaturityDate = cashflowSchedule[cashflowSchedule.length - 1][0];
 
     // Calculate the discretisation of the time axis
     double timeInterval = TimeCalculator.getTimeBetween(adjustedEffectiveDate, immAdjustedMaturityDate);
-    int numberOfPartitions = (int) (numberOfIntegrationSteps * timeInterval + 0.5);
+    int numberOfPartitions = (int) (_numberOfIntegrationSteps * timeInterval + 0.5);
     double epsilon = timeInterval / numberOfPartitions;
 
     // Calculate the integral for the contingent leg

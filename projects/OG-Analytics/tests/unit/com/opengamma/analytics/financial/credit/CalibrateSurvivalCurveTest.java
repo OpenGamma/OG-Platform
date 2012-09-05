@@ -24,9 +24,9 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * Class to test the implementation of the flat survival curve object
+ * Class to test the implementation of the calibration of the survival curve
  */
-public class FlatSurvivalCurveTest {
+public class CalibrateSurvivalCurveTest {
 
   // ---------------------------------------------------------------------------------------
 
@@ -81,7 +81,7 @@ public class FlatSurvivalCurveTest {
   private static final YieldCurve yieldCurve = YieldCurve.from(R);
 
   // Construct a survival curve based on a flat hazard rate term structure (for testing purposes only)
-  private static final FlatSurvivalCurve survivalCurve = new FlatSurvivalCurve(parSpread, valuationRecoveryRate);
+  private static final FlatSurvivalCurve survivalCurve = new FlatSurvivalCurve(parSpread, curveRecoveryRate);
 
   // Dummy rating curve (proxied by a yield curve for now)
   private static final YieldCurve ratingCurve = yieldCurve;
@@ -126,19 +126,13 @@ public class FlatSurvivalCurveTest {
   // ---------------------------------------------------------------------------------------
 
   @Test
-  public void testFlatSurvivalCurve() {
+  public void testCalibrateSurvivalCurve() {
 
-    System.out.println("Running tests on flat survival curve construction ...");
+    System.out.println("Running tests on survival curve construction ...");
 
-    double hazardRate = survivalCurve.getFlatHazardRate();
+    //final CalibrateSurvivalCurve curve = new CalibrateSurvivalCurve();
 
-    for (double t = 0.0; t <= 5.0; t += 0.25) {
-
-      double survivalProbabilty = survivalCurve.getSurvivalProbability(hazardRate, t);
-
-      System.out.println("t = " + t + "\t\t" + "S(0, t) = " + survivalProbabilty);
-    }
+    //double[][] calibratedSurvivalCurve = curve.getCalibratedSurvivalCurve(cds, null, null);
   }
-
   // ---------------------------------------------------------------------------------------
 }

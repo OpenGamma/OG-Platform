@@ -13,11 +13,11 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.CreditRating;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
+import com.opengamma.analytics.financial.credit.FlatSurvivalCurve;
 import com.opengamma.analytics.financial.credit.Region;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.ScheduleGenerationMethod;
 import com.opengamma.analytics.financial.credit.Sector;
-import com.opengamma.analytics.financial.credit.FlatSurvivalCurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.PresentValueCreditDefaultSwap;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -45,6 +45,8 @@ public class PresentValueCreditDefaultSwapTest {
   // TODO : Sort out what exceptions to throw from the test cases
 
   // ----------------------------------------------------------------------------------
+
+  // CDS contract parameters
 
   private static final BuySellProtection buySellProtection = BuySellProtection.BUY;
 

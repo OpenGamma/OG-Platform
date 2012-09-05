@@ -25,7 +25,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
   // -------------------------------------------------------------------------------------------
 
-  // TODO : Add a check if the calendar is 'null' to signify no adjustment of business dates?
+  // TODO : Add a check if the calendar is 'null' to signify no adjustment of business dates? Overloaded method
   // TODO : This is all coded for the case of building the schedule backwards from the maturity date - need to generalise  
   // TODO : In businessDayAdjustDate add code to determine if we move forward or backward to find the next business day
   // TODO : Add the calculations for the accrual begin/end periods
@@ -36,6 +36,8 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
   // Method to generate the premium leg cashflow schedule from the (unadjusted) CDS contract specification
   public ZonedDateTime[][] constructCreditDefaultSwapPremiumLegSchedule(CreditDefaultSwapDefinition cds) {
+
+    // Check cds is not null
 
     // ------------------------------------------------
 
@@ -97,6 +99,8 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   }
 
   // -------------------------------------------------------------------------------------------
+
+  // Keep all these as private
 
   // Function to return a vector of daycount fractions given an input cashflow schedule
   double[] calculateDaycountFraction(ZonedDateTime adjustedEffectiveDate, ZonedDateTime[][] cashflowSchedule, DayCount daycountFractionConvention) {
