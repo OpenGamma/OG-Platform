@@ -78,6 +78,9 @@ public class FakeSubscriptionBloombergLiveDataServer extends AbstractLiveDataSer
 
   /**
    * Creates an instance.
+   * <p>
+   * The distribution specification resolver, entitlement checker and market data sender factory
+   * are set by the constructor based on the underlying server.
    * 
    * @param underlying  the underlying server, not null
    * @param cacheManager  the cache manager, not null
@@ -88,6 +91,8 @@ public class FakeSubscriptionBloombergLiveDataServer extends AbstractLiveDataSer
     ArgumentChecker.notNull(underlying, "underlying");
     ArgumentChecker.notNull(cacheManager, "cacheManager");
     setDistributionSpecificationResolver(getDistributionSpecResolver(underlying.getDistributionSpecificationResolver()));
+    setEntitlementChecker(underlying.getEntitlementChecker());
+    setMarketDataSenderFactory(underlying.getMarketDataSenderFactory());
     
     String snapshotCacheName = "FakeSubscriptionBloombergLiveDataServer.SnapshotValues";
     EHCacheUtils.addCache(cacheManager, snapshotCacheName);
