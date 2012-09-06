@@ -61,11 +61,18 @@ $.register_module({
             grid.$ = dollar || $; // each grid holds a reference to its frame/window's $
             grid.config = config || {};
             grid.elements = {empty: true};
-            grid.events = {cellselect: [], mousedown: [], rangeselect: [], render: [], scroll: [], select: []};
+            grid.events = {
+                cellhover: [], cellselect: [], mousedown: [], rangeselect: [], render: [], scroll: [], select: []
+            };
             grid.formatter = new og.analytics.Formatter(grid);
             grid.id = '#analytics_grid_' + counter++;
             grid.meta = null;
             grid.source = config.source;
+            grid.updated = (function (last, delta) {
+                return function (time) {
+                    return time ? (last ? ((delta = time - last), (last = time), delta) : ((last = time), 0)) : delta;
+                };
+            })(null, 0);
             if (templates) grid.init_data(); else compile_templates(grid.init_data, grid);
         };
         var set_css = function (id, sets, offset) {
@@ -84,6 +91,14 @@ $.register_module({
         constructor.prototype.alive = function () {
             var grid = this, $ = grid.$;
             return $(grid.id).length ? true : !grid.elements.style.remove();
+        };
+        constructor.prototype.cell = function (selection) {
+            var grid = this, cell, viewport = grid.meta.viewport;
+            return 1 !== selection.rows.length || 1 !== selection.cols.length ? null : {
+                row: selection.rows[0], col: selection.cols[0], value: cell = grid
+                    .data[viewport.rows.indexOf(selection.rows[0])][viewport.cols.indexOf(selection.cols[0])],
+                type: cell.t || selection.type[0]
+            };
         };
         constructor.prototype.init_data = function () {
             var grid = this, $ = grid.$, config = grid.config;
@@ -107,7 +122,29 @@ $.register_module({
             var grid = this, $ = grid.$, config = grid.config, elements;
             (elements = grid.elements).style = $('<style type="text/css" />').appendTo('head');
             elements.parent = $(config.selector).html(templates.container({id: grid.id.substring(1)}))
-                .on('mousedown', function (event) {event.preventDefault(), fire(grid.events.mousedown, event);});
+                .on('mousedown', function (event) {event.preventDefault(), fire(grid.events.mousedown, event);})
+                .on('mousemove', '.OG-g-sel, .OG-g-cell', (function (last_x, last_y, page_x, page_y, last_corner) {
+                    var resolution = 6, counter = 0; // only accept 1/resolution of the mouse moves, we have too many
+                    return function (event) {
+                        (page_x = event.pageX), (page_y = event.pageY);
+                        if (counter++ % resolution) return;
+                        if (counter > resolution) counter = 1;
+                        if (grid.selector.busy()) return last_x = last_y = last_corner = null;
+                        if (page_x === last_x && page_y === last_y) return;
+                        var scroll_left = grid.elements.scroll_body.scrollLeft(),
+                            scroll_top = grid.elements.scroll_body.scrollTop(),
+                            fixed_width = grid.meta.columns.width.fixed,
+                            x = page_x - grid.offset.left + (page_x > fixed_width ? scroll_left : 0),
+                            y = page_y - grid.offset.top + scroll_top - grid.meta.header_height, corner, corner_cache,
+                            rectangle = {top_left: (corner = grid.nearest_cell(x, y)), bottom_right: corner}, cell;
+                        if (last_corner === (corner_cache = JSON.stringify(corner))) return;
+                        cell = grid.cell(grid.transpose_selection(grid.selector.selection(rectangle)));
+                        cell.top = corner.top + grid.offset.top - scroll_top + grid.meta.header_height;
+                        cell.right = corner.right + grid.offset.left - (page_x > fixed_width ? scroll_left : 0);
+                        fire(grid.events.cellhover, cell);
+                        last_corner = corner_cache; last_x = page_x; last_y = page_y;
+                    }
+                })(null, null));
             elements.parent[0].onselectstart = function () {return false;}; // stop selections in IE
             elements.main = $(grid.id);
             elements.fixed_body = $(grid.id + ' .OG-g-b-fixed');
@@ -138,16 +175,11 @@ $.register_module({
                 })(null));
             })();
             grid.selector = new og.analytics.Selector(grid).on('select', function (raw) {
-                var cell, meta = grid.meta, viewport = meta.viewport, selection = {
-                    cols: raw.cols,
-                    rows: raw.rows.map(function (row) {return meta.available[row];}),
-                    type: raw.cols.map(function (col) {return meta.columns.types[col];})
-                };
-                if (1 === selection.rows.length && 1 === selection.cols.length) fire(grid.events.cellselect, {
-                    row: selection.rows[0], col: selection.cols[0], value: cell = grid
-                        .data[viewport.rows.indexOf(selection.rows[0])][viewport.cols.indexOf(selection.cols[0])],
-                    type: cell.t || selection.type[0]
-                }); else fire(grid.events.rangeselect, selection);
+                var cell, meta = grid.meta, selection = grid.transpose_selection(raw);
+                if (1 === selection.rows.length && 1 === selection.cols.length)
+                    fire(grid.events.cellselect, grid.cell(selection));
+                else
+                    fire(grid.events.rangeselect, selection);
                 fire(grid.events.select, selection); // fire for both single and multiple selection
             });
             og.common.gadgets.manager.register({alive: grid.alive, resize: grid.resize, context: grid});
@@ -169,6 +201,13 @@ $.register_module({
             grid.unravel_structure();
             if (grid.elements.empty) grid.init_elements();
             grid.resize(grid.render_header);
+        };
+        constructor.prototype.nearest_cell = function (x, y) {
+            var grid = this, top, bottom, lcv, scan = grid.meta.columns.scan.all, len = scan.length;
+            for (lcv = 0; lcv < len; lcv += 1) if (scan[lcv] > x) break;
+            bottom = (Math.floor(y / grid.meta.row_height) + 1) * grid.meta.row_height;
+            top = bottom - grid.meta.row_height;
+            return {top: top, bottom: bottom, left: scan[lcv - 1] || 0, right: scan[lcv]};
         };
         constructor.prototype.on = og.analytics.events.on;
         constructor.prototype.render_header = (function () {
@@ -217,6 +256,7 @@ $.register_module({
                 grid.data = data;
                 grid.elements.fixed_body.html(templates.row(row_data(grid, data, true)));
                 grid.elements.scroll_body.html(templates.row(row_data(grid, data, false)));
+                grid.updated(+new Date);
                 fire(grid.events.render);
                 grid.dataman.busy(false);
                 grid.elements.scroll_body.focus(); // focus on scroll body so arrow keys will work
@@ -265,7 +305,16 @@ $.register_module({
             });
             if (grid.elements.style[0].styleSheet) grid.elements.style[0].styleSheet.cssText = css; // IE
             else grid.elements.style[0].appendChild(document.createTextNode(css));
+            grid.offset = grid.elements.parent.offset();
             return grid.viewport(handler);
+        };
+        constructor.prototype.transpose_selection = function (raw) {
+            var grid = this, meta = grid.meta;
+            return {
+                cols: raw.cols,
+                rows: raw.rows.map(function (row) {return meta.available[row];}),
+                type: raw.cols.map(function (col) {return meta.columns.types[col];})
+            };
         };
         constructor.prototype.unravel_structure = (function () {
             var times = function (str, rep) {var result = ''; if (rep) while (--rep) result += str; return result;};

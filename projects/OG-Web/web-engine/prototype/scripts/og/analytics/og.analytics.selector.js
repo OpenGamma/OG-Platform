@@ -9,7 +9,6 @@ $.register_module({
         var module = this, namespace = '.og_analytics_selector', overlay = '.OG-g-sel', cell = '.OG-g-cell';
         var constructor = function (grid) {
             var selector = this, $ = grid.$, grid_offset, grid_width, grid_height, fixed_width;
-            selector.grid = grid;
             var auto_scroll = function (event, scroll_top, scroll_left, start) {
                 var x = event.pageX - grid_offset.left, y = event.pageY - grid_offset.top, increment = 35,
                     interval = 100, scroll_body = grid.elements.scroll_body, over_fixed = x < fixed_width;
@@ -30,9 +29,10 @@ $.register_module({
                 $(document).off(namespace);
                 (auto_scroll.timeout = clearTimeout(auto_scroll.timeout)), (auto_scroll.scroll = false);
                 if (selection) og.analytics.events.fire(selector.events.select, selection);
+                selector.busy(false);
             };
             var initialize = function () {
-                grid_offset = grid.elements.parent.offset();
+                grid_offset = grid.offset;
                 grid_width = grid.elements.parent.width();
                 grid_height = grid.elements.parent.height();
                 fixed_width = grid.meta.columns.width.fixed;
@@ -48,6 +48,7 @@ $.register_module({
                 selector.clear();
                 if (is_overlay) return; // if a user is deselecting, leave
                 clean_up();
+                selector.busy(true);
                 $(document)
                     .on('mouseup' + namespace, clean_up)
                     .on('mousemove' + namespace, (function (x, y, handler) { // run it manually once and return it
@@ -61,15 +62,15 @@ $.register_module({
                     event.preventDefault();
                     if (reset) counter = 0;
                     if (counter++ % resolution) return;
-                    if (counter > 8) counter = 1;
+                    if (counter > resolution) counter = 1;
                     var scroll_left = grid.elements.scroll_body.scrollLeft(),
                         scroll_top = grid.elements.scroll_body.scrollTop(),
                         x = event.pageX - grid_offset.left + (event.pageX > fixed_width ? scroll_left : 0),
                         y = event.pageY - grid_offset.top + scroll_top - grid.meta.header_height,
                         regions = [], rectangle = {};
                     auto_scroll(event, scroll_top, scroll_left, start);
-                    rectangle.top_left = nearest_cell(grid, Math.min(start.x, x), Math.min(start.y, y));
-                    rectangle.bottom_right = nearest_cell(grid, Math.max(start.x, x), Math.max(start.y, y));
+                    rectangle.top_left = grid.nearest_cell(Math.min(start.x, x), Math.min(start.y, y));
+                    rectangle.bottom_right = grid.nearest_cell(Math.max(start.x, x), Math.max(start.y, y));
                     rectangle.width = rectangle.bottom_right.right - rectangle.top_left.left;
                     rectangle.height = rectangle.bottom_right.bottom - rectangle.top_left.top;
                     if (rectangle.top_left.left < fixed_width) regions.push({ // fixed overlay
@@ -104,17 +105,14 @@ $.register_module({
                         .appendTo(grid.elements[region.fixed ? 'fixed_body' : 'scroll_body']);
                 });
             };
+            selector.busy = (function (busy) {
+                return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
+            })(false);
             selector.events = {select: []};
+            selector.grid = grid;
             selector.regions = null;
             selector.rectangle = null;
             grid.on('mousedown', mousedown_observer).on('render', render); // initialize
-        };
-        var nearest_cell = function (grid, x, y) {
-            var top, bottom, lcv, scan = grid.meta.columns.scan.all, len = scan.length;
-            for (lcv = 0; lcv < len; lcv += 1) if (scan[lcv] > x) break;
-            bottom = (Math.floor(y / grid.meta.row_height) + 1) * grid.meta.row_height;
-            top = bottom - grid.meta.row_height;
-            return {top: top, bottom: bottom, left: scan[lcv - 1] || 0, right: scan[lcv]};
         };
         constructor.prototype.clear = function () {
             var selector = this, $ = selector.grid.$;
@@ -122,10 +120,10 @@ $.register_module({
             selector.regions = selector.rectangle = null;
         };
         constructor.prototype.on = og.analytics.events.on;
-        constructor.prototype.selection = function () {
-            if (!this.rectangle) return null;
-            var selector = this, bottom_right = selector.rectangle.bottom_right,
-                top_left = selector.rectangle.top_left,
+        constructor.prototype.selection = function (rectangle) {
+            if (!this.rectangle && !rectangle) return null;
+            var selector = this, bottom_right = (rectangle = rectangle || selector.rectangle).bottom_right,
+                top_left = rectangle.top_left,
                 row_start = Math.floor(top_left.top / grid.meta.row_height),
                 row_end = Math.floor(bottom_right.bottom / grid.meta.row_height),
                 lcv, scan = grid.meta.columns.scan.all, rows = [], cols = [];
