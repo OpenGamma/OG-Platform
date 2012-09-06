@@ -197,3 +197,7 @@
 .OG-gadget-container .slick-row:hover {
     background-color: transparent;
 }
+
+.OG-gadget-container .grid-canvas .slick-cell{
+  color: #555;
+}
