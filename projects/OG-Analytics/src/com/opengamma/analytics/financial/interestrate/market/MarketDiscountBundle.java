@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.interestrate.market;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,9 +22,9 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * Class describing a "market" with discounting, forward, price index and credit curves.
- * The forward curve are represented by discounting curves.
+ * The forward rate are computed as the ratio of discount factors stored in YieldAndDiscountCurve.
  */
-public class MarketCurveBundle implements IMarketBundle {
+public class MarketDiscountBundle implements IMarketBundle {
 
   /**
    * A map with one (discounting) curve by currency.
@@ -43,23 +43,36 @@ public class MarketCurveBundle implements IMarketBundle {
    */
   private final Map<Pair<String, Currency>, YieldAndDiscountCurve> _issuerCurves;
 
-  //TODO: Should be issuer/currency to curve map.
-
   /**
    * Constructor with empty maps for discounting, forward and price index.
    */
-  public MarketCurveBundle() {
-    _discountingCurves = new HashMap<Currency, YieldAndDiscountCurve>();
-    _forwardCurves = new HashMap<IndexDeposit, YieldAndDiscountCurve>();
-    _priceIndexCurves = new HashMap<IndexPrice, PriceIndexCurve>();
-    _issuerCurves = new HashMap<Pair<String, Currency>, YieldAndDiscountCurve>();
+  public MarketDiscountBundle() {
+    _discountingCurves = new LinkedHashMap<Currency, YieldAndDiscountCurve>();
+    _forwardCurves = new LinkedHashMap<IndexDeposit, YieldAndDiscountCurve>();
+    _priceIndexCurves = new LinkedHashMap<IndexPrice, PriceIndexCurve>();
+    _issuerCurves = new LinkedHashMap<Pair<String, Currency>, YieldAndDiscountCurve>();
   }
 
   /**
    * Constructor from an existing market. The given market maps are used for the new market (the same maps are used, not copied).
+   * @param discountingCurves A map with one (discounting) curve by currency.
+   * @param forwardCurves A map with one (forward) curve by Ibor/OIS index.
+   * @param priceIndexCurves A map with one price curve by price index.
+   * @param issuerCurves A map with issuer discounting curves.
+   */
+  public MarketDiscountBundle(final Map<Currency, YieldAndDiscountCurve> discountingCurves, final Map<IndexDeposit, YieldAndDiscountCurve> forwardCurves,
+      final Map<IndexPrice, PriceIndexCurve> priceIndexCurves, final Map<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurves) {
+    _discountingCurves = discountingCurves;
+    _forwardCurves = forwardCurves;
+    _priceIndexCurves = priceIndexCurves;
+    _issuerCurves = issuerCurves;
+  }
+
+  /**
+   * Constructor from exiting maps. The given maps are used for the new market (the same maps are used, not copied).
    * @param market The existing market.
    */
-  public MarketCurveBundle(MarketCurveBundle market) {
+  public MarketDiscountBundle(MarketDiscountBundle market) {
     _discountingCurves = market._discountingCurves;
     _forwardCurves = market._forwardCurves;
     _priceIndexCurves = market._priceIndexCurves;
@@ -67,7 +80,16 @@ public class MarketCurveBundle implements IMarketBundle {
   }
 
   @Override
-  public double getDiscountingFactor(Currency ccy, Double time) {
+  public MarketDiscountBundle copy() {
+    final LinkedHashMap<Currency, YieldAndDiscountCurve> discountingCurves = new LinkedHashMap<Currency, YieldAndDiscountCurve>(_discountingCurves);
+    final LinkedHashMap<IndexDeposit, YieldAndDiscountCurve> forwardCurves = new LinkedHashMap<IndexDeposit, YieldAndDiscountCurve>(_forwardCurves);
+    final LinkedHashMap<IndexPrice, PriceIndexCurve> priceIndexCurves = new LinkedHashMap<IndexPrice, PriceIndexCurve>(_priceIndexCurves);
+    final LinkedHashMap<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurves = new LinkedHashMap<Pair<String, Currency>, YieldAndDiscountCurve>(_issuerCurves);
+    return new MarketDiscountBundle(discountingCurves, forwardCurves, priceIndexCurves, issuerCurves);
+  }
+
+  @Override
+  public double getDiscountFactor(Currency ccy, Double time) {
     if (_discountingCurves.containsKey(ccy)) {
       return _discountingCurves.get(ccy).getDiscountFactor(time);
     }
@@ -120,7 +142,7 @@ public class MarketCurveBundle implements IMarketBundle {
   }
 
   @Override
-  public double getDiscountingFactor(final Pair<String, Currency> issuerCcy, Double time) {
+  public double getDiscountFactor(final Pair<String, Currency> issuerCcy, Double time) {
     if (_issuerCurves.containsKey(issuerCcy)) {
       return _issuerCurves.get(issuerCcy).getDiscountFactor(time);
     }

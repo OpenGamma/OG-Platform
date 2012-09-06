@@ -54,7 +54,7 @@ public final class PresentValueFromFuturePriceCalculator extends AbstractInstrum
   @Override
   public Double visitBondFuture(final BondFuture future, final Double futurePrice) {
     Validate.notNull(future);
-    return METHOD_BOND_FUTURE.presentValueFromPrice(future, futurePrice);
+    return METHOD_BOND_FUTURE.presentValueFromPrice(future, futurePrice).getAmount();
   }
 
 }

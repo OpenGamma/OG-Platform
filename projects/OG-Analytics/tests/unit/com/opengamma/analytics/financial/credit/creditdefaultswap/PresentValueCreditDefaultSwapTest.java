@@ -87,7 +87,6 @@ public class PresentValueCreditDefaultSwapTest {
   private static final double valuationRecoveryRate = 0.40;
   private static final double curveRecoveryRate = 0.40;
   private static final boolean includeAccruedPremium = true;
-  private static final int numberOfIntegrationSteps = 100;
 
   // Dummy yield curve
   private static final double interestRate = 0.05;
@@ -98,9 +97,6 @@ public class PresentValueCreditDefaultSwapTest {
 
   // Construct a survival curve based on a flat hazard rate term structure (for testing purposes only)
   private static final FlatSurvivalCurve survivalCurve = new FlatSurvivalCurve(parSpread, curveRecoveryRate);
-
-  // Dummy rating curve (proxied by a yield curve for now)
-  private static final YieldCurve ratingCurve = yieldCurve;
 
   // ----------------------------------------------------------------------------------
 
@@ -133,11 +129,7 @@ public class PresentValueCreditDefaultSwapTest {
       parSpread,
       valuationRecoveryRate,
       curveRecoveryRate,
-      includeAccruedPremium,
-      numberOfIntegrationSteps,
-      yieldCurve,
-      survivalCurve,
-      ratingCurve);
+      includeAccruedPremium);
 
   // -----------------------------------------------------------------------------------------------
 
@@ -151,7 +143,7 @@ public class PresentValueCreditDefaultSwapTest {
     final PresentValueCreditDefaultSwap testCDS = new PresentValueCreditDefaultSwap();
 
     // Call the CDS PV calculator to get the current PV
-    double pV = testCDS.getPresentValueCreditDefaultSwap(cds);
+    double pV = testCDS.getPresentValueCreditDefaultSwap(cds, yieldCurve, survivalCurve);
 
     // Report the result
     System.out.println("CDS PV = " + pV);

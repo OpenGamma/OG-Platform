@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.credit;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 
 /**
  * Class to calibrate a single-name CDS survival curve to market observed term structure of par CDS spreads
@@ -18,16 +19,17 @@ public class CalibrateSurvivalCurve {
 
   // ------------------------------------------------------------------------
 
-  // TODO : Lots of work to do in here
+  // TODO : Lots of work to do in here - Work In Progress
   // TODO : Check that length of the tenor and parCDSSpreads vectors are the same
   // TODO : Check that the tenors are in ascending order
   // TODO : Add the interpolation and extrapolation methods
-  // TODO : Check the level of access to these ctors/methods (private, public etc)
 
   // ------------------------------------------------------------------------
 
   // Member function to calibrate a CDS objects survival curve to a term structure of market observed par CDS spreads
-  public double[][] getCalibratedSurvivalCurve(CreditDefaultSwapDefinition cds, ZonedDateTime[] tenors, double[] parCDSSpreads) {
+  public double[][] getCalibratedSurvivalCurve(CreditDefaultSwapDefinition cds, ZonedDateTime[] tenors, double[] parCDSSpreads, YieldCurve yieldCurve) {
+
+    // Add argument checkers for the input arguments
 
     int numberOfTenors = tenors.length;
     int numberOfSpreads = parCDSSpreads.length;
@@ -76,7 +78,7 @@ public class CalibrateSurvivalCurve {
   // ------------------------------------------------------------------------
 
   // Private member function to convert the input tenors into doubles
-  double[] convertDatesToDoubles(ZonedDateTime[] tenors) {
+  private double[] convertDatesToDoubles(ZonedDateTime[] tenors) {
 
     int numberOfTenors = tenors.length;
 
