@@ -185,7 +185,7 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
   }
 
   /**
-   * Computes the option's value delta, the first derivative of the security price wrt underlying futures rate. 
+   * Computes the option's value delta, the first derivative of the security price wrt underlying futures rate. TODO: REVIEW is it futures rate or price?
    * @param security The future option security, not null
    * @param blackData The curve and Black volatility data, not null
    * @return The security value delta.
