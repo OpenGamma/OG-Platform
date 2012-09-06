@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.pnl;
@@ -20,12 +20,11 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.id.UniqueId;
 
 /**
- * 
+ *
  */
 public class BondFutureOptionBlackYieldCurveNodePnLFunction extends YieldCurveNodePnLFunction {
 
@@ -39,9 +38,8 @@ public class BondFutureOptionBlackYieldCurveNodePnLFunction extends YieldCurveNo
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final Position position = target.getPosition();
     final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(position.getSecurity()).getCode())
+        .withAny(ValuePropertyNames.CURRENCY)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
         .withAny(ValuePropertyNames.SURFACE)
         .withAny(ValuePropertyNames.CURVE)
@@ -60,9 +58,8 @@ public class BondFutureOptionBlackYieldCurveNodePnLFunction extends YieldCurveNo
         curveNames.add(entry.getValue().getConstraint(ValuePropertyNames.CURVE));
       }
     }
-    final Position position = target.getPosition();
     final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(position.getSecurity()).getCode())
+        .withAny(ValuePropertyNames.CURRENCY)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
         .withAny(ValuePropertyNames.SURFACE)
         .with(ValuePropertyNames.CURVE, curveNames)

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.currency;
@@ -40,7 +40,7 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 // TODO jonathan 2012-02-01 -- added this for immediate demo needs. Need to revisit and fully implement.
 
 /**
- * 
+ *
  */
 public abstract class PnlSeriesCurrencyConversionFunction extends AbstractFunction.NonCompiledInvoker {
 
@@ -132,7 +132,14 @@ public abstract class PnlSeriesCurrencyConversionFunction extends AbstractFuncti
         new TimeSeriesCurrencyConversionRequirements(OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context)));
   }
 
-  protected abstract ValueSpecification getValueSpec(ValueSpecification inputSpec, String currencyCode);
+  protected ValueSpecification getValueSpec(final ValueSpecification inputSpec, final String currencyCode) {
+    final ValueProperties properties = inputSpec.getProperties().copy()
+        .withoutAny(ValuePropertyNames.FUNCTION)
+        .with(ValuePropertyNames.FUNCTION, getUniqueId())
+        .withoutAny(ValuePropertyNames.CURRENCY)
+        .with(ValuePropertyNames.CURRENCY, currencyCode).get();
+    return new ValueSpecification(ValueRequirementNames.PNL_SERIES, inputSpec.getTargetSpecification(), properties);
+  }
 
   private LocalDateDoubleTimeSeries convertSeries(final LocalDateDoubleTimeSeries sourceTs, final HistoricalTimeSeries conversionTS, final Currency sourceCurrency, final Currency targetCurrency) {
     final CurrencyMatrixValue fxConversion = getCurrencyMatrix().getConversion(sourceCurrency, targetCurrency);
@@ -160,12 +167,12 @@ public abstract class PnlSeriesCurrencyConversionFunction extends AbstractFuncti
 
     @Override
     public LocalDateDoubleTimeSeries visitFixed(final CurrencyMatrixFixed fixedValue) {
-      return (LocalDateDoubleTimeSeries) getBaseTimeSeries().divide(fixedValue.getFixedValue());
+      return (LocalDateDoubleTimeSeries) getBaseTimeSeries().multiply(fixedValue.getFixedValue());
     }
 
     @Override
     public LocalDateDoubleTimeSeries visitValueRequirement(final CurrencyMatrixValueRequirement uniqueId) {
-      return (LocalDateDoubleTimeSeries) getBaseTimeSeries().divide(getConversionTimeSeries().getTimeSeries());
+      return (LocalDateDoubleTimeSeries) getBaseTimeSeries().multiply(getConversionTimeSeries().getTimeSeries());
     }
 
     @Override
