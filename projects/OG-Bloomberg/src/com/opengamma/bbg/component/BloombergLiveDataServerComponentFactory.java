@@ -121,7 +121,7 @@ public class BloombergLiveDataServerComponentFactory extends AbstractStandardLiv
   }
 
   @Override
-  protected LiveDataMetaData createMetaData() {
+  protected LiveDataMetaData createMetaData(ComponentRepository repo) {
     ImmutableList<ExternalScheme> schemes = ImmutableList.of(ExternalSchemes.BLOOMBERG_BUID, ExternalSchemes.BLOOMBERG_TICKER,
         ExternalSchemes.BLOOMBERG_TCM, ExternalSchemes.BLOOMBERG_BUID_WEAK, ExternalSchemes.BLOOMBERG_TICKER_WEAK);
     return new LiveDataMetaData(schemes, LiveDataServerTypes.STANDARD, "Bloomberg");
