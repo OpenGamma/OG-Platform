@@ -34,13 +34,13 @@ public class BloombergSecurityProviderComponentFactory extends SecurityProviderC
    * The Bloomberg reference data.
    */
   @PropertyDefinition(validate = "notNull")
-  private ReferenceDataProvider _bloombergReferenceData;
+  private ReferenceDataProvider _referenceDataProvider;
 
   //-------------------------------------------------------------------------
   @Override
   protected BloombergSecurityProvider initSecurityProvider(ComponentRepository repo) {
     ExchangeDataProvider exchangeDataProvider = initExchangeDataProvider(repo);
-    return new BloombergSecurityProvider(getBloombergReferenceData(), exchangeDataProvider);
+    return new BloombergSecurityProvider(getReferenceDataProvider(), exchangeDataProvider);
   }
 
   protected ExchangeDataProvider initExchangeDataProvider(ComponentRepository repo) {
@@ -68,8 +68,8 @@ public class BloombergSecurityProviderComponentFactory extends SecurityProviderC
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 1886112538:  // bloombergReferenceData
-        return getBloombergReferenceData();
+      case -1788671322:  // referenceDataProvider
+        return getReferenceDataProvider();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -77,8 +77,8 @@ public class BloombergSecurityProviderComponentFactory extends SecurityProviderC
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 1886112538:  // bloombergReferenceData
-        setBloombergReferenceData((ReferenceDataProvider) newValue);
+      case -1788671322:  // referenceDataProvider
+        setReferenceDataProvider((ReferenceDataProvider) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -86,7 +86,7 @@ public class BloombergSecurityProviderComponentFactory extends SecurityProviderC
 
   @Override
   protected void validate() {
-    JodaBeanUtils.notNull(_bloombergReferenceData, "bloombergReferenceData");
+    JodaBeanUtils.notNull(_referenceDataProvider, "referenceDataProvider");
     super.validate();
   }
 
@@ -97,7 +97,7 @@ public class BloombergSecurityProviderComponentFactory extends SecurityProviderC
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       BloombergSecurityProviderComponentFactory other = (BloombergSecurityProviderComponentFactory) obj;
-      return JodaBeanUtils.equal(getBloombergReferenceData(), other.getBloombergReferenceData()) &&
+      return JodaBeanUtils.equal(getReferenceDataProvider(), other.getReferenceDataProvider()) &&
           super.equals(obj);
     }
     return false;
@@ -106,7 +106,7 @@ public class BloombergSecurityProviderComponentFactory extends SecurityProviderC
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBloombergReferenceData());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getReferenceDataProvider());
     return hash ^ super.hashCode();
   }
 
@@ -115,25 +115,25 @@ public class BloombergSecurityProviderComponentFactory extends SecurityProviderC
    * Gets the Bloomberg reference data.
    * @return the value of the property, not null
    */
-  public ReferenceDataProvider getBloombergReferenceData() {
-    return _bloombergReferenceData;
+  public ReferenceDataProvider getReferenceDataProvider() {
+    return _referenceDataProvider;
   }
 
   /**
    * Sets the Bloomberg reference data.
-   * @param bloombergReferenceData  the new value of the property, not null
+   * @param referenceDataProvider  the new value of the property, not null
    */
-  public void setBloombergReferenceData(ReferenceDataProvider bloombergReferenceData) {
-    JodaBeanUtils.notNull(bloombergReferenceData, "bloombergReferenceData");
-    this._bloombergReferenceData = bloombergReferenceData;
+  public void setReferenceDataProvider(ReferenceDataProvider referenceDataProvider) {
+    JodaBeanUtils.notNull(referenceDataProvider, "referenceDataProvider");
+    this._referenceDataProvider = referenceDataProvider;
   }
 
   /**
-   * Gets the the {@code bloombergReferenceData} property.
+   * Gets the the {@code referenceDataProvider} property.
    * @return the property, not null
    */
-  public final Property<ReferenceDataProvider> bloombergReferenceData() {
-    return metaBean().bloombergReferenceData().createProperty(this);
+  public final Property<ReferenceDataProvider> referenceDataProvider() {
+    return metaBean().referenceDataProvider().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -147,16 +147,16 @@ public class BloombergSecurityProviderComponentFactory extends SecurityProviderC
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code bloombergReferenceData} property.
+     * The meta-property for the {@code referenceDataProvider} property.
      */
-    private final MetaProperty<ReferenceDataProvider> _bloombergReferenceData = DirectMetaProperty.ofReadWrite(
-        this, "bloombergReferenceData", BloombergSecurityProviderComponentFactory.class, ReferenceDataProvider.class);
+    private final MetaProperty<ReferenceDataProvider> _referenceDataProvider = DirectMetaProperty.ofReadWrite(
+        this, "referenceDataProvider", BloombergSecurityProviderComponentFactory.class, ReferenceDataProvider.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "bloombergReferenceData");
+        "referenceDataProvider");
 
     /**
      * Restricted constructor.
@@ -167,8 +167,8 @@ public class BloombergSecurityProviderComponentFactory extends SecurityProviderC
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1886112538:  // bloombergReferenceData
-          return _bloombergReferenceData;
+        case -1788671322:  // referenceDataProvider
+          return _referenceDataProvider;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -190,11 +190,11 @@ public class BloombergSecurityProviderComponentFactory extends SecurityProviderC
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code bloombergReferenceData} property.
+     * The meta-property for the {@code referenceDataProvider} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ReferenceDataProvider> bloombergReferenceData() {
-      return _bloombergReferenceData;
+    public final MetaProperty<ReferenceDataProvider> referenceDataProvider() {
+      return _referenceDataProvider;
     }
 
   }
