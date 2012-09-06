@@ -7,6 +7,7 @@
     </publications>
     
     <dependencies>
+        <dependency name="og-livedata" rev="latest.integration" />
         <dependency name="og-core" rev="latest.integration" />
         
         <exclude org="org.apache.log4j" module="log4j" />
