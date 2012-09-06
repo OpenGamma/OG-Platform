@@ -6,6 +6,7 @@
 package com.opengamma.web.server.push.analytics;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
@@ -42,44 +43,36 @@ public class DependencyGraphGridStructure implements GridStructure {
           column("Function"),
           column("Properties")))));
 
-  /** {@link ValueSpecification}s and function names for all rows in the grid in row index order. */
-  private final List<Row> _rows;
+  /** {@link ValueSpecification}s for all rows in the grid in row index order. */
+  private final List<ValueSpecification> _valueSpecs;
+  /** Function names for all rows in the grid in row index order. */
+  private final List<String> _fnNames;
   /** For looking up calculation targets using their specification. */
   private final ComputationTargetResolver _computationTargetResolver;
   /** The root node of the tree structure representing the rows. */
   private final AnalyticsNode _root;
 
   /* package */ DependencyGraphGridStructure(AnalyticsNode root,
-                                             List<Row> rows,
+                                             List<ValueSpecification> valueSpecs,
+                                             List<String> fnNames,
                                              ComputationTargetResolver targetResolver) {
+
     ArgumentChecker.notNull(root, "root");
-    ArgumentChecker.notNull(rows, "rows");
+    ArgumentChecker.notNull(valueSpecs, "valueSpecs");
+    ArgumentChecker.notNull(fnNames, "fnNames");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
-    _rows = rows;
     _root = root;
+    _valueSpecs = Collections.unmodifiableList(valueSpecs);
+    _fnNames = Collections.unmodifiableList(fnNames);
     _computationTargetResolver = targetResolver;
   }
 
   /**
-   * Returns the value specifications used to calculate the values for a range of rows.
-   * @param rows The row indices
-   * @return The value specifications used to calculate the row values
+   * Returns the value specifications used to calculate the values in the grid.
+   * @return The value specifications used to calculate the values
    */
-  /* package */ List<ValueSpecification> getValueSpecificationsForRows(List<Integer> rows) {
-    List<ValueSpecification> valueSpecs = Lists.newArrayList();
-    for (Integer rowIndex : rows) {
-      valueSpecs.add(getValueSpecificationForRow(rowIndex));
-    }
-    return valueSpecs;
-  }
-
-  /**
-   * Returns the value specification used to calculate the value for a row.
-   * @param rowIndex The row index
-   * @return The value specifications used to calculate the row value
-   */
-  private ValueSpecification getValueSpecificationForRow(Integer rowIndex) {
-    return _rows.get(rowIndex).getValueSpec();
+  /* package */ List<ValueSpecification> getValueSpecifications() {
+    return _valueSpecs;
   }
 
   /**
@@ -111,12 +104,13 @@ public class DependencyGraphGridStructure implements GridStructure {
                                                          SortedSet<Integer> cols,
                                                          ResultsCache cache,
                                                          String calcConfigName) {
-    ResultsCache.Result cacheResult = cache.getResult(calcConfigName, getValueSpecificationForRow(rowIndex), null);
+    ResultsCache.Result cacheResult = cache.getResult(calcConfigName, _valueSpecs.get(rowIndex), null);
     Object value = cacheResult.getValue();
-    Row row = _rows.get(rowIndex);
+    ValueSpecification spec = _valueSpecs.get(rowIndex);
+    String fnName = _fnNames.get(rowIndex);
     List<ViewportResults.Cell> rowResults = Lists.newArrayListWithCapacity(cols.size());
     for (Integer colIndex : cols) {
-      rowResults.add(createValueForColumn(colIndex, row, value, cache, calcConfigName));
+      rowResults.add(createValueForColumn(colIndex, spec, fnName, value, cache, calcConfigName));
     }
     return rowResults;
   }
@@ -124,18 +118,19 @@ public class DependencyGraphGridStructure implements GridStructure {
   /**
    * Builds a the result for a single grid cell.
    * @param colIndex Index of the column in the grid
-   * @param row Index of the row in the grid
+   * @param valueSpec The specifications of the cell's value
+   * @param fnName The name of the function that calculated the cell's value
    * @param value The cell's value
    * @param cache Cache of results for the grid, used for building the history of values for the cell
    * @param calcConfigName Calculation configuration used when calculating the dependency graph
    * @return Cell containing the result and possibly history
    */
   /* package */ ViewportResults.Cell createValueForColumn(int colIndex,
-                                                          Row row,
+                                                          ValueSpecification valueSpec,
+                                                          String fnName,
                                                           Object value,
                                                           ResultsCache cache,
                                                           String calcConfigName) {
-    ValueSpecification valueSpec = row.getValueSpec();
     switch (colIndex) {
       case 0: // target
         return ViewportResults.stringCell(getTargetName(valueSpec.getTargetSpecification()));
@@ -147,7 +142,7 @@ public class DependencyGraphGridStructure implements GridStructure {
         Collection<Object> cellHistory = cache.getHistory(calcConfigName, valueSpec);
         return ViewportResults.valueCell(value, valueSpec, cellHistory);
       case 4: // function name
-        return ViewportResults.stringCell(row.getFunctionName());
+        return ViewportResults.stringCell(fnName);
       case 5: // properties
         return ViewportResults.stringCell(getValuePropertiesForDisplay(valueSpec.getProperties()));
       default: // never happen
@@ -249,7 +244,7 @@ public class DependencyGraphGridStructure implements GridStructure {
 
   @Override
   public int getRowCount() {
-    return _rows.size();
+    return _valueSpecs.size();
   }
 
   @Override
@@ -267,37 +262,5 @@ public class DependencyGraphGridStructure implements GridStructure {
    */
   public AnalyticsNode getRoot() {
     return _root;
-  }
-
-  /**
-   * A row in the dependency graph grid.
-   */
-  /* package */ static class Row {
-
-    /** Specification of the row's target. */
-    private final ValueSpecification _valueSpec;
-    /** Name of the function used to calculate the row's value. */
-    private final String _functionName;
-
-    Row(ValueSpecification valueSpec, String functionName) {
-      ArgumentChecker.notNull(valueSpec, "valueSpec");
-      ArgumentChecker.notNull(functionName, "functionName");
-      _valueSpec = valueSpec;
-      _functionName = functionName;
-    }
-
-    /**
-     * @return Specification of the row's target
-     */
-    /* package */ ValueSpecification getValueSpec() {
-      return _valueSpec;
-    }
-
-    /**
-     * @return Name of the function used to calculate the row's value
-     */
-    /* package */ String getFunctionName() {
-      return _functionName;
-    }
   }
 }
