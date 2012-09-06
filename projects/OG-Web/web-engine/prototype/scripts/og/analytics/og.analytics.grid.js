@@ -124,7 +124,7 @@ $.register_module({
             elements.parent = $(config.selector).html(templates.container({id: grid.id.substring(1)}))
                 .on('mousedown', function (event) {event.preventDefault(), fire(grid.events.mousedown, event);})
                 .on('mousemove', '.OG-g-sel, .OG-g-cell', (function (last_x, last_y, page_x, page_y, last_corner) {
-                    var resolution = 6, counter = 0; // only accept 1/resolution of the mouse moves, we have too many
+                    var resolution = 8, counter = 0; // only accept 1/resolution of the mouse moves, we have too many
                     return function (event) {
                         (page_x = event.pageX), (page_y = event.pageY);
                         if (counter++ % resolution) return;
