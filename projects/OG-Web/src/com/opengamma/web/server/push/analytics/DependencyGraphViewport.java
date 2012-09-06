@@ -5,17 +5,12 @@
  */
 package com.opengamma.web.server.push.analytics;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
-import com.google.common.collect.Maps;
-import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calc.ComputationCacheQuery;
 import com.opengamma.engine.view.calc.ComputationCacheResponse;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Viewport on a grid displaying the dependency graph showing how a value is calculated. This class isn't thread safe.
@@ -26,8 +21,6 @@ public class DependencyGraphViewport extends AnalyticsViewport {
   private final String _calcConfigName;
   /** The row and column structure of the underlying grid. */
   private final DependencyGraphGridStructure _gridStructure;
-  /** {@link ValueSpecification}s for all rows visible in the viewport. */
-  private List<ValueSpecification> _viewportValueSpecs = Collections.emptyList();
 
   /**
    * @param viewportSpec Definition of the viewport
@@ -66,7 +59,6 @@ public class DependencyGraphViewport extends AnalyticsViewport {
                                              viewportSpec + ", grid: " + _gridStructure);
     }
     _viewportSpec = viewportSpec;
-    _viewportValueSpecs = _gridStructure.getValueSpecificationsForRows(_viewportSpec.getRows());
     ++_version;
     updateResults(cycle, cache);
     return _version;
@@ -80,18 +72,11 @@ public class DependencyGraphViewport extends AnalyticsViewport {
    */
   /* package */ String updateResults(ViewCycle cycle, ResultsCache cache) {
     ComputationCacheQuery query = new ComputationCacheQuery();
-    Map<ValueSpecification, Object> resultsMap = Maps.newHashMap();
     query.setCalculationConfigurationName(_calcConfigName);
-    query.setValueSpecifications(_viewportValueSpecs);
+    query.setValueSpecifications(_gridStructure.getValueSpecifications());
     ComputationCacheResponse cacheResponse = cycle.queryComputationCaches(query);
-    List<Pair<ValueSpecification, Object>> results = cacheResponse.getResults();
-    for (Pair<ValueSpecification, Object> result : results) {
-      ValueSpecification valueSpec = result.getFirst();
-      Object value = result.getSecond();
-      resultsMap.put(valueSpec, value);
-    }
-    List<List<ViewportResults.Cell>> gridResults =
-    _gridStructure.createResultsForViewport(_viewportSpec, resultsMap, cache, _calcConfigName);
+    cache.put(_calcConfigName, cacheResponse.getResults());
+    List<List<ViewportResults.Cell>> gridResults = _gridStructure.createResultsForViewport(_viewportSpec, cache, _calcConfigName);
     _latestResults = new ViewportResults(gridResults, _viewportSpec, _gridStructure.getColumnStructure(), _version);
     // TODO return null if nothing was updated
     return _callbackId;

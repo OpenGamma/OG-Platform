@@ -17,18 +17,33 @@ import com.opengamma.util.money.CurrencyAmount;
  * 
  */
 public final class BondFutureOptionPremiumTransactionBlackSurfaceMethod {
-  private static final BondFutureOptionPremiumTransactionBlackSurfaceMethod INSTANCE = new BondFutureOptionPremiumTransactionBlackSurfaceMethod();
-  private static final BondFutureOptionPremiumSecurityBlackSurfaceMethod METHOD = BondFutureOptionPremiumSecurityBlackSurfaceMethod.getInstance();
 
+  /**
+   * Creates the method unique instance.
+   */
+  private static final BondFutureOptionPremiumTransactionBlackSurfaceMethod INSTANCE = new BondFutureOptionPremiumTransactionBlackSurfaceMethod();
+
+  /**
+   * Return the method unique instance.
+   * @return The instance.
+   */
   public static BondFutureOptionPremiumTransactionBlackSurfaceMethod getInstance() {
     return INSTANCE;
   }
 
+  /**
+   * Constructor.
+   */
   private BondFutureOptionPremiumTransactionBlackSurfaceMethod() {
   }
+  
+  /**
+   * The methods used for the security.
+   */
+  private static final BondFutureOptionPremiumSecurityBlackSurfaceMethod METHOD_SECURITY = BondFutureOptionPremiumSecurityBlackSurfaceMethod.getInstance();
 
   /**
-   * Compute the present value of a future transaction from a quoted price.
+   * Compute the present value of a future transaction from a quoted option price.
    * @param option The future option, not null
    * @param curves The curves, not null
    * @param price The quoted price
@@ -43,6 +58,14 @@ public final class BondFutureOptionPremiumTransactionBlackSurfaceMethod {
     return CurrencyAmount.of(option.getUnderlyingOption().getCurrency(), optionPV + premiumPV);
   }
 
+  public CurrencyAmount presentValue(final BondFutureOptionPremiumTransaction transaction, final YieldCurveBundle curves) {
+    ArgumentChecker.notNull(transaction, "transaction");
+    ArgumentChecker.notNull(curves, "curves");
+    final double priceSecurity = METHOD_SECURITY.optionPrice(transaction.getUnderlyingOption(), curves);
+    final CurrencyAmount pvTransaction = presentValueFromPrice(transaction, curves, priceSecurity);
+    return pvTransaction;
+  }
+
   /**
    * Computes the present value curve sensitivity of a transaction.
    * @param transaction The future option transaction.
@@ -52,16 +75,8 @@ public final class BondFutureOptionPremiumTransactionBlackSurfaceMethod {
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final BondFutureOptionPremiumTransaction transaction, final YieldCurveBundle curves) {
     ArgumentChecker.notNull(transaction, "transaction");
     ArgumentChecker.notNull(curves, "curves");
-    final InterestRateCurveSensitivity securitySensitivity = METHOD.priceCurveSensitivity(transaction.getUnderlyingOption(), curves);
+    final InterestRateCurveSensitivity securitySensitivity = METHOD_SECURITY.priceCurveSensitivity(transaction.getUnderlyingOption(), curves);
     return securitySensitivity.multiply(transaction.getQuantity() * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional());
-  }
-
-  public CurrencyAmount presentValue(final BondFutureOptionPremiumTransaction transaction, final YieldCurveBundle curves) {
-    ArgumentChecker.notNull(transaction, "transaction");
-    ArgumentChecker.notNull(curves, "curves");
-    final double priceSecurity = METHOD.optionPrice(transaction.getUnderlyingOption(), curves);
-    final CurrencyAmount pvTransaction = presentValueFromPrice(transaction, curves, priceSecurity);
-    return pvTransaction;
   }
 
   /**
@@ -74,7 +89,7 @@ public final class BondFutureOptionPremiumTransactionBlackSurfaceMethod {
   public double presentValueGamma(final BondFutureOptionPremiumTransaction transaction, final YieldCurveWithBlackCubeBundle blackData) {
     ArgumentChecker.notNull(transaction, "transaction");
     ArgumentChecker.notNull(blackData, "Black data");
-    final double securityGamma = METHOD.optionPriceGamma(transaction.getUnderlyingOption(), blackData);
+    final double securityGamma = METHOD_SECURITY.optionPriceGamma(transaction.getUnderlyingOption(), blackData);
     final double txnGamma = securityGamma * transaction.getQuantity() * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional();
     return txnGamma;
   }
@@ -89,7 +104,7 @@ public final class BondFutureOptionPremiumTransactionBlackSurfaceMethod {
   public double presentValueDelta(final BondFutureOptionPremiumTransaction transaction, final YieldCurveWithBlackCubeBundle blackData) {
     ArgumentChecker.notNull(transaction, "transaction");
     ArgumentChecker.notNull(blackData, "Black data");
-    final double securityDelta = METHOD.optionPriceDelta(transaction.getUnderlyingOption(), blackData);
+    final double securityDelta = METHOD_SECURITY.optionPriceDelta(transaction.getUnderlyingOption(), blackData);
     final double txnDelta = securityDelta * transaction.getQuantity() * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional();
     return txnDelta;
   }
@@ -103,8 +118,9 @@ public final class BondFutureOptionPremiumTransactionBlackSurfaceMethod {
   public double presentValueVega(final BondFutureOptionPremiumTransaction transaction, final YieldCurveWithBlackCubeBundle blackData) {
     ArgumentChecker.notNull(transaction, "transaction");
     ArgumentChecker.notNull(blackData, "Black data");
-    final double securityVega = METHOD.optionPriceVega(transaction.getUnderlyingOption(), blackData);
+    final double securityVega = METHOD_SECURITY.optionPriceVega(transaction.getUnderlyingOption(), blackData);
     final double txnVega = securityVega * transaction.getQuantity() * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional();
     return txnVega;
   }
+  
 }
