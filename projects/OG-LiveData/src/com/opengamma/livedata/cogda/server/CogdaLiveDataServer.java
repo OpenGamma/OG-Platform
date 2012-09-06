@@ -35,6 +35,7 @@ import com.opengamma.livedata.LiveDataValueUpdate;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.server.LastKnownValueStore;
 import com.opengamma.livedata.server.LastKnownValueStoreProvider;
+import com.opengamma.livedata.server.LiveDataServer;
 import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeConnectionReceiver;
 import com.opengamma.transport.socket.ServerSocketFudgeConnectionReceiver;
@@ -56,7 +57,9 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  * Because the {@link UserSource} will be hit for every authorization question, it is <strong>critical</strong>
  * that the source caches requests in some form.
  */
-public class CogdaLiveDataServer implements FudgeConnectionReceiver, Lifecycle {
+public class CogdaLiveDataServer implements LiveDataServer, FudgeConnectionReceiver, Lifecycle {
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(CogdaLiveDataServer.class);
   /**
    * The default port on which the server will listen for inbound connections.

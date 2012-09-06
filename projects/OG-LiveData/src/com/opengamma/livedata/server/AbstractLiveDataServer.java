@@ -54,7 +54,7 @@ import com.opengamma.util.PublicAPI;
  * 
  */
 @PublicAPI
-public abstract class AbstractLiveDataServer implements Lifecycle {
+public abstract class AbstractLiveDataServer implements LiveDataServer, Lifecycle {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractLiveDataServer.class);
