@@ -62,9 +62,9 @@ $.register_module({
             grid.config = config || {};
             grid.elements = {empty: true};
             grid.events = {cellselect: [], mousedown: [], rangeselect: [], render: [], scroll: [], select: []};
+            grid.formatter = new og.analytics.Formatter(grid);
             grid.id = '#analytics_grid_' + counter++;
             grid.meta = null;
-            grid.formatter = new og.analytics.Formatter(grid);
             grid.source = config.source;
             if (templates) grid.init_data(); else compile_templates(grid.init_data, grid);
         };
@@ -82,12 +82,12 @@ $.register_module({
             });
         };
         constructor.prototype.alive = function () {
-            var grid = this;
-            return grid.$(grid.id).length ? true : !grid.elements.style.remove();
+            var grid = this, $ = grid.$;
+            return $(grid.id).length ? true : !grid.elements.style.remove();
         };
         constructor.prototype.init_data = function () {
-            var grid = this, config = grid.config;
-            (grid.dataman = new og.analytics.Data(grid.source))
+            var grid = this, $ = grid.$, config = grid.config;
+            grid.dataman = new og.analytics.Data(grid.source)
                 .on('meta', grid.init_grid, grid)
                 .on('data', grid.render_rows, grid);
             grid.on('render', function () {
@@ -104,7 +104,7 @@ $.register_module({
             });
         };
         constructor.prototype.init_elements = function () {
-            var grid = this, config = grid.config, elements;
+            var grid = this, $ = grid.$, config = grid.config, elements;
             (elements = grid.elements).style = $('<style type="text/css" />').appendTo('head');
             elements.parent = $(config.selector).html(templates.container({id: grid.id.substring(1)}))
                 .on('mousedown', function (event) {event.preventDefault(), fire(grid.events.mousedown, event);});
@@ -124,7 +124,7 @@ $.register_module({
                         grid.dataman.busy(true);
                         elements.scroll_body.scrollTop(elements.fixed_body.scrollTop());
                         timeout = clearTimeout(timeout) || setTimeout(jump, pause);
-                    }
+                    };
                 })(null));
                 elements.scroll_body.on('scroll', (function (timeout) {
                     return function (event) { // sync scroll instantaneously and set viewport after scroll stops
@@ -134,7 +134,7 @@ $.register_module({
                         elements.scroll_head.scrollLeft(elements.scroll_body.scrollLeft());
                         elements.fixed_body.scrollTop(elements.scroll_body.scrollTop());
                         timeout = clearTimeout(timeout) || setTimeout(jump, pause);
-                    }
+                    };
                 })(null));
             })();
             grid.selector = new og.analytics.Selector(grid).on('select', function (raw) {
@@ -154,7 +154,7 @@ $.register_module({
             elements.empty = false;
         };
         constructor.prototype.init_grid = function (metadata) {
-            var grid = this, config = grid.config, $ = grid.$, columns = metadata.columns;
+            var grid = this, config = grid.config, columns = metadata.columns;
             grid.meta = metadata;
             grid.meta.row_height = row_height;
             grid.meta.header_height = header_height;
@@ -251,6 +251,7 @@ $.register_module({
             meta.viewport = {
                 height: meta.rows * row_height, width: Math.min(width, data_width) - meta.columns.width.fixed
             };
+            // height = Math.min(height, meta.viewport.height);
             meta.visible_rows = Math.min(Math.ceil((height - header_height) / row_height), meta.rows);
             css = templates.css({
                 id: id, viewport_width: meta.viewport.width,

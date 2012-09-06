@@ -11,20 +11,13 @@ $.register_module({
         return function (grid) {
             var formatter = this;
             formatter.DOUBLE = function (value) {
-                var indicator;
-                // calculate indicator direction
-                (function () {
-                    if (value && value.h) {
-                        var len = value.h.length, cur = value.h[len - 1], lst = value.h[len - 2];
-                        if (cur < lst) {indicator = 'down'}
-                        if (cur > lst) {indicator = 'up'}
-                        else {indicator = 'static'}
-                    }
-                }());
+                var curr, last, indicator = !value || !value.h ? null
+                    : (curr = value.h[value.h.length - 1]) < (last = value.h[value.h.length - 2]) ? 'down'
+                        : curr > last ? 'up' : 'static';
                 return !value ? ''
                     : (value.v || '') +
                         (grid.config.sparklines ? '<span class="sp" values="' + value.h.join(',') + '"></span>' : '') +
-                        (value.h[0] ? '<span class="OG-icon og-icon-tick-'+ indicator +'"></span>' : '');
+                        (indicator ? '<span class="OG-icon og-icon-tick-'+ indicator +'"></span>' : '');
             };
             formatter.UNKNOWN = function (value) {
                 var type = value.t;

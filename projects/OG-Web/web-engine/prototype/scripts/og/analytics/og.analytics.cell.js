@@ -4,24 +4,15 @@
  */
 $.register_module({
     name: 'og.analytics.Cell',
-    dependencies: ['og.api.rest', 'og.analytics.Data'],
+    dependencies: ['og.api.rest', 'og.analytics.Data', 'og.analytics.events'],
     obj: function () {
-        var module = this;
-        return function (config) {
-            var cell = this, source = config.source, row = config.row, col = config.col, events = {data: []};
-            var fire = function (type) {
-                var args = Array.prototype.slice.call(arguments, 1), lcv, len = events[type].length;
-                for (lcv = 0; lcv < len; lcv += 1)
-                    if (false === events[type][lcv].handler.apply(null, events[type][lcv].args.concat(args))) break;
-            };
-            cell.dataman = new og.analytics.Data(source)
-                .viewport({rows: [row], cols: [col], expanded: true})
-                .on('data', function (data) {fire('data', data[0][0]);});
-            cell.on = function (type, handler) {
-                if (type in events)
-                    events[type].push({handler: handler, args: Array.prototype.slice.call(arguments, 2)});
-                return cell;
-            };
+        var events = og.analytics.events, constructor = function (config) {
+            var cell = this;
+            cell.events = {data: []};
+            new og.analytics.Data(config.source).viewport({rows: [config.row], cols: [config.col], expanded: true})
+                .on('data', function (data) {events.fire(cell.events.data, data[0][0]);});
         };
+        constructor.prototype.on = events.on;
+        return constructor;
     }
 });

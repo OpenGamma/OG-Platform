@@ -20,7 +20,7 @@ $.register_module({
                         type: 'portfolio',
                         depgraph: true,
                         viewdefinition: args.id,
-                        row: 0, col: 2,
+                        row: 4, col: 6,
                         live: true,
                         provider: 'Live market data (Bloomberg, Activ, TullettPrebon, ICAP)'
                     }

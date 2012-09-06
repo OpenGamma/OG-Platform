@@ -9,6 +9,7 @@ $.register_module({
         var module = this, namespace = '.og_analytics_selector', overlay = '.OG-g-sel', cell = '.OG-g-cell';
         var constructor = function (grid) {
             var selector = this, $ = grid.$, grid_offset, grid_width, grid_height, fixed_width;
+            selector.grid = grid;
             var auto_scroll = function (event, scroll_top, scroll_left, start) {
                 var x = event.pageX - grid_offset.left, y = event.pageY - grid_offset.top, increment = 35,
                     interval = 100, scroll_body = grid.elements.scroll_body, over_fixed = x < fixed_width;
@@ -95,32 +96,17 @@ $.register_module({
                 }
             })();
             var render = function (regions, rectangle) {
-                if (!render.regions && !regions) return;
-                if (regions) (render.regions = regions), (render.rectangle = rectangle);
+                if (!selector.regions && !regions) return;
+                if (regions) (selector.regions = regions), (selector.rectangle = rectangle);
                 $(grid.id + ' ' + overlay).remove();
-                render.regions.forEach(function (region) {
+                selector.regions.forEach(function (region) {
                     $('<div class="' + overlay.substring(1) + '" />').css(region.position).css(region.dimensions)
                         .appendTo(grid.elements[region.fixed ? 'fixed_body' : 'scroll_body']);
                 });
             };
-            (render.regions = null), (render.rectangle = null);
-            selector.clear = function () {
-                $(grid.id + ' ' + overlay).remove(), (render.regions = null), (render.rectangle = null);
-            };
             selector.events = {select: []};
-            selector.selection = function () {
-                if (!render.rectangle) return null;
-                var bottom_right = render.rectangle.bottom_right,
-                    top_left = render.rectangle.top_left,
-                    row_start = Math.floor(top_left.top / grid.meta.row_height),
-                    row_end = Math.floor(bottom_right.bottom / grid.meta.row_height),
-                    lcv, scan = grid.meta.columns.scan.all, rows = [], cols = [];
-                for (lcv = 0; lcv < scan.length; lcv += 1)
-                    if (scan[lcv] <= bottom_right.right && scan[lcv] > top_left.left) cols.push(lcv);
-                    else if (scan[lcv] > bottom_right.right) break;
-                for (lcv = row_start; lcv < row_end; lcv += 1) rows.push(lcv);
-                return {rows: rows, cols: cols};
-            };
+            selector.regions = null;
+            selector.rectangle = null;
             grid.on('mousedown', mousedown_observer).on('render', render); // initialize
         };
         var nearest_cell = function (grid, x, y) {
@@ -130,7 +116,25 @@ $.register_module({
             top = bottom - grid.meta.row_height;
             return {top: top, bottom: bottom, left: scan[lcv - 1] || 0, right: scan[lcv]};
         };
+        constructor.prototype.clear = function () {
+            var selector = this, $ = selector.grid.$;
+            $(selector.grid.id + ' ' + overlay).remove();
+            selector.regions = selector.rectangle = null;
+        };
         constructor.prototype.on = og.analytics.events.on;
+        constructor.prototype.selection = function () {
+            if (!this.rectangle) return null;
+            var selector = this, bottom_right = selector.rectangle.bottom_right,
+                top_left = selector.rectangle.top_left,
+                row_start = Math.floor(top_left.top / grid.meta.row_height),
+                row_end = Math.floor(bottom_right.bottom / grid.meta.row_height),
+                lcv, scan = grid.meta.columns.scan.all, rows = [], cols = [];
+            for (lcv = 0; lcv < scan.length; lcv += 1)
+                if (scan[lcv] <= bottom_right.right && scan[lcv] > top_left.left) cols.push(lcv);
+                else if (scan[lcv] > bottom_right.right) break;
+            for (lcv = row_start; lcv < row_end; lcv += 1) rows.push(lcv);
+            return {rows: rows, cols: cols};
+        };
         return constructor;
     }
 });
