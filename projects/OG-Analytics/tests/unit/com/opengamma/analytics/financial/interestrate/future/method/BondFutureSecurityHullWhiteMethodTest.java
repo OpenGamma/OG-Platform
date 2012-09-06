@@ -151,11 +151,11 @@ public class BondFutureSecurityHullWhiteMethodTest {
   /** Tests the present value method for bond futures transactions. */
   public void presentValueFromPrice() {
     final double quotedPrice = 1.05;
-    final double presentValueMethod = METHOD_HW.presentValueFromPrice(BOND_FUTURE_DERIV, quotedPrice);
-    assertEquals("Bond future transaction Method: present value from price", (quotedPrice - REF_PRICE) * NOTIONAL, presentValueMethod);
+    final CurrencyAmount presentValueMethod = METHOD_HW.presentValueFromPrice(BOND_FUTURE_DERIV, quotedPrice);
+    assertEquals("Bond future transaction Method: present value from price", (quotedPrice - REF_PRICE) * NOTIONAL, presentValueMethod.getAmount());
     final PresentValueFromFuturePriceCalculator calculator = PresentValueFromFuturePriceCalculator.getInstance();
     final double presentValueCalculator = calculator.visit(BOND_FUTURE_DERIV, quotedPrice);
-    assertEquals("Bond future transaction Method: present value from price", presentValueMethod, presentValueCalculator);
+    assertEquals("Bond future transaction Method: present value from price", presentValueMethod.getAmount(), presentValueCalculator);
   }
 
   @Test

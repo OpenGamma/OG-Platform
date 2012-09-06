@@ -16,12 +16,18 @@ import com.opengamma.util.tuple.Pair;
 public interface IMarketBundle {
 
   /**
+   * Create a new copy of the bundle.
+   * @return The bundle.
+   */
+  IMarketBundle copy();
+
+  /**
    * Gets the discount factor for one currency at a given time to maturity.
    * @param ccy The currency.
    * @param time The time.
    * @return The discount factor.
    */
-  double getDiscountingFactor(Currency ccy, Double time);
+  double getDiscountFactor(Currency ccy, Double time);
 
   /**
    * Return the name associated to the discounting in a currency.
@@ -76,6 +82,6 @@ public interface IMarketBundle {
    * @param time The time.
    * @return The discount factor.
    */
-  double getDiscountingFactor(Pair<String, Currency> issuerCcy, Double time);
+  double getDiscountFactor(Pair<String, Currency> issuerCcy, Double time);
 
 }

@@ -12,7 +12,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.PresentValueInflationCalculator;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.analytics.financial.interestrate.market.IMarketBundle;
-import com.opengamma.analytics.financial.interestrate.market.MarketCurveBundle;
+import com.opengamma.analytics.financial.interestrate.market.MarketDiscountBundle;
 import com.opengamma.analytics.financial.interestrate.market.MarketDiscountingDecorated;
 import com.opengamma.analytics.financial.interestrate.method.PricingMarketMethod;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
@@ -49,9 +49,9 @@ public final class BondCapitalIndexedSecurityDiscountingMethod implements Pricin
    * @param market The market.
    * @return The present value.
    */
-  public CurrencyAmount presentValue(final BondCapitalIndexedSecurity<?> bond, final MarketCurveBundle market) {
+  public CurrencyAmount presentValue(final BondCapitalIndexedSecurity<?> bond, final MarketDiscountBundle market) {
     ArgumentChecker.notNull(bond, "Bond");
-    MarketCurveBundle creditDiscounting = new MarketDiscountingDecorated(market, bond.getCurrency(), market.getCurve(bond.getIssuerCurrency()));
+    MarketDiscountBundle creditDiscounting = new MarketDiscountingDecorated(market, bond.getCurrency(), market.getCurve(bond.getIssuerCurrency()));
     final CurrencyAmount pvNominal = PVIC.visit(bond.getNominal(), creditDiscounting);
     final CurrencyAmount pvCoupon = PVIC.visit(bond.getCoupon(), creditDiscounting);
     return pvNominal.plus(pvCoupon);
@@ -71,14 +71,14 @@ public final class BondCapitalIndexedSecurityDiscountingMethod implements Pricin
    * @param cleanPriceReal The clean price.
    * @return The present value.
    */
-  public CurrencyAmount presentValueFromCleanPriceReal(final BondCapitalIndexedSecurity<Coupon> bond, final MarketCurveBundle market, final double cleanPriceReal) {
+  public CurrencyAmount presentValueFromCleanPriceReal(final BondCapitalIndexedSecurity<Coupon> bond, final MarketDiscountBundle market, final double cleanPriceReal) {
     Validate.notNull(bond, "Coupon");
     Validate.notNull(market, "Market");
     final double notional = bond.getCoupon().getNthPayment(0).getNotional();
     double dirtyPriceReal = cleanPriceReal + bond.getAccruedInterest() / notional;
     double estimatedIndex = bond.getSettlement().estimatedIndex(market);
     double dirtyPriceAjusted = dirtyPriceReal * estimatedIndex / bond.getIndexStartValue();
-    double dfSettle = market.getDiscountingFactor(bond.getCurrency(), bond.getSettlementTime());
+    double dfSettle = market.getDiscountFactor(bond.getCurrency(), bond.getSettlementTime());
     double pv = dirtyPriceAjusted * bond.getCoupon().getNthPayment(0).getNotional() * dfSettle;
     return CurrencyAmount.of(bond.getCurrency(), pv);
   }
@@ -112,7 +112,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod implements Pricin
    * @param cleanPriceReal The clean real price.
    * @return The net amount.
    */
-  public double netAmount(final BondCapitalIndexedSecurity<Coupon> bond, final MarketCurveBundle market, final double cleanPriceReal) {
+  public double netAmount(final BondCapitalIndexedSecurity<Coupon> bond, final MarketDiscountBundle market, final double cleanPriceReal) {
     final double notional = bond.getCoupon().getNthPayment(0).getNotional();
     double netAmountReal = cleanPriceReal * notional + bond.getAccruedInterest();
     double estimatedIndex = bond.getSettlement().estimatedIndex(market);
