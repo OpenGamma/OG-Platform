@@ -32,6 +32,8 @@ import com.opengamma.util.ArgumentChecker;
  * the underlying providers are checked in priority order until one of them is able to provide the data.</p>
  * <p>All notifications of market data updates and subscription changes are delivered to all listeners. Therefore
  * instances of this class shouldn't be shared between multiple view processes.</p>
+ * <p>This class isn't thread safe. It is intended for use in ViewComputationJob where it will only ever be accessed
+ * by a single thread.</p>
  * TODO should this be in the same package as ViewComputationJob? it's not used anywhere else and isn't general purpose
  */
 public class CompositeMarketDataProvider {
@@ -133,13 +135,15 @@ public class CompositeMarketDataProvider {
    */
   public void unsubscribe(Set<ValueRequirement> requirements) {
     ArgumentChecker.notNull(requirements, "requirements");
-    // TODO optimise this by storing a map of requirements to provider indices?
-    List<Set<ValueRequirement>> reqsByProvider = partitionRequirementsByProvider(requirements);
-    for (int i = 0; i < reqsByProvider.size(); i++) {
-      Set<ValueRequirement> newSubs = reqsByProvider.get(i);
-      _providers.get(i).unsubscribe(newSubs);
-      Set<ValueRequirement> currentSubs = _subscriptions.get(i);
-      currentSubs.removeAll(newSubs);
+    Set<ValueRequirement> remainingReqs = Sets.newHashSet(requirements);
+    for (int i = 0; i < _subscriptions.size(); i++) {
+      Set<ValueRequirement> providerSubscriptions = _subscriptions.get(i);
+      Set<ValueRequirement> subsToRemove = Sets.intersection(remainingReqs, providerSubscriptions);
+      if (!subsToRemove.isEmpty()) {
+        _providers.get(i).unsubscribe(subsToRemove);
+        providerSubscriptions.removeAll(subsToRemove);
+        remainingReqs.removeAll(subsToRemove);
+      }
     }
   }
 
@@ -248,6 +252,12 @@ public class CompositeMarketDataProvider {
    * If the underlying provider's {@link MarketDataAvailabilityProvider} says the data is available the underlying
    * provider's permission provider is checked. If the user doesn't have permission the check moves on to the next
    * underlying provider.
+   * TODO it would be much safer if permissions were checked using the subscriptions
+   * the current impl depends on the availability providers always returning the same value for a requirement.
+   * if a provider changes its mind about the availability of a requirement it's possible that the permissions check
+   * would use one provider and the subscription would use another.
+   * permissions are checked before subscriptions are set up so it's not possible to use the subscriptions in the
+   * permissions check.
    */
   private class PermissionsProvider implements MarketDataPermissionProvider {
 

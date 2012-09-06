@@ -32,7 +32,9 @@ import com.opengamma.util.ArgumentChecker;
   /**
    * @param snapshots The underlying snapshots
    * @param subscriptionSupplier Supplies the current set of subscriptions for the underlying snapshots
-   * in the same order as the snapshots
+   * in the same order as the snapshots. This snapshot is created before subscriptions are set up but the subscriptions
+   * are available by the time this snapshot needs to use them. So the subscriptions must be requested from the
+   * supplier when they're required.
    */
   /* package */ CompositeMarketDataSnapshot(List<MarketDataSnapshot> snapshots,
                                             Supplier<List<Set<ValueRequirement>>> subscriptionSupplier) {

@@ -6,8 +6,22 @@
 package com.opengamma.web.server.push.analytics;
 
 import java.util.List;
+import java.util.Map;
 
+import javax.time.calendar.LocalDate;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.LatestHistoricalMarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
+import com.opengamma.id.UniqueId;
 
 /**
  * <p>Creates instances of {@link MarketDataSpecification} subclasses from JSON. The JSON format is:</p>
@@ -22,11 +36,90 @@ import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
  */
 /* package */ class MarketDataSpecificationJsonReader {
 
-  /* package */ static MarketDataSpecification buildSpecification(String json) {
-    throw new UnsupportedOperationException("not implemented");
+  private static final String SNAPSHOT_ID = "snapshotId";
+  private static final String RESOLVER_KEY = "resolverKey";
+  private static final String FIELD_RESOLVER_KEY = "fieldResolverKey";
+  private static final String SOURCE = "source";
+  private static final String SNAPSHOT = "snapshot";
+  private static final String MARKET_DATA_TYPE = "marketDataType";
+  private static final String LIVE = "live";
+  private static final String LATEST_HISTORICAL = "latestHistorical";
+  private static final String FIXED_HISTORICAL = "fixedHistorical";
+  private static final String DATE = "date";
+
+  private static final Map<String, SpecificationBuilder> s_builders = ImmutableMap.of(
+      LIVE, new LiveSpecificationBuilder(),
+      LATEST_HISTORICAL, new LatestHistoricalSpecificationBuilder(),
+      FIXED_HISTORICAL, new FixedHistoricalSpecificationBuilder(),
+      SNAPSHOT, new SnapshotSpecificationBuilder()
+  );
+
+  /* package */ static MarketDataSpecification buildSpecification(String json) throws JSONException {
+    return buildSpecification(new JSONObject(json));
   }
 
-  /* package */ static List<MarketDataSpecification> buildSpecifications(String json) {
-    throw new UnsupportedOperationException("not implemented");
+  private static MarketDataSpecification buildSpecification(JSONObject json) throws JSONException {
+    String marketDataType = json.getString(MARKET_DATA_TYPE);
+    SpecificationBuilder builder = s_builders.get(marketDataType);
+    if (builder == null) {
+      throw new IllegalArgumentException("No builder found for market data type " + marketDataType);
+    }
+    return builder.build(json);
   }
+
+  /* package */ static List<MarketDataSpecification> buildSpecifications(String json) throws JSONException {
+    JSONArray array = new JSONArray(json);
+    List<MarketDataSpecification> specs = Lists.newArrayListWithCapacity(array.length());
+    for (int i = 0; i < array.length(); i++) {
+      specs.add(buildSpecification(array.getJSONObject(i)));
+    }
+    return specs;
+  }
+
+  /** For classes that can build instances of {@link MarketDataSpecification} subclasses. */
+  interface SpecificationBuilder {
+
+    MarketDataSpecification build(JSONObject json) throws JSONException;
+  }
+
+  /** Builds intances of {@link LiveMarketDataSpecification}. */
+  private static class LiveSpecificationBuilder implements SpecificationBuilder {
+
+    @Override
+    public MarketDataSpecification build(JSONObject json) throws JSONException {
+      return new LiveMarketDataSpecification(json.getString(MarketDataSpecificationJsonReader.SOURCE));
+    }
+  }
+
+  /** Builds intances of {@link LatestHistoricalMarketDataSpecification}. */
+  private static class LatestHistoricalSpecificationBuilder implements SpecificationBuilder {
+
+    @Override
+    public MarketDataSpecification build(JSONObject json) throws JSONException {
+      return new LatestHistoricalMarketDataSpecification(
+          json.getString(MarketDataSpecificationJsonReader.RESOLVER_KEY),
+          json.getString(MarketDataSpecificationJsonReader.FIELD_RESOLVER_KEY));
+    }
+  }
+
+  /** Builds instances of {@link FixedHistoricalMarketDataSpecification}. */
+  private static class FixedHistoricalSpecificationBuilder implements SpecificationBuilder {
+
+    @Override
+    public MarketDataSpecification build(JSONObject json) throws JSONException {
+      return new FixedHistoricalMarketDataSpecification(
+          json.getString(MarketDataSpecificationJsonReader.RESOLVER_KEY),
+          json.getString(MarketDataSpecificationJsonReader.FIELD_RESOLVER_KEY),
+          LocalDate.parse(json.getString(DATE)));
+    }
+  }
+
+  /** Builds instances of {@link UserMarketDataSpecification}. */
+  private static class SnapshotSpecificationBuilder implements SpecificationBuilder {
+
+    @Override
+    public MarketDataSpecification build(JSONObject json) throws JSONException {
+      return new UserMarketDataSpecification(UniqueId.parse(json.getString(MarketDataSpecificationJsonReader.SNAPSHOT_ID)));
+    }
+}
 }

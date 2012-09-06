@@ -6,12 +6,15 @@
 package com.opengamma.web.server.push.analytics;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
+
+import java.util.List;
 
 import javax.time.calendar.LocalDate;
 
+import org.json.JSONException;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.LatestHistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
@@ -21,40 +24,40 @@ import com.opengamma.id.UniqueId;
 
 public class MarketDataSpecificationJsonReaderTest {
 
+  private static final String LIVE_JSON = "{\"marketDataType\": \"live\", \"source\": \"Bloomberg\"}";
+  private static final String FIXED_JSON = "{\"marketDataType\": \"fixedHistorical\", \"resolverKey\": \"rk\", \"fieldResolverKey\": \"frk\", \"date\": \"2012-08-30\"}";
+  private static final String LATEST_JSON = "{\"marketDataType\": \"latestHistorical\", \"resolverKey\": \"rk\", \"fieldResolverKey\": \"frk\"}";
+  private static final String SNAPSHOT_JSON = "{\"marketDataType\": \"snapshot\", \"snapshotId\": \"scheme~value\"}";
+
+  private static final LiveMarketDataSpecification LIVE = new LiveMarketDataSpecification("Bloomberg");
+  private static final FixedHistoricalMarketDataSpecification FIXED = new FixedHistoricalMarketDataSpecification("rk", "frk", LocalDate.of(2012, 8, 30));
+  private static final LatestHistoricalMarketDataSpecification LATEST = new LatestHistoricalMarketDataSpecification("rk", "frk");
+  private static final UserMarketDataSpecification SNAPSHOT = new UserMarketDataSpecification(UniqueId.of("scheme", "value"));
+
   @Test
-  public void live() {
-    String json = "{\"marketDataType\": \"live\", \"source\": \"Bloomberg\"}";
-    MarketDataSpecification spec = MarketDataSpecificationJsonReader.buildSpecification(json);
-    assertTrue(spec instanceof LiveMarketDataSpecification);
-    LiveMarketDataSpecification liveSpec = (LiveMarketDataSpecification) spec;
-    assertEquals("Bloomberg", liveSpec.getDataSource());
+  public void live() throws JSONException {
+    assertEquals(LIVE, MarketDataSpecificationJsonReader.buildSpecification(LIVE_JSON));
   }
 
   @Test
-  public void fixedHistorical() {
-    String json = "{\"marketDataType\": \"fixedHistorical\", \"resolverKey\": \"rk\", \"fieldResolverKey\": \"frk\", " +
-        "\"date\": \"2012-08-30\"}";
-    MarketDataSpecification spec = MarketDataSpecificationJsonReader.buildSpecification(json);
-    assertTrue(spec instanceof FixedHistoricalMarketDataSpecification);
-    assertEquals(new FixedHistoricalMarketDataSpecification("rk", "frk", LocalDate.of(2012, 8, 30)), spec);
+  public void fixedHistorical() throws JSONException {
+    assertEquals(FIXED, MarketDataSpecificationJsonReader.buildSpecification(FIXED_JSON));
   }
 
   @Test
-  public void latestHistorical() {
-    String json = "{\"marketDataType\": \"fixedHistorical\", \"resolverKey\": \"rk\", \"fieldResolverKey\": \"frk\"}";
-    MarketDataSpecification spec = MarketDataSpecificationJsonReader.buildSpecification(json);
-    assertTrue(spec instanceof LatestHistoricalMarketDataSpecification);
-    LatestHistoricalMarketDataSpecification latestSpec = (LatestHistoricalMarketDataSpecification) spec;
-    assertEquals("rk", latestSpec.getTimeSeriesResolverKey());
-    assertEquals("frk", latestSpec.getTimeSeriesFieldResolverKey());
+  public void latestHistorical() throws JSONException {
+    assertEquals(LATEST, MarketDataSpecificationJsonReader.buildSpecification(LATEST_JSON));
   }
 
   @Test
-  public void snapshot() {
-    String json = "{\"marketDataType\": \"snapshot\", \"snapshotId\": \"\"}";
-    MarketDataSpecification spec = MarketDataSpecificationJsonReader.buildSpecification(json);
-    assertTrue(spec instanceof UserMarketDataSpecification);
-    UserMarketDataSpecification userSpec = (UserMarketDataSpecification) spec;
-    assertEquals(UniqueId.of("", ""), userSpec.getUserSnapshotId());
+  public void snapshot() throws JSONException {
+    assertEquals(SNAPSHOT, MarketDataSpecificationJsonReader.buildSpecification(SNAPSHOT_JSON));
+  }
+
+  @Test
+  public void multiple() throws JSONException {
+    String json = "[" + LIVE_JSON + ", " + LATEST_JSON + ", " + FIXED_JSON + ", " + SNAPSHOT_JSON + "]";
+    List<MarketDataSpecification> specs = MarketDataSpecificationJsonReader.buildSpecifications(json);
+    assertEquals(specs, ImmutableList.of(LIVE, LATEST, FIXED, SNAPSHOT));
   }
 }

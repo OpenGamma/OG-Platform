@@ -89,7 +89,8 @@ public class ViewRequest {
       UniqueId actualSnapshotId;
       if (_snapshotId.isVersioned()) {
         // If the version-correction is to be based on a snapshot then use the time at which the snapshot was created
-        MarketDataSnapshotDocument snapshotDoc = snapshotMaster.get(_snapshotId.getObjectId(), _versionCorrection);
+        // TODO is this right? will the version correction match the snapshot?
+        MarketDataSnapshotDocument snapshotDoc = snapshotMaster.get(_snapshotId.getObjectId(), VersionCorrection.LATEST);
         actualVersionCorrection = VersionCorrection.ofVersionAsOf(snapshotDoc.getVersionFromInstant());
         actualSnapshotId = _snapshotId;
       } else {
