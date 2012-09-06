@@ -11,7 +11,7 @@ $.register_module({
         return function (grid) {
             var formatter = this;
             formatter.DOUBLE = function (value) {
-                var curr, last, indicator = !value || !value.h ? null
+                var curr, last, indicator = !value || !value.h || !value.h.length ? null
                     : (curr = value.h[value.h.length - 1]) < (last = value.h[value.h.length - 2]) ? 'down'
                         : curr > last ? 'up' : 'static';
                 return !value ? ''
