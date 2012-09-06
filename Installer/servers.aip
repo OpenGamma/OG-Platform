@@ -230,7 +230,6 @@
     <ROW Action="SET_SHORTCUTDIR" Type="307" Source="SHORTCUTDIR" Target="[ProgramMenuFolder][ProductName]"/>
     <ROW Action="SET_TARGETDIR_TO_APPDIR" Type="51" Source="TARGETDIR" Target="[APPDIR]"/>
     <ROW Action="TOOL_UI_FLAG" Type="51" Source="TOOL_UI_FLAG" Target="-silent"/>
-    <ROW Action="UpdateFeaturesInstallStates" Type="1" Source="aicustact.dll" Target="UpdateFeatureStates" Options="1"/>
     <ROW Action="viewer.exe" Type="1730" Source="viewer.exe" Target="http://localhost:8080/" Options="1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiEventMappingComponent">
@@ -260,7 +259,6 @@
     <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="747"/>
     <ROW Action="AI_ResolveKnownFolders" Sequence="52"/>
     <ROW Action="AI_ResolveLocalizedCredentials" Sequence="51"/>
-    <ROW Action="UpdateFeaturesInstallStates" Condition="( NOT Installed )" Sequence="1279"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiLaunchConditionsComponent">
     <ROW Condition="JRE_32" Description="A 32-bit Java runtime environment is required." Builds="NoJVM32"/>
