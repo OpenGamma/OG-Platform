@@ -7,7 +7,6 @@ package com.opengamma.web.server.push.analytics;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 
@@ -86,18 +85,16 @@ public class DependencyGraphGridStructure implements GridStructure {
   /**
    * Builds the results for a viewport given a set of results for the entire grid and a definition of the viewport.
    * @param viewportSpec Defines the viewport
-   * @param results The results for each row, keyed on the row's {@link ValueSpecification}
-   * @param cache Cache of results for the grid, used for building the history
+   * @param cache Cache of results for the grid
    * @param calcConfigName Calculation configuration used when calculating the dependency graph
    * @return The results for the rows in the viewport
    */
   /* package */ List<List<ViewportResults.Cell>> createResultsForViewport(ViewportSpecification viewportSpec,
-                                                                          Map<ValueSpecification, Object> results,
                                                                           ResultsCache cache,
                                                                           String calcConfigName) {
     List<List<ViewportResults.Cell>> resultsList = Lists.newArrayList();
     for (Integer rowIndex : viewportSpec.getRows()) {
-      resultsList.add(createResultsForRow(rowIndex, viewportSpec.getColumns(), results, cache, calcConfigName));
+      resultsList.add(createResultsForRow(rowIndex, viewportSpec.getColumns(), cache, calcConfigName));
     }
     return resultsList;
   }
@@ -106,18 +103,17 @@ public class DependencyGraphGridStructure implements GridStructure {
    * Builds the results for a single row in the viewport.
    * @param rowIndex The row index in the grid
    * @param cols The columns visible in the viewport
-   * @param results The results for each row, keyed on the row's {@link ValueSpecification}
-   * @param cache Cache of results for the grid, used for building the history
+   * @param cache Cache of results for the grid
    * @param calcConfigName Calculation configuration used when calculating the dependency graph
    * @return The results for the row
    */
   private List<ViewportResults.Cell> createResultsForRow(int rowIndex,
                                                          SortedSet<Integer> cols,
-                                                         Map<ValueSpecification, Object> results,
                                                          ResultsCache cache,
                                                          String calcConfigName) {
-    Object value = results.get(getValueSpecificationForRow(rowIndex));
-    Row row = _rows.get(rowIndex);
+    ResultsCache.Result cacheResult = cache.getResult(calcConfigName, getValueSpecificationForRow(rowIndex), null);
+    Object value = cacheResult.getValue();
+        Row row = _rows.get(rowIndex);
     List<ViewportResults.Cell> rowResults = Lists.newArrayListWithCapacity(cols.size());
     for (Integer colIndex : cols) {
       rowResults.add(createValueForColumn(colIndex, row, value, cache, calcConfigName));

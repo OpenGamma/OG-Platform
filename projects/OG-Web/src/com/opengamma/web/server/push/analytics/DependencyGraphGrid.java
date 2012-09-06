@@ -25,49 +25,48 @@ public class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> 
 
   private final String _calcConfigName;
   private final DependencyGraphGridStructure _gridStructure;
+  /**
+   * Each dependency graph maintains its own cache of results. The values in a dependency graph aren't necessarily
+   * view output values (apart from the root) and therefore aren't included in the main results model and main results
+   * cache.
+   */
+  private final ResultsCache _cache = new ResultsCache();
 
   private ViewCycle _latestCycle;
-  private ResultsCache _cache;
 
   private DependencyGraphGrid(DependencyGraphGridStructure gridStructure,
                               String calcConfigName,
-                              String gridId,
-                              ViewCycle cycle,
-                              ResultsCache cache) {
-    super(gridId);
+                              String callbackId,
+                              ViewCycle cycle) {
+    super(callbackId);
     ArgumentChecker.notNull(gridStructure, "gridStructure");
     ArgumentChecker.notNull(calcConfigName, "calcConfigName");
-    ArgumentChecker.notNull(gridId, "gridId");
+    ArgumentChecker.notNull(callbackId, "callbackId");
     ArgumentChecker.notNull(cycle, "cycle");
-    ArgumentChecker.notNull(cache, "history");
     _gridStructure = gridStructure;
     _calcConfigName = calcConfigName;
     _latestCycle = cycle;
-    _cache = cache;
   }
 
   /**
+   * Creates a new grid for displaying a dependency graph of calculations.
    * @param compiledViewDef The view definition from which the graph and calculations were derived
    * @param target The object whose dependency graph is being displayed
    * @param calcConfigName The calculation configuration used for the calculations
    * @param cycle The view cycle that calculated the results
-   * @param cache The results
-   * @param gridId
+   * @param callbackId ID that's passed to listeners when the row and column structure of the grid changes
    * @param targetResolver For looking up the target of the calculation given its specification
-   * @return
+   * @return The grid
    */
   /* package */ static DependencyGraphGrid create(CompiledViewDefinition compiledViewDef,
                                                   ValueSpecification target,
                                                   String calcConfigName,
                                                   ViewCycle cycle,
-                                                  ResultsCache cache,
-                                                  String gridId,
+                                                  String callbackId,
                                                   ComputationTargetResolver targetResolver) {
-    DependencyGraphStructureBuilder builder = new DependencyGraphStructureBuilder(compiledViewDef,
-                                                                                  target,
-                                                                                  calcConfigName,
-                                                                                  targetResolver);
-    return new DependencyGraphGrid(builder.getStructure(), calcConfigName, gridId, cycle, cache);
+    DependencyGraphStructureBuilder builder =
+        new DependencyGraphStructureBuilder(compiledViewDef, target, calcConfigName, targetResolver);
+    return new DependencyGraphGrid(builder.getStructure(), calcConfigName, callbackId, cycle);
   }
 
   @Override
@@ -80,20 +79,16 @@ public class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> 
     return new DependencyGraphViewport(viewportSpec, _calcConfigName, _gridStructure, _latestCycle, _cache, callbackId);
   }
 
-  /* package */ List<String> updateResults(ViewCycle cycle, ResultsCache cache) {
+  /* package */ List<String> updateResults(ViewCycle cycle) {
     _latestCycle = cycle;
-    _cache = cache;
     List<String> updatedIds = Lists.newArrayList();
     for (DependencyGraphViewport viewport : _viewports.values()) {
-      CollectionUtils.addIgnoreNull(updatedIds, viewport.updateResults(cycle, cache));
+      CollectionUtils.addIgnoreNull(updatedIds, viewport.updateResults(cycle, _cache));
     }
     return updatedIds;
   }
 
-  /* package */ long updateViewport(int viewportId,
-                                    ViewportSpecification viewportSpec,
-                                    ViewCycle cycle,
-                                    ResultsCache cache) {
+  /* package */ long updateViewport(int viewportId, ViewportSpecification viewportSpec, ViewCycle cycle, ResultsCache cache) {
     return getViewport(viewportId).update(viewportSpec, cycle, cache);
   }
 }
