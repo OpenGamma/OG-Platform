@@ -12,6 +12,7 @@ import com.opengamma.analytics.financial.credit.FlatSurvivalCurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  *  Class containing methods for the valuation of a legacy vanilla CDS (and its constituent legs)
@@ -31,69 +32,19 @@ public class PresentValueCreditDefaultSwap {
 
   // -------------------------------------------------------------------------------------------------
 
-  // TODO : Lots of work to do in this file
+  // TODO : Lots of work to do in this file - Work In Progress
   // TODO : Add corrections for seasoned trades (currently just valuing at t = 0)
-  // TODO : Might need to dumb down the 'TimeCalculator' calcs (to not include leap year calcs - can we turn this off)
-  // TODO : The 'TimeCalculator' is ACT/ACT where the denominator can be 365 or 366 - calcs fraction of year period falls in a leap year etc
   // TODO : Add a method to calc both the legs in one go (is this useful or not? Might be useful from a speed perspective - remember can have O(10^5) positions in a book)
-  // TODO : Check the level of access to these ctors/methods (private, public etc)
 
   // -------------------------------------------------------------------------------------------------
-
-  // Public method for computing the PV of a CDS based on an input CDS contract (work-in-progress) 
-  public double getNewPresentValueCreditDefaultSwap(CreditDefaultSwapDefinition cds) {
-
-    // -------------------------------------------------------------
-
-    //double presentValue = 0.0;
-    double presentValuePremiumLeg = 0.0;
-    double presentValueAccruedPremium = 0.0;
-    double presentValueContingentLeg = 0.0;
-
-    // -------------------------------------------------------------
-
-    // Get the relevant contract data needed to value the premium leg
-
-    // Get the notional amount and par CDS spread (in bps, therefore divide by 10,000) to multiply the premium leg by
-    double notional = cds.getNotional();
-    double parSpread = cds.getParSpread() / 10000.0;
-
-    //double curveRecoveryRate = cds.getCurveRecoveryRate();
-    //double hazardRate = parSpread / (1 - curveRecoveryRate);
-
-    // get the yield and survival curves
-    YieldCurve yieldCurve = cds.getYieldCurve();
-    FlatSurvivalCurve survivalCurve = cds.getSurvivalCurve();
-
-    double hazardRate = survivalCurve.getFlatHazardRate();
-
-    // Do we need to calculate the accrued premium as well
-    boolean includeAccruedPremium = cds.getIncludeAccruedPremium();
-
-    // Extract the adjusted effective date from the computed cashflow schedule
-    //ZonedDateTime adjustedEffectiveDate = cashflowSchedule[0][0];
-
-    ZonedDateTime valuationDate = cds.getValuationDate();
-
-    // -------------------------------------------------------------
-
-    // Calculate the PV of the CDS (assumes we are buying protection i.e. paying the premium leg, receiving the contingent leg)
-    double presentValue = -presentValuePremiumLeg + presentValueContingentLeg;
-
-    // If we are selling protection, then reverse the direction of the premium and contingent leg cashflows
-    if (cds.getBuySellProtection() == BuySellProtection.SELL) {
-      presentValue = -1 * presentValue;
-    }
-
-    return presentValue;
-  }
-
-  // -------------------------------------------------------------------------------------------------
-
-  //public double xxx(cds, yc, sc, rc);
 
   // Public method for computing the PV of a CDS based on an input CDS contract
-  public double getPresentValueCreditDefaultSwap(CreditDefaultSwapDefinition cds) {
+  public double getPresentValueCreditDefaultSwap(CreditDefaultSwapDefinition cds, YieldCurve yieldCurve, FlatSurvivalCurve survivalCurve) {
+
+    // Check input CDS, YieldCurve and SurvivalCurve objects are not null
+    ArgumentChecker.notNull(cds, "CDS field");
+    ArgumentChecker.notNull(yieldCurve, "YieldCurve field");
+    ArgumentChecker.notNull(survivalCurve, "SurvivalCurve field");
 
     // Construct a cashflow schedule object
     final GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
@@ -102,10 +53,10 @@ public class PresentValueCreditDefaultSwap {
     ZonedDateTime[][] premiumLegSchedule = cashflowSchedule.constructCreditDefaultSwapPremiumLegSchedule(cds);
 
     // Calculate the value of the premium leg (including accrued)
-    double presentValuePremiumLeg = calculatePremiumLeg(cds, premiumLegSchedule);
+    double presentValuePremiumLeg = calculatePremiumLeg(cds, premiumLegSchedule, yieldCurve, survivalCurve);
 
     // Calculate the value of the contingent leg
-    double presentValueContingentLeg = calculateContingentLeg(cds, premiumLegSchedule);
+    double presentValueContingentLeg = calculateContingentLeg(cds, premiumLegSchedule, yieldCurve, survivalCurve);
 
     // Calculate the PV of the CDS (assumes we are buying protection i.e. paying the premium leg, receiving the contingent leg)
     double presentValue = -presentValuePremiumLeg + presentValueContingentLeg;
@@ -121,7 +72,12 @@ public class PresentValueCreditDefaultSwap {
   // -------------------------------------------------------------------------------------------------
 
   // Public method to calculate the par spread of a CDS at contract inception
-  public double getParSpreadCreditDefaultSwap(CreditDefaultSwapDefinition cds, ZonedDateTime[] cashflowSchedule) {
+  public double getParSpreadCreditDefaultSwap(CreditDefaultSwapDefinition cds, YieldCurve yieldCurve, FlatSurvivalCurve survivalCurve) {
+
+    // Check input CDS, YieldCurve and SurvivalCurve objects are not null
+    ArgumentChecker.notNull(cds, "CDS field");
+    ArgumentChecker.notNull(yieldCurve, "YieldCurve field");
+    ArgumentChecker.notNull(survivalCurve, "SurvivalCurve field");
 
     double parSpread = 0.0;
 
@@ -130,10 +86,8 @@ public class PresentValueCreditDefaultSwap {
 
   //-------------------------------------------------------------------------------------------------
 
-  // Make private
-
   // Method (private) to calculate the value of the premium leg of a CDS 
-  double calculatePremiumLeg(CreditDefaultSwapDefinition cds, ZonedDateTime[][] cashflowSchedule) {
+  private double calculatePremiumLeg(CreditDefaultSwapDefinition cds, ZonedDateTime[][] cashflowSchedule, YieldCurve yieldCurve, FlatSurvivalCurve survivalCurve) {
 
     // -------------------------------------------------------------
 
@@ -149,8 +103,8 @@ public class PresentValueCreditDefaultSwap {
     double parSpread = cds.getParSpread() / 10000.0;
 
     // get the yield and survival curves
-    YieldCurve yieldCurve = cds.getYieldCurve();
-    FlatSurvivalCurve survivalCurve = cds.getSurvivalCurve();
+    //YieldCurve yieldCurve = cds.getYieldCurve();
+    //FlatSurvivalCurve survivalCurve = cds.getSurvivalCurve();
 
     // Get the (flat) hazard rate for this simple curve
     double hazardRate = survivalCurve.getFlatHazardRate();
@@ -197,7 +151,7 @@ public class PresentValueCreditDefaultSwap {
   // -------------------------------------------------------------------------------------------------
 
   // Method (private) to calculate the accrued premium of a CDS premium leg (this method is just to allow a user to calculate the accrued on its own)
-  double calculateAccruedPremium(CreditDefaultSwapDefinition cds) {
+  private double calculateAccruedPremium(CreditDefaultSwapDefinition cds, YieldCurve yieldCurve, FlatSurvivalCurve survivalCurve) {
 
     double presentValueAccruedPremium = 0.0;
 
@@ -207,7 +161,7 @@ public class PresentValueCreditDefaultSwap {
   // -------------------------------------------------------------------------------------------------
 
   // Method (private) to calculate the value of the contingent leg of a CDS
-  double calculateContingentLeg(CreditDefaultSwapDefinition cds, ZonedDateTime[][] cashflowSchedule) {
+  private double calculateContingentLeg(CreditDefaultSwapDefinition cds, ZonedDateTime[][] cashflowSchedule, YieldCurve yieldCurve, FlatSurvivalCurve survivalCurve) {
 
     double presentValueContingentLeg = 0.0;
 
@@ -218,8 +172,8 @@ public class PresentValueCreditDefaultSwap {
     double valuationRecoveryRate = cds.getValuationRecoveryRate();
 
     // get the yield and survival curves
-    YieldCurve yieldCurve = cds.getYieldCurve();
-    FlatSurvivalCurve survivalCurve = cds.getSurvivalCurve();
+    //YieldCurve yieldCurve = cds.getYieldCurve();
+    //FlatSurvivalCurve survivalCurve = cds.getSurvivalCurve();
 
     // Get the (flat) hazard rate from the survival curve
     double hazardRate = survivalCurve.getFlatHazardRate();

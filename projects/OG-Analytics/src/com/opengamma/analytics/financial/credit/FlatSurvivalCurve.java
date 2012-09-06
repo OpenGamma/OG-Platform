@@ -19,7 +19,7 @@ public class FlatSurvivalCurve {
 
   // ------------------------------------------------------------------------
 
-  // Default FlatSurvivalCurve constructor
+  // Default FlatSurvivalCurve constructor (not very useful)
   public FlatSurvivalCurve() {
     _flatHazardRate = 0.0;
   }
@@ -33,12 +33,10 @@ public class FlatSurvivalCurve {
 
   // ------------------------------------------------------------------------
 
-  // Member function to get a survival probability from a flat hazard rate curve
+  // Public member function to get a survival probability from a flat hazard rate curve
   public double getSurvivalProbability(double hazardRate, double t) {
 
-    double survivalProbability = Math.exp(-hazardRate * t);
-
-    return survivalProbability;
+    return Math.exp(-hazardRate * t);
   }
 
   // ------------------------------------------------------------------------
