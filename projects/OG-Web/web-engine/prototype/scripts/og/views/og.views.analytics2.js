@@ -44,6 +44,33 @@ $.register_module({
                         }));
                     }
                 });
+                // TEST: attach hover event to grid and load cell hover panel
+                (function () {
+                    var $menu = [], t,
+                        CELL = '.OG-g-cell',
+                        HOOK = '.og-js-menu-hook',
+                        OPEN = '.og-icon-right-chevron',
+                        OPEN_CLASS = 'og-expanded';
+                    var enter_cell = function () {
+                        if (!$(this).find(HOOK).length) return;
+                        var $this = $(this), offset = $this.offset(), width = $this.width(),
+                            left = offset.left + width - 26, top = offset.top;
+                        if ($menu.length) $menu.css({top: top, left: left}).show()
+                    };
+                    var leave_cell = function () {if (!$(this).find(HOOK).length) $menu.hide();};
+                    $('.OG-layout-analytics-center') // prevent menu on scroll
+                        .on('mouseenter', CELL, enter_cell)
+                        .on('mouseleave', CELL, leave_cell);
+                    $.when(og.api.text({module: 'og.analytics.cell_options'})).then(function (tmpl) {
+                        $menu = $(tmpl).hide()
+                            .on('mouseenter', OPEN, function () {
+                                clearTimeout(t), t = setTimeout(function () {$menu.addClass(OPEN_CLASS);}, 500);
+                            })
+                            .on('click', OPEN, function () {$menu.addClass(OPEN_CLASS);})
+                            .on('mouseleave', function () {clearTimeout(t), $menu.removeClass(OPEN_CLASS);});
+                        $('body').append($menu);
+                    });
+                }());
                 ['south', 'dock-north', 'dock-center', 'dock-south'].forEach(function (val) {
                     new GadgetsContainer('.OG-layout-analytics-', val).add(args[val]);
                 });
