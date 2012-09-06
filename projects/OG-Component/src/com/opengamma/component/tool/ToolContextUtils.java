@@ -96,29 +96,30 @@ public final class ToolContextUtils {
 
       // Populate the tool context from the remote component server
       for (MetaProperty metaProperty : toolContext.metaBean().metaPropertyIterable()) {
-        try {
-          ComponentInfo componentInfo =
-              getComponentInfo(componentServer, classifierChain, metaProperty.propertyType());
-          if (componentInfo == null) {
-            s_logger.warn("Could not populate tool context " + metaProperty.name() +
-                " because no appropriate component was found on the server");
-            continue;
+        if (!metaProperty.name().equals("contextManager")) {
+          try {
+            ComponentInfo componentInfo =
+                getComponentInfo(componentServer, classifierChain, metaProperty.propertyType());
+            if (componentInfo == null) {
+              s_logger.warn("Could not populate tool context " + metaProperty.name() +
+                  " because no appropriate component was found on the server");
+              continue;
+            }
+            String clazzName = componentInfo.getAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA);
+            if (clazzName == null) {
+              s_logger.warn("Could not populate tool context " + metaProperty.name() +
+                  " because no remote access class could be identified");
+              continue;
+            }
+            Class<?> clazz = Class.forName(clazzName);
+            metaProperty.set(toolContext, clazz.getConstructor(URI.class).newInstance(componentInfo.getUri()));
+            s_logger.info("Populated tool context " + metaProperty.name() + " with " + metaProperty.get(toolContext));
+          } catch (Throwable e) {
+            s_logger.warn("Could not populate tool context " + metaProperty.name() + " because: " +
+                e.getMessage());
           }
-          String clazzName = componentInfo.getAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA);
-          if (clazzName == null) {
-            s_logger.warn("Could not populate tool context " + metaProperty.name() +
-                " because no remote access class could be identified");
-            continue;
-          }
-          Class<?> clazz = Class.forName(clazzName);
-          metaProperty.set(toolContext, clazz.getConstructor(URI.class).newInstance(componentInfo.getUri()));
-          s_logger.info("Populated tool context " + metaProperty.name() + " with " + metaProperty.get(toolContext));
-        } catch (Throwable e) {
-          s_logger.warn("Could not populate tool context " + metaProperty.name() + " because: " +
-              e.getMessage());
         }
       }
-      // TODO toolContext.setContextManager();
       return toolContext;
 
     // Populate the tool context from a local properties file

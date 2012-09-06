@@ -16,12 +16,8 @@ import com.opengamma.analytics.financial.credit.Region;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.ScheduleGenerationMethod;
 import com.opengamma.analytics.financial.credit.Sector;
-import com.opengamma.analytics.financial.credit.FlatSurvivalCurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.PresentValueCreditDefaultSwapTest.MyCalendar;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -38,7 +34,7 @@ public class CreditDefaultSwapDefinitionTest {
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
-  // Specify the parameters of a test CDS contract
+  // CDS contract parameters
 
   private static final BuySellProtection buySellProtection = BuySellProtection.BUY;
 
@@ -79,20 +75,6 @@ public class CreditDefaultSwapDefinitionTest {
   private static final double valuationRecoveryRate = 0.40;
   private static final double curveRecoveryRate = 0.40;
   private static final boolean includeAccruedPremium = true;
-  private static final int numberOfIntegrationSteps = 100;
-
-  // Dummy yield curve
-  private static final double interestRate = 0.05;
-  private static final double[] TIME = new double[] {0, 3, 5, 10 };
-  private static final double[] RATES = new double[] {interestRate, interestRate, interestRate, interestRate };
-  private static final InterpolatedDoublesCurve R = InterpolatedDoublesCurve.from(TIME, RATES, new LinearInterpolator1D());
-  private static final YieldCurve yieldCurve = YieldCurve.from(R);
-
-  // Construct a survival curve based on a flat hazard rate term structure (for testing purposes only)
-  private static final FlatSurvivalCurve survivalCurve = new FlatSurvivalCurve(parSpread, curveRecoveryRate);
-
-  // Dummy rating curve (proxied by a yield curve for now)
-  private static final YieldCurve ratingCurve = yieldCurve;
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -103,7 +85,7 @@ public class CreditDefaultSwapDefinitionTest {
     new CreditDefaultSwapDefinition(null, protectionBuyer, protectionSeller, referenceEntityTicker, referenceEntityShortName, referenceEntityREDCode,
         currency, debtSeniority, restructuringClause, compositeRating, impliedRating, sector, region, country, calendar, startDate, effectiveDate,
         maturityDate, valuationDate, scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread,
-        valuationRecoveryRate, curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        valuationRecoveryRate, curveRecoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -114,7 +96,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
         scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -123,7 +105,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
         scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -134,7 +116,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
         scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -143,7 +125,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
         scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -154,7 +136,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
         scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -163,7 +145,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
         scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -174,7 +156,7 @@ public class CreditDefaultSwapDefinitionTest {
         null, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
         scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -183,7 +165,7 @@ public class CreditDefaultSwapDefinitionTest {
         "", referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
         scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -194,7 +176,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, null, currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
         scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -203,7 +185,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, "", currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
         scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -214,7 +196,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, null, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
         scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -225,7 +207,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, currency, null, restructuringClause, compositeRating,
         impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
         scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -236,7 +218,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, null, compositeRating,
         impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
         scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -247,7 +229,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, null,
         impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
         scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -258,7 +240,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
         null, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
         scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -269,7 +251,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, null, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
         scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -280,7 +262,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, null, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
         scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -291,7 +273,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, region, null, calendar, startDate, effectiveDate, maturityDate, valuationDate,
         scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -302,7 +284,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, region, "", calendar, startDate, effectiveDate, maturityDate, valuationDate,
         scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -313,7 +295,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, region, country, null, startDate, effectiveDate, maturityDate, valuationDate,
         scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -324,7 +306,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, region, country, calendar, null, effectiveDate, maturityDate, valuationDate,
         scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -335,7 +317,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, region, country, calendar, startDate, null, maturityDate, valuationDate,
         scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -346,7 +328,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, region, country, calendar, startDate, effectiveDate, null, valuationDate,
         scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -357,7 +339,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, null,
         scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -371,7 +353,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, testValuationDate,
         scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -385,7 +367,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, region, country, calendar, startDate, testEffectiveDate, maturityDate, valuationDate,
         scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -399,7 +381,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, region, country, calendar, startDate, effectiveDate, testMaturityDate, valuationDate,
         scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -413,7 +395,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, testValuationDate,
         scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -427,7 +409,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, testValuationDate,
         scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -438,7 +420,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
         null, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -449,7 +431,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
         scheduleGenerationMethod, null, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -460,7 +442,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
         scheduleGenerationMethod, couponFrequency, null, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -471,7 +453,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
         scheduleGenerationMethod, couponFrequency, daycountFractionConvention, null, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -482,7 +464,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
         scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, -notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -493,7 +475,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
         scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, -parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -504,7 +486,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
         scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, -valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -515,7 +497,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
         scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, 1.0 + valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        curveRecoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -526,7 +508,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
         scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        -curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
+        -curveRecoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -537,51 +519,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
         scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        1.0 + curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
-  }
-
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNumberOfIntegrationSteps() {
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
-        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
-        scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, -numberOfIntegrationSteps, yieldCurve, survivalCurve, ratingCurve);
-  }
-
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullYieldCurve() {
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
-        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
-        scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, null, survivalCurve, ratingCurve);
-  }
-
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullSurvivalCurve() {
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
-        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
-        scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, null, ratingCurve);
-  }
-
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullRatingCurve() {
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
-        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
-        scheduleGenerationMethod, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, adjustMaturityDate, notional, parSpread, valuationRecoveryRate,
-        curveRecoveryRate, includeAccruedPremium, numberOfIntegrationSteps, yieldCurve, survivalCurve, null);
+        1.0 + curveRecoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------

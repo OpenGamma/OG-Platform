@@ -7,6 +7,8 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.definition;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.CreditRating;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
@@ -14,8 +16,6 @@ import com.opengamma.analytics.financial.credit.Region;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.ScheduleGenerationMethod;
 import com.opengamma.analytics.financial.credit.Sector;
-import com.opengamma.analytics.financial.credit.FlatSurvivalCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -39,118 +39,101 @@ public class CreditDefaultSwapDefinition {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // TODO : Should really have more identifiers for the counterparty we are trading with (will be useful for CVA related purposes)
-  // TODO : Sort out the final argument checkers
   // TODO : Allow the case valuationDate = startDate
   // TODO : Allow the case effectiveDate = startDate
   // TODO : Allow the case maturityDate = startDate (e.g. startDate = 21/03/YY, maturityDate = 21/03/YY but IMM adjusted maturityDate = 20/06/YY)
   // TODO : Allow the case valuationDate = maturityDate (should return a MtM of zero)
   // TODO : Allow the case valuationDate = effectiveDate
-  // TODO : Should we impose an upper limit on the number of integration steps in the calculation of the contingent leg?
-  // TODO : Check the level of access to these ctors/methods (private, public etc)
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Member variables (all private and final) of the CDS contract (defines what a CDS is)
 
-  // From the users perspective, are we buying or selling protection - User input see enum
+  // From the users perspective, are we buying or selling protection
   private final BuySellProtection _buySellProtection;
 
-  // Identifiers for the (three) counterparties in the trade - User input
+  // Identifiers for the (three) counterparties in the trade
   private final String _protectionBuyer;
   private final String _protectionSeller;
   private final String _referenceEntityTicker;
   private final String _referenceEntityShortName;
   private final String _referenceEntityREDCode;
 
-  // The currency the trade is executed in e.g. USD - User input
+  // The currency the trade is executed in e.g. USD
   private final Currency _currency;
 
-  // The seniority of the debt of the reference entity the CDS is written on - User input, see enum
+  // The seniority of the debt of the reference entity the CDS is written on
   private final DebtSeniority _debtSeniority;
 
-  // The restructuring type in the event of a credit event deemed to be a restructuring of the reference entities debt - User input, see enum
+  // The restructuring type in the event of a credit event deemed to be a restructuring of the reference entities debt
   private final RestructuringClause _restructuringClause;
 
-  // The composite credit (curve) rating of the reference entity (MarkIt field) - User input, see enum
+  // The composite credit (curve) rating of the reference entity (MarkIt field)
   private final CreditRating _compositeRating;
 
-  // The implied credit rating of the reference entity (MarkIt field) - User input, see enum
+  // The implied credit rating of the reference entity (MarkIt field)
   private final CreditRating _impliedRating;
 
-  // The industrial classification of the reference entity - User input, see enum
+  // The industrial classification of the reference entity
   private final Sector _sector;
 
-  // The geographical domicile of the reference entity - User input, see enum
+  // The geographical domicile of the reference entity
   private final Region _region;
 
-  // The country of domicile of the reference entity - User input
+  // The country of domicile of the reference entity
   private final String _country;
 
-  // Holiday calendar for the determination of adjusted business days in the cashflow schedule - User input
+  // Holiday calendar for the determination of adjusted business days in the cashflow schedule
   private final Calendar _calendar;
 
-  // The date of the contract inception - User input
+  // The date of the contract inception
   private final ZonedDateTime _startDate;
 
-  // The effective date for protection to begin (usually T + 1 for legacy CDS) - User input
+  // The effective date for protection to begin (usually T + 1 for legacy CDS)
   private final ZonedDateTime _effectiveDate;
 
-  // The maturity date of the contract (when premium and protection coverage ceases) - User input
+  // The maturity date of the contract (when premium and protection coverage ceases)
   private final ZonedDateTime _maturityDate;
 
-  // The date on which we want to calculate the CDS MtM - User input
+  // The date on which we want to calculate the CDS MtM
   private final ZonedDateTime _valuationDate;
 
-  // The method for generating the schedule of premium payments - User input see enum
+  // The method for generating the schedule of premium payments
   private final ScheduleGenerationMethod _scheduleGenerationMethod;
 
-  // The frequency of coupon payments (usually quarterly) - User input see enum
+  // The frequency of coupon payments (usually quarterly)
   private final PeriodFrequency _couponFrequency;
 
-  // Day-count convention (usually Act/360) - User input, see enum
+  // Day-count convention (usually Act/360)
   private final DayCount _daycountFractionConvention;
 
-  // Business day adjustment convention (usually following) - User input, see enum
+  // Business day adjustment convention (usually following)
   private final BusinessDayConvention _businessdayAdjustmentConvention;
 
-  // Flag to determine if we business day adjust the final maturity date - User input
+  // Flag to determine if we business day adjust the final maturity date
   private final boolean _adjustMaturityDate;
 
-  // The trade notional (in the trade currency), convention is that this will always be a positive amount - User input
+  // The trade notional (in the trade currency), convention is that this will always be a positive amount
   private final double _notional;
 
-  // The quoted par spread of the trade (as this is a legacy CDS, this is the coupon applied to the premium leg 
-  // to give the trade a value of zero at the contract startDate (there is no exchange of payments upfront) - User input 
+  // The quoted par spread of the trade (legacy CDS, no exchange of upfront)
   private final double _parSpread;
 
-  // The recovery rate to be used in the calculation of the CDS MtM (can be different to the rate used to calibrate the survival curve) - User input
+  // The recovery rate to be used in the calculation of the CDS MtM (can be different to the rate used to calibrate the survival curve)
   private final double _valuationRecoveryRate;
 
-  // The recovery rate to be used when calibrating the hazard rate term structure to the market par CDS spread quotes - User input
+  // The recovery rate to be used when calibrating the hazard rate term structure to the market par CDS spread quotes
   private final double _curveRecoveryRate;
 
-  // Flag to determine whether the accrued coupons should be included in the CDS premium leg calculation - User input
+  // Flag to determine whether the accrued coupons should be included in the CDS premium leg calculation
   private final boolean _includeAccruedPremium;
-
-  // The number of integration steps (per year) for the computation of the integral in the contingent leg - User input
-  private final int _numberOfIntegrationSteps;
-
-  // The yield curve object for discount factors - Constructed from market data
-  private final YieldCurve _yieldCurve;
-
-  // The survival curve object containing the term structure of survival probabilities - Constructed from market data
-  private final FlatSurvivalCurve _survivalCurve;
-
-  // The term structure of rating of the reference entity (supplied by MarkIt) - proxy with a simple YieldCurve object for now
-  private final YieldCurve _ratingCurve;
 
   // The credit key to uniquely identify a reference entities par spread CDS curve
   private final String _creditKey;
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // Constructor for a CDS definition object (most fields are user specified)
+  // Constructor for a CDS contract object
 
   public CreditDefaultSwapDefinition(BuySellProtection buySellProtection,
       String protectionBuyer,
@@ -180,18 +163,13 @@ public class CreditDefaultSwapDefinition {
       double parSpread,
       double valuationRecoveryRate,
       double curveRecoveryRate,
-      boolean includeAccruedPremium,
-      int numberOfIntegrationSteps,
-      YieldCurve yieldCurve,
-      FlatSurvivalCurve survivalCurve,
-      YieldCurve ratingCurve) {
+      boolean includeAccruedPremium) {
 
     // ------------------------------------------------------------------------------------------------
 
     // Check the validity of the input arguments
 
     ArgumentChecker.notNull(buySellProtection, "Buy/Sell field is null");
-    // Do we need to check for ""?
 
     ArgumentChecker.notNull(protectionBuyer, "Protection buyer field is null");
     ArgumentChecker.isFalse(protectionBuyer.isEmpty(), "Protection buyer field is empty");
@@ -209,43 +187,22 @@ public class CreditDefaultSwapDefinition {
     ArgumentChecker.isFalse(referenceEntityREDCode.isEmpty(), "Reference entity RED code field is empty");
 
     ArgumentChecker.notNull(currency, "Currency field is null");
-    // Do we need to check for ""?
-
     ArgumentChecker.notNull(debtSeniority, "Debt seniority field is null");
-    // Do we need to check for ""?
-
     ArgumentChecker.notNull(restructuringClause, "Restructuring clause field is null");
-    // Do we need to check for ""?
-
     ArgumentChecker.notNull(compositeRating, "Composite rating field is null");
-    // Do we need to check for ""?
-
     ArgumentChecker.notNull(impliedRating, "Implied rating field is null");
-    // Do we need to check for ""?
-
     ArgumentChecker.notNull(sector, "Sector field is null");
-    // Do we need to check for ""?
-
     ArgumentChecker.notNull(region, "Region field is null");
-    // Do we need to check for ""?
 
     ArgumentChecker.notNull(country, "Country field is null");
     ArgumentChecker.isFalse(country.isEmpty(), "Country field is empty");
 
     ArgumentChecker.notNull(calendar, "Calendar field is null");
-    // Do we need to check for ""?
 
     ArgumentChecker.notNull(startDate, "Start date field is null");
-    // Do we need to check for ""?
-
     ArgumentChecker.notNull(effectiveDate, "Effective date field is null");
-    // Do we need to check for ""?
-
     ArgumentChecker.notNull(maturityDate, "Maturity date field is null");
-    // Do we need to check for ""?
-
     ArgumentChecker.notNull(valuationDate, "Valuation date field is null");
-    // Do we need to check for ""?
 
     // Check the temporal ordering of the input dates (these are the unadjusted dates entered by the user)
     ArgumentChecker.isTrue(startDate.isBefore(valuationDate), "Start date {} must be before valuation date {}", startDate, valuationDate);
@@ -255,16 +212,9 @@ public class CreditDefaultSwapDefinition {
     ArgumentChecker.isTrue(valuationDate.isAfter(effectiveDate), "Valuation date {} must be after effective date {}", valuationDate, effectiveDate);
 
     ArgumentChecker.notNull(scheduleGenerationMethod, "Schedule generation method field is null");
-    // Do we need to check for ""?
-
     ArgumentChecker.notNull(couponFrequency, "Coupon frequency field is null");
-    // Do we need to check for ""?
-
     ArgumentChecker.notNull(daycountFractionConvention, "Daycount convention field is null");
-    // Do we need to check for ""?
-
     ArgumentChecker.notNull(businessdayAdjustmentConvention, "Business day adjustment convention field is null");
-    // Do we need to check for ""?
 
     ArgumentChecker.isTrue(notional >= 0.0, "Notional amount should be greater than or equal to zero");
     ArgumentChecker.isTrue(parSpread >= 0.0, "CDS par spread should be greater than or equal to zero");
@@ -274,12 +224,6 @@ public class CreditDefaultSwapDefinition {
 
     ArgumentChecker.isTrue(curveRecoveryRate >= 0.0, "Curve recovery rate should be greater than or equal to 0%");
     ArgumentChecker.isTrue(curveRecoveryRate <= 1.0, "Curve recovery rate should be less than or equal to 100%");
-
-    ArgumentChecker.isTrue(numberOfIntegrationSteps > 0, "Number of integration steps (for contingent leg valuation) should be greater than zero");
-
-    ArgumentChecker.notNull(yieldCurve, "Yield curve is null");
-    ArgumentChecker.notNull(survivalCurve, "Survival curve is null");
-    ArgumentChecker.notNull(ratingCurve, "Rating curve is null");
 
     // ------------------------------------------------------------------------------------------------
 
@@ -323,12 +267,6 @@ public class CreditDefaultSwapDefinition {
     _curveRecoveryRate = curveRecoveryRate;
 
     _includeAccruedPremium = includeAccruedPremium;
-
-    _numberOfIntegrationSteps = numberOfIntegrationSteps;
-
-    _yieldCurve = yieldCurve;
-    _survivalCurve = survivalCurve;
-    _ratingCurve = ratingCurve;
 
     // REVIEW 29/8/2012 think about using UniqueId instead of _creditKey
     _creditKey = _referenceEntityTicker + "_" + _currency + "_" + _debtSeniority + "_" + _restructuringClause;
@@ -464,24 +402,6 @@ public class CreditDefaultSwapDefinition {
     return _includeAccruedPremium;
   }
 
-  public int getNumberOfIntegrationSteps() {
-    return _numberOfIntegrationSteps;
-  }
-
-  //----------------------------------------------------------------------------------------------------------------------------------------
-
-  public YieldCurve getYieldCurve() {
-    return _yieldCurve;
-  }
-
-  public FlatSurvivalCurve getSurvivalCurve() {
-    return _survivalCurve;
-  }
-
-  public YieldCurve getRatingCurve() {
-    return _ratingCurve;
-  }
-
   //----------------------------------------------------------------------------------------------------------------------------------------
 
   public String getCreditKey() {
@@ -495,44 +415,17 @@ public class CreditDefaultSwapDefinition {
     final int prime = 31;
     int result = 1;
     result = prime * result + (_adjustMaturityDate ? 1231 : 1237);
-    result = prime * result + ((_businessdayAdjustmentConvention == null) ? 0 : _businessdayAdjustmentConvention.hashCode());
-    result = prime * result + ((_buySellProtection == null) ? 0 : _buySellProtection.hashCode());
     result = prime * result + ((_calendar == null) ? 0 : _calendar.hashCode());
-    result = prime * result + ((_compositeRating == null) ? 0 : _compositeRating.hashCode());
-    result = prime * result + ((_country == null) ? 0 : _country.hashCode());
-    result = prime * result + ((_couponFrequency == null) ? 0 : _couponFrequency.hashCode());
-    result = prime * result + ((_creditKey == null) ? 0 : _creditKey.hashCode());
-    result = prime * result + ((_currency == null) ? 0 : _currency.hashCode());
     long temp;
     temp = Double.doubleToLongBits(_curveRecoveryRate);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + ((_daycountFractionConvention == null) ? 0 : _daycountFractionConvention.hashCode());
-    result = prime * result + ((_debtSeniority == null) ? 0 : _debtSeniority.hashCode());
-    result = prime * result + ((_effectiveDate == null) ? 0 : _effectiveDate.hashCode());
-    result = prime * result + ((_impliedRating == null) ? 0 : _impliedRating.hashCode());
     result = prime * result + (_includeAccruedPremium ? 1231 : 1237);
-    result = prime * result + ((_maturityDate == null) ? 0 : _maturityDate.hashCode());
     temp = Double.doubleToLongBits(_notional);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + _numberOfIntegrationSteps;
     temp = Double.doubleToLongBits(_parSpread);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + ((_protectionBuyer == null) ? 0 : _protectionBuyer.hashCode());
-    result = prime * result + ((_protectionSeller == null) ? 0 : _protectionSeller.hashCode());
-    result = prime * result + ((_ratingCurve == null) ? 0 : _ratingCurve.hashCode());
-    result = prime * result + ((_referenceEntityREDCode == null) ? 0 : _referenceEntityREDCode.hashCode());
-    result = prime * result + ((_referenceEntityShortName == null) ? 0 : _referenceEntityShortName.hashCode());
-    result = prime * result + ((_referenceEntityTicker == null) ? 0 : _referenceEntityTicker.hashCode());
-    result = prime * result + ((_region == null) ? 0 : _region.hashCode());
-    result = prime * result + ((_restructuringClause == null) ? 0 : _restructuringClause.hashCode());
-    result = prime * result + ((_scheduleGenerationMethod == null) ? 0 : _scheduleGenerationMethod.hashCode());
-    result = prime * result + ((_sector == null) ? 0 : _sector.hashCode());
-    result = prime * result + ((_startDate == null) ? 0 : _startDate.hashCode());
-    result = prime * result + ((_survivalCurve == null) ? 0 : _survivalCurve.hashCode());
-    result = prime * result + ((_valuationDate == null) ? 0 : _valuationDate.hashCode());
     temp = Double.doubleToLongBits(_valuationRecoveryRate);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + ((_yieldCurve == null) ? 0 : _yieldCurve.hashCode());
     return result;
   }
 
@@ -540,135 +433,141 @@ public class CreditDefaultSwapDefinition {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+
+    if (getClass() != obj.getClass()) {
       return false;
+    }
+
     CreditDefaultSwapDefinition other = (CreditDefaultSwapDefinition) obj;
-    if (_adjustMaturityDate != other._adjustMaturityDate)
+
+    if (_buySellProtection != other._buySellProtection) {
       return false;
-    if (_businessdayAdjustmentConvention == null) {
-      if (other._businessdayAdjustmentConvention != null)
-        return false;
-    } else if (!_businessdayAdjustmentConvention.equals(other._businessdayAdjustmentConvention))
+    }
+
+    if (_adjustMaturityDate != other._adjustMaturityDate) {
       return false;
-    if (_buySellProtection != other._buySellProtection)
+    }
+
+    if (!ObjectUtils.equals(_businessdayAdjustmentConvention, other._businessdayAdjustmentConvention)) {
       return false;
-    if (_calendar == null) {
-      if (other._calendar != null)
-        return false;
-    } else if (!_calendar.equals(other._calendar))
+    }
+
+    if (!ObjectUtils.equals(_calendar, other._calendar)) {
       return false;
-    if (_compositeRating != other._compositeRating)
+    }
+
+    if (_compositeRating != other._compositeRating) {
       return false;
-    if (_country == null) {
-      if (other._country != null)
-        return false;
-    } else if (!_country.equals(other._country))
+    }
+
+    if (!ObjectUtils.equals(_country, other._country)) {
       return false;
-    if (_couponFrequency != other._couponFrequency)
+    }
+
+    if (!ObjectUtils.equals(_couponFrequency, other._couponFrequency)) {
       return false;
-    if (_creditKey == null) {
-      if (other._creditKey != null)
-        return false;
-    } else if (!_creditKey.equals(other._creditKey))
+    }
+
+    if (!ObjectUtils.equals(_creditKey, other._creditKey)) {
       return false;
-    if (_currency == null) {
-      if (other._currency != null)
-        return false;
-    } else if (!_currency.equals(other._currency))
+    }
+
+    if (!ObjectUtils.equals(_currency, other._currency)) {
       return false;
-    if (Double.doubleToLongBits(_curveRecoveryRate) != Double.doubleToLongBits(other._curveRecoveryRate))
+    }
+
+    if (Double.doubleToLongBits(_curveRecoveryRate) != Double.doubleToLongBits(other._curveRecoveryRate)) {
       return false;
-    if (_daycountFractionConvention == null) {
-      if (other._daycountFractionConvention != null)
-        return false;
-    } else if (!_daycountFractionConvention.equals(other._daycountFractionConvention))
+    }
+
+    if (!ObjectUtils.equals(_daycountFractionConvention, other._daycountFractionConvention)) {
       return false;
-    if (_debtSeniority != other._debtSeniority)
+    }
+
+    if (_debtSeniority != other._debtSeniority) {
       return false;
-    if (_effectiveDate == null) {
-      if (other._effectiveDate != null)
-        return false;
-    } else if (!_effectiveDate.equals(other._effectiveDate))
+    }
+
+    if (!ObjectUtils.equals(_effectiveDate, other._effectiveDate)) {
       return false;
-    if (_impliedRating != other._impliedRating)
+    }
+
+    if (_impliedRating != other._impliedRating) {
       return false;
-    if (_includeAccruedPremium != other._includeAccruedPremium)
+    }
+
+    if (_includeAccruedPremium != other._includeAccruedPremium) {
       return false;
-    if (_maturityDate == null) {
-      if (other._maturityDate != null)
-        return false;
-    } else if (!_maturityDate.equals(other._maturityDate))
+    }
+
+    if (!ObjectUtils.equals(_maturityDate, other._maturityDate)) {
       return false;
-    if (Double.doubleToLongBits(_notional) != Double.doubleToLongBits(other._notional))
+    }
+
+    if (Double.doubleToLongBits(_notional) != Double.doubleToLongBits(other._notional)) {
       return false;
-    if (_numberOfIntegrationSteps != other._numberOfIntegrationSteps)
+    }
+
+    if (Double.doubleToLongBits(_parSpread) != Double.doubleToLongBits(other._parSpread)) {
       return false;
-    if (Double.doubleToLongBits(_parSpread) != Double.doubleToLongBits(other._parSpread))
+    }
+
+    if (!ObjectUtils.equals(_protectionBuyer, other._protectionBuyer)) {
       return false;
-    if (_protectionBuyer == null) {
-      if (other._protectionBuyer != null)
-        return false;
-    } else if (!_protectionBuyer.equals(other._protectionBuyer))
+    }
+
+    if (!ObjectUtils.equals(_protectionSeller, other._protectionSeller)) {
       return false;
-    if (_protectionSeller == null) {
-      if (other._protectionSeller != null)
-        return false;
-    } else if (!_protectionSeller.equals(other._protectionSeller))
+    }
+
+    if (!ObjectUtils.equals(_referenceEntityREDCode, other._referenceEntityREDCode)) {
       return false;
-    if (_ratingCurve == null) {
-      if (other._ratingCurve != null)
-        return false;
-    } else if (!_ratingCurve.equals(other._ratingCurve))
+    }
+
+    if (!ObjectUtils.equals(_referenceEntityShortName, other._referenceEntityShortName)) {
       return false;
-    if (_referenceEntityREDCode == null) {
-      if (other._referenceEntityREDCode != null)
-        return false;
-    } else if (!_referenceEntityREDCode.equals(other._referenceEntityREDCode))
+    }
+
+    if (!ObjectUtils.equals(_referenceEntityTicker, other._referenceEntityTicker)) {
       return false;
-    if (_referenceEntityShortName == null) {
-      if (other._referenceEntityShortName != null)
-        return false;
-    } else if (!_referenceEntityShortName.equals(other._referenceEntityShortName))
+    }
+
+    if (_region != other._region) {
       return false;
-    if (_referenceEntityTicker == null) {
-      if (other._referenceEntityTicker != null)
-        return false;
-    } else if (!_referenceEntityTicker.equals(other._referenceEntityTicker))
+    }
+
+    if (_restructuringClause != other._restructuringClause) {
       return false;
-    if (_region != other._region)
+    }
+
+    if (_scheduleGenerationMethod != other._scheduleGenerationMethod) {
       return false;
-    if (_restructuringClause != other._restructuringClause)
+    }
+
+    if (_sector != other._sector) {
       return false;
-    if (_scheduleGenerationMethod != other._scheduleGenerationMethod)
+    }
+
+    if (!ObjectUtils.equals(_startDate, other._startDate)) {
       return false;
-    if (_sector != other._sector)
+    }
+
+    if (!ObjectUtils.equals(_valuationDate, other._valuationDate)) {
       return false;
-    if (_startDate == null) {
-      if (other._startDate != null)
-        return false;
-    } else if (!_startDate.equals(other._startDate))
+    }
+
+    if (Double.doubleToLongBits(_valuationRecoveryRate) != Double.doubleToLongBits(other._valuationRecoveryRate)) {
       return false;
-    if (_survivalCurve == null) {
-      if (other._survivalCurve != null)
-        return false;
-    } else if (!_survivalCurve.equals(other._survivalCurve))
-      return false;
-    if (_valuationDate == null) {
-      if (other._valuationDate != null)
-        return false;
-    } else if (!_valuationDate.equals(other._valuationDate))
-      return false;
-    if (Double.doubleToLongBits(_valuationRecoveryRate) != Double.doubleToLongBits(other._valuationRecoveryRate))
-      return false;
-    if (_yieldCurve == null) {
-      if (other._yieldCurve != null)
-        return false;
-    } else if (!_yieldCurve.equals(other._yieldCurve))
-      return false;
+    }
+
     return true;
   }
 

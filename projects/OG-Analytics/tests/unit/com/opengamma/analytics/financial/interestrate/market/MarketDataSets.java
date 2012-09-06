@@ -40,7 +40,7 @@ public class MarketDataSets {
   private static final Calendar CALENDAR_EUR = new MondayToFridayCalendar("EUR");
   private static final Calendar CALENDAR_USD = new MondayToFridayCalendar("USD");
   //  private static final Calendar CALENDAR_GBP = new MondayToFridayCalendar("GBP");
-  private static final MarketCurveBundle MARKET_1 = new MarketCurveBundle();
+  private static final MarketDiscountBundle MARKET_1 = new MarketDiscountBundle();
   private static final YieldAndDiscountCurve CURVE_EUR_50 = YieldCurve.from(ConstantDoublesCurve.from(0.0500, "EUR 5.00"));
   private static final YieldAndDiscountCurve CURVE_EUR_45 = YieldCurve.from(ConstantDoublesCurve.from(0.0450, "EUR 4.50"));
   private static final YieldAndDiscountCurve CURVE_EUR_40 = YieldCurve.from(ConstantDoublesCurve.from(0.0400, "EUR 4.00"));
@@ -151,7 +151,7 @@ public class MarketDataSets {
    * Returns a market with three currencies (EUR, USD, GBP), three Ibor indexes (Euribor3M, Euribor6M, UsdLibor3M) and three inflation (Euro HICP x, UK RPI and US CPI-U).
    * @return The market.
    */
-  public static MarketCurveBundle createMarket1() {
+  public static MarketDiscountBundle createMarket1() {
     return MARKET_1;
   }
 
@@ -162,8 +162,8 @@ public class MarketDataSets {
    * @param pricingDate The data for which the curve is constructed.
    * @return The market.
    */
-  public static MarketCurveBundle createMarket1(ZonedDateTime pricingDate) {
-    MarketCurveBundle market = new MarketCurveBundle();
+  public static MarketDiscountBundle createMarket1(ZonedDateTime pricingDate) {
+    MarketDiscountBundle market = new MarketDiscountBundle();
     market.setCurve(Currency.EUR, CURVE_EUR_40);
     market.setCurve(Currency.USD, CURVE_USD_30);
     market.setCurve(Currency.GBP, CURVE_GBP_35);
@@ -202,8 +202,8 @@ public class MarketDataSets {
     return market;
   }
 
-  public static MarketCurveBundle createMarket2(ZonedDateTime pricingDate) {
-    MarketCurveBundle market = createMarket1(pricingDate);
+  public static MarketDiscountBundle createMarket2(ZonedDateTime pricingDate) {
+    MarketDiscountBundle market = createMarket1(pricingDate);
     DoublesCurve curveNoAdj = market.getCurve(PRICE_INDEX_USD).getCurve();
     DoublesCurve adj = new SeasonalCurve(curveNoAdj.getXData()[0], SEASONAL_FACTOR_USD);
     DoublesCurve[] curveSet = new DoublesCurve[] {curveNoAdj, adj};
