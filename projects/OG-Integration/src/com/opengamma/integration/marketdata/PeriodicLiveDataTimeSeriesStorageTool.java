@@ -103,7 +103,7 @@ public class PeriodicLiveDataTimeSeriesStorageTool extends AbstractTool<ToolCont
    */
   public static void main(String[] args) throws Exception { //CSIGNORE
     PeriodicLiveDataTimeSeriesStorageTool tool = new PeriodicLiveDataTimeSeriesStorageTool();
-    tool.initAndRun(args);
+    tool.initAndRun(args, ToolContext.class);
     //System.exit(0);
   }
 

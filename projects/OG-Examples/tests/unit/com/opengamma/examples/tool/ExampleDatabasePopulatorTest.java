@@ -41,7 +41,7 @@ public class ExampleDatabasePopulatorTest {
   public void testPortfolioAndDataLoaded() throws Exception {
     DBTestUtils.createTestHsqlDB(CONFIG_RESOURCE_LOCATION);
     
-    if (new ExampleDatabasePopulator().run(CONFIG_RESOURCE_LOCATION) == false) {
+    if (!(new ExampleDatabasePopulator().run(CONFIG_RESOURCE_LOCATION, ToolContext.class))) {
       fail();
     }
     

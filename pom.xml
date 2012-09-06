@@ -8,7 +8,7 @@
   <artifactId>og-parent</artifactId>
   <packaging>pom</packaging>
   <name>OG-Parent</name>
-  <version>1.2-SNAPSHOT</version>
+  <version>1.2.0-SNAPSHOT</version>
   <description>OpenGamma maven parent project</description>
   <url>http://developers.opengamma.com/</url>
 
@@ -89,6 +89,9 @@
         <includes>
           <include>**/*.properties</include>
           <include>**/*.csv</include>
+          <include>**/*.dat</include>
+          <include>**/*.elsql</include>
+          <include>**/*.ftl</include>
           <include>**/*.proto</include>
           <include>**/*.txt</include>
           <include>**/*.xml</include>
@@ -102,6 +105,9 @@
         <includes>
           <include>**/*.properties</include>
           <include>**/*.csv</include>
+          <include>**/*.dat</include>
+          <include>**/*.elsql</include>
+          <include>**/*.ftl</include>
           <include>**/*.proto</include>
           <include>**/*.txt</include>
           <include>**/*.xml</include>

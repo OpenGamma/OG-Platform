@@ -3,30 +3,20 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.creditdefaultswap;
+package com.opengamma.analytics.financial.credit;
 
-import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.credit.BuySellProtection;
-import com.opengamma.analytics.financial.credit.CreditRating;
-import com.opengamma.analytics.financial.credit.DebtSeniority;
-import com.opengamma.analytics.financial.credit.FlatSurvivalCurve;
-import com.opengamma.analytics.financial.credit.Region;
-import com.opengamma.analytics.financial.credit.RestructuringClause;
-import com.opengamma.analytics.financial.credit.ScheduleGenerationMethod;
-import com.opengamma.analytics.financial.credit.Sector;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.PresentValueCreditDefaultSwapTest.MyCalendar;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.PresentValueCreditDefaultSwap;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
@@ -34,17 +24,11 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
 /**
- *  Test of the implementation of the valuation model for a CDS 
+ * Class to test the implementation of the flat survival curve object
  */
-public class PresentValueCreditDefaultSwapTest {
+public class FlatSurvivalCurveTest {
 
-  // ----------------------------------------------------------------------------------
-
-  // TODO : Add all the tests
-  // TODO : Move the calendar into a seperate TestCalendar class
-  // TODO : Sort out what exceptions to throw from the test cases
-
-  // ----------------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------------------
 
   // CDS contract parameters
 
@@ -97,7 +81,7 @@ public class PresentValueCreditDefaultSwapTest {
   private static final YieldCurve yieldCurve = YieldCurve.from(R);
 
   // Construct a survival curve based on a flat hazard rate term structure (for testing purposes only)
-  private static final FlatSurvivalCurve survivalCurve = new FlatSurvivalCurve(parSpread, curveRecoveryRate);
+  private static final FlatSurvivalCurve survivalCurve = new FlatSurvivalCurve(parSpread, valuationRecoveryRate);
 
   // Dummy rating curve (proxied by a yield curve for now)
   private static final YieldCurve ratingCurve = yieldCurve;
@@ -139,71 +123,22 @@ public class PresentValueCreditDefaultSwapTest {
       survivalCurve,
       ratingCurve);
 
-  // -----------------------------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------------------
 
   @Test
-  //(expectedExceptions = testng.TestException.class)
-  public void testGetPresentValueCreditDefaultSwap() {
+  public void testFlatSurvivalCurve() {
 
-    // -----------------------------------------------------------------------------------------------
+    System.out.println("Running tests on flat survival curve construction ...");
 
-    // Call the constructor to create a CDS
-    final PresentValueCreditDefaultSwap testCDS = new PresentValueCreditDefaultSwap();
+    double hazardRate = survivalCurve.getFlatHazardRate();
 
-    // Call the CDS PV calculator to get the current PV
-    double pV = testCDS.getPresentValueCreditDefaultSwap(cds);
+    for (double t = 0.0; t <= 5.0; t += 0.25) {
 
-    // Report the result
-    System.out.println("CDS PV = " + pV);
+      double survivalProbabilty = survivalCurve.getSurvivalProbability(hazardRate, t);
 
-    // -----------------------------------------------------------------------------------------------
+      System.out.println("t = " + t + "\t\t" + "S(0, t) = " + survivalProbabilty);
+    }
   }
 
-  // -----------------------------------------------------------------------------------------------
-
-  // Bespoke calendar class (have made this public - may want to change this)
-  public static class MyCalendar implements Calendar {
-
-    private static final Calendar weekend = new MondayToFridayCalendar("GBP");
-
-    @Override
-    public boolean isWorkingDay(LocalDate date) {
-
-      if (!weekend.isWorkingDay(date)) {
-        return false;
-      }
-
-      // Custom bank holiday
-      if (date.equals(LocalDate.of(2012, 8, 27))) {
-        return false;
-      }
-
-      // Custom bank holiday
-      if (date.equals(LocalDate.of(2012, 8, 28))) {
-        return false;
-      }
-
-      // Custom bank holiday
-      if (date.equals(LocalDate.of(2017, 8, 28))) {
-        return false;
-      }
-
-      // Custom bank holiday
-      if (date.equals(LocalDate.of(2017, 8, 29))) {
-        return false;
-      }
-
-      return true;
-    }
-
-    @Override
-    public String getConventionName() {
-      return "";
-    }
-
-  }
-
-  // -----------------------------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------------------
 }
-
-//-----------------------------------------------------------------------------------------------

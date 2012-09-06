@@ -49,7 +49,7 @@ public class EHCachingReferenceDataProviderTest {
     _underlyingProvider = new MockReferenceDataProvider();
     _unitProvider = new UnitTestingReferenceDataProvider(_underlyingProvider);
     CacheManager cm = EHCacheUtils.createCacheManager();
-    cm.getCache(EHCachingReferenceDataProvider.REFERENCE_DATA_CACHE).removeAll();
+    EHCacheUtils.clear(cm, EHCachingReferenceDataProvider.REFERENCE_DATA_CACHE);
     _cachingProvider = new EHCachingReferenceDataProvider(
         _unitProvider, 
         cm, 

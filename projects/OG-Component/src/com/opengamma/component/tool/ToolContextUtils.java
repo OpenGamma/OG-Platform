@@ -54,6 +54,21 @@ public final class ToolContextUtils {
    * @return the context, not null
    */
   public static ToolContext getToolContext(String configResourceLocation, Class<? extends ToolContext> toolContextClazz) {
+    return getToolContext(configResourceLocation, toolContextClazz, DEFAULT_CLASSIFIER_CHAIN);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Uses a {@code ComponentManager} or a {@code ComponentServer} to start and load a {@code ToolContext}.
+   * <p>
+   * The context should be closed after use.
+   *
+   * @param configResourceLocation  the location of the context resource file, not null
+   * @param toolContextClazz        the type of tool context to return
+   * @param classifierChain         the classifier chain to use when determining which components to select
+   * @return the context, not null
+   */
+  public static ToolContext getToolContext(String configResourceLocation, Class<? extends ToolContext> toolContextClazz, List<String> classifierChain) {
 
     configResourceLocation = configResourceLocation.trim();
     if (configResourceLocation.startsWith("http://")) {
@@ -81,32 +96,33 @@ public final class ToolContextUtils {
 
       // Populate the tool context from the remote component server
       for (MetaProperty metaProperty : toolContext.metaBean().metaPropertyIterable()) {
-        try {
-          ComponentInfo componentInfo =
-              getComponentInfo(componentServer, DEFAULT_CLASSIFIER_CHAIN, metaProperty.propertyType());
-          if (componentInfo == null) {
-            s_logger.warn("Could not populate tool context " + metaProperty.name() +
-                " because no appropriate component was found on the server");
-            continue;
+        if (!metaProperty.name().equals("contextManager")) {
+          try {
+            ComponentInfo componentInfo =
+                getComponentInfo(componentServer, classifierChain, metaProperty.propertyType());
+            if (componentInfo == null) {
+              s_logger.warn("Could not populate tool context " + metaProperty.name() +
+                  " because no appropriate component was found on the server");
+              continue;
+            }
+            String clazzName = componentInfo.getAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA);
+            if (clazzName == null) {
+              s_logger.warn("Could not populate tool context " + metaProperty.name() +
+                  " because no remote access class could be identified");
+              continue;
+            }
+            Class<?> clazz = Class.forName(clazzName);
+            metaProperty.set(toolContext, clazz.getConstructor(URI.class).newInstance(componentInfo.getUri()));
+            s_logger.info("Populated tool context " + metaProperty.name() + " with " + metaProperty.get(toolContext));
+          } catch (Throwable e) {
+            s_logger.warn("Could not populate tool context " + metaProperty.name() + " because: " +
+                e.getMessage());
           }
-          String clazzName = componentInfo.getAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA);
-          if (clazzName == null) {
-            s_logger.warn("Could not populate tool context " + metaProperty.name() +
-                " because no remote access class could be identified");
-            continue;
-          }
-          Class<?> clazz = Class.forName(clazzName);
-//          Class<?> clazz = Class.forName(componentInfo.getType().getPackage().getName() + ".impl.Remote" +
-//              componentInfo.getType().getSimpleName());
-          metaProperty.set(toolContext, clazz.getConstructor(URI.class).newInstance(componentInfo.getUri()));
-          s_logger.info("Populated tool context " + metaProperty.name() + " with " + metaProperty.get(toolContext));
-        } catch (Throwable e) {
-          s_logger.warn("Could not populate tool context " + metaProperty.name() + " because: " +
-              e.getMessage());
         }
       }
-      // TODO toolContext.setContextManager();
       return toolContext;
+
+    // Populate the tool context from a local properties file
     } else {
       ComponentManager manager = new ComponentManager("toolcontext");
       manager.start(configResourceLocation);

@@ -50,7 +50,7 @@ public class SecurityDeleteTool extends AbstractTool<ToolContext> {
    * @param args  the arguments, not null
    */
   public static void main(String[] args) { //CSIGNORE
-    new SecurityDeleteTool().initAndRun(args);
+    new SecurityDeleteTool().initAndRun(args, ToolContext.class);
     System.exit(0);
   }
 

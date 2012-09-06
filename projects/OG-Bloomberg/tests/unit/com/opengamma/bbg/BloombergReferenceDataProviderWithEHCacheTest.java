@@ -24,7 +24,7 @@ public class BloombergReferenceDataProviderWithEHCacheTest  extends BloombergRef
     // REVIEW jonathan 2012-09-04 -- a reference data provider wrapped in Mongo, wrapped again in EHCache... seriously?
     CachingReferenceDataProvider underlying = BloombergLiveDataServerUtils.getCachingReferenceDataProvider(c);
     CacheManager cm = EHCacheUtils.createCacheManager();
-    cm.getCache(EHCachingReferenceDataProvider.REFERENCE_DATA_CACHE).removeAll();
+    EHCacheUtils.clear(cm, EHCachingReferenceDataProvider.REFERENCE_DATA_CACHE);
     return new EHCachingReferenceDataProvider(
         underlying, 
         cm, 

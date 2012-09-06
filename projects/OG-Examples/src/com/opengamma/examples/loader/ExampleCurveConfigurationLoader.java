@@ -27,7 +27,7 @@ public class ExampleCurveConfigurationLoader extends AbstractTool<ToolContext> {
    * @param args the arguments, unused
    */
   public static void main(final String[] args) { //CSIGNORE
-    new ExampleCurveConfigurationLoader().initAndRun(args);
+    new ExampleCurveConfigurationLoader().initAndRun(args, ToolContext.class);
     System.exit(0);
   }
 }

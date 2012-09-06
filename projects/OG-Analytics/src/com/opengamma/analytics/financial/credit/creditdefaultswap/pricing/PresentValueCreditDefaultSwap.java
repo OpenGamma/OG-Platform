@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
-import com.opengamma.analytics.financial.credit.SurvivalCurve;
+import com.opengamma.analytics.financial.credit.FlatSurvivalCurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.util.time.TimeCalculator;
@@ -18,6 +18,17 @@ import com.opengamma.analytics.util.time.TimeCalculator;
  */
 public class PresentValueCreditDefaultSwap {
 
+  private static final int DEFAULT_N_POINTS = 100;
+  private final int _numberOfIntegrationSteps;
+
+  public PresentValueCreditDefaultSwap() {
+    this(DEFAULT_N_POINTS);
+  }
+
+  public PresentValueCreditDefaultSwap(int numberOfIntegrationPoints) {
+    _numberOfIntegrationSteps = numberOfIntegrationPoints;
+  }
+
   // -------------------------------------------------------------------------------------------------
 
   // TODO : Lots of work to do in this file
@@ -25,8 +36,61 @@ public class PresentValueCreditDefaultSwap {
   // TODO : Might need to dumb down the 'TimeCalculator' calcs (to not include leap year calcs - can we turn this off)
   // TODO : The 'TimeCalculator' is ACT/ACT where the denominator can be 365 or 366 - calcs fraction of year period falls in a leap year etc
   // TODO : Add a method to calc both the legs in one go (is this useful or not? Might be useful from a speed perspective - remember can have O(10^5) positions in a book)
+  // TODO : Check the level of access to these ctors/methods (private, public etc)
 
   // -------------------------------------------------------------------------------------------------
+
+  // Public method for computing the PV of a CDS based on an input CDS contract (work-in-progress) 
+  public double getNewPresentValueCreditDefaultSwap(CreditDefaultSwapDefinition cds) {
+
+    // -------------------------------------------------------------
+
+    //double presentValue = 0.0;
+    double presentValuePremiumLeg = 0.0;
+    double presentValueAccruedPremium = 0.0;
+    double presentValueContingentLeg = 0.0;
+
+    // -------------------------------------------------------------
+
+    // Get the relevant contract data needed to value the premium leg
+
+    // Get the notional amount and par CDS spread (in bps, therefore divide by 10,000) to multiply the premium leg by
+    double notional = cds.getNotional();
+    double parSpread = cds.getParSpread() / 10000.0;
+
+    //double curveRecoveryRate = cds.getCurveRecoveryRate();
+    //double hazardRate = parSpread / (1 - curveRecoveryRate);
+
+    // get the yield and survival curves
+    YieldCurve yieldCurve = cds.getYieldCurve();
+    FlatSurvivalCurve survivalCurve = cds.getSurvivalCurve();
+
+    double hazardRate = survivalCurve.getFlatHazardRate();
+
+    // Do we need to calculate the accrued premium as well
+    boolean includeAccruedPremium = cds.getIncludeAccruedPremium();
+
+    // Extract the adjusted effective date from the computed cashflow schedule
+    //ZonedDateTime adjustedEffectiveDate = cashflowSchedule[0][0];
+
+    ZonedDateTime valuationDate = cds.getValuationDate();
+
+    // -------------------------------------------------------------
+
+    // Calculate the PV of the CDS (assumes we are buying protection i.e. paying the premium leg, receiving the contingent leg)
+    double presentValue = -presentValuePremiumLeg + presentValueContingentLeg;
+
+    // If we are selling protection, then reverse the direction of the premium and contingent leg cashflows
+    if (cds.getBuySellProtection() == BuySellProtection.SELL) {
+      presentValue = -1 * presentValue;
+    }
+
+    return presentValue;
+  }
+
+  // -------------------------------------------------------------------------------------------------
+
+  //public double xxx(cds, yc, sc, rc);
 
   // Public method for computing the PV of a CDS based on an input CDS contract
   public double getPresentValueCreditDefaultSwap(CreditDefaultSwapDefinition cds) {
@@ -66,7 +130,9 @@ public class PresentValueCreditDefaultSwap {
 
   //-------------------------------------------------------------------------------------------------
 
-  // Method to calculate the value of the premium leg of a CDS 
+  // Make private
+
+  // Method (private) to calculate the value of the premium leg of a CDS 
   double calculatePremiumLeg(CreditDefaultSwapDefinition cds, ZonedDateTime[][] cashflowSchedule) {
 
     // -------------------------------------------------------------
@@ -76,18 +142,18 @@ public class PresentValueCreditDefaultSwap {
 
     // -------------------------------------------------------------
 
-    // Get the relevant contract date needed to value the premium leg
+    // Get the relevant contract data needed to value the premium leg
 
     // Get the notional amount and par CDS spread (in bps, therefore divide by 10,000) to multiply the premium leg by
     double notional = cds.getNotional();
     double parSpread = cds.getParSpread() / 10000.0;
 
-    double curveRecoveryRate = cds.getCurveRecoveryRate();
-    double hazardRate = parSpread / (1 - curveRecoveryRate);
-
     // get the yield and survival curves
     YieldCurve yieldCurve = cds.getYieldCurve();
-    SurvivalCurve survivalCurve = cds.getSurvivalCurve();
+    FlatSurvivalCurve survivalCurve = cds.getSurvivalCurve();
+
+    // Get the (flat) hazard rate for this simple curve
+    double hazardRate = survivalCurve.getFlatHazardRate();
 
     // Do we need to calculate the accrued premium as well
     boolean includeAccruedPremium = cds.getIncludeAccruedPremium();
@@ -114,7 +180,6 @@ public class PresentValueCreditDefaultSwap {
 
       // If required, calculate the accrued premium contribution to the overall premium leg
       if (includeAccruedPremium) {
-
         double tPrevious = TimeCalculator.getTimeBetween(cds.getEffectiveDate(), cashflowSchedule[i - 1][0]);
         double survivalProbabilityPrevious = survivalCurve.getSurvivalProbability(hazardRate, tPrevious);
 
@@ -131,7 +196,7 @@ public class PresentValueCreditDefaultSwap {
 
   // -------------------------------------------------------------------------------------------------
 
-  // Method to calculate the accrued premium of a CDS premium leg (this method is just to allow a user to calculate the accrued on its own)
+  // Method (private) to calculate the accrued premium of a CDS premium leg (this method is just to allow a user to calculate the accrued on its own)
   double calculateAccruedPremium(CreditDefaultSwapDefinition cds) {
 
     double presentValueAccruedPremium = 0.0;
@@ -141,41 +206,35 @@ public class PresentValueCreditDefaultSwap {
 
   // -------------------------------------------------------------------------------------------------
 
-  // Method to calculate the value of the contingent leg of a CDS
+  // Method (private) to calculate the value of the contingent leg of a CDS
   double calculateContingentLeg(CreditDefaultSwapDefinition cds, ZonedDateTime[][] cashflowSchedule) {
 
     double presentValueContingentLeg = 0.0;
 
     // Get the notional amount to multiply the contingent leg by
     double notional = cds.getNotional();
-    double parSpread = cds.getParSpread() / 10000.0;
 
+    // Get the recovery rate used for valuation purposes
     double valuationRecoveryRate = cds.getValuationRecoveryRate();
-    double curveRecoveryRate = cds.getCurveRecoveryRate();
-    double hazardRate = parSpread / (1 - curveRecoveryRate);
 
     // get the yield and survival curves
     YieldCurve yieldCurve = cds.getYieldCurve();
-    SurvivalCurve survivalCurve = cds.getSurvivalCurve();
+    FlatSurvivalCurve survivalCurve = cds.getSurvivalCurve();
 
-    int numberOfIntegrationSteps = cds.getNumberOfIntegrationSteps();
+    // Get the (flat) hazard rate from the survival curve
+    double hazardRate = survivalCurve.getFlatHazardRate();
 
-    // Calculate the protection leg integral between the adjustedEffectiveDate and maturityDate
+    // Calculate the protection leg integral between the adjustedEffectiveDate (when protection begins) and maturityDate (when protection ends)
     ZonedDateTime adjustedEffectiveDate = cashflowSchedule[0][0];
     ZonedDateTime immAdjustedMaturityDate = cashflowSchedule[cashflowSchedule.length - 1][0];
 
     // Calculate the discretisation of the time axis
     double timeInterval = TimeCalculator.getTimeBetween(adjustedEffectiveDate, immAdjustedMaturityDate);
-    int numberOfPartitions = (int) (numberOfIntegrationSteps * timeInterval + 0.5);
+    int numberOfPartitions = (int) (_numberOfIntegrationSteps * timeInterval + 0.5);
     double epsilon = timeInterval / numberOfPartitions;
-
-    System.out.println(timeInterval);
-    System.out.println(numberOfPartitions);
-    System.out.println(epsilon);
 
     // Calculate the integral for the contingent leg
     for (int k = 1; k <= numberOfPartitions; k++) {
-
       double t = k * epsilon;
       double tPrevious = (k - 1) * epsilon;
 

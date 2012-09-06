@@ -7,14 +7,16 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.definition;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.CreditRating;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
+import com.opengamma.analytics.financial.credit.FlatSurvivalCurve;
 import com.opengamma.analytics.financial.credit.Region;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.ScheduleGenerationMethod;
 import com.opengamma.analytics.financial.credit.Sector;
-import com.opengamma.analytics.financial.credit.SurvivalCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -40,17 +42,18 @@ public class CreditDefaultSwapDefinition {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // TODO : Should really have more identifiers for the counterparty we are trading with (will be useful for CVA related purposes)
+  // TODO : Sort out the final argument checkers
   // TODO : Allow the case valuationDate = startDate
   // TODO : Allow the case effectiveDate = startDate
   // TODO : Allow the case maturityDate = startDate (e.g. startDate = 21/03/YY, maturityDate = 21/03/YY but IMM adjusted maturityDate = 20/06/YY)
   // TODO : Allow the case valuationDate = maturityDate (should return a MtM of zero)
   // TODO : Allow the case valuationDate = effectiveDate
   // TODO : Should we impose an upper limit on the number of integration steps in the calculation of the contingent leg?
-  // TODO : Add a seperate 'SurvivalCurve' class whose function is to generate the calibrated survival probabilities from the input CDS par spread term structure
+  // TODO : Check the level of access to these ctors/methods (private, public etc)
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // Member variables of the CDS contract (defines what a CDS is)
+  // Member variables (all private and final) of the CDS contract (defines what a CDS is)
 
   // From the users perspective, are we buying or selling protection - User input see enum
   private final BuySellProtection _buySellProtection;
@@ -139,7 +142,7 @@ public class CreditDefaultSwapDefinition {
   private final YieldCurve _yieldCurve;
 
   // The survival curve object containing the term structure of survival probabilities - Constructed from market data
-  private final SurvivalCurve _survivalCurve;
+  private final FlatSurvivalCurve _survivalCurve;
 
   // The term structure of rating of the reference entity (supplied by MarkIt) - proxy with a simple YieldCurve object for now
   private final YieldCurve _ratingCurve;
@@ -182,7 +185,7 @@ public class CreditDefaultSwapDefinition {
       boolean includeAccruedPremium,
       int numberOfIntegrationSteps,
       YieldCurve yieldCurve,
-      SurvivalCurve survivalCurve,
+      FlatSurvivalCurve survivalCurve,
       YieldCurve ratingCurve) {
 
     // ------------------------------------------------------------------------------------------------
@@ -190,7 +193,7 @@ public class CreditDefaultSwapDefinition {
     // Check the validity of the input arguments
 
     ArgumentChecker.notNull(buySellProtection, "Buy/Sell field is null");
-    // Do we need to check for ""?
+    // Do we need to check for ""? - NO
 
     ArgumentChecker.notNull(protectionBuyer, "Protection buyer field is null");
     ArgumentChecker.isFalse(protectionBuyer.isEmpty(), "Protection buyer field is empty");
@@ -337,7 +340,7 @@ public class CreditDefaultSwapDefinition {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // Member variable accessor functions
+  // Member variable accessor functions (all public)
 
   public BuySellProtection getBuySellProtection() {
     return _buySellProtection;
@@ -473,7 +476,7 @@ public class CreditDefaultSwapDefinition {
     return _yieldCurve;
   }
 
-  public SurvivalCurve getSurvivalCurve() {
+  public FlatSurvivalCurve getSurvivalCurve() {
     return _survivalCurve;
   }
 
@@ -516,7 +519,7 @@ public class CreditDefaultSwapDefinition {
     result = prime * result + _numberOfIntegrationSteps;
     temp = Double.doubleToLongBits(_parSpread);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + ((_protectionBuyer == null) ? 0 : _protectionBuyer.hashCode());
+    result = prime * result + _protectionBuyer.hashCode();
     result = prime * result + ((_protectionSeller == null) ? 0 : _protectionSeller.hashCode());
     result = prime * result + ((_ratingCurve == null) ? 0 : _ratingCurve.hashCode());
     result = prime * result + ((_referenceEntityREDCode == null) ? 0 : _referenceEntityREDCode.hashCode());
@@ -539,22 +542,25 @@ public class CreditDefaultSwapDefinition {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     CreditDefaultSwapDefinition other = (CreditDefaultSwapDefinition) obj;
-    if (_adjustMaturityDate != other._adjustMaturityDate)
+    if (_adjustMaturityDate != other._adjustMaturityDate) {
       return false;
-    if (_businessdayAdjustmentConvention == null) {
-      if (other._businessdayAdjustmentConvention != null)
-        return false;
-    } else if (!_businessdayAdjustmentConvention.equals(other._businessdayAdjustmentConvention))
+    }
+    if (!ObjectUtils.equals(_businessdayAdjustmentConvention, other._businessdayAdjustmentConvention)) {
       return false;
-    if (_buySellProtection != other._buySellProtection)
+    }
+    if (_buySellProtection != other._buySellProtection) {
       return false;
+    }
     if (_calendar == null) {
       if (other._calendar != null)
         return false;
@@ -569,18 +575,23 @@ public class CreditDefaultSwapDefinition {
       return false;
     if (_couponFrequency != other._couponFrequency)
       return false;
+
     if (_creditKey == null) {
-      if (other._creditKey != null)
+      if (other._creditKey != null) {
         return false;
-    } else if (!_creditKey.equals(other._creditKey))
+      }
+    } else if (!_creditKey.equals(other._creditKey)) {
       return false;
+    }
+
     if (_currency == null) {
       if (other._currency != null)
         return false;
     } else if (!_currency.equals(other._currency))
       return false;
-    if (Double.doubleToLongBits(_curveRecoveryRate) != Double.doubleToLongBits(other._curveRecoveryRate))
+    if (Double.doubleToLongBits(_curveRecoveryRate) != Double.doubleToLongBits(other._curveRecoveryRate)) {
       return false;
+    }
     if (_daycountFractionConvention == null) {
       if (other._daycountFractionConvention != null)
         return false;
