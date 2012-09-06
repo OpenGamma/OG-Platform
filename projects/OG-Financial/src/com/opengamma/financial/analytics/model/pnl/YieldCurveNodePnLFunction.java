@@ -276,6 +276,10 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
         curveNames.add(entry.getValue().getConstraint(ValuePropertyNames.CURVE));
       }
     }
+    if (curveNames.isEmpty()) {
+      int i = 0;
+      i = i + 1;
+    }
     final ValueProperties properties = createValueProperties()
         .withAny(ValuePropertyNames.CURRENCY)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
