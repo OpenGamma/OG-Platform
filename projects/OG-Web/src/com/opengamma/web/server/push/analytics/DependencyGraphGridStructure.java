@@ -113,7 +113,7 @@ public class DependencyGraphGridStructure implements GridStructure {
                                                          String calcConfigName) {
     ResultsCache.Result cacheResult = cache.getResult(calcConfigName, getValueSpecificationForRow(rowIndex), null);
     Object value = cacheResult.getValue();
-        Row row = _rows.get(rowIndex);
+    Row row = _rows.get(rowIndex);
     List<ViewportResults.Cell> rowResults = Lists.newArrayListWithCapacity(cols.size());
     for (Integer colIndex : cols) {
       rowResults.add(createValueForColumn(colIndex, row, value, cache, calcConfigName));
