@@ -84,7 +84,7 @@ public class KRConventions {
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("KWDR5 Curncy"), simpleNameSecurityId("KRW DEPOSIT 5y")), "KRW DEPOSIT 5y", act360,
         following, Period.ofYears(5), 2, false, kr);
 
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("KWCDC Index"), simpleNameSecurityId("KRW SWAP FIXING 3m")),
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("KWCDC Curncy"), bloombergTickerSecurityId("KWCDC Index"), simpleNameSecurityId("KRW SWAP FIXING 3m")),
         "KRW SWAP FIXING 3m", act365, modified, Period.ofMonths(3), 0, false, kr);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("KRW_SWAP")), "KRW_SWAP", act365, modified,
         quarterly, 2, kr, act365, modified, quarterly, 2, simpleNameSecurityId("KRW SWAP FIXING 3m"), kr, true);
