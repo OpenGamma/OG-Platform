@@ -117,7 +117,7 @@ import com.opengamma.util.tuple.Pair;
       CollectionUtils.addIgnoreNull(updatedIds, viewport.updateResults(cache));
     }
     for (DependencyGraphGrid grid : _depGraphs.values()) {
-      updatedIds.addAll(grid.updateResults(cycle, cache));
+      updatedIds.addAll(grid.updateResults(cycle));
     }
     return updatedIds;
   }
@@ -161,7 +161,7 @@ import com.opengamma.util.tuple.Pair;
     String calcConfigName = targetForCell.getFirst();
     ValueSpecification valueSpec = targetForCell.getSecond();
     DependencyGraphGrid grid =
-        DependencyGraphGrid.create(compiledViewDef, valueSpec, calcConfigName, _cycle, _cache, gridId, _targetResolver);
+        DependencyGraphGrid.create(compiledViewDef, valueSpec, calcConfigName, _cycle, gridId, _targetResolver);
     _depGraphs.put(graphId, grid);
   }
 
@@ -246,16 +246,6 @@ import com.opengamma.util.tuple.Pair;
    */
   /* package */ ViewportResults getData(int graphId, int viewportId) {
     return getDependencyGraph(graphId).getData(viewportId);
-  }
-
-  /**
-   * Returns the ID sent to listeners when the row and column structure changes of a dependency graph grid.
-   * @param graphId ID of the dependency graph
-   * @return The ID
-   * @throws DataNotFoundException If no dependency graph exists with the specified ID
-   */
-  /* package */ String getCallbackId(int graphId) {
-    return getDependencyGraph(graphId).getCallbackId();
   }
 
   /**

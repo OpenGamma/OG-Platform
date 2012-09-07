@@ -23,7 +23,6 @@ import com.opengamma.util.tuple.DoublesPair;
  * The Black parameters are represented by (expiration-strike) surfaces.  
  */
 public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
-  // TODO: Change to a surface when available.
 
   /**
    * Creates the method unique instance.
@@ -139,10 +138,14 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
   }
 
   public InterestRateCurveSensitivity priceCurveSensitivity(final BondFutureOptionPremiumSecurity security, final YieldCurveBundle curves) {
+    ArgumentChecker.notNull(curves, "Curves");
     if (curves instanceof YieldCurveWithBlackCubeBundle) {
       return priceCurveSensitivity(security, (YieldCurveWithBlackCubeBundle) curves);
+    } else if (curves instanceof YieldCurveWithBlackCubeAndForwardBundle) {
+      return priceCurveSensitivity(security, (YieldCurveWithBlackCubeAndForwardBundle) curves);
     }
-    throw new IllegalArgumentException("Yield curve bundle should contain Black cube");
+    throw new UnsupportedOperationException(
+        "The BondFutureOptionPremiumSecurityBlackSurfaceMethod method requires a YieldCurveWithBlackCubeBundle or YieldCurveWithBlackCubeAndForwardBundle as data.");
   }
 
   /**
@@ -185,7 +188,7 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
   }
 
   /**
-   * Computes the option's value delta, the first derivative of the security price wrt underlying futures rate. 
+   * Computes the option's value delta, the first derivative of the security price wrt underlying futures rate. TODO: REVIEW is it futures rate or price?
    * @param security The future option security, not null
    * @param blackData The curve and Black volatility data, not null
    * @return The security value delta.

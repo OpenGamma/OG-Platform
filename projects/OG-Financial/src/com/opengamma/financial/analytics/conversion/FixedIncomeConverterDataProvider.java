@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.conversion;
@@ -84,7 +84,7 @@ public class FixedIncomeConverterDataProvider {
 
     /**
      * Returns the time series requirements that will be needed for the {@link #convert} method.
-     * 
+     *
      * @param security the security, not null
      * @param curveNames the names of the curves, not null
      * @return the set of requirements, the empty set if nothing is required, null if the conversion will not be possible (for example a missing timeseries)
@@ -93,7 +93,7 @@ public class FixedIncomeConverterDataProvider {
 
     /**
      * Converts the "security" and "definition" form to its "derivative" form.
-     * 
+     *
      * @param security the security, not null
      * @param definition the definition, not null
      * @param now the observation time, not null
@@ -500,7 +500,11 @@ public class FixedIncomeConverterDataProvider {
       if (ts.getTimeSeries().isEmpty()) {
         return ArrayZonedDateTimeDoubleTimeSeries.EMPTY_SERIES;
       }
-      final FastBackedDoubleTimeSeries<LocalDate> localDateTS = ts.getTimeSeries();
+      FastBackedDoubleTimeSeries<LocalDate> localDateTS = ts.getTimeSeries();
+      //TODO remove me when KWCDC Curncy is normalised correctly
+      if (localDateTS.getLatestValue() > 0.50) {
+        localDateTS = localDateTS.divide(100);
+      }
       final FastLongDoubleTimeSeries convertedTS = localDateTS.toFastLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
       final LocalTime fixingTime = LocalTime.of(0, 0); // FIXME CASE Converting a daily historical time series to an arbitrary time. Bad idea
       return new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTimeEpochMillisConverter(now.getZone(), fixingTime), convertedTS);
@@ -517,7 +521,7 @@ public class FixedIncomeConverterDataProvider {
 
   /**
    * Returns the ExternalIDBundle associated to an ExternalId as stored in the convention source.
-   * 
+   *
    * @param indexId The external id.
    * @return The bundle.
    */
@@ -540,7 +544,7 @@ public class FixedIncomeConverterDataProvider {
 
   /**
    * Returns the time series to be used in the toDerivative method.
-   * 
+   *
    * @param id The ExternalId bundle.
    * @param startDate The time series start date (included in the time series).
    * @param timeZone The time zone to use for the returned series

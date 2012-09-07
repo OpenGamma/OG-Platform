@@ -22,6 +22,7 @@ import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * <p>Cache of results from a running view process. This is intended for use with view clients where the first
@@ -51,7 +52,7 @@ import com.opengamma.util.money.CurrencyAmount;
   private long _lastUpdateId = 0;
 
   /**
-   * Puts a set of results in the cache.
+   * Puts a set of results into the cache.
    * @param results The results, not null
    */
   /* package */ void put(ViewResultModel results) {
@@ -60,15 +61,38 @@ import com.opengamma.util.money.CurrencyAmount;
     List<ViewResultEntry> allResults = results.getAllResults();
     for (ViewResultEntry result : allResults) {
       ComputedValue computedValue = result.getComputedValue();
-      Object value = computedValue.getValue();
-      ResultKey key = new ResultKey(result.getCalculationConfiguration(), computedValue.getSpecification());
-      CacheItem cacheResult = _results.get(key);
-      if (cacheResult == null) {
-        CacheItem newResult = CacheItem.forValue(value, _lastUpdateId);
-        _results.put(key, newResult);
-      } else {
-        cacheResult.setLatestValue(value, _lastUpdateId);
-      }
+      put(result.getCalculationConfiguration(), computedValue.getSpecification(), computedValue.getValue());
+    }
+  }
+
+  /**
+   * Puts a set of results into the cache.
+   * @param calcConfigName The name of the calculation configuration used to calculate the results
+   * @param results The results
+   */
+  /* package */ void put(String calcConfigName, List<Pair<ValueSpecification, Object>> results) {
+    _lastUpdateId++;
+    for (Pair<ValueSpecification, Object> result : results) {
+      ValueSpecification spec = result.getFirst();
+      Object value = result.getSecond();
+      put(calcConfigName, spec, value);
+    }
+  }
+
+  /**
+   * Puts a single value into the cache.
+   * @param calcConfigName The name of the calculation configuration used to calculate the results
+   * @param spec The value's specification
+   * @param value The value
+   */
+  private void put(String calcConfigName, ValueSpecification spec, Object value) {
+    ResultKey key = new ResultKey(calcConfigName, spec);
+    CacheItem cacheResult = _results.get(key);
+    if (cacheResult == null) {
+      CacheItem newResult = CacheItem.forValue(value, _lastUpdateId);
+      _results.put(key, newResult);
+    } else {
+      cacheResult.setLatestValue(value, _lastUpdateId);
     }
   }
 
@@ -87,7 +111,9 @@ import com.opengamma.util.money.CurrencyAmount;
    * Returns a cache result for a value specification and calculation configuration.
    * @param calcConfigName The calculation configuration name
    * @param valueSpec The value specification
-   * @param columnType The expected type of the value
+   * @param columnType The expected type of the value, used to decide whether empty history should be provided for
+   * a value that isn't in the cache but would have history if it were. Can be null in which case no history is
+   * provided for missing values.
    * @return A cache result, not null
    */
   /* package */ Result getResult(String calcConfigName, ValueSpecification valueSpec, Class<?> columnType) {
