@@ -64,8 +64,8 @@ public class Compressor {
   public Response decompress(@FormParam("content") String content) throws IOException {
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     decompressStream(new ByteArrayInputStream(content.getBytes()), outputStream);
-    ImmutableMap<String, String> data = ImmutableMap.of("data", outputStream.toString());
-    return Response.status(Response.Status.OK).entity(new JSONObject(data).toString()).build();
+    String data = "{\"data\":" + outputStream.toString() + "}";
+    return Response.status(Response.Status.OK).entity(data).build();
   }
 
   /* package */ static void compressStream(InputStream inputStream, OutputStream outputStream) throws IOException {

@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.math.curve.NodalDoublesCurve;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
@@ -78,6 +79,7 @@ public abstract class FuturePriceCurveFunction extends AbstractFunction {
     final FuturePriceCurveInstrumentProvider<Object> futurePriceCurveProvider = (FuturePriceCurveInstrumentProvider<Object>) futurePriceCurveSpecification.getCurveInstrumentProvider();
     for (final Object x : futurePriceCurveDefinition.getXs()) {
       final ExternalId identifier = futurePriceCurveProvider.getInstrument(x, atInstant.toLocalDate());
+      System.err.println(identifier);
       result.add(new ValueRequirement(futurePriceCurveProvider.getDataFieldName(), identifier));
     }
     return result;
@@ -91,7 +93,6 @@ public abstract class FuturePriceCurveFunction extends AbstractFunction {
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBFuturePriceCurveDefinitionSource curveDefinitionSource = new ConfigDBFuturePriceCurveDefinitionSource(configSource);
     final ConfigDBFuturePriceCurveSpecificationSource curveSpecificationSource = new ConfigDBFuturePriceCurveSpecificationSource(configSource);
-    //TODO ENG-252 see MarketInstrumentImpliedYieldCurveFunction; need to work out the expiry more efficiently
     return new AbstractInvokingCompiledFunction(atInstant.withTime(0, 0), atInstant.plusDays(1).withTime(0, 0).minusNanos(1000000)) {
 
       @Override
@@ -156,6 +157,11 @@ public abstract class FuturePriceCurveFunction extends AbstractFunction {
         return true;
       }
 
+      @Override
+      public boolean canHandleMissingRequirements() {
+        return true;
+      }
+
       @SuppressWarnings({"synthetic-access" })
       @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
@@ -176,7 +182,7 @@ public abstract class FuturePriceCurveFunction extends AbstractFunction {
         final FuturePriceCurveInstrumentProvider<Number> futurePriceCurveProvider = (FuturePriceCurveInstrumentProvider<Number>) priceCurveSpecification.getCurveInstrumentProvider();
         final LocalDate valDate = now.toLocalDate();
         if (inputs.getAllValues().isEmpty()) {
-          s_logger.info("FunctionInputs to the execute method isEmpty!");
+          throw new OpenGammaRuntimeException("Could not get any data for future price curve called " + curveSpecificationName);
         }
         for (final Object x : priceCurveDefinition.getXs()) {
           final Number xNum = (Number) x;

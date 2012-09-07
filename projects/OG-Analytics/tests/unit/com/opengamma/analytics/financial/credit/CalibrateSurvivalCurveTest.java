@@ -3,22 +3,17 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.creditdefaultswap;
+package com.opengamma.analytics.financial.credit;
 
 import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.credit.BuySellProtection;
-import com.opengamma.analytics.financial.credit.CreditRating;
-import com.opengamma.analytics.financial.credit.DebtSeniority;
-import com.opengamma.analytics.financial.credit.Region;
-import com.opengamma.analytics.financial.credit.RestructuringClause;
-import com.opengamma.analytics.financial.credit.ScheduleGenerationMethod;
-import com.opengamma.analytics.financial.credit.Sector;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.PresentValueCreditDefaultSwapTest.MyCalendar;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.GenerateCreditDefaultSwapPremiumLegSchedule;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -29,11 +24,11 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
 /**
- *  Test the implementation of the schedule generation methods for the premium leg of a CDS
+ * Class to test the implementation of the calibration of the survival curve
  */
-public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
+public class CalibrateSurvivalCurveTest {
 
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------------------
 
   // CDS contract parameters
 
@@ -77,7 +72,17 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
   private static final double curveRecoveryRate = 0.40;
   private static final boolean includeAccruedPremium = true;
 
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
+  // Dummy yield curve
+  private static final double interestRate = 0.05;
+  private static final double[] TIME = new double[] {0, 3, 5, 10 };
+  private static final double[] RATES = new double[] {interestRate, interestRate, interestRate, interestRate };
+  private static final InterpolatedDoublesCurve R = InterpolatedDoublesCurve.from(TIME, RATES, new LinearInterpolator1D());
+  private static final YieldCurve yieldCurve = YieldCurve.from(R);
+
+  // Construct a survival curve based on a flat hazard rate term structure (for testing purposes only)
+  private static final FlatSurvivalCurve survivalCurve = new FlatSurvivalCurve(parSpread, curveRecoveryRate);
+
+  // ----------------------------------------------------------------------------------
 
   // Construct a CDS contract 
   private static final CreditDefaultSwapDefinition cds = new CreditDefaultSwapDefinition(buySellProtection,
@@ -110,22 +115,16 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
       curveRecoveryRate,
       includeAccruedPremium);
 
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
-
-  // TODO : Add all the tests
+  // ---------------------------------------------------------------------------------------
 
   @Test
-  public void testCashflowScheduleGeneration() {
+  public void testCalibrateSurvivalCurve() {
 
-    System.out.println("Running schedule generation tests ...");
+    System.out.println("Running tests on survival curve construction ...");
 
-    // Construct a cashflow schedule object
-    final GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
+    //final CalibrateSurvivalCurve curve = new CalibrateSurvivalCurve();
 
-    // Call the schedule generation method for the CDS contract
-    ZonedDateTime[][] schedule = cashflowSchedule.constructCreditDefaultSwapPremiumLegSchedule(cds);
-
+    //double[][] calibratedSurvivalCurve = curve.getCalibratedSurvivalCurve(cds, null, null);
   }
-
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------------------
 }

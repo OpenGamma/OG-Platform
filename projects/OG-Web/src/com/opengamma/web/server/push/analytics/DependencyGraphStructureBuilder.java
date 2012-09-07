@@ -30,8 +30,10 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphStructureBuilder.class);
 
-  /** Rows in the graph. */
-  private final List<DependencyGraphGridStructure.Row> _rows = Lists.newArrayList();
+  /** {@link ValueSpecification}s for all rows in the grid in row index order. */
+  private final List<ValueSpecification> _valueSpecs = Lists.newArrayList();
+  /** Function names for all rows in the grid in row index order. */
+  private final List<String> _fnNames = Lists.newArrayList();
   /** The grid structure. */
   private final DependencyGraphGridStructure _structure;
 
@@ -53,14 +55,15 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
       s_logger.warn("Compiled view definition is not an instance of CompiledViewDefinitionWithGraphs, class={}." +
                         " Dependency graphs not supported");
       _structure = new DependencyGraphGridStructure(AnalyticsNode.emptyRoot(),
-                                                    Collections.<DependencyGraphGridStructure.Row>emptyList(),
+                                                    Collections.<ValueSpecification>emptyList(),
+                                                    Collections.<String>emptyList(),
                                                     targetResolver);
     } else {
       CompiledViewDefinitionWithGraphs viewDef = (CompiledViewDefinitionWithGraphs) compiledViewDef;
       DependencyGraphExplorer depGraphExplorer = viewDef.getDependencyGraphExplorer(calcConfigName);
       DependencyGraph depGraph = depGraphExplorer.getSubgraphProducing(root);
       AnalyticsNode node = createNode(root, depGraph);
-      _structure = new DependencyGraphGridStructure(node, _rows, targetResolver);
+      _structure = new DependencyGraphGridStructure(node, _valueSpecs, _fnNames, targetResolver);
     }
   }
 
@@ -74,7 +77,8 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
   private AnalyticsNode createNode(ValueSpecification valueSpec, DependencyGraph depGraph) {
     DependencyNode targetNode = depGraph.getNodeProducing(valueSpec);
     String fnName = targetNode.getFunction().getFunction().getFunctionDefinition().getShortName();
-    _rows.add(new DependencyGraphGridStructure.Row(valueSpec, fnName));
+    _valueSpecs.add(valueSpec);
+    _fnNames.add(fnName);
     int nodeStart = _lastRow;
     List<AnalyticsNode> nodes = new ArrayList<AnalyticsNode>();
     Set<ValueSpecification> inputValues = targetNode.getInputValues();

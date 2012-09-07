@@ -52,7 +52,7 @@ public class EHCachingMasterHolidaySourceTest {
   public void setUp() throws Exception {
     _underlyingHolidayMaster = mock(HolidayMaster.class);
     CacheManager cm = EHCacheUtils.createCacheManager();
-    cm.getCache(EHCachingMasterHolidaySource.HOLIDAY_CACHE).removeAll();
+    EHCacheUtils.clear(cm, EHCachingMasterHolidaySource.HOLIDAY_CACHE);
     _cachingHolidaySource = new EHCachingMasterHolidaySource(_underlyingHolidayMaster, cm);
   }
 

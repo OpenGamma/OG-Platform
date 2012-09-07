@@ -13,11 +13,11 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.CreditRating;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
+import com.opengamma.analytics.financial.credit.FlatSurvivalCurve;
 import com.opengamma.analytics.financial.credit.Region;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.ScheduleGenerationMethod;
 import com.opengamma.analytics.financial.credit.Sector;
-import com.opengamma.analytics.financial.credit.SurvivalCurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.PresentValueCreditDefaultSwap;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -45,6 +45,8 @@ public class PresentValueCreditDefaultSwapTest {
   // TODO : Sort out what exceptions to throw from the test cases
 
   // ----------------------------------------------------------------------------------
+
+  // CDS contract parameters
 
   private static final BuySellProtection buySellProtection = BuySellProtection.BUY;
 
@@ -85,19 +87,16 @@ public class PresentValueCreditDefaultSwapTest {
   private static final double valuationRecoveryRate = 0.40;
   private static final double curveRecoveryRate = 0.40;
   private static final boolean includeAccruedPremium = true;
-  private static final int numberOfIntegrationSteps = 100;
 
   // Dummy yield curve
-  private static final double interestRate = 0.0;
+  private static final double interestRate = 0.05;
   private static final double[] TIME = new double[] {0, 3, 5, 10 };
   private static final double[] RATES = new double[] {interestRate, interestRate, interestRate, interestRate };
   private static final InterpolatedDoublesCurve R = InterpolatedDoublesCurve.from(TIME, RATES, new LinearInterpolator1D());
   private static final YieldCurve yieldCurve = YieldCurve.from(R);
 
-  private static final SurvivalCurve survivalCurve = new SurvivalCurve();
-
-  // Dummy rating curve (proxied by a yield curve for now)
-  private static final YieldCurve ratingCurve = yieldCurve;
+  // Construct a survival curve based on a flat hazard rate term structure (for testing purposes only)
+  private static final FlatSurvivalCurve survivalCurve = new FlatSurvivalCurve(parSpread, curveRecoveryRate);
 
   // ----------------------------------------------------------------------------------
 
@@ -130,11 +129,7 @@ public class PresentValueCreditDefaultSwapTest {
       parSpread,
       valuationRecoveryRate,
       curveRecoveryRate,
-      includeAccruedPremium,
-      numberOfIntegrationSteps,
-      yieldCurve,
-      survivalCurve,
-      ratingCurve);
+      includeAccruedPremium);
 
   // -----------------------------------------------------------------------------------------------
 
@@ -148,7 +143,7 @@ public class PresentValueCreditDefaultSwapTest {
     final PresentValueCreditDefaultSwap testCDS = new PresentValueCreditDefaultSwap();
 
     // Call the CDS PV calculator to get the current PV
-    double pV = testCDS.getPresentValueCreditDefaultSwap(cds);
+    double pV = testCDS.getPresentValueCreditDefaultSwap(cds, yieldCurve, survivalCurve);
 
     // Report the result
     System.out.println("CDS PV = " + pV);

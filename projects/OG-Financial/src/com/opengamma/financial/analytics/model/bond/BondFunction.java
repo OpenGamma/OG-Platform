@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.bond;
@@ -25,7 +25,7 @@ import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.bond.BondSecurity;
 
 /**
- * 
+ *
  * @param <T> The type of data that the calculator needs
  */
 public abstract class BondFunction<T> extends AbstractFunction.NonCompiledInvoker {
@@ -41,6 +41,10 @@ public abstract class BondFunction<T> extends AbstractFunction.NonCompiledInvoke
   public static final String PROPERTY_RISK_FREE_CURVE = "RiskFree";
   /** String indicating the name for the credit curve */
   public static final String PROPERTY_CREDIT_CURVE = "Credit";
+  /** String indicating the name for the risk-free curve */
+  public static final String PROPERTY_RISK_FREE_CURVE_CONFIG = "RiskFreeConfig";
+  /** String indicating the name for the credit curve */
+  public static final String PROPERTY_CREDIT_CURVE_CONFIG = "CreditConfig";
   private BondSecurityConverter _visitor;
 
   @Override

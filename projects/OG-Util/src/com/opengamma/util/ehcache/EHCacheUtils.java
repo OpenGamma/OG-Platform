@@ -52,6 +52,21 @@ public final class EHCacheUtils {
   public static void clearAll() {
     CacheManager.create().clearAll();
   }
+  
+  /**
+   * Clears the contents of a named cache, if that cache exists, without deleting the cache itself.
+   * 
+   * @param cacheManager  the cache manager, not null
+   * @param cacheName  the cache name, not null
+   */
+  public static void clear(CacheManager cacheManager, String cacheName) {
+    ArgumentChecker.notNull(cacheManager, "cacheManager");
+    ArgumentChecker.notNull(cacheName, "cacheName");
+    Cache cache = cacheManager.getCache(cacheName);
+    if (cache != null) {
+      cache.removeAll();
+    }
+  }
 
   /**
    * Adds a cache to the cache manager if necessary.

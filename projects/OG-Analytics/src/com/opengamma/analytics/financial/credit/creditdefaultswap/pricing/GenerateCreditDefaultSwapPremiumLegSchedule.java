@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing;
 
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.analytics.financial.credit.IMMDates;
 import com.opengamma.analytics.financial.credit.ScheduleGenerationMethod;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -14,28 +15,30 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
-import com.opengamma.util.time.DateUtils;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  *  Class containing methods to generate the premium leg cashflow schedule for a CDS (following the market conventions for CDS)
  */
 public class GenerateCreditDefaultSwapPremiumLegSchedule {
+
   private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("Act/360");
 
   // -------------------------------------------------------------------------------------------
 
-  // TODO : Add a check if the calendar is 'null' to signify no adjustment of business dates?
+  // TODO : Add a check if the calendar is 'null' to signify no adjustment of business dates? Overloaded method
   // TODO : This is all coded for the case of building the schedule backwards from the maturity date - need to generalise  
-  // TODO : Extract out the IMM dates into a seperate IMMDate class
-  // TODO : Is there a more elegant way of determining if a date is an IMM date?
   // TODO : In businessDayAdjustDate add code to determine if we move forward or backward to find the next business day
   // TODO : Add the calculations for the accrual begin/end periods
-  // TODO : Is there a better way of storing the generated dates than an n x 3 matrix?
+  // TODO : Eventually replace the n x 3 array returned
 
   // -------------------------------------------------------------------------------------------
 
-  // Method to generate the premium leg cashflow schedule from the (unadjusted) CDS contract specification
+  // Public method to generate the premium leg cashflow schedule from the (unadjusted) CDS contract specification
   public ZonedDateTime[][] constructCreditDefaultSwapPremiumLegSchedule(CreditDefaultSwapDefinition cds) {
+
+    // Check input CDS object is not null
+    ArgumentChecker.notNull(cds, "CDS field");
 
     // ------------------------------------------------
 
@@ -98,8 +101,10 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
   // -------------------------------------------------------------------------------------------
 
+  // Keep all these as private
+
   // Function to return a vector of daycount fractions given an input cashflow schedule
-  double[] calculateDaycountFraction(ZonedDateTime adjustedEffectiveDate, ZonedDateTime[][] cashflowSchedule, DayCount daycountFractionConvention) {
+  private double[] calculateDaycountFraction(ZonedDateTime adjustedEffectiveDate, ZonedDateTime[][] cashflowSchedule, DayCount daycountFractionConvention) {
 
     int numberOfCashflows = cashflowSchedule.length;
 
@@ -115,7 +120,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // -------------------------------------------------------------------------------------------
 
   // Method to business day adjust an input cashflow schedule
-  ZonedDateTime[][] businessDayAdjustcashflowSchedule(ZonedDateTime[][] cashflowSchedule, Calendar calendar, BusinessDayConvention businessdayAdjustmentConvention) {
+  private ZonedDateTime[][] businessDayAdjustcashflowSchedule(ZonedDateTime[][] cashflowSchedule, Calendar calendar, BusinessDayConvention businessdayAdjustmentConvention) {
 
     int numberOfCashflows = cashflowSchedule.length;
 
@@ -131,7 +136,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // -------------------------------------------------------------------------------------------
 
   // Method to calculate the premium leg cashflow dates given the adjusted effective and maturity dates 
-  ZonedDateTime[][] calculateCashflowDates(ZonedDateTime adjustedEffectiveDate, ZonedDateTime immAdjustedMaturityDate, PeriodFrequency couponFrequency) {
+  private ZonedDateTime[][] calculateCashflowDates(ZonedDateTime adjustedEffectiveDate, ZonedDateTime immAdjustedMaturityDate, PeriodFrequency couponFrequency) {
 
     // Compute the number of cashflows in the premium leg schedule (based on the adjusted dates and the coupon frequency)
     int numberOfCashflows = calculateNumberOfPremiumLegCashflows(adjustedEffectiveDate, immAdjustedMaturityDate, couponFrequency);
@@ -161,19 +166,18 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // -------------------------------------------------------------------------------------------
 
   // Method to determine if a date supplied is an IMM date
-  boolean isAnIMMDate(ZonedDateTime date) {
+  private boolean isAnIMMDate(ZonedDateTime date) {
 
     boolean returnValue = false;
 
     // Get the year of the date supplied
     final int year = date.getYear();
 
-    final ZonedDateTime immDateMarch = DateUtils.getUTCDate(year, 3, 20);
-    final ZonedDateTime immDateJune = DateUtils.getUTCDate(year, 6, 20);
-    final ZonedDateTime immDateSeptember = DateUtils.getUTCDate(year, 9, 20);
-    final ZonedDateTime immDateDecember = DateUtils.getUTCDate(year, 12, 20);
+    // Construct an object with the IMM dates for 'year'
+    IMMDates immDates = new IMMDates(year);
 
-    if (date.equals(immDateMarch) || date.equals(immDateJune) || date.equals(immDateSeptember) || date.equals(immDateDecember)) {
+    // Test if 'date' is equal to one of the IMM dates
+    if (date.equals(immDates.getImmDateMarch()) || date.equals(immDates.getImmDateJune()) || date.equals(immDates.getImmDateSeptember()) || date.equals(immDates.getImmDateDecember())) {
       returnValue = true;
     }
 
@@ -183,7 +187,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // -------------------------------------------------------------------------------------------
 
   // Method to adjust the specified maturity date to the next IMM date
-  ZonedDateTime immAdjustMaturityDate(ZonedDateTime maturityDate) {
+  private ZonedDateTime immAdjustMaturityDate(ZonedDateTime maturityDate) {
 
     // Start at the current maturityDate
     ZonedDateTime immAdjustedMaturityDate = maturityDate;
@@ -191,36 +195,35 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     // Get the year of the contract maturity
     final int year = maturityDate.getYear();
 
-    // Determine the relevant IMM dates given the year of maturity of the contract
-    final ZonedDateTime immDatePreviousDecember = DateUtils.getUTCDate(year - 1, 12, 20);
-    final ZonedDateTime immDateMarch = DateUtils.getUTCDate(year, 3, 20);
-    final ZonedDateTime immDateJune = DateUtils.getUTCDate(year, 6, 20);
-    final ZonedDateTime immDateSeptember = DateUtils.getUTCDate(year, 9, 20);
-    final ZonedDateTime immDateDecember = DateUtils.getUTCDate(year, 12, 20);
-    final ZonedDateTime immDateNextMarch = DateUtils.getUTCDate(year + 1, 3, 20);
+    // Construct an object with the IMM dates for 'year'
+    IMMDates immDates = new IMMDates(year);
 
     // -------------------------------------------------------------------
 
     // First of all check that the maturity date isn't one of the IMM dates for 'year'
 
-    // Is the maturity date equal to the March IMM date of 'year'
-    if (maturityDate.equals(immDateMarch)) {
-      immAdjustedMaturityDate = immDateMarch;
+    if (maturityDate.equals(immDates.getImmDateMarch())) {
+      immAdjustedMaturityDate = immDates.getImmDateMarch();
+
+      return immAdjustedMaturityDate;
     }
 
-    // Is the maturity date equal to the June IMM date of 'year'
-    if (maturityDate.equals(immDateJune)) {
-      immAdjustedMaturityDate = immDateJune;
+    if (maturityDate.equals(immDates.getImmDateJune())) {
+      immAdjustedMaturityDate = immDates.getImmDateJune();
+
+      return immAdjustedMaturityDate;
     }
 
-    // Is the maturity date equal to the Seotember IMM date of 'year'
-    if (maturityDate.equals(immDateSeptember)) {
-      immAdjustedMaturityDate = immDateSeptember;
+    if (maturityDate.equals(immDates.getImmDateSeptember())) {
+      immAdjustedMaturityDate = immDates.getImmDateSeptember();
+
+      return immAdjustedMaturityDate;
     }
 
-    // Is the maturity date equal to the December IMM date of 'year'
-    if (maturityDate.equals(immDateDecember)) {
-      immAdjustedMaturityDate = immDateDecember;
+    if (maturityDate.equals(immDates.getImmDateDecember())) {
+      immAdjustedMaturityDate = immDates.getImmDateDecember();
+
+      return immAdjustedMaturityDate;
     }
 
     // -------------------------------------------------------------------
@@ -228,28 +231,38 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     // Determine where the maturity date is in relation to the IMM dates
 
     // Is the maturity date between 20/12 of the previous year and 20/3 of the current year
-    if (maturityDate.isAfter(immDatePreviousDecember) && maturityDate.isBefore(immDateMarch)) {
-      immAdjustedMaturityDate = immDateMarch;
+    if (maturityDate.isAfter(immDates.getImmDatePreviousDecember()) && maturityDate.isBefore(immDates.getImmDateMarch())) {
+      immAdjustedMaturityDate = immDates.getImmDateMarch();
+
+      return immAdjustedMaturityDate;
     }
 
     // Is the maturity date between 20/3 of the current year and 20/6 of the current year
-    if (maturityDate.isAfter(immDateMarch) && maturityDate.isBefore(immDateJune)) {
-      immAdjustedMaturityDate = immDateJune;
+    if (maturityDate.isAfter(immDates.getImmDateMarch()) && maturityDate.isBefore(immDates.getImmDateJune())) {
+      immAdjustedMaturityDate = immDates.getImmDateJune();
+
+      return immAdjustedMaturityDate;
     }
 
     // Is the maturity date between 20/6 of the current year and 20/9 of the current year
-    if (maturityDate.isAfter(immDateJune) && maturityDate.isBefore(immDateSeptember)) {
-      immAdjustedMaturityDate = immDateSeptember;
+    if (maturityDate.isAfter(immDates.getImmDateJune()) && maturityDate.isBefore(immDates.getImmDateSeptember())) {
+      immAdjustedMaturityDate = immDates.getImmDateSeptember();
+
+      return immAdjustedMaturityDate;
     }
 
     // Is the maturity date between 20/9 of the current year and 20/12 of the current year
-    if (maturityDate.isAfter(immDateSeptember) && maturityDate.isBefore(immDateDecember)) {
-      immAdjustedMaturityDate = immDateDecember;
+    if (maturityDate.isAfter(immDates.getImmDateSeptember()) && maturityDate.isBefore(immDates.getImmDateDecember())) {
+      immAdjustedMaturityDate = immDates.getImmDateDecember();
+
+      return immAdjustedMaturityDate;
     }
 
     // Is the maturity date between 20/12 of the current year and 20/3 of the next year
-    if (maturityDate.isAfter(immDateDecember) && maturityDate.isBefore(immDateNextMarch)) {
-      immAdjustedMaturityDate = immDateNextMarch;
+    if (maturityDate.isAfter(immDates.getImmDateDecember()) && maturityDate.isBefore(immDates.getImmDateNextMarch())) {
+      immAdjustedMaturityDate = immDates.getImmDateNextMarch();
+
+      return immAdjustedMaturityDate;
     }
 
     // -------------------------------------------------------------------
@@ -260,14 +273,14 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // -------------------------------------------------------------------------------------------
 
   // Method to take an input 'date' and adjust it to a business day (if necessary) according to the specified adjustment convention
-  ZonedDateTime businessDayAdjustDate(ZonedDateTime date, Calendar calendar, BusinessDayConvention businessdayAdjustmentConvention) {
+  private ZonedDateTime businessDayAdjustDate(ZonedDateTime date, Calendar calendar, BusinessDayConvention businessdayAdjustmentConvention) {
 
     ZonedDateTime adjustedDate = date;
 
-    int delta = 1;
+    int deltaDays = 1;
 
     while (!calendar.isWorkingDay(adjustedDate.toLocalDate())) {
-      adjustedDate = adjustedDate.plusDays(delta);
+      adjustedDate = adjustedDate.plusDays(deltaDays);
     }
 
     return adjustedDate;
@@ -276,7 +289,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // -------------------------------------------------------------------------------------------
 
   // Method to calculate the number of premium leg cashflows given the adjusted effective and maturity dates and the coupon frequency
-  int calculateNumberOfPremiumLegCashflows(ZonedDateTime adjustedEffectiveDate, ZonedDateTime immAdjustedMaturityDate, PeriodFrequency couponFrequency) {
+  private int calculateNumberOfPremiumLegCashflows(ZonedDateTime adjustedEffectiveDate, ZonedDateTime immAdjustedMaturityDate, PeriodFrequency couponFrequency) {
 
     int numberOfCashflows = 0;
 

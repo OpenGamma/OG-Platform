@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.interestrate.future.method;
 
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.analytics.financial.interestrate.method.PricingMethod;
+import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Methods for the pricing of bond futures generic to all models.
@@ -19,9 +20,9 @@ public abstract class BondFutureMethod implements PricingMethod {
    * @param price The quoted price.
    * @return The present value.
    */
-  public double presentValueFromPrice(final BondFuture future, final double price) {
+  public CurrencyAmount presentValueFromPrice(final BondFuture future, final double price) {
     double pv = (price - future.getReferencePrice()) * future.getNotional();
-    return pv;
+    return CurrencyAmount.of(future.getCurrency(), pv);
   }
 
 }

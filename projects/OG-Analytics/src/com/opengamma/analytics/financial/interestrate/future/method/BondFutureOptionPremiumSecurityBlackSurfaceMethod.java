@@ -100,11 +100,28 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
         "The BondFutureOptionPremiumSecurityBlackSurfaceMethod method requires a YieldCurveWithBlackCubeBundle or YieldCurveWithBlackCubeAndForwardBundle as data.");
   }
 
-  public InterestRateCurveSensitivity priceCurveSensitivity(final BondFutureOptionPremiumSecurity security, final YieldCurveBundle curves) {
-    if (curves instanceof YieldCurveWithBlackCubeBundle) {
-      return priceCurveSensitivity(security, (YieldCurveWithBlackCubeBundle) curves);
-    }
-    throw new IllegalArgumentException("Yield curve bundle should contain Black cube");
+  /**
+   * Computes the option security price curve sensitivity. 
+   * It is supposed that for a given strike the volatility does not change with the curves.
+   * @param security The future option security, not null
+   * @param blackData The curve and Black volatility data, not null
+   * @return The security price curve sensitivity.
+   */
+  public InterestRateCurveSensitivity priceCurveSensitivity(final BondFutureOptionPremiumSecurity security, final YieldCurveWithBlackCubeAndForwardBundle blackData) {
+    ArgumentChecker.notNull(security, "security");
+    ArgumentChecker.notNull(blackData, "Black data");
+    // Forward sweep
+    final double priceFuture = blackData.getForward();
+    final double strike = security.getStrike();
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, security.getExpirationTime(), security.isCall());
+    final double volatility = blackData.getVolatility(security.getExpirationTime(), security.getStrike());
+    final BlackFunctionData dataBlack = new BlackFunctionData(priceFuture, 1.0, volatility);
+    final double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
+    // Backward sweep
+    final double priceBar = 1.0;
+    final double priceFutureBar = priceAdjoint[1] * priceBar;
+    final InterestRateCurveSensitivity priceFutureDerivative = METHOD_FUTURE.priceCurveSensitivity(security.getUnderlyingFuture(), blackData);
+    return priceFutureDerivative.multiply(priceFutureBar);
   }
 
   /**
@@ -117,18 +134,15 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
   public InterestRateCurveSensitivity priceCurveSensitivity(final BondFutureOptionPremiumSecurity security, final YieldCurveWithBlackCubeBundle blackData) {
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(blackData, "Black data");
-    // Forward sweep
     final double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), blackData);
-    final double strike = security.getStrike();
-    final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, security.getExpirationTime(), security.isCall());
-    final double volatility = blackData.getVolatility(security.getExpirationTime(), security.getStrike());
-    final BlackFunctionData dataBlack = new BlackFunctionData(priceFuture, 1.0, volatility);
-    final double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
-    // Backward sweep
-    final double priceBar = 1.0;
-    final double priceFutureBar = priceAdjoint[1] * priceBar;
-    final InterestRateCurveSensitivity priceFutureDerivative = METHOD_FUTURE.priceCurveSensitivity(security.getUnderlyingFuture(), blackData);
-    return priceFutureDerivative.multiply(priceFutureBar);
+    return priceCurveSensitivity(security, YieldCurveWithBlackCubeAndForwardBundle.from(blackData, priceFuture));
+  }
+
+  public InterestRateCurveSensitivity priceCurveSensitivity(final BondFutureOptionPremiumSecurity security, final YieldCurveBundle curves) {
+    if (curves instanceof YieldCurveWithBlackCubeBundle) {
+      return priceCurveSensitivity(security, (YieldCurveWithBlackCubeBundle) curves);
+    }
+    throw new IllegalArgumentException("Yield curve bundle should contain Black cube");
   }
 
   /**
@@ -171,7 +185,7 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
   }
 
   /**
-   * Computes the option's value delta, the first derivative of the security price wrt underlying futures rate. 
+   * Computes the option's value delta, the first derivative of the security price wrt underlying futures rate. TODO: REVIEW is it futures rate or price?
    * @param security The future option security, not null
    * @param blackData The curve and Black volatility data, not null
    * @return The security value delta.
