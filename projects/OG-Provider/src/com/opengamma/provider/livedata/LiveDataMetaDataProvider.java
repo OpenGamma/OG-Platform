@@ -27,6 +27,16 @@ public interface LiveDataMetaDataProvider {
    * <p>
    * This is typically used to obtain the connection information.
    * 
+   * @return the requested meta-data, not null
+   * @throws RuntimeException if a problem occurs
+   */
+  LiveDataMetaData metaData();
+
+  /**
+   * Queries the meta-data for the live data server.
+   * <p>
+   * This is typically used to obtain the connection information.
+   * 
    * @param request  the meta-data request, not null
    * @return the requested meta-data, not null
    * @throws RuntimeException if a problem occurs

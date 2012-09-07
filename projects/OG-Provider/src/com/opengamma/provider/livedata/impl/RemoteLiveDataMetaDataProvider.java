@@ -7,6 +7,7 @@ package com.opengamma.provider.livedata.impl;
 
 import java.net.URI;
 
+import com.opengamma.provider.livedata.LiveDataMetaData;
 import com.opengamma.provider.livedata.LiveDataMetaDataProvider;
 import com.opengamma.provider.livedata.LiveDataMetaDataProviderRequest;
 import com.opengamma.provider.livedata.LiveDataMetaDataProviderResult;
@@ -30,6 +31,11 @@ public class RemoteLiveDataMetaDataProvider extends AbstractRemoteClient impleme
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public LiveDataMetaData metaData() {
+    return metaData(new LiveDataMetaDataProviderRequest()).getMetaData();
+  }
+
   @Override
   public LiveDataMetaDataProviderResult metaData(LiveDataMetaDataProviderRequest request) {
     ArgumentChecker.notNull(request, "request");

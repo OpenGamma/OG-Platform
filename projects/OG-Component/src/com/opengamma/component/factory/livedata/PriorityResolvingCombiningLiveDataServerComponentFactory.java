@@ -19,6 +19,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
@@ -38,12 +39,10 @@ import com.opengamma.livedata.server.combining.PriorityResolvingCombiningLiveDat
 import com.opengamma.livedata.server.distribution.JmsSenderFactory;
 import com.opengamma.provider.livedata.LiveDataMetaData;
 import com.opengamma.provider.livedata.LiveDataMetaDataProvider;
-import com.opengamma.provider.livedata.LiveDataMetaDataProviderRequest;
 import com.opengamma.provider.livedata.LiveDataServerTypes;
 import com.opengamma.security.user.HibernateUserManager;
 import com.opengamma.security.user.UserManager;
 import com.opengamma.util.db.DbConnector;
-import org.joda.beans.impl.direct.DirectBeanBuilder;
 
 /**
  * Component factory to create a combining live data server.
@@ -136,7 +135,7 @@ public class PriorityResolvingCombiningLiveDataServerComponentFactory extends Ab
         throw new OpenGammaRuntimeException("Unable to find matching LiveDataMetaDataProvider: " + info);
       }
       LiveDataMetaDataProvider provider = (LiveDataMetaDataProvider) repo.getInstance(infoProvider);
-      LiveDataMetaData metaData = provider.metaData(new LiveDataMetaDataProviderRequest()).getMetaData();
+      LiveDataMetaData metaData = provider.metaData();
       schemes.addAll(metaData.getSupportedSchemes());
       buf.appendSeparator(", ").append(metaData.getDescription());
     }

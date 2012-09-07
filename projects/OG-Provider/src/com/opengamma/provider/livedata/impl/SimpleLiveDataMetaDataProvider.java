@@ -5,8 +5,8 @@
  */
 package com.opengamma.provider.livedata.impl;
 
-import com.opengamma.provider.livedata.LiveDataMetaDataProvider;
 import com.opengamma.provider.livedata.LiveDataMetaData;
+import com.opengamma.provider.livedata.LiveDataMetaDataProvider;
 import com.opengamma.provider.livedata.LiveDataMetaDataProviderRequest;
 import com.opengamma.provider.livedata.LiveDataMetaDataProviderResult;
 import com.opengamma.util.ArgumentChecker;
@@ -21,7 +21,7 @@ public class SimpleLiveDataMetaDataProvider implements LiveDataMetaDataProvider 
   /**
    * The result to send back.
    */
-  private final LiveDataMetaDataProviderResult _metaData;
+  private final LiveDataMetaData _metaData;
 
   /**
    * Creates an instance.
@@ -29,14 +29,19 @@ public class SimpleLiveDataMetaDataProvider implements LiveDataMetaDataProvider 
    * @param metaData  the meta-data, not null
    */
   public SimpleLiveDataMetaDataProvider(final LiveDataMetaData metaData) {
-    _metaData = new LiveDataMetaDataProviderResult(metaData);
+    _metaData = metaData;
   }
 
   //-------------------------------------------------------------------------
   @Override
+  public LiveDataMetaData metaData() {
+    return _metaData;
+  }
+
+  @Override
   public LiveDataMetaDataProviderResult metaData(LiveDataMetaDataProviderRequest request) {
     ArgumentChecker.notNull(request, "request");
-    return _metaData;
+    return new LiveDataMetaDataProviderResult(_metaData);
   }
 
 }

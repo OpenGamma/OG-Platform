@@ -70,7 +70,7 @@ public class DataLiveDataMetaDataProviderResource extends AbstractDataResource {
 
   @GET
   @Path("metaData")
-  public Response getMetaDataData(@Context UriInfo uriInfo) {
+  public Response getMetaData(@Context UriInfo uriInfo) {
     LiveDataMetaDataProviderRequest request = RestUtils.decodeQueryParams(uriInfo, LiveDataMetaDataProviderRequest.class);
     LiveDataMetaDataProviderResult result = getLiveDataProvider().metaData(request);
     return responseOkFudge(result);
