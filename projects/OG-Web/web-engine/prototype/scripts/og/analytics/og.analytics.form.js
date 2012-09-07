@@ -20,32 +20,31 @@ $.register_module({
                         {num: 4, type: 'Data Type', value: 'type 2', last: true}
                     ]
                 };
-            Menu = function () {
-                var menu = this; menu.state = 'closed';
-                menu.focus = function () {return popdiv.find('select').first().focus(), this},
-                menu.open  = function () {
-                    popdiv = $(selector + ' .OG-analytics-form-menu').show()
-                        .blurkill(menu.close).trigger('open', title);
-                    title.addClass('og-active');
-                    this.state = 'open';
-                    return menu;
-                }
-                menu.close = function () {
-                    if (popdiv) popdiv.hide();
-                    title.removeClass('og-active');
-                    menu.state = 'closed';
-                }
-                return menu;
+            Title = function (selector, markup){ // TODO AG: use ui.form Blocks
+                return $(selector).html(markup).find('.og-option-title').on('click', function (event) {
+                    event.stopPropagation();
+                    menu.state === 'open' ? menu.close() : menu.open().focus();
+                });
+            };
+            Menu = function () { // TODO AG: use ui.form Blocks
+                return menu = this, popdiv = $(selector + ' .OG-analytics-form-menu'), menu.state = 'closed',
+                    menu.focus = function () {
+                        return popdiv.find('select').first().focus(), menu; 
+                    },
+                    menu.open = function () {
+                        return popdiv.show().blurkill(menu.close).trigger('open', title), 
+                            title.addClass('og-active'), menu.state = 'open', menu;
+                    },
+                    menu.close = function () { 
+                        return (popdiv ? popdiv.hide() : null), title.removeClass('og-active'),
+                            menu.state = 'closed', menu;
+                    }, menu;
             };
             FormCombo = function (selector, module, data) {
-                var popdiv, title, html;
+                var title, menu
                 $.when(og.api.text({module: module})).then(function (template) {
-                    menu = new Menu();
-                    html = $((Handlebars.compile(template))(data));
-                    title = $(selector).html(html).find('.og-option-title').on('click', function (event) {
-                        event.stopPropagation();
-                        menu.state === 'open' ? menu.close() : menu.open().focus();
-                    });
+                    title = new Title(selector, $((Handlebars.compile(template))(data)))
+                    menu = new Menu(selector);
                 });
             };
             Status = function (selector) {
@@ -98,14 +97,14 @@ $.register_module({
                         if (datasources && active_pos($data, 'first') && shift_key) return trigger('aggregation');
                         if (datasources && active_pos($data, 'last') && !shift_key) return trigger('load');
                         if (load && shift_key) return trigger('datasources');
-                    })
+                        })
                     .on('tab', function (event, type) {
                         switch (type) {
                             case 'aggregation': aggregation_menu.open(); break;
                             case 'datasources': datasources_menu.open(); break;
                             case 'load': aggregation_menu.close(); datasources_menu.close(); break;
                         }
-                    })
+                        })
                     /**
                      * The "open" event fires everytime a menu item is opened
                      */
@@ -148,13 +147,12 @@ $.register_module({
             };
             handle_error = function(err) {
                 console.log(err);
-            }
+            };
             $.when(
                 og.api.text({module: 'og.analytics.form_tash'}),
                 og.api.rest.viewdefinitions.get(),
                 og.api.rest.aggregators.get()
-                //og.api.rest.datasources.get()
-            ).then(create_form, handle_error);
+            ).then(create_form);
         };
     }
 });
