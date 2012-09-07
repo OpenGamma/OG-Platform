@@ -15,6 +15,8 @@ import com.opengamma.component.ComponentServer;
 import com.opengamma.component.rest.RemoteComponentServer;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
 import com.opengamma.provider.historicaltimeseries.impl.RemoteHistoricalTimeSeriesProvider;
+import com.opengamma.provider.livedata.LiveDataMetaDataProvider;
+import com.opengamma.provider.livedata.impl.RemoteLiveDataMetaDataProvider;
 import com.opengamma.provider.security.SecurityProvider;
 import com.opengamma.provider.security.impl.RemoteSecurityProvider;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
@@ -41,10 +43,10 @@ public class RemoteProviderTestUtils {
     _fudgeContext = OpenGammaFudgeContext.getInstance();
     final Properties props = TestProperties.getTestProperties();
     final String baseUrl = new StringBuilder("http://")
-//      .append("localhost:8080/")
-      .append(System.getProperty("web.host", props.getProperty("opengamma.provider.host"))).append(':')
-      .append(System.getProperty("web.port", props.getProperty("opengamma.provider.port")))
-      .append(System.getProperty("web.path", props.getProperty("opengamma.provider.path")))
+      .append("localhost:8090/")
+//      .append(System.getProperty("web.host", props.getProperty("opengamma.provider.host"))).append(':')
+//      .append(System.getProperty("web.port", props.getProperty("opengamma.provider.port")))
+//      .append(System.getProperty("web.path", props.getProperty("opengamma.provider.path")))
       .append("jax").toString();
     URI componentsUri = URI.create(baseUrl);
     RemoteComponentServer remote = new RemoteComponentServer(componentsUri);
@@ -71,6 +73,11 @@ public class RemoteProviderTestUtils {
   public HistoricalTimeSeriesProvider getHistoricalTimeSeriesProviderBloomberg() {
     URI uri = _components.getComponentInfo(HistoricalTimeSeriesProvider.class, "bloomberg").getUri();
     return new RemoteHistoricalTimeSeriesProvider(uri);
+  }
+
+  public LiveDataMetaDataProvider getLiveDataMetaDataProvider(String classifier) {
+    URI uri = _components.getComponentInfo(LiveDataMetaDataProvider.class, classifier).getUri();
+    return new RemoteLiveDataMetaDataProvider(uri);
   }
 
   public JmsConnector getJmsConnector() {
