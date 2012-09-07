@@ -60,12 +60,13 @@ $.register_module({
             };
             $.when(
                 og.api.text({module: 'og.analytics.form_tash'}),
-                og.api.rest.viewdefinitions.get({})
-            ).then(function (template, search) {
+                og.api.rest.viewdefinitions.get({}),
+                og.api.rest.aggregators.get()
+            ).then(function (template, search, aggregators) {
                 var response = { // dummy response
                     view: search.data,
                     aggregation: {
-                        aggregators: ['Long / Short', 'Asset Class'],
+                        aggregators: aggregators.data,
                         row: [
                             {num: 1, label: 'Aggregated by', by: 'Long / Short'},
                             {num: 2, label: 'Then by', by: 'Asset Class', last: true}
