@@ -62,6 +62,7 @@ import com.opengamma.analytics.financial.instrument.swap.SwapXCcyIborIborDefinit
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionBermudaFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
+import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborSpreadDefinition;
 
 /**
  * 
@@ -226,6 +227,8 @@ public interface InstrumentDefinitionVisitor<T, U> {
 
   U visitAnnuityDefinition(AnnuityDefinition<? extends PaymentDefinition> annuity);
 
+  // -----     Swap     -----
+
   U visitSwapDefinition(SwapDefinition swap, T data);
 
   U visitSwapDefinition(SwapDefinition swap);
@@ -246,6 +249,8 @@ public interface InstrumentDefinitionVisitor<T, U> {
 
   U visitSwapXCcyIborIborDefinition(SwapXCcyIborIborDefinition swap);
 
+  // -----     Swaption     -----
+
   U visitSwaptionCashFixedIborDefinition(SwaptionCashFixedIborDefinition swaption, T data);
 
   U visitSwaptionCashFixedIborDefinition(SwaptionCashFixedIborDefinition swaption);
@@ -253,6 +258,10 @@ public interface InstrumentDefinitionVisitor<T, U> {
   U visitSwaptionPhysicalFixedIborDefinition(SwaptionPhysicalFixedIborDefinition swaption, T data);
 
   U visitSwaptionPhysicalFixedIborDefinition(SwaptionPhysicalFixedIborDefinition swaption);
+
+  U visitSwaptionPhysicalFixedIborSpreadDefinition(SwaptionPhysicalFixedIborSpreadDefinition swaption, T data);
+
+  U visitSwaptionPhysicalFixedIborSpreadDefinition(SwaptionPhysicalFixedIborSpreadDefinition swaption);
 
   U visitSwaptionBermudaFixedIborDefinition(SwaptionBermudaFixedIborDefinition swaption, T data);
 

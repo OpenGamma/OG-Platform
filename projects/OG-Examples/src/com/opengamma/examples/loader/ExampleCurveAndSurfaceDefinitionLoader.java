@@ -5,7 +5,7 @@
  */
 package com.opengamma.examples.loader;
 
-import com.opengamma.examples.tool.AbstractExampleTool;
+import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.examples.volatility.surface.ExampleEquityOptionSurfaceConfigPopulator;
 import com.opengamma.examples.volatility.surface.ExampleFXOptionVolatilitySurfaceConfigPopulator;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveConfigPopulator;
@@ -16,6 +16,7 @@ import com.opengamma.financial.analytics.volatility.surface.IRFutureOptionSurfac
 import com.opengamma.financial.analytics.volatility.surface.SwaptionVolatilitySurfaceConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.financial.currency.CurrencyPairsConfigPopulator;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.util.generate.scripts.Scriptable;
 
@@ -23,7 +24,7 @@ import com.opengamma.util.generate.scripts.Scriptable;
  * 
  */
 @Scriptable
-public class ExampleCurveAndSurfaceDefinitionLoader extends AbstractExampleTool {
+public class ExampleCurveAndSurfaceDefinitionLoader extends AbstractTool<ToolContext> {
 
   @Override
   protected void doRun() throws Exception {
@@ -48,7 +49,7 @@ public class ExampleCurveAndSurfaceDefinitionLoader extends AbstractExampleTool 
    * @param args  the arguments, unused
    */
   public static void main(final String[] args) {  // CSIGNORE
-    new ExampleCurveAndSurfaceDefinitionLoader().initAndRun(args);
+    new ExampleCurveAndSurfaceDefinitionLoader().initAndRun(args, ToolContext.class);
     System.exit(0);
   }
 

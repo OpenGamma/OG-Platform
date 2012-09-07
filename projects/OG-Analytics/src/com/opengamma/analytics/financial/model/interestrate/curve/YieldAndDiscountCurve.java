@@ -18,7 +18,6 @@ import com.opengamma.util.ArgumentChecker;
  * A curve that provides interest rate (continuously compounded) discount factor. 
  * <p>The relation between the rate <i>r(t)</i> at the maturity <i>t</i> and the discount factor <i>df(t)</i> is <i>df(t)=e<sup>-r(t)t</sup></i>.
  */
-
 public abstract class YieldAndDiscountCurve implements InterestRateModel<Double> {
 
   /**

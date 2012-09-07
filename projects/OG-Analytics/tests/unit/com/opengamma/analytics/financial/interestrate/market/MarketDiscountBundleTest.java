@@ -24,11 +24,11 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
 
-public class MarketBundleTest {
+public class MarketDiscountBundleTest {
 
   private static final Calendar CALENDAR_EUR = new MondayToFridayCalendar("EUR");
   private static final Calendar CALENDAR_USD = new MondayToFridayCalendar("USD");
-  private static final MarketBundle MARKET_1 = new MarketBundle();
+  private static final MarketDiscountBundle MARKET_1 = new MarketDiscountBundle();
   private static final YieldAndDiscountCurve CURVE_50 = YieldCurve.from(ConstantDoublesCurve.from(0.0500));
   private static final YieldAndDiscountCurve CURVE_45 = YieldCurve.from(ConstantDoublesCurve.from(0.0450));
   private static final YieldAndDiscountCurve CURVE_40 = YieldCurve.from(ConstantDoublesCurve.from(0.0400));

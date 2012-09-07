@@ -5,7 +5,8 @@
  */
 package com.opengamma.integration.tool.portfolio;
 
-import com.opengamma.component.factory.tool.RemoteComponentFactoryToolContextAdapter;
+import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.integration.tool.IntegrationToolContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 
@@ -13,7 +14,6 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
 import com.opengamma.financial.generator.SecurityGenerator;
 import com.opengamma.id.ExternalId;
-import com.opengamma.component.tool.AbstractComponentTool;
 import com.opengamma.util.functional.Function2;
 import com.opengamma.util.money.Currency;
 
@@ -35,13 +35,13 @@ public class PortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
   }
 
   public static void main(final String[] args) { // CSIGNORE
-    (new AbstractComponentTool() {
+    (new AbstractTool<IntegrationToolContext>() {
 
       private final PortfolioGeneratorTool _instance = new PortfolioGeneratorTool();
 
       @Override
-      protected Options createOptions() {
-        final Options options = super.createOptions();
+      protected Options createOptions(boolean mandatoryConfigResource) {
+        final Options options = super.createOptions(mandatoryConfigResource);
         _instance.createOptions(options);
         return options;
       }
@@ -49,7 +49,7 @@ public class PortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
       @Override
       protected void doRun() throws Exception {
         final CommandLine commandLine = getCommandLine();
-        _instance.run(new RemoteComponentFactoryToolContextAdapter(getRemoteComponentFactory()), commandLine);
+        _instance.run(getToolContext(), commandLine);
       }
 
       @Override
@@ -57,7 +57,7 @@ public class PortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
         return PortfolioGeneratorTool.class;
       }
 
-    }).initAndRun(args);
+    }).initAndRun(args, IntegrationToolContext.class);
     System.exit(0);
   }
 

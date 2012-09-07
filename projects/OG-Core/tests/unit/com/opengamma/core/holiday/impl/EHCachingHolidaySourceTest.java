@@ -37,9 +37,9 @@ public class EHCachingHolidaySourceTest {
 
   @BeforeMethod
   public void setUp() throws Exception {
-    EHCacheUtils.clearAll();
     _underlyingSource = mock(HolidaySource.class);
     CacheManager cm = EHCacheUtils.createCacheManager();
+    EHCacheUtils.clear(cm, EHCachingHolidaySource.CACHE_NAME);
     _cachingSource = new EHCachingHolidaySource(_underlyingSource, cm);
   }
 

@@ -8,7 +8,7 @@
   <artifactId>og-parent</artifactId>
   <packaging>pom</packaging>
   <name>OG-Parent</name>
-  <version>1.2-SNAPSHOT</version>
+  <version>1.2.0-SNAPSHOT</version>
   <description>OpenGamma maven parent project</description>
   <url>http://developers.opengamma.com/</url>
 
@@ -44,6 +44,22 @@
       <archive>http://forums.opengamma.com/forum/discussions</archive>
     </mailingList>
   </mailingLists>
+  <repositories>
+    <repository>
+      <id>og-maven-repo-public</id>
+      <name>OpenGamma public Maven Repo</name>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+        <updatePolicy>never</updatePolicy>
+      </snapshots>
+      <url>http://ivyrepos.opengamma.com/og-maven/public</url>
+      <layout>default</layout>
+    </repository>
+  </repositories>
 
   <licenses>
     <license>
@@ -74,6 +90,9 @@
         <includes>
           <include>**/*.properties</include>
           <include>**/*.csv</include>
+          <include>**/*.dat</include>
+          <include>**/*.elsql</include>
+          <include>**/*.ftl</include>
           <include>**/*.proto</include>
           <include>**/*.txt</include>
           <include>**/*.xml</include>
@@ -87,6 +106,9 @@
         <includes>
           <include>**/*.properties</include>
           <include>**/*.csv</include>
+          <include>**/*.dat</include>
+          <include>**/*.elsql</include>
+          <include>**/*.ftl</include>
           <include>**/*.proto</include>
           <include>**/*.txt</include>
           <include>**/*.xml</include>
@@ -132,6 +154,15 @@
           <includes>
             <include>**/*Test.java</include>
           </includes>
+          <argLine>-Xmx${junit.maxheap}</argLine>
+          <systemPropertyVariables>
+            <logback.configurationFile>${junit.logback}</logback.configurationFile>
+            <test.database.type>hsqldb</test.database.type>
+          </systemPropertyVariables>
+          <parallel>${tests.testng.parallel}</parallel>
+          <threadCount>${tests.testng.threads}</threadCount>
+          <groups>${tests.testng.includedgroups}</groups>
+          <excludedGroups>${tests.testng.exludedgroups}</excludedGroups>
         </configuration>
       </plugin>
       <plugin>
@@ -247,6 +278,26 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>properties-maven-plugin</artifactId>
+        <version>1.0-alpha-2</version>
+        <executions>
+          <execution>
+            <id>read-properties</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>read-project-properties</goal>
+            </goals>
+            <configuration>
+              <files>
+                <file>${og-platform.basedir}/common/build.properties</file>
+                <file>build.properties</file>
+              </files>
+            </configuration> 
+          </execution>
+        </executions>                              
+      </plugin> 
     </plugins>
     <extensions>
       <extension>
@@ -401,6 +452,11 @@
         <groupId>net.sf.scannotation</groupId>
         <artifactId>scannotation</artifactId>
         <version>1.0.2</version>
+      </dependency>
+      <dependency>
+        <groupId>antlr</groupId>
+        <artifactId>antlr</artifactId>
+        <version>2.7.7</version>
       </dependency>
 
       <!-- Mid-level libraries -->
@@ -825,6 +881,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
+        <version>2.5.1</version>
         <reportSets>
           <reportSet>
             <reports>
@@ -860,7 +917,7 @@
         <artifactId>maven-surefire-report-plugin</artifactId>
         <version>2.12</version>
         <configuration>
-           <showSuccess>true</showSuccess>
+          <showSuccess>true</showSuccess>
         </configuration>
       </plugin>
       <plugin>
@@ -886,6 +943,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <og.spring.version>3.0.7.RELEASE</og.spring.version>
+    <og-platform.basedir>${project.basedir}</og-platform.basedir>
   </properties>
 
 </project>

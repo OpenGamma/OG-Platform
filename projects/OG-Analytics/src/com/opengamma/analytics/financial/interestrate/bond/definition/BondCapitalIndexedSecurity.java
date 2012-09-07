@@ -14,6 +14,9 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflation;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.financial.convention.yield.YieldConvention;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Describes a capital inflation indexed bond issue. Both the coupon and the nominal are indexed on a price index.
@@ -127,6 +130,14 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
    */
   public CouponInflation getSettlement() {
     return _settlement;
+  }
+
+  /**
+   * Returns the issuer/currency pair for the bond.
+   * @return The pair.
+   */
+  public Pair<String, Currency> getIssuerCurrency() {
+    return ObjectsPair.of(getIssuer(), getCurrency());
   }
 
   @Override

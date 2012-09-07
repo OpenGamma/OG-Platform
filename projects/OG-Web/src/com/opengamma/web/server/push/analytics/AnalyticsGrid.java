@@ -21,15 +21,15 @@ import com.opengamma.util.ArgumentChecker;
   protected final Map<Integer, V> _viewports = Maps.newHashMap();
 
   /** ID that's passed to listeners when this grid's row and column structure changes. */
-  private final String _gridId;
+  private final String _callbackId;
 
   /**
-   * @param gridId The ID that is passed to listeners when the grid structure changes. This can be any unique value,
+   * @param callbackId The ID that is passed to listeners when the grid structure changes. This can be any unique value,
    * the grid doesn't use it and makes no assumptions about its form.
    */
-  protected AnalyticsGrid(String gridId) {
-    ArgumentChecker.notNull(gridId, "gridId");
-    _gridId = gridId;
+  protected AnalyticsGrid(String callbackId) {
+    ArgumentChecker.notNull(callbackId, "callbackId");
+    _callbackId = callbackId;
   }
 
   /**
@@ -54,16 +54,16 @@ import com.opengamma.util.ArgumentChecker;
   /**
    * Creates a viewport for viewing this grid's data.
    * @param viewportId ID of the viewport, must be unique
-   * @param dataId ID that will be passed to listeners when the grid's data changes, can be any unique value, the
+   * @param callbackId ID that will be passed to listeners when the grid's data changes, can be any unique value, the
    * grid makes no assumptions about its form
    * @param viewportSpecification Defines the extent and properties of the viewport
    * @return The version number of the new viewport
    */
-  /* package */ long createViewport(int viewportId, String dataId, ViewportSpecification viewportSpecification) {
+  /* package */ long createViewport(int viewportId, String callbackId, ViewportSpecification viewportSpecification) {
     if (_viewports.containsKey(viewportId)) {
       throw new IllegalArgumentException("Viewport ID " + viewportId + " is already in use");
     }
-    V viewport = createViewport(viewportSpecification, dataId);
+    V viewport = createViewport(viewportSpecification, callbackId);
     _viewports.put(viewportId, viewport);
     return viewport.getVersion();
   }
@@ -71,10 +71,10 @@ import com.opengamma.util.ArgumentChecker;
   /**
    * For subclasses to create implementation-specific viewport instances.
    * @param viewportSpecification Defines the extent and properties of the viewport
-   * @param dataId ID that will be passed to listeners when the grid's data changes
+   * @param callbackId ID that will be passed to listeners when the grid's data changes
    * @return The new viewport
    */
-  protected abstract V createViewport(ViewportSpecification viewportSpecification, String dataId);
+  protected abstract V createViewport(ViewportSpecification viewportSpecification, String callbackId);
 
   /**
    * Deletes a viewport.
@@ -100,7 +100,7 @@ import com.opengamma.util.ArgumentChecker;
   /**
    * @return ID that's sent to listeners when the row and column structure of the grid is updated
    */
-  /* package */ String getGridId() {
-    return _gridId;
+  /* package */ String getCallbackId() {
+    return _callbackId;
   }
 }

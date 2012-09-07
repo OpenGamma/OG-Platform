@@ -28,7 +28,7 @@ public class BondFutureOptionPremiumTransactionDefinitionTest {
   private static final BondFutureOptionPremiumSecurityDefinition FVU1_C120_SEC_DEFINITION = new BondFutureOptionPremiumSecurityDefinition(FVU1_DEFINITION, EXPIRATION_DATE, STRIKE, IS_CALL);
   // Option transaction
   private static final ZonedDateTime PREMIUM_DATE = DateUtils.getUTCDate(2011, 6, 17);
-  private static final double TRANSACTION_PRICE = 62.5 / 64d; // Prices for options quoted in 1/64.
+  private static final double TRANSACTION_PRICE = -62.5 / 64d; // Prices for options quoted in 1/64.
   private static final int QUANTITY = -123;
   private static final double PREMIUM_AMOUNT = TRANSACTION_PRICE * QUANTITY * FVU1_C120_SEC_DEFINITION.getNotional();
   private static final BondFutureOptionPremiumTransactionDefinition FVU1_C120_TR_DEFINITION = new BondFutureOptionPremiumTransactionDefinition(FVU1_C120_SEC_DEFINITION, QUANTITY, PREMIUM_DATE,

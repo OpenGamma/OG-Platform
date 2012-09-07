@@ -15,7 +15,9 @@ import com.opengamma.financial.convention.calendar.Calendar;
  */
 public interface ExchangeTradedInstrumentExpiryCalculator {
 
-  LocalDate getExpiry(int n, LocalDate today, Calendar holidayCalendar);
+  LocalDate getExpiryDate(int n, LocalDate today, Calendar holidayCalendar);
+
+  LocalDate getExpiryMonth(int n, LocalDate today);
 
   String getName();
 }

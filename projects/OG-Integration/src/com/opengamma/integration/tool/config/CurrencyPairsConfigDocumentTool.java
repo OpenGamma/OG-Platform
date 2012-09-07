@@ -5,8 +5,9 @@
  */
 package com.opengamma.integration.tool.config;
 
+import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.financial.currency.CurrencyPairs;
-import com.opengamma.integration.tool.AbstractIntegrationTool;
+import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.util.generate.scripts.Scriptable;
 
@@ -15,7 +16,7 @@ import com.opengamma.util.generate.scripts.Scriptable;
  * The pairs must be in the format AAA/BBB, one per line in the file.
  */
 @Scriptable
-public class CurrencyPairsConfigDocumentTool extends AbstractIntegrationTool {
+public class CurrencyPairsConfigDocumentTool extends AbstractTool<IntegrationToolContext> {
 
   /**
    * Main method to run the tool.
@@ -27,7 +28,7 @@ public class CurrencyPairsConfigDocumentTool extends AbstractIntegrationTool {
     if (args.length < 2) {
       throw new IllegalArgumentException("2 args required: dataFile, configName");
     }
-    new CurrencyPairsConfigDocumentTool().initAndRun(args);
+    new CurrencyPairsConfigDocumentTool().initAndRun(args, IntegrationToolContext.class);
     System.exit(0);
   }
 

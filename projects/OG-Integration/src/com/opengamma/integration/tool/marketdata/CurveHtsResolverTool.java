@@ -18,6 +18,8 @@ import java.util.Set;
 import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.integration.tool.IntegrationToolContext;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
@@ -37,7 +39,6 @@ import com.opengamma.financial.convention.ConventionBundleMaster;
 import com.opengamma.financial.convention.DefaultConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.id.ExternalId;
-import com.opengamma.integration.tool.AbstractIntegrationTool;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
@@ -50,7 +51,7 @@ import com.opengamma.util.money.Currency;
 /**
  */
 @Scriptable
-public class CurveHtsResolverTool extends AbstractIntegrationTool {
+public class CurveHtsResolverTool extends AbstractTool<IntegrationToolContext> {
   /**
    * Logger.
    */
@@ -76,7 +77,7 @@ public class CurveHtsResolverTool extends AbstractIntegrationTool {
    * @param args  the arguments, unused
    */
   public static void main(String[] args) {  // CSIGNORE
-    new CurveHtsResolverTool().initAndRun(args);
+    new CurveHtsResolverTool().initAndRun(args, IntegrationToolContext.class);
     System.exit(0);
   }
 

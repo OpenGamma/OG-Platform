@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.opengamma</groupId>
     <artifactId>og-parent</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.2.0-SNAPSHOT</version>
     <relativePath>../..</relativePath>
   </parent>
   <artifactId>og-analytics</artifactId>
@@ -43,6 +43,15 @@
       <groupId>com.googlecode.json-simple</groupId>
       <artifactId>json-simple</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
+      <scope>provided</scope>
+    </dependency> 
   </dependencies>
 
+  <properties>
+    <og-platform.basedir>${project.parent.basedir}</og-platform.basedir>
+  </properties>
+  
 </project>

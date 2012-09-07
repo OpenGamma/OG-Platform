@@ -19,7 +19,7 @@ import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
 import com.opengamma.analytics.financial.interestrate.PresentValueInflationCalculator;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolation;
-import com.opengamma.analytics.financial.interestrate.market.MarketBundle;
+import com.opengamma.analytics.financial.interestrate.market.MarketDiscountBundle;
 import com.opengamma.analytics.financial.interestrate.market.MarketDataSets;
 import com.opengamma.analytics.financial.interestrate.market.PresentValueCurveSensitivityMarket;
 import com.opengamma.analytics.financial.interestrate.method.market.SensitivityFiniteDifferenceMarket;
@@ -36,7 +36,8 @@ import com.opengamma.util.tuple.DoublesPair;
  * Tests the present value and its sensitivities for zero-coupon with reference index interpolated between months.
  */
 public class CouponInflationZeroCouponInterpolationDiscountingMethodTest {
-  private static final MarketBundle MARKET = MarketDataSets.createMarket1();
+
+  private static final MarketDiscountBundle MARKET = MarketDataSets.createMarket1();
   private static final IndexPrice[] PRICE_INDEXES = MarketDataSets.getPriceIndexes();
   private static final IndexPrice PRICE_INDEX_EUR = PRICE_INDEXES[0];
   //  private static final PriceIndex PRICE_INDEX_UK = PRICE_INDEXES[1];
@@ -91,15 +92,15 @@ public class CouponInflationZeroCouponInterpolationDiscountingMethodTest {
    */
   public void presentValueCurveSensitivity() {
     final PresentValueCurveSensitivityMarket pvs = METHOD.presentValueCurveSensitivity(ZERO_COUPON_1, MARKET);
-    pvs.clean();
+    pvs.cleaned();
     final double deltaTolerancePrice = 1.0E+1;
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.
     final double deltaShift = 1.0E-6;
     // 2. Discounting curve sensitivity
-    final double[] nodeTimesDisc = new double[] {ZERO_COUPON_1.getPaymentTime() };
+    final double[] nodeTimesDisc = new double[] {ZERO_COUPON_1.getPaymentTime()};
     final double[] sensiDisc = SensitivityFiniteDifferenceMarket.curveSensitivity(ZERO_COUPON_1, MARKET, ZERO_COUPON_1.getCurrency(), nodeTimesDisc, deltaShift, METHOD, FiniteDifferenceType.CENTRAL);
     assertEquals("Sensitivity finite difference method: number of node", 1, sensiDisc.length);
-    final List<DoublesPair> sensiPvDisc = pvs.getYieldCurveSensitivities().get(MARKET.getCurve(ZERO_COUPON_1.getCurrency()).getName());
+    final List<DoublesPair> sensiPvDisc = pvs.getYieldDiscountingSensitivities().get(MARKET.getCurve(ZERO_COUPON_1.getCurrency()).getName());
     for (int loopnode = 0; loopnode < sensiDisc.length; loopnode++) {
       final DoublesPair pairPv = sensiPvDisc.get(loopnode);
       assertEquals("Sensitivity coupon pv to forward curve: Node " + loopnode, nodeTimesDisc[loopnode], pairPv.getFirst(), 1E-8);
@@ -123,7 +124,7 @@ public class CouponInflationZeroCouponInterpolationDiscountingMethodTest {
    * Tests the present value for curves with seasonal adjustment.
    */
   public void presentValueSeasonality() {
-    MarketBundle marketSeason = MarketDataSets.createMarket2(PRICING_DATE);
+    MarketDiscountBundle marketSeason = MarketDataSets.createMarket2(PRICING_DATE);
     int tenorYear = 5;
     double notional = 100000000;
     ZonedDateTime settleDate = ScheduleCalculator.getAdjustedDate(PRICING_DATE, USDLIBOR3M.getSpotLag(), CALENDAR_USD);

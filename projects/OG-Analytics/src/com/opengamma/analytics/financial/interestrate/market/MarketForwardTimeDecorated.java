@@ -13,7 +13,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 /**
  * A market bundle decorated for a given forward curve and a specific time. The (zero-coupon) rate is shifted by the shift provided.
  */
-public class MarketForwardTimeDecorated extends MarketBundle {
+public class MarketForwardTimeDecorated extends MarketDiscountBundle {
 
   /**
    * The Ibor index for which the market is decorated.
@@ -39,7 +39,7 @@ public class MarketForwardTimeDecorated extends MarketBundle {
    * @param time The time.
    * @param shift The shift.
    */
-  public MarketForwardTimeDecorated(MarketBundle market, IborIndex index, double time, double shift) {
+  public MarketForwardTimeDecorated(MarketDiscountBundle market, IborIndex index, double time, double shift) {
     super(market);
     Validate.notNull(index, "Index");
     _index = index;

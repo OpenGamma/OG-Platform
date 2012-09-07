@@ -14,7 +14,8 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthlyGearing;
-import com.opengamma.analytics.financial.interestrate.market.MarketBundle;
+import com.opengamma.analytics.financial.interestrate.market.IMarketBundle;
+import com.opengamma.analytics.financial.interestrate.market.MarketDiscountBundle;
 import com.opengamma.analytics.financial.interestrate.market.PresentValueCurveSensitivityMarket;
 import com.opengamma.analytics.financial.interestrate.method.PricingMarketMethod;
 import com.opengamma.util.money.CurrencyAmount;
@@ -31,17 +32,17 @@ public class CouponInflationZeroCouponMonthlyGearingDiscountingMethod implements
    * @param market The market bundle.
    * @return The present value.
    */
-  public CurrencyAmount presentValue(CouponInflationZeroCouponMonthlyGearing coupon, MarketBundle market) {
+  public CurrencyAmount presentValue(CouponInflationZeroCouponMonthlyGearing coupon, IMarketBundle market) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(market, "Market");
     double estimatedIndex = market.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime());
-    double discountFactor = market.getDiscountingFactor(coupon.getCurrency(), coupon.getPaymentTime());
+    double discountFactor = market.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     double pv = coupon.getFactor() * (estimatedIndex / coupon.getIndexStartValue() - (coupon.payNotional() ? 0.0 : 1.0)) * discountFactor * coupon.getNotional();
     return CurrencyAmount.of(coupon.getCurrency(), pv);
   }
 
   @Override
-  public CurrencyAmount presentValue(InstrumentDerivative instrument, MarketBundle market) {
+  public CurrencyAmount presentValue(InstrumentDerivative instrument, IMarketBundle market) {
     Validate.isTrue(instrument instanceof CouponInflationZeroCouponMonthlyGearing, "Zero-coupon inflation with start of month reference date.");
     return presentValue((CouponInflationZeroCouponMonthlyGearing) instrument, market);
   }
@@ -52,11 +53,11 @@ public class CouponInflationZeroCouponMonthlyGearingDiscountingMethod implements
    * @param market The market curves.
    * @return The present value sensitivity.
    */
-  public PresentValueCurveSensitivityMarket presentValueCurveSensitivity(final CouponInflationZeroCouponMonthlyGearing coupon, final MarketBundle market) {
+  public PresentValueCurveSensitivityMarket presentValueCurveSensitivity(final CouponInflationZeroCouponMonthlyGearing coupon, final MarketDiscountBundle market) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(market, "Market");
     double estimatedIndex = market.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime());
-    double discountFactor = market.getDiscountingFactor(coupon.getCurrency(), coupon.getPaymentTime());
+    double discountFactor = market.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     // Backward sweep
     final double pvBar = 1.0;
     double discountFactorBar = coupon.getFactor() * (estimatedIndex / coupon.getIndexStartValue() - (coupon.payNotional() ? 0.0 : 1.0)) * coupon.getNotional() * pvBar;
@@ -69,7 +70,7 @@ public class CouponInflationZeroCouponMonthlyGearingDiscountingMethod implements
     final List<DoublesPair> listPrice = new ArrayList<DoublesPair>();
     listPrice.add(new DoublesPair(coupon.getReferenceEndTime(), estimatedIndexBar));
     resultMapPrice.put(market.getCurve(coupon.getPriceIndex()).getCurve().getName(), listPrice);
-    final PresentValueCurveSensitivityMarket result = new PresentValueCurveSensitivityMarket(resultMapDisc, resultMapPrice);
+    final PresentValueCurveSensitivityMarket result = PresentValueCurveSensitivityMarket.fromYieldDiscountingAndPrice(resultMapDisc, resultMapPrice);
     return result;
   }
 

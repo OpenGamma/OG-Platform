@@ -12,11 +12,12 @@ import static com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSerie
 import java.util.ArrayList;
 import java.util.List;
 
+import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.financial.tool.ToolContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.examples.historical.SimulatedHistoricalDataGenerator;
-import com.opengamma.examples.tool.AbstractExampleTool;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
@@ -31,7 +32,7 @@ import com.opengamma.util.generate.scripts.Scriptable;
  * It should be possible to run this class with no extra command line parameters.
  */
 @Scriptable
-public class ExampleTimeSeriesRatingLoader extends AbstractExampleTool {
+public class ExampleTimeSeriesRatingLoader extends AbstractTool<ToolContext> {
 
   /** Logger. */
   @SuppressWarnings("unused")
@@ -44,7 +45,7 @@ public class ExampleTimeSeriesRatingLoader extends AbstractExampleTool {
    * @param args  the arguments, unused
    */
   public static void main(String[] args) {  // CSIGNORE
-    new ExampleTimeSeriesRatingLoader().initAndRun(args);
+    new ExampleTimeSeriesRatingLoader().initAndRun(args, ToolContext.class);
     System.exit(0);
   }
 

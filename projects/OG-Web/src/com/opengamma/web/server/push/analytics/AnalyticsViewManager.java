@@ -75,12 +75,13 @@ public class AnalyticsViewManager {
       throw new IllegalArgumentException("View ID " + viewId + " is already in use");
     }
     ViewClient viewClient = _viewProcessor.createViewClient(user);
-    SimpleAnalyticsView view = new SimpleAnalyticsView(clientConnection, portfolioGridId, primitivesGridId, _targetResolver);
-    LockingAnalyticsView lockingView = new LockingAnalyticsView(view);
+    AnalyticsView view = new SimpleAnalyticsView(portfolioGridId, primitivesGridId, _targetResolver);
+    AnalyticsView lockingView = new LockingAnalyticsView(view);
+    AnalyticsView notifyingView = new NotifyingAnalyticsView(lockingView, clientConnection);
     NamedMarketDataSpecificationRepository marketDataSpecRepo = _viewProcessor.getNamedMarketDataSpecificationRepository();
     AnalyticsViewClientConnection connection = new AnalyticsViewClientConnection(request,
                                                                                  viewClient,
-                                                                                 lockingView,
+                                                                                 notifyingView,
                                                                                  marketDataSpecRepo,
                                                                                  _aggregatedViewDefManager,
                                                                                  _snapshotMaster);

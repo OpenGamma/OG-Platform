@@ -62,6 +62,8 @@ import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
+import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
@@ -114,9 +116,15 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
     final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
     HistoricalTimeSeries fxSeries = null;
     final ValueProperties resultProperties;
+    boolean isInverse = true;
     if (!desiredCurrency.equals(currencyString)) {
       if (inputs.getValue(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES) != null) {
         final Map<UnorderedCurrencyPair, HistoricalTimeSeries> allFXSeries = (Map<UnorderedCurrencyPair, HistoricalTimeSeries>) inputs.getValue(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES);
+        final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
+        final CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
+        if (desiredCurrency.equals(currencyPairs.getCurrencyPair(Currency.of(desiredCurrency), currency).getBase())) {
+          isInverse = false;
+        }
         if (allFXSeries.size() != 1) {
           throw new OpenGammaRuntimeException("Have more than one FX series; should not happen");
         }
@@ -155,7 +163,7 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
           throw new OpenGammaRuntimeException("Could not get curve specification; " + curveSpecRequirement);
         }
         final InterpolatedYieldCurveSpecificationWithSecurities curveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) curveSpecObject;
-        pnLSeries = getPnLSeries(curveSpec, ycns, ychts, schedule, samplingFunction, fxSeries);
+        pnLSeries = getPnLSeries(curveSpec, ycns, ychts, schedule, samplingFunction, fxSeries, isInverse);
       }
       if (result == null) {
         result = pnLSeries;
@@ -268,6 +276,10 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
         curveNames.add(entry.getValue().getConstraint(ValuePropertyNames.CURVE));
       }
     }
+    if (curveNames.isEmpty()) {
+      int i = 0;
+      i = i + 1;
+    }
     final ValueProperties properties = createValueProperties()
         .withAny(ValuePropertyNames.CURRENCY)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
@@ -314,7 +326,7 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
 
   private DoubleTimeSeries<?> getPnLSeries(final InterpolatedYieldCurveSpecificationWithSecurities spec, final DoubleLabelledMatrix1D curveSensitivities,
       final HistoricalTimeSeriesBundle timeSeriesBundle, final LocalDate[] schedule, final TimeSeriesSamplingFunction samplingFunction,
-      final HistoricalTimeSeries fxSeries) {
+      final HistoricalTimeSeries fxSeries, final boolean isInverse) {
     DoubleTimeSeries<?> pnlSeries = null;
     final int n = curveSensitivities.size();
     final Object[] labels = curveSensitivities.getLabels();
@@ -342,7 +354,11 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
       }
       DoubleTimeSeries<?> nodeTimeSeries = samplingFunction.getSampledTimeSeries(dbNodeTimeSeries.getTimeSeries(), schedule);
       if (fxSeries != null) {
-        nodeTimeSeries = nodeTimeSeries.multiply(fxSeries.getTimeSeries());
+        if (isInverse) {
+          nodeTimeSeries = nodeTimeSeries.divide(fxSeries.getTimeSeries());
+        } else {
+          nodeTimeSeries = nodeTimeSeries.multiply(fxSeries.getTimeSeries());
+        }
       }
       nodeTimeSeries = DIFFERENCE.evaluate(nodeTimeSeries);
       if (pnlSeries == null) {

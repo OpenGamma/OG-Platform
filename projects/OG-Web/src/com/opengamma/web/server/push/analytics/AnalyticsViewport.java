@@ -16,7 +16,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 /* package */ abstract class AnalyticsViewport {
 
-  protected final String _dataId;
+  protected final String _callbackId;
 
   /** Defines the extent of the viewport. */
   protected ViewportSpecification _viewportSpec;
@@ -32,12 +32,12 @@ import com.opengamma.util.ArgumentChecker;
   protected long _version;
 
   /**
-   * @param dataId The ID that is sent to the client to notify it that the viewport's data has been updated. This
+   * @param callbackId The ID that is sent to the client to notify it that the viewport's data has been updated. This
    * can have any unique value, the viewport makes no use of it and make no assumptions about its form.
    */
-  /* package */ AnalyticsViewport(String dataId) {
-    ArgumentChecker.notNull(dataId, "dataId");
-    _dataId = dataId;
+  /* package */ AnalyticsViewport(String callbackId) {
+    ArgumentChecker.notNull(callbackId, "callbackId");
+    _callbackId = callbackId;
   }
 
   /**
@@ -51,8 +51,8 @@ import com.opengamma.util.ArgumentChecker;
   /**
    * @return The ID that is sent to the client to notify it that the viewport's data has been updated.
    */
-  /* package */ String getDataId() {
-    return _dataId;
+  /* package */ String getCallbackId() {
+    return _callbackId;
   }
 
   /**

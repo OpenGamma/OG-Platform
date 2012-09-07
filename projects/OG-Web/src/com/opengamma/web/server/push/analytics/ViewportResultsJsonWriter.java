@@ -15,6 +15,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.web.server.push.analytics.formatting.Formatter;
 import com.opengamma.web.server.push.analytics.formatting.ResultsFormatter;
 
 /**
@@ -60,8 +61,13 @@ public class ViewportResultsJsonWriter {
           valueMap.put(VALUE, formattedValue);
           // if the the column type isn't known then send the type with the value
           if (columnType == null) {
-            Class<?> cellValueClass = cellValue == null ? null : cellValue.getClass();
-            valueMap.put(TYPE, _formatter.getFormatType(cellValueClass).name());
+            Formatter.FormatType formatType;
+            if (cellValue == null) {
+              formatType = Formatter.FormatType.PRIMITIVE;
+            } else {
+              formatType = _formatter.getFormatType(cellValue.getClass());
+            }
+            valueMap.put(TYPE, formatType.name());
           }
           if (history != null) {
             List<Object> formattedHistory = Lists.newArrayListWithCapacity(history.size());

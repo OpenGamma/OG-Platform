@@ -69,7 +69,7 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethod {
     Validate.notNull(sabrData);
     final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), sabrData.getSABRParameter().getDayCount(), sabrData);
     final double forwardModified = PRC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), sabrData.getSABRParameter().getDayCount(), sabrData);
-    final double strikeModified = SwapFixedCouponDiscountingMethod.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, sabrData);
+    final double strikeModified = METHOD_SWAP.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, sabrData);
     final double maturity = swaption.getMaturityTime();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strikeModified, swaption.getTimeToExpiry(), swaption.isCall());
     // Implementation note: option required to pass the strike (in case the swap has non-constant coupon).
@@ -103,7 +103,7 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethod {
     final DayCount dayCountModification = sabrData.getSABRParameter().getDayCount();
     final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), dayCountModification, sabrData);
     final double forwardModified = PRC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, sabrData);
-    final double strikeModified = SwapFixedCouponDiscountingMethod.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, sabrData);
+    final double strikeModified = METHOD_SWAP.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, sabrData);
     final double maturity = swaption.getMaturityTime();
     // Derivative of the forward and pvbp with respect to the rates.
     final InterestRateCurveSensitivity pvbpModifiedDr = METHOD_SWAP.presentValueBasisPointCurveSensitivity(swaption.getUnderlyingSwap(), dayCountModification, sabrData);
@@ -139,7 +139,7 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethod {
     final DayCount dayCountModification = sabrData.getSABRParameter().getDayCount();
     final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), dayCountModification, sabrData);
     final double forwardModified = PRC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, sabrData);
-    final double strikeModified = SwapFixedCouponDiscountingMethod.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, sabrData);
+    final double strikeModified = METHOD_SWAP.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, sabrData);
     final double maturity = swaption.getMaturityTime();
     final PresentValueSABRSensitivityDataBundle sensi = new PresentValueSABRSensitivityDataBundle();
     final DoublesPair expiryMaturity = new DoublesPair(swaption.getTimeToExpiry(), maturity);

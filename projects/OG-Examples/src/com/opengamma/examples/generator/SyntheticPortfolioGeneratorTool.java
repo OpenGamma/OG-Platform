@@ -5,11 +5,12 @@
  */
 package com.opengamma.examples.generator;
 
+import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.financial.tool.ToolContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 
 import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.examples.tool.AbstractExampleTool;
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
 import com.opengamma.financial.generator.SecurityGenerator;
 import com.opengamma.id.ExternalId;
@@ -34,7 +35,7 @@ public class SyntheticPortfolioGeneratorTool extends AbstractPortfolioGeneratorT
   }
 
   public static void main(final String[] args) { // CSIGNORE
-    (new AbstractExampleTool() {
+    (new AbstractTool<ToolContext>() {
 
       private final SyntheticPortfolioGeneratorTool _instance = new SyntheticPortfolioGeneratorTool();
 
@@ -56,7 +57,7 @@ public class SyntheticPortfolioGeneratorTool extends AbstractPortfolioGeneratorT
         return SyntheticPortfolioGeneratorTool.class;
       }
 
-    }).initAndRun(args);
+    }).initAndRun(args, ToolContext.class);
     System.exit(0);
   }
 

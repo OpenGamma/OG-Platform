@@ -46,7 +46,7 @@ public class IntegrationToolContextComponentFactory extends ToolContextComponent
    * 
    * @return the empty tool context, not null
    */
-  protected ToolContext createToolContext() {
+  protected IntegrationToolContext createToolContext() {
     return new IntegrationToolContext();
   }
 

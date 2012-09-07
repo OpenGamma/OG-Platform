@@ -17,6 +17,8 @@ import org.apache.commons.cli.Options;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergIdentifierProvider;
 import com.opengamma.bbg.loader.BloombergHistoricalLoader;
+import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.util.generate.scripts.Scriptable;
 import com.opengamma.util.time.DateUtils;
 
@@ -26,7 +28,7 @@ import com.opengamma.util.time.DateUtils;
  * This loads missing historical time-series data from Bloomberg.
  */
 @Scriptable
-public class BloombergTimeSeriesTool extends AbstractBloombergTool {
+public class BloombergTimeSeriesTool extends AbstractTool<ToolContext> {
 
   /** Command line option. */
   private static final String FIELDS_OPTION = "fields";
@@ -51,7 +53,7 @@ public class BloombergTimeSeriesTool extends AbstractBloombergTool {
    * Main method to run the tool.
    * 
    * <pre>
-   * usage: java com.opengamma.bbg.loader.BloombergHistoricalLoader [options]... [files]...
+   * usage: java com.opengamma.bbg.loader.BloombergTimeSeriesTool [options]... [files]...
    *  -e,--end (yyyymmdd)                            End date
    *  -f,--fields (PX_LAST,VOLUME,LAST_VOLATILITY)   List of bloomberg fields
    *  -h,--help                                      Print this message
@@ -67,7 +69,7 @@ public class BloombergTimeSeriesTool extends AbstractBloombergTool {
    * @param args the command line arguments
    */
   public static void main(String[] args) {   // CSIGNORE
-    boolean success = new BloombergTimeSeriesTool().initAndRun(args);
+    boolean success = new BloombergTimeSeriesTool().initAndRun(args, ToolContext.class);
     System.exit(success ? 0 : 1);
   }
 
@@ -77,7 +79,7 @@ public class BloombergTimeSeriesTool extends AbstractBloombergTool {
     BloombergHistoricalLoader loader = new BloombergHistoricalLoader(
         getToolContext().getHistoricalTimeSeriesMaster(),
         getToolContext().getHistoricalTimeSeriesProvider(),
-        new BloombergIdentifierProvider(getBloombergToolContext().getBloombergReferenceDataProvider()));
+        new BloombergIdentifierProvider(((BloombergToolContext) getToolContext()).getBloombergReferenceDataProvider()));
     configureOptions(getCommandLine(), loader);
     loader.setUpdateDb(true);
     loader.setReload(getCommandLine().hasOption("reload"));

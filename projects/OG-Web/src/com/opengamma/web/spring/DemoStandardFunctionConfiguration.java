@@ -410,6 +410,7 @@ import com.opengamma.financial.analytics.timeseries.YieldCurveInstrumentConversi
 import com.opengamma.financial.analytics.timeseries.YieldCurveInstrumentConversionHistoricalTimeSeriesShiftFunctionDeprecated;
 import com.opengamma.financial.analytics.volatility.surface.DefaultVolatilitySurfaceShiftFunction;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceShiftFunction;
+import com.opengamma.financial.currency.BondFutureOptionBlackPnLSeriesCurrencyConversionFunction;
 import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
 import com.opengamma.financial.currency.CurrencyPairs;
@@ -538,6 +539,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(FXForwardYCNSPnLCurrencyConversionFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
     functionConfigs.add(functionConfiguration(FXOptionBlackPnLSeriesCurrencyConversionFunction.class, CurrencyMatrixConfigPopulator.BLOOMBERG_LIVE_DATA));
     functionConfigs.add(functionConfiguration(FXOptionBlackPnLSeriesCurrencyConversionFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
+    functionConfigs.add(functionConfiguration(BondFutureOptionBlackPnLSeriesCurrencyConversionFunction.class, CurrencyMatrixConfigPopulator.BLOOMBERG_LIVE_DATA));
+    functionConfigs.add(functionConfiguration(BondFutureOptionBlackPnLSeriesCurrencyConversionFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
     functionConfigs
         .add(functionConfiguration(FixedIncomeInstrumentPnLSeriesCurrencyConversionFunctionDeprecated.class, CurrencyMatrixConfigPopulator.BLOOMBERG_LIVE_DATA));
     functionConfigs
@@ -961,9 +964,10 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(BondZSpreadPresentValueSensitivityFromCurveCleanPriceFunction.class));
     functionConfigs.add(functionConfiguration(BondZSpreadPresentValueSensitivityFromMarketCleanPriceFunction.class));
     functionConfigs.add(functionConfiguration(NelsonSiegelSvenssonBondCurveFunction.class));
-    functionConfigs.add(functionConfiguration(BondDefaultCurveNamesFunction.class, "FUNDING", "FUNDING", ValueRequirementNames.CLEAN_PRICE,
-        ValueRequirementNames.DIRTY_PRICE, ValueRequirementNames.MACAULAY_DURATION, ValueRequirementNames.MODIFIED_DURATION, ValueRequirementNames.YTM,
-        ValueRequirementNames.Z_SPREAD, ValueRequirementNames.PRESENT_VALUE_Z_SPREAD_SENSITIVITY));
+    functionConfigs.add(functionConfiguration(BondDefaultCurveNamesFunction.class, PriorityClass.ABOVE_NORMAL.name(),
+        "USD", "Discounting", "DefaultTwoCurveUSDConfig", "Discounting", "DefaultTwoCurveUSDConfig",
+        "EUR", "Discounting", "DefaultTwoCurveEURConfig", "Discounting", "DefaultTwoCurveEURConfig",
+        "GBP", "Discounting", "DefaultTwoCurveGBPConfig", "Discounting", "DefaultTwoCurveGBPConfig"));
   }
 
   private static void addForexOptionCalculators(final List<FunctionConfiguration> functionConfigs) {

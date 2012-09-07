@@ -25,8 +25,10 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
@@ -58,26 +60,26 @@ public class SwapFixedIborSpreadDefinition extends SwapDefinition {
   }
 
   /**
-   * Vanilla swap builder from the settlement date, a swap generator and other details of a swap.
+   * Swap with spread builder from the settlement date, a tenor, a swap generator and other details.
    * @param settlementDate The settlement date.
-   * @param maturityDate The swap maturity date.
+   * @param tenor The swap total tenor. The Ibor index conventions are used to compute the maturity date.
    * @param generator The swap generator.
-   * @param notionalFixed The fixed leg notional.
-   * @param notionalIbor The ibor leg notional.
+   * @param notional The swap notional. the same notional is used for both legs.
    * @param fixedRate The swap fixed rate.
    * @param spread The Ibor leg spread.
    * @param isPayer The payer flag of the fixed leg.
-   * @return The vanilla swap.
+   * @return The swap.
    */
-  public static SwapFixedIborDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final GeneratorSwapFixedIbor generator, final double notionalFixed,
-      final double notionalIbor, final double fixedRate, final double spread, final boolean isPayer) {
-    Validate.notNull(settlementDate, "Settlement date");
-    Validate.notNull(maturityDate, "Maturity date");
-    Validate.notNull(generator, "Swap generator");
+  public static SwapFixedIborSpreadDefinition from(final ZonedDateTime settlementDate, final Period tenor, final GeneratorSwapFixedIbor generator, final double notional, final double fixedRate,
+      final double spread, final boolean isPayer) {
+    ArgumentChecker.notNull(settlementDate, "Settlement date");
+    ArgumentChecker.notNull(tenor, "Tenor");
+    ArgumentChecker.notNull(generator, "Swap generator");
+    ZonedDateTime maturityDate = ScheduleCalculator.getAdjustedDate(settlementDate, tenor, generator.getIborIndex());
     final AnnuityCouponFixedDefinition fixedLeg = AnnuityCouponFixedDefinition.from(generator.getCurrency(), settlementDate, maturityDate, generator.getFixedLegPeriod(), generator.getCalendar(),
-        generator.getFixedLegDayCount(), generator.getIborIndex().getBusinessDayConvention(), generator.getIborIndex().isEndOfMonth(), notionalFixed, fixedRate, isPayer);
-    final AnnuityCouponIborSpreadDefinition iborLeg = AnnuityCouponIborSpreadDefinition.from(settlementDate, maturityDate, notionalIbor, generator.getIborIndex(), spread, !isPayer);
-    return new SwapFixedIborDefinition(fixedLeg, iborLeg);
+        generator.getFixedLegDayCount(), generator.getIborIndex().getBusinessDayConvention(), generator.getIborIndex().isEndOfMonth(), notional, fixedRate, isPayer);
+    final AnnuityCouponIborSpreadDefinition iborLeg = AnnuityCouponIborSpreadDefinition.from(settlementDate, maturityDate, notional, generator.getIborIndex(), spread, !isPayer);
+    return new SwapFixedIborSpreadDefinition(fixedLeg, iborLeg);
   }
 
   /**

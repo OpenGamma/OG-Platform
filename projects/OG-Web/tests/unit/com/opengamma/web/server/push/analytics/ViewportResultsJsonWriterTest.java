@@ -69,6 +69,15 @@ public class ViewportResultsJsonWriterTest {
   }
 
   @Test
+  public void nullValueWithUnknownType() throws JSONException {
+    List<List<ViewportResults.Cell>> results = createResults(null, null);
+    ViewportResults viewportResults = new ViewportResults(results, _viewportSpec, createColumns(null), 0);
+    String json = _writer.getJson(viewportResults);
+    String expectedJson = "{\"version\":0, \"data\":[[{\"v\":\"\",\"t\":\"PRIMITIVE\"}]]}";
+    assertTrue(JsonTestUtils.equal(new JSONObject(expectedJson), new JSONObject(json)));
+  }
+
+  @Test
   public void valueWithUnknownTypeAndHistory() throws JSONException {
     List<List<ViewportResults.Cell>> results = createResults(3d, ImmutableList.<Object>of(1d, 2d, 3d));
     ViewportResults viewportResults = new ViewportResults(results, _viewportSpec, createColumns(null), 0);

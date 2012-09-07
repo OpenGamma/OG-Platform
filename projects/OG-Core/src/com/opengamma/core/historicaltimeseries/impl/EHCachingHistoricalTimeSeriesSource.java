@@ -49,14 +49,19 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
   private static final Logger s_logger = LoggerFactory.getLogger(EHCachingHistoricalTimeSeriesSource.class);
 
   /**
+   * The cache prefix.
+   */
+  /*package*/ static final String CACHE_PREFIX = "HistoricalTimeSeries";
+  
+  /**
    * The cache name.
    */
-  private static final String DATA_CACHE_NAME = "HistoricalTimeSeriesDataCache";
+  private static final String DATA_CACHE_NAME = CACHE_PREFIX + "DataCache";
   
   /**
    * Id bundle cache name.
    */
-  private static final String ID_BUNDLE_CACHE_NAME = "HistoricalTimeSeriesIdBundleCache";
+  private static final String ID_BUNDLE_CACHE_NAME = CACHE_PREFIX + "IdBundleCache";
 
   /**
    * Listens for changes in the underlying security source.

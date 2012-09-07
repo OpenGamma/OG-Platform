@@ -117,7 +117,7 @@ import com.opengamma.util.tuple.Pair;
       CollectionUtils.addIgnoreNull(updatedIds, viewport.updateResults(cache));
     }
     for (DependencyGraphGrid grid : _depGraphs.values()) {
-      updatedIds.addAll(grid.updateResults(cycle, cache));
+      updatedIds.addAll(grid.updateResults(cycle));
     }
     return updatedIds;
   }
@@ -161,7 +161,7 @@ import com.opengamma.util.tuple.Pair;
     String calcConfigName = targetForCell.getFirst();
     ValueSpecification valueSpec = targetForCell.getSecond();
     DependencyGraphGrid grid =
-        DependencyGraphGrid.create(compiledViewDef, valueSpec, calcConfigName, _cycle, _cache, gridId, _targetResolver);
+        DependencyGraphGrid.create(compiledViewDef, valueSpec, calcConfigName, _cycle, gridId, _targetResolver);
     _depGraphs.put(graphId, grid);
   }
 
@@ -205,13 +205,13 @@ import com.opengamma.util.tuple.Pair;
    * Creates a viewport on a dependency graph grid.
    * @param graphId ID of the dependency graph
    * @param viewportId ID of the viewport, can be any unique value
-   * @param dataId ID passed to listeners when the viewport's data changes, can be any unique value
+   * @param callbackId ID passed to listeners when the viewport's data changes, can be any unique value
    * @param viewportSpec Definition of the viewport
    * @return Version number of the viewport, allows clients to ensure any data they receive for a viewport matches
    * the current viewport state
    */
-  /* package */ long createViewport(int graphId, int viewportId, String dataId, ViewportSpecification viewportSpec) {
-    return getDependencyGraph(graphId).createViewport(viewportId, dataId, viewportSpec);
+  /* package */ long createViewport(int graphId, int viewportId, String callbackId, ViewportSpecification viewportSpec) {
+    return getDependencyGraph(graphId).createViewport(viewportId, callbackId, viewportSpec);
   }
 
   /**
@@ -249,33 +249,23 @@ import com.opengamma.util.tuple.Pair;
   }
 
   /**
-   * Returns the ID sent to listeners when the row and column structure changes of a dependency graph grid.
-   * @param graphId ID of the dependency graph
-   * @return The ID
-   * @throws DataNotFoundException If no dependency graph exists with the specified ID
-   */
-  /* package */ String getGridId(int graphId) {
-    return getDependencyGraph(graphId).getGridId();
-  }
-
-  /**
    * Returns the ID sent to listeners when the data changes in a dependency graph grid viewport.
    * @param graphId ID of the dependency graph
    * @param viewportId ID of the viewport
    * @return The ID
    * @throws DataNotFoundException If no dependency graph and viewport exist with the specified IDs
    */
-  /* package */ String getDataId(int graphId, int viewportId) {
-    return getDependencyGraph(graphId).getViewport(viewportId).getDataId();
+  /* package */ String getCallbackId(int graphId, int viewportId) {
+    return getDependencyGraph(graphId).getViewport(viewportId).getCallbackId();
   }
 
   /**
    * @return The IDs for all depdendency graph grids that are sent to listeners when the grid structure changes
    */
-  /* package */ List<String> getDependencyGraphGridIds() {
+  /* package */ List<String> getDependencyGraphCallbackIds() {
     List<String> gridIds = new ArrayList<String>();
     for (AnalyticsGrid grid : _depGraphs.values()) {
-      gridIds.add(grid.getGridId());
+      gridIds.add(grid.getCallbackId());
     }
     return gridIds;
   }
@@ -289,8 +279,8 @@ import com.opengamma.util.tuple.Pair;
   }
 
   @Override
-  protected MainGridViewport createViewport(ViewportSpecification viewportSpecification, String dataId) {
-    return new MainGridViewport(viewportSpecification, _gridStructure, dataId, _cache);
+  protected MainGridViewport createViewport(ViewportSpecification viewportSpecification, String callbackId) {
+    return new MainGridViewport(viewportSpecification, _gridStructure, callbackId, _cache);
   }
 
   /**

@@ -23,8 +23,8 @@ import com.opengamma.id.ExternalScheme;
  * @deprecated This has been replaced by BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider
  */
 @Deprecated
-public class BloombergEquityOptionVolatilitySurfaceInstrumentProviderDeprecated implements SurfaceInstrumentProvider<LocalDate, Double> {
-  private static final Logger s_logger = LoggerFactory.getLogger(BloombergEquityOptionVolatilitySurfaceInstrumentProviderDeprecated.class);
+public class BloombergEquityOptionVolatilitySurfaceInstrumentProvider implements SurfaceInstrumentProvider<LocalDate, Double> {
+  private static final Logger s_logger = LoggerFactory.getLogger(BloombergEquityOptionVolatilitySurfaceInstrumentProvider.class);
   private static final ExternalScheme SCHEME = ExternalSchemes.BLOOMBERG_TICKER_WEAK;
   private final String _underlyingPrefix; //expecting something like DJX
   private final String _postfix; //expecting Index or Equity
@@ -33,7 +33,7 @@ public class BloombergEquityOptionVolatilitySurfaceInstrumentProviderDeprecated 
 
   private Boolean _generatePuts;
 
-  public BloombergEquityOptionVolatilitySurfaceInstrumentProviderDeprecated(final String underlyingPrefix, final String postfix, final String dataFieldName) {
+  public BloombergEquityOptionVolatilitySurfaceInstrumentProvider(final String underlyingPrefix, final String postfix, final String dataFieldName) {
     Validate.notNull(underlyingPrefix, "underlying prefix");
     Validate.notNull(postfix, "postfix");
     Validate.notNull(dataFieldName, "data field name");
@@ -101,10 +101,10 @@ public class BloombergEquityOptionVolatilitySurfaceInstrumentProviderDeprecated 
     if (obj == null) {
       return false;
     }
-    if (!(obj instanceof BloombergEquityOptionVolatilitySurfaceInstrumentProviderDeprecated)) {
+    if (!(obj instanceof BloombergEquityOptionVolatilitySurfaceInstrumentProvider)) {
       return false;
     }
-    final BloombergEquityOptionVolatilitySurfaceInstrumentProviderDeprecated other = (BloombergEquityOptionVolatilitySurfaceInstrumentProviderDeprecated) obj;
+    final BloombergEquityOptionVolatilitySurfaceInstrumentProvider other = (BloombergEquityOptionVolatilitySurfaceInstrumentProvider) obj;
     return getUnderlyingPrefix().equals(other.getUnderlyingPrefix()) &&
         getPostfix().equals(other.getPostfix()) &&
         getDataFieldName().equals(other.getDataFieldName());
