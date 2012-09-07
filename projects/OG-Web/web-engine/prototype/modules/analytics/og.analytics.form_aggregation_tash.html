@@ -1,22 +1,19 @@
 <div class="og-option-title">
   <header class="OG-background-03">aggregated by:</header>
   <ul>
-    {{#each row}}
-    <li>{{this.by}}<span>{{^this.last}}then{{/this.last}}</span></li>
-    {{/each}}
+    <li><span style="display: none">Aggregated by</span>Select aggregation type...</li>
   </ul>
   <div class="OG-icon og-icon-down"></div>
 </div>
 <div class="OG-analytics-form-menu og-menu-aggregation OG-shadow" style="display: none">
   <div class="OG-background-03"></div>
-  <table>
-    {{#each row}}
+  <table class="OG-aggregation-options">
     <tr>
-      <td><span>{{this.num}}</span></td>
+      <td class="number"><span>1</span></td>
       <td>
-        <select id="agg{{this.num}}">
+        <select id="agg">
           <option>select aggregation type...</option>
-          {{#each ../aggregators}}
+          {{#each this}}
             <option>{{this}}</option>
           {{/each}}
         </select>
@@ -28,7 +25,6 @@
         <div class="OG-icon og-icon-delete"></div>
       </td>
     </tr>
-    {{/each}}
     <tr>
       <td></td>
       <td><a href="#" class="OG-link-add">add</a></td>
