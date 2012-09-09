@@ -6,6 +6,7 @@ common/tests.properties
 common/db.properties
 common/deploy.properties
 /projects/*
+!/projects/OG-Parent
 !/projects/OG-Analytics
 !/projects/OG-Bloomberg
 !/projects/OG-Component
