@@ -23,51 +23,48 @@ import com.opengamma.language.function.PublishedFunction;
 import com.opengamma.util.async.AsynchronousExecution;
 
 /**
- * Returns the identifier of the portfolio associated with the view definition
+ * Retrieves a view definition from the database.
  */
-public class GetViewPortfolioFunction extends AbstractFunctionInvoker implements PublishedFunction {
+public class FetchViewDefinitionFunction extends AbstractFunctionInvoker implements PublishedFunction {
 
   /**
    * Default instance.
    */
-  public static final GetViewPortfolioFunction INSTANCE = new GetViewPortfolioFunction();
-  
+  public static final FetchViewDefinitionFunction INSTANCE = new FetchViewDefinitionFunction();
+
   private final MetaFunction _meta;
-  
-  // TODO: this should take a ViewDefinition object and we use type conversion to go from a unique id to the object
 
   private static List<MetaParameter> parameters() {
     final MetaParameter viewDefinitionId = new MetaParameter("id", JavaTypeInfo.builder(UniqueId.class).get());
     return ImmutableList.of(viewDefinitionId);
   }
-  
-  protected GetViewPortfolioFunction() {
-    this (new DefinitionAnnotater(GetViewPortfolioFunction.class));
+
+  protected FetchViewDefinitionFunction() {
+    this(new DefinitionAnnotater(FetchViewDefinitionFunction.class));
   }
-  
-  private GetViewPortfolioFunction(final DefinitionAnnotater info) {
+
+  private FetchViewDefinitionFunction(final DefinitionAnnotater info) {
     super(info.annotate(parameters()));
-    _meta = info.annotate(new MetaFunction(Categories.VIEW, "GetViewPortfolio", getParameters(), this));
+    _meta = info.annotate(new MetaFunction(Categories.VIEW, "FetchViewDefinition", getParameters(), this));
   }
-  
+
   @Override
   public MetaFunction getMetaFunction() {
     return _meta;
   }
-  
-  public UniqueId invoke(ViewDefinitionRepository repository, UniqueId viewDefinitionId) {
-    
-    ViewDefinition viewDefinition = repository.getDefinition(viewDefinitionId);
+
+  public ViewDefinition invoke(ViewDefinitionRepository repository, UniqueId viewDefinitionId) {
+    final ViewDefinition viewDefinition = repository.getDefinition(viewDefinitionId);
     if (viewDefinition == null) {
-      throw  new InvokeInvalidArgumentException("View definition not found");
+      throw new InvokeInvalidArgumentException(0, "View definition not found");
     }
-    return viewDefinition.getPortfolioId();
+    return viewDefinition;
   }
 
   @Override
   protected Object invokeImpl(SessionContext sessionContext, Object[] parameters) throws AsynchronousExecution {
-    final ViewDefinitionRepository repository = sessionContext.getGlobalContext().getViewProcessor().getViewDefinitionRepository();  
-    final UniqueId viewDefinitionId  = (UniqueId) parameters[0]; 
+    final ViewDefinitionRepository repository = sessionContext.getGlobalContext().getViewProcessor().getViewDefinitionRepository();
+    final UniqueId viewDefinitionId = (UniqueId) parameters[0];
     return invoke(repository, viewDefinitionId);
   }
 
