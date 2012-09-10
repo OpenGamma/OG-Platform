@@ -5,12 +5,23 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.opengamma</groupId>
-  <artifactId>og-parent</artifactId>
+  <artifactId>og-platform</artifactId>
   <packaging>pom</packaging>
-  <name>OG-Parent</name>
+  <name>OG-Platform</name>
   <version>1.2.0-SNAPSHOT</version>
-  <description>OpenGamma maven parent project</description>
+  <description>OpenGamma maven aggregator project</description>
   <url>http://developers.opengamma.com/</url>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 
   <modules>
     <module>projects/OG-Parent</module>
