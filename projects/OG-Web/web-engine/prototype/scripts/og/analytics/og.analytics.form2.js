@@ -11,7 +11,7 @@ $.register_module({
     ],
     obj: function () { 
         return function (config) {
-            var Form = og.common.util.ui.Form, ds_response = { // dummy 
+            var Form = og.common.util.ui.Form, form, form_id, ds_response = { // dummy 
                     type: ['Live', 'Snapsot', 'Historical', 'Data Type'],
                     live: ['Bloomberg', 'Reuters'],
                     snapshot: ['Alan', 'Alan 2'],
@@ -26,25 +26,26 @@ $.register_module({
                 },
                 load_handler = config.handler || $.noop, selector = config.selector, type_map = config.type_map,
                 loading = config.loading || $.noop, id_count = 0, prefix = 'analytics_form_',
-                master = config.data.template_data.configJSON.data, config_type = config.type,
+                master = config.data.template_data.configJSON.data, config_type = config.type, construct_form,
+                handle_error;
+            construct_form = function (view, aggregators) {
                 form = new Form({
-                    module: 'og.analytics.form2',
+                    module: 'og.analytics.form_tash',
                     data: master,
                     type_map: type_map,
                     selector: selector,
                     extras: {name: master.name},
                     processor: function () {}
-                }),
-                form_id = '#' + form.id,
-                construct_form = function (template, view, aggregators) {},
-                handle_error = function (err) {};
-            form.attach([
-                {type: 'form:load', handler: function () { setTimeout(load_handler.partial(form)); }},
-                {type: 'form:submit', handler: function () {}},
-                {type: 'click', selector: 'tbc', handler:function () {}}
-            ]);
+                });
+                form_id = '#' + form.id;
+                form.attach([
+                    {type: 'form:load', handler: function () { setTimeout(load_handler.partial(form)); }},
+                    {type: 'form:submit', handler: function () {}},
+                    {type: 'click', selector: 'tbc', handler:function () {}}
+                ]);    
+            },
+            handle_error = function (err) {};
             $.when(
-                og.api.text({module: 'og.analytics.form_tash'}),
                 og.api.rest.viewdefinitions.get(),
                 og.api.rest.aggregators.get()
             ).then(construct_form);
