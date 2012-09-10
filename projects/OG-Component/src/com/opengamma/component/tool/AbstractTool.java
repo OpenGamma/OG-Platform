@@ -5,7 +5,6 @@
  */
 package com.opengamma.component.tool;
 
-import com.opengamma.OpenGammaRuntimeException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -17,6 +16,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentManager;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.util.ArgumentChecker;
@@ -58,8 +58,11 @@ public abstract class AbstractTool<T extends ToolContext> {
    * @param logbackResource the logback resource location, not null
    * @return true if successful
    */
-  public static boolean init(String logbackResource) {
-    return LogUtils.configureLogger(logbackResource);
+  public static final boolean init(final String logbackResource) {
+    s_logger.debug("Configuring logging from {}", logbackResource);
+    // Don't reconfigure if already configured from the default property or any existing loggers will break
+    // and stop reporting anything.
+    return logbackResource.equals(getSystemDefaultLogbackConfiguration()) ? true : LogUtils.configureLogger(logbackResource);
   }
 
   /**
@@ -69,6 +72,26 @@ public abstract class AbstractTool<T extends ToolContext> {
   }
 
   //-------------------------------------------------------------------------
+
+  protected static String getSystemDefaultLogbackConfiguration() {
+    return System.getProperty("logback.configurationFile");
+  }
+
+  /**
+   * Returns the name of the default logback configuration file if none is explicitly specified. This will be {@link #TOOL_LOGBACK_XML} unless the global {@code logback.configurationFile property} has
+   * been set.
+   * 
+   * @return the logback configuration file resource address, not null
+   */
+  protected String getDefaultLogbackConfiguration() {
+    final String globalConfiguration = getSystemDefaultLogbackConfiguration();
+    if (globalConfiguration != null) {
+      return globalConfiguration;
+    } else {
+      return TOOL_LOGBACK_XML;
+    }
+  }
+
   /**
    * Initializes and runs the tool from standard command-line arguments.
    * <p>
@@ -118,7 +141,7 @@ public abstract class AbstractTool<T extends ToolContext> {
       return true;
     }
     String logbackResource = line.getOptionValue(LOGBACK_RESOURCE_OPTION);
-    logbackResource = StringUtils.defaultIfEmpty(logbackResource, TOOL_LOGBACK_XML);
+    logbackResource = StringUtils.defaultIfEmpty(logbackResource, getDefaultLogbackConfiguration());
     String[] configResources = line.getOptionValues(CONFIG_RESOURCE_OPTION);
     if (configResources.length == 0) {
      configResources = new String[] {defaultConfigResource};

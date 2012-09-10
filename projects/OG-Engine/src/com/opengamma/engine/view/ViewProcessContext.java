@@ -36,7 +36,7 @@ public class ViewProcessContext {
   private final ViewComputationCacheSource _computationCacheSource;
   private final JobDispatcher _computationJobDispatcher;
   private final ViewProcessorQueryReceiver _viewProcessorQueryReceiver;
-  private final ComputationTargetResolver _computationTargetResolver;
+  private final ComputationTargetResolver _computationTargetResolver; // REVIEW andrew 2012-03-05 -- This isn't necessary as there is a resolver in the FunctionCompilationContext 
   private final DependencyGraphBuilderFactory _dependencyGraphBuilderFactory;
   private final DependencyGraphExecutorFactory<?> _dependencyGraphExecutorFactory;
   private final GraphExecutorStatisticsGathererProvider _graphExecutorStatisticsGathererProvider;

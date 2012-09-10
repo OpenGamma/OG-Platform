@@ -74,7 +74,13 @@
 
   <!-- execution hooks -->
 
-  <target name="build-all" if="ai.present">
+  <target name="fix-msm-parameters">
+    <java classname="com.opengamma.install.msi.MergeModDefaultParameters" classpath="${project.dir}/projects/OG-Install/build/og-install.jar" logError="true">
+      <arg value="${ai.build.file}" />
+    </java>
+  </target>
+
+  <target name="build-all" depends="fix-msm-parameters" if="ai.present">
     <!--<parallel>-->
       <antcall target="build-jvm-i386" inheritrefs="true" />
       <antcall target="build-jvm-x64" inheritrefs="true" />

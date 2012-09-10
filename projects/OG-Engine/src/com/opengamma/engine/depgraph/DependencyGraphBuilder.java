@@ -17,9 +17,11 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -60,6 +62,7 @@ public final class DependencyGraphBuilder implements Cancelable {
   private final AtomicInteger _activeJobCount = new AtomicInteger();
   private final Set<Job> _activeJobs = new HashSet<Job>();
   private final RunQueue _runQueue;
+  private final Queue<ContextRunnable> _deferredQueue = new ConcurrentLinkedQueue<ContextRunnable>();
   private final Object _buildCompleteLock = new Object();
   private final GraphBuildingContext _context = new GraphBuildingContext(this);
   private final AtomicLong _completedSteps = new AtomicLong();
@@ -465,7 +468,7 @@ public final class DependencyGraphBuilder implements Cancelable {
         final boolean abortLoops;
         synchronized (_activeJobs) {
           _activeJobs.remove(this);
-          abortLoops = _activeJobs.isEmpty() && _runQueue.isEmpty();
+          abortLoops = _activeJobs.isEmpty() && _runQueue.isEmpty() && _deferredQueue.isEmpty();
         }
         if (abortLoops) {
           // Any tasks that are still active have created a reciprocal loop disjoint from the runnable
@@ -499,11 +502,31 @@ public final class DependencyGraphBuilder implements Cancelable {
    * @return true if there is more work still to do, false if all the work is done
    */
   protected boolean buildGraph(final GraphBuildingContext context) {
-    final ContextRunnable task = _runQueue.take();
+    ContextRunnable task = _runQueue.take();
     if (task == null) {
-      return false;
+      task = _deferredQueue.poll();
+      if (task == null) {
+        // Nothing runnable and nothing deferred
+        return false;
+      }
     }
-    task.run(context);
+    if (!task.tryRun(context)) {
+      // A concurrency limit was hit. Post the job into the contention buffer and try and take another from the run queue.
+      do {
+        _deferredQueue.add(task);
+        task = _runQueue.take();
+        if (task == null) {
+          // Nothing runnable. Abort as we can't just add the deferred items or we might end up spinning
+          return false;
+        }
+      } while (!task.tryRun(context));
+    }
+    // Reschedule a deferred item. There may be multiple deferred items, but we only release them one at a time as other jobs complete
+    // which may resolve the contention. If the run queue becomes empty they will be taken directly by the code above.
+    task = _deferredQueue.poll();
+    if (task != null) {
+      addToRunQueue(task);
+    }
     _completedSteps.incrementAndGet();
     return true;
   }
@@ -512,6 +535,7 @@ public final class DependencyGraphBuilder implements Cancelable {
    * Tests if the graph has been built or if work is still required. Graphs are only built in the background if additional threads is set to non-zero.
    * 
    * @return true if the graph has been built, false if it is outstanding
+   * @throws CancellationException if the graph build has been canceled
    */
   public boolean isGraphBuilt() {
     synchronized (_buildCompleteLock) {
@@ -519,7 +543,7 @@ public final class DependencyGraphBuilder implements Cancelable {
         if (_cancelled) {
           throw new CancellationException();
         }
-        return _activeJobs.isEmpty() && _runQueue.isEmpty();
+        return _activeJobs.isEmpty() && _runQueue.isEmpty() && _deferredQueue.isEmpty();
       }
     }
   }
@@ -633,7 +657,7 @@ public final class DependencyGraphBuilder implements Cancelable {
           }
         }
         if (allowBackgroundContinuation) {
-          // ... but nothing in the queue for us so take a nap
+          // Nothing in the queue for us so take a nap. There are background threads running and maybe items on the deferred queue.
           s_logger.info("Waiting for background threads");
           Thread.sleep(100);
         } else {
@@ -800,8 +824,8 @@ public final class DependencyGraphBuilder implements Cancelable {
       }
     }
     s_logger.info("Specifications cache = {} tasks for {} specifications", count, _specifications.size());
-    s_logger.info("Production cache = {} resolved values", _resolvedValues.size());
-    s_logger.info("Run queue length = {}, pending resolutions = {}", _runQueue.size(), _pendingRequirements.getValueRequirements().size());
+    s_logger.info("Production cache = {} resolved values, prending requirements = {}", _resolvedValues.size(), _pendingRequirements.getValueRequirements().size());
+    s_logger.info("Run queue length = {}, deferred queue length = {}", _runQueue.size(), _deferredQueue.size());
   }
 
   protected DependencyGraph createDependencyGraph() {
