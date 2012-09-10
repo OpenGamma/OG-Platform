@@ -205,6 +205,7 @@ public class CreditDefaultSwapDefinition {
     ArgumentChecker.notNull(valuationDate, "Valuation date field is null");
 
     // Check the temporal ordering of the input dates (these are the unadjusted dates entered by the user)
+    // Replace with !startdate.isafter etc
     ArgumentChecker.isTrue(startDate.isBefore(valuationDate), "Start date {} must be before valuation date {}", startDate, valuationDate);
     ArgumentChecker.isTrue(startDate.isBefore(effectiveDate), "Start date {} must be before effective date {}", startDate, effectiveDate);
     ArgumentChecker.isTrue(startDate.isBefore(maturityDate), "Start date {} must be before maturity date {}", startDate, maturityDate);
