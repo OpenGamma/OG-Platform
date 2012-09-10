@@ -61,7 +61,7 @@ public class CreditDefaultSwapDefinitionTest {
   private static final ZonedDateTime startDate = DateUtils.getUTCDate(2007, 10, 22);
   private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2007, 10, 23);
   private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2012, 12, 20);
-  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2009, 4, 25);
+  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2008, 10, 22);
 
   private static final ScheduleGenerationMethod scheduleGenerationMethod = ScheduleGenerationMethod.BACKWARD;
   private static final PeriodFrequency couponFrequency = PeriodFrequency.QUARTERLY;
@@ -75,6 +75,37 @@ public class CreditDefaultSwapDefinitionTest {
   private static final double valuationRecoveryRate = 0.40;
   private static final double curveRecoveryRate = 0.40;
   private static final boolean includeAccruedPremium = true;
+
+  // Construct a CDS contract 
+  private static final CreditDefaultSwapDefinition cds = new CreditDefaultSwapDefinition(buySellProtection,
+      protectionBuyer,
+      protectionSeller,
+      referenceEntityTicker,
+      referenceEntityShortName,
+      referenceEntityREDCode,
+      currency,
+      debtSeniority,
+      restructuringClause,
+      compositeRating,
+      impliedRating,
+      sector,
+      region,
+      country,
+      calendar,
+      startDate,
+      effectiveDate,
+      maturityDate,
+      valuationDate,
+      scheduleGenerationMethod,
+      couponFrequency,
+      daycountFractionConvention,
+      businessdayAdjustmentConvention,
+      adjustMaturityDate,
+      notional,
+      parSpread,
+      valuationRecoveryRate,
+      curveRecoveryRate,
+      includeAccruedPremium);
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 

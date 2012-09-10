@@ -98,13 +98,12 @@ public class PresentValueCreditDefaultSwap {
 
     // Get the relevant contract data needed to value the premium leg
 
+    // The date on which we want to calculate the MtM
+    ZonedDateTime valuationDate = cds.getValuationDate();
+
     // Get the notional amount and par CDS spread (in bps, therefore divide by 10,000) to multiply the premium leg by
     double notional = cds.getNotional();
     double parSpread = cds.getParSpread() / 10000.0;
-
-    // get the yield and survival curves
-    //YieldCurve yieldCurve = cds.getYieldCurve();
-    //FlatSurvivalCurve survivalCurve = cds.getSurvivalCurve();
 
     // Get the (flat) hazard rate for this simple curve
     double hazardRate = survivalCurve.getFlatHazardRate();
@@ -120,24 +119,27 @@ public class PresentValueCreditDefaultSwap {
     // Loop through all the elements in the cashflow schedule (note limits of loop)
     for (int i = 1; i < cashflowSchedule.length; i++) {
 
-      // Compute the daycount fraction between this cashflow and the last
-      double dcf = cds.getDayCountFractionConvention().getDayCountFraction(cashflowSchedule[i - 1][0], cashflowSchedule[i][0]);
+      if (valuationDate.isBefore(cashflowSchedule[i][0])) {
 
-      // Calculate the time between the adjusted effective date (time at which surv prob is unity) and the current cashflow
-      double t = TimeCalculator.getTimeBetween(adjustedEffectiveDate, cashflowSchedule[i][0]);
+        // Compute the daycount fraction between this cashflow and the last
+        double dcf = cds.getDayCountFractionConvention().getDayCountFraction(cashflowSchedule[i - 1][0], cashflowSchedule[i][0]);
 
-      // Get the discount factor and survival probability
-      double discountFactor = yieldCurve.getDiscountFactor(t);
-      double survivalProbability = survivalCurve.getSurvivalProbability(hazardRate, t);
+        // Calculate the time between the adjusted effective date (time at which surv prob is unity) and the current cashflow
+        double t = TimeCalculator.getTimeBetween(adjustedEffectiveDate, cashflowSchedule[i][0]);
 
-      presentValuePremiumLeg += dcf * discountFactor * survivalProbability;
+        // Get the discount factor and survival probability
+        double discountFactor = yieldCurve.getDiscountFactor(t);
+        double survivalProbability = survivalCurve.getSurvivalProbability(hazardRate, t);
 
-      // If required, calculate the accrued premium contribution to the overall premium leg
-      if (includeAccruedPremium) {
-        double tPrevious = TimeCalculator.getTimeBetween(cds.getEffectiveDate(), cashflowSchedule[i - 1][0]);
-        double survivalProbabilityPrevious = survivalCurve.getSurvivalProbability(hazardRate, tPrevious);
+        presentValuePremiumLeg += dcf * discountFactor * survivalProbability;
 
-        presentValueAccruedPremium += 0.5 * dcf * discountFactor * (survivalProbabilityPrevious - survivalProbability);
+        // If required, calculate the accrued premium contribution to the overall premium leg
+        if (includeAccruedPremium) {
+          double tPrevious = TimeCalculator.getTimeBetween(cds.getEffectiveDate(), cashflowSchedule[i - 1][0]);
+          double survivalProbabilityPrevious = survivalCurve.getSurvivalProbability(hazardRate, tPrevious);
+
+          presentValueAccruedPremium += 0.5 * dcf * discountFactor * (survivalProbabilityPrevious - survivalProbability);
+        }
       }
     }
 
@@ -171,24 +173,21 @@ public class PresentValueCreditDefaultSwap {
     // Get the recovery rate used for valuation purposes
     double valuationRecoveryRate = cds.getValuationRecoveryRate();
 
-    // get the yield and survival curves
-    //YieldCurve yieldCurve = cds.getYieldCurve();
-    //FlatSurvivalCurve survivalCurve = cds.getSurvivalCurve();
-
     // Get the (flat) hazard rate from the survival curve
     double hazardRate = survivalCurve.getFlatHazardRate();
 
-    // Calculate the protection leg integral between the adjustedEffectiveDate (when protection begins) and maturityDate (when protection ends)
-    ZonedDateTime adjustedEffectiveDate = cashflowSchedule[0][0];
+    // Calculate the protection leg integral between the valuationDate (when protection begins) and maturityDate (when protection ends)
+    ZonedDateTime valuationDate = cds.getValuationDate();
     ZonedDateTime immAdjustedMaturityDate = cashflowSchedule[cashflowSchedule.length - 1][0];
 
     // Calculate the discretisation of the time axis
-    double timeInterval = TimeCalculator.getTimeBetween(adjustedEffectiveDate, immAdjustedMaturityDate);
+    double timeInterval = TimeCalculator.getTimeBetween(valuationDate, immAdjustedMaturityDate);
     int numberOfPartitions = (int) (_numberOfIntegrationSteps * timeInterval + 0.5);
     double epsilon = timeInterval / numberOfPartitions;
 
     // Calculate the integral for the contingent leg
     for (int k = 1; k <= numberOfPartitions; k++) {
+
       double t = k * epsilon;
       double tPrevious = (k - 1) * epsilon;
 
