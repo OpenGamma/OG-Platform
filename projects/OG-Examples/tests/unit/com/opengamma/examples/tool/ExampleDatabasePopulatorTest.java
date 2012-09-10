@@ -41,7 +41,7 @@ public class ExampleDatabasePopulatorTest {
   public void testPortfolioAndDataLoaded() throws Exception {
     DBTestUtils.createTestHsqlDB(CONFIG_RESOURCE_LOCATION);
     
-    if (new ExampleDatabasePopulator().run(AbstractExampleTool.TOOLCONTEXT_EXAMPLE_PROPERTIES) == false) {
+    if (!(new ExampleDatabasePopulator().run(CONFIG_RESOURCE_LOCATION, ToolContext.class))) {
       fail();
     }
     
@@ -83,6 +83,6 @@ public class ExampleDatabasePopulatorTest {
   }
 
   private ToolContext getToolContext() {
-    return ToolContextUtils.getToolContext(CONFIG_RESOURCE_LOCATION);
+    return ToolContextUtils.getToolContext(CONFIG_RESOURCE_LOCATION, ToolContext.class);
   }
 }

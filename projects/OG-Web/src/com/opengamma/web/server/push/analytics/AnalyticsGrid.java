@@ -21,15 +21,15 @@ import com.opengamma.util.ArgumentChecker;
   protected final Map<Integer, V> _viewports = Maps.newHashMap();
 
   /** ID that's passed to listeners when this grid's row and column structure changes. */
-  private final String _gridId;
+  private final String _callbackId;
 
   /**
-   * @param gridId The ID that is passed to listeners when the grid structure changes. This can be any unique value,
+   * @param callbackId The ID that is passed to listeners when the grid structure changes. This can be any unique value,
    * the grid doesn't use it and makes no assumptions about its form.
    */
-  protected AnalyticsGrid(String gridId) {
-    ArgumentChecker.notNull(gridId, "gridId");
-    _gridId = gridId;
+  protected AnalyticsGrid(String callbackId) {
+    ArgumentChecker.notNull(callbackId, "callbackId");
+    _callbackId = callbackId;
   }
 
   /**
@@ -101,6 +101,6 @@ import com.opengamma.util.ArgumentChecker;
    * @return ID that's sent to listeners when the row and column structure of the grid is updated
    */
   /* package */ String getCallbackId() {
-    return _gridId;
+    return _callbackId;
   }
 }

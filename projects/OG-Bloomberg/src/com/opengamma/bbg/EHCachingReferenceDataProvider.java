@@ -39,7 +39,7 @@ public class EHCachingReferenceDataProvider extends AbstractCachingReferenceData
   /**
    * Cache key for reference data.
    */
-  private static final String REFERENCE_DATA_CACHE = "referenceData";
+  /*package*/ static final String REFERENCE_DATA_CACHE = "referenceData";
 
   /**
    * The cache manager.

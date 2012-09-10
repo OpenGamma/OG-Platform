@@ -19,9 +19,7 @@ import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZer
 import com.opengamma.analytics.financial.interestrate.PresentValueInflationCalculator;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
-import com.opengamma.analytics.financial.interestrate.bond.method.BondCapitalIndexedSecurityDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.bond.method.BondCapitalIndexedTransactionDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.market.MarketBundle;
+import com.opengamma.analytics.financial.interestrate.market.MarketDiscountBundle;
 import com.opengamma.analytics.financial.interestrate.market.MarketDataSets;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -41,11 +39,11 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  */
 public class BondCapitalIndexedTransactionDiscountingMethodTest {
 
-  private static final MarketBundle MARKET = MarketDataSets.createMarket1();
-  private static final IndexPrice[] PRICE_INDEXES = MARKET.getPriceIndexes().toArray(new IndexPrice[0]);
-  private static final IndexPrice PRICE_INDEX_USCPI = PRICE_INDEXES[0];
-  private static final String[] ISSUER_NAMES = MARKET.getIssuers().toArray(new String[0]);
-  private static final String ISSUER_US_GOVT = ISSUER_NAMES[1];
+  private static final MarketDiscountBundle MARKET = MarketDataSets.createMarket1();
+  private static final IndexPrice[] PRICE_INDEXES = MarketDataSets.getPriceIndexes();
+  private static final IndexPrice PRICE_INDEX_USCPI = PRICE_INDEXES[2];
+  private static final String[] ISSUER_NAMES = MarketDataSets.getIssuerNames();
+  private static final String ISSUER_US_GOVT = ISSUER_NAMES[0];
   private static final ZonedDateTime PRICING_DATE = DateUtils.getUTCDate(2011, 8, 8);
   private static final BondCapitalIndexedSecurityDiscountingMethod METHOD_BOND_SECURITY = new BondCapitalIndexedSecurityDiscountingMethod();
   private static final BondCapitalIndexedTransactionDiscountingMethod METHOD_BOND_TRANSACTION = new BondCapitalIndexedTransactionDiscountingMethod();

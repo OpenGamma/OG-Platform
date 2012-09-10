@@ -136,7 +136,7 @@ public class SwapFixedCouponMethodTest {
     final YieldAndDiscountCurve curveFunding = CURVES.getCurve(CURVES_NAME[0]);
     // Constant rate
     final double pvbp = METHOD_SWAP.presentValueBasisPoint(SWAP_PAYER, CURVES);
-    double couponEquiv = SwapFixedCouponDiscountingMethod.couponEquivalent(SWAP_PAYER, pvbp, CURVES);
+    double couponEquiv = METHOD_SWAP.couponEquivalent(SWAP_PAYER, pvbp, CURVES);
     assertEquals(RATE, couponEquiv, 1E-10);
     couponEquiv = METHOD_SWAP.couponEquivalent(SWAP_PAYER, CURVES);
     assertEquals(RATE, couponEquiv, 1E-10);

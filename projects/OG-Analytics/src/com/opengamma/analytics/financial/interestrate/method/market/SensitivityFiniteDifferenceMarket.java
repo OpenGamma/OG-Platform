@@ -10,7 +10,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.market.MarketBundle;
+import com.opengamma.analytics.financial.interestrate.market.MarketDiscountBundle;
 import com.opengamma.analytics.financial.interestrate.market.MarketDiscountingTimeDecorated;
 import com.opengamma.analytics.financial.interestrate.market.MarketForwardTimeDecorated;
 import com.opengamma.analytics.financial.interestrate.market.MarketPriceIndexTimeDecorated;
@@ -35,7 +35,7 @@ public class SensitivityFiniteDifferenceMarket {
    * Indicates how the finite difference is computed. Not null
    * @return The array of sensitivity with respect the to the given node times.
    */
-  public static double[] curveSensitivity(final InstrumentDerivative instrument, final MarketBundle market, Currency ccy, double[] nodeTimes, double deltaShift, PricingMarketMethod method,
+  public static double[] curveSensitivity(final InstrumentDerivative instrument, final MarketDiscountBundle market, Currency ccy, double[] nodeTimes, double deltaShift, PricingMarketMethod method,
       final FiniteDifferenceType differenceType) {
     Validate.notNull(instrument, "Instrument");
     Validate.notNull(method, "Method");
@@ -43,7 +43,7 @@ public class SensitivityFiniteDifferenceMarket {
     int nbNode = nodeTimes.length;
     double[] result = new double[nbNode];
     double pv = method.presentValue(instrument, market).getAmount();
-    MarketBundle marketBumped;
+    MarketDiscountBundle marketBumped;
     switch (differenceType) {
       case FORWARD:
         for (int loopnode = 0; loopnode < nbNode; loopnode++) {
@@ -83,11 +83,11 @@ public class SensitivityFiniteDifferenceMarket {
    * @param method The method to compute the present value sensitivity.
    * @return The array of sensitivity with respect the to the given node times.
    */
-  public static double[] curveSensitivity(final InstrumentDerivative instrument, final MarketBundle market, Currency ccy, double[] nodeTimes, double deltaShift, PricingMarketMethod method) {
+  public static double[] curveSensitivity(final InstrumentDerivative instrument, final MarketDiscountBundle market, Currency ccy, double[] nodeTimes, double deltaShift, PricingMarketMethod method) {
     return curveSensitivity(instrument, market, ccy, nodeTimes, deltaShift, method, FiniteDifferenceType.CENTRAL);
   }
 
-  public static double[] curveSensitivity(final InstrumentDerivative instrument, final MarketBundle market, IborIndex index, double[] nodeTimes, double deltaShift, PricingMarketMethod method,
+  public static double[] curveSensitivity(final InstrumentDerivative instrument, final MarketDiscountBundle market, IborIndex index, double[] nodeTimes, double deltaShift, PricingMarketMethod method,
       final FiniteDifferenceType differenceType) {
     Validate.notNull(instrument, "Instrument");
     Validate.notNull(method, "Method");
@@ -95,7 +95,7 @@ public class SensitivityFiniteDifferenceMarket {
     int nbNode = nodeTimes.length;
     double[] result = new double[nbNode];
     double pv = method.presentValue(instrument, market).getAmount();
-    MarketBundle marketBumped;
+    MarketDiscountBundle marketBumped;
     switch (differenceType) {
       case FORWARD:
         for (int loopnode = 0; loopnode < nbNode; loopnode++) {
@@ -124,7 +124,7 @@ public class SensitivityFiniteDifferenceMarket {
     throw new IllegalArgumentException("Can only handle forward, backward and central differencing");
   }
 
-  public static double[] curveSensitivity(final InstrumentDerivative instrument, final MarketBundle market, IndexPrice index, double[] nodeTimes, double deltaShift, PricingMarketMethod method,
+  public static double[] curveSensitivity(final InstrumentDerivative instrument, final MarketDiscountBundle market, IndexPrice index, double[] nodeTimes, double deltaShift, PricingMarketMethod method,
       final FiniteDifferenceType differenceType) {
     Validate.notNull(instrument, "Instrument");
     Validate.notNull(method, "Method");
@@ -132,7 +132,7 @@ public class SensitivityFiniteDifferenceMarket {
     int nbNode = nodeTimes.length;
     double[] result = new double[nbNode];
     double pv = method.presentValue(instrument, market).getAmount();
-    MarketBundle marketBumped;
+    MarketDiscountBundle marketBumped;
     switch (differenceType) {
       case FORWARD:
         for (int loopnode = 0; loopnode < nbNode; loopnode++) {

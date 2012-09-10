@@ -117,7 +117,7 @@ import com.opengamma.util.tuple.Pair;
       CollectionUtils.addIgnoreNull(updatedIds, viewport.updateResults(cache));
     }
     for (DependencyGraphGrid grid : _depGraphs.values()) {
-      updatedIds.addAll(grid.updateResults(cycle, cache));
+      updatedIds.addAll(grid.updateResults(cycle));
     }
     return updatedIds;
   }
@@ -161,7 +161,7 @@ import com.opengamma.util.tuple.Pair;
     String calcConfigName = targetForCell.getFirst();
     ValueSpecification valueSpec = targetForCell.getSecond();
     DependencyGraphGrid grid =
-        DependencyGraphGrid.create(compiledViewDef, valueSpec, calcConfigName, _cycle, _cache, gridId, _targetResolver);
+        DependencyGraphGrid.create(compiledViewDef, valueSpec, calcConfigName, _cycle, gridId, _targetResolver);
     _depGraphs.put(graphId, grid);
   }
 
@@ -249,30 +249,20 @@ import com.opengamma.util.tuple.Pair;
   }
 
   /**
-   * Returns the ID sent to listeners when the row and column structure changes of a dependency graph grid.
-   * @param graphId ID of the dependency graph
-   * @return The ID
-   * @throws DataNotFoundException If no dependency graph exists with the specified ID
-   */
-  /* package */ String getGridId(int graphId) {
-    return getDependencyGraph(graphId).getCallbackId();
-  }
-
-  /**
    * Returns the ID sent to listeners when the data changes in a dependency graph grid viewport.
    * @param graphId ID of the dependency graph
    * @param viewportId ID of the viewport
    * @return The ID
    * @throws DataNotFoundException If no dependency graph and viewport exist with the specified IDs
    */
-  /* package */ String getDataId(int graphId, int viewportId) {
+  /* package */ String getCallbackId(int graphId, int viewportId) {
     return getDependencyGraph(graphId).getViewport(viewportId).getCallbackId();
   }
 
   /**
    * @return The IDs for all depdendency graph grids that are sent to listeners when the grid structure changes
    */
-  /* package */ List<String> getDependencyGraphGridIds() {
+  /* package */ List<String> getDependencyGraphCallbackIds() {
     List<String> gridIds = new ArrayList<String>();
     for (AnalyticsGrid grid : _depGraphs.values()) {
       gridIds.add(grid.getCallbackId());

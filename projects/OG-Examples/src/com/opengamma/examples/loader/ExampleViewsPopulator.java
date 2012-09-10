@@ -29,6 +29,8 @@ import static com.opengamma.examples.tool.ExampleDatabasePopulator.MULTI_CURRENC
 import static com.opengamma.examples.tool.ExampleDatabasePopulator.SWAPTION_PORTFOLIO_NAME;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING;
 
+import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.financial.tool.ToolContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +42,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.examples.tool.AbstractExampleTool;
 import com.opengamma.financial.analytics.model.sabrcube.SABRFunction;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
@@ -62,7 +63,7 @@ import com.opengamma.util.money.Currency;
  * It is designed to run against the HSQLDB example database.
  */
 @Scriptable
-public class ExampleViewsPopulator extends AbstractExampleTool {
+public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
 
   private static final String DEFAULT_CALC_CONFIG = "Default";
   /** Logger. */
@@ -80,7 +81,7 @@ public class ExampleViewsPopulator extends AbstractExampleTool {
    * @param args  the arguments, unused
    */
   public static void main(final String[] args) { // CSIGNORE
-    new ExampleViewsPopulator().initAndRun(args);
+    new ExampleViewsPopulator().initAndRun(args, ToolContext.class);
     System.exit(0);
   }
 

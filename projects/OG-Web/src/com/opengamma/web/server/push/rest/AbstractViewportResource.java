@@ -11,7 +11,6 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.push.analytics.AnalyticsView;
@@ -50,6 +49,5 @@ public abstract class AbstractViewportResource {
   public abstract void delete();
 
   @GET
-  @Path("/") // TODO why is this necessary but it's not on the PUT and DELETE methods?
   public abstract ViewportResults getData();
 }

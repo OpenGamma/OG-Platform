@@ -10,7 +10,8 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.PresentValueInflationCalculator;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
-import com.opengamma.analytics.financial.interestrate.market.MarketBundle;
+import com.opengamma.analytics.financial.interestrate.market.IMarketBundle;
+import com.opengamma.analytics.financial.interestrate.market.MarketDiscountBundle;
 import com.opengamma.analytics.financial.interestrate.method.PricingMarketMethod;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.util.money.CurrencyAmount;
@@ -35,14 +36,14 @@ public final class BondCapitalIndexedTransactionDiscountingMethod implements Pri
    * @param market The market.
    * @return The present value.
    */
-  public CurrencyAmount presentValue(final BondCapitalIndexedTransaction<?> bond, final MarketBundle market) {
+  public CurrencyAmount presentValue(final BondCapitalIndexedTransaction<?> bond, final MarketDiscountBundle market) {
     final CurrencyAmount pvBond = PVIC.visit(bond.getBondTransaction(), market);
     CurrencyAmount pvSettlement = PVIC.visit(bond.getBondTransaction().getSettlement(), market).multipliedBy(bond.getQuantity() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional());
     return pvBond.multipliedBy(bond.getQuantity()).plus(pvSettlement);
   }
 
   @Override
-  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final MarketBundle market) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final IMarketBundle market) {
     Validate.isTrue(instrument instanceof BondCapitalIndexedTransaction<?>, "Capital inflation indexed bond.");
     return presentValue((BondCapitalIndexedTransaction<?>) instrument, market);
   }
@@ -54,7 +55,7 @@ public final class BondCapitalIndexedTransactionDiscountingMethod implements Pri
    * @param cleanPriceReal The clean price.
    * @return The present value.
    */
-  public CurrencyAmount presentValueFromCleanPriceReal(final BondCapitalIndexedTransaction<Coupon> bond, final MarketBundle market, final double cleanPriceReal) {
+  public CurrencyAmount presentValueFromCleanPriceReal(final BondCapitalIndexedTransaction<Coupon> bond, final MarketDiscountBundle market, final double cleanPriceReal) {
     Validate.notNull(bond, "Coupon");
     Validate.notNull(market, "Market");
     CurrencyAmount pvBond = METHOD_SECURITY.presentValueFromCleanPriceReal(bond.getBondTransaction(), market, cleanPriceReal);

@@ -17,13 +17,11 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergIdentifierProvider;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.loader.BloombergBulkSecurityLoader;
 import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
 import com.opengamma.bbg.loader.BloombergSecurityLoader;
-import com.opengamma.bbg.tool.BloombergToolContext;
 import com.opengamma.bloombergexample.generator.BloombergExamplePortfolioGeneratorTool;
 import com.opengamma.bloombergexample.loader.CurveNodeHistoricalDataLoader;
 import com.opengamma.bloombergexample.loader.DemoEquityOptionCollarPortfolioLoader;
@@ -31,6 +29,7 @@ import com.opengamma.bloombergexample.loader.ExampleEquityPortfolioLoader;
 import com.opengamma.bloombergexample.loader.ExampleMultiCurrencySwapPortfolioLoader;
 import com.opengamma.bloombergexample.loader.ExampleTimeSeriesRatingLoader;
 import com.opengamma.bloombergexample.loader.ExampleViewsPopulator;
+import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.volatility.surface.FXOptionVolatilitySurfaceConfigPopulator;
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
@@ -40,6 +39,7 @@ import com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider;
 import com.opengamma.financial.timeseries.exchange.ExchangeDataProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
@@ -53,7 +53,12 @@ import com.opengamma.util.money.Currency;
  * It is designed to run against the HSQLDB example database.
  */
 @Scriptable
-public class ExampleDatabasePopulator extends AbstractExampleTool {
+public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContext> {
+
+  /**
+   * Example configuration for tools.
+   */
+  public static final String TOOLCONTEXT_EXAMPLE_PROPERTIES = "classpath:toolcontext/toolcontext-bloombergexample.properties";
 
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabasePopulator.class);
 
@@ -82,7 +87,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
   public static void main(String[] args) { // CSIGNORE
     s_logger.info("Populating example database");
     try {
-      new ExampleDatabasePopulator().initAndRun(args);
+      new ExampleDatabasePopulator().initAndRun(args, TOOLCONTEXT_EXAMPLE_PROPERTIES, null, IntegrationToolContext.class);
     } catch (final Exception e) {
       e.printStackTrace();
     }
@@ -194,7 +199,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
     final Log log = new Log("Loading Futures reference data");
     try {
       SecurityMaster secMaster = getToolContext().getSecurityMaster();
-      ReferenceDataProvider referenceDataProvider = ((BloombergToolContext) getToolContext()).getBloombergReferenceDataProvider();
+      ReferenceDataProvider referenceDataProvider = getToolContext().getBloombergReferenceDataProvider();
       ExchangeDataProvider exchangeDataProvider = new DefaultExchangeDataProvider();
       BloombergBulkSecurityLoader bulkSecurityLoader = new BloombergBulkSecurityLoader(referenceDataProvider, exchangeDataProvider);
       BloombergSecurityLoader securityLoader = new BloombergSecurityLoader(secMaster, bulkSecurityLoader);
@@ -208,14 +213,10 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
   private void loadHistoricalData(Set<ExternalId>... externalIdSets) {
     final Log log = new Log("Loading historical reference data");
     try {
-      if (!(getToolContext() instanceof BloombergToolContext)) {
-        throw new OpenGammaRuntimeException("The " + getClass().getSimpleName() +
-            " requires a tool context which implements " + BloombergToolContext.class.getName());
-      }
       BloombergHistoricalTimeSeriesLoader loader = new BloombergHistoricalTimeSeriesLoader(
           getToolContext().getHistoricalTimeSeriesMaster(),
-          ((BloombergToolContext) getToolContext()).getBloombergHistoricalTimeSeriesSource(),
-          new BloombergIdentifierProvider(((BloombergToolContext) getToolContext()).getBloombergReferenceDataProvider()));
+          getToolContext().getBloombergHistoricalTimeSeriesSource(),
+          new BloombergIdentifierProvider(getToolContext().getBloombergReferenceDataProvider()));
 
       Collection<EquitySecurity> securities = readEquitySecurities();
       for (final EquitySecurity security : securities) {

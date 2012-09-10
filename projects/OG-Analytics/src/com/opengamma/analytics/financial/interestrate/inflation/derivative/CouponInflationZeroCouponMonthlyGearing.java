@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.interestrate.inflation.derivative;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationGearing;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.market.MarketBundle;
+import com.opengamma.analytics.financial.interestrate.market.IMarketBundle;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -110,7 +110,7 @@ public class CouponInflationZeroCouponMonthlyGearing extends CouponInflation imp
   }
 
   @Override
-  public double estimatedIndex(MarketBundle market) {
+  public double estimatedIndex(IMarketBundle market) {
     double estimatedIndex = market.getPriceIndex(getPriceIndex(), _referenceEndTime);
     return estimatedIndex;
   }

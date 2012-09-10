@@ -12,7 +12,7 @@ import com.opengamma.util.money.Currency;
 /**
  * A market bundle decorated for a given discounting curve and a specific time. The (zero-coupon) rate is shifted by the shift provided.
  */
-public class MarketDiscountingTimeDecorated extends MarketBundle {
+public class MarketDiscountingTimeDecorated extends MarketDiscountBundle {
 
   /**
    * The currency for which the discounting curve is decorated.
@@ -34,7 +34,7 @@ public class MarketDiscountingTimeDecorated extends MarketBundle {
    * @param time The time.
    * @param shift The shift.
    */
-  public MarketDiscountingTimeDecorated(MarketBundle market, Currency ccy, double time, double shift) {
+  public MarketDiscountingTimeDecorated(MarketDiscountBundle market, Currency ccy, double time, double shift) {
     super(market);
     Validate.notNull(ccy, "Currency");
     _ccy = ccy;
@@ -43,12 +43,12 @@ public class MarketDiscountingTimeDecorated extends MarketBundle {
   }
 
   @Override
-  public double getDiscountingFactor(Currency ccy, Double time) {
+  public double getDiscountFactor(Currency ccy, Double time) {
     if ((ccy == _ccy) && (_time == time)) {
-      double rate = -Math.log(super.getDiscountingFactor(ccy, time)) / time;
+      double rate = -Math.log(super.getDiscountFactor(ccy, time)) / time;
       return Math.exp(-(rate + _shift) * time);
     }
-    return super.getDiscountingFactor(ccy, time);
+    return super.getDiscountFactor(ccy, time);
   }
 
 }

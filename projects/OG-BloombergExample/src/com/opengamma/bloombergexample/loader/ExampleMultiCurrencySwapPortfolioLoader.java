@@ -20,13 +20,14 @@ import javax.time.calendar.LocalTime;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.integration.tool.IntegrationToolContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergIdentifierProvider;
 import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
-import com.opengamma.bloombergexample.tool.AbstractExampleTool;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
@@ -70,7 +71,7 @@ import com.opengamma.util.tuple.Triple;
  * It is designed to run against the HSQLDB example database.
  */
 @Scriptable
-public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractExampleTool {
+public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractTool<IntegrationToolContext> {
 
   /**
    * Logger.
@@ -114,8 +115,8 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractExampleTool
    * @param args  the arguments, unused
    */
   public static void main(String[] args) {  // CSIGNORE
-    new ExampleTimeSeriesRatingLoader().initAndRun(args);
-    new ExampleMultiCurrencySwapPortfolioLoader().initAndRun(args);
+    new ExampleTimeSeriesRatingLoader().initAndRun(args, IntegrationToolContext.class);
+    new ExampleMultiCurrencySwapPortfolioLoader().initAndRun(args, IntegrationToolContext.class);
     System.exit(0);
   }
 
@@ -177,8 +178,8 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractExampleTool
 
     BloombergHistoricalTimeSeriesLoader loader = new BloombergHistoricalTimeSeriesLoader(
       getToolContext().getHistoricalTimeSeriesMaster(),
-      getBloombergToolContext().getBloombergHistoricalTimeSeriesSource(),
-      new BloombergIdentifierProvider(getBloombergToolContext().getBloombergReferenceDataProvider()));
+      getToolContext().getBloombergHistoricalTimeSeriesSource(),
+      new BloombergIdentifierProvider(getToolContext().getBloombergReferenceDataProvider()));
     loader.addTimeSeries(externalIds, "CMPL", "PX_LAST", LocalDate.now().minusYears(1), LocalDate.now());
   }
 

@@ -16,6 +16,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentManager;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.util.ArgumentChecker;
@@ -27,7 +28,7 @@ import com.opengamma.util.LogUtils;
  * The command line tools generally require access to key parts of the infrastructure. These are provided via {@link ToolContext} which is setup and closed by this class using {@link ComponentManager}
  * . Normally the file is named {@code toolcontext.ini}.
  */
-public abstract class AbstractTool {
+public abstract class AbstractTool<T extends ToolContext> {
   
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractTool.class);
   /**
@@ -47,9 +48,9 @@ public abstract class AbstractTool {
    */
   private CommandLine _commandLine;
   /**
-   * The tool context.
+   * The tool contexts.
    */
-  private ToolContext _toolContext;
+  private T[] _toolContexts;
 
   /**
    * Initializes the tool statically.
@@ -100,10 +101,11 @@ public abstract class AbstractTool {
    * h/help - prints the help tool<br />
    * 
    * @param args the command-line arguments, not null
+   * @param toolContextClass the type of tool context to create, should match the generic type argument
    * @return true if successful, false otherwise
    */
-  public boolean initAndRun(String[] args) {
-    return initAndRun(args, null, null);
+  public boolean initAndRun(String[] args, Class<? extends T> toolContextClass) {
+    return initAndRun(args, null, null, toolContextClass);
   }
 
   /**
@@ -117,9 +119,11 @@ public abstract class AbstractTool {
    * @param args the command-line arguments, not null
    * @param defaultConfigResource the default configuration resource location, null if mandatory on command line
    * @param defaultLogbackResource the default logback resource, null to use tool-logback.xml as the default
+   * @param toolContextClass the type of tool context to create, should match the generic type argument
    * @return true if successful, false otherwise
    */
-  public boolean initAndRun(String[] args, String defaultConfigResource, String defaultLogbackResource) {
+  public boolean initAndRun(String[] args, String defaultConfigResource, String defaultLogbackResource,
+                            Class<? extends T> toolContextClass) {
     ArgumentChecker.notNull(args, "args");
 
     Options options = createOptions(defaultConfigResource == null);
@@ -138,9 +142,11 @@ public abstract class AbstractTool {
     }
     String logbackResource = line.getOptionValue(LOGBACK_RESOURCE_OPTION);
     logbackResource = StringUtils.defaultIfEmpty(logbackResource, getDefaultLogbackConfiguration());
-    String configResource = line.getOptionValue(CONFIG_RESOURCE_OPTION);
-    configResource = StringUtils.defaultString(configResource, defaultConfigResource);
-    return init(logbackResource) && run(configResource);
+    String[] configResources = line.getOptionValues(CONFIG_RESOURCE_OPTION);
+    if (configResources.length == 0) {
+     configResources = new String[] {defaultConfigResource};
+    }
+    return init(logbackResource) && run(configResources, toolContextClass);
   }
 
   /**
@@ -149,23 +155,43 @@ public abstract class AbstractTool {
    * This starts the tool context and calls {@link #run(ToolContext)}. This will catch exceptions and print a stack trace.
    * 
    * @param configResource the config resource location, not null
+   * @param toolContextClass the type of tool context to create, should match the generic type argument
    * @return true if successful
    */
-  public final boolean run(String configResource) {
+  public final boolean run(String configResource, Class<? extends T> toolContextClass) {
+    return run(new String[] {configResource}, toolContextClass);
+  }
+
+  /**
+   * Runs the tool.
+   * <p>
+   * This starts the tool contexts and calls {@link #run(ToolContexts)}. This will catch exceptions and print a stack trace.
+   *
+   * @param configResources the config resource locations for multiple tool contexts, not null
+   * @param toolContextClass the type of tool context to create, should match the generic type argument
+   * @return true if successful
+   */
+  public final boolean run(String[] configResources, Class<? extends T> toolContextClass) {
     try {
-      ArgumentChecker.notNull(configResource, "configResourceLocation");
-      s_logger.info("Starting {}", getClass().getSimpleName());
-      ToolContext toolContext = ToolContextUtils.getToolContext(configResource);
-      s_logger.info("Running {}", getClass().getSimpleName());
-      run(toolContext);
-      s_logger.info("Finished {}", getClass().getSimpleName());
+      ArgumentChecker.notEmpty(configResources, "configResources");
+      s_logger.info("Starting " + getClass().getSimpleName());
+      ToolContext[] toolContexts = new ToolContext[configResources.length];
+      for (int i = 0; i < configResources.length; i++) {
+        s_logger.info("Populating tool context " + (i + 1) + " of " + configResources.length + "...");
+        toolContexts[i] = ToolContextUtils.getToolContext(configResources[i], toolContextClass);
+      }
+      s_logger.info("Running " + getClass().getSimpleName());
+      run((T[]) toolContexts);
+      s_logger.info("Finished " + getClass().getSimpleName());
       return true;
     } catch (Exception ex) {
       ex.printStackTrace();
       return false;
     } finally {
-      if (_toolContext != null) {
-        _toolContext.close();
+      for (ToolContext toolContext : _toolContexts) {
+        if (toolContext != null) {
+          toolContext.close();
+        }
       }
     }
   }
@@ -178,8 +204,20 @@ public abstract class AbstractTool {
    * @param toolContext the tool context, not null
    * @throws RuntimeException if an error occurs
    */
-  public final void run(ToolContext toolContext) {
-    _toolContext = toolContext;
+  public final void run(T toolContext) {
+    run((T[]) new ToolContext[] {toolContext});
+  }
+
+  /**
+   * Runs the tool, calling {@code doRun}.
+   * <p>
+   * This will catch not handle exceptions, but will convert checked exceptions to unchecked.
+   *
+   * @param toolContexts the tool contexts, not null or empty
+   * @throws RuntimeException if an error occurs
+   */
+  public final void run(T[] toolContexts) {
+    _toolContexts = toolContexts;
     try {
       doRun();
     } catch (RuntimeException ex) {
@@ -199,12 +237,38 @@ public abstract class AbstractTool {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the tool context.
+   * Gets the (first) tool context.
    * 
    * @return the context, not null during {@code doRun}
    */
-  protected ToolContext getToolContext() {
-    return _toolContext;
+  protected T getToolContext() {
+    return getToolContext(0);
+  }
+
+   //-------------------------------------------------------------------------
+  /**
+   * Gets the i-th tool context.
+   *
+   * @param i the index of the tool context to retrieve
+   * @return the i-th context, not null during {@code doRun}
+   */
+  protected T getToolContext(int i) {
+    ArgumentChecker.notNegative(i, "ToolContext index");
+    if (getToolContexts().length > i) {
+      return getToolContexts()[i];
+    } else {
+      throw new OpenGammaRuntimeException("ToolContext " + i + " does not exist");
+    }
+  }
+
+   //-------------------------------------------------------------------------
+  /**
+   * Gets all tool contexts.
+   *
+   * @return the array of contexts, not null or empty during {@code doRun}
+   */
+  protected T[] getToolContexts() {
+    return _toolContexts;
   }
 
   /**

@@ -20,6 +20,8 @@ import java.util.Map;
 
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.financial.tool.ToolContext;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.slf4j.Logger;
@@ -29,7 +31,6 @@ import au.com.bytecode.opencsv.CSVReader;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.examples.tool.AbstractExampleTool;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.GICSCode;
 import com.opengamma.id.ExternalId;
@@ -54,7 +55,7 @@ import com.opengamma.util.money.Currency;
  * It is designed to run against the HSQLDB example database.
  */
 @Scriptable
-public class ExampleEquityPortfolioLoader extends AbstractExampleTool {
+public class ExampleEquityPortfolioLoader extends AbstractTool<ToolContext> {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleEquityPortfolioLoader.class);
@@ -86,7 +87,7 @@ public class ExampleEquityPortfolioLoader extends AbstractExampleTool {
    * @param args  the arguments, unused
    */
   public static void main(String[] args) {  // CSIGNORE
-    new ExampleEquityPortfolioLoader().initAndRun(args);
+    new ExampleEquityPortfolioLoader().initAndRun(args, ToolContext.class);
     System.exit(0);
   }
 

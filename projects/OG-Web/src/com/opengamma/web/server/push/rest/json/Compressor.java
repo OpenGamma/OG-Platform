@@ -7,20 +7,26 @@ package com.opengamma.web.server.push.rest.json;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.apache.commons.codec.binary.Base64InputStream;
 import org.apache.commons.codec.binary.Base64OutputStream;
+import org.json.JSONObject;
+
+import com.google.common.collect.ImmutableMap;
 
 /**
  * REST endpoint for compressing and decompressing the state of the web UI using GZIP and encoding it using base64.
@@ -29,27 +35,37 @@ import org.apache.commons.codec.binary.Base64OutputStream;
 public class Compressor {
 
   /**
-   * Compresses the request body using GZIP, encodes it to base64 and writes it to the response body.
-   * @param request The request whose body need to be compressed
-   * @param response The response whose body is the GZIPped and base64 encoded version of the request body
+   * Compresses the "content" parameter using GZIP, encodes it to base64 and returns it wrapped in a JSON object
+   * with the key "data".
+   * @param content The content that needs to be compressed
+   * @return Response containing JSON with the compressed content keyed with "data"
    * @throws IOException If compression fails
    */
   @POST
   @Path("compress")
-  public void compress(@Context HttpServletRequest request, @Context HttpServletResponse response) throws IOException {
-    compressStream(request.getInputStream(), response.getOutputStream());
+  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  public Response compress(@FormParam("content") String content) throws IOException {
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    compressStream(new ByteArrayInputStream(content.getBytes()), outputStream);
+    ImmutableMap<String, String> data = ImmutableMap.of("data", outputStream.toString());
+    return Response.status(Response.Status.OK).entity(new JSONObject(data).toString()).build();
   }
 
   /**
-   * Decodes the request body from base64 and decompresses it using GZIP.
-   * @param request A request with a base64 encoded GZIPped body
-   * @param response The response whose body unzipped decoded content of the request
+   * Decodes the "content" parameter from base64, decompresses it using GZIP and returns it wrapped in a JSON object
+   * with the key "data".
+   * @param content The content that needs to be decompressed
+   * @return Response containing JSON with the decompressed content keyed with "data"
    * @throws IOException If decompression fails
    */
   @POST
   @Path("decompress")
-  public void decompress(@Context HttpServletRequest request, @Context HttpServletResponse response) throws IOException {
-    decompressStream(request.getInputStream(), response.getOutputStream());
+  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  public Response decompress(@FormParam("content") String content) throws IOException {
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    decompressStream(new ByteArrayInputStream(content.getBytes()), outputStream);
+    String data = "{\"data\":" + outputStream.toString() + "}";
+    return Response.status(Response.Status.OK).entity(data).build();
   }
 
   /* package */ static void compressStream(InputStream inputStream, OutputStream outputStream) throws IOException {

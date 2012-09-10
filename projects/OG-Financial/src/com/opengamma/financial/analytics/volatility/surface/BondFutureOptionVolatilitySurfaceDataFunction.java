@@ -114,10 +114,8 @@ public class BondFutureOptionVolatilitySurfaceDataFunction extends AbstractFunct
       if (volSurface != null) {
         return Collections.singleton(new ComputedValue(spec, volSurface));
       }
-      return Collections.emptySet();
-    } else {
-      throw new OpenGammaRuntimeException("Encountered an unexpected surfaceQuoteUnits. Valid values are found in SurfaceAndCubePropertyNames as VolatilityQuote or PriceQuote.");
     }
+    throw new OpenGammaRuntimeException("Encountered an unexpected surfaceQuoteUnits. Valid values are found in SurfaceAndCubePropertyNames as VolatilityQuote or PriceQuote.");
   }
 
   @Override
@@ -219,46 +217,42 @@ public class BondFutureOptionVolatilitySurfaceDataFunction extends AbstractFunct
     final DoubleArrayList txList = new DoubleArrayList();
     final DoubleArrayList kList = new DoubleArrayList();
     final LocalDate today = now.toLocalDate();
+    final Double[] futureExpiries = futurePrices.getXData();
+    final int nFutures = futureExpiries.length;
+    if (nFutures == 0) {
+      throw new OpenGammaRuntimeException("No future prices found for surface : " + specification.getName());
+    }
     for (final Number x : optionPrices.getXs()) {
       // Loop over option expiries
-      final Double optionTtm = TimeCalculator.getTimeBetween(today, expiryCalculator.getExpiryDate(0, today, calendar));
-      // Get the corresponding future, which may not share the same expiries as the option itself
-      final Double[] futureExpiries = futurePrices.getXData();
-      final int nFutures = futureExpiries.length;
-      if (nFutures == 0) {
-        s_logger.info("No future prices found for surface : " + specification.getName());
-        return null;
+      final int nFutureOption = x.intValue();
+      final LocalDate futureOptionExpiryDate = expiryCalculator.getExpiryDate(nFutureOption, today, calendar);
+      final Double optionExpiry = TimeCalculator.getTimeBetween(today, futureOptionExpiryDate);
+      int nFuture = 0;
+      while (optionExpiry > futureExpiries[nFuture]) {
+        nFuture++;
       }
-      Double underlyingExpiry;
-      int i = 0;
-      do {
-        underlyingExpiry = futureExpiries[i++];
-      } while (underlyingExpiry < optionTtm && i < nFutures);
-
-      if (underlyingExpiry < optionTtm) {
-        s_logger.info("Requesting an option price where the underlying future price isn't available. "
-            + "Either there are too many expiries in VolatilitySurfaceDefinition or too few in the corresponding FuturePriceCurveDefinition");
-
-      } else {
-        final Double forward = futurePrices.getYValue(underlyingExpiry);
-        // Loop over strikes
-        for (final Double y : optionPrices.getYs()) {
-          final Double price = optionPrices.getVolatility(x, y);
-          if (price != null) {
-            try {
-
-              // Compute the Black volatility implied from the option price
-              final double volatility = getVolatility(surfaceQuoteType, y / 100.0, price, forward, optionTtm, callAboveStrike / 100.);
-              if (!CompareUtils.closeEquals(volatility, 0.0)) {
-                txList.add(optionTtm);
-                kList.add(y / 100.0);
-                volatilityValues.put(Pair.of(optionTtm, y / 100.), volatility);
-              }
-            } catch (final MathException e) {
-              s_logger.info("Could not imply volatility for ({}, {}); error was {}", new Object[] {x, y, e.getMessage() });
-            } catch (final IllegalArgumentException e) {
-              s_logger.info("Could not imply volatility for ({}, {}); error was {}", new Object[] {x, y, e.getMessage() });
+      final Double forward = futurePrices.getYValue(futureExpiries[nFuture]);
+      // Loop over strikes
+      for (final Double y : optionPrices.getYs()) {
+        final Double price = optionPrices.getVolatility(x, y);
+        if (price != null) {
+          try {
+            final boolean isCall = y > callAboveStrike ? true : false;
+            double volatility;
+            if (forward > 60) { //TODO quick hack to allow use of PX_SETTLE
+              volatility = getVolatility(surfaceQuoteType, y / 100.0, price / 100, forward / 100, optionExpiry, isCall);
+            } else {
+              volatility = getVolatility(surfaceQuoteType, y / 100.0, price, forward, optionExpiry, isCall);
             }
+            if (!CompareUtils.closeEquals(volatility, 0.0)) {
+              txList.add(optionExpiry);
+              kList.add(y / 100.0);
+              volatilityValues.put(Pair.of(optionExpiry, y / 100.), volatility);
+            }
+          } catch (final MathException e) {
+            s_logger.info("Could not imply volatility for ({}, {}); error was {}", new Object[] {x, y, e.getMessage() });
+          } catch (final IllegalArgumentException e) {
+            s_logger.error("Could not imply volatility for future option number={}, strike={}; error was {}", new Object[] {x, y, e.getMessage() });
           }
         }
       }
@@ -284,7 +278,7 @@ public class BondFutureOptionVolatilitySurfaceDataFunction extends AbstractFunct
     return futurePrices;
   }
 
-  private static double getVolatility(final String surfaceQuoteType, final double strike, final double price, final double forward, final double t, final Double callAboveStrike) {
+  private static double getVolatility(final String surfaceQuoteType, final double strike, final double price, final double forward, final double t, final boolean isCall) {
     if (surfaceQuoteType.equals(SurfaceAndCubeQuoteType.CALL_STRIKE)) {
       return BlackFormulaRepository.impliedVolatility(price, forward, strike, t, true);
     }
@@ -292,10 +286,7 @@ public class BondFutureOptionVolatilitySurfaceDataFunction extends AbstractFunct
       return BlackFormulaRepository.impliedVolatility(price, forward, strike, t, false);
     }
     if (surfaceQuoteType.equals(SurfaceAndCubeQuoteType.CALL_AND_PUT_STRIKE)) {
-      if (callAboveStrike == null) {
-        throw new OpenGammaRuntimeException("No value specified for useCallAboveStrikeValue in VolatilitySurfaceSpecification. See Configuration.");
-      }
-      return BlackFormulaRepository.impliedVolatility(price, forward, strike, t, callAboveStrike);
+      return BlackFormulaRepository.impliedVolatility(price, forward, strike, t, isCall);
     }
     throw new OpenGammaRuntimeException("Cannot handle surface quote type " + surfaceQuoteType);
   }

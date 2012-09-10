@@ -12,7 +12,7 @@ import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 /**
  * A market bundle decorated for a given price index curve and a specific time. The price index is shifted by the shift provided.
  */
-public class MarketPriceIndexTimeDecorated extends MarketBundle {
+public class MarketPriceIndexTimeDecorated extends MarketDiscountBundle {
 
   /**
    * The Price index for which the market is decorated.
@@ -34,7 +34,7 @@ public class MarketPriceIndexTimeDecorated extends MarketBundle {
    * @param time The time.
    * @param shift The shift.
    */
-  public MarketPriceIndexTimeDecorated(MarketBundle market, IndexPrice index, double time, double shift) {
+  public MarketPriceIndexTimeDecorated(MarketDiscountBundle market, IndexPrice index, double time, double shift) {
     super(market);
     Validate.notNull(index, "Index");
     _index = index;

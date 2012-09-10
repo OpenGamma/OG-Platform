@@ -16,6 +16,8 @@ import java.util.Collections;
 
 import javax.time.calendar.LocalDate;
 
+import net.sf.ehcache.CacheManager;
+
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -48,9 +50,10 @@ public class EHCachingMasterHolidaySourceTest {
 
   @BeforeMethod
   public void setUp() throws Exception {
-    EHCacheUtils.clearAll();
     _underlyingHolidayMaster = mock(HolidayMaster.class);
-    _cachingHolidaySource = new EHCachingMasterHolidaySource(_underlyingHolidayMaster, EHCacheUtils.createCacheManager());
+    CacheManager cm = EHCacheUtils.createCacheManager();
+    EHCacheUtils.clear(cm, EHCachingMasterHolidaySource.HOLIDAY_CACHE);
+    _cachingHolidaySource = new EHCachingMasterHolidaySource(_underlyingHolidayMaster, cm);
   }
 
   //-------------------------------------------------------------------------

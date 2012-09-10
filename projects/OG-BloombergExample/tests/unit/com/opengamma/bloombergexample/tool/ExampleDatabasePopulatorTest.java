@@ -8,6 +8,7 @@ package com.opengamma.bloombergexample.tool;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
+import com.opengamma.integration.tool.IntegrationToolContext;
 import org.testng.annotations.Test;
 
 import com.opengamma.bloombergexample.DBTestUtils;
@@ -25,7 +26,7 @@ import com.opengamma.master.portfolio.PortfolioSearchResult;
 public class ExampleDatabasePopulatorTest {
 
   private static final String CONFIG_RESOURCE_LOCATION = "classpath:toolcontext/toolcontext-bloombergexample.properties";
-  
+
 //  @BeforeMethod
 //  public void setUp() throws IOException {
 //    DBTestUtils.createHsqlDB(CONFIG_RESOURCE_LOCATION);
@@ -41,9 +42,9 @@ public class ExampleDatabasePopulatorTest {
     for (int i = 0; i < 2; i++) {
       DBTestUtils.createHsqlDB(CONFIG_RESOURCE_LOCATION);
       
-      new ExampleDatabasePopulator().run(AbstractExampleTool.TOOLCONTEXT_EXAMPLE_PROPERTIES);
+      new ExampleDatabasePopulator().run(CONFIG_RESOURCE_LOCATION, IntegrationToolContext.class);
       
-      ToolContext toolContext = getToolContext();
+      IntegrationToolContext toolContext = getToolContext();
       try {
         assertEquityPortfolio(toolContext);
         assertMultiCurrencySwapPortfolio(toolContext);
@@ -57,12 +58,12 @@ public class ExampleDatabasePopulatorTest {
     }
   }
 
-  private void assertMultiCurrencySwapPortfolio(ToolContext toolContext) {
+  private void assertMultiCurrencySwapPortfolio(IntegrationToolContext toolContext) {
     PortfolioMaster portfolioMaster = toolContext.getPortfolioMaster();
     assertPortfolio(portfolioMaster, ExampleMultiCurrencySwapPortfolioLoader.PORTFOLIO_NAME);
   }
 
-  private void assertEquityPortfolio(ToolContext toolContext) {
+  private void assertEquityPortfolio(IntegrationToolContext toolContext) {
     PortfolioMaster portfolioMaster = toolContext.getPortfolioMaster();
     assertPortfolio(portfolioMaster, ExampleEquityPortfolioLoader.PORTFOLIO_NAME);
   }
@@ -75,7 +76,7 @@ public class ExampleDatabasePopulatorTest {
     assertEquals(1, portfolioSearchResult.getDocuments().size());
   }
 
-  private ToolContext getToolContext() {
-    return ToolContextUtils.getToolContext(CONFIG_RESOURCE_LOCATION);
+  private IntegrationToolContext getToolContext() {
+    return (IntegrationToolContext) ToolContextUtils.getToolContext(CONFIG_RESOURCE_LOCATION, IntegrationToolContext.class);
   }
 }

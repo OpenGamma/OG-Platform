@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import net.sf.ehcache.CacheManager;
+
 import org.fudgemsg.FudgeMsg;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -44,13 +46,13 @@ public class EHCachingReferenceDataProviderTest {
 
   @BeforeMethod
   public void setUp(Method m) {
-    EHCacheUtils.clearAll();
-    
     _underlyingProvider = new MockReferenceDataProvider();
     _unitProvider = new UnitTestingReferenceDataProvider(_underlyingProvider);
+    CacheManager cm = EHCacheUtils.createCacheManager();
+    EHCacheUtils.clear(cm, EHCachingReferenceDataProvider.REFERENCE_DATA_CACHE);
     _cachingProvider = new EHCachingReferenceDataProvider(
         _unitProvider, 
-        EHCacheUtils.createCacheManager(), 
+        cm, 
         OpenGammaFudgeContext.getInstance());
   }
 

@@ -5,15 +5,14 @@
  */
 package com.opengamma.analytics.financial.interestrate.market;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
  * A market bundle decorated for a given discounting curve.
  */
-public class MarketDiscountingDecorated extends MarketBundle {
+public class MarketDiscountingDecorated extends MarketDiscountBundle {
 
   /**
    * The currency for which the discounting curve is decorated.
@@ -30,20 +29,20 @@ public class MarketDiscountingDecorated extends MarketBundle {
    * @param ccy The currency for which the discounting curve will be decorated.
    * @param curve The replacing curve for the discounting.
    */
-  public MarketDiscountingDecorated(MarketBundle market, Currency ccy, YieldAndDiscountCurve curve) {
+  public MarketDiscountingDecorated(MarketDiscountBundle market, Currency ccy, YieldAndDiscountCurve curve) {
     super(market);
-    Validate.notNull(ccy, "Currency");
-    Validate.notNull(curve, "Curve");
+    ArgumentChecker.notNull(ccy, "Currency");
+    ArgumentChecker.notNull(curve, "Curve");
     _ccy = ccy;
     _curve = curve;
   }
 
   @Override
-  public double getDiscountingFactor(Currency ccy, Double time) {
+  public double getDiscountFactor(Currency ccy, Double time) {
     if (ccy == _ccy) {
       return _curve.getDiscountFactor(time);
     }
-    return super.getDiscountingFactor(ccy, time);
+    return super.getDiscountFactor(ccy, time);
   }
 
   @Override

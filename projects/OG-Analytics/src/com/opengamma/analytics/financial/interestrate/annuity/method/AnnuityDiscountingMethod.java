@@ -58,4 +58,20 @@ public final class AnnuityDiscountingMethod {
     return pv;
   }
 
+  /**
+   * Computes the present value of an annuity of fixed coupons with positive notional (abs(notional) is used for each coupon).
+   * @param annuity The annuity.
+   * @param curves The curve bundle.
+   * @return The present value.
+   */
+  public CurrencyAmount presentValuePositiveNotional(final AnnuityCouponFixed annuity, final YieldCurveBundle curves) {
+    Validate.notNull(curves);
+    Validate.notNull(annuity);
+    CurrencyAmount pv = CurrencyAmount.of(annuity.getCurrency(), 0);
+    for (final CouponFixed cpn : annuity.getPayments()) {
+      pv = pv.plus(METHOD_CPN_FIXED.presentValuePositiveNotional(cpn, curves));
+    }
+    return pv;
+  }
+
 }

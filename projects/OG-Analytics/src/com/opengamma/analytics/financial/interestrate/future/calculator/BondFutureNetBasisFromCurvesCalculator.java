@@ -31,6 +31,6 @@ public final class BondFutureNetBasisFromCurvesCalculator extends AbstractInstru
     Validate.notNull(bondFuture, "bond future");
     Validate.notNull(curves, "curves");
     final double futurePrice = CALCULATOR.price(bondFuture, curves);
-    return CALCULATOR.netBasisFromCurves(bondFuture, curves, futurePrice);
+    return CALCULATOR.netBasisAllBonds(bondFuture, curves, futurePrice);
   }
 }
