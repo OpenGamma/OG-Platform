@@ -5,6 +5,9 @@
  */
 package com.opengamma.bbg;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
@@ -50,19 +53,19 @@ public class EHCachingReferenceDataProvider extends AbstractCachingReferenceData
   /**
    * Creates an instance.
    * 
-   * @param underlying  the underlying reference data provider, not null
-   * @param cacheManager  the cache manager, not null
+   * @param underlying the underlying reference data provider, not null
+   * @param cacheManager the cache manager, not null
    */
   public EHCachingReferenceDataProvider(final ReferenceDataProvider underlying, final CacheManager cacheManager) {
-    this(underlying, cacheManager, OpenGammaFudgeContext.getInstance());    
+    this(underlying, cacheManager, OpenGammaFudgeContext.getInstance());
   }
 
   /**
    * Creates an instance.
    * 
-   * @param underlying  the underlying reference data provider, not null
-   * @param cacheManager  the cache manager, not null
-   * @param fudgeContext  the Fudge context, not null
+   * @param underlying the underlying reference data provider, not null
+   * @param cacheManager the cache manager, not null
+   * @param fudgeContext the Fudge context, not null
    */
   public EHCachingReferenceDataProvider(final ReferenceDataProvider underlying, final CacheManager cacheManager, final FudgeContext fudgeContext) {
     super(underlying, fudgeContext);
@@ -87,7 +90,7 @@ public class EHCachingReferenceDataProvider extends AbstractCachingReferenceData
   protected void persistSecurityFields(PerSecurityReferenceDataResult securityResult) {
     String securityKey = securityResult.getSecurity();
     FudgeMsg fieldData = securityResult.getFieldData();
-    
+
     if (securityKey != null && fieldData != null) {
       s_logger.info("Persisting fields for \"{}\": {}", securityKey, securityResult.getFieldData());
       CachedPerSecurityReferenceDataResult cachedObject = createCachedObject(securityResult);
@@ -114,8 +117,8 @@ public class EHCachingReferenceDataProvider extends AbstractCachingReferenceData
   /**
    * Loads the state from the cache.
    * 
-   * @param serializer  the Fudge serializer, not null
-   * @param securityKey  the security, not null
+   * @param serializer the Fudge serializer, not null
+   * @param securityKey the security, not null
    * @return the result, null if not found
    */
   protected PerSecurityReferenceDataResult loadStateFromCache(FudgeSerializer serializer, String securityKey) {
@@ -134,36 +137,106 @@ public class EHCachingReferenceDataProvider extends AbstractCachingReferenceData
   /**
    * Data holder for storing the results.
    */
-  private static class CachedPerSecurityReferenceDataResult implements Serializable {
-    /** Serialization. */
-    private static final long serialVersionUID = -822452207625365560L;
-    private String _security;
-    private FudgeMsg _fieldData;
+  private static final class CachedPerSecurityReferenceDataResult implements Serializable {
+
+    private static final long serialVersionUID = 3L;
+
+    private transient String _security;
+
+    private transient FudgeContext _fudgeContext;
+
+    private transient volatile FudgeMsg _fieldDataMsg;
+
+    private transient volatile byte[] _fieldData;
+
+    private byte[] getFieldData() {
+      byte[] fieldData = _fieldData;
+      if (fieldData == null) {
+        synchronized (this) {
+          fieldData = _fieldData;
+          if (fieldData == null) {
+            fieldData = _fudgeContext.toByteArray(_fieldDataMsg);
+            _fieldData = fieldData;
+            _fieldDataMsg = null;
+          }
+        }
+      }
+      return fieldData;
+    }
+
+    private void setFieldData(final byte[] fieldData) {
+      _fieldData = fieldData;
+    }
+
+    public FudgeMsg getFieldDataMsg(final FudgeContext fudgeContext) {
+      FudgeMsg fieldDataMsg = _fieldDataMsg;
+      if (fieldDataMsg == null) {
+        synchronized (this) {
+          fieldDataMsg = _fieldDataMsg;
+          if (fieldDataMsg == null) {
+            _fudgeContext = fudgeContext;
+            fieldDataMsg = fudgeContext.deserialize(_fieldData).getMessage();
+            _fieldDataMsg = fieldDataMsg;
+            _fieldData = null;
+          }
+        }
+      }
+      return _fieldDataMsg;
+    }
+
+    public void setFieldDataMsg(final FudgeMsg fieldDataMsg, final FudgeContext fudgeContext) {
+      _fieldDataMsg = fieldDataMsg;
+      _fudgeContext = fudgeContext;
+    }
+
+    public void setSecurity(final String security) {
+      _security = security;
+    }
+
+    public String getSecurity() {
+      return _security;
+    }
+
+    private void writeObject(final ObjectOutputStream out) throws IOException {
+      out.writeUTF(getSecurity());
+      final byte[] fieldData = getFieldData();
+      out.writeInt(fieldData.length);
+      out.write(fieldData);
+    }
+
+    private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException {
+      setSecurity(in.readUTF());
+      final int dataLength = in.readInt();
+      final byte[] data = new byte[dataLength];
+      in.readFully(data);
+      setFieldData(data);
+    }
+
   }
 
   //-------------------------------------------------------------------------
   /**
    * Parse the cached object.
    * 
-   * @param fromCache  the data from the cache, not null
+   * @param fromCache the data from the cache, not null
    * @return the result, not null
    */
   private PerSecurityReferenceDataResult parseCachedObject(CachedPerSecurityReferenceDataResult fromCache) {
-    PerSecurityReferenceDataResult result = new PerSecurityReferenceDataResult(fromCache._security);
-    result.setFieldData(fromCache._fieldData);
+    PerSecurityReferenceDataResult result = new PerSecurityReferenceDataResult(fromCache.getSecurity());
+    result.setFieldData(fromCache.getFieldDataMsg(getFudgeContext()));
     return result;
   }
 
   /**
    * Creates the cached object.
    * 
-   * @param refDataResult  the reference data result.
+   * @param refDataResult the reference data result.
    * @return the cache object, not null
    */
   protected CachedPerSecurityReferenceDataResult createCachedObject(PerSecurityReferenceDataResult refDataResult) {
     CachedPerSecurityReferenceDataResult result = new CachedPerSecurityReferenceDataResult();
-    result._security = refDataResult.getSecurity();
-    result._fieldData = getFudgeContext().newMessage(refDataResult.getFieldData());
+    result.setSecurity(refDataResult.getSecurity());
+    result.setFieldDataMsg(getFudgeContext().newMessage(refDataResult.getFieldData()), getFudgeContext());
     return result;
   }
 

@@ -123,6 +123,7 @@ public abstract class AbstractDocumentation implements Runnable {
   private final Map<String, ValueRequirementInfo> _valueRequirementByName = new HashMap<String, ValueRequirementInfo>();
   private final Map<String, List<ValueRequirementInfo>> _valueRequirementByCategory = new HashMap<String, List<ValueRequirementInfo>>();
   private final List<Pair<Pattern, String>> _valuePropertyDescription = new ArrayList<Pair<Pattern, String>>();
+  private int[] _valuePropertyDescriptionUsed;
   private final Map<String, AtomicInteger> _undocumentedProperties = new HashMap<String, AtomicInteger>();
 
   private WikiPageHook _pageHook = getDefaultWikiPageHook();
@@ -374,7 +375,7 @@ public abstract class AbstractDocumentation implements Runnable {
       String section = "UNCLASSIFIED";
       StringBuilder sbJavadoc = null;
       boolean javadoc = false;
-      final Pattern p = Pattern.compile("public\\s+static\\s+final\\s+String\\s+([A-Z_]+)\\s*=\\s*\"(.*?)\"\\s*;\\s*$");
+      final Pattern p = Pattern.compile("public\\s+static\\s+final\\s+String\\s+([A-Z0-9_]+)\\s*=\\s*\"(.*?)\"\\s*;\\s*$");
       while ((s = reader.readLine()) != null) {
         s = s.trim();
         if (s.startsWith("/////")) {
@@ -500,9 +501,9 @@ public abstract class AbstractDocumentation implements Runnable {
         + "the asset class specific pages for further details on additional constraints that can be set when "
         + "constructing views to control the behaviour of the underlying analytics library.\n\n");
     final List<String> securityTypes = new ArrayList<String>(_availableOutputsBySecurityType.keySet());
-    Collections.sort(securityTypes);
+    Collections.sort(securityTypes, String.CASE_INSENSITIVE_ORDER);
     final List<String> valueRequirementNames = new ArrayList<String>(_availableOutputsByName.keySet());
-    Collections.sort(valueRequirementNames);
+    Collections.sort(valueRequirementNames, String.CASE_INSENSITIVE_ORDER);
     sb.append("|| Value Requirement Name");
     for (String securityType : securityTypes) {
       sb.append(" || ");
@@ -594,11 +595,14 @@ public abstract class AbstractDocumentation implements Runnable {
         sbDetail.append("| {anchor:").append(valueName.replace(" ", "")).append('.').append(propertyName.replace(" ", "")).append("} ").append(propertyName).append(" | ");
         // TODO: fetch the description of the property name in the context of this value requirement name & construct any links etc ...
         String s = valueName + "." + propertyName;
+        int i = -1;
         for (Pair<Pattern, String> description : _valuePropertyDescription) {
+          i++;
           final Matcher m = description.getKey().matcher(s);
           if (m.matches()) {
             sbDetail.append(description.getValue());
             s = null;
+            _valuePropertyDescriptionUsed[i]++;
             break;
           }
         }
@@ -693,9 +697,19 @@ public abstract class AbstractDocumentation implements Runnable {
     }
   }
 
+  protected void reportOverdocumentedProperties() {
+    int i = 0;
+    for (Pair<Pattern, String> entry : _valuePropertyDescription) {
+      if (_valuePropertyDescriptionUsed[i++] == 0) {
+        s_logger.warn("Entry {} never used ({})", entry.getFirst().pattern(), entry.getSecond());
+      }
+    }
+  }
+
   @Override
   public void run() {
     s_logger.info("Publishing stored documentation state");
+    _valuePropertyDescriptionUsed = new int[_valuePropertyDescription.size()];
     emitAllValueRequirementNames();
     emitTopLevelRequirementsPage();
     emitSecurityTypePages();

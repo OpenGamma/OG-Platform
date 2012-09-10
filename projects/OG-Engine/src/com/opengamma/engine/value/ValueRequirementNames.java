@@ -245,6 +245,7 @@ public final class ValueRequirementNames {
    * The points that have been included in a fit
    */
   public static final String VOLATILITY_CUBE_FITTED_POINTS = "VolatilityCubeFittedPoints";
+
   ///// Pricing
 
   /**

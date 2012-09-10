@@ -67,11 +67,11 @@ import com.opengamma.util.tuple.Triple;
   }
 
   @Override
-  protected void run(final GraphBuildingContext context) {
+  protected boolean run(final GraphBuildingContext context) {
     if (!getFunctions().hasNext()) {
       s_logger.info("No more functions for {}", getValueRequirement());
       setTaskStateFinished(context);
-      return;
+      return true;
     }
     final Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>> resolvedFunction = getFunctions().next();
     if (getTask().getFunctionExclusion() != null) {
@@ -79,7 +79,7 @@ import com.opengamma.util.tuple.Triple;
       if ((exclusion != null) && getTask().getFunctionExclusion().contains(exclusion)) {
         s_logger.debug("Ignoring {} from exclusion group {}", resolvedFunction, exclusion);
         setRunnableTaskState(this, context);
-        return;
+        return true;
       }
     }
     s_logger.debug("Considering {} for {}", resolvedFunction, getValueRequirement());
@@ -147,11 +147,12 @@ import com.opengamma.util.tuple.Triple;
         }
       }
     }
+    return true;
   }
 
   @Override
   protected boolean isActive() {
-    // Won't do anything unless {@link #run} is called
+    // Won't do anything unless {@link #tryRun} is called
     return false;
   }
 

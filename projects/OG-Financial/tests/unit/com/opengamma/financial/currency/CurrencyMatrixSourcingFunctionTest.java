@@ -47,7 +47,7 @@ public class CurrencyMatrixSourcingFunctionTest {
     _functionExecutionContext = new FunctionExecutionContext();
     _functionCompilationContext = new FunctionCompilationContext();
     final SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix();
-    matrix.setLiveData(_currencyUSD, _currencyGBP, UniqueId.of("LiveData", "USD_GBP"));
+    matrix.setLiveData(_currencyUSD, _currencyGBP, new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, UniqueId.of("LiveData", "USD_GBP")));
     matrix.setFixedConversion(_currencyEUR, _currencyGBP, _rateEUR_GBP);
     matrix.setCrossConversion(_currencyEUR, _currencyUSD, _currencyGBP);
     OpenGammaCompilationContext.setCurrencyMatrixSource(_functionCompilationContext, new CurrencyMatrixSource() {

@@ -537,7 +537,7 @@ import com.opengamma.util.tuple.Triple;
   }
 
   @Override
-  protected void run(final GraphBuildingContext context) {
+  protected boolean run(final GraphBuildingContext context) {
     final FunctionApplicationWorker worker = new FunctionApplicationWorker(getValueRequirement());
     final ResolvedValueProducer producer = context.declareTaskProducing(getResolvedOutput(), getTask(), worker);
     if (producer == worker) {
@@ -561,7 +561,7 @@ import com.opengamma.util.tuple.Triple;
         storeFailure(failure);
         setRunnableTaskState(new NextFunctionStep(getTask(), getFunctions()), context);
         worker.release(context);
-        return;
+        return true;
       }
       final Collection<ValueSpecification> resolvedOutputValues;
       if (getOriginalOutput().equals(getResolvedOutput())) {
@@ -609,6 +609,7 @@ import com.opengamma.util.tuple.Triple;
       producer.addCallback(context, state);
       producer.release(context);
     }
+    return true;
   }
 
   @Override

@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.currency;
 
-import com.opengamma.id.UniqueId;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -74,18 +74,18 @@ public class SimpleCurrencyMatrix extends AbstractCurrencyMatrix {
   /**
    * Sets the matrix to convert two currencies using market data supplied externally, for example a live data provider.
    * 
-   * @param source  the source currency
-   * @param target  the target currency
-   * @param uniqueId  the unique identifier of the external data
+   * @param source the source currency, not null
+   * @param target the target currency, not null
+   * @param valueRequirement the market data requirement, not null
    */
-  public void setLiveData(final Currency source, final Currency target, final UniqueId uniqueId) {
+  public void setLiveData(final Currency source, final Currency target, final ValueRequirement valueRequirement) {
     ArgumentChecker.notNull(source, "source");
     ArgumentChecker.notNull(target, "target");
-    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    ArgumentChecker.notNull(valueRequirement, "valueRequirement");
     if (source.equals(target)) {
       throw new IllegalArgumentException("target");
     }
-    addConversion(source, target, CurrencyMatrixValue.of(uniqueId));
+    addConversion(source, target, CurrencyMatrixValue.of(valueRequirement));
   }
 
 }
