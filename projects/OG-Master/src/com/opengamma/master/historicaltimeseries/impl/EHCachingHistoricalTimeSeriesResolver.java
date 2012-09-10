@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalIdWithDates;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
@@ -136,13 +137,31 @@ public class EHCachingHistoricalTimeSeriesResolver implements HistoricalTimeSeri
     }
   }
 
+  private boolean verifyInDatabase(final String dataSource, final String dataProvider, final String dataField) {
+    final Triple<String, String, String> key = Triple.of(dataSource, dataProvider, dataField);
+    if (_underlying.resolve(null, null, dataSource, dataProvider, dataField, null) != null) {
+      // There is something in the database
+      s_logger.debug("Verified {} in database", key);
+      _cache.put(new Element(key, Boolean.TRUE));
+      return true;
+    } else {
+      // There is nothing in the database for this combination
+      s_logger.debug("Verified {} absent from database", key);
+      _cache.put(new Element(key, null));
+      if (isAutomaticFieldResolutionOptimisation()) {
+        updateAutoFieldResolutionOptimisation();
+      }
+      return false;
+    }
+  }
+
   @Override
   public HistoricalTimeSeriesResolutionResult resolve(final ExternalIdBundle identifierBundle, final LocalDate identifierValidityDate,
       final String dataSource, final String dataProvider, final String dataField, final String resolutionKey) {
     HistoricalTimeSeriesResolutionResult resolveResult;
     boolean knownPresent = false;
     Element e;
-    if (isOptimisticFieldResolution()) {
+    if ((identifierBundle != null) && isOptimisticFieldResolution()) {
       knownPresent = true;
     } else {
       e = _cache.get(Triple.of(dataSource, dataProvider, dataField));
@@ -166,13 +185,21 @@ public class EHCachingHistoricalTimeSeriesResolver implements HistoricalTimeSeri
         s_logger.debug("No lookup information for {}", dataField);
       }
     }
+    if (identifierBundle == null) {
+      if (knownPresent || verifyInDatabase(dataSource, dataProvider, dataField)) {
+        return new HistoricalTimeSeriesResolutionResult(null);
+      } else {
+        return null;
+      }
+    }
+    final String validityDate = (identifierValidityDate != null) ? identifierValidityDate.toString() : "";
     for (ExternalId id : identifierBundle) {
       String key = id.toString() + SEPARATOR +
                 dataField + SEPARATOR +
                 (dataSource != null ? dataSource : "") + SEPARATOR +
                 (dataProvider != null ? dataProvider : "") + SEPARATOR +
                 resolutionKey + SEPARATOR +
-                (identifierValidityDate != null ? identifierValidityDate.toString() : "");
+                validityDate;
       e = _cache.get(key);
       if (e != null) {
         resolveResult = (HistoricalTimeSeriesResolutionResult) e.getObjectValue();
@@ -190,54 +217,51 @@ public class EHCachingHistoricalTimeSeriesResolver implements HistoricalTimeSeri
       }
     }
     if (!knownPresent) {
-      final Triple<String, String, String> key = Triple.of(dataSource, dataProvider, dataField);
-      if (_underlying.resolve(null, null, dataSource, dataProvider, dataField, null) != null) {
-        // There is something in the database
-        s_logger.debug("Verified {} in database", key);
-        _cache.put(new Element(key, Boolean.TRUE));
-        // Fall through to call the underlying again with the actual query
-      } else {
-        // There is nothing in the database for this combination
-        s_logger.debug("Verified {} absent from database", key);
-        _cache.put(new Element(key, null));
-        if (isAutomaticFieldResolutionOptimisation()) {
-          updateAutoFieldResolutionOptimisation();
-        }
+      if (!verifyInDatabase(dataSource, dataProvider, dataField)) {
         return null;
       }
     }
     resolveResult = _underlying.resolve(identifierBundle, identifierValidityDate, dataSource, dataProvider, dataField, resolutionKey);
     if (resolveResult != null) {
       ManageableHistoricalTimeSeriesInfo info = resolveResult.getHistoricalTimeSeriesInfo();
-      for (ExternalId id : info.getExternalIdBundle().toBundle()) {
-        String key = id.toString() + SEPARATOR +
+      for (ExternalIdWithDates id : info.getExternalIdBundle()) {
+        String key;
+        if (id.isValidOn(identifierValidityDate)) {
+          key = id.getExternalId().toString() + SEPARATOR +
+                  dataField + SEPARATOR +
+                  info.getDataSource() + SEPARATOR +
+                  info.getDataProvider() + SEPARATOR +
+                  resolutionKey + SEPARATOR +
+                  validityDate;
+          _cache.put(new Element(key, resolveResult));
+        }
+        if (id.isValidOn(identifierValidityDate)) {
+          key = id.getExternalId().toString() + SEPARATOR +
+                  dataField + SEPARATOR +
+                  SEPARATOR +
+                  info.getDataProvider() + SEPARATOR +
+                  resolutionKey + SEPARATOR +
+                  validityDate;
+          _cache.put(new Element(key, resolveResult));
+        }
+        if (id.isValidOn(identifierValidityDate)) {
+          key = id.getExternalId().toString() + SEPARATOR +
                 dataField + SEPARATOR +
                 info.getDataSource() + SEPARATOR +
-                info.getDataProvider() + SEPARATOR +
-                resolutionKey + SEPARATOR +
-                (identifierValidityDate != null ? identifierValidityDate.toString() : "");
-        _cache.put(new Element(key, resolveResult));
-        key = id.toString() + SEPARATOR +
-                dataField + SEPARATOR +
-                SEPARATOR +
-                info.getDataProvider() + SEPARATOR +
-                resolutionKey + SEPARATOR +
-                (identifierValidityDate != null ? identifierValidityDate.toString() : "");
-        _cache.put(new Element(key, resolveResult));
-        key = id.toString() + SEPARATOR +
-                dataField + SEPARATOR +
-                info.getDataSource() + SEPARATOR +
                 SEPARATOR +
                 resolutionKey + SEPARATOR +
-                (identifierValidityDate != null ? identifierValidityDate.toString() : "");
-        _cache.put(new Element(key, resolveResult));
-        key = id.toString() + SEPARATOR +
+                validityDate;
+          _cache.put(new Element(key, resolveResult));
+        }
+        if (id.isValidOn(identifierValidityDate)) {
+          key = id.getExternalId().toString() + SEPARATOR +
                 dataField + SEPARATOR +
                 SEPARATOR +
                 SEPARATOR +
                 resolutionKey + SEPARATOR +
-                (identifierValidityDate != null ? identifierValidityDate.toString() : "");
-        _cache.put(new Element(key, resolveResult));
+                validityDate;
+          _cache.put(new Element(key, resolveResult));
+        }
       }
       if (isAutomaticFieldResolutionOptimisation()) {
         if (isOptimisticFieldResolution()) {
@@ -248,13 +272,12 @@ public class EHCachingHistoricalTimeSeriesResolver implements HistoricalTimeSeri
     } else {
       // PLAT-2633: Record resolution failures (misses) in the cache as well
       for (ExternalId id : identifierBundle) {
-        String key =
-            id.toString() + SEPARATOR +
+        String key = id.toString() + SEPARATOR +
                 dataField + SEPARATOR +
                 (dataSource != null ? dataSource : "") + SEPARATOR +
                 (dataProvider != null ? dataProvider : "") + SEPARATOR +
                 resolutionKey + SEPARATOR +
-                (identifierValidityDate != null ? identifierValidityDate.toString() : "");
+                validityDate;
         _cache.put(new Element(key, null));
       }
       if (isAutomaticFieldResolutionOptimisation()) {
