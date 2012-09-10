@@ -19,8 +19,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.component.factory.tool.ToolContextComponentFactory;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.integration.tool.IntegrationToolContext;
 
 /**
@@ -34,11 +32,6 @@ public class IntegrationToolContextComponentFactory extends ToolContextComponent
    */
   @PropertyDefinition
   private ReferenceDataProvider _bloombergReferenceDataProvider;
-  /**
-   * The Bloomberg historical time-series source.
-   */
-  @PropertyDefinition
-  private HistoricalTimeSeriesSource _bloombergHistoricalTimeSeriesSource;
 
   //-------------------------------------------------------------------------
   /**
@@ -73,8 +66,6 @@ public class IntegrationToolContextComponentFactory extends ToolContextComponent
     switch (propertyName.hashCode()) {
       case -245204181:  // bloombergReferenceDataProvider
         return getBloombergReferenceDataProvider();
-      case 1652351076:  // bloombergHistoricalTimeSeriesSource
-        return getBloombergHistoricalTimeSeriesSource();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -84,9 +75,6 @@ public class IntegrationToolContextComponentFactory extends ToolContextComponent
     switch (propertyName.hashCode()) {
       case -245204181:  // bloombergReferenceDataProvider
         setBloombergReferenceDataProvider((ReferenceDataProvider) newValue);
-        return;
-      case 1652351076:  // bloombergHistoricalTimeSeriesSource
-        setBloombergHistoricalTimeSeriesSource((HistoricalTimeSeriesSource) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -100,7 +88,6 @@ public class IntegrationToolContextComponentFactory extends ToolContextComponent
     if (obj != null && obj.getClass() == this.getClass()) {
       IntegrationToolContextComponentFactory other = (IntegrationToolContextComponentFactory) obj;
       return JodaBeanUtils.equal(getBloombergReferenceDataProvider(), other.getBloombergReferenceDataProvider()) &&
-          JodaBeanUtils.equal(getBloombergHistoricalTimeSeriesSource(), other.getBloombergHistoricalTimeSeriesSource()) &&
           super.equals(obj);
     }
     return false;
@@ -110,7 +97,6 @@ public class IntegrationToolContextComponentFactory extends ToolContextComponent
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getBloombergReferenceDataProvider());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBloombergHistoricalTimeSeriesSource());
     return hash ^ super.hashCode();
   }
 
@@ -141,31 +127,6 @@ public class IntegrationToolContextComponentFactory extends ToolContextComponent
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the Bloomberg historical time-series source.
-   * @return the value of the property
-   */
-  public HistoricalTimeSeriesSource getBloombergHistoricalTimeSeriesSource() {
-    return _bloombergHistoricalTimeSeriesSource;
-  }
-
-  /**
-   * Sets the Bloomberg historical time-series source.
-   * @param bloombergHistoricalTimeSeriesSource  the new value of the property
-   */
-  public void setBloombergHistoricalTimeSeriesSource(HistoricalTimeSeriesSource bloombergHistoricalTimeSeriesSource) {
-    this._bloombergHistoricalTimeSeriesSource = bloombergHistoricalTimeSeriesSource;
-  }
-
-  /**
-   * Gets the the {@code bloombergHistoricalTimeSeriesSource} property.
-   * @return the property, not null
-   */
-  public final Property<HistoricalTimeSeriesSource> bloombergHistoricalTimeSeriesSource() {
-    return metaBean().bloombergHistoricalTimeSeriesSource().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * The meta-bean for {@code IntegrationToolContextComponentFactory}.
    */
   public static class Meta extends ToolContextComponentFactory.Meta {
@@ -180,17 +141,11 @@ public class IntegrationToolContextComponentFactory extends ToolContextComponent
     private final MetaProperty<ReferenceDataProvider> _bloombergReferenceDataProvider = DirectMetaProperty.ofReadWrite(
         this, "bloombergReferenceDataProvider", IntegrationToolContextComponentFactory.class, ReferenceDataProvider.class);
     /**
-     * The meta-property for the {@code bloombergHistoricalTimeSeriesSource} property.
-     */
-    private final MetaProperty<HistoricalTimeSeriesSource> _bloombergHistoricalTimeSeriesSource = DirectMetaProperty.ofReadWrite(
-        this, "bloombergHistoricalTimeSeriesSource", IntegrationToolContextComponentFactory.class, HistoricalTimeSeriesSource.class);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "bloombergReferenceDataProvider",
-        "bloombergHistoricalTimeSeriesSource");
+        "bloombergReferenceDataProvider");
 
     /**
      * Restricted constructor.
@@ -203,8 +158,6 @@ public class IntegrationToolContextComponentFactory extends ToolContextComponent
       switch (propertyName.hashCode()) {
         case -245204181:  // bloombergReferenceDataProvider
           return _bloombergReferenceDataProvider;
-        case 1652351076:  // bloombergHistoricalTimeSeriesSource
-          return _bloombergHistoricalTimeSeriesSource;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -231,14 +184,6 @@ public class IntegrationToolContextComponentFactory extends ToolContextComponent
      */
     public final MetaProperty<ReferenceDataProvider> bloombergReferenceDataProvider() {
       return _bloombergReferenceDataProvider;
-    }
-
-    /**
-     * The meta-property for the {@code bloombergHistoricalTimeSeriesSource} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<HistoricalTimeSeriesSource> bloombergHistoricalTimeSeriesSource() {
-      return _bloombergHistoricalTimeSeriesSource;
     }
 
   }
