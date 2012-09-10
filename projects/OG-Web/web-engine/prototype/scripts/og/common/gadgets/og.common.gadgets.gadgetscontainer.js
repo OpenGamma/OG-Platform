@@ -9,7 +9,8 @@ $.register_module({
         var api = og.api, tabs_template, overflow_template, dropbox_template, counter = 1,
             header = ' .ui-layout-header';
         return function (selector_prefix, pane) {
-            var initialized = false, loading, gadgets = [], container = this, selector = selector_prefix + pane,
+            var initialized = false, loading, gadgets = [], container = this, highlight_timer,
+                selector = selector_prefix + pane, $selector = $(selector),
                 class_prefix = selector_prefix.substring(1),
                 live_id, // active tab id
                 overflow = {}, // document offset of overflow panel
@@ -30,7 +31,7 @@ $.register_module({
                  * @param id Id of gadget to show, hide all others
                  */
                 var show_gadget = function (id) {
-                    $(selector).find('.OG-gadget-container [class*=OG-gadget-]').hide()
+                    $selector.find('.OG-gadget-container [class*=OG-gadget-]').hide()
                         .filter('.OG-gadget-' + id).show();
                     live_id = id;
                 };
@@ -149,62 +150,6 @@ $.register_module({
                     show_gadget(id);
                 }
             };
-            container.init = function (arr) {
-                var toggle_dropbox = function () {
-                        var $db = $('.og-drop').length, $dbs_span = $('.OG-dropbox span');
-                        if ($db) $dbs_span.removeClass('og-icon-new-window').addClass('og-icon-drop');
-                        else $dbs_span.removeClass('og-icon-drop').addClass('og-icon-new-window');
-                    };
-                loading = true;
-                $.when(
-                    api.text({module: 'og.analytics.tabs_tash'}),
-                    api.text({module: 'og.analytics.tabs_overflow_tash'}),
-                    api.text({module: 'og.analytics.dropbox_tash'})
-                ).then(function (tabs_tmpl, overflow_tmpl, dropbox_tmpl) {
-                    if (!tabs_template) tabs_template = Handlebars.compile(tabs_tmpl);
-                    if (!overflow_template) overflow_template = Handlebars.compile(overflow_tmpl);
-                    if (!dropbox_template) dropbox_template = Handlebars.compile(dropbox_tmpl);
-                    if (!$overflow_panel) $overflow_panel = $(overflow_template({pane: pane})).appendTo('body');
-                    initialized = true;
-                    loading = false;
-                    // setup click handlers
-                    $(selector + header + ' , .og-js-overflow-' + pane)
-                        // handler for tabs (including the ones in the overflow pane)
-                        .on('click', 'li[class^=og-tab-]', function (e) {
-                            var id = extract_id($(this).attr('class')), index = extract_index(id);
-                            if ($(e.target).hasClass('og-delete')) container.del(gadgets[index]);
-                            else if (!$(this).hasClass('og-active')) {
-                                update_tabs(id || null);
-                                if (id) gadgets[index].gadget.resize();
-                            }
-                        });
-                    if (!arr) update_tabs(null); else container.add(arr);
-                    // implement drop
-                    $(selector).droppable({
-                        hoverClass: 'og-drop',
-                        accept: function (draggable) {return $(draggable).is('li[class^=og-tab-]')}, // is it a tab...
-                        over: function () {setTimeout(toggle_dropbox)}, // can't guarantee over and out fire in correct
-                        out: function () {setTimeout(toggle_dropbox)},  // order, toggle function seems to solve issue
-                        drop: function(e, ui) {
-                            var has_ancestor = function (elm, sel) {return $(elm).closest('.' + sel).length},
-                                pane_class = class_prefix + pane,
-                                overflow_class = 'og-js-overflow-' + pane,
-                                data = ui.draggable.data(),
-                                gadget = data.gadget.config.options,
-                                re = new RegExp(selector_prefix + '(.*?)\\s');
-                            if (has_ancestor(ui.draggable, pane_class) || has_ancestor(ui.draggable, overflow_class)) {
-                                ui.draggable.draggable('option', 'revert', true);
-                            } else {
-                                ui.draggable.draggable('option', 'revert', false);
-                                gadget.selector = gadget.selector.replace(re, selector_prefix + pane + ' ');
-                                container.add([data.gadget.config]);
-                                setTimeout(data.handler); // setTimeout to ensure handler is called after drag evt ends
-                            }
-                        }
-                    });
-                    og.common.gadgets.manager.register(container);
-                });
-            };
             /**
              * @param {String|Array} data A String that defines what gadgets to load, or an Array of gadgets to load
              *
@@ -284,6 +229,10 @@ $.register_module({
                 update_tabs(new_gadgets[new_gadgets.length - 1].id);
                 return container;
             };
+            container.alive = function () {
+                gadgets.forEach(function (obj) {obj.gadget.alive();});
+                return !!$selector.length;
+            };
             container.del = function (obj) {
                 var id;
                 $(selector + ' .OG-gadget-container .OG-gadget-' + obj.id).remove();
@@ -295,9 +244,74 @@ $.register_module({
                 if (id) gadgets[extract_index(id)].gadget.resize();
                 update_tabs(id); // new active tab or empty
             };
-            container.alive = function () {
-                gadgets.forEach(function (obj) {obj.gadget.alive();});
-                return !!$(selector).length;
+            /**
+             * Highlight gadget panel with number
+             * @param show {Boolean} turn on / off
+             * @param strong {Boolean} set to active panel
+             */
+            container.highlight = function (show, strong) {
+                var number = ({'south': 1, 'dock-north': 2, 'dock-center': 3, 'dock-south': 4})[pane],
+                    query = $selector.find('.og-highlight'), $html = query.length ? query
+                        : $('<div />').text(number).addClass('og-highlight').appendTo($selector);
+                clearTimeout(highlight_timer);
+                if (show) (strong ? $html.addClass('strong') : $html.removeClass('strong')).show();
+                else clearTimeout(highlight_timer), highlight_timer = setTimeout(function () {$html.hide()}, 250);
+            };
+            container.init = function (arr) {
+                var toggle_dropbox = function () {
+                        var $db = $('.og-drop').length, $dbs_span = $('.OG-dropbox span');
+                        if ($db) $dbs_span.removeClass('og-icon-new-window').addClass('og-icon-drop');
+                        else $dbs_span.removeClass('og-icon-drop').addClass('og-icon-new-window');
+                    };
+                loading = true;
+                $.when(
+                    api.text({module: 'og.analytics.tabs_tash'}),
+                    api.text({module: 'og.analytics.tabs_overflow_tash'}),
+                    api.text({module: 'og.analytics.dropbox_tash'})
+                ).then(function (tabs_tmpl, overflow_tmpl, dropbox_tmpl) {
+                    if (!tabs_template) tabs_template = Handlebars.compile(tabs_tmpl);
+                    if (!overflow_template) overflow_template = Handlebars.compile(overflow_tmpl);
+                    if (!dropbox_template) dropbox_template = Handlebars.compile(dropbox_tmpl);
+                    if (!$overflow_panel) $overflow_panel = $(overflow_template({pane: pane})).appendTo('body');
+                    initialized = true;
+                    loading = false;
+                    // setup click handlers
+                    $(selector + header + ' , .og-js-overflow-' + pane)
+                        // handler for tabs (including the ones in the overflow pane)
+                        .on('click', 'li[class^=og-tab-]', function (e) {
+                            var id = extract_id($(this).attr('class')), index = extract_index(id);
+                            if ($(e.target).hasClass('og-delete')) container.del(gadgets[index]);
+                            else if (!$(this).hasClass('og-active')) {
+                                update_tabs(id || null);
+                                if (id) gadgets[index].gadget.resize();
+                            }
+                        });
+                    if (!arr) update_tabs(null); else container.add(arr);
+                    // implement drop
+                    $selector.droppable({
+                        hoverClass: 'og-drop',
+                        accept: function (draggable) {return $(draggable).is('li[class^=og-tab-]')}, // is it a tab...
+                        over: function () {setTimeout(toggle_dropbox)}, // can't guarantee over and out fire in correct
+                        out: function () {setTimeout(toggle_dropbox)},  // order, toggle function seems to solve issue
+                        drop: function(e, ui) {
+                            var has_ancestor = function (elm, sel) {return $(elm).closest('.' + sel).length},
+                                pane_class = class_prefix + pane,
+                                overflow_class = 'og-js-overflow-' + pane,
+                                data = ui.draggable.data(),
+                                gadget = data.gadget.config.options,
+                                re = new RegExp(selector_prefix + '(.*?)\\s');
+                            if (has_ancestor(ui.draggable, pane_class) || has_ancestor(ui.draggable, overflow_class)) {
+                                ui.draggable.draggable('option', 'revert', true);
+                            } else {
+                                ui.draggable.draggable('option', 'revert', false);
+                                gadget.selector = gadget.selector.replace(re, selector_prefix + pane + ' ');
+                                container.add([data.gadget.config]);
+                                setTimeout(data.handler); // setTimeout to ensure handler is called after drag evt ends
+                            }
+                        }
+                    });
+                    og.common.gadgets.manager.register(container);
+                });
             };
             container.resize = function () {
                 gadgets.forEach(function (obj) {
