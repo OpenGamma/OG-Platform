@@ -47,7 +47,7 @@ $.register_module({
                 ['south', 'dock-north', 'dock-center', 'dock-south'].forEach(function (val) {
                     new GadgetsContainer('.OG-layout-analytics-', val).add(args[val]);
                 });
-                og.analytics.form('.OG-layout-analytics-masthead');
+                og.analytics.form2('.OG-layout-analytics-masthead');
                 og.analytics.resize();
             },
             init: function () {for (var rule in view.rules) routes.add(view.rules[rule]);},
