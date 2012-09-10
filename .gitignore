@@ -10,7 +10,6 @@ common/deploy.properties
 !/projects/OG-Bloomberg
 !/projects/OG-Component
 !/projects/OG-Core
-!/projects/OG-Client
 !/projects/OG-Engine
 !/projects/OG-Examples
 !/projects/OG-Financial
