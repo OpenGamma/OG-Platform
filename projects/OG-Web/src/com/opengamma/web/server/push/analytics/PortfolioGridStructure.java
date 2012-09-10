@@ -57,13 +57,22 @@ public class PortfolioGridStructure extends MainGridStructure {
     return _root;
   }
 
-  private static List<Row> rows(CompiledViewDefinition viewDef) {
+  private static List<Row> rows(final CompiledViewDefinition viewDef) {
     PortfolioMapperFunction<Row> targetFn = new PortfolioMapperFunction<Row>() {
+
       @Override
       public Row apply(PortfolioNode node) {
         ComputationTargetSpecification target =
             new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, node.getUniqueId());
-        return new Row(target, node.getName());
+        String nodeName;
+        // if the parent ID is null it's the root node
+        if (node.getParentNodeId() == null) {
+          // the root node is called "Root" which isn't any use for displaying in the UI, use the portfolio name instead
+          nodeName = viewDef.getPortfolio().getName();
+        } else {
+          nodeName = node.getName();
+        }
+        return new Row(target, nodeName);
       }
 
       @Override
@@ -75,5 +84,4 @@ public class PortfolioGridStructure extends MainGridStructure {
     };
     return PortfolioMapper.map(viewDef.getPortfolio().getRootNode(), targetFn);
   }
-
 }

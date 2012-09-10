@@ -13,22 +13,23 @@
   <url>http://developers.opengamma.com/</url>
 
   <modules>
-    <module>projects/OG-Util</module>
-    <module>projects/OG-Security</module>
     <module>projects/OG-Analytics</module>
-    <module>projects/OG-Maths</module>
-    <module>projects/OG-Core</module>
-    <module>projects/OG-Master</module>
-    <module>projects/OG-LiveData</module>
-    <module>projects/OG-Engine</module>
-    <module>projects/OG-Financial</module>
-    <module>projects/OG-MasterDB</module>
-    <module>projects/OG-Web</module>
-    <module>projects/OG-Component</module>
-    <module>projects/OG-Examples</module>
     <module>projects/OG-Bloomberg</module>
-    <module>projects/OG-Integration</module>
     <module>projects/OG-BloombergExample</module>
+    <module>projects/OG-Component</module>
+    <module>projects/OG-Core</module>
+    <module>projects/OG-Engine</module>
+    <module>projects/OG-Examples</module>
+    <module>projects/OG-Financial</module>
+    <module>projects/OG-Integration</module>
+    <module>projects/OG-Language</module>
+    <module>projects/OG-LiveData</module>
+    <module>projects/OG-Master</module>
+    <module>projects/OG-MasterDB</module>
+    <module>projects/OG-Maths</module>
+    <module>projects/OG-Security</module>
+    <module>projects/OG-Util</module>
+    <module>projects/OG-Web</module>
   </modules>
 
   <!-- ==================================================================== -->
