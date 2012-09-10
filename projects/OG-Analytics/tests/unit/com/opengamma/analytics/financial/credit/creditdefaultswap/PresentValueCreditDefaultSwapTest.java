@@ -73,13 +73,14 @@ public class PresentValueCreditDefaultSwapTest {
   private static final ZonedDateTime startDate = DateUtils.getUTCDate(2007, 10, 22);
   private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2007, 10, 23);
   private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2012, 12, 20);
-  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2009, 4, 25);
+  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2008, 12, 23);
 
   private static final ScheduleGenerationMethod scheduleGenerationMethod = ScheduleGenerationMethod.BACKWARD;
   private static final PeriodFrequency couponFrequency = PeriodFrequency.QUARTERLY;
   private static final DayCount daycountFractionConvention = DayCountFactory.INSTANCE.getDayCount("ACT/360");
   private static final BusinessDayConvention businessdayAdjustmentConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
 
+  private static final boolean immAdjustMaturityDate = true;
   private static final boolean adjustMaturityDate = true;
 
   private static final double notional = 10000000.0;
@@ -124,6 +125,7 @@ public class PresentValueCreditDefaultSwapTest {
       couponFrequency,
       daycountFractionConvention,
       businessdayAdjustmentConvention,
+      immAdjustMaturityDate,
       adjustMaturityDate,
       notional,
       parSpread,

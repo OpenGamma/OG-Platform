@@ -40,8 +40,9 @@ package com.opengamma.engine.depgraph;
     }
 
     @Override
-    public void run(final GraphBuildingContext context) {
+    public boolean tryRun(final GraphBuildingContext context) {
       _instance.pump(context);
+      return true;
     }
 
   }
@@ -58,8 +59,9 @@ package com.opengamma.engine.depgraph;
     }
 
     @Override
-    public void run(final GraphBuildingContext context) {
+    public boolean tryRun(final GraphBuildingContext context) {
       _instance.close(context);
+      return true;
     }
 
   }

@@ -31,6 +31,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // TODO : In businessDayAdjustDate add code to determine if we move forward or backward to find the next business day
   // TODO : Add the calculations for the accrual begin/end periods
   // TODO : Eventually replace the n x 3 array returned
+  // TODO : Add code to check if we should business day adjust the final maturity date or not
 
   // -------------------------------------------------------------------------------------------
 
@@ -42,6 +43,8 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     // ------------------------------------------------
 
+    // The return array is organised as below
+
     // ZonedDateTime[][0] The premium leg cashflow dates
     // ZonedDateTime[][1] The accrual period begin dates
     // ZonedDateTime[][2] The accrual period end dates
@@ -52,6 +55,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     ZonedDateTime effectiveDate = cds.getEffectiveDate();
     ZonedDateTime maturityDate = cds.getMaturityDate();
+    ZonedDateTime adjustedMaturityDate = maturityDate;
 
     Calendar calendar = cds.getCalendar();
     ScheduleGenerationMethod scheduleGenerationMethod = cds.getScheduleGenerationMethod();
@@ -60,6 +64,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     DayCount daycountFractionConvention = cds.getDayCountFractionConvention();
     BusinessDayConvention businessdayAdjustmentConvention = cds.getBusinessDayAdjustmentConvention();
 
+    boolean immAdjustMaturityDate = cds.getIMMAdjustMaturityDate();
     boolean adjustMaturityDate = cds.getAdjustMaturityDate();
 
     // ------------------------------------------------
@@ -69,13 +74,15 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     // ------------------------------------------------
 
-    // Second, adjust the maturity date so that it falls on the next IMM date
-    ZonedDateTime immAdjustedMaturityDate = immAdjustMaturityDate(maturityDate);
+    // Second, adjust the maturity date so that it falls on the next IMM date (if the user specifies this to be so)
+    if (immAdjustMaturityDate) {
+      adjustedMaturityDate = immAdjustMaturityDate(maturityDate);
+    }
 
     // ------------------------------------------------
 
-    // Third, construct the schedule of premium leg cashflows given the adjusted effective and maturity dates
-    ZonedDateTime[][] cashflowSchedule = calculateCashflowDates(adjustedEffectiveDate, immAdjustedMaturityDate, couponFrequency);
+    // Third, construct the schedule of premium leg cashflows given the adjusted effective and adjusted maturity dates
+    ZonedDateTime[][] cashflowSchedule = calculateCashflowDates(adjustedEffectiveDate, adjustedMaturityDate, couponFrequency);
 
     // ------------------------------------------------
 
@@ -84,24 +91,12 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     // ------------------------------------------------
 
-    // Calculate the fraction of a year between adjacent cashflows (might do this on the fly in the valuation routine)
-    double[] daycountFraction = calculateDaycountFraction(adjustedEffectiveDate, cashflowSchedule, daycountFractionConvention);
-
-    // ------------------------------------------------
-
-    // Finally, adjust the IMM adjusted maturity date so that it falls on the following business day (if required)
-    if (adjustMaturityDate) {
-      // ZonedDateTime businessDayAdjustedMaturityDate = businessDayAdjustMaturityDate(immAdjustedMaturityDate, calendar, adjustMaturityDate);
-    }
-
-    // ------------------------------------------------
-
     return cashflowSchedule;
   }
 
   // -------------------------------------------------------------------------------------------
 
-  // Keep all these as private
+  // Keep all these as private as they are internal methods of the cashflow schedule generation class
 
   // Function to return a vector of daycount fractions given an input cashflow schedule
   private double[] calculateDaycountFraction(ZonedDateTime adjustedEffectiveDate, ZonedDateTime[][] cashflowSchedule, DayCount daycountFractionConvention) {
@@ -136,16 +131,16 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // -------------------------------------------------------------------------------------------
 
   // Method to calculate the premium leg cashflow dates given the adjusted effective and maturity dates 
-  private ZonedDateTime[][] calculateCashflowDates(ZonedDateTime adjustedEffectiveDate, ZonedDateTime immAdjustedMaturityDate, PeriodFrequency couponFrequency) {
+  private ZonedDateTime[][] calculateCashflowDates(ZonedDateTime adjustedEffectiveDate, ZonedDateTime adjustedMaturityDate, PeriodFrequency couponFrequency) {
 
     // Compute the number of cashflows in the premium leg schedule (based on the adjusted dates and the coupon frequency)
-    int numberOfCashflows = calculateNumberOfPremiumLegCashflows(adjustedEffectiveDate, immAdjustedMaturityDate, couponFrequency);
+    int numberOfCashflows = calculateNumberOfPremiumLegCashflows(adjustedEffectiveDate, adjustedMaturityDate, couponFrequency);
 
     // Build the cashflow schedule (include the node at the effective date even though there is no cashflow on this date)
     ZonedDateTime[][] cashflowSchedule = new ZonedDateTime[numberOfCashflows + 1][3];
 
     // Start at the IMM adjusted maturity of the contract
-    ZonedDateTime cashflowDate = immAdjustedMaturityDate;
+    ZonedDateTime cashflowDate = adjustedMaturityDate;
 
     // Note the order of the loop
     for (int i = numberOfCashflows; i > 0; i--) {
@@ -276,6 +271,8 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   private ZonedDateTime businessDayAdjustDate(ZonedDateTime date, Calendar calendar, BusinessDayConvention businessdayAdjustmentConvention) {
 
     ZonedDateTime adjustedDate = date;
+
+    //if (businessdayAdjustmentConvention == BusinessDayConvention)
 
     int deltaDays = 1;
 

@@ -30,8 +30,9 @@ public class RunQueueTest {
   private ContextRunnable runnable() {
     return new ContextRunnable() {
       @Override
-      public void run(final GraphBuildingContext context) {
+      public boolean tryRun(final GraphBuildingContext context) {
         // No-op
+        return true;
       }
     };
   }
