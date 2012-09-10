@@ -35,7 +35,7 @@ public class PresentValueCreditDefaultSwap {
 
   // TODO : Lots of work to do in this file - Work In Progress
   // TODO : Add corrections for seasoned trades (currently just valuing at t = 0)
-  // TODO : Add a method to calc both the legs in one go (is this useful or not? Might be useful from a speed perspective - remember can have O(10^5) positions in a book)
+  // TODO : Add a method to calc both the legs in one method (useful for performance reasons)
 
   // -------------------------------------------------------------------------------------------------
 
@@ -192,10 +192,10 @@ public class PresentValueCreditDefaultSwap {
 
     // Calculate the protection leg integral between the valuationDate (when protection begins) and maturityDate (when protection ends)
     ZonedDateTime valuationDate = cds.getValuationDate();
-    ZonedDateTime immAdjustedMaturityDate = cashflowSchedule[cashflowSchedule.length - 1][0];
+    ZonedDateTime adjustedMaturityDate = cashflowSchedule[cashflowSchedule.length - 1][0];
 
-    // Calculate the discretisation of the time axis
-    double timeInterval = TimeCalculator.getTimeBetween(valuationDate, immAdjustedMaturityDate, dayCount);
+    // Calculate the discretisation interval for the time axis
+    double timeInterval = TimeCalculator.getTimeBetween(valuationDate, adjustedMaturityDate, dayCount);
     int numberOfPartitions = (int) (_numberOfIntegrationSteps * timeInterval + 0.5);
     double epsilon = timeInterval / numberOfPartitions;
 

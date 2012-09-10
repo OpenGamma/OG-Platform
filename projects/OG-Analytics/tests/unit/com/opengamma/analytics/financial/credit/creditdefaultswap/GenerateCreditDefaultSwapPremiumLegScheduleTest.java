@@ -69,6 +69,7 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
   private static final DayCount daycountFractionConvention = DayCountFactory.INSTANCE.getDayCount("ACT/360");
   private static final BusinessDayConvention businessdayAdjustmentConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
 
+  private static final boolean immAdjustMaturityDate = true;
   private static final boolean adjustMaturityDate = true;
 
   private static final double notional = 10000000.0;
@@ -103,6 +104,7 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
       couponFrequency,
       daycountFractionConvention,
       businessdayAdjustmentConvention,
+      immAdjustMaturityDate,
       adjustMaturityDate,
       notional,
       parSpread,

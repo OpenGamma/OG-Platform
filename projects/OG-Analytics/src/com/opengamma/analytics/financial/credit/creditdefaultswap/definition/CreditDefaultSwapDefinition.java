@@ -39,7 +39,7 @@ public class CreditDefaultSwapDefinition {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // TODO : Add a field allowing the user to choose whether to IMM adjust the maturity date
+  // TODO : 
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -106,6 +106,9 @@ public class CreditDefaultSwapDefinition {
   // Business day adjustment convention (usually following)
   private final BusinessDayConvention _businessdayAdjustmentConvention;
 
+  // Flag to determine if we adjust the maturity date to fall on the next IMM date
+  private final boolean _immAdjustMaturityDate;
+
   // Flag to determine if we business day adjust the final maturity date
   private final boolean _adjustMaturityDate;
 
@@ -154,6 +157,7 @@ public class CreditDefaultSwapDefinition {
       PeriodFrequency couponFrequency,
       DayCount daycountFractionConvention,
       BusinessDayConvention businessdayAdjustmentConvention,
+      boolean immAdjustMaturityDate,
       boolean adjustMaturityDate,
       double notional,
       double parSpread,
@@ -201,8 +205,6 @@ public class CreditDefaultSwapDefinition {
     ArgumentChecker.notNull(valuationDate, "Valuation date field is null");
 
     // Check the temporal ordering of the input dates (these are the unadjusted dates entered by the user)
-    // Replace with !startdate.isafter etc
-
     ArgumentChecker.isTrue(!startDate.isAfter(valuationDate), "Start date {} must be on or before valuation date {}", startDate, valuationDate);
     ArgumentChecker.isTrue(!startDate.isAfter(effectiveDate), "Start date {} must be on or before effective date {}", startDate, effectiveDate);
     ArgumentChecker.isTrue(!startDate.isAfter(maturityDate), "Start date {} must be on or before maturity date {}", startDate, maturityDate);
@@ -256,6 +258,7 @@ public class CreditDefaultSwapDefinition {
     _couponFrequency = couponFrequency;
     _daycountFractionConvention = daycountFractionConvention;
     _businessdayAdjustmentConvention = businessdayAdjustmentConvention;
+    _immAdjustMaturityDate = immAdjustMaturityDate;
     _adjustMaturityDate = adjustMaturityDate;
 
     _notional = notional;
@@ -372,6 +375,10 @@ public class CreditDefaultSwapDefinition {
 
   public BusinessDayConvention getBusinessDayAdjustmentConvention() {
     return _businessdayAdjustmentConvention;
+  }
+
+  public boolean getIMMAdjustMaturityDate() {
+    return _immAdjustMaturityDate;
   }
 
   public boolean getAdjustMaturityDate() {
