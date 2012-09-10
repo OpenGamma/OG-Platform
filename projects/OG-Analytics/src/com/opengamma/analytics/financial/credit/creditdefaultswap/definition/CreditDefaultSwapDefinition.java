@@ -39,11 +39,7 @@ public class CreditDefaultSwapDefinition {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // TODO : Allow the case valuationDate = startDate
-  // TODO : Allow the case effectiveDate = startDate
-  // TODO : Allow the case maturityDate = startDate (e.g. startDate = 21/03/YY, maturityDate = 21/03/YY but IMM adjusted maturityDate = 20/06/YY)
-  // TODO : Allow the case valuationDate = maturityDate (should return a MtM of zero)
-  // TODO : Allow the case valuationDate = effectiveDate
+  // TODO : Add a field allowing the user to choose whether to IMM adjust the maturity date
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -205,11 +201,13 @@ public class CreditDefaultSwapDefinition {
     ArgumentChecker.notNull(valuationDate, "Valuation date field is null");
 
     // Check the temporal ordering of the input dates (these are the unadjusted dates entered by the user)
-    ArgumentChecker.isTrue(startDate.isBefore(valuationDate), "Start date {} must be before valuation date {}", startDate, valuationDate);
-    ArgumentChecker.isTrue(startDate.isBefore(effectiveDate), "Start date {} must be before effective date {}", startDate, effectiveDate);
-    ArgumentChecker.isTrue(startDate.isBefore(maturityDate), "Start date {} must be before maturity date {}", startDate, maturityDate);
-    ArgumentChecker.isTrue(valuationDate.isBefore(maturityDate), "Valuation date {} must be before maturity date {}", valuationDate, maturityDate);
-    ArgumentChecker.isTrue(valuationDate.isAfter(effectiveDate), "Valuation date {} must be after effective date {}", valuationDate, effectiveDate);
+    // Replace with !startdate.isafter etc
+
+    ArgumentChecker.isTrue(!startDate.isAfter(valuationDate), "Start date {} must be on or before valuation date {}", startDate, valuationDate);
+    ArgumentChecker.isTrue(!startDate.isAfter(effectiveDate), "Start date {} must be on or before effective date {}", startDate, effectiveDate);
+    ArgumentChecker.isTrue(!startDate.isAfter(maturityDate), "Start date {} must be on or before maturity date {}", startDate, maturityDate);
+    ArgumentChecker.isTrue(!valuationDate.isAfter(maturityDate), "Valuation date {} must be on or before maturity date {}", valuationDate, maturityDate);
+    ArgumentChecker.isTrue(!valuationDate.isBefore(effectiveDate), "Valuation date {} must be on or after effective date {}", valuationDate, effectiveDate);
 
     ArgumentChecker.notNull(scheduleGenerationMethod, "Schedule generation method field is null");
     ArgumentChecker.notNull(couponFrequency, "Coupon frequency field is null");

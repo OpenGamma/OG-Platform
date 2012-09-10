@@ -353,9 +353,10 @@ CNamedPipe *CNamedPipe::Accept (unsigned long timeout) {
 failedOperation:
 	struct sockaddr_un addr;
 	bool bLazyWait = false;
-	if (IsLazyClosing ()) {
+	unsigned long lLazy = IsLazyClosing ();
+	if (lLazy) {
 		bLazyWait = true;
-		timeout = IsLazyClosing ();
+		timeout = lLazy;
 	}
 timeoutOperation:
 	int sock;
@@ -370,7 +371,8 @@ timeoutOperation:
 		int ec = GetLastError ();
 		if (ec == EINTR) {
 			LOGDEBUG (TEXT ("Accept interrupted"));
-			if (IsLazyClosing ()) {
+			lLazy = IsLazyClosing ();
+			if (lLazy) {
 				if (bLazyWait) {
 					LOGINFO (TEXT ("Closing file on idle timeout"));
 					Close ();
@@ -378,7 +380,7 @@ timeoutOperation:
 			}
 			if (!IsClosed () && !bLazyWait) {
 				bLazyWait = true;
-				timeout = IsLazyClosing ();
+				timeout = lLazy;
 				LOGDEBUG (TEXT ("Resuming operation with idle timeout of ") << timeout << TEXT ("ms"));
 				goto timeoutOperation;
 			}

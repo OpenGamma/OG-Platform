@@ -145,7 +145,7 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
     if (idBundle == null) {
       return MarketDataAvailability.NOT_AVAILABLE;
     }
-    final HistoricalTimeSeries hts = getTimeSeriesSource().getHistoricalTimeSeries(requirement.getValueName(), idBundle, null, getTimeSeriesResolverKey());
+    final HistoricalTimeSeries hts = getTimeSeriesSource().getHistoricalTimeSeries(requirement.getValueName(), idBundle, null, getTimeSeriesResolverKey(), null, true, null, true, 0);
     if (hts == null) {
       if (s_logger.isDebugEnabled() && requirement.getValueName().equals(MarketDataRequirementNames.MARKET_VALUE)) {
         s_logger.debug("Missing market data {}", requirement);

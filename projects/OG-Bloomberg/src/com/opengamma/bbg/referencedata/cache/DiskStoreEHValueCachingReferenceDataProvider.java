@@ -52,7 +52,7 @@ public class DiskStoreEHValueCachingReferenceDataProvider extends EHValueCaching
   }
 
   @Override
-  protected Serializable createCachedObject(ReferenceData refDataResult) {
+  protected Object createCachedObject(ReferenceData refDataResult) {
     CachedReferenceDataForDisk result = new CachedReferenceDataForDisk();
     result._identifier = refDataResult.getIdentifier();
     result._fieldData = getFudgeContext().toByteArray(refDataResult.getFieldValues());

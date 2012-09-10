@@ -60,6 +60,8 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
    */
   public static final String GRAPH_EXECUTION_BLACKLIST = "graphExecutionBlacklist";
 
+  // TODO: [PLAT-2638] The blacklists should not really be here. 
+
   /**
    * Creates an empty function compilation context.
    */

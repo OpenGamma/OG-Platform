@@ -5,6 +5,9 @@
  */
 package com.opengamma.bbg.referencedata.cache;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
@@ -105,7 +108,7 @@ public class EHValueCachingReferenceDataProvider extends AbstractValueCachingRef
     
     if (identifier != null && fieldData != null) {
       s_logger.info("Persisting fields for \"{}\": {}", identifier, result.getFieldValues());
-      Serializable cachedObject = createCachedObject(result);
+      Object cachedObject = createCachedObject(result);
       s_logger.debug("cachedObject={}", cachedObject);
       Element element = new Element(identifier, cachedObject);
       _cache.put(element);
@@ -126,9 +129,90 @@ public class EHValueCachingReferenceDataProvider extends AbstractValueCachingRef
       s_logger.debug("Have security data for des {} in cache", identifier);
       Object fromCache = element.getObjectValue();
       s_logger.debug("cachedObject={}", fromCache);
-      return parseCachedObject(fromCache);
+      return parseCachedObject((CachedReferenceData) fromCache);
     }
     return null;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Data holder for storing the results.
+   */
+  private static final class CachedReferenceData implements Serializable {
+
+    private static final long serialVersionUID = 3L;
+
+    private transient String _security;
+
+    private transient FudgeContext _fudgeContext;
+
+    private transient volatile FudgeMsg _fieldDataMsg;
+
+    private transient volatile byte[] _fieldData;
+
+    private byte[] getFieldData() {
+      byte[] fieldData = _fieldData;
+      if (fieldData == null) {
+        synchronized (this) {
+          fieldData = _fieldData;
+          if (fieldData == null) {
+            fieldData = _fudgeContext.toByteArray(_fieldDataMsg);
+            _fieldData = fieldData;
+            _fieldDataMsg = null;
+          }
+        }
+      }
+      return fieldData;
+    }
+
+    private void setFieldData(final byte[] fieldData) {
+      _fieldData = fieldData;
+    }
+
+    public FudgeMsg getFieldDataMsg(final FudgeContext fudgeContext) {
+      FudgeMsg fieldDataMsg = _fieldDataMsg;
+      if (fieldDataMsg == null) {
+        synchronized (this) {
+          fieldDataMsg = _fieldDataMsg;
+          if (fieldDataMsg == null) {
+            _fudgeContext = fudgeContext;
+            fieldDataMsg = fudgeContext.deserialize(_fieldData).getMessage();
+            _fieldDataMsg = fieldDataMsg;
+            _fieldData = null;
+          }
+        }
+      }
+      return _fieldDataMsg;
+    }
+
+    public void setFieldDataMsg(final FudgeMsg fieldDataMsg, final FudgeContext fudgeContext) {
+      _fieldDataMsg = fieldDataMsg;
+      _fudgeContext = fudgeContext;
+    }
+
+    public String getSecurity() {
+      return _security;
+    }
+
+    public void setSecurity(final String security) {
+      _security = security;
+    }
+
+    private void writeObject(final ObjectOutputStream out) throws IOException {
+      out.writeUTF(getSecurity());
+      final byte[] fieldData = getFieldData();
+      out.writeInt(fieldData.length);
+      out.write(fieldData);
+    }
+
+    private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException {
+      setSecurity(in.readUTF());
+      final int dataLength = in.readInt();
+      final byte[] data = new byte[dataLength];
+      in.readFully(data);
+      setFieldData(data);
+    }
+
   }
 
   //-------------------------------------------------------------------------
@@ -140,7 +224,7 @@ public class EHValueCachingReferenceDataProvider extends AbstractValueCachingRef
    */
   protected ReferenceData parseCachedObject(Object fromCache) {
     CachedReferenceData rd = (CachedReferenceData) fromCache;
-    return new ReferenceData(rd._identifier, rd._fieldData);
+    return new ReferenceData(rd.getSecurity(), rd.getFieldDataMsg(getFudgeContext()));
   }
 
   /**
@@ -149,22 +233,11 @@ public class EHValueCachingReferenceDataProvider extends AbstractValueCachingRef
    * @param refDataResult  the reference data result.
    * @return the cache object, not null
    */
-  protected Serializable createCachedObject(ReferenceData refDataResult) {
+  protected Object createCachedObject(ReferenceData refDataResult) {
     CachedReferenceData result = new CachedReferenceData();
-    result._identifier = refDataResult.getIdentifier();
-    result._fieldData = getFudgeContext().newMessage(refDataResult.getFieldValues());
+    result.setSecurity(refDataResult.getIdentifier());
+    result.setFieldDataMsg(getFudgeContext().newMessage(refDataResult.getFieldValues()), getFudgeContext());
     return result;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Data holder for storing the results.
-   */
-  private static class CachedReferenceData implements Serializable {
-    /** Serialization. */
-    private static final long serialVersionUID = -822452207625365560L;
-    private String _identifier;
-    private FudgeMsg _fieldData;
   }
 
 }

@@ -6,6 +6,7 @@
 package com.opengamma.engine.depgraph;
 
 import java.lang.ref.WeakReference;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -114,15 +115,19 @@ public final class Housekeeper {
     final DependencyGraphBuilder builder = getBuilder();
     if (builder != null) {
       s_logger.debug("Tick {} for {}", getCallback(), builder);
-      if (builder.isGraphBuilt()) {
+      final boolean isGraphBuilt;
+      try {
+        isGraphBuilt = builder.isGraphBuilt();
+      } catch (CancellationException e) {
+        return getCallback().cancelled(builder, getData());
+      }
+      if (isGraphBuilt) {
         if (builder.getScheduledSteps() > 0) {
           return getCallback().completed(builder, getData());
         } else {
           // Hasn't started yet -- issue as a normal tick
           return getCallback().tick(builder, getData());
         }
-      } else if (builder.isCancelled()) {
-        return getCallback().cancelled(builder, getData());
       } else {
         return getCallback().tick(builder, getData());
       }

@@ -54,4 +54,8 @@
     </dependency>
   </dependencies>
 
+  <properties>
+    <og-platform.basedir>${project.parent.basedir}</og-platform.basedir>
+  </properties>
+
 </project>

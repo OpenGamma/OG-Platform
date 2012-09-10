@@ -42,6 +42,8 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     // ------------------------------------------------
 
+    // The return array is organised as below
+
     // ZonedDateTime[][0] The premium leg cashflow dates
     // ZonedDateTime[][1] The accrual period begin dates
     // ZonedDateTime[][2] The accrual period end dates
@@ -101,7 +103,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
   // -------------------------------------------------------------------------------------------
 
-  // Keep all these as private
+  // Keep all these as private as they are internal methods of the cashflow schedule generation class
 
   // Function to return a vector of daycount fractions given an input cashflow schedule
   private double[] calculateDaycountFraction(ZonedDateTime adjustedEffectiveDate, ZonedDateTime[][] cashflowSchedule, DayCount daycountFractionConvention) {
@@ -128,6 +130,9 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     for (int i = 0; i < numberOfCashflows; i++) {
       adjustedCashflowSchedule[i][0] = businessDayAdjustDate(cashflowSchedule[i][0], calendar, businessdayAdjustmentConvention);
+
+      //System.out.println("Adjusted date = " + adjustedCashflowSchedule[i][0]);
+      //System.out.println(adjustedCashflowSchedule[i][0]);
     }
 
     return adjustedCashflowSchedule;
@@ -149,6 +154,8 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     // Note the order of the loop
     for (int i = numberOfCashflows; i > 0; i--) {
+
+      //System.out.println("Unadjusted date = " + cashflowDate);
 
       // Store the date (note this is at the top of the loop)
       cashflowSchedule[i][0] = cashflowDate;
@@ -276,6 +283,8 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   private ZonedDateTime businessDayAdjustDate(ZonedDateTime date, Calendar calendar, BusinessDayConvention businessdayAdjustmentConvention) {
 
     ZonedDateTime adjustedDate = date;
+
+    //if (businessdayAdjustmentConvention == BusinessDayConvention)
 
     int deltaDays = 1;
 
