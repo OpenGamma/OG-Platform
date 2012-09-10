@@ -22,6 +22,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
@@ -30,6 +31,7 @@ import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixFixed;
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixValueRequirement;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -43,14 +45,36 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
 
   private static final Pattern s_validate = Pattern.compile("[A-Z]{3}_[A-Z]{3}");
 
+  private static final String CURRENCY_MATRIX_NAME_PROPERTY = "CurrencyMatrix";
+
   private String _rateLookupIdentifierScheme = CurrencyConversionFunction.DEFAULT_LOOKUP_IDENTIFIER_SCHEME;
   private String _rateLookupValueName = CurrencyConversionFunction.DEFAULT_LOOKUP_VALUE_NAME;
 
   private final String _currencyMatrixName;
+  private final String[] _additionalProperties;
   private CurrencyMatrix _currencyMatrix;
 
   public CurrencyMatrixSourcingFunction(final String currencyMatrixName) {
     _currencyMatrixName = currencyMatrixName;
+    _additionalProperties = null;
+  }
+
+  public CurrencyMatrixSourcingFunction(final String[] params) {
+    _currencyMatrixName = params[0];
+    _additionalProperties = new String[params.length - 1];
+    System.arraycopy(params, 1, _additionalProperties, 0, _additionalProperties.length);
+  }
+
+  @Override
+  protected ValueProperties.Builder createValueProperties() {
+    final ValueProperties.Builder properties = super.createValueProperties();
+    properties.with(CURRENCY_MATRIX_NAME_PROPERTY, _currencyMatrixName);
+    if (_additionalProperties != null) {
+      for (int i = 0; i < _additionalProperties.length; i += 2) {
+        properties.with(_additionalProperties[i], _additionalProperties[i + 1]);
+      }
+    }
+    return properties;
   }
 
   private static Pair<Currency, Currency> parse(final UniqueId uniqueId) {
@@ -170,35 +194,58 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
     return requirements;
   }
 
-  private double getConversionRate(final FunctionInputs inputs, final Currency source, final Currency target) {
+  private Object getConversionRate(final FunctionInputs inputs, final Currency source, final Currency target) {
     final CurrencyMatrixValue value = getCurrencyMatrix().getConversion(source, target);
-    Double rate = value.accept(new CurrencyMatrixValueVisitor<Double>() {
+    Object rate = value.accept(new CurrencyMatrixValueVisitor<Object>() {
 
       @Override
-      public Double visitCross(CurrencyMatrixCross cross) {
-        return getConversionRate(inputs, source, cross.getCrossCurrency()) * getConversionRate(inputs, cross.getCrossCurrency(), target);
+      public Object visitCross(CurrencyMatrixCross cross) {
+        final Object r1 = getConversionRate(inputs, source, cross.getCrossCurrency());
+        final Object r2 = getConversionRate(inputs, cross.getCrossCurrency(), target);
+        if (r1 instanceof Double) {
+          if (r2 instanceof Double) {
+            return (Double) r1 * (Double) r2;
+          } else {
+            throw new IllegalArgumentException();
+          }
+        } else if (r1 instanceof DoubleTimeSeries) {
+          if (r2 instanceof DoubleTimeSeries) {
+            return ((DoubleTimeSeries<?>) r1).multiply((DoubleTimeSeries<?>) r2);
+          } else {
+            throw new IllegalArgumentException();
+          }
+        } else {
+          throw new IllegalArgumentException();
+        }
       }
 
       @Override
-      public Double visitFixed(CurrencyMatrixFixed fixedValue) {
+      public Object visitFixed(CurrencyMatrixFixed fixedValue) {
         return fixedValue.getFixedValue();
       }
 
       @Override
-      public Double visitValueRequirement(CurrencyMatrixValueRequirement valueRequirement) {
+      public Object visitValueRequirement(CurrencyMatrixValueRequirement valueRequirement) {
         Object marketValue = inputs.getValue(valueRequirement.getValueRequirement());
-        if (!(marketValue instanceof Number)) {
+        if (marketValue instanceof Number) {
+          double rate = ((Number) marketValue).doubleValue();
+          if (valueRequirement.isReciprocal()) {
+            rate = 1.0 / rate;
+          }
+          return rate;
+        } else if (marketValue instanceof DoubleTimeSeries) {
+          DoubleTimeSeries<?> rate = (DoubleTimeSeries<?>) marketValue;
+          if (valueRequirement.isReciprocal()) {
+            rate = rate.reciprocal();
+          }
+          return rate;
+        } else {
           throw new IllegalArgumentException(valueRequirement.toString());
         }
-        double rate = ((Number) marketValue).doubleValue();
-        if (valueRequirement.isReciprocal()) {
-          rate = 1.0 / rate;
-        }
-        return rate;
       }
 
     });
-    s_logger.debug("{} to {} = {}", new Object[] {source, target, rate});
+    s_logger.debug("{} to {} = {}", new Object[] {source, target, rate });
     return rate;
   }
 
@@ -221,7 +268,7 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.PRIMITIVE;
   }
-  
+
   public int getPriority() {
     if (_currencyMatrixName.contains(CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA)) {
       return -1;
