@@ -8,8 +8,8 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 
   <!-- ================================================================== -->
   <bean id="sessionOptions" class="com.bloomberglp.blpapi.SessionOptions">
-    <property name="serverHost" value="${opengamma.bloomberg.sapi.host}" />
-    <property name="serverPort" value="${opengamma.bloomberg.sapi.port}" />
+    <property name="serverHost" value="${bloomberg.host}" />
+    <property name="serverPort" value="${bloomberg.port}" />
   </bean>
   
   <bean id="standardBloombergConnector" class="com.opengamma.bbg.BloombergConnector">
