@@ -45,9 +45,10 @@ import com.opengamma.util.time.Tenor;
 @Scriptable
 public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
 
+  /**
+   * The properties file.
+   */
   public static final String TOOLCONTEXT_EXAMPLE_PROPERTIES = "classpath:toolcontext/toolcontext-example.properties";
-
-  private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabasePopulator.class);
   /**
    * The name of the multi-currency swap portfolio.
    */
@@ -72,6 +73,9 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
    * The name of a vanilla FX option portfolio
    */
   public static final String VANILLA_FX_OPTION_PORTFOLIO_NAME = "Vanilla FX Option Portfolio";
+
+  /** Logger. */
+  private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabasePopulator.class);
   /**
    * The currencies.
    */
@@ -86,8 +90,8 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
   public static void main(final String[] args) { // CSIGNORE
     try {
       new ExampleDatabasePopulator().initAndRun(args, TOOLCONTEXT_EXAMPLE_PROPERTIES, null, ToolContext.class);
-    } catch (final Exception e) {
-      e.printStackTrace();
+    } catch (final Exception ex) {
+      ex.printStackTrace();
     }
   }
 
