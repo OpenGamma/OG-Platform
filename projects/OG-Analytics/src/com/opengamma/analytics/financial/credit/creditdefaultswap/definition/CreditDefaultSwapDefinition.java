@@ -39,7 +39,7 @@ public class CreditDefaultSwapDefinition {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // TODO : Allow the case valuationDate = effectiveDate
+  // TODO : Add a field allowing the user to choose whether to IMM adjust the maturity date
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 

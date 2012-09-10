@@ -12,6 +12,7 @@ import com.opengamma.analytics.financial.credit.FlatSurvivalCurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -91,6 +92,8 @@ public class PresentValueCreditDefaultSwap {
 
     // -------------------------------------------------------------
 
+    int counter = 1;
+
     double presentValuePremiumLeg = 0.0;
     double presentValueAccruedPremium = 0.0;
 
@@ -108,6 +111,9 @@ public class PresentValueCreditDefaultSwap {
     // Get the (flat) hazard rate for this simple curve
     double hazardRate = survivalCurve.getFlatHazardRate();
 
+    // Get the daycount convention
+    DayCount dayCount = cds.getDayCountFractionConvention();
+
     // Do we need to calculate the accrued premium as well
     boolean includeAccruedPremium = cds.getIncludeAccruedPremium();
 
@@ -116,30 +122,35 @@ public class PresentValueCreditDefaultSwap {
 
     // -------------------------------------------------------------
 
+    // Determine where in the cashflow schedule the valuationDate is
+    while (valuationDate.isAfter(cashflowSchedule[counter][0])) {
+      counter++;
+    }
+
+    // -------------------------------------------------------------
+
     // Loop through all the elements in the cashflow schedule (note limits of loop)
-    for (int i = 1; i < cashflowSchedule.length; i++) {
+    for (int i = counter; i < cashflowSchedule.length; i++) {
 
-      if (valuationDate.isBefore(cashflowSchedule[i][0])) {
+      // Compute the daycount fraction between this cashflow and the last
+      double dcf = cds.getDayCountFractionConvention().getDayCountFraction(cashflowSchedule[i - 1][0], cashflowSchedule[i][0]);
 
-        // Compute the daycount fraction between this cashflow and the last
-        double dcf = cds.getDayCountFractionConvention().getDayCountFraction(cashflowSchedule[i - 1][0], cashflowSchedule[i][0]);
+      // Calculate the time between the valuation date (time at which surv prob is unity) and the current cashflow
+      double t = TimeCalculator.getTimeBetween(valuationDate, cashflowSchedule[i][0], dayCount);
 
-        // Calculate the time between the adjusted effective date (time at which surv prob is unity) and the current cashflow
-        double t = TimeCalculator.getTimeBetween(adjustedEffectiveDate, cashflowSchedule[i][0]);
+      // Get the discount factor and survival probability
+      double discountFactor = yieldCurve.getDiscountFactor(t);
+      double survivalProbability = survivalCurve.getSurvivalProbability(hazardRate, t);
 
-        // Get the discount factor and survival probability
-        double discountFactor = yieldCurve.getDiscountFactor(t);
-        double survivalProbability = survivalCurve.getSurvivalProbability(hazardRate, t);
+      presentValuePremiumLeg += dcf * discountFactor * survivalProbability;
 
-        presentValuePremiumLeg += dcf * discountFactor * survivalProbability;
+      // If required, calculate the accrued premium contribution to the overall premium leg
+      if (includeAccruedPremium) {
+        // TODO : Check the valuationDate carefully
+        double tPrevious = TimeCalculator.getTimeBetween(valuationDate, cashflowSchedule[i - 1][0]);
+        double survivalProbabilityPrevious = survivalCurve.getSurvivalProbability(hazardRate, tPrevious);
 
-        // If required, calculate the accrued premium contribution to the overall premium leg
-        if (includeAccruedPremium) {
-          double tPrevious = TimeCalculator.getTimeBetween(cds.getEffectiveDate(), cashflowSchedule[i - 1][0]);
-          double survivalProbabilityPrevious = survivalCurve.getSurvivalProbability(hazardRate, tPrevious);
-
-          presentValueAccruedPremium += 0.5 * dcf * discountFactor * (survivalProbabilityPrevious - survivalProbability);
-        }
+        presentValueAccruedPremium += 0.5 * dcf * discountFactor * (survivalProbabilityPrevious - survivalProbability);
       }
     }
 
@@ -167,6 +178,9 @@ public class PresentValueCreditDefaultSwap {
 
     double presentValueContingentLeg = 0.0;
 
+    // Get the daycount convention
+    DayCount dayCount = cds.getDayCountFractionConvention();
+
     // Get the notional amount to multiply the contingent leg by
     double notional = cds.getNotional();
 
@@ -181,7 +195,7 @@ public class PresentValueCreditDefaultSwap {
     ZonedDateTime immAdjustedMaturityDate = cashflowSchedule[cashflowSchedule.length - 1][0];
 
     // Calculate the discretisation of the time axis
-    double timeInterval = TimeCalculator.getTimeBetween(valuationDate, immAdjustedMaturityDate);
+    double timeInterval = TimeCalculator.getTimeBetween(valuationDate, immAdjustedMaturityDate, dayCount);
     int numberOfPartitions = (int) (_numberOfIntegrationSteps * timeInterval + 0.5);
     double epsilon = timeInterval / numberOfPartitions;
 

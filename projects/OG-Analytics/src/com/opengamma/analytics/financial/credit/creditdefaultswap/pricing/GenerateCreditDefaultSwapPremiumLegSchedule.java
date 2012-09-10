@@ -130,6 +130,9 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     for (int i = 0; i < numberOfCashflows; i++) {
       adjustedCashflowSchedule[i][0] = businessDayAdjustDate(cashflowSchedule[i][0], calendar, businessdayAdjustmentConvention);
+
+      //System.out.println("Adjusted date = " + adjustedCashflowSchedule[i][0]);
+      //System.out.println(adjustedCashflowSchedule[i][0]);
     }
 
     return adjustedCashflowSchedule;
@@ -151,6 +154,8 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     // Note the order of the loop
     for (int i = numberOfCashflows; i > 0; i--) {
+
+      //System.out.println("Unadjusted date = " + cashflowDate);
 
       // Store the date (note this is at the top of the loop)
       cashflowSchedule[i][0] = cashflowDate;

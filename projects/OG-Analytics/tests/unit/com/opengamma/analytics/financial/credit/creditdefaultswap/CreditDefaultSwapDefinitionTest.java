@@ -76,37 +76,6 @@ public class CreditDefaultSwapDefinitionTest {
   private static final double curveRecoveryRate = 0.40;
   private static final boolean includeAccruedPremium = true;
 
-  // Construct a CDS contract 
-  private static final CreditDefaultSwapDefinition cds = new CreditDefaultSwapDefinition(buySellProtection,
-      protectionBuyer,
-      protectionSeller,
-      referenceEntityTicker,
-      referenceEntityShortName,
-      referenceEntityREDCode,
-      currency,
-      debtSeniority,
-      restructuringClause,
-      compositeRating,
-      impliedRating,
-      sector,
-      region,
-      country,
-      calendar,
-      startDate,
-      effectiveDate,
-      maturityDate,
-      valuationDate,
-      scheduleGenerationMethod,
-      couponFrequency,
-      daycountFractionConvention,
-      businessdayAdjustmentConvention,
-      adjustMaturityDate,
-      notional,
-      parSpread,
-      valuationRecoveryRate,
-      curveRecoveryRate,
-      includeAccruedPremium);
-
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
   // Tests of the construction of a CDS contract object
