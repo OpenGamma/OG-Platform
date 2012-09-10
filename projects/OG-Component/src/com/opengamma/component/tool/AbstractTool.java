@@ -124,7 +124,7 @@ public abstract class AbstractTool<T extends ToolContext> {
     String logbackResource = line.getOptionValue(LOGBACK_RESOURCE_OPTION);
     logbackResource = StringUtils.defaultIfEmpty(logbackResource, TOOL_LOGBACK_XML);
     String[] configResources = line.getOptionValues(CONFIG_RESOURCE_OPTION);
-    if (configResources.length == 0) {
+    if (configResources == null || configResources.length == 0) {
       configResources = new String[] {defaultConfigResource};
     }
     return init(logbackResource) && run(configResources, toolContextClass);
