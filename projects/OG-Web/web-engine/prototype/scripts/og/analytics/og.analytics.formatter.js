@@ -23,9 +23,6 @@ $.register_module({
                 var type = value.t;
                 return value && formatter[type] ? formatter[type](value) : value && value.v || '';
             };
-            formatter.LABELLED_MATRIX_1D = function (value) {
-                return value + '<span class="og-js-menu-hook"></span>';
-            };
             grid.on('render', function () {
                 var options = {
                     type: 'line', lineColor: '#b0b0b0', fillColor: '#ecedee', spotColor: '#b0b0b0',
