@@ -6,9 +6,11 @@
     background-color: #fff;
     border-bottom: 1px solid #dadcdd;
     border-top: 1px solid #dadcdd;
+    border-right: 1px solid #dadcdd;
     height: 18px;
     position: absolute;
-    width: 28px;
+    width: 29px;
+    padding-right: 2px;
     z-index: 3;
 }
 
@@ -17,7 +19,7 @@
     border-top: 1px solid #c9cacb;
     border-bottom: 1px solid #c9cacb;
     box-shadow: 2px 2px 2px #ebebeb;
-    width: 85px;
+    width: 86px;
     -moz-box-shadow: 2px 2px 2px #ebebeb;
     -webkit-box-shadow: 2px 2px 2px #ebebeb;
 }
@@ -55,7 +57,7 @@
 }
 
 .OG-cell-options .og-group {
-    padding-left: 3px;
+    padding-left: 4px;
     position: relative;
     top: 2px;
 }
@@ -64,6 +66,7 @@
     background-color: #c9cacb;
     padding: 4px 4px 4px 3px;
     top: -2px;
+    right: -2px;
 }
 
 .OG-cell-options .og-num {
@@ -77,6 +80,7 @@
     line-height: 13px;
     padding: 0;
     width: 12px;
+    text-align: center;
 }
 
 .OG-cell-options .OG-icon:hover,
