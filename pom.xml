@@ -30,7 +30,6 @@
     <module>projects/OG-BloombergExample</module>
     <module>projects/OG-Component</module>
     <module>projects/OG-Core</module>
-    <module>projects/OG-Provider</module>
     <module>projects/OG-Engine</module>
     <module>projects/OG-Examples</module>
     <module>projects/OG-Financial</module>
@@ -40,6 +39,7 @@
     <module>projects/OG-Master</module>
     <module>projects/OG-MasterDB</module>
     <module>projects/OG-Maths</module>
+    <module>projects/OG-Provider</module>
     <module>projects/OG-Security</module>
     <module>projects/OG-Util</module>
     <module>projects/OG-Web</module>
