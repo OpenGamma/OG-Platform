@@ -129,7 +129,7 @@ public class PresentValueCreditDefaultSwap {
 
     // -------------------------------------------------------------
 
-    // Loop through all the elements in the cashflow schedule (note limits of loop)
+    // Loop through all the elements in the cashflow schedule that are after the valuation date(note limits of loop)
     for (int i = counter; i < cashflowSchedule.length; i++) {
 
       // Compute the daycount fraction between this cashflow and the last

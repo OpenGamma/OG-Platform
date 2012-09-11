@@ -16,8 +16,8 @@ import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.FlatSurvivalCurve;
 import com.opengamma.analytics.financial.credit.Region;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
-import com.opengamma.analytics.financial.credit.ScheduleGenerationMethod;
 import com.opengamma.analytics.financial.credit.Sector;
+import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.PresentValueCreditDefaultSwap;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -73,9 +73,9 @@ public class PresentValueCreditDefaultSwapTest {
   private static final ZonedDateTime startDate = DateUtils.getUTCDate(2007, 10, 22);
   private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2007, 10, 23);
   private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2012, 12, 20);
-  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2008, 12, 23);
+  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2008, 10, 22);
 
-  private static final ScheduleGenerationMethod scheduleGenerationMethod = ScheduleGenerationMethod.BACKWARD;
+  private static final StubType stubType = StubType.FRONTSHORT;
   private static final PeriodFrequency couponFrequency = PeriodFrequency.QUARTERLY;
   private static final DayCount daycountFractionConvention = DayCountFactory.INSTANCE.getDayCount("ACT/360");
   private static final BusinessDayConvention businessdayAdjustmentConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
@@ -121,7 +121,7 @@ public class PresentValueCreditDefaultSwapTest {
       effectiveDate,
       maturityDate,
       valuationDate,
-      scheduleGenerationMethod,
+      stubType,
       couponFrequency,
       daycountFractionConvention,
       businessdayAdjustmentConvention,
@@ -167,6 +167,7 @@ public class PresentValueCreditDefaultSwapTest {
         return false;
       }
 
+      /*
       // Custom bank holiday
       if (date.equals(LocalDate.of(2012, 8, 27))) {
         return false;
@@ -186,6 +187,7 @@ public class PresentValueCreditDefaultSwapTest {
       if (date.equals(LocalDate.of(2017, 8, 29))) {
         return false;
       }
+      */
 
       return true;
     }
