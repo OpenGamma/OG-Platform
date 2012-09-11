@@ -16,26 +16,30 @@ $.register_module({
              * Mappings for cell data tyes / gadgets and panel defaults
              */
             var mappings = {
-                gadgets: ['dep_graph', 'data', 'surface', 'curve'],
+                gadgets: ['dep_graph', 'data', 'surface', 'curve', 'timeseries'],
                 functions: [
                     function () {type = 'depgraph'; id = cell.col + '|' + cell.row},
                     function () {type = 'data'; id = cell.col + '|' + cell.row},
                     function () {type = 'surface'; id = 1},
-                    function () {type = 'curve'; id = 1}
+                    function () {type = 'curve'; id = 1},
+                    function () {type = 'timeseries'; id = 1}
                 ],
                 type_map: { // available views per data type
                     LABELLED_MATRIX_1D: [0, 1],
                     LABELLED_MATRIX_2D: [0, 1, 2, 3],
                     LABELLED_MATRIX_3D: [0, 1],
                     DOUBLE: [0],
-                    PRIMITIVE: []
+                    PRIMITIVE: [],
+                    CURVE: [1, 3],
+                    TIMESERIES: [4, 1],
+                    SURFACE: [2, 1]
                 },
                 order: { // default view preference for data type per location
-                    'south': [0, 1, 2, 3],
-                    'dock-north': [1, 2, 3, 0],
-                    'dock-center': [1, 2, 3, 0],
-                    'dock-south': [1, 2, 3, 0],
-                    'new-window': [2, 3, 1, 0]
+                    'south': [0, 2, 4, 3, 1],
+                    'dock-north': [2, 4, 3, 1, 0],
+                    'dock-center': [2, 4, 3, 1, 0],
+                    'dock-south': [2, 4, 3, 1, 0],
+                    'new-window': [2, 4, 3, 1, 0]
                 }
             };
             var order = mappings.order[panel || 'new-window'], type_map = mappings.type_map[cell.type], i, k, id, type;
