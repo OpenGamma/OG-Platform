@@ -61,7 +61,7 @@ public class HistoricalTimeSeriesProviderComponentFactory extends AbstractCompon
   }
 
   /**
-   * Creates the provider.
+   * Creates the provider, without registering it.
    * <p>
    * This implementation uses {@link NoneFoundHistoricalTimeSeriesProvider} and is intended
    * to be subclassed.

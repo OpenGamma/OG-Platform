@@ -100,14 +100,35 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
     }
   }
 
+  /**
+   * Creates the server, without registering it.
+   * <p>
+   * The calling code will register it, setup the {@link ReconnectManager}
+   * and publish via JMS and REST.
+   * 
+   * @param repo  the repository, not null
+   * @return the server, not null
+   */
   protected abstract AbstractLiveDataServer initServer(ComponentRepository repo);
 
+  /**
+   * Publishes the server by JMS.
+   * 
+   * @param repo  the repository, not null
+   * @param server  the server, not null
+   */
   protected void publishJms(ComponentRepository repo, AbstractLiveDataServer server) {
     publishJmsSubscription(repo, server);
     publishJmsEntitlement(repo, server);
     publishJmsHeartbeat(repo, server);
   }
 
+  /**
+   * Publishes the JMS subscription topic.
+   * 
+   * @param repo  the repository, not null
+   * @param server  the server, not null
+   */
   protected void publishJmsSubscription(ComponentRepository repo, AbstractLiveDataServer server) {
     SubscriptionRequestReceiver receiver = new SubscriptionRequestReceiver(server);
     FudgeRequestDispatcher dispatcher = new FudgeRequestDispatcher(receiver);
@@ -116,6 +137,12 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
     repo.registerLifecycle(jmsContainer);
   }
 
+  /**
+   * Publishes the JMS entitlement topic.
+   * 
+   * @param repo  the repository, not null
+   * @param server  the server, not null
+   */
   protected void publishJmsEntitlement(ComponentRepository repo, AbstractLiveDataServer server) {
     EntitlementServer entitlementServer = new EntitlementServer(server.getEntitlementChecker());
     FudgeRequestDispatcher dispatcher = new FudgeRequestDispatcher(entitlementServer);
@@ -124,6 +151,12 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
     repo.registerLifecycle(jmsContainer);
   }
 
+  /**
+   * Publishes the JMS heartbeat topic.
+   * 
+   * @param repo  the repository, not null
+   * @param server  the server, not null
+   */
   protected void publishJmsHeartbeat(ComponentRepository repo, AbstractLiveDataServer server) {
     ExpirationManager expirationManager = new ExpirationManager(server);
     HeartbeatReceiver receiver = new HeartbeatReceiver(expirationManager);
@@ -153,7 +186,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
   }
 
   /**
-   * Creates the shell meta-data that will have JMS details attached.
+   * Creates the shell meta-data for REST that will have JMS details attached.
    * 
    * @param repo  the repository, not null
    * @return the meta-data, not null

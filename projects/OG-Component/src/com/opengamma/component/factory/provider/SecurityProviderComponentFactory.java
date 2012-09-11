@@ -61,7 +61,7 @@ public class SecurityProviderComponentFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Creates the provider.
+   * Creates the provider, without registering it.
    * <p>
    * This implementation uses {@link NoneFoundSecurityProvider} and is intended
    * to be subclassed.
