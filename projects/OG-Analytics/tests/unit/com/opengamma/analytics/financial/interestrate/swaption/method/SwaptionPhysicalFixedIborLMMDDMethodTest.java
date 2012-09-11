@@ -108,7 +108,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
   // Parameters and methods
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
   private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
-  private static final SwaptionPhysicalFixedIborLMMDDMethod METHOD_LMM = new SwaptionPhysicalFixedIborLMMDDMethod();
+  private static final SwaptionPhysicalFixedIborLMMDDMethod METHOD_LMM = SwaptionPhysicalFixedIborLMMDDMethod.getInstance();
   private static final SwaptionPhysicalFixedIborSABRMethod METHOD_SABR = SwaptionPhysicalFixedIborSABRMethod.getInstance();
   private static final LiborMarketModelDisplacedDiffusionParameters PARAMETERS_LMM = LiborMarketModelDisplacedDiffusionTestsDataSet.createLMMParameters(REFERENCE_DATE,
       SWAP_PAYER_DEFINITION.getIborLeg());
@@ -345,7 +345,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     // Calibration and price
     final LiborMarketModelDisplacedDiffusionParameters lmmParameters = LiborMarketModelDisplacedDiffusionTestsDataSet.createLMMParametersDisplacementAngle(REFERENCE_DATE,
         swapCalibrationDefinition[swapTenorYear.length - 1].getIborLeg(), 0.10, Math.PI / 2);
-    final SwaptionPhysicalLMMDDCalibrationObjective objective = new SwaptionPhysicalLMMDDCalibrationObjective(lmmParameters);
+    final SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective objective = new SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective(lmmParameters);
     final SuccessiveRootFinderCalibrationEngine calibrationEngine = new SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationEngine(objective);
     calibrationEngine.addInstrument(swaptionCalibration2, METHOD_SABR);
     calibrationEngine.calibrate(sabrBundle);
@@ -354,7 +354,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     final double pvAmortizedPrevious = 3058997.117;
     assertEquals("LMM Amortized pricing", pvAmortizedPrevious, pvAmortized.getAmount(), 1.0E-2);
     // Method
-    final SwaptionPhysicalFixedIborSABRLMMMethod method = new SwaptionPhysicalFixedIborSABRLMMMethod();
+    final SwaptionPhysicalFixedIborSABRLMMExactMethod method = new SwaptionPhysicalFixedIborSABRLMMExactMethod();
     final CurrencyAmount pvAmortizedMethod = method.presentValue(swaptionAmortized, sabrBundle);
     assertEquals("LMM Amortized pricing", pvAmortized.getAmount(), pvAmortizedMethod.getAmount(), 1.0E-2);
 
@@ -378,7 +378,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     SABRInterestRateDataBundle sabrBundleShift;
     final LiborMarketModelDisplacedDiffusionParameters lmmParametersShift = LiborMarketModelDisplacedDiffusionTestsDataSet.createLMMParametersDisplacementAngle(REFERENCE_DATE,
         swapCalibrationDefinition[swapTenorYear.length - 1].getIborLeg(), 0.10, Math.PI / 2);
-    final SwaptionPhysicalLMMDDCalibrationObjective objectiveShift = new SwaptionPhysicalLMMDDCalibrationObjective(lmmParametersShift);
+    final SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective objectiveShift = new SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective(lmmParametersShift);
     final SuccessiveRootFinderCalibrationEngine calibrationEngineShift = new SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationEngine(objectiveShift);
     calibrationEngineShift.addInstrument(swaptionCalibration2, METHOD_SABR);
     final LiborMarketModelDisplacedDiffusionDataBundle lmmBundleShift = new LiborMarketModelDisplacedDiffusionDataBundle(lmmParametersShift, CURVES);
