@@ -28,6 +28,7 @@
     <module>projects/OG-Analytics</module>
     <module>projects/OG-Bloomberg</module>
     <module>projects/OG-BloombergExample</module>
+    <module>projects/OG-Client</module>
     <module>projects/OG-Component</module>
     <module>projects/OG-Core</module>
     <module>projects/OG-Engine</module>
