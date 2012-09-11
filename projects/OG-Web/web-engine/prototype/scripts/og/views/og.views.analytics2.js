@@ -9,9 +9,9 @@ $.register_module({
     ],
     obj: function () {
         var routes = og.common.routes, module = this, view,
-            GadgetsContainer = og.common.gadgets.GadgetsContainer, gadget_containers = {},
-            panels = ['south', 'dock-north', 'dock-center', 'dock-south'],
-            cellmenu = new og.analytics.CellMenu(panels, gadget_containers);
+            GadgetsContainer = og.common.gadgets.GadgetsContainer,
+            cellmenu = new og.analytics.CellMenu();
+        gadget_containers = {}; // TODO: remove global
         module.rules = {load: {route: '/', method: module.name + '.load'}};
         return view = {
             check_state: og.views.common.state.check.partial('/'),
@@ -46,7 +46,7 @@ $.register_module({
                     cellmenu.show(cell);
                 });
                 grid.on('cellselect', function () {});
-                panels.forEach(function (val) {
+                ['south', 'dock-north', 'dock-center', 'dock-south'].forEach(function (val) {
                     gadget_containers[val] = new GadgetsContainer('.OG-layout-analytics-', val).add(args[val]);
                 });
                 og.analytics.form('.OG-layout-analytics-masthead');

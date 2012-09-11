@@ -51,34 +51,38 @@ $.register_module({
                 }
             return 'gadget.ftl#/gadgetscontainer/' + type + ':' + id;
         };
-        return function (panels, gadget_containers) {
-            var self = this, timer, cur_cell, handler = function (tmpl) {
-                self.hide = function () {self.menu.hide()};
-                self.menu = $(tmpl);
-                self.show = function (cell) {
-                    cur_cell = cell;
-                    if (self.menu.length) self.menu.css({top: cell.top + 1, left: cell.right - 32}).show();
+        return function () {
+            var self = this, timer, cur_cell, panels = ['south', 'dock-north', 'dock-center', 'dock-south'],
+                handler = function (tmpl) {
+                    self.hide = function () {self.menu.hide()};
+                    self.menu = $(tmpl);
+                    self.show = function (cell) {
+                        cur_cell = cell;
+                        if (self.menu.length) self.menu.css({top: cell.top, left: cell.right - 32}).show();
+                    };
+                    self.menu.hide()
+                        .on('mouseleave', function () {
+                            clearTimeout(timer);
+                            self.menu.removeClass(expand_class);
+                        })
+                        .on('mouseenter', open_icon, function () {
+                            clearTimeout(timer);
+                            timer = setTimeout(function () {self.menu.addClass(expand_class);}, 500);
+                        })
+                        .on('click', open_icon, function () {self.menu.addClass(expand_class);})
+                        .on('mouseenter', icons, function () {
+                            var panel = panels[$(this).text() - 1];
+                            panels.forEach(function (v) {gadget_containers[v].highlight(true, !!(v === panel));});
+                        })
+                        .on('mouseleave', icons, function () {
+                            panels.forEach(function (v) {gadget_containers[v].highlight(false)});
+                        })
+                        .on('click', icons, function () {
+                            var panel = panels[$(this).text() - 1];
+                            if (panel === void 0) window.open(get_url(cur_cell, panel)), self.hide();
+                        });
+                    $('body').append(self.menu);
                 };
-                self.menu.hide()
-                    .on('mouseleave', function () {clearTimeout(timer), self.menu.removeClass(expand_class);})
-                    .on('mouseenter', open_icon, function () {
-                        clearTimeout(timer), timer = setTimeout(function () {self.menu.addClass(expand_class);}, 500);
-                    })
-                    .on('click', open_icon, function () {self.menu.addClass(expand_class);})
-                    .on('mouseenter', icons, function () {
-                        var panel = panels[$(this).text() - 1];
-                        panels.forEach(function (v) {gadget_containers[v].highlight(true, !!(v === panel));});
-                    })
-                    .on('mouseleave', icons, function () {
-                        panels.forEach(function (v) {gadget_containers[v].highlight(false)});
-                    })
-                    .on('click', icons, function () {
-                        var panel = panels[$(this).text() - 1];
-                        if (panel === void 0) window.open(get_url(cur_cell, panel)), self.hide();
-//                        else console.log(panel);
-                    });
-                $('body').append(self.menu);
-            };
             $.when(og.api.text({module: 'og.analytics.cell_options'})).then(handler);
         }
     }
