@@ -7,7 +7,7 @@ $.register_module({
     dependencies: ['og.common.util.ui.AutoCombo', 'og.views.common.layout'],
     obj: function () { 
         return function (selector) {
-            var FormCombo, Status, Menu, create_form, handle_error, ds_response = { // dummy 
+            var Title, Menu, FormCombo, Status, create_form, handle_error, ds_response = { // dummy
                     type: ['Live', 'Snapsot', 'Historical', 'Data Type'],
                     live: ['Bloomberg', 'Reuters'],
                     snapshot: ['Alan', 'Alan 2'],
@@ -19,14 +19,16 @@ $.register_module({
                         {num: 3, type: 'Historical', value: '02 June 2012'},
                         {num: 4, type: 'Data Type', value: 'type 2', last: true}
                     ]
-                };
-            Title = function (selector, markup){ // TODO AG: use ui.form Blocks
-                return $(selector).html(markup).find('.og-option-title').on('click', function (event) {
-                    event.stopPropagation();
-                    menu.state === 'open' ? menu.close() : menu.open().focus();
-                });
             };
-            Menu = function () { // TODO AG: use ui.form Blocks
+            Title = function (selector, markup){
+                var title;
+                return title = this, $(selector).html(markup).find('.og-option-title').on('click', function (event) {
+                        event.stopPropagation();
+                        menu.state === 'open' ? menu.close() : menu.open().focus();
+                    }), title;
+            };
+            Menu = function () {
+                var menu, popdiv;
                 return menu = this, popdiv = $(selector + ' .OG-analytics-form-menu'), menu.state = 'closed',
                     menu.focus = function () {
                         return popdiv.find('select').first().focus(), menu; 
@@ -41,10 +43,9 @@ $.register_module({
                     }, menu;
             };
             FormCombo = function (selector, module, data) {
-                var title, menu
                 $.when(og.api.text({module: module})).then(function (template) {
-                    title = new Title(selector, $((Handlebars.compile(template))(data)))
-                    menu = new Menu(selector);
+                    new Title(selector, $((Handlebars.compile(template))(data)));
+                    new Menu(selector);
                 });
             };
             Status = function (selector) {

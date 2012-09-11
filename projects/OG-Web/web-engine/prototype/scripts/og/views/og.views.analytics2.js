@@ -5,10 +5,6 @@
 $.register_module({
     name: 'og.views.analytics2',
     dependencies: [
-        'og.api.rest',
-        'og.api.text',
-        'og.common.routes',
-        //TODO AG: check for multi deps ^
         'og.views.common.state',
         'og.common.routes',
         'og.common.gadgets.GadgetsContainer'
@@ -55,9 +51,7 @@ $.register_module({
                 ['south', 'dock-north', 'dock-center', 'dock-south'].forEach(function (val) {
                     new GadgetsContainer('.OG-layout-analytics-', val).add(args[val]);
                 });
-                og.analytics.form2({
-                    selector:'.OG-layout-analytics-masthead'
-                });
+                og.analytics.form('.OG-layout-analytics-masthead');
                 og.analytics.resize();
             },
             init: function () {for (var rule in view.rules) routes.add(view.rules[rule]);},
