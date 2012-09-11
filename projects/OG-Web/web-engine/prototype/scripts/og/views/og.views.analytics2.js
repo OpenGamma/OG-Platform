@@ -4,7 +4,9 @@
  */
 $.register_module({
     name: 'og.views.analytics2',
-    dependencies: ['og.views.common.state', 'og.common.routes', 'og.common.gadgets.GadgetsContainer'],
+    dependencies: [
+        'og.views.common.state', 'og.common.routes', 'og.common.gadgets.GadgetsContainer','og.analytics.CellMenu'
+    ],
     obj: function () {
         var routes = og.common.routes, module = this, view,
             GadgetsContainer = og.common.gadgets.GadgetsContainer, gadget_containers = {},

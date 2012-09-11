@@ -73,6 +73,7 @@ $.register_module({
                                 case 'curve': url = prefix + type + ':' + id; break;
                                 case 'grid': url = prefix + type + ':' + id; break;
                                 case 'data': url = prefix + type + ':' + id; break;
+                                case 'depgraph': url = prefix + type + ':' + id; break;
                             }
                             if (!dropped) {
                                 window.open(url);
@@ -199,6 +200,13 @@ $.register_module({
                         return {
                             gadget: 'og.common.gadgets.data',
                             name: 'Data: ' + id,
+                            options: {id: id, child: true}
+                        }
+                    };
+                    options.depgraph = function (id) {
+                        return {
+                            gadget: 'og.common.gadgets.depgraph',
+                            name: 'Dependency graph: ' + id,
                             options: {id: id, child: true}
                         }
                     };
