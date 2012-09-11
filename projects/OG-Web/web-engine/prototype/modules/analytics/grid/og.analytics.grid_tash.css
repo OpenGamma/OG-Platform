@@ -24,6 +24,8 @@
 {{#each columns}}
     {{prefix}} .OG-g .c{{index}} {left: {{left}}px; right: {{right}}px;}
 {{/each}}
+/* flot */
+{{id}} .OG-g .flot {position: absolute; top: 0; right: 0; left: 0; bottom: 0}
 /* sparkline */
 {{id}} .OG-g .sp {position: absolute; top: 3px; right: 18px;}
 /* flat sparkline */
