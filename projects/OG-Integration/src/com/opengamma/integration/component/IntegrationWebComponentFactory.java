@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.integration.web;
+package com.opengamma.integration.component;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
