@@ -11,44 +11,34 @@ $.register_module({
     ],
     obj: function () { 
         return function (config) {
-            var Form = og.common.util.ui.Form, form, form_id, ds_response = { // dummy 
-                    type: ['Live', 'Snapsot', 'Historical', 'Data Type'],
-                    live: ['Bloomberg', 'Reuters'],
-                    snapshot: ['Alan', 'Alan 2'],
-                    historical: ['01 June 2012', '02 June 2012', '03 June 2012'],
-                    datatype: ['type 1', 'type 2'],
-                    row: [
-                        {num: 1, type: 'Live', value: 'Bloomberg'},
-                        {num: 2, type: 'Snapshot', value: 'Alan'},
-                        {num: 3, type: 'Historical', value: '02 June 2012'},
-                        {num: 4, type: 'Data Type', value: 'type 2', last: true}
-                    ]
-                },
-                load_handler = config.handler || $.noop, selector = config.selector, type_map = config.type_map,
-                loading = config.loading || $.noop, id_count = 0, prefix = 'analytics_form_',
-                master = config.data.template_data.configJSON.data, config_type = config.type, construct_form,
-                handle_error;
-            construct_form = function (view, aggregators) {
+            var Form = og.common.util.ui.Form, blocks, form, fields, form_id, selector = config.selector,
+                vds = config.viewdefs, aggs = config.aggregators, handle_error, load_handler,
+                submit_handler, agg_block, data_source;
+            handle_error = function () {};
+            submit_handler = function () {};
+            load_handler = function () {/*setTimeout(load_handler.partial(form));*/};
+            agg_block =  function () {
+                var tmpl = $((Handlebars.compile(aggs.template))(aggs.data)),
+                    f = new form.Field({
+                    url:null,
+                    module: null,
+                    generator: function () {}
+                });
+                f.html(function(){});
+                return f;
+            };
+            (function () {
                 form = new Form({
                     module: 'og.analytics.form_tash',
-                    data: master,
-                    type_map: type_map,
-                    selector: selector,
-                    extras: {name: master.name},
-                    processor: function () {}
+                    selector: selector
                 });
-                form_id = '#' + form.id;
                 form.attach([
-                    {type: 'form:load', handler: function () { setTimeout(load_handler.partial(form)); }},
-                    {type: 'form:submit', handler: function () {}},
-                    {type: 'click', selector: 'tbc', handler:function () {}}
-                ]);    
-            },
-            handle_error = function (err) {};
-            $.when(
-                og.api.rest.viewdefinitions.get(),
-                og.api.rest.aggregators.get()
-            ).then(construct_form);
+                    {type: 'form:load', handler: load_handler},
+                    {type: 'form:submit', handler: submit_handler}
+                ]);
+                form.children.push(agg_block());
+                form.dom();
+            })();
         };
     }
 });
