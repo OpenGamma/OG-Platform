@@ -29,10 +29,10 @@ import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Method to computes the present value and sensitivities of physical delivery European swaptions with a Libor Market Model calibrated to SABR prices.
+ * Method to computes the present value and sensitivities of physical delivery European swaptions with a Libor Market Model calibrated exactly to SABR prices.
  * The LMM displacements and volatility weights are hard coded.
  */
-public class SwaptionPhysicalFixedIborSABRLMMMethod implements PricingMethod {
+public class SwaptionPhysicalFixedIborSABRLMMExactMethod implements PricingMethod {
 
   /**
    * The default mean reversion parameter for the model.
@@ -54,7 +54,7 @@ public class SwaptionPhysicalFixedIborSABRLMMMethod implements PricingMethod {
   /**
    * The LMM method used for European swaptions with physical delivery.
    */
-  private static final SwaptionPhysicalFixedIborLMMDDMethod METHOD_SWAPTION_LMM = new SwaptionPhysicalFixedIborLMMDDMethod();
+  private static final SwaptionPhysicalFixedIborLMMDDMethod METHOD_SWAPTION_LMM = SwaptionPhysicalFixedIborLMMDDMethod.getInstance();
 
   /**
    * The method calibrates a LMM on a set of vanilla swaption priced with SABR. The set of vanilla swaptions is given by the CalibrationType.
@@ -71,7 +71,7 @@ public class SwaptionPhysicalFixedIborSABRLMMMethod implements PricingMethod {
     //TODO: Create a way to chose the LMM base parameters (displacement, mean reversion, volatility).
     LiborMarketModelDisplacedDiffusionParameters lmmParameters = LiborMarketModelDisplacedDiffusionParameters.from(swaption, DEFAULT_DISPLACEMENT, DEFAULT_MEAN_REVERSION, new VolatilityLMMAngle(
         DEFAULT_ANGLE, DEFAULT_DISPLACEMENT));
-    SwaptionPhysicalLMMDDCalibrationObjective objective = new SwaptionPhysicalLMMDDCalibrationObjective(lmmParameters);
+    SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective objective = new SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective(lmmParameters);
     SuccessiveRootFinderCalibrationEngine calibrationEngine = new SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationEngine(objective);
     //TODO: Create a way to chose the calibration type.
     InstrumentDerivative[] swaptionCalibration = swaption.calibrationBasket(SwaptionPhysicalFixedIborCalibrationType.FIXEDLEG_STRIKE);
@@ -101,7 +101,7 @@ public class SwaptionPhysicalFixedIborSABRLMMMethod implements PricingMethod {
     //TODO: Create a way to chose the LMM base parameters (displacement, mean reversion, volatility).
     LiborMarketModelDisplacedDiffusionParameters lmmParameters = LiborMarketModelDisplacedDiffusionParameters.from(swaption, DEFAULT_DISPLACEMENT, DEFAULT_MEAN_REVERSION, new VolatilityLMMAngle(
         DEFAULT_ANGLE, DEFAULT_DISPLACEMENT));
-    SwaptionPhysicalLMMDDCalibrationObjective objective = new SwaptionPhysicalLMMDDCalibrationObjective(lmmParameters);
+    SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective objective = new SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective(lmmParameters);
     SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationEngine calibrationEngine = new SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationEngine(objective);
     //TODO: Create a way to chose the calibration type.
     SwaptionPhysicalFixedIbor[] swaptionCalibration = swaption.calibrationBasket(SwaptionPhysicalFixedIborCalibrationType.FIXEDLEG_STRIKE);
@@ -188,7 +188,7 @@ public class SwaptionPhysicalFixedIborSABRLMMMethod implements PricingMethod {
     //TODO: Create a way to chose the LMM base parameters (displacement, mean reversion, volatility).
     LiborMarketModelDisplacedDiffusionParameters lmmParameters = LiborMarketModelDisplacedDiffusionParameters.from(swaption, DEFAULT_DISPLACEMENT, DEFAULT_MEAN_REVERSION, new VolatilityLMMAngle(
         DEFAULT_ANGLE, DEFAULT_DISPLACEMENT));
-    SwaptionPhysicalLMMDDCalibrationObjective objective = new SwaptionPhysicalLMMDDCalibrationObjective(lmmParameters);
+    SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective objective = new SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective(lmmParameters);
     SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationEngine calibrationEngine = new SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationEngine(objective);
     //TODO: Create a way to chose the calibration type.
     SwaptionPhysicalFixedIbor[] swaptionCalibration = swaption.calibrationBasket(SwaptionPhysicalFixedIborCalibrationType.FIXEDLEG_STRIKE);
@@ -294,7 +294,7 @@ public class SwaptionPhysicalFixedIborSABRLMMMethod implements PricingMethod {
     //TODO: Create a way to chose the LMM base parameters (displacement, mean reversion, volatility).
     LiborMarketModelDisplacedDiffusionParameters lmmParameters = LiborMarketModelDisplacedDiffusionParameters.from(swaption, DEFAULT_DISPLACEMENT, DEFAULT_MEAN_REVERSION, new VolatilityLMMAngle(
         DEFAULT_ANGLE, DEFAULT_DISPLACEMENT));
-    SwaptionPhysicalLMMDDCalibrationObjective objective = new SwaptionPhysicalLMMDDCalibrationObjective(lmmParameters);
+    SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective objective = new SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective(lmmParameters);
     SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationEngine calibrationEngine = new SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationEngine(objective);
     //TODO: Create a way to chose the calibration type.
     SwaptionPhysicalFixedIbor[] swaptionCalibration = swaption.calibrationBasket(SwaptionPhysicalFixedIborCalibrationType.FIXEDLEG_STRIKE);

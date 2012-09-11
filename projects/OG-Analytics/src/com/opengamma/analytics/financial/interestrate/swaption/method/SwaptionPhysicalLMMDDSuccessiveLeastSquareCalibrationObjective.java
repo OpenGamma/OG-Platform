@@ -1,25 +1,26 @@
 /**
- * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.method;
 
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.interestrate.method.SuccessiveRootFinderCalibrationObjective;
+import com.opengamma.analytics.financial.interestrate.method.SuccessiveLeastSquareCalibrationObjective;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.model.interestrate.definition.LiborMarketModelDisplacedDiffusionDataBundle;
 import com.opengamma.analytics.financial.model.interestrate.definition.LiborMarketModelDisplacedDiffusionParameters;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 
 /**
- * Specific objective function for LMM calibration with swaptions.
+ * Specific objective function for LMM calibration with swaptions. The calibration is done on the volatilities and the displacements (skews).
  */
-public class SwaptionPhysicalLMMDDCalibrationObjective extends SuccessiveRootFinderCalibrationObjective {
+public class SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationObjective extends SuccessiveLeastSquareCalibrationObjective {
 
   /**
    * The pricing method used to price the swaptions.
    */
-  private static final SwaptionPhysicalFixedIborLMMDDMethod METHOD_LMM_SWAPTION = new SwaptionPhysicalFixedIborLMMDDMethod();
+  private static final SwaptionPhysicalFixedIborLMMDDMethod METHOD_LMM_SWAPTION = SwaptionPhysicalFixedIborLMMDDMethod.getInstance();
   /**
    * The LMM parameters. The calibration is done on the block of parameters between _startIndex and _endIndex.
    */
@@ -40,23 +41,27 @@ public class SwaptionPhysicalLMMDDCalibrationObjective extends SuccessiveRootFin
    * The initial LMM volatilities before calibration.
    */
   private final double[][] _volatilityInit;
+  /**
+   * The initial displacement parameters before calibration.
+   */
+  private final double[] _displacementInit;
 
   /**
    * Constructor of the objective function with the LMM parameters. The parameters range and accuracy are set at some default value 
    * (minimum: 1.0E-1; maximum: 1.0E+1, function value accuracy: 1.0E-4; parameter absolute accuracy: 1.0E-9).
    * @param parameters The Hull-White parameters.
    */
-  public SwaptionPhysicalLMMDDCalibrationObjective(final LiborMarketModelDisplacedDiffusionParameters parameters) {
+  public SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationObjective(final LiborMarketModelDisplacedDiffusionParameters parameters) {
     _lmmParameters = parameters;
-    setMinimumParameter(1.0E-1);
-    setMaximumParameter(1.0E+1);
-    setFunctionValueAccuracy(1.0E-4);
-    setVariableAbsoluteAccuracy(1.0E-9);
     _volatilityInit = new double[_lmmParameters.getNbPeriod()][_lmmParameters.getNbFactor()];
     for (int loopperiod = 0; loopperiod < _lmmParameters.getNbPeriod(); loopperiod++) {
       for (int loopfact = 0; loopfact < _lmmParameters.getNbFactor(); loopfact++) {
         _volatilityInit[loopperiod][loopfact] = parameters.getVolatility()[loopperiod][loopfact];
       }
+    }
+    _displacementInit = new double[_lmmParameters.getNbPeriod()];
+    for (int loopperiod = 0; loopperiod < _lmmParameters.getNbPeriod(); loopperiod++) {
+      _displacementInit[loopperiod] = parameters.getDisplacement()[loopperiod];
     }
   }
 
@@ -72,7 +77,7 @@ public class SwaptionPhysicalLMMDDCalibrationObjective extends SuccessiveRootFin
    * Gets the LMM curve bundle.
    * @return The LMM curve bundle.
    */
-  public LiborMarketModelDisplacedDiffusionDataBundle getLmmBundle() {
+  public LiborMarketModelDisplacedDiffusionDataBundle getLMMBundle() {
     return _lmmBundle;
   }
 
@@ -122,16 +127,30 @@ public class SwaptionPhysicalLMMDDCalibrationObjective extends SuccessiveRootFin
   }
 
   @Override
-  public Double evaluate(Double x) {
+  /**
+   * The inputs are the multiplicative factor on the volatilities and the additive term on the displacement.
+   */
+  public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
     int nbVol = _endIndex - _startIndex + 1;
     double[][] volChanged = new double[nbVol][_lmmParameters.getNbFactor()];
     for (int loopperiod = 0; loopperiod < nbVol; loopperiod++) {
       for (int loopfact = 0; loopfact < _lmmParameters.getNbFactor(); loopfact++) {
-        volChanged[loopperiod][loopfact] = _volatilityInit[loopperiod + _startIndex][loopfact] * x;
+        volChanged[loopperiod][loopfact] = _volatilityInit[loopperiod + _startIndex][loopfact] * x.getEntry(0);
       }
     }
     _lmmParameters.setVolatility(volChanged, _startIndex);
-    return METHOD_LMM_SWAPTION.presentValue((SwaptionPhysicalFixedIbor) getInstrument(), _lmmBundle).getAmount() - getPrice();
+    double[] disChanged = new double[nbVol];
+    for (int loopperiod = 0; loopperiod < nbVol; loopperiod++) {
+      disChanged[loopperiod] = _displacementInit[loopperiod + _startIndex] + x.getEntry(1);
+    }
+    _lmmParameters.setDisplacement(disChanged, _startIndex);
+    int nbInstruments = getInstruments().length;
+    Double[] result = new Double[nbInstruments];
+    // Implementation note: The pv error for each instrument 
+    for (int loopins = 0; loopins < nbInstruments; loopins++) {
+      result[loopins] = METHOD_LMM_SWAPTION.presentValue((SwaptionPhysicalFixedIbor) getInstruments()[loopins], _lmmBundle).getAmount() - getPrices()[loopins];
+    }
+    return new DoubleMatrix1D(result);
   }
 
 }

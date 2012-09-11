@@ -30,11 +30,10 @@
             <phase>package</phase>
             <configuration>
               <target>
-                <mkdir dir="${dist.dir}"/>
-                <zip basedir="web-engine" destfile="${dist.dir}/web-engine.zip" />
-                <zip basedir="web-push" destfile="${dist.dir}/web-push.zip" />
-                <zip basedir="web-marketdata" destfile="${dist.dir}/web-marketdata.zip" />
-                <zip basedir="web-sharedmasters" destfile="${dist.dir}/web-sharedmasters.zip" />
+                <zip basedir="web-engine" destfile="${project.build.directory}/web-engine.zip" />
+                <zip basedir="web-push" destfile="${project.build.directory}/web-push.zip" />
+                <zip basedir="web-marketdata" destfile="${project.build.directory}/web-marketdata.zip" />
+                <zip basedir="web-sharedmasters" destfile="${project.build.directory}/web-sharedmasters.zip" />
               </target>
             </configuration>
             <goals>
@@ -56,22 +55,22 @@
             <configuration>
               <artifacts>
                 <artifact>
-                  <file>${dist.dir}/web-engine.zip</file>
+                  <file>${project.build.directory}/web-engine.zip</file>
                   <type>zip</type>
                   <classifier>web-engine</classifier>
                 </artifact>
                 <artifact>
-                  <file>${dist.dir}/web-push.zip</file>
+                  <file>${project.build.directory}/web-push.zip</file>
                   <type>zip</type>
                   <classifier>web-push</classifier>
                 </artifact>
                 <artifact>
-                  <file>${dist.dir}/web-marketdata.zip</file>
+                  <file>${project.build.directory}/web-marketdata.zip</file>
                   <type>zip</type>
                   <classifier>web-marketdata</classifier>
                 </artifact>
                 <artifact>
-                  <file>${dist.dir}/web-sharedmasters.zip</file>
+                  <file>${project.build.directory}/web-sharedmasters.zip</file>
                   <type>zip</type>
                   <classifier>web-sharedmasters</classifier>
                 </artifact>
@@ -108,7 +107,6 @@
 
   <properties>
     <og-platform.basedir>${project.parent.basedir}/../..</og-platform.basedir>
-    <dist.dir>${project.basedir}/dist</dist.dir>
   </properties>
 
 </project>
