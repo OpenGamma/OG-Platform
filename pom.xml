@@ -47,4 +47,17 @@
     <module>projects/OG-Web</module>
   </modules>
 
+  <profiles>
+    <profile>
+      <activation>
+        <file>
+          <exists>projects/OG-RStats/pom.xml</exists>
+        </file>
+      </activation>
+      <modules>
+        <module>projects/OG-RStats</module>
+      </modules>
+    </profile>
+  </profiles>
+
 </project>
