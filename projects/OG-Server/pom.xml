@@ -11,10 +11,10 @@
     <version>1.2.0-SNAPSHOT</version>
     <relativePath>../OG-Parent</relativePath>
   </parent>  
-  <artifactId>og-client</artifactId>
+  <artifactId>og-server</artifactId>
   <packaging>pom</packaging>
-  <name>OG-Client</name>
-  <description>OpenGamma client dependencies</description>
+  <name>OG-Server</name>
+  <description>OpenGamma server dependencies</description>
 
   <dependencies>
     <dependency>
@@ -59,8 +59,18 @@
     </dependency>
     <dependency>
       <groupId>com.opengamma</groupId>
+      <artifactId>og-masterdb</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma</groupId>
       <artifactId>og-integration</artifactId>
       <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma</groupId>
+      <artifactId>og-region-data</artifactId>
+      <version>1.0.0.v20110908a</version>
     </dependency>
   </dependencies>
 
