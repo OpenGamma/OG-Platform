@@ -5,7 +5,10 @@
  */
 package com.opengamma.integration.server;
 
-import com.opengamma.livedata.BloombergServerConstants;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.SingletonFactoryBean;
 
@@ -14,9 +17,22 @@ import com.opengamma.util.SingletonFactoryBean;
  */
 public class TestUserFactoryBean extends SingletonFactoryBean<UserPrincipal> {
 
+  /**
+   * The user that should be used for entitlement checking.
+   */
+  public static final UserPrincipal TEST_USER;
+
+  static {
+    try {
+      TEST_USER = new UserPrincipal("testuser", InetAddress.getLocalHost().toString());
+    } catch (UnknownHostException e) {
+      throw new OpenGammaRuntimeException("Could not initialize test user", e);
+    }
+  }
+
   @Override
   protected UserPrincipal createObject() {
-    return BloombergServerConstants.TEST_USER;
+    return TEST_USER;
   }
 
 }
