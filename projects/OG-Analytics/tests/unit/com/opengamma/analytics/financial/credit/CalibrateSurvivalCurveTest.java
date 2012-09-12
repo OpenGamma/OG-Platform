@@ -57,7 +57,7 @@ public class CalibrateSurvivalCurveTest {
   private static final ZonedDateTime startDate = DateUtils.getUTCDate(2007, 10, 22);
   private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2007, 10, 23);
   private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2012, 12, 20);
-  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2008, 10, 22);
+  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2007, 10, 23);
 
   private static final StubType stubType = StubType.FRONTSHORT;
   private static final PeriodFrequency couponFrequency = PeriodFrequency.QUARTERLY;
@@ -68,20 +68,17 @@ public class CalibrateSurvivalCurveTest {
   private static final boolean adjustMaturityDate = true;
 
   private static final double notional = 10000000.0;
-  private static final double parSpread = 60.0;
+  private static final double parSpread = 100.0;
   private static final double valuationRecoveryRate = 0.40;
   private static final double curveRecoveryRate = 0.40;
-  private static final boolean includeAccruedPremium = true;
+  private static final boolean includeAccruedPremium = false;
 
   // Dummy yield curve
-  private static final double interestRate = 0.05;
+  private static final double interestRate = 0.0;
   private static final double[] TIME = new double[] {0, 3, 5, 10 };
   private static final double[] RATES = new double[] {interestRate, interestRate, interestRate, interestRate };
   private static final InterpolatedDoublesCurve R = InterpolatedDoublesCurve.from(TIME, RATES, new LinearInterpolator1D());
   private static final YieldCurve yieldCurve = YieldCurve.from(R);
-
-  // Construct a survival curve based on a flat hazard rate term structure (for testing purposes only)
-  private static final FlatSurvivalCurve survivalCurve = new FlatSurvivalCurve(parSpread, curveRecoveryRate);
 
   // ----------------------------------------------------------------------------------
 
@@ -122,11 +119,29 @@ public class CalibrateSurvivalCurveTest {
   @Test
   public void testCalibrateSurvivalCurve() {
 
-    System.out.println("Running tests on survival curve construction ...");
+    final boolean outputResults = false;
 
-    //final CalibrateSurvivalCurve curve = new CalibrateSurvivalCurve();
+    int numberOfTenors = 5;
 
-    //double[][] calibratedSurvivalCurve = curve.getCalibratedSurvivalCurve(cds, null, null);
+    final ZonedDateTime[] tenors = new ZonedDateTime[5];
+
+    tenors[0] = cds.getValuationDate().plusYears(1);
+    tenors[1] = cds.getValuationDate().plusYears(3);
+    tenors[2] = cds.getValuationDate().plusYears(5);
+    tenors[3] = cds.getValuationDate().plusYears(7);
+    tenors[4] = cds.getValuationDate().plusYears(10);
+
+    double[] parCDSSpreads = new double[numberOfTenors];
+
+    parCDSSpreads[0] = 50.0;
+    parCDSSpreads[0] = 50.0;
+    parCDSSpreads[0] = 50.0;
+    parCDSSpreads[0] = 50.0;
+    parCDSSpreads[0] = 50.0;
+
+    final CalibrateSurvivalCurve curve = new CalibrateSurvivalCurve();
+
+    double[][] calibratedSurvivalCurve = curve.getCalibratedSurvivalCurve(cds, tenors, parCDSSpreads, yieldCurve);
   }
   // ---------------------------------------------------------------------------------------
 }

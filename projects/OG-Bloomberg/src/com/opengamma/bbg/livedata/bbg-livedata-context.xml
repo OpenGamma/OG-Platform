@@ -19,6 +19,17 @@
   <alias name="bbgEntitlementChecker" alias="entitlementChecker"/>
 
   <!-- copied from marketdata server infrastructure -->
+  <bean id="standardBloombergConnector" class="com.opengamma.bbg.BloombergConnectorFactoryBean">
+    <property name="name" value="Standard" />
+    <property name="host" value="${bloomberg.host}" />
+    <property name="port" value="${bloomberg.port}" />
+  </bean>
+  <bean id="bloombergRefDataMongoConnector" class="com.opengamma.util.mongo.MongoConnectorFactoryBean">
+    <property name="name" value="BloombergReferenceData" />
+    <property name="host" value="${mongo.bloomberg.refdata.host}" />
+    <property name="port" value="${mongo.bloomberg.refdata.port}" />  
+    <property name="databaseName" value="${mongo.bloomberg.refdata.database}" />
+  </bean>
   <bean id="standardCacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
     <property name="shared" value="true"/>
   </bean>

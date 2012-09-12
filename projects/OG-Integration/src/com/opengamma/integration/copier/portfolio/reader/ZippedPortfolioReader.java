@@ -46,9 +46,10 @@ public class ZippedPortfolioReader implements PortfolioReader {
   private Enumeration<ZipEntry> _zipEntries;
   private PortfolioReader _currentReader;
   private String[] _currentPath = new String[0];
-  
+  private boolean _ignoreVersion;
+
   @SuppressWarnings("unchecked")
-  public ZippedPortfolioReader(String filename) {
+  public ZippedPortfolioReader(String filename, boolean ignoreVersion) {
     
     ArgumentChecker.notNull(filename, "filename");
     
@@ -59,9 +60,13 @@ public class ZippedPortfolioReader implements PortfolioReader {
       throw new OpenGammaRuntimeException("Could not open " + filename);
     }
 
-    // Retrieve security hashes listed in config file
-    readMetaData("METADATA.INI");
-    
+    _ignoreVersion = ignoreVersion;
+
+    if (!_ignoreVersion) {
+      // Retrieve security hashes listed in config file
+      readMetaData("METADATA.INI");
+    }
+
     s_logger.info("Using ZIP archive " + filename);
   }
 
@@ -108,16 +113,18 @@ public class ZippedPortfolioReader implements PortfolioReader {
           s_logger.error("Could not build a row parser for security type '" + secType + "'");
           return null; 
         }
-        if (_versionMap.get(secType) == null) {
-          s_logger.error("Versioning hash for security type '" + secType + "' could not be found");
-          return null;
-        }
-        if (parser.getSecurityHashCode() != _versionMap.get(secType)) {
-          s_logger.error("The parser version for the '" + secType + "' security (hash " + 
-              Integer.toHexString(parser.getSecurityHashCode()) + 
-              ") does not match the data stored in the archive (hash " + 
-              Integer.toHexString(_versionMap.get(secType)) + ")");
-          return null;
+        if (!_ignoreVersion) {
+          if (_versionMap.get(secType) == null) {
+            s_logger.error("Versioning hash for security type '" + secType + "' could not be found");
+            return null;
+          }
+          if (parser.getSecurityHashCode() != _versionMap.get(secType)) {
+            s_logger.error("The parser version for the '" + secType + "' security (hash " +
+                Integer.toHexString(parser.getSecurityHashCode()) +
+                ") does not match the data stored in the archive (hash " +
+                Integer.toHexString(_versionMap.get(secType)) + ")");
+            return null;
+          }
         }
 
         s_logger.info("Processing rows in archive entry " + entry.getName() + " as " + secType);

@@ -18,16 +18,13 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.bbg.ReferenceDataProvider;
-import com.opengamma.bbg.loader.BloombergBulkSecurityLoader;
 import com.opengamma.bbg.loader.BloombergSecurityLoader;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
-import com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider;
-import com.opengamma.financial.timeseries.exchange.ExchangeDataProvider;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.provider.security.SecurityProvider;
 
 /**
  * Component factory that instantiates the security loader.
@@ -42,11 +39,10 @@ public class ExampleSecurityLoaderComponentFactory extends AbstractComponentFact
   private String _classifier;
 
   /**
-   * The reference data provider.
+   * The security provider.
    */
   @PropertyDefinition(validate = "notNull")
-  private ReferenceDataProvider _referenceDataProvider;
-
+  private SecurityProvider _securityProvider;
   /**
    * The security master.
    */
@@ -56,10 +52,8 @@ public class ExampleSecurityLoaderComponentFactory extends AbstractComponentFact
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
-    ExchangeDataProvider exchangeDataProvider = new DefaultExchangeDataProvider();
-    BloombergBulkSecurityLoader bulkSecurityLoader = new BloombergBulkSecurityLoader(getReferenceDataProvider(), exchangeDataProvider);
-    SecurityLoader securityLoader = new BloombergSecurityLoader(getSecurityMaster(), bulkSecurityLoader);
-
+    SecurityLoader securityLoader = new BloombergSecurityLoader(getSecurityProvider(), getSecurityMaster());
+    
     ComponentInfo info = new ComponentInfo(SecurityLoader.class, getClassifier());
     repo.registerComponent(info, securityLoader);
   }
@@ -87,8 +81,8 @@ public class ExampleSecurityLoaderComponentFactory extends AbstractComponentFact
     switch (propertyName.hashCode()) {
       case -281470431:  // classifier
         return getClassifier();
-      case -1788671322:  // referenceDataProvider
-        return getReferenceDataProvider();
+      case 809869649:  // securityProvider
+        return getSecurityProvider();
       case -887218750:  // securityMaster
         return getSecurityMaster();
     }
@@ -101,8 +95,8 @@ public class ExampleSecurityLoaderComponentFactory extends AbstractComponentFact
       case -281470431:  // classifier
         setClassifier((String) newValue);
         return;
-      case -1788671322:  // referenceDataProvider
-        setReferenceDataProvider((ReferenceDataProvider) newValue);
+      case 809869649:  // securityProvider
+        setSecurityProvider((SecurityProvider) newValue);
         return;
       case -887218750:  // securityMaster
         setSecurityMaster((SecurityMaster) newValue);
@@ -114,7 +108,7 @@ public class ExampleSecurityLoaderComponentFactory extends AbstractComponentFact
   @Override
   protected void validate() {
     JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_referenceDataProvider, "referenceDataProvider");
+    JodaBeanUtils.notNull(_securityProvider, "securityProvider");
     super.validate();
   }
 
@@ -126,7 +120,7 @@ public class ExampleSecurityLoaderComponentFactory extends AbstractComponentFact
     if (obj != null && obj.getClass() == this.getClass()) {
       ExampleSecurityLoaderComponentFactory other = (ExampleSecurityLoaderComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(getReferenceDataProvider(), other.getReferenceDataProvider()) &&
+          JodaBeanUtils.equal(getSecurityProvider(), other.getSecurityProvider()) &&
           JodaBeanUtils.equal(getSecurityMaster(), other.getSecurityMaster()) &&
           super.equals(obj);
     }
@@ -137,7 +131,7 @@ public class ExampleSecurityLoaderComponentFactory extends AbstractComponentFact
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getReferenceDataProvider());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityProvider());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
     return hash ^ super.hashCode();
   }
@@ -170,28 +164,28 @@ public class ExampleSecurityLoaderComponentFactory extends AbstractComponentFact
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the reference data provider.
+   * Gets the security provider.
    * @return the value of the property, not null
    */
-  public ReferenceDataProvider getReferenceDataProvider() {
-    return _referenceDataProvider;
+  public SecurityProvider getSecurityProvider() {
+    return _securityProvider;
   }
 
   /**
-   * Sets the reference data provider.
-   * @param referenceDataProvider  the new value of the property, not null
+   * Sets the security provider.
+   * @param securityProvider  the new value of the property, not null
    */
-  public void setReferenceDataProvider(ReferenceDataProvider referenceDataProvider) {
-    JodaBeanUtils.notNull(referenceDataProvider, "referenceDataProvider");
-    this._referenceDataProvider = referenceDataProvider;
+  public void setSecurityProvider(SecurityProvider securityProvider) {
+    JodaBeanUtils.notNull(securityProvider, "securityProvider");
+    this._securityProvider = securityProvider;
   }
 
   /**
-   * Gets the the {@code referenceDataProvider} property.
+   * Gets the the {@code securityProvider} property.
    * @return the property, not null
    */
-  public final Property<ReferenceDataProvider> referenceDataProvider() {
-    return metaBean().referenceDataProvider().createProperty(this);
+  public final Property<SecurityProvider> securityProvider() {
+    return metaBean().securityProvider().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -235,10 +229,10 @@ public class ExampleSecurityLoaderComponentFactory extends AbstractComponentFact
     private final MetaProperty<String> _classifier = DirectMetaProperty.ofReadWrite(
         this, "classifier", ExampleSecurityLoaderComponentFactory.class, String.class);
     /**
-     * The meta-property for the {@code referenceDataProvider} property.
+     * The meta-property for the {@code securityProvider} property.
      */
-    private final MetaProperty<ReferenceDataProvider> _referenceDataProvider = DirectMetaProperty.ofReadWrite(
-        this, "referenceDataProvider", ExampleSecurityLoaderComponentFactory.class, ReferenceDataProvider.class);
+    private final MetaProperty<SecurityProvider> _securityProvider = DirectMetaProperty.ofReadWrite(
+        this, "securityProvider", ExampleSecurityLoaderComponentFactory.class, SecurityProvider.class);
     /**
      * The meta-property for the {@code securityMaster} property.
      */
@@ -250,7 +244,7 @@ public class ExampleSecurityLoaderComponentFactory extends AbstractComponentFact
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
-        "referenceDataProvider",
+        "securityProvider",
         "securityMaster");
 
     /**
@@ -264,8 +258,8 @@ public class ExampleSecurityLoaderComponentFactory extends AbstractComponentFact
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           return _classifier;
-        case -1788671322:  // referenceDataProvider
-          return _referenceDataProvider;
+        case 809869649:  // securityProvider
+          return _securityProvider;
         case -887218750:  // securityMaster
           return _securityMaster;
       }
@@ -297,11 +291,11 @@ public class ExampleSecurityLoaderComponentFactory extends AbstractComponentFact
     }
 
     /**
-     * The meta-property for the {@code referenceDataProvider} property.
+     * The meta-property for the {@code securityProvider} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ReferenceDataProvider> referenceDataProvider() {
-      return _referenceDataProvider;
+    public final MetaProperty<SecurityProvider> securityProvider() {
+      return _securityProvider;
     }
 
     /**

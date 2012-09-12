@@ -26,6 +26,7 @@ import com.opengamma.integration.tool.IntegrationToolContext;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
+import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
@@ -35,9 +36,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.bbg.BloombergFields;
-import com.opengamma.bbg.PerSecurityReferenceDataResult;
-import com.opengamma.bbg.ReferenceDataProvider;
-import com.opengamma.bbg.ReferenceDataResult;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.bbg.util.BloombergTickerParserEQOption;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
@@ -160,18 +159,21 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
 
     // Sort the symbols for the current index by market cap (highest to lowest), skipping any in the list of EXCLUDED_SECTORS
     TreeMap<Double, String> equityByMarketCap = new TreeMap<Double, String>();
-    ReferenceDataResult fields = referenceDataProvider.getFields(memberEquities, Sets.newHashSet(BloombergFields.CURRENT_MARKET_CAP_FIELD, BloombergConstants.FIELD_GICS_SUB_INDUSTRY));
+    Map<String, FudgeMsg> refDataMap = referenceDataProvider.getReferenceData(memberEquities, Sets.newHashSet(BloombergFields.CURRENT_MARKET_CAP_FIELD, BloombergConstants.FIELD_GICS_SUB_INDUSTRY));
     for (String equity : memberEquities) {
-      PerSecurityReferenceDataResult result = fields.getResult(equity);
-      String gicsCodeString = result.getFieldData().getString(BloombergConstants.FIELD_GICS_SUB_INDUSTRY);
+      FudgeMsg fieldData = refDataMap.get(equity);
+      if (fieldData == null) {
+        throw new OpenGammaRuntimeException("Information not found for equity: " + equity);
+      }
+      String gicsCodeString = fieldData.getString(BloombergConstants.FIELD_GICS_SUB_INDUSTRY);
       GICSCode gicsCode = GICSCode.of(gicsCodeString);
       if (EXCLUDED_SECTORS.contains(gicsCode.getSectorDescription())) {
         continue;
       }
-      Double marketCap = result.getFieldData().getDouble(BloombergFields.CURRENT_MARKET_CAP_FIELD);
+      Double marketCap = fieldData.getDouble(BloombergFields.CURRENT_MARKET_CAP_FIELD);
       equityByMarketCap.put(marketCap, equity);
     }
-
+    
     // Add a given number of symbols (MEMBERS_DEPTH) to the portfolio and store in a List
     // When adding to the portfolio, add a collar of options with PVs distributed equally +/- around 0
     int count = 0;
@@ -417,7 +419,7 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
   private Set<ExternalId> getOptionChain(ExternalId ticker) {
     if (ticker.getScheme() != ExternalSchemes.BLOOMBERG_TICKER) {
       throw new OpenGammaRuntimeException("Not a bloomberg ticker " + ticker);
-    }    
+    }
     ReferenceDataProvider referenceDataProvider = getToolContext().getBloombergReferenceDataProvider();
 
     Set<ExternalId> optionChain = BloombergDataUtils.getOptionChain(referenceDataProvider, ticker.getValue()); //TODO [BBG-88] this query shouldn't get cached permanently
@@ -477,7 +479,7 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
     return timeSeriesInfo;
   }
 
-  private HistoricalTimeSeriesInfoDocument loadTimeSeries(ExternalIdBundle idBundle) {    
+  private HistoricalTimeSeriesInfoDocument loadTimeSeries(ExternalIdBundle idBundle) {
     ReferenceDataProvider referenceDataProvider = getToolContext().getBloombergReferenceDataProvider();
     if (idBundle.getExternalId(ExternalSchemes.BLOOMBERG_BUID) == null && idBundle.getExternalId(ExternalSchemes.BLOOMBERG_TICKER) != null) {
       //For some reason loading some series by TICKER fails, but BUID works 
@@ -486,8 +488,7 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
         throw new OpenGammaRuntimeException("Failed to get buid");
       }
       for (String key : map.keySet()) {
-        ReferenceDataResult buidResult = referenceDataProvider.getFields(Collections.singleton(key), Collections.singleton(BloombergConstants.FIELD_ID_BBG_UNIQUE));
-        String buid = buidResult.getResult(key).getFieldData().getString(BloombergConstants.FIELD_ID_BBG_UNIQUE);
+        String buid = referenceDataProvider.getReferenceDataValue(key, BloombergConstants.FIELD_ID_BBG_UNIQUE);
         idBundle = idBundle.withExternalId(ExternalSchemes.bloombergTickerSecurityId(buid));
       }
     }

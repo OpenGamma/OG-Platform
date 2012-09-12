@@ -24,7 +24,7 @@ import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponseMsg;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 import com.opengamma.livedata.msg.SubscriptionType;
-import com.opengamma.livedata.server.AbstractLiveDataServer;
+import com.opengamma.livedata.server.StandardLiveDataServer;
 import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.livedata.server.MockDistributionSpecificationResolver;
 import com.opengamma.livedata.server.MockLiveDataServer;
@@ -64,7 +64,7 @@ public class PriorityResolvingCombiningLiveDataServerTest {
     _combiningServer = new PriorityResolvingCombiningLiveDataServer(Lists.newArrayList(_serverB, _serverC), EHCacheUtils.createCacheManager());
     _combiningServer.start();
     
-    assertEquals(AbstractLiveDataServer.ConnectionStatus.CONNECTED, _combiningServer.getConnectionStatus());
+    assertEquals(StandardLiveDataServer.ConnectionStatus.CONNECTED, _combiningServer.getConnectionStatus());
     _domainD = ExternalScheme.of("D");
   }
 
@@ -89,9 +89,9 @@ public class PriorityResolvingCombiningLiveDataServerTest {
   
   @AfterMethod
   public void teardown() {
-    assertEquals(AbstractLiveDataServer.ConnectionStatus.CONNECTED, _combiningServer.getConnectionStatus());
+    assertEquals(StandardLiveDataServer.ConnectionStatus.CONNECTED, _combiningServer.getConnectionStatus());
     _combiningServer.stop();
-    assertEquals(AbstractLiveDataServer.ConnectionStatus.NOT_CONNECTED, _combiningServer.getConnectionStatus());
+    assertEquals(StandardLiveDataServer.ConnectionStatus.NOT_CONNECTED, _combiningServer.getConnectionStatus());
   }
 
   //-------------------------------------------------------------------------

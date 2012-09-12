@@ -54,7 +54,7 @@ public abstract class AbstractPersistentSubscriptionManager implements Lifecycle
    */
   public static final long DEFAULT_SAVE_PERIOD = 60000L;
 
-  private final AbstractLiveDataServer _server;
+  private final StandardLiveDataServer _server;
   private final Timer _timer;
   private final long _savePeriod;
   private volatile SaveTask _saveTask;
@@ -62,12 +62,12 @@ public abstract class AbstractPersistentSubscriptionManager implements Lifecycle
   private Set<PersistentSubscription> _previousSavedState;
   private Set<PersistentSubscription> _persistentSubscriptions = new HashSet<PersistentSubscription>();
 
-  public AbstractPersistentSubscriptionManager(AbstractLiveDataServer server) {
+  public AbstractPersistentSubscriptionManager(StandardLiveDataServer server) {
     this(server, new Timer("PersistentSubscriptionManager Timer"),
         DEFAULT_SAVE_PERIOD);
   }
 
-  public AbstractPersistentSubscriptionManager(AbstractLiveDataServer server,
+  public AbstractPersistentSubscriptionManager(StandardLiveDataServer server,
       Timer timer, long savePeriod) {
     ArgumentChecker.notNull(server, "Live Data Server");
     ArgumentChecker.notNull(timer, "Timer");

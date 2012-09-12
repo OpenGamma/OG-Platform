@@ -25,11 +25,15 @@ import com.opengamma.util.LogUtils;
 /**
  * Abstract class for command line tools.
  * <p>
- * The command line tools generally require access to key parts of the infrastructure. These are provided via {@link ToolContext} which is setup and closed by this class using {@link ComponentManager}
- * . Normally the file is named {@code toolcontext.ini}.
+ * The command line tools generally require access to key parts of the infrastructure.
+ * These are provided via {@link ToolContext} which is setup and closed by this class
+ * using {@link ComponentManager}. Normally the file is named {@code toolcontext.ini}.
+ * 
+ * @param <T> the tool context type
  */
 public abstract class AbstractTool<T extends ToolContext> {
-  
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractTool.class);
   /**
    * Default logback file.
@@ -143,8 +147,8 @@ public abstract class AbstractTool<T extends ToolContext> {
     String logbackResource = line.getOptionValue(LOGBACK_RESOURCE_OPTION);
     logbackResource = StringUtils.defaultIfEmpty(logbackResource, getDefaultLogbackConfiguration());
     String[] configResources = line.getOptionValues(CONFIG_RESOURCE_OPTION);
-    if (configResources.length == 0) {
-     configResources = new String[] {defaultConfigResource};
+    if (configResources == null || configResources.length == 0) {
+      configResources = new String[] {defaultConfigResource};
     }
     return init(logbackResource) && run(configResources, toolContextClass);
   }
@@ -171,6 +175,7 @@ public abstract class AbstractTool<T extends ToolContext> {
    * @param toolContextClass the type of tool context to create, should match the generic type argument
    * @return true if successful
    */
+  @SuppressWarnings("unchecked")
   public final boolean run(String[] configResources, Class<? extends T> toolContextClass) {
     try {
       ArgumentChecker.notEmpty(configResources, "configResources");
@@ -204,6 +209,7 @@ public abstract class AbstractTool<T extends ToolContext> {
    * @param toolContext the tool context, not null
    * @throws RuntimeException if an error occurs
    */
+  @SuppressWarnings("unchecked")
   public final void run(T toolContext) {
     run((T[]) new ToolContext[] {toolContext});
   }

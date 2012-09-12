@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.pnl;
@@ -66,7 +66,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
- * 
+ *
  */
 public class SwaptionBlackYieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(SwaptionBlackYieldCurveNodePnLFunction.class);
@@ -271,6 +271,9 @@ public class SwaptionBlackYieldCurveNodePnLFunction extends AbstractFunction.Non
       final ExternalId id = (ExternalId) labels[i];
       final double sensitivity = values[i];
       final HistoricalTimeSeries dbNodeTimeSeries = timeSeriesBundle.get(MarketDataRequirementNames.MARKET_VALUE, id);
+      if (dbNodeTimeSeries.getTimeSeries().isEmpty()) {
+        throw new OpenGammaRuntimeException("Time series " + id + " is empty");
+      }
       DoubleTimeSeries<?> nodeTimeSeries = samplingFunction.getSampledTimeSeries(dbNodeTimeSeries.getTimeSeries(), schedule);
       nodeTimeSeries = DIFFERENCE.evaluate(nodeTimeSeries);
       if (pnlSeries == null) {

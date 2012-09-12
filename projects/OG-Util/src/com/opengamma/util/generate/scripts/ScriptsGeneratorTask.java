@@ -16,8 +16,6 @@ import java.util.Set;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.FileSet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.opengamma.util.annotation.ClassNameAnnotationScanner;
 
@@ -26,24 +24,11 @@ import com.opengamma.util.annotation.ClassNameAnnotationScanner;
  */
 public class ScriptsGeneratorTask extends Task {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(ScriptsGeneratorTask.class);
-
-  private String _outputFile;
-
   private String _projectName;
 
   private String _scriptDir;
 
   private ArrayList<FileSet> _filesets = newArrayList();
-
-
-  private String getOutputFile() {
-    return _outputFile;
-  }
-
-  public void setOutputFile(String outputFile) {
-    _outputFile = outputFile;
-  }
 
   public String getProjectName() {
     return _projectName;
@@ -76,7 +61,7 @@ public class ScriptsGeneratorTask extends Task {
   public void execute() throws BuildException {
     List<String> jars = newArrayList();
     for (FileSet fileSet : getFilesets()) {
-      Iterator i = fileSet.iterator();
+      Iterator<?> i = fileSet.iterator();
       while (i.hasNext()) {
         Object next = i.next();        
         jars.add(next.toString());
@@ -86,7 +71,11 @@ public class ScriptsGeneratorTask extends Task {
     Set<String> classNames = ClassNameAnnotationScanner.scan(jars.toArray(new String[jars.size()]), Scriptable.class);
 
     for (String className : classNames) {
-      ScriptsGenerator.generate(new File(getScriptDir()), getProjectName(), className);
+      try {
+        ScriptsGenerator.generate(new File(getScriptDir()), getProjectName(), className);
+      } catch (Exception e) {
+        throw new BuildException("Error generating script for class " + className, e);
+      }
     }
   }
 

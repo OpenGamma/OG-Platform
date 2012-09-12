@@ -65,7 +65,12 @@ public class AnnotationScannerTask extends Task {
     if (getAnnotationClassName() == null) {
       throw new BuildException("annotationClassName must be set");
     }
-    Set<String> classNames = ClassNameAnnotationScanner.scan(_classpath, getAnnotationClassName());
+    Set<String> classNames;
+    try {
+      classNames = ClassNameAnnotationScanner.scan(_classpath, getAnnotationClassName());
+    } catch (Exception e) {
+      throw new BuildException("Error scanning for annotated classes", e);
+    }
     try {
       PrintWriter writer = new PrintWriter(outputFile);
       for (String className : classNames) {

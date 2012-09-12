@@ -178,7 +178,7 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractTool<Integr
 
     BloombergHistoricalTimeSeriesLoader loader = new BloombergHistoricalTimeSeriesLoader(
       getToolContext().getHistoricalTimeSeriesMaster(),
-      getToolContext().getBloombergHistoricalTimeSeriesSource(),
+      getToolContext().getHistoricalTimeSeriesProvider(),
       new BloombergIdentifierProvider(getToolContext().getBloombergReferenceDataProvider()));
     loader.addTimeSeries(externalIds, "CMPL", "PX_LAST", LocalDate.now().minusYears(1), LocalDate.now());
   }

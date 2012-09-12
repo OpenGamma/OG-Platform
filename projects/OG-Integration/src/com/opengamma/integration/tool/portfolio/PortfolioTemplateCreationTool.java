@@ -5,7 +5,12 @@
  */
 package com.opengamma.integration.tool.portfolio;
 
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMSSpread;
 import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.integration.copier.sheet.writer.SheetWriter;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
@@ -16,18 +21,42 @@ import com.opengamma.integration.copier.portfolio.writer.PortfolioWriter;
 import com.opengamma.integration.copier.portfolio.writer.SingleSheetSimplePortfolioWriter;
 import com.opengamma.integration.copier.sheet.SheetFormat;
 import com.opengamma.util.generate.scripts.Scriptable;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
+import org.apache.derby.iapi.services.io.ArrayUtil;
 
 /**
  * The portfolio saver tool
  */
 @Scriptable
-public class PortfolioTemplateCreationTool extends AbstractTool<ToolContext> {
+public class PortfolioTemplateCreationTool {
 
-  /** File name option flag */
-  private static final String FILE_NAME_OPT = "f";
+  /** Help command line option. */
+  private static final String HELP_OPTION = "h";
   /** Asset class flag */
   private static final String SECURITY_TYPE_OPT = "s";
-  
+
+  /** The list of security types - needs to be updated whenever a new sec type is added to the system */
+  private static final String[] s_securityTypes = {
+      "Bond", "CorporateBond", "GovernmentBond", "MunicipalBond",
+      "CapFloorCMSSpread", "CapFloor",
+      "Cash",
+      "ContinuousZeroDeposit", "PeriodicZeroDeposit", "SimpleZeroDeposit",
+      "Equity", "EquityVarianceSwap",
+      "AgricultureForward", "CommodityForward", "EnergyForward", "MetalForward",
+      "FRA",
+      "AgricultureFuture", "BondFuture", "CommodityFuture", "EnergyFuture", "EquityFuture", "EquityIndexDividendFuture", "Future", "FXFuture", "IndexFuture", "InterestRateFuture", "MetalFuture", "StockFuture",
+      "FXForward", "NonDeliverableFXForward",
+      "BondFutureOption", "CommodityFutureOption", "EquityBarrierOption", "EquityIndexDividendFutureOption", "EquityIndexOption", "EquityOption", "FXBarrierOption", "FXDigitalOption", "FXOption", "IRFutureOption", "NonDeliverableFXDigitalOption", "NonDeliverableFXOption",
+      "ForwardSwap", "Swap"
+
+  };
+
+  /**
+   * The command line.
+   */
+  private CommandLine _commandLine;
+
   //-------------------------------------------------------------------------
   /**
    * Main method to run the tool.
@@ -35,7 +64,8 @@ public class PortfolioTemplateCreationTool extends AbstractTool<ToolContext> {
    * @param args  the arguments, not null
    */
   public static void main(String[] args) { //CSIGNORE
-    new PortfolioTemplateCreationTool().initAndRun(args, ToolContext.class);
+
+    new PortfolioTemplateCreationTool().doRun(args);
     System.exit(0);
   }
 
@@ -43,47 +73,66 @@ public class PortfolioTemplateCreationTool extends AbstractTool<ToolContext> {
   /**
    * Loads the test portfolio into the position master.
    */
-  @Override 
-  protected void doRun() {     
+  protected void doRun(String[] args) {
 
-    // Create portfolio writer
-    PortfolioWriter portfolioWriter = constructPortfolioWriter(
-        getCommandLine().getOptionValue(FILE_NAME_OPT), 
-        getCommandLine().getOptionValue(SECURITY_TYPE_OPT)
-    );
-    
-    portfolioWriter.close();
-  }
-  
-  private static PortfolioWriter constructPortfolioWriter(String filename, String securityType) {
-    // Check that the file name was specified on the command line
-    if (filename == null) {
-      throw new OpenGammaRuntimeException("File name omitted, cannot create file");
+    Options options = createOptions();
+    CommandLineParser parser = new PosixParser();
+    CommandLine line;
+    try {
+      line = parser.parse(options, args);
+    } catch (ParseException e) {
+      usage(options);
+      return;
     }
-     
-    if (SheetFormat.of(filename) == SheetFormat.CSV || SheetFormat.of(filename) == SheetFormat.XLS) {
-      return new SingleSheetSimplePortfolioWriter(filename, JodaBeanRowParser.newJodaBeanRowParser(securityType));
-    } else {
-      throw new OpenGammaRuntimeException("Input filename should end in .CSV or .XLS");
+    _commandLine = line;
+    if (line.hasOption(HELP_OPTION)) {
+      usage(options);
+      return;
+    }
+
+    String[] securityTypes = getCommandLine().getOptionValues(SECURITY_TYPE_OPT)[0].equals("all")
+        ? s_securityTypes
+        : getCommandLine().getOptionValues(SECURITY_TYPE_OPT);
+
+    // Create portfolio writers to write header rows
+    for (String securityType : securityTypes) {
+      PortfolioWriter portfolioWriter = new SingleSheetSimplePortfolioWriter(securityType + ".csv",
+          JodaBeanRowParser.newJodaBeanRowParser(securityType));
+      portfolioWriter.close();
     }
   }
 
-  @Override
-  protected Options createOptions(boolean contextProvided) {
+  protected Options createOptions() {
     
-    Options options = super.createOptions(contextProvided);
+    Options options = new Options();
 
-    Option filenameOption = new Option(
-        FILE_NAME_OPT, "filename", true, "The path to the file to create and export to (CSV or XLS)");
-    filenameOption.setRequired(true);
-    options.addOption(filenameOption);
-    
+    String securityTypes = "";
+    for (String s : s_securityTypes) {
+      securityTypes += " " + s;
+    }
     Option assetClassOption = new Option(
         SECURITY_TYPE_OPT, "securitytype", true, 
-        "The security type for which to generate a template");
+        "The security type(s) for which to generate a template, or 'all' to create a template for each available security type: "
+            + securityTypes);
+    assetClassOption.setRequired(true);
     options.addOption(assetClassOption);
-    
+
+    Option helpOption = new Option(
+        HELP_OPTION, "help", false,
+        "prints this message");
+    options.addOption(helpOption);
+
     return options;
+  }
+
+  protected void usage(Options options) {
+    HelpFormatter formatter = new HelpFormatter();
+    formatter.setWidth(120);
+    formatter.printHelp("java " + getClass().getName(), options, true);
+  }
+
+  protected CommandLine getCommandLine() {
+    return _commandLine;
   }
 
 }

@@ -37,7 +37,7 @@ public class PDE1DCoefficientsProvider {
    *  $$\frac{\partial V}{\partial \tau} - \frac{\sigma^2 s^2}{2} \frac{\partial^2 V}{\partial s^2} -(r-y)s \frac{\partial V}{\partial s} + rV = 0$$
    *  where the 'time' term $\tau$ is time to maturity
    * @param rate The rate, $r$
-   * @param yield The yield (or cost-of-carry), $y$
+   * @param yield The yield $y$ <b>Note</b> this is NOT the cost-of-carry $b$, they are related by $b=r-y$
    * @param vol The volatility
    * @return a ConvectionDiffusionPDE1DStandardCofficients
    */

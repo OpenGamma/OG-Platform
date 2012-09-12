@@ -151,7 +151,8 @@ public abstract class BlackFormulaRepository {
   }
 
   /**
-   * The forward (i.e. driftless) gamma
+   * The forward (i.e. driftless) gamma, 2nd order sensitivity of the forward option value to the forward. <p>
+   * $\frac{\partial^2 FV}{\partial^2 f}$ 
    * @param forward The forward value of the underlying
    * @param strike The Strike
    * @param timeToExpiry The time-to-expiry
@@ -247,7 +248,7 @@ public abstract class BlackFormulaRepository {
 
   /**
    * The forward vega of an option, i.e. the sensitivity of the option's forward price wrt the implied volatility (which is just the the spot vega
-   * divide by the the numeraire)
+   * divided by the the numeraire)
    * @param forward The forward value of the underlying
    * @param strike The Strike
    * @param timeToExpiry The time-to-expiry
@@ -277,7 +278,8 @@ public abstract class BlackFormulaRepository {
   }
 
   /**
-   * The driftless vanna of an option, i.e. second order derivative of the option value, once to the underlying spot price and once to volatility.
+   * The driftless vanna of an option, i.e. second order derivative of the option value, once to the underlying forward and once to volatility.<p>
+   * $\frac{\partial^2 FV}{\partial f \partial \sigma}$
    * @param forward The forward value of the underlying
    * @param strike The Strike
    * @param timeToExpiry The time-to-expiry

@@ -18,8 +18,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.opengamma.bbg.MongoDBCachingReferenceDataProvider;
-import com.opengamma.bbg.PerSecurityReferenceDataResult;
+import com.opengamma.bbg.referencedata.ReferenceData;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PlatformConfigUtils;
 import com.opengamma.util.PlatformConfigUtils.MarketDataSource;
@@ -29,14 +28,13 @@ import com.opengamma.util.PlatformConfigUtils.MarketDataSource;
  * [BBG-88] 
  */
 public class MongoDBReferenceDataCacheRefresher {
-  
+
   private static final String HELP_OPTION = "help";
-  
+
   private final MongoDBReferenceDataCache _cache;
-  private final MongoDBCachingReferenceDataProvider _cachedProvider;
-  
-  
-  public MongoDBReferenceDataCacheRefresher(MongoDBCachingReferenceDataProvider cachedProvider) {
+  private final MongoDBValueCachingReferenceDataProvider _cachedProvider;
+
+  public MongoDBReferenceDataCacheRefresher(MongoDBValueCachingReferenceDataProvider cachedProvider) {
     super();
     _cachedProvider = cachedProvider;
     _cache = cachedProvider.getCache();
@@ -46,7 +44,7 @@ public class MongoDBReferenceDataCacheRefresher {
     Set<String> securities = _cache.getAllCachedSecurities();
     refreshCaches(securities);
   }
-  
+
   /**
    * 
    * @param numberOfSecurities Approximately how many securities to refresh each time
@@ -73,22 +71,22 @@ public class MongoDBReferenceDataCacheRefresher {
    */
   public void refreshCachesHaving(final String field) {
     Set<String> securities = _cache.getAllCachedSecurities();
-    Map<String, PerSecurityReferenceDataResult> loadCachedResults = _cache.loadCachedResults(securities);
+    Map<String, ReferenceData> loadCachedResults = _cache.load(securities);
     
     Set<String> chosen = new HashSet<String>();
     for (String candidate : securities) {
-      PerSecurityReferenceDataResult cachedResult = loadCachedResults.get(candidate);
-      if (cachedResult.getFieldData().getByName(field) != null) {
+      ReferenceData cachedResult = loadCachedResults.get(candidate);
+      if (cachedResult.getFieldValues().getByName(field) != null) {
         chosen.add(candidate);
       }
     }
     refreshCaches(chosen);
   }
-  
+
   public void refreshCaches(Set<String> securities) {
     _cachedProvider.refresh(securities);
   }
-  
+
   /**
    * Runs the tool.
    * 
@@ -99,11 +97,11 @@ public class MongoDBReferenceDataCacheRefresher {
     PlatformConfigUtils.configureSystemProperties(MarketDataSource.DIRECT);
     System.out.println("Starting connections");
     String configLocation = "com/opengamma/bbg/bbg-reference-data-context.xml";
-
+    
     ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(configLocation);
     try {
       context.start();
-      MongoDBCachingReferenceDataProvider mongoProvider = context.getBean("bbgReferenceDataProvider", MongoDBCachingReferenceDataProvider.class);
+      MongoDBValueCachingReferenceDataProvider mongoProvider = context.getBean("bloombergReferenceDataProvider", MongoDBValueCachingReferenceDataProvider.class);
       MongoDBReferenceDataCacheRefresher refresher = new MongoDBReferenceDataCacheRefresher(mongoProvider);
 
       Options options = createOptions();
@@ -131,7 +129,7 @@ public class MongoDBReferenceDataCacheRefresher {
       throw ex;
     }
   }
-  
+
   private static void usage(Options options) {
     HelpFormatter formatter = new HelpFormatter();
     formatter.setWidth(120);
@@ -143,5 +141,5 @@ public class MongoDBReferenceDataCacheRefresher {
     options.addOption(new Option("h", HELP_OPTION, false, "Print this message"));
     return options;
   }
-  
+
 }

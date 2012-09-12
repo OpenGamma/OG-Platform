@@ -12,12 +12,13 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.google.common.collect.Sets;
-import com.opengamma.bbg.ReferenceDataProvider;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.bbg.util.BloombergDomainIdentifierResolver;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.masterdb.security.DbSecurityMaster;
+import com.opengamma.provider.security.SecurityProvider;
 import com.opengamma.util.PlatformConfigUtils;
 import com.opengamma.util.PlatformConfigUtils.MarketDataSource;
 
@@ -46,9 +47,9 @@ public class BloombergIRFutureOptionLoader {
     
     ReferenceDataProvider bbgRefDataProvider = appcontext.getBean("sharedReferenceDataProvider", ReferenceDataProvider.class);
     String bloombergKey = BloombergDomainIdentifierResolver.toBloombergKey(underlyingId);
-    BloombergBulkSecurityLoader bulkSecurityLoader = appcontext.getBean("bbgBulkSecLoader", BloombergBulkSecurityLoader.class);
+    SecurityProvider secProvider = appcontext.getBean("bloombergSecurityProvider", SecurityProvider.class);
     DbSecurityMaster secMaster = appcontext.getBean("dbSecurityMaster", DbSecurityMaster.class);
-    BloombergSecurityLoader loader = new BloombergSecurityLoader(secMaster, bulkSecurityLoader);
+    BloombergSecurityLoader loader = new BloombergSecurityLoader(secProvider, secMaster);
     
     Set<ExternalId> optionChain = BloombergDataUtils.getOptionChain(bbgRefDataProvider, bloombergKey);
     if (optionChain != null && !optionChain.isEmpty()) {

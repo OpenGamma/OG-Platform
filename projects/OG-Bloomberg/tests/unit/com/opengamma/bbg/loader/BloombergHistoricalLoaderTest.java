@@ -23,7 +23,6 @@ import java.util.Set;
 import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.core.change.ChangeManager;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,15 +33,14 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.bbg.BloombergIdentifierProvider;
-import com.opengamma.bbg.BloombergReferenceDataProvider;
+import com.opengamma.bbg.referencedata.impl.BloombergReferenceDataProvider;
 import com.opengamma.bbg.test.BloombergTestUtils;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -59,9 +57,13 @@ import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesI
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.masterdb.historicaltimeseries.DbHistoricalTimeSeriesMaster;
 import com.opengamma.masterdb.position.DbPositionMaster;
+import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetRequest;
+import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetResult;
+import com.opengamma.provider.historicaltimeseries.impl.AbstractHistoricalTimeSeriesProvider;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.time.DateUtils;
+import com.opengamma.util.time.LocalDateRange;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
@@ -85,7 +87,7 @@ public class BloombergHistoricalLoaderTest extends DbTest {
   private HistoricalTimeSeriesMaster _master;
   private BloombergHistoricalLoader _tool;
   private BloombergHistoricalTimeSeriesLoader _loader;
-  private TestBulkHistoricalTimeSeriesProvider _historicalTimeSeriesSource;
+  private TestBulkHistoricalTimeSeriesProvider _historicalTimeSeriesProvider;
   private PositionMaster _positionMaster;
 
   /**
@@ -105,7 +107,7 @@ public class BloombergHistoricalLoaderTest extends DbTest {
     DataSourceTransactionManager transactionManager = getTransactionManager();
     
     _master = setUpTimeSeriesMaster(transactionManager);
-    _historicalTimeSeriesSource = new TestBulkHistoricalTimeSeriesProvider();
+    _historicalTimeSeriesProvider = new TestBulkHistoricalTimeSeriesProvider();
     PositionMaster positionMaster = setUpPositionMaster();
     _positionMaster = positionMaster;
     
@@ -115,10 +117,10 @@ public class BloombergHistoricalLoaderTest extends DbTest {
     
     BloombergIdentifierProvider idProvider = new BloombergIdentifierProvider(dataProvider);
     
-    BloombergHistoricalLoader tool = new BloombergHistoricalLoader(_master, _historicalTimeSeriesSource, idProvider);
+    BloombergHistoricalLoader tool = new BloombergHistoricalLoader(_master, _historicalTimeSeriesProvider, idProvider);
     tool.setPositionMaster(_positionMaster);
     _tool = tool;
-    _loader = new BloombergHistoricalTimeSeriesLoader(_master, _historicalTimeSeriesSource, idProvider);
+    _loader = new BloombergHistoricalTimeSeriesLoader(_master, _historicalTimeSeriesProvider, idProvider);
   }
 
   private PositionMaster setUpPositionMaster() {
@@ -257,169 +259,17 @@ public class BloombergHistoricalLoaderTest extends DbTest {
     }
   }
 
-  private class TestBulkHistoricalTimeSeriesProvider implements HistoricalTimeSeriesSource {
-    public TestBulkHistoricalTimeSeriesProvider() {
-    }
-
+  private class TestBulkHistoricalTimeSeriesProvider extends AbstractHistoricalTimeSeriesProvider {
     //keep track of start date to use the same for reloading
     Map<ExternalIdBundle, LocalDate> _startDateMap = new HashMap<ExternalIdBundle, LocalDate>();
 
     @Override
-    public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uid) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uid, LocalDate start, boolean includeStart,
-        LocalDate end, boolean includeEnd) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Pair<LocalDate, Double> getLatestDataPoint(UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Pair<LocalDate, Double> getLatestDataPoint(UniqueId uniqueId) {
-      throw new UnsupportedOperationException();
-    }
-
-    //-------------------------------------------------------------------------
-    @Override
-    public HistoricalTimeSeries getHistoricalTimeSeries(ExternalIdBundle identifiers,
-        String dataSource, String dataProvider, String dataField) {
-      return new SimpleHistoricalTimeSeries(UniqueId.of("A", "1"),
-          makeRandomTimeSeries(DateUtils.previousWeekDay().minusWeeks(1), DateUtils.previousWeekDay()));
-    }
-
-    @Override
-    public HistoricalTimeSeries getHistoricalTimeSeries(ExternalIdBundle identifiers,
-        LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public HistoricalTimeSeries getHistoricalTimeSeries(ExternalIdBundle identifiers,
-        String dataSource, String dataProvider, String dataField, LocalDate start, boolean includeStart,
-        LocalDate end, boolean includeEnd) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public HistoricalTimeSeries getHistoricalTimeSeries(ExternalIdBundle identifiers,
-        LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField, LocalDate start,
-        boolean includeStart, LocalDate end, boolean includeEnd) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public HistoricalTimeSeries getHistoricalTimeSeries(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField, LocalDate start,
-        boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public HistoricalTimeSeries getHistoricalTimeSeries(ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField, LocalDate start, boolean includeStart,
-        LocalDate end, boolean includeEnd, int maxPoints) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Pair<LocalDate, Double> getLatestDataPoint(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Pair<LocalDate, Double> getLatestDataPoint(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField, LocalDate start,
-        boolean includeStart, LocalDate end, boolean includeEnd) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Pair<LocalDate, Double> getLatestDataPoint(ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Pair<LocalDate, Double> getLatestDataPoint(ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField, LocalDate start, boolean includeStart,
-        LocalDate end, boolean includeEnd) {
-      throw new UnsupportedOperationException();
-    }
-
-    //-------------------------------------------------------------------------
-    @Override
-    public HistoricalTimeSeries getHistoricalTimeSeries(
-        String dataField, ExternalIdBundle identifiers, String resolutionKey) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public HistoricalTimeSeries getHistoricalTimeSeries(
-        String dataField, ExternalIdBundle identifiers, LocalDate identifierValidityDate, String resolutionKey) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public HistoricalTimeSeries getHistoricalTimeSeries(
-        String dataField, ExternalIdBundle identifiers, String resolutionKey,
-        LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public HistoricalTimeSeries getHistoricalTimeSeries(
-        String dataField, ExternalIdBundle identifiers, LocalDate identifierValidityDate, String resolutionKey,
-        LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public HistoricalTimeSeries getHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle, String resolutionKey, LocalDate start, boolean includeStart, LocalDate end,
-        boolean includeEnd, int maxPoints) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public HistoricalTimeSeries getHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey, LocalDate start,
-        boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Pair<LocalDate, Double> getLatestDataPoint(String dataField, ExternalIdBundle identifierBundle, String resolutionKey) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Pair<LocalDate, Double> getLatestDataPoint(String dataField, ExternalIdBundle identifierBundle, String resolutionKey, LocalDate start, boolean includeStart, LocalDate end,
-        boolean includeEnd) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Pair<LocalDate, Double> getLatestDataPoint(String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Pair<LocalDate, Double> getLatestDataPoint(String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey, LocalDate start,
-        boolean includeStart, LocalDate end, boolean includeEnd) {
-      throw new UnsupportedOperationException();
-    }
-
-    //-------------------------------------------------------------------------
-    @Override
-    public Map<ExternalIdBundle, HistoricalTimeSeries> getHistoricalTimeSeries(
-        final Set<ExternalIdBundle> identifierSet, final String dataSource, final String dataProvider, final String dataField, final LocalDate start, final boolean includeStart, final LocalDate end, boolean includeEnd) {
-      Map<ExternalIdBundle, HistoricalTimeSeries> tsMap = new HashMap<ExternalIdBundle, HistoricalTimeSeries>();
+    protected HistoricalTimeSeriesProviderGetResult doBulkGet(HistoricalTimeSeriesProviderGetRequest request) {
+      Map<ExternalIdBundle, LocalDateDoubleTimeSeries> tsMap = Maps.newHashMap();
+      LocalDate start = request.getDateRange().getStartDateInclusive();
+      LocalDate end = request.getDateRange().getEndDateExclusive();
       s_logger.debug("producing TS for startDate={} endDate={}", start, end);
-      for (ExternalIdBundle identifiers : identifierSet) {
+      for (ExternalIdBundle identifiers : request.getExternalIdBundles()) {
         LocalDate cachedStart = _startDateMap.get(identifiers);
         if (cachedStart == null) {
           cachedStart = start;
@@ -430,19 +280,9 @@ public class BloombergHistoricalLoaderTest extends DbTest {
           startToUse = cachedStart;
         }
         LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries(startToUse, end);
-        tsMap.put(identifiers, new SimpleHistoricalTimeSeries(UniqueId.of("A", "1"), timeSeries));
+        tsMap.put(identifiers, timeSeries);
       }
-      return tsMap;
-    }
-
-    @Override
-    public ExternalIdBundle getExternalIdBundle(UniqueId uniqueId) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public ChangeManager changeManager() {
-      throw new UnsupportedOperationException();
+      return new HistoricalTimeSeriesProviderGetResult(tsMap);
     }
   }
 
@@ -473,9 +313,10 @@ public class BloombergHistoricalLoaderTest extends DbTest {
             assertNotNull(added.getUniqueId());
             
             ExternalIdBundle identifiers = identifiersWithDates.toBundle();
-            Map<ExternalIdBundle, HistoricalTimeSeries> resultMap = _historicalTimeSeriesSource.getHistoricalTimeSeries(
-                Collections.singleton(identifiers), BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME, dataProvider, dataField, start, true, end, true);
-            LocalDateDoubleTimeSeries timeSeries = resultMap.get(identifiers).getTimeSeries();
+            LocalDateRange dateRange = LocalDateRange.of(start, end, true);
+            Map<ExternalIdBundle, LocalDateDoubleTimeSeries> resultMap = _historicalTimeSeriesProvider.getHistoricalTimeSeries(
+                Collections.singleton(identifiers), BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME, dataProvider, dataField, dateRange);
+            LocalDateDoubleTimeSeries timeSeries = resultMap.get(identifiers);
             //            assertEquals(start, timeSeries.getEarliestTime());
             //            assertEquals(end, timeSeries.getLatestTime());
             UniqueId tsUid = _master.updateTimeSeriesDataPoints(added.getInfo().getTimeSeriesObjectId(), timeSeries);

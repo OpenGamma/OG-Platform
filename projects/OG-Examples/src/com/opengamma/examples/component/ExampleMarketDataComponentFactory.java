@@ -5,10 +5,11 @@
  */
 package com.opengamma.examples.component;
 
+import java.net.URI;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -21,11 +22,9 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
-import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNamesHelper;
 import com.opengamma.engine.marketdata.InMemoryNamedMarketDataSpecificationRepository;
@@ -39,16 +38,23 @@ import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.client.RemoteLiveDataClientFactoryBean;
+import com.opengamma.provider.livedata.LiveDataMetaData;
+import com.opengamma.provider.livedata.LiveDataMetaDataProvider;
+import com.opengamma.provider.livedata.LiveDataServerTypes;
 import com.opengamma.util.jms.JmsConnector;
+import com.opengamma.util.jms.JmsConnectorFactoryBean;
 
 /**
- * Component factory for market data
+ * Component factory for consuming simulated live data.
  */
 @BeanDefinition
 public class ExampleMarketDataComponentFactory extends AbstractComponentFactory {
-  
+
+  /**
+   * Name to use.
+   */
   private static final String SIMULATED_LIVE_SOURCE_NAME = "Simulated live market data";
-  
+
   /**
    * The classifier under which to publish.
    */
@@ -60,73 +66,78 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
   @PropertyDefinition(validate = "notNull")
   private SecuritySource _securitySource;
   /**
+   * The meta-data about the server.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private LiveDataMetaDataProvider _serverMetaDataProvider;
+  /**
    * The JMS connector.
    */
   @PropertyDefinition(validate = "notNull")
   private JmsConnector _jmsConnector;
-  /**
-   * The subscription topic.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private String _subscriptionTopic;
-  /**
-   * The entitlement topic.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private String _entitlementTopic;
-  /**
-   * The heartbeat topic.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private String _heartbeatTopic;
 
+  //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
     initLiveMarketDataProviderFactory(repo);
     initNamedMarketDataSpecificationRepository(repo);
   }
 
+  private MarketDataProviderFactory initLiveMarketDataProviderFactory(ComponentRepository repo) {
+    LiveDataMetaDataProvider provider = getServerMetaDataProvider();
+    LiveDataClient liveDataClient = createLiveDataClient(provider);
+    
+    MarketDataAvailabilityProvider availabilityProvider = createAvailabilityProvider(provider);
+    LiveDataFactory defaultFactory = new LiveDataFactory(liveDataClient, availabilityProvider, getSecuritySource());
+    Map<String, LiveDataFactory> factoryMap = ImmutableMap.of(SIMULATED_LIVE_SOURCE_NAME, defaultFactory);
+    LiveMarketDataProviderFactory marketDataProviderFactory = new LiveMarketDataProviderFactory(defaultFactory, factoryMap);
+    
+    ComponentInfo info = new ComponentInfo(MarketDataProviderFactory.class, getClassifier());
+    repo.registerComponent(info, marketDataProviderFactory);
+    return marketDataProviderFactory;
+  }
+
+  private LiveDataClient createLiveDataClient(LiveDataMetaDataProvider provider) {
+    LiveDataMetaData metaData = provider.metaData();
+    URI jmsUri = metaData.getJmsBrokerUri();
+    if (metaData.getServerType() != LiveDataServerTypes.STANDARD || jmsUri == null) {
+      throw new IllegalStateException();
+    }
+    JmsConnector jmsConnector = getJmsConnector();
+    if (jmsConnector.getClientBrokerUri().equals(jmsUri) == false) {
+      JmsConnectorFactoryBean jmsFactory = new JmsConnectorFactoryBean(jmsConnector);
+      jmsFactory.setClientBrokerUri(jmsUri);
+      jmsConnector = jmsFactory.getObjectCreating();
+    }
+    
+    RemoteLiveDataClientFactoryBean ldcFb = new RemoteLiveDataClientFactoryBean();
+    ldcFb.setJmsConnector(jmsConnector);
+    ldcFb.setSubscriptionTopic(metaData.getJmsSubscriptionTopic());
+    ldcFb.setEntitlementTopic(metaData.getJmsEntitlementTopic());
+    ldcFb.setHeartbeatTopic(metaData.getJmsHeartbeatTopic());
+    LiveDataClient ldcDistributed = ldcFb.getObjectCreating();
+    return ldcDistributed;
+  }
+
+  private MarketDataAvailabilityProvider createAvailabilityProvider(LiveDataMetaDataProvider provider) {
+    List<ExternalScheme> acceptableSchemes = provider.metaData().getSupportedSchemes();
+    Collection<String> validMarketDataRequirementNames = MarketDataRequirementNamesHelper.constructValidRequirementNames();
+    return new DomainMarketDataAvailabilityProvider(getSecuritySource(), acceptableSchemes, validMarketDataRequirementNames);
+  }
+
   private NamedMarketDataSpecificationRepository initNamedMarketDataSpecificationRepository(ComponentRepository repo) {
     InMemoryNamedMarketDataSpecificationRepository specRepository = new InMemoryNamedMarketDataSpecificationRepository();
-
+    
     specRepository.addSpecification(SIMULATED_LIVE_SOURCE_NAME, new LiveMarketDataSpecification(SIMULATED_LIVE_SOURCE_NAME)); 
     ComponentInfo info = new ComponentInfo(NamedMarketDataSpecificationRepository.class, getClassifier());
     repo.registerComponent(info, specRepository);
     return specRepository;
   }
 
-  private MarketDataProviderFactory initLiveMarketDataProviderFactory(ComponentRepository repo) {
-    LiveDataClient liveDataClient = createLiveDataClient(getSubscriptionTopic(),
-                                                         getEntitlementTopic(),
-                                                         getHeartbeatTopic());
-    MarketDataAvailabilityProvider availabilityProvider = createAvailabilityProvider();
-    LiveDataFactory defaultFactory = new LiveDataFactory(liveDataClient, availabilityProvider, getSecuritySource());
-    Map<String, LiveDataFactory> factoryMap = ImmutableMap.of(SIMULATED_LIVE_SOURCE_NAME, defaultFactory);
-    LiveMarketDataProviderFactory marketDataProviderFactory = new LiveMarketDataProviderFactory(defaultFactory, factoryMap);
-    ComponentInfo info = new ComponentInfo(MarketDataProviderFactory.class, getClassifier());
-    repo.registerComponent(info, marketDataProviderFactory);
-    return marketDataProviderFactory;
-  }
-  
-  protected LiveDataClient createLiveDataClient(String subscriptionTopic, String entitlementTopic, String heartbeatTopic) {
-    RemoteLiveDataClientFactoryBean ldcFb = new RemoteLiveDataClientFactoryBean();
-    ldcFb.setJmsConnector(getJmsConnector());
-    ldcFb.setSubscriptionTopic(subscriptionTopic);
-    ldcFb.setEntitlementTopic(entitlementTopic);
-    ldcFb.setHeartbeatTopic(heartbeatTopic);
-    return ldcFb.getObjectCreating();
-  }
-  
-  private MarketDataAvailabilityProvider createAvailabilityProvider() {
-    Set<ExternalScheme> acceptableSchemes = ImmutableSet.of(ExternalSchemes.OG_SYNTHETIC_TICKER);
-    Collection<String> validMarketDataRequirementNames = MarketDataRequirementNamesHelper.constructValidRequirementNames();
-    return new DomainMarketDataAvailabilityProvider(getSecuritySource(), acceptableSchemes, validMarketDataRequirementNames);
-  }
-
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code ExampleMarketDataComponentFactory}.
+   * The meta-bean for {@code ExampleLiveDataClientComponentFactory}.
    * @return the meta-bean, not null
    */
   public static ExampleMarketDataComponentFactory.Meta meta() {
@@ -148,14 +159,10 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
         return getClassifier();
       case -702456965:  // securitySource
         return getSecuritySource();
+      case -187029565:  // serverMetaDataProvider
+        return getServerMetaDataProvider();
       case -1495762275:  // jmsConnector
         return getJmsConnector();
-      case 1191816722:  // subscriptionTopic
-        return getSubscriptionTopic();
-      case 397583362:  // entitlementTopic
-        return getEntitlementTopic();
-      case 1497737619:  // heartbeatTopic
-        return getHeartbeatTopic();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -169,17 +176,11 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
       case -702456965:  // securitySource
         setSecuritySource((SecuritySource) newValue);
         return;
+      case -187029565:  // serverMetaDataProvider
+        setServerMetaDataProvider((LiveDataMetaDataProvider) newValue);
+        return;
       case -1495762275:  // jmsConnector
         setJmsConnector((JmsConnector) newValue);
-        return;
-      case 1191816722:  // subscriptionTopic
-        setSubscriptionTopic((String) newValue);
-        return;
-      case 397583362:  // entitlementTopic
-        setEntitlementTopic((String) newValue);
-        return;
-      case 1497737619:  // heartbeatTopic
-        setHeartbeatTopic((String) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -189,10 +190,8 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
   protected void validate() {
     JodaBeanUtils.notNull(_classifier, "classifier");
     JodaBeanUtils.notNull(_securitySource, "securitySource");
+    JodaBeanUtils.notNull(_serverMetaDataProvider, "serverMetaDataProvider");
     JodaBeanUtils.notNull(_jmsConnector, "jmsConnector");
-    JodaBeanUtils.notNull(_subscriptionTopic, "subscriptionTopic");
-    JodaBeanUtils.notNull(_entitlementTopic, "entitlementTopic");
-    JodaBeanUtils.notNull(_heartbeatTopic, "heartbeatTopic");
     super.validate();
   }
 
@@ -205,10 +204,8 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
       ExampleMarketDataComponentFactory other = (ExampleMarketDataComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
+          JodaBeanUtils.equal(getServerMetaDataProvider(), other.getServerMetaDataProvider()) &&
           JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
-          JodaBeanUtils.equal(getSubscriptionTopic(), other.getSubscriptionTopic()) &&
-          JodaBeanUtils.equal(getEntitlementTopic(), other.getEntitlementTopic()) &&
-          JodaBeanUtils.equal(getHeartbeatTopic(), other.getHeartbeatTopic()) &&
           super.equals(obj);
     }
     return false;
@@ -219,10 +216,8 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getServerMetaDataProvider());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSubscriptionTopic());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEntitlementTopic());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHeartbeatTopic());
     return hash ^ super.hashCode();
   }
 
@@ -280,6 +275,32 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the meta-data about the server.
+   * @return the value of the property, not null
+   */
+  public LiveDataMetaDataProvider getServerMetaDataProvider() {
+    return _serverMetaDataProvider;
+  }
+
+  /**
+   * Sets the meta-data about the server.
+   * @param serverMetaDataProvider  the new value of the property, not null
+   */
+  public void setServerMetaDataProvider(LiveDataMetaDataProvider serverMetaDataProvider) {
+    JodaBeanUtils.notNull(serverMetaDataProvider, "serverMetaDataProvider");
+    this._serverMetaDataProvider = serverMetaDataProvider;
+  }
+
+  /**
+   * Gets the the {@code serverMetaDataProvider} property.
+   * @return the property, not null
+   */
+  public final Property<LiveDataMetaDataProvider> serverMetaDataProvider() {
+    return metaBean().serverMetaDataProvider().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the JMS connector.
    * @return the value of the property, not null
    */
@@ -306,85 +327,7 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the subscription topic.
-   * @return the value of the property, not null
-   */
-  public String getSubscriptionTopic() {
-    return _subscriptionTopic;
-  }
-
-  /**
-   * Sets the subscription topic.
-   * @param subscriptionTopic  the new value of the property, not null
-   */
-  public void setSubscriptionTopic(String subscriptionTopic) {
-    JodaBeanUtils.notNull(subscriptionTopic, "subscriptionTopic");
-    this._subscriptionTopic = subscriptionTopic;
-  }
-
-  /**
-   * Gets the the {@code subscriptionTopic} property.
-   * @return the property, not null
-   */
-  public final Property<String> subscriptionTopic() {
-    return metaBean().subscriptionTopic().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the entitlement topic.
-   * @return the value of the property, not null
-   */
-  public String getEntitlementTopic() {
-    return _entitlementTopic;
-  }
-
-  /**
-   * Sets the entitlement topic.
-   * @param entitlementTopic  the new value of the property, not null
-   */
-  public void setEntitlementTopic(String entitlementTopic) {
-    JodaBeanUtils.notNull(entitlementTopic, "entitlementTopic");
-    this._entitlementTopic = entitlementTopic;
-  }
-
-  /**
-   * Gets the the {@code entitlementTopic} property.
-   * @return the property, not null
-   */
-  public final Property<String> entitlementTopic() {
-    return metaBean().entitlementTopic().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the heartbeat topic.
-   * @return the value of the property, not null
-   */
-  public String getHeartbeatTopic() {
-    return _heartbeatTopic;
-  }
-
-  /**
-   * Sets the heartbeat topic.
-   * @param heartbeatTopic  the new value of the property, not null
-   */
-  public void setHeartbeatTopic(String heartbeatTopic) {
-    JodaBeanUtils.notNull(heartbeatTopic, "heartbeatTopic");
-    this._heartbeatTopic = heartbeatTopic;
-  }
-
-  /**
-   * Gets the the {@code heartbeatTopic} property.
-   * @return the property, not null
-   */
-  public final Property<String> heartbeatTopic() {
-    return metaBean().heartbeatTopic().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * The meta-bean for {@code ExampleMarketDataComponentFactory}.
+   * The meta-bean for {@code ExampleLiveDataClientComponentFactory}.
    */
   public static class Meta extends AbstractComponentFactory.Meta {
     /**
@@ -403,25 +346,15 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
     private final MetaProperty<SecuritySource> _securitySource = DirectMetaProperty.ofReadWrite(
         this, "securitySource", ExampleMarketDataComponentFactory.class, SecuritySource.class);
     /**
+     * The meta-property for the {@code serverMetaDataProvider} property.
+     */
+    private final MetaProperty<LiveDataMetaDataProvider> _serverMetaDataProvider = DirectMetaProperty.ofReadWrite(
+        this, "serverMetaDataProvider", ExampleMarketDataComponentFactory.class, LiveDataMetaDataProvider.class);
+    /**
      * The meta-property for the {@code jmsConnector} property.
      */
     private final MetaProperty<JmsConnector> _jmsConnector = DirectMetaProperty.ofReadWrite(
         this, "jmsConnector", ExampleMarketDataComponentFactory.class, JmsConnector.class);
-    /**
-     * The meta-property for the {@code subscriptionTopic} property.
-     */
-    private final MetaProperty<String> _subscriptionTopic = DirectMetaProperty.ofReadWrite(
-        this, "subscriptionTopic", ExampleMarketDataComponentFactory.class, String.class);
-    /**
-     * The meta-property for the {@code entitlementTopic} property.
-     */
-    private final MetaProperty<String> _entitlementTopic = DirectMetaProperty.ofReadWrite(
-        this, "entitlementTopic", ExampleMarketDataComponentFactory.class, String.class);
-    /**
-     * The meta-property for the {@code heartbeatTopic} property.
-     */
-    private final MetaProperty<String> _heartbeatTopic = DirectMetaProperty.ofReadWrite(
-        this, "heartbeatTopic", ExampleMarketDataComponentFactory.class, String.class);
     /**
      * The meta-properties.
      */
@@ -429,10 +362,8 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "securitySource",
-        "jmsConnector",
-        "subscriptionTopic",
-        "entitlementTopic",
-        "heartbeatTopic");
+        "serverMetaDataProvider",
+        "jmsConnector");
 
     /**
      * Restricted constructor.
@@ -447,14 +378,10 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
           return _classifier;
         case -702456965:  // securitySource
           return _securitySource;
+        case -187029565:  // serverMetaDataProvider
+          return _serverMetaDataProvider;
         case -1495762275:  // jmsConnector
           return _jmsConnector;
-        case 1191816722:  // subscriptionTopic
-          return _subscriptionTopic;
-        case 397583362:  // entitlementTopic
-          return _entitlementTopic;
-        case 1497737619:  // heartbeatTopic
-          return _heartbeatTopic;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -492,35 +419,19 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
     }
 
     /**
+     * The meta-property for the {@code serverMetaDataProvider} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<LiveDataMetaDataProvider> serverMetaDataProvider() {
+      return _serverMetaDataProvider;
+    }
+
+    /**
      * The meta-property for the {@code jmsConnector} property.
      * @return the meta-property, not null
      */
     public final MetaProperty<JmsConnector> jmsConnector() {
       return _jmsConnector;
-    }
-
-    /**
-     * The meta-property for the {@code subscriptionTopic} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<String> subscriptionTopic() {
-      return _subscriptionTopic;
-    }
-
-    /**
-     * The meta-property for the {@code entitlementTopic} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<String> entitlementTopic() {
-      return _entitlementTopic;
-    }
-
-    /**
-     * The meta-property for the {@code heartbeatTopic} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<String> heartbeatTopic() {
-      return _heartbeatTopic;
     }
 
   }

@@ -13,11 +13,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.tools.ant.BuildException;
 import org.scannotation.AnnotationDB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -59,7 +59,7 @@ public final class ClassNameAnnotationScanner {
     try {
       annotationDb.scanArchives(classpathUrlArray);
     } catch (IOException e) {
-      throw new BuildException("Error scanning for annotations", e);
+      throw new OpenGammaRuntimeException("Error scanning for annotations", e);
     }
     return annotationDb;
   }
@@ -78,7 +78,7 @@ public final class ClassNameAnnotationScanner {
       try {
         classpathUrls.add(f.toURI().toURL());
       } catch (MalformedURLException e) {
-        throw new BuildException("Error interpreting classpath entry '" + classpathEntry + "' as URL", e);
+        throw new OpenGammaRuntimeException("Error interpreting classpath entry '" + classpathEntry + "' as URL", e);
       }
     }
     URL[] classpathUrlArray = classpathUrls.toArray(new URL[0]);

@@ -19,7 +19,7 @@ import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.resolver.AbstractResolver;
 import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
 import com.opengamma.livedata.resolver.EHCachingDistributionSpecificationResolver;
-import com.opengamma.livedata.server.AbstractLiveDataServer;
+import com.opengamma.livedata.server.StandardLiveDataServer;
 import com.opengamma.livedata.server.CombiningLiveDataServer;
 import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.util.ArgumentChecker;
@@ -29,7 +29,7 @@ import com.opengamma.util.ArgumentChecker;
  * If none can then the first server is returned ( which will fail )
  */
 public class PriorityResolvingCombiningLiveDataServer extends CombiningLiveDataServer {
-  private final List<? extends AbstractLiveDataServer> _servers;
+  private final List<? extends StandardLiveDataServer> _servers;
 
   /**
    * Constructs an instance.
@@ -37,7 +37,7 @@ public class PriorityResolvingCombiningLiveDataServer extends CombiningLiveDataS
    * @param servers Servers in preference order (Best first)
    * @param cacheManager  the cache manager, not null
    */
-  public PriorityResolvingCombiningLiveDataServer(List<? extends AbstractLiveDataServer> servers, CacheManager cacheManager) {
+  public PriorityResolvingCombiningLiveDataServer(List<? extends StandardLiveDataServer> servers, CacheManager cacheManager) {
     super(servers, cacheManager);
     ArgumentChecker.notEmpty(servers, "servers");
     ArgumentChecker.notNull(cacheManager, "cacheManager");
@@ -45,13 +45,13 @@ public class PriorityResolvingCombiningLiveDataServer extends CombiningLiveDataS
   }
 
   @Override
-  protected Map<AbstractLiveDataServer, Collection<LiveDataSpecification>> groupByServer(
+  protected Map<StandardLiveDataServer, Collection<LiveDataSpecification>> groupByServer(
       Collection<LiveDataSpecification> specs) {
-    Map<AbstractLiveDataServer, Collection<LiveDataSpecification>> ret = new HashMap<AbstractLiveDataServer, Collection<LiveDataSpecification>>();
+    Map<StandardLiveDataServer, Collection<LiveDataSpecification>> ret = new HashMap<StandardLiveDataServer, Collection<LiveDataSpecification>>();
 
     Collection<LiveDataSpecification> unresolvedSpecs = specs;
 
-    for (AbstractLiveDataServer server : _servers) {
+    for (StandardLiveDataServer server : _servers) {
       Map<LiveDataSpecification, DistributionSpecification> resolved = server.getDistributionSpecificationResolver()
           .resolve(unresolvedSpecs);
 
@@ -71,7 +71,7 @@ public class PriorityResolvingCombiningLiveDataServer extends CombiningLiveDataS
       }
     }
 
-    AbstractLiveDataServer defaultServer = _servers.get(0);
+    StandardLiveDataServer defaultServer = _servers.get(0);
     Collection<LiveDataSpecification> defaultSet = ret.get(defaultServer);
     if (defaultSet == null) {
       ret.put(defaultServer, unresolvedSpecs);
@@ -91,7 +91,7 @@ public class PriorityResolvingCombiningLiveDataServer extends CombiningLiveDataS
       Map<LiveDataSpecification,  DistributionSpecification> ret = new HashMap<LiveDataSpecification, DistributionSpecification>();
 
       Collection<LiveDataSpecification> unresolvedSpecs = specs;
-      for (AbstractLiveDataServer server : _servers) {
+      for (StandardLiveDataServer server : _servers) {
         Map<LiveDataSpecification, DistributionSpecification> resolved = server.getDistributionSpecificationResolver()
             .resolve(unresolvedSpecs);
 
