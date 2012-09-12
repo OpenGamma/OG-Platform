@@ -547,6 +547,12 @@
         <groupId>org.springframework</groupId>
         <artifactId>spring-context-support</artifactId>
         <version>${og.spring.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
@@ -754,6 +760,10 @@
         <version>5.3.0</version>
         <optional>true</optional>
         <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
           <exclusion>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging-api</artifactId>
