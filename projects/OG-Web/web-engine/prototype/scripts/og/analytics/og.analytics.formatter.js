@@ -32,7 +32,7 @@ $.register_module({
                     minSpotColor: '#b0b0b0', maxSpotColor: '#b0b0b0', disableInteraction: true
                 };
                 grid.elements.parent.find('.OG-g .sp').sparkline('html', options);
-                $('.OG-g .flot').each(function () {
+                grid.elements.parent.find('.OG-g .flot').each(function () {
                     $.plot($(this), JSON.parse($(this).text()), {
                         colors: ['#456899'],
                         grid: {borderWidth: 0, minBorderMargin: 1},
