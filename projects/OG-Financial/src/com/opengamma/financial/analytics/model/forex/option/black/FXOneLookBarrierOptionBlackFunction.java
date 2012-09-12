@@ -118,7 +118,7 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    // Get requirements common to all EquityIndexOptions's
+    // Get requirements common to all FXOptionBlackFunctions
     final Set<ValueRequirement> commonReqs = super.getRequirements(context, target, desiredValue);
     if (commonReqs == null) {
       return null;
