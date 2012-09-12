@@ -7,7 +7,7 @@ $.register_module({
     dependencies: ['og.common.routes'],
     obj: function () {
         var icons = '.og-num, .og-icon-new-window-2', open_icon = '.og-icon-right-chevron',
-            expand_class = 'og-expanded';
+            expand_class = 'og-expanded', routes = og.common.routes;
         /**
          * TODO: replace with api / this temporary solution until the api is ready
          */
@@ -21,7 +21,7 @@ $.register_module({
                     function () {type = 'depgraph'; id = cell.col + '|' + cell.row},
                     function () {type = 'data'; id = cell.col + '|' + cell.row},
                     function () {type = 'surface'; id = 1},
-                    function () {type = 'curve'; id = 1},
+                    function () {type = 'curve'; id = '1|1'},
                     function () {type = 'timeseries'; id = 1}
                 ],
                 type_map: { // available views per data type
@@ -49,7 +49,13 @@ $.register_module({
                         break test;
                     }
                 }
-            return 'gadget.ftl#/gadgetscontainer/' + type + ':' + id;
+            return (panel === 'new-window')
+                ? ('gadget.ftl#/gadgetscontainer/' + type + ':' + id)
+                : (function () {
+                    var rule = og.views.analytics2.rules.load_item, args = routes.current().args, add = {};
+                    add[panel] = type + ':' + id;
+                    return routes.hash(rule, args, {add: add});
+                })();
         };
         return function () {
             var self = this, timer, cur_cell, panels = ['south', 'dock-north', 'dock-center', 'dock-south'],
@@ -78,8 +84,10 @@ $.register_module({
                             panels.forEach(function (v) {gadget_containers[v].highlight(false)});
                         })
                         .on('click', icons, function () {
-                            var panel = panels[$(this).text() - 1];
-                            if (panel === void 0) window.open(get_url(cur_cell, panel)), self.hide();
+                            var panel = panels[$(this).text() - 1], hash = get_url(cur_cell, panel);
+                            if (panel === void 0) window.open(hash);
+                            else routes.go(hash);
+                            self.hide();
                         });
                     $('body').append(self.menu);
                 };
