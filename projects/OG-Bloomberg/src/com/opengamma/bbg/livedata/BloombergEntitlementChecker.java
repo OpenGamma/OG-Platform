@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
 import net.sf.ehcache.Cache;
@@ -22,12 +23,14 @@ import com.bloomberglp.blpapi.Request;
 import com.bloomberglp.blpapi.Service;
 import com.bloomberglp.blpapi.UserHandle;
 import com.google.common.collect.Sets;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.AbstractBloombergStaticDataProvider;
 import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.BloombergConstants;
-import com.opengamma.bbg.BloombergReferenceDataProvider;
-import com.opengamma.bbg.PerSecurityReferenceDataResult;
-import com.opengamma.bbg.ReferenceDataResult;
+import com.opengamma.bbg.referencedata.ReferenceData;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
+import com.opengamma.bbg.referencedata.ReferenceDataProviderGetRequest;
+import com.opengamma.bbg.referencedata.ReferenceDataProviderGetResult;
 import com.opengamma.bbg.util.BloombergDomainIdentifierResolver;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.UserPrincipal;
@@ -53,7 +56,7 @@ public class BloombergEntitlementChecker extends AbstractBloombergStaticDataProv
   /**
    * The Bloomberg reference data provider.
    */
-  private final BloombergReferenceDataProvider _refDataProvider;
+  private final ReferenceDataProvider _refDataProvider;
   /**
    * The Bloomberg //blp/apiauth service.
    */
@@ -80,7 +83,7 @@ public class BloombergEntitlementChecker extends AbstractBloombergStaticDataProv
    */
   public BloombergEntitlementChecker(
       BloombergConnector bloombergConnector,
-      BloombergReferenceDataProvider referenceDataProvider,
+      ReferenceDataProvider referenceDataProvider,
       DistributionSpecificationResolver resolver) {
     super(bloombergConnector);
     ArgumentChecker.notNull(referenceDataProvider, "referenceDataProvider");
@@ -194,15 +197,18 @@ public class BloombergEntitlementChecker extends AbstractBloombergStaticDataProv
   private Element getEids(DistributionSpecification distributionSpec) {
     net.sf.ehcache.Element cachedEids = _eidCache.get(distributionSpec);
     if (cachedEids == null) {
-      
       String lookupKey = BloombergDomainIdentifierResolver.toBloombergKey(distributionSpec.getMarketDataId());
-      ReferenceDataResult referenceData = _refDataProvider.getFields(Collections.singleton(lookupKey), 
-          Sets.newHashSet(
-              BloombergConstants.FIELD_ID_BBG_UNIQUE, // TODO, this is necessary because otherwise the request would not get any real fields
-              BloombergConstants.FIELD_EID_DATA));
+      Set<String> fields = Sets.newHashSet(
+          BloombergConstants.FIELD_ID_BBG_UNIQUE, // TODO, this is necessary because otherwise the request would not get any real fields
+          BloombergConstants.FIELD_EID_DATA);
+      ReferenceDataProviderGetRequest rdRequest = ReferenceDataProviderGetRequest.createGet(Collections.singleton(lookupKey), fields, true);
+      ReferenceDataProviderGetResult refData = _refDataProvider.getReferenceData(rdRequest);
       
-      PerSecurityReferenceDataResult result = referenceData.getResult(lookupKey);
-      Element eids = result.getEidData();
+      ReferenceData result = refData.getReferenceData(lookupKey);
+      if (result.getErrors().size() > 0) {
+        throw new OpenGammaRuntimeException("Error while obtaining entitlement information: " + lookupKey);
+      }
+      Element eids = result.getEntitlementInfo();
       
       cachedEids = new net.sf.ehcache.Element(distributionSpec, eids);
       _eidCache.put(cachedEids);

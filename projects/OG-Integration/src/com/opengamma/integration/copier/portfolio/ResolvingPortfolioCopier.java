@@ -15,9 +15,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import com.opengamma.bbg.BloombergIdentifierProvider;
-import com.opengamma.bbg.ReferenceDataProvider;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.integration.copier.portfolio.reader.PortfolioReader;
@@ -25,6 +24,7 @@ import com.opengamma.integration.copier.portfolio.writer.PortfolioWriter;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.ObjectsPair;
 
@@ -36,26 +36,26 @@ public class ResolvingPortfolioCopier implements PortfolioCopier {
   private static final Logger s_logger = LoggerFactory.getLogger(ResolvingPortfolioCopier.class);
 
   private HistoricalTimeSeriesMaster _htsMaster;
-  private HistoricalTimeSeriesSource _bbgHtsSource;
+  private HistoricalTimeSeriesProvider _htsProvider;
   private ReferenceDataProvider _bbgRefDataProvider;
   private String _dataProvider;
   private String[] _dataFields;
   
   public ResolvingPortfolioCopier(
       HistoricalTimeSeriesMaster htsMaster,
-      HistoricalTimeSeriesSource bbgHtsSource,
+      HistoricalTimeSeriesProvider htsProvider,
       ReferenceDataProvider bbgRefDataProvider,
       String dataProvider,
       String[] dataFields) {
     
     ArgumentChecker.notNull(htsMaster, "htsMaster");
-    ArgumentChecker.notNull(bbgHtsSource, "bbgHtsSource");
+    ArgumentChecker.notNull(htsProvider, "htsProvider");
     ArgumentChecker.notNull(bbgRefDataProvider, "bbgRefDataProvider");
     ArgumentChecker.notNull(dataProvider, "dataProvider");
     ArgumentChecker.notNull(dataFields, "dataFields");
 
     _htsMaster = htsMaster;
-    _bbgHtsSource = bbgHtsSource;
+    _htsProvider = htsProvider;
     _bbgRefDataProvider = bbgRefDataProvider;
     _dataProvider = dataProvider;
     _dataFields = dataFields;    
@@ -74,7 +74,7 @@ public class ResolvingPortfolioCopier implements PortfolioCopier {
     
     // Get bbg hts loader
     BloombergIdentifierProvider bbgIdentifierProvider = new BloombergIdentifierProvider(_bbgRefDataProvider);
-    BloombergHistoricalTimeSeriesLoader bbgLoader = new BloombergHistoricalTimeSeriesLoader(_htsMaster, _bbgHtsSource, bbgIdentifierProvider);
+    BloombergHistoricalTimeSeriesLoader bbgLoader = new BloombergHistoricalTimeSeriesLoader(_htsMaster, _htsProvider, bbgIdentifierProvider);
     
     ObjectsPair<ManageablePosition, ManageableSecurity[]> next;
 
@@ -151,12 +151,12 @@ public class ResolvingPortfolioCopier implements PortfolioCopier {
     _htsMaster = htsMaster;
   }
 
-  public HistoricalTimeSeriesSource getBbgHtsSource() {
-    return _bbgHtsSource;
+  public HistoricalTimeSeriesProvider getHtsProvider() {
+    return _htsProvider;
   }
 
-  public void setBbgHtsSource(HistoricalTimeSeriesSource bbgHtsSource) {
-    _bbgHtsSource = bbgHtsSource;
+  public void setHtsProvider(HistoricalTimeSeriesProvider htsProvider) {
+    _htsProvider = htsProvider;
   }
 
   public ReferenceDataProvider getBbgRefDataProvider() {

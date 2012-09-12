@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
-import com.opengamma.livedata.server.AbstractLiveDataServer.ConnectionStatus;
+import com.opengamma.livedata.server.StandardLiveDataServer.ConnectionStatus;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -36,7 +36,7 @@ public class ReconnectManager implements Lifecycle {
   /**
    * The live data server.
    */
-  private final AbstractLiveDataServer _server;
+  private final StandardLiveDataServer _server;
   /**
    * The timer.
    */
@@ -55,7 +55,7 @@ public class ReconnectManager implements Lifecycle {
    * 
    * @param server  the server, not null
    */
-  public ReconnectManager(AbstractLiveDataServer server) {
+  public ReconnectManager(StandardLiveDataServer server) {
     this(server, DEFAULT_CHECK_PERIOD);    
   }
 
@@ -65,7 +65,7 @@ public class ReconnectManager implements Lifecycle {
    * @param server  the server, not null
    * @param checkIntervalMillis  the checking interval in milliseconds
    */
-  public ReconnectManager(AbstractLiveDataServer server, long checkIntervalMillis) {
+  public ReconnectManager(StandardLiveDataServer server, long checkIntervalMillis) {
     this(server, checkIntervalMillis, new Timer("ReconnectManager Timer"));    
   }
 
@@ -76,7 +76,7 @@ public class ReconnectManager implements Lifecycle {
    * @param checkIntervalMillis  the checking interval in milliseconds
    * @param timer  the timer, not null
    */
-  public ReconnectManager(AbstractLiveDataServer server, long checkIntervalMillis, Timer timer) {
+  public ReconnectManager(StandardLiveDataServer server, long checkIntervalMillis, Timer timer) {
     ArgumentChecker.notNull(server, "server");
     ArgumentChecker.notNull(timer, "timer");
     if (checkIntervalMillis <= 0) {

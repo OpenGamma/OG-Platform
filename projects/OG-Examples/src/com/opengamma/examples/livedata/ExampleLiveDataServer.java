@@ -34,7 +34,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalScheme;
-import com.opengamma.livedata.server.AbstractLiveDataServer;
+import com.opengamma.livedata.server.StandardLiveDataServer;
 import com.opengamma.livedata.server.Subscription;
 import com.opengamma.livedata.server.SubscriptionListener;
 import com.opengamma.util.ArgumentChecker;
@@ -49,7 +49,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  * <identification-scheme>, <identifier-value>, <requirement-name>, <value>
  * typically, for last price, you'd use "Market_Value" @see MarketDataRequirementNames
  */
-public class ExampleLiveDataServer extends AbstractLiveDataServer {
+public class ExampleLiveDataServer extends StandardLiveDataServer {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleLiveDataServer.class);
 

@@ -18,10 +18,8 @@
     </constructor-arg>
   </bean>
 
-  <bean id="bbgReferenceDataProvider" class="com.opengamma.bbg.RemoteReferenceDataProviderFactoryBean">
-    <property name="jmsConnector" ref="standardJmsConnector" />
-    <property name="requestTopic" value="${opengamma.bloomberg.referenceDataRequestTopic}" />
-    <property name="fudgeContext" ref="standardFudgeContext" />
+  <bean id="bbgReferenceDataProvider" class="com.opengamma.bbg.referencedata.impl.RemoteReferenceDataProvider">
+    <constructor-arg value="${opengamma.bloomberg.referenceDataUri}" />
   </bean>
 
 </beans>

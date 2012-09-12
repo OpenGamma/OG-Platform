@@ -32,7 +32,6 @@ import org.springframework.context.Lifecycle;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.ExternalId;
-import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.LiveDataListener;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdate;
@@ -67,91 +66,139 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- * An implementation of {@link LiveDataClient} which is able to connect to a
- * {@link CogdaLiveDataServer}.
+ * Live data client connecting to a COGDA server.
+ * <p>
+ * This connects to an instance of {@link CogdaLiveDataServer}.
  */
 public class CogdaLiveDataClient extends AbstractLiveDataClient implements Lifecycle, FudgeMessageReceiver {
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(CogdaLiveDataClient.class);
+
   // Injected parameters:
+  /**
+   * The server name to connect to.
+   */
   private String _serverName = "127.0.0.1";
+  /**
+   * The server port to connect to.
+   */
   private int _serverPort = CogdaLiveDataServer.DEFAULT_LISTEN_PORT;
+  /**
+   * The Fudge context.
+   */
   private FudgeContext _fudgeContext = OpenGammaFudgeContext.getInstance();
+  /**
+   * The user.
+   */
   private final UserPrincipal _user;
-  
+
   // Runtime state:
   /**
    * Holds the actual socket to the server.
    */
   private Socket _socket;
+  /**
+   * The message sender.
+   */
   private FudgeMessageSender _messageSender;
+  /**
+   * The socket thread.
+   */
   @SuppressWarnings("unused")
   private Thread _socketReadThread;
-  private AtomicLong _nextRequestId = new AtomicLong(1L);
-  private Map<Long, SubscriptionHandle> _activeSubscriptionRequests = new ConcurrentHashMap<Long, SubscriptionHandle>();
-  
-  public CogdaLiveDataClient(UserPrincipal user) {
-    ArgumentChecker.notNull(user, "userPrincipal");
-    _user = user;
-  }
-  
-  protected void checkUserMatches(UserPrincipal user) {
-    if (!ObjectUtils.equals(user, _user)) {
-      throw new IllegalArgumentException("Specified user " + user + " does not match client user " + _user);
-    }
-  }
-  
-  @Override
-  public boolean isEntitled(UserPrincipal user, LiveDataSpecification requestedSpecification) {
-    // TODO kirk 2012-08-23 -- Implement this properly.
-    return true;
-  }
+  /**
+   * The generator of correlation identifiers.
+   */
+  private final AtomicLong _nextRequestId = new AtomicLong(1L);
+  /**
+   * The active subscription requests.
+   */
+  private final Map<Long, SubscriptionHandle> _activeSubscriptionRequests = new ConcurrentHashMap<Long, SubscriptionHandle>();
 
   /**
-   * Gets the serverName.
-   * @return the serverName
+   * Creates an instance.
+   * 
+   * @param user  the user to connect with, not null
+   */
+  public CogdaLiveDataClient(UserPrincipal user) {
+    ArgumentChecker.notNull(user, "user");
+    _user = user;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the server name.
+   * 
+   * @return the server name, not null
    */
   public String getServerName() {
     return _serverName;
   }
 
   /**
-   * Sets the serverName.
-   * @param serverName  the serverName
+   * Sets the server name.
+   * 
+   * @param serverName  the server name, not null
    */
   public void setServerName(String serverName) {
     _serverName = serverName;
   }
 
   /**
-   * Gets the serverPort.
-   * @return the serverPort
+   * Gets the server port.
+   * 
+   * @return the server port
    */
   public int getServerPort() {
     return _serverPort;
   }
 
   /**
-   * Sets the serverPort.
-   * @param serverPort  the serverPort
+   * Sets the server port.
+   * 
+   * @param serverPort  the server port
    */
   public void setServerPort(int serverPort) {
     _serverPort = serverPort;
   }
 
   /**
-   * Gets the fudgeContext.
-   * @return the fudgeContext
+   * Gets the fudge context.
+   * 
+   * @return the fudge context, not null
    */
   public FudgeContext getFudgeContext() {
     return _fudgeContext;
   }
 
   /**
-   * Sets the fudgeContext.
-   * @param fudgeContext  the fudgeContext
+   * Sets the fudge context.
+   * 
+   * @param fudgeContext  the fudge context, not null
    */
   public void setFudgeContext(FudgeContext fudgeContext) {
     _fudgeContext = fudgeContext;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Checks whether the specified user matches the user this client is for.
+   * 
+   * @param user  the user to check, not null
+   * @throws IllegalArgumentException if the user is invalid
+   */
+  protected void checkUserMatches(UserPrincipal user) {
+    if (!ObjectUtils.equals(user, _user)) {
+      throw new IllegalArgumentException("Specified user " + user + " does not match client user " + _user);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public boolean isEntitled(UserPrincipal user, LiveDataSpecification requestedSpecification) {
+    // TODO kirk 2012-08-23 -- Implement this properly.
+    return true;
   }
 
   @Override
@@ -221,7 +268,9 @@ public class CogdaLiveDataClient extends AbstractLiveDataClient implements Lifec
   }
 
   /**
-   * @param msg
+   * Dispatches a message to the server.
+   * 
+   * @param msg  the message, not null
    */
   private void dispatchLiveDataUpdate(FudgeMsg msg) {
     CogdaLiveDataUpdateMessage updateMessage = CogdaLiveDataUpdateBuilder.buildObjectStatic(new FudgeDeserializer(getFudgeContext()), msg);
@@ -230,6 +279,12 @@ public class CogdaLiveDataClient extends AbstractLiveDataClient implements Lifec
     super.valueUpdate(valueUpdateBean);
   }
 
+  /**
+   * Dispatches a command response.
+   * 
+   * @param msgType  the type, not null
+   * @param msg  the message, not null
+   */
   private void dispatchCommandResponse(CogdaMessageType msgType, FudgeMsg msg) {
     if (!msg.hasField("correlationId")) {
       s_logger.warn("Received subscription response message without correlationId: {}", msg);
@@ -254,8 +309,10 @@ public class CogdaLiveDataClient extends AbstractLiveDataClient implements Lifec
   }
 
   /**
-   * @param msg
-   * @param subHandle
+   * Dispatches the response to a snapshot.
+   * 
+   * @param msg  the message, not null
+   * @param subHandle  the subscription handle, not null
    */
   private void dispatchSnapshotResponse(FudgeMsg msg, SubscriptionHandle subHandle) {
     CogdaLiveDataSnapshotResponseMessage responseMessage = CogdaLiveDataSnapshotResponseBuilder.buildObjectStatic(new FudgeDeserializer(getFudgeContext()), msg);
@@ -272,8 +329,10 @@ public class CogdaLiveDataClient extends AbstractLiveDataClient implements Lifec
   }
 
   /**
-   * @param msg
-   * @param subHandle
+   * Dispatches the response to subscription.
+   * 
+   * @param msg  the message, not null
+   * @param subHandle  the subscription handle, not null
    */
   private void dispatchSubscriptionResponse(FudgeMsg msg, SubscriptionHandle subHandle) {
     CogdaLiveDataSubscriptionResponseMessage responseMessage = CogdaLiveDataSubscriptionResponseBuilder.buildObjectStatic(new FudgeDeserializer(getFudgeContext()), msg);
@@ -298,7 +357,8 @@ public class CogdaLiveDataClient extends AbstractLiveDataClient implements Lifec
     subHandle.subscriptionResultReceived(ldsResponse);
     subHandle.getListener().valueUpdate(valueUpdateBean);
   }
-  
+
+  //-------------------------------------------------------------------------
   @Override
   public void start() {
     if (_socket != null) {
@@ -363,8 +423,10 @@ public class CogdaLiveDataClient extends AbstractLiveDataClient implements Lifec
     return ((_socket != null) && (_socket.isConnected()));
   }
 
+  //-------------------------------------------------------------------------
   /**
    * A simple test that runs against localhost. Only useful for protocol development.
+   * 
    * @param args Command-line args. Ignored.
    * @throws InterruptedException Required to make the compiler happy
    */
@@ -406,4 +468,5 @@ public class CogdaLiveDataClient extends AbstractLiveDataClient implements Lifec
     
     Thread.sleep(100000000L);
   }
+
 }

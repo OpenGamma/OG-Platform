@@ -5,7 +5,9 @@
  */
 package com.opengamma.analytics.financial.forex.calculator;
 
+import com.opengamma.analytics.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
+import com.opengamma.analytics.financial.forex.method.ForexOptionSingleBarrierBlackMethod;
 import com.opengamma.analytics.financial.forex.method.ForexOptionVanillaBlackSmileMethod;
 import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
@@ -39,10 +41,16 @@ public class GammaValueBlackForexCalculator extends AbstractInstrumentDerivative
    * The methods used by the different instruments.
    */
   private static final ForexOptionVanillaBlackSmileMethod METHOD_FXOPTIONVANILLA = ForexOptionVanillaBlackSmileMethod.getInstance();
+  private static final ForexOptionSingleBarrierBlackMethod METHOD_FXOPTIONBARRIER = ForexOptionSingleBarrierBlackMethod.getInstance();
 
   @Override
   public CurrencyAmount visitForexOptionVanilla(final ForexOptionVanilla derivative, final YieldCurveBundle data) {
     return METHOD_FXOPTIONVANILLA.gamma(derivative, data, true);
+  }
+
+  @Override
+  public CurrencyAmount visitForexOptionSingleBarrier(final ForexOptionSingleBarrier derivative, final YieldCurveBundle data) {
+    return METHOD_FXOPTIONBARRIER.gammaFd(derivative, data);
   }
 
 }

@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
-import com.opengamma.livedata.server.AbstractLiveDataServer;
+import com.opengamma.livedata.server.StandardLiveDataServer;
 import com.opengamma.livedata.server.distribution.MarketDataDistributor;
 import com.opengamma.livedata.server.distribution.MarketDataSender;
 import com.opengamma.livedata.server.distribution.MarketDataSenderFactory;
@@ -130,7 +130,7 @@ public class FireHoseLiveDataServerTest {
     }
   }
 
-  private BlockingQueue<LiveDataValueUpdateBean> connect(final AbstractLiveDataServer liveDataServer, final int buffer) {
+  private BlockingQueue<LiveDataValueUpdateBean> connect(final StandardLiveDataServer liveDataServer, final int buffer) {
     final BlockingQueue<LiveDataValueUpdateBean> queue = new LinkedBlockingQueue<LiveDataValueUpdateBean>(buffer);
     liveDataServer.setMarketDataSenderFactory(new MarketDataSenderFactory() {
       @Override

@@ -78,6 +78,8 @@
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-maximize.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-drop.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-new-window.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-new-window-2.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-right-chevron.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-background.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-tooltip.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-dropbox.css</fragment>
@@ -148,6 +150,7 @@
     <fragment>/styles/analytics/og.analytics.OG-layout-gadget.css</fragment>
     <fragment>/styles/analytics/og.analytics.OG-analytics-resize.css</fragment>
     <fragment>/styles/analytics/og.analytics.OG-analytics-form.css</fragment>
+    <fragment>/styles/analytics/og.analytics.OG-analytics-cell-options.css</fragment>
     <fragment>/styles/analytics/og.analytics.OG-analytics-form-menu.css</fragment>
   </bundle>
   <bundle id="og_all.css">
@@ -278,6 +281,7 @@
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.curve.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.data.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.surface.js</fragment>
+    <fragment>/scripts/og/common/gadgets/og.common.gadgets.depgraph.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.securitiesidentifiers.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.gadgetscontainer.js</fragment>
   </bundle>
@@ -285,6 +289,7 @@
     <fragment>/scripts/og/analytics/og.analytics.events.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.data.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.cell.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.cellmenu.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.grid.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.selector.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.formatter.js</fragment>

@@ -42,6 +42,8 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.provider.security.SecurityProvider;
+import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
 
 /**
  * Component factory for setting up a tool context.
@@ -148,10 +150,20 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
   private ConventionBundleSource _conventionBundleSource;
 
   /**
+   * The security provider.
+   */
+  @PropertyDefinition
+  private SecurityProvider _securityProvider;
+  /**
    * The security loader.
    */
   @PropertyDefinition
   private SecurityLoader _securityLoader;
+  /**
+   * The time-series provider.
+   */
+  @PropertyDefinition
+  private HistoricalTimeSeriesProvider _historicalTimeSeriesProvider;
   /**
    * The time-series loader.
    */
@@ -239,8 +251,12 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
         return getMarketDataSnapshotSource();
       case -1281578674:  // conventionBundleSource
         return getConventionBundleSource();
+      case 809869649:  // securityProvider
+        return getSecurityProvider();
       case -903470221:  // securityLoader
         return getSecurityLoader();
+      case -1592479713:  // historicalTimeSeriesProvider
+        return getHistoricalTimeSeriesProvider();
       case 157715905:  // historicalTimeSeriesLoader
         return getHistoricalTimeSeriesLoader();
     }
@@ -307,8 +323,14 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
       case -1281578674:  // conventionBundleSource
         setConventionBundleSource((ConventionBundleSource) newValue);
         return;
+      case 809869649:  // securityProvider
+        setSecurityProvider((SecurityProvider) newValue);
+        return;
       case -903470221:  // securityLoader
         setSecurityLoader((SecurityLoader) newValue);
+        return;
+      case -1592479713:  // historicalTimeSeriesProvider
+        setHistoricalTimeSeriesProvider((HistoricalTimeSeriesProvider) newValue);
         return;
       case 157715905:  // historicalTimeSeriesLoader
         setHistoricalTimeSeriesLoader((HistoricalTimeSeriesLoader) newValue);
@@ -343,7 +365,9 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getHistoricalTimeSeriesSource(), other.getHistoricalTimeSeriesSource()) &&
           JodaBeanUtils.equal(getMarketDataSnapshotSource(), other.getMarketDataSnapshotSource()) &&
           JodaBeanUtils.equal(getConventionBundleSource(), other.getConventionBundleSource()) &&
+          JodaBeanUtils.equal(getSecurityProvider(), other.getSecurityProvider()) &&
           JodaBeanUtils.equal(getSecurityLoader(), other.getSecurityLoader()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesProvider(), other.getHistoricalTimeSeriesProvider()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesLoader(), other.getHistoricalTimeSeriesLoader()) &&
           super.equals(obj);
     }
@@ -372,7 +396,9 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConventionBundleSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityProvider());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLoader());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesProvider());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesLoader());
     return hash ^ super.hashCode();
   }
@@ -854,6 +880,31 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the security provider.
+   * @return the value of the property
+   */
+  public SecurityProvider getSecurityProvider() {
+    return _securityProvider;
+  }
+
+  /**
+   * Sets the security provider.
+   * @param securityProvider  the new value of the property
+   */
+  public void setSecurityProvider(SecurityProvider securityProvider) {
+    this._securityProvider = securityProvider;
+  }
+
+  /**
+   * Gets the the {@code securityProvider} property.
+   * @return the property, not null
+   */
+  public final Property<SecurityProvider> securityProvider() {
+    return metaBean().securityProvider().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the security loader.
    * @return the value of the property
    */
@@ -875,6 +926,31 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
    */
   public final Property<SecurityLoader> securityLoader() {
     return metaBean().securityLoader().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the time-series provider.
+   * @return the value of the property
+   */
+  public HistoricalTimeSeriesProvider getHistoricalTimeSeriesProvider() {
+    return _historicalTimeSeriesProvider;
+  }
+
+  /**
+   * Sets the time-series provider.
+   * @param historicalTimeSeriesProvider  the new value of the property
+   */
+  public void setHistoricalTimeSeriesProvider(HistoricalTimeSeriesProvider historicalTimeSeriesProvider) {
+    this._historicalTimeSeriesProvider = historicalTimeSeriesProvider;
+  }
+
+  /**
+   * Gets the the {@code historicalTimeSeriesProvider} property.
+   * @return the property, not null
+   */
+  public final Property<HistoricalTimeSeriesProvider> historicalTimeSeriesProvider() {
+    return metaBean().historicalTimeSeriesProvider().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -1008,10 +1084,20 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<ConventionBundleSource> _conventionBundleSource = DirectMetaProperty.ofReadWrite(
         this, "conventionBundleSource", ToolContextComponentFactory.class, ConventionBundleSource.class);
     /**
+     * The meta-property for the {@code securityProvider} property.
+     */
+    private final MetaProperty<SecurityProvider> _securityProvider = DirectMetaProperty.ofReadWrite(
+        this, "securityProvider", ToolContextComponentFactory.class, SecurityProvider.class);
+    /**
      * The meta-property for the {@code securityLoader} property.
      */
     private final MetaProperty<SecurityLoader> _securityLoader = DirectMetaProperty.ofReadWrite(
         this, "securityLoader", ToolContextComponentFactory.class, SecurityLoader.class);
+    /**
+     * The meta-property for the {@code historicalTimeSeriesProvider} property.
+     */
+    private final MetaProperty<HistoricalTimeSeriesProvider> _historicalTimeSeriesProvider = DirectMetaProperty.ofReadWrite(
+        this, "historicalTimeSeriesProvider", ToolContextComponentFactory.class, HistoricalTimeSeriesProvider.class);
     /**
      * The meta-property for the {@code historicalTimeSeriesLoader} property.
      */
@@ -1041,7 +1127,9 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
         "historicalTimeSeriesSource",
         "marketDataSnapshotSource",
         "conventionBundleSource",
+        "securityProvider",
         "securityLoader",
+        "historicalTimeSeriesProvider",
         "historicalTimeSeriesLoader");
 
     /**
@@ -1091,8 +1179,12 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
           return _marketDataSnapshotSource;
         case -1281578674:  // conventionBundleSource
           return _conventionBundleSource;
+        case 809869649:  // securityProvider
+          return _securityProvider;
         case -903470221:  // securityLoader
           return _securityLoader;
+        case -1592479713:  // historicalTimeSeriesProvider
+          return _historicalTimeSeriesProvider;
         case 157715905:  // historicalTimeSeriesLoader
           return _historicalTimeSeriesLoader;
       }
@@ -1268,11 +1360,27 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
     }
 
     /**
+     * The meta-property for the {@code securityProvider} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<SecurityProvider> securityProvider() {
+      return _securityProvider;
+    }
+
+    /**
      * The meta-property for the {@code securityLoader} property.
      * @return the meta-property, not null
      */
     public final MetaProperty<SecurityLoader> securityLoader() {
       return _securityLoader;
+    }
+
+    /**
+     * The meta-property for the {@code historicalTimeSeriesProvider} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<HistoricalTimeSeriesProvider> historicalTimeSeriesProvider() {
+      return _historicalTimeSeriesProvider;
     }
 
     /**

@@ -35,10 +35,10 @@ public final class MongoTestUtils {
     Properties properties = TestProperties.getTestProperties();
     factory.setHost(properties.getProperty("mongoServer.host"));
     factory.setPort(Integer.parseInt(properties.getProperty("mongoServer.port")));
-    factory.setDatabaseName(System.getProperty("user.name").replace('.','_') + "-unit");
-    String collectionSuffix = "-" + testName;
+    factory.setDatabaseName(System.getProperty("user.name").replace('.','_') + "_unit");
+    String collectionSuffix = "_" + testName;
     if (makeUnique) {
-      collectionSuffix += "-" + System.currentTimeMillis();
+      collectionSuffix += "_" + System.currentTimeMillis();
     }
     factory.setCollectionSuffix(collectionSuffix);
     return factory.createObject();

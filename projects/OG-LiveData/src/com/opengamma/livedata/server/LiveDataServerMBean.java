@@ -39,19 +39,19 @@ public class LiveDataServerMBean {
   /**
    * The underlying live data server.
    */
-  private final AbstractLiveDataServer _server;
+  private final StandardLiveDataServer _server;
 
   /**
    * Creates an instance.
    * 
    * @param server  the underlying live data server, not null
    */
-  public LiveDataServerMBean(AbstractLiveDataServer server) {
+  public LiveDataServerMBean(StandardLiveDataServer server) {
     ArgumentChecker.notNull(server, "server");
     _server = server;
   }
 
-  protected AbstractLiveDataServer getServer() {
+  protected StandardLiveDataServer getServer() {
     return _server;
   }
 

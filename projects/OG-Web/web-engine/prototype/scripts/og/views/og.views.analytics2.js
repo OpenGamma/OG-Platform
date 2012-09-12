@@ -5,13 +5,13 @@
 $.register_module({
     name: 'og.views.analytics2',
     dependencies: [
-        'og.views.common.state',
-        'og.common.routes',
-        'og.common.gadgets.GadgetsContainer'
+        'og.views.common.state', 'og.common.routes', 'og.common.gadgets.GadgetsContainer','og.analytics.CellMenu'
     ],
     obj: function () {
         var routes = og.common.routes, module = this, view,
-            GadgetsContainer = og.common.gadgets.GadgetsContainer;
+            GadgetsContainer = og.common.gadgets.GadgetsContainer,
+            cellmenu = new og.analytics.CellMenu();
+        gadget_containers = {}; // TODO: remove global
         module.rules = {load: {route: '/', method: module.name + '.load'}};
         return view = {
             check_state: og.views.common.state.check.partial('/'),
@@ -41,15 +41,13 @@ $.register_module({
                        provider: 'Live market data (Bloomberg, Activ, TullettPrebon, ICAP)'
                    }
                 });
-                grid.on('cellselect', function (cell) {
-                    if (cell.type === 'LABELLED_MATRIX_1D') {
-                        routes.go(routes.hash(view.rules.load_item, routes.current().args, {
-                            add: {south: 'data:' + cell.col + '|' + cell.row}
-                        }));
-                    }
+                grid.on('cellhover', function (cell) {
+                    if (!cell.value) return  cellmenu.hide();
+                    cellmenu.show(cell);
                 });
+                grid.on('cellselect', function () {});
                 ['south', 'dock-north', 'dock-center', 'dock-south'].forEach(function (val) {
-                    new GadgetsContainer('.OG-layout-analytics-', val).add(args[val]);
+                    gadget_containers[val] = new GadgetsContainer('.OG-layout-analytics-', val).add(args[val]);
                 });
                 og.analytics.form('.OG-layout-analytics-masthead');
                 og.analytics.resize();
@@ -58,7 +56,7 @@ $.register_module({
             rules: {
                 load: {route: '/', method: module.name + '.load'},
                 load_item: {route: '/:id/south:?/dock-north:?/dock-center:?/dock-south:?',
-                method: module.name + '.load_item'}
+                    method: module.name + '.load_item'}
             }
         };
     }

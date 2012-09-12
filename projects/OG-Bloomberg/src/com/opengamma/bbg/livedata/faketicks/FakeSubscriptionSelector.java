@@ -11,16 +11,18 @@ import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.util.tuple.ObjectsPair;
 
 /**
- * Implementors decide which subscriptions are faked out 
+ * Selects which subscriptions are faked and which are real tickers.
  */
 public interface FakeSubscriptionSelector {
 
   /**
+   * Chooses whether to use the fake or real server.
    * 
-   * @param server the server to use to decide
-   * @param specs The securities 
-   * @return 2 disjoint subsets of the specs, (specs which shouldn't be faked, specs which should be faked)
+   * @param server  the server to use to decide, not null
+   * @param specs  the specifications that are required, not null
+   * @return the two disjoint subsets of the specifications, (specs which shouldn't be faked, specs which should be faked)
    */
-  ObjectsPair<Collection<LiveDataSpecification>, Collection<LiveDataSpecification>> splitShouldFake(FakeSubscriptionBloombergLiveDataServer server,
-      Collection<LiveDataSpecification> specs);
+  ObjectsPair<Collection<LiveDataSpecification>, Collection<LiveDataSpecification>> splitShouldFake(
+      FakeSubscriptionBloombergLiveDataServer server, Collection<LiveDataSpecification> specs);
+
 }

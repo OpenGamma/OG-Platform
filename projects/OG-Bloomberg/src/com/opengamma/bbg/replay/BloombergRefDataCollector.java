@@ -26,11 +26,11 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.BloombergConnectorFactoryBean;
 import com.opengamma.bbg.BloombergConstants;
-import com.opengamma.bbg.BloombergReferenceDataProvider;
-import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.cli.BloombergCliOptions;
 import com.opengamma.bbg.cli.BloombergCliOptions.Builder;
 import com.opengamma.bbg.livedata.LoggingReferenceDataProvider;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
+import com.opengamma.bbg.referencedata.impl.BloombergReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.bbg.util.BloombergDomainIdentifierResolver;
 import com.opengamma.id.ExternalId;
@@ -110,7 +110,7 @@ public class BloombergRefDataCollector implements Lifecycle {
       return;
     }
     _started.set(true);
-    _loggingRefDataProvider.getFields(loadSecurities(), loadFields());
+    _loggingRefDataProvider.getReferenceData(loadSecurities(), loadFields());
     _started.set(false);
   }
 

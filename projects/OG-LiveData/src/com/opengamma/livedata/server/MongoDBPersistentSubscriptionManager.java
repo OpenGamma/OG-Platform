@@ -32,7 +32,7 @@ public class MongoDBPersistentSubscriptionManager extends AbstractPersistentSubs
   /**
    * The collection name.
    */
-  private static final String PERSISTENT_SUBSCRIPTION = "PersistentSubscription";
+  private static final String PERSISTENT_SUBSCRIPTION = "subscription";
 
   /**
    * The Mongo connector.
@@ -49,7 +49,7 @@ public class MongoDBPersistentSubscriptionManager extends AbstractPersistentSubs
    * @param server  the live data server, not null
    * @param mongoConnector  the Mongo connector, not null
    */
-  public MongoDBPersistentSubscriptionManager(AbstractLiveDataServer server, MongoConnector mongoConnector) {
+  public MongoDBPersistentSubscriptionManager(StandardLiveDataServer server, MongoConnector mongoConnector) {
     super(server);
     ArgumentChecker.notNull(mongoConnector, "mongoConnector");
     _mongoConnector = mongoConnector;

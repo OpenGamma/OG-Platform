@@ -1,0 +1,96 @@
+/*
+ * Copyright 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
+ */
+.OG-cell-options {
+    background-color: #fff;
+    border-bottom: 1px solid #dadcdd;
+    border-top: 1px solid #dadcdd;
+    border-right: 1px solid #dadcdd;
+    height: 18px;
+    position: absolute;
+    width: 29px;
+    padding-right: 2px;
+    z-index: 3;
+}
+
+.OG-cell-options.og-expanded {
+    background-color: #fafafa;
+    border-top: 1px solid #c9cacb;
+    border-bottom: 1px solid #c9cacb;
+    box-shadow: 2px 2px 2px #ebebeb;
+    width: 86px;
+    -moz-box-shadow: 2px 2px 2px #ebebeb;
+    -webkit-box-shadow: 2px 2px 2px #ebebeb;
+}
+
+.OG-cell-options.og-expanded .og-num {
+    color: #555;
+    background-color: #fff;
+    margin-right: 2px;
+}
+
+.OG-cell-options.og-expanded .og-small {
+    display: none;
+}
+
+.OG-cell-options.og-expanded .og-big {
+    display: block;
+}
+
+.OG-cell-options .OG-icon {
+    background-color: #ccc;
+    float: left;
+    margin-left: 1px;
+    padding: 1px;
+}
+
+.OG-cell-options .OG-icon.og-icon-right-chevron::after {
+    background-position: -100px -34px;
+    height: 12px;
+    margin-left: 1px;
+    width: 7px;
+}
+
+.OG-cell-options .og-big {
+    display: none;
+}
+
+.OG-cell-options .og-group {
+    padding-left: 4px;
+    position: relative;
+    top: 2px;
+}
+
+.OG-cell-options .og-icon-new-window-2 {
+    background-color: #c9cacb;
+    padding: 4px 4px 4px 3px;
+    top: -2px;
+    right: -2px;
+}
+
+.OG-cell-options .og-num {
+    border: 1px solid #dadcdd;
+    color: #c9cacb;
+    cursor: pointer;
+    display: inline-block;
+    float: left;
+    font-weight: bold;
+    height: 12px;
+    line-height: 13px;
+    padding: 0;
+    width: 12px;
+    text-align: center;
+}
+
+.OG-cell-options .OG-icon:hover,
+.OG-cell-options.og-expanded .OG-icon:hover {
+    background-color: #6fd66f;
+}
+
+.OG-cell-options .og-num:hover,
+.OG-cell-options.og-expanded .og-num:hover {
+    background-color: #6fd66f;
+    border: 1px solid #6fd66f;
+    color: #fff;
+}

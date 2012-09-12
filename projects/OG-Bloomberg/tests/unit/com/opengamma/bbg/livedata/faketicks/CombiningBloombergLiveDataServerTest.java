@@ -12,7 +12,6 @@ import static org.testng.AssertJUnit.assertTrue;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.testng.annotations.AfterMethod;
@@ -20,9 +19,11 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Lists;
-import com.opengamma.bbg.BloombergReferenceDataProvider;
-import com.opengamma.bbg.ReferenceDataProvider;
-import com.opengamma.bbg.ReferenceDataResult;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
+import com.opengamma.bbg.referencedata.ReferenceDataProviderGetRequest;
+import com.opengamma.bbg.referencedata.ReferenceDataProviderGetResult;
+import com.opengamma.bbg.referencedata.impl.AbstractReferenceDataProvider;
+import com.opengamma.bbg.referencedata.impl.BloombergReferenceDataProvider;
 import com.opengamma.bbg.test.BloombergLiveDataServerUtils;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
@@ -34,7 +35,7 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.client.JmsLiveDataClient;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
-import com.opengamma.livedata.server.AbstractLiveDataServer;
+import com.opengamma.livedata.server.StandardLiveDataServer;
 import com.opengamma.livedata.server.ExpirationManager;
 import com.opengamma.livedata.server.Subscription;
 import com.opengamma.livedata.server.SubscriptionListener;
@@ -252,7 +253,7 @@ public class CombiningBloombergLiveDataServerTest {
    assertEquals(0, realSubs.get());
   }
 
-  private AtomicInteger countSubscriptions(AbstractLiveDataServer server) {
+  private AtomicInteger countSubscriptions(StandardLiveDataServer server) {
     final AtomicInteger fakeSubs = new AtomicInteger(0);
     server.addSubscriptionListener(new SubscriptionListener() {
        
@@ -314,7 +315,7 @@ public class CombiningBloombergLiveDataServerTest {
     assertFalse(_unitTestingProvider.hadToRejectRequests());
   }
 
-  public static class UnitTestingReferenceDataProvider implements ReferenceDataProvider {
+  public static class UnitTestingReferenceDataProvider extends AbstractReferenceDataProvider {
     private final ReferenceDataProvider _underlying;
     private java.util.concurrent.atomic.AtomicBoolean _locked = new java.util.concurrent.atomic.AtomicBoolean();
     private java.util.concurrent.atomic.AtomicBoolean _broken = new java.util.concurrent.atomic.AtomicBoolean();
@@ -337,12 +338,12 @@ public class CombiningBloombergLiveDataServerTest {
     }
 
     @Override
-    public ReferenceDataResult getFields(Set<String> securities, Set<String> fields) {
+    protected ReferenceDataProviderGetResult doBulkGet(ReferenceDataProviderGetRequest request) {
       if (_locked.get()) {
         _broken.set(true);
       }
       assertFalse(_locked.get());
-      return _underlying.getFields(securities, fields);
+      return _underlying.getReferenceData(request);
     }
   }
 

@@ -22,13 +22,14 @@ import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
-import com.opengamma.financial.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
-import com.opengamma.financial.provider.historicaltimeseries.impl.DataHistoricalTimeSeriesProviderResource;
-import com.opengamma.financial.provider.historicaltimeseries.impl.NoneFoundHistoricalTimeSeriesProvider;
-import com.opengamma.financial.provider.historicaltimeseries.impl.RemoteHistoricalTimeSeriesProvider;
+import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
+import com.opengamma.provider.historicaltimeseries.impl.DataHistoricalTimeSeriesProviderResource;
+import com.opengamma.provider.historicaltimeseries.impl.NoneFoundHistoricalTimeSeriesProvider;
+import com.opengamma.provider.historicaltimeseries.impl.RemoteHistoricalTimeSeriesProvider;
 
 /**
- * Component factory for the {@link HistoricalTimeSeriesProvider}.
+ * Component factory for the time-series provider.
+ * <p>
  * This implementation uses {@link NoneFoundHistoricalTimeSeriesProvider} and is intended
  * to be subclassed.
  */
@@ -49,7 +50,7 @@ public class HistoricalTimeSeriesProviderComponentFactory extends AbstractCompon
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
-    final HistoricalTimeSeriesProvider provider = initHistoricalTimeSeriesProvider();
+    final HistoricalTimeSeriesProvider provider = initHistoricalTimeSeriesProvider(repo);
     final ComponentInfo info = new ComponentInfo(HistoricalTimeSeriesProvider.class, getClassifier());
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
     info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteHistoricalTimeSeriesProvider.class);
@@ -60,14 +61,15 @@ public class HistoricalTimeSeriesProviderComponentFactory extends AbstractCompon
   }
 
   /**
-   * Creates the provider.
+   * Creates the provider, without registering it.
    * <p>
    * This implementation uses {@link NoneFoundHistoricalTimeSeriesProvider} and is intended
    * to be subclassed.
    * 
+   * @param repo  the component repository, only used to register secondary items like lifecycle, not null
    * @return the provider, not null
    */
-  protected HistoricalTimeSeriesProvider initHistoricalTimeSeriesProvider() {
+  protected HistoricalTimeSeriesProvider initHistoricalTimeSeriesProvider(ComponentRepository repo) {
     return new NoneFoundHistoricalTimeSeriesProvider();
   }
 
