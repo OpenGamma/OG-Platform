@@ -8,9 +8,10 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.IMMDates;
-import com.opengamma.analytics.financial.credit.ScheduleGenerationMethod;
+import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -58,10 +59,10 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     ZonedDateTime adjustedMaturityDate = maturityDate;
 
     Calendar calendar = cds.getCalendar();
-    ScheduleGenerationMethod scheduleGenerationMethod = cds.getScheduleGenerationMethod();
+    //ScheduleGenerationMethod scheduleGenerationMethod = cds.getScheduleGenerationMethod();
+    StubType stubType = cds.getStubType();
     PeriodFrequency couponFrequency = cds.getCouponFrequency();
 
-    DayCount daycountFractionConvention = cds.getDayCountFractionConvention();
     BusinessDayConvention businessdayAdjustmentConvention = cds.getBusinessDayAdjustmentConvention();
 
     boolean immAdjustMaturityDate = cds.getIMMAdjustMaturityDate();
@@ -82,7 +83,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     // ------------------------------------------------
 
     // Third, construct the schedule of premium leg cashflows given the adjusted effective and adjusted maturity dates
-    ZonedDateTime[][] cashflowSchedule = calculateCashflowDates(adjustedEffectiveDate, adjustedMaturityDate, couponFrequency);
+    ZonedDateTime[][] cashflowSchedule = calculateCashflowDates(adjustedEffectiveDate, adjustedMaturityDate, couponFrequency, stubType);
 
     // ------------------------------------------------
 
@@ -123,6 +124,8 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     for (int i = 0; i < numberOfCashflows; i++) {
       adjustedCashflowSchedule[i][0] = businessDayAdjustDate(cashflowSchedule[i][0], calendar, businessdayAdjustmentConvention);
+
+      System.out.println(adjustedCashflowSchedule[i][0]);
     }
 
     return adjustedCashflowSchedule;
@@ -131,7 +134,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // -------------------------------------------------------------------------------------------
 
   // Method to calculate the premium leg cashflow dates given the adjusted effective and maturity dates 
-  private ZonedDateTime[][] calculateCashflowDates(ZonedDateTime adjustedEffectiveDate, ZonedDateTime adjustedMaturityDate, PeriodFrequency couponFrequency) {
+  private ZonedDateTime[][] calculateCashflowDates(ZonedDateTime adjustedEffectiveDate, ZonedDateTime adjustedMaturityDate, PeriodFrequency couponFrequency, StubType stubType) {
 
     // Compute the number of cashflows in the premium leg schedule (based on the adjusted dates and the coupon frequency)
     int numberOfCashflows = calculateNumberOfPremiumLegCashflows(adjustedEffectiveDate, adjustedMaturityDate, couponFrequency);
@@ -270,11 +273,17 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // Method to take an input 'date' and adjust it to a business day (if necessary) according to the specified adjustment convention
   private ZonedDateTime businessDayAdjustDate(ZonedDateTime date, Calendar calendar, BusinessDayConvention businessdayAdjustmentConvention) {
 
+    int deltaDays = 1;
+
     ZonedDateTime adjustedDate = date;
 
-    //if (businessdayAdjustmentConvention == BusinessDayConvention)
+    if (businessdayAdjustmentConvention.equals(BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"))) {
+      deltaDays = 1;
+    }
 
-    int deltaDays = 1;
+    if (businessdayAdjustmentConvention.equals(BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding"))) {
+      deltaDays = -1;
+    }
 
     while (!calendar.isWorkingDay(adjustedDate.toLocalDate())) {
       adjustedDate = adjustedDate.plusDays(deltaDays);
