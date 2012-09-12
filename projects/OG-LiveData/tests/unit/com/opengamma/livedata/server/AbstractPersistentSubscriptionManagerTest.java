@@ -72,7 +72,7 @@ public class AbstractPersistentSubscriptionManagerTest {
   
   class TestPersistentSubscriptionManager extends AbstractPersistentSubscriptionManager  {
 
-    public TestPersistentSubscriptionManager(AbstractLiveDataServer server) {
+    public TestPersistentSubscriptionManager(StandardLiveDataServer server) {
       super(server);
     }
 

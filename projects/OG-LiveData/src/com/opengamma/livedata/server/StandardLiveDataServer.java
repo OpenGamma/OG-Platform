@@ -51,13 +51,12 @@ import com.opengamma.util.PublicAPI;
 /**
  * The base class from which most OpenGamma Live Data feed servers should
  * extend. Handles most common cases for distributed contract management.
- * 
  */
 @PublicAPI
-public abstract class AbstractLiveDataServer implements LiveDataServer, Lifecycle {
+public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycle {
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(AbstractLiveDataServer.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(StandardLiveDataServer.class);
 
   private volatile MarketDataSenderFactory _marketDataSenderFactory = new EmptyMarketDataSenderFactory();
   private final Collection<SubscriptionListener> _subscriptionListeners = new CopyOnWriteArrayList<SubscriptionListener>();
@@ -89,7 +88,7 @@ public abstract class AbstractLiveDataServer implements LiveDataServer, Lifecycl
    * 
    * @param cacheManager  the cache manager, not null
    */
-  protected AbstractLiveDataServer(CacheManager cacheManager) {
+  protected StandardLiveDataServer(CacheManager cacheManager) {
     this(cacheManager, true);
   }
 
@@ -101,7 +100,7 @@ public abstract class AbstractLiveDataServer implements LiveDataServer, Lifecycl
    * @param cacheManager  the cache manager, not null
    * @param isPerformanceCountingEnabled  whether to track the message rate here, see {@link #getNumLiveDataUpdatesSentPerSecondOverLastMinute()}
    */
-  protected AbstractLiveDataServer(CacheManager cacheManager, boolean isPerformanceCountingEnabled) {
+  protected StandardLiveDataServer(CacheManager cacheManager, boolean isPerformanceCountingEnabled) {
     ArgumentChecker.notNull(cacheManager, "cacheManager");
     _cacheManager = cacheManager;
     _performanceCounter = isPerformanceCountingEnabled ? new PerformanceCounter(60) : null;

@@ -33,7 +33,7 @@ import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.entitlement.LiveDataEntitlementChecker;
 import com.opengamma.livedata.entitlement.UserEntitlementChecker;
 import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
-import com.opengamma.livedata.server.AbstractLiveDataServer;
+import com.opengamma.livedata.server.StandardLiveDataServer;
 import com.opengamma.livedata.server.LiveDataServerMBean;
 import com.opengamma.livedata.server.combining.PriorityResolvingCombiningLiveDataServer;
 import com.opengamma.livedata.server.distribution.JmsSenderFactory;
@@ -93,11 +93,11 @@ public class PriorityResolvingCombiningLiveDataServerComponentFactory extends Ab
 
   //-------------------------------------------------------------------------
   @Override
-  protected AbstractLiveDataServer initServer(ComponentRepository repo) {
+  protected StandardLiveDataServer initServer(ComponentRepository repo) {
     List<ComponentInfo> infos = buildInfoList();
-    List<AbstractLiveDataServer> servers = Lists.newArrayList();
+    List<StandardLiveDataServer> servers = Lists.newArrayList();
     for (ComponentInfo info : infos) {
-      servers.add((AbstractLiveDataServer) repo.getInstance(info));
+      servers.add((StandardLiveDataServer) repo.getInstance(info));
     }
     PriorityResolvingCombiningLiveDataServer combinedServer = new PriorityResolvingCombiningLiveDataServer(servers, getCacheManager());
     configureServerPlugins(repo, combinedServer);

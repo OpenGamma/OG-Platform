@@ -27,7 +27,7 @@ import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
 import com.opengamma.livedata.resolver.EHCachingDistributionSpecificationResolver;
 import com.opengamma.livedata.resolver.IdResolver;
 import com.opengamma.livedata.resolver.NormalizationRuleResolver;
-import com.opengamma.livedata.server.AbstractLiveDataServer;
+import com.opengamma.livedata.server.StandardLiveDataServer;
 import com.opengamma.livedata.server.Subscription;
 import com.opengamma.util.ArgumentChecker;
 
@@ -35,7 +35,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Allows common functionality to be shared between the live and recorded Bloomberg data servers
  */
-public abstract class AbstractBloombergLiveDataServer extends AbstractLiveDataServer {
+public abstract class AbstractBloombergLiveDataServer extends StandardLiveDataServer {
 
   private NormalizationRuleResolver _normalizationRules;
   private IdResolver _idResolver;

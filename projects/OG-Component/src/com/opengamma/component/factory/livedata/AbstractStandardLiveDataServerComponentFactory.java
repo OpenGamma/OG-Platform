@@ -22,7 +22,7 @@ import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.livedata.entitlement.EntitlementServer;
-import com.opengamma.livedata.server.AbstractLiveDataServer;
+import com.opengamma.livedata.server.StandardLiveDataServer;
 import com.opengamma.livedata.server.ExpirationManager;
 import com.opengamma.livedata.server.HeartbeatReceiver;
 import com.opengamma.livedata.server.LiveDataServer;
@@ -85,7 +85,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
-    AbstractLiveDataServer server = initServer(repo);
+    StandardLiveDataServer server = initServer(repo);
     final ComponentInfo info = new ComponentInfo(LiveDataServer.class, getClassifier());
     repo.registerComponent(info, server);
     
@@ -109,7 +109,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
    * @param repo  the repository, not null
    * @return the server, not null
    */
-  protected abstract AbstractLiveDataServer initServer(ComponentRepository repo);
+  protected abstract StandardLiveDataServer initServer(ComponentRepository repo);
 
   /**
    * Publishes the server by JMS.
@@ -117,7 +117,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
    * @param repo  the repository, not null
    * @param server  the server, not null
    */
-  protected void publishJms(ComponentRepository repo, AbstractLiveDataServer server) {
+  protected void publishJms(ComponentRepository repo, StandardLiveDataServer server) {
     publishJmsSubscription(repo, server);
     publishJmsEntitlement(repo, server);
     publishJmsHeartbeat(repo, server);
@@ -129,7 +129,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
    * @param repo  the repository, not null
    * @param server  the server, not null
    */
-  protected void publishJmsSubscription(ComponentRepository repo, AbstractLiveDataServer server) {
+  protected void publishJmsSubscription(ComponentRepository repo, StandardLiveDataServer server) {
     SubscriptionRequestReceiver receiver = new SubscriptionRequestReceiver(server);
     FudgeRequestDispatcher dispatcher = new FudgeRequestDispatcher(receiver);
     JmsByteArrayRequestDispatcher jmsDispatcher = new JmsByteArrayRequestDispatcher(dispatcher);
@@ -143,7 +143,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
    * @param repo  the repository, not null
    * @param server  the server, not null
    */
-  protected void publishJmsEntitlement(ComponentRepository repo, AbstractLiveDataServer server) {
+  protected void publishJmsEntitlement(ComponentRepository repo, StandardLiveDataServer server) {
     EntitlementServer entitlementServer = new EntitlementServer(server.getEntitlementChecker());
     FudgeRequestDispatcher dispatcher = new FudgeRequestDispatcher(entitlementServer);
     JmsByteArrayRequestDispatcher jmsDispatcher = new JmsByteArrayRequestDispatcher(dispatcher);
@@ -157,7 +157,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
    * @param repo  the repository, not null
    * @param server  the server, not null
    */
-  protected void publishJmsHeartbeat(ComponentRepository repo, AbstractLiveDataServer server) {
+  protected void publishJmsHeartbeat(ComponentRepository repo, StandardLiveDataServer server) {
     ExpirationManager expirationManager = new ExpirationManager(server);
     HeartbeatReceiver receiver = new HeartbeatReceiver(expirationManager);
     JmsByteArrayMessageDispatcher jmsDispatcher = new JmsByteArrayMessageDispatcher(receiver);
@@ -171,7 +171,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
    * @param repo  the repository, not null
    * @param server  the server being produced, not null
    */
-  protected void publishRest(ComponentRepository repo, AbstractLiveDataServer server) {
+  protected void publishRest(ComponentRepository repo, StandardLiveDataServer server) {
     final LiveDataMetaData metaData = createMetaData(repo);
     metaData.setJmsBrokerUri(getJmsConnector().getClientBrokerUri());
     metaData.setJmsSubscriptionTopic(getJmsSubscriptionTopic());

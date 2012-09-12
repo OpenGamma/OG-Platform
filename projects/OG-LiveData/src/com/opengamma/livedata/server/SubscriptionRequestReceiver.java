@@ -29,14 +29,14 @@ public class SubscriptionRequestReceiver implements FudgeRequestReceiver {
   /**
    * The underlying server.
    */
-  private final AbstractLiveDataServer _liveDataServer;
+  private final StandardLiveDataServer _liveDataServer;
 
   /**
    * Creates an instance wrapping an underlying server.
    * 
    * @param liveDataServer  the server, not null
    */
-  public SubscriptionRequestReceiver(AbstractLiveDataServer liveDataServer) {
+  public SubscriptionRequestReceiver(StandardLiveDataServer liveDataServer) {
     ArgumentChecker.notNull(liveDataServer, "liveDataServer");
     _liveDataServer = liveDataServer;
   }
@@ -47,7 +47,7 @@ public class SubscriptionRequestReceiver implements FudgeRequestReceiver {
    * 
    * @return the server, not null
    */
-  public AbstractLiveDataServer getLiveDataServer() {
+  public StandardLiveDataServer getLiveDataServer() {
     return _liveDataServer;
   }
 

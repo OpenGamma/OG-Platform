@@ -19,7 +19,7 @@ import com.opengamma.bbg.referencedata.cache.AbstractInvalidFieldCachingReferenc
 import com.opengamma.bbg.referencedata.cache.AbstractValueCachingReferenceDataProvider;
 import com.opengamma.bbg.referencedata.impl.BloombergReferenceDataProvider;
 import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
-import com.opengamma.livedata.server.AbstractLiveDataServer;
+import com.opengamma.livedata.server.StandardLiveDataServer;
 import com.opengamma.livedata.server.CombiningLiveDataServer;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
@@ -131,7 +131,7 @@ public class BloombergLiveDataServerUtils {
     return combinedServer;
   }
 
-  public static void stopTestServer(AbstractLiveDataServer server) {
+  public static void stopTestServer(StandardLiveDataServer server) {
     if (server instanceof BloombergLiveDataServer) {
       stopTestServer((BloombergLiveDataServer) server);
     } else if (server instanceof CombiningLiveDataServer) {

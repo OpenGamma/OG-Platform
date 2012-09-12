@@ -32,7 +32,7 @@ import com.opengamma.livedata.normalization.NormalizationRuleSet;
 import com.opengamma.livedata.normalization.StandardRuleResolver;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.livedata.resolver.DefaultDistributionSpecificationResolver;
-import com.opengamma.livedata.server.AbstractLiveDataServer;
+import com.opengamma.livedata.server.StandardLiveDataServer;
 import com.opengamma.livedata.server.distribution.JmsSenderFactory;
 import com.opengamma.provider.livedata.LiveDataMetaData;
 import com.opengamma.provider.livedata.LiveDataServerTypes;
@@ -56,7 +56,7 @@ public class ExampleLiveDataServerComponentFactory extends AbstractStandardLiveD
 
   //-------------------------------------------------------------------------
   @Override
-  protected AbstractLiveDataServer initServer(ComponentRepository repo) {
+  protected StandardLiveDataServer initServer(ComponentRepository repo) {
     ExampleLiveDataServer server = new ExampleLiveDataServer(getSimulatedData());
     
     Collection<NormalizationRuleSet> rules = ImmutableList.of(StandardRules.getNoNormalization(), NormalizationRules.getMarketValueNormalization());

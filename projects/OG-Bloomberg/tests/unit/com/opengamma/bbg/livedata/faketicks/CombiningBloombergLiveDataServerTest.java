@@ -35,7 +35,7 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.client.JmsLiveDataClient;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
-import com.opengamma.livedata.server.AbstractLiveDataServer;
+import com.opengamma.livedata.server.StandardLiveDataServer;
 import com.opengamma.livedata.server.ExpirationManager;
 import com.opengamma.livedata.server.Subscription;
 import com.opengamma.livedata.server.SubscriptionListener;
@@ -253,7 +253,7 @@ public class CombiningBloombergLiveDataServerTest {
    assertEquals(0, realSubs.get());
   }
 
-  private AtomicInteger countSubscriptions(AbstractLiveDataServer server) {
+  private AtomicInteger countSubscriptions(StandardLiveDataServer server) {
     final AtomicInteger fakeSubs = new AtomicInteger(0);
     server.addSubscriptionListener(new SubscriptionListener() {
        

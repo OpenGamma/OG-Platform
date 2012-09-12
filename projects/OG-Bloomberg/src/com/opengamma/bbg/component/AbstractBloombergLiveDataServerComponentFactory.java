@@ -35,7 +35,7 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.entitlement.LiveDataEntitlementChecker;
 import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
-import com.opengamma.livedata.server.AbstractLiveDataServer;
+import com.opengamma.livedata.server.StandardLiveDataServer;
 import com.opengamma.livedata.server.LiveDataServerMBean;
 import com.opengamma.livedata.server.distribution.JmsSenderFactory;
 import com.opengamma.provider.livedata.LiveDataMetaData;
@@ -70,7 +70,7 @@ public abstract class AbstractBloombergLiveDataServerComponentFactory extends Ab
 
   //-------------------------------------------------------------------------
   @Override
-  protected AbstractLiveDataServer initServer(ComponentRepository repo) {
+  protected StandardLiveDataServer initServer(ComponentRepository repo) {
     // real server
     BloombergLiveDataServer realServer = new BloombergLiveDataServer(getBloombergConnector(), getReferenceDataProvider(), getCacheManager());
     if (getSubscriptionTickerLimit() != null) {

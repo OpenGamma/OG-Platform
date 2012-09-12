@@ -39,7 +39,7 @@ import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
-import com.opengamma.livedata.server.AbstractLiveDataServer;
+import com.opengamma.livedata.server.StandardLiveDataServer;
 import com.opengamma.livedata.server.Subscription;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
@@ -49,7 +49,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  * A live data server which fakes out Bloomberg subscriptions for some tickers.
  * Other tickers will be subscribed as normal.
  */
-public class FakeSubscriptionBloombergLiveDataServer extends AbstractLiveDataServer {
+public class FakeSubscriptionBloombergLiveDataServer extends StandardLiveDataServer {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(FakeSubscriptionBloombergLiveDataServer.class);
