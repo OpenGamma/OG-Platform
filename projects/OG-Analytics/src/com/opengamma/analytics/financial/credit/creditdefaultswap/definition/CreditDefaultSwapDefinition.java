@@ -14,8 +14,8 @@ import com.opengamma.analytics.financial.credit.CreditRating;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.Region;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
-import com.opengamma.analytics.financial.credit.ScheduleGenerationMethod;
 import com.opengamma.analytics.financial.credit.Sector;
+import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -95,7 +95,7 @@ public class CreditDefaultSwapDefinition {
   private final ZonedDateTime _valuationDate;
 
   // The method for generating the schedule of premium payments
-  private final ScheduleGenerationMethod _scheduleGenerationMethod;
+  private final StubType _stubType;
 
   // The frequency of coupon payments (usually quarterly)
   private final PeriodFrequency _couponFrequency;
@@ -153,7 +153,7 @@ public class CreditDefaultSwapDefinition {
       ZonedDateTime effectiveDate,
       ZonedDateTime maturityDate,
       ZonedDateTime valuationDate,
-      ScheduleGenerationMethod scheduleGenerationMethod,
+      StubType stubType,
       PeriodFrequency couponFrequency,
       DayCount daycountFractionConvention,
       BusinessDayConvention businessdayAdjustmentConvention,
@@ -211,7 +211,7 @@ public class CreditDefaultSwapDefinition {
     ArgumentChecker.isTrue(!valuationDate.isAfter(maturityDate), "Valuation date {} must be on or before maturity date {}", valuationDate, maturityDate);
     ArgumentChecker.isTrue(!valuationDate.isBefore(effectiveDate), "Valuation date {} must be on or after effective date {}", valuationDate, effectiveDate);
 
-    ArgumentChecker.notNull(scheduleGenerationMethod, "Schedule generation method field is null");
+    ArgumentChecker.notNull(stubType, "Stub Type method field is null");
     ArgumentChecker.notNull(couponFrequency, "Coupon frequency field is null");
     ArgumentChecker.notNull(daycountFractionConvention, "Daycount convention field is null");
     ArgumentChecker.notNull(businessdayAdjustmentConvention, "Business day adjustment convention field is null");
@@ -254,7 +254,7 @@ public class CreditDefaultSwapDefinition {
     _maturityDate = maturityDate;
     _valuationDate = valuationDate;
 
-    _scheduleGenerationMethod = scheduleGenerationMethod;
+    _stubType = stubType;
     _couponFrequency = couponFrequency;
     _daycountFractionConvention = daycountFractionConvention;
     _businessdayAdjustmentConvention = businessdayAdjustmentConvention;
@@ -361,8 +361,8 @@ public class CreditDefaultSwapDefinition {
 
   //----------------------------------------------------------------------------------------------------------------------------------------
 
-  public ScheduleGenerationMethod getScheduleGenerationMethod() {
-    return _scheduleGenerationMethod;
+  public StubType getStubType() {
+    return _stubType;
   }
 
   public PeriodFrequency getCouponFrequency() {
@@ -553,7 +553,7 @@ public class CreditDefaultSwapDefinition {
       return false;
     }
 
-    if (_scheduleGenerationMethod != other._scheduleGenerationMethod) {
+    if (_stubType != other._stubType) {
       return false;
     }
 

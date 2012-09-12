@@ -30,8 +30,7 @@
             <phase>package</phase>
             <configuration>
               <target>
-                <mkdir dir="${dist.dir}"/>
-                <zip basedir="install" destfile="${dist.dir}/og-masterdb-sql.zip" />
+                <zip basedir="install" destfile="${project.build.directory}/og-masterdb-sql.zip" />
               </target>
             </configuration>
             <goals>
@@ -53,7 +52,7 @@
             <configuration>
               <artifacts>
                 <artifact>
-                  <file>${dist.dir}/og-masterdb-sql.zip</file>
+                  <file>${project.build.directory}/og-masterdb-sql.zip</file>
                   <type>zip</type>
                   <classifier>sql</classifier>
                 </artifact>
@@ -75,7 +74,6 @@
 
   <properties>
     <og-platform.basedir>${project.parent.basedir}/../..</og-platform.basedir>
-    <dist.dir>${project.basedir}/dist</dist.dir>
   </properties>
 
 </project>

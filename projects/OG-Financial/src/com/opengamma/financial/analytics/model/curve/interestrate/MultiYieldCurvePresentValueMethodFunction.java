@@ -176,7 +176,7 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MultipleYieldCurveFinderJacobian(data, PV_SENSITIVITY_CALCULATOR);
     final double[] fittedYields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess.toDoubleArray())).getData();
     final DoubleMatrix2D jacobianMatrix = jacobianCalculator.evaluate(new DoubleMatrix1D(fittedYields));
-    final ValueProperties properties = getProperties(curveCalculationConfigName, absoluteToleranceName, relativeToleranceName, iterationsName,
+    final ValueProperties properties = getJacobianProperties(curveCalculationConfigName, absoluteToleranceName, relativeToleranceName, iterationsName,
         decompositionName, useFiniteDifferenceName);
     results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_JACOBIAN, targetSpec, properties), jacobianMatrix.getData()));
     int i = 0;
@@ -205,7 +205,7 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
     results.addAll(super.getResults(context, target));
-    final ValueProperties properties = getProperties();
+    final ValueProperties properties = getJacobianProperties();
     final ValueSpecification couponSensitivities = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY, target.toSpecification(), properties);
     results.add(couponSensitivities);
     return results;
@@ -233,7 +233,7 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
       }
     }
     assert curveCalculationConfigName != null;
-    final ValueProperties properties = getProperties(curveCalculationConfigName);
+    final ValueProperties properties = getJacobianProperties(curveCalculationConfigName);
     final ValueSpecification jacobian = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_JACOBIAN, targetSpec, properties);
     final ValueSpecification sensitivities = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY, targetSpec, properties);
     results.add(jacobian);
@@ -242,7 +242,7 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
   }
 
   @Override
-  protected ValueProperties getProperties() {
+  protected ValueProperties getJacobianProperties() {
     return createValueProperties()
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, PRESENT_VALUE_STRING)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
@@ -267,7 +267,7 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
   }
 
   @Override
-  protected ValueProperties getProperties(final String curveCalculationConfigName) {
+  protected ValueProperties getJacobianProperties(final String curveCalculationConfigName) {
     return createValueProperties()
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, PRESENT_VALUE_STRING)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
@@ -292,7 +292,7 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
   }
 
   @Override
-  protected ValueProperties getProperties(final String curveCalculationConfigName, final String absoluteTolerance, final String relativeTolerance, final String maxIterations,
+  protected ValueProperties getJacobianProperties(final String curveCalculationConfigName, final String absoluteTolerance, final String relativeTolerance, final String maxIterations,
       final String decomposition, final String useFiniteDifference) {
     return createValueProperties()
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, PRESENT_VALUE_STRING)

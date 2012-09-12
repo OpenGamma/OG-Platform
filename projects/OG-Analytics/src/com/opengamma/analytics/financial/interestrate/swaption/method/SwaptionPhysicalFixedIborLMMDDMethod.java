@@ -34,7 +34,26 @@ import com.opengamma.util.tuple.DoublesPair;
  * Method to computes the present value and sensitivities of physical delivery European swaptions with the Libor Market Model with displaced diffusion.
  * Reference: Henrard, M. (2010). Swaptions in Libor Market Model with local volatility. Wilmott Journal, 2010, 2, 135-154
  */
-public class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod {
+public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod {
+
+  /**
+   * The method unique instance.
+   */
+  private static final SwaptionPhysicalFixedIborLMMDDMethod INSTANCE = new SwaptionPhysicalFixedIborLMMDDMethod();
+
+  /**
+   * Return the unique instance of the class.
+   * @return The instance.
+   */
+  public static SwaptionPhysicalFixedIborLMMDDMethod getInstance() {
+    return INSTANCE;
+  }
+
+  /**
+   * Private constructor.
+   */
+  private SwaptionPhysicalFixedIborLMMDDMethod() {
+  }
 
   /**
    * The cash flow equivalent calculator used in computations.

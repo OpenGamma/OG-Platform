@@ -1,11 +1,12 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention;
 
 import static com.opengamma.core.id.ExternalSchemes.bloombergTickerSecurityId;
+import static com.opengamma.core.id.ExternalSchemes.icapSecurityId;
 import static com.opengamma.core.id.ExternalSchemes.tullettPrebonSecurityId;
 import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.simpleNameSecurityId;
 
@@ -28,7 +29,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 
 /**
- * 
+ *
  */
 public class USConventions {
 
@@ -89,36 +90,36 @@ public class USConventions {
         "USD DEPOSIT 2d", act360, following, Period.ofDays(1), 1, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDR3T Curncy"), simpleNameSecurityId("USD DEPOSIT 3d")),
         "USD DEPOSIT 3d", act360, following, Period.ofDays(1), 2, false, us);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDR7D Curncy"), simpleNameSecurityId("USD DEPOSIT 1w"),
-        tullettPrebonSecurityId("ASDEPUSDSPT01W")), "USD DEPOSIT 1w", act360, following, Period.ofDays(7), 2, false, us);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDR1Z Curncy"), simpleNameSecurityId("USD DEPOSIT 1w"),
+        tullettPrebonSecurityId("ASDEPUSDSPT01W"), icapSecurityId("USD_1W")), "USD DEPOSIT 1w", act360, following, Period.ofDays(7), 2, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDR2Z Curncy"), simpleNameSecurityId("USD DEPOSIT 2w"),
-        tullettPrebonSecurityId("ASDEPUSDSPT02W")), "USD DEPOSIT 2w", act360, following, Period.ofDays(14), 2, false, us);
+        tullettPrebonSecurityId("ASDEPUSDSPT02W"), icapSecurityId("USD_2W")), "USD DEPOSIT 2w", act360, following, Period.ofDays(14), 2, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDR3Z Curncy"), simpleNameSecurityId("USD DEPOSIT 3w"),
-        tullettPrebonSecurityId("ASDEPUSDSPT03W")), "USD DEPOSIT 3w", act360, following, Period.ofDays(21), 2, false, us);
+        tullettPrebonSecurityId("ASDEPUSDSPT03W"), icapSecurityId("USD_3W")), "USD DEPOSIT 3w", act360, following, Period.ofDays(21), 2, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDRA Curncy"), simpleNameSecurityId("USD DEPOSIT 1m"),
-        tullettPrebonSecurityId("ASDEPUSDSPT01M")), "USD DEPOSIT 1m", act360, following, Period.ofMonths(1), 2, false, us);
+        tullettPrebonSecurityId("ASDEPUSDSPT01M"), icapSecurityId("USD_1M")), "USD DEPOSIT 1m", act360, following, Period.ofMonths(1), 2, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDRB Curncy"), simpleNameSecurityId("USD DEPOSIT 2m"),
-        tullettPrebonSecurityId("ASDEPUSDSPT02M")), "USD DEPOSIT 2m", act360, following, Period.ofMonths(2), 2, false, us);
+        tullettPrebonSecurityId("ASDEPUSDSPT02M"), icapSecurityId("USD_2M")), "USD DEPOSIT 2m", act360, following, Period.ofMonths(2), 2, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDRC Curncy"), simpleNameSecurityId("USD DEPOSIT 3m"),
-        tullettPrebonSecurityId("ASDEPUSDSPT03M")), "USD DEPOSIT 3m", act360, following, Period.ofMonths(3), 2, false, us);
+        tullettPrebonSecurityId("ASDEPUSDSPT03M"), icapSecurityId("USD_3M")), "USD DEPOSIT 3m", act360, following, Period.ofMonths(3), 2, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDRD Curncy"), simpleNameSecurityId("USD DEPOSIT 4m"),
-        tullettPrebonSecurityId("ASDEPUSDSPT04M")), "USD DEPOSIT 4m", act360, following, Period.ofMonths(4), 2, false, us);
+        tullettPrebonSecurityId("ASDEPUSDSPT04M"), icapSecurityId("USD_4M")), "USD DEPOSIT 4m", act360, following, Period.ofMonths(4), 2, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDRE Curncy"), simpleNameSecurityId("USD DEPOSIT 5m"),
-        tullettPrebonSecurityId("ASDEPUSDSPT05M")), "USD DEPOSIT 5m", act360, following, Period.ofMonths(5), 2, false, us);
+        tullettPrebonSecurityId("ASDEPUSDSPT05M"), icapSecurityId("USD_5M")), "USD DEPOSIT 5m", act360, following, Period.ofMonths(5), 2, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDRF Curncy"), simpleNameSecurityId("USD DEPOSIT 6m"),
-        tullettPrebonSecurityId("ASDEPUSDSPT06M")), "USD DEPOSIT 6m", act360, following, Period.ofMonths(6), 2, false, us);
+        tullettPrebonSecurityId("ASDEPUSDSPT06M"), icapSecurityId("USD_6M")), "USD DEPOSIT 6m", act360, following, Period.ofMonths(6), 2, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDRG Curncy"), simpleNameSecurityId("USD DEPOSIT 7m"),
-        tullettPrebonSecurityId("ASDEPUSDSPT07M")), "USD DEPOSIT 7m", act360, following, Period.ofMonths(7), 2, false, us);
+        tullettPrebonSecurityId("ASDEPUSDSPT07M"), icapSecurityId("USD_7M")), "USD DEPOSIT 7m", act360, following, Period.ofMonths(7), 2, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDRH Curncy"), simpleNameSecurityId("USD DEPOSIT 8m"),
-        tullettPrebonSecurityId("ASDEPUSDSPT08M")), "USD DEPOSIT 8m", act360, following, Period.ofMonths(8), 2, false, us);
+        tullettPrebonSecurityId("ASDEPUSDSPT08M"), icapSecurityId("USD_8M")), "USD DEPOSIT 8m", act360, following, Period.ofMonths(8), 2, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDRI Curncy"), simpleNameSecurityId("USD DEPOSIT 9m"),
-        tullettPrebonSecurityId("ASDEPUSDSPT09M")), "USD DEPOSIT 9m", act360, following, Period.ofMonths(9), 2, false, us);
+        tullettPrebonSecurityId("ASDEPUSDSPT09M"), icapSecurityId("USD_9M")), "USD DEPOSIT 9m", act360, following, Period.ofMonths(9), 2, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDRJ Curncy"), simpleNameSecurityId("USD DEPOSIT 10m"),
-        tullettPrebonSecurityId("ASDEPUSDSPT10M")), "USD DEPOSIT 10m", act360, following, Period.ofMonths(10), 2, false, us);
+        tullettPrebonSecurityId("ASDEPUSDSPT10M"), icapSecurityId("USD_10M")), "USD DEPOSIT 10m", act360, following, Period.ofMonths(10), 2, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDRK Curncy"), simpleNameSecurityId("USD DEPOSIT 11m"),
-        tullettPrebonSecurityId("ASDEPUSDSPT11M")), "USD DEPOSIT 11m", act360, following, Period.ofMonths(11), 2, false, us);
+        tullettPrebonSecurityId("ASDEPUSDSPT11M"), icapSecurityId("USD_11M")), "USD DEPOSIT 11m", act360, following, Period.ofMonths(11), 2, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDR1 Curncy"), simpleNameSecurityId("USD DEPOSIT 1y"),
-        tullettPrebonSecurityId("ASDEPUSDSPT12M")), "USD DEPOSIT 1y", act360, following, Period.ofYears(1), 2, false, us);
+        tullettPrebonSecurityId("ASDEPUSDSPT12M"), icapSecurityId("USD_12M")), "USD DEPOSIT 1y", act360, following, Period.ofYears(1), 2, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDR2 Curncy"), simpleNameSecurityId("USD DEPOSIT 2y")),
         "USD DEPOSIT 2y", act360, following, Period.ofYears(2), 2, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDR3 Curncy"), simpleNameSecurityId("USD DEPOSIT 3y")),
