@@ -27,15 +27,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.bbg.ReferenceDataProvider;
-import com.opengamma.bbg.loader.BloombergBulkSecurityLoader;
 import com.opengamma.bbg.loader.BloombergSecurityLoader;
 import com.opengamma.bbg.tool.BloombergToolContext;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.GICSCode;
-import com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider;
-import com.opengamma.financial.timeseries.exchange.ExchangeDataProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
@@ -47,6 +43,7 @@ import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.provider.security.SecurityProvider;
 import com.opengamma.util.functional.Function1;
 import com.opengamma.util.generate.scripts.Scriptable;
 
@@ -166,11 +163,9 @@ public class ExampleEquityPortfolioLoader extends AbstractTool<IntegrationToolCo
   }
 
   private Collection<UniqueId> loadSecurities(Collection<ExternalId> identifiers) {
-    SecurityMaster secMaster = getToolContext().getSecurityMaster();
-    ReferenceDataProvider referenceDataProvider = ((BloombergToolContext) getToolContext()).getBloombergReferenceDataProvider();
-    ExchangeDataProvider exchangeDataProvider = new DefaultExchangeDataProvider();
-    BloombergBulkSecurityLoader bulkSecurityLoader = new BloombergBulkSecurityLoader(referenceDataProvider, exchangeDataProvider);
-    BloombergSecurityLoader securityLoader = new BloombergSecurityLoader(secMaster, bulkSecurityLoader);
+    SecurityMaster securityMaster = getToolContext().getSecurityMaster();
+    SecurityProvider securityProvider = getToolContext().getSecurityProvider();
+    BloombergSecurityLoader securityLoader = new BloombergSecurityLoader(securityProvider, securityMaster);
     
     final Map<ExternalIdBundle, UniqueId> loadedSecurities = securityLoader.loadSecurity(map(identifiers, new Function1<ExternalId, ExternalIdBundle>() {
       @Override

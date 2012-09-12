@@ -29,7 +29,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.firehose.FireHoseLiveData.DataStateListener;
 import com.opengamma.livedata.firehose.FireHoseLiveData.ValueUpdateListener;
-import com.opengamma.livedata.server.AbstractLiveDataServer;
+import com.opengamma.livedata.server.StandardLiveDataServer;
 import com.opengamma.livedata.server.Subscription;
 import com.opengamma.livedata.server.distribution.EmptyMarketDataSenderFactory;
 import com.opengamma.util.ArgumentChecker;
@@ -40,7 +40,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 /**
  * OpenGamma Live Data Server implementation built on top of a {@link FireHoseLiveData} implementation.
  */
-public class FireHoseLiveDataServer extends AbstractLiveDataServer {
+public class FireHoseLiveDataServer extends StandardLiveDataServer {
 
   private static final Logger s_logger = LoggerFactory.getLogger(FireHoseLiveDataServer.class);
   private static final ExecutorService s_executorService = Executors.newCachedThreadPool(new NamedThreadPoolFactory("FireHoseLiveDataServer"));
@@ -53,7 +53,7 @@ public class FireHoseLiveDataServer extends AbstractLiveDataServer {
   private long _marketDataTimeout = 30000000000L;
 
   public FireHoseLiveDataServer(final ExternalScheme uniqueIdDomain, final FireHoseLiveData fireHose) {
-    super(EHCacheUtils.createCacheManager());
+    super(EHCacheUtils.createCacheManager());  // TODO: pass this in
     ArgumentChecker.notNull(uniqueIdDomain, "uniqueIdDomain");
     ArgumentChecker.notNull(fireHose, "fireHose");
     _uniqueIdDomain = uniqueIdDomain;

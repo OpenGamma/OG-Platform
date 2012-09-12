@@ -5,11 +5,9 @@
  */
 package com.opengamma.integration.component;
 
-import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.fudgemsg.FudgeContext;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -21,27 +19,19 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.bbg.BloombergIdentifierProvider;
-import com.opengamma.bbg.BloombergSecuritySource;
-import com.opengamma.bbg.ReferenceDataProvider;
-import com.opengamma.bbg.RemoteReferenceDataProviderFactoryBean;
-import com.opengamma.bbg.loader.BloombergBulkSecurityLoader;
 import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
 import com.opengamma.bbg.loader.BloombergSecurityLoader;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.historicaltimeseries.impl.RemoteHistoricalTimeSeriesSource;
-import com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider;
-import com.opengamma.financial.timeseries.exchange.ExchangeDataProvider;
 import com.opengamma.master.historicaltimeseries.ExternalIdResolver;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
-import com.opengamma.transport.jaxrs.UriEndPointUriFactoryBean;
-import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
-import com.opengamma.util.jms.JmsConnector;
+import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
+import com.opengamma.provider.security.SecurityProvider;
 
 /**
  * Component factory for the Integration project.
@@ -49,20 +39,26 @@ import com.opengamma.util.jms.JmsConnector;
 @BeanDefinition
 public class IntegrationDataComponentFactory extends AbstractComponentFactory {
 
-  private static final String BBG_CLASSIFIER = "bbg";
-  private static final String STANDARD_CLASSIFIER = "standard";
-
   /**
-   * The configuration URI.
+   * The classifier that the factory should publish under.
    */
   @PropertyDefinition(validate = "notNull")
-  private URI _bbgServerConfigurationUri;
+  private String _classifier;
   /**
-   * The JMS connector.
+   * The Bloomberg reference data provider.
    */
   @PropertyDefinition(validate = "notNull")
-  private String _referenceDataJmsTopic;
-
+  private ReferenceDataProvider _referenceDataProvider;
+  /**
+   * The security provider.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private SecurityProvider _securityProvider;
+  /**
+   * The time-series provider.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private HistoricalTimeSeriesProvider _historicalTimeSeriesProvider;
   /**
    * The security master.
    */
@@ -73,86 +69,47 @@ public class IntegrationDataComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition(validate = "notNull")
   private HistoricalTimeSeriesMaster _historicalTimeSeriesMaster;
-  /**
-   * The Fudge context.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private FudgeContext _fudgeContext = OpenGammaFudgeContext.getInstance();
-  /**
-   * The JMS connector.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private JmsConnector _jmsConnector;
 
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
-    ReferenceDataProvider refData = initReferenceDataProvider(repo);
-    HistoricalTimeSeriesSource bbgHtsSource = initTimeSeriesSource(repo);
-    initSecurityLoader(repo, refData, bbgHtsSource);
-    initHistoricalTimeSeriesLoader(repo, refData, bbgHtsSource);
-    initBloombergSecuritySource(repo, refData);
+    initSecurityLoader(repo);
+    initHistoricalTimeSeriesLoader(repo);
   }
 
-  private void initBloombergSecuritySource(ComponentRepository repo, ReferenceDataProvider refData) {
-    BloombergSecuritySource bloombergSecuritySource = new BloombergSecuritySource(refData, new DefaultExchangeDataProvider());
-    ComponentInfo info = new ComponentInfo(BloombergSecuritySource.class, BBG_CLASSIFIER);
-    repo.registerComponent(info, bloombergSecuritySource);
-  }
-
-  protected ReferenceDataProvider initReferenceDataProvider(ComponentRepository repo) {
-    RemoteReferenceDataProviderFactoryBean factory = new RemoteReferenceDataProviderFactoryBean();
-    factory.setJmsConnector(getJmsConnector());
-    factory.setRequestTopic(getReferenceDataJmsTopic());
-    factory.setFudgeContext(getFudgeContext());
-    
-    ReferenceDataProvider refData = factory.getObjectCreating();
-    ComponentInfo info = new ComponentInfo(ReferenceDataProvider.class, BBG_CLASSIFIER);
-    repo.registerComponent(info, refData);
-    return refData;
-  }
-
-  protected HistoricalTimeSeriesSource initTimeSeriesSource(ComponentRepository repo) {
-    UriEndPointUriFactoryBean factory = new UriEndPointUriFactoryBean();
-    factory.setUri(getBbgServerConfigurationUri());
-    URI uri = factory.getObjectCreating();
-    
-    RemoteHistoricalTimeSeriesSource bbgHtsSource = new RemoteHistoricalTimeSeriesSource(uri);
-    ComponentInfo info = new ComponentInfo(HistoricalTimeSeriesSource.class, BBG_CLASSIFIER);
-    repo.registerComponent(info, bbgHtsSource);
-    return bbgHtsSource;
-  }
-
-  protected SecurityLoader initSecurityLoader(ComponentRepository repo, ReferenceDataProvider refData, HistoricalTimeSeriesSource bbgHtsSource) {
-
-    SecurityLoader secLoader = createSecurityLoader(refData, bbgHtsSource);
-
-    ComponentInfo info = new ComponentInfo(SecurityLoader.class, STANDARD_CLASSIFIER);
+  protected SecurityLoader initSecurityLoader(ComponentRepository repo) {
+    SecurityLoader secLoader = createSecurityLoader(repo);
+    ComponentInfo info = new ComponentInfo(SecurityLoader.class, getClassifier());
     repo.registerComponent(info, secLoader);
     return secLoader;
   }
 
-  protected SecurityLoader createSecurityLoader(ReferenceDataProvider refData, HistoricalTimeSeriesSource bbgHtsSource) {
-    // bulk loader
-    ExchangeDataProvider exchangeDataProvider = initExchangeDataProvider();
-    BloombergBulkSecurityLoader bbgBulkSecLoader = new BloombergBulkSecurityLoader(refData, exchangeDataProvider);
-
-    // security master loader
-    SecurityLoader bbgSecLoader = new BloombergSecurityLoader(getSecurityMaster(), bbgBulkSecLoader);
-
-    return bbgSecLoader;
+  /**
+   * Creates the loader.
+   * 
+   * @param repo  the repository, not null
+   * @return the loader, not null
+   */
+  protected SecurityLoader createSecurityLoader(ComponentRepository repo) {
+    return new BloombergSecurityLoader(getSecurityProvider(), getSecurityMaster());
   }
-  
-  protected HistoricalTimeSeriesLoader initHistoricalTimeSeriesLoader(ComponentRepository repo, ReferenceDataProvider refData, HistoricalTimeSeriesSource bbgHtsSource) {
-    ExternalIdResolver idProvider = new BloombergIdentifierProvider(refData);
-    HistoricalTimeSeriesLoader htsLoader = new BloombergHistoricalTimeSeriesLoader(getHistoricalTimeSeriesMaster(), bbgHtsSource, idProvider);
-    ComponentInfo info = new ComponentInfo(HistoricalTimeSeriesLoader.class, STANDARD_CLASSIFIER);
+
+  protected HistoricalTimeSeriesLoader initHistoricalTimeSeriesLoader(ComponentRepository repo) {
+    HistoricalTimeSeriesLoader htsLoader = createHistoricalTimeSeriesLoader(repo);
+    ComponentInfo info = new ComponentInfo(HistoricalTimeSeriesLoader.class, getClassifier());
     repo.registerComponent(info, htsLoader);
     return htsLoader;
   }
 
-  protected ExchangeDataProvider initExchangeDataProvider() {
-    return new DefaultExchangeDataProvider();
+  /**
+   * Creates the loader.
+   * 
+   * @param repo  the repository, not null
+   * @return the loader, not null
+   */
+  protected HistoricalTimeSeriesLoader createHistoricalTimeSeriesLoader(ComponentRepository repo) {
+    ExternalIdResolver idProvider = new BloombergIdentifierProvider(getReferenceDataProvider());
+    return new BloombergHistoricalTimeSeriesLoader(getHistoricalTimeSeriesMaster(), getHistoricalTimeSeriesProvider(), idProvider);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -176,18 +133,18 @@ public class IntegrationDataComponentFactory extends AbstractComponentFactory {
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -848676096:  // bbgServerConfigurationUri
-        return getBbgServerConfigurationUri();
-      case 580124724:  // referenceDataJmsTopic
-        return getReferenceDataJmsTopic();
+      case -281470431:  // classifier
+        return getClassifier();
+      case -1788671322:  // referenceDataProvider
+        return getReferenceDataProvider();
+      case 809869649:  // securityProvider
+        return getSecurityProvider();
+      case -1592479713:  // historicalTimeSeriesProvider
+        return getHistoricalTimeSeriesProvider();
       case -887218750:  // securityMaster
         return getSecurityMaster();
       case 173967376:  // historicalTimeSeriesMaster
         return getHistoricalTimeSeriesMaster();
-      case -917704420:  // fudgeContext
-        return getFudgeContext();
-      case -1495762275:  // jmsConnector
-        return getJmsConnector();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -195,11 +152,17 @@ public class IntegrationDataComponentFactory extends AbstractComponentFactory {
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -848676096:  // bbgServerConfigurationUri
-        setBbgServerConfigurationUri((URI) newValue);
+      case -281470431:  // classifier
+        setClassifier((String) newValue);
         return;
-      case 580124724:  // referenceDataJmsTopic
-        setReferenceDataJmsTopic((String) newValue);
+      case -1788671322:  // referenceDataProvider
+        setReferenceDataProvider((ReferenceDataProvider) newValue);
+        return;
+      case 809869649:  // securityProvider
+        setSecurityProvider((SecurityProvider) newValue);
+        return;
+      case -1592479713:  // historicalTimeSeriesProvider
+        setHistoricalTimeSeriesProvider((HistoricalTimeSeriesProvider) newValue);
         return;
       case -887218750:  // securityMaster
         setSecurityMaster((SecurityMaster) newValue);
@@ -207,24 +170,18 @@ public class IntegrationDataComponentFactory extends AbstractComponentFactory {
       case 173967376:  // historicalTimeSeriesMaster
         setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
         return;
-      case -917704420:  // fudgeContext
-        setFudgeContext((FudgeContext) newValue);
-        return;
-      case -1495762275:  // jmsConnector
-        setJmsConnector((JmsConnector) newValue);
-        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override
   protected void validate() {
-    JodaBeanUtils.notNull(_bbgServerConfigurationUri, "bbgServerConfigurationUri");
-    JodaBeanUtils.notNull(_referenceDataJmsTopic, "referenceDataJmsTopic");
+    JodaBeanUtils.notNull(_classifier, "classifier");
+    JodaBeanUtils.notNull(_referenceDataProvider, "referenceDataProvider");
+    JodaBeanUtils.notNull(_securityProvider, "securityProvider");
+    JodaBeanUtils.notNull(_historicalTimeSeriesProvider, "historicalTimeSeriesProvider");
     JodaBeanUtils.notNull(_securityMaster, "securityMaster");
     JodaBeanUtils.notNull(_historicalTimeSeriesMaster, "historicalTimeSeriesMaster");
-    JodaBeanUtils.notNull(_fudgeContext, "fudgeContext");
-    JodaBeanUtils.notNull(_jmsConnector, "jmsConnector");
     super.validate();
   }
 
@@ -235,12 +192,12 @@ public class IntegrationDataComponentFactory extends AbstractComponentFactory {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       IntegrationDataComponentFactory other = (IntegrationDataComponentFactory) obj;
-      return JodaBeanUtils.equal(getBbgServerConfigurationUri(), other.getBbgServerConfigurationUri()) &&
-          JodaBeanUtils.equal(getReferenceDataJmsTopic(), other.getReferenceDataJmsTopic()) &&
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          JodaBeanUtils.equal(getReferenceDataProvider(), other.getReferenceDataProvider()) &&
+          JodaBeanUtils.equal(getSecurityProvider(), other.getSecurityProvider()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesProvider(), other.getHistoricalTimeSeriesProvider()) &&
           JodaBeanUtils.equal(getSecurityMaster(), other.getSecurityMaster()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
-          JodaBeanUtils.equal(getFudgeContext(), other.getFudgeContext()) &&
-          JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
           super.equals(obj);
     }
     return false;
@@ -249,65 +206,117 @@ public class IntegrationDataComponentFactory extends AbstractComponentFactory {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBbgServerConfigurationUri());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getReferenceDataJmsTopic());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getReferenceDataProvider());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityProvider());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesProvider());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFudgeContext());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
     return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the configuration URI.
+   * Gets the classifier that the factory should publish under.
    * @return the value of the property, not null
    */
-  public URI getBbgServerConfigurationUri() {
-    return _bbgServerConfigurationUri;
+  public String getClassifier() {
+    return _classifier;
   }
 
   /**
-   * Sets the configuration URI.
-   * @param bbgServerConfigurationUri  the new value of the property, not null
+   * Sets the classifier that the factory should publish under.
+   * @param classifier  the new value of the property, not null
    */
-  public void setBbgServerConfigurationUri(URI bbgServerConfigurationUri) {
-    JodaBeanUtils.notNull(bbgServerConfigurationUri, "bbgServerConfigurationUri");
-    this._bbgServerConfigurationUri = bbgServerConfigurationUri;
+  public void setClassifier(String classifier) {
+    JodaBeanUtils.notNull(classifier, "classifier");
+    this._classifier = classifier;
   }
 
   /**
-   * Gets the the {@code bbgServerConfigurationUri} property.
+   * Gets the the {@code classifier} property.
    * @return the property, not null
    */
-  public final Property<URI> bbgServerConfigurationUri() {
-    return metaBean().bbgServerConfigurationUri().createProperty(this);
+  public final Property<String> classifier() {
+    return metaBean().classifier().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the JMS connector.
+   * Gets the Bloomberg reference data provider.
    * @return the value of the property, not null
    */
-  public String getReferenceDataJmsTopic() {
-    return _referenceDataJmsTopic;
+  public ReferenceDataProvider getReferenceDataProvider() {
+    return _referenceDataProvider;
   }
 
   /**
-   * Sets the JMS connector.
-   * @param referenceDataJmsTopic  the new value of the property, not null
+   * Sets the Bloomberg reference data provider.
+   * @param referenceDataProvider  the new value of the property, not null
    */
-  public void setReferenceDataJmsTopic(String referenceDataJmsTopic) {
-    JodaBeanUtils.notNull(referenceDataJmsTopic, "referenceDataJmsTopic");
-    this._referenceDataJmsTopic = referenceDataJmsTopic;
+  public void setReferenceDataProvider(ReferenceDataProvider referenceDataProvider) {
+    JodaBeanUtils.notNull(referenceDataProvider, "referenceDataProvider");
+    this._referenceDataProvider = referenceDataProvider;
   }
 
   /**
-   * Gets the the {@code referenceDataJmsTopic} property.
+   * Gets the the {@code referenceDataProvider} property.
    * @return the property, not null
    */
-  public final Property<String> referenceDataJmsTopic() {
-    return metaBean().referenceDataJmsTopic().createProperty(this);
+  public final Property<ReferenceDataProvider> referenceDataProvider() {
+    return metaBean().referenceDataProvider().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the security provider.
+   * @return the value of the property, not null
+   */
+  public SecurityProvider getSecurityProvider() {
+    return _securityProvider;
+  }
+
+  /**
+   * Sets the security provider.
+   * @param securityProvider  the new value of the property, not null
+   */
+  public void setSecurityProvider(SecurityProvider securityProvider) {
+    JodaBeanUtils.notNull(securityProvider, "securityProvider");
+    this._securityProvider = securityProvider;
+  }
+
+  /**
+   * Gets the the {@code securityProvider} property.
+   * @return the property, not null
+   */
+  public final Property<SecurityProvider> securityProvider() {
+    return metaBean().securityProvider().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the time-series provider.
+   * @return the value of the property, not null
+   */
+  public HistoricalTimeSeriesProvider getHistoricalTimeSeriesProvider() {
+    return _historicalTimeSeriesProvider;
+  }
+
+  /**
+   * Sets the time-series provider.
+   * @param historicalTimeSeriesProvider  the new value of the property, not null
+   */
+  public void setHistoricalTimeSeriesProvider(HistoricalTimeSeriesProvider historicalTimeSeriesProvider) {
+    JodaBeanUtils.notNull(historicalTimeSeriesProvider, "historicalTimeSeriesProvider");
+    this._historicalTimeSeriesProvider = historicalTimeSeriesProvider;
+  }
+
+  /**
+   * Gets the the {@code historicalTimeSeriesProvider} property.
+   * @return the property, not null
+   */
+  public final Property<HistoricalTimeSeriesProvider> historicalTimeSeriesProvider() {
+    return metaBean().historicalTimeSeriesProvider().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -364,58 +373,6 @@ public class IntegrationDataComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the Fudge context.
-   * @return the value of the property, not null
-   */
-  public FudgeContext getFudgeContext() {
-    return _fudgeContext;
-  }
-
-  /**
-   * Sets the Fudge context.
-   * @param fudgeContext  the new value of the property, not null
-   */
-  public void setFudgeContext(FudgeContext fudgeContext) {
-    JodaBeanUtils.notNull(fudgeContext, "fudgeContext");
-    this._fudgeContext = fudgeContext;
-  }
-
-  /**
-   * Gets the the {@code fudgeContext} property.
-   * @return the property, not null
-   */
-  public final Property<FudgeContext> fudgeContext() {
-    return metaBean().fudgeContext().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the JMS connector.
-   * @return the value of the property, not null
-   */
-  public JmsConnector getJmsConnector() {
-    return _jmsConnector;
-  }
-
-  /**
-   * Sets the JMS connector.
-   * @param jmsConnector  the new value of the property, not null
-   */
-  public void setJmsConnector(JmsConnector jmsConnector) {
-    JodaBeanUtils.notNull(jmsConnector, "jmsConnector");
-    this._jmsConnector = jmsConnector;
-  }
-
-  /**
-   * Gets the the {@code jmsConnector} property.
-   * @return the property, not null
-   */
-  public final Property<JmsConnector> jmsConnector() {
-    return metaBean().jmsConnector().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * The meta-bean for {@code IntegrationDataComponentFactory}.
    */
   public static class Meta extends AbstractComponentFactory.Meta {
@@ -425,15 +382,25 @@ public class IntegrationDataComponentFactory extends AbstractComponentFactory {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code bbgServerConfigurationUri} property.
+     * The meta-property for the {@code classifier} property.
      */
-    private final MetaProperty<URI> _bbgServerConfigurationUri = DirectMetaProperty.ofReadWrite(
-        this, "bbgServerConfigurationUri", IntegrationDataComponentFactory.class, URI.class);
+    private final MetaProperty<String> _classifier = DirectMetaProperty.ofReadWrite(
+        this, "classifier", IntegrationDataComponentFactory.class, String.class);
     /**
-     * The meta-property for the {@code referenceDataJmsTopic} property.
+     * The meta-property for the {@code referenceDataProvider} property.
      */
-    private final MetaProperty<String> _referenceDataJmsTopic = DirectMetaProperty.ofReadWrite(
-        this, "referenceDataJmsTopic", IntegrationDataComponentFactory.class, String.class);
+    private final MetaProperty<ReferenceDataProvider> _referenceDataProvider = DirectMetaProperty.ofReadWrite(
+        this, "referenceDataProvider", IntegrationDataComponentFactory.class, ReferenceDataProvider.class);
+    /**
+     * The meta-property for the {@code securityProvider} property.
+     */
+    private final MetaProperty<SecurityProvider> _securityProvider = DirectMetaProperty.ofReadWrite(
+        this, "securityProvider", IntegrationDataComponentFactory.class, SecurityProvider.class);
+    /**
+     * The meta-property for the {@code historicalTimeSeriesProvider} property.
+     */
+    private final MetaProperty<HistoricalTimeSeriesProvider> _historicalTimeSeriesProvider = DirectMetaProperty.ofReadWrite(
+        this, "historicalTimeSeriesProvider", IntegrationDataComponentFactory.class, HistoricalTimeSeriesProvider.class);
     /**
      * The meta-property for the {@code securityMaster} property.
      */
@@ -445,26 +412,16 @@ public class IntegrationDataComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<HistoricalTimeSeriesMaster> _historicalTimeSeriesMaster = DirectMetaProperty.ofReadWrite(
         this, "historicalTimeSeriesMaster", IntegrationDataComponentFactory.class, HistoricalTimeSeriesMaster.class);
     /**
-     * The meta-property for the {@code fudgeContext} property.
-     */
-    private final MetaProperty<FudgeContext> _fudgeContext = DirectMetaProperty.ofReadWrite(
-        this, "fudgeContext", IntegrationDataComponentFactory.class, FudgeContext.class);
-    /**
-     * The meta-property for the {@code jmsConnector} property.
-     */
-    private final MetaProperty<JmsConnector> _jmsConnector = DirectMetaProperty.ofReadWrite(
-        this, "jmsConnector", IntegrationDataComponentFactory.class, JmsConnector.class);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "bbgServerConfigurationUri",
-        "referenceDataJmsTopic",
+        "classifier",
+        "referenceDataProvider",
+        "securityProvider",
+        "historicalTimeSeriesProvider",
         "securityMaster",
-        "historicalTimeSeriesMaster",
-        "fudgeContext",
-        "jmsConnector");
+        "historicalTimeSeriesMaster");
 
     /**
      * Restricted constructor.
@@ -475,18 +432,18 @@ public class IntegrationDataComponentFactory extends AbstractComponentFactory {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -848676096:  // bbgServerConfigurationUri
-          return _bbgServerConfigurationUri;
-        case 580124724:  // referenceDataJmsTopic
-          return _referenceDataJmsTopic;
+        case -281470431:  // classifier
+          return _classifier;
+        case -1788671322:  // referenceDataProvider
+          return _referenceDataProvider;
+        case 809869649:  // securityProvider
+          return _securityProvider;
+        case -1592479713:  // historicalTimeSeriesProvider
+          return _historicalTimeSeriesProvider;
         case -887218750:  // securityMaster
           return _securityMaster;
         case 173967376:  // historicalTimeSeriesMaster
           return _historicalTimeSeriesMaster;
-        case -917704420:  // fudgeContext
-          return _fudgeContext;
-        case -1495762275:  // jmsConnector
-          return _jmsConnector;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -508,19 +465,35 @@ public class IntegrationDataComponentFactory extends AbstractComponentFactory {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code bbgServerConfigurationUri} property.
+     * The meta-property for the {@code classifier} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<URI> bbgServerConfigurationUri() {
-      return _bbgServerConfigurationUri;
+    public final MetaProperty<String> classifier() {
+      return _classifier;
     }
 
     /**
-     * The meta-property for the {@code referenceDataJmsTopic} property.
+     * The meta-property for the {@code referenceDataProvider} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> referenceDataJmsTopic() {
-      return _referenceDataJmsTopic;
+    public final MetaProperty<ReferenceDataProvider> referenceDataProvider() {
+      return _referenceDataProvider;
+    }
+
+    /**
+     * The meta-property for the {@code securityProvider} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<SecurityProvider> securityProvider() {
+      return _securityProvider;
+    }
+
+    /**
+     * The meta-property for the {@code historicalTimeSeriesProvider} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<HistoricalTimeSeriesProvider> historicalTimeSeriesProvider() {
+      return _historicalTimeSeriesProvider;
     }
 
     /**
@@ -537,22 +510,6 @@ public class IntegrationDataComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<HistoricalTimeSeriesMaster> historicalTimeSeriesMaster() {
       return _historicalTimeSeriesMaster;
-    }
-
-    /**
-     * The meta-property for the {@code fudgeContext} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<FudgeContext> fudgeContext() {
-      return _fudgeContext;
-    }
-
-    /**
-     * The meta-property for the {@code jmsConnector} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<JmsConnector> jmsConnector() {
-      return _jmsConnector;
     }
 
   }

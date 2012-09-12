@@ -61,8 +61,8 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
 
   private static final ZonedDateTime startDate = DateUtils.getUTCDate(2007, 10, 22);
   private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2007, 10, 23);
-  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2012, 12, 20);
-  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2008, 10, 22);
+  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2017, 12, 20);
+  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2014, 10, 22);
 
   private static final StubType stubType = StubType.FRONTSHORT;
   private static final PeriodFrequency couponFrequency = PeriodFrequency.QUARTERLY;
@@ -121,11 +121,19 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
 
     System.out.println("Running schedule generation tests ...");
 
+    final boolean outputSchedule = false;
+
     // Construct a cashflow schedule object
     final GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
 
     // Call the schedule generation method for the CDS contract
     ZonedDateTime[][] schedule = cashflowSchedule.constructCreditDefaultSwapPremiumLegSchedule(cds);
+
+    if (outputSchedule) {
+      for (int i = 0; i < schedule.length; i++) {
+        System.out.println(schedule[i][0]);
+      }
+    }
 
   }
 

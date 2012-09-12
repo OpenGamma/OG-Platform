@@ -70,7 +70,7 @@ public class PortfolioHtsResolverTool extends AbstractTool<IntegrationToolContex
     // Create portfolio copier
     ResolvingPortfolioCopier portfolioCopier = new ResolvingPortfolioCopier(
         context.getHistoricalTimeSeriesMaster(),
-        context.getBloombergHistoricalTimeSeriesSource(),
+        context.getHistoricalTimeSeriesProvider(),
         context.getBloombergReferenceDataProvider(),
         getOptionValue(TIME_SERIES_DATAPROVIDER_OPT, "CMPL"),
         getCommandLine().getOptionValues(TIME_SERIES_DATAFIELD_OPT) == null ? 

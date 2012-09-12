@@ -24,8 +24,7 @@ import com.bloomberglp.blpapi.Subscription;
 import com.bloomberglp.blpapi.SubscriptionList;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergConnector;
-import com.opengamma.bbg.CachingReferenceDataProvider;
-import com.opengamma.bbg.ReferenceDataProvider;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.util.ArgumentChecker;
 
@@ -36,11 +35,10 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergLiveDataServer.class);
-  
+
   // Injected Inputs:
   private final BloombergConnector _bloombergConnector;
-  private final CachingReferenceDataProvider _cachingRefDataProvider;
-  private final ReferenceDataProvider _underlyingReferenceDataProvider;
+  private final ReferenceDataProvider _referenceDataProvider;
 
   // Runtime State:
   private Session _session;
@@ -49,21 +47,26 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
 
   private long _subscriptionLimit = Long.MAX_VALUE;
   private volatile RejectedDueToSubscriptionLimitEvent _lastLimitRejection; // = null
-  
-  public BloombergLiveDataServer(BloombergConnector bloombergConnector, CachingReferenceDataProvider cachingReferenceDataProvider, CacheManager cacheManager) {
-    super(cacheManager);
-    ArgumentChecker.notNull(bloombergConnector, "bloombergConnector");
-    ArgumentChecker.notNull(cachingReferenceDataProvider, "cachingReferenceDataProvider");
-    ArgumentChecker.notNull(cacheManager, "cacheManager");
-    _bloombergConnector = bloombergConnector;
-    _cachingRefDataProvider = cachingReferenceDataProvider;
-    _underlyingReferenceDataProvider = cachingReferenceDataProvider.getUnderlying();
-  }
 
   /**
-   * Gets the Bloomberg session options.
+   * Creates an instance.
    * 
-   * @return the session options
+   * @param bloombergConnector  the connector, not null
+   * @param referenceDataProvider  the reference data provider, not null
+   */
+  public BloombergLiveDataServer(BloombergConnector bloombergConnector, ReferenceDataProvider referenceDataProvider, CacheManager cacheManager) {
+    super(cacheManager);
+    ArgumentChecker.notNull(bloombergConnector, "bloombergConnector");
+    ArgumentChecker.notNull(referenceDataProvider, "referenceDataProvider");
+    _bloombergConnector = bloombergConnector;
+    _referenceDataProvider = referenceDataProvider;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the Bloomberg connector.
+   * 
+   * @return the connector, not null
    */
   public BloombergConnector getBloombergConnector() {
     return _bloombergConnector;
@@ -173,8 +176,8 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
     setEventDispatcherThread(eventDispatcherThread);
     
     // make sure the reference data provider also reconnects
-    if (_underlyingReferenceDataProvider instanceof Lifecycle) {
-      ((Lifecycle) _underlyingReferenceDataProvider).start();
+    if (_referenceDataProvider instanceof Lifecycle) {
+      ((Lifecycle) _referenceDataProvider).start();
     }
   }
 
@@ -249,18 +252,12 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
       throw new OpenGammaRuntimeException("Could not unsubscribe from " + subscriptionHandles, e);
     }
   }
-  
-  @Override
-  public CachingReferenceDataProvider getCachingReferenceDataProvider() {
-    return _cachingRefDataProvider;
-  }
 
   @Override
-  public ReferenceDataProvider getUnderlyingReferenceDataProvider() {
-    return _underlyingReferenceDataProvider;
+  public ReferenceDataProvider getReferenceDataProvider() {
+    return _referenceDataProvider;
   }
-  
-  
+
   /**
    * Gets the last limit rejection event.
    * @return the lastLimitRejection

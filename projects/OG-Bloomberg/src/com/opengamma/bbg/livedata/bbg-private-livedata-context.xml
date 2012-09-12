@@ -56,8 +56,8 @@
   </bean>
 
   <bean id="bloombergLiveDataServer" class="com.opengamma.bbg.livedata.BloombergLiveDataServer" init-method="start">
-    <constructor-arg index="0" ref="bloombergConnector" />
-    <constructor-arg index="1" ref="bbgReferenceDataProvider" />
+    <constructor-arg index="0" ref="standardBloombergConnector" />
+    <constructor-arg index="1" ref="bloombergReferenceDataProvider" />
     <constructor-arg index="2" ref="standardCacheManager" />
     
     <property name="distributionSpecificationResolver" ref="bbgDistributionSpecificationResolver"/>

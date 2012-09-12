@@ -4,15 +4,9 @@
 <beans>
 
   <import resource="classpath:/com/opengamma/bbg/bbg-context-common.xml"/>
-	
-  <bean id="bbgTimeSeriesStatistics" class="com.opengamma.bbg.referencedata.statistics.DailyBloombergReferenceDataStatistics" />
-  <bean id="bbgTimeSeriesDataStatisticsMBean" class="com.opengamma.bbg.referencedata.statistics.DailyBloombergReferenceDataStatisticsMBean">
-    <constructor-arg ref="bbgTimeSeriesStatistics" />
-  </bean>
-  
-  <bean id="bbgHistoricalTimeSeriesSource" class="com.opengamma.bbg.BloombergHistoricalTimeSeriesSource" init-method="start">
-    <constructor-arg ref="bloombergConnector" />
-    <constructor-arg ref="bbgTimeSeriesStatistics" />
+
+  <bean id="bbgHistoricalTimeSeriesSource" class="com.opengamma.bbg.BloombergHistoricalTimeSeriesSource">
+    <constructor-arg ref="bloombergHistoricalTimeSeriesProvider" />
   </bean>
 
 </beans>

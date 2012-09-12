@@ -156,6 +156,7 @@
     <tar destfile="${dist.dir}/${dist.platform.prefix}${dist.target}-${module.version.target}.tar.gz" compression="gzip" longfile="gnu">
       <tarfileset uid="0" gid="0" dir="${projects.dir}/OG-Analytics/dist" includes="*/**" excludes="${dist.src.exclude} *" />
       <tarfileset uid="0" gid="0" dir="${projects.dir}/OG-Core/dist" includes="*/**" excludes="${dist.src.exclude} *" />
+      <tarfileset uid="0" gid="0" dir="${projects.dir}/OG-Provider/dist" includes="*/**" excludes="${dist.src.exclude} *" />
       <tarfileset uid="0" gid="0" dir="${projects.dir}/OG-Engine/dist" includes="*/**" excludes="${dist.src.exclude} *" />
       <tarfileset uid="0" gid="0" dir="${projects.dir}/OG-Examples/dist" includes="*/**" excludes="${dist.src.exclude} * **/*.sh" />
       <tarfileset uid="0" gid="0" dir="${projects.dir}/OG-Examples/dist" includes="**/*.sh" filemode="755" />
@@ -175,6 +176,7 @@
     <zip destfile="${dist.dir}/${dist.platform.prefix}${dist.target}-${module.version.target}.zip">
       <fileset dir="${projects.dir}/OG-Analytics/dist" includes="*/**" excludes="${dist.src.exclude} *" />
       <fileset dir="${projects.dir}/OG-Core/dist" includes="*/**" excludes="${dist.src.exclude} *" />
+      <fileset dir="${projects.dir}/OG-Provider/dist" includes="*/**" excludes="${dist.src.exclude} *" />
       <fileset dir="${projects.dir}/OG-Engine/dist" includes="*/**" excludes="${dist.src.exclude} *" />
       <fileset dir="${projects.dir}/OG-Examples/dist" includes="*/**" excludes="${dist.src.exclude} *" />
       <fileset dir="${projects.dir}/OG-Financial/dist" includes="*/**" excludes="${dist.src.exclude} *" />
@@ -434,6 +436,12 @@
       <fileset dir="${projects.dir}/OG-Core/src" includes="**/*.java **/package.html">
         <contains text="@PublicSPI" casesensitive="yes"/>
       </fileset>
+      <fileset dir="${projects.dir}/OG-Provider/src" includes="**/*.java **/package.html">
+        <contains text="@PublicAPI" casesensitive="yes"/>
+      </fileset>
+      <fileset dir="${projects.dir}/OG-Provider/src" includes="**/*.java **/package.html">
+        <contains text="@PublicSPI" casesensitive="yes"/>
+      </fileset>
       <fileset dir="${projects.dir}/OG-Master/src" includes="**/*.java **/package.html">
         <contains text="@PublicAPI" casesensitive="yes"/>
       </fileset>
@@ -503,6 +511,7 @@
       <fileset dir="${projects.dir}/OG-BloombergExample/src" includes="**/*.java **/package.html"/>
       <fileset dir="${projects.dir}/OG-Component/src" includes="**/*.java **/package.html"/>
       <fileset dir="${projects.dir}/OG-Core/src" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-Provider/src" includes="**/*.java **/package.html"/>
       <fileset dir="${projects.dir}/OG-Engine/src" includes="**/*.java **/package.html"/>
       <fileset dir="${projects.dir}/OG-Examples/src" includes="**/*.java **/package.html"/>
       <fileset dir="${projects.dir}/OG-Financial/src" includes="**/*.java **/package.html"/>

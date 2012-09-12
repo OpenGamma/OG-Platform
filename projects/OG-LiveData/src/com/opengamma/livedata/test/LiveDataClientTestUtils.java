@@ -8,7 +8,7 @@ package com.opengamma.livedata.test;
 import com.opengamma.livedata.client.DistributedLiveDataClient;
 import com.opengamma.livedata.client.JmsLiveDataClient;
 import com.opengamma.livedata.entitlement.EntitlementServer;
-import com.opengamma.livedata.server.AbstractLiveDataServer;
+import com.opengamma.livedata.server.StandardLiveDataServer;
 import com.opengamma.livedata.server.SubscriptionRequestReceiver;
 import com.opengamma.livedata.server.distribution.FudgeSenderFactory;
 import com.opengamma.livedata.server.distribution.JmsSenderFactory;
@@ -26,7 +26,7 @@ import com.opengamma.util.test.ActiveMQTestUtils;
  */
 public class LiveDataClientTestUtils {
   
-  public static DistributedLiveDataClient getInMemoryConduitClient(AbstractLiveDataServer server) {
+  public static DistributedLiveDataClient getInMemoryConduitClient(StandardLiveDataServer server) {
     ByteArrayFudgeRequestSender subscriptionRequestSender = getSubscriptionRequestSender(server);
     ByteArrayFudgeRequestSender entitlementRequestSender = getEntitlementRequestSender(server);
     DistributedLiveDataClient liveDataClient = new DistributedLiveDataClient(subscriptionRequestSender, entitlementRequestSender);
@@ -42,7 +42,7 @@ public class LiveDataClientTestUtils {
     return liveDataClient;
   }
 
-  public static JmsLiveDataClient getJmsClient(AbstractLiveDataServer server) {
+  public static JmsLiveDataClient getJmsClient(StandardLiveDataServer server) {
     ByteArrayFudgeRequestSender subscriptionRequestSender = getSubscriptionRequestSender(server);
     ByteArrayFudgeRequestSender entitlementRequestSender = getEntitlementRequestSender(server);
     
@@ -62,7 +62,7 @@ public class LiveDataClientTestUtils {
     return liveDataClient;
   }
   
-  private static ByteArrayFudgeRequestSender getEntitlementRequestSender(AbstractLiveDataServer server) {
+  private static ByteArrayFudgeRequestSender getEntitlementRequestSender(StandardLiveDataServer server) {
     ByteArrayFudgeRequestSender entitlementRequestSender = new ByteArrayFudgeRequestSender(
         new InMemoryByteArrayRequestConduit(
             new FudgeRequestDispatcher(
@@ -70,7 +70,7 @@ public class LiveDataClientTestUtils {
     return entitlementRequestSender;
   }
 
-  private static ByteArrayFudgeRequestSender getSubscriptionRequestSender(AbstractLiveDataServer server) {
+  private static ByteArrayFudgeRequestSender getSubscriptionRequestSender(StandardLiveDataServer server) {
     ByteArrayFudgeRequestSender subscriptionRequestSender = new ByteArrayFudgeRequestSender(
         new InMemoryByteArrayRequestConduit(
             new FudgeRequestDispatcher(

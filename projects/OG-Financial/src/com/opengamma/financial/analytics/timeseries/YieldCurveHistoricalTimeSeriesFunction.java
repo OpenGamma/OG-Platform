@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.timeseries;
@@ -70,7 +70,11 @@ public class YieldCurveHistoricalTimeSeriesFunction extends AbstractFunction.Non
       final ExternalIdBundle id = ExternalIdBundle.of(strip.getSecurityIdentifier());
       final HistoricalTimeSeries timeSeries = timeSeriesSource.getHistoricalTimeSeries(dataField, id, resolutionKey, startDate, includeStart, endDate, includeEnd);
       if (timeSeries != null) {
-        bundle.add(dataField, id, timeSeries);
+        if (timeSeries.getTimeSeries().isEmpty()) {
+          s_logger.warn("Time series for {} is empty", id);
+        } else {
+          bundle.add(dataField, id, timeSeries);
+        }
       } else {
         s_logger.warn("Couldn't get time series for {}", id);
       }

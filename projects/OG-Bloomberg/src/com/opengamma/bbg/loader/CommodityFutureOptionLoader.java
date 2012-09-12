@@ -36,8 +36,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.bbg.BloombergSecuritySource;
-import com.opengamma.bbg.ReferenceDataProvider;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
+import com.opengamma.bbg.security.BloombergSecurityProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
@@ -177,7 +177,7 @@ public class CommodityFutureOptionLoader extends SecurityLoader {
       optionStrikePrice / 100, // Strike in percent //TODO: use normalization (like in BloombergRateClassifier)?
       optionType);
     security.setExternalIdBundle(ExternalIdBundle.of(identifiers));
-    security.setUniqueId(BloombergSecuritySource.createUniqueId(bbgUniqueID));
+    security.setUniqueId(BloombergSecurityProvider.createUniqueId(bbgUniqueID));
     //build option display name
     StringBuilder buf = new StringBuilder(rootTicker);
     buf.append(" ");

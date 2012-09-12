@@ -64,7 +64,7 @@
   </bean>
 
   <!-- ============================================================================== -->
-	<bean id="bbgBulkSecurityLoader" class="com.opengamma.bbg.loader.BloombergBulkSecurityLoader">
+	<bean id="bloombergSecurityProvider" class="com.opengamma.bbg.security.BloombergSecurityProvider">
 		<constructor-arg ref="cachingRefProvider" />
 		<constructor-arg ref="csvMicExchangeDataProvider" />
 	</bean>

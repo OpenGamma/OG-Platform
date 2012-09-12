@@ -443,7 +443,7 @@ public class MasterHistoricalTimeSeriesSource
       s_logger.debug(message);
       return null;
     }
-    if (maxPoints != 0) {
+    if ((maxPoints == null) || (maxPoints != 0)) { 
       HistoricalTimeSeries hts = doGetHistoricalTimeSeries(resolutionResult.getHistoricalTimeSeriesInfo().getUniqueId(), start, end, maxPoints);
       if (resolutionResult.getAdjuster() != null) {
         hts = resolutionResult.getAdjuster().adjust(resolutionResult.getHistoricalTimeSeriesInfo().getExternalIdBundle().toBundle(), hts);

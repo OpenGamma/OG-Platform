@@ -37,9 +37,9 @@ public final class BlackBarrierPriceFunction {
    * Computes the price of a barrier option in the Black world.
    * @param option The underlying European vanilla option.
    * @param barrier The barrier.
-   * @param rebate The rebate.
+   * @param rebate The rebate. This is paid <b>immediately</b> if the knock-out barrier is hit and at expiry if the knock-in barrier is not hit
    * @param spot The spot price.
-   * @param costOfCarry The cost of carry.
+   * @param costOfCarry The cost of carry (i.e. the forward = spot*exp(costOfCarry*T) )
    * @param rate The interest rate.
    * @param sigma The Black volatility.
    * @return The price.

@@ -14,7 +14,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.opengamma.bbg.BloombergReferenceDataProvider;
+import com.opengamma.bbg.referencedata.impl.BloombergReferenceDataProvider;
 import com.opengamma.bbg.test.BloombergLiveDataServerUtils;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;

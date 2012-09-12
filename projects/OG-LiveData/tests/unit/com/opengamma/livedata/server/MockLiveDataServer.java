@@ -23,7 +23,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 /**
  * 
  */
-public class MockLiveDataServer extends AbstractLiveDataServer {
+public class MockLiveDataServer extends StandardLiveDataServer {
 
   private final ExternalScheme _domain;
   private final List<String> _subscriptions = new ArrayList<String>();

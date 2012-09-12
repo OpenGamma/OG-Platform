@@ -9,6 +9,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class to calibrate a single-name CDS survival curve to market observed term structure of par CDS spreads
@@ -20,8 +21,9 @@ public class CalibrateSurvivalCurve {
   // ------------------------------------------------------------------------
 
   // TODO : Lots of work to do in here - Work In Progress
-  // TODO : Check that length of the tenor and parCDSSpreads vectors are the same
+  // TODO : Add arg checkers to check that length of the tenor and parCDSSpreads vectors are the same
   // TODO : Check that the tenors are in ascending order
+  // TODO : Check that the input par CDS spreads 'make sense' i.e. non-negative, NaN's etc
   // TODO : Add the interpolation and extrapolation methods
 
   // ------------------------------------------------------------------------
@@ -29,15 +31,48 @@ public class CalibrateSurvivalCurve {
   // Member function to calibrate a CDS objects survival curve to a term structure of market observed par CDS spreads
   public double[][] getCalibratedSurvivalCurve(CreditDefaultSwapDefinition cds, ZonedDateTime[] tenors, double[] parCDSSpreads, YieldCurve yieldCurve) {
 
-    // Add argument checkers for the input arguments
+    // Check input CDS and YieldCurve objects are not null
+    ArgumentChecker.notNull(cds, "CDS field");
+    ArgumentChecker.notNull(tenors, "Tenors field");
+    ArgumentChecker.notNull(parCDSSpreads, "par CDS spreads field");
+    ArgumentChecker.notNull(yieldCurve, "YieldCurve field");
 
     int numberOfTenors = tenors.length;
     int numberOfSpreads = parCDSSpreads.length;
 
-    double[][] survivalCurve = new double[numberOfTenors][2];
+    double[] hazardRates = new double[numberOfTenors];
+    double[][] survivalCurve = new double[numberOfTenors + 1][2];
 
+    double valuationRecoveryRate = cds.getCurveRecoveryRate();
+
+    survivalCurve[0][0] = 1.0;
+
+    // Create a temporary CDS whose maturity will vary as we bootstrap the survival curve
+    CreditDefaultSwapDefinition currentCDS = cds;
+
+    //System.out.println("Initial maturity date = " + currentCDS.getMaturityDate());
+
+    /*
+    for (int m = 0; m < numberOfTenors; m++) {
+
+      ZonedDateTime currentTenor = tenors[m];
+
+      //System.out.println(currentTenor);
+
+      currentCDS.withMaturity(null);
+
+      ZonedDateTime temp = currentCDS.getMaturityDate();
+
+      System.out.println("Current maturity date = " + temp);
+
+    }
+    */
+
+    /*
     // Create a temporary CDS object identical to the input object
     CreditDefaultSwapDefinition tempCDS = cds;
+
+    tempCDS.withMaturity(null);
 
     // Main loop of calibration routine
     for (int i = 0; i < numberOfTenors; i++) {
@@ -51,6 +86,7 @@ public class CalibrateSurvivalCurve {
       //double pV = runningCDS.getPresentValueCreditDefaultSwap(cds);
 
     }
+    */
 
     return survivalCurve;
   }
@@ -76,6 +112,25 @@ public class CalibrateSurvivalCurve {
   }
 
   // ------------------------------------------------------------------------
+
+  private double getSurvivalProbability(double[] tenors, double[] hazardRates, double t) {
+
+    double runningTotal = 0.0;
+    double survivalProbability = 0.0;
+
+    int counter = 0;
+
+    while (t <= tenors[counter]) {
+
+      runningTotal += hazardRates[counter] * tenors[counter];
+      counter++;
+    }
+
+    survivalProbability = Math.exp(-runningTotal);
+
+    return survivalProbability;
+
+  }
 
   // Private member function to convert the input tenors into doubles
   private double[] convertDatesToDoubles(ZonedDateTime[] tenors) {

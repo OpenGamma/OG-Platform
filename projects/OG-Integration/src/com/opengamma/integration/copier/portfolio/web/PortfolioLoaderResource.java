@@ -23,9 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.bbg.BloombergSecuritySource;
-import com.opengamma.bbg.ReferenceDataProvider;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.integration.copier.portfolio.ResolvingPortfolioCopier;
 import com.opengamma.integration.copier.portfolio.reader.PortfolioReader;
 import com.opengamma.integration.copier.portfolio.reader.SingleSheetSimplePortfolioReader;
@@ -38,6 +36,8 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
+import com.opengamma.provider.security.SecurityProvider;
 import com.opengamma.util.ArgumentChecker;
 import com.sun.jersey.multipart.BodyPartEntity;
 import com.sun.jersey.multipart.FormDataBodyPart;
@@ -51,33 +51,46 @@ public class PortfolioLoaderResource {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioLoaderResource.class);
 
-  private final HistoricalTimeSeriesMaster _historicalTimeSeriesMaster;
-  private final HistoricalTimeSeriesSource _bloombergHistoricalTimeSeriesSource;
-  private final ReferenceDataProvider _bloombergReferenceDataProvider;
-  private final BloombergSecuritySource _bloombergSecuritySource;
   private final PortfolioMaster _portfolioMaster;
   private final PositionMaster _positionMaster;
   private final SecurityMaster _securityMaster;
+  private final HistoricalTimeSeriesMaster _historicalTimeSeriesMaster;
+  private final SecurityProvider _securityProvider;
+  private final HistoricalTimeSeriesProvider _historicalTimeSeriesProvider;
+  private final ReferenceDataProvider _referenceDataProvider;
 
-  public PortfolioLoaderResource(HistoricalTimeSeriesMaster historicalTimeSeriesMaster,
-                                 HistoricalTimeSeriesSource bloombergHistoricalTimeSeriesSource,
-                                 ReferenceDataProvider bloombergReferenceDataProvider,
-                                 BloombergSecuritySource bloombergSecuritySource,
-                                 PortfolioMaster portfolioMaster,
-                                 PositionMaster positionMaster, SecurityMaster securityMaster) {
-    ArgumentChecker.notNull(historicalTimeSeriesMaster, "historicalTimeSeriesMaster");
-    ArgumentChecker.notNull(bloombergHistoricalTimeSeriesSource, "bloombergHistoricalTimeSeriesSource");
-    ArgumentChecker.notNull(bloombergReferenceDataProvider, "bloombergReferenceDataProvider");
+  /**
+   * Creates an instance.
+   * 
+   * @param portfolioMaster  the master, not null
+   * @param positionMaster  the master, not null
+   * @param securityMaster  the master, not null
+   * @param historicalTimeSeriesMaster  the master, not null
+   * @param securityProvider  the provider, not null
+   * @param historicalTimeSeriesProvider  the provider, not null
+   * @param bloombergReferenceDataProvider  the provider, not null
+   */
+  public PortfolioLoaderResource(PortfolioMaster portfolioMaster,
+                                 PositionMaster positionMaster,
+                                 SecurityMaster securityMaster,
+                                 HistoricalTimeSeriesMaster historicalTimeSeriesMaster,
+                                 SecurityProvider securityProvider,
+                                 HistoricalTimeSeriesProvider historicalTimeSeriesProvider,
+                                 ReferenceDataProvider bloombergReferenceDataProvider) {
     ArgumentChecker.notNull(positionMaster, "positionMaster");
     ArgumentChecker.notNull(portfolioMaster, "portfolioMaster");
     ArgumentChecker.notNull(securityMaster, "securityMaster");
-    _bloombergSecuritySource = bloombergSecuritySource;
+    ArgumentChecker.notNull(historicalTimeSeriesMaster, "historicalTimeSeriesMaster");
+    ArgumentChecker.notNull(securityProvider, "securityProvider");
+    ArgumentChecker.notNull(historicalTimeSeriesProvider, "historicalTimeSeriesProvider");
+    ArgumentChecker.notNull(bloombergReferenceDataProvider, "referenceDataProvider");
     _portfolioMaster = portfolioMaster;
     _positionMaster = positionMaster;
     _securityMaster = securityMaster;
     _historicalTimeSeriesMaster = historicalTimeSeriesMaster;
-    _bloombergHistoricalTimeSeriesSource = bloombergHistoricalTimeSeriesSource;
-    _bloombergReferenceDataProvider = bloombergReferenceDataProvider;
+    _securityProvider = securityProvider;
+    _historicalTimeSeriesProvider = historicalTimeSeriesProvider;
+    _referenceDataProvider = bloombergReferenceDataProvider;
   }
 
   @POST
@@ -107,11 +120,11 @@ public class PortfolioLoaderResource {
     s_logger.info("Portfolio uploaded. fileName: {}, portfolioName: {}, dataField: {}, dataProvider: {}",
                   new Object[]{fileName, portfolioName, dataField, dataProvider});
     final ResolvingPortfolioCopier copier = new ResolvingPortfolioCopier(_historicalTimeSeriesMaster,
-                                                                         _bloombergHistoricalTimeSeriesSource,
-                                                                         _bloombergReferenceDataProvider,
+                                                                         _historicalTimeSeriesProvider,
+                                                                         _referenceDataProvider,
                                                                          dataProvider,
                                                                          dataFields);
-    RowParser rowParser = new ExchangeTradedRowParser(_bloombergSecuritySource);
+    RowParser rowParser = new ExchangeTradedRowParser(_securityProvider);
     SheetFormat format = getFormatForFileName(fileName);
     final PortfolioReader portfolioReader = new SingleSheetSimplePortfolioReader(format, fileStream, rowParser);
     final PortfolioWriter portfolioWriter = new MasterPortfolioWriter(portfolioName, _portfolioMaster, _positionMaster,

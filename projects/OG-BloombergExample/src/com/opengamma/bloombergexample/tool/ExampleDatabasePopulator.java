@@ -18,8 +18,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.opengamma.bbg.BloombergIdentifierProvider;
-import com.opengamma.bbg.ReferenceDataProvider;
-import com.opengamma.bbg.loader.BloombergBulkSecurityLoader;
 import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
 import com.opengamma.bbg.loader.BloombergSecurityLoader;
 import com.opengamma.bloombergexample.generator.BloombergExamplePortfolioGeneratorTool;
@@ -35,8 +33,6 @@ import com.opengamma.financial.analytics.volatility.surface.FXOptionVolatilitySu
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
 import com.opengamma.financial.generator.StaticNameGenerator;
 import com.opengamma.financial.security.equity.EquitySecurity;
-import com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider;
-import com.opengamma.financial.timeseries.exchange.ExchangeDataProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.integration.tool.IntegrationToolContext;
@@ -44,6 +40,7 @@ import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
+import com.opengamma.provider.security.SecurityProvider;
 import com.opengamma.util.generate.scripts.Scriptable;
 import com.opengamma.util.money.Currency;
 
@@ -59,9 +56,6 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
    * Example configuration for tools.
    */
   public static final String TOOLCONTEXT_EXAMPLE_PROPERTIES = "classpath:toolcontext/toolcontext-bloombergexample.properties";
-
-  private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabasePopulator.class);
-
   /**
    * The name of the generated example FX portfolio.
    */
@@ -72,6 +66,8 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
    */
   public static final String MULTI_CURRENCY_SWAP_PORTFOLIO_NAME = "Multi-currency Swap Portfolio";
 
+  /** Logger. */
+  private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabasePopulator.class);
   /**
    * The currencies.
    */
@@ -80,16 +76,17 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
   //-------------------------------------------------------------------------
 
   /**
-   * Main method to run the tool. No arguments are needed.
-   * 
-   * @param args the arguments, unused
+   * Main method to run the tool.
+   * No arguments are needed.
+   *
+   * @param args  the arguments, unused
    */
   public static void main(String[] args) { // CSIGNORE
     s_logger.info("Populating example database");
     try {
       new ExampleDatabasePopulator().initAndRun(args, TOOLCONTEXT_EXAMPLE_PROPERTIES, null, IntegrationToolContext.class);
-    } catch (final Exception e) {
-      e.printStackTrace();
+    } catch (final Exception ex) {
+      ex.printStackTrace();
     }
   }
 
@@ -198,11 +195,9 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
   private void loadFutures(Set<ExternalIdBundle> identifiers) {
     final Log log = new Log("Loading Futures reference data");
     try {
-      SecurityMaster secMaster = getToolContext().getSecurityMaster();
-      ReferenceDataProvider referenceDataProvider = getToolContext().getBloombergReferenceDataProvider();
-      ExchangeDataProvider exchangeDataProvider = new DefaultExchangeDataProvider();
-      BloombergBulkSecurityLoader bulkSecurityLoader = new BloombergBulkSecurityLoader(referenceDataProvider, exchangeDataProvider);
-      BloombergSecurityLoader securityLoader = new BloombergSecurityLoader(secMaster, bulkSecurityLoader);
+      SecurityMaster securityMaster = getToolContext().getSecurityMaster();
+      SecurityProvider securityProvider = getToolContext().getSecurityProvider();
+      BloombergSecurityLoader securityLoader = new BloombergSecurityLoader(securityProvider, securityMaster);
       securityLoader.loadSecurity(identifiers);
       log.done();
     } catch (final RuntimeException t) {
@@ -215,7 +210,7 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
     try {
       BloombergHistoricalTimeSeriesLoader loader = new BloombergHistoricalTimeSeriesLoader(
           getToolContext().getHistoricalTimeSeriesMaster(),
-          getToolContext().getBloombergHistoricalTimeSeriesSource(),
+          getToolContext().getHistoricalTimeSeriesProvider(),
           new BloombergIdentifierProvider(getToolContext().getBloombergReferenceDataProvider()));
 
       Collection<EquitySecurity> securities = readEquitySecurities();

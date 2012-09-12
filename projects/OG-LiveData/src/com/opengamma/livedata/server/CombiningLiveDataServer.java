@@ -38,20 +38,20 @@ import com.opengamma.livedata.server.distribution.MarketDataDistributor;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * A {@link AbstractLiveDataServer} which delegates all the work to a set of {@link AbstractLiveDataServer}  
+ * A {@link StandardLiveDataServer} which delegates all the work to a set of {@link StandardLiveDataServer}  
  */
-public abstract class CombiningLiveDataServer extends AbstractLiveDataServer {
+public abstract class CombiningLiveDataServer extends StandardLiveDataServer {
   
   private static final Logger s_logger = LoggerFactory.getLogger(CombiningLiveDataServer.class);
 
   private final ExecutorService _subscriptionExecutor = Executors.newCachedThreadPool();
-  private final Set<AbstractLiveDataServer> _underlyings;
+  private final Set<StandardLiveDataServer> _underlyings;
 
-  public CombiningLiveDataServer(CacheManager cacheManager, AbstractLiveDataServer... otherUnderlyings) {
+  public CombiningLiveDataServer(CacheManager cacheManager, StandardLiveDataServer... otherUnderlyings) {
     this(Arrays.asList(otherUnderlyings), cacheManager);
   }
 
-  public CombiningLiveDataServer(Collection<? extends AbstractLiveDataServer> otherUnderlyings, CacheManager cacheManager) {
+  public CombiningLiveDataServer(Collection<? extends StandardLiveDataServer> otherUnderlyings, CacheManager cacheManager) {
     super(cacheManager);
     _underlyings = Sets.newHashSet();
     _underlyings.addAll(otherUnderlyings);
@@ -64,7 +64,7 @@ public abstract class CombiningLiveDataServer extends AbstractLiveDataServer {
         new SubscribeAction() {
 
           @Override
-          public Collection<LiveDataSubscriptionResponse> subscribe(AbstractLiveDataServer server, Collection<LiveDataSpecification> specifications) {
+          public Collection<LiveDataSubscriptionResponse> subscribe(StandardLiveDataServer server, Collection<LiveDataSpecification> specifications) {
             return  server.subscribe(specifications, persistent);
           }
           
@@ -83,7 +83,7 @@ public abstract class CombiningLiveDataServer extends AbstractLiveDataServer {
         subscriptionRequest.getSpecifications(),
         new SubscribeAction() {
           @Override
-          public Collection<LiveDataSubscriptionResponse> subscribe(AbstractLiveDataServer server, Collection<LiveDataSpecification> specifications) {
+          public Collection<LiveDataSubscriptionResponse> subscribe(StandardLiveDataServer server, Collection<LiveDataSpecification> specifications) {
             LiveDataSubscriptionRequest liveDataSubscriptionRequest = buildSubRequest(subscriptionRequest, specifications);
             //NOTE: we call up to subscriptionRequestMade to get the exception catching
             LiveDataSubscriptionResponseMsg response = server.subscriptionRequestMade(liveDataSubscriptionRequest);
@@ -109,27 +109,27 @@ public abstract class CombiningLiveDataServer extends AbstractLiveDataServer {
   }
   
   private interface SubscribeAction {
-    Collection<LiveDataSubscriptionResponse> subscribe(AbstractLiveDataServer server, Collection<LiveDataSpecification> specifications);
+    Collection<LiveDataSubscriptionResponse> subscribe(StandardLiveDataServer server, Collection<LiveDataSpecification> specifications);
     String getName();
   }
   private Collection<LiveDataSubscriptionResponse> subscribeByServer(Collection<LiveDataSpecification> specifications, final SubscribeAction action)
   {
-    return forEachServer(specifications, new Function<Pair<AbstractLiveDataServer, Collection<LiveDataSpecification>>, Collection<LiveDataSubscriptionResponse>>() {
+    return forEachServer(specifications, new Function<Pair<StandardLiveDataServer, Collection<LiveDataSpecification>>, Collection<LiveDataSubscriptionResponse>>() {
       @Override
-      public Collection<LiveDataSubscriptionResponse> apply(Pair<AbstractLiveDataServer, Collection<LiveDataSpecification>> input) {
-        AbstractLiveDataServer specs = input.getFirst();
+      public Collection<LiveDataSubscriptionResponse> apply(Pair<StandardLiveDataServer, Collection<LiveDataSpecification>> input) {
+        StandardLiveDataServer specs = input.getFirst();
         Collection<LiveDataSpecification> server = input.getSecond();
         s_logger.debug("Sending subscription ({}) for {} to underlying server {}", new Object[] {action.getName(), specs, server});
         return action.subscribe(specs, server);
       }
     });
   }
-  private <T> Collection<T> forEachServer(Collection<LiveDataSpecification> specifications, final Function<Pair<AbstractLiveDataServer, Collection<LiveDataSpecification>>, Collection<T>> operation)
+  private <T> Collection<T> forEachServer(Collection<LiveDataSpecification> specifications, final Function<Pair<StandardLiveDataServer, Collection<LiveDataSpecification>>, Collection<T>> operation)
   {
-    Map<AbstractLiveDataServer, Collection<LiveDataSpecification>> mapped = groupByServer(specifications);
+    Map<StandardLiveDataServer, Collection<LiveDataSpecification>> mapped = groupByServer(specifications);
 
     Collection<Future<Collection<T>>> futures = new ArrayList<Future<Collection<T>>>(mapped.size());
-    for (final Entry<AbstractLiveDataServer, Collection<LiveDataSpecification>> entry : mapped.entrySet()) {
+    for (final Entry<StandardLiveDataServer, Collection<LiveDataSpecification>> entry : mapped.entrySet()) {
       if (entry.getValue().isEmpty()) {
         continue;
       }
@@ -160,12 +160,12 @@ public abstract class CombiningLiveDataServer extends AbstractLiveDataServer {
     return responses;
   }
 
-  protected abstract Map<AbstractLiveDataServer, Collection<LiveDataSpecification>> groupByServer(
+  protected abstract Map<StandardLiveDataServer, Collection<LiveDataSpecification>> groupByServer(
       Collection<LiveDataSpecification> specs);
 
-  private AbstractLiveDataServer getServer(LiveDataSpecification spec) {
-    Map<AbstractLiveDataServer, Collection<LiveDataSpecification>> grouped = groupByServer(Sets.newHashSet(spec));
-    for (Entry<AbstractLiveDataServer, Collection<LiveDataSpecification>> entry : grouped.entrySet()) {
+  private StandardLiveDataServer getServer(LiveDataSpecification spec) {
+    Map<StandardLiveDataServer, Collection<LiveDataSpecification>> grouped = groupByServer(Sets.newHashSet(spec));
+    for (Entry<StandardLiveDataServer, Collection<LiveDataSpecification>> entry : grouped.entrySet()) {
       if (entry.getValue().size() > 0) {
         return entry.getKey();
       }
@@ -176,7 +176,7 @@ public abstract class CombiningLiveDataServer extends AbstractLiveDataServer {
   // For expiration manager
   @Override
   public void addSubscriptionListener(SubscriptionListener subscriptionListener) {
-    for (AbstractLiveDataServer server : _underlyings) {
+    for (StandardLiveDataServer server : _underlyings) {
       server.addSubscriptionListener(subscriptionListener);
     }
   }
@@ -185,7 +185,7 @@ public abstract class CombiningLiveDataServer extends AbstractLiveDataServer {
   @Override
   public Set<Subscription> getSubscriptions() {
     Set<Subscription> ret = new HashSet<Subscription>();
-    for (AbstractLiveDataServer server : _underlyings) {
+    for (StandardLiveDataServer server : _underlyings) {
       Set<Subscription> serversSubscriptions = server.getSubscriptions();
       s_logger.debug("Server {} has {} subscriptions", server, serversSubscriptions.size());
       ret.addAll(serversSubscriptions);
@@ -207,9 +207,9 @@ public abstract class CombiningLiveDataServer extends AbstractLiveDataServer {
   
   @Override
   public Map<LiveDataSpecification, MarketDataDistributor> getMarketDataDistributors(Collection<LiveDataSpecification> fullyQualifiedSpecs) {
-    Map<AbstractLiveDataServer, Collection<LiveDataSpecification>> grouped = groupByServer(fullyQualifiedSpecs);
+    Map<StandardLiveDataServer, Collection<LiveDataSpecification>> grouped = groupByServer(fullyQualifiedSpecs);
     HashMap<LiveDataSpecification, MarketDataDistributor> ret = new HashMap<LiveDataSpecification, MarketDataDistributor>();
-    for (Entry<AbstractLiveDataServer, Collection<LiveDataSpecification>> entry : grouped.entrySet()) {
+    for (Entry<StandardLiveDataServer, Collection<LiveDataSpecification>> entry : grouped.entrySet()) {
       Map<LiveDataSpecification, MarketDataDistributor> entries = entry.getKey().getMarketDataDistributors(entry.getValue());
       ret.putAll(entries);
     }
@@ -223,14 +223,14 @@ public abstract class CombiningLiveDataServer extends AbstractLiveDataServer {
 
   @Override
   protected void doConnect() {
-    for (AbstractLiveDataServer server : _underlyings) {
+    for (StandardLiveDataServer server : _underlyings) {
       server.start();
     }
   }
 
   @Override
   protected void doDisconnect() {
-    for (AbstractLiveDataServer server : _underlyings) {
+    for (StandardLiveDataServer server : _underlyings) {
       server.stop();
     }
   }

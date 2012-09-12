@@ -39,7 +39,7 @@ public class CreditDefaultSwapDefinition {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // TODO : 
+  // TODO : Replace some of the argument checkers with notNegative e.g. notional, parSpread
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -411,6 +411,20 @@ public class CreditDefaultSwapDefinition {
 
   public String getCreditKey() {
     return _creditKey;
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Builder method (to allow the maturity of a CDS object to be modified (during calibration of the survival curve)
+
+  public CreditDefaultSwapDefinition withMaturity(ZonedDateTime maturityDate) {
+
+    return new CreditDefaultSwapDefinition(_buySellProtection, _protectionBuyer, _protectionSeller, _referenceEntityTicker,
+        _referenceEntityShortName, _referenceEntityREDCode, _currency, _debtSeniority, _restructuringClause, _compositeRating,
+        _impliedRating, _sector, _region, _country, _calendar, _startDate, _effectiveDate, maturityDate, _valuationDate, _stubType, _couponFrequency,
+        _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustMaturityDate, _notional, _parSpread,
+        _valuationRecoveryRate, _curveRecoveryRate, _includeAccruedPremium);
+
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
