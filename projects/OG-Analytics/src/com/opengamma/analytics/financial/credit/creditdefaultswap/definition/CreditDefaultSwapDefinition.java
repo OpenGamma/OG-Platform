@@ -419,12 +419,21 @@ public class CreditDefaultSwapDefinition {
 
   public CreditDefaultSwapDefinition withMaturity(ZonedDateTime maturityDate) {
 
-    return new CreditDefaultSwapDefinition(_buySellProtection, _protectionBuyer, _protectionSeller, _referenceEntityTicker,
+    CreditDefaultSwapDefinition modifiedCDS = new CreditDefaultSwapDefinition(_buySellProtection, _protectionBuyer, _protectionSeller, _referenceEntityTicker,
         _referenceEntityShortName, _referenceEntityREDCode, _currency, _debtSeniority, _restructuringClause, _compositeRating,
         _impliedRating, _sector, _region, _country, _calendar, _startDate, _effectiveDate, maturityDate, _valuationDate, _stubType, _couponFrequency,
         _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustMaturityDate, _notional, _parSpread,
         _valuationRecoveryRate, _curveRecoveryRate, _includeAccruedPremium);
 
+    /*
+    return new CreditDefaultSwapDefinition(_buySellProtection, _protectionBuyer, _protectionSeller, _referenceEntityTicker,
+        _referenceEntityShortName, _referenceEntityREDCode, _currency, _debtSeniority, _restructuringClause, _compositeRating,
+        _impliedRating, _sector, _region, _country, _calendar, _startDate, _effectiveDate, maturityDate, _valuationDate, _stubType, _couponFrequency,
+        _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustMaturityDate, _notional, _parSpread,
+        _valuationRecoveryRate, _curveRecoveryRate, _includeAccruedPremium);
+        */
+
+    return modifiedCDS;
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
