@@ -49,8 +49,8 @@ $.register_module({
                         break test;
                     }
                 }
-            return (panel === 'new-window')
-                ? ('gadget.ftl#/gadgetscontainer/' + type + ':' + id)
+            return (!panel)
+                ? 'gadget.ftl#/gadgetscontainer/' + type + ':' + id
                 : (function () {
                     var rule = og.views.analytics2.rules.load_item, args = routes.current().args, add = {};
                     add[panel] = type + ':' + id;
@@ -85,7 +85,7 @@ $.register_module({
                         })
                         .on('click', icons, function () {
                             var panel = panels[$(this).text() - 1], hash = get_url(cur_cell, panel);
-                            if (panel === void 0) window.open(hash);
+                            if (panel === void 0) console.log(hash), window.open(hash);
                             else routes.go(hash);
                             self.hide();
                         });
