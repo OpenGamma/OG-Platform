@@ -7,7 +7,7 @@ $.register_module({
     dependencies: ['og.common.util.ui.AutoCombo', 'og.views.common.layout'],
     obj: function () { 
         return function (selector) {
-            var Title, Menu, FormCombo, Status, create_form, handle_error, ds_response = { // dummy
+            var FormCombo, Status, create_form, handle_error, ds_response = { // dummy
                     type: ['Live', 'Snapsot', 'Historical', 'Data Type'],
                     live: ['Bloomberg', 'Reuters'],
                     snapshot: ['Alan', 'Alan 2'],
@@ -20,32 +20,31 @@ $.register_module({
                         {num: 4, type: 'Data Type', value: 'type 2', last: true}
                     ]
             };
-            Title = function (selector, markup){
-                var title;
-                return title = this, $(selector).html(markup).find('.og-option-title').on('click', function (event) {
-                        event.stopPropagation();
-                        menu.state === 'open' ? menu.close() : menu.open().focus();
-                    }), title;
-            };
-            Menu = function () {
-                var menu, popdiv;
-                return menu = this, popdiv = $(selector + ' .OG-analytics-form-menu'), menu.state = 'closed',
-                    menu.focus = function () {
-                        return popdiv.find('select').first().focus(), menu; 
-                    },
-                    menu.open = function () {
-                        return popdiv.show().blurkill(menu.close).trigger('open', title), 
-                            title.addClass('og-active'), menu.state = 'open', menu;
-                    },
-                    menu.close = function () { 
-                        return (popdiv ? popdiv.hide() : null), title.removeClass('og-active'),
-                            menu.state = 'closed', menu;
-                    }, menu;
-            };
             FormCombo = function (selector, module, data) {
+                var FormCombo = this, Title, Menu;
+                Title = function (selector, markup){
+                    var title = this, $(selector).html(markup).find('.og-option-title').on('click', function (event) {
+                            event.stopPropagation();
+                            FormCombo.menu.state === 'open' ? FormCombo.menu.close() : FormCombo.menu.open().focus();
+                        }), return title;
+                };
+                Menu = function () {
+                    var menu = this, popdiv = $(selector + ' .OG-analytics-form-menu'), menu.state = 'closed',
+                        menu.focus = function () {
+                            return popdiv.find('select').first().focus(), menu; 
+                        },
+                        menu.open = function () {
+                            return popdiv.show().blurkill(menu.close).trigger('open', title), 
+                                title.addClass('og-active'), menu.state = 'open', menu;
+                        },
+                        menu.close = function () { 
+                            return (popdiv ? popdiv.hide() : null), title.removeClass('og-active'),
+                                menu.state = 'closed', menu;
+                        }, return menu;
+                };
                 $.when(og.api.text({module: module})).then(function (template) {
-                    new Title(selector, $((Handlebars.compile(template))(data)));
-                    new Menu(selector);
+                    FormCombo.title = new Title(selector, $((Handlebars.compile(template))(data)));
+                    FormCombo.menu = new Menu(selector);
                 });
             };
             Status = function (selector) {
