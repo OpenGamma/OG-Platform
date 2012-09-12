@@ -36,8 +36,9 @@ $.register_module({
                             return menu.$el.find('select').first().focus(), menu; 
                         },
                         menu.open = function () {
-                            return menu.$el.show().blurkill(menu.close), emitter.emitEvent('ee:open', title.$el),
-                                title.$el.addClass('og-active'), menu.state = 'open', menu;
+                            return menu.$el.show().blurkill(menu.close), emitter.emitEvent('menu:open', {
+                                elem: title.$el, state: (menu.state = 'open'), scope: menu}),
+                                title.$el.addClass('og-active'), menu;
                         },
                         menu.close = function () { 
                             return (menu.$el ? menu.$el.hide() : null), title.$el.removeClass('og-active'),
@@ -73,78 +74,93 @@ $.register_module({
                 status.status = null;
                 return status;
             };
-            MastHead = function (template, search, aggregators) {
-                var MastHead = this, Form, ag_selector = '.og-aggregation', ds_selector = '.og-datasources', ag_menu,
-                    ds_menu, $form = $(selector).html(template), $ag = $(ag_selector, selector),
-                    $ds = $(ds_selector, selector), status, auto_combo_menu;
-                
+            MastHead = function (template, search, aggregators) { // TODO AG: Keep things as DRY as poss!
+                var MastHead = this, Form, ag_menu, ds_menu, vd_s = '.og-view', ag_s = '.og-aggregation',
+                    ds_s = '.og-datasources', load_s = '.og-load', fcntrls_s = 'input, select, button',
+                    $form = $(selector).html(template), $ag = $(ag_s, $form), $ds = $(ds_s, $form),
+                    $ag_fcntrls, $ds_fcntrls, $load_btn = $(load_s, $form), status, auto_combo_menu;
                 return Form = function(){
-                    var form = this;
-                    /**
-                     * Custom tab event, only triggers between top level menu items. e.g. a tab event will trigger
-                     * when tab entering or tab leaving the evented element
-                     */
-                    return $form.on('keydown', 'input, select, button', function (event) {
-                        if (event.keyCode !== 9) return;
-                        var $self = $(this), shift_key = event.shiftKey,
-                            $aggr = $ag.find('input, select, button'),
-                            $data = $ds.find('input, select, button'),
-                            trigger = function (menu) {$self.trigger('tab', menu);},
-                            active_pos = function (elms, pos) {return $self.is(elms[pos]())},
-                            view = $self.closest('.og-view').length,
-                            aggregation = $self.closest(ag_selector).length,
-                            datasources = $self.closest(ds_selector).length,
-                            load = $self.hasClass('og-load');
-                        if (view && shift_key) return;
-                        if (view && !shift_key) return trigger('aggregation');
-                        if (aggregators && active_pos($aggr, 'last') && !shift_key) return trigger('datasources');
-                        if (datasources && active_pos($data, 'first') && shift_key) return trigger('aggregation');
-                        if (datasources && active_pos($data, 'last') && !shift_key) return trigger('load');
-                        if (load && shift_key) return trigger('datasources');
-                    }).on('tab', function (event, type) {
-                        switch (type) {
-                            case 'aggregation': ag_menu.open(); break;
-                            case 'datasources': ds_menu.open(); break;
-                            case 'load': ag_menu.close(); ds_menu.close(); break;
-                        }
-                    }).on('click', '.og-menu-aggregation button', function () {
-                        var val = $(this).text();
-                        if (val === 'OK') $(selector).trigger('tab', 'datasources'), ds_menu.focus();
-                        if (val === 'Cancel') ag_menu.close(), auto_combo_menu.select();
-                    }).on('click', '.og-menu-datasources button', function () {
-                        var val = $(this).text();
-                        if (val === 'OK') $(selector).trigger('tab', 'load'), $(selector + ' .og-load').focus();
-                        if (val === 'Cancel') ds_menu.close(), auto_combo_menu.select();
-                    }),
-                    auto_combo_menu = new og.common.util.ui.AutoCombo('.OG-analytics-form .og-view',
-                        'search...', search.data).on('input autocompletechange autocompleteselect',
-                        function (event, ui) {
-                            var $load = $(selector + ' .og-load');
-                            if ((ui && ui.item && ui.item.value || $(this).val()) !== '') {
-                                $load.removeClass('og-disabled').on('click', function () {
-                                    status.play();
-                             });
-                            } else $load.addClass('og-disabled').off('click');
-                        }
-                    ),
-                    $.when(
-                        og.api.text({module: 'og.analytics.form_aggregation_tash'}),
-                        og.api.text({module: 'og.analytics.form_datasources_tash'})
-                    ).then(function (aggregation_markup, datasources_markup) {
-                        $ag.html($((Handlebars.compile(aggregation_markup))(aggregators.data)));
-                        $ds.html($((Handlebars.compile(datasources_markup))(ds_response)));
-                        ag_menu = new FormCombo(ag_selector);
-                        ds_menu = new FormCombo(ds_selector);
-                    }),
-                    emitter.addListener('ee:open', function (elm) {
-                        if (!ag_menu || !ds_menu) return;
-                        var elem = $(elm);
-                        if (elem.closest('.og-view').length) ds_menu.close(), ag_menu.close();
-                        if (elem.closest(ag_selector).length) ds_menu.close();
-                        if (elem.closest(ds_selector).length) ag_menu.close();
-                    }),
-                    og.views.common.layout.main.allowOverflow('north'), status = new Status(selector + ' .og-status'),
-                    form;
+                    var form = this,
+                        keydown_handler = function (event) {
+                            if (event.keyCode !== 9) return;
+                            var $elem = $(this), shift_key = event.shiftKey,
+                                trigger = function (menu) {$elem.trigger('tab', menu);},
+                                active_pos = function (elms, pos) {return $elem.is(elms[pos]())},
+                                view = $elem.closest('.og-view').length,
+                                aggregation = $elem.closest(ag_s).length,
+                                datasources = $elem.closest(ds_s).length,
+                                load = $elem.hasClass('og-load');
+                            if (view && shift_key)
+                                return; //view.find('ui-autocomplete-input').focus();
+                            if (view && !shift_key)
+                                return trigger('aggregation');
+                            if (aggregation && active_pos($ag_fcntrls, 'last') && !shift_key) 
+                                return trigger('datasources');
+                            if (aggregation && active_pos($ag_fcntrls, 'first') && shift_key) 
+                                return trigger('view');
+                            if (datasources && active_pos($ds_fcntrls, 'first') && shift_key) 
+                                return trigger('aggregation');
+                            if (datasources && active_pos($ds_fcntrls, 'last') && !shift_key)
+                                return trigger('load');
+                            if (load && shift_key)
+                                return trigger('datasources');
+                        },
+                        tab_handler = function (event, type) {
+                            switch (type) {
+                                case 'aggregation': ag_menu.open(); ds_menu.close(); break;
+                                case 'datasources': ds_menu.open(); ag_menu.close(); break;
+                                case 'load':  ag_menu.close(); ds_menu.close(); break;
+                                case 'view': ag_menu.close(); ds_menu.close(); break;
+
+                            }
+                        },
+                        click_handler = function (event) {
+                           var $elem = $(event.srcElement), txt_val = $elem.text(), type;
+                           if ($elem.is('button')) {
+                                type = $elem.parent('.og-menu-datasources') ? 'datasources' :
+                                    ($elem.parent('.og-menu-datasources') ? 'load' : '');    
+                                $(selector).trigger('tab', type);
+                                if (txt_val === 'OK') {
+                                    if (type === 'datasources') ds_menu.focus();
+                                    if (type === 'load') $load_btn.focus();
+                                } else if (txt_val === 'Cancel') { 
+                                    if (type === 'datasources') ds_menu.close(); 
+                                    if (type === 'load') ag_menu.close();
+                                }
+                                auto_combo_menu.select();
+                            }
+                            event.preventDefault();
+                            return false;
+                        };
+                    return $form.on('keydown', fcntrls_s, keydown_handler)
+                            .on('tab', tab_handler)
+                            .on('click', click_handler),
+                        auto_combo_menu = new og.common.util.ui.AutoCombo('.OG-analytics-form .og-view',
+                            'search...', search.data).on('input autocompletechange autocompleteselect',
+                                function (event, ui) {
+                                    if ((ui && ui.item && ui.item.value || $(this).val()) !== '') {
+                                        $load_btn.removeClass('og-disabled').on('click', function () {status.play();});
+                                    } else $load_btn.addClass('og-disabled').off('click');
+                                }
+                        ),
+                        $.when(
+                            og.api.text({module: 'og.analytics.form_aggregation_tash'}),
+                            og.api.text({module: 'og.analytics.form_datasources_tash'})
+                        ).then(function (aggregation_markup, datasources_markup) {
+                            $ag.html($((Handlebars.compile(aggregation_markup))(aggregators.data))),
+                            $ds.html($((Handlebars.compile(datasources_markup))(ds_response))),
+                            $ag_fcntrls = $ag.find(fcntrls_s), $ds_fcntrls = $ds.find(fcntrls_s),
+                            ag_menu = new FormCombo(ag_s), ds_menu = new FormCombo(ds_s);
+                        }),
+                        emitter.addListener('menu:open', function (elm) {
+                            if (!ag_menu || !ds_menu) return;
+                            var elem = $(elm);
+                            if (elem.closest('.og-view').length) ds_menu.close(), ag_menu.close();
+                            if (elem.closest(ag_s).length) ds_menu.close();
+                            if (elem.closest(ds_s).length) ag_menu.close();
+                        }),
+                        og.views.common.layout.main.allowOverflow('north'), 
+                        status = new Status(selector + ' .og-status'), form;
                 }, Form.prototype = EventEmitter.prototype, MastHead = new Form();
             };
             $.when(
