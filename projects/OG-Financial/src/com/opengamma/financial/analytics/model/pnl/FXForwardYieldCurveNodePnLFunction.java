@@ -366,6 +366,9 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
       if (dbNodeTimeSeries == null) {
         throw new OpenGammaRuntimeException("Could not identifier / price series pair for " + id);
       }
+      if (dbNodeTimeSeries.getTimeSeries().isEmpty()) {
+        throw new OpenGammaRuntimeException("Time series " + id + " is empty");
+      }
       DoubleTimeSeries<?> nodeTimeSeries = samplingFunction.getSampledTimeSeries(dbNodeTimeSeries.getTimeSeries(), schedule);
       nodeTimeSeries = DIFFERENCE.evaluate(nodeTimeSeries);
       if (pnlSeries == null) {

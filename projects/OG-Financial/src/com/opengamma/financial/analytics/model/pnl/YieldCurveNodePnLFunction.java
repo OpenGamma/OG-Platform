@@ -276,10 +276,7 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
         curveNames.add(entry.getValue().getConstraint(ValuePropertyNames.CURVE));
       }
     }
-    if (curveNames.isEmpty()) {
-      int i = 0;
-      i = i + 1;
-    }
+    assert !curveNames.isEmpty();
     final ValueProperties properties = createValueProperties()
         .withAny(ValuePropertyNames.CURRENCY)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
@@ -351,6 +348,9 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
       final HistoricalTimeSeries dbNodeTimeSeries = timeSeriesBundle.get(MarketDataRequirementNames.MARKET_VALUE, id);
       if (dbNodeTimeSeries == null) {
         throw new OpenGammaRuntimeException("Could not identifier / price series pair for " + id);
+      }
+      if (dbNodeTimeSeries.getTimeSeries().isEmpty()) {
+        throw new OpenGammaRuntimeException("Time series " + id + " is empty");
       }
       DoubleTimeSeries<?> nodeTimeSeries = samplingFunction.getSampledTimeSeries(dbNodeTimeSeries.getTimeSeries(), schedule);
       if (fxSeries != null) {

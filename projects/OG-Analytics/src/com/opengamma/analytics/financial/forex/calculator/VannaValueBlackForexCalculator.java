@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.calculator;
@@ -14,27 +14,27 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
- * Calculator of the gamma (second order derivative with respect to the spot rate) for Forex derivatives in the Black (Garman-Kohlhagen) world.
+ * Calculator of the vanna (2nd order cross sensitivity to spot and implied volatility for Forex derivatives in the Black (Garman-Kohlhagen) world.
  */
-public class GammaValueBlackForexCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, CurrencyAmount> {
+public class VannaValueBlackForexCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, CurrencyAmount> {
 
   /**
    * The unique instance of the calculator.
    */
-  private static final GammaValueBlackForexCalculator INSTANCE = new GammaValueBlackForexCalculator();
+  private static final VannaValueBlackForexCalculator INSTANCE = new VannaValueBlackForexCalculator();
 
   /**
    * Gets the calculator instance.
    * @return The calculator.
    */
-  public static GammaValueBlackForexCalculator getInstance() {
+  public static VannaValueBlackForexCalculator getInstance() {
     return INSTANCE;
   }
 
   /**
    * Constructor.
    */
-  GammaValueBlackForexCalculator() {
+  VannaValueBlackForexCalculator() {
   }
 
   /**
@@ -45,12 +45,11 @@ public class GammaValueBlackForexCalculator extends AbstractInstrumentDerivative
 
   @Override
   public CurrencyAmount visitForexOptionVanilla(final ForexOptionVanilla derivative, final YieldCurveBundle data) {
-    return METHOD_FXOPTIONVANILLA.gamma(derivative, data, true);
+    return METHOD_FXOPTIONVANILLA.vanna(derivative, data);
   }
 
   @Override
   public CurrencyAmount visitForexOptionSingleBarrier(final ForexOptionSingleBarrier derivative, final YieldCurveBundle data) {
-    return METHOD_FXOPTIONBARRIER.gammaFd(derivative, data);
+    return METHOD_FXOPTIONBARRIER.vannaFd(derivative, data);
   }
-
 }
