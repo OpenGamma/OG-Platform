@@ -22,6 +22,7 @@
     text-overflow: ellipsis;
     padding: 0 0 0 5px;
     cursor: default;
+    white-space: nowrap;
 }
 
 .OG-g-h-fixed, .OG-g-b-fixed,
