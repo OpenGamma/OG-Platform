@@ -48,6 +48,15 @@ public final class OpenGammaClock {
   }
 
   /**
+   * Gets the time-zone.
+   * 
+   * @return the zone, not null
+   */
+  public static TimeZone getZone() {
+    return s_instance.getZone();
+  }
+
+  /**
    * Sets the time-zone.
    * 
    * @param zone  the zone, not null

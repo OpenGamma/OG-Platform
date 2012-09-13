@@ -9,8 +9,11 @@
     main.ver_to_instant AS ver_to_instant,
     main.corr_from_instant AS corr_from_instant,
     main.corr_to_instant AS corr_to_instant,
-    main.name AS name,
+    main.userid AS userid,
     main.password AS password,
+    main.name AS name,
+    main.time_zone AS time_zone,
+    main.email_address AS email_address,
     ui.idkey_id as idkey_id,
     ik.key_scheme as key_scheme,
     ik.key_value as key_value,
@@ -38,8 +41,11 @@
     main.ver_to_instant AS ver_to_instant,
     main.corr_from_instant AS corr_from_instant,
     main.corr_to_instant AS corr_to_instant,
-    main.name AS name,
+    main.userid AS userid,
     main.password AS password,
+    main.name AS name,
+    main.time_zone AS time_zone,
+    main.email_address AS email_address,
     ui.idkey_id as idkey_id,
     ik.key_scheme as key_scheme,
     ik.key_scheme as key_scheme,
@@ -69,8 +75,11 @@
     main.ver_to_instant AS ver_to_instant,
     main.corr_from_instant AS corr_from_instant,
     main.corr_to_instant AS corr_to_instant,
-    main.name AS name,
+    main.userid AS userid,
     main.password AS password,
+    main.name AS name,
+    main.time_zone AS time_zone,
+    main.email_address AS email_address,
     ui.idkey_id as idkey_id,
     ik.key_scheme as key_scheme,
     ik.key_value as key_value,
@@ -112,8 +121,8 @@
 @NAME(SearchWhere)
   WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant
     AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant
-    @AND(:name)
-      UPPER(name) @LIKE UPPER(:name)
+    @AND(:userid)
+      UPPER(userid) @LIKE UPPER(:userid)
     @AND(:sql_search_object_ids)
       oid IN ( @INCLUDE(:sql_search_object_ids) )
     @AND(:sql_search_external_ids_type = EXACT)
@@ -213,8 +222,11 @@
     main.ver_to_instant AS ver_to_instant,
     main.corr_from_instant AS corr_from_instant,
     main.corr_to_instant AS corr_to_instant,
+    main.userid AS userid,
+    main.password AS password,
     main.name AS name,
-    main.password AS password
+    main.time_zone AS time_zone,
+    main.email_address AS email_address
   FROM
     usr_oguser main
     INNER JOIN cte_docs ON main.id = cte_docs.id
@@ -267,9 +279,9 @@
 -- ==========================================================================
 @NAME(Insert)
   INSERT INTO usr_oguser
-    (id, oid, ver_from_instant, ver_to_instant, corr_from_instant, corr_to_instant, name, password)
+    (id, oid, ver_from_instant, ver_to_instant, corr_from_instant, corr_to_instant, userid, password, name, time_zone, email_address)
   VALUES
-    (:doc_id, :doc_oid, :ver_from_instant, :ver_to_instant, :corr_from_instant, :corr_to_instant, :name, :password)
+    (:doc_id, :doc_oid, :ver_from_instant, :ver_to_instant, :corr_from_instant, :corr_to_instant, :userid, :password, :name, :time_zone, :email_address)
 
 
 -- ==========================================================================
