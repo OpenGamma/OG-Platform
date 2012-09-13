@@ -97,6 +97,11 @@
       <groupId>org.cometd.java</groupId>
       <artifactId>cometd-java-server</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.apache.ant</groupId>
+      <artifactId>ant</artifactId>
+      <scope>provided</scope>
+    </dependency>
 
     <dependency>
       <groupId>org.testng</groupId>
