@@ -20,15 +20,6 @@
       <excludeFolder url="file://$MODULE_DIR$/build" />
       <excludeFolder url="file://$MODULE_DIR$/dist" />
       <excludeFolder url="file://$MODULE_DIR$/install" />
-      <excludeFolder url="file://$MODULE_DIR$/install/config" />
-      <excludeFolder url="file://$MODULE_DIR$/install/db" />
-      <excludeFolder url="file://$MODULE_DIR$/install/install" />
-      <excludeFolder url="file://$MODULE_DIR$/install/lib" />
-      <excludeFolder url="file://$MODULE_DIR$/install/scripts" />
-      <excludeFolder url="file://$MODULE_DIR$/install/temp" />
-      <excludeFolder url="file://$MODULE_DIR$/install/web-engine" />
-      <excludeFolder url="file://$MODULE_DIR$/install/web-marketdata" />
-      <excludeFolder url="file://$MODULE_DIR$/install/web-sharedmasters" />
       <excludeFolder url="file://$MODULE_DIR$/lib" />
     </content>
     <orderEntry type="inheritedJdk" />
