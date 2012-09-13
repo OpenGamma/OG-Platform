@@ -45,7 +45,7 @@ public class MixedLogNormalModelData implements SmileModelData {
 
   /**
    * Set up a mixed log-normal model with option to have distributions with different means 
-   * @param parameters The 2n-1 or 3n-2 parameters (where n is the number of normals) depending on weather useShiftedMeans is false or true. The parameters in order as:
+   * @param parameters The 2n-1 or 3n-2 parameters (where n is the number of normals) depending on whether useShiftedMeans is false or true. The parameters in order as:
    * sigma_0, deltaSigma_1....deltaSigma_{n-1}, theta_1...theta_{n-1}, phi_1...phi_{n-1}
    * where sigma_0 is the lowest volatility state, and the volatility of state i, sigma_i = sigma_{i-1} + deltaSigma_i, so the volatility states are strictly increasing
    * (with deltaSigma_i > 0). The angles theta encode the weights (via the SumToOne class) and the angles phi encode the partial forwards (if they are used).

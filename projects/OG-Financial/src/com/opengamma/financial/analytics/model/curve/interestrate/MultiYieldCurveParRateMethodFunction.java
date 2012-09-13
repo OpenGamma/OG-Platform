@@ -132,7 +132,7 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
       for (final FixedIncomeStripWithSecurity strip : spec.getStrips()) {
         final Double marketValue = marketDataMap.get(strip.getSecurityIdentifier());
         if (marketValue == null) {
-          throw new OpenGammaRuntimeException("Could not get market data for " + strip);
+          throw new OpenGammaRuntimeException("Could not get market data for " + strip.getSecurityIdentifier());
         }
         final Security security = strip.getSecurity();
         final String[] curveNamesForSecurity = curveCalculationConfig.getCurveExposureForInstrument(curveName, strip.getInstrumentType());
