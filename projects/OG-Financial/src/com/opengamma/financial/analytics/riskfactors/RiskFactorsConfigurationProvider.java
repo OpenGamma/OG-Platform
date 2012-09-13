@@ -37,4 +37,40 @@ public interface RiskFactorsConfigurationProvider {
    */
   String getForwardCurve(Currency currency);
   
+  /**
+   * Gets the name of the FX Option Volatility Surface
+   * @param ccy1 numerator currency
+   * @param ccy2 denominator currency
+   */
+  String getFXVanillaOptionSurfaceName(Currency ccy1, Currency ccy2);
+  
+  /**
+   * Gets the name of the Commodity Future Option Volatility Surface
+   * @param futureCode typically two character future code prefix, e.g. ED.
+   */
+  String getCommodityFutureOptionVolatilitySurfaceName(String futureCode);
+  
+  /**
+   * Gets the name of the IR Future Option Volatility Surface
+   * @param futureCode typically two character future code prefix, e.g. ED.
+   */
+  String getIRFutureOptionVolatilitySurfaceName(String futureCode);
+  
+  /**
+   * Gets the name of the Equity Index Option Volatility Surface
+   * @param tickerPlusMarketSector bloomberg code for underlying index e.g. DJX Index
+   */
+  String getEquityIndexOptionVolatilitySurfaceName(String tickerPlusMarketSector);
+  
+  /**
+   * Gets the name of the ATM Swaption Volatility Surface
+   * @param ccy Currency of the swaption
+   */
+  String getSwaptionVolatilitySurfaceName(Currency ccy);
+  
+  /**
+   * Gets the name of the Swaption Volatility Cube
+   * @param ccy Currency of the swaption
+   */
+  String getSwaptionVolatilityCubeName(Currency ccy);
 }

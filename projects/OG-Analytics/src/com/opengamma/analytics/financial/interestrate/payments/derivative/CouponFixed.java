@@ -123,8 +123,22 @@ public class CouponFixed extends Coupon {
     return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), 1);
   }
 
-  public CouponFixed withCoupon(double rate) {
+  /**
+   * Create a new fixed coupon with all the details unchanged except that the rate is the one provided.
+   * @param rate The new rate.
+   * @return The coupon.
+   */
+  public CouponFixed withRate(double rate) {
     return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), rate, getAccrualStartDate(), getAccrualEndDate());
+  }
+
+  /**
+   * Create a new fixed coupon with all the details unchanged except that the rate is shifted by the spread.
+   * @param spread The rate spread.
+   * @return The coupon.
+   */
+  public CouponFixed withRateShifted(double spread) {
+    return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), getFixedRate() + spread, getAccrualStartDate(), getAccrualEndDate());
   }
 
   @Override

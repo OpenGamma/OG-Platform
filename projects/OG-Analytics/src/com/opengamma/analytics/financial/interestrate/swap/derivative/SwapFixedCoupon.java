@@ -62,8 +62,18 @@ public class SwapFixedCoupon<R extends Coupon> extends Swap<CouponFixed, R> {
    * @param rate The rate.
    * @return The new swap.
    */
-  public SwapFixedCoupon<R> withCoupon(double rate) {
-    AnnuityCouponFixed legFixedNotional = getFixedLeg().withCoupon(rate);
+  public SwapFixedCoupon<R> withRate(double rate) {
+    AnnuityCouponFixed legFixedNotional = getFixedLeg().withRate(rate);
+    return new SwapFixedCoupon<R>(legFixedNotional, getSecondLeg());
+  }
+
+  /**
+   * Creates a new swap with the same characteristics, except that the fixed coupon rate of all coupons are shifted by the given amount.
+   * @param spread The spread.
+   * @return The new swap.
+   */
+  public SwapFixedCoupon<R> withRateShifted(double spread) {
+    AnnuityCouponFixed legFixedNotional = getFixedLeg().withRateShifted(spread);
     return new SwapFixedCoupon<R>(legFixedNotional, getSecondLeg());
   }
 

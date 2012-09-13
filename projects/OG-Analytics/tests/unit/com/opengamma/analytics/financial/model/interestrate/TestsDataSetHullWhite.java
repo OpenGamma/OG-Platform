@@ -10,7 +10,7 @@ import com.opengamma.analytics.financial.model.interestrate.definition.HullWhite
 /**
  * Data used for tests on the Hull-White one factor model.
  */
-public class TestsDataSetsHullWhite {
+public class TestsDataSetHullWhite {
 
   private static final double MEAN_REVERSION = 0.01;
   private static final double[] VOLATILITY = new double[] {0.01, 0.011, 0.012, 0.013, 0.014};

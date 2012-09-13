@@ -32,7 +32,6 @@ import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
-
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
@@ -210,7 +209,7 @@ public class JodaBeanRowParser extends RowParser {
     try {
       return new JodaBeanRowParser(securityName);
     } catch (Throwable e) {
-      throw new OpenGammaRuntimeException("Could not create a row parser for security type " + securityName);
+      throw new OpenGammaRuntimeException("Could not create a row parser for security type " + securityName, e);
     }
   }
 

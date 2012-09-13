@@ -29,18 +29,48 @@ public class DefaultRiskFactorsConfigurationProvider implements RiskFactorsConfi
 
   @Override
   public String getFundingCurve() {
-    return "FUNDING";
+    return "Discounting";
   }
 
   @Override
   public String getForwardCurve(Currency currency) {
     String suffix;
-    if (currency.equals(Currency.USD) || currency.equals(Currency.NZD)) { 
+    if (currency.equals(Currency.USD) || currency.equals(Currency.NZD) || currency.equals(Currency.SEK)) { 
       suffix = "3M";
     } else {
       suffix = "6M";
     }
-    return "FORWARD_" + suffix;
+    return "Forward" + suffix;
+  }
+
+  @Override
+  public String getFXVanillaOptionSurfaceName(Currency ccy1, Currency ccy2) {
+    return "DEFAULT_" + ccy1.getCode() + ccy2.getCode();
+  }
+
+  @Override
+  public String getIRFutureOptionVolatilitySurfaceName(String futureCode) {
+    return "DEFAULT_" + futureCode;
+  }
+  
+  @Override
+  public String getCommodityFutureOptionVolatilitySurfaceName(String futureCode) {
+    return "DEFAULT_" + futureCode;
+  }
+
+  @Override
+  public String getEquityIndexOptionVolatilitySurfaceName(String tickerPlusMarketSector) {
+    return "DEFAULT_" + tickerPlusMarketSector;
+  }
+
+  @Override
+  public String getSwaptionVolatilitySurfaceName(Currency ccy) {
+    return "DEFAULT_" + ccy.getCode();
+  }
+
+  @Override
+  public String getSwaptionVolatilityCubeName(Currency ccy) {
+    return "DEFAULT_" + ccy.getCode();
   }
   
 }
