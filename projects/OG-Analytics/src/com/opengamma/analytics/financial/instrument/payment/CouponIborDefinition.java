@@ -70,6 +70,32 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
 
   /**
    * Constructor of a Ibor-like floating coupon from the coupon details and the Ibor index. The payment currency is the index currency.
+   * @param currency The coupn currency.
+   * @param paymentDate The coupon payment date.
+   * @param accrualStartDate The start date of the accrual period.
+   * @param accrualEndDate The end date of the accrual period.
+   * @param paymentAccrualFactor The accrual factor of the accrual period.
+   * @param notional The coupon notional.
+   * @param fixingDate The coupon fixing date.
+   * @param fixingPeriodStartDate The start date of the fixing period.
+   * @param fixingPeriodEndDate The end date of the fixing period.
+   * @param fixingPeriodAccrualFactor The accrual factor (or year fraction) associated to the fixing period in the Index day count convention.
+   * @param index The coupon Ibor index. Should of the same currency as the payment.
+   */
+  public CouponIborDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double paymentAccrualFactor,
+      final double notional, final ZonedDateTime fixingDate, final ZonedDateTime fixingPeriodStartDate, final ZonedDateTime fixingPeriodEndDate, final double fixingPeriodAccrualFactor,
+      final IborIndex index) {
+    super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional, fixingDate);
+    Validate.notNull(index, "index");
+    Validate.isTrue(currency.equals(index.getCurrency()), "index currency different from payment currency");
+    _fixingPeriodStartDate = fixingPeriodStartDate;
+    _fixingPeriodEndDate = fixingPeriodEndDate;
+    _fixingPeriodAccrualFactor = fixingPeriodAccrualFactor;
+    _index = index;
+  }
+
+  /**
+   * Constructor of a Ibor-like floating coupon from the coupon details and the Ibor index. The payment currency is the index currency.
    * 
    * @param paymentDate Coupon payment date.
    * @param accrualStartDate Start date of the accrual period.
@@ -172,6 +198,16 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
    */
   public double getFixingPeriodAccrualFactor() {
     return _fixingPeriodAccrualFactor;
+  }
+
+  /**
+   * Creates a new coupon with all the details the same except the notional which is remplaced by the notional provided.
+   * @param notional The notional.
+   * @return The coupon.
+   */
+  public CouponIborDefinition withNotional(final double notional) {
+    return new CouponIborDefinition(getCurrency(), getPaymentDate(), getAccrualStartDate(), getAccrualEndDate(), getPaymentYearFraction(), notional, getFixingDate(), _fixingPeriodStartDate,
+        _fixingPeriodEndDate, _fixingPeriodAccrualFactor, _index);
   }
 
   @Override

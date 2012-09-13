@@ -66,12 +66,16 @@
         </#if>  
         <#if security.announcementDate?has_content>
           <@rowout label="Announcement date">${security.announcementDate}</@rowout>
-        </#if>  
-        <@rowout label="Interest accrual date">${security.interestAccrualDate.toLocalDate()} - ${security.interestAccrualDate.zone}</@rowout>
+        </#if>
+        <#if security.interestAccrualDate?has_content>
+            <@rowout label="Interest accrual date">${security.interestAccrualDate.toLocalDate()} - ${security.interestAccrualDate.zone}</@rowout>
+        </#if>
         <#if security.settlementDate?has_content>
           <@rowout label="Settlement date">${security.settlementDate.toLocalDate()} - ${security.settlementDate.zone}</@rowout>
         </#if>
-        <@rowout label="First coupon date">${security.firstCouponDate.toLocalDate()} - ${security.firstCouponDate.zone}</@rowout>
+        <#if security.firstCouponDate?has_content>
+            <@rowout label="First coupon date">${security.firstCouponDate.toLocalDate()} - ${security.firstCouponDate.zone}</@rowout>
+        </#if>
         <#if security.issuancePrice?has_content>
           <@rowout label="Issuance price">${security.issuancePrice}</@rowout>
         </#if>

@@ -253,6 +253,19 @@ public class TestsDataSetsSABR {
     return createSABR1NuBumped(new SABRHaganVolatilityFunction(), shift);
   }
 
+  public static SABRInterestRateParameters createSABR1ParameterBumped(final double shift, final int parameterNumber) {
+    switch (parameterNumber) {
+      case 0:
+        return createSABR1AlphaBumped(new SABRHaganVolatilityFunction(), shift);
+      case 1:
+        return createSABR1RhoBumped(new SABRHaganVolatilityFunction(), shift);
+      case 2:
+        return createSABR1NuBumped(new SABRHaganVolatilityFunction(), shift);
+      default:
+        return null;
+    }
+  }
+
   /**
    * Create a set of SABR parameter surface (linearly interpolated and flat extrapolated) with a given SABR function. 
    * The expirations and tenors are not on a full grid (short expiries with shorter tenors).

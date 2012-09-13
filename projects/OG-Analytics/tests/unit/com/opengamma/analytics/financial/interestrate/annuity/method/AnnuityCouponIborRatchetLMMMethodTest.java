@@ -29,7 +29,7 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.method.CapFloorIborLMMDDMethod;
-import com.opengamma.analytics.financial.model.interestrate.LiborMarketModelDisplacedDiffusionTestsDataSet;
+import com.opengamma.analytics.financial.model.interestrate.TestsDataSetLiborMarketModelDisplacedDiffusion;
 import com.opengamma.analytics.financial.model.interestrate.definition.LiborMarketModelDisplacedDiffusionDataBundle;
 import com.opengamma.analytics.financial.model.interestrate.definition.LiborMarketModelDisplacedDiffusionParameters;
 import com.opengamma.analytics.financial.montecarlo.LiborMarketModelMonteCarloMethod;
@@ -72,7 +72,7 @@ public class AnnuityCouponIborRatchetLMMMethodTest {
   private static final AnnuityCouponIborRatchet ANNUITY_RATCHET_FIXED = ANNUITY_RATCHET_FIXED_DEFINITION.toDerivative(REFERENCE_DATE, FIXING_TS, CURVES_NAMES);
   // Methods and calculators
   private static final int NB_PATH = 12500;
-  private static final LiborMarketModelDisplacedDiffusionParameters PARAMETERS_LMM = LiborMarketModelDisplacedDiffusionTestsDataSet.createLMMParameters(REFERENCE_DATE,
+  private static final LiborMarketModelDisplacedDiffusionParameters PARAMETERS_LMM = TestsDataSetLiborMarketModelDisplacedDiffusion.createLMMParameters(REFERENCE_DATE,
       ANNUITY_RATCHET_FIXED_DEFINITION);
   private static final LiborMarketModelDisplacedDiffusionDataBundle BUNDLE_LMM = new LiborMarketModelDisplacedDiffusionDataBundle(PARAMETERS_LMM, CURVES);
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
@@ -94,7 +94,7 @@ public class AnnuityCouponIborRatchetLMMMethodTest {
   public void presentValueIbor() {
     ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 8, 18);
     AnnuityCouponIborRatchet annuityRatchetIbor = ANNUITY_RATCHET_IBOR_DEFINITION.toDerivative(referenceDate, FIXING_TS, CURVES_NAMES);
-    LiborMarketModelDisplacedDiffusionParameters parameterLMM = LiborMarketModelDisplacedDiffusionTestsDataSet.createLMMParameters(referenceDate, ANNUITY_RATCHET_FIXED_DEFINITION);
+    LiborMarketModelDisplacedDiffusionParameters parameterLMM = TestsDataSetLiborMarketModelDisplacedDiffusion.createLMMParameters(referenceDate, ANNUITY_RATCHET_FIXED_DEFINITION);
     LiborMarketModelDisplacedDiffusionDataBundle bundleLMM = new LiborMarketModelDisplacedDiffusionDataBundle(parameterLMM, CURVES);
     LiborMarketModelMonteCarloMethod methodMC = new LiborMarketModelMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), NB_PATH);
     // Seed fixed to the DEFAULT_SEED for testing purposes.
@@ -144,7 +144,7 @@ public class AnnuityCouponIborRatchetLMMMethodTest {
     for (int loopcpn = 1; loopcpn < ibor.getNumberOfPayments(); loopcpn++) {
       iborFirstFixed[loopcpn] = ibor.getNthPayment(loopcpn);
     }
-    LiborMarketModelDisplacedDiffusionParameters parameterLMM = LiborMarketModelDisplacedDiffusionTestsDataSet.createLMMParameters(REFERENCE_DATE, ratchetFixedDefinition);
+    LiborMarketModelDisplacedDiffusionParameters parameterLMM = TestsDataSetLiborMarketModelDisplacedDiffusion.createLMMParameters(REFERENCE_DATE, ratchetFixedDefinition);
     LiborMarketModelDisplacedDiffusionDataBundle bundleLMM = new LiborMarketModelDisplacedDiffusionDataBundle(parameterLMM, CURVES);
     LiborMarketModelMonteCarloMethod methodMC = new LiborMarketModelMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);
     CurrencyAmount pvIborMC = methodMC.presentValue(ratchetFixed, EUR, CURVES.getCurve(CURVES_NAMES[0]), bundleLMM);
@@ -196,7 +196,7 @@ public class AnnuityCouponIborRatchetLMMMethodTest {
     AnnuityCouponIborRatchetDefinition annuityRatchetIbor20Definition = AnnuityCouponIborRatchetDefinition.withFirstCouponIborGearing(SETTLEMENT_DATE, Period.ofYears(5), NOTIONAL, INDEX_EURIBOR3M,
         IS_PAYER, MAIN_COEF, FLOOR_COEF, CAP_COEF);
     ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 8, 18);
-    LiborMarketModelDisplacedDiffusionParameters parameterLMM = LiborMarketModelDisplacedDiffusionTestsDataSet.createLMMParameters(referenceDate, annuityRatchetIbor20Definition);
+    LiborMarketModelDisplacedDiffusionParameters parameterLMM = TestsDataSetLiborMarketModelDisplacedDiffusion.createLMMParameters(referenceDate, annuityRatchetIbor20Definition);
     LiborMarketModelDisplacedDiffusionDataBundle bundleLMM = new LiborMarketModelDisplacedDiffusionDataBundle(parameterLMM, CURVES);
     AnnuityCouponIborRatchet annuityRatchetIbor20 = annuityRatchetIbor20Definition.toDerivative(referenceDate, FIXING_TS, CURVES_NAMES);
     LiborMarketModelMonteCarloMethod methodMC = new LiborMarketModelMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);

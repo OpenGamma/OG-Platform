@@ -102,6 +102,18 @@ public class LiborMarketModelDisplacedDiffusionParameters {
   }
 
   /**
+   * Create a new copy of the object with the same data. All the arrays are cloned.
+   * @return The LMM parameters.
+   */
+  public LiborMarketModelDisplacedDiffusionParameters copy() {
+    double[][] vol = new double[_volatility.length][];
+    for (int loopperiod = 0; loopperiod < _volatility.length; loopperiod++) {
+      vol[loopperiod] = _volatility[loopperiod].clone();
+    }
+    return new LiborMarketModelDisplacedDiffusionParameters(_iborTime.clone(), _accrualFactor.clone(), _displacement.clone(), vol, _meanReversion);
+  }
+
+  /**
    * Create model parameters adapted to a specific swap.
    * @param modelDate The pricing date.
    * @param annuity The annuity to be used for the model construction.    swap The swap 
