@@ -36,6 +36,11 @@ public class JmsConnector implements Connector {
    */
   private final JmsTemplate _jmsTemplateQueue;
   /**
+   * The factory for creating containers for topics.
+   * This is used to listen to JMS messages.
+   */
+  private final JmsTopicContainerFactory _topicContainerFactory;
+  /**
    * The configuration needed by the client to connect to the broker.
    */
   private final URI _clientBrokerUri;
@@ -50,16 +55,19 @@ public class JmsConnector implements Connector {
    * @param name  the configuration name, not null
    * @param jmsTemplateTopic  the JMS Spring template for topic-based messaging, not null
    * @param jmsTemplateQueue  the JMS Spring template for queue-based messaging, not null
+   * @param containerFactoryTopic  the container factory for topics, may be null
    * @param clientBrokerUri  the client configuration to connect to the broker, such as a URI, null if no config provided for clients
    * @param topicName  the topic name, null if left up to the application
    */
-  public JmsConnector(String name, JmsTemplate jmsTemplateTopic, JmsTemplate jmsTemplateQueue, URI clientBrokerUri, String topicName) {
+  public JmsConnector(String name, JmsTemplate jmsTemplateTopic, JmsTemplate jmsTemplateQueue, 
+      JmsTopicContainerFactory containerFactoryTopic, URI clientBrokerUri, String topicName) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(jmsTemplateTopic, "jmsTemplateTopic");
     ArgumentChecker.notNull(jmsTemplateQueue, "jmsTemplateQueue");
     _name = name;
     _jmsTemplateTopic = jmsTemplateTopic;
     _jmsTemplateQueue = jmsTemplateQueue;
+    _topicContainerFactory = containerFactoryTopic;
     _clientBrokerUri = clientBrokerUri;
     _topicName = topicName;
   }
@@ -110,6 +118,15 @@ public class JmsConnector implements Connector {
     return _jmsTemplateQueue;
   }
 
+  /**
+   * Gets the topic container factory.
+   * 
+   * @return the factory for topic containers, null if not available
+   */
+  public JmsTopicContainerFactory getTopicContainerFactory() {
+    return _topicContainerFactory;
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Gets the broker configuration needed by the client to connect to the server.
@@ -141,7 +158,7 @@ public class JmsConnector implements Connector {
    */
   public JmsConnector withTopicName(String topicName) {
     ArgumentChecker.notEmpty(topicName, "topicName");
-    return new JmsConnector(_name, _jmsTemplateTopic, _jmsTemplateQueue, _clientBrokerUri, topicName);
+    return new JmsConnector(_name, _jmsTemplateTopic, _jmsTemplateQueue, _topicContainerFactory, _clientBrokerUri, topicName);
   }
 
   //-------------------------------------------------------------------------

@@ -10,7 +10,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.fudgemsg.FudgeContext;
@@ -21,16 +20,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.bbg.PerSecurityReferenceDataResult;
-import com.opengamma.bbg.ReferenceDataProvider;
-import com.opengamma.bbg.ReferenceDataResult;
+import com.opengamma.bbg.referencedata.ReferenceData;
+import com.opengamma.bbg.referencedata.ReferenceDataProviderGetRequest;
+import com.opengamma.bbg.referencedata.ReferenceDataProviderGetResult;
+import com.opengamma.bbg.referencedata.impl.AbstractReferenceDataProvider;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * A reference data provider which uses reference data logged by {@link LoggingReferenceDataProvider}
  * as its source of data. Requests for data which is not in the log cannot be satisfied. 
  */
-public class LoggedReferenceDataProvider implements ReferenceDataProvider {
+public class LoggedReferenceDataProvider extends AbstractReferenceDataProvider {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(LoggedReferenceDataProvider.class); 
@@ -135,21 +135,20 @@ public class LoggedReferenceDataProvider implements ReferenceDataProvider {
 
   //-------------------------------------------------------------------------
   @Override
-  public ReferenceDataResult getFields(Set<String> securityKeys, Set<String> fields) {
-    ReferenceDataResult result = new ReferenceDataResult();
-    for (String securityKey : securityKeys) {
+  protected ReferenceDataProviderGetResult doBulkGet(ReferenceDataProviderGetRequest request) {
+    ReferenceDataProviderGetResult result = new ReferenceDataProviderGetResult();
+    for (String identifier : request.getIdentifiers()) {
       // copy the requested fields across into a new message
-      PerSecurityReferenceDataResult securityResult = new PerSecurityReferenceDataResult(securityKey);
       MutableFudgeMsg fieldData = _fudgeContext.newMessage();
-      FudgeMsg allFieldData = _data.get(securityKey);
+      FudgeMsg allFieldData = _data.get(identifier);
       if (allFieldData != null) {
-        for (String fieldName : fields) {
+        for (String fieldName : request.getFields()) {
           Object fieldValue = allFieldData.getValue(fieldName);
           fieldData.add(fieldName, fieldValue);
         }
       }
-      securityResult.setFieldData(fieldData);
-      result.addResult(securityResult);
+      ReferenceData refData = new ReferenceData(identifier, fieldData);
+      result.addReferenceData(refData);
     }
     return result;
   }

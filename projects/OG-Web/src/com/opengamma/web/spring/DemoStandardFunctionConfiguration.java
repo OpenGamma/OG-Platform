@@ -410,6 +410,7 @@ import com.opengamma.financial.analytics.timeseries.YieldCurveInstrumentConversi
 import com.opengamma.financial.analytics.timeseries.YieldCurveInstrumentConversionHistoricalTimeSeriesShiftFunctionDeprecated;
 import com.opengamma.financial.analytics.volatility.surface.DefaultVolatilitySurfaceShiftFunction;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceShiftFunction;
+import com.opengamma.financial.currency.BondFutureOptionBlackPnLSeriesCurrencyConversionFunction;
 import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
 import com.opengamma.financial.currency.CurrencyPairs;
@@ -538,6 +539,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(FXForwardYCNSPnLCurrencyConversionFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
     functionConfigs.add(functionConfiguration(FXOptionBlackPnLSeriesCurrencyConversionFunction.class, CurrencyMatrixConfigPopulator.BLOOMBERG_LIVE_DATA));
     functionConfigs.add(functionConfiguration(FXOptionBlackPnLSeriesCurrencyConversionFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
+    functionConfigs.add(functionConfiguration(BondFutureOptionBlackPnLSeriesCurrencyConversionFunction.class, CurrencyMatrixConfigPopulator.BLOOMBERG_LIVE_DATA));
+    functionConfigs.add(functionConfiguration(BondFutureOptionBlackPnLSeriesCurrencyConversionFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
     functionConfigs
         .add(functionConfiguration(FixedIncomeInstrumentPnLSeriesCurrencyConversionFunctionDeprecated.class, CurrencyMatrixConfigPopulator.BLOOMBERG_LIVE_DATA));
     functionConfigs
@@ -995,15 +998,19 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(FXOptionBlackVolatilitySurfaceForwardSlideThetaFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackYieldCurvesForwardSlideThetaFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackDefaults.class, PriorityClass.NORMAL.name(), DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR, LINEAR_EXTRAPOLATOR,
-        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "EUR", "DefaultTwoCurveEURConfig", "Discounting", "TULLETT", "USD", "DefaultTwoCurveUSDConfig", "Discounting",
-        "CAD", "DefaultTwoCurveCADConfig", "Discounting", "TULLETT", "USD", "DefaultTwoCurveUSDConfig", "Discounting", "AUD", "DefaultTwoCurveAUDConfig", "Discounting",
-        "TULLETT", "USD", "DefaultTwoCurveUSDConfig", "Discounting", "CHF", "DefaultTwoCurveCHFConfig", "Discounting", "TULLETT", "USD", "DefaultTwoCurveUSDConfig",
-        "Discounting", "MXN", "DefaultCashCurveMXNConfig", "Cash", "TULLETT", "USD", "DefaultTwoCurveUSDConfig", "Discounting", "JPY", "DefaultTwoCurveJPYConfig",
-        "Discounting", "TULLETT", "USD", "DefaultTwoCurveUSDConfig", "Discounting", "GBP", "DefaultTwoCurveGBPConfig", "Discounting", "TULLETT", "USD",
-        "DefaultTwoCurveUSDConfig", "Discounting", "NZD", "DefaultTwoCurveNZDConfig", "Discounting", "TULLETT", "USD", "DefaultTwoCurveUSDConfig", "Discounting", "HUF",
-        "DefaultCashCurveHUFConfig", "Cash", "TULLETT", "USD", "DefaultTwoCurveUSDConfig", "Discounting", "KRW", "DefaultCashCurveKRWConfig", "Cash", "TULLETT", "USD",
-        "DefaultTwoCurveUSDConfig", "Discounting", "BRL", "DefaultCashCurveBRLConfig", "Cash", "TULLETT", "EUR", "DefaultTwoCurveEURConfig", "Discounting", "CHF",
-        "DefaultTwoCurveCHFConfig", "Discounting", "TULLETT", "USD", "DefaultTwoCurveUSDConfig", "Discounting", "HKD", "DefaultCashCurveHKDConfig", "Cash", "TULLETT"));
+        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "EUR", "DefaultTwoCurveEURConfig", "Discounting", "TULLETT", 
+        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "CAD", "DefaultTwoCurveCADConfig", "Discounting", "TULLETT", 
+        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "AUD", "DefaultTwoCurveAUDConfig", "Discounting", "TULLETT", 
+        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "CHF", "DefaultTwoCurveCHFConfig", "Discounting", "TULLETT", 
+        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "MXN", "DefaultCashCurveMXNConfig", "Cash", "TULLETT", 
+        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "JPY", "DefaultTwoCurveJPYConfig", "Discounting", "TULLETT", 
+        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "GBP", "DefaultTwoCurveGBPConfig", "Discounting", "TULLETT", 
+        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "NZD", "DefaultTwoCurveNZDConfig", "Discounting", "TULLETT", 
+        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "HUF", "DefaultCashCurveHUFConfig", "Cash", "TULLETT", 
+        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "KRW", "DefaultCashCurveKRWConfig", "Cash", "TULLETT", 
+        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "BRL", "DefaultCashCurveBRLConfig", "Cash", "TULLETT", 
+        "EUR", "DefaultTwoCurveEURConfig", "Discounting", "CHF", "DefaultTwoCurveCHFConfig", "Discounting", "TULLETT", 
+        "USD", "DefaultTwoCurveUSDConfig", "Discounting", "HKD", "DefaultCashCurveHKDConfig", "Cash", "TULLETT"));
   }
 
   private static void addDeprecatedForexOptionCalculators(final List<FunctionConfiguration> functionConfigs) {

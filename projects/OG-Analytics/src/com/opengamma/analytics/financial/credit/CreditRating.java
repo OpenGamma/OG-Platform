@@ -50,7 +50,7 @@ public enum CreditRating {
    */
   DEFAULT,
   /**
-   * 
+   * No rating
    */
   NR;
 

@@ -7,7 +7,6 @@ package com.opengamma.bbg.livedata;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -16,10 +15,9 @@ import net.sf.ehcache.CacheManager;
 
 import org.fudgemsg.FudgeMsg;
 
+import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.bbg.PerSecurityReferenceDataResult;
-import com.opengamma.bbg.ReferenceDataProvider;
-import com.opengamma.bbg.ReferenceDataResult;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalScheme;
@@ -29,7 +27,7 @@ import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
 import com.opengamma.livedata.resolver.EHCachingDistributionSpecificationResolver;
 import com.opengamma.livedata.resolver.IdResolver;
 import com.opengamma.livedata.resolver.NormalizationRuleResolver;
-import com.opengamma.livedata.server.AbstractLiveDataServer;
+import com.opengamma.livedata.server.StandardLiveDataServer;
 import com.opengamma.livedata.server.Subscription;
 import com.opengamma.util.ArgumentChecker;
 
@@ -37,35 +35,29 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Allows common functionality to be shared between the live and recorded Bloomberg data servers
  */
-public abstract class AbstractBloombergLiveDataServer extends AbstractLiveDataServer {
+public abstract class AbstractBloombergLiveDataServer extends StandardLiveDataServer {
 
   private NormalizationRuleResolver _normalizationRules;
   private IdResolver _idResolver;
   private DistributionSpecificationResolver _defaultDistributionSpecificationResolver;
-  
+
   /**
-   * Constructs an instance.
+   * Creates an instance.
    * 
    * @param cacheManager  the cache manager, not null
    */
   public AbstractBloombergLiveDataServer(CacheManager cacheManager) {
     super(cacheManager);
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
-   * Gets a reference data provider for use when cached results are acceptable, and perhaps preferred.
+   * Gets the reference data provider.
    * 
-   * @return  a reference data provider, which might be caching
+   * @return the reference data provider
    */
-  protected abstract ReferenceDataProvider getCachingReferenceDataProvider();
-  
-  /**
-   * Gets a reference data provider for use when cached results are not acceptable.
-   * 
-   * @return  a non-caching reference data provider
-   */
-  protected abstract ReferenceDataProvider getUnderlyingReferenceDataProvider();
-  
+  protected abstract ReferenceDataProvider getReferenceDataProvider();
+
   @Override
   protected ExternalScheme getUniqueIdDomain() {
     return ExternalSchemes.BLOOMBERG_BUID;
@@ -92,47 +84,37 @@ public abstract class AbstractBloombergLiveDataServer extends AbstractLiveDataSe
     }
     
     // caching ref data provider must not be used here
-    ReferenceDataResult referenceData = getUnderlyingReferenceDataProvider().getFields(buids, BloombergDataUtils.STANDARD_FIELDS_SET);
-    if (referenceData == null) {
-      throw new OpenGammaRuntimeException("Could not obtain reference data for " + buids);      
-    }
-    
-    Map<String, FudgeMsg> returnValue = new HashMap<String, FudgeMsg>();
+    Map<String, FudgeMsg> snapshotValues = getReferenceDataProvider().getReferenceDataIgnoreCache(buids, BloombergDataUtils.STANDARD_FIELDS_SET);
+    Map<String, FudgeMsg> returnValue = Maps.newHashMap();
     for (String buid : buids) {
-      PerSecurityReferenceDataResult result = referenceData.getResult(buid);
-      if (result == null) {
+      FudgeMsg fieldData = snapshotValues.get(buid);
+      if (fieldData == null) {
         throw new OpenGammaRuntimeException("Result for " + buid + " was not found");
       }
-      
       String securityUniqueId = buid.substring("/buid/".length());
-      FudgeMsg fieldData = result.getFieldData();
-      if (fieldData == null) {
-        throw new OpenGammaRuntimeException("Reference data provider " + getUnderlyingReferenceDataProvider() + " returned null fieldData for " + buid);
-      } 
       returnValue.put(securityUniqueId, fieldData);
     }
-    
     return returnValue;
   }
-  
+
   public synchronized NormalizationRuleResolver getNormalizationRules() {
     if (_normalizationRules == null) {
-      _normalizationRules = new StandardRuleResolver(BloombergDataUtils.getDefaultNormalizationRules(getCachingReferenceDataProvider(), getCacheManager()));
+      _normalizationRules = new StandardRuleResolver(BloombergDataUtils.getDefaultNormalizationRules(getReferenceDataProvider(), getCacheManager()));
     }
     return _normalizationRules;
   }
 
   public synchronized IdResolver getIdResolver() {
     if (_idResolver == null) {
-      _idResolver = new BloombergIdResolver(getCachingReferenceDataProvider());
+      _idResolver = new BloombergIdResolver(getReferenceDataProvider());
     }
     return _idResolver;
   }
 
   public synchronized DistributionSpecificationResolver getDefaultDistributionSpecificationResolver() {
     if (_defaultDistributionSpecificationResolver == null) {
-      DefaultDistributionSpecificationResolver distributionSpecResolver = new DefaultDistributionSpecificationResolver(getIdResolver(), getNormalizationRules(), new BloombergJmsTopicNameResolver(
-          getCachingReferenceDataProvider()));
+      BloombergJmsTopicNameResolver topicResolver = new BloombergJmsTopicNameResolver(getReferenceDataProvider());
+      DefaultDistributionSpecificationResolver distributionSpecResolver = new DefaultDistributionSpecificationResolver(getIdResolver(), getNormalizationRules(), topicResolver);
       return new EHCachingDistributionSpecificationResolver(distributionSpecResolver, getCacheManager(), "BBG");
     }
     return _defaultDistributionSpecificationResolver;

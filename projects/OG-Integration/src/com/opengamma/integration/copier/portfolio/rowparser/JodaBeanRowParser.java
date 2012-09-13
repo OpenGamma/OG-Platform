@@ -32,7 +32,6 @@ import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
-
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
@@ -82,7 +81,9 @@ public class JodaBeanRowParser extends RowParser {
     "com.opengamma.financial.security.bond",
     "com.opengamma.financial.security.capfloor",
     "com.opengamma.financial.security.cash",
+    "com.opengamma.financial.security.deposit",
     "com.opengamma.financial.security.equity",
+    "com.opengamma.financial.security.forward",
     "com.opengamma.financial.security.fra",
     "com.opengamma.financial.security.future",
     "com.opengamma.financial.security.fx",
@@ -208,7 +209,7 @@ public class JodaBeanRowParser extends RowParser {
     try {
       return new JodaBeanRowParser(securityName);
     } catch (Throwable e) {
-      return null;
+      throw new OpenGammaRuntimeException("Could not create a row parser for security type " + securityName, e);
     }
   }
 

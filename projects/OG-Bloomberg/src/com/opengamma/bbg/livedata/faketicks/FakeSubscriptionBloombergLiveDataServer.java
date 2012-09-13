@@ -34,12 +34,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.livedata.BloombergLiveDataServer;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
-import com.opengamma.livedata.server.AbstractLiveDataServer;
+import com.opengamma.livedata.server.StandardLiveDataServer;
 import com.opengamma.livedata.server.Subscription;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
@@ -47,40 +47,63 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * A live data server which fakes out Bloomberg subscriptions for some tickers.
- * Other tickers will be subscribed as normal 
+ * Other tickers will be subscribed as normal.
  */
-public class FakeSubscriptionBloombergLiveDataServer extends AbstractLiveDataServer {
+public class FakeSubscriptionBloombergLiveDataServer extends StandardLiveDataServer {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(FakeSubscriptionBloombergLiveDataServer.class);
 
+  /**
+   * Timer period.
+   */
   private static final long PERIOD_MILLIS = Duration.ofStandardHours(24).toMillisLong();
-    
+
+  /**
+   * The subscriptions that have been made.
+   */
   private final ConcurrentMap<String, Object> _subscriptions = new ConcurrentHashMap<String, Object>();
-
+  /**
+   * The cache of values.
+   */
   private final Cache _snapshotValues;
-    
+  /**
+   * The timer.
+   */
   private Timer _timer;
-
+  /**
+   * The underlying server.
+   */
   private final BloombergLiveDataServer _underlying;
-    
+
+  /**
+   * Creates an instance.
+   * <p>
+   * The distribution specification resolver, entitlement checker and market data sender factory
+   * are set by the constructor based on the underlying server.
+   * 
+   * @param underlying  the underlying server, not null
+   * @param cacheManager  the cache manager, not null
+   */
   public FakeSubscriptionBloombergLiveDataServer(BloombergLiveDataServer underlying, CacheManager cacheManager) {
     super(cacheManager);
     _underlying = underlying;
     ArgumentChecker.notNull(underlying, "underlying");
     ArgumentChecker.notNull(cacheManager, "cacheManager");
     setDistributionSpecificationResolver(getDistributionSpecResolver(underlying.getDistributionSpecificationResolver()));
+    setEntitlementChecker(underlying.getEntitlementChecker());
+    setMarketDataSenderFactory(underlying.getMarketDataSenderFactory());
     
     String snapshotCacheName = "FakeSubscriptionBloombergLiveDataServer.SnapshotValues";
     EHCacheUtils.addCache(cacheManager, snapshotCacheName);
     _snapshotValues = EHCacheUtils.getCacheFromManager(cacheManager, snapshotCacheName);
   }
-  
-  private DistributionSpecificationResolver getDistributionSpecResolver(
-      final DistributionSpecificationResolver underlying) {
+
+  private DistributionSpecificationResolver getDistributionSpecResolver(final DistributionSpecificationResolver underlying) {
     return new FakeDistributionSpecificationResolver(underlying);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected void doConnect() {
     _timer = new Timer(FakeSubscriptionBloombergLiveDataServer.class.getSimpleName(), true);
@@ -102,7 +125,7 @@ public class FakeSubscriptionBloombergLiveDataServer extends AbstractLiveDataSer
       liveDataReceived(entry.getKey(), entry.getValue());
     }
   }
-  
+
   @Override
   protected Map<String, FudgeMsg> doSnapshot(Collection<String> uniqueIds) {
     ArgumentChecker.notNull(uniqueIds, "Unique IDs");
@@ -110,28 +133,24 @@ public class FakeSubscriptionBloombergLiveDataServer extends AbstractLiveDataSer
       return Collections.emptyMap();
     }
     
-    Map<String, FudgeMsg> ret = new HashMap<String, FudgeMsg>();
-    
+    Map<String, FudgeMsg> result = new HashMap<String, FudgeMsg>();
     Set<String> uidsToQuery = new HashSet<String>();
-    
     for (String uid : uniqueIds) {
       Element cached = _snapshotValues.get(uid);
       if (cached != null && cached.getValue() != null) {
-        CachedPerSecuritySnapshotResult result = (CachedPerSecuritySnapshotResult) cached.getValue();
-        ret.put(uid, result._fieldData);
+        CachedPerSecuritySnapshotResult cachedResult = (CachedPerSecuritySnapshotResult) cached.getValue();
+        result.put(uid, cachedResult._fieldData);
       } else {
         uidsToQuery.add(uid);
       }
     }
-    
     if (uidsToQuery.isEmpty()) {
-      return ret;
+      return result;
     }
     
-    Map<String, FudgeMsg> result = doUnderlyingSnapshot(uidsToQuery);
-    
-    ret.putAll(result);
-    return ret;
+    Map<String, FudgeMsg> underlyingResult = doUnderlyingSnapshot(uidsToQuery);
+    result.putAll(underlyingResult);
+    return result;
   }
 
   private Map<String, FudgeMsg> doUnderlyingSnapshot(Set<String> uidsToQuery) {
@@ -146,9 +165,12 @@ public class FakeSubscriptionBloombergLiveDataServer extends AbstractLiveDataSer
     _snapshotValues.flush();
     return result;
   }
-  
-  private static class CachedPerSecuritySnapshotResult implements Serializable {
 
+  //-------------------------------------------------------------------------
+  /**
+   * Cached value.
+   */
+  private static class CachedPerSecuritySnapshotResult implements Serializable {
     private static final long serialVersionUID = 1L;
     
     private FudgeMsg _fieldData;
@@ -186,7 +208,8 @@ public class FakeSubscriptionBloombergLiveDataServer extends AbstractLiveDataSer
       }
     }
   }
-  
+
+  //-------------------------------------------------------------------------
   @Override
   protected void doDisconnect() {
     final CountDownLatch timerCancelledLatch = new CountDownLatch(1);
@@ -249,7 +272,13 @@ public class FakeSubscriptionBloombergLiveDataServer extends AbstractLiveDataSer
     return true;
   }
 
-  public ReferenceDataProvider getCachingReferenceDataProvider() {
-    return _underlying.getCachingReferenceDataProvider();
+  /**
+   * Gets the reference data provider from the underlying.
+   * 
+   * @return the reference data provider, not null
+   */
+  public ReferenceDataProvider getReferenceDataProvider() {
+    return _underlying.getReferenceDataProvider();
   }
+
 }

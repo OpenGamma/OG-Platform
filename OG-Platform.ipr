@@ -243,6 +243,7 @@
       <module fileurl="file://$PROJECT_DIR$/projects/OG-BloombergExample/OG-BloombergExample.iml" filepath="$PROJECT_DIR$/projects/OG-BloombergExample/OG-BloombergExample.iml" />
       <module fileurl="file://$PROJECT_DIR$/projects/OG-Component/OG-Component.iml" filepath="$PROJECT_DIR$/projects/OG-Component/OG-Component.iml" />
       <module fileurl="file://$PROJECT_DIR$/projects/OG-Core/OG-Core.iml" filepath="$PROJECT_DIR$/projects/OG-Core/OG-Core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/projects/OG-Provider/OG-Provider.iml" filepath="$PROJECT_DIR$/projects/OG-Provider/OG-Provider.iml" />
       <module fileurl="file://$PROJECT_DIR$/projects/OG-Engine/OG-Engine.iml" filepath="$PROJECT_DIR$/projects/OG-Engine/OG-Engine.iml" />
       <module fileurl="file://$PROJECT_DIR$/projects/OG-Examples/OG-Examples.iml" filepath="$PROJECT_DIR$/projects/OG-Examples/OG-Examples.iml" />
       <module fileurl="file://$PROJECT_DIR$/projects/OG-Financial/OG-Financial.iml" filepath="$PROJECT_DIR$/projects/OG-Financial/OG-Financial.iml" />
@@ -309,6 +310,42 @@
       <option name="ALTERNATIVE_JRE_PATH" value="" />
       <option name="SUITE_NAME" value="" />
       <option name="PACKAGE_NAME" value="com.opengamma.core" />
+      <option name="MAIN_CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="GROUP_NAME" value="" />
+      <option name="TEST_OBJECT" value="PACKAGE" />
+      <option name="VM_PARAMETERS" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="WORKING_DIRECTORY" value="file://$MODULE_DIR$" />
+      <option name="OUTPUT_DIRECTORY" value="" />
+      <option name="ANNOTATION_TYPE" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="singleModule" />
+      </option>
+      <option name="USE_DEFAULT_REPORTERS" value="false" />
+      <option name="PROPERTIES_FILE" value="" />
+      <envs />
+      <properties />
+      <listeners />
+      <RunnerSettings RunnerId="Debug">
+        <option name="DEBUG_PORT" value="55907" />
+        <option name="TRANSPORT" value="0" />
+        <option name="LOCAL" value="true" />
+      </RunnerSettings>
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Debug" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method />
+    </configuration>
+    <configuration default="false" name="OG-Provider" type="TestNG" factoryName="TestNG">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+      <module name="OG-Provider" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" value="" />
+      <option name="SUITE_NAME" value="" />
+      <option name="PACKAGE_NAME" value="com.opengamma.provider" />
       <option name="MAIN_CLASS_NAME" value="" />
       <option name="METHOD_NAME" value="" />
       <option name="GROUP_NAME" value="" />

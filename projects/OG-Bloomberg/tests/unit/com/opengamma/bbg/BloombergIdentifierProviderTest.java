@@ -21,6 +21,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.test.BloombergLiveDataServerUtils;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
@@ -35,7 +36,7 @@ import com.opengamma.master.historicaltimeseries.ExternalIdResolver;
 public class BloombergIdentifierProviderTest {
 
   private ExternalIdResolver _idProvider = null;
-  private CachingReferenceDataProvider _refDataProvider = null;
+  private ReferenceDataProvider _refDataProvider = null;
 
   @BeforeMethod
   public void setUp(Method m) throws Exception {

@@ -69,7 +69,7 @@ public:
 		FudgeMsgEnvelope_release (env);
 		FudgeMsg_release (msg);
 		LOGDEBUG (TEXT ("Writing connection packet"));
-		ASSERT (poPipe->Write (ptrBuffer, cbBuffer, TIMEOUT_CONNECT) == cbBuffer);
+		ASSERT (poPipe->Write (ptrBuffer, cbBuffer, TIMEOUT_CONNECT) == (size_t)cbBuffer);
 		LOGDEBUG (TEXT ("Connection packet written"));
 		delete ptrBuffer;
 		LOGDEBUG (TEXT ("Disconnecting"));

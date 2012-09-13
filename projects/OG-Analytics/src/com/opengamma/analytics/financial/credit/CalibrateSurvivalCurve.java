@@ -8,7 +8,11 @@ package com.opengamma.analytics.financial.credit;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.PresentValueCreditDefaultSwap;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class to calibrate a single-name CDS survival curve to market observed term structure of par CDS spreads
@@ -19,70 +23,135 @@ public class CalibrateSurvivalCurve {
 
   // ------------------------------------------------------------------------
 
-  // TODO : Lots of work to do in here - Work In Progress
-  // TODO : Check that length of the tenor and parCDSSpreads vectors are the same
-  // TODO : Check that the tenors are in ascending order
-  // TODO : Add the interpolation and extrapolation methods
+  // Set the tolerence for the root finder
+
+  private static final double DEFAULT_TOLERENCE = 1e-5;
+  private final double _tolerence;
+
+  public CalibrateSurvivalCurve() {
+    this(DEFAULT_TOLERENCE);
+  }
+
+  public CalibrateSurvivalCurve(double tolerence) {
+    _tolerence = tolerence;
+  }
 
   // ------------------------------------------------------------------------
 
+  // TODO : Lots of work to do in here - Work In Progress
+  // TODO : Add arg checkers to check that length of the tenor and parCDSSpreads vectors are the same
+  // TODO : Check that the tenors are in ascending order
+  // TODO : Check that the input par CDS spreads 'make sense' i.e. non-negative, NaN's etc
+  // TODO : Add the interpolation and extrapolation methods
+  // TODO : Is there a better way to set the tolerence?
+
+  // ------------------------------------------------------------------------
+
+  // Still a complete mess at the moment
+
   // Member function to calibrate a CDS objects survival curve to a term structure of market observed par CDS spreads
+  // The input CDS object has all the schedule etc settings for computing the CDS's PV's etc
+
   public double[][] getCalibratedSurvivalCurve(CreditDefaultSwapDefinition cds, ZonedDateTime[] tenors, double[] parCDSSpreads, YieldCurve yieldCurve) {
 
-    // Add argument checkers for the input arguments
+    // Check input CDS and YieldCurve objects are not null
+    ArgumentChecker.notNull(cds, "CDS field");
+    ArgumentChecker.notNull(tenors, "Tenors field");
+
+    // Check user data input is not null
+    ArgumentChecker.notNull(parCDSSpreads, "par CDS spreads field");
+    ArgumentChecker.notNull(yieldCurve, "YieldCurve field");
 
     int numberOfTenors = tenors.length;
     int numberOfSpreads = parCDSSpreads.length;
 
-    double[][] survivalCurve = new double[numberOfTenors][2];
+    ZonedDateTime valuationDate = cds.getValuationDate();
 
-    // Create a temporary CDS object identical to the input object
-    CreditDefaultSwapDefinition tempCDS = cds;
+    DayCount dayCount = cds.getDayCountFractionConvention();
 
-    // Main loop of calibration routine
-    for (int i = 0; i < numberOfTenors; i++) {
+    double[] test = convertDatesToDoubles(valuationDate, tenors, dayCount);
 
-      // Need to build a CDS with a tenor of tenor[i]
+    /*
+    for (int i = 0; i < test.length; i++) {
+      System.out.println("i = " + i + "\t" + tenors[i] + "\t" + test[i]);
+    }
+    */
 
-      ZonedDateTime maturityDate = cds.getMaturityDate();
-      ZonedDateTime tempMaturityDate = tempCDS.getMaturityDate();
+    // These are the calibrated piecewise constant hazard rates that we compute from the solver
+    double[] hazardRates = new double[numberOfTenors];
 
-      //final PresentValueCreditDefaultSwap runningCDS = new PresentValueCreditDefaultSwap();
-      //double pV = runningCDS.getPresentValueCreditDefaultSwap(cds);
+    double[][] calibratedSurvivalCurve = new double[numberOfTenors + 1][2];
+
+    double parSpread = 0.0;
+
+    calibratedSurvivalCurve[0][0] = 0.0;
+    calibratedSurvivalCurve[0][1] = 1.0;
+
+    // Create an object for getting the par spread of a CDS
+    final PresentValueCreditDefaultSwap bootstrapCDS = new PresentValueCreditDefaultSwap();
+
+    // Create a temporary CDS whose maturity will vary as we bootstrap the survival curve
+    CreditDefaultSwapDefinition currentCDS = cds;
+
+    //System.out.println("Initial maturity date = " + currentCDS.getMaturityDate());
+
+    // Create a survival curve
+    SurvivalCurve survivalCurve = new SurvivalCurve(tenors, hazardRates);
+
+    // Loop through each of the input tenors
+    for (int m = 0; m < numberOfTenors; m++) {
+
+      // Create vectors of size m to hold the first m tenors and haz rates
+      ZonedDateTime[] tempTenors = new ZonedDateTime[m];
+      double[] tempHazRates = new double[m];
+
+      // Copy the input tenors into the temp vector of size m (check limits of loop)
+      for (int i = 0; i < m; i++) {
+        tempTenors[i] = tenors[i];
+      }
+
+      for (int i = 0; i < m; i++) {
+        tempHazRates[i] = hazardRates[i];
+      }
+
+      // Build a CDS with maturity of tenor[m]
+      currentCDS = currentCDS.withMaturity(tenors[m]);
+
+      // up to this point we have h at tenors up to m - 1
+
+      // while (parCDSSpreads[m] - parSpread > tolerance) {
+
+      // guess h for tenor m (using the solver)
+
+      // Build a survival curve using the calibrated haz rates up to tenor m - 1
+      survivalCurve = survivalCurve.bootstrapHelperSurvivalCurve(tempTenors, tempHazRates);
+
+      // Calculate the par CDS spread for this guess for the haz rate term structure up to tenor[m]
+      parSpread = bootstrapCDS.getParSpreadCreditDefaultSwap(currentCDS, yieldCurve, survivalCurve);
+
+      // end of the while loop
+
+      // Record the hazard rate for tenor[m] of the term structure
+      //hazardRates[m] = h;
 
     }
 
-    return survivalCurve;
+    return calibratedSurvivalCurve;
   }
 
   // ------------------------------------------------------------------------
 
-  // Member function to get the survival probability at time t from a calibrated survival curve
-  public double getSurvivalProbability(double t) {
-
-    double survivalProbability = 0.0;
-
-    return survivalProbability;
-  }
-
-  // ------------------------------------------------------------------------
-
-  // Member function to get the hazard rate at time t from a calibrated survival curve
-  public double getHazardRate(double t) {
-
-    double hazardRate = 0.0;
-
-    return hazardRate;
-  }
-
-  // ------------------------------------------------------------------------
-
-  // Private member function to convert the input tenors into doubles
-  private double[] convertDatesToDoubles(ZonedDateTime[] tenors) {
+  // Private member function to convert the input ZonedDateTime tenors into doubles
+  private double[] convertDatesToDoubles(ZonedDateTime valuationDate, ZonedDateTime[] tenors, DayCount dayCount) {
 
     int numberOfTenors = tenors.length;
 
     double[] tenorsAsDoubles = new double[numberOfTenors];
+
+    for (int i = 0; i < numberOfTenors; i++) {
+
+      tenorsAsDoubles[i] = TimeCalculator.getTimeBetween(valuationDate, tenors[i], dayCount);
+    }
 
     return tenorsAsDoubles;
   }

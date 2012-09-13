@@ -25,6 +25,7 @@
     <ROW Property="ProductVersion" Value="1.0.0" Type="32"/>
     <ROW Property="RSTAT_FILE" Value="Tools for R"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
+    <ROW Property="TOOL_UI_FLAG" Value="-gui"/>
     <ROW Property="UpgradeCode" Value="{539AA424-1C4B-4B71-B78D-9FCC8FA9AAAB}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="NoJVM32:Windows 9x/ME#NoJVM64:Windows 9x/ME#JVM32:Windows 9x/ME#JVM64:Windows 9x/ME#MsiBuild:Windows 9x/ME" ValueLocId="-"/>
     <ROW Property="WindowsType9XDisplay" MultiBuildValue="NoJVM32:Windows 9x/ME#NoJVM64:Windows 9x/ME#JVM32:Windows 9x/ME#JVM64:Windows 9x/ME#MsiBuild:Windows 9x/ME" ValueLocId="-"/>
@@ -73,23 +74,23 @@
     <ROW Component="www" ComponentId="{2C985653-D51E-4E3D-8974-34CEDD1200C8}" Directory_="APPDIR" Attributes="4" KeyPath="www"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
-    <ROW Feature="JRE32" Title="32-bit Java Runtime" Description="The 32-bit Java runtime libraries" Display="3" Level="4" Directory_="APPDIR" Attributes="8" Options="32" Components="jre32" Builds="JVM32"/>
-    <ROW Feature="JRE64" Title="64-bit Java Runtime" Description="The 64-bit Java runtime libraries" Display="5" Level="4" Directory_="APPDIR" Attributes="8" Options="32" Components="jre64" Builds="JVM64"/>
+    <ROW Feature="JRE32" Title="32-bit Java Runtime" Description="The 32-bit Java runtime libraries" Display="3" Level="1" Directory_="APPDIR" Attributes="8" Components="jre32" Builds="JVM32"/>
+    <ROW Feature="JRE64" Title="64-bit Java Runtime" Description="The 64-bit Java runtime libraries" Display="5" Level="1" Directory_="APPDIR" Attributes="8" Components="jre64" Builds="JVM64"/>
     <ROW Feature="MSVC32" Feature_Parent="og_language_core" Title="32-bit C++ Runtime" Description="The 32-bit C++ runtime libraries" Display="0" Level="1" Directory_="APPDIR" Attributes="8" Components="msvc32"/>
     <ROW Feature="MSVC64" Feature_Parent="og_language_core" Title="64-bit C++ Runtime" Description="The 64-bit C++ runtime libraries" Display="0" Level="1" Directory_="APPDIR" Attributes="8" Components="msvc64" Builds="NoJVM64;JVM64"/>
     <ROW Feature="common" Title="OpenGamma Server" Description="The core files for the OpenGamma engine server" Display="9" Level="1" Directory_="APPDIR" Attributes="8" Components="common config fullstack temp toolcontext"/>
     <ROW Feature="common32" Feature_Parent="common" Title="32-bit Service" Description="The 32-bit executables for the OpenGamma engine" Display="0" Level="1" Directory_="APPDIR" Attributes="8" Components="common32" Builds="NoJVM32;JVM32"/>
     <ROW Feature="common64" Feature_Parent="common" Title="64-bit Service" Description="The 64-bit executables for the OpenGamma engine" Display="0" Level="1" Directory_="APPDIR" Attributes="8" Components="common64" Builds="NoJVM64;JVM64"/>
-    <ROW Feature="og_bloombergexample" Feature_Parent="common" Title="Bloomberg Example" Description="The example engine service connected to Bloomberg market data" Display="5" Level="4" Directory_="APPDIR" Attributes="8" Options="32" Components="og_bloombergexample og_bloombergexample_start" Builds="MsiBuild"/>
-    <ROW Feature="og_examples" Feature_Parent="common" Title="Basic Example" Description="The basic example engine service connected to simulated market data" Display="3" Level="4" Directory_="APPDIR" Attributes="8" Options="32" Components="og_examples og_examples_start" Builds="MsiBuild"/>
-    <ROW Feature="og_excel" Feature_Parent="og_language_core" Title="Tools for Microsoft Excel" Description="Microsoft Excel add-in supporting access to OpenGamma from worksheets and VBA" Display="3" Level="4" Directory_="APPDIR" Attributes="8" Options="32" Components="ExcelLogging og_excel" Builds="MsiBuild"/>
-    <ROW Feature="og_excel_32" Feature_Parent="og_excel" Title="32-bit Add-in" Description="Support for 32-bit versions of Microsoft Excel" Display="3" Level="4" Directory_="APPDIR" Attributes="8" Options="32" Components="og_excel_32" Builds="MsiBuild"/>
-    <ROW Feature="og_excel_64" Feature_Parent="og_excel" Title="64-bit Add-in" Description="Support for 64-bit versions of Microsoft Excel" Display="5" Level="4" Directory_="APPDIR" Attributes="8" Options="32" Components="og_excel_64" Builds="MsiBuild"/>
+    <ROW Feature="og_bloombergexample" Feature_Parent="common" Title="Bloomberg Example" Description="The example engine service connected to Bloomberg market data" Display="5" Level="4" Directory_="APPDIR" Attributes="8" Components="og_bloombergexample og_bloombergexample_start" Builds="MsiBuild"/>
+    <ROW Feature="og_examples" Feature_Parent="common" Title="Basic Example" Description="The basic example engine service connected to simulated market data" Display="3" Level="1" Directory_="APPDIR" Attributes="8" Components="og_examples og_examples_start" Builds="MsiBuild"/>
+    <ROW Feature="og_excel" Feature_Parent="og_language_core" Title="Tools for Microsoft Excel" Description="Microsoft Excel add-in supporting access to OpenGamma from worksheets and VBA" Display="3" Level="4" Directory_="APPDIR" Attributes="8" Components="ExcelLogging og_excel" Builds="MsiBuild"/>
+    <ROW Feature="og_excel_32" Feature_Parent="og_excel" Title="32-bit Add-in" Description="Support for 32-bit versions of Microsoft Excel" Display="3" Level="4" Directory_="APPDIR" Attributes="8" Components="og_excel_32" Builds="MsiBuild"/>
+    <ROW Feature="og_excel_64" Feature_Parent="og_excel" Title="64-bit Add-in" Description="Support for 64-bit versions of Microsoft Excel" Display="5" Level="4" Directory_="APPDIR" Attributes="8" Components="og_excel_64" Builds="MsiBuild"/>
     <ROW Feature="og_language_32" Feature_Parent="og_language_core" Title="32-bit Service" Description="Support for a 32-bit Java Runtime Environment" Display="0" Level="1" Directory_="APPDIR" Attributes="8" Components="og_language_32" Builds="MsiBuild"/>
     <ROW Feature="og_language_64" Feature_Parent="og_language_core" Title="64-bit Service" Description="Support for a 64-bit Java Runtime Environment" Display="0" Level="1" Directory_="APPDIR" Attributes="8" Components="og_language_64" Builds="MsiBuild"/>
-    <ROW Feature="og_language_core" Title="Client Tools" Description="The Language Integration service" Display="7" Level="4" Directory_="APPDIR" Attributes="8" Options="32" Components="LangLogging og_language_core" Builds="MsiBuild"/>
+    <ROW Feature="og_language_core" Title="Client Tools" Description="The Language Integration service" Display="7" Level="4" Directory_="APPDIR" Attributes="8" Components="LangLogging og_language_core" Builds="MsiBuild"/>
     <ROW Feature="og_language_sdk" Feature_Parent="og_language_core" Title="Language Integration SDK" Description="Header files and libraries for application development against the Language Integration Service" Display="7" Level="4" Directory_="APPDIR" Attributes="8" Components="og_language_sdk" Builds="MsiBuild"/>
-    <ROW Feature="og_rstats" Feature_Parent="og_language_core" Title="Tools for R" Description="Provides access to the OpenGamma platform from the R environment" Display="5" Level="4" Directory_="APPDIR" Attributes="8" Options="32" Components="RStatLogging og_rstats" Builds="MsiBuild"/>
+    <ROW Feature="og_rstats" Feature_Parent="og_language_core" Title="Tools for R" Description="Provides access to the OpenGamma platform from the R environment" Display="5" Level="4" Directory_="APPDIR" Attributes="8" Components="RStatLogging og_rstats" Builds="MsiBuild"/>
     <ROW Feature="www" Feature_Parent="common" Title="Web Interface" Description="Support for browser based interface to an OpenGamma server" Display="7" Level="1" Directory_="APPDIR" Attributes="8" Components="www" Builds="MsiBuild"/>
     <ATTRIBUTE name="CurrentFeature" value="og_excel"/>
   </COMPONENT>
@@ -152,9 +153,9 @@
     <ROW Property="JRE_64" Signature_="AppSearchSign_1"/>
     <ROW Property="EXCEL_14_32" Signature_="AppSearchSign_10"/>
     <ROW Property="BLOOMBERG_SAPI_PORT" Signature_="AppSearchSign_2"/>
-    <ROW Property="R_32" Signature_="AppSearchSign_4"/>
-    <ROW Property="R_64" Signature_="AppSearchSign_5"/>
-    <ROW Property="R_32_INVALID" Signature_="AppSearchSign_5_1"/>
+    <ROW Property="R32_PATH" Signature_="AppSearchSign_4"/>
+    <ROW Property="R64_PATH" Signature_="AppSearchSign_5"/>
+    <ROW Property="R32_INVALID" Signature_="AppSearchSign_5_1"/>
     <ROW Property="EXCEL_12_32" Signature_="AppSearchSign_6"/>
     <ROW Property="EXCEL_14_64" Signature_="AppSearchSign_7"/>
   </COMPONENT>
@@ -168,16 +169,15 @@
     <ROW Name="xmlCfg.dll" SourcePath="&lt;AI_CUSTACTS&gt;xmlCfg.dll"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiConditionComponent">
-    <ROW Feature_="JRE32" Level="0" Condition="NOT VersionNT64"/>
-    <ROW Feature_="JRE32" Level="1" Condition="NOT JRE_32" Options="1"/>
-    <ROW Feature_="JRE64" Level="1" Condition="NOT JRE_64" Options="1"/>
-    <ROW Feature_="og_language_core" Level="1" Condition="EXCEL_12_32 OR EXCEL_14_32 OR EXCEL_14_64 OR R_32 OR R_64" Options="1"/>
-    <ROW Feature_="og_excel" Level="1" Condition="EXCEL_12_32 OR EXCEL_14_32 OR EXCEL_14_64" Options="1"/>
-    <ROW Feature_="og_excel_32" Level="1" Condition="EXCEL_12_32 OR EXCEL_14_32" Options="1"/>
-    <ROW Feature_="og_excel_64" Level="1" Condition="EXCEL_14_64" Options="1"/>
-    <ROW Feature_="og_rstats" Level="1" Condition="R_32 OR R_64" Options="1"/>
-    <ROW Feature_="og_examples" Level="1" Condition="NOT BLOOMBERG_SAPI_PORT" Options="1"/>
-    <ROW Feature_="og_bloombergexample" Level="1" Condition="BLOOMBERG_SAPI_PORT" Options="1"/>
+    <ROW Feature_="og_bloombergexample" Level="1" Condition="BLOOMBERG_SAPI_PORT"/>
+    <ROW Feature_="JRE32" Level="4" Condition="JRE_32"/>
+    <ROW Feature_="JRE64" Level="4" Condition="JRE_64"/>
+    <ROW Feature_="og_language_core" Level="1" Condition="EXCEL_12_32 OR EXCEL_14_32 OR EXCEL_14_64 OR R32_PATH OR R64_PATH"/>
+    <ROW Feature_="og_excel" Level="1" Condition="EXCEL_12_32 OR EXCEL_14_32 OR EXCEL_14_64"/>
+    <ROW Feature_="og_excel_32" Level="1" Condition="EXCEL_12_32 OR EXCEL_14_32"/>
+    <ROW Feature_="og_excel_64" Level="1" Condition="EXCEL_14_64"/>
+    <ROW Feature_="og_rstats" Level="1" Condition="R32_PATH OR R64_PATH"/>
+    <ROW Feature_="og_examples" Level="4" Condition="BLOOMBERG_SAPI_PORT"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiControlComponent">
     <ROW Dialog_="CustomizeDlg" Control="Tree" Type="SelectionTree" X="25" Y="85" Width="175" Height="95" Attributes="7" Property="_BrowseProperty" Text="Tree of selections" Order="100" TextLocId="Control.Text.CustomizeDlg#Tree" MsiKey="CustomizeDlg#Tree"/>
@@ -235,9 +235,9 @@
     <ROW Dialog_="VerifyRepairDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT AND InstallMode = &quot;Repair&quot;" Ordering="1"/>
     <ROW Dialog_="MaintenanceTypeDlg" Control_="RemoveButton" Event="NewDialog" Argument="VerifyRemoveDlg" Condition="AI_MAINT AND InstallMode = &quot;Remove&quot;" Ordering="601"/>
     <ROW Dialog_="MaintenanceTypeDlg" Control_="RepairButton" Event="NewDialog" Argument="VerifyRepairDlg" Condition="AI_MAINT AND InstallMode = &quot;Repair&quot;" Ordering="601"/>
-    <ROW Dialog_="SetupTypeDlg" Control_="TypicalButton" Event="DoAction" Argument="RNotVisible" Condition="AI_INSTALL AND ( R_32_INVALID AND NOT R_32 AND NOT R_64 )" Ordering="208"/>
-    <ROW Dialog_="SetupTypeDlg" Control_="CustomButton" Event="DoAction" Argument="RNotVisible" Condition="AI_INSTALL AND ( R_32_INVALID AND NOT R_32 AND NOT R_64 )" Ordering="102"/>
-    <ROW Dialog_="SetupTypeDlg" Control_="CompleteButton" Event="DoAction" Argument="RNotVisible" Condition="AI_INSTALL AND ( R_32_INVALID AND NOT R_32 AND NOT R_64 )" Ordering="208"/>
+    <ROW Dialog_="SetupTypeDlg" Control_="TypicalButton" Event="DoAction" Argument="RNotVisible" Condition="AI_INSTALL AND ( R32_INVALID AND NOT R32_PATH AND NOT R64_PATH )" Ordering="208"/>
+    <ROW Dialog_="SetupTypeDlg" Control_="CustomButton" Event="DoAction" Argument="RNotVisible" Condition="AI_INSTALL AND ( R32_INVALID AND NOT R32_PATH AND NOT R64_PATH )" Ordering="102"/>
+    <ROW Dialog_="SetupTypeDlg" Control_="CompleteButton" Event="DoAction" Argument="RNotVisible" Condition="AI_INSTALL AND ( R32_INVALID AND NOT R32_PATH AND NOT R64_PATH )" Ordering="208"/>
     <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="DoAction" Argument="BloombergLogin" Condition="&amp;og_bloombergexample=3 AND BLOOMBERG_SAPI_PORT" Ordering="199"/>
     <ATTRIBUTE name="DeletedRows" value="CustomizeDlg#Browse#SelectionBrowse#BrowseDlg#1"/>
   </COMPONENT>
@@ -275,19 +275,20 @@
     <ROW Action="AI_XmlRollback" Type="11521" Source="xmlCfg.dll" Target="OnXmlRollback" WithoutSeq="true"/>
     <ROW Action="AI_XmlUninstall" Type="1" Source="xmlCfg.dll" Target="OnXmlUninstall"/>
     <ROW Action="BloombergDataUsed" Type="38" Target="MsgBox &quot;The engine will be configured to run from Bloomberg data.&quot;, vbOKOnly + vbInformation, &quot;Bloomberg Example Engine&quot;" WithoutSeq="true"/>
-    <ROW Action="BloombergExample" Type="1058" Source="APPDIR" Target="&quot;[APPDIR]bin\Wait for Startup.exe&quot; -t &quot;OpenGamma Example Server&quot; -s BloombergExample"/>
+    <ROW Action="BloombergExample" Type="1058" Source="APPDIR" Target="&quot;[APPDIR]bin\Wait for Startup.exe&quot; -t &quot;OpenGamma Example Server&quot; -s BloombergExample [TOOL_UI_FLAG]"/>
     <ROW Action="BloombergInstalledNotUsed" Type="38" Target="MsgBox &quot;Bloomberg was not found - components will still be installed but the simulated market data engine used by default.&quot;, vbOKOnly + vbExclamation, &quot;Bloomberg Example Engine&quot;" WithoutSeq="true"/>
     <ROW Action="BloombergLogin" Type="38" Target="MsgBox &quot;During installation reference data will be loaded from Bloomberg. If you are not logged into Bloomberg please do so before continuing.&quot;, vbOKOnly + vbInformation, &quot;Bloomberg Example Engine&quot;" WithoutSeq="true"/>
     <ROW Action="OG_LANGUAGE_EXT_1" Type="51" Source="OG_LANGUAGE_EXT" Target="[CommonAppDataFolder][M_FILE]\[LANG_FILE]\ext"/>
     <ROW Action="OG_LANGUAGE_EXT_2" Type="51" Source="OG_LANGUAGE_EXT" Target="[CommonAppDataFolder][M_FILE]\[LANG_FILE]\ext"/>
     <ROW Action="OG_LANGUAGE_JAR_1" Type="51" Source="OG_LANGUAGE_JAR" Target="[CommonAppDataFolder][M_FILE]\[LANG_FILE]"/>
     <ROW Action="OG_LANGUAGE_JAR_2" Type="51" Source="OG_LANGUAGE_JAR" Target="[CommonAppDataFolder][M_FILE]\[LANG_FILE]"/>
-    <ROW Action="OpenGammaExample" Type="1058" Source="APPDIR" Target="&quot;[APPDIR]bin\Wait for Startup.exe&quot; -t &quot;OpenGamma Example Server&quot; -s OpenGammaExample"/>
+    <ROW Action="OpenGammaExample" Type="1058" Source="APPDIR" Target="&quot;[APPDIR]bin\Wait for Startup.exe&quot; -t &quot;OpenGamma Example Server&quot; -s OpenGammaExample [TOOL_UI_FLAG]"/>
     <ROW Action="RNotVisible" Type="38" Target="MsgBox &quot;The R installation is not visible to the 32-bit installer.&quot;, vbOKOnly + vbExclamation, &quot;Tools for R&quot;" WithoutSeq="true"/>
     <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder][Manufacturer]\[ProductName]" MultiBuildTarget="NoJVM64:[ProgramFiles64Folder][Manufacturer]\[ProductName]#JVM64:[ProgramFiles64Folder][Manufacturer]\[ProductName]"/>
     <ROW Action="SET_SHORTCUTDIR" Type="307" Source="SHORTCUTDIR" Target="[ProgramMenuFolder][ProductName]"/>
     <ROW Action="SET_TARGETDIR_TO_APPDIR" Type="51" Source="TARGETDIR" Target="[APPDIR]"/>
     <ROW Action="SimulatedMarketDataUsed" Type="38" Target="MsgBox &quot;The engine will be configured to run from simulated market and historical data.&quot;, vbOKOnly + vbInformation, &quot;Example Engine&quot;" WithoutSeq="true"/>
+    <ROW Action="TOOL_UI_FLAG" Type="51" Source="TOOL_UI_FLAG" Target="-silent"/>
     <ROW Action="viewer.exe" Type="1730" Source="viewer.exe" Target="http://localhost:8080/"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiEventMappingComponent">
@@ -302,8 +303,8 @@
     <ROW Action="AI_STORE_LOCATION" Condition="(Not Installed) OR REINSTALL" Sequence="1501"/>
     <ROW Action="AI_PREPARE_UPGRADE" Condition="AI_UPGRADE=&quot;No&quot; AND (Not Installed)" Sequence="1399"/>
     <ROW Action="AI_ResolveKnownFolders" Sequence="52"/>
-    <ROW Action="OG_LANGUAGE_EXT_2" Sequence="202"/>
-    <ROW Action="OG_LANGUAGE_JAR_2" Sequence="201"/>
+    <ROW Action="OG_LANGUAGE_EXT_2" Sequence="203"/>
+    <ROW Action="OG_LANGUAGE_JAR_2" Sequence="202"/>
     <ROW Action="AI_XmlInstall" Condition="(REMOVE &lt;&gt; &quot;ALL&quot;)" Sequence="5102"/>
     <ROW Action="AI_XmlUninstall" Condition="(REMOVE)" Sequence="3101"/>
     <ROW Action="AI_TxtUpdaterInstall" Sequence="5101"/>
@@ -312,6 +313,7 @@
     <ROW Action="OpenGammaExample" Condition="( NOT Installed ) AND ( $og_examples_start=3 )" Sequence="5851"/>
     <ROW Action="viewer.exe" Condition="( NOT Installed ) AND ( &amp;www=3 AND  ( &amp;og_bloombergexample=3 OR &amp;og_examples=3) AND  UILevel&gt;=4 )" Sequence="5969"/>
     <ROW Action="AI_ResolveLocalizedCredentials" Sequence="51"/>
+    <ROW Action="TOOL_UI_FLAG" Condition="( NOT Installed ) AND ( UILevel&lt;4 )" Sequence="201"/>
     <ROW Action="AI_AiRemoveFilesImmediate" Sequence="3499"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstallUISequenceComponent">
@@ -338,12 +340,12 @@
     <ROW Module="OG_Language_SDK.msm" Path="..\install\install\OG-Language-SDK.msm" Feature="og_language_sdk" Directory="APPDIR"/>
     <ROW Module="OG_Language_i386.msm" Path="..\install\install\OG-Language-i386.msm" Feature="og_language_32" Directory="APPDIR"/>
     <ROW Module="OG_Language_x64.msm" Path="..\install\install\OG-Language-x64.msm" Feature="og_language_64" Directory="APPDIR"/>
-    <ROW Module="OG_RStats.msm" Path="..\install\install\OG-RStats.msm" Feature="og_rstats" Directory="APPDIR" Params="OG_LANGUAGE_EXT=[OG_LANGUAGE_EXT];OG_LANGUAGE_JAR=[OG_LANGUAGE_JAR];R32_PATH=[R_32];R64_PATH=[R_64];"/>
+    <ROW Module="OG_RStats.msm" Path="..\install\install\OG-RStats.msm" Feature="og_rstats" Directory="APPDIR" Params="OG_LANGUAGE_EXT=[OG_LANGUAGE_EXT];OG_LANGUAGE_JAR=[OG_LANGUAGE_JAR];R32_PATH=[R32_PATH];R64_PATH=[R64_PATH];"/>
     <ROW Module="common.msm" Path="build\common.msm" Feature="common" Directory="APPDIR"/>
     <ROW Module="common32.msm" Path="build\common32.msm" Feature="common32" Directory="APPDIR"/>
     <ROW Module="common64.msm" Path="build\common64.msm" Feature="common64" Directory="APPDIR"/>
-    <ROW Module="og_bloombergexample.msm" Path="build\og_bloombergexample.msm" Feature="og_bloombergexample" Directory="APPDIR" Params="JAVA_XMX=[JAVA_XMX];"/>
-    <ROW Module="og_examples.msm" Path="build\og_examples.msm" Feature="og_examples" Directory="APPDIR" Params="JAVA_XMX=[JAVA_XMX];"/>
+    <ROW Module="og_bloombergexample.msm" Path="build\og_bloombergexample.msm" Feature="og_bloombergexample" Directory="APPDIR"/>
+    <ROW Module="og_examples.msm" Path="build\og_examples.msm" Feature="og_examples" Directory="APPDIR"/>
     <ROW Module="www.msm" Path="build\www.msm" Feature="www" Directory="APPDIR"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiRegLocatorComponent">
@@ -438,6 +440,24 @@
     <ROW XmlElement="24" Name="class" Flags="14" Order="0" Value="ch.qos.logback.classic.PatternLayout"/>
     <ROW XmlElement="16" Name="name" Flags="14" Order="0" Value="FILE"/>
     <ROW XmlElement="16" Name="class" Flags="14" Order="1" Value="ch.qos.logback.core.rolling.RollingFileAppender"/>
+    <ROW XmlElement="26" Name="name" Flags="14" Order="0" Value="INSTALL"/>
+    <ROW XmlElement="26" Name="class" Flags="14" Order="1" Value="com.opengamma.install.feedback.Logback"/>
+    <ROW XmlElement="27" Name="class" Flags="14" Order="0" Value="ch.qos.logback.classic.PatternLayout"/>
+    <ROW XmlElement="29" Name="name" Flags="14" Order="0" Value="com.opengamma.bloombergexample.tool.ExampleDatabasePopulator"/>
+    <ROW XmlElement="29" Name="level" Flags="14" Order="1" Value="info"/>
+    <ROW XmlElement="30" Name="ref" Flags="14" Order="0" Value="INSTALL"/>
+    <ROW XmlElement="31" Name="name" Flags="14" Order="0" Value="com.opengamma.util.test.DbTool"/>
+    <ROW XmlElement="31" Name="level" Flags="14" Order="1" Value="info"/>
+    <ROW XmlElement="32" Name="ref" Flags="14" Order="0" Value="INSTALL"/>
+    <ROW XmlElement="33" Name="name" Flags="14" Order="0" Value="INSTALL"/>
+    <ROW XmlElement="33" Name="class" Flags="14" Order="1" Value="com.opengamma.install.feedback.Logback"/>
+    <ROW XmlElement="34" Name="class" Flags="14" Order="0" Value="ch.qos.logback.classic.PatternLayout"/>
+    <ROW XmlElement="36" Name="name" Flags="14" Order="0" Value="com.opengamma.examples.tool.ExampleDatabasePopulator"/>
+    <ROW XmlElement="36" Name="level" Flags="14" Order="1" Value="info"/>
+    <ROW XmlElement="37" Name="ref" Flags="14" Order="0" Value="INSTALL"/>
+    <ROW XmlElement="38" Name="name" Flags="14" Order="0" Value="com.opengamma.util.test.DbTool"/>
+    <ROW XmlElement="38" Name="level" Flags="14" Order="1" Value="info"/>
+    <ROW XmlElement="39" Name="ref" Flags="14" Order="0" Value="INSTALL"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.XmlElementComponent">
     <ROW XmlElement="0" Name="configuration" Order="0" Flags="30"/>
@@ -451,10 +471,10 @@
     <ROW XmlElement="8" ParentElement="7" Name="Pattern" Order="0" Flags="14" Text="%date [\[]%thread[\]] %-5level %logger{36} - %msg%n"/>
     <ROW XmlElement="9" ParentElement="1" Name="triggeringPolicy" Order="2" Flags="14"/>
     <ROW XmlElement="10" ParentElement="9" Name="maxFileSize" Order="0" Flags="14" Text="50MB"/>
-    <ROW XmlElement="11" ParentElement="0" Name="root" Order="1" Flags="14"/>
+    <ROW XmlElement="11" ParentElement="0" Name="root" Order="2" Flags="14"/>
     <ROW XmlElement="12" ParentElement="11" Name="appender-ref" Order="0" Flags="14"/>
     <ROW XmlElement="13" Name="configuration" Order="0" Flags="30"/>
-    <ROW XmlElement="14" ParentElement="13" Name="root" Order="1" Flags="14"/>
+    <ROW XmlElement="14" ParentElement="13" Name="root" Order="2" Flags="14"/>
     <ROW XmlElement="15" ParentElement="14" Name="appender-ref" Order="0" Flags="14"/>
     <ROW XmlElement="16" ParentElement="13" Name="appender" Order="0" Flags="14"/>
     <ROW XmlElement="17" ParentElement="16" Name="rollingPolicy" Order="1" Flags="14"/>
@@ -466,6 +486,20 @@
     <ROW XmlElement="23" ParentElement="16" Name="file" Order="0" Flags="14" Text="[APPDIR]log\example.log"/>
     <ROW XmlElement="24" ParentElement="16" Name="layout" Order="3" Flags="14"/>
     <ROW XmlElement="25" ParentElement="24" Name="Pattern" Order="0" Flags="14" Text="%date [\[]%thread[\]] %-5level %logger{36} - %msg%n"/>
+    <ROW XmlElement="26" ParentElement="0" Name="appender" Order="1" Flags="14"/>
+    <ROW XmlElement="27" ParentElement="26" Name="layout" Order="0" Flags="14"/>
+    <ROW XmlElement="28" ParentElement="27" Name="Pattern" Order="0" Flags="14" Text="%msg"/>
+    <ROW XmlElement="29" ParentElement="0" Name="logger" Order="3" Flags="14"/>
+    <ROW XmlElement="30" ParentElement="29" Name="appender-ref" Order="0" Flags="14"/>
+    <ROW XmlElement="31" ParentElement="0" Name="logger" Order="4" Flags="14"/>
+    <ROW XmlElement="32" ParentElement="31" Name="appender-ref" Order="0" Flags="14"/>
+    <ROW XmlElement="33" ParentElement="13" Name="appender" Order="1" Flags="14"/>
+    <ROW XmlElement="34" ParentElement="33" Name="layout" Order="0" Flags="14"/>
+    <ROW XmlElement="35" ParentElement="34" Name="Pattern" Order="0" Flags="14" Text="%msg"/>
+    <ROW XmlElement="36" ParentElement="13" Name="logger" Order="3" Flags="14"/>
+    <ROW XmlElement="37" ParentElement="36" Name="appender-ref" Order="0" Flags="14"/>
+    <ROW XmlElement="38" ParentElement="13" Name="logger" Order="4" Flags="14"/>
+    <ROW XmlElement="39" ParentElement="38" Name="appender-ref" Order="0" Flags="14"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.XmlFileComponent">
     <ROW XmlFile="bloombergexample_logback.xml" FileName="bloomb~1.xml|bloombergexample-logback.xml" DirProperty="config_Dir" Component="og_bloombergexample" RootElement="0" Flags="89" Version="1.0" Encoding="UTF-8" IndentUnits="2"/>

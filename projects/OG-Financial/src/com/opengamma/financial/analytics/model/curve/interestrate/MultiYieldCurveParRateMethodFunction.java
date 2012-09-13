@@ -132,7 +132,7 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
       for (final FixedIncomeStripWithSecurity strip : spec.getStrips()) {
         final Double marketValue = marketDataMap.get(strip.getSecurityIdentifier());
         if (marketValue == null) {
-          throw new OpenGammaRuntimeException("Could not get market data for " + strip);
+          throw new OpenGammaRuntimeException("Could not get market data for " + strip.getSecurityIdentifier());
         }
         final Security security = strip.getSecurity();
         final String[] curveNamesForSecurity = curveCalculationConfig.getCurveExposureForInstrument(curveName, strip.getInstrumentType());
@@ -172,7 +172,7 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MultipleYieldCurveFinderIRSJacobian(data, PAR_SPREAD_RATE_SENSITIVITY_CALCULATOR);
     final double[] fittedYields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess.toDoubleArray())).getData();
     final DoubleMatrix2D jacobianMatrix = jacobianCalculator.evaluate(new DoubleMatrix1D(fittedYields));
-    final ValueProperties properties = getProperties(curveCalculationConfigName, absoluteToleranceName, relativeToleranceName, iterationsName,
+    final ValueProperties properties = getJacobianProperties(curveCalculationConfigName, absoluteToleranceName, relativeToleranceName, iterationsName,
         decompositionName, useFiniteDifferenceName);
     results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_JACOBIAN, targetSpec, properties), jacobianMatrix.getData()));
     int i = 0;
@@ -192,7 +192,7 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
   }
 
   @Override
-  protected ValueProperties getProperties() {
+  protected ValueProperties getJacobianProperties() {
     return createValueProperties()
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, PAR_RATE_STRING)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
@@ -217,7 +217,7 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
   }
 
   @Override
-  protected ValueProperties getProperties(final String curveCalculationConfigName) {
+  protected ValueProperties getJacobianProperties(final String curveCalculationConfigName) {
     return createValueProperties()
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, PAR_RATE_STRING)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
@@ -242,7 +242,7 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
   }
 
   @Override
-  protected ValueProperties getProperties(final String curveCalculationConfigName, final String absoluteTolerance, final String relativeTolerance, final String maxIterations,
+  protected ValueProperties getJacobianProperties(final String curveCalculationConfigName, final String absoluteTolerance, final String relativeTolerance, final String maxIterations,
       final String decomposition, final String useFiniteDifference) {
     return createValueProperties()
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, PAR_RATE_STRING)

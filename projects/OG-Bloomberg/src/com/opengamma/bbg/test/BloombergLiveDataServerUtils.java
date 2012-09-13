@@ -10,15 +10,16 @@ import java.lang.reflect.Method;
 import net.sf.ehcache.CacheManager;
 
 import com.opengamma.bbg.BloombergConnector;
-import com.opengamma.bbg.BloombergReferenceDataProvider;
-import com.opengamma.bbg.CachingReferenceDataProvider;
-import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.livedata.BloombergLiveDataServer;
 import com.opengamma.bbg.livedata.faketicks.CombiningBloombergLiveDataServer;
 import com.opengamma.bbg.livedata.faketicks.FakeSubscriptionBloombergLiveDataServer;
 import com.opengamma.bbg.livedata.faketicks.FakeSubscriptionSelector;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
+import com.opengamma.bbg.referencedata.cache.AbstractInvalidFieldCachingReferenceDataProvider;
+import com.opengamma.bbg.referencedata.cache.AbstractValueCachingReferenceDataProvider;
+import com.opengamma.bbg.referencedata.impl.BloombergReferenceDataProvider;
 import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
-import com.opengamma.livedata.server.AbstractLiveDataServer;
+import com.opengamma.livedata.server.StandardLiveDataServer;
 import com.opengamma.livedata.server.CombiningLiveDataServer;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
@@ -33,7 +34,7 @@ public class BloombergLiveDataServerUtils {
    * @param testMethod  the test method, not null
    * @return the data provider, not null
    */
-  public static CachingReferenceDataProvider getCachingReferenceDataProvider(Method testMethod) {
+  public static ReferenceDataProvider getCachingReferenceDataProvider(Method testMethod) {
     return getCachingReferenceDataProvider(testMethod.getClass());
   }
 
@@ -43,7 +44,7 @@ public class BloombergLiveDataServerUtils {
    * @param testClass  the test class, not null
    * @return the data provider, not null
    */
-  public static CachingReferenceDataProvider getCachingReferenceDataProvider(Class<?> testClass) {
+  public static ReferenceDataProvider getCachingReferenceDataProvider(Class<?> testClass) {
     BloombergReferenceDataProvider brdp = getUnderlyingProvider();
     return getCachingReferenceDataProvider(brdp, testClass);
   }
@@ -55,7 +56,7 @@ public class BloombergLiveDataServerUtils {
    * @param testClass  the test class, not null
    * @return the data provider, not null
    */
-  private static CachingReferenceDataProvider getCachingReferenceDataProvider(ReferenceDataProvider underlying, Class<?> testClass) {
+  private static ReferenceDataProvider getCachingReferenceDataProvider(ReferenceDataProvider underlying, Class<?> testClass) {
     return MongoCachedReferenceData.makeMongoProvider(underlying, testClass);
   }
 
@@ -72,18 +73,21 @@ public class BloombergLiveDataServerUtils {
   }
 
   /**
-   * Stops the specified reference data provider.
+   * Stops the specified reference data provider, as best as possible.
    * 
    * @param refDataProvider  the provider to stop, null ignored
    */
-  public static void stopCachingReferenceDataProvider(CachingReferenceDataProvider refDataProvider) {
+  public static void stopCachingReferenceDataProvider(ReferenceDataProvider refDataProvider) {
     if (refDataProvider != null) {
-      ReferenceDataProvider underlying = refDataProvider.getUnderlying();
-      if (underlying instanceof CachingReferenceDataProvider) {
-        stopCachingReferenceDataProvider((CachingReferenceDataProvider) underlying);
-      } else if (underlying instanceof BloombergReferenceDataProvider) {
-        BloombergReferenceDataProvider bbgProvider = (BloombergReferenceDataProvider) refDataProvider.getUnderlying();
+      if (refDataProvider instanceof BloombergReferenceDataProvider) {
+        BloombergReferenceDataProvider bbgProvider = (BloombergReferenceDataProvider) refDataProvider;
         bbgProvider.stop();
+        
+      } else if (refDataProvider instanceof AbstractValueCachingReferenceDataProvider) {
+        stopCachingReferenceDataProvider(((AbstractValueCachingReferenceDataProvider) refDataProvider).getUnderlying());
+        
+      } else if (refDataProvider instanceof AbstractInvalidFieldCachingReferenceDataProvider) {
+        stopCachingReferenceDataProvider(((AbstractInvalidFieldCachingReferenceDataProvider) refDataProvider).getUnderlying());
       }
     }
   }
@@ -94,16 +98,16 @@ public class BloombergLiveDataServerUtils {
   }
 
   public static BloombergLiveDataServer startTestServer(Class<?> testClass) {
-    CachingReferenceDataProvider refDataProvider = getCachingReferenceDataProvider(testClass);
+    ReferenceDataProvider refDataProvider = getCachingReferenceDataProvider(testClass);
     return getTestServer(refDataProvider);
   }
 
   public static void stopTestServer(BloombergLiveDataServer testServer) {
-    stopCachingReferenceDataProvider(testServer.getCachingReferenceDataProvider());
+    stopCachingReferenceDataProvider(testServer.getReferenceDataProvider());
     testServer.stop();
   }
 
-  public static BloombergLiveDataServer getTestServer(CachingReferenceDataProvider cachingRefDataProvider) {
+  public static BloombergLiveDataServer getTestServer(ReferenceDataProvider cachingRefDataProvider) {
     
     BloombergLiveDataServer server = new BloombergLiveDataServer(BloombergTestUtils.getBloombergConnector(), cachingRefDataProvider, EHCacheUtils.createCacheManager());
     DistributionSpecificationResolver distributionSpecificationResolver = server.getDefaultDistributionSpecificationResolver();
@@ -114,7 +118,7 @@ public class BloombergLiveDataServerUtils {
   }
 
   public static CombiningBloombergLiveDataServer startTestServer(Class<?> testClass, FakeSubscriptionSelector subscriptionSelector, ReferenceDataProvider refDataProvider) {
-    CachingReferenceDataProvider cachingRefDataProvider = getCachingReferenceDataProvider(refDataProvider, testClass);
+    ReferenceDataProvider cachingRefDataProvider = getCachingReferenceDataProvider(refDataProvider, testClass);
     BloombergLiveDataServer underlying = getTestServer(cachingRefDataProvider);
     
     CacheManager cacheManager = EHCacheUtils.createCacheManager();
@@ -127,7 +131,7 @@ public class BloombergLiveDataServerUtils {
     return combinedServer;
   }
 
-  public static void stopTestServer(AbstractLiveDataServer server) {
+  public static void stopTestServer(StandardLiveDataServer server) {
     if (server instanceof BloombergLiveDataServer) {
       stopTestServer((BloombergLiveDataServer) server);
     } else if (server instanceof CombiningLiveDataServer) {

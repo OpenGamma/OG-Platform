@@ -41,6 +41,8 @@ public class PortfolioLoaderTool extends AbstractTool<ToolContext> {
   private static final String VERBOSE_OPT = "v";
   /** Asset class flag */
   private static final String SECURITY_TYPE_OPT = "s";
+  /** Ignore versioning flag */
+  private static final String IGNORE_VERSION_OPT = "i";
 
   private static ToolContext s_context;
   
@@ -142,7 +144,7 @@ public class PortfolioLoaderTool extends AbstractTool<ToolContext> {
       
       case ZIP:
         // Create zipped multi-asset class loader
-        return new ZippedPortfolioReader(filename);
+        return new ZippedPortfolioReader(filename, getCommandLine().hasOption(IGNORE_VERSION_OPT));
         
       default:
         throw new OpenGammaRuntimeException("Input filename should end in .CSV, .XLS or .ZIP");
@@ -177,6 +179,11 @@ public class PortfolioLoaderTool extends AbstractTool<ToolContext> {
         OVERWRITE_OPT, "overwrite", false, 
         "Deletes any existing matching securities, positions and portfolios and recreates them from input data");
     options.addOption(overwriteOption);
+
+    Option ignoreVersionOption = new Option(
+        IGNORE_VERSION_OPT, "ignoreversion", false,
+        "Ignore the versioning hashes in METADATA.INI when reading from a ZIP file");
+    options.addOption(ignoreVersionOption);
 
     Option verboseOption = new Option(
         VERBOSE_OPT, "verbose", false, 

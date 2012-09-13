@@ -12,6 +12,7 @@ import static org.testng.AssertJUnit.assertTrue;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 import javax.time.Instant;
@@ -23,8 +24,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
-import com.opengamma.bbg.PerSecurityReferenceDataResult;
-import com.opengamma.bbg.ReferenceDataResult;
 import com.opengamma.bbg.livedata.LoggedReferenceDataProvider;
 import com.opengamma.bbg.util.MockReferenceDataProvider;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
@@ -75,16 +74,15 @@ public class BloombergRefDataCollectorTest {
     
     Set<String> securities = Sets.newHashSet("QQQQ US Equity", "/buid/EQ0082335400001000");
     Set<String> fields = Collections.singleton("SECURITY_TYP");
-    ReferenceDataResult result = loggedRefDataProvider.getFields(securities, fields);
+    Map<String, FudgeMsg> refDataMap = loggedRefDataProvider.getReferenceData(securities, fields);
     
-    Set<String> testSecurities = result.getSecurities();
+    Set<String> testSecurities = refDataMap.keySet();
     assertEquals(2, testSecurities.size());
     
     assertTrue(testSecurities.containsAll(securities));
     
     for (String security : testSecurities) {
-      PerSecurityReferenceDataResult perSecurity = result.getResult(security);
-      FudgeMsg fieldData = perSecurity.getFieldData();
+      FudgeMsg fieldData = refDataMap.get(security);
       String securityType = fieldData.getString("SECURITY_TYP");
       assertEquals("ETP", securityType);
     }

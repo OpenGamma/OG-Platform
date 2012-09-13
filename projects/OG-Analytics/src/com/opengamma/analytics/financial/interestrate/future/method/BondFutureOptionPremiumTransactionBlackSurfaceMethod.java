@@ -5,12 +5,14 @@
  */
 package com.opengamma.analytics.financial.interestrate.future.method;
 
+import com.opengamma.analytics.financial.calculator.PresentValueMCACalculator;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
-import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
+import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityIRSCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumTransaction;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
@@ -36,14 +38,16 @@ public final class BondFutureOptionPremiumTransactionBlackSurfaceMethod {
    */
   private BondFutureOptionPremiumTransactionBlackSurfaceMethod() {
   }
-  
-  /**
-   * The methods used for the security.
-   */
-  private static final BondFutureOptionPremiumSecurityBlackSurfaceMethod METHOD_SECURITY = BondFutureOptionPremiumSecurityBlackSurfaceMethod.getInstance();
 
   /**
-   * Compute the present value of a future transaction from a quoted option price.
+   * The methods and calculators used.
+   */
+  private static final BondFutureOptionPremiumSecurityBlackSurfaceMethod METHOD_SECURITY = BondFutureOptionPremiumSecurityBlackSurfaceMethod.getInstance();
+  private static final PresentValueMCACalculator PVC = PresentValueMCACalculator.getInstance();
+  private static final PresentValueCurveSensitivityIRSCalculator PVCSC = PresentValueCurveSensitivityIRSCalculator.getInstance();
+
+  /**
+   * Compute the present value of a bond future option transaction from the quoted option price.
    * @param option The future option, not null
    * @param curves The curves, not null
    * @param price The quoted price
@@ -52,12 +56,19 @@ public final class BondFutureOptionPremiumTransactionBlackSurfaceMethod {
   public CurrencyAmount presentValueFromPrice(final BondFutureOptionPremiumTransaction option, final YieldCurveBundle curves, final double price) {
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(curves, "curves");
-    final PresentValueCalculator pvc = PresentValueCalculator.getInstance();
-    final double premiumPV = pvc.visit(option.getPremium(), curves);
+    final Currency ccy = option.getUnderlyingOption().getCurrency();
+    final CurrencyAmount premiumPV = PVC.visit(option.getPremium(), curves).getCurrencyAmount(ccy);
     final double optionPV = price * option.getQuantity() * option.getUnderlyingOption().getUnderlyingFuture().getNotional();
-    return CurrencyAmount.of(option.getUnderlyingOption().getCurrency(), optionPV + premiumPV);
+    return premiumPV.plus(optionPV);
   }
 
+  /**
+   * Computes the present value of a bond future option. The option security price is computed according to the data available in the bundle.
+   * If the underlying future price is available it is used, if not it is computed from the curves.
+   * @param transaction The option transaction.
+   * @param curves The curves bundle.
+   * @return The present value.
+   */
   public CurrencyAmount presentValue(final BondFutureOptionPremiumTransaction transaction, final YieldCurveBundle curves) {
     ArgumentChecker.notNull(transaction, "transaction");
     ArgumentChecker.notNull(curves, "curves");
@@ -75,8 +86,9 @@ public final class BondFutureOptionPremiumTransactionBlackSurfaceMethod {
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final BondFutureOptionPremiumTransaction transaction, final YieldCurveBundle curves) {
     ArgumentChecker.notNull(transaction, "transaction");
     ArgumentChecker.notNull(curves, "curves");
+    final InterestRateCurveSensitivity premiumSensitivity = PVCSC.visit(transaction.getPremium(), curves);
     final InterestRateCurveSensitivity securitySensitivity = METHOD_SECURITY.priceCurveSensitivity(transaction.getUnderlyingOption(), curves);
-    return securitySensitivity.multiply(transaction.getQuantity() * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional());
+    return premiumSensitivity.plus(securitySensitivity.multiply(transaction.getQuantity() * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional()));
   }
 
   /**
@@ -122,5 +134,5 @@ public final class BondFutureOptionPremiumTransactionBlackSurfaceMethod {
     final double txnVega = securityVega * transaction.getQuantity() * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional();
     return txnVega;
   }
-  
+
 }

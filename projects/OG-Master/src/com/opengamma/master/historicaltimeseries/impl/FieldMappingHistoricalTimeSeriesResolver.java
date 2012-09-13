@@ -44,8 +44,6 @@ public class FieldMappingHistoricalTimeSeriesResolver extends DefaultHistoricalT
   public HistoricalTimeSeriesResolutionResult resolve(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField,
       String resolutionKey) {
     ArgumentChecker.notNull(dataField, "dataField");
-    ArgumentChecker.notNull(identifierBundle, "identifierBundle");
-    
     // Apply any field mappings
     Map<String, HistoricalTimeSeriesFieldAdjustment> fieldMappings = getFieldAdjustments(dataSource, dataField);
     if (fieldMappings.size() == 1) {
@@ -59,31 +57,32 @@ public class FieldMappingHistoricalTimeSeriesResolver extends DefaultHistoricalT
       dataField = null;
       dataProvider = null;
     }
-    
-    Collection<ManageableHistoricalTimeSeriesInfo> timeSeriesCandidates = search(identifierBundle, identifierValidityDate, dataSource, dataProvider, dataField);
-    
-    if (!fieldMappings.isEmpty()) {
-      Iterator<ManageableHistoricalTimeSeriesInfo> it = timeSeriesCandidates.iterator();
-      while (it.hasNext()) {
-        ManageableHistoricalTimeSeriesInfo candidate = it.next();
-        HistoricalTimeSeriesFieldAdjustment fieldAdjustment = fieldMappings.get(candidate.getDataSource());
-        if (fieldAdjustment == null ||
-            ((fieldAdjustment.getUnderlyingDataProvider() != null && !fieldAdjustment.getUnderlyingDataProvider().equals(candidate.getDataProvider()))
-            || !fieldAdjustment.getUnderlyingDataField().equals(candidate.getDataField()))) {
-          // Incompatible
-          it.remove();
+    if (identifierBundle != null) {
+      Collection<ManageableHistoricalTimeSeriesInfo> timeSeriesCandidates = search(identifierBundle, identifierValidityDate, dataSource, dataProvider, dataField);
+      if (!fieldMappings.isEmpty()) {
+        Iterator<ManageableHistoricalTimeSeriesInfo> it = timeSeriesCandidates.iterator();
+        while (it.hasNext()) {
+          ManageableHistoricalTimeSeriesInfo candidate = it.next();
+          HistoricalTimeSeriesFieldAdjustment fieldAdjustment = fieldMappings.get(candidate.getDataSource());
+          if (fieldAdjustment == null ||
+              ((fieldAdjustment.getUnderlyingDataProvider() != null && !fieldAdjustment.getUnderlyingDataProvider().equals(candidate.getDataProvider()))
+              || !fieldAdjustment.getUnderlyingDataField().equals(candidate.getDataField()))) {
+            // Incompatible
+            it.remove();
+          }
         }
       }
+      ManageableHistoricalTimeSeriesInfo selectedResult = select(timeSeriesCandidates, resolutionKey);
+      if (selectedResult == null) {
+        s_logger.debug("Resolver failed to find any time-series for {} using {}/{}", new Object[] {identifierBundle, dataField, resolutionKey });
+        return null;
+      }
+      HistoricalTimeSeriesFieldAdjustment fieldAdjustment = fieldMappings.get(selectedResult.getDataSource());
+      HistoricalTimeSeriesAdjuster adjuster = fieldAdjustment != null ? fieldAdjustment.getAdjuster() : null;
+      return new HistoricalTimeSeriesResolutionResult(selectedResult, adjuster);
+    } else {
+      return search(dataSource, dataProvider, dataField);
     }
-    
-    ManageableHistoricalTimeSeriesInfo selectedResult = select(timeSeriesCandidates, resolutionKey);
-    if (selectedResult == null) {
-      s_logger.debug("Resolver failed to find any time-series for {} using {}/{}", new Object[] {identifierBundle, dataField, resolutionKey});
-      return null;
-    }
-    HistoricalTimeSeriesFieldAdjustment fieldAdjustment = fieldMappings.get(selectedResult.getDataSource());
-    HistoricalTimeSeriesAdjuster adjuster = fieldAdjustment != null ? fieldAdjustment.getAdjuster() : null;
-    return new HistoricalTimeSeriesResolutionResult(selectedResult, adjuster);
   }
   
   public Collection<HistoricalTimeSeriesFieldAdjustmentMap> getFieldMaps() {

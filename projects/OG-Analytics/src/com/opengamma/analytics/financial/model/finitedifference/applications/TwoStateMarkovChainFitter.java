@@ -30,9 +30,9 @@ import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.minimization.DoubleRangeLimitTransform;
 import com.opengamma.analytics.math.minimization.ParameterLimitsTransform;
+import com.opengamma.analytics.math.minimization.ParameterLimitsTransform.LimitType;
 import com.opengamma.analytics.math.minimization.SingleRangeLimitTransform;
 import com.opengamma.analytics.math.minimization.UncoupledParameterTransforms;
-import com.opengamma.analytics.math.minimization.ParameterLimitsTransform.LimitType;
 import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.analytics.math.statistics.leastsquare.NonLinearLeastSquare;
@@ -180,7 +180,7 @@ public class TwoStateMarkovChainFitter {
           try {
             modVols[i] = GRID_INTERPOLATOR2D.interpolate(dataBundle, tk);
           } catch (final Exception e) {
-            System.out.println("arrrgggg");
+            System.out.println(e.getMessage());
           }
         }
         //        System.out.println("time3 " + ((System.nanoTime() - timer3)/1e6)+"ms");

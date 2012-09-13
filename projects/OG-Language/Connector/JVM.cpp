@@ -70,6 +70,7 @@ CClientJVM::~CClientJVM () {
 /// @param[in] lStartTimeout maximum time to wait for the process to start in milliseconds
 /// @return a process manager instance, or NULL if there was a problem
 CClientJVM *CClientJVM::StartExecutable (const TCHAR *pszExecutable, unsigned long lStartTimeout) {
+	__unused (lStartTimeout)
 	LOGINFO (TEXT ("Starting executable ") << pszExecutable);
 	CProcess *poProcess = CProcess::FindByName (pszExecutable);
 	if (poProcess) {
@@ -256,6 +257,8 @@ retryStart:
 	return new CClientJVM (hService, bFirstConnection);
 #else /* ifdef _WIN32 */
 	// TODO: SysV service management (File a Jira for this)
+	__unused (lPollTimeout)
+	__unused (lStopTimeout)
 	return StartExecutable (pszExecutable, lStartTimeout);
 #endif /* ifdef _WIN32 */
 }

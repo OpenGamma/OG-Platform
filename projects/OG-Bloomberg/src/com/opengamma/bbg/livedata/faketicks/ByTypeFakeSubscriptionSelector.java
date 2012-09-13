@@ -7,7 +7,6 @@ package com.opengamma.bbg.livedata.faketicks;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -15,9 +14,7 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 import com.opengamma.bbg.BloombergConstants;
-import com.opengamma.bbg.PerSecurityReferenceDataResult;
-import com.opengamma.bbg.ReferenceDataProvider;
-import com.opengamma.bbg.ReferenceDataResult;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDomainIdentifierResolver;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.server.DistributionSpecification;
@@ -70,14 +67,12 @@ public class ByTypeFakeSubscriptionSelector implements FakeSubscriptionSelector 
     
     Set<String> buids = specsBySecurityId.keySet();
 
-    ReferenceDataProvider cachingReferenceDataProvider = server.getCachingReferenceDataProvider();
+    ReferenceDataProvider refDataProvider = server.getReferenceDataProvider();
     
     if (buids.size() > 0) {
-      ReferenceDataResult fields = cachingReferenceDataProvider.getFields(buids,
-          Collections.singleton(BloombergConstants.FIELD_SECURITY_TYP));
+      Map<String, String> values = refDataProvider.getReferenceDataValues(buids, BloombergConstants.FIELD_SECURITY_TYP);
       for (String buid : buids) {
-        PerSecurityReferenceDataResult result = fields.getResult(buid);
-        String type = result.getFieldData().getString(BloombergConstants.FIELD_SECURITY_TYP);
+        String type = values.get(buid);
         if (type != null && _toFake.contains(type)) {
           fakes.addAll(specsBySecurityId.get(buid));
         } else {

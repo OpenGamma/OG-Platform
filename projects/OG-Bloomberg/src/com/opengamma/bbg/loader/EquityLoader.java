@@ -32,8 +32,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.bbg.BloombergSecuritySource;
-import com.opengamma.bbg.ReferenceDataProvider;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
+import com.opengamma.bbg.security.BloombergSecurityProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.equity.EquitySecurity;
@@ -145,7 +145,7 @@ public final class EquityLoader extends SecurityLoader {
       return null;
     }
     
-    UniqueId bbgUniqueId = BloombergSecuritySource.createUniqueId(bbgUniqueIdString);
+    UniqueId bbgUniqueId = BloombergSecurityProvider.createUniqueId(bbgUniqueIdString);
     Currency currency = Currency.of(currencyCode.toUpperCase());
     GICSCode gicsCode = gicsCodeString != null ? GICSCode.of(gicsCodeString) : null;
     

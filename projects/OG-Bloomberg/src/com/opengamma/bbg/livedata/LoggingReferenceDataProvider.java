@@ -19,9 +19,11 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.wire.FudgeMsgWriter;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.bbg.PerSecurityReferenceDataResult;
-import com.opengamma.bbg.ReferenceDataProvider;
-import com.opengamma.bbg.ReferenceDataResult;
+import com.opengamma.bbg.referencedata.ReferenceData;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
+import com.opengamma.bbg.referencedata.ReferenceDataProviderGetRequest;
+import com.opengamma.bbg.referencedata.ReferenceDataProviderGetResult;
+import com.opengamma.bbg.referencedata.impl.AbstractReferenceDataProvider;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -34,7 +36,7 @@ import com.opengamma.util.ArgumentChecker;
  * The file is stored using Fudge.
  * See {@link LoggedReferenceDataProvider} for a reference data provider that reads the file.
  */
-public class LoggingReferenceDataProvider implements ReferenceDataProvider {
+public class LoggingReferenceDataProvider extends AbstractReferenceDataProvider {
 
   /**
    * The underlying reference data provider.
@@ -77,26 +79,26 @@ public class LoggingReferenceDataProvider implements ReferenceDataProvider {
 
   //-------------------------------------------------------------------------
   @Override
-  public ReferenceDataResult getFields(Set<String> securityKeys, Set<String> fields) {   
-    ReferenceDataResult result = _underlying.getFields(securityKeys, fields);
-    processResult(result, fields);
+  protected ReferenceDataProviderGetResult doBulkGet(ReferenceDataProviderGetRequest request) {
+    ReferenceDataProviderGetResult result = _underlying.getReferenceData(request);
+    processResult(result, request.getFields());
     return result;
   }
 
-  private void processResult(ReferenceDataResult result, Set<String> fields) {
-    for (String securityKey : result.getSecurities()) {
+  private void processResult(ReferenceDataProviderGetResult result, Set<String> fields) {
+    for (ReferenceData refData : result.getReferenceData()) {
+      String identifier = refData.getIdentifier();
       Set<String> freshFieldsLogged = new HashSet<String>();
-      Set<String> fieldsLogged = _alreadyLogged.putIfAbsent(securityKey, freshFieldsLogged);
+      Set<String> fieldsLogged = _alreadyLogged.putIfAbsent(identifier, freshFieldsLogged);
       if (fieldsLogged == null) {
         fieldsLogged = freshFieldsLogged;
       }
       
-      PerSecurityReferenceDataResult securityResult = result.getResult(securityKey);
       synchronized (fieldsLogged) {
         for (String field : fields) {
           if (fieldsLogged.contains(field) == false) {
-            Object value = securityResult.getFieldData().getValue(field);
-            log(securityKey, field, value);
+            Object value = refData.getFieldValues().getValue(field);
+            log(identifier, field, value);
           }
         }
       }

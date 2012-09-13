@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.currency;
@@ -25,7 +25,7 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 
 /**
- * 
+ *
  */
 public class YCNSPnLSeriesCurrencyConversionFunction extends PnlSeriesCurrencyConversionFunction {
 
@@ -74,13 +74,4 @@ public class YCNSPnLSeriesCurrencyConversionFunction extends PnlSeriesCurrencyCo
     return ImmutableSet.of(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties));
   }
 
-  @Override
-  protected ValueSpecification getValueSpec(final ValueSpecification inputSpec, final String currencyCode) {
-    final ValueProperties properties = inputSpec.getProperties().copy()
-        .withoutAny(ValuePropertyNames.FUNCTION)
-        .with(ValuePropertyNames.FUNCTION, getUniqueId())
-        .withoutAny(ValuePropertyNames.CURRENCY)
-        .with(ValuePropertyNames.CURRENCY, currencyCode).get();
-    return new ValueSpecification(ValueRequirementNames.PNL_SERIES, inputSpec.getTargetSpecification(), properties);
-  }
 }

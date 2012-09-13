@@ -32,6 +32,11 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.bbg.referencedata.ReferenceData;
+import com.opengamma.bbg.referencedata.ReferenceDataError;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
+import com.opengamma.bbg.referencedata.ReferenceDataProviderGetRequest;
+import com.opengamma.bbg.referencedata.ReferenceDataProviderGetResult;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.bbg.util.BloombergDomainIdentifierResolver;
 import com.opengamma.core.id.ExternalSchemes;
@@ -95,37 +100,31 @@ public class BloombergIdentifierProvider implements ExternalIdResolver {
       }
     }
     
-    ReferenceDataResult refDataResult = _bbgRefDataProvider.getFields(bloombergKeys.keySet(), _bbgFields);
+    ReferenceDataProviderGetRequest refDataRequest = ReferenceDataProviderGetRequest.createGet(bloombergKeys.keySet(), _bbgFields, true);
+    ReferenceDataProviderGetResult refDataResult = _bbgRefDataProvider.getReferenceData(refDataRequest);
     
-    if (refDataResult == null) {
-      s_logger.warn("Bloomberg Reference Data Provider returned NULL result for {}", bloombergKeys);
-      return result;
-    }
-    
-    for (String securityDes : bloombergKeys.keySet()) {
-      PerSecurityReferenceDataResult secResult = refDataResult.getResult(securityDes);
-      if (secResult == null) {
-        s_logger.warn("PerSecurityReferenceDataResult for {} cannot be null", securityDes);
-        continue;
-      }
+    for (ReferenceData refData : refDataResult.getReferenceData()) {
+      String securityDes = refData.getIdentifier();
+      
       // check no exceptions
-      List<String> exceptions = secResult.getExceptions();
-      if (exceptions != null && exceptions.size() > 0) {
-        for (String msg : exceptions) {
+      List<ReferenceDataError> errors = refData.getErrors();
+      if (errors != null && errors.size() > 0) {
+        for (ReferenceDataError error : errors) {
           s_logger.warn("Exception looking up {}/{} - {}",
-              new Object[] {securityDes, _bbgFields, msg});
+              new Object[] {securityDes, _bbgFields, error});
         }
         continue;
       }
+      
       // check same security was returned
-      String refSec = secResult.getSecurity();
+      String refSec = refData.getIdentifier();
       if (!securityDes.equals(refSec)) {
         s_logger.warn("Returned security {} not the same as searched security {}", refSec, securityDes);
         continue;
       }
       // get field data
-      FudgeMsg fieldData = secResult.getFieldData();
-
+      FudgeMsg fieldData = refData.getFieldValues();
+      
       final String securityType = fieldData.getString(FIELD_SECURITY_TYPE);
       if (securityType != null && securityType.toUpperCase().contains(" FUTURE")) {
         final String firstTradeStr = fieldData.getString(FIELD_FUT_FIRST_TRADE_DT);

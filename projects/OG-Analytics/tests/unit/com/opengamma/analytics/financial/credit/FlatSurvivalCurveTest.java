@@ -26,7 +26,7 @@ public class FlatSurvivalCurveTest {
   @Test
   public void testFlatSurvivalCurve() {
 
-    System.out.println("Running tests on flat survival curve construction ...");
+    final boolean outputSchedule = false;
 
     double hazardRate = survivalCurve.getFlatHazardRate();
 
@@ -34,7 +34,9 @@ public class FlatSurvivalCurveTest {
 
       double survivalProbabilty = survivalCurve.getSurvivalProbability(hazardRate, t);
 
-      System.out.println("t = " + t + "\t\t" + "S(0, t) = " + survivalProbabilty);
+      if (outputSchedule) {
+        System.out.println("t = " + t + "\t\t" + "S(0, t) = " + survivalProbabilty);
+      }
     }
   }
 

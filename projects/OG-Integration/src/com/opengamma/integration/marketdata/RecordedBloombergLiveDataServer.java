@@ -18,8 +18,8 @@ import net.sf.ehcache.CacheManager;
 
 import org.fudgemsg.FudgeMsg;
 
-import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.livedata.AbstractBloombergLiveDataServer;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.replay.BloombergTick;
 import com.opengamma.bbg.replay.BloombergTickReceiver;
 import com.opengamma.bbg.replay.BloombergTicksReplayer;
@@ -121,12 +121,7 @@ public class RecordedBloombergLiveDataServer extends AbstractBloombergLiveDataSe
   }
   
   @Override
-  public ReferenceDataProvider getCachingReferenceDataProvider() {
-    return _referenceDataProvider;
-  }
-
-  @Override
-  public ReferenceDataProvider getUnderlyingReferenceDataProvider() {
+  public ReferenceDataProvider getReferenceDataProvider() {
     return _referenceDataProvider;
   }
   

@@ -16,8 +16,8 @@ import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.FlatSurvivalCurve;
 import com.opengamma.analytics.financial.credit.Region;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
-import com.opengamma.analytics.financial.credit.ScheduleGenerationMethod;
 import com.opengamma.analytics.financial.credit.Sector;
+import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.PresentValueCreditDefaultSwap;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -73,23 +73,24 @@ public class PresentValueCreditDefaultSwapTest {
   private static final ZonedDateTime startDate = DateUtils.getUTCDate(2007, 10, 22);
   private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2007, 10, 23);
   private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2012, 12, 20);
-  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2009, 4, 25);
+  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2007, 10, 23);
 
-  private static final ScheduleGenerationMethod scheduleGenerationMethod = ScheduleGenerationMethod.BACKWARD;
+  private static final StubType stubType = StubType.FRONTSHORT;
   private static final PeriodFrequency couponFrequency = PeriodFrequency.QUARTERLY;
   private static final DayCount daycountFractionConvention = DayCountFactory.INSTANCE.getDayCount("ACT/360");
   private static final BusinessDayConvention businessdayAdjustmentConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
 
+  private static final boolean immAdjustMaturityDate = true;
   private static final boolean adjustMaturityDate = true;
 
   private static final double notional = 10000000.0;
-  private static final double parSpread = 60.0;
-  private static final double valuationRecoveryRate = 0.40;
+  private static final double parSpread = 100.0;
+  private static final double valuationRecoveryRate = 0.20;
   private static final double curveRecoveryRate = 0.40;
-  private static final boolean includeAccruedPremium = true;
+  private static final boolean includeAccruedPremium = false;
 
   // Dummy yield curve
-  private static final double interestRate = 0.05;
+  private static final double interestRate = 0.0;
   private static final double[] TIME = new double[] {0, 3, 5, 10 };
   private static final double[] RATES = new double[] {interestRate, interestRate, interestRate, interestRate };
   private static final InterpolatedDoublesCurve R = InterpolatedDoublesCurve.from(TIME, RATES, new LinearInterpolator1D());
@@ -120,10 +121,11 @@ public class PresentValueCreditDefaultSwapTest {
       effectiveDate,
       maturityDate,
       valuationDate,
-      scheduleGenerationMethod,
+      stubType,
       couponFrequency,
       daycountFractionConvention,
       businessdayAdjustmentConvention,
+      immAdjustMaturityDate,
       adjustMaturityDate,
       notional,
       parSpread,
@@ -139,14 +141,21 @@ public class PresentValueCreditDefaultSwapTest {
 
     // -----------------------------------------------------------------------------------------------
 
+    final boolean outputSchedule = false;
+
     // Call the constructor to create a CDS
     final PresentValueCreditDefaultSwap testCDS = new PresentValueCreditDefaultSwap();
 
     // Call the CDS PV calculator to get the current PV
-    double pV = testCDS.getPresentValueCreditDefaultSwap(cds, yieldCurve, survivalCurve);
+    //double pV = testCDS.getPresentValueCreditDefaultSwap(cds, yieldCurve, survivalCurve);
+
+    // Call the CDS par spread calculator to get the par spread at time zero
+    double parSpread = testCDS.getParSpreadCreditDefaultSwap(cds, yieldCurve, survivalCurve);
 
     // Report the result
-    System.out.println("CDS PV = " + pV);
+    if (outputSchedule) {
+      System.out.println("CDS par spread = " + parSpread);
+    }
 
     // -----------------------------------------------------------------------------------------------
   }
@@ -165,6 +174,7 @@ public class PresentValueCreditDefaultSwapTest {
         return false;
       }
 
+      /*
       // Custom bank holiday
       if (date.equals(LocalDate.of(2012, 8, 27))) {
         return false;
@@ -184,6 +194,7 @@ public class PresentValueCreditDefaultSwapTest {
       if (date.equals(LocalDate.of(2017, 8, 29))) {
         return false;
       }
+      */
 
       return true;
     }

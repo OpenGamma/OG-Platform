@@ -11,18 +11,18 @@
 	</bean>
 
 	<!-- Bloomberg Reference Data Provider -->
-  <bean id="bloombergConnector" class="com.opengamma.bbg.BloombergConnectorFactoryBean">
+  <bean id="standardBloombergConnector" class="com.opengamma.bbg.BloombergConnectorFactoryBean">
     <property name="name" value="Test" />
-    <property name="host" value="${bbgServer.host}" />
-    <property name="port" value="${bbgServer.port}" />
+    <property name="host" value="${bloomberg.host}" />
+    <property name="port" value="${bloomberg.port}" />
   </bean>
 
-	<bean id="refDataProvider" class="com.opengamma.bbg.BloombergReferenceDataProvider">
-	  <constructor-arg ref="bloombergConnector" />
+	<bean id="refDataProvider" class="com.opengamma.bbg.referencedata.impl.BloombergReferenceDataProvider">
+	  <constructor-arg ref="standardBloombergConnector" />
 	</bean>
 
 	<!-- Caching Reference Data Provider -->
-  <bean id="mongoConnector" class="com.opengamma.util.mongo.MongoConnectorFactoryBean">
+  <bean id="bloombergRefDataMongoConnector" class="com.opengamma.util.mongo.MongoConnectorFactoryBean">
     <property name="name" value="BloombergReferenceData" />
     <property name="host" value="${mongoServer.host}" />
     <property name="port" value="${mongoServer.port}" /> 	
@@ -30,9 +30,9 @@
     <property name="collectionSuffix" value="bloomberg-security-loader-test-context" />
   </bean>
 
-  <bean id="cachingRefProvider" class="com.opengamma.bbg.MongoDBCachingReferenceDataProvider">
+  <bean id="cachingRefProvider" class="com.opengamma.bbg.referencedata.cache.MongoDBValueCachingReferenceDataProvider">
     <constructor-arg ref="refDataProvider" />
-    <constructor-arg ref="mongoConnector" />
+    <constructor-arg ref="bloombergRefDataMongoConnector" />
   </bean>
 
 </beans>

@@ -22,9 +22,9 @@ public abstract class AbstractEventDispatcher extends TerminatableJob {
   
   private static final long MAX_WAIT_MILLISECONDS = 1000;
   
-  private AbstractLiveDataServer _server;
+  private StandardLiveDataServer _server;
   
-  public AbstractEventDispatcher(AbstractLiveDataServer server) {
+  public AbstractEventDispatcher(StandardLiveDataServer server) {
     ArgumentChecker.notNull(server, "Live Data Server");
     _server = server;
   }
@@ -32,7 +32,7 @@ public abstract class AbstractEventDispatcher extends TerminatableJob {
   /**
    * @return the server
    */
-  public AbstractLiveDataServer getServer() {
+  public StandardLiveDataServer getServer() {
     return _server;
   }
 
@@ -46,7 +46,7 @@ public abstract class AbstractEventDispatcher extends TerminatableJob {
   }
   
   protected void disconnected() {
-    _server.setConnectionStatus(AbstractLiveDataServer.ConnectionStatus.NOT_CONNECTED);
+    _server.setConnectionStatus(StandardLiveDataServer.ConnectionStatus.NOT_CONNECTED);
     terminate();
   }
   

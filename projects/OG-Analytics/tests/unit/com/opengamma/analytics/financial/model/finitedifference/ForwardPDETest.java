@@ -7,15 +7,20 @@ package com.opengamma.analytics.financial.model.finitedifference;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import org.apache.commons.lang.Validate;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.finitedifference.applications.InitialConditionsProvider;
 import com.opengamma.analytics.financial.model.finitedifference.applications.PDE1DCoefficientsProvider;
+import com.opengamma.analytics.financial.model.finitedifference.applications.PDEUtilityTools;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
+import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceMoneyness;
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceStrike;
+import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
 
 /**
@@ -44,8 +49,7 @@ public class ForwardPDETest {
   private static final ConvectionDiffusionPDE1DCoefficients PDE;
   private static final Function1D<Double, Double> INT_COND;
 
-  @SuppressWarnings("unused")
-  private static Surface<Double, Double, Double> ZERO_SURFACE;
+  private static Surface<Double, Double, Double> ZERO_SURFACE = ConstantDoublesSurface.from(0.0);
 
   private static boolean ISCALL = true;
 
@@ -138,6 +142,75 @@ public class ForwardPDETest {
         System.out.print("\n");
       }
     }
+  }
+
+  @Test
+      (enabled = false)
+      public void debugTest() {
+
+    final Function<Double, Double> lvFunc = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... tm) {
+        Validate.isTrue(tm.length == 2);
+        final double t = tm[0];
+        final double m = tm[1];
+        final double x = Math.log(m);
+        if (Math.abs(x) > Math.sqrt(t) * 1.2) {
+          return 0.0;
+        } else {
+          return 0.4;
+        }
+      }
+    };
+    LocalVolatilitySurfaceMoneyness lv = new LocalVolatilitySurfaceMoneyness(FunctionalDoublesSurface.from(lvFunc), new ForwardCurve(1.0));
+
+    final Function1D<Double, Double> initCon = new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(Double x) {
+        return Math.max(0, 1 - Math.exp(x));
+      }
+    };
+
+    final ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(0.50, true);
+    ConvectionDiffusionPDE1DStandardCoefficients pde = getForwardLocalVol(lv);
+    double xMin = -2.5;
+    double xMax = 2.5;
+
+    PDEUtilityTools.printSurface("lv", lv.getSurface(), 0, 2.0, Math.exp(xMin), Math.exp(xMax));
+
+    DirichletBoundaryCondition lower = new DirichletBoundaryCondition(initCon.evaluate(xMin), xMin);
+    DirichletBoundaryCondition upper = new DirichletBoundaryCondition(initCon.evaluate(xMax), xMax);
+    final MeshingFunction timeMesh = new ExponentialMeshing(0, 2.0, 12, 0.0);
+    final MeshingFunction spaceMesh = new ExponentialMeshing(xMin, xMax, 17, 0.0);
+    final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
+    PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, initCon, lower, upper, grid);
+
+    PDEFullResults1D prices = (PDEFullResults1D) solver.solve(db);
+    PDEUtilityTools.printSurface("prices", prices);
+  }
+
+  private ConvectionDiffusionPDE1DStandardCoefficients getForwardLocalVol(final LocalVolatilitySurfaceMoneyness localVol) {
+
+    final Function<Double, Double> a = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... tx) {
+        Validate.isTrue(tx.length == 2);
+        final double t = tx[0];
+        final double x = tx[1];
+
+        final double vol = localVol.getVolatilityForMoneyness(t, Math.exp(x));
+        return -0.5 * vol * vol;
+      }
+    };
+
+    final Function<Double, Double> b = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... tx) {
+        return -a.evaluate(tx);
+      }
+    };
+
+    return new ConvectionDiffusionPDE1DStandardCoefficients(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), ZERO_SURFACE);
   }
 
 }
