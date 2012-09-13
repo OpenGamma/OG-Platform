@@ -7,6 +7,8 @@ package com.opengamma.core.user;
 
 import java.util.List;
 
+import javax.time.calendar.TimeZone;
+
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.PublicAPI;
@@ -51,6 +53,14 @@ public interface OGUser extends UniqueIdentifiable {
   String getPasswordHash();
 
   /**
+   * Obtains the user entitlements.
+   * Each may be interpreted as a pattern to be applied to a restricted resource.
+   * 
+   * @return the entitlements for the user in order of processing, not null
+   */
+  List<String> getEntitlements();
+
+  /**
    * Gets the display user name, used to identify the user in a GUI.
    * 
    * @return the display user name, not null
@@ -58,11 +68,17 @@ public interface OGUser extends UniqueIdentifiable {
   String getName();
 
   /**
-   * Obtains the user entitlements.
-   * Each may be interpreted as a pattern to be applied to a restricted resource.
+   * The time-zone used to display local times.
    * 
-   * @return the entitlements for the user in order of processing, not null
+   * @return the time-zone, not null
    */
-  List<String> getEntitlements();
+  TimeZone getTimeZone();
+
+  /**
+   * The primary email address associated with the account.
+   * 
+   * @return the primary email address, not null
+   */
+  String getEmailAddress();
 
 }
