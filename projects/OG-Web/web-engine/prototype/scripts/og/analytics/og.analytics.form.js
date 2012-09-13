@@ -21,20 +21,23 @@ $.register_module({
                     ]
             };
             Dropmenu = function (config) {
-                var Dropmenu = this, Title, Menu;
-                return Title = function (){
-                    var title = this;
-                    return title.$el = config.$title.on('click', function (event) {
+                var Dropmenu = this, CTA, Menu;
+                return CTA = function (){ // Call To Action
+                    var cta = this;
+                    return cta.$el = config.$cta.on('click', function (event) {
                             event.stopPropagation();
                             Dropmenu.state === 'open' ? Dropmenu.close() : Dropmenu.open().focus();
-                        }), title;
+                        }), cta;
                 },
                 Menu = function () {
-                    var menu = this, title = new Title(),
+                    var menu = this, cta = new CTA(),
                         events = {
-                            focused:'dropmenu: focused',
-                            opened: 'dropmenu: opened',
-                            closed: 'dropmenu: closed'
+                            focus: 'dropmenu:focus',
+                            focused:'dropmenu:focused',
+                            open: 'dropmenu:open',
+                            opened: 'dropmenu:opened',
+                            close: 'dropmenu:close',
+                            closed: 'dropmenu:closed'
                         };
                     return menu.state = 'closed', menu.opened = false, menu.$el = config.$menu,
                         menu.focus = function () {
@@ -42,13 +45,16 @@ $.register_module({
                                     emitter.emitEvent(events.focused, [menu]), menu;
                         },
                         menu.open = function () {
-                            return menu.$el.show().blurkill(menu.close), menu.state = 'open', menu.opened = true,
-                                    title.$el.addClass('og-active'), emitter.emitEvent(events.opened, [menu]), menu;
+                            return menu.$el.show(), menu.state = 'open', menu.opened = true,
+                                    cta.$el.addClass('og-active'), emitter.emitEvent(events.opened, [menu]), menu;
                         },
                         menu.close = function () { 
                             return (menu.$el ? menu.$el.hide() : null), menu.state = 'closed', menu.opened = false,
-                                    title.$el.removeClass('og-active'), emitter.emitEvent(events.closed, [menu]), menu;
+                                    cta.$el.removeClass('og-active'), emitter.emitEvent(events.closed, [menu]), menu;
                         },
+                        emitter.addListener(events.open, menu.open),
+                        emitter.addListener(events.close, menu.close),
+                        emitter.addListener(events.focus, menu.focus),
                         menu;
                 }, Menu.prototype = EventEmitter.prototype, Dropmenu = new Menu();
             };
@@ -87,7 +93,7 @@ $.register_module({
                     $ag_fcntrls, $ds_fcntrls, $load_btn = $(load_s, $form), status, auto_combo_menu;
                 return Form = function(){
                     var form = this,
-                        keydown_handler = function (event) {
+                        keydown_handler = function (event) { // TODO AG: Refactor!
                             if (event.keyCode !== 9) return;
                             var $elem = $(this), shift_key = event.shiftKey, menu = '',
                                 active_pos = function (elms, pos) {return $elem.is(elms[pos]())},
@@ -118,6 +124,7 @@ $.register_module({
                         click_handler = function (event) {
                            var $elem = $(event.srcElement), txt_val = $elem.text();
                            if ($elem.is('button')) button_handler(txt_val);
+                           if ($elem.is('select')) console.log('selected');
                         },
                         toggle_menu = function (type) {
                             switch (type) {
@@ -145,10 +152,10 @@ $.register_module({
                             $ds.html($((Handlebars.compile(datasources_markup))(ds_response))),
                             $ag_fcntrls = $ag.find(fcntrls_s), $ds_fcntrls = $ds.find(fcntrls_s),
                             ag_dropdwn = new Dropmenu({
-                                $title: $('.og-option-title', ag_s),
+                                $cta: $('.og-option-title', ag_s),
                                 $menu: $('.OG-analytics-form-menu', ag_s)
                             }), ds_dropdwn = new Dropmenu({
-                                $title:$('.og-option-title', ds_s),
+                                $cta:$('.og-option-title', ds_s),
                                 $menu:$('.OG-analytics-form-menu', ds_s)
                             });
                         }),
