@@ -44,6 +44,12 @@
       <version>1.0</version>
       <optional>true</optional>
     </dependency>
+    <dependency>
+      <groupId>org.apache.derby</groupId>
+      <artifactId>derby</artifactId>
+      <version>10.6.1.0</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 
   <properties>
