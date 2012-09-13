@@ -10,7 +10,6 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
@@ -20,18 +19,6 @@ import com.opengamma.util.money.Currency;
  * Class describing a European swaption on a vanilla swap.
  */
 public final class SwaptionPhysicalFixedIbor extends EuropeanVanillaOption implements InstrumentDerivative {
-
-  /**
-   * List of calibration types for the physical swaption.
-   */
-  public enum SwaptionPhysicalFixedIborCalibrationType {
-    /**
-     * The calibration instruments are long swaptions with one maturity for each fixed coupon and strikes equal to the original strikes on the relevant periods.
-     * The notional for all coupons is set to the first fixed leg coupon notional.
-     * TODO: Should this be in the Definition or in a "Calculator"?
-     */
-    FIXEDLEG_STRIKE
-  }
 
   /**
    * Swap underlying the swaption. The swap should be of vanilla type.
@@ -123,33 +110,6 @@ public final class SwaptionPhysicalFixedIbor extends EuropeanVanillaOption imple
   @Override
   public String toString() {
     return "Swaption: Expiry=" + getTimeToExpiry() + ", is long=" + _isLong + "\n" + _underlyingSwap;
-  }
-
-  /**
-   * Create a calibration basket for the swaption.
-   * @param type The calibration type.
-   * @return The basket.
-   * TODO: Should this be in the Definition or in a "Calculator"?
-   */
-  public SwaptionPhysicalFixedIbor[] calibrationBasket(final SwaptionPhysicalFixedIborCalibrationType type) { //, final YieldCurveBundle curves
-    SwaptionPhysicalFixedIbor[] calibration = new SwaptionPhysicalFixedIbor[0];
-    switch (type) {
-      case FIXEDLEG_STRIKE:
-        AnnuityCouponFixed legFixed = getUnderlyingSwap().getFixedLeg();
-        int nbCal = legFixed.getNumberOfPayments();
-        calibration = new SwaptionPhysicalFixedIbor[nbCal];
-        double notional = Math.abs(legFixed.getNthPayment(0).getNotional());
-        for (int loopcal = 0; loopcal < nbCal; loopcal++) {
-          double maturity = legFixed.getNthPayment(loopcal).getPaymentTime();
-          SwapFixedCoupon<? extends Payment> swap = getUnderlyingSwap().trimAfter(maturity).withNotional(notional);
-          calibration[loopcal] = SwaptionPhysicalFixedIbor.from(getTimeToExpiry(), swap, _settlementTime, true);
-        }
-        break;
-
-      default:
-        break;
-    }
-    return calibration;
   }
 
   @Override

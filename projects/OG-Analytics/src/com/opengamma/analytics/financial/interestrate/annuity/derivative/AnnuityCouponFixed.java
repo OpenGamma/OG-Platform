@@ -75,10 +75,23 @@ public class AnnuityCouponFixed extends Annuity<CouponFixed> {
    * @param rate The rate.
    * @return The new annuity.
    */
-  public AnnuityCouponFixed withCoupon(double rate) {
+  public AnnuityCouponFixed withRate(double rate) {
     CouponFixed[] cpn = new CouponFixed[getNumberOfPayments()];
     for (int loopcpn = 0; loopcpn < getNumberOfPayments(); loopcpn++) {
-      cpn[loopcpn] = getNthPayment(loopcpn).withCoupon(rate);
+      cpn[loopcpn] = getNthPayment(loopcpn).withRate(rate);
+    }
+    return new AnnuityCouponFixed(cpn);
+  }
+
+  /**
+   * Creates a new annuity with the same characteristics, except that the rate of all coupons are shifted by the given amount.
+   * @param spread The spread.
+   * @return The new annuity.
+   */
+  public AnnuityCouponFixed withRateShifted(double spread) {
+    CouponFixed[] cpn = new CouponFixed[getNumberOfPayments()];
+    for (int loopcpn = 0; loopcpn < getNumberOfPayments(); loopcpn++) {
+      cpn[loopcpn] = getNthPayment(loopcpn).withRateShifted(spread);
     }
     return new AnnuityCouponFixed(cpn);
   }

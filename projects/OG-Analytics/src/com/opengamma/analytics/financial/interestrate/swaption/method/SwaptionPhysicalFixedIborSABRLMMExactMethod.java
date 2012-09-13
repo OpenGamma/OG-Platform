@@ -17,7 +17,6 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.method.PricingMethod;
 import com.opengamma.analytics.financial.interestrate.method.SuccessiveRootFinderCalibrationEngine;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
-import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor.SwaptionPhysicalFixedIborCalibrationType;
 import com.opengamma.analytics.financial.model.interestrate.definition.LiborMarketModelDisplacedDiffusionDataBundle;
 import com.opengamma.analytics.financial.model.interestrate.definition.LiborMarketModelDisplacedDiffusionParameters;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
@@ -55,6 +54,10 @@ public class SwaptionPhysicalFixedIborSABRLMMExactMethod implements PricingMetho
    * The LMM method used for European swaptions with physical delivery.
    */
   private static final SwaptionPhysicalFixedIborLMMDDMethod METHOD_SWAPTION_LMM = SwaptionPhysicalFixedIborLMMDDMethod.getInstance();
+  /**
+   * The method used to create the calibration basket.
+   */
+  private static final SwaptionPhysicalFixedIborBasketMethod METHOD_BASKET = SwaptionPhysicalFixedIborBasketMethod.getInstance();
 
   /**
    * The method calibrates a LMM on a set of vanilla swaption priced with SABR. The set of vanilla swaptions is given by the CalibrationType.
@@ -74,7 +77,7 @@ public class SwaptionPhysicalFixedIborSABRLMMExactMethod implements PricingMetho
     SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective objective = new SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective(lmmParameters);
     SuccessiveRootFinderCalibrationEngine calibrationEngine = new SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationEngine(objective);
     //TODO: Create a way to chose the calibration type.
-    InstrumentDerivative[] swaptionCalibration = swaption.calibrationBasket(SwaptionPhysicalFixedIborCalibrationType.FIXEDLEG_STRIKE);
+    InstrumentDerivative[] swaptionCalibration = METHOD_BASKET.calibrationBasketFixedLegPeriod(swaption);
     calibrationEngine.addInstrument(swaptionCalibration, METHOD_SWAPTION_SABR);
     calibrationEngine.calibrate(curves);
     LiborMarketModelDisplacedDiffusionDataBundle lmmBundle = new LiborMarketModelDisplacedDiffusionDataBundle(lmmParameters, curves);
@@ -104,7 +107,7 @@ public class SwaptionPhysicalFixedIborSABRLMMExactMethod implements PricingMetho
     SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective objective = new SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective(lmmParameters);
     SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationEngine calibrationEngine = new SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationEngine(objective);
     //TODO: Create a way to chose the calibration type.
-    SwaptionPhysicalFixedIbor[] swaptionCalibration = swaption.calibrationBasket(SwaptionPhysicalFixedIborCalibrationType.FIXEDLEG_STRIKE);
+    SwaptionPhysicalFixedIbor[] swaptionCalibration = METHOD_BASKET.calibrationBasketFixedLegPeriod(swaption);
     calibrationEngine.addInstrument(swaptionCalibration, METHOD_SWAPTION_SABR);
     calibrationEngine.calibrate(curves);
     LiborMarketModelDisplacedDiffusionDataBundle lmmBundle = new LiborMarketModelDisplacedDiffusionDataBundle(lmmParameters, curves);
@@ -190,8 +193,7 @@ public class SwaptionPhysicalFixedIborSABRLMMExactMethod implements PricingMetho
         DEFAULT_ANGLE, DEFAULT_DISPLACEMENT));
     SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective objective = new SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective(lmmParameters);
     SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationEngine calibrationEngine = new SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationEngine(objective);
-    //TODO: Create a way to chose the calibration type.
-    SwaptionPhysicalFixedIbor[] swaptionCalibration = swaption.calibrationBasket(SwaptionPhysicalFixedIborCalibrationType.FIXEDLEG_STRIKE);
+    SwaptionPhysicalFixedIbor[] swaptionCalibration = METHOD_BASKET.calibrationBasketFixedLegPeriod(swaption);
     calibrationEngine.addInstrument(swaptionCalibration, METHOD_SWAPTION_SABR);
     calibrationEngine.calibrate(curves);
     LiborMarketModelDisplacedDiffusionDataBundle lmmBundle = new LiborMarketModelDisplacedDiffusionDataBundle(lmmParameters, curves);
@@ -296,8 +298,7 @@ public class SwaptionPhysicalFixedIborSABRLMMExactMethod implements PricingMetho
         DEFAULT_ANGLE, DEFAULT_DISPLACEMENT));
     SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective objective = new SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective(lmmParameters);
     SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationEngine calibrationEngine = new SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationEngine(objective);
-    //TODO: Create a way to chose the calibration type.
-    SwaptionPhysicalFixedIbor[] swaptionCalibration = swaption.calibrationBasket(SwaptionPhysicalFixedIborCalibrationType.FIXEDLEG_STRIKE);
+    SwaptionPhysicalFixedIbor[] swaptionCalibration = METHOD_BASKET.calibrationBasketFixedLegPeriod(swaption);
     calibrationEngine.addInstrument(swaptionCalibration, METHOD_SWAPTION_SABR);
     calibrationEngine.calibrate(curves);
     LiborMarketModelDisplacedDiffusionDataBundle lmmBundle = new LiborMarketModelDisplacedDiffusionDataBundle(lmmParameters, curves);
