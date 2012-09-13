@@ -10,7 +10,7 @@ import com.opengamma.analytics.financial.model.interestrate.definition.G2ppPiece
 /**
  * Data used for the G2++ model tests.
  */
-public class G2ppTestsDataSet {
+public class TestsDataSetG2pp {
 
   private static final double[] MEAN_REVERSION = new double[] {0.01, 0.30};
   private static final double[][] VOLATILITY_1 = new double[][] { {0.01, 0.011, 0.012, 0.013, 0.014}, {0.01, 0.009, 0.008, 0.007, 0.006}};

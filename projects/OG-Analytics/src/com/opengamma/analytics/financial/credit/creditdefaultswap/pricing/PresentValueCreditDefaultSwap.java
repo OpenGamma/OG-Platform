@@ -9,6 +9,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.FlatSurvivalCurve;
+import com.opengamma.analytics.financial.credit.SurvivalCurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.util.time.TimeCalculator;
@@ -19,6 +20,10 @@ import com.opengamma.util.ArgumentChecker;
  *  Class containing methods for the valuation of a legacy vanilla CDS (and its constituent legs)
  */
 public class PresentValueCreditDefaultSwap {
+
+  // -------------------------------------------------------------------------------------------------
+
+  // Set the number of partitions to divide the timeline up into for the valuation of the contingent leg
 
   private static final int DEFAULT_N_POINTS = 100;
   private final int _numberOfIntegrationSteps;
@@ -98,6 +103,37 @@ public class PresentValueCreditDefaultSwap {
     double presentValueContingentLeg = calculateContingentLeg(cds, premiumLegSchedule, yieldCurve, survivalCurve);
 
     double parSpread = presentValueContingentLeg / presentValuePremiumLeg;
+
+    return parSpread;
+  }
+
+  //-------------------------------------------------------------------------------------------------  
+
+  // WIP
+
+  // Public method to calculate the par spread of a CDS at contract inception
+  public double getParSpreadCreditDefaultSwap(CreditDefaultSwapDefinition cds, YieldCurve yieldCurve, SurvivalCurve survivalCurve) {
+
+    // Check input CDS, YieldCurve and SurvivalCurve objects are not null
+    ArgumentChecker.notNull(cds, "CDS field");
+    ArgumentChecker.notNull(yieldCurve, "YieldCurve field");
+    ArgumentChecker.notNull(survivalCurve, "SurvivalCurve field");
+
+    // Add checks for returning 0.0's etc
+
+    // Construct a cashflow schedule object
+    final GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
+
+    // Build the premium leg cashflow schedule from the contract specification
+    ZonedDateTime[][] premiumLegSchedule = cashflowSchedule.constructCreditDefaultSwapPremiumLegSchedule(cds);
+
+    // Calculate the value of the premium leg (including accrued if required)
+    //double presentValuePremiumLeg = calculatePremiumLeg(cds, premiumLegSchedule, yieldCurve, survivalCurve);
+
+    // Calculate the value of the contingent leg
+    //double presentValueContingentLeg = calculateContingentLeg(cds, premiumLegSchedule, yieldCurve, survivalCurve);
+
+    double parSpread = 0.0; //presentValueContingentLeg / presentValuePremiumLeg;
 
     return parSpread;
   }

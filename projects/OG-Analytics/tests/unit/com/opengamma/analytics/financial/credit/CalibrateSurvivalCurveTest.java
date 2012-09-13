@@ -125,11 +125,11 @@ public class CalibrateSurvivalCurveTest {
 
     final ZonedDateTime[] tenors = new ZonedDateTime[5];
 
-    tenors[0] = cds.getMaturityDate().plusYears(1);
-    tenors[1] = cds.getMaturityDate().plusYears(3);
-    tenors[2] = cds.getMaturityDate().plusYears(5);
-    tenors[3] = cds.getMaturityDate().plusYears(7);
-    tenors[4] = cds.getMaturityDate().plusYears(10);
+    tenors[0] = cds.getValuationDate().plusYears(1);
+    tenors[1] = cds.getValuationDate().plusYears(3);
+    tenors[2] = cds.getValuationDate().plusYears(5);
+    tenors[3] = cds.getValuationDate().plusYears(7);
+    tenors[4] = cds.getValuationDate().plusYears(10);
 
     double[] parCDSSpreads = new double[numberOfTenors];
 
