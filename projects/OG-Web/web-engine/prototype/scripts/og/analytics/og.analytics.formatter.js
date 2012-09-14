@@ -23,6 +23,10 @@ $.register_module({
                 var type = value.t;
                 return value && formatter[type] ? formatter[type](value) : value && value.v || '';
             };
+            formatter.DOUBLE = function (value) {
+                var val = !value ? '' : (value.v || ''), last = !value || !value.h ? null : value.h[value.h.length - 1];
+                return last < 0 ? '<span class="og-neg">' + val + '</span>' : val
+            };
             formatter.CURVE = function (value) {
                 return '<span class="flot">[' + JSON.stringify(value.v) + ']</span>'
             };

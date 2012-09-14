@@ -129,3 +129,8 @@
     top: 5px;
     right: 13px;
 }
+
+/* negative value */
+.OG-g .og-neg {
+    color: #a62a2a;
+}
