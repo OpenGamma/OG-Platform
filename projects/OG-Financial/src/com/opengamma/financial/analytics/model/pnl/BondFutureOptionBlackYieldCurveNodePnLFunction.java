@@ -57,6 +57,7 @@ public class BondFutureOptionBlackYieldCurveNodePnLFunction extends YieldCurveNo
         curveNames.add(entry.getValue().getConstraint(ValuePropertyNames.CURVE));
       }
     }
+    assert !curveNames.isEmpty();
     final ValueProperties properties = createValueProperties()
         .withAny(ValuePropertyNames.CURRENCY)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
