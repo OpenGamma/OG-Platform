@@ -31,7 +31,11 @@
     background: #fff;
 }
 
-.OG-g-h-scroll {overflow: hidden}
+.OG-g-h-scroll {
+    background-color: #ecf5fa;
+    overflow: hidden;
+}
+
 .OG-g-b-fixed {
     overflow-y: auto; overflow-x: hidden
 }
