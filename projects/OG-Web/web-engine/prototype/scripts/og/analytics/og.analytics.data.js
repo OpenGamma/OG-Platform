@@ -48,7 +48,7 @@ $.register_module({
                 meta.structure = result.data[ROOT] || [];
                 meta.columns.fixed = [{
                     name: fixed_set[grid_type], columns: result.data[SETS][0].columns
-                        .map(function (col) {return (col.width = 150), col;})
+                        .map(function (col, i) {return (col.width = i ? 150 : 250), col;})
                 }];
                 meta.columns.scroll = result.data[SETS].slice(1).map(function (set) {
                     return set.columns.forEach(function (col) {return (col.width = 175), col;}), set;
