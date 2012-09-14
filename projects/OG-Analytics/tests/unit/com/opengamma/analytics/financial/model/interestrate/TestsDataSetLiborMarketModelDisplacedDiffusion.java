@@ -17,7 +17,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 /**
  * Data used for tests on the LMM displaced diffusion.
  */
-public class LiborMarketModelDisplacedDiffusionTestsDataSet {
+public class TestsDataSetLiborMarketModelDisplacedDiffusion {
 
   private static final double MEAN_REVERSION = 0.001;
   private static final double DISPLACEMENT = 0.10;
@@ -34,13 +34,25 @@ public class LiborMarketModelDisplacedDiffusionTestsDataSet {
   }
 
   /**
-   * Create LMM parameters adapted to a given swap with the test data.
+   * Create LMM parameters adapted to a given swap with the test data. The volatilities are shifted by a given amount.
    * @param modelDate The pricing date.
    * @param swap The swap.
    * @return The LMM parameters.
    */
-  public static LiborMarketModelDisplacedDiffusionParameters createLMMParameters(final ZonedDateTime modelDate, final AnnuityCouponDefinition<? extends CouponDefinition> annuity, final double shift) {
+  public static LiborMarketModelDisplacedDiffusionParameters createLMMParametersShiftVol(final ZonedDateTime modelDate, final AnnuityCouponDefinition<? extends CouponDefinition> annuity,
+      final double shift) {
     return LiborMarketModelDisplacedDiffusionParameters.from(modelDate, annuity, IBOR_DAY_COUNT, DISPLACEMENT, MEAN_REVERSION, new VolatilityLMM(shift));
+  }
+
+  /**
+   * Create LMM parameters adapted to a given swap with the test data. The displacements are shifted by a given amount.
+   * @param modelDate The pricing date.
+   * @param swap The swap.
+   * @return The LMM parameters.
+   */
+  public static LiborMarketModelDisplacedDiffusionParameters createLMMParametersShiftDis(final ZonedDateTime modelDate, final AnnuityCouponDefinition<? extends CouponDefinition> annuity,
+      final double shift) {
+    return LiborMarketModelDisplacedDiffusionParameters.from(modelDate, annuity, IBOR_DAY_COUNT, DISPLACEMENT + shift, MEAN_REVERSION, new VolatilityLMM());
   }
 
   /**

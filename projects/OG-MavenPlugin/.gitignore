@@ -1,0 +1,16 @@
+*~
+foo~
+*.class
+*.log
+build/
+dist/
+ivy/
+lib/
+tests/classes/
+tests/output/
+.settings/
+MANIFEST.MF
+.clover/
+build.number
+javadoc-data.json
+*.pyc

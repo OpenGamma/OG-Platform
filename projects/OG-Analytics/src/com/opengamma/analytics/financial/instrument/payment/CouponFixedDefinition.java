@@ -116,6 +116,15 @@ public class CouponFixedDefinition extends CouponDefinition {
     return _amount;
   }
 
+  /**
+   * Creates a new coupon with all the details the same except the notional which is the one provided.
+   * @param notional The new notional.
+   * @return The coupon.
+   */
+  public CouponFixedDefinition withNotional(final double notional) {
+    return new CouponFixedDefinition(getCurrency(), getPaymentDate(), getAccrualStartDate(), getAccrualEndDate(), getPaymentYearFraction(), notional, _rate);
+  }
+
   @Override
   public String toString() {
     return super.toString() + " *Fixed coupon* Rate = " + _rate + ", Amount = " + _amount;

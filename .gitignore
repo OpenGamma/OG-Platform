@@ -22,6 +22,7 @@ common/deploy.properties
 !/projects/OG-Master
 !/projects/OG-MasterDB
 !/projects/OG-Maths
+!/projects/OG-MavenPlugin
 !/projects/OG-Provider
 !/projects/OG-Security
 !/projects/OG-Server

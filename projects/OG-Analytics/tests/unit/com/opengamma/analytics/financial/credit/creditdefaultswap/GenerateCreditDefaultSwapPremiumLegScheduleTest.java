@@ -35,6 +35,10 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
+  // TODO : Add all the tests
+
+  // --------------------------------------------------------------------------------------------------------------------------------------------------
+
   // CDS contract parameters
 
   private static final BuySellProtection buySellProtection = BuySellProtection.BUY;
@@ -113,8 +117,6 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
       includeAccruedPremium);
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
-
-  // TODO : Add all the tests
 
   @Test
   public void testCashflowScheduleGeneration() {

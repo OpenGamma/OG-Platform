@@ -19,7 +19,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
-import com.opengamma.analytics.financial.model.interestrate.TestsDataSetsHullWhite;
+import com.opengamma.analytics.financial.model.interestrate.TestsDataSetHullWhite;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -58,7 +58,7 @@ public class CouponCMSHullWhiteMethodsTest {
 
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves2();
   private static final String[] CURVE_NAMES = TestsDataSetsSABR.curves2Names();
-  private static final HullWhiteOneFactorPiecewiseConstantParameters PARAMETERS_HW = TestsDataSetsHullWhite.createHullWhiteParameters();
+  private static final HullWhiteOneFactorPiecewiseConstantParameters PARAMETERS_HW = TestsDataSetHullWhite.createHullWhiteParameters();
   private static final HullWhiteOneFactorPiecewiseConstantDataBundle BUNDLE_HW = new HullWhiteOneFactorPiecewiseConstantDataBundle(PARAMETERS_HW, CURVES);
 
   private static final CouponCMS CPN_CMS = (CouponCMS) CPN_CMS_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {CURVE_NAMES[0], CURVE_NAMES[2]});

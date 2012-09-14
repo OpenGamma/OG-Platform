@@ -51,6 +51,7 @@ public class CalibrateSurvivalCurve {
 
   // Member function to calibrate a CDS objects survival curve to a term structure of market observed par CDS spreads
   // The input CDS object has all the schedule etc settings for computing the CDS's PV's etc
+  // The user inputs the schedule of (future) dates on which we have observed par CDS spread quotes
 
   public double[][] getCalibratedSurvivalCurve(CreditDefaultSwapDefinition cds, ZonedDateTime[] tenors, double[] parCDSSpreads, YieldCurve yieldCurve) {
 
@@ -102,32 +103,40 @@ public class CalibrateSurvivalCurve {
     for (int m = 0; m < numberOfTenors; m++) {
 
       // Create vectors of size m to hold the first m tenors and haz rates
-      ZonedDateTime[] tempTenors = new ZonedDateTime[m];
-      double[] tempHazRates = new double[m];
+      ZonedDateTime[] tempTenors = new ZonedDateTime[m + 1];
+      double[] tempHazRates = new double[m + 1];
+
+      // 1st time through the loop, just have the 1st tenor
 
       // Copy the input tenors into the temp vector of size m (check limits of loop)
-      for (int i = 0; i < m; i++) {
+      for (int i = 0; i <= m; i++) {
         tempTenors[i] = tenors[i];
       }
 
-      for (int i = 0; i < m; i++) {
+      /*
+      // 1st time through loop hazRates[0] = 0
+      for (int i = 0; i <= m; i++) {
         tempHazRates[i] = hazardRates[i];
       }
+      */
+
+      // Initial hazard rate guess
+      // hazRates[m] = guess[m];
 
       // Build a CDS with maturity of tenor[m]
       currentCDS = currentCDS.withMaturity(tenors[m]);
 
-      // up to this point we have h at tenors up to m - 1
+      // Build a survival curve using the calibrated haz rates up to tenor m (1 to m - 1 have been already calibrated) - m is initially a guess
+      survivalCurve = survivalCurve.bootstrapHelperSurvivalCurve(tempTenors, hazardRates);
+
+      // Now the root finding loop
 
       // while (parCDSSpreads[m] - parSpread > tolerance) {
 
       // guess h for tenor m (using the solver)
 
-      // Build a survival curve using the calibrated haz rates up to tenor m - 1
-      survivalCurve = survivalCurve.bootstrapHelperSurvivalCurve(tempTenors, tempHazRates);
-
       // Calculate the par CDS spread for this guess for the haz rate term structure up to tenor[m]
-      parSpread = bootstrapCDS.getParSpreadCreditDefaultSwap(currentCDS, yieldCurve, survivalCurve);
+      //parSpread = bootstrapCDS.getParSpreadCreditDefaultSwap(currentCDS, yieldCurve, survivalCurve);
 
       // end of the while loop
 
