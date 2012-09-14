@@ -5,12 +5,16 @@
  */
 package com.opengamma.financial.analytics.riskfactors;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.lang.NotImplementedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
@@ -79,7 +83,7 @@ import com.opengamma.util.tuple.Pair;
  * Default implementation of {@link RiskFactorsGatherer}.
  */
 public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<Set<Pair<String, ValueProperties>>> implements RiskFactorsGatherer {
-
+  private static final Logger s_logger = LoggerFactory.getLogger(DefaultRiskFactorsGatherer.class);
   private final SecuritySource _securities;
   private final RiskFactorsConfigurationProvider _configProvider;
 
@@ -274,16 +278,22 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
 
   @Override
   public Set<Pair<String, ValueProperties>> visitFXOptionSecurity(final FXOptionSecurity security) {
-    return ImmutableSet.<Pair<String, ValueProperties>>builder()
+    ImmutableSet.Builder<Pair<String, ValueProperties>> builder = ImmutableSet.<Pair<String, ValueProperties>>builder()
       .add(getFXPresentValue(ValueProperties.builder()))
       .add(getFXCurrencyExposure(ValueProperties.builder()))
-      .add(getVegaMatrix(ValueProperties
-        .with(ValuePropertyNames.SURFACE, _configProvider.getFXVanillaOptionSurfaceName(security.getCallCurrency(), security.getPutCurrency())) 
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)))
-      .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()))
+            .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()))
       .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()))
       .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCallCurrency()), security.getCallCurrency()))
-      .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getPutCurrency()), security.getPutCurrency())).build();
+      .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getPutCurrency()), security.getPutCurrency()));
+    String surfaceName = _configProvider.getFXVanillaOptionSurfaceName(security.getCallCurrency(), security.getPutCurrency());
+    if (surfaceName != null) {
+      builder.add(getVegaMatrix(ValueProperties
+          .with(ValuePropertyNames.SURFACE, surfaceName) 
+          .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)));
+    } else {
+      s_logger.warn("Could not build surface name for {}", security);
+    }
+    return builder.build();
   }
 
   // REVIEW: jim 23-Jan-2012 -- bit of a leap to assume it's the same as FX Options...
@@ -345,13 +355,14 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
 
   @Override
   public Set<Pair<String, ValueProperties>> visitCommodityFutureOptionSecurity(CommodityFutureOptionSecurity commodityFutureOptionSecurity) {
-    throw new NotImplementedException();
+    s_logger.warn("Commodity Future Option risk factors not implemented");
+    return Collections.emptySet();
   }
 
   @Override
-  public Set<Pair<String, ValueProperties>> visitEquityIndexDividendFutureOptionSecurity(
-    final EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
-    throw new NotImplementedException();
+  public Set<Pair<String, ValueProperties>> visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
+    s_logger.warn("Equity index dividend future option risk factors not implemented");
+    return Collections.emptySet();
   }
 
   @Override
@@ -432,13 +443,22 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
 
   @Override
   public Set<Pair<String, ValueProperties>> visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
-    final String surfaceName = _configProvider.getEquityIndexOptionVolatilitySurfaceName(security.getExternalIdBundle().getValue(ExternalSchemes.BLOOMBERG_TICKER));
-    return ImmutableSet.<Pair<String, ValueProperties>>builder()
-      .add(getPresentValue(ValueProperties.builder()))
-      .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()))
-      .add(getVegaMatrix(ValueProperties
-        .with(ValuePropertyNames.SURFACE, "DEFAULT")
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, "EQUITY_OPTION"))).build();
+    String ticker = security.getSpotUnderlyingId().getValue();
+    if (ticker != null) {
+      final String surfaceName = _configProvider.getEquityIndexOptionVolatilitySurfaceName(ticker);
+      return ImmutableSet.<Pair<String, ValueProperties>>builder()
+        .add(getPresentValue(ValueProperties.builder()))
+        .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()))
+        .add(getVegaMatrix(ValueProperties
+          .with(ValuePropertyNames.SURFACE, "DEFAULT")
+          .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, "EQUITY_OPTION"))).build();
+    } else {
+      s_logger.warn("Could not get underlying ticker for equity variance swap security, so excluding surface");
+      return ImmutableSet.<Pair<String, ValueProperties>>builder()
+          .add(getPresentValue(ValueProperties.builder()))
+          .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency())).build();
+      
+    }
   }
 
   //-------------------------------------------------------------------------
