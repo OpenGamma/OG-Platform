@@ -22,6 +22,7 @@
     text-overflow: ellipsis;
     padding: 0 0 0 5px;
     cursor: default;
+    white-space: nowrap;
 }
 
 .OG-g-h-fixed, .OG-g-b-fixed,
@@ -30,7 +31,11 @@
     background: #fff;
 }
 
-.OG-g-h-scroll {overflow: hidden}
+.OG-g-h-scroll {
+    background-color: #ecf5fa;
+    overflow: hidden;
+}
+
 .OG-g-b-fixed {
     overflow-y: auto; overflow-x: hidden
 }
@@ -99,7 +104,6 @@
 
 .OG-g-h-cols {
     position: relative;
-    top: 24px;
     font-weight: bold;
 }
 
@@ -124,4 +128,9 @@
     position: absolute;
     top: 5px;
     right: 13px;
+}
+
+/* negative value */
+.OG-g .og-neg {
+    color: #a62a2a;
 }

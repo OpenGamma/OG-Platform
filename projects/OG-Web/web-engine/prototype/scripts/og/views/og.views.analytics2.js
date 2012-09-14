@@ -42,7 +42,7 @@ $.register_module({
                    }
                 });
                 grid.on('cellhover', function (cell) {
-                    if (!cell.value) return  cellmenu.hide();
+                    if (!cell.value || cell.type === 'PRIMITIVE' || cell.col < 2) return  cellmenu.hide();
                     cellmenu.show(cell);
                 });
                 grid.on('cellselect', function () {});
