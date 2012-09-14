@@ -34,7 +34,7 @@ import com.opengamma.id.UniqueId;
  * <h4>Snapshot Data</h4>
  * <code>{"marketDataType": "snapshot", "snapshotId": ""}</code>
  */
-/* package */ class MarketDataSpecificationJsonReader {
+public class MarketDataSpecificationJsonReader {
 
   private static final String SNAPSHOT_ID = "snapshotId";
   private static final String RESOLVER_KEY = "resolverKey";
@@ -47,6 +47,7 @@ import com.opengamma.id.UniqueId;
   private static final String FIXED_HISTORICAL = "fixedHistorical";
   private static final String DATE = "date";
 
+  /** Builders keyed by the name of the market data type. */
   private static final Map<String, SpecificationBuilder> s_builders = ImmutableMap.of(
       LIVE, new LiveSpecificationBuilder(),
       LATEST_HISTORICAL, new LatestHistoricalSpecificationBuilder(),
@@ -54,7 +55,7 @@ import com.opengamma.id.UniqueId;
       SNAPSHOT, new SnapshotSpecificationBuilder()
   );
 
-  /* package */ static MarketDataSpecification buildSpecification(String json) throws JSONException {
+  public static MarketDataSpecification buildSpecification(String json) throws JSONException {
     return buildSpecification(new JSONObject(json));
   }
 
@@ -67,17 +68,21 @@ import com.opengamma.id.UniqueId;
     return builder.build(json);
   }
 
-  /* package */ static List<MarketDataSpecification> buildSpecifications(String json) throws JSONException {
-    JSONArray array = new JSONArray(json);
-    List<MarketDataSpecification> specs = Lists.newArrayListWithCapacity(array.length());
-    for (int i = 0; i < array.length(); i++) {
-      specs.add(buildSpecification(array.getJSONObject(i)));
+  public static List<MarketDataSpecification> buildSpecifications(String json) {
+    try {
+      JSONArray array = new JSONArray(json);
+      List<MarketDataSpecification> specs = Lists.newArrayListWithCapacity(array.length());
+      for (int i = 0; i < array.length(); i++) {
+        specs.add(buildSpecification(array.getJSONObject(i)));
+      }
+      return specs;
+    } catch (JSONException e) {
+      throw new IllegalArgumentException("Failed to parse MarketDataSpecification JSON", e);
     }
-    return specs;
   }
 
   /** For classes that can build instances of {@link MarketDataSpecification} subclasses. */
-  interface SpecificationBuilder {
+  private interface SpecificationBuilder {
 
     MarketDataSpecification build(JSONObject json) throws JSONException;
   }
@@ -121,5 +126,5 @@ import com.opengamma.id.UniqueId;
     public MarketDataSpecification build(JSONObject json) throws JSONException {
       return new UserMarketDataSpecification(UniqueId.parse(json.getString(MarketDataSpecificationJsonReader.SNAPSHOT_ID)));
     }
-}
+  }
 }

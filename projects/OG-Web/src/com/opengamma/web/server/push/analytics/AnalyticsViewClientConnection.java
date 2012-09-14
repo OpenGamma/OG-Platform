@@ -60,7 +60,7 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
     _view = view;
     _viewClient = viewClient;
     _aggregatedViewDef = new AggregatedViewDefinition(aggregatedViewDefManager, viewRequest);
-    _executionOptions = viewRequest.getMarketData().createExecutionOptions(snapshotMaster, namedMarketDataSpecRepo);
+    _executionOptions = viewRequest.getExecutionOptions();
   }
 
   /**
