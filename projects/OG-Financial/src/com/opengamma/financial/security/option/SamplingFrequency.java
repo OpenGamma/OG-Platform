@@ -25,6 +25,10 @@ public enum SamplingFrequency {
   /**
    * Continuous (for continuous monitoring)
    */
-  CONTINUOUS
+  CONTINUOUS,
+  /**
+   * One Look (for barriers that only apply at expiry)
+   */
+  ONE_LOOK
 
 }
