@@ -3,6 +3,9 @@
 -- User has one primary table: usr_oguser.
 -- Bitemporal versioning exists at the document level
 
+SET XACT_ABORT ON;
+BEGIN TRANSACTION;
+
 CREATE TABLE usr_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
@@ -66,3 +69,5 @@ CREATE TABLE usr_entitlement (
     PRIMARY KEY (oguser_id, entitlement_index),
     CONSTRAINT usr_fk_entit2oguser FOREIGN KEY (oguser_id) REFERENCES usr_oguser (id) ON DELETE CASCADE
 );
+
+COMMIT;

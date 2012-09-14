@@ -1,4 +1,5 @@
-START TRANSACTION;
+SET XACT_ABORT ON;
+BEGIN TRANSACTION;
   -- update the version
   UPDATE usr_schema_version SET version_value='46' WHERE version_key='schema_patch';
 
