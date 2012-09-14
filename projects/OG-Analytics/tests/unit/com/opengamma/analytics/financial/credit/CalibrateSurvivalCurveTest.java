@@ -116,6 +116,13 @@ public class CalibrateSurvivalCurveTest {
 
   // ---------------------------------------------------------------------------------------
 
+  //@Test
+  public void testRootFinder() {
+
+    System.out.println("Root finder test ...");
+
+  }
+
   @Test
   public void testCalibrateSurvivalCurve() {
 
@@ -143,5 +150,7 @@ public class CalibrateSurvivalCurveTest {
 
     double[][] calibratedSurvivalCurve = curve.getCalibratedSurvivalCurve(cds, tenors, parCDSSpreads, yieldCurve);
   }
+
   // ---------------------------------------------------------------------------------------
+
 }
