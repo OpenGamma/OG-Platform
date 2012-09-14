@@ -56,8 +56,8 @@ install the example engines run
 
   ant install
 
-which will create a folder called OpenGamma/ in the root.  In there you'll find
-a scripts/ folder which contains
+which will create a folder called opengamma/ in the project root.  In there 
+you'll find a scripts/ folder which contains
 
   init-og-bloombergexample-db.sh          Create an example database using data from a local Bloomberg terminal
   init-og-examples-db.sh                  Create an example database using fake data (if you don't have a terminal)
