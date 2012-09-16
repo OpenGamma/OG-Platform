@@ -4,10 +4,14 @@
  */
 $.register_module({
     name: 'og.analytics.form',
-    dependencies: ['og.common.util.ui.AutoCombo', 'og.views.common.layout'],
+    dependencies: [
+        'og.common.util.ui.AutoCombo',
+        'og.analytics.dropmenu',
+        'og.views.common.layout'
+    ],
     obj: function () { 
         return function (selector) {
-            var emitter = new EventEmitter(), Form, Dropmenu, Status, handle_error, 
+            var emitter = new EventEmitter(), Form, Dropmenu = og.analytics.dropmenu, Status, 
                 events = {
                     focus: 'dropmenu:focus',
                     focused:'dropmenu:focused',
@@ -17,36 +21,6 @@ $.register_module({
                     closed: 'dropmenu:closed',
                     closeall: 'dropmenu:closeall'
                 };
-            Dropmenu = function (config) {
-                var Dropmenu = this, CTA, Menu;
-                return CTA = function (){ // Call To Action
-                    var cta = this;
-                    return cta.$el = config.$cta.on('click', function (event) {
-                            event.stopPropagation();
-                            Dropmenu.state === 'open' ? Dropmenu.close() : Dropmenu.open().focus();
-                        }), cta;
-                },
-                Menu = function () {
-                    var menu = this, cta = new CTA();
-                    return menu.state = 'closed', menu.opened = false, menu.$el = config.$menu,
-                        menu.focus = function () {
-                            return menu.$el.find('select').first().focus(), menu.state = 'focused',
-                                menu.emitEvent(events.focused, [menu]), menu;
-                        },
-                        menu.open = function () {
-                            return menu.$el.show().blurkill(menu.close), menu.state = 'open', menu.opened = true,
-                                cta.$el.addClass('og-active'), menu.emitEvent(events.opened, [menu]), menu;
-                        },
-                        menu.close = function () {
-                            return (menu.$el ? menu.$el.hide() : null), menu.state = 'closed', menu.opened = false,
-                                cta.$el.removeClass('og-active'), menu.emitEvent(events.closed, [menu]), menu;
-                        },
-                        menu.addListener(events.open, menu.open),
-                        menu.addListener(events.close, menu.close),
-                        menu.addListener(events.focus, menu.focus),
-                        menu;
-                }, Menu.prototype = EventEmitter.prototype, Dropmenu = new Menu();
-            };
             Status = function (selector) {
                 var status = this, interval, ini
                 t = false;
@@ -136,7 +110,8 @@ $.register_module({
                             }).addListener(events.open, function () {close_dropmenu(ds_dropdwn);}),
                             ds_dropdwn = new Dropmenu({
                                 $cta:$('.og-option-title', ds_s),
-                                $menu:$('.OG-analytics-form-menu', ds_s)
+                                $menu:$('.OG-analytics-form-menu', ds_s),
+                                
                             }).addListener(events.open, function () {close_dropmenu(ag_dropdwn);});
                         }),
                         emitter.addListener(events.closeall, function () {
