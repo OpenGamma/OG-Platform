@@ -111,10 +111,11 @@
  * <ul>
  *   <li>{@code viewDefinitionId}: Unique ID of the view definition.</li>
  *   <li>{@code aggregators}: names of the aggregators used to aggregate the portfolio, omit for no aggregation.</li>
- *   <li>{@code live}: {@code true} or {@code false} - whether to use live market data or a snapshot.</li>
- *   <li>{@code provider}: name of the market data provider.  Only required for live data. <em>TODO use the value "Live market data (Bloomberg)" for testing</em>.</li>
- *   <li>{@code snapshotId}: ID of the market data snapshot.  Only required if using a market data snapshot.</li>
- *   <li>{@code versionDateTime}: time of the snapshot.  Only required if using a market data snapshot.</li>
+ *   <li>{@code valuationTime}: valuation time used by the calculation engine.</li>
+ *   <li>{@code portfolioVersionTime}: the time of the portfolio version used in the calculations.</li>
+ *   <li>{@code portfolioCorrectionTime}: the correction time of the portfolio version used in the calculations.</li>
+ *   <li>{@code marketDataProviders}: JSON array spcifying the market data providers.
+ *   See {@link com.opengamma.web.server.push.analytics.MarketDataSpecificationJsonReader} for details.</li>
  * </ul>
  * <p>The response header will contain the location of the new view. To close a view the client should make a
  * {@code DELETE} request to the view's location.</p>
