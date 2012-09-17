@@ -8,14 +8,12 @@
 <div class="OG-analytics-form-menu og-menu-aggregation OG-shadow" style="display: none">
   <div class="OG-background-03"></div>
   <table class="OG-aggregation-options">
-    <tr>
+    <tr class="OG-dropmenu-options">
       <td class="number"><span>1</span></td>
       <td>
-        <select id="agg">
-          <option>select aggregation type...</option>
-          {{#each this}}
-            <option>{{this}}</option>
-          {{/each}}
+        <select id="agg" name="agg">
+          <option selected>select aggregation type...</option>
+          {{#each this}}<option>{{this}}</option>{{/each}}
         </select>
       </td>
       <td>

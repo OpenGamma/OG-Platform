@@ -50,11 +50,11 @@ $.register_module({
                 return status;
             };
             MastHead = function (template, search, aggregators, datasource) { //TODO AG: Keep things DRY as poss!
-                var MastHead = this, Form, ag_dropdwn, ds_dropdwn, vd_s = '.og-view', ag_s = '.og-aggregation',
-                    ds_s = '.og-datasources', load_s = '.og-load', fcntrls_s = 'input, select, button',
-                    ac_s = 'input autocompletechange autocompleteselect', $form = $(selector).html(template),
-                    $ag = $(ag_s, $form), $ds = $(ds_s, $form), $ag_fcntrls, $ds_fcntrls, $load_btn = $(load_s, $form),
-                    $load_btn, status, ac_menu;
+                var MastHead = this, Form, ag_dropdwn, ds_dropdwn, vd_s = '.og-view',
+                    fcntrls_s = 'input, select, button', ac_s = 'input autocompletechange autocompleteselect', 
+                    $form = $(selector).html(template), $ag = $('.og-aggregation', $form), 
+                    $ds = $('.og-datasources', $form), $ag_fcntrls, $ds_fcntrls, $load_btn = $('.og-load', $form),
+                    status, ac_menu;
                 return Form = function(){
                     var form = this,
                         keydown_handler = function (event) {
@@ -82,9 +82,13 @@ $.register_module({
                             }
                         },
                         click_handler = function (event) {
-                            var $elem = $(event.srcElement), txt_val = $elem.text();
-                            if ($elem.is('button')) button_handler(txt_val);
-                            if ($elem.is('select')) console.log('selected');
+                            var $elem = $(event.srcElement);
+                            if ($elem.is('button')) button_handler($elem.text());
+                            if ($elem.is('select')){
+                                event.preventDefault();
+                                event.stopPropagation();
+                                event.stopImmediatePropagation();
+                            }
                         },
                         close_dropmenu = function (menu) {
                             if (menu.state === 'open'|| menu.state === 'focused') menu.emitEvent(events.close);
@@ -101,18 +105,11 @@ $.register_module({
                             og.api.text({module: 'og.analytics.form_aggregation_tash'}),
                             og.api.text({module: 'og.analytics.form_datasources_tash'})
                         ).then(function (aggregation_markup, datasources_markup) {
-                            $ag.html($((Handlebars.compile(aggregation_markup))(aggregators.data))),
-                            $ds.html($((Handlebars.compile(datasources_markup))(datasource))),
-                            $ag_fcntrls = $ag.find(fcntrls_s), $ds_fcntrls = $ds.find(fcntrls_s),
-                             ag_dropdwn = new Dropmenu({
-                                $cta: $('.og-option-title', ag_s),
-                                $menu: $('.OG-analytics-form-menu', ag_s)
-                            }).addListener(events.open, function () {close_dropmenu(ds_dropdwn);}),
-                            ds_dropdwn = new Dropmenu({
-                                $cta:$('.og-option-title', ds_s),
-                                $menu:$('.OG-analytics-form-menu', ds_s),
-                                
-                            }).addListener(events.open, function () {close_dropmenu(ag_dropdwn);});
+                            ag_dropdwn = new Dropmenu({$cntr: $ag, tmpl: aggregation_markup, data: aggregators.data})
+                                .addListener(events.open, function () {close_dropmenu(ds_dropdwn);}),
+                            ds_dropdwn = new Dropmenu({$cntr: $ds, tmpl: datasources_markup, data: datasource})
+                                .addListener(events.open, function () {close_dropmenu(ag_dropdwn);}),
+                            $ag_fcntrls = $ag.find(fcntrls_s), $ds_fcntrls = $ds.find(fcntrls_s);
                         }),
                         emitter.addListener(events.closeall, function () {
                             close_dropmenu(ag_dropdwn);
