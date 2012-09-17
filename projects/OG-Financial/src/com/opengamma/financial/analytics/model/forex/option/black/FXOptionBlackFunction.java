@@ -49,6 +49,7 @@ import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
+import com.opengamma.financial.security.option.SamplingFrequency;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
@@ -201,13 +202,12 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
       return false;
     }
     final Security security = target.getSecurity();
-    /* TODO Case - To be put back in asap
     if (security instanceof FXBarrierOptionSecurity) { // ONE_LOOK's are handled by FXOneLookBarrierOptionBlackFunction
       if (((FXBarrierOptionSecurity) security).getSamplingFrequency().equals(SamplingFrequency.ONE_LOOK)) {
         return false;
       }
     }
-    */
+
     return security instanceof FXOptionSecurity
         || security instanceof FXBarrierOptionSecurity
         || security instanceof FXDigitalOptionSecurity
