@@ -17,7 +17,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.property.DefaultPropertyFunction;
-import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
+import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 
 /**
  *
@@ -69,7 +69,7 @@ public class FXOneLookBarrierOptionBlackDefaultPropertiesFunction extends Defaul
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
-    return (target.getSecurity() instanceof EquityBarrierOptionSecurity);
+    return (target.getSecurity() instanceof FXBarrierOptionSecurity);
   }
 
 

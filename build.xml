@@ -248,6 +248,7 @@
         <exclude name="repository/" />
       </zipfileset>
     </zip>
+    <og-subant target="download-ivy" buildpathref="build-path" />
     <subant genericantfile="${wkspace.dir}/build.xml" target="source-dist-dep" inheritall="true">
       <dirset dir="projects" includes="*" />
     </subant>

@@ -58,7 +58,7 @@ public abstract class AbstractLiveDataConnector extends AbstractInvoker implemen
       _cancel = cancel;
     }
     
-    public Runnable getCancelHandler () {
+    public Runnable getCancelHandler() {
       return _cancel;
     }
 

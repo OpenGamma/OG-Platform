@@ -19,27 +19,21 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
+        <groupId>com.opengamma</groupId>
+        <artifactId>og-maven-plugin</artifactId>
         <executions>
           <execution>
             <phase>package</phase>
             <goals>
-              <goal>exec</goal>
+              <goal>scripts-tools</goal>
             </goals>
           </execution>
         </executions>
         <configuration>
-          <executable>java</executable>
-          <arguments>
-            <argument>-cp</argument>
-            <classpath />
-            <argument>com.opengamma.util.generate.scripts.CustomScriptsGenerator</argument>
-            <argument>-o</argument>
-            <argument>${project.build.directory}/scripts</argument>
-            <argument>-t</argument>
-            <argument>script-template.ftl</argument>
-          </arguments>
+          <templateFile>scripts-tools/script-template.ftl</templateFile>
+          <additionalScripts>
+            <param>scripts-tools/run-tool.sh</param>
+          </additionalScripts>
         </configuration>      
       </plugin>
       <plugin>
@@ -50,38 +44,13 @@
             <phase>package</phase>
             <configuration>
               <target>
-                <copy todir="${project.build.directory}/scripts">
-                  <fileset dir="${project.basedir}/scripts" />
-                </copy>
-                <chmod dir="${project.build.directory}/scripts" includes="*" perm="755" />
-                <zip basedir="${project.build.directory}/scripts" destfile="${project.build.directory}/scripts.zip" />
+                <zip basedir="${project.build.directory}/scripts-tools" destfile="${project.build.directory}/scripts-tools.zip" />
+                <attachartifact file="${project.build.directory}/scripts-tools.zip" classifier="scripts-tools" type="zip" />
               </target>
             </configuration>
             <goals>
               <goal>run</goal>
             </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>attach-artifacts</id>
-            <phase>package</phase>
-            <goals>
-              <goal>attach-artifact</goal>
-            </goals>
-            <configuration>
-              <artifacts>
-                <artifact>
-                  <file>${project.build.directory}/og-server-scripts.zip</file>
-                  <type>zip</type>
-                  <classifier>scripts</classifier>
-                </artifact>
-              </artifacts>
-            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -103,6 +72,12 @@
       <groupId>com.opengamma</groupId>
       <artifactId>og-component</artifactId>
       <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma</groupId>
+      <artifactId>og-component</artifactId>
+      <version>${project.version}</version>
+      <classifier>resources</classifier>
     </dependency>
     <dependency>
       <groupId>com.opengamma</groupId>
@@ -141,8 +116,25 @@
     </dependency>
     <dependency>
       <groupId>com.opengamma</groupId>
+      <artifactId>og-web</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma</groupId>
+      <artifactId>og-web</artifactId>
+      <version>${project.version}</version>
+      <classifier>resources</classifier>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma</groupId>
       <artifactId>og-region-data</artifactId>
       <version>1.0.0.v20110908a</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.opengamma</groupId>
+      <artifactId>og-maven-plugin</artifactId>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 

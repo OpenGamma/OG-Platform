@@ -31,8 +31,9 @@ public class FXOneLookBarrierOptionBlackCurveSensitivityFunction extends FXOneLo
   @Override
   protected Object computeValues(Set<ForexOptionVanilla> vanillaOptions, ForexOptionDataBundle<?> market) {
     MultipleCurrencyInterestRateCurveSensitivity sum = new MultipleCurrencyInterestRateCurveSensitivity();
+    final boolean isVolFlat = market instanceof YieldCurveWithBlackForexTermStructureBundle;
     for (ForexOptionVanilla derivative : vanillaOptions) {
-      if (market instanceof YieldCurveWithBlackForexTermStructureBundle) {
+      if (isVolFlat) {
         final MultipleCurrencyInterestRateCurveSensitivity result = FLAT_CALCULATOR.visit(derivative, market);
         ArgumentChecker.isTrue(result.getCurrencies().size() == 1, "Only one currency");
         sum.plus(result);

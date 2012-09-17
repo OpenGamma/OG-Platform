@@ -34,7 +34,7 @@ public class CreditDefaultSwapDefinitionTest {
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
-  // CDS contract parameters (don't need the curves in this case)
+  // CDS contract parameters (don't need the curves in this case as we are just testing the validity of the input parameters)
 
   private static final BuySellProtection buySellProtection = BuySellProtection.BUY;
 

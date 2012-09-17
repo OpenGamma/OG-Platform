@@ -26,6 +26,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixCross;
@@ -81,12 +82,18 @@ public abstract class PnlSeriesCurrencyConversionFunction extends AbstractFuncti
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ComputedValue originalPnlSeriesComputedValue = inputs.getComputedValue(ValueRequirementNames.PNL_SERIES);
-    final HistoricalTimeSeries conversionTS = (HistoricalTimeSeries) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
+    final HistoricalTimeSeries hts = (HistoricalTimeSeries) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
+    LocalDateDoubleTimeSeries conversionTS = hts.getTimeSeries();
     final LocalDateDoubleTimeSeries originalPnlSeries = (LocalDateDoubleTimeSeries) originalPnlSeriesComputedValue.getValue();
     final Currency originalCurrency = Currency.of(originalPnlSeriesComputedValue.getSpecification().getProperty(ValuePropertyNames.CURRENCY));
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final String desiredCurrencyCode = desiredValue.getConstraint(ValuePropertyNames.CURRENCY);
+    final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(OpenGammaExecutionContext.getConfigSource(executionContext));
+    final CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
     final Currency desiredCurrency = Currency.of(desiredCurrencyCode);
+    if (currencyPairs.getCurrencyPair(originalCurrency, desiredCurrency).getBase().equals(desiredCurrency)) {
+      conversionTS = conversionTS.reciprocal().toLocalDateDoubleTimeSeries();
+    }
     final LocalDateDoubleTimeSeries fxSeries = convertSeries(originalPnlSeries, conversionTS, originalCurrency, desiredCurrency);
     return ImmutableSet.of(new ComputedValue(getValueSpec(originalPnlSeriesComputedValue.getSpecification(), desiredCurrencyCode), fxSeries));
   }
@@ -141,7 +148,8 @@ public abstract class PnlSeriesCurrencyConversionFunction extends AbstractFuncti
     return new ValueSpecification(ValueRequirementNames.PNL_SERIES, inputSpec.getTargetSpecification(), properties);
   }
 
-  private LocalDateDoubleTimeSeries convertSeries(final LocalDateDoubleTimeSeries sourceTs, final HistoricalTimeSeries conversionTS, final Currency sourceCurrency, final Currency targetCurrency) {
+  private LocalDateDoubleTimeSeries convertSeries(final LocalDateDoubleTimeSeries sourceTs, final LocalDateDoubleTimeSeries conversionTS, final Currency sourceCurrency,
+      final Currency targetCurrency) {
     final CurrencyMatrixValue fxConversion = getCurrencyMatrix().getConversion(sourceCurrency, targetCurrency);
     return fxConversion.accept(new TimeSeriesCurrencyConverter(sourceTs, conversionTS));
   }
@@ -150,9 +158,9 @@ public abstract class PnlSeriesCurrencyConversionFunction extends AbstractFuncti
   private class TimeSeriesCurrencyConverter implements CurrencyMatrixValueVisitor<LocalDateDoubleTimeSeries> {
 
     private final LocalDateDoubleTimeSeries _baseTs;
-    private final HistoricalTimeSeries _conversionTS;
+    private final LocalDateDoubleTimeSeries _conversionTS;
 
-    public TimeSeriesCurrencyConverter(final LocalDateDoubleTimeSeries baseTs, final HistoricalTimeSeries conversionTS) {
+    public TimeSeriesCurrencyConverter(final LocalDateDoubleTimeSeries baseTs, final LocalDateDoubleTimeSeries conversionTS) {
       _baseTs = baseTs;
       _conversionTS = conversionTS;
     }
@@ -161,7 +169,7 @@ public abstract class PnlSeriesCurrencyConversionFunction extends AbstractFuncti
       return _baseTs;
     }
 
-    public HistoricalTimeSeries getConversionTimeSeries() {
+    public LocalDateDoubleTimeSeries getConversionTimeSeries() {
       return _conversionTS;
     }
 
@@ -172,7 +180,7 @@ public abstract class PnlSeriesCurrencyConversionFunction extends AbstractFuncti
 
     @Override
     public LocalDateDoubleTimeSeries visitValueRequirement(final CurrencyMatrixValueRequirement uniqueId) {
-      return (LocalDateDoubleTimeSeries) getBaseTimeSeries().multiply(getConversionTimeSeries().getTimeSeries());
+      return (LocalDateDoubleTimeSeries) getBaseTimeSeries().multiply(getConversionTimeSeries());
     }
 
     @Override

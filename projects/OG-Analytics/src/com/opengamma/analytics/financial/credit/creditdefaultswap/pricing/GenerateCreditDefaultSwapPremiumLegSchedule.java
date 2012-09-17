@@ -27,11 +27,11 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
   // -------------------------------------------------------------------------------------------
 
-  // TODO : Add a check if the calendar is 'null' to signify no adjustment of business dates? Overloaded method
-  // TODO : This is all coded for the case of building the schedule backwards from the maturity date - need to generalise  
+  // TODO : Add a check if the calendar is 'null' to signify no adjustment of business dates? Overloaded method  
   // TODO : Add the calculations for the accrual begin/end periods
-  // TODO : Eventually replace the n x 3 array returned
-  // TODO : Add code to check if we should business day adjust the final maturity date or not
+  // TODO : Eventually replace the n x 3 array returned with something more elegant
+  // TODO : Add the code to check if we should business day adjust the final maturity date or not
+  // TODO : Add the code for the back stubs (is there a better way of handling this?) - front stubs seem to work okay
 
   // -------------------------------------------------------------------------------------------
 

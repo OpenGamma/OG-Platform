@@ -36,10 +36,12 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
   private final IndexType _payIndexType;
   private final IndexType _receiveIndexType;
   private final IndexType _indexType;
-
+  private final FixedIncomeStrip _strip1;
+  private final FixedIncomeStrip _strip2;
+  private final OperationType _operation;
   /**
    * Creates a strip for non-future and non-basis swap instruments.
-   * 
+   *
    * @param instrumentType  the instrument type
    * @param curveNodePointTime  the time of the curve node point
    * @param conventionName  the name of the yield curve specification builder configuration
@@ -62,11 +64,14 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
     _receiveIndexType = null;
     _resetTenor = null;
     _indexType = null;
+    _strip1 = null;
+    _strip2 = null;
+    _operation = null;
   }
 
   /**
    * Creates a future strip.
-   * 
+   *
    * @param instrumentType  the instrument type
    * @param curveNodePointTime  the time of the curve node point
    * @param conventionName  the name of the convention to use to resolve the strip into a security
@@ -89,10 +94,13 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
     _receiveIndexType = null;
     _resetTenor = null;
     _indexType = null;
+    _strip1 = null;
+    _strip2 = null;
+    _operation = null;
   }
 
   /**
-   * Creates a zero deposit strip 
+   * Creates a zero deposit strip
    * @param instrumentType The instrument type
    * @param curveNodePointTime The time of the curve node point
    * @param periodsPerYear The number of periods per year
@@ -117,6 +125,9 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
     _receiveIndexType = null;
     _resetTenor = null;
     _indexType = null;
+    _strip1 = null;
+    _strip2 = null;
+    _operation = null;
   }
 
   /**
@@ -147,6 +158,9 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
     _receiveIndexType = receiveIndexType;
     _resetTenor = null;
     _indexType = null;
+    _strip1 = null;
+    _strip2 = null;
+    _operation = null;
   }
 
   /**
@@ -174,21 +188,50 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
     _receiveTenor = null;
     _payIndexType = null;
     _receiveIndexType = null;
+    _strip1 = null;
+    _strip2 = null;
+    _operation = null;
+  }
+
+  public FixedIncomeStrip(final FixedIncomeStrip strip1, final FixedIncomeStrip strip2, final OperationType operation, final Tenor curveNodePointTime,
+      final String conventionName) {
+    ArgumentChecker.notNull(strip1, "strip 1");
+    ArgumentChecker.notNull(strip2, "strip 2");
+    ArgumentChecker.notNull(operation, "operation");
+    ArgumentChecker.notNull(curveNodePointTime, "curve node point time");
+    ArgumentChecker.notNull(conventionName, "convention name");
+    _strip1 = strip1;
+    _strip2 = strip2;
+    _operation = operation;
+    _curveNodePointTime = curveNodePointTime;
+    _conventionName = conventionName;
+    _instrumentType = StripInstrumentType.SPREAD;
+    _periodsPerYear = 0;
+    _nthFutureFromTenor = 0;
+    _payTenor = null;
+    _receiveTenor = null;
+    _payIndexType = null;
+    _receiveIndexType = null;
+    _resetTenor = null;
+    _indexType = null;
   }
 
   //-------------------------------------------------------------------------
   /**
    * Gets the instrument type used to construct this strip.
-   * 
+   *
    * @return the instrument type, not null
    */
   public StripInstrumentType getInstrumentType() {
+    if (_strip1 != null) {
+      throw new IllegalStateException("Cannot get strip instrument type for a spread strip " + toString());
+    }
     return _instrumentType;
   }
 
   /**
    * Gets the curve node point in time.
-   * 
+   *
    * @return a tenor representing the time of the curve node point, not null
    */
   public Tenor getCurveNodePointTime() {
@@ -198,7 +241,7 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
   /**
    * Get the number of the quarterly IR futures after the tenor to choose.
    * NOTE: THIS DOESN'T REFER TO A GENERIC FUTURE
-   * 
+   *
    * @return the number of futures after the tenor
    * @throws IllegalStateException if called on a non-future strip
    */
@@ -211,7 +254,7 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
 
   /**
    * Get the periods per year of a periodic zero deposit security
-   * 
+   *
    * @return the number of periods per year
    * @throws IllegalStateException if called on a non-periodic zero deposit strip
    */
@@ -224,7 +267,7 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
 
   /**
    * Gets the name of the convention used to resolve this strip definition into a security.
-   * 
+   *
    * @return the name, not null
    */
   public String getConventionName() {
@@ -307,12 +350,44 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
     return _indexType;
   }
 
+  public FixedIncomeStrip getStrip1() {
+    if (_instrumentType != StripInstrumentType.SPREAD) {
+      throw new IllegalStateException("Cannot get the first strip for an instrument that is not a spread strip " + toString());
+    }
+    return _strip1;
+  }
+
+  public FixedIncomeStrip getStrip2() {
+    if (_instrumentType != StripInstrumentType.SPREAD) {
+      throw new IllegalStateException("Cannot get the second strip for an instrument that is not a spread strip " + toString());
+    }
+    return _strip2;
+  }
+
+  public OperationType getOperation() {
+    if (_instrumentType != StripInstrumentType.SPREAD) {
+      throw new IllegalStateException("Cannot get the operation for an instrument that is not a spread strip " + toString());
+    }
+    return _operation;
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public int compareTo(final FixedIncomeStrip other) {
     int result = getEffectiveTenor().getPeriod().toPeriodFields().toEstimatedDuration().compareTo(other.getEffectiveTenor().getPeriod().toPeriodFields().toEstimatedDuration());
     if (result != 0) {
       return result;
+    }
+    if (_instrumentType == StripInstrumentType.SPREAD) {
+      result = getStrip1().compareTo(other.getStrip1());
+      if (result != 0) {
+        return result;
+      }
+      result = getStrip2().compareTo(other.getStrip2());
+      if (result != 0) {
+        return result;
+      }
+      return getOperation().ordinal() - other.getOperation().ordinal();
     }
     result = getInstrumentType().ordinal() - other.getInstrumentType().ordinal();
     if (result != 0) {
@@ -352,11 +427,17 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
     }
     if (obj instanceof FixedIncomeStrip) {
       final FixedIncomeStrip other = (FixedIncomeStrip) obj;
+      if (_instrumentType == StripInstrumentType.SPREAD) {
+        return ObjectUtils.equals(_curveNodePointTime, other._curveNodePointTime) &&
+            ObjectUtils.equals(_conventionName, other._conventionName) &&
+            ObjectUtils.equals(_strip1, other._strip1) &&
+            ObjectUtils.equals(_strip2, other._strip2) &&
+            _operation == other._operation;
+      }
       final boolean result = ObjectUtils.equals(_curveNodePointTime, other._curveNodePointTime) &&
           ObjectUtils.equals(_conventionName, other._conventionName) &&
           _instrumentType == other._instrumentType;
       if (getInstrumentType() == StripInstrumentType.FUTURE) {
-        System.err.println(result && _nthFutureFromTenor == other._nthFutureFromTenor);
         return result && _nthFutureFromTenor == other._nthFutureFromTenor;
       }
       if (getInstrumentType() == StripInstrumentType.PERIODIC_ZERO_DEPOSIT) {
@@ -387,6 +468,13 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
   @Override
   public String toString() {
     final StringBuffer sb = new StringBuffer("FixedIncomeStrip[");
+    if (_instrumentType == StripInstrumentType.SPREAD) {
+      sb.append(_strip1.toString());
+      sb.append(_operation.getSymbol());
+      sb.append(_strip2.toString());
+      sb.append("]");
+      return sb.toString();
+    }
     sb.append("instrument type=");
     sb.append(getInstrumentType());
     sb.append(", ");
