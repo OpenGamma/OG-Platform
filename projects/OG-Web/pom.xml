@@ -31,51 +31,18 @@
             <configuration>
               <target>
                 <zip basedir="web-engine" destfile="${project.build.directory}/web-engine.zip" />
+                <attachartifact file="${project.build.directory}/web-engine.zip" classifier="web-engine" type="zip" />
                 <zip basedir="web-push" destfile="${project.build.directory}/web-push.zip" />
+                <attachartifact file="${project.build.directory}/web-push.zip" classifier="web-push" type="zip" />
                 <zip basedir="web-marketdata" destfile="${project.build.directory}/web-marketdata.zip" />
+                <attachartifact file="${project.build.directory}/web-marketdata.zip" classifier="web-marketdata" type="zip" />
                 <zip basedir="web-sharedmasters" destfile="${project.build.directory}/web-sharedmasters.zip" />
+                <attachartifact file="${project.build.directory}/web-sharedmasters.zip" classifier="web-sharedmasters" type="zip" />
               </target>
             </configuration>
             <goals>
               <goal>run</goal>
             </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>attach-artifacts</id>
-            <phase>package</phase>
-            <goals>
-              <goal>attach-artifact</goal>
-            </goals>
-            <configuration>
-              <artifacts>
-                <artifact>
-                  <file>${project.build.directory}/web-engine.zip</file>
-                  <type>zip</type>
-                  <classifier>web-engine</classifier>
-                </artifact>
-                <artifact>
-                  <file>${project.build.directory}/web-push.zip</file>
-                  <type>zip</type>
-                  <classifier>web-push</classifier>
-                </artifact>
-                <artifact>
-                  <file>${project.build.directory}/web-marketdata.zip</file>
-                  <type>zip</type>
-                  <classifier>web-marketdata</classifier>
-                </artifact>
-                <artifact>
-                  <file>${project.build.directory}/web-sharedmasters.zip</file>
-                  <type>zip</type>
-                  <classifier>web-sharedmasters</classifier>
-                </artifact>
-              </artifacts>
-            </configuration>
           </execution>
         </executions>
       </plugin>

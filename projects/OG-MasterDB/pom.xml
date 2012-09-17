@@ -31,33 +31,12 @@
             <configuration>
               <target>
                 <zip basedir="install" destfile="${project.build.directory}/og-masterdb-sql.zip" />
+                <attachartifact file="${project.build.directory}/og-masterdb-sql.zip" classifier="sql" type="zip" />
               </target>
             </configuration>
             <goals>
               <goal>run</goal>
             </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>attach-artifacts</id>
-            <phase>package</phase>
-            <goals>
-              <goal>attach-artifact</goal>
-            </goals>
-            <configuration>
-              <artifacts>
-                <artifact>
-                  <file>${project.build.directory}/og-masterdb-sql.zip</file>
-                  <type>zip</type>
-                  <classifier>sql</classifier>
-                </artifact>
-              </artifacts>
-            </configuration>
           </execution>
         </executions>
       </plugin>
