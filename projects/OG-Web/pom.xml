@@ -30,14 +30,8 @@
             <phase>package</phase>
             <configuration>
               <target>
-                <zip basedir="web-engine" destfile="${project.build.directory}/web-engine.zip" />
-                <attachartifact file="${project.build.directory}/web-engine.zip" classifier="web-engine" type="zip" />
-                <zip basedir="web-push" destfile="${project.build.directory}/web-push.zip" />
-                <attachartifact file="${project.build.directory}/web-push.zip" classifier="web-push" type="zip" />
-                <zip basedir="web-marketdata" destfile="${project.build.directory}/web-marketdata.zip" />
-                <attachartifact file="${project.build.directory}/web-marketdata.zip" classifier="web-marketdata" type="zip" />
-                <zip basedir="web-sharedmasters" destfile="${project.build.directory}/web-sharedmasters.zip" />
-                <attachartifact file="${project.build.directory}/web-sharedmasters.zip" classifier="web-sharedmasters" type="zip" />
+                <zip basedir="." includes="web-*/**" destfile="${project.build.directory}/og-web-resources.jar" />
+                <attachartifact file="${project.build.directory}/og-web-resources.jar" classifier="resources" type="jar" />
               </target>
             </configuration>
             <goals>
