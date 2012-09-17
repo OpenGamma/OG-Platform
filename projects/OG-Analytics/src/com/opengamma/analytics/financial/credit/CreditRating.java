@@ -54,5 +54,5 @@ public enum CreditRating {
    */
   NR;
 
-  // TODO: Extend this list to include Moodys, S&P and Fitch rating classifications
+  // TODO: Extend this list to include Moodys, S&P and Fitch rating classifications (as seperate enum's)
 }

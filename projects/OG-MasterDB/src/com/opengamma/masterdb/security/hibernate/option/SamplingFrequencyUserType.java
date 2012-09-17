@@ -29,6 +29,8 @@ public class SamplingFrequencyUserType extends EnumUserType<SamplingFrequency> {
         return "weekly_close";
       case CONTINUOUS:
         return "continuous";
+      case ONE_LOOK:
+        return "one_look";
       default:
         throw new OpenGammaRuntimeException("unexpected value " + value);
     }

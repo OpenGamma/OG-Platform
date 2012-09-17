@@ -20,6 +20,29 @@
     <url>https://github.com/OpenGamma/OG-Platform/tree/master/projects/OG-Component</url>
   </scm>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <configuration>
+              <target>
+                <jar basedir="config" destfile="${project.build.directory}/og-component-resources.jar" />
+                <attachartifact file="${project.build.directory}/og-component-resources.jar" classifier="resources" type="jar" />
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
   <dependencies>
     <dependency>
       <groupId>com.opengamma</groupId>

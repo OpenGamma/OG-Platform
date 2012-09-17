@@ -13,6 +13,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.time.calendar.TimeZone;
+
 import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,7 +79,6 @@ public class DbUserMaster extends AbstractDocumentDbMaster<UserDocument> impleme
   @Override
   protected UserDocument insert(UserDocument document) {
     ArgumentChecker.notNull(document.getUser(), "document.user");
-    ArgumentChecker.notNull(document.getName(), "document.name");
     
     final ManageableOGUser user = document.getUser();
     final long docId = nextId("usr_oguser_seq");
@@ -92,8 +93,11 @@ public class DbUserMaster extends AbstractDocumentDbMaster<UserDocument> impleme
       .addTimestampNullFuture("ver_to_instant", document.getVersionToInstant())
       .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
       .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
-      .addValue("name", user.getUserId())  // TODO: should also store "name"
-      .addValue("password", user.getPasswordHash());
+      .addValue("userid", user.getUserId())
+      .addValue("password", user.getPasswordHash())
+      .addValue("name", user.getName())
+      .addValue("time_zone", user.getTimeZone().getID())
+      .addValue("email_address", user.getEmailAddress());
     
     // the arguments for inserting into the idkey tables
     final List<DbMapSqlParameterSource> assocList = new ArrayList<DbMapSqlParameterSource>();
@@ -197,9 +201,11 @@ public class DbUserMaster extends AbstractDocumentDbMaster<UserDocument> impleme
       
       UniqueId uniqueId = createUniqueId(docOid, docId);
       
-      ManageableOGUser user = new ManageableOGUser(rs.getString("NAME"));  // TODO: should be USERID
-//      user.setName(rs.getString("NAME"));
+      ManageableOGUser user = new ManageableOGUser(rs.getString("USERID"));
       user.setPasswordHash(rs.getString("PASSWORD"));
+      user.setName(rs.getString("NAME"));
+      user.setTimeZone(TimeZone.of(rs.getString("TIME_ZONE")));
+      user.setEmailAddress(rs.getString("EMAIL_ADDRESS"));
       user.setUniqueId(uniqueId);
       _currUser = user;
       

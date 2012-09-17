@@ -85,6 +85,8 @@ public class ScriptsGenerator {
       template.process(data, writer);
       writer.flush();
       writer.close();
+      outputFile.setReadable(true, false);
+      outputFile.setExecutable(true, false);
     } catch (IOException e) {
       s_logger.error("Error writing to output file", e);
       throw new OpenGammaRuntimeException("Error writing to output file", e);

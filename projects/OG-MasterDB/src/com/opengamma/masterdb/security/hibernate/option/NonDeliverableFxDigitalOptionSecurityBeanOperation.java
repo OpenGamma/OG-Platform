@@ -44,6 +44,7 @@ public final class NonDeliverableFxDigitalOptionSecurityBeanOperation extends Ab
     bean.setSettlementDate(Converters.dateTimeWithZoneToZonedDateTimeBean(security.getSettlementDate()));
     bean.setIsLong(security.isLong());
     bean.setDeliverInCallCurrency(security.isDeliverInCallCurrency());
+    bean.setPaymentCurrency(secMasterSession.getOrCreateCurrencyBean(security.getPaymentCurrency().getCode()));
     return bean;
   }
 

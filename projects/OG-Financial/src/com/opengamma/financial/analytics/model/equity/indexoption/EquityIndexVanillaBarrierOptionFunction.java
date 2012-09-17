@@ -174,7 +174,7 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
 
     // parameters to model binary as call/put spread
     final double oh = overhedge;
-    final double width = strike * smoothingFullWidth; // we specify smoothing as relative value
+    final double width = barrier * smoothingFullWidth; // we specify smoothing as relative value
     final double size; // = (barrier - strike ) / smoothingFullWidth;
 
     // There are four cases: UP and IN, UP and OUT, DOWN and IN, DOWN and OUT

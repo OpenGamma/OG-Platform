@@ -69,192 +69,229 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
   }
 
   public InterpolatedYieldCurveSpecificationWithSecurities resolveToSecurity(final InterpolatedYieldCurveSpecification curveSpecification, final Map<ExternalId, Double> marketValues) {
-    final LocalDate curveDate = curveSpecification.getCurveDate();
     final Collection<FixedIncomeStripWithSecurity> securityStrips = new ArrayList<FixedIncomeStripWithSecurity>();
+    final LocalDate curveDate = curveSpecification.getCurveDate();
     for (final FixedIncomeStripWithIdentifier strip : curveSpecification.getStrips()) {
-      Security security;
-      ZonedDateTime maturity; // Should the maturity be computed from the "security" (with a visitor)?
-      switch (strip.getInstrumentType()) {
-        case CASH:
-          final CashSecurity cashSecurity = getCash(curveSpecification, strip, marketValues);
-          if (cashSecurity == null) {
-            throw new OpenGammaRuntimeException("Could not resolve cash curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
-          }
-          final Region region = _regionSource.getHighestLevelRegion(cashSecurity.getRegionId());
-          TimeZone timeZone = region.getTimeZone();
-          timeZone = ensureZone(timeZone);
-          maturity = curveDate.plus(strip.getMaturity().getPeriod()).atTime(CASH_EXPIRY_TIME).atZone(timeZone);
-          security = cashSecurity;
-          break;
-        case FRA_3M: {
-          final FRASecurity fraSecurity = getFRA(curveSpecification, strip, marketValues, Tenor.THREE_MONTHS);
-          if (fraSecurity == null) {
-            throw new OpenGammaRuntimeException("Could not resolve FRA curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
-          }
-          maturity = fraSecurity.getEndDate();
-          security = fraSecurity;
-          break;
-        }
-        case FRA_6M: {
-          final FRASecurity fraSecurity = getFRA(curveSpecification, strip, marketValues, Tenor.SIX_MONTHS);
-          if (fraSecurity == null) {
-            throw new OpenGammaRuntimeException("Could not resolve FRA curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
-          }
-          maturity = fraSecurity.getEndDate();
-          security = fraSecurity;
-          break;
-        }
-        case FRA: {
-          // In case there's any old curve definitions hanging around - assume that all FRAs are 3m
-          // TODO get defaults from convention? (e.g. USD = 3m, EUR = 6M)
-          final FRASecurity fraSecurity = getFRA(curveSpecification, strip, marketValues, Tenor.THREE_MONTHS);
-          if (fraSecurity == null) {
-            throw new OpenGammaRuntimeException("Could not resolve FRA curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
-          }
-          maturity = fraSecurity.getEndDate();
-          security = fraSecurity;
-          break;
-        }
-        case FUTURE:
-          // TODO: jim 17-Aug-2010 -- we need to sort out the zoned date time related to the expiry.
-          final FutureSecurity futureSecurity = getFuture(strip);
-          if (futureSecurity == null) {
-            throw new OpenGammaRuntimeException("Security source did not contain future curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
-          }
-          maturity = futureSecurity.getExpiry().getExpiry();
-          security = futureSecurity;
-          break;
-        case LIBOR: {
-          final CashSecurity rateSecurity = getCash(curveSpecification, strip, marketValues);
-          if (rateSecurity == null) {
-            throw new OpenGammaRuntimeException("Could not resolve Libor curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
-          }
-          final Region region2 = _regionSource.getHighestLevelRegion(rateSecurity.getRegionId());
-          TimeZone timeZone2 = region2.getTimeZone();
-          timeZone2 = ensureZone(timeZone2);
-          maturity = curveDate.plus(strip.getMaturity().getPeriod()).atTime(CASH_EXPIRY_TIME).atZone(timeZone2);
-          security = rateSecurity;
-          break;
-        }
-        case EURIBOR: {
-          final CashSecurity rateSecurity = getCash(curveSpecification, strip, marketValues);
-          if (rateSecurity == null) {
-            throw new OpenGammaRuntimeException("Could not resolve Euribor curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
-          }
-          final Region region2 = _regionSource.getHighestLevelRegion(rateSecurity.getRegionId());
-          TimeZone timeZone2 = region2.getTimeZone();
-          timeZone2 = ensureZone(timeZone2);
-          maturity = curveDate.plus(strip.getMaturity().getPeriod()).atTime(CASH_EXPIRY_TIME).atZone(timeZone2);
-          security = rateSecurity;
-          break;
-        }
-        case CDOR: {
-          final CashSecurity rateSecurity = getCash(curveSpecification, strip, marketValues);
-          if (rateSecurity == null) {
-            throw new OpenGammaRuntimeException("Could not resolve CDOR curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
-          }
-          final Region region2 = _regionSource.getHighestLevelRegion(rateSecurity.getRegionId());
-          TimeZone timeZone2 = region2.getTimeZone();
-          timeZone2 = ensureZone(timeZone2);
-          maturity = curveDate.plus(strip.getMaturity().getPeriod()).atTime(CASH_EXPIRY_TIME).atZone(timeZone2);
-          security = rateSecurity;
-          break;
-        }
-        case CIBOR: {
-          final CashSecurity rateSecurity = getCash(curveSpecification, strip, marketValues);
-          if (rateSecurity == null) {
-            throw new OpenGammaRuntimeException("Could not resolve CIBOR curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
-          }
-          final Region region2 = _regionSource.getHighestLevelRegion(rateSecurity.getRegionId());
-          TimeZone timeZone2 = region2.getTimeZone();
-          timeZone2 = ensureZone(timeZone2);
-          maturity = curveDate.plus(strip.getMaturity().getPeriod()).atTime(CASH_EXPIRY_TIME).atZone(timeZone2);
-          security = rateSecurity;
-          break;
-        }
-        case STIBOR: {
-          final CashSecurity rateSecurity = getCash(curveSpecification, strip, marketValues);
-          if (rateSecurity == null) {
-            throw new OpenGammaRuntimeException("Could not resolve STIBOR curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
-          }
-          final Region region2 = _regionSource.getHighestLevelRegion(rateSecurity.getRegionId());
-          TimeZone timeZone2 = region2.getTimeZone();
-          timeZone2 = ensureZone(timeZone2);
-          maturity = curveDate.plus(strip.getMaturity().getPeriod()).atTime(CASH_EXPIRY_TIME).atZone(timeZone2);
-          security = rateSecurity;
-          break;
-        }
-        case SWAP: {
-          // In case there's any old curve definitions hanging around - assume that all swaps are 3m
-          // TODO get defaults from convention? (e.g. USD = 3m, EUR = 6M)
-          final SwapSecurity swapSecurity = getSwap(curveSpecification, strip, marketValues, Tenor.THREE_MONTHS);
-          if (swapSecurity == null) {
-            throw new OpenGammaRuntimeException("Could not resolve swap curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
-          }
-          maturity = swapSecurity.getMaturityDate();
-          security = swapSecurity;
-          break;
-        }
-        case SWAP_3M: {
-          final SwapSecurity swapSecurity = getSwap(curveSpecification, strip, marketValues, Tenor.THREE_MONTHS);
-          if (swapSecurity == null) {
-            throw new OpenGammaRuntimeException("Could not resolve swap curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
-          }
-          maturity = swapSecurity.getMaturityDate();
-          security = swapSecurity;
-          break;
-        }
-        case SWAP_6M: {
-          final SwapSecurity swapSecurity = getSwap(curveSpecification, strip, marketValues, Tenor.SIX_MONTHS);
-          if (swapSecurity == null) {
-            throw new OpenGammaRuntimeException("Could not resolve swap curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
-          }
-          maturity = swapSecurity.getMaturityDate();
-          security = swapSecurity;
-          break;
-        }
-        case SWAP_12M: {
-          final SwapSecurity swapSecurity = getSwap(curveSpecification, strip, marketValues, Tenor.ONE_YEAR);
-          if (swapSecurity == null) {
-            throw new OpenGammaRuntimeException("Could not resolve swap curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
-          }
-          maturity = swapSecurity.getMaturityDate();
-          security = swapSecurity;
-          break;
-        }
-        case TENOR_SWAP:
-          final SwapSecurity tenorSwapSecurity = getTenorSwap(curveSpecification, strip, marketValues);
-          if (tenorSwapSecurity == null) {
-            throw new OpenGammaRuntimeException("Could not resolve swap curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
-          }
-          maturity = tenorSwapSecurity.getMaturityDate();
-          security = tenorSwapSecurity;
-          break;
-        case OIS_SWAP:
-          security = getOISSwap(curveSpecification, strip, marketValues);
-          maturity = curveDate.plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC);
-          break;
-        case PERIODIC_ZERO_DEPOSIT:
-          final PeriodicZeroDepositSecurity depositSecurity = getPeriodicZeroDeposit(curveSpecification, strip, marketValues);
-          maturity = depositSecurity.getMaturityDate();
-          security = depositSecurity;
-          break;
-        case BASIS_SWAP:
-          final SwapSecurity basisSwapSecurity = getBasisSwap(curveSpecification, strip, marketValues);
-          if (basisSwapSecurity == null) {
-            throw new OpenGammaRuntimeException("Could not resolve basis swap curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
-          }
-          security = basisSwapSecurity;
-          maturity = basisSwapSecurity.getMaturityDate();
-          break;
-        default:
-          throw new OpenGammaRuntimeException("Unhandled type of instrument in curve definition " + strip.getInstrumentType());
-      }
+      final Security security = getSecurity(curveSpecification, marketValues, strip);
+      final ZonedDateTime maturity = getMaturity(curveDate, strip, security);
       final Tenor resolvedTenor = new Tenor(Period.between(curveDate, maturity.toLocalDate()));
       securityStrips.add(new FixedIncomeStripWithSecurity(strip.getStrip(), resolvedTenor, maturity, strip.getSecurity(), security));
     }
     return new InterpolatedYieldCurveSpecificationWithSecurities(curveDate, curveSpecification.getName(), curveSpecification.getCurrency(), curveSpecification.getInterpolator(),
         curveSpecification.interpolateYield(), securityStrips);
+  }
+
+  private Security getSecurity(final InterpolatedYieldCurveSpecification curveSpecification, final Map<ExternalId, Double> marketValues, final FixedIncomeStripWithIdentifier strip) {
+    switch (strip.getInstrumentType()) {
+      case CASH:
+        final CashSecurity cashSecurity = getCash(curveSpecification, strip, marketValues);
+        if (cashSecurity == null) {
+          throw new OpenGammaRuntimeException("Could not resolve cash curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
+        }
+        return cashSecurity;
+      case FRA_3M: {
+        final FRASecurity fraSecurity = getFRA(curveSpecification, strip, marketValues, Tenor.THREE_MONTHS);
+        if (fraSecurity == null) {
+          throw new OpenGammaRuntimeException("Could not resolve FRA curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
+        }
+        return fraSecurity;
+      }
+      case FRA_6M: {
+        final FRASecurity fraSecurity = getFRA(curveSpecification, strip, marketValues, Tenor.SIX_MONTHS);
+        if (fraSecurity == null) {
+          throw new OpenGammaRuntimeException("Could not resolve FRA curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
+        }
+        return fraSecurity;
+      }
+      case FRA: {
+        final FRASecurity fraSecurity = getFRA(curveSpecification, strip, marketValues, Tenor.THREE_MONTHS);
+        if (fraSecurity == null) {
+          throw new OpenGammaRuntimeException("Could not resolve FRA curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
+        }
+        return fraSecurity;
+      }
+      case FUTURE:
+        // TODO: jim 17-Aug-2010 -- we need to sort out the zoned date time related to the expiry.
+        final FutureSecurity futureSecurity = getFuture(strip);
+        if (futureSecurity == null) {
+          throw new OpenGammaRuntimeException("Security source did not contain future curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
+        }
+        return futureSecurity;
+      case LIBOR: {
+        final CashSecurity rateSecurity = getCash(curveSpecification, strip, marketValues);
+        if (rateSecurity == null) {
+          throw new OpenGammaRuntimeException("Could not resolve Libor curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
+        }
+        return rateSecurity;
+      }
+      case EURIBOR: {
+        final CashSecurity rateSecurity = getCash(curveSpecification, strip, marketValues);
+        if (rateSecurity == null) {
+          throw new OpenGammaRuntimeException("Could not resolve Euribor curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
+        }
+        return rateSecurity;
+      }
+      case CDOR: {
+        final CashSecurity rateSecurity = getCash(curveSpecification, strip, marketValues);
+        if (rateSecurity == null) {
+          throw new OpenGammaRuntimeException("Could not resolve CDOR curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
+        }
+        return rateSecurity;
+      }
+      case CIBOR: {
+        final CashSecurity rateSecurity = getCash(curveSpecification, strip, marketValues);
+        if (rateSecurity == null) {
+          throw new OpenGammaRuntimeException("Could not resolve CIBOR curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
+        }
+        return rateSecurity;
+      }
+      case STIBOR: {
+        final CashSecurity rateSecurity = getCash(curveSpecification, strip, marketValues);
+        if (rateSecurity == null) {
+          throw new OpenGammaRuntimeException("Could not resolve STIBOR curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
+        }
+        return rateSecurity;
+      }
+      case SWAP: {
+        // In case there's any old curve definitions hanging around - assume that all swaps are 3m
+        // TODO get defaults from convention? (e.g. USD = 3m, EUR = 6M)
+        final SwapSecurity swapSecurity = getSwap(curveSpecification, strip, marketValues, Tenor.THREE_MONTHS);
+        if (swapSecurity == null) {
+          throw new OpenGammaRuntimeException("Could not resolve swap curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
+        }
+        return swapSecurity;
+      }
+      case SWAP_3M: {
+        final SwapSecurity swapSecurity = getSwap(curveSpecification, strip, marketValues, Tenor.THREE_MONTHS);
+        if (swapSecurity == null) {
+          throw new OpenGammaRuntimeException("Could not resolve swap curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
+        }
+        return swapSecurity;
+      }
+      case SWAP_6M: {
+        final SwapSecurity swapSecurity = getSwap(curveSpecification, strip, marketValues, Tenor.SIX_MONTHS);
+        if (swapSecurity == null) {
+          throw new OpenGammaRuntimeException("Could not resolve swap curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
+        }
+        return swapSecurity;
+      }
+      case SWAP_12M: {
+        final SwapSecurity swapSecurity = getSwap(curveSpecification, strip, marketValues, Tenor.ONE_YEAR);
+        if (swapSecurity == null) {
+          throw new OpenGammaRuntimeException("Could not resolve swap curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
+        }
+        return swapSecurity;
+      }
+      case TENOR_SWAP:
+        final SwapSecurity tenorSwapSecurity = getTenorSwap(curveSpecification, strip, marketValues);
+        if (tenorSwapSecurity == null) {
+          throw new OpenGammaRuntimeException("Could not resolve swap curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
+        }
+        return tenorSwapSecurity;
+      case OIS_SWAP:
+        return getOISSwap(curveSpecification, strip, marketValues);
+      case PERIODIC_ZERO_DEPOSIT:
+        final PeriodicZeroDepositSecurity depositSecurity = getPeriodicZeroDeposit(curveSpecification, strip, marketValues);
+        return depositSecurity;
+      case BASIS_SWAP:
+        final SwapSecurity basisSwapSecurity = getBasisSwap(curveSpecification, strip, marketValues);
+        if (basisSwapSecurity == null) {
+          throw new OpenGammaRuntimeException("Could not resolve basis swap curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
+        }
+        return basisSwapSecurity;
+      default:
+        throw new OpenGammaRuntimeException("Unhandled type of instrument in curve definition " + strip.getInstrumentType());
+    }
+  }
+
+  private ZonedDateTime getMaturity(final LocalDate curveDate, final FixedIncomeStripWithIdentifier strip, final Security security) {
+    switch (strip.getInstrumentType()) {
+      case CASH:
+        final CashSecurity cashSecurity = (CashSecurity) security;
+        final Region region = _regionSource.getHighestLevelRegion(cashSecurity.getRegionId());
+        TimeZone timeZone = region.getTimeZone();
+        timeZone = ensureZone(timeZone);
+        return curveDate.plus(strip.getMaturity().getPeriod()).atTime(CASH_EXPIRY_TIME).atZone(timeZone);
+      case FRA_3M: {
+        final FRASecurity fraSecurity = (FRASecurity) security;
+        return fraSecurity.getEndDate();
+      }
+      case FRA_6M: {
+        final FRASecurity fraSecurity = (FRASecurity) security;
+        return fraSecurity.getEndDate();
+      }
+      case FRA: {
+        final FRASecurity fraSecurity = (FRASecurity) security;
+        return fraSecurity.getEndDate();
+      }
+      case FUTURE:
+        final FutureSecurity futureSecurity = (FutureSecurity) security;
+        return futureSecurity.getExpiry().getExpiry();
+      case LIBOR: {
+        final CashSecurity rateSecurity = (CashSecurity) security;
+        final Region region2 = _regionSource.getHighestLevelRegion(rateSecurity.getRegionId());
+        TimeZone timeZone2 = region2.getTimeZone();
+        timeZone2 = ensureZone(timeZone2);
+        return curveDate.plus(strip.getMaturity().getPeriod()).atTime(CASH_EXPIRY_TIME).atZone(timeZone2);
+      }
+      case EURIBOR: {
+        final CashSecurity rateSecurity = (CashSecurity) security;
+        final Region region2 = _regionSource.getHighestLevelRegion(rateSecurity.getRegionId());
+        TimeZone timeZone2 = region2.getTimeZone();
+        timeZone2 = ensureZone(timeZone2);
+        return curveDate.plus(strip.getMaturity().getPeriod()).atTime(CASH_EXPIRY_TIME).atZone(timeZone2);
+      }
+      case CDOR: {
+        final CashSecurity rateSecurity = (CashSecurity) security;
+        final Region region2 = _regionSource.getHighestLevelRegion(rateSecurity.getRegionId());
+        TimeZone timeZone2 = region2.getTimeZone();
+        timeZone2 = ensureZone(timeZone2);
+        return curveDate.plus(strip.getMaturity().getPeriod()).atTime(CASH_EXPIRY_TIME).atZone(timeZone2);
+      }
+      case CIBOR: {
+        final CashSecurity rateSecurity = (CashSecurity) security;
+        final Region region2 = _regionSource.getHighestLevelRegion(rateSecurity.getRegionId());
+        TimeZone timeZone2 = region2.getTimeZone();
+        timeZone2 = ensureZone(timeZone2);
+        return curveDate.plus(strip.getMaturity().getPeriod()).atTime(CASH_EXPIRY_TIME).atZone(timeZone2);
+      }
+      case STIBOR: {
+        final CashSecurity rateSecurity = (CashSecurity) security;
+        final Region region2 = _regionSource.getHighestLevelRegion(rateSecurity.getRegionId());
+        TimeZone timeZone2 = region2.getTimeZone();
+        timeZone2 = ensureZone(timeZone2);
+        return curveDate.plus(strip.getMaturity().getPeriod()).atTime(CASH_EXPIRY_TIME).atZone(timeZone2);
+      }
+      case SWAP: {
+        final SwapSecurity swapSecurity = (SwapSecurity) security;
+        return swapSecurity.getMaturityDate();
+      }
+      case SWAP_3M: {
+        final SwapSecurity swapSecurity = (SwapSecurity) security;
+        return swapSecurity.getMaturityDate();
+      }
+      case SWAP_6M: {
+        final SwapSecurity swapSecurity = (SwapSecurity) security;
+        return swapSecurity.getMaturityDate();
+      }
+      case SWAP_12M: {
+        final SwapSecurity swapSecurity = (SwapSecurity) security;
+        return swapSecurity.getMaturityDate();
+      }
+      case TENOR_SWAP:
+        final SwapSecurity tenorSwapSecurity = (SwapSecurity) security;
+        return tenorSwapSecurity.getMaturityDate();
+      case OIS_SWAP:
+        return curveDate.plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC);
+      case PERIODIC_ZERO_DEPOSIT:
+        final PeriodicZeroDepositSecurity depositSecurity = (PeriodicZeroDepositSecurity) security;
+        return depositSecurity.getMaturityDate();
+      case BASIS_SWAP:
+        final SwapSecurity basisSwapSecurity = (SwapSecurity) security;
+        return basisSwapSecurity.getMaturityDate();
+      default:
+        throw new OpenGammaRuntimeException("Unhandled type of instrument in curve definition " + strip.getInstrumentType());
+    }
   }
 
   private CashSecurity getCash(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip, final Map<ExternalId, Double> marketValues) {

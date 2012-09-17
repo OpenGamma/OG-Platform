@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.model.forex.option.black;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
@@ -21,21 +22,25 @@ import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.option.definition.ForexOptionDataBundle;
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexVanillaBarrierOptionFunction;
+import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.BarrierDirection;
 import com.opengamma.financial.security.option.BarrierType;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
+import com.opengamma.financial.security.option.SamplingFrequency;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -58,7 +63,11 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
-    return target.getSecurity() instanceof FXBarrierOptionSecurity;
+    final Security security = target.getSecurity();
+    if (security instanceof FXBarrierOptionSecurity) {
+      return ((FXBarrierOptionSecurity) security).getSamplingFrequency().equals(SamplingFrequency.ONE_LOOK);
+    }
+    return false;
   }
 
   @Override
@@ -101,13 +110,26 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
     return Collections.singleton(new ComputedValue(spec, results));
 
   }
+
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+    final CurrencyPair baseQuotePair = getBaseQuotePair(context, target, inputs);
+    final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), getResultProperties(target, baseQuotePair).get());
+    return Collections.singleton(resultSpec);
+  }
+
   @Override
   protected Builder getResultProperties(ComputationTarget target) {
     Builder properties = super.getResultProperties(target);
     return properties.withAny(ValuePropertyNames.BINARY_OVERHEDGE)
                      .withAny(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH);
   }
-
+  @Override
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final CurrencyPair baseQuotePair) {
+    Builder properties = super.getResultProperties(target, baseQuotePair);
+    return properties.withAny(ValuePropertyNames.BINARY_OVERHEDGE)
+                     .withAny(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH);
+  }
   /**
    * This method is defined by extending Functions
    * @param vanillas Set of ForexOptionVanilla that European Barrier is composed of. Binaries are modelled as spreads
@@ -124,7 +146,7 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
       return null;
     }
     // Barriers additionally have parameters for the smoothing of binary payoffs into put spreads
-    // Return null if they haven't been set so that EquityIndexVanillaBarrierOptionDefaultPropertiesFunction can set them
+    // Return null if they haven't been set so that FXOneLookBarrierOptionDefaultPropertiesFunction can set them
     final Set<String> overhedgeSet = desiredValue.getConstraints().getValues(ValuePropertyNames.BINARY_OVERHEDGE);
     if (overhedgeSet == null || overhedgeSet.size() != 1) {
       s_logger.info("Could not find {} requirement. Looking for a default..", ValuePropertyNames.BINARY_OVERHEDGE);
@@ -137,7 +159,7 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
     }
     return commonReqs;
   }
-
+  // TODO: Consider whether to interpret overhedge so that a positive value always reduces the price, i.e. incorporate isLong
   private Set<ForexOptionVanilla> vanillaDecomposition(final FXBarrierOptionSecurity barrierSec,
       final double smoothingFullWidth, final double overhedge, final ZonedDateTime valTime, final Set<ValueRequirement> desiredValues) {
 
@@ -187,7 +209,7 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
 
     // parameters to model binary as call/put spread
     final double oh = overhedge;
-    final double width = strike * smoothingFullWidth;
+    final double width = barrier * smoothingFullWidth;
     final double size;
 
     // There are four cases: UP and IN, UP and OUT, DOWN and IN, DOWN and OUT
@@ -204,6 +226,9 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
         size = (barrier - strike) / width;
         nearStrike = barrier + oh - 0.5 * width;
         farStrike = barrier + oh + 0.5 * width;
+        if (nearStrike < 0.0 || farStrike < 0.0) {
+          throw new OpenGammaRuntimeException("A strike in the put binary approximation is negative. Look at the BinaryOverhedge and BinarySmoothingFullWidth properties.");
+        }
         break;
       case DOWN:
         useCallSpread = false;
