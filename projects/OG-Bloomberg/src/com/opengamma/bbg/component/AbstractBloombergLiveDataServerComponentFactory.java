@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.livedata.BloombergLiveDataServer;
+import com.opengamma.bbg.livedata.BloombergLiveDataServerMBean;
 import com.opengamma.bbg.livedata.faketicks.BySchemeFakeSubscriptionSelector;
 import com.opengamma.bbg.livedata.faketicks.ByTypeFakeSubscriptionSelector;
 import com.opengamma.bbg.livedata.faketicks.CombiningBloombergLiveDataServer;
@@ -35,8 +36,8 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.entitlement.LiveDataEntitlementChecker;
 import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
-import com.opengamma.livedata.server.StandardLiveDataServer;
 import com.opengamma.livedata.server.LiveDataServerMBean;
+import com.opengamma.livedata.server.StandardLiveDataServer;
 import com.opengamma.livedata.server.distribution.JmsSenderFactory;
 import com.opengamma.provider.livedata.LiveDataMetaData;
 import com.opengamma.provider.livedata.LiveDataServerTypes;
@@ -86,7 +87,7 @@ public abstract class AbstractBloombergLiveDataServerComponentFactory extends Ab
     realServer.setEntitlementChecker(entitlementChecker);
     realServer.setMarketDataSenderFactory(senderFactory);
     repo.registerLifecycle(realServer);
-    repo.registerMBean(new LiveDataServerMBean(realServer));
+    repo.registerMBean(new BloombergLiveDataServerMBean(realServer));
     
     // fake server
     FakeSubscriptionBloombergLiveDataServer fakeServer = new FakeSubscriptionBloombergLiveDataServer(realServer, getCacheManager());

@@ -51,9 +51,9 @@ public class EHCachingHistoricalTimeSeriesProviderTest {
 
   @BeforeMethod
   public void setUp() throws Exception {
-    EHCacheUtils.clearAll();
     _underlyingProvider = mock(HistoricalTimeSeriesProvider.class);
     CacheManager cm = EHCacheUtils.createCacheManager();
+    cm.clearAll();
     _cachingProvider = new EHCachingHistoricalTimeSeriesProvider(_underlyingProvider, cm);
   }
 

@@ -25,7 +25,7 @@ public class CalibrateSurvivalCurve {
 
   // Set the tolerence for the root finder
 
-  private static final double DEFAULT_TOLERENCE = 1e-5;
+  private static final double DEFAULT_TOLERENCE = 1e-10;
   private final double _tolerence;
 
   public CalibrateSurvivalCurve() {
@@ -44,6 +44,7 @@ public class CalibrateSurvivalCurve {
   // TODO : Check that the input par CDS spreads 'make sense' i.e. non-negative, NaN's etc
   // TODO : Add the interpolation and extrapolation methods
   // TODO : Is there a better way to set the tolerence?
+  // TODO : Replace the root finder with something more sophisticated (bisection was used to ensure a root is found if it exists) 
 
   // ------------------------------------------------------------------------
 
@@ -53,99 +54,151 @@ public class CalibrateSurvivalCurve {
   // The input CDS object has all the schedule etc settings for computing the CDS's PV's etc
   // The user inputs the schedule of (future) dates on which we have observed par CDS spread quotes
 
-  public double[][] getCalibratedSurvivalCurve(CreditDefaultSwapDefinition cds, ZonedDateTime[] tenors, double[] parCDSSpreads, YieldCurve yieldCurve) {
+  public double[] getCalibratedSurvivalCurve(CreditDefaultSwapDefinition cds, ZonedDateTime[] tenors, double[] marketSpreads, YieldCurve yieldCurve) {
 
     // Check input CDS and YieldCurve objects are not null
     ArgumentChecker.notNull(cds, "CDS field");
     ArgumentChecker.notNull(tenors, "Tenors field");
 
     // Check user data input is not null
-    ArgumentChecker.notNull(parCDSSpreads, "par CDS spreads field");
+    ArgumentChecker.notNull(marketSpreads, "par CDS spreads field");
     ArgumentChecker.notNull(yieldCurve, "YieldCurve field");
 
     int numberOfTenors = tenors.length;
-    int numberOfSpreads = parCDSSpreads.length;
+    int numberOfSpreads = marketSpreads.length;
 
+    // Get the valuation date of the CDS (should be equal to the adjusted effective date - check this)
     ZonedDateTime valuationDate = cds.getValuationDate();
 
     DayCount dayCount = cds.getDayCountFractionConvention();
 
-    double[] test = convertDatesToDoubles(valuationDate, tenors, dayCount);
-
-    /*
-    for (int i = 0; i < test.length; i++) {
-      System.out.println("i = " + i + "\t" + tenors[i] + "\t" + test[i]);
-    }
-    */
+    // Convert the ZonedDateTime tenors into doubles (measured from valuationDate)
+    double[] tenorsAsDoubles = convertDatesToDoubles(valuationDate, tenors, dayCount);
 
     // These are the calibrated piecewise constant hazard rates that we compute from the solver
     double[] hazardRates = new double[numberOfTenors];
 
-    double[][] calibratedSurvivalCurve = new double[numberOfTenors + 1][2];
+    double[] calibratedSurvivalCurve = new double[numberOfTenors + 1];
 
-    double parSpread = 0.0;
+    //calibratedSurvivalCurve[0][0] = 0.0;
+    //calibratedSurvivalCurve[0][1] = 1.0;
 
-    calibratedSurvivalCurve[0][0] = 0.0;
-    calibratedSurvivalCurve[0][1] = 1.0;
+    // Create an object for getting the PV of a CDS
+    final PresentValueCreditDefaultSwap presentValueCDS = new PresentValueCreditDefaultSwap();
 
-    // Create an object for getting the par spread of a CDS
-    final PresentValueCreditDefaultSwap bootstrapCDS = new PresentValueCreditDefaultSwap();
+    // Create a temporary CDS from the input CDS whose maturity and contractual spread will vary as we bootstrap the survival curve
+    CreditDefaultSwapDefinition calibrationCDS = cds;
 
-    // Create a temporary CDS whose maturity will vary as we bootstrap the survival curve
-    CreditDefaultSwapDefinition currentCDS = cds;
-
-    //System.out.println("Initial maturity date = " + currentCDS.getMaturityDate());
-
-    // Create a survival curve
-    SurvivalCurve survivalCurve = new SurvivalCurve(tenors, hazardRates);
+    // ----------------------------------------------------------------------------
 
     // Loop through each of the input tenors
     for (int m = 0; m < numberOfTenors; m++) {
 
-      // Create vectors of size m to hold the first m tenors and haz rates
-      ZonedDateTime[] tempTenors = new ZonedDateTime[m + 1];
-      double[] tempHazRates = new double[m + 1];
+      // Construct a temp vector of the first m tenors
+      double[] runningTenors = new double[m + 1];
 
-      // 1st time through the loop, just have the 1st tenor
-
-      // Copy the input tenors into the temp vector of size m (check limits of loop)
+      // Populate this vector with the first m tenors (needed to construct the survival curve using these tenors)
       for (int i = 0; i <= m; i++) {
-        tempTenors[i] = tenors[i];
+        runningTenors[i] = tenorsAsDoubles[i];
       }
 
-      /*
-      // 1st time through loop hazRates[0] = 0
-      for (int i = 0; i <= m; i++) {
-        tempHazRates[i] = hazardRates[i];
-      }
-      */
+      // Build a CDS with maturity of tenor[m] and spread marketSpread[m] 
+      calibrationCDS = calibrationCDS.withMaturity(tenors[m]);
+      calibrationCDS = calibrationCDS.withSpread(marketSpreads[m]);
 
-      // Initial hazard rate guess
-      // hazRates[m] = guess[m];
+      // Compute the calibrated hazard rate for this tenor
+      double calibratedHazardRates = calibrateHazardRate(calibrationCDS, presentValueCDS, yieldCurve, runningTenors, hazardRates);
 
-      // Build a CDS with maturity of tenor[m]
-      currentCDS = currentCDS.withMaturity(tenors[m]);
+      hazardRates[m] = calibratedHazardRates;
 
-      // Build a survival curve using the calibrated haz rates up to tenor m (1 to m - 1 have been already calibrated) - m is initially a guess
-      survivalCurve = survivalCurve.bootstrapHelperSurvivalCurve(tempTenors, hazardRates);
-
-      // Now the root finding loop
-
-      // while (parCDSSpreads[m] - parSpread > tolerance) {
-
-      // guess h for tenor m (using the solver)
-
-      // Calculate the par CDS spread for this guess for the haz rate term structure up to tenor[m]
-      //parSpread = bootstrapCDS.getParSpreadCreditDefaultSwap(currentCDS, yieldCurve, survivalCurve);
-
-      // end of the while loop
-
-      // Record the hazard rate for tenor[m] of the term structure
-      //hazardRates[m] = h;
-
+      // Just return the hazard rates for now - replace with surv prob calcs
+      calibratedSurvivalCurve[m] = hazardRates[m];
     }
 
+    // ----------------------------------------------------------------------------
+
     return calibratedSurvivalCurve;
+  }
+
+  // ------------------------------------------------------------------------
+
+  private double calibrateHazardRate(CreditDefaultSwapDefinition calibrationCDS,
+      PresentValueCreditDefaultSwap presentValueCDS,
+      YieldCurve yieldCurve,
+      double[] runningTenors,
+      double[] hazardRates) {
+
+    int numberOfTenors = runningTenors.length;
+
+    double alpha = 0.5;
+
+    double calibratedHazardRate = 0.0;
+
+    // Calculate the initial guess for the calibrated hazard rate (not used for simple bisection)
+    double hazardRateGuess = (calibrationCDS.getParSpread() / 10000.0) / (1 - calibrationCDS.getCurveRecoveryRate());
+
+    // Construct a survival curve using the first m tenors in runningTenors
+    SurvivalCurve survivalCurve = new SurvivalCurve(runningTenors, hazardRates);
+
+    SurvivalCurve tempCurve = new SurvivalCurve(runningTenors, hazardRates);
+
+    // Extract out the hazard rate at tenor m which we wish to calibrate by varying its value
+    calibratedHazardRate = survivalCurve.getHazardRates()[numberOfTenors - 1];
+
+    // Now do the root search - simple bisection method
+
+    double h1 = (1.0 - alpha) * hazardRateGuess;
+    if (h1 < 0.0) {
+      h1 = 0.0;
+    }
+    hazardRates[numberOfTenors - 1] = h1;
+    tempCurve = tempCurve.bootstrapHelperSurvivalCurve(runningTenors, hazardRates);
+    double f = presentValueCDS.getPresentValueCreditDefaultSwap(calibrationCDS, yieldCurve, tempCurve);
+
+    double h2 = (1.0 + alpha) * hazardRateGuess;
+    if (h2 > 1.0) {
+      h2 = 1.0;
+    }
+    hazardRates[numberOfTenors - 1] = h2;
+    tempCurve = tempCurve.bootstrapHelperSurvivalCurve(runningTenors, hazardRates);
+    double fmid = presentValueCDS.getPresentValueCreditDefaultSwap(calibrationCDS, yieldCurve, tempCurve);
+
+    // Check for f * fmid >= 0.0
+
+    int jMax = 40;
+
+    double dx = 0.0;
+
+    double rtb = 0.0;
+
+    if (f < 0.0) {
+      dx = h2 - h1;
+      rtb = h1;
+    }
+    else {
+      dx = h1 - h2;
+      rtb = h2;
+    }
+
+    for (int j = 1; j < jMax; j++) {
+
+      dx = dx * 0.5;
+      double hmid = rtb + dx;
+
+      hazardRates[numberOfTenors - 1] = hmid;
+      tempCurve = tempCurve.bootstrapHelperSurvivalCurve(runningTenors, hazardRates);
+      fmid = presentValueCDS.getPresentValueCreditDefaultSwap(calibrationCDS, yieldCurve, tempCurve);
+
+      if (fmid <= 0.0) {
+        rtb = hmid;
+      }
+
+      if (Math.abs(dx) < _tolerence || hmid == 0.0) {
+        return rtb;
+      }
+    }
+
+    return 0.0;
   }
 
   // ------------------------------------------------------------------------

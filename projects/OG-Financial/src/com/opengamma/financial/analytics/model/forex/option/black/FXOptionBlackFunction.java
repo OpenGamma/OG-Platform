@@ -24,6 +24,7 @@ import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermS
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackForexTermStructureBundle;
 import com.opengamma.analytics.financial.model.volatility.curve.BlackForexTermStructureParameters;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -199,11 +200,19 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
-    return target.getSecurity() instanceof FXOptionSecurity
-        || target.getSecurity() instanceof FXBarrierOptionSecurity
-        || target.getSecurity() instanceof FXDigitalOptionSecurity
-        || target.getSecurity() instanceof NonDeliverableFXOptionSecurity
-        || target.getSecurity() instanceof NonDeliverableFXDigitalOptionSecurity;
+    final Security security = target.getSecurity();
+    /* TODO Case - To be put back in asap
+    if (security instanceof FXBarrierOptionSecurity) { // ONE_LOOK's are handled by FXOneLookBarrierOptionBlackFunction
+      if (((FXBarrierOptionSecurity) security).getSamplingFrequency().equals(SamplingFrequency.ONE_LOOK)) {
+        return false;
+      }
+    }
+    */
+    return security instanceof FXOptionSecurity
+        || security instanceof FXBarrierOptionSecurity
+        || security instanceof FXDigitalOptionSecurity
+        || security instanceof NonDeliverableFXOptionSecurity
+        || security instanceof NonDeliverableFXDigitalOptionSecurity;
   }
 
   @Override

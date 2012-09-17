@@ -32,6 +32,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // TODO : Add the calculations for the accrual begin/end periods
   // TODO : Eventually replace the n x 3 array returned
   // TODO : Add code to check if we should business day adjust the final maturity date or not
+  // TODO : Add the code for the back stubs (is there a better way of handling this?)
 
   // -------------------------------------------------------------------------------------------
 

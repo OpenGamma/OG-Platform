@@ -12,13 +12,17 @@ import javax.time.calendar.ZonedDateTime;
  */
 public class SurvivalCurve {
 
-  // TODO : Check the validity of the arguments in the ctor
+  // TODO : Check the validity of the arguments in the ctor e.g. not null, equal number of tenors/spreads
+  // TODO : Is there a better way to overload the ctor (problem is the compiler complains about unassigned member variables)
+  // TODO : Do we even need the ZonedDateTime version of the ctor? Survival curve can function perfectly well with tenors as doubles
+  // TODO : Check the getSurvivalProbability routine more carefully (the counter)
 
   // --------------------------------------------------------------------------------------
 
   private final int _numberOfTenors;
 
   private final ZonedDateTime[] _tenors;
+  private final double[] _tenorsAsDoubles;
 
   private final double[] _hazardRates;
 
@@ -29,6 +33,20 @@ public class SurvivalCurve {
     _numberOfTenors = tenors.length;
 
     _tenors = tenors;
+    _tenorsAsDoubles = null;
+
+    _hazardRates = hazardRates;
+
+  }
+
+  // --------------------------------------------------------------------------------------
+
+  public SurvivalCurve(double[] tenorsAsDoubles, double[] hazardRates) {
+
+    _numberOfTenors = tenorsAsDoubles.length;
+
+    _tenors = null;
+    _tenorsAsDoubles = tenorsAsDoubles;
 
     _hazardRates = hazardRates;
 
@@ -38,20 +56,22 @@ public class SurvivalCurve {
 
   public double getSurvivalProbability(double t) {
 
-    double runningTotal = 0.0;
-    double survivalProbability = 0.0;
-
     int counter = 0;
 
-    /*
-    while (t <= this.getTenors[counter]) {
-
-      runningTotal += hazardRates[counter] * tenors[counter];
+    while (t > this.getTenorsAsDoubles()[counter] && counter < this.getNumberOfTenors() - 1) {
       counter++;
+    }
+
+    /*
+    // Do we need this?
+    if (counter > this.getNumberOfTenors()) {
+      counter = this.getNumberOfTenors() - 1;
     }
     */
 
-    survivalProbability = Math.exp(-runningTotal);
+    double hazardRate = this.getHazardRates()[counter];
+
+    double survivalProbability = Math.exp(-hazardRate * t);
 
     return survivalProbability;
 
@@ -71,9 +91,22 @@ public class SurvivalCurve {
     return _hazardRates;
   }
 
+  public double[] getTenorsAsDoubles() {
+    return _tenorsAsDoubles;
+  }
+
   // --------------------------------------------------------------------------------------
 
   public SurvivalCurve bootstrapHelperSurvivalCurve(ZonedDateTime[] tenors, double[] hazardRates) {
+
+    SurvivalCurve modifiedSurvivalCurve = new SurvivalCurve(tenors, hazardRates);
+
+    return modifiedSurvivalCurve;
+  }
+
+  // --------------------------------------------------------------------------------------
+
+  public SurvivalCurve bootstrapHelperSurvivalCurve(double[] tenors, double[] hazardRates) {
 
     SurvivalCurve modifiedSurvivalCurve = new SurvivalCurve(tenors, hazardRates);
 

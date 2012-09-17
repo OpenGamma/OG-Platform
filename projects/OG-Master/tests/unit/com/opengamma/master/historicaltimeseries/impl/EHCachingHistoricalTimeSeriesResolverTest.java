@@ -15,6 +15,7 @@ import javax.time.calendar.LocalDate;
 
 import net.sf.ehcache.CacheManager;
 
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalId;
@@ -62,7 +63,12 @@ public class EHCachingHistoricalTimeSeriesResolverTest {
   private final String _key1 = "K1";
   private final String _key2 = "K2";
 
-  private final CacheManager _cacheManager = EHCacheUtils.createCacheManager();
+  private CacheManager _cacheManager;
+
+  @BeforeMethod
+  public void setUp() {
+    _cacheManager = EHCacheUtils.createCacheManager();
+  }
 
   private HistoricalTimeSeriesResolver createUnderlying(final AtomicInteger hits) {
     return new HistoricalTimeSeriesResolver() {

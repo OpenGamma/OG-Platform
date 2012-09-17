@@ -14,6 +14,7 @@ import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.helper.AvailableOutputsProvider;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
@@ -153,6 +154,10 @@ public class MutableGlobalContext extends GlobalContext {
 
   public void setSecuritySource(final SecuritySource securitySource) {
     removeOrReplaceValue(SECURITY_SOURCE, securitySource);
+  }
+  
+  public void setComputationTargetResolver(final DefaultComputationTargetResolver computationTargetResolver) {
+    removeOrReplaceValue(COMPUTATION_TARGET_RESOLVER, computationTargetResolver);
   }
 
   @Override

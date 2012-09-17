@@ -18,5 +18,5 @@ public enum ScheduleGenerationMethod {
    */
   BACKWARD;
 
-  // TODO: Extend this list
+  // TODO: Remove this - has been replaced by the StubType enum
 }

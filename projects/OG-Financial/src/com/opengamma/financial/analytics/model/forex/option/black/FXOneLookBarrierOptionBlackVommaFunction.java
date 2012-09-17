@@ -7,7 +7,8 @@ package com.opengamma.financial.analytics.model.forex.option.black;
 
 import java.util.Set;
 
-import com.opengamma.OpenGammaRuntimeException;
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.analytics.financial.forex.method.ForexOptionVanillaBlackSmileMethod;
 import com.opengamma.analytics.financial.model.option.definition.ForexOptionDataBundle;
@@ -29,13 +30,11 @@ public class FXOneLookBarrierOptionBlackVommaFunction extends FXOneLookBarrierOp
 
   @Override
   protected Object computeValues(Set<ForexOptionVanilla> vanillaOptions, ForexOptionDataBundle<?> market) {
+    Validate.isTrue(market instanceof SmileDeltaTermStructureDataBundle, "FXOneLookBarrierOptionBlackVommaFunction requires a Vol surface with a smile.");
     double sum = 0.0;
     for (ForexOptionVanilla derivative : vanillaOptions) {
-      if (market instanceof SmileDeltaTermStructureDataBundle) {
-        final CurrencyAmount vommaCcy = METHOD.vomma(derivative, market);
-        sum += vommaCcy.getAmount();
-      }
-      throw new OpenGammaRuntimeException("Can only calculate vomma for surfaces with smiles");
+      final CurrencyAmount vommaCcy = METHOD.vomma(derivative, market);
+      sum += vommaCcy.getAmount();
     }
     return sum;
   }

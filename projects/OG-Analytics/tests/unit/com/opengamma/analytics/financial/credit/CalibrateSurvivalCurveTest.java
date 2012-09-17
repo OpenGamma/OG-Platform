@@ -69,14 +69,14 @@ public class CalibrateSurvivalCurveTest {
 
   private static final double notional = 10000000.0;
   private static final double parSpread = 100.0;
-  private static final double valuationRecoveryRate = 0.40;
-  private static final double curveRecoveryRate = 0.40;
+  private static final double valuationRecoveryRate = 0.60;
+  private static final double curveRecoveryRate = 0.60;
   private static final boolean includeAccruedPremium = false;
 
   // Dummy yield curve
   private static final double interestRate = 0.0;
-  private static final double[] TIME = new double[] {0, 3, 5, 10 };
-  private static final double[] RATES = new double[] {interestRate, interestRate, interestRate, interestRate };
+  private static final double[] TIME = new double[] {0, 3, 5, 10, 15 };
+  private static final double[] RATES = new double[] {interestRate, interestRate, interestRate, interestRate, interestRate };
   private static final InterpolatedDoublesCurve R = InterpolatedDoublesCurve.from(TIME, RATES, new LinearInterpolator1D());
   private static final YieldCurve yieldCurve = YieldCurve.from(R);
 
@@ -128,27 +128,47 @@ public class CalibrateSurvivalCurveTest {
 
     final boolean outputResults = false;
 
-    int numberOfTenors = 5;
+    int numberOfTenors = 8;
 
-    final ZonedDateTime[] tenors = new ZonedDateTime[5];
+    final ZonedDateTime[] tenors = new ZonedDateTime[numberOfTenors];
 
+    double[] marketSpreads = new double[numberOfTenors];
+
+    /*
     tenors[0] = cds.getValuationDate().plusYears(1);
     tenors[1] = cds.getValuationDate().plusYears(3);
     tenors[2] = cds.getValuationDate().plusYears(5);
     tenors[3] = cds.getValuationDate().plusYears(7);
     tenors[4] = cds.getValuationDate().plusYears(10);
+    */
 
-    double[] parCDSSpreads = new double[numberOfTenors];
+    tenors[0] = DateUtils.getUTCDate(2008, 12, 20);
+    tenors[1] = DateUtils.getUTCDate(2009, 6, 20);
+    tenors[2] = DateUtils.getUTCDate(2010, 6, 20);
+    tenors[3] = DateUtils.getUTCDate(2011, 6, 20);
+    tenors[4] = DateUtils.getUTCDate(2012, 6, 20);
+    tenors[5] = DateUtils.getUTCDate(2013, 6, 20);
+    tenors[6] = DateUtils.getUTCDate(2015, 6, 20);
+    tenors[7] = DateUtils.getUTCDate(2018, 6, 20);
 
-    parCDSSpreads[0] = 50.0;
-    parCDSSpreads[0] = 50.0;
-    parCDSSpreads[0] = 50.0;
-    parCDSSpreads[0] = 50.0;
-    parCDSSpreads[0] = 50.0;
+    marketSpreads[0] = 100.0;
+    marketSpreads[1] = 200.0;
+    marketSpreads[2] = 300.0;
+    marketSpreads[3] = 400.0;
+    marketSpreads[4] = 500.0;
+    marketSpreads[5] = 600.0;
+    marketSpreads[6] = 700.0;
+    marketSpreads[7] = 800.0;
 
     final CalibrateSurvivalCurve curve = new CalibrateSurvivalCurve();
 
-    double[][] calibratedSurvivalCurve = curve.getCalibratedSurvivalCurve(cds, tenors, parCDSSpreads, yieldCurve);
+    double[] calibratedSurvivalCurve = curve.getCalibratedSurvivalCurve(cds, tenors, marketSpreads, yieldCurve);
+
+    if (outputResults) {
+      for (int i = 0; i < numberOfTenors; i++) {
+        System.out.println(calibratedSurvivalCurve[i]);
+      }
+    }
   }
 
   // ---------------------------------------------------------------------------------------

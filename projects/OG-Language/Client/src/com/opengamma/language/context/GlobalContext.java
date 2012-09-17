@@ -16,6 +16,7 @@ import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.helper.AvailableOutputsProvider;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
@@ -141,6 +142,11 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
    * Name under which the position source is bound.
    */
   protected static final String POSITION_SOURCE = "positionSource";
+  
+  /**
+   * Name under which the default computation target resolver is bound.
+   */
+  protected static final String COMPUTATION_TARGET_RESOLVER = "computationTargetResolver";
 
   /**
    * Name under which the region source is bound.
@@ -346,6 +352,10 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
 
   public PositionSource getPositionSource() {
     return getValue(POSITION_SOURCE);
+  }
+  
+  public ComputationTargetResolver getComputationTargetResolver() {
+    return getValue(COMPUTATION_TARGET_RESOLVER);
   }
 
   public ProcedureDefinitionFilter getProcedureDefinitionFilter() {
