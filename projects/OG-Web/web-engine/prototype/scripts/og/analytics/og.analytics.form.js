@@ -70,13 +70,13 @@ $.register_module({
                         },
                         button_handler = function (val) {
                             if (val === 'OK') {
-                                if (ag_dropdwn.state === 'open'){
+                                if (ag_dropdwn.opened) {
                                     ds_dropdwn.emitEvent(events.open).emitEvent(events.focus);
-                                } else if (ds_dropdwn.state === 'focused'){
+                                } else if (ds_dropdwn.opened) {
                                     ds_dropdwn.emitEvent(events.close); 
                                     $load_btn.focus();
                                 }
-                            } else if (val === 'Cancel'){
+                            } else if (val === 'Cancel') {
                                 emitter.emitEvent(events.closeall);
                                 ac_menu.$input.select(); 
                             }
@@ -84,11 +84,6 @@ $.register_module({
                         click_handler = function (event) {
                             var $elem = $(event.srcElement);
                             if ($elem.is('button')) button_handler($elem.text());
-                            if ($elem.is('select')){
-                                event.preventDefault();
-                                event.stopPropagation();
-                                event.stopImmediatePropagation();
-                            }
                         },
                         close_dropmenu = function (menu) {
                             if (menu.state === 'open'|| menu.state === 'focused') menu.emitEvent(events.close);
