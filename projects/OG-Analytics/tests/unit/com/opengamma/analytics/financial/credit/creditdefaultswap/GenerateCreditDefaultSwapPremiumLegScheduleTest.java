@@ -39,7 +39,7 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
-  // CDS contract parameters
+  // CDS contract parameters (don't need the curves in this case as we are just testing the construction of the cashflow schedule)
 
   private static final BuySellProtection buySellProtection = BuySellProtection.BUY;
 
@@ -119,9 +119,7 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
   @Test
-  public void testCashflowScheduleGeneration() {
-
-    System.out.println("Running schedule generation tests ...");
+  public void testCDSCashflowScheduleGeneration() {
 
     final boolean outputSchedule = false;
 

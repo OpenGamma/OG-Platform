@@ -18,6 +18,7 @@ public class IMMDates {
   // ------------------------------------------------------------------------
 
   // TODO : Remove the previous December date (not needed)
+  // TODO : Is there a better (more elegant) way of doing this?
 
   // ------------------------------------------------------------------------
 
