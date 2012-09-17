@@ -30,8 +30,8 @@
             <phase>package</phase>
             <configuration>
               <target>
-                <zip basedir="." includes="config/**" destfile="${project.build.directory}/og-component-resources.zip" />
-                <attachartifact file="${project.build.directory}/og-component-resources.zip" classifier="resources" type="zip" />
+                <jar basedir="config" destfile="${project.build.directory}/og-component-resources.jar" />
+                <attachartifact file="${project.build.directory}/og-component-resources.jar" classifier="resources" type="jar" />
               </target>
             </configuration>
             <goals>

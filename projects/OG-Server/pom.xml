@@ -78,7 +78,6 @@
       <artifactId>og-component</artifactId>
       <version>${project.version}</version>
       <classifier>resources</classifier>
-      <type>zip</type>
     </dependency>
     <dependency>
       <groupId>com.opengamma</groupId>
