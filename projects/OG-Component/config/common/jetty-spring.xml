@@ -10,7 +10,11 @@
 
   <bean id="webAppContext" class="org.eclipse.jetty.webapp.WebAppContext">
     <property name="contextPath" value="/" />
-    <property name="resourceBase" value="${jetty.resourceBase}" />
+    <property name="resourceBase">
+      <bean class="com.opengamma.util.spring.ResourcePathFactoryBean">
+        <property name="resource" value="${jetty.resourceBase}" />
+      </bean>
+    </property>
     <property name="descriptor" value="${jetty.resourceBase}/WEB-INF/web.xml" />
     <property name="defaultsDescriptor" value="webdefaults.xml" />
     <property name="initParams">
