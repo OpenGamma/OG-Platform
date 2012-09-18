@@ -97,9 +97,8 @@ public class StyleTag {
     bundle = _data.getDevBundleManager().getBundle(bundle.getId());  // reload from dev manager
     WebBundlesUris uris = new WebBundlesUris(_data);
     StringBuilder buf = new StringBuilder();
-    String basePath = _data.getDevBundleManager().getBaseDir().getName();
     buf.append("<style type=\"text/css\" media=\"all\">\n");
-    String imports = BundleUtils.buildImports(bundle, uris, basePath);
+    String imports = BundleUtils.buildImports(bundle, uris);
     buf.append(imports);
     buf.append("</style>");
     return buf.toString();
