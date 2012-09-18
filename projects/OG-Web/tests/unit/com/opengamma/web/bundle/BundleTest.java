@@ -9,10 +9,13 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
-import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 import org.testng.annotations.Test;
+
+import com.opengamma.OpenGammaRuntimeException;
 
 /**
  * Test Bundle.
@@ -25,22 +28,30 @@ public class BundleTest {
   static final String OG_COMMON_CSS = "ogCommon.css";
 
   //cssBundleCommon fragments
-  static final Fragment BUTTON_CSS = new Fragment(new File("styles/common/og.common.buttons.css"));
-  static final Fragment CORE_CSS = new Fragment(new File("styles/common/og.common.core.css"));
+  static final Fragment BUTTON_CSS = new Fragment(createUri("styles/common/og.common.buttons.css"), "/styles/common/og.common.buttons.css");
+  static final Fragment CORE_CSS = new Fragment(createUri("styles/common/og.common.core.css"), "/styles/common/og.common.core.css");
 
   //cssUtil fragments
-  static final Fragment RESET_CSS = new Fragment(new File("styles/common/util/og.common.reset.css"));
-  static final Fragment LINKS_CSS = new Fragment(new File("styles/common/util/og.common.links.css"));
+  static final Fragment RESET_CSS = new Fragment(createUri("styles/common/util/og.common.reset.css"), "/styles/common/util/og.common.reset.css");
+  static final Fragment LINKS_CSS = new Fragment(createUri("styles/common/util/og.common.links.css"), "/styles/common/util/og.common.links.css");
 
   //jsBundleCommon fragments
-  static final Fragment CORE_JS = new Fragment(new File("scripts/og/common/og.common.core.js"));
-  static final Fragment INIT_JS = new Fragment(new File("scripts/og/common/og.common.init.js"));
-  static final Fragment JQUERY_JS = new Fragment(new File("scripts/og/common/og.common.jquery.rest.js"));
+  static final Fragment CORE_JS = new Fragment(createUri("scripts/og/common/og.common.core.js"), "/scripts/og/common/og.common.core.js");
+  static final Fragment INIT_JS = new Fragment(createUri("scripts/og/common/og.common.init.js"), "/scripts/og/common/og.common.init.js");
+  static final Fragment JQUERY_JS = new Fragment(createUri("scripts/og/common/og.common.jquery.rest.js"), "/scripts/og/common/og.common.jquery.rest.js");
 
-  static final Fragment FRAG_A = new Fragment(new File("A"));
-  private static final Fragment FRAG_B = new Fragment(new File("B"));
-  private static final Fragment FRAG_C = new Fragment(new File("C"));
-  private static final Fragment FRAG_D = new Fragment(new File("D"));
+  static final Fragment FRAG_A = new Fragment(createUri("A"), "/A");
+  private static final Fragment FRAG_B = new Fragment(createUri("B"), "/B");
+  private static final Fragment FRAG_C = new Fragment(createUri("C"), "/C");
+  private static final Fragment FRAG_D = new Fragment(createUri("D"), "/D");
+  
+  private static URI createUri(String resource) {
+    try {
+      return new URI(resource);
+    } catch (URISyntaxException e) {
+      throw new OpenGammaRuntimeException("Invalid URI for resource " + resource, e);
+    }
+  }
 
   public void test_fragments_only() throws Exception {
     Bundle cssBundleCommon = makeCssBundleCommon();    

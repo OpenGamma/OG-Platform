@@ -9,10 +9,11 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
-import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeMethod;
@@ -45,10 +46,10 @@ public class YUIBundleCompressorTest {
     return new YUIBundleCompressor(compressorOptions);
   }
 
-  private Bundle createBundle() {
-    String path = getClass().getResource(SCRIPTS_JS).getPath();
+  private Bundle createBundle() throws URISyntaxException {
+    URI scriptsResource = getClass().getResource(SCRIPTS_JS).toURI();
     Bundle bundle = new Bundle(SCRIPTS_JS);
-    bundle.addChildNode(new Fragment(new File(path)));
+    bundle.addChildNode(new Fragment(scriptsResource, ""));
     return bundle;
   }
 
@@ -58,8 +59,7 @@ public class YUIBundleCompressorTest {
     assertEquals(1, allFragment.size());
 
     Fragment fragment = allFragment.get(0);
-    fragment.getFile();
-    String uncompressed = FileUtils.readFileToString(fragment.getFile());
+    String uncompressed = IOUtils.toString(fragment.getUri());
     assertNotNull(uncompressed);
     s_logger.debug("uncompressed length {}", uncompressed.length());
 
