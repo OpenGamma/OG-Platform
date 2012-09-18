@@ -34,6 +34,7 @@ import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
+import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
@@ -185,6 +186,9 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
     switch (bUpDown) {
       case UP:
         isCall = true;
+        if (barrierOption.getOptionType().equals(OptionType.PUT)) {
+          throw new OpenGammaRuntimeException("ONE_LOOK / Vanilla Barriers do not apply to an UP type of Barrier with OptionType.CALL. Confirm that the intended samplingFrequency is ONE_LOOK");
+        }
         if (barrier < strike) {
           throw new OpenGammaRuntimeException("Encountered an UP / CALL type of BarrierOption where barrier, " + barrier + ", is below strike, " + strike);
         }
@@ -194,6 +198,9 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
         break;
       case DOWN:
         isCall = false;
+        if (barrierOption.getOptionType().equals(OptionType.CALL)) {
+          throw new OpenGammaRuntimeException("ONE_LOOK / Vanilla Barriers do not apply to a DOWN type of Barrier with OptionType.PUT. Confirm that the intended samplingFrequency is ONE_LOOK");
+        }
         if (barrier > strike) {
           throw new OpenGammaRuntimeException("Encountered a DOWN / PUT type of BarrierOption where barrier, " + barrier + ", is above strike, " + strike);
         }
@@ -209,16 +216,20 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
 
     // Switch  on type
     switch (bInOut) {
-      case KNOCK_OUT: // Long a linear at strike, short a binary at barrier of size (barrier-strike)
+      case KNOCK_OUT:
+        // Long a linear at strike, short a linear at barrier
         final EquityIndexOption longlinearK = new EquityIndexOption(ttm, ttm, strike, isCall, ccy, ptVal);
+        final EquityIndexOption shortLinearB = new EquityIndexOption(ttm, ttm, barrier, isCall, ccy, -ptVal);
         vanillas.add(longlinearK);
+        vanillas.add(shortLinearB);
         // Short a binary of size, barrier - strike. Modelled as call spread struck around strike + oh, with spread of 2*eps
         final EquityIndexOption shortNear = new EquityIndexOption(ttm, ttm, nearStrike, isCall, ccy, -1 * ptVal * size);
         final EquityIndexOption longFar = new EquityIndexOption(ttm, ttm, farStrike, isCall, ccy, ptVal * size);
         vanillas.add(shortNear);
         vanillas.add(longFar);
         break;
-      case KNOCK_IN:  // Long a linear at *barrier*, long a binary at barrier of size (barrier - strike)
+      case KNOCK_IN:
+        // Long a linear at barrier
         final EquityIndexOption longLinearB = new EquityIndexOption(ttm, ttm, barrier, isCall, ccy, ptVal);
         vanillas.add(longLinearB);
         // Long a binary of size, barrier - strike. Modelled as call spread struck around strike + oh, with spread of 2*eps
