@@ -82,7 +82,7 @@ public class DependencyNodeFudgeBuilder implements FudgeBuilder<DependencyNode> 
     
     DependencyNode node = new DependencyNode(target);
     
-    CompiledFunctionDefinition function = new CompiledFunctionDefinitionStub(target.getType(), functionShortName, functionUniqueId);
+    CompiledFunctionDefinition function = new CompiledFunctionDefinitionStub(target.getType(), functionUniqueId, functionShortName);
     ParameterizedFunction parameterizedFunction = new ParameterizedFunction(function, functionParameters);
     parameterizedFunction.setUniqueId(parameterizedFunctionUniqueId);
     node.setFunction(parameterizedFunction);
