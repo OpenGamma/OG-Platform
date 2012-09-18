@@ -9,12 +9,11 @@ $.register_module({
                 $title = $('.og-option-title', $cntr).on('click', title_click = function (event) {
                     event.stopPropagation();
                     Dropmenu.opened ? Dropmenu.close() : Dropmenu.open().focus();
-                }), $menu = $('.OG-analytics-form-menu', $cntr), 
+                }), $menu = $('.OG-analytics-form-menu', $cntr), $menu_actions = $('.OG-dropmenu-actions', $menu), 
                 $add = $('.OG-link-add', $menu).on('click', add_click = function (event) {
-                    $add.before($opts_tmpl);
+                    $menu_actions.before($opts.clone()[0]);
                     event.stopPropagation();
-                }),
-                $opts = $('.OG-dropmenu-options', $menu), $opts_tmpl = $($opts.html()), events = {
+                }), $opts = $('.OG-dropmenu-options', $menu), events = {
                     focus: 'dropmenu:focus',
                     focused:'dropmenu:focused',
                     open: 'dropmenu:open',
