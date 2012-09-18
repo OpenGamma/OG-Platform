@@ -45,33 +45,12 @@
             <configuration>
               <target>
                 <zip basedir="${project.build.directory}/scripts-tools" destfile="${project.build.directory}/scripts-tools.zip" />
+                <attachartifact file="${project.build.directory}/scripts-tools.zip" classifier="scripts-tools" type="zip" />
               </target>
             </configuration>
             <goals>
               <goal>run</goal>
             </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>attach-artifacts</id>
-            <phase>package</phase>
-            <goals>
-              <goal>attach-artifact</goal>
-            </goals>
-            <configuration>
-              <artifacts>
-                <artifact>
-                  <file>${project.build.directory}/scripts-tools.zip</file>
-                  <type>zip</type>
-                  <classifier>scripts-tools</classifier>
-                </artifact>
-              </artifacts>
-            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -93,6 +72,12 @@
       <groupId>com.opengamma</groupId>
       <artifactId>og-component</artifactId>
       <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma</groupId>
+      <artifactId>og-component</artifactId>
+      <version>${project.version}</version>
+      <classifier>resources</classifier>
     </dependency>
     <dependency>
       <groupId>com.opengamma</groupId>
@@ -128,6 +113,17 @@
       <groupId>com.opengamma</groupId>
       <artifactId>og-integration</artifactId>
       <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma</groupId>
+      <artifactId>og-web</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma</groupId>
+      <artifactId>og-web</artifactId>
+      <version>${project.version}</version>
+      <classifier>resources</classifier>
     </dependency>
     <dependency>
       <groupId>com.opengamma</groupId>

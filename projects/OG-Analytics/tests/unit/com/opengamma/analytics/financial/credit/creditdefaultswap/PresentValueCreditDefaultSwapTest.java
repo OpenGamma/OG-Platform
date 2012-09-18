@@ -84,8 +84,8 @@ public class PresentValueCreditDefaultSwapTest {
   private static final boolean adjustMaturityDate = true;
 
   private static final double notional = 10000000.0;
-  private static final double parSpread = 100.0;
-  private static final double valuationRecoveryRate = 0.20;
+  private static final double premiumLegCoupon = 100.0;
+  private static final double valuationRecoveryRate = 0.40;
   private static final double curveRecoveryRate = 0.40;
   private static final boolean includeAccruedPremium = false;
 
@@ -97,7 +97,7 @@ public class PresentValueCreditDefaultSwapTest {
   private static final YieldCurve yieldCurve = YieldCurve.from(R);
 
   // Construct a survival curve based on a flat hazard rate term structure (for testing purposes only)
-  private static final FlatSurvivalCurve survivalCurve = new FlatSurvivalCurve(parSpread, curveRecoveryRate);
+  private static final FlatSurvivalCurve flatSurvivalCurve = new FlatSurvivalCurve(premiumLegCoupon, curveRecoveryRate);
 
   // ----------------------------------------------------------------------------------
 
@@ -128,7 +128,7 @@ public class PresentValueCreditDefaultSwapTest {
       immAdjustMaturityDate,
       adjustMaturityDate,
       notional,
-      parSpread,
+      premiumLegCoupon,
       valuationRecoveryRate,
       curveRecoveryRate,
       includeAccruedPremium);
@@ -147,14 +147,15 @@ public class PresentValueCreditDefaultSwapTest {
     final PresentValueCreditDefaultSwap testCDS = new PresentValueCreditDefaultSwap();
 
     // Call the CDS PV calculator to get the current PV
-    //double pV = testCDS.getPresentValueCreditDefaultSwap(cds, yieldCurve, survivalCurve);
+    double presentValue = testCDS.getPresentValueCreditDefaultSwap(cds, yieldCurve, flatSurvivalCurve);
 
     // Call the CDS par spread calculator to get the par spread at time zero
-    double parSpread = testCDS.getParSpreadCreditDefaultSwap(cds, yieldCurve, survivalCurve);
+    double parSpread = testCDS.getParSpreadCreditDefaultSwap(cds, yieldCurve, flatSurvivalCurve);
 
     // Report the result
     if (outputSchedule) {
       System.out.println("CDS par spread = " + parSpread);
+      System.out.println("CDS PV = " + presentValue);
     }
 
     // -----------------------------------------------------------------------------------------------

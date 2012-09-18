@@ -10,11 +10,11 @@ package com.opengamma.analytics.financial.credit;
  */
 public enum BuySellProtection {
   /**
-   * BUY protection (pay the premium leg - and accrued - and receive the protection leg)
+   * BUY protection (pay the premium leg (including accrued premium if required) - and receive the protection leg)
    */
   BUY,
   /**
-   * SELL protection (receive the premium leg - and accrued - and pay the protection leg
+   * SELL protection (receive the premium leg (including accrued premium if required) and pay the protection leg
    */
   SELL;
 }

@@ -39,7 +39,7 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
-  // CDS contract parameters
+  // CDS contract parameters (don't need the curves in this case as we are just testing the construction of the cashflow schedule)
 
   private static final BuySellProtection buySellProtection = BuySellProtection.BUY;
 
@@ -77,7 +77,7 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
   private static final boolean adjustMaturityDate = true;
 
   private static final double notional = 10000000.0;
-  private static final double parSpread = 60.0;
+  private static final double premiumLegCoupon = 60.0;
   private static final double valuationRecoveryRate = 0.40;
   private static final double curveRecoveryRate = 0.40;
   private static final boolean includeAccruedPremium = true;
@@ -111,7 +111,7 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
       immAdjustMaturityDate,
       adjustMaturityDate,
       notional,
-      parSpread,
+      premiumLegCoupon,
       valuationRecoveryRate,
       curveRecoveryRate,
       includeAccruedPremium);
@@ -119,9 +119,7 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
   @Test
-  public void testCashflowScheduleGeneration() {
-
-    System.out.println("Running schedule generation tests ...");
+  public void testCDSCashflowScheduleGeneration() {
 
     final boolean outputSchedule = false;
 

@@ -27,6 +27,7 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * Dummy function for injecting default curve names into the dependency graph.
@@ -72,7 +73,11 @@ public class InterestRateInstrumentDefaultPropertiesFunction extends DefaultProp
     if (!InterestRateInstrumentType.isFixedIncomeInstrumentType(security)) {
       return false;
     }
-    final String currencyName = FinancialSecurityUtils.getCurrency(security).getCode();
+    final Currency currency = FinancialSecurityUtils.getCurrency(security);
+    if (currency == null) {
+      return false;
+    }
+    final String currencyName = currency.getCode();
     if (!_currencyAndCurveConfigNames.containsKey(currencyName)) {
       return false;
     }

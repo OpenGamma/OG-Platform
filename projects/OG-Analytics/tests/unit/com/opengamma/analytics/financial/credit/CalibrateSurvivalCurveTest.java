@@ -64,19 +64,19 @@ public class CalibrateSurvivalCurveTest {
   private static final DayCount daycountFractionConvention = DayCountFactory.INSTANCE.getDayCount("ACT/360");
   private static final BusinessDayConvention businessdayAdjustmentConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
 
-  private static final boolean immAdjustMaturityDate = true;
-  private static final boolean adjustMaturityDate = true;
+  private static final boolean immAdjustMaturityDate = false;
+  private static final boolean adjustMaturityDate = false;
 
   private static final double notional = 10000000.0;
-  private static final double parSpread = 100.0;
-  private static final double valuationRecoveryRate = 0.60;
-  private static final double curveRecoveryRate = 0.60;
+  private static final double premiumLegCoupon = 60.0;
+  private static final double valuationRecoveryRate = 0.40;
+  private static final double curveRecoveryRate = 0.40;
   private static final boolean includeAccruedPremium = false;
 
   // Dummy yield curve
   private static final double interestRate = 0.0;
-  private static final double[] TIME = new double[] {0, 3, 5, 10, 15 };
-  private static final double[] RATES = new double[] {interestRate, interestRate, interestRate, interestRate, interestRate };
+  private static final double[] TIME = new double[] {0, 3, 5, 10, 15, 40 };
+  private static final double[] RATES = new double[] {interestRate, interestRate, interestRate, interestRate, interestRate, interestRate };
   private static final InterpolatedDoublesCurve R = InterpolatedDoublesCurve.from(TIME, RATES, new LinearInterpolator1D());
   private static final YieldCurve yieldCurve = YieldCurve.from(R);
 
@@ -109,59 +109,50 @@ public class CalibrateSurvivalCurveTest {
       immAdjustMaturityDate,
       adjustMaturityDate,
       notional,
-      parSpread,
+      premiumLegCoupon,
       valuationRecoveryRate,
       curveRecoveryRate,
       includeAccruedPremium);
 
   // ---------------------------------------------------------------------------------------
 
-  //@Test
-  public void testRootFinder() {
-
-    System.out.println("Root finder test ...");
-
-  }
-
   @Test
   public void testCalibrateSurvivalCurve() {
 
     final boolean outputResults = false;
 
-    int numberOfTenors = 8;
+    int numberOfTenors = 10;
 
     final ZonedDateTime[] tenors = new ZonedDateTime[numberOfTenors];
 
     double[] marketSpreads = new double[numberOfTenors];
-
-    /*
-    tenors[0] = cds.getValuationDate().plusYears(1);
-    tenors[1] = cds.getValuationDate().plusYears(3);
-    tenors[2] = cds.getValuationDate().plusYears(5);
-    tenors[3] = cds.getValuationDate().plusYears(7);
-    tenors[4] = cds.getValuationDate().plusYears(10);
-    */
 
     tenors[0] = DateUtils.getUTCDate(2008, 12, 20);
     tenors[1] = DateUtils.getUTCDate(2009, 6, 20);
     tenors[2] = DateUtils.getUTCDate(2010, 6, 20);
     tenors[3] = DateUtils.getUTCDate(2011, 6, 20);
     tenors[4] = DateUtils.getUTCDate(2012, 6, 20);
-    tenors[5] = DateUtils.getUTCDate(2013, 6, 20);
-    tenors[6] = DateUtils.getUTCDate(2015, 6, 20);
-    tenors[7] = DateUtils.getUTCDate(2018, 6, 20);
+    tenors[5] = DateUtils.getUTCDate(2014, 6, 20);
+    tenors[6] = DateUtils.getUTCDate(2017, 6, 20);
+    tenors[7] = DateUtils.getUTCDate(2022, 6, 20);
+    tenors[8] = DateUtils.getUTCDate(2030, 6, 20);
+    tenors[9] = DateUtils.getUTCDate(2040, 6, 20);
 
-    marketSpreads[0] = 100.0;
-    marketSpreads[1] = 200.0;
-    marketSpreads[2] = 300.0;
-    marketSpreads[3] = 400.0;
-    marketSpreads[4] = 500.0;
-    marketSpreads[5] = 600.0;
-    marketSpreads[6] = 700.0;
-    marketSpreads[7] = 800.0;
+    marketSpreads[0] = 50; //1774.0;
+    marketSpreads[1] = 60; //1805.0;
+    marketSpreads[2] = 50; //1856.0;
+    marketSpreads[3] = 60; //1994.0;
+    marketSpreads[4] = 50; //2045.0;
+    marketSpreads[5] = 40; //2141.0;
+    marketSpreads[6] = 50; //2243.0;
+    marketSpreads[7] = 60; //2559.0;
+    marketSpreads[8] = 50; //3072.0;
+    marketSpreads[9] = 60; //3865.0;
 
+    // Create a survival curve object
     final CalibrateSurvivalCurve curve = new CalibrateSurvivalCurve();
 
+    // Calibrate the survival curve to the market observed par CDS spreads
     double[] calibratedSurvivalCurve = curve.getCalibratedSurvivalCurve(cds, tenors, marketSpreads, yieldCurve);
 
     if (outputResults) {

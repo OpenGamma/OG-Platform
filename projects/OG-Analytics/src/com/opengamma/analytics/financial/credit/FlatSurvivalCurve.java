@@ -21,14 +21,16 @@ public class FlatSurvivalCurve {
 
   // Default FlatSurvivalCurve constructor (not very useful)
   public FlatSurvivalCurve() {
+
     _flatHazardRate = 0.0;
   }
 
   // ------------------------------------------------------------------------
 
   // FlatSurvivalCurve constructor
-  public FlatSurvivalCurve(final double parSpread, final double curveRecoveryRate) {
-    _flatHazardRate = (parSpread / 10000.0) / (1 - curveRecoveryRate);
+  public FlatSurvivalCurve(final double premiumLegCoupon, final double curveRecoveryRate) {
+
+    _flatHazardRate = (premiumLegCoupon / 10000.0) / (1 - curveRecoveryRate);
   }
 
   // ------------------------------------------------------------------------

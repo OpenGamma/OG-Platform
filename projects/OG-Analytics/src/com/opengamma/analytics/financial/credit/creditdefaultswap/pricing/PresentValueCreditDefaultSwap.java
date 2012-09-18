@@ -41,6 +41,7 @@ public class PresentValueCreditDefaultSwap {
   // TODO : Lots of work to do in this file - Work In Progress
   // TODO : Add corrections for seasoned trades (currently just valuing at t = 0)
   // TODO : Add a method to calc both the legs in one method (useful for performance reasons)
+  // TODO : Check the calculation of the accrued premium carefully
   // TODO : Refactor code so that duplicate code is removed (pass a flat or calibrated curve into the pricer) 
   // TODO : Make sure that the correct recovery rate is used in the contingent leg valuation (for pricing and calibration)
 
@@ -55,7 +56,7 @@ public class PresentValueCreditDefaultSwap {
     ArgumentChecker.notNull(survivalCurve, "SurvivalCurve field");
 
     // Get the CDS's contractual spread
-    double parSpread = cds.getParSpread() / 10000.0;
+    double premiumLegCoupon = cds.getPremiumLegCoupon() / 10000.0;
 
     // Construct a cashflow schedule object
     final GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
@@ -70,7 +71,7 @@ public class PresentValueCreditDefaultSwap {
     double presentValueContingentLeg = calculateContingentLeg(cds, premiumLegSchedule, yieldCurve, survivalCurve);
 
     // Calculate the PV of the CDS (assumes we are buying protection i.e. paying the premium leg, receiving the contingent leg)
-    double presentValue = -parSpread * presentValuePremiumLeg + presentValueContingentLeg;
+    double presentValue = -premiumLegCoupon * presentValuePremiumLeg + presentValueContingentLeg;
 
     // If we are selling protection, then reverse the direction of the premium and contingent leg cashflows
     if (cds.getBuySellProtection() == BuySellProtection.SELL) {
@@ -82,7 +83,7 @@ public class PresentValueCreditDefaultSwap {
 
   // -------------------------------------------------------------------------------------------------
 
-  //Public method for computing the PV of a CDS based on an input CDS contract (with a calibrated survival curve)
+  // Public method for computing the PV of a CDS based on an input CDS contract (with a calibrated survival curve)
   public double getPresentValueCreditDefaultSwap(CreditDefaultSwapDefinition cds, YieldCurve yieldCurve, SurvivalCurve survivalCurve) {
 
     // Check input CDS, YieldCurve and SurvivalCurve objects are not null
@@ -91,7 +92,7 @@ public class PresentValueCreditDefaultSwap {
     ArgumentChecker.notNull(survivalCurve, "SurvivalCurve field");
 
     // Get the CDS's contractual spread
-    double parSpread = cds.getParSpread() / 10000.0;
+    double premiumLegCoupon = cds.getPremiumLegCoupon() / 10000.0;
 
     // Construct a cashflow schedule object
     final GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
@@ -106,7 +107,7 @@ public class PresentValueCreditDefaultSwap {
     double presentValueContingentLeg = calculateContingentLeg(cds, premiumLegSchedule, yieldCurve, survivalCurve);
 
     // Calculate the PV of the CDS (assumes we are buying protection i.e. paying the premium leg, receiving the contingent leg)
-    double presentValue = -parSpread * presentValuePremiumLeg + presentValueContingentLeg;
+    double presentValue = -premiumLegCoupon * presentValuePremiumLeg + presentValueContingentLeg;
 
     // If we are selling protection, then reverse the direction of the premium and contingent leg cashflows
     if (cds.getBuySellProtection() == BuySellProtection.SELL) {
@@ -140,14 +141,12 @@ public class PresentValueCreditDefaultSwap {
     // Calculate the value of the contingent leg
     double presentValueContingentLeg = calculateContingentLeg(cds, premiumLegSchedule, yieldCurve, survivalCurve);
 
-    double parSpread = presentValueContingentLeg / presentValuePremiumLeg;
+    double parSpread = 10000.0 * presentValueContingentLeg / presentValuePremiumLeg;
 
     return parSpread;
   }
 
   //-------------------------------------------------------------------------------------------------  
-
-  // WIP
 
   // Public method to calculate the par spread of a CDS at contract inception
   public double getParSpreadCreditDefaultSwap(CreditDefaultSwapDefinition cds, YieldCurve yieldCurve, SurvivalCurve survivalCurve) {
@@ -207,9 +206,6 @@ public class PresentValueCreditDefaultSwap {
 
     // Do we need to calculate the accrued premium as well
     boolean includeAccruedPremium = cds.getIncludeAccruedPremium();
-
-    // Extract the adjusted effective date from the computed cashflow schedule
-    ZonedDateTime adjustedEffectiveDate = cashflowSchedule[0][0];
 
     // -------------------------------------------------------------
 
@@ -280,9 +276,6 @@ public class PresentValueCreditDefaultSwap {
     // Do we need to calculate the accrued premium as well
     boolean includeAccruedPremium = cds.getIncludeAccruedPremium();
 
-    // Extract the adjusted effective date from the computed cashflow schedule
-    ZonedDateTime adjustedEffectiveDate = cashflowSchedule[0][0];
-
     // -------------------------------------------------------------
 
     // Determine where in the cashflow schedule the valuationDate is
@@ -309,7 +302,6 @@ public class PresentValueCreditDefaultSwap {
 
       // If required, calculate the accrued premium contribution to the overall premium leg
       if (includeAccruedPremium) {
-        // TODO : Check the valuationDate carefully
         double tPrevious = TimeCalculator.getTimeBetween(valuationDate, cashflowSchedule[i - 1][0]);
         double survivalProbabilityPrevious = survivalCurve.getSurvivalProbability(tPrevious);
 
@@ -391,7 +383,7 @@ public class PresentValueCreditDefaultSwap {
     // Get the notional amount to multiply the contingent leg by
     double notional = cds.getNotional();
 
-    // Get the recovery rate used for valuation purposes
+    // Get the recovery rate used for valuation purposes (can be different to the recovery used for curve construction)
     double valuationRecoveryRate = cds.getValuationRecoveryRate();
 
     // Calculate the protection leg integral between the valuationDate (when protection begins) and adjustedMaturityDate (when protection ends)

@@ -8,14 +8,15 @@ package com.opengamma.analytics.financial.credit;
 import javax.time.calendar.ZonedDateTime;
 
 /**
- * Class for constructing a survival curve from a user-input set of tenors and hazard rates for these tenors
+ * Class for constructing and querying a survival curve from a user-input set of tenors and hazard rates for these tenors
  */
 public class SurvivalCurve {
 
   // TODO : Check the validity of the arguments in the ctor e.g. not null, equal number of tenors/spreads
   // TODO : Is there a better way to overload the ctor (problem is the compiler complains about unassigned member variables)
   // TODO : Do we even need the ZonedDateTime version of the ctor? Survival curve can function perfectly well with tenors as doubles
-  // TODO : Check the getSurvivalProbability routine more carefully (the counter)
+  // TODO : Check the getSurvivalProbability routine more carefully (the counter and the calculation itself)
+  // TODO : Need to include the interpolator and extrapolators
 
   // --------------------------------------------------------------------------------------
 
@@ -41,12 +42,12 @@ public class SurvivalCurve {
 
   // --------------------------------------------------------------------------------------
 
-  public SurvivalCurve(double[] tenorsAsDoubles, double[] hazardRates) {
+  public SurvivalCurve(double[] tenors, double[] hazardRates) {
 
-    _numberOfTenors = tenorsAsDoubles.length;
+    _numberOfTenors = tenors.length;
 
     _tenors = null;
-    _tenorsAsDoubles = tenorsAsDoubles;
+    _tenorsAsDoubles = tenors;
 
     _hazardRates = hazardRates;
 
