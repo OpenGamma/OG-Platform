@@ -16,7 +16,10 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.method.PricingMethod;
 import com.opengamma.analytics.financial.interestrate.method.SuccessiveLeastSquareCalibrationEngine;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
+import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.matrix.MatrixAlgebraFactory;
+import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.analytics.math.statistics.leastsquare.NonLinearLeastSquare;
 import com.opengamma.util.ArgumentChecker;
 
@@ -82,7 +85,8 @@ public class SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationEngine extends
     computeCalibrationPrice(curves);
     getCalibrationObjective().setCurves(curves);
     SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationObjective objective = (SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationObjective) getCalibrationObjective();
-    final NonLinearLeastSquare ls = new NonLinearLeastSquare();
+    final NonLinearLeastSquare ls = new NonLinearLeastSquare(DecompositionFactory.SV_COMMONS, MatrixAlgebraFactory.OG_ALGEBRA, 1.0E-10);
+    //    final NonLinearLeastSquare ls = new NonLinearLeastSquare();
     for (int loopblock = 0; loopblock < nbBlocks; loopblock++) {
       InstrumentDerivative[] instruments = new InstrumentDerivative[_nbInstrumentsBlock];
       double[] prices = new double[_nbInstrumentsBlock];
@@ -96,7 +100,8 @@ public class SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationEngine extends
       objective.setEndIndex(_instrumentIndex.get((loopblock + 1) * _nbInstrumentsBlock) - 1);
       // Implementation note: the index start is from the first instrument of the block and the index end is from the last instrument of the block.
       DoubleMatrix1D observedValues = new DoubleMatrix1D(_nbInstrumentsBlock, 0.0);
-      ls.solve(observedValues, getCalibrationObjective(), new DoubleMatrix1D(1.0, 0.0));
+      @SuppressWarnings("unused")
+      LeastSquareResults result = ls.solve(observedValues, getCalibrationObjective(), new DoubleMatrix1D(1.0, 0.0));
       // Implementation note: the start value is a multiplicative factor of one and an additive term of 0 (parameters unchanged). 
       //   The observed values are 0 as the function returns the difference between the calculated prices and the targets.
     }
