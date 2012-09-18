@@ -524,6 +524,7 @@
             camera.updateProjectionMatrix();
             renderer.setSize(width, height);
             hud.load();
+            renderer.render(scene, camera);
         };
         /**
          * Updates without reloading everything

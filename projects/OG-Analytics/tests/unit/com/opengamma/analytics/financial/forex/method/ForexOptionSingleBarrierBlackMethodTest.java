@@ -153,9 +153,6 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     final double priceBarrierDown = METHOD_BARRIER.presentValue(impossibleKnockOut, SMILE_BUNDLE).getAmount(CUR_2);
     assertTrue("PV : Knock-Out + Knock-In Barriers do not sum to the underlying vanilla (as approximated by a barrierOption with an impossibly low barrier",
         Math.abs((priceBarrierKO + priceBarrierKI) / priceBarrierDown - 1.0) < 1e-4);
-
-    System.out.println("KI,KO,Sum,Vanilla = " + priceBarrierKO + "," + priceBarrierKI + "," + (priceBarrierKO + priceBarrierKI) + "," + priceVanilla);
-    System.out.println("priceVanilla / (priceBarrierKO + priceBarrierKI)" + priceVanilla / (priceBarrierKO + priceBarrierKI));
     assertTrue("PV : Knock-Out + Knock-In Barriers do not sum to the underlying vanilla",
         ((priceBarrierKO + priceBarrierKI) / priceVanilla - 1.0) < 1e-4);
   }

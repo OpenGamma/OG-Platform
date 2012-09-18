@@ -68,7 +68,7 @@ public class CalibrateSurvivalCurveTest {
   private static final boolean adjustMaturityDate = false;
 
   private static final double notional = 10000000.0;
-  private static final double parSpread = 60.0;
+  private static final double premiumLegCoupon = 60.0;
   private static final double valuationRecoveryRate = 0.40;
   private static final double curveRecoveryRate = 0.40;
   private static final boolean includeAccruedPremium = false;
@@ -109,7 +109,7 @@ public class CalibrateSurvivalCurveTest {
       immAdjustMaturityDate,
       adjustMaturityDate,
       notional,
-      parSpread,
+      premiumLegCoupon,
       valuationRecoveryRate,
       curveRecoveryRate,
       includeAccruedPremium);
@@ -138,16 +138,16 @@ public class CalibrateSurvivalCurveTest {
     tenors[8] = DateUtils.getUTCDate(2030, 6, 20);
     tenors[9] = DateUtils.getUTCDate(2040, 6, 20);
 
-    marketSpreads[0] = 1774.0;
-    marketSpreads[1] = 1805.0;
-    marketSpreads[2] = 1856.0;
-    marketSpreads[3] = 1994.0;
-    marketSpreads[4] = 2045.0;
-    marketSpreads[5] = 2141.0;
-    marketSpreads[6] = 2243.0;
-    marketSpreads[7] = 2559.0;
-    marketSpreads[8] = 3072.0;
-    marketSpreads[9] = 3865.0;
+    marketSpreads[0] = 50; //1774.0;
+    marketSpreads[1] = 60; //1805.0;
+    marketSpreads[2] = 50; //1856.0;
+    marketSpreads[3] = 60; //1994.0;
+    marketSpreads[4] = 50; //2045.0;
+    marketSpreads[5] = 40; //2141.0;
+    marketSpreads[6] = 50; //2243.0;
+    marketSpreads[7] = 60; //2559.0;
+    marketSpreads[8] = 50; //3072.0;
+    marketSpreads[9] = 60; //3865.0;
 
     // Create a survival curve object
     final CalibrateSurvivalCurve curve = new CalibrateSurvivalCurve();

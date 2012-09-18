@@ -56,7 +56,7 @@ public class PresentValueCreditDefaultSwap {
     ArgumentChecker.notNull(survivalCurve, "SurvivalCurve field");
 
     // Get the CDS's contractual spread
-    double parSpread = cds.getParSpread() / 10000.0;
+    double premiumLegCoupon = cds.getPremiumLegCoupon() / 10000.0;
 
     // Construct a cashflow schedule object
     final GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
@@ -71,7 +71,7 @@ public class PresentValueCreditDefaultSwap {
     double presentValueContingentLeg = calculateContingentLeg(cds, premiumLegSchedule, yieldCurve, survivalCurve);
 
     // Calculate the PV of the CDS (assumes we are buying protection i.e. paying the premium leg, receiving the contingent leg)
-    double presentValue = -parSpread * presentValuePremiumLeg + presentValueContingentLeg;
+    double presentValue = -premiumLegCoupon * presentValuePremiumLeg + presentValueContingentLeg;
 
     // If we are selling protection, then reverse the direction of the premium and contingent leg cashflows
     if (cds.getBuySellProtection() == BuySellProtection.SELL) {
@@ -92,7 +92,7 @@ public class PresentValueCreditDefaultSwap {
     ArgumentChecker.notNull(survivalCurve, "SurvivalCurve field");
 
     // Get the CDS's contractual spread
-    double parSpread = cds.getParSpread() / 10000.0;
+    double premiumLegCoupon = cds.getPremiumLegCoupon() / 10000.0;
 
     // Construct a cashflow schedule object
     final GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
@@ -107,7 +107,7 @@ public class PresentValueCreditDefaultSwap {
     double presentValueContingentLeg = calculateContingentLeg(cds, premiumLegSchedule, yieldCurve, survivalCurve);
 
     // Calculate the PV of the CDS (assumes we are buying protection i.e. paying the premium leg, receiving the contingent leg)
-    double presentValue = -parSpread * presentValuePremiumLeg + presentValueContingentLeg;
+    double presentValue = -premiumLegCoupon * presentValuePremiumLeg + presentValueContingentLeg;
 
     // If we are selling protection, then reverse the direction of the premium and contingent leg cashflows
     if (cds.getBuySellProtection() == BuySellProtection.SELL) {
@@ -141,7 +141,7 @@ public class PresentValueCreditDefaultSwap {
     // Calculate the value of the contingent leg
     double presentValueContingentLeg = calculateContingentLeg(cds, premiumLegSchedule, yieldCurve, survivalCurve);
 
-    double parSpread = presentValueContingentLeg / presentValuePremiumLeg;
+    double parSpread = 10000.0 * presentValueContingentLeg / presentValuePremiumLeg;
 
     return parSpread;
   }
@@ -206,9 +206,6 @@ public class PresentValueCreditDefaultSwap {
 
     // Do we need to calculate the accrued premium as well
     boolean includeAccruedPremium = cds.getIncludeAccruedPremium();
-
-    // Extract the adjusted effective date from the computed cashflow schedule
-    ZonedDateTime adjustedEffectiveDate = cashflowSchedule[0][0];
 
     // -------------------------------------------------------------
 
@@ -278,9 +275,6 @@ public class PresentValueCreditDefaultSwap {
 
     // Do we need to calculate the accrued premium as well
     boolean includeAccruedPremium = cds.getIncludeAccruedPremium();
-
-    // Extract the adjusted effective date from the computed cashflow schedule
-    ZonedDateTime adjustedEffectiveDate = cashflowSchedule[0][0];
 
     // -------------------------------------------------------------
 

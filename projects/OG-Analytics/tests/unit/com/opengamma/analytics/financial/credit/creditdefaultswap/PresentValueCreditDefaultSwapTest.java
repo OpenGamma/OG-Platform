@@ -84,7 +84,7 @@ public class PresentValueCreditDefaultSwapTest {
   private static final boolean adjustMaturityDate = true;
 
   private static final double notional = 10000000.0;
-  private static final double parSpread = 100.0;
+  private static final double premiumLegCoupon = 100.0;
   private static final double valuationRecoveryRate = 0.40;
   private static final double curveRecoveryRate = 0.40;
   private static final boolean includeAccruedPremium = false;
@@ -97,7 +97,7 @@ public class PresentValueCreditDefaultSwapTest {
   private static final YieldCurve yieldCurve = YieldCurve.from(R);
 
   // Construct a survival curve based on a flat hazard rate term structure (for testing purposes only)
-  private static final FlatSurvivalCurve flatSurvivalCurve = new FlatSurvivalCurve(parSpread, curveRecoveryRate);
+  private static final FlatSurvivalCurve flatSurvivalCurve = new FlatSurvivalCurve(premiumLegCoupon, curveRecoveryRate);
 
   // ----------------------------------------------------------------------------------
 
@@ -128,7 +128,7 @@ public class PresentValueCreditDefaultSwapTest {
       immAdjustMaturityDate,
       adjustMaturityDate,
       notional,
-      parSpread,
+      premiumLegCoupon,
       valuationRecoveryRate,
       curveRecoveryRate,
       includeAccruedPremium);

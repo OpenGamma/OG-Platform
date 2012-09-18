@@ -15,17 +15,13 @@ $.register_module({
                     : (curr = value.h[value.h.length - 1]) < (last = value.h[value.h.length - 2]) ? 'down'
                         : curr > last ? 'up' : 'static';
                 return !value ? ''
-                    : (value.v || '') +
+                    : (curr < 0 ? '<span class="og-neg">' + value.v + '</span>' : value.v || '') +
                         (grid.config.sparklines ? '<span class="sp" values="' + value.h.join(',') + '"></span>' : '') +
                         (indicator ? '<span class="OG-icon og-icon-tick-'+ indicator +'"></span>' : '');
             };
             formatter.UNKNOWN = function (value) {
                 var type = value.t;
                 return value && formatter[type] ? formatter[type](value) : value && value.v || '';
-            };
-            formatter.DOUBLE = function (value) {
-                var val = !value ? '' : (value.v || ''), last = !value || !value.h ? null : value.h[value.h.length - 1];
-                return last < 0 ? '<span class="og-neg">' + val + '</span>' : val
             };
             formatter.CURVE = function (value) {
                 return '<span class="flot">[' + JSON.stringify(value.v) + ']</span>'

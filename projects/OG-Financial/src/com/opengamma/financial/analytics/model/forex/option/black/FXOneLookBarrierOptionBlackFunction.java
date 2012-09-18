@@ -47,7 +47,8 @@ import com.opengamma.util.money.Currency;
  * This function splits a European ONE-LOOK Barrier Option into a sum of vanilla FXOptionSecurity's,
  * and then calls down to the FXOptionBlackFunction for the paricular requirement. <p>
  * See FXBarrierOptionBlackFunction for Functions on TRUE Barriers. That is, options that knock in or out contingent on hitting a barrier,
- * at ANY time before expiry. The one-look case here only checks the barrier at expiry.
+ * at ANY time before expiry. The one-look case here only checks the barrier at expiry. <p>
+ * The payoffs are thus restricted, on cannot have a Down-and-Out nor Down-and-In Calls, nor Up-and-In and Up-and-Out Puts <p>
  */
 public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackSingleValuedFunction {
 
@@ -167,6 +168,7 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
     // Unpack the barrier security
     final boolean isLong = barrierSec.getLongShort().isLong();
     final ZonedDateTime expiry = barrierSec.getExpiry().getExpiry();
+    final ZonedDateTime settlement = barrierSec.getSettlementDate();
 
     // The barrier has four types
     final BarrierDirection bInOut = barrierSec.getBarrierDirection(); //   KNOCK_IN, KNOCK_OUT,
@@ -189,7 +191,9 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
     Currency quoteCcy; // This is the valuation currency in the (X,K) interpretation
     String baseCurveName;
     String quoteCurveName;
+    boolean linearIsCall; //
     if (inOrder) {
+      linearIsCall = false; // putCcy == baseCcy => Put
       baseAmt = putAmt;
       baseCcy = putCcy;
       baseCurveName = putCurveName + "_" + putCcy.getCode();
@@ -197,6 +201,7 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
       quoteCcy = callCcy;
       quoteCurveName = callCurveName + "_" + callCcy.getCode();
     } else {
+      linearIsCall = true; // callCcy == baseCcy => Call
       baseAmt = callAmt;
       baseCcy = callCcy;
       baseCurveName = callCurveName + "_" + callCcy.getCode();
@@ -220,8 +225,11 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
     switch (bUpDown) {
       case UP:
         useCallSpread = true;
+        if (!linearIsCall) {
+          throw new OpenGammaRuntimeException("ONE_LOOK Barriers do not apply to an UP type of Barrier unless the option itself is a Call. Check Call/Put currencies.");
+        }
         if (barrier < strike) {
-          throw new OpenGammaRuntimeException("Encountered an UP / CALL type of BarrierOption where barrier, " + barrier + ", is below strike, " + strike);
+          throw new OpenGammaRuntimeException("Encountered an UP type of BarrierOption where barrier, " + barrier + ", is below strike, " + strike);
         }
         size = (barrier - strike) / width;
         nearStrike = barrier + oh - 0.5 * width;
@@ -232,8 +240,11 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
         break;
       case DOWN:
         useCallSpread = false;
+        if (linearIsCall) {
+          throw new OpenGammaRuntimeException("ONE_LOOK Barriers do not apply to a DOWN type of Barrier unless the option itself is a Put. Check Call/Put currencies.");
+        }
         if (barrier > strike) {
-          throw new OpenGammaRuntimeException("Encountered a DOWN / PUT type of BarrierOption where barrier, " + barrier + ", is above strike, " + strike);
+          throw new OpenGammaRuntimeException("Encountered a DOWN type of BarrierOption where barrier, " + barrier + ", is above strike, " + strike);
         }
         size = (strike - barrier) / width;
         nearStrike = barrier + oh + 0.5 * width;
@@ -247,33 +258,36 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
 
     // ForexVanillaOption's are defined in terms of the underlying forward FX transaction, the exchange of two fixed amounts in different currencies.
     // The relative size of the payments implicitly defines the option's strike. So we will build a number of ForexDefinition's below
-    final PaymentFixedDefinition quoteCcyPayment = new PaymentFixedDefinition(quoteCcy, expiry, -1 * quoteAmt);
-    final PaymentFixedDefinition baseCcyPayment = new PaymentFixedDefinition(baseCcy, expiry, baseAmt);
+    final PaymentFixedDefinition quoteCcyPayment = new PaymentFixedDefinition(quoteCcy, settlement, -1 * quoteAmt);
+    final PaymentFixedDefinition baseCcyPayment = new PaymentFixedDefinition(baseCcy, settlement, baseAmt);
+    ForexDefinition fxFwd = new ForexDefinition(baseCcyPayment, quoteCcyPayment); // This is what defines the strike, K = quoteAmt / baseAmt
+    // We restrike an option by changing the underlying Forex, adjusting the Payments to match the formulae: k = A2/A1, N = A1.
+    ForexDefinition fxFwdForBarrier = new ForexDefinition(baseCcyPayment, new PaymentFixedDefinition(quoteCcy, settlement, -1 * barrier * baseAmt));
 
-    // For the binaries, we need to adjust the Forex Payments to match the formulae: k = A2/A1, N = A1.
-    // We do this by adjusting A1' = size * A1; A2' = A1' * newStrike as A1 is the Notional in this interpretation
+    // For the binaries, we do this by adjusting A1' = size * A1; A2' = A1' * newStrike as A1 is the Notional in this interpretation
     final double baseAmtForSpread = size * baseAmt;
-    final PaymentFixedDefinition baseCcyPmtForSpread = new PaymentFixedDefinition(baseCcy, expiry, baseAmtForSpread);
-    final ForexDefinition fxFwdForNearStrike = new ForexDefinition(baseCcyPmtForSpread, new PaymentFixedDefinition(quoteCcy, expiry, -1 * nearStrike * baseAmtForSpread));
-    final ForexDefinition fxFwdForFarStrike = new ForexDefinition(baseCcyPmtForSpread, new PaymentFixedDefinition(quoteCcy, expiry, -1 * farStrike * baseAmtForSpread));
+    final PaymentFixedDefinition baseCcyPmtForSpread = new PaymentFixedDefinition(baseCcy, settlement, baseAmtForSpread);
+    final ForexDefinition fxFwdForNearStrike = new ForexDefinition(baseCcyPmtForSpread, new PaymentFixedDefinition(quoteCcy, settlement, -1 * nearStrike * baseAmtForSpread));
+    final ForexDefinition fxFwdForFarStrike = new ForexDefinition(baseCcyPmtForSpread, new PaymentFixedDefinition(quoteCcy, settlement, -1 * farStrike * baseAmtForSpread));
+
 
     // Switch  on type
     switch (bInOut) {
-      case KNOCK_OUT: // Long a linear at strike, short a binary at barrier of size (barrier-strike)
+      case KNOCK_OUT: // Long a linear at strike, short a linear at barrier, short a binary at barrier of size (barrier-strike)
 
-        ForexDefinition fxFwd = new ForexDefinition(baseCcyPayment, quoteCcyPayment);
         final ForexOptionVanillaDefinition longLinearK = new ForexOptionVanillaDefinition(fxFwd, expiry, useCallSpread, isLong);
-
+        final ForexOptionVanillaDefinition shortLinearB = new ForexOptionVanillaDefinition(fxFwdForBarrier, expiry, useCallSpread, !isLong);
         vanillas.add(longLinearK.toDerivative(valTime, baseQuoteCurveNames));
+        vanillas.add(shortLinearB.toDerivative(valTime, baseQuoteCurveNames));
         // Short a binary of size, barrier - strike. Modelled as call spread struck around strike + oh, with spread of 2*eps
         final ForexOptionVanillaDefinition shortNear = new ForexOptionVanillaDefinition(fxFwdForNearStrike, expiry, useCallSpread, !isLong);
         final ForexOptionVanillaDefinition longFar = new ForexOptionVanillaDefinition(fxFwdForFarStrike, expiry, useCallSpread, isLong);
         vanillas.add(shortNear.toDerivative(valTime, baseQuoteCurveNames));
         vanillas.add(longFar.toDerivative(valTime, baseQuoteCurveNames));
         break;
-      case KNOCK_IN:  // Long a linear at *barrier*, long a binary at barrier of size (barrier - strike)
 
-        ForexDefinition fxFwdForBarrier = new ForexDefinition(baseCcyPayment, new PaymentFixedDefinition(quoteCcy, expiry, -1 * barrier * baseAmt));
+      case KNOCK_IN:  // Long a linear at barrier, long a binary at barrier of size (barrier - strike)
+
         final ForexOptionVanillaDefinition longLinearB = new ForexOptionVanillaDefinition(fxFwdForBarrier, expiry, useCallSpread, isLong);
         vanillas.add(longLinearB.toDerivative(valTime, baseQuoteCurveNames));
         // Long a binary of size, barrier - strike. Modelled as call spread struck around strike + oh, with spread of 2*eps
