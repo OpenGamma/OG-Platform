@@ -11,7 +11,7 @@ $.register_module({
     ],
     obj: function () { 
         return function (selector) {
-            var emitter = new EventEmitter(), Form, Dropmenu = og.analytics.dropmenu, Status, 
+            var emitter = new EventEmitter(), Form, Dropmenu = og.analytics.dropmenu, Status,
                 events = {
                     focus: 'dropmenu:focus',
                     focused:'dropmenu:focused',
@@ -65,8 +65,8 @@ $.register_module({
                             if (!shift_key && active_pos($ag_fcntrls,'last')) ds_dropdwn.emitEvent(events.open);
                             if (!shift_key && active_pos($ds_fcntrls, 'last')) ds_dropdwn.emitEvent(events.close);
                             if (shift_key && $elem.is($load_btn)) ds_dropdwn.emitEvent(events.open);
-                            if (shift_key && active_pos($ds_fcntrls, 'first')) ag_dropdwn.emitEvent(events.open); 
-                            if (shift_key && active_pos($ag_fcntrls, 'first')) ag_dropdwn.emitEvent(events.close); 
+                            if (shift_key && active_pos($ds_fcntrls, 'first')) ag_dropdwn.emitEvent(events.open);
+                            if (shift_key && active_pos($ag_fcntrls, 'first')) ag_dropdwn.emitEvent(events.close);
                         },
                         button_handler = function (val) {
                             if (val === 'OK') {
@@ -81,9 +81,23 @@ $.register_module({
                                 ac_menu.$input.select(); 
                             }
                         },
+                        populate_marketdata = function () {
+                            og.api.rest.marketdatasnapshots.get().pipe(function (resp) {
+                                console.log(resp.data[0].snapshots);
+                            });
+                        },
+                        select_handler = function (event) {
+                            var $elem = $(event.srcElement);
+                            if ($elem.is('.type')) {
+                                switch($elem.val()) {
+                                    case 'Snapshot': populate_marketdata(); break;
+                                }
+                            }
+                        },
                         click_handler = function (event) {
                             var $elem = $(event.srcElement);
                             if ($elem.is('button')) button_handler($elem.text());
+                            if ($elem.is('select')) select_handler($elem);
                         },
                         close_dropmenu = function (menu) {
                             if (menu.state() === 'open'|| menu.state() === 'focused') menu.emitEvent(events.close);
@@ -93,7 +107,8 @@ $.register_module({
                                 $load_btn.removeClass('og-disabled').on('click', function () {status.play();});
                             } else $load_btn.addClass('og-disabled').off('click');
                         };
-                    return $form.on('keydown', fcntrls_s, keydown_handler).on('click', click_handler),
+                    return $form.on('keydown', fcntrls_s, keydown_handler).on('click', click_handler)
+                        .on('change', 'select', select_handler),
                         ac_menu = new og.common.util.ui.AutoCombo(selector+' '+vd_s,'search...', search.data),
                         ac_menu.$input.on(ac_s, auto_combo_handler).select(),
                         $.when(
@@ -102,7 +117,7 @@ $.register_module({
                         ).then(function (aggregation_markup, datasources_markup) {
                             ag_dropdwn = new Dropmenu({$cntr: $ag, tmpl: aggregation_markup, data: aggregators.data})
                                 .addListener(events.open, function () {close_dropmenu(ds_dropdwn);}),
-                            ds_dropdwn = new Dropmenu({$cntr: $ds, tmpl: datasources_markup, data: datasource})
+                            ds_dropdwn = new Dropmenu({$cntr: $ds, tmpl: datasources_markup, data: datasource.data})
                                 .addListener(events.open, function () {close_dropmenu(ag_dropdwn);}),
                             $ag_fcntrls = $ag.find(fcntrls_s), $ds_fcntrls = $ds.find(fcntrls_s);
                         }),
@@ -119,19 +134,7 @@ $.register_module({
                 og.api.text({module: 'og.analytics.form_tash'}),
                 og.api.rest.viewdefinitions.get(),
                 og.api.rest.aggregators.get(),
-                { // dummy
-                    type: ['Live', 'Snapsot', 'Historical', 'Data Type'],
-                    live: ['Bloomberg', 'Reuters'],
-                    snapshot: ['Alan', 'Alan 2'],
-                    historical: ['01 June 2012', '02 June 2012', '03 June 2012'],
-                    datatype: ['type 1', 'type 2'],
-                    row: [
-                        {num: 1, type: 'Live', value: 'Bloomberg'},
-                        {num: 2, type: 'Snapshot', value: 'Alan'},
-                        {num: 3, type: 'Historical', value: '02 June 2012'},
-                        {num: 4, type: 'Data Type', value: 'type 2', last: true}
-                    ]
-                }
+                {data: ['Live', 'Snapshot', 'Historical']}
             ).then(MastHead);
         };
     }

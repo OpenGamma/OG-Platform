@@ -37,7 +37,15 @@ $.register_module({
                 };
             return Dropmenu = new EventEmitter(), Dropmenu.addListener(evts.open, open).addListener(evts.close, close)
                 .addListener(evts.focus, focus), Dropmenu.state = function () {return state;},
-                Dropmenu.opened = function () {return opened;}, Dropmenu;
+                Dropmenu.opened = function () {return opened;}, Dropmenu.dom = {
+                    $cntr : $cntr,
+                    $title : $title,
+                    $menu : $menu,
+                    $menu_actions : $menu_actions,
+                    $add : $add,
+                    $opts : $opts,
+                    $del : $del
+                }, Dropmenu;
         }
     }
 });
