@@ -711,6 +711,11 @@
         <artifactId>jetty-webapp</artifactId>
         <version>7.0.1.v20091125</version>
       </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-servlets</artifactId>
+        <version>7.0.1.v20091125</version>
+      </dependency>
 
       <!-- JMS -->
       <dependency>
