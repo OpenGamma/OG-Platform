@@ -6,7 +6,7 @@
     var webgl = Detector.webgl ? true : false, util = {},
         default_settings = {
             axis_offset: 1.5,           // distance from surface
-            debug: true,
+            debug: false,
             floating_height: 5,         // how high the top surface floats over the bottom grid
             font_face_2d: 'Arial',      // 2D text font
             font_face_3d: 'helvetiker', // 3D text font (glyphs for 3D fonts need to be loaded separatly)
