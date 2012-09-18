@@ -70,9 +70,9 @@ $.register_module({
                         },
                         button_handler = function (val) {
                             if (val === 'OK') {
-                                if (ag_dropdwn.opened) {
+                                if (ag_dropdwn.opened()) {
                                     ds_dropdwn.emitEvent(events.open).emitEvent(events.focus);
-                                } else if (ds_dropdwn.opened) {
+                                } else if (ds_dropdwn.opened()) {
                                     ds_dropdwn.emitEvent(events.close); 
                                     $load_btn.focus();
                                 }
@@ -86,7 +86,7 @@ $.register_module({
                             if ($elem.is('button')) button_handler($elem.text());
                         },
                         close_dropmenu = function (menu) {
-                            if (menu.state === 'open'|| menu.state === 'focused') menu.emitEvent(events.close);
+                            if (menu.state() === 'open'|| menu.state() === 'focused') menu.emitEvent(events.close);
                         },
                         auto_combo_handler = function (even, ui) {
                             if ((ui && ui.item && ui.item.value || $(this).val()) !== '') {
