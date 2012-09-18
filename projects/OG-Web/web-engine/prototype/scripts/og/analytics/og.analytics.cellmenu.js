@@ -25,14 +25,16 @@ $.register_module({
                     function () {type = 'timeseries'; id = 1}
                 ],
                 type_map: { // available views per data type
+                    CURVE: [1, 3],
+                    DOUBLE: [0],
                     LABELLED_MATRIX_1D: [0, 1],
                     LABELLED_MATRIX_2D: [0, 1, 2, 3],
                     LABELLED_MATRIX_3D: [0, 1],
-                    DOUBLE: [0],
-                    PRIMITIVE: [],
-                    CURVE: [1, 3],
-                    TIMESERIES: [4, 1],
-                    SURFACE: [2, 1]
+                    PRIMITIVE: [0],
+                    SURFACE_DATA: [2, 1],
+                    TENOR: [0],
+                    TIME_SERIES: [4, 1],
+                    UNKNOWN: [0]
                 },
                 order: { // default view preference for data type per location
                     'south': [0, 2, 4, 3, 1],
