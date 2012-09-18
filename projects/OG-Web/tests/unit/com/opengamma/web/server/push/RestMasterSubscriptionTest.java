@@ -19,7 +19,6 @@ import org.testng.annotations.Test;
 import com.opengamma.core.change.ChangeType;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.tuple.Pair;
-import com.opengamma.web.server.push.WebPushTestUtils;
 
 public class RestMasterSubscriptionTest {
 
@@ -51,6 +50,6 @@ public class RestMasterSubscriptionTest {
     _positionChangeManager.entityChanged(ChangeType.UPDATED, uid, uid, Instant.now());
     // connect to the long-polling URL to receive notification of the change
     String json = _webPushTestUtils.readFromPath("/updates/" + clientId);
-    _webPushTestUtils.checkJsonResults(json, restUrl);
+    WebPushTestUtils.checkJsonResults(json, restUrl);
   }
 }
