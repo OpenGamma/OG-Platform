@@ -3,7 +3,7 @@ BEGIN TRANSACTION;
   -- update the version
   UPDATE usr_schema_version SET version_value='46' WHERE version_key='schema_patch';
 
-  DROP INDEX ix_usr_oguser_name ON usr_oguser(name);
+  DROP INDEX ix_usr_oguser_name ON usr_oguser;
 
   ALTER TABLE sec_future ADD COLUMN userid varchar(255);
   UPDATE usr_oguser SET userid = name;
