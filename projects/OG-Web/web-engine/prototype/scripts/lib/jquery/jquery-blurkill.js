@@ -11,10 +11,7 @@
         });
     });
     $.fn[namespace] = function (close) {
-        this.on('mousedown', function (event) {
-            event.preventDefault();
-            event.stopPropagation();
-        });
+        this.on('mousedown', function (event) {event.stopPropagation();});
         return elements.push(close || (function (element) {return function () {element.remove();};})(this)), this;
     };
 })(jQuery);
