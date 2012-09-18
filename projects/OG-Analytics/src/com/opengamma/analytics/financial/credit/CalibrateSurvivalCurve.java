@@ -66,7 +66,6 @@ public class CalibrateSurvivalCurve {
     // ----------------------------------------------------------------------------
 
     int numberOfTenors = tenors.length;
-    int numberOfSpreads = marketSpreads.length;
 
     // ----------------------------------------------------------------------------
 
@@ -78,7 +77,7 @@ public class CalibrateSurvivalCurve {
 
     // Check user data input is not null
     ArgumentChecker.notNull(tenors, "Tenors field");
-    ArgumentChecker.notNull(marketSpreads, "par CDS spreads field");
+    ArgumentChecker.notNull(marketSpreads, "Market observed CDS spreads field");
 
     for (int m = 1; m < numberOfTenors; m++) {
       ArgumentChecker.isTrue(tenors[m].isAfter(tenors[m - 1]), "Tenors not in ascending order");
@@ -156,7 +155,7 @@ public class CalibrateSurvivalCurve {
     double calibratedHazardRate = 0.0;
 
     // Calculate the initial guess for the calibrated hazard rate
-    double hazardRateGuess = (calibrationCDS.getParSpread() / 10000.0) / (1 - calibrationCDS.getCurveRecoveryRate());
+    double hazardRateGuess = (calibrationCDS.getPremiumLegCoupon() / 10000.0) / (1 - calibrationCDS.getCurveRecoveryRate());
 
     // Calculate the initial bounds for the hazard rate search
     double lowerHazardRate = (1.0 - _hazardRateRangeMultiplier) * hazardRateGuess;

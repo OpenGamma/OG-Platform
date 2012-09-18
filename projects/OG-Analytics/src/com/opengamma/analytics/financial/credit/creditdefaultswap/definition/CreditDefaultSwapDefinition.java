@@ -24,7 +24,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- *  Definition of a vanilla legacy Credit Default Swap contract (i.e. transacted prior to Big Bang of April 2009)
+ *  Definition of a vanilla Credit Default Swap contract
  */
 public class CreditDefaultSwapDefinition {
 
@@ -42,7 +42,6 @@ public class CreditDefaultSwapDefinition {
 
   // TODO : Replace some of the argument checkers with notNegative e.g. notional, parSpread
   // TODO : Extend this class definition to include standard CDS contracts (post big-bang) i.e. quoted spread etc
-  // TODO : Change the name of the parSpread field to e.g. premiumLegCoupon
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -107,7 +106,7 @@ public class CreditDefaultSwapDefinition {
   // Day-count convention (usually Act/360 for legacy and standard CDS)
   private final DayCount _daycountFractionConvention;
 
-  // Business day adjustment convention (usually following for lehgacy and standard CDS)
+  // Business day adjustment convention (usually following for legacy and standard CDS)
   private final BusinessDayConvention _businessdayAdjustmentConvention;
 
   // Flag to determine if we adjust the maturity date to fall on the next IMM date
@@ -119,8 +118,8 @@ public class CreditDefaultSwapDefinition {
   // The trade notional (in the trade currency), convention is that this will always be a positive amount
   private final double _notional;
 
-  // The quoted par spread of the trade (for legacy CDS where there is no exchange of upfront)
-  private final double _parSpread;
+  // The coupon (in bps) to apply to the premium leg (for legacy CDS where there is no exchange of upfront this is the par spread)
+  private final double _premiumLegCoupon;
 
   // The recovery rate to be used in the calculation of the CDS MtM (can be different to the rate used to calibrate the survival curve)
   private final double _valuationRecoveryRate;
@@ -164,7 +163,7 @@ public class CreditDefaultSwapDefinition {
       boolean immAdjustMaturityDate,
       boolean adjustMaturityDate,
       double notional,
-      double parSpread,
+      double premiumLegCoupon,
       double valuationRecoveryRate,
       double curveRecoveryRate,
       boolean includeAccruedPremium) {
@@ -221,7 +220,7 @@ public class CreditDefaultSwapDefinition {
     ArgumentChecker.notNull(businessdayAdjustmentConvention, "Business day adjustment convention field is null");
 
     ArgumentChecker.isTrue(notional >= 0.0, "Notional amount should be greater than or equal to zero");
-    ArgumentChecker.isTrue(parSpread >= 0.0, "CDS par spread should be greater than or equal to zero");
+    ArgumentChecker.isTrue(premiumLegCoupon >= 0.0, "CDS par spread should be greater than or equal to zero");
 
     ArgumentChecker.isTrue(valuationRecoveryRate >= 0.0, "Valuation recovery rate should be greater than or equal to 0%");
     ArgumentChecker.isTrue(valuationRecoveryRate <= 1.0, "Valuation recovery rate should be less than or equal to 100%");
@@ -266,7 +265,7 @@ public class CreditDefaultSwapDefinition {
     _adjustMaturityDate = adjustMaturityDate;
 
     _notional = notional;
-    _parSpread = parSpread;
+    _premiumLegCoupon = premiumLegCoupon;
 
     _valuationRecoveryRate = valuationRecoveryRate;
     _curveRecoveryRate = curveRecoveryRate;
@@ -395,8 +394,8 @@ public class CreditDefaultSwapDefinition {
     return _notional;
   }
 
-  public double getParSpread() {
-    return _parSpread;
+  public double getPremiumLegCoupon() {
+    return _premiumLegCoupon;
   }
 
   public double getValuationRecoveryRate() {
@@ -426,7 +425,7 @@ public class CreditDefaultSwapDefinition {
     CreditDefaultSwapDefinition modifiedCDS = new CreditDefaultSwapDefinition(_buySellProtection, _protectionBuyer, _protectionSeller, _referenceEntityTicker,
         _referenceEntityShortName, _referenceEntityREDCode, _currency, _debtSeniority, _restructuringClause, _compositeRating,
         _impliedRating, _sector, _region, _country, _calendar, _startDate, _effectiveDate, maturityDate, _valuationDate, _stubType, _couponFrequency,
-        _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustMaturityDate, _notional, _parSpread,
+        _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustMaturityDate, _notional, _premiumLegCoupon,
         _valuationRecoveryRate, _curveRecoveryRate, _includeAccruedPremium);
 
     return modifiedCDS;
@@ -461,7 +460,7 @@ public class CreditDefaultSwapDefinition {
     result = prime * result + (_includeAccruedPremium ? 1231 : 1237);
     temp = Double.doubleToLongBits(_notional);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_parSpread);
+    temp = Double.doubleToLongBits(_premiumLegCoupon);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_valuationRecoveryRate);
     result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -555,7 +554,7 @@ public class CreditDefaultSwapDefinition {
       return false;
     }
 
-    if (Double.doubleToLongBits(_parSpread) != Double.doubleToLongBits(other._parSpread)) {
+    if (Double.doubleToLongBits(_premiumLegCoupon) != Double.doubleToLongBits(other._premiumLegCoupon)) {
       return false;
     }
 
