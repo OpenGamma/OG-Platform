@@ -716,6 +716,11 @@
         <artifactId>jetty-servlets</artifactId>
         <version>7.0.1.v20091125</version>
       </dependency>
+      <dependency>
+        <groupId>org.mortbay.jetty</groupId>
+        <artifactId>jsp-2.1-glassfish</artifactId>
+        <version>9.1.1.B60.25.p2</version>
+      </dependency>
 
       <!-- JMS -->
       <dependency>
