@@ -10,7 +10,7 @@ $.register_module({
                         Dropmenu.emitEvent(evts.focused, [Dropmenu]), Dropmenu;
                 },
                 open = function () {
-                    return $menu.show(), state = 'open', opened = true,
+                    return $menu.show().blurkill(close), state = 'open', opened = true,
                         $title.addClass('og-active'), Dropmenu.emitEvent(evts.opened, [Dropmenu]), Dropmenu;
                 },
                 close = function () {
