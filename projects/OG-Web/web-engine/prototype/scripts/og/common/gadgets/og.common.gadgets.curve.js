@@ -21,7 +21,7 @@ $.register_module({
             var gadget = this, curve, alive = prefix + counter++, d;
             gadget.alive = function () {return !!$('.' + alive).length;};
             gadget.load = function () {
-                (new og.analytics.Cell({source: source, col: 3, row: 1103})).on('data', function (data) {
+                (new og.analytics.Cell({source: source, col: 3, row: 2})).on('data', function (data) {
                     if (data.t !== 'CURVE') return og.dev.warn(module.name + ': data.v should be CURVE');
                     d = $.isArray(data.v) && [{curve: data.v}];
                     curve ? curve.update(d) : gadget.resize();
