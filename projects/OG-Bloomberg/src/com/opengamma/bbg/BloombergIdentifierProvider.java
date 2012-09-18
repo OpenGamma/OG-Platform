@@ -107,13 +107,15 @@ public class BloombergIdentifierProvider implements ExternalIdResolver {
       String securityDes = refData.getIdentifier();
       
       // check no exceptions
-      List<ReferenceDataError> errors = refData.getErrors();
-      if (errors != null && errors.size() > 0) {
-        for (ReferenceDataError error : errors) {
-          s_logger.warn("Exception looking up {}/{} - {}",
-              new Object[] {securityDes, _bbgFields, error});
+      if (refData.isIdentifierError()) {
+        List<ReferenceDataError> errors = refData.getErrors();
+        if (errors != null && errors.size() > 0) {
+          for (ReferenceDataError error : errors) {
+            s_logger.warn("Exception looking up {}/{} - {}",
+                new Object[] {securityDes, _bbgFields, error });
+          }
+          continue;
         }
-        continue;
       }
       
       // check same security was returned
