@@ -29,6 +29,7 @@ public class FXForwardCurveSpecificationFudgeBuilder implements FudgeBuilder<FXF
     message.add("target", FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(object.getTarget()), object.getTarget().getClass()));
     message.add("name", object.getName());
     message.add("quoteType", object.getQuoteType().name());
+    message.add("regularQuote", object.isRegularQuote());
     serializer.addToMessageWithClassHeaders(message, "curveInstrumentProvider", null, object.getCurveInstrumentProvider());
     return message;
   }
@@ -39,6 +40,9 @@ public class FXForwardCurveSpecificationFudgeBuilder implements FudgeBuilder<FXF
     final String name = message.getString("name");
     final FXForwardCurveInstrumentProvider provider = deserializer.fieldValueToObject(FXForwardCurveInstrumentProvider.class, message.getByName("curveInstrumentProvider"));
     if (message.hasField("quoteType")) {
+      if (message.hasField("regularQuote")) {
+        return new FXForwardCurveSpecification(name, target, provider, QuoteType.valueOf(message.getString("quoteType")), message.getBoolean("regularQuote"));
+      }
       return new FXForwardCurveSpecification(name, target, provider, QuoteType.valueOf(message.getString("quoteType")));
     }
     return new FXForwardCurveSpecification(name, target, provider);

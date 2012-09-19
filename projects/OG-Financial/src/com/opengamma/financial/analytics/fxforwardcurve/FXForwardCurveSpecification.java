@@ -23,13 +23,19 @@ public class FXForwardCurveSpecification {
   private final String _name;
   private final UnorderedCurrencyPair _target;
   private final QuoteType _quoteType;
+  private final boolean _isRegularQuote;
 
   public FXForwardCurveSpecification(final String name, final UnorderedCurrencyPair target, final FXForwardCurveInstrumentProvider curveInstrumentProvider) {
-    this(name, target, curveInstrumentProvider, QuoteType.Points);
+    this(name, target, curveInstrumentProvider, QuoteType.Points, true);
   }
 
   public FXForwardCurveSpecification(final String name, final UnorderedCurrencyPair target, final FXForwardCurveInstrumentProvider curveInstrumentProvider,
       final QuoteType quoteType) {
+    this(name, target, curveInstrumentProvider, quoteType, true);
+  }
+  
+  public FXForwardCurveSpecification(final String name, final UnorderedCurrencyPair target, final FXForwardCurveInstrumentProvider curveInstrumentProvider,
+      final QuoteType quoteType, final boolean isRegularQuote) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(target, "target");
     ArgumentChecker.notNull(curveInstrumentProvider, "curve instrument provider");
@@ -38,6 +44,7 @@ public class FXForwardCurveSpecification {
     _target = target;
     _curveInstrumentProvider = curveInstrumentProvider;
     _quoteType = quoteType;
+    _isRegularQuote = isRegularQuote;
   }
 
   public String getName() {
@@ -56,6 +63,10 @@ public class FXForwardCurveSpecification {
     return _quoteType;
   }
 
+  public boolean isRegularQuote() {
+    return _isRegularQuote;  
+  }
+  
   @Override
   public int hashCode() {
     return getName().hashCode() + getTarget().hashCode() + getQuoteType().hashCode();
@@ -73,7 +84,8 @@ public class FXForwardCurveSpecification {
     return getName().equals(other.getName()) &&
         getTarget().equals(other.getTarget()) &&
         getCurveInstrumentProvider().equals(other.getCurveInstrumentProvider()) &&
-        getQuoteType().equals(other.getQuoteType());
+        getQuoteType().equals(other.getQuoteType()) &&
+        isRegularQuote() == other.isRegularQuote();
   }
 
 

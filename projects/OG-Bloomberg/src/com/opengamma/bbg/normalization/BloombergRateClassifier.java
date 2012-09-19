@@ -88,6 +88,7 @@ public class BloombergRateClassifier {
     switch (securityType) {
       case BASIS_SWAP:
       case FORWARD_CROSS:
+      case FX_FORWARD:
         return 10000;
       case BILL:
       case CASH:
@@ -102,8 +103,6 @@ public class BloombergRateClassifier {
       case VOLATILITY_QUOTE:
       case CD:
         return 100;
-      case FX_FORWARD:
-        return 10000;
       default:
         return 1;
     }
