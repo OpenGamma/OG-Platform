@@ -20,9 +20,13 @@
   <bean id="bloombergReferenceDataProvider" class="com.opengamma.bbg.referencedata.cache.MongoDBValueCachingReferenceDataProvider">
     <constructor-arg>
       <bean class="com.opengamma.bbg.referencedata.cache.MongoDBInvalidFieldCachingReferenceDataProvider">
-        <constructor-arg ref="standardBloombergConnector" />
+        <constructor-arg>
+          <bean class="com.opengamma.bbg.referencedata.impl.BloombergReferenceDataProvider">
+            <constructor-arg ref="standardBloombergConnector" />
+            <constructor-arg ref="bbgReferenceDataStatistics" />
+          </bean>
+        </constructor-arg>
         <constructor-arg ref="bloombergRefDataMongoConnector"/>
-        <constructor-arg ref="bbgReferenceDataStatistics" />
       </bean>
     </constructor-arg>
     <constructor-arg ref="bloombergRefDataMongoConnector"/>

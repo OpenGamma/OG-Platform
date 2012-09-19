@@ -7,7 +7,6 @@ package com.opengamma.bbg.livedata;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,6 +15,7 @@ import net.sf.ehcache.CacheManager;
 import org.fudgemsg.FudgeMsg;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
@@ -77,7 +77,7 @@ public abstract class AbstractBloombergLiveDataServer extends StandardLiveDataSe
       return Collections.emptyMap();
     }
     
-    Set<String> buids = new HashSet<String>();    
+    Set<String> buids = Sets.newHashSetWithExpectedSize(uniqueIds.size());
     for (String uniqueId : uniqueIds) {
       String buid = "/buid/" + uniqueId;
       buids.add(buid);
