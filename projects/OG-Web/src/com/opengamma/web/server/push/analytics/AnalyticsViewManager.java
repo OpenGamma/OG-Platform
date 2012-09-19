@@ -41,19 +41,23 @@ public class AnalyticsViewManager {
   private final MarketDataSnapshotMaster _snapshotMaster;
   private final Map<String, AnalyticsViewClientConnection> _viewConnections = new ConcurrentHashMap<String, AnalyticsViewClientConnection>();
   private final ComputationTargetResolver _targetResolver;
+  private final NamedMarketDataSpecificationRepository _marketDataSpecificationRepository;
 
   public AnalyticsViewManager(ViewProcessor viewProcessor,
                               AggregatedViewDefinitionManager aggregatedViewDefManager,
                               MarketDataSnapshotMaster snapshotMaster,
-                              ComputationTargetResolver targetResolver) {
+                              ComputationTargetResolver targetResolver,
+                              NamedMarketDataSpecificationRepository marketDataSpecificationRepository) {
     ArgumentChecker.notNull(viewProcessor, "viewProcessor");
     ArgumentChecker.notNull(aggregatedViewDefManager, "aggregatedViewDefManager");
     ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
+    ArgumentChecker.notNull(marketDataSpecificationRepository, "marketDataSpecificationRepository");
     _targetResolver = targetResolver;
     _viewProcessor = viewProcessor;
     _aggregatedViewDefManager = aggregatedViewDefManager;
     _snapshotMaster = snapshotMaster;
+    _marketDataSpecificationRepository = marketDataSpecificationRepository;
   }
 
   /**
@@ -78,11 +82,10 @@ public class AnalyticsViewManager {
     AnalyticsView view = new SimpleAnalyticsView(portfolioGridId, primitivesGridId, _targetResolver);
     AnalyticsView lockingView = new LockingAnalyticsView(view);
     AnalyticsView notifyingView = new NotifyingAnalyticsView(lockingView, clientConnection);
-    NamedMarketDataSpecificationRepository marketDataSpecRepo = _viewProcessor.getNamedMarketDataSpecificationRepository();
     AnalyticsViewClientConnection connection = new AnalyticsViewClientConnection(request,
                                                                                  viewClient,
                                                                                  notifyingView,
-                                                                                 marketDataSpecRepo,
+                                                                                 _marketDataSpecificationRepository,
                                                                                  _aggregatedViewDefManager,
                                                                                  _snapshotMaster);
     _viewConnections.put(viewId, connection);

@@ -126,10 +126,10 @@
  * <h3>Grid Structure</h3>
  * <p>To retrieve the row and column structure for each grid the client should make a {@code GET} request to:</p>
  * <pre>
- *   /jax/views/{viewId}/portfolio/grid
- *   /jax/views/{viewId}/primitives/grid
- *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}/grid
- *   /jax/views/{viewId}/primitives/depgraphs/{graphId}/grid
+ *   /jax/views/{viewId}/portfolio
+ *   /jax/views/{viewId}/primitives
+ *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}
+ *   /jax/views/{viewId}/primitives/depgraphs/{graphId}
  * </pre>
  * <p>TODO document the grid structure JSON</p>
  *
@@ -150,10 +150,10 @@
  * <h3>Viewport Data</h3>
  * <p>To retrieve data for the viewport the client must make a {@code GET} request to:</p>
  * <pre>
- *   /jax/views/{viewId}/portfolio/viewports/{viewportId}/data
- *   /jax/views/{viewId}/primitives/viewports/{viewportId}/data
- *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}/viewports/{viewportId}/data
- *   /jax/views/{viewId}/primitives/depgraphs/{graphId}/viewports/{viewportId}/data
+ *   /jax/views/{viewId}/portfolio/viewports/{viewportId}
+ *   /jax/views/{viewId}/primitives/viewports/{viewportId}
+ *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}/viewports/{viewportId}
+ *   /jax/views/{viewId}/primitives/depgraphs/{graphId}/viewports/{viewportId}
  * </pre>
  * <p>TODO document data JSON</p>
  *

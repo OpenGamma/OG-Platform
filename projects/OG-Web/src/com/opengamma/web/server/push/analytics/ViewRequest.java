@@ -7,15 +7,10 @@ package com.opengamma.web.server.push.analytics;
 
 import java.util.List;
 
-import javax.time.InstantProvider;
+import javax.time.Instant;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
-import com.opengamma.engine.view.execution.ExecutionFlags;
-import com.opengamma.engine.view.execution.ExecutionOptions;
-import com.opengamma.engine.view.execution.InfiniteViewCycleExecutionSequence;
-import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
-import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
@@ -30,8 +25,12 @@ public class ViewRequest {
   private final UniqueId _viewDefinitionId;
   /** Used for aggregating the view's portfolio. */
   private final List<String> _aggregators;
-  /** Execution options for the view. */
-  private final ViewExecutionOptions _executionOptions;
+  /** Valuation time used by the calculation engine. */
+  private final Instant _valuationTime;
+  /** Sources of market data used in the calculation in priority order. */
+  private final List<MarketDataSpecification> _marketDataSpecs;
+  /** Version time and correction time for the portfolio used as a basis for the calculations. */
+  private final VersionCorrection _portfolioVersionCorrection;
 
   /**
    *
@@ -44,32 +43,51 @@ public class ViewRequest {
   public ViewRequest(UniqueId viewDefinitionId,
                      List<String> aggregators,
                      List<MarketDataSpecification> marketDataSpecs,
-                     InstantProvider valuationTime,
+                     Instant valuationTime,
                      VersionCorrection portfolioVersionCorrection) {
     ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionId");
     ArgumentChecker.notNull(aggregators, "aggregators");
     ArgumentChecker.notEmpty(marketDataSpecs, "marketDataSpecs");
     ArgumentChecker.notNull(portfolioVersionCorrection, "portfolioVersionCorrection");
+    _marketDataSpecs = marketDataSpecs;
+    _valuationTime = valuationTime;
     _viewDefinitionId = viewDefinitionId;
     _aggregators = ImmutableList.copyOf(aggregators);
-    ViewCycleExecutionOptions defaultOptions = new ViewCycleExecutionOptions(valuationTime, marketDataSpecs);
-    _executionOptions = ExecutionOptions.of(new InfiniteViewCycleExecutionSequence(),
-                                            defaultOptions,
-                                            // this recalcs periodically or when market data changes. might need to give
-                                            // the user the option to specify the behaviour
-                                            ExecutionFlags.triggersEnabled().get(),
-                                            portfolioVersionCorrection);
+    _portfolioVersionCorrection = portfolioVersionCorrection;
   }
 
+  /**
+   * @return The ID if the view definition used by the view, not null
+   */
   public UniqueId getViewDefinitionId() {
     return _viewDefinitionId;
   }
 
+  /**
+   * @return Used for aggregating the view's portfolio, not null but can be empty
+   */
   public List<String> getAggregators() {
     return _aggregators;
   }
 
-  public ViewExecutionOptions getExecutionOptions() {
-    return _executionOptions;
+  /**
+   * @return Valuation time used by the calculation engine, can be null to use the default
+   */
+  public Instant getValuationTime() {
+    return _valuationTime;
+  }
+
+  /**
+   * @return Sources of market data used in the calculation in priority order
+   */
+  public List<MarketDataSpecification> getMarketDataSpecs() {
+    return _marketDataSpecs;
+  }
+
+  /**
+   * @return Version time and correction time for the portfolio used as a basis for the calculations
+   */
+  public VersionCorrection getPortfolioVersionCorrection() {
+    return _portfolioVersionCorrection;
   }
 }

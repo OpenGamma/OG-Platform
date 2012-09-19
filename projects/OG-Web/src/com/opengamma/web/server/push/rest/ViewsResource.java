@@ -9,6 +9,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
+import javax.time.Instant;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -65,19 +66,19 @@ public class ViewsResource {
                              @FormParam("viewDefinitionId") String viewDefinitionId,
                              @FormParam("aggregators") List<String> aggregators,
                              @FormParam("marketDataProviders") String marketDataProviders,
-                             @FormParam("valuationTime") InstantParameter valuationTime,
-                             @FormParam("portfolioVersionTime") InstantParameter portfolioVersionTime,
-                             @FormParam("portfolioCorrectionTime") InstantParameter portfolioCorrectionTime,
+                             @FormParam("valuationTime") String valuationTime,
+                             @FormParam("portfolioVersionTime") String portfolioVersionTime,
+                             @FormParam("portfolioCorrectionTime") String portfolioCorrectionTime,
                              @FormParam("clientId") String clientId) {
     ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionId");
     ArgumentChecker.notNull(aggregators, "aggregators");
     ArgumentChecker.notNull(marketDataProviders, "marketDataProviders");
     ArgumentChecker.notNull(clientId, "clientId");
-    List<MarketDataSpecification> marketDataSpecs =
-        MarketDataSpecificationJsonReader.buildSpecifications(marketDataProviders);
-    VersionCorrection versionCorrection = VersionCorrection.of(portfolioVersionTime, portfolioCorrectionTime);
+    List<MarketDataSpecification> marketDataSpecs = MarketDataSpecificationJsonReader.buildSpecifications(marketDataProviders);
+    VersionCorrection versionCorrection = VersionCorrection.of(parseInstant(portfolioVersionTime),
+                                                               parseInstant(portfolioCorrectionTime));
     ViewRequest viewRequest = new ViewRequest(UniqueId.parse(viewDefinitionId), aggregators, marketDataSpecs,
-                                              valuationTime, versionCorrection);
+                                              parseInstant(valuationTime), versionCorrection);
     String viewId = Long.toString(s_nextViewId.getAndIncrement());
     URI portfolioGridUri = uriInfo.getAbsolutePathBuilder()
         .path(viewId)
@@ -95,6 +96,18 @@ public class ViewsResource {
     _viewManager.createView(viewRequest, user, connection, viewId, portfolioGridUri.getPath(), primitivesGridUri.getPath());
     URI uri = uriInfo.getAbsolutePathBuilder().path(viewId).build();
     return Response.status(Response.Status.CREATED).header(HttpHeaders.LOCATION, uri).build();
+  }
+
+  /**
+   * @param instantString An ISO-8601 string representing an instant or null
+   * @return The parsed string or null if the input is null
+   */
+  private static Instant parseInstant(String instantString) {
+    if (instantString == null) {
+      return null;
+    } else {
+      return Instant.parse(instantString);
+    }
   }
 }
 
