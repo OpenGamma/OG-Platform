@@ -97,7 +97,7 @@ $.register_module({
                         click_handler = function (event) {
                             var $elem = $(event.srcElement);
                             if ($elem.is('button')) button_handler($elem.text());
-                            if ($elem.is('select')) select_handler($elem);
+                            //if ($elem.is('select')) select_handler($elem);
                         },
                         close_dropmenu = function (menu) {
                             if (menu.state() === 'open'|| menu.state() === 'focused') menu.emitEvent(events.close);
