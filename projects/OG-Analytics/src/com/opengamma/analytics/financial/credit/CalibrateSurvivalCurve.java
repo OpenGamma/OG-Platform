@@ -93,6 +93,8 @@ public class CalibrateSurvivalCurve {
     // Get the daycount fraction convention
     DayCount dayCount = cds.getDayCountFractionConvention();
 
+    // ----------------------------------------------------------------------------
+
     // Vector of (calibrated) piecewise constant hazard rates that we compute from the solver
     double[] hazardRates = new double[numberOfTenors];
 
