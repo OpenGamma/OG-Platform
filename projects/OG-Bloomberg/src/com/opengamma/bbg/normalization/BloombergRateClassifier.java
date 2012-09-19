@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
+import com.opengamma.bbg.loader.BloombergFXForwardScaleResolver;
 import com.opengamma.bbg.loader.BloombergSecurityTypeResolver;
 import com.opengamma.bbg.loader.SecurityType;
 import com.opengamma.bbg.loader.SecurityTypeResolver;
@@ -35,6 +36,7 @@ public class BloombergRateClassifier {
   private static final String CACHE_KEY = "bbg-classifier-cache";
   
   private final SecurityTypeResolver _securityTypeResolver;
+  private final BloombergFXForwardScaleResolver _fwdScaleResolver;
   private final Cache _cache;
   
   /**
@@ -47,6 +49,7 @@ public class BloombergRateClassifier {
     ArgumentChecker.notNull(referenceDataProvider, "referenceDataProvider");
     ArgumentChecker.notNull(cacheManager, "cacheManager");
     _securityTypeResolver = new BloombergSecurityTypeResolver(referenceDataProvider);
+    _fwdScaleResolver = new BloombergFXForwardScaleResolver(referenceDataProvider);
     EHCacheUtils.addCache(cacheManager, CACHE_KEY);
     _cache = EHCacheUtils.getCacheFromManager(cacheManager, CACHE_KEY);
   }
@@ -87,9 +90,11 @@ public class BloombergRateClassifier {
     }
     switch (securityType) {
       case BASIS_SWAP:
-      case FORWARD_CROSS:
-      case FX_FORWARD:
         return 10000;
+      case FORWARD_CROSS:
+      case FX_FORWARD:        
+        Integer bbgFwdScale = _fwdScaleResolver.getBloombergFXForwardScale(Collections.singleton(buidBundle)).get(buidBundle);
+        return getForwardScale(bbgFwdScale);
       case BILL:
       case CASH:
       case CREDIT_DEFAULT_SWAP:
@@ -108,4 +113,17 @@ public class BloombergRateClassifier {
     }
   }
   
+  private Integer getForwardScale(int bbgFwdScale) {
+    switch(bbgFwdScale) {
+      case 0:
+        return 1;
+      case 2: 
+        return 100;
+      case 4:
+        return 10000;
+      default:
+        s_logger.warn("Unable to handle forward scale {}; can only normalize 0, 2 and 4", bbgFwdScale);
+        return null;
+    }
+  }
 }
