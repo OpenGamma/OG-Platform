@@ -80,10 +80,10 @@ $.register_module({
                         .on('click', open_icon, function () {self.menu.addClass(expand_class);})
                         .on('mouseenter', icons, function () {
                             var panel = panels[$(this).text() - 1];
-                            panels.forEach(function (v) {gadget_containers[v].highlight(true, !!(v === panel));});
+                            panels.forEach(function (v) {og.analytics.containers[v].highlight(true, !!(v === panel));});
                         })
                         .on('mouseleave', icons, function () {
-                            panels.forEach(function (v) {gadget_containers[v].highlight(false)});
+                            panels.forEach(function (v) {og.analytics.containers[v].highlight(false)});
                         })
                         .on('click', icons, function () {
                             var panel = panels[$(this).text() - 1], hash = get_url(cur_cell, panel);
