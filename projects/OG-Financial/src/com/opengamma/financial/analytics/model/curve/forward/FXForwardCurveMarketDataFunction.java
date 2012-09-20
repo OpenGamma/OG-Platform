@@ -139,7 +139,7 @@ public class FXForwardCurveMarketDataFunction extends AbstractFunction {
         }
         final Double spot = (Double) inputs.getValue(spotRequirement);
         final Map<ExternalId, Double> data = new HashMap<ExternalId, Double>();
-        boolean isRegular = specification.isRegularQuote();
+        boolean isRegular = specification.isMarketQuoteConvention();
         for (final Tenor tenor : definition.getTenors()) {
           final ExternalId identifier = provider.getInstrument(now.toLocalDate(), tenor);
           final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), identifier);
