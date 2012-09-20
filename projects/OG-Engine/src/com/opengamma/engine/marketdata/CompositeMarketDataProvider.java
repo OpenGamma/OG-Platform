@@ -6,7 +6,6 @@
 package com.opengamma.engine.marketdata;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -270,18 +269,12 @@ public class CompositeMarketDataProvider {
      */
     @Override
     public Set<ValueRequirement> checkMarketDataPermissions(UserPrincipal user, Set<ValueRequirement> requirements) {
+      List<Set<ValueRequirement>> reqsByProvider = partitionRequirementsByProvider(requirements);
       Set<ValueRequirement> missingRequirements = Sets.newHashSet();
-      requirements:
-      for (ValueRequirement requirement : requirements) {
-        for (MarketDataProvider provider : _providers) {
-          MarketDataAvailabilityProvider availabilityProvider = provider.getAvailabilityProvider();
-          if (availabilityProvider.getAvailability(requirement) == MarketDataAvailability.AVAILABLE) {
-            MarketDataPermissionProvider permissionProvider = provider.getPermissionProvider();
-            Set<ValueRequirement> requirementSet = Collections.singleton(requirement);
-            missingRequirements.addAll(permissionProvider.checkMarketDataPermissions(user, requirementSet));
-            continue requirements;
-          }
-        }
+      for (int i = 0; i < _providers.size(); i++) {
+        MarketDataPermissionProvider permissionProvider = _providers.get(i).getPermissionProvider();
+        Set<ValueRequirement> reqsForProvider = reqsByProvider.get(i);
+        missingRequirements.addAll(permissionProvider.checkMarketDataPermissions(user, reqsForProvider));
       }
       return missingRequirements;
     }
