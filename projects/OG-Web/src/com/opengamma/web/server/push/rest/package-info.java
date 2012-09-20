@@ -52,8 +52,15 @@
  * {@link com.opengamma.web.portfolio.WebPortfoliosResource#getJSON}
  * for an example.</p>
  *
- * <h2>Querying Available View Definitions, Market Data Snapshots and Aggregators</h2>
- * <p>The view definitions, market data snapshots and aggregators available in the system can be queried as follows:</p>
+ * <h2>Querying Available Data Sources, View Definitions, Market Data Snapshots and Aggregators</h2>
+ * <p>The data sources, view definitions, market data snapshots and aggregators available in the system can be queried as follows:</p>
+ * <pre>
+ *   /jax/livedatasources</pre>
+ * <p>returns</p>
+ * <pre>
+ *   [dataSourceName1, dataSourceName2, ...]
+ * </pre>
+ * <p>and</p>
  * <pre>
  *   /jax/viewdefinitions</pre>
  * <p>returns</p>
