@@ -6,13 +6,14 @@ $.register_module({
     name: 'og.analytics.form',
     dependencies: [
         'og.common.util.ui.AutoCombo',
-        'og.analytics.dropmenu',
+        'og.analytics.dropmenu.aggregators',
+        'og.analytics.dropmenu.datasources',
         'og.views.common.layout'
     ],
     obj: function () { 
         return function (selector) {
-            var emitter = new EventEmitter(), Form, Dropmenu = og.analytics.dropmenu, Status,
-                events = {
+            var emitter = new EventEmitter(), Form, ag_dropmenu = og.analytics.dropmenu.aggregators, 
+                ds_dropmenu = og.analytics.dropmenu.aggregators, Status, events = {
                     focus: 'dropmenu:focus',
                     focused:'dropmenu:focused',
                     open: 'dropmenu:open',
@@ -115,9 +116,9 @@ $.register_module({
                             og.api.text({module: 'og.analytics.form_aggregation_tash'}),
                             og.api.text({module: 'og.analytics.form_datasources_tash'})
                         ).then(function (aggregation_markup, datasources_markup) {
-                            ag_dropdwn = new Dropmenu({$cntr: $ag, tmpl: aggregation_markup, data: aggregators.data})
+                            ag_dropdwn = new ag_dropmenu({$cntr: $ag, tmpl: aggregation_markup, data: aggregators.data})
                                 .addListener(events.open, function () {close_dropmenu(ds_dropdwn);}),
-                            ds_dropdwn = new Dropmenu({$cntr: $ds, tmpl: datasources_markup, data: datasource.data})
+                            ds_dropdwn = new ds_dropmenu({$cntr: $ds, tmpl: datasources_markup, data: datasource.data})
                                 .addListener(events.open, function () {close_dropmenu(ag_dropdwn);}),
                             $ag_fcntrls = $ag.find(fcntrls_s), $ds_fcntrls = $ds.find(fcntrls_s);
                         }),
