@@ -82,23 +82,9 @@ $.register_module({
                                 ac_menu.$input.select(); 
                             }
                         },
-                        populate_marketdata = function () {
-                            og.api.rest.marketdatasnapshots.get().pipe(function (resp) {
-                                console.log(resp.data[0].snapshots);
-                            });
-                        },
-                        select_handler = function (event) {
-                            var $elem = $(event.srcElement);
-                            if ($elem.is('.type')) {
-                                switch($elem.val()) {
-                                    case 'Snapshot': populate_marketdata(); break;
-                                }
-                            }
-                        },
                         click_handler = function (event) {
                             var $elem = $(event.srcElement);
                             if ($elem.is('button')) button_handler($elem.text());
-                            //if ($elem.is('select')) select_handler($elem);
                         },
                         close_dropmenu = function (menu) {
                             if (menu.state() === 'open'|| menu.state() === 'focused') menu.emitEvent(events.close);
@@ -108,8 +94,7 @@ $.register_module({
                                 $load_btn.removeClass('og-disabled').on('click', function () {status.play();});
                             } else $load_btn.addClass('og-disabled').off('click');
                         };
-                    return $form.on('keydown', fcntrls_s, keydown_handler).on('click', click_handler)
-                        .on('change', 'select', select_handler),
+                    return $form.on('keydown', fcntrls_s, keydown_handler).on('click', click_handler),
                         ac_menu = new og.common.util.ui.AutoCombo(selector+' '+vd_s,'search...', search.data),
                         ac_menu.$input.on(ac_s, auto_combo_handler).select(),
                         $.when(
