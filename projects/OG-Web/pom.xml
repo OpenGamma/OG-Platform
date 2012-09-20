@@ -30,8 +30,7 @@
             <phase>package</phase>
             <configuration>
               <target>
-                <jar basedir="." includes="web-*/**" destfile="${project.build.directory}/og-web-resources.jar" />
-                <jar update="true" basedir="config" destfile="${project.build.directory}/og-web-resources.jar" />
+                <jar basedir="config" destfile="${project.build.directory}/og-web-resources.jar" />
                 <attachartifact file="${project.build.directory}/og-web-resources.jar" classifier="resources" type="jar" />
                 <zip basedir="web-engine" destfile="${project.build.directory}/web-engine.zip" />
                 <attachartifact file="${project.build.directory}/web-engine.zip" classifier="web-engine" type="zip" />
