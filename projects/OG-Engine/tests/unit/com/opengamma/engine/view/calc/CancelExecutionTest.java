@@ -181,9 +181,7 @@ public class CancelExecutionTest {
     final Map<String, DependencyGraph> graphs = new HashMap<String, DependencyGraph>();
     graphs.put(graph.getCalculationConfigurationName(), graph);
     CompiledViewDefinitionWithGraphsImpl viewEvaluationModel = new CompiledViewDefinitionWithGraphsImpl(viewDefinition, graphs, new SimplePortfolio("Test Portfolio"), 0);
-    ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions();
-    cycleOptions.setValuationTime(Instant.ofEpochMillis(1));
-    cycleOptions.setMarketDataSpecification(new MarketDataSpecification());
+    ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions(Instant.ofEpochMillis(1), new MarketDataSpecification());
     final SingleComputationCycle cycle = new SingleComputationCycle(UniqueId.of("Test", "Cycle1"), UniqueId.of("Test", "ViewProcess1"), computationCycleResultListener, vpc, viewEvaluationModel,
         cycleOptions, VersionCorrection.of(Instant.ofEpochMillis(1), Instant.ofEpochMillis(1)));
     return cycle.getDependencyGraphExecutor().execute(graph, new LinkedBlockingQueue<ExecutionResult>(), cycle.getStatisticsGatherer());

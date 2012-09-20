@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.fudgemsg;
@@ -18,7 +18,7 @@ import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveSpecificat
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
- * 
+ *
  */
 @FudgeBuilderFor(FXForwardCurveSpecification.class)
 public class FXForwardCurveSpecificationFudgeBuilder implements FudgeBuilder<FXForwardCurveSpecification> {
@@ -29,7 +29,7 @@ public class FXForwardCurveSpecificationFudgeBuilder implements FudgeBuilder<FXF
     message.add("target", FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(object.getTarget()), object.getTarget().getClass()));
     message.add("name", object.getName());
     message.add("quoteType", object.getQuoteType().name());
-    message.add("regularQuote", object.isRegularQuote());
+    message.add("marketQuoteConvention", object.isMarketQuoteConvention());
     serializer.addToMessageWithClassHeaders(message, "curveInstrumentProvider", null, object.getCurveInstrumentProvider());
     return message;
   }
@@ -40,8 +40,8 @@ public class FXForwardCurveSpecificationFudgeBuilder implements FudgeBuilder<FXF
     final String name = message.getString("name");
     final FXForwardCurveInstrumentProvider provider = deserializer.fieldValueToObject(FXForwardCurveInstrumentProvider.class, message.getByName("curveInstrumentProvider"));
     if (message.hasField("quoteType")) {
-      if (message.hasField("regularQuote")) {
-        return new FXForwardCurveSpecification(name, target, provider, QuoteType.valueOf(message.getString("quoteType")), message.getBoolean("regularQuote"));
+      if (message.hasField("marketQuoteConvention")) {
+        return new FXForwardCurveSpecification(name, target, provider, QuoteType.valueOf(message.getString("quoteType")), message.getBoolean("marketQuoteConvention"));
       }
       return new FXForwardCurveSpecification(name, target, provider, QuoteType.valueOf(message.getString("quoteType")));
     }

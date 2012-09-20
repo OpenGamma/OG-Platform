@@ -63,7 +63,7 @@ public class FXForwardCurveSpecification {
     return _quoteType;
   }
 
-  public boolean isRegularQuote() {
+  public boolean isMarketQuoteConvention() {
     return _isRegularQuote;  
   }
   
@@ -85,7 +85,7 @@ public class FXForwardCurveSpecification {
         getTarget().equals(other.getTarget()) &&
         getCurveInstrumentProvider().equals(other.getCurveInstrumentProvider()) &&
         getQuoteType().equals(other.getQuoteType()) &&
-        isRegularQuote() == other.isRegularQuote();
+        isMarketQuoteConvention() == other.isMarketQuoteConvention();
   }
 
 

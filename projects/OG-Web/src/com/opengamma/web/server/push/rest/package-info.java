@@ -52,8 +52,15 @@
  * {@link com.opengamma.web.portfolio.WebPortfoliosResource#getJSON}
  * for an example.</p>
  *
- * <h2>Querying Available View Definitions, Market Data Snapshots and Aggregators</h2>
- * <p>The view definitions, market data snapshots and aggregators available in the system can be queried as follows:</p>
+ * <h2>Querying Available Data Sources, View Definitions, Market Data Snapshots and Aggregators</h2>
+ * <p>The data sources, view definitions, market data snapshots and aggregators available in the system can be queried as follows:</p>
+ * <pre>
+ *   /jax/livedatasources</pre>
+ * <p>returns</p>
+ * <pre>
+ *   [dataSourceName1, dataSourceName2, ...]
+ * </pre>
+ * <p>and</p>
  * <pre>
  *   /jax/viewdefinitions</pre>
  * <p>returns</p>
@@ -111,10 +118,11 @@
  * <ul>
  *   <li>{@code viewDefinitionId}: Unique ID of the view definition.</li>
  *   <li>{@code aggregators}: names of the aggregators used to aggregate the portfolio, omit for no aggregation.</li>
- *   <li>{@code live}: {@code true} or {@code false} - whether to use live market data or a snapshot.</li>
- *   <li>{@code provider}: name of the market data provider.  Only required for live data. <em>TODO use the value "Live market data (Bloomberg)" for testing</em>.</li>
- *   <li>{@code snapshotId}: ID of the market data snapshot.  Only required if using a market data snapshot.</li>
- *   <li>{@code versionDateTime}: time of the snapshot.  Only required if using a market data snapshot.</li>
+ *   <li>{@code valuationTime}: valuation time used by the calculation engine.</li>
+ *   <li>{@code portfolioVersionTime}: the time of the portfolio version used in the calculations.</li>
+ *   <li>{@code portfolioCorrectionTime}: the correction time of the portfolio version used in the calculations.</li>
+ *   <li>{@code marketDataProviders}: JSON array spcifying the market data providers.
+ *   See {@link com.opengamma.web.server.push.analytics.MarketDataSpecificationJsonReader} for details.</li>
  * </ul>
  * <p>The response header will contain the location of the new view. To close a view the client should make a
  * {@code DELETE} request to the view's location.</p>
@@ -125,10 +133,10 @@
  * <h3>Grid Structure</h3>
  * <p>To retrieve the row and column structure for each grid the client should make a {@code GET} request to:</p>
  * <pre>
- *   /jax/views/{viewId}/portfolio/grid
- *   /jax/views/{viewId}/primitives/grid
- *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}/grid
- *   /jax/views/{viewId}/primitives/depgraphs/{graphId}/grid
+ *   /jax/views/{viewId}/portfolio
+ *   /jax/views/{viewId}/primitives
+ *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}
+ *   /jax/views/{viewId}/primitives/depgraphs/{graphId}
  * </pre>
  * <p>TODO document the grid structure JSON</p>
  *
@@ -149,10 +157,10 @@
  * <h3>Viewport Data</h3>
  * <p>To retrieve data for the viewport the client must make a {@code GET} request to:</p>
  * <pre>
- *   /jax/views/{viewId}/portfolio/viewports/{viewportId}/data
- *   /jax/views/{viewId}/primitives/viewports/{viewportId}/data
- *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}/viewports/{viewportId}/data
- *   /jax/views/{viewId}/primitives/depgraphs/{graphId}/viewports/{viewportId}/data
+ *   /jax/views/{viewId}/portfolio/viewports/{viewportId}
+ *   /jax/views/{viewId}/primitives/viewports/{viewportId}
+ *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}/viewports/{viewportId}
+ *   /jax/views/{viewId}/primitives/depgraphs/{graphId}/viewports/{viewportId}
  * </pre>
  * <p>TODO document data JSON</p>
  *
