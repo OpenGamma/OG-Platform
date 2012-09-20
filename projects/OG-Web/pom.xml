@@ -35,6 +35,8 @@
                 <attachartifact file="${project.build.directory}/og-web-resources.jar" classifier="resources" type="jar" />
                 <zip basedir="web-engine" destfile="${project.build.directory}/web-engine.zip" />
                 <attachartifact file="${project.build.directory}/web-engine.zip" classifier="web-engine" type="zip" />
+                <zip basedir="web-sharedmasters" destfile="${project.build.directory}/web-sharedmasters.zip" />
+                <attachartifact file="${project.build.directory}/web-sharedmasters.zip" classifier="web-sharedmasters" type="zip" />
               </target>
             </configuration>
             <goals>
