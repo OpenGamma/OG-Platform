@@ -14,7 +14,6 @@ import org.fudgemsg.FudgeMsg;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
-import com.opengamma.bbg.referencedata.ReferenceData;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.referencedata.ReferenceDataProviderGetRequest;
 import com.opengamma.bbg.referencedata.ReferenceDataProviderGetResult;
@@ -83,28 +82,13 @@ public class RemoteReferenceDataProvider extends AbstractRemoteClient implements
   @Override
   public Map<String, FudgeMsg> getReferenceData(Iterable<String> identifiers, Iterable<String> dataFields) {
     ReferenceDataProviderGetRequest request = ReferenceDataProviderGetRequest.createGet(identifiers, dataFields, true);
-    return queryMap(request);
+    return AbstractReferenceDataProvider.queryMap(request, this);
   }
 
   @Override
   public Map<String, FudgeMsg> getReferenceDataIgnoreCache(Iterable<String> identifiers, Iterable<String> dataFields) {
     ReferenceDataProviderGetRequest request = ReferenceDataProviderGetRequest.createGet(identifiers, dataFields, false);
-    return queryMap(request);
-  }
-
-  private Map<String, FudgeMsg> queryMap(ReferenceDataProviderGetRequest request) {
-    Set<String> identifiers = ImmutableSet.copyOf(request.getIdentifiers());  // copy to avoid implementation bugs
-    ReferenceDataProviderGetResult result = getReferenceData(request);
-    
-    // extract identifier to field-values
-    Map<String, FudgeMsg> map = Maps.newHashMap();
-    for (String identifier : identifiers) {
-      ReferenceData data = result.getReferenceData(identifier);
-      if (data.getErrors().isEmpty()) {
-        map.put(identifier, data.getFieldValues());
-      }
-    }
-    return map;
+    return AbstractReferenceDataProvider.queryMap(request, this);
   }
 
   @Override

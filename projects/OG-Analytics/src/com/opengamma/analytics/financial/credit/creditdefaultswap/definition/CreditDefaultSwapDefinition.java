@@ -448,6 +448,21 @@ public class CreditDefaultSwapDefinition {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
+  // Builder method to allow the premium leg coupon of a CDS object to be modified (used during calibration of the survival curve)
+
+  public CreditDefaultSwapDefinition withCurveRecoveryRate(double curveRecoveryRate) {
+
+    CreditDefaultSwapDefinition modifiedCDS = new CreditDefaultSwapDefinition(_buySellProtection, _protectionBuyer, _protectionSeller, _referenceEntityTicker,
+        _referenceEntityShortName, _referenceEntityREDCode, _currency, _debtSeniority, _restructuringClause, _compositeRating,
+        _impliedRating, _sector, _region, _country, _calendar, _startDate, _effectiveDate, _maturityDate, _valuationDate, _stubType, _couponFrequency,
+        _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustMaturityDate, _notional, _premiumLegCoupon,
+        _valuationRecoveryRate, curveRecoveryRate, _includeAccruedPremium);
+
+    return modifiedCDS;
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
   @Override
   public int hashCode() {
     final int prime = 31;

@@ -83,7 +83,9 @@ public class ScriptableScriptGeneratorMojo extends AbstractMojo {
     if (!_outputDir.exists()) {
       try {
         getLog().debug("Creating output directory " + _outputDir);
-        _outputDir.mkdir();
+        if (!_outputDir.mkdirs()) {
+          throw new MojoExecutionException("Unable to create output directory " + _outputDir.getAbsolutePath());
+        }
       } catch (Exception e) {
         throw new MojoExecutionException("Error creating output directory " + _outputDir.getAbsolutePath());
       }

@@ -38,8 +38,7 @@ public class WebDevBundleResource extends AbstractWebBundleResource {
   private String getCssImports(String bundleId) {
     BundleManager bundleManager = data().getDevBundleManager();
     Bundle bundle = bundleManager.getBundle(bundleId);
-    String basePath = bundleManager.getBaseDir().getName();
-    return BundleUtils.buildImports(bundle, new WebBundlesUris(data()), basePath);
+    return BundleUtils.buildImports(bundle, new WebBundlesUris(data()));
   }
 
   //-------------------------------------------------------------------------

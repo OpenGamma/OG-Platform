@@ -222,7 +222,7 @@ public class CurveConstructionSpreadTest {
   /** Standard USD Forward 6M curve instrument definitions */
   public static final InstrumentDefinition<?>[] DEFINITIONS_FWD6_USD;
   /** Units of curves */
-  public static final int[] NB_UNITS = new int[] {2, 2, 2, 3, 3, 1, 1, 2};
+  public static final int[] NB_UNITS = new int[] {2, 2, 2, 3, 3, 1, 1, 2, 1};
   public static final int NB_BLOCKS = NB_UNITS.length;
   public static final InstrumentDefinition<?>[][][][] DEFINITIONS_UNITS = new InstrumentDefinition<?>[NB_BLOCKS][][][];
   public static final GeneratorCurve[][][] GENERATORS_UNITS = new GeneratorCurve[NB_BLOCKS][][];
@@ -257,6 +257,7 @@ public class CurveConstructionSpreadTest {
     DEFINITIONS_UNITS[6][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD_3, DEFINITIONS_DSC_USD};
     DEFINITIONS_UNITS[7][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD};
     DEFINITIONS_UNITS[7][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD_4};
+    DEFINITIONS_UNITS[8][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD};
     GeneratorCurve genIntDQ = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_DQ);
     //    GeneratorCurve genIntCS = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_CS);
     GeneratorCurve genIntLin = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LINEAR);
@@ -288,6 +289,7 @@ public class CurveConstructionSpreadTest {
     // interpolated + functional+interpolated
     GENERATORS_UNITS[7][0] = new GeneratorCurve[] {genIntDQ};
     GENERATORS_UNITS[7][1] = new GeneratorCurve[] {new GeneratorCurveAddYield(new GeneratorCurve[] {genNS, genInt0}, false)};
+    GENERATORS_UNITS[8][0] = new GeneratorCurve[] {genIntDQ};
     NAMES_UNITS[0][0] = new String[] {CURVE_NAME_DSC_USD};
     NAMES_UNITS[0][1] = new String[] {CURVE_NAME_FWD3_USD};
     NAMES_UNITS[1][0] = new String[] {CURVE_NAME_DSC_USD};
@@ -304,6 +306,7 @@ public class CurveConstructionSpreadTest {
     NAMES_UNITS[6][0] = new String[] {CURVE_NAME_FWD3_USD, CURVE_NAME_DSC_USD};
     NAMES_UNITS[7][0] = new String[] {CURVE_NAME_DSC_USD};
     NAMES_UNITS[7][1] = new String[] {CURVE_NAME_FWD3_USD};
+    NAMES_UNITS[8][0] = new String[] {CURVE_NAME_DSC_USD};
   }
 
   // Present Value
@@ -392,7 +395,7 @@ public class CurveConstructionSpreadTest {
     ParameterSensitivity[] ps = new ParameterSensitivity[NB_BLOCKS];
     ParameterSensitivity[] mqs = new ParameterSensitivity[NB_BLOCKS];
     Set<String> fixedCurves = new java.util.HashSet<String>();
-    for (int loopblock = 1; loopblock < NB_BLOCKS; loopblock++) {
+    for (int loopblock = 1; loopblock < NB_BLOCKS - 1; loopblock++) {
       pv[loopblock] = PV_CALCULATOR.visit(SWAP, CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(loopblock).getFirst());
       pvcs[loopblock] = PVCS_CALCULATOR.visit(SWAP, CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(loopblock).getFirst());
       ps[loopblock] = pusbc.calculateSensitivity(SWAP, fixedCurves, CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(loopblock).getFirst());
@@ -651,6 +654,7 @@ public class CurveConstructionSpreadTest {
       case 3:
       case 4:
       case 7:
+      case 8:
         return new String[] {curveNames[0][0], curveNames[0][0]};
       case 5:
       case 6:
@@ -696,6 +700,7 @@ public class CurveConstructionSpreadTest {
           case 3:
           case 4:
           case 7:
+          case 8:
             return new String[] {curveNames[0][0]};
           case 5:
           case 6:

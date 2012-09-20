@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.bbg.referencedata.ReferenceData;
-import com.opengamma.bbg.referencedata.ReferenceDataError;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.referencedata.ReferenceDataProviderGetRequest;
 import com.opengamma.bbg.referencedata.ReferenceDataProviderGetResult;
@@ -103,16 +102,9 @@ public class BloombergJmsTopicNameResolver extends AbstractResolver<JmsTopicName
     if (result == null) {
       s_logger.info("No reference data available for {}", request);
       return null;
-    } else if (!result.getErrors().isEmpty()) {
-      for (ReferenceDataError error : result.getErrors()) {
-        if (error.isFieldBased()) {
-          // Ignore field based errors
-          continue;
-        } else {
-          s_logger.info("Failed to retrieve reference data for {}: {}", request, result.getErrors());
-          return null;
-        }
-      }
+    } else if (result.isIdentifierError()) {
+      s_logger.info("Failed to retrieve reference data for {}: {}", request, result.getErrors());
+      return null;
     }
     FudgeMsg resultFields = result.getFieldValues();
     

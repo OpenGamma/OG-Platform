@@ -69,6 +69,8 @@ import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveSpecificat
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
+import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
+import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
@@ -124,6 +126,15 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
     final ConfigDBFXForwardCurveDefinitionSource fxCurveDefinitionSource = new ConfigDBFXForwardCurveDefinitionSource(configSource);
     final ConfigDBFXForwardCurveSpecificationSource fxCurveSpecificationSource = new ConfigDBFXForwardCurveSpecificationSource(configSource);
+    final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(OpenGammaExecutionContext.getConfigSource(executionContext));
+    final CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
+    Currency baseCurrency = currencyPairs.getCurrencyPair(domesticCurrency, foreignCurrency).getBase();
+    boolean invertFXQuotes;
+    if (baseCurrency.equals(foreignCurrency)) {
+      invertFXQuotes = false;
+    } else {
+      invertFXQuotes = true;
+    }
     if (domesticCurveName == null) {
       final ConfigDBCurveCalculationConfigSource curveConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
       final String[] curveNames = curveConfigSource.getConfig(curveCalculationConfigName).getYieldCurveNames();
@@ -146,7 +157,7 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     if (inputs.getValue(spotRequirement) == null) {
       throw new OpenGammaRuntimeException("Could not get value for spot; requirement was " + spotRequirement);
     }
-    final double spotFX = (Double) inputs.getValue(spotRequirement);
+    final double spotFX = invertFXQuotes ? 1 / (Double) inputs.getValue(spotRequirement) : (Double) inputs.getValue(spotRequirement);
     final Object dataObject = inputs.getValue(ValueRequirementNames.FX_FORWARD_CURVE_MARKET_DATA);
     if (dataObject == null) {
       throw new OpenGammaRuntimeException("Could not get FX forward market data");
@@ -164,7 +175,7 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
       final ExternalId identifier = provider.getInstrument(now.toLocalDate(), tenor);
       if (fxForwardData.containsKey(identifier)) {
         final double paymentTime = TimeCalculator.getTimeBetween(now, now.plus(tenor.getPeriod())); //TODO
-        final double forwardFX = fxForwardData.get(identifier);
+        final double forwardFX = invertFXQuotes ? 1 / fxForwardData.get(identifier) : fxForwardData.get(identifier);
         derivatives.add(getFXForward(domesticCurrency, foreignCurrency, paymentTime, spotFX, forwardFX, fullDomesticCurveName, fullForeignCurveName));
         marketValues.add(forwardFX);
         nodeTimes.add(paymentTime); //TODO

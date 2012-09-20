@@ -5,7 +5,7 @@
  */
 package com.opengamma.web.bundle;
 
-import java.io.File;
+import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -36,10 +36,15 @@ import com.opengamma.util.ArgumentChecker;
 public class Fragment extends DirectBean implements BundleNode {
 
   /**
-   * The file representation
+   * The internal URI of the fragment
    */
   @PropertyDefinition
-  private File _file;
+  private URI _uri;
+  /**
+   * The path to the fragment
+   */
+  @PropertyDefinition
+  private String _path;
 
   /**
    * Creates an instance.
@@ -48,13 +53,16 @@ public class Fragment extends DirectBean implements BundleNode {
   }
 
   /**
-   * Creates an instance for a file.
+   * Creates a populated instance.
    * 
-   * @param file  the file, not null
+   * @param uri  the internal URI of the fragment, not null
+   * @param path  the path to the fragment, not null
    */
-  public Fragment(File file) {
-    ArgumentChecker.notNull(file, "file");
-    _file = file;
+  public Fragment(URI uri, String path) {
+    ArgumentChecker.notNull(uri, "uri");
+    ArgumentChecker.notNull(path, "path");
+    _uri = uri;
+    _path = path;
   }
 
   //-------------------------------------------------------------------------
@@ -89,8 +97,10 @@ public class Fragment extends DirectBean implements BundleNode {
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 3143036:  // file
-        return getFile();
+      case 116076:  // uri
+        return getUri();
+      case 3433509:  // path
+        return getPath();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -98,8 +108,11 @@ public class Fragment extends DirectBean implements BundleNode {
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 3143036:  // file
-        setFile((File) newValue);
+      case 116076:  // uri
+        setUri((URI) newValue);
+        return;
+      case 3433509:  // path
+        setPath((String) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -112,7 +125,8 @@ public class Fragment extends DirectBean implements BundleNode {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       Fragment other = (Fragment) obj;
-      return JodaBeanUtils.equal(getFile(), other.getFile());
+      return JodaBeanUtils.equal(getUri(), other.getUri()) &&
+          JodaBeanUtils.equal(getPath(), other.getPath());
     }
     return false;
   }
@@ -120,33 +134,59 @@ public class Fragment extends DirectBean implements BundleNode {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFile());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUri());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPath());
     return hash;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the file representation
+   * Gets the internal URI of the fragment
    * @return the value of the property
    */
-  public File getFile() {
-    return _file;
+  public URI getUri() {
+    return _uri;
   }
 
   /**
-   * Sets the file representation
-   * @param file  the new value of the property
+   * Sets the internal URI of the fragment
+   * @param uri  the new value of the property
    */
-  public void setFile(File file) {
-    this._file = file;
+  public void setUri(URI uri) {
+    this._uri = uri;
   }
 
   /**
-   * Gets the the {@code file} property.
+   * Gets the the {@code uri} property.
    * @return the property, not null
    */
-  public final Property<File> file() {
-    return metaBean().file().createProperty(this);
+  public final Property<URI> uri() {
+    return metaBean().uri().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the path to the fragment
+   * @return the value of the property
+   */
+  public String getPath() {
+    return _path;
+  }
+
+  /**
+   * Sets the path to the fragment
+   * @param path  the new value of the property
+   */
+  public void setPath(String path) {
+    this._path = path;
+  }
+
+  /**
+   * Gets the the {@code path} property.
+   * @return the property, not null
+   */
+  public final Property<String> path() {
+    return metaBean().path().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -160,16 +200,22 @@ public class Fragment extends DirectBean implements BundleNode {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code file} property.
+     * The meta-property for the {@code uri} property.
      */
-    private final MetaProperty<File> _file = DirectMetaProperty.ofReadWrite(
-        this, "file", Fragment.class, File.class);
+    private final MetaProperty<URI> _uri = DirectMetaProperty.ofReadWrite(
+        this, "uri", Fragment.class, URI.class);
+    /**
+     * The meta-property for the {@code path} property.
+     */
+    private final MetaProperty<String> _path = DirectMetaProperty.ofReadWrite(
+        this, "path", Fragment.class, String.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "file");
+        "uri",
+        "path");
 
     /**
      * Restricted constructor.
@@ -180,8 +226,10 @@ public class Fragment extends DirectBean implements BundleNode {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 3143036:  // file
-          return _file;
+        case 116076:  // uri
+          return _uri;
+        case 3433509:  // path
+          return _path;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -203,11 +251,19 @@ public class Fragment extends DirectBean implements BundleNode {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code file} property.
+     * The meta-property for the {@code uri} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<File> file() {
-      return _file;
+    public final MetaProperty<URI> uri() {
+      return _uri;
+    }
+
+    /**
+     * The meta-property for the {@code path} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> path() {
+      return _path;
     }
 
   }
