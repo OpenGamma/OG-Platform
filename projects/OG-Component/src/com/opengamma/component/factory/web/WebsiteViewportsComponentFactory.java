@@ -56,6 +56,7 @@ import com.opengamma.web.server.push.analytics.AnalyticsViewManager;
 import com.opengamma.web.server.push.analytics.ViewportResultsJsonWriter;
 import com.opengamma.web.server.push.analytics.formatting.ResultsFormatter;
 import com.opengamma.web.server.push.rest.AggregatorNamesResource;
+import com.opengamma.web.server.push.rest.LiveDataSourcesResource;
 import com.opengamma.web.server.push.rest.MarketDataSnapshotListResource;
 import com.opengamma.web.server.push.rest.MasterType;
 import com.opengamma.web.server.push.rest.ViewDefinitionEntriesResource;
@@ -192,9 +193,9 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     AnalyticsColumnsJsonWriter columnWriter = new AnalyticsColumnsJsonWriter(resultsFormatter);
     ViewportResultsJsonWriter viewportResultsWriter = new ViewportResultsJsonWriter(resultsFormatter);
 
-    // TODO live data resource
     repo.getRestComponents().publishResource(aggregatorsResource);
     repo.getRestComponents().publishResource(snapshotResource);
+    repo.getRestComponents().publishResource(new LiveDataSourcesResource(getMarketDataSpecificationRepository()));
     repo.getRestComponents().publishResource(new ViewsResource(analyticsViewManager, connectionMgr));
     repo.getRestComponents().publishResource(new Compressor());
     repo.getRestComponents().publishHelper(new ViewportVersionMessageBodyWriter());
