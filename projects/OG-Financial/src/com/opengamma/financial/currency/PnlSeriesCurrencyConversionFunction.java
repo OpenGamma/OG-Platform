@@ -131,12 +131,16 @@ public abstract class PnlSeriesCurrencyConversionFunction extends AbstractFuncti
   @Override
   public Set<ValueRequirement> getAdditionalRequirements(final FunctionCompilationContext context, final ComputationTarget target, final Set<ValueSpecification> inputs,
       final Set<ValueSpecification> outputs) {
-    final ValueSpecification input = inputs.iterator().next(); // only one input, so must be the P&L Series
-    final Currency originalCurrency = Currency.of(input.getProperty(ValuePropertyNames.CURRENCY));
-    final ValueSpecification output = outputs.iterator().next(); // only one output, so must be the result P&L Series
-    final Currency desiredCurrency = Currency.of(output.getProperty(ValuePropertyNames.CURRENCY));
-    return getCurrencyMatrix().getConversion(originalCurrency, desiredCurrency).accept(
+    try {
+      final ValueSpecification input = inputs.iterator().next(); // only one input, so must be the P&L Series
+      final Currency originalCurrency = Currency.of(input.getProperty(ValuePropertyNames.CURRENCY));
+      final ValueSpecification output = outputs.iterator().next(); // only one output, so must be the result P&L Series
+      final Currency desiredCurrency = Currency.of(output.getProperty(ValuePropertyNames.CURRENCY));
+      return getCurrencyMatrix().getConversion(originalCurrency, desiredCurrency).accept(
         new TimeSeriesCurrencyConversionRequirements(OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context)));
+    } catch (final Exception e) {
+      return null;
+    }
   }
 
   protected ValueSpecification getValueSpec(final ValueSpecification inputSpec, final String currencyCode) {
