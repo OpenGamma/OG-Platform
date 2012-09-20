@@ -14,6 +14,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.google.common.collect.Sets;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailability;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.CombinedMarketDataSpecification;
@@ -165,15 +166,16 @@ public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
     return new MarketDataPermissionProvider() {
       
       @Override
-      public boolean canAccessMarketData(UserPrincipal user, Set<ValueRequirement> requirements) {
+      public Set<ValueRequirement> checkMarketDataPermissions(UserPrincipal user, Set<ValueRequirement> requirements) {
         Map<MarketDataProvider, Set<ValueRequirement>> reqsByProvider = groupByProvider(requirements);
-        
+
+        Set<ValueRequirement> failures = Sets.newHashSet();
         for (Entry<MarketDataProvider, Set<ValueRequirement>> entry : reqsByProvider.entrySet()) {
-          if (!entry.getKey().getPermissionProvider().canAccessMarketData(user, entry.getValue())) {
-            return false;
-          }
+          MarketDataPermissionProvider permissionProvider = entry.getKey().getPermissionProvider();
+          Set<ValueRequirement> failed = permissionProvider.checkMarketDataPermissions(user, entry.getValue());
+          failures.addAll(failed);
         }
-        return true;
+        return failures;
       }
     };
   }

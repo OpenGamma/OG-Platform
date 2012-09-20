@@ -145,8 +145,8 @@ public class FXForwardYCNSFunction extends FXForwardSingleValuedFunction {
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency payCurrency = security.accept(ForexVisitors.getPayCurrencyVisitor());
     final Currency receiveCurrency = security.accept(ForexVisitors.getReceiveCurrencyVisitor());
-    final ValueRequirement payFundingCurve = getCurveRequirement(payCurveName, payCurrency, payCurveCalculationConfigName);
-    final ValueRequirement receiveFundingCurve = getCurveRequirement(receiveCurveName, receiveCurrency, receiveCurveCalculationConfigName);
+    final ValueRequirement payFundingCurve = getPayCurveRequirement(payCurveName, payCurrency, payCurveCalculationConfigName);
+    final ValueRequirement receiveFundingCurve = getPayCurveRequirement(receiveCurveName, receiveCurrency, receiveCurveCalculationConfigName);
     final String resultCurrency, resultCurveName, resultCurveConfigName;
     if (!(curveName.equals(payCurveName) || curveName.equals(receiveCurveName))) {
       s_logger.error("Curve name {} did not match either pay curve name {} or receive curve name {}", new Object[] {curveName, payCurveName, receiveCurveName});

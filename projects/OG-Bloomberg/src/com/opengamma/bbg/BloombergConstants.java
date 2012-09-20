@@ -232,6 +232,9 @@ public final class BloombergConstants {
   public static final String BBG_FIELD_VOLATILITY_30D = "VOLATILITY_30D";
   public static final String BBG_FIELD_YIELD_TO_MATURITY_MID = "YLD_YTM_MID";
   public static final String BBG_FIELD_SETTLE_PRICE = "PX_SETTLE";
+  
+  //quote unit information
+  public static final String BBG_FIELD_FWD_SCALE = "FWD_SCALE";
   // CSON
 
   /**

@@ -5,10 +5,15 @@
  */
 package com.opengamma.engine.view.execution;
 
+import java.util.Collections;
+import java.util.List;
+
 import javax.time.Instant;
 import javax.time.InstantProvider;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
 /**
@@ -17,8 +22,8 @@ import com.opengamma.util.PublicAPI;
 @PublicAPI
 public class ViewCycleExecutionOptions {
 
-  private Instant _valuationTime;
-  private MarketDataSpecification _marketDataSpecification;
+  private final Instant _valuationTime;
+  private final List<MarketDataSpecification> _marketDataSpecifications;
   
   // TODO [PLAT-1153] view correction time - probably want either valuation time or some fixed correction time
   
@@ -26,6 +31,7 @@ public class ViewCycleExecutionOptions {
    * Constructs an empty instance.
    */
   public ViewCycleExecutionOptions() {
+    this(null, Collections.<MarketDataSpecification>emptyList());
   }
   
   /**
@@ -34,7 +40,7 @@ public class ViewCycleExecutionOptions {
    * @param valuationTimeProvider  the valuation time provider, may be null
    */
   public ViewCycleExecutionOptions(InstantProvider valuationTimeProvider) {
-    setValuationTime(valuationTimeProvider.toInstant());
+    this(valuationTimeProvider, Collections.<MarketDataSpecification>emptyList());
   }
   
   /**
@@ -43,7 +49,7 @@ public class ViewCycleExecutionOptions {
    * @param marketDataSpec  the market data specification, may be null
    */
   public ViewCycleExecutionOptions(MarketDataSpecification marketDataSpec) {
-    setMarketDataSpecification(marketDataSpec);
+    this(null, marketDataSpec);
   }
   
   /**
@@ -53,8 +59,20 @@ public class ViewCycleExecutionOptions {
    * @param marketDataSpec  the market data specification, may be null
    */
   public ViewCycleExecutionOptions(InstantProvider valuationTimeProvider, MarketDataSpecification marketDataSpec) {
-    setValuationTime(valuationTimeProvider);
-    setMarketDataSpecification(marketDataSpec);
+    this(valuationTimeProvider, marketDataSpec == null ?
+        Collections.<MarketDataSpecification>emptyList() : Collections.singletonList(marketDataSpec));
+  }
+
+  /**
+   * Constructs an instance.
+   *
+   * @param valuationTimeProvider  the valuation time provider, may be null
+   * @param marketDataSpecs  the market data specification, not null, may be empty
+   */
+  public ViewCycleExecutionOptions(InstantProvider valuationTimeProvider, List<MarketDataSpecification> marketDataSpecs) {
+    ArgumentChecker.notNull(marketDataSpecs, "marketDataSpecs");
+    _valuationTime = valuationTimeProvider == null ? null : valuationTimeProvider.toInstant();
+    _marketDataSpecifications = ImmutableList.copyOf(marketDataSpecs);
   }
 
   /**
@@ -66,45 +84,26 @@ public class ViewCycleExecutionOptions {
   public Instant getValuationTime() {
     return _valuationTime;
   }
-  
+
   /**
-   * Sets the valuation time. Normally the valuation time is the timestamp associated with the market data snapshot,
-   * but this valuation time will be used instead if specified.
-   * 
-   * @param valuationTimeProvider  the valuation time provider, may be null
+   * Gets the market data specifications.
+   *
+   * @return the market data specifications, not null but possibly empty
    */
-  public void setValuationTime(InstantProvider valuationTimeProvider) {
-    _valuationTime = valuationTimeProvider != null ? valuationTimeProvider.toInstant() : null;
-  }
-  
-  /**
-   * Gets the market data specification.
-   * 
-   * @return the market data specification, or null if not specified
-   */
-  public MarketDataSpecification getMarketDataSpecification() {
-    return _marketDataSpecification;
-  }
-  
-  /**
-   * Sets the market data specification.
-   * 
-   * @param marketDataSpec  the market data specification, may be null
-   */
-  public void setMarketDataSpecification(MarketDataSpecification marketDataSpec) {
-    _marketDataSpecification = marketDataSpec;
+  public List<MarketDataSpecification> getMarketDataSpecifications() {
+    return _marketDataSpecifications;
   }
 
   @Override
   public String toString() {
-    return "ViewCycleExecutionOptions[valuationTime=" + getValuationTime() + ", marketDataSpecification=" + getMarketDataSpecification() + "]";
+    return "ViewCycleExecutionOptions[valuationTime=" + _valuationTime + ", marketDataSpecifications=" + _marketDataSpecifications + "]";
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((_marketDataSpecification == null) ? 0 : _marketDataSpecification.hashCode());
+    result = prime * result + ((_marketDataSpecifications == null) ? 0 : _marketDataSpecifications.hashCode());
     result = prime * result + ((_valuationTime == null) ? 0 : _valuationTime.hashCode());
     return result;
   }
@@ -121,11 +120,11 @@ public class ViewCycleExecutionOptions {
       return false;
     }
     ViewCycleExecutionOptions other = (ViewCycleExecutionOptions) obj;
-    if (_marketDataSpecification == null) {
-      if (other._marketDataSpecification != null) {
+    if (_marketDataSpecifications == null) {
+      if (other._marketDataSpecifications != null) {
         return false;
       }
-    } else if (!_marketDataSpecification.equals(other._marketDataSpecification)) {
+    } else if (!_marketDataSpecifications.equals(other._marketDataSpecifications)) {
       return false;
     }
     if (_valuationTime == null) {

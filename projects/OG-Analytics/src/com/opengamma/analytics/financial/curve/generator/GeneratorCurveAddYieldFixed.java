@@ -6,16 +6,16 @@
 package com.opengamma.analytics.financial.curve.generator;
 
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountAddZeroSpreadCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountAddZeroFixedCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Store the details and generate the required curve. The curve is the sum (or difference) of two curves 
- * (operation on the continuously-compounded zero-coupon rates): an existing curve referenced by its name and a new curve. 
+ * (operation on the continuously-compounded zero-coupon rates): a fixed curve and a new curve. 
  * The generated curve is a YieldAndDiscountAddZeroSpreadCurve.
  */
-public class GeneratorCurveAddYieldExisiting extends GeneratorCurve {
+public class GeneratorCurveAddYieldFixed extends GeneratorCurve {
 
   /**
    * The generator for the new curve.
@@ -26,22 +26,22 @@ public class GeneratorCurveAddYieldExisiting extends GeneratorCurve {
    */
   private final boolean _substract;
   /**
-   * The name of the existing curve.
+   * The fixed curve.
    */
-  private final String _existingCurveName;
+  private final YieldAndDiscountCurve _fixedCurve;
 
   /**
    * The constructor.
    * @param generator The generator for the new curve.
    * @param substract If true the rate of the new curve will be subtracted from the first one. If false the rates are added.
-   * @param existingCurveName The name of the existing curve.
+   * @param fixedCurve The fixed curve.
    */
-  public GeneratorCurveAddYieldExisiting(final GeneratorCurve generator, final boolean substract, final String existingCurveName) {
+  public GeneratorCurveAddYieldFixed(final GeneratorCurve generator, final boolean substract, final YieldAndDiscountCurve fixedCurve) {
     ArgumentChecker.notNull(generator, "Generator");
-    ArgumentChecker.notNull(existingCurveName, "Exisitng curve name");
+    ArgumentChecker.notNull(fixedCurve, "Fixed curve");
     _generator = generator;
     _substract = substract;
-    _existingCurveName = existingCurveName;
+    _fixedCurve = fixedCurve;
   }
 
   @Override
@@ -51,27 +51,25 @@ public class GeneratorCurveAddYieldExisiting extends GeneratorCurve {
 
   @Override
   public YieldAndDiscountCurve generateCurve(String name, double[] parameters) {
-    throw new UnsupportedOperationException("Cannot create the curve form the generator without an existing curve");
+    YieldAndDiscountCurve newCurve = _generator.generateCurve(name + "-0", parameters);
+    return new YieldAndDiscountAddZeroFixedCurve(name, _substract, newCurve, _fixedCurve);
   }
 
   @Override
   public YieldAndDiscountCurve generateCurve(String name, YieldCurveBundle bundle, double[] parameters) {
-    YieldAndDiscountCurve existingCurve = bundle.getCurve(_existingCurveName);
     YieldAndDiscountCurve newCurve = _generator.generateCurve(name + "-0", bundle, parameters);
-    return new YieldAndDiscountAddZeroSpreadCurve(name, _substract, existingCurve, newCurve);
+    return new YieldAndDiscountAddZeroFixedCurve(name, _substract, newCurve, _fixedCurve);
   }
 
   @Override
   public GeneratorCurve finalGenerator(Object data) {
-    return new GeneratorCurveAddYieldExisiting(_generator.finalGenerator(data), _substract, _existingCurveName);
+    return new GeneratorCurveAddYieldFixed(_generator.finalGenerator(data), _substract, _fixedCurve);
   }
 
   @Override
   public double[] initialGuess(double[] rates) {
     ArgumentChecker.isTrue(rates.length == _generator.getNumberOfParameter(), "Rates of incorrect length.");
-    double[] spread = new double[rates.length];
-    // Implementation note: The AddYieldExisting generator is used for spread. The initial guess is a spread of 0.
-    return spread;
+    return rates;
   }
 
 }

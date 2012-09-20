@@ -16,8 +16,8 @@ import com.opengamma.livedata.UserPrincipal;
 public class PermissiveMarketDataPermissionProvider implements MarketDataPermissionProvider {
 
   @Override
-  public boolean canAccessMarketData(UserPrincipal user, Set<ValueRequirement> requirements) {
-    return true;
+  public Set<ValueRequirement> checkMarketDataPermissions(UserPrincipal user, Set<ValueRequirement> requirements) {
+    return requirements;
   }
 
 }
