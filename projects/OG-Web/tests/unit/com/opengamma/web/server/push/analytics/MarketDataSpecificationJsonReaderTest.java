@@ -25,13 +25,13 @@ import com.opengamma.id.UniqueId;
 public class MarketDataSpecificationJsonReaderTest {
 
   private static final String LIVE_JSON = "{\"marketDataType\": \"live\", \"source\": \"Bloomberg\"}";
-  private static final String FIXED_JSON = "{\"marketDataType\": \"fixedHistorical\", \"resolverKey\": \"rk\", \"fieldResolverKey\": \"frk\", \"date\": \"2012-08-30\"}";
-  private static final String LATEST_JSON = "{\"marketDataType\": \"latestHistorical\", \"resolverKey\": \"rk\", \"fieldResolverKey\": \"frk\"}";
+  private static final String FIXED_JSON = "{\"marketDataType\": \"fixedHistorical\", \"resolverKey\": \"rk\", \"date\": \"2012-08-30\"}";
+  private static final String LATEST_JSON = "{\"marketDataType\": \"latestHistorical\", \"resolverKey\": \"rk\"}";
   private static final String SNAPSHOT_JSON = "{\"marketDataType\": \"snapshot\", \"snapshotId\": \"scheme~value\"}";
 
   private static final LiveMarketDataSpecification LIVE = new LiveMarketDataSpecification("Bloomberg");
-  private static final FixedHistoricalMarketDataSpecification FIXED = new FixedHistoricalMarketDataSpecification("rk", "frk", LocalDate.of(2012, 8, 30));
-  private static final LatestHistoricalMarketDataSpecification LATEST = new LatestHistoricalMarketDataSpecification("rk", "frk");
+  private static final FixedHistoricalMarketDataSpecification FIXED = new FixedHistoricalMarketDataSpecification("rk", LocalDate.of(2012, 8, 30));
+  private static final LatestHistoricalMarketDataSpecification LATEST = new LatestHistoricalMarketDataSpecification("rk");
   private static final UserMarketDataSpecification SNAPSHOT = new UserMarketDataSpecification(UniqueId.of("scheme", "value"));
 
   @Test

@@ -22,7 +22,7 @@ public class HistoricalMarketDataProviderFactory implements MarketDataProviderFa
   private final HistoricalTimeSeriesSource _timeSeriesSource;
   private final SecuritySource _securitySource;
 
-  public HistoricalMarketDataProviderFactory(final HistoricalTimeSeriesSource timeSeriesSource, SecuritySource securitySource) {
+  public HistoricalMarketDataProviderFactory(HistoricalTimeSeriesSource timeSeriesSource, SecuritySource securitySource) {
     ArgumentChecker.notNull(timeSeriesSource, "timeSeriesSource");
     ArgumentChecker.notNull(securitySource, "securitySource");
     _timeSeriesSource = timeSeriesSource;
@@ -30,18 +30,10 @@ public class HistoricalMarketDataProviderFactory implements MarketDataProviderFa
   }
 
   @Override
-  public MarketDataProvider create(UserPrincipal marketDataUser,
-                                   MarketDataSpecification marketDataSpec) {
+  public MarketDataProvider create(UserPrincipal marketDataUser, MarketDataSpecification marketDataSpec) {
     HistoricalMarketDataSpecification historicalMarketDataSpec = (HistoricalMarketDataSpecification) marketDataSpec;
-    return new HistoricalMarketDataProvider(getTimeSeriesSource(), getSecuritySource(), historicalMarketDataSpec.getTimeSeriesResolverKey(), historicalMarketDataSpec.getTimeSeriesFieldResolverKey());
+    return new HistoricalMarketDataProvider(_timeSeriesSource,
+                                            _securitySource,
+                                            historicalMarketDataSpec.getTimeSeriesResolverKey());
   }
-
-  private HistoricalTimeSeriesSource getTimeSeriesSource() {
-    return _timeSeriesSource;
-  }
-  
-  private SecuritySource getSecuritySource() {
-    return _securitySource;
-  }
-
 }

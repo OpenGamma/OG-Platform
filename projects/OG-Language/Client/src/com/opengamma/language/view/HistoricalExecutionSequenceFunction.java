@@ -51,8 +51,7 @@ public class HistoricalExecutionSequenceFunction extends AbstractFunctionInvoker
         new MetaParameter("from", JavaTypeInfo.builder(Instant.class).get()),
         new MetaParameter("to", JavaTypeInfo.builder(Instant.class).get()),
         new MetaParameter("sample_period", JavaTypeInfo.builder(Integer.class).allowNull().get()),
-        new MetaParameter("ts_resolver_key", JavaTypeInfo.builder(String.class).allowNull().get()),
-        new MetaParameter("ts_field_resolver_key", JavaTypeInfo.builder(String.class).allowNull().get()));
+        new MetaParameter("ts_resolver_key", JavaTypeInfo.builder(String.class).allowNull().get()));
   }
   
   private HistoricalExecutionSequenceFunction() {
@@ -74,7 +73,7 @@ public class HistoricalExecutionSequenceFunction extends AbstractFunctionInvoker
         ((int) (to.getEpochSeconds() - from.getEpochSeconds()) + samplePeriodSeconds - 1) / samplePeriodSeconds);
     for (Instant valuationTime = from; !valuationTime.isAfter(to); valuationTime = valuationTime.plus(samplePeriodSeconds, TimeUnit.SECONDS)) {
       LocalDate date = ZonedDateTime.ofInstant(valuationTime, TimeZone.UTC).toLocalDate();
-      HistoricalMarketDataSpecification spec = MarketData.historical(date, timeSeriesResolverKey, timeSeriesFieldResolverKey);
+      HistoricalMarketDataSpecification spec = MarketData.historical(date, timeSeriesResolverKey);
       final ViewCycleExecutionOptions options = new ViewCycleExecutionOptions(valuationTime, spec);
       cycles.add(options);
     }

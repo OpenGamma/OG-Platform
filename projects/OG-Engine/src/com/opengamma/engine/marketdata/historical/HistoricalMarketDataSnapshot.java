@@ -31,7 +31,7 @@ public class HistoricalMarketDataSnapshot extends AbstractMarketDataSnapshot {
   private final HistoricalTimeSeriesSource _timeSeriesSource;
   private final Instant _snapshotInstant;
   private final LocalDate _snapshotDate;
-  private final String _timeSeriesFieldResolverKey;
+  private final String _timeSeriesResolverKey;
   private final MarketDataTargetResolver _targetResolver;
   
   /**
@@ -40,17 +40,20 @@ public class HistoricalMarketDataSnapshot extends AbstractMarketDataSnapshot {
    * @param timeSeriesSource  the time-series source, not null
    * @param snapshotInstant  the snapshot instant to report to the engine, not null
    * @param snapshotDate  the date of the required value, null for the latest
-   * @param timeSeriesFieldResolverKey  the time series field resolver key, null for default
+   * @param timeSeriesResolverKey  the time series resolver key, null for default
    * @param targetResolver  the market data target resolver, not null
    */
-  public HistoricalMarketDataSnapshot(HistoricalTimeSeriesSource timeSeriesSource, Instant snapshotInstant,
-      LocalDate snapshotDate, String timeSeriesFieldResolverKey, MarketDataTargetResolver targetResolver) {
+  public HistoricalMarketDataSnapshot(HistoricalTimeSeriesSource timeSeriesSource,
+                                      Instant snapshotInstant,
+                                      LocalDate snapshotDate,
+                                      String timeSeriesResolverKey,
+                                      MarketDataTargetResolver targetResolver) {
     ArgumentChecker.notNull(timeSeriesSource, "timeSeriesSource");
     ArgumentChecker.notNull(snapshotInstant, "snapshotInstant");
     _timeSeriesSource = timeSeriesSource;
     _snapshotInstant = snapshotInstant;
     _snapshotDate = snapshotDate;
-    _timeSeriesFieldResolverKey = timeSeriesFieldResolverKey;
+    _timeSeriesResolverKey = timeSeriesResolverKey;
     _targetResolver = targetResolver;
   }
   
@@ -81,7 +84,7 @@ public class HistoricalMarketDataSnapshot extends AbstractMarketDataSnapshot {
         valueName,
         identifiers,
         _snapshotDate,
-        _timeSeriesFieldResolverKey,
+        _timeSeriesResolverKey,
         _snapshotDate,
         true, 
         _snapshotDate, 

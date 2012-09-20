@@ -26,11 +26,11 @@ public class HistoricalMarketDataProvider extends AbstractHistoricalMarketDataPr
    * @param historicalTimeSeriesSource  the underlying source of historical data, not null
    * @param securitySource  the source of securities, not null
    * @param timeSeriesResolverKey  the source resolver key, or null to use the source default
-   * @param fieldResolverKey  the field name resolver resolution key, or null to use the resolver default
    */
-  public HistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource,
-      final SecuritySource securitySource, final String timeSeriesResolverKey, final String fieldResolverKey) {
-    super(historicalTimeSeriesSource, securitySource, timeSeriesResolverKey, fieldResolverKey);
+  public HistoricalMarketDataProvider(HistoricalTimeSeriesSource historicalTimeSeriesSource,
+                                      SecuritySource securitySource,
+                                      String timeSeriesResolverKey) {
+    super(historicalTimeSeriesSource, securitySource, timeSeriesResolverKey);
   }
   
   /**
@@ -59,7 +59,8 @@ public class HistoricalMarketDataProvider extends AbstractHistoricalMarketDataPr
     //Instant snapshotInstant = historicalSpec.getSnapshotDate().atMidnight().atZone(TimeZone.UTC).toInstant();
     Instant snapshotInstant = historicalSpec.getSnapshotDate().atTime(16, 0).atZone(TimeZone.UTC).toInstant();
     LocalDate snapshotDate = historicalSpec.getSnapshotDate();
-    return new HistoricalMarketDataSnapshot(getTimeSeriesSource(), snapshotInstant, snapshotDate, historicalSpec.getTimeSeriesFieldResolverKey(), this);
+    return new HistoricalMarketDataSnapshot(getTimeSeriesSource(), snapshotInstant, snapshotDate,
+                                            historicalSpec.getTimeSeriesResolverKey(), this);
   }
   
 }

@@ -30,19 +30,10 @@ public class LatestHistoricalMarketDataProviderFactory implements MarketDataProv
   }
 
   @Override
-  public MarketDataProvider create(UserPrincipal marketDataUser,
-                                   MarketDataSpecification marketDataSpec) {
+  public MarketDataProvider create(UserPrincipal marketDataUser, MarketDataSpecification marketDataSpec) {
     HistoricalMarketDataSpecification historicalMarketDataSpec = (HistoricalMarketDataSpecification) marketDataSpec;
-    return new LatestHistoricalMarketDataProvider(getTimeSeriesSource(), getSecuritySource(),
-        historicalMarketDataSpec.getTimeSeriesResolverKey(), historicalMarketDataSpec.getTimeSeriesFieldResolverKey());
+    return new LatestHistoricalMarketDataProvider(_timeSeriesSource,
+                                                  _securitySource,
+                                                  historicalMarketDataSpec.getTimeSeriesResolverKey());
   }
-
-  private HistoricalTimeSeriesSource getTimeSeriesSource() {
-    return _timeSeriesSource;
-  }
-  
-  private SecuritySource getSecuritySource() {
-    return _securitySource;
-  }
-
 }

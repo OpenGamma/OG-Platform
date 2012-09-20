@@ -43,7 +43,6 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
   private final HistoricalTimeSeriesSource _historicalTimeSeriesSource;
   private final SecuritySource _securitySource;
   private final String _timeSeriesResolverKey;
-  private final String _timeSeriesFieldResolverKey;
   private final MarketDataPermissionProvider _permissionProvider;
   private final ConcurrentMap<ValueRequirement, Pair<ExternalIdBundle, Integer>> _subscriptionIdBundleMap = new ConcurrentHashMap<ValueRequirement, Pair<ExternalIdBundle, Integer>>();
 
@@ -53,21 +52,20 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
    * @param historicalTimeSeriesSource  the underlying source of historical data, not null
    * @param securitySource  the source of securities, not null
    * @param timeSeriesResolverKey  the source resolver key, or null to use the source default
-   * @param fieldResolverKey  the field name resolver resolution key, or null to use the resolver default
    */
-  public AbstractHistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource,
-      final SecuritySource securitySource, final String timeSeriesResolverKey, final String fieldResolverKey) {
+  public AbstractHistoricalMarketDataProvider(HistoricalTimeSeriesSource historicalTimeSeriesSource,
+                                              SecuritySource securitySource,
+                                              String timeSeriesResolverKey) {
     ArgumentChecker.notNull(historicalTimeSeriesSource, "historicalTimeSeriesSource");
     ArgumentChecker.notNull(securitySource, "securitySource");
     _historicalTimeSeriesSource = historicalTimeSeriesSource;
     _securitySource = securitySource;
     _timeSeriesResolverKey = timeSeriesResolverKey;
-    _timeSeriesFieldResolverKey = fieldResolverKey;
     _permissionProvider = new PermissiveMarketDataPermissionProvider();
   }
   
   public AbstractHistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource, final SecuritySource securitySource) {
-    this(historicalTimeSeriesSource, securitySource, null, null);
+    this(historicalTimeSeriesSource, securitySource, null);
   }
 
   //-------------------------------------------------------------------------
@@ -134,8 +132,7 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
       return false;
     }
     HistoricalMarketDataSpecification historicalSpec = (HistoricalMarketDataSpecification) marketDataSpec;
-    return ObjectUtils.equals(getTimeSeriesResolverKey(), historicalSpec.getTimeSeriesResolverKey())
-        && ObjectUtils.equals(getTimeSeriesFieldResolverKey(), historicalSpec.getTimeSeriesFieldResolverKey());
+    return ObjectUtils.equals(_timeSeriesResolverKey, historicalSpec.getTimeSeriesResolverKey());
   }
 
   //-------------------------------------------------------------------------
@@ -145,7 +142,9 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
     if (idBundle == null) {
       return MarketDataAvailability.NOT_AVAILABLE;
     }
-    final HistoricalTimeSeries hts = getTimeSeriesSource().getHistoricalTimeSeries(requirement.getValueName(), idBundle, null, getTimeSeriesResolverKey(), null, true, null, true, 0);
+    final HistoricalTimeSeries hts =
+        _historicalTimeSeriesSource.getHistoricalTimeSeries(requirement.getValueName(), idBundle, null,
+                                                            _timeSeriesResolverKey, null, true, null, true, 0);
     if (hts == null) {
       if (s_logger.isDebugEnabled() && requirement.getValueName().equals(MarketDataRequirementNames.MARKET_VALUE)) {
         s_logger.debug("Missing market data {}", requirement);
@@ -173,7 +172,7 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
       case SECURITY:
         final Security security;
         try {
-          security = getSecuritySource().getSecurity(requirement.getTargetSpecification().getUniqueId());
+          security = _securitySource.getSecurity(requirement.getTargetSpecification().getUniqueId());
         } catch (DataNotFoundException ex) {
           return null;
         }
@@ -187,17 +186,4 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
   protected HistoricalTimeSeriesSource getTimeSeriesSource() {
     return _historicalTimeSeriesSource;
   }
-  
-  protected SecuritySource getSecuritySource() {
-    return _securitySource;
-  }
-  
-  public String getTimeSeriesResolverKey() {
-    return _timeSeriesResolverKey;
-  }
-  
-  public String getTimeSeriesFieldResolverKey() {
-    return _timeSeriesFieldResolverKey;
-  }
-
 }
