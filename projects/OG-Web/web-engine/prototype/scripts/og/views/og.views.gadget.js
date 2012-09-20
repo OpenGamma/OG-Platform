@@ -21,8 +21,7 @@ $.register_module({
                         depgraph: true,
                         viewdefinition: args.id,
                         row: 4, col: 6,
-                        live: true,
-                        provider: 'Live market data (Bloomberg, Activ, TullettPrebon, ICAP)'
+                        providers: [{'marketDataType': 'live', source: 'Bloomberg'}]
                     }
                 });
             },

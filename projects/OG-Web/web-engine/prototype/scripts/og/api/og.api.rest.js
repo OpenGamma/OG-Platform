@@ -554,24 +554,23 @@ $.register_module({
                     config = config || {};
                     var promise = promise || new Promise,
                         root = this.root, method = [root], data = {}, meta,
-                        fields = ['viewdefinition', 'aggregators', 'live', 'provider', 'snapshot', 'version'],
+                        fields = ['viewdefinition', 'aggregators', 'providers'],
                         api_fields = [
-                            'viewDefinitionId', 'aggregators', 'live',
-                            'provider', 'snapshotId', 'versionDateTime'
+                            'viewDefinitionId', 'aggregators', 'marketDataProviders'
                         ];
                     if (!api.id) return setTimeout((function (context) {                    // if handshake isn't
                         return function () {api.views.put.call(context, config, promise);}; // complete, return a
                     })(this), STALL), promise;                                              // promise and try again
                     meta = check({
                         bundle: {method: root + '#put', config: config},
-                        required: [
-                            {all_of: ['viewdefinition']},
-                            {condition: config.live, all_of: ['provider']},
-                            {condition: !config.live, all_of: ['snapshot', 'version']}
-                        ]
+                        required: [{all_of: ['viewdefinition', 'providers']}]
                     });
                     meta.type = 'POST';
-                    fields.forEach(function (val, idx) {if (val = str(config[val])) data[api_fields[idx]] = val;});
+                    fields.forEach(function (val, idx) {
+                        var is_object = typeof config[val] === 'object';
+                        if (is_object ? val = JSON.stringify(config[val]) : val = str(config[val])) // is truthy
+                            data[api_fields[idx]] = val;
+                    });
                     data['clientId'] = api.id;
                     return request(method, {data: data, meta: meta}, promise);
                 },
