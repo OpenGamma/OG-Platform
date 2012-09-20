@@ -49,8 +49,8 @@ $.register_module({
             timeseries: function (args) {
                 var options = {selector: '.OG-timeseries-container', datapoints_link: false};
                 $content.html('<section class="' + options.selector.substring(1) + '"></section>');
-                if (args.id) options.id = args.id; else options.data = og.api.common.get_cache(args.key);
-                if (args.key) og.api.common.del_cache(args.key);
+                if (args.id) options.id = args.id; else options.data = og.api.common.cache_get(args.key);
+                if (args.key) og.api.common.cache_del(args.key);
                 if (!options.data && !options.id) return $('#gadget_content').html('There is no data to load.');
                 gadgets.timeseries(options);
             },
