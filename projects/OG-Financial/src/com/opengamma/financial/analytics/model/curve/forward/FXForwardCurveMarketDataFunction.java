@@ -35,12 +35,15 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.fxforwardcurve.ConfigDBFXForwardCurveDefinitionSource;
 import com.opengamma.financial.analytics.fxforwardcurve.ConfigDBFXForwardCurveSpecificationSource;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveDefinition;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveInstrumentProvider;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveSpecification;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveSpecification.QuoteType;
+import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
+import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.Tenor;
@@ -136,6 +139,7 @@ public class FXForwardCurveMarketDataFunction extends AbstractFunction {
         }
         final Double spot = (Double) inputs.getValue(spotRequirement);
         final Map<ExternalId, Double> data = new HashMap<ExternalId, Double>();
+        boolean isRegular = specification.isMarketQuoteConvention();
         for (final Tenor tenor : definition.getTenors()) {
           final ExternalId identifier = provider.getInstrument(now.toLocalDate(), tenor);
           final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), identifier);
@@ -143,10 +147,10 @@ public class FXForwardCurveMarketDataFunction extends AbstractFunction {
             final Double value = (Double) inputs.getValue(requirement);
             switch (specification.getQuoteType()) {
               case Points:
-                data.put(identifier, spot + value);
+                data.put(identifier, isRegular ? spot + value : 1 / (spot + value));
                 break;
               case Outright:
-                data.put(identifier, value);
+                data.put(identifier, isRegular ? value : 1 / value);
                 break;
               default:
                 throw new OpenGammaRuntimeException("Cannot handle quote type " + specification.getQuoteType());

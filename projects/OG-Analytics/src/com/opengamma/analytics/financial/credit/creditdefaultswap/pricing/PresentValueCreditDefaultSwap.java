@@ -384,7 +384,7 @@ public class PresentValueCreditDefaultSwap {
     double notional = cds.getNotional();
 
     // Get the recovery rate used for valuation purposes (can be different to the recovery used for curve construction)
-    double valuationRecoveryRate = cds.getValuationRecoveryRate();
+    double valuationRecoveryRate = cds.getCurveRecoveryRate();
 
     // Calculate the protection leg integral between the valuationDate (when protection begins) and adjustedMaturityDate (when protection ends)
     ZonedDateTime valuationDate = cds.getValuationDate();

@@ -31,8 +31,10 @@ public class SABRExtrapolationRightFunctionTest {
   private static final double TIME_TO_EXPIRY = 2.0;
   private static final SABRExtrapolationRightFunction SABR_EXTRAPOLATION = new SABRExtrapolationRightFunction(FORWARD, SABR_DATA, CUT_OFF_STRIKE, TIME_TO_EXPIRY, MU);
   // Function
-  BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
-  SABRHaganVolatilityFunction SABR_FUNCTION = new SABRHaganVolatilityFunction();
+  private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
+  private static final SABRHaganVolatilityFunction SABR_FUNCTION = new SABRHaganVolatilityFunction();
+
+  private static final double TOLERANCE_PRICE = 1.0E-10;
 
   @Test
   /**
@@ -62,6 +64,40 @@ public class SABRExtrapolationRightFunctionTest {
     double priceOut = SABR_EXTRAPOLATION.price(optionOut);
     double priceExpectedOut = 5.427104E-5; // From previous run
     assertEquals("SABR extrapolation, above cut-off", priceExpectedOut, priceOut, 1E-10);
+  }
+
+  @Test
+  /**
+   * Tests the price for options in SABR model with extrapolation.
+   */
+  public void priceCloseToExpiry() {
+    double[] timeToExpiry = {1.0 / 365, 0.0}; // One day and on expiry day.
+    double strikeIn = 0.08;
+    double strikeAt = CUT_OFF_STRIKE;
+    double strikeOut = 0.12;
+    for (int loopexp = 0; loopexp < timeToExpiry.length; loopexp++) {
+      SABRExtrapolationRightFunction sabrExtra = new SABRExtrapolationRightFunction(FORWARD, SABR_DATA, CUT_OFF_STRIKE, timeToExpiry[loopexp], MU);
+      EuropeanVanillaOption optionIn = new EuropeanVanillaOption(strikeIn, timeToExpiry[loopexp], true);
+      EuropeanVanillaOption optionAt = new EuropeanVanillaOption(strikeAt, timeToExpiry[loopexp], true);
+      EuropeanVanillaOption optionOut = new EuropeanVanillaOption(strikeOut, timeToExpiry[loopexp], true);
+      Function1D<SABRFormulaData, Double> funcSabrIn = SABR_FUNCTION.getVolatilityFunction(optionIn, FORWARD);
+      double volatilityIn = funcSabrIn.evaluate(SABR_DATA);
+      BlackFunctionData dataBlackIn = new BlackFunctionData(FORWARD, 1.0, volatilityIn);
+      Function1D<BlackFunctionData, Double> funcBlackIn = BLACK_FUNCTION.getPriceFunction(optionIn);
+      double priceExpectedIn = funcBlackIn.evaluate(dataBlackIn);
+      double priceIn = sabrExtra.price(optionIn);
+      assertEquals("SABR extrapolation, below cut-off", priceExpectedIn, priceIn, TOLERANCE_PRICE);
+      Function1D<SABRFormulaData, Double> funcSabrAt = SABR_FUNCTION.getVolatilityFunction(optionAt, FORWARD);
+      double volatilityAt = funcSabrAt.evaluate(SABR_DATA);
+      BlackFunctionData dataBlackAt = new BlackFunctionData(FORWARD, 1.0, volatilityAt);
+      Function1D<BlackFunctionData, Double> funcBlackAt = BLACK_FUNCTION.getPriceFunction(optionAt);
+      double priceExpectedAt = funcBlackAt.evaluate(dataBlackAt);
+      double priceAt = sabrExtra.price(optionAt);
+      assertEquals("SABR extrapolation, at cut-off", priceExpectedAt, priceAt, TOLERANCE_PRICE);
+      double priceOut = sabrExtra.price(optionOut);
+      double priceExpectedOut = 0.0; // From previous run
+      assertEquals("SABR extrapolation, above cut-off", priceExpectedOut, priceOut, TOLERANCE_PRICE);
+    }
   }
 
   @Test

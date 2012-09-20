@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
@@ -39,11 +40,24 @@ public abstract class FXForwardSingleValuedFunction extends FXForwardFunction {
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     String currencyPairConfigName = null;
+    String payCurveName = null;
+    String payCurveCalculationConfig = null;
+    String receiveCurveName = null;
+    String receiveCurveCalculationConfig = null;
     for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
-      final ValueSpecification key = entry.getKey();
-      if (key.getValueName().equals(ValueRequirementNames.CURRENCY_PAIRS)) {
-        currencyPairConfigName = key.getProperty(CurrencyPairsFunction.CURRENCY_PAIRS_NAME);
-        break;
+      final ValueSpecification specification = entry.getKey();
+      final ValueRequirement requirement = entry.getValue();
+      if (specification.getValueName().equals(ValueRequirementNames.CURRENCY_PAIRS)) {
+        currencyPairConfigName = specification.getProperty(CurrencyPairsFunction.CURRENCY_PAIRS_NAME);
+      } else if (requirement.getValueName().equals(ValueRequirementNames.YIELD_CURVE)) {
+        final ValueProperties constraints = requirement.getConstraints();
+        if (constraints.getProperties().contains(ValuePropertyNames.PAY_CURVE)) {
+          payCurveName = Iterables.getOnlyElement(constraints.getValues(ValuePropertyNames.CURVE));
+          payCurveCalculationConfig = Iterables.getOnlyElement(constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG));
+        } else if (constraints.getProperties().contains(ValuePropertyNames.RECEIVE_CURVE)) {
+          receiveCurveName = Iterables.getOnlyElement(constraints.getValues(ValuePropertyNames.CURVE));
+          receiveCurveCalculationConfig = Iterables.getOnlyElement(constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG));
+        }
       }
     }
     assert currencyPairConfigName != null;
@@ -57,7 +71,8 @@ public abstract class FXForwardSingleValuedFunction extends FXForwardFunction {
     if (baseQuotePair == null) {
       throw new OpenGammaRuntimeException("Could not get base/quote pair for currency pair (" + putCurrency + ", " + callCurrency + ")");
     }
-    final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), getResultProperties(target, baseQuotePair).get());
+    final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), getResultProperties(target, baseQuotePair,
+        payCurveName, receiveCurveName, payCurveCalculationConfig, receiveCurveCalculationConfig).get());
     return Collections.singleton(resultSpec);
   }
 
@@ -71,12 +86,13 @@ public abstract class FXForwardSingleValuedFunction extends FXForwardFunction {
         .withAny(ValuePropertyNames.CURRENCY);
   }
 
-  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final CurrencyPair baseQuotePair) {
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final CurrencyPair baseQuotePair, final String payCurveName,
+      final String receiveCurveName, final String payCurveCalculationConfig, final String receiveCurveCalculationConfig) {
     return createValueProperties()
-        .withAny(ValuePropertyNames.PAY_CURVE)
-        .withAny(ValuePropertyNames.RECEIVE_CURVE)
-        .withAny(PAY_CURVE_CALC_CONFIG)
-        .withAny(RECEIVE_CURVE_CALC_CONFIG)
+        .with(ValuePropertyNames.PAY_CURVE, payCurveName)
+        .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveName)
+        .with(PAY_CURVE_CALC_CONFIG, payCurveCalculationConfig)
+        .with(RECEIVE_CURVE_CALC_CONFIG, receiveCurveCalculationConfig)
         .with(ValuePropertyNames.CURRENCY, getResultCurrency(target, baseQuotePair));
   }
 

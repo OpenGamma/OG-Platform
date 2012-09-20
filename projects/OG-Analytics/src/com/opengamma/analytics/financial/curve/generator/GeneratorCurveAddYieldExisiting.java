@@ -12,7 +12,7 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Store the details and generate the required curve. The curve is the sum (or difference) of two curves 
- * (operation on the continuously-compounded zero-coupon rates): an existing curve and a new curve. 
+ * (operation on the continuously-compounded zero-coupon rates): an existing curve referenced by its name and a new curve. 
  * The generated curve is a YieldAndDiscountAddZeroSpreadCurve.
  */
 public class GeneratorCurveAddYieldExisiting extends GeneratorCurve {

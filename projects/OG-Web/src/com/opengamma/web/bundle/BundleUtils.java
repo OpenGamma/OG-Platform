@@ -8,7 +8,7 @@ package com.opengamma.web.bundle;
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.util.ArgumentChecker;
@@ -23,13 +23,11 @@ public final class BundleUtils {
    * 
    * @param bundle  the bundle, not null
    * @param webBundleUris  the URI helper, not null
-   * @param basePath  the base path, not null
    * @return the bundle HTML import text, not null
    */
-  public static String buildImports(Bundle bundle, WebBundlesUris webBundleUris, String basePath) {
+  public static String buildImports(Bundle bundle, WebBundlesUris webBundleUris) {
     ArgumentChecker.notNull(bundle, "bundle");
     ArgumentChecker.notNull(webBundleUris, "webBundleUris");
-    ArgumentChecker.notNull(basePath, "basePath");
     
     StringBuilder buf = new StringBuilder();
     List<BundleNode> childNodes = bundle.getChildNodes();
@@ -42,9 +40,7 @@ public final class BundleUtils {
       }
       if (node instanceof Fragment) {
         Fragment fragment = (Fragment) node;
-        String uri = fragment.getFile().toURI().toASCIIString();
-        int indexOf = uri.indexOf(basePath);
-        buf.append("@import url('/" + uri.substring(indexOf) + "');\n");
+        buf.append("@import url('" + fragment.getPath() + "');\n");
       }
     }
     return buf.toString();
@@ -61,10 +57,10 @@ public final class BundleUtils {
     StringBuilder buf = new StringBuilder(1024);
     for (Fragment fragment : allFragments) {
       try {
-        buf.append(FileUtils.readFileToString(fragment.getFile()));
+        buf.append(IOUtils.toString(fragment.getUri()));
         buf.append("\n");
       } catch (IOException ex) {
-        throw new DataNotFoundException("IOException reading " + fragment.getFile());
+        throw new DataNotFoundException("IOException reading " + fragment.getUri());
       }
     }
     return buf.toString();

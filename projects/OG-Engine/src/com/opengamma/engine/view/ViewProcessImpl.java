@@ -225,7 +225,8 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
       for (ViewResultListener listener : _listeners) {
         try {
           UserPrincipal listenerUser = listener.getUser();
-          boolean hasMarketDataPermissions = permissionProvider.canAccessMarketData(listenerUser, marketDataRequirements);
+          boolean hasMarketDataPermissions =
+              permissionProvider.checkMarketDataPermissions(listenerUser, marketDataRequirements).isEmpty();
           listener.viewDefinitionCompiled(compiledViewDefinition, hasMarketDataPermissions);
         } catch (Exception e) {
           logListenerError(listener, e);
@@ -480,7 +481,10 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
             if (latestCompilation != null) {
               CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = latestCompilation.getFirst();
               MarketDataPermissionProvider permissionProvider = latestCompilation.getSecond();
-              boolean hasMarketDataPermissions = permissionProvider.canAccessMarketData(listener.getUser(), compiledViewDefinition.getMarketDataRequirements().keySet());
+              Set<ValueRequirement> marketDataRequirements = compiledViewDefinition.getMarketDataRequirements().keySet();
+              Set<ValueRequirement> deniedRequirements =
+                  permissionProvider.checkMarketDataPermissions(listener.getUser(), marketDataRequirements);
+              boolean hasMarketDataPermissions = deniedRequirements.isEmpty();
               listener.viewDefinitionCompiled(compiledViewDefinition, hasMarketDataPermissions);
               ViewComputationResultModel latestResult = _latestResult.get();
               if (latestResult != null) {

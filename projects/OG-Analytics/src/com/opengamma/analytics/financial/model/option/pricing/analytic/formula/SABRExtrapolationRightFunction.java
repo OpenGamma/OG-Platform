@@ -83,6 +83,11 @@ public class SABRExtrapolationRightFunction {
    * Black function used.
    */
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
+  /**
+   * Value below which the time-to-expiry is considered to be 0 and the price of the fitting parameters fit a price of 0 (OTM).
+   */
+  private static final double SMALL_EXPIRY = 1.0E-6;
+  private static final double SMALL_PARAMETER = -1.0E4;
 
   /**
    * Constructor.
@@ -100,7 +105,15 @@ public class SABRExtrapolationRightFunction {
     _timeToExpiry = timeToExpiry;
     _mu = mu;
     _sabrFunction = new SABRHaganVolatilityFunction();
-    _parameter = computesFittingParameters();
+    if (timeToExpiry > SMALL_EXPIRY) {
+      _parameter = computesFittingParameters();
+    } else { // Implementation note: when time to expiry is very small, the price above the cut-off strike and its derivatives should be 0 (or at least very small).
+      _parameter = new double[] {SMALL_PARAMETER, 0.0, 0.0};
+      _parameterDerivativeForward = new double[3];
+      _parameterDerivativeForwardComputed = true;
+      _parameterDerivativeSABR = new double[4][3];
+      _parameterDerivativeSABRComputed = true;
+    }
   }
 
   /**

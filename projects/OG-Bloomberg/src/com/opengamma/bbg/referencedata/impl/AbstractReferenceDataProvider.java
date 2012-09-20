@@ -77,20 +77,19 @@ public abstract class AbstractReferenceDataProvider implements ReferenceDataProv
   @Override
   public Map<String, FudgeMsg> getReferenceData(Iterable<String> identifiers, Iterable<String> dataFields) {
     ReferenceDataProviderGetRequest request = ReferenceDataProviderGetRequest.createGet(identifiers, dataFields, true);
-    return queryMap(request);
+    return queryMap(request, this);
   }
 
   @Override
   public Map<String, FudgeMsg> getReferenceDataIgnoreCache(Iterable<String> identifiers, Iterable<String> dataFields) {
     ReferenceDataProviderGetRequest request = ReferenceDataProviderGetRequest.createGet(identifiers, dataFields, false);
-    return queryMap(request);
+    return queryMap(request, this);
   }
 
-  private Map<String, FudgeMsg> queryMap(ReferenceDataProviderGetRequest request) {
-    Set<String> identifiers = ImmutableSet.copyOf(request.getIdentifiers());  // copy to avoid implementation bugs
-    Set<String> fields = ImmutableSet.copyOf(request.getFields());  // copy to avoid implementation bugs
-    ReferenceDataProviderGetResult result = getReferenceData(request);
-    
+  protected static Map<String, FudgeMsg> queryMap(final ReferenceDataProviderGetRequest request, final ReferenceDataProvider provider) {
+    final Set<String> identifiers = ImmutableSet.copyOf(request.getIdentifiers()); // copy to avoid implementation bugs
+    final Set<String> fields = ImmutableSet.copyOf(request.getFields()); // copy to avoid implementation bugs
+    final ReferenceDataProviderGetResult result = provider.getReferenceData(request);
     // extract identifier to field-values
     Map<String, FudgeMsg> map = Maps.newHashMap();
     for (String identifier : identifiers) {
