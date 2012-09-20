@@ -28,17 +28,18 @@ import com.opengamma.id.UniqueId;
  * <h4>Live Data</h4>
  * <code>{"marketDataType": "live", "source": "Bloomberg"}</code>
  * <h4>Fixed Historical Data</h4>
- * <code>{"marketDataType": "fixedHistorical", "resolverKey": "", "fieldResolverKey": "", "date": "2012-08-30"}</code>
+ * <code>{"marketDataType": "fixedHistorical", "resolverKey": "TSS_CONFIG", "date": "2012-08-30"}</code>
  * <h4>Latest Historical Data</h4>
- * <code>{"marketDataType": "latestHistorical", "resolverKey": "", "fieldResolverKey": ""}</code>
+ * <code>{"marketDataType": "latestHistorical", "resolverKey": "TSS_CONFIG"}</code>
  * <h4>Snapshot Data</h4>
- * <code>{"marketDataType": "snapshot", "snapshotId": ""}</code>
+ * <code>{"marketDataType": "snapshot", "snapshotId": "Snap~1234"}</code>
+ * <p>There are REST endpoints for looking up available values for live data source names, resolver keys and
+ * snapshot IDs. See the package documentation for {@link com.opengamma.web.server.push.rest}.</p>
  */
 public class MarketDataSpecificationJsonReader {
 
   private static final String SNAPSHOT_ID = "snapshotId";
   private static final String RESOLVER_KEY = "resolverKey";
-  private static final String FIELD_RESOLVER_KEY = "fieldResolverKey";
   private static final String SOURCE = "source";
   private static final String SNAPSHOT = "snapshot";
   private static final String MARKET_DATA_TYPE = "marketDataType";
@@ -102,8 +103,7 @@ public class MarketDataSpecificationJsonReader {
     @Override
     public MarketDataSpecification build(JSONObject json) throws JSONException {
       return new LatestHistoricalMarketDataSpecification(
-          json.getString(MarketDataSpecificationJsonReader.RESOLVER_KEY),
-          json.getString(MarketDataSpecificationJsonReader.FIELD_RESOLVER_KEY));
+          json.getString(MarketDataSpecificationJsonReader.RESOLVER_KEY));
     }
   }
 
@@ -114,7 +114,6 @@ public class MarketDataSpecificationJsonReader {
     public MarketDataSpecification build(JSONObject json) throws JSONException {
       return new FixedHistoricalMarketDataSpecification(
           json.getString(MarketDataSpecificationJsonReader.RESOLVER_KEY),
-          json.getString(MarketDataSpecificationJsonReader.FIELD_RESOLVER_KEY),
           LocalDate.parse(json.getString(DATE)));
     }
   }

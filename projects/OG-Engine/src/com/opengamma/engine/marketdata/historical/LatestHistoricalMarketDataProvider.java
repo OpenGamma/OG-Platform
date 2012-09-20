@@ -25,11 +25,11 @@ public class LatestHistoricalMarketDataProvider extends AbstractHistoricalMarket
    * @param historicalTimeSeriesSource  the underlying source of historical data, not null
    * @param securitySource  the source of securities, not null
    * @param timeSeriesResolverKey  the source resolver key, or null to use the source default
-   * @param fieldResolverKey  the field name resolver resolution key, or null to use the resolver default
    */
-  protected LatestHistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource,
-      final SecuritySource securitySource, final String timeSeriesResolverKey, final String fieldResolverKey) {
-    super(historicalTimeSeriesSource, securitySource, timeSeriesResolverKey, fieldResolverKey);
+  protected LatestHistoricalMarketDataProvider(HistoricalTimeSeriesSource historicalTimeSeriesSource,
+                                               SecuritySource securitySource,
+                                               String timeSeriesResolverKey) {
+    super(historicalTimeSeriesSource, securitySource, timeSeriesResolverKey);
   }
   
   /**
@@ -54,7 +54,8 @@ public class LatestHistoricalMarketDataProvider extends AbstractHistoricalMarket
   @Override
   public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
     HistoricalMarketDataSpecification historicalSpec = (HistoricalMarketDataSpecification) marketDataSpec;
-    return new HistoricalMarketDataSnapshot(getTimeSeriesSource(), Instant.now(), null, historicalSpec.getTimeSeriesFieldResolverKey(), this);
+    return new HistoricalMarketDataSnapshot(getTimeSeriesSource(), Instant.now(), null,
+                                            historicalSpec.getTimeSeriesResolverKey(), this);
   }
 
 }

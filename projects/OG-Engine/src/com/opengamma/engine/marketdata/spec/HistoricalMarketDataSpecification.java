@@ -3,11 +3,9 @@
 // CSOFF: Generated File
 package com.opengamma.engine.marketdata.spec;
 public class HistoricalMarketDataSpecification extends com.opengamma.engine.marketdata.spec.MarketDataSpecification implements java.io.Serializable {
-  private static final long serialVersionUID = 2930353116875l;
+  private static final long serialVersionUID = 3103680605l;
   private String _timeSeriesResolverKey;
   public static final String TIME_SERIES_RESOLVER_KEY_KEY = "timeSeriesResolverKey";
-  private String _timeSeriesFieldResolverKey;
-  public static final String TIME_SERIES_FIELD_RESOLVER_KEY_KEY = "timeSeriesFieldResolverKey";
   public HistoricalMarketDataSpecification () {
   }
   protected HistoricalMarketDataSpecification (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
@@ -22,25 +20,14 @@ public class HistoricalMarketDataSpecification extends com.opengamma.engine.mark
         throw new IllegalArgumentException ("Fudge message is not a HistoricalMarketDataSpecification - field 'timeSeriesResolverKey' is not string", e);
       }
     }
-    fudgeField = fudgeMsg.getByName (TIME_SERIES_FIELD_RESOLVER_KEY_KEY);
-    if (fudgeField != null)  {
-      try {
-        setTimeSeriesFieldResolverKey ((fudgeField.getValue () != null) ? fudgeField.getValue ().toString () : null);
-      }
-      catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException ("Fudge message is not a HistoricalMarketDataSpecification - field 'timeSeriesFieldResolverKey' is not string", e);
-      }
-    }
   }
-  public HistoricalMarketDataSpecification (String timeSeriesResolverKey, String timeSeriesFieldResolverKey) {
+  public HistoricalMarketDataSpecification (String timeSeriesResolverKey) {
     _timeSeriesResolverKey = timeSeriesResolverKey;
-    _timeSeriesFieldResolverKey = timeSeriesFieldResolverKey;
   }
   protected HistoricalMarketDataSpecification (final HistoricalMarketDataSpecification source) {
     super (source);
     if (source == null) throw new NullPointerException ("'source' must not be null");
     _timeSeriesResolverKey = source._timeSeriesResolverKey;
-    _timeSeriesFieldResolverKey = source._timeSeriesFieldResolverKey;
   }
   public HistoricalMarketDataSpecification clone () {
     return new HistoricalMarketDataSpecification (this);
@@ -55,9 +42,6 @@ public class HistoricalMarketDataSpecification extends com.opengamma.engine.mark
     super.toFudgeMsg (serializer, msg);
     if (_timeSeriesResolverKey != null)  {
       msg.add (TIME_SERIES_RESOLVER_KEY_KEY, null, _timeSeriesResolverKey);
-    }
-    if (_timeSeriesFieldResolverKey != null)  {
-      msg.add (TIME_SERIES_FIELD_RESOLVER_KEY_KEY, null, _timeSeriesFieldResolverKey);
     }
   }
   public static HistoricalMarketDataSpecification fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
@@ -80,12 +64,6 @@ public class HistoricalMarketDataSpecification extends com.opengamma.engine.mark
   public void setTimeSeriesResolverKey (String timeSeriesResolverKey) {
     _timeSeriesResolverKey = timeSeriesResolverKey;
   }
-  public String getTimeSeriesFieldResolverKey () {
-    return _timeSeriesFieldResolverKey;
-  }
-  public void setTimeSeriesFieldResolverKey (String timeSeriesFieldResolverKey) {
-    _timeSeriesFieldResolverKey = timeSeriesFieldResolverKey;
-  }
   public boolean equals (final Object o) {
     if (o == this) return true;
     if (!(o instanceof HistoricalMarketDataSpecification)) return false;
@@ -97,21 +75,12 @@ public class HistoricalMarketDataSpecification extends com.opengamma.engine.mark
       else return false;
     }
     else if (msg._timeSeriesResolverKey != null) return false;
-    if (_timeSeriesFieldResolverKey != null) {
-      if (msg._timeSeriesFieldResolverKey != null) {
-        if (!_timeSeriesFieldResolverKey.equals (msg._timeSeriesFieldResolverKey)) return false;
-      }
-      else return false;
-    }
-    else if (msg._timeSeriesFieldResolverKey != null) return false;
     return super.equals (msg);
   }
   public int hashCode () {
     int hc = super.hashCode ();
     hc *= 31;
     if (_timeSeriesResolverKey != null) hc += _timeSeriesResolverKey.hashCode ();
-    hc *= 31;
-    if (_timeSeriesFieldResolverKey != null) hc += _timeSeriesFieldResolverKey.hashCode ();
     return hc;
   }
   public String toString () {

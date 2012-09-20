@@ -196,7 +196,7 @@ public class BatchJobRunner {
           heartbeatScheduler);
       ViewClient vc = vp.createViewClient(UserPrincipal.getLocalUser());
 
-      HistoricalMarketDataSpecification marketDataSpecification = MarketData.historical(observationDate, null, null);
+      HistoricalMarketDataSpecification marketDataSpecification = MarketData.historical(observationDate, null);
 
       ViewExecutionOptions executionOptions = ExecutionOptions.batch(valuationTime, marketDataSpecification, null);
 

@@ -9,8 +9,8 @@ public class LatestHistoricalMarketDataSpecification extends com.opengamma.engin
   protected LatestHistoricalMarketDataSpecification (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
     super (deserializer, fudgeMsg);
   }
-  public LatestHistoricalMarketDataSpecification (String timeSeriesResolverKey, String timeSeriesFieldResolverKey) {
-    super (timeSeriesResolverKey, timeSeriesFieldResolverKey);
+  public LatestHistoricalMarketDataSpecification (String timeSeriesResolverKey) {
+    super (timeSeriesResolverKey);
   }
   protected LatestHistoricalMarketDataSpecification (final LatestHistoricalMarketDataSpecification source) {
     super (source);

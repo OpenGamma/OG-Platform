@@ -12,8 +12,7 @@ namespace com.opengamma.engine.marketdata.spec {
   message HistoricalMarketDataSpecification extends MarketDataSpecification {
   
     optional string timeSeriesResolverKey;
-    optional string timeSeriesFieldResolverKey;
-    
+
     binding Java {
       methods "equals, hashCode, toString";
     }

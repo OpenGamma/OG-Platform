@@ -204,6 +204,11 @@
         <@rowout label="Region Identifier">${security.regionId.scheme.name?replace("_", " ")} - ${security.regionId.value}</@rowout>
         <@rowout label="Underlying Identifier">${security.underlyingId.scheme.name?replace("_", " ")} - ${security.underlyingId.value}</@rowout>
         <#break>
+      <#case "NONDELIVERABLE_FX FORWARD">
+        <@rowout label="Forward Date">${security.forwardDate.toLocalDate()} - ${security.forwardDate.zone}</@rowout>
+        <@rowout label="Region Identifier">${security.regionId.scheme.name?replace("_", " ")} - ${security.regionId.value}</@rowout>
+        <@rowout label="Underlying Identifier">${security.underlyingId.scheme.name?replace("_", " ")} - ${security.underlyingId.value}</@rowout>
+        <#break>        
       <#case "FX">
         <@rowout label="Pay Amount">${security.payAmount}</@rowout>
         <@rowout label="Pay Currency">${security.payCurrency}</@rowout>

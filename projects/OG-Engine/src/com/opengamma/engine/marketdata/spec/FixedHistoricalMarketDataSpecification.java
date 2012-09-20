@@ -24,8 +24,8 @@ public class FixedHistoricalMarketDataSpecification extends com.opengamma.engine
       throw new IllegalArgumentException ("Fudge message is not a FixedHistoricalMarketDataSpecification - field 'snapshotDate' is not date", e);
     }
   }
-  public FixedHistoricalMarketDataSpecification (String timeSeriesResolverKey, String timeSeriesFieldResolverKey, javax.time.calendar.DateProvider snapshotDate) {
-    super (timeSeriesResolverKey, timeSeriesFieldResolverKey);
+  public FixedHistoricalMarketDataSpecification (String timeSeriesResolverKey, javax.time.calendar.DateProvider snapshotDate) {
+    super (timeSeriesResolverKey);
     if (snapshotDate == null) throw new NullPointerException ("'snapshotDate' cannot be null");
     else {
       _snapshotDate = snapshotDate.toLocalDate ();
