@@ -7,8 +7,11 @@ package com.opengamma.web.server.push.analytics;
 
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
+import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.calc.EngineResourceReference;
@@ -16,6 +19,10 @@ import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewResultMode;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.engine.view.execution.ExecutionFlags;
+import com.opengamma.engine.view.execution.ExecutionOptions;
+import com.opengamma.engine.view.execution.InfiniteViewCycleExecutionSequence;
+import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
 import com.opengamma.id.UniqueId;
@@ -34,6 +41,7 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
   private final ViewClient _viewClient;
   private final AggregatedViewDefinition _aggregatedViewDef;
   private final ViewExecutionOptions _executionOptions;
+  private final NamedMarketDataSpecificationRepository _marketDataSpecRepo;
 
   private EngineResourceReference<? extends ViewCycle> _cycleReference = EmptyViewCycle.REFERENCE;
 
@@ -41,26 +49,63 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
    * @param viewRequest Defines the view that should be created
    * @param viewClient Connects this class to the calculation engine
    * @param view The object that encapsulates the state of the view user interface
-   * @param namedMarketDataSpecRepo For looking up sources of market data
+   * @param marketDataSpecRepo For looking up sources of market data
    * @param aggregatedViewDefManager For looking up view definitions
    * @param snapshotMaster For looking up snapshots
    */
   /* package */ AnalyticsViewClientConnection(ViewRequest viewRequest,
                                               ViewClient viewClient,
                                               AnalyticsView view,
-                                              NamedMarketDataSpecificationRepository namedMarketDataSpecRepo,
+                                              NamedMarketDataSpecificationRepository marketDataSpecRepo,
                                               AggregatedViewDefinitionManager aggregatedViewDefManager,
                                               MarketDataSnapshotMaster snapshotMaster) {
+    _marketDataSpecRepo = marketDataSpecRepo;
     ArgumentChecker.notNull(viewRequest, "viewRequest");
     ArgumentChecker.notNull(viewClient, "viewClient");
     ArgumentChecker.notNull(view, "view");
-    ArgumentChecker.notNull(namedMarketDataSpecRepo, "namedMarketDataSpecRepo");
+    ArgumentChecker.notNull(marketDataSpecRepo, "marketDataSpecRepo");
     ArgumentChecker.notNull(aggregatedViewDefManager, "aggregatedViewDefManager");
     ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
     _view = view;
     _viewClient = viewClient;
     _aggregatedViewDef = new AggregatedViewDefinition(aggregatedViewDefManager, viewRequest);
-    _executionOptions = viewRequest.getMarketData().createExecutionOptions(snapshotMaster, namedMarketDataSpecRepo);
+    List<MarketDataSpecification> requestedMarketDataSpecs = viewRequest.getMarketDataSpecs();
+    List<MarketDataSpecification> actualMarketDataSpecs = fixMarketDataSpecs(requestedMarketDataSpecs);
+    ViewCycleExecutionOptions defaultOptions =
+        new ViewCycleExecutionOptions(viewRequest.getValuationTime(), actualMarketDataSpecs);
+    _executionOptions = ExecutionOptions.of(new InfiniteViewCycleExecutionSequence(),
+                                            defaultOptions,
+                                            // this recalcs periodically or when market data changes. might need to give
+                                            // the user the option to specify the behaviour
+                                            ExecutionFlags.triggersEnabled().get(),
+                                            viewRequest.getPortfolioVersionCorrection());
+  }
+
+  /**
+   * This is a temporary hack to allow the old and new web interfaces to run side by side. The old UI shows a mixture
+   * of data sources including live sources, multiple live sources combined, live sources backed by historical data
+   * and pure historical data. The new UI only shows live sources, and the names of those sources don't match the
+   * names in the old UI (which include something to tell the user it's a live source). The real data sources
+   * are looked up using the old names so this method rebuilds the list of data sources and replaces the new source
+   * specs with the old ones.
+   * @param requestedMarketDataSpecs The market data sources requested by the user
+   * @return The specs needed to look up the sources the user requested
+   */
+  private List<MarketDataSpecification> fixMarketDataSpecs(List<MarketDataSpecification> requestedMarketDataSpecs) {
+    List<MarketDataSpecification> specs = Lists.newArrayListWithCapacity(requestedMarketDataSpecs.size());
+    for (MarketDataSpecification spec : requestedMarketDataSpecs) {
+      if (spec instanceof LiveMarketDataSpecification) {
+        LiveMarketDataSpecification liveSpec = (LiveMarketDataSpecification) spec;
+        MarketDataSpecification oldSpec = _marketDataSpecRepo.getSpecification(liveSpec.getDataSource());
+        if (oldSpec == null) {
+          throw new IllegalArgumentException("No live data source found called " + liveSpec.getDataSource());
+        }
+        specs.add(oldSpec);
+      } else {
+        specs.add(spec);
+      }
+    }
+    return specs;
   }
 
   /**

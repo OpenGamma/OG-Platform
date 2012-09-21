@@ -153,6 +153,7 @@ $.register_module({
             };
             /**
              * @param {String|Array} data A String that defines what gadgets to load, or an Array of gadgets to load
+             * @param {Number} idx location to add new gadgets
              *
              * The data Array is a list of objects that describe the gadgets to load
              *     obj.gadget   Function
@@ -160,7 +161,7 @@ $.register_module({
              *     obj.name     String
              *     obj.margin   Boolean
              */
-            container.add = function (data) {
+            container.add = function (data, idx) {
                 var panel_container = selector + ' .OG-gadget-container', new_gadgets, arr;
                 if (!loading && !initialized)
                     return container.init(), setTimeout(container.add.partial(data || null), 10), container;
@@ -231,7 +232,8 @@ $.register_module({
                             position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
                             display: i === arr.length - 1 ? 'block' : 'none'
                         });
-                    gadgets.push(gadget = {id: id, config: obj, type: type, gadget: new constructor(options)});
+                    gadgets.splice(idx || gadgets.length, 0,
+                        gadget = {id: id, config: obj, type: type, gadget: new constructor(options)});
                     return gadget;
                 });
                 update_tabs(new_gadgets[new_gadgets.length - 1].id);

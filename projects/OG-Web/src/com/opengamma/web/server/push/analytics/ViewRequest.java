@@ -5,137 +5,89 @@
  */
 package com.opengamma.web.server.push.analytics;
 
-import java.util.EnumSet;
 import java.util.List;
 
+import javax.time.Instant;
+
 import com.google.common.collect.ImmutableList;
-import com.opengamma.DataNotFoundException;
-import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
-import com.opengamma.engine.view.execution.ExecutionFlags;
-import com.opengamma.engine.view.execution.ExecutionOptions;
-import com.opengamma.engine.view.execution.ViewExecutionFlags;
-import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Contains all the parameters a client needs to provide to the server to create a view for calculating portfolio
+ * analytics.
  */
 public class ViewRequest {
 
+  /** The ID if the view definition used by the view. */
   private final UniqueId _viewDefinitionId;
-  private final MarketData _marketData;
+  /** Used for aggregating the view's portfolio. */
   private final List<String> _aggregators;
+  /** Valuation time used by the calculation engine. */
+  private final Instant _valuationTime;
+  /** Sources of market data used in the calculation in priority order. */
+  private final List<MarketDataSpecification> _marketDataSpecs;
+  /** Version time and correction time for the portfolio used as a basis for the calculations. */
+  private final VersionCorrection _portfolioVersionCorrection;
 
-  public ViewRequest(UniqueId viewDefinitionId, List<String> aggregators, MarketData marketData) {
+  /**
+   *
+   * @param viewDefinitionId The ID if the view definition used by the view, not null
+   * @param aggregators Used for aggregating the view's portfolio, not null
+   * @param marketDataSpecs The source(s) of market data for the view, not empty
+   * @param valuationTime The valuation time used when calculating the analytics, can be null
+   * @param portfolioVersionCorrection Version and correction time for the portfolio used when calculating the analytics
+   */
+  public ViewRequest(UniqueId viewDefinitionId,
+                     List<String> aggregators,
+                     List<MarketDataSpecification> marketDataSpecs,
+                     Instant valuationTime,
+                     VersionCorrection portfolioVersionCorrection) {
     ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionId");
-    ArgumentChecker.notNull(marketData, "marketDataType");
+    ArgumentChecker.notNull(aggregators, "aggregators");
+    ArgumentChecker.notEmpty(marketDataSpecs, "marketDataSpecs");
+    ArgumentChecker.notNull(portfolioVersionCorrection, "portfolioVersionCorrection");
+    _marketDataSpecs = marketDataSpecs;
+    _valuationTime = valuationTime;
     _viewDefinitionId = viewDefinitionId;
     _aggregators = ImmutableList.copyOf(aggregators);
-    _marketData = marketData;
+    _portfolioVersionCorrection = portfolioVersionCorrection;
   }
 
+  /**
+   * @return The ID if the view definition used by the view, not null
+   */
   public UniqueId getViewDefinitionId() {
     return _viewDefinitionId;
   }
 
+  /**
+   * @return Used for aggregating the view's portfolio, not null but can be empty
+   */
   public List<String> getAggregators() {
     return _aggregators;
   }
 
-  public MarketData getMarketData() {
-    return _marketData;
+  /**
+   * @return Valuation time used by the calculation engine, can be null to use the default
+   */
+  public Instant getValuationTime() {
+    return _valuationTime;
   }
 
-  @Override
-  public String toString() {
-    return "ViewRequest [" +
-        "_viewDefinitionId=" + _viewDefinitionId +
-        ", _marketData=" + _marketData +
-        ", _aggregators=" + _aggregators +
-        "]";
+  /**
+   * @return Sources of market data used in the calculation in priority order
+   */
+  public List<MarketDataSpecification> getMarketDataSpecs() {
+    return _marketDataSpecs;
   }
 
-  /* package */ public interface MarketData {
-
-    ViewExecutionOptions createExecutionOptions(MarketDataSnapshotMaster snapshotMaster,
-                                                NamedMarketDataSpecificationRepository namedMarketDataSpecRepo);
-  }
-
-  public static class Snapshot implements MarketData {
-
-    private final UniqueId _snapshotId;
-    private final VersionCorrection _versionCorrection;
-
-    public Snapshot(UniqueId snapshotId, VersionCorrection versionCorrection) {
-      ArgumentChecker.notNull(snapshotId, "snapshotId");
-      ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-      _snapshotId = snapshotId;
-      _versionCorrection = versionCorrection;
-      if (snapshotId.isVersioned() && versionCorrection != VersionCorrection.LATEST) {
-        throw new IllegalArgumentException("Cannot specify both a versioned snapshot and a custom verion-correction");
-      }
-    }
-
-    @Override
-    public ViewExecutionOptions createExecutionOptions(MarketDataSnapshotMaster snapshotMaster,
-                                                       NamedMarketDataSpecificationRepository namedMarketDataSpecRepo) {
-      // TODO double-check this logic, compare with LiveResultsService.processChangeViewRequest
-      VersionCorrection actualVersionCorrection;
-      UniqueId actualSnapshotId;
-      if (_snapshotId.isVersioned()) {
-        // If the version-correction is to be based on a snapshot then use the time at which the snapshot was created
-        MarketDataSnapshotDocument snapshotDoc = snapshotMaster.get(_snapshotId.getObjectId(), _versionCorrection);
-        actualVersionCorrection = VersionCorrection.ofVersionAsOf(snapshotDoc.getVersionFromInstant());
-        actualSnapshotId = _snapshotId;
-      } else {
-        try {
-          MarketDataSnapshotDocument snapshotDoc = snapshotMaster.get(_snapshotId.getObjectId(), _versionCorrection);
-          actualSnapshotId = snapshotDoc.getUniqueId();
-        } catch (DataNotFoundException e) {
-          throw new DataNotFoundException("Snapshot " + _snapshotId.getObjectId() +
-                                              " not found for version-correction " + _versionCorrection, e);
-        }
-        actualVersionCorrection = _versionCorrection;
-      }
-      MarketDataSpecification marketDataSpec = com.opengamma.engine.marketdata.spec.MarketData.user(actualSnapshotId);
-      EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().triggerOnMarketData().get();
-      return ExecutionOptions.infinite(marketDataSpec, flags, actualVersionCorrection);
-    }
-
-    @Override
-    public String toString() {
-      return "ViewRequest.Snapshot [" +
-          "_snapshotId=" + _snapshotId +
-          ", _versionCorrection=" + _versionCorrection +
-          "]";
-    }
-  }
-
-  public static class Live implements MarketData {
-
-    private final String _dataProvider;
-
-    public Live(String dataProvider) {
-      ArgumentChecker.notNull(dataProvider, "dataProvider");
-      _dataProvider = dataProvider;
-    }
-
-    @Override
-    public ViewExecutionOptions createExecutionOptions(MarketDataSnapshotMaster snapshotMaster,
-                                                       NamedMarketDataSpecificationRepository namedMarketDataSpecRepo) {
-      MarketDataSpecification marketDataSpec = namedMarketDataSpecRepo.getSpecification(_dataProvider);
-      EnumSet<ViewExecutionFlags> flags = ExecutionFlags.triggersEnabled().get();
-      return ExecutionOptions.infinite(marketDataSpec, flags, VersionCorrection.LATEST);
-    }
-
-    @Override
-    public String toString() {
-      return "ViewRequest.Live [_dataProvider='" + _dataProvider + '\'' + "]";
-    }
+  /**
+   * @return Version time and correction time for the portfolio used as a basis for the calculations
+   */
+  public VersionCorrection getPortfolioVersionCorrection() {
+    return _portfolioVersionCorrection;
   }
 }

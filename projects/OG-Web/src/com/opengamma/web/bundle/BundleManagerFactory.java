@@ -5,7 +5,6 @@
  */
 package com.opengamma.web.bundle;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -116,8 +115,8 @@ public class BundleManagerFactory {
     ArgumentChecker.notNull(servletContext, "servletContext");
     InputStream xmlStream = getXMLStream();
     try {
-      BundleParser parser = new BundleParser();
-      parser.setBaseDir(resolveBaseDir(servletContext));
+      ServletContextUriProvider uriProvider = new ServletContextUriProvider(getBaseDir(), servletContext);
+      BundleParser parser = new BundleParser(uriProvider, getBaseDir());
       return parser.parse(xmlStream);
     } finally {
       IOUtils.closeQuietly(xmlStream);
@@ -148,18 +147,6 @@ public class BundleManagerFactory {
       throw new IllegalArgumentException("Cannot find bundle config xml file in the classpath");
     }
     return xmlStream;
-  }
-
-  /**
-   * Resolves the base directory.
-   * 
-   * @param servletContext  the servlet context, not null
-   * @return the base directory, not null
-   */
-  protected File resolveBaseDir(ServletContext servletContext) {
-    String baseDir = getBaseDir().startsWith("/") ? getBaseDir() : "/" + getBaseDir();
-    baseDir = servletContext.getRealPath(baseDir);
-    return new File(baseDir);
   }
 
 }

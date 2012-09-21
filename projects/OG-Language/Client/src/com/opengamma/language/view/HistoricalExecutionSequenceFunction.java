@@ -12,9 +12,11 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.time.Instant;
+import javax.time.calendar.LocalDate;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.view.execution.ArbitraryViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
@@ -49,8 +51,7 @@ public class HistoricalExecutionSequenceFunction extends AbstractFunctionInvoker
         new MetaParameter("from", JavaTypeInfo.builder(Instant.class).get()),
         new MetaParameter("to", JavaTypeInfo.builder(Instant.class).get()),
         new MetaParameter("sample_period", JavaTypeInfo.builder(Integer.class).allowNull().get()),
-        new MetaParameter("ts_resolver_key", JavaTypeInfo.builder(String.class).allowNull().get()),
-        new MetaParameter("ts_field_resolver_key", JavaTypeInfo.builder(String.class).allowNull().get()));
+        new MetaParameter("ts_resolver_key", JavaTypeInfo.builder(String.class).allowNull().get()));
   }
   
   private HistoricalExecutionSequenceFunction() {
@@ -71,12 +72,12 @@ public class HistoricalExecutionSequenceFunction extends AbstractFunctionInvoker
     final Collection<ViewCycleExecutionOptions> cycles = new ArrayList<ViewCycleExecutionOptions>(
         ((int) (to.getEpochSeconds() - from.getEpochSeconds()) + samplePeriodSeconds - 1) / samplePeriodSeconds);
     for (Instant valuationTime = from; !valuationTime.isAfter(to); valuationTime = valuationTime.plus(samplePeriodSeconds, TimeUnit.SECONDS)) {
-      final ViewCycleExecutionOptions options = new ViewCycleExecutionOptions(valuationTime);
-      options.setMarketDataSpecification(MarketData.historical(ZonedDateTime.ofInstant(valuationTime, TimeZone.UTC).toLocalDate(), timeSeriesResolverKey, timeSeriesFieldResolverKey));
+      LocalDate date = ZonedDateTime.ofInstant(valuationTime, TimeZone.UTC).toLocalDate();
+      HistoricalMarketDataSpecification spec = MarketData.historical(date, timeSeriesResolverKey);
+      final ViewCycleExecutionOptions options = new ViewCycleExecutionOptions(valuationTime, spec);
       cycles.add(options);
     }
-    ArbitraryViewCycleExecutionSequence executionSequence = new ArbitraryViewCycleExecutionSequence(cycles);
-    return executionSequence;
+    return new ArbitraryViewCycleExecutionSequence(cycles);
   }
   
   @Override

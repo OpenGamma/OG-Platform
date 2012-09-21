@@ -8,10 +8,7 @@ $.register_module({
         'og.views.common.state', 'og.common.routes', 'og.common.gadgets.GadgetsContainer','og.analytics.CellMenu'
     ],
     obj: function () {
-        var routes = og.common.routes, module = this, view,
-            GadgetsContainer = og.common.gadgets.GadgetsContainer,
-            cellmenu = new og.analytics.CellMenu();
-        gadget_containers = {}; // TODO: remove global
+        var routes = og.common.routes, module = this, view, cellmenu = new og.analytics.CellMenu();
         module.rules = {load: {route: '/', method: module.name + '.load'}};
         return view = {
             check_state: og.views.common.state.check.partial('/'),
@@ -22,11 +19,10 @@ $.register_module({
                 });
             },
             load: function (args) {
-                if (!args.id) {
-                    view.default_details();
-                    og.analytics.resize();
-                    og.analytics.form('.OG-layout-analytics-masthead');
-                }
+                if (!args.id) return view.default_details();
+                og.analytics.resize();
+                og.analytics.containers.initialize(args);
+                og.analytics.form('.OG-layout-analytics-masthead');
             },
             load_item: function (args) {
                 view.check_state({args: args, conditions: [{new_page: view.load}]});
@@ -37,8 +33,7 @@ $.register_module({
                        type: 'portfolio',
                        depgraph: false,
                        viewdefinition: args.id,
-                       live: true,
-                       provider: 'Live market data (Bloomberg, Activ, TullettPrebon, ICAP)'
+                       providers: [{'marketDataType': 'live', source: 'Bloomberg'}]
                    }
                 });
                 grid.on('cellhover', function (cell) {
@@ -46,10 +41,6 @@ $.register_module({
                     cellmenu.show(cell);
                 });
                 grid.on('cellselect', function () {});
-                ['south', 'dock-north', 'dock-center', 'dock-south'].forEach(function (val) {
-                    gadget_containers[val] = new GadgetsContainer('.OG-layout-analytics-', val).add(args[val]);
-                });
-                og.analytics.form('.OG-layout-analytics-masthead');
                 og.analytics.resize();
             },
             init: function () {for (var rule in view.rules) routes.add(view.rules[rule]);},

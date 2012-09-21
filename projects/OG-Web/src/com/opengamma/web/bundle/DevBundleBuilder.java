@@ -51,7 +51,6 @@ public class DevBundleBuilder {
    */
   public BundleManager getDevBundleManager() {
     BundleManager devBundleManager = new BundleManager();
-    devBundleManager.setBaseDir(_bundleManager.getBaseDir());
     Set<String> bundleNames = _bundleManager.getBundleIds();
     for (String bundleId : bundleNames) {
       Bundle bundle = _bundleManager.getBundle(bundleId);

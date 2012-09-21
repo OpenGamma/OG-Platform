@@ -83,6 +83,7 @@
     <fragment>/styles/common/classes/og.common.classes.OG-background.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-tooltip.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-dropbox.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-multiselect.css</fragment>
   </bundle>
   <bundle id="common.search.css">
     <fragment>/styles/common/search/og.common.search.OG-search.css</fragment>
@@ -286,6 +287,7 @@
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.gadgetscontainer.js</fragment>
   </bundle>
   <bundle id="grid.js">
+      <fragment>/scripts/og/analytics/og.analytics.url.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.events.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.data.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.cell.js</fragment>
@@ -298,6 +300,7 @@
     <fragment>/scripts/og/analytics/og.analytics.dropmenu.aggregators.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.dropmenu.datasources.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.form.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.containers.js</fragment>
   </bundle>
   <bundle id="views_common.js">
     <fragment>/scripts/og/views/common/og.views.common.state.js</fragment>

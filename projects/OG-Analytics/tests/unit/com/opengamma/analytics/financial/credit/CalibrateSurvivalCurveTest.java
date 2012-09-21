@@ -70,7 +70,7 @@ public class CalibrateSurvivalCurveTest {
   private static final double notional = 10000000.0;
   private static final double premiumLegCoupon = 60.0;
   private static final double valuationRecoveryRate = 0.40;
-  private static final double curveRecoveryRate = 0.40;
+  private static double curveRecoveryRate = 0.40;
   private static final boolean includeAccruedPremium = false;
 
   // Dummy yield curve
@@ -127,6 +127,7 @@ public class CalibrateSurvivalCurveTest {
 
     double[] marketSpreads = new double[numberOfTenors];
 
+    // Set the tenors at which we have market observed par CDS spread quotes
     tenors[0] = DateUtils.getUTCDate(2008, 12, 20);
     tenors[1] = DateUtils.getUTCDate(2009, 6, 20);
     tenors[2] = DateUtils.getUTCDate(2010, 6, 20);
@@ -138,22 +139,249 @@ public class CalibrateSurvivalCurveTest {
     tenors[8] = DateUtils.getUTCDate(2030, 6, 20);
     tenors[9] = DateUtils.getUTCDate(2040, 6, 20);
 
-    marketSpreads[0] = 50; //1774.0;
-    marketSpreads[1] = 60; //1805.0;
-    marketSpreads[2] = 50; //1856.0;
-    marketSpreads[3] = 60; //1994.0;
-    marketSpreads[4] = 50; //2045.0;
-    marketSpreads[5] = 40; //2141.0;
-    marketSpreads[6] = 50; //2243.0;
-    marketSpreads[7] = 60; //2559.0;
-    marketSpreads[8] = 50; //3072.0;
-    marketSpreads[9] = 60; //3865.0;
+    // Flat (tight)
+    /*
+    marketSpreads[0] = 100.0;
+    marketSpreads[1] = 100.0;
+    marketSpreads[2] = 100.0;
+    marketSpreads[3] = 100.0;
+    marketSpreads[4] = 100.0;
+    marketSpreads[5] = 100.0;
+    marketSpreads[6] = 100.0;
+    marketSpreads[7] = 100.0;
+    marketSpreads[8] = 100.0;
+    marketSpreads[9] = 100.0;
+    curveRecoveryRate = 0.40;
+    */
+
+    // Flat (distressed)
+    /*
+        marketSpreads[0] = 1000.0;
+        marketSpreads[1] = 1000.0;
+        marketSpreads[2] = 1000.0;
+        marketSpreads[3] = 1000.0;
+        marketSpreads[4] = 1000.0;
+        marketSpreads[5] = 1000.0;
+        marketSpreads[6] = 1000.0;
+        marketSpreads[7] = 1000.0;
+        marketSpreads[8] = 1000.0;
+        marketSpreads[9] = 1000.0;
+        curveRecoveryRate = 0.40;
+    */
+    // Flat (blown)
+    /*
+        marketSpreads[0] = 100000.0;
+        marketSpreads[1] = 100000.0;
+        marketSpreads[2] = 100000.0;
+        marketSpreads[3] = 100000.0;
+        marketSpreads[4] = 100000.0;
+        marketSpreads[5] = 100000.0;
+        marketSpreads[6] = 100000.0;
+        marketSpreads[7] = 100000.0;
+        marketSpreads[8] = 100000.0;
+        marketSpreads[9] = 100000.0;
+        curveRecoveryRate = 0.40;
+    */
+    // Zig-zag (Tight)
+    /*
+    marketSpreads[0] = 50.0;
+    marketSpreads[1] = 60.0;
+    marketSpreads[2] = 50.0;
+    marketSpreads[3] = 60.0;
+    marketSpreads[4] = 50.0;
+    marketSpreads[5] = 40.0;
+    marketSpreads[6] = 50.0;
+    marketSpreads[7] = 60.0;
+    marketSpreads[8] = 50.0;
+    marketSpreads[9] = 60.0;
+    curveRecoveryRate = 0.40;
+    */
+
+    // Zig-zag (Distressed)
+    /*
+        marketSpreads[0] = 500.0;
+        marketSpreads[1] = 600.0;
+        marketSpreads[2] = 500.0;
+        marketSpreads[3] = 600.0;
+        marketSpreads[4] = 500.0;
+        marketSpreads[5] = 400.0;
+        marketSpreads[6] = 500.0;
+        marketSpreads[7] = 600.0;
+        marketSpreads[8] = 500.0;
+        marketSpreads[9] = 600.0;
+        curveRecoveryRate = 0.40;
+    */
+    // Upward, gentle
+    /*
+        marketSpreads[0] = 100.0;
+        marketSpreads[1] = 120.0;
+        marketSpreads[2] = 140.0;
+        marketSpreads[3] = 160.0;
+        marketSpreads[4] = 180.0;
+        marketSpreads[5] = 200.0;
+        marketSpreads[6] = 220.0;
+        marketSpreads[7] = 240.0;
+        marketSpreads[8] = 260.0;
+        marketSpreads[9] = 280.0;
+        curveRecoveryRate = 0.40;
+    */
+    // Upward, steep
+
+    /* marketSpreads[0] = 100.0;
+     marketSpreads[1] = 200.0;
+     marketSpreads[2] = 300.0;
+     marketSpreads[3] = 400.0;
+     marketSpreads[4] = 500.0;
+     marketSpreads[5] = 600.0;
+     marketSpreads[6] = 700.0;
+     marketSpreads[7] = 800.0;
+     marketSpreads[8] = 900.0;
+     marketSpreads[9] = 1000.0;
+     curveRecoveryRate = 0.40;
+     */
+
+    // Upward, steep short end
+    /*
+        marketSpreads[0] = 100.0;
+        marketSpreads[1] = 200.0;
+        marketSpreads[2] = 300.0;
+        marketSpreads[3] = 400.0;
+        marketSpreads[4] = 500.0;
+        marketSpreads[5] = 520.0;
+        marketSpreads[6] = 540.0;
+        marketSpreads[7] = 560.0;
+        marketSpreads[8] = 580.0;
+        marketSpreads[9] = 600.0;
+        curveRecoveryRate = 0.40;
+    */
+    // Upward, steep long end
+
+    /*  marketSpreads[0] = 100.0;
+      marketSpreads[1] = 120.0;
+      marketSpreads[2] = 140.0;
+      marketSpreads[3] = 160.0;
+      marketSpreads[4] = 180.0;
+      marketSpreads[5] = 280.0;
+      marketSpreads[6] = 380.0;
+      marketSpreads[7] = 480.0;
+      marketSpreads[8] = 580.0;
+      marketSpreads[9] = 680.0;
+      curveRecoveryRate = 0.40;
+    */
+    // Downward, gentle
+
+    marketSpreads[0] = 280.0;
+    marketSpreads[1] = 260.0;
+    marketSpreads[2] = 240.0;
+    marketSpreads[3] = 220.0;
+    marketSpreads[4] = 200.0;
+    marketSpreads[5] = 180.0;
+    marketSpreads[6] = 160.0;
+    marketSpreads[7] = 140.0;
+    marketSpreads[8] = 120.0;
+    marketSpreads[9] = 100.0;
+    curveRecoveryRate = 0.40;
+
+    // Downward, steep
+    /*
+    marketSpreads[0] = 1000.0;
+    marketSpreads[1] = 900.0;
+    marketSpreads[2] = 800.0;
+    marketSpreads[3] = 700.0;
+    marketSpreads[4] = 600.0;
+    marketSpreads[5] = 500.0;
+    marketSpreads[6] = 400.0;
+    marketSpreads[7] = 300.0;
+    marketSpreads[8] = 200.0;
+    marketSpreads[9] = 100.0;
+    curveRecoveryRate = 0.40;
+    */
+
+    // Downward, steep short end
+    /*
+    marketSpreads[0] = 600.0;
+    marketSpreads[1] = 500.0;
+    marketSpreads[2] = 400.0;
+    marketSpreads[3] = 300.0;
+    marketSpreads[4] = 200.0;
+    marketSpreads[5] = 180.0;
+    marketSpreads[6] = 160.0;
+    marketSpreads[7] = 140.0;
+    marketSpreads[8] = 120.0;
+    marketSpreads[9] = 100.0;
+    curveRecoveryRate = 0.40;
+    */
+
+    // Downward, steep long end
+    /*
+    marketSpreads[0] = 680.0;
+    marketSpreads[1] = 660.0;
+    marketSpreads[2] = 640.0;
+    marketSpreads[3] = 620.0;
+    marketSpreads[4] = 600.0;
+    marketSpreads[5] = 580.0;
+    marketSpreads[6] = 480.0;
+    marketSpreads[7] = 380.0;
+    marketSpreads[8] = 280.0;
+    marketSpreads[9] = 180.0;
+    curveRecoveryRate = 0.40;
+    */
+
+    // Inverted Cavale
+    /*
+    marketSpreads[0] = 1774.0;
+    marketSpreads[1] = 1805.0;
+    marketSpreads[2] = 1856.0;
+    marketSpreads[3] = 1994.0;
+    marketSpreads[4] = 2045.0;
+    marketSpreads[5] = 2141.0;
+    marketSpreads[6] = 2243.0;
+    marketSpreads[7] = 2559.0;
+    marketSpreads[8] = 3072.0;
+    marketSpreads[9] = 3865.0;
+    curveRecoveryRate = 0.20;
+    */
+
+    // Cavale
+    /*
+    marketSpreads[0] = 3865.0;
+    marketSpreads[1] = 3072.0;
+    marketSpreads[2] = 2559.0;
+    marketSpreads[3] = 2243.0;
+    marketSpreads[4] = 2141.0;
+    marketSpreads[5] = 2045.0;
+    marketSpreads[6] = 1944.0;
+    marketSpreads[7] = 1856.0;
+    marketSpreads[8] = 1805.0;
+    marketSpreads[9] = 1774.0;
+    curveRecoveryRate = 0.20;
+    */
+    // BCPN
+    /*
+    marketSpreads[0] = 780.0;
+    marketSpreads[1] = 812.0;
+    marketSpreads[2] = 803.0;
+    marketSpreads[3] = 826.0;
+    marketSpreads[4] = 874.0;
+    marketSpreads[5] = 896.0;
+    marketSpreads[6] = 868.0;
+    marketSpreads[7] = 838.0;
+    marketSpreads[8] = 800.0;
+    marketSpreads[9] = 780.0;
+    curveRecoveryRate = 0.40;
+    */
+
+    // Create a calibration CDS (will be a modified version of the baseline CDS)
+    CreditDefaultSwapDefinition calibrationCDS = cds;
+
+    // Set the recovery rate of the calibration CDS used for the curve calibration
+    calibrationCDS = calibrationCDS.withCurveRecoveryRate(curveRecoveryRate);
 
     // Create a survival curve object
     final CalibrateSurvivalCurve curve = new CalibrateSurvivalCurve();
 
     // Calibrate the survival curve to the market observed par CDS spreads
-    double[] calibratedSurvivalCurve = curve.getCalibratedSurvivalCurve(cds, tenors, marketSpreads, yieldCurve);
+    double[] calibratedSurvivalCurve = curve.getCalibratedSurvivalCurve(calibrationCDS, tenors, marketSpreads, yieldCurve);
 
     if (outputResults) {
       for (int i = 0; i < numberOfTenors; i++) {
@@ -161,7 +389,6 @@ public class CalibrateSurvivalCurveTest {
       }
     }
   }
-
   // ---------------------------------------------------------------------------------------
 
 }

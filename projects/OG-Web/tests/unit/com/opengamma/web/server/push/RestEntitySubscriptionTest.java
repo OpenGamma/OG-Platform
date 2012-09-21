@@ -22,7 +22,6 @@ import org.testng.annotations.Test;
 import com.opengamma.core.change.ChangeType;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.tuple.Pair;
-import com.opengamma.web.server.push.WebPushTestUtils;
 
 /**
  *
@@ -61,7 +60,7 @@ public class RestEntitySubscriptionTest {
     _changeManager.entityChanged(ChangeType.UPDATED, _uidV1, _uidV2, Instant.now());
     // connect to the long-polling URL to receive notification of the change
     String json = _webPushTestUtils.readFromPath("/updates/" + clientId);
-    _webPushTestUtils.checkJsonResults(json, restUrl);
+    WebPushTestUtils.checkJsonResults(json, restUrl);
   }
 
   @Test
@@ -71,7 +70,7 @@ public class RestEntitySubscriptionTest {
     _webPushTestUtils.readFromPath(restUrl, clientId);
     _changeManager.entityChanged(ChangeType.UPDATED, _uidV1, _uidV2, Instant.now());
     String json = _webPushTestUtils.readFromPath("/updates/" + clientId);
-    _webPushTestUtils.checkJsonResults(json, restUrl);
+    WebPushTestUtils.checkJsonResults(json, restUrl);
   }
 
   @Test
@@ -88,7 +87,7 @@ public class RestEntitySubscriptionTest {
     _changeManager.entityChanged(ChangeType.UPDATED, _uidV1, _uidV2, Instant.now());
     _changeManager.entityChanged(ChangeType.UPDATED, uid2V1, uid2V2, Instant.now());
     String json = _webPushTestUtils.readFromPath("/updates/" + clientId);
-    _webPushTestUtils.checkJsonResults(json, restUrl1, restUrl2);
+    WebPushTestUtils.checkJsonResults(json, restUrl1, restUrl2);
   }
 
   @Test

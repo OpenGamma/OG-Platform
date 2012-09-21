@@ -92,18 +92,11 @@ public class ScriptTag {
     StringBuilder buf = new StringBuilder();
     List<Fragment> allFragment = bundle.getAllFragments();
     for (Fragment fragment : allFragment) {
-      buf.append("<script src=\"/");
-      buf.append(buildFragmentUrl(fragment));
+      buf.append("<script src=\"");
+      buf.append(fragment.getPath());
       buf.append("\"></script>\n");
     }
     return buf.toString();
-  }
-
-  private String buildFragmentUrl(Fragment fragment) {
-    String uri = fragment.getFile().toURI().toASCIIString();
-    String baseDir = _data.getDevBundleManager().getBaseDir().getName();
-    int indexOf = uri.indexOf(baseDir);
-    return uri.substring(indexOf);
   }
 
 }

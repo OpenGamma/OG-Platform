@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import javax.time.calendar.LocalDate;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
@@ -29,6 +30,7 @@ import com.opengamma.analytics.financial.curve.building.CurveBuildingFunction;
 import com.opengamma.analytics.financial.curve.generator.GeneratorCurve;
 import com.opengamma.analytics.financial.curve.generator.GeneratorCurveAddYield;
 import com.opengamma.analytics.financial.curve.generator.GeneratorCurveAddYieldExisiting;
+import com.opengamma.analytics.financial.curve.generator.GeneratorCurveAddYieldFixed;
 import com.opengamma.analytics.financial.curve.generator.GeneratorCurveDiscountFactorInterpolated;
 import com.opengamma.analytics.financial.curve.generator.GeneratorCurveYieldInterpolated;
 import com.opengamma.analytics.financial.curve.generator.GeneratorCurveYieldInterpolatedAnchor;
@@ -59,13 +61,17 @@ import com.opengamma.analytics.financial.interestrate.ParSpreadMarketQuoteCurveS
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
+import com.opengamma.analytics.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountAddZeroSpreadCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.curve.DoublesCurveNelsonSiegel;
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -158,7 +164,7 @@ public class CurveConstructionSpreadTest {
   }
 
   /** Market values for the dsc USD curve */
-  public static final double[] DSC_USD_MARKET_QUOTES = new double[] {0.0010, 0.0010, 0.0015, 0.0008, 0.0010, 0.0010, 0.0010, 0.0010, 0.0020, 0.0030, 0.0040, 0.0050, 0.0130};
+  public static final double[] DSC_USD_MARKET_QUOTES = new double[] {0.0010, 0.0010, 0.0013, 0.0009, 0.0010, 0.0010, 0.0010, 0.0010, 0.0020, 0.0030, 0.0040, 0.0050, 0.0130};
   /** Generators for the dsc USD curve */
   public static final GeneratorInstrument[] DSC_USD_GENERATORS = new GeneratorInstrument[] {GENERATOR_DEPOSIT_ON_USD, GENERATOR_DEPOSIT_ON_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD,
       GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD};
@@ -222,7 +228,7 @@ public class CurveConstructionSpreadTest {
   /** Standard USD Forward 6M curve instrument definitions */
   public static final InstrumentDefinition<?>[] DEFINITIONS_FWD6_USD;
   /** Units of curves */
-  public static final int[] NB_UNITS = new int[] {2, 2, 2, 3, 3, 1, 1, 2};
+  public static final int[] NB_UNITS = new int[] {2, 2, 2, 3, 3, 1, 1, 2, 1};
   public static final int NB_BLOCKS = NB_UNITS.length;
   public static final InstrumentDefinition<?>[][][][] DEFINITIONS_UNITS = new InstrumentDefinition<?>[NB_BLOCKS][][][];
   public static final GeneratorCurve[][][] GENERATORS_UNITS = new GeneratorCurve[NB_BLOCKS][][];
@@ -257,8 +263,8 @@ public class CurveConstructionSpreadTest {
     DEFINITIONS_UNITS[6][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD_3, DEFINITIONS_DSC_USD};
     DEFINITIONS_UNITS[7][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD};
     DEFINITIONS_UNITS[7][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD_4};
+    DEFINITIONS_UNITS[8][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD};
     GeneratorCurve genIntDQ = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_DQ);
-    //    GeneratorCurve genIntCS = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_CS);
     GeneratorCurve genIntLin = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LINEAR);
     int compoundingRate = 1;
     GeneratorCurve genIntRPLin = new GeneratorCurveYieldPeriodicInterpolated(MATURITY_CALCULATOR, compoundingRate, INTERPOLATOR_LINEAR);
@@ -266,11 +272,21 @@ public class CurveConstructionSpreadTest {
     GeneratorCurve genNS = new GeneratorCurveYieldNelsonSiegel();
     GeneratorCurve genInt0 = new GeneratorCurveYieldInterpolatedAnchor(MATURITY_CALCULATOR, INTERPOLATOR_LINEAR);
     GeneratorCurve genAddExistFwd3 = new GeneratorCurveAddYieldExisiting(genIntDQ, false, CURVE_NAME_FWD3_USD);
-    //    GeneratorCurve genCst = new GeneratorCurveYieldConstant();
-    // Interpolated (cubic spline on yield cc) and Cst+interpolated / interpolated (linear on periodic yield) / interpolated (exponential on discount factor)
+    LocalDate startTOY = LocalDate.of(2011, 12, 30);
+    LocalDate endTOY = LocalDate.of(2012, 1, 2);
+    double spreadTOY = 0.0025; // 25bps
+    double dfTOY = 1.0 / (1 + DAY_COUNT_CASH.getDayCountFraction(startTOY, endTOY) * spreadTOY);
+    LocalDate startTOQ = LocalDate.of(2012, 3, 30);
+    LocalDate endTOQ = LocalDate.of(2012, 4, 2);
+    double spreadTOQ = 0.0010; // 25bps
+    double dfTOQ = 1.0 / (1 + DAY_COUNT_CASH.getDayCountFraction(startTOQ, endTOQ) * spreadTOQ);
+    double[] times = {TimeCalculator.getTimeBetween(NOW, startTOY), TimeCalculator.getTimeBetween(NOW, endTOY), TimeCalculator.getTimeBetween(NOW, startTOQ),
+        TimeCalculator.getTimeBetween(NOW, endTOQ)};
+    double[] df = {1.0, dfTOY, dfTOY, dfTOY * dfTOQ};
+    YieldAndDiscountCurve curveTOY = new DiscountCurve("TOY", new InterpolatedDoublesCurve(times, df, INTERPOLATOR_LINEAR, true));
+    GeneratorCurve genAddFixed = new GeneratorCurveAddYieldFixed(genIntDQ, false, curveTOY);
     GENERATORS_UNITS[0][0] = new GeneratorCurve[] {genIntLin};
     GENERATORS_UNITS[0][1] = new GeneratorCurve[] {genIntLin};
-    //    GENERATORS_UNITS[0][1] = new GeneratorCurve[] {new GeneratorCurveAddYield(new GeneratorCurve[] {genCst, genInt0}, false)};
     GENERATORS_UNITS[1][0] = new GeneratorCurve[] {genIntRPLin};
     GENERATORS_UNITS[1][1] = new GeneratorCurve[] {genIntRPLin};
     GENERATORS_UNITS[2][0] = new GeneratorCurve[] {genIntDFLL};
@@ -288,6 +304,7 @@ public class CurveConstructionSpreadTest {
     // interpolated + functional+interpolated
     GENERATORS_UNITS[7][0] = new GeneratorCurve[] {genIntDQ};
     GENERATORS_UNITS[7][1] = new GeneratorCurve[] {new GeneratorCurveAddYield(new GeneratorCurve[] {genNS, genInt0}, false)};
+    GENERATORS_UNITS[8][0] = new GeneratorCurve[] {genAddFixed};
     NAMES_UNITS[0][0] = new String[] {CURVE_NAME_DSC_USD};
     NAMES_UNITS[0][1] = new String[] {CURVE_NAME_FWD3_USD};
     NAMES_UNITS[1][0] = new String[] {CURVE_NAME_DSC_USD};
@@ -304,6 +321,7 @@ public class CurveConstructionSpreadTest {
     NAMES_UNITS[6][0] = new String[] {CURVE_NAME_FWD3_USD, CURVE_NAME_DSC_USD};
     NAMES_UNITS[7][0] = new String[] {CURVE_NAME_DSC_USD};
     NAMES_UNITS[7][1] = new String[] {CURVE_NAME_FWD3_USD};
+    NAMES_UNITS[8][0] = new String[] {CURVE_NAME_DSC_USD};
   }
 
   // Present Value
@@ -392,7 +410,7 @@ public class CurveConstructionSpreadTest {
     ParameterSensitivity[] ps = new ParameterSensitivity[NB_BLOCKS];
     ParameterSensitivity[] mqs = new ParameterSensitivity[NB_BLOCKS];
     Set<String> fixedCurves = new java.util.HashSet<String>();
-    for (int loopblock = 1; loopblock < NB_BLOCKS; loopblock++) {
+    for (int loopblock = 1; loopblock < NB_BLOCKS - 1; loopblock++) {
       pv[loopblock] = PV_CALCULATOR.visit(SWAP, CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(loopblock).getFirst());
       pvcs[loopblock] = PVCS_CALCULATOR.visit(SWAP, CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(loopblock).getFirst());
       ps[loopblock] = pusbc.calculateSensitivity(SWAP, fixedCurves, CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(loopblock).getFirst());
@@ -486,6 +504,30 @@ public class CurveConstructionSpreadTest {
     }
     int t = 0;
     t++;
+  }
+
+  @Test(enabled = true)
+  /**
+   * Code used to graph the curves
+   */
+  public void analysisTOY() {
+    YieldAndDiscountCurve curveTOY = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(8).getFirst().getCurve(CURVE_NAME_DSC_USD);
+    int nbDates = 200;
+    ZonedDateTime[] bd = new ZonedDateTime[nbDates + 1];
+    bd[0] = NOW;
+    double[] on = new double[nbDates];
+    double[] t = new double[nbDates];
+    double[] df = new double[nbDates + 1];
+    df[0] = 1.0;
+    for (int loopdate = 0; loopdate < nbDates; loopdate++) {
+      bd[loopdate + 1] = ScheduleCalculator.getAdjustedDate(bd[loopdate], 1, CALENDAR);
+      t[loopdate] = TimeCalculator.getTimeBetween(NOW, bd[loopdate + 1]);
+      df[loopdate + 1] = curveTOY.getDiscountFactor(t[loopdate]);
+      on[loopdate] = (df[loopdate] / df[loopdate + 1] - 1.0) / DAY_COUNT_CASH.getDayCountFraction(bd[loopdate], bd[loopdate + 1]);
+    }
+    int test = 0;
+    test++;
+
   }
 
   @Test(enabled = false)
@@ -651,6 +693,7 @@ public class CurveConstructionSpreadTest {
       case 3:
       case 4:
       case 7:
+      case 8:
         return new String[] {curveNames[0][0], curveNames[0][0]};
       case 5:
       case 6:
@@ -696,6 +739,7 @@ public class CurveConstructionSpreadTest {
           case 3:
           case 4:
           case 7:
+          case 8:
             return new String[] {curveNames[0][0]};
           case 5:
           case 6:

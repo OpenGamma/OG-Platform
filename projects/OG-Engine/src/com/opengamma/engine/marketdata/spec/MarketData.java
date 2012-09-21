@@ -49,11 +49,10 @@ public class MarketData {
    * 
    * @param date  the date, not null
    * @param timeSeriesResolverKey time series resolver key, or null for the system default
-   * @param timeSeriesFieldResolverKey time series field resolver key, or null for the system default
    * @return the historical market data specification, not null
    */
-  public static HistoricalMarketDataSpecification historical(LocalDate date, String timeSeriesResolverKey, String timeSeriesFieldResolverKey) {
-    return new FixedHistoricalMarketDataSpecification(timeSeriesResolverKey, timeSeriesFieldResolverKey, date);
+  public static HistoricalMarketDataSpecification historical(LocalDate date, String timeSeriesResolverKey) {
+    return new FixedHistoricalMarketDataSpecification(timeSeriesResolverKey, date);
   }
   
   //-------------------------------------------------------------------------

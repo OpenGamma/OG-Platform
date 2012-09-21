@@ -392,10 +392,12 @@ public final class BloombergDataUtils {
     ReferenceDataProviderGetRequest dataRequest = ReferenceDataProviderGetRequest.createGet(indexTicker, bbgFields, true);
     ReferenceDataProviderGetResult dataResult = refDataProvider.getReferenceData(dataRequest);
     ReferenceData perSecResult = dataResult.getReferenceData(indexTicker);
-    List<ReferenceDataError> errors = perSecResult.getErrors();
-    if (!errors.isEmpty()) {
-      s_logger.warn("Unable to lookup Index {} members because of exceptions {}", indexTicker, errors.toString());
-      throw new OpenGammaRuntimeException("Unable to lookup Index members because of exceptions " + errors.toString());
+    if (perSecResult.isIdentifierError()) {
+      List<ReferenceDataError> errors = perSecResult.getErrors();
+      if (!errors.isEmpty()) {
+        s_logger.warn("Unable to lookup Index {} members because of exceptions {}", indexTicker, errors.toString());
+        throw new OpenGammaRuntimeException("Unable to lookup Index members because of exceptions " + errors.toString());
+      }
     }
     addIndexMembers(result, perSecResult, "INDX_MEMBERS");
     addIndexMembers(result, perSecResult, "INDX_MEMBERS2");
