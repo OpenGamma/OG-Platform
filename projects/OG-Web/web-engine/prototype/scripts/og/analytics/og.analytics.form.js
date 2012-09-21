@@ -6,14 +6,14 @@ $.register_module({
     name: 'og.analytics.form',
     dependencies: [
         'og.common.util.ui.AutoCombo',
-        'og.analytics.dropmenu.aggregators',
-        'og.analytics.dropmenu.datasources',
+        'og.analytics.AggregatorsMenu',
+        'og.analytics.DatasourcesMenu',
         'og.views.common.layout'
     ],
     obj: function () { 
         return function (selector) {
-            var emitter = new EventEmitter(), Form, ag_dropmenu = og.analytics.dropmenu.aggregators, 
-                ds_dropmenu = og.analytics.dropmenu.aggregators, Status, events = {
+            var emitter = new EventEmitter(), Form, ag_dropmenu = og.analytics.AggregatorsMenu,
+                ds_dropmenu = og.analytics.DatasourcesMenu, Status, events = {
                     focus: 'dropmenu:focus',
                     focused:'dropmenu:focused',
                     open: 'dropmenu:open',
@@ -71,9 +71,9 @@ $.register_module({
                         },
                         button_handler = function (val) {
                             if (val === 'OK') {
-                                if (ag_dropdwn.opened()) {
+                                if (ag_dropdwn.is_opened()) {
                                     ds_dropdwn.emitEvent(events.open).emitEvent(events.focus);
-                                } else if (ds_dropdwn.opened()) {
+                                } else if (ds_dropdwn.is_opened()) {
                                     ds_dropdwn.emitEvent(events.close); 
                                     $load_btn.focus();
                                 }
@@ -87,7 +87,7 @@ $.register_module({
                             if ($elem.is('button')) button_handler($elem.text());
                         },
                         close_dropmenu = function (menu) {
-                            if (menu.state() === 'open'|| menu.state() === 'focused') menu.emitEvent(events.close);
+                            if (menu.status() === 'open'|| menu.status() === 'focused') menu.emitEvent(events.close);
                         },
                         auto_combo_handler = function (even, ui) {
                             if ((ui && ui.item && ui.item.value || $(this).val()) !== '') {
