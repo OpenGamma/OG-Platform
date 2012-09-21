@@ -35,7 +35,9 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * Default properties for FX options priced using the Black functions.
+ * @deprecated Use the versions for curve and surfaces
  */
+@Deprecated
 public class FXOptionBlackDefaults extends DefaultPropertyFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(FXOptionBlackDefaults.class);
   private static final String[] VALUE_REQUIREMENTS = new String[] {

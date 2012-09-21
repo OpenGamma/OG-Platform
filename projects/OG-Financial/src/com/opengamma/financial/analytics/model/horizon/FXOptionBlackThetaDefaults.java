@@ -9,28 +9,54 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.financial.analytics.model.forex.defaultproperties.FXOptionBlackDefaults;
+import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
+import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
+import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
+import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  *
  */
-public class FXOptionBlackThetaDefaults extends FXOptionBlackDefaults {
+public class FXOptionBlackThetaDefaults extends DefaultPropertyFunction {
+  private final PriorityClass _priority;
   private final String _defaultNumberOfDays;
 
-  public FXOptionBlackThetaDefaults(final String priority, final String defaultNumberOfDays, final String interpolatorName, final String leftExtrapolatorName,
-      final String rightExtrapolatorName, final String... propertyValuesByCurrencies) {
-    super(priority, interpolatorName, leftExtrapolatorName, rightExtrapolatorName, propertyValuesByCurrencies);
+  public FXOptionBlackThetaDefaults(final String priority, final String defaultNumberOfDays) {
+    super(ComputationTargetType.SECURITY, true);
+    ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(defaultNumberOfDays, "default number of days");
+    _priority = PriorityClass.valueOf(priority);
     _defaultNumberOfDays = defaultNumberOfDays;
   }
 
   @Override
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    if (target.getType() != ComputationTargetType.SECURITY) {
+      return false;
+    }
+    if (!(target.getSecurity() instanceof FinancialSecurity)) {
+      return false;
+    }
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final boolean isFXOption = (security instanceof FXOptionSecurity
+        || target.getSecurity() instanceof FXBarrierOptionSecurity
+        || target.getSecurity() instanceof FXDigitalOptionSecurity
+        || target.getSecurity() instanceof NonDeliverableFXOptionSecurity
+        || target.getSecurity() instanceof NonDeliverableFXDigitalOptionSecurity);
+    return isFXOption;
+  }
+
+  @Override
   protected void getDefaults(final PropertyDefaults defaults) {
-    super.getDefaults(defaults);
     defaults.addValuePropertyName(ValueRequirementNames.VALUE_THETA, ThetaPropertyNamesAndValues.PROPERTY_DAYS_TO_MOVE_FORWARD);
   }
 
@@ -39,7 +65,16 @@ public class FXOptionBlackThetaDefaults extends FXOptionBlackDefaults {
     if (ThetaPropertyNamesAndValues.PROPERTY_DAYS_TO_MOVE_FORWARD.equals(propertyName)) {
       return Collections.singleton(_defaultNumberOfDays);
     }
-    return super.getDefaultValue(context, target, desiredValue, propertyName);
+    return null;
   }
 
+  @Override
+  public PriorityClass getPriority() {
+    return _priority;
+  }
+
+  @Override
+  public String getMutualExclusionGroup() {
+    return OpenGammaFunctionExclusions.FX_OPTION_THETA_DEFAULTS;
+  }
 }

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.forex.defaultproperties;
+package com.opengamma.financial.analytics.model.pnl;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,79 +33,48 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Default properties for FX options priced using the Black functions.
+ *
  */
-public class FXOptionBlackSurfaceDefaults extends DefaultPropertyFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(FXOptionBlackSurfaceDefaults.class);
-  private static final String[] VALUE_REQUIREMENTS = new String[] {
-    ValueRequirementNames.PRESENT_VALUE,
-    ValueRequirementNames.FX_PRESENT_VALUE,
-    ValueRequirementNames.FX_CURRENCY_EXPOSURE,
-    ValueRequirementNames.VALUE_VEGA,
-    ValueRequirementNames.VALUE_GAMMA,
-    ValueRequirementNames.VALUE_GAMMA_P,
-    ValueRequirementNames.VEGA_MATRIX,
-    ValueRequirementNames.VEGA_QUOTE_MATRIX,
-    ValueRequirementNames.FX_CURVE_SENSITIVITIES,
-    ValueRequirementNames.PV01,
-    ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY,
-    ValueRequirementNames.VALUE_THETA,
-    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-    ValueRequirementNames.VALUE_RHO,
-    ValueRequirementNames.VALUE_PHI,
-    ValueRequirementNames.VALUE_VOMMA,
-    ValueRequirementNames.VALUE_VANNA
-  };
+public class FXOptionBlackPnLSurfaceDefaults extends DefaultPropertyFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(FXOptionBlackPnLSurfaceDefaults.class);
   private final PriorityClass _priority;
   private final String _interpolatorName;
   private final String _leftExtrapolatorName;
   private final String _rightExtrapolatorName;
   private final Map<Pair<String, String>, String> _surfaceNameByCurrencyPair;
 
-  /**
-   * @param priority The priority of the functions
-   * @param interpolatorName The volatility surface interpolator name
-   * @param leftExtrapolatorName The volatility surface left extrapolator name
-   * @param rightExtrapolatorName The volatility surface right extrapolator name
-   * @param surfaceNamesByCurrencyPair Values for the properties per currency: an array of strings where the <i>i<sup>th</sup></i> currency has properties:
-   * <ul>
-   * <li><i>i</i> = first currency name,
-   * <li><i>i + 1</i> = second currency name,
-   * <li><i>i + 2</i> = surface name
-   * </ul>
-   */
-  public FXOptionBlackSurfaceDefaults(final String priority, final String interpolatorName, final String leftExtrapolatorName, final String rightExtrapolatorName,
-      final String... surfaceNamesByCurrencyPair) {
-    super(ComputationTargetType.SECURITY, true);
-    ArgumentChecker.notNull(priority, "priority");
+  public FXOptionBlackPnLSurfaceDefaults(final String priority, final String interpolatorName, final String leftExtrapolatorName, final String rightExtrapolatorName,
+      final String... surfaceNameByCurrencyPair) {
+    super(ComputationTargetType.POSITION, true);
     ArgumentChecker.notNull(interpolatorName, "interpolator name");
     ArgumentChecker.notNull(leftExtrapolatorName, "left extrapolator name");
     ArgumentChecker.notNull(rightExtrapolatorName, "right extrapolator name");
-    ArgumentChecker.notNull(surfaceNamesByCurrencyPair, "property values by currency");
-    ArgumentChecker.isTrue(surfaceNamesByCurrencyPair.length % 3 == 0, "Must have one surface name per currency pair");
+    ArgumentChecker.notNull(priority, "priority");
+    ArgumentChecker.notNull(surfaceNameByCurrencyPair, "property values by currency");
+    ArgumentChecker.isTrue(surfaceNameByCurrencyPair.length % 3 == 0, "Must have one surface name per currency pair");
     _priority = PriorityClass.valueOf(priority);
     _interpolatorName = interpolatorName;
     _leftExtrapolatorName = leftExtrapolatorName;
     _rightExtrapolatorName = rightExtrapolatorName;
     _surfaceNameByCurrencyPair = new HashMap<Pair<String, String>, String>();
-    for (int i = 0; i < surfaceNamesByCurrencyPair.length; i += 3) {
-      final String firstCurrency = surfaceNamesByCurrencyPair[i];
-      final String secondCurrency = surfaceNamesByCurrencyPair[i + 1];
+    for (int i = 0; i < surfaceNameByCurrencyPair.length; i += 3) {
+      final String firstCurrency = surfaceNameByCurrencyPair[i];
+      final String secondCurrency = surfaceNameByCurrencyPair[i + 1];
       ArgumentChecker.isFalse(firstCurrency.equals(secondCurrency), "The two currencies must not be equal; have {} and {}", firstCurrency, secondCurrency);
-      final String surfaceName = surfaceNamesByCurrencyPair[i + 2];
+      final String surfaceName = surfaceNameByCurrencyPair[i + 2];
       _surfaceNameByCurrencyPair.put(Pair.of(firstCurrency, secondCurrency), surfaceName);
     }
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
+    if (target.getType() != ComputationTargetType.POSITION) {
       return false;
     }
-    if (!(target.getSecurity() instanceof FinancialSecurity)) {
+    if (!(target.getPosition().getSecurity() instanceof FinancialSecurity)) {
       return false;
     }
-    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final FinancialSecurity security = (FinancialSecurity) target.getPosition().getSecurity();
     final boolean isFXOption = (security instanceof FXOptionSecurity
         || security instanceof FXBarrierOptionSecurity
         || security instanceof FXDigitalOptionSecurity
@@ -125,12 +94,10 @@ public class FXOptionBlackSurfaceDefaults extends DefaultPropertyFunction {
 
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
-    for (final String valueRequirement : VALUE_REQUIREMENTS) {
-      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.SURFACE);
-      defaults.addValuePropertyName(valueRequirement, InterpolatedDataProperties.X_INTERPOLATOR_NAME);
-      defaults.addValuePropertyName(valueRequirement, InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
-      defaults.addValuePropertyName(valueRequirement, InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
-    }
+    defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.SURFACE);
+    defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, InterpolatedDataProperties.X_INTERPOLATOR_NAME);
+    defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
+    defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
   }
 
   @Override
@@ -144,7 +111,7 @@ public class FXOptionBlackSurfaceDefaults extends DefaultPropertyFunction {
     if (InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME.equals(propertyName)) {
       return Collections.singleton(_rightExtrapolatorName);
     }
-    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final FinancialSecurity security = (FinancialSecurity) target.getPosition().getSecurity();
     final String putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor()).getCode();
     final String callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor()).getCode();
     if (ValuePropertyNames.SURFACE.equals(propertyName)) {
@@ -159,6 +126,7 @@ public class FXOptionBlackSurfaceDefaults extends DefaultPropertyFunction {
       s_logger.error("Could not get surface name for currency pair {}, {}; should never happen", putCurrency, callCurrency);
     }
     return null;
+
   }
 
   @Override
@@ -168,6 +136,6 @@ public class FXOptionBlackSurfaceDefaults extends DefaultPropertyFunction {
 
   @Override
   public String getMutualExclusionGroup() {
-    return OpenGammaFunctionExclusions.FX_OPTION_BLACK_SURFACE_DEFAULTS;
+    return OpenGammaFunctionExclusions.PNL_SERIES;
   }
 }

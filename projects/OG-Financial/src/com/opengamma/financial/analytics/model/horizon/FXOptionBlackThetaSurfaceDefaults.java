@@ -12,18 +12,18 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.financial.analytics.model.forex.defaultproperties.FXDigitalCallSpreadBlackDefaults;
+import com.opengamma.financial.analytics.model.forex.defaultproperties.FXOptionBlackSurfaceDefaults;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  *
  */
-public class FXDigitalCallSpreadBlackThetaDefaults extends FXDigitalCallSpreadBlackDefaults {
+public class FXOptionBlackThetaSurfaceDefaults extends FXOptionBlackSurfaceDefaults {
   private final String _defaultNumberOfDays;
 
-  public FXDigitalCallSpreadBlackThetaDefaults(final String priority, final String defaultNumberOfDays, final String interpolatorName, final String leftExtrapolatorName,
-      final String rightExtrapolatorName, final String spread, final String... propertyValuesByCurrencies) {
-    super(priority, interpolatorName, leftExtrapolatorName, rightExtrapolatorName, spread, propertyValuesByCurrencies);
+  public FXOptionBlackThetaSurfaceDefaults(final String priority, final String defaultNumberOfDays, final String interpolatorName, final String leftExtrapolatorName,
+      final String rightExtrapolatorName, final String... surfaceNamesBuCurrencyPair) {
+    super(priority, interpolatorName, leftExtrapolatorName, rightExtrapolatorName, surfaceNamesBuCurrencyPair);
     ArgumentChecker.notNull(defaultNumberOfDays, "default number of days");
     _defaultNumberOfDays = defaultNumberOfDays;
   }
@@ -41,4 +41,5 @@ public class FXDigitalCallSpreadBlackThetaDefaults extends FXDigitalCallSpreadBl
     }
     return super.getDefaultValue(context, target, desiredValue, propertyName);
   }
+
 }
