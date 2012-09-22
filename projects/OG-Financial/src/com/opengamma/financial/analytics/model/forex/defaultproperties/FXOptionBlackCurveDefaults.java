@@ -16,11 +16,9 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
-import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
@@ -35,11 +33,9 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * Default properties for FX options priced using the Black functions.
- * @deprecated Use the versions for curve and surfaces
  */
-@Deprecated
-public class FXOptionBlackDefaults extends DefaultPropertyFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(FXOptionBlackDefaults.class);
+public class FXOptionBlackCurveDefaults extends DefaultPropertyFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(FXOptionBlackCurveDefaults.class);
   private static final String[] VALUE_REQUIREMENTS = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.FX_PRESENT_VALUE,
@@ -60,53 +56,27 @@ public class FXOptionBlackDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.VALUE_VANNA
   };
   private final PriorityClass _priority;
-  private final String _interpolatorName;
-  private final String _leftExtrapolatorName;
-  private final String _rightExtrapolatorName;
-  private final Map<String, Pair<String, String>> _propertyValuesByCurrency;
-  private final Map<Pair<String, String>, String> _surfaceNameByCurrencyPair;
+  private final Map<String, Pair<String, String>> _currencyCurveConfigAndDiscountingCurveNames;
 
   /**
    * @param priority The priority of the functions
-   * @param interpolatorName The volatility surface interpolator name
-   * @param leftExtrapolatorName The volatility surface left extrapolator name
-   * @param rightExtrapolatorName The volatility surface right extrapolator name
-   * @param propertyValuesByCurrencies Values for the properties per currency: an array of strings where the <i>i<sup>th</sup></i> currency has properties:
+   * @param currencyCurveConfigAndDiscountingCurveNames Values for the properties per currency: an array of strings where the <i>i<sup>th</sup></i> currency has properties:
    * <ul>
-   * <li><i>i</i> = first currency name,
-   * <li><i>i + 1</i> = first currency curve configuration name
-   * <li><i>i + 2</i> = first currency discounting curve name
-   * <li><i>i + 3</i> = second currency name,
-   * <li><i>i + 4</i> = second currency curve configuration name
-   * <li><i>i + 5</i> = second currency discounting curve name
-   * <li><i>i + 6</i> = surface name
+   * <li><i>i</i> = currency name,
+   * <li><i>i + 1</i> = curve configuration name
+   * <li><i>i + 2</i> = discounting curve name
    * </ul>
    */
-  public FXOptionBlackDefaults(final String priority, final String interpolatorName, final String leftExtrapolatorName, final String rightExtrapolatorName,
-      final String... propertyValuesByCurrencies) {
+  public FXOptionBlackCurveDefaults(final String priority, final String... currencyCurveConfigAndDiscountingCurveNames) {
     super(ComputationTargetType.SECURITY, true);
     ArgumentChecker.notNull(priority, "priority");
-    ArgumentChecker.notNull(interpolatorName, "interpolator name");
-    ArgumentChecker.notNull(leftExtrapolatorName, "left extrapolator name");
-    ArgumentChecker.notNull(rightExtrapolatorName, "right extrapolator name");
-    ArgumentChecker.notNull(propertyValuesByCurrencies, "property values by currency");
-    ArgumentChecker.isTrue(propertyValuesByCurrencies.length % 7 == 0, "Must have two currencies, one curve config and discounting curve name per currency pair and one surface name");
+    ArgumentChecker.notNull(currencyCurveConfigAndDiscountingCurveNames, "currency and curve config names");
+    ArgumentChecker.isTrue(currencyCurveConfigAndDiscountingCurveNames.length % 3 == 0, "Must have one curve config and discounting curve name per currency");
     _priority = PriorityClass.valueOf(priority);
-    _interpolatorName = interpolatorName;
-    _leftExtrapolatorName = leftExtrapolatorName;
-    _rightExtrapolatorName = rightExtrapolatorName;
-    _propertyValuesByCurrency = new HashMap<String, Pair<String, String>>();
-    _surfaceNameByCurrencyPair = new HashMap<Pair<String, String>, String>();
-    for (int i = 0; i < propertyValuesByCurrencies.length; i += 7) {
-      final String firstCurrency = propertyValuesByCurrencies[i];
-      final Pair<String, String> firstCurrencyValues = Pair.of(propertyValuesByCurrencies[i + 1], propertyValuesByCurrencies[i + 2]);
-      final String secondCurrency = propertyValuesByCurrencies[i + 3];
-      ArgumentChecker.isFalse(firstCurrency.equals(secondCurrency), "The two currencies must not be equal; have {} and {}", firstCurrency, secondCurrency);
-      final Pair<String, String> secondCurrencyValues = Pair.of(propertyValuesByCurrencies[i + 4], propertyValuesByCurrencies[i + 5]);
-      final String surfaceName = propertyValuesByCurrencies[i + 6];
-      _propertyValuesByCurrency.put(firstCurrency, firstCurrencyValues);
-      _propertyValuesByCurrency.put(secondCurrency, secondCurrencyValues);
-      _surfaceNameByCurrencyPair.put(Pair.of(firstCurrency, secondCurrency), surfaceName);
+    _currencyCurveConfigAndDiscountingCurveNames = new HashMap<String, Pair<String, String>>();
+    for (int i = 0; i < currencyCurveConfigAndDiscountingCurveNames.length; i += 3) {
+      final Pair<String, String> pair = Pair.of(currencyCurveConfigAndDiscountingCurveNames[i + 1], currencyCurveConfigAndDiscountingCurveNames[i + 2]);
+      _currencyCurveConfigAndDiscountingCurveNames.put(currencyCurveConfigAndDiscountingCurveNames[i], pair);
     }
   }
 
@@ -129,7 +99,7 @@ public class FXOptionBlackDefaults extends DefaultPropertyFunction {
     }
     final String putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor()).getCode();
     final String callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor()).getCode();
-    return (_propertyValuesByCurrency.containsKey(putCurrency) && _propertyValuesByCurrency.containsKey(callCurrency));
+    return (_currencyCurveConfigAndDiscountingCurveNames.containsKey(putCurrency) && _currencyCurveConfigAndDiscountingCurveNames.containsKey(callCurrency));
   }
 
   @Override
@@ -139,10 +109,6 @@ public class FXOptionBlackDefaults extends DefaultPropertyFunction {
       defaults.addValuePropertyName(valueRequirement, FXOptionBlackFunction.CALL_CURVE);
       defaults.addValuePropertyName(valueRequirement, FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG);
       defaults.addValuePropertyName(valueRequirement, FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG);
-      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.SURFACE);
-      defaults.addValuePropertyName(valueRequirement, InterpolatedDataProperties.X_INTERPOLATOR_NAME);
-      defaults.addValuePropertyName(valueRequirement, InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
-      defaults.addValuePropertyName(valueRequirement, InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
     }
   }
 
@@ -151,19 +117,19 @@ public class FXOptionBlackDefaults extends DefaultPropertyFunction {
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final String putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor()).getCode();
     final String callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor()).getCode();
-    if (!_propertyValuesByCurrency.containsKey(putCurrency)) {
+    if (!_currencyCurveConfigAndDiscountingCurveNames.containsKey(putCurrency)) {
       s_logger.error("Could not get config for put currency " + putCurrency + "; should never happen");
       return null;
     }
-    if (!_propertyValuesByCurrency.containsKey(callCurrency)) {
+    if (!_currencyCurveConfigAndDiscountingCurveNames.containsKey(callCurrency)) {
       s_logger.error("Could not get config for call currency " + callCurrency + "; should never happen");
       return null;
     }
     final String putCurveConfig, callCurveConfig, putCurve, callCurve;
-    final Pair<String, String> firstCurrencyValues = _propertyValuesByCurrency.get(putCurrency);
+    final Pair<String, String> firstCurrencyValues = _currencyCurveConfigAndDiscountingCurveNames.get(putCurrency);
     putCurveConfig = firstCurrencyValues.getFirst();
     putCurve = firstCurrencyValues.getSecond();
-    final Pair<String, String> secondCurrencyValues = _propertyValuesByCurrency.get(callCurrency);
+    final Pair<String, String> secondCurrencyValues = _currencyCurveConfigAndDiscountingCurveNames.get(callCurrency);
     callCurveConfig = secondCurrencyValues.getFirst();
     callCurve = secondCurrencyValues.getSecond();
     if (FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG.equals(propertyName)) {
@@ -178,25 +144,6 @@ public class FXOptionBlackDefaults extends DefaultPropertyFunction {
     if (FXOptionBlackFunction.CALL_CURVE.equals(propertyName)) {
       return Collections.singleton(callCurve);
     }
-    if (InterpolatedDataProperties.X_INTERPOLATOR_NAME.equals(propertyName)) {
-      return Collections.singleton(_interpolatorName);
-    }
-    if (InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME.equals(propertyName)) {
-      return Collections.singleton(_leftExtrapolatorName);
-    }
-    if (InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME.equals(propertyName)) {
-      return Collections.singleton(_rightExtrapolatorName);
-    }
-    if (ValuePropertyNames.SURFACE.equals(propertyName)) {
-      Pair<String, String> pair = Pair.of(putCurrency, callCurrency);
-      if (_surfaceNameByCurrencyPair.containsKey(pair)) {
-        return Collections.singleton(_surfaceNameByCurrencyPair.get(pair));
-      }
-      pair = Pair.of(callCurrency, putCurrency);
-      if (_surfaceNameByCurrencyPair.containsKey(pair)) {
-        return Collections.singleton(_surfaceNameByCurrencyPair.get(pair));
-      }
-    }
     return null;
   }
 
@@ -207,6 +154,10 @@ public class FXOptionBlackDefaults extends DefaultPropertyFunction {
 
   @Override
   public String getMutualExclusionGroup() {
-    return OpenGammaFunctionExclusions.FX_OPTION_BLACK_DEFAULTS;
+    return OpenGammaFunctionExclusions.FX_OPTION_BLACK_CURVE_DEFAULTS;
+  }
+
+  protected static String[] getRequirementNames() {
+    return VALUE_REQUIREMENTS;
   }
 }

@@ -14,7 +14,7 @@ $.register_module({
             loading_end = common.loading_end, encode = window['encodeURIComponent'],
             // convert all incoming params into strings (so for example, the value 0 ought to be truthy, not falsey)
             str = common.str,
-            outstanding_requests = {}, registrations = [], subscribe,
+            outstanding_requests = {}, registrations = [], subscribe, post_processors = {},
             meta_data = {configs: null, holidays: null, securities: null, viewrequirementnames: null},
             singular = {
                 configs: 'config', exchanges: 'exchange', holidays: 'holiday',
@@ -96,6 +96,10 @@ $.register_module({
             return from ? {'pgIdx': from, 'pgSze': to ? +to - +from : str(config.page_size) || PAGE_SIZE}
                 : {'pgSze': str(config.page_size) || PAGE_SIZE, 'pgNum': str(config.page) || PAGE};
         }
+        var post_process = function (data, url) {return post_processors[url] ? post_processors[url](data) : data;};
+        post_processors[live_data_root + 'compressor/compress'] = function (data) {
+            return (data.data = data.data.replace(/\=/g, '(').replace(/\//, ')').replace(/\+/, '*')), data;
+        };
         var Promise = function () {
             var deferred = new $.Deferred, promise = deferred.promise();
             promise.deferred = deferred;
@@ -155,7 +159,7 @@ $.register_module({
                         delete outstanding_requests[promise.id];
                         if (location && ~!location.indexOf('?')) meta.id = location.split('/').pop();
                         if (config.meta.type in no_post_body) meta.url = url;
-                        result = {error: false, message: status, data: data, meta: meta};
+                        result = {error: false, message: status, data: post_process(data, url), meta: meta};
                         if (cache_for = config.meta.cache_for)
                             cache_set(url, result), setTimeout(function () {cache_del(url);}, cache_for);
                         config.meta.handler(result);
@@ -229,7 +233,7 @@ $.register_module({
                     var root = this.root, method = [root, 'decompress'], data = {}, meta;
                     meta = check({bundle: {method: root + '#get', config: config}, required: [{all_of: ['content']}]});
                     meta.type = 'POST';
-                    data.content = config.content;
+                    data.content = config.content.replace(/\(/g, '=').replace(/\)/, '\/').replace(/\*/, '+');
                     return request(method, {data: data, meta: meta});
                 },
                 put: function (config) {
@@ -554,9 +558,10 @@ $.register_module({
                     config = config || {};
                     var promise = promise || new Promise,
                         root = this.root, method = [root], data = {}, meta,
-                        fields = ['viewdefinition', 'aggregators', 'providers'],
+                        fields = ['viewdefinition', 'aggregators', 'providers', 'valuation', 'version', 'correction'],
                         api_fields = [
-                            'viewDefinitionId', 'aggregators', 'marketDataProviders'
+                            'viewDefinitionId', 'aggregators', 'marketDataProviders',
+                            'valuationTime', 'portfolioVersionTime', 'portfolioCorrectionTime'
                         ];
                     if (!api.id) return setTimeout((function (context) {                    // if handshake isn't
                         return function () {api.views.put.call(context, config, promise);}; // complete, return a
