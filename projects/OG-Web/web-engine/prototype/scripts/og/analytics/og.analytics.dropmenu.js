@@ -11,31 +11,18 @@ $.register_module({
                 close: 'dropmenu:close',
                 closed: 'dropmenu:closed'
             },
-            Menu = function (config) {
-                var menu = this, tmpl = config.tmpl, data = config.data || {};
-                return menu.opts, menu.state = 'closed', menu.opened = false, menu.$dom = {}, menu.data = data,
-                    menu.$dom.cntr = config.$cntr.html($((Handlebars.compile(tmpl))(data))),
-                    menu.$dom.title = $('.og-option-title', menu.$dom.cntr).on('click', menu.title_handler(menu)),
-                    menu.$dom.menu = $('.OG-analytics-form-menu', menu.$dom.cntr),
-                    menu.$dom.menu_actions = $('.OG-dropmenu-actions', menu.$dom.menu),
-                    menu.$dom.opt = $('.OG-dropmenu-options', menu.$dom.menu),
-                    menu.$dom.opt.data("pos", ((menu.opts = []).push(menu.$dom.opt), menu.opts.length-1)),
-                    menu.$dom.add = $('.OG-link-add', menu.$dom.menu),
-                    menu.$dom.opt_cp = menu.$dom.opt.clone(true),
-                    menu.addListener(events.open, menu.open),
-                    menu.addListener(events.close, menu.close),
-                    menu.addListener(events.focus, menu.focus),
-                    menu; 
-            };
-        Menu.prototype = EventEmitter.prototype;
+            DropMenu,
+            Menu = function () {};
+        $.extend(true, Menu.prototype, EventEmitter.prototype);
+        Menu.prototype.constructor = Menu;
         Menu.prototype.focus = function () {
             var menu = this;
-            return menu.opts[menu.opts.length-1].find('select').first().focus(), menu.opened = true, menu.state = 'focused',
-                menu.emitEvent(events.focused, [menu]), menu;
+            return menu.opts[menu.opts.length-1].find('select').first().focus(), menu.opened = true, 
+                menu.state = 'focused', menu.emitEvent(events.focused, [menu]), menu;
         };
         Menu.prototype.open = function () {
             var menu = this;
-            return menu.$dom.menu.show().blurkill(menu.close), menu.state = 'open', menu.opened = true,
+            return menu.$dom.menu.show().blurkill(menu.close.bind(menu)), menu.state = 'open', menu.opened = true,
                 menu.$dom.title.addClass('og-active'), menu.emitEvent(events.opened, [menu]), menu;
         };
         Menu.prototype.close = function () {
@@ -43,12 +30,22 @@ $.register_module({
             return (menu.$dom.menu ? menu.$dom.menu.hide() : null), menu.state = 'closed', menu.opened = false,
                 menu.$dom.title.removeClass('og-active'), menu.emitEvent(events.closed, [menu]), menu;
         };
-        Menu.prototype.title_handler = function (context) {
-            var menu = context;
-            return function (event) {
-                menu.opened ? menu.close() : (menu.open(), menu.focus());
+        Menu.prototype.menu_handler = function (event) {
+            var menu = this, elem = $(event.target);
+            if (elem.is(menu.$dom.add)) {
+                menu.add_handler(); 
+                menu.stop(event);
             }
-        }
+            if (elem.is('.og-icon-delete')) {
+                menu.del_handler(elem.closest('.OG-dropmenu-options'));
+                menu.stop(event);
+            }
+            if (elem.is(':checkbox')) {elem.focus();}
+        };
+        Menu.prototype.title_handler = function () {
+            var menu = this;
+                menu.opened ? menu.close() : (menu.open(), menu.focus());
+        };
         Menu.prototype.add_handler = function () {
             var menu = this, opt, len = menu.opts.length;
             return opt = menu.$dom.opt_cp.clone(true).data("pos", menu.opts.length), menu.opts.push(opt), 
@@ -82,8 +79,25 @@ $.register_module({
             var menu = this;
             return menu.opened;
         };
-        return function (config) {
-            return new Menu(config);
-        }
+        DropMenu = function (config) {
+            var m = new Menu(), tmpl = config.tmpl, data = config.data || {};
+            m.state = 'closed';
+            m.opened = false;
+            m.data = data;
+            m.$dom = {};
+            m.$dom.cntr = config.$cntr.html($((Handlebars.compile(tmpl))(data)));
+            m.$dom.title = $('.og-option-title', m.$dom.cntr).on('click', m.title_handler.bind(m));
+            m.$dom.menu = $('.OG-analytics-form-menu', m.$dom.cntr);
+            m.$dom.menu_actions = $('.OG-dropmenu-actions', m.$dom.menu);
+            m.$dom.opt = $('.OG-dropmenu-options', m.$dom.menu);
+            m.$dom.opt.data("pos", ((m.opts = []).push(m.$dom.opt), m.opts.length-1));
+            m.$dom.add = $('.OG-link-add', m.$dom.menu);
+            m.$dom.opt_cp = m.$dom.opt.clone(true);
+            m.addListener(events.open, m.open.bind(m))
+                .addListener(events.close, m.close.bind(m))
+                .addListener(events.focus, m.focus.bind(m));
+            return m;
+        };
+        return DropMenu;
     }
 });

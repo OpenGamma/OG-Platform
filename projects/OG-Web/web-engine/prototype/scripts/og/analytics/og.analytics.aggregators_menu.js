@@ -4,7 +4,7 @@ $.register_module({
     dependencies: ['og.analytics.DropMenu'],
     obj: function () { 
         return function (config) {
-            var menu = new og.analytics.DropMenu(config), $dom = menu.$dom, opts = menu.opts, data = menu.data, 
+            var menu = new og.analytics.DropMenu(config), $dom = menu.$dom, opts = menu.opts, data = menu.data,
                 menu_handler = function (event) {
                     if (data.length === opts.length) return;
                     var elem = $(event.target);

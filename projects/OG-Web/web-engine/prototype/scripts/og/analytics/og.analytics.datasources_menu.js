@@ -4,20 +4,8 @@ $.register_module({
     dependencies: ['og.analytics.DropMenu'],
     obj: function () { 
         return function (config) {
-            var menu = new og.analytics.DropMenu(config), $dom = menu.$dom, opts = menu.opts, data = menu.data,
-                menu_handler = function (event) {
-                    var elem = $(event.target);
-                    if (elem.is(menu.$dom.add)) {
-                        menu.add_handler(); 
-                        menu.stop(event);
-                    }
-                    if (elem.is('.og-icon-delete')) {
-                        menu.del_handler(elem.closest('.OG-dropmenu-options'));
-                        menu.stop(event);
-                    }
-                    if (elem.is(':checkbox')) {elem.focus();}
-                };
-            $dom.menu.on('click', menu_handler);
+            var menu = new og.analytics.DropMenu(config), $dom = menu.$dom;
+            $dom.menu.on('click', menu.menu_handler.bind(menu));
             return menu;
         }
     }
