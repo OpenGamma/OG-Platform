@@ -1,4 +1,3 @@
-
 $.register_module({
     name: 'og.analytics.DropMenu',
     dependencies: [],
@@ -17,7 +16,7 @@ $.register_module({
         Menu.prototype.constructor = Menu;
         Menu.prototype.focus = function () {
             var menu = this;
-            return menu.opts[menu.opts.length-1].find('select').first().focus(), menu.opened = true, 
+            return menu.opts[menu.opts.length-1].find('select').first().focus(), menu.opened = true,
                 menu.state = 'focused', menu.emitEvent(events.focused, [menu]), menu;
         };
         Menu.prototype.open = function () {
@@ -48,7 +47,7 @@ $.register_module({
         };
         Menu.prototype.add_handler = function () {
             var menu = this, opt, len = menu.opts.length;
-            return opt = menu.$dom.opt_cp.clone(true).data("pos", menu.opts.length), menu.opts.push(opt), 
+            return opt = menu.$dom.opt_cp.clone(true).data("pos", menu.opts.length), menu.opts.push(opt),
                     menu.$dom.add.focus(), menu.opts[len].find('.number span').text(menu.opts.length), 
                     menu.$dom.menu_actions.before(menu.opts[len]);
         };
@@ -65,7 +64,7 @@ $.register_module({
             var menu = this;
             for (var i = pos || 0, len = menu.opts.length; i < len;) {
                 menu.opts[i].data("pos", i).find('.number span').text(i+=1);
-            }   
+            }
         };
         Menu.prototype.stop = function (event) {
             event.stopPropagation();
@@ -86,8 +85,11 @@ $.register_module({
             m.data = data;
             m.$dom = {};
             m.$dom.cntr = config.$cntr.html($((Handlebars.compile(tmpl))(data)));
-            m.$dom.title = $('.og-option-title', m.$dom.cntr).on('click', m.title_handler.bind(m));
-            m.$dom.menu = $('.OG-analytics-form-menu', m.$dom.cntr);
+            m.$dom.title = $('.og-option-title', m.$dom.cntr);
+            m.$dom.title_default_txt = $('Select aggregation type...');
+            m.$dom.title_start = $('<div>').append('<span>Aggregated by</span>');
+            m.$dom.title_conjunction = $('<div>').append('<span>then</span>');
+            m.$dom.menu = $('.OG-analytics-form-menu', m.$dom.cntr)
             m.$dom.menu_actions = $('.OG-dropmenu-actions', m.$dom.menu);
             m.$dom.opt = $('.OG-dropmenu-options', m.$dom.menu);
             m.$dom.opt.data("pos", ((m.opts = []).push(m.$dom.opt), m.opts.length-1));
