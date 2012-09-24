@@ -5,8 +5,6 @@
  */
 package com.opengamma.analytics.financial.interestrate;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableForward;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableOption;
@@ -69,6 +67,7 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.TenorSwap;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionBermudaFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -79,8 +78,8 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
 
   @Override
   public T visit(final InstrumentDerivative derivative, final S data) {
-    Validate.notNull(derivative, "derivative");
-    Validate.notNull(data, "data");
+    ArgumentChecker.notNull(derivative, "derivative");
+    ArgumentChecker.notNull(data, "data");
     return derivative.accept(this, data);
   }
 
@@ -91,7 +90,7 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
 
   @Override
   public T visit(final InstrumentDerivative derivative) {
-    Validate.notNull(derivative, "derivative");
+    ArgumentChecker.notNull(derivative, "derivative");
     return derivative.accept(this);
   }
 
