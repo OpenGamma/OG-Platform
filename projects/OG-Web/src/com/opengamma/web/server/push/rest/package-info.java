@@ -75,6 +75,16 @@
  *   [{basisViewName: basisViewName1, snapshots: [{id: snapshot1Id, name: snapshot1Name}, {id: snapshot2Id, name: snapshot2Name}, ...]},
  *    {basisViewName: basisViewName2, snapshots: [{id: snapshot3Id, name: snapshot3Name}, {id: snapshot4Id, name: snapshot4Name}, ...]}, ...]
  * </pre>
+ * <pre>
+ *   /jax/marketdatasnapshots/{snapshotObjectId}</pre>
+ * <p>returns</p>
+ * <pre>
+ *   [{uniqueId: snapshot1Id,
+ *     correctionFrom: snapshot1CorrectionFromTime,
+ *     correctionTo: snapshot1CorrectionToTime,
+ *     versionFrom: snapshot1VersionFromTime,
+ *     versionTo: snapshot1VersionToTime}, ...]
+ * </pre>
  * <h3>Aggregators</h3>
  * <pre>
  *   /jax/aggregators</pre>

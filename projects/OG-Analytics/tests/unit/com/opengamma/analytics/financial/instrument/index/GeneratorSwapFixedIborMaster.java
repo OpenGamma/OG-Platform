@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.instrument.index.generator;
+package com.opengamma.analytics.financial.instrument.index;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,8 +11,6 @@ import java.util.Map;
 import javax.time.calendar.Period;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
-import com.opengamma.analytics.financial.instrument.index.iborindex.IndexIborTestsMaster;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.CalendarNoHoliday;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -20,18 +18,18 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 /**
  * A list of swap generators that can be used in the tests.
  */
-public class GeneratorSwapTestsMaster {
+public final class GeneratorSwapFixedIborMaster {
 
   /**
    * The method unique instance.
    */
-  private static final GeneratorSwapTestsMaster INSTANCE = new GeneratorSwapTestsMaster();
+  private static final GeneratorSwapFixedIborMaster INSTANCE = new GeneratorSwapFixedIborMaster();
 
   /**
    * Return the unique instance of the class.
    * @return The instance.
    */
-  public static GeneratorSwapTestsMaster getInstance() {
+  public static GeneratorSwapFixedIborMaster getInstance() {
     return INSTANCE;
   }
 
@@ -43,13 +41,13 @@ public class GeneratorSwapTestsMaster {
   /**
    * The list of Ibor indexes for test purposes.
    */
-  private final IndexIborTestsMaster _iborIndexMaster;
+  private final IndexIborMaster _iborIndexMaster;
 
   /**
    * Private constructor.
    */
-  private GeneratorSwapTestsMaster() {
-    _iborIndexMaster = IndexIborTestsMaster.getInstance();
+  private GeneratorSwapFixedIborMaster() {
+    _iborIndexMaster = IndexIborMaster.getInstance();
     Calendar baseCalendar = new CalendarNoHoliday("No Holidays");
     _generatorSwap = new HashMap<String, GeneratorSwapFixedIbor>();
     _generatorSwap.put("USD6MLIBOR3M",

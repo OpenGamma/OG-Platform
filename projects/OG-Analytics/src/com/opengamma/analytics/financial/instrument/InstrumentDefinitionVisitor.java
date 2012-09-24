@@ -29,6 +29,7 @@ import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefi
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.DeliverableSwapFuturesSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
@@ -85,18 +86,6 @@ public interface InstrumentDefinitionVisitor<T, U> {
 
   U visitBondFixedTransactionDefinition(BondFixedTransactionDefinition bond);
 
-  U visitBondFutureSecurityDefinition(BondFutureDefinition bond, T data);
-
-  U visitBondFutureSecurityDefinition(BondFutureDefinition bond);
-
-  U visitBondFutureOptionPremiumSecurityDefinition(BondFutureOptionPremiumSecurityDefinition bond, T data);
-
-  U visitBondFutureOptionPremiumSecurityDefinition(BondFutureOptionPremiumSecurityDefinition bond);
-
-  U visitBondFutureOptionPremiumTransactionDefinition(BondFutureOptionPremiumTransactionDefinition bond, T data);
-
-  U visitBondFutureOptionPremiumTransactionDefinition(BondFutureOptionPremiumTransactionDefinition bond);
-
   U visitBondIborTransactionDefinition(BondIborTransactionDefinition bond, T data);
 
   U visitBondIborTransactionDefinition(BondIborTransactionDefinition bond);
@@ -131,9 +120,7 @@ public interface InstrumentDefinitionVisitor<T, U> {
 
   U visitDepositZeroDefinition(DepositZeroDefinition deposit);
 
-  U visitForwardRateAgreementDefinition(ForwardRateAgreementDefinition fra, T data);
-
-  U visitForwardRateAgreementDefinition(ForwardRateAgreementDefinition fra);
+  // -----     Futures     -----
 
   U visitInterestRateFutureSecurityDefinition(InterestRateFutureDefinition future, T data);
 
@@ -146,6 +133,16 @@ public interface InstrumentDefinitionVisitor<T, U> {
   U visitFederalFundsFutureTransactionDefinition(FederalFundsFutureTransactionDefinition future, T data);
 
   U visitFederalFundsFutureTransactionDefinition(FederalFundsFutureTransactionDefinition future);
+
+  U visitBondFutureSecurityDefinition(BondFutureDefinition bond, T data);
+
+  U visitBondFutureSecurityDefinition(BondFutureDefinition bond);
+
+  U visitDeliverableSwapFuturesSecurityDefinition(DeliverableSwapFuturesSecurityDefinition futures, T data);
+
+  U visitDeliverableSwapFuturesSecurityDefinition(DeliverableSwapFuturesSecurityDefinition futures);
+
+  // -----     Futures options    -----
 
   U visitInterestRateFutureOptionPremiumSecurityDefinition(InterestRateFutureOptionPremiumSecurityDefinition future, T data);
 
@@ -163,11 +160,19 @@ public interface InstrumentDefinitionVisitor<T, U> {
 
   U visitInterestRateFutureOptionMarginTransactionDefinition(InterestRateFutureOptionMarginTransactionDefinition future);
 
+  U visitBondFutureOptionPremiumSecurityDefinition(BondFutureOptionPremiumSecurityDefinition bond, T data);
+
+  U visitBondFutureOptionPremiumSecurityDefinition(BondFutureOptionPremiumSecurityDefinition bond);
+
+  U visitBondFutureOptionPremiumTransactionDefinition(BondFutureOptionPremiumTransactionDefinition bond, T data);
+
+  U visitBondFutureOptionPremiumTransactionDefinition(BondFutureOptionPremiumTransactionDefinition bond);
+
   // -----     Payment and coupon     -----
 
-  U visitPaymentFixed(PaymentFixedDefinition payment, T data);
+  U visitPaymentFixedDefinition(PaymentFixedDefinition payment, T data);
 
-  U visitPaymentFixed(PaymentFixedDefinition payment);
+  U visitPaymentFixedDefinition(PaymentFixedDefinition payment);
 
   U visitCouponFixed(CouponFixedDefinition payment, T data);
 
@@ -189,9 +194,9 @@ public interface InstrumentDefinitionVisitor<T, U> {
 
   U visitCouponIborCompounded(CouponIborCompoundedDefinition payment);
 
-  U visitForwardRateAgreement(ForwardRateAgreementDefinition payment, T data);
+  U visitForwardRateAgreementDefinition(ForwardRateAgreementDefinition payment, T data);
 
-  U visitForwardRateAgreement(ForwardRateAgreementDefinition payment);
+  U visitForwardRateAgreementDefinition(ForwardRateAgreementDefinition payment);
 
   U visitCouponIborRatchet(CouponIborRatchetDefinition payment, T data);
 

@@ -8,9 +8,9 @@ package com.opengamma.analytics.financial.horizon;
 import static org.testng.AssertJUnit.assertEquals;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.instrument.index.generator.GeneratorSwapTestsMaster;
-import com.opengamma.analytics.financial.instrument.index.iborindex.IndexIborTestsMaster;
+import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
@@ -40,8 +40,8 @@ public class ConstantSpreadHorizonThetaCalculatorSwapTest {
   private static final ConstantSpreadHorizonThetaCalculator THETAC = ConstantSpreadHorizonThetaCalculator.getInstance();
 
   private static final Calendar CALENDAR_USD = new MondayToFridayCalendar("USD Calendar");
-  private static final GeneratorSwapTestsMaster GENERATOR_SWAP_MASTER = GeneratorSwapTestsMaster.getInstance();
-  private static final IndexIborTestsMaster INDEX_IBOR_MASTER = IndexIborTestsMaster.getInstance();
+  private static final GeneratorSwapFixedIborMaster GENERATOR_SWAP_MASTER = GeneratorSwapFixedIborMaster.getInstance();
+  private static final IndexIborMaster INDEX_IBOR_MASTER = IndexIborMaster.getInstance();
 
   // Swap Fixed-Ibor
   private static final GeneratorSwapFixedIbor USD6MLIBOR3M = GENERATOR_SWAP_MASTER.getGenerator("USD6MLIBOR3M", CALENDAR_USD);

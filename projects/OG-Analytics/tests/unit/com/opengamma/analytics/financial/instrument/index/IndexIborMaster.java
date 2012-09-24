@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.instrument.index.iborindex;
+package com.opengamma.analytics.financial.instrument.index;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,7 +11,6 @@ import java.util.Map;
 import javax.time.calendar.Period;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.CalendarNoHoliday;
@@ -19,20 +18,20 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * Description of Ibor indexes available for tests. 
  */
-public class IndexIborTestsMaster {
+public final class IndexIborMaster {
 
   /**
    * The method unique instance.
    */
-  private static final IndexIborTestsMaster INSTANCE = new IndexIborTestsMaster();
+  private static final IndexIborMaster INSTANCE = new IndexIborMaster();
 
   /**
    * Return the unique instance of the class.
    * @return The instance.
    */
-  public static IndexIborTestsMaster getInstance() {
+  public static IndexIborMaster getInstance() {
     return INSTANCE;
   }
 
@@ -44,7 +43,7 @@ public class IndexIborTestsMaster {
   /**
    * Private constructor.
    */
-  private IndexIborTestsMaster() {
+  private IndexIborMaster() {
     Calendar baseCalendar = new CalendarNoHoliday("No Holidays");
     _ibor = new HashMap<String, IborIndex>();
     _ibor.put(

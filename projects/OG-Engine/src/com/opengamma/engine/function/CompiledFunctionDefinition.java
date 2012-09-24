@@ -42,25 +42,24 @@ public interface CompiledFunctionDefinition {
   ComputationTargetType getTargetType();
 
   /**
-   * Determine whether this function instance is capable of operating on the specified target.
+   * Determine whether this function instance is capable of operating on the specified target. Functions must return false and not throw exceptions if they cannot apply to the target; throwing an
+   * exception should be used in serious cases only (for example the target is generally illegal or inconsistent) as it will abort the dependency graph build for that target.
    * 
-   * @param context  the compilation context with view-specific parameters and configurations
-   * @param target  the target for which calculation is desired
+   * @param context the compilation context with view-specific parameters and configurations
+   * @param target the target for which calculation is desired
    * @return true iff this function can produce results for the specified target
    */
   boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target);
 
   /**
-   * Determine which result values can be produced by this function when applied to the
-   * specified target assuming no input constraints. Should return the <b>maximal</b> set of potential outputs.
-   * <b>Actual</b> computed values will be trimmed. It is only valid to call this on a function which has
-   * previously returned true to {@link #canApplyTo} for the given target, its behavior is otherwise
-   * undefined.
+   * Determine which result values can be produced by this function when applied to the specified target assuming no input constraints. Should return the <b>maximal</b> set of potential outputs.
+   * <b>Actual</b> computed values will be trimmed. It is only valid to call this on a function which has previously returned true to {@link #canApplyTo} for the given target, its behavior is
+   * otherwise undefined. Functions must return null and not throw exceptions if they cannot apply to the target; throwing an exception should be used in serious cases only (for example the target is
+   * generally illegal or inconsistent) as it will abort the dependency graph build for that target.
    * 
-   * @param context  the compilation context with view-specific parameters and configurations
-   * @param target  the target for which calculation is desired
-   * @return All results <b>possible</b> to be computed by this function for this target, null or the empty set
-   *         if no values are possible.
+   * @param context the compilation context with view-specific parameters and configurations
+   * @param target the target for which calculation is desired
+   * @return All results <b>possible</b> to be computed by this function for this target, null or the empty set if no values are possible.
    */
   Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target);
 

@@ -168,8 +168,12 @@ public abstract class FXOptionBlackFunctionDeprecated extends AbstractFunction.N
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties.Builder properties = getResultProperties(target);
-    return Collections.singleton(new ValueSpecification(_valueRequirementName, target.toSpecification(), properties.get()));
+    try {
+      final ValueProperties.Builder properties = getResultProperties(target);
+      return Collections.singleton(new ValueSpecification(_valueRequirementName, target.toSpecification(), properties.get()));
+    } catch (RuntimeException e) {
+      return null;
+    }
   }
 
   @Override

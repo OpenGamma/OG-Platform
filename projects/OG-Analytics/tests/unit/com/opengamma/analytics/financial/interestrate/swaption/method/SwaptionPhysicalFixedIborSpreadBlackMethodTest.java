@@ -13,8 +13,8 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.instrument.index.generator.GeneratorSwapTestsMaster;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
@@ -43,7 +43,7 @@ import com.opengamma.util.time.DateUtils;
 public class SwaptionPhysicalFixedIborSpreadBlackMethodTest {
 
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
-  private static final GeneratorSwapFixedIbor EUR1YEURIBOR3M = GeneratorSwapTestsMaster.getInstance().getGenerator("EUR1YEURIBOR3M", TARGET);
+  private static final GeneratorSwapFixedIbor EUR1YEURIBOR3M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("EUR1YEURIBOR3M", TARGET);
   private static final IborIndex EURIBOR3M = EUR1YEURIBOR3M.getIborIndex();
   //  private static final Currency EUR = EURIBOR3M.getCurrency();
   private static final GeneratorSwapFixedIbor EUR3MEURIBOR3M = new GeneratorSwapFixedIbor("EUR3MEURIBOR3M", EURIBOR3M.getTenor(), EURIBOR3M.getDayCount(), EURIBOR3M);

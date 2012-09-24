@@ -119,6 +119,36 @@ public class InterestRateCurveSensitivity {
   }
 
   /**
+   * Returns a map<String, Double> with the total sensitivity with respect to each curve.
+   * @return The map.
+   */
+  public Map<String, Double> totalSensitivityByCurve() {
+    HashMap<String, Double> s = new HashMap<String, Double>();
+    for (final String name : _sensitivity.keySet()) {
+      double total = 0.0;
+      for (DoublesPair p : _sensitivity.get(name)) {
+        total += p.second;
+      }
+      s.put(name, total);
+    }
+    return s;
+  }
+
+  /**
+   * Returns the total sensitivity to all curves.
+   * @return The sensitivity.
+   */
+  public double totalSensitivity() {
+    double total = 0.0;
+    for (final String name : _sensitivity.keySet()) {
+      for (DoublesPair p : _sensitivity.get(name)) {
+        total += p.second;
+      }
+    }
+    return total;
+  }
+
+  /**
    * Compare two sensitivities with a given tolerance. The tolerance is used for both the time and the value. The two sensitivities are suppose to be in the same time order.
    * @param sensi1 The first sensitivity.
    * @param sensi2 The second sensitivity.

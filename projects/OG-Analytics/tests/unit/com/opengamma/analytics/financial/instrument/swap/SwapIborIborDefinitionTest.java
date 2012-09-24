@@ -16,7 +16,7 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapIborIbor;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.instrument.index.iborindex.IndexIborTestsMaster;
+import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
@@ -32,7 +32,7 @@ import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeS
 public class SwapIborIborDefinitionTest {
 
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
-  private static final IndexIborTestsMaster INDEX_MASTER = IndexIborTestsMaster.getInstance();
+  private static final IndexIborMaster INDEX_MASTER = IndexIborMaster.getInstance();
   private static final IborIndex USDLIBOR3M = INDEX_MASTER.getIndex("USDLIBOR3M", CALENDAR);
   private static final IborIndex USDLIBOR6M = INDEX_MASTER.getIndex("USDLIBOR6M", CALENDAR);
   private static final Period ANNUITY_TENOR = Period.ofYears(2);

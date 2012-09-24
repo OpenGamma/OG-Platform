@@ -566,7 +566,7 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
 
     } catch (RuntimeException e) {
       
-      s_logger.info("Unexpected exception thrown when subscribing. Cleaning up.");
+      s_logger.info("Unexpected exception thrown when subscribing. Cleaning up.", e);
       
       for (Subscription subscription : securityUniqueId2NewSubscription.values()) {
         _securityUniqueId2Subscription.remove(subscription.getSecurityUniqueId());

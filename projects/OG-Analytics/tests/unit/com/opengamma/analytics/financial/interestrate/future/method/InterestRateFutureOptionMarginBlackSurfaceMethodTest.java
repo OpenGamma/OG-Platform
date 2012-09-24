@@ -13,7 +13,7 @@ import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDef
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.instrument.index.iborindex.IndexIborTestsMaster;
+import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.PresentValueBlackCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityBlackCalculator;
@@ -42,7 +42,7 @@ import com.opengamma.util.tuple.DoublesPair;
 public class InterestRateFutureOptionMarginBlackSurfaceMethodTest {
 
   private static final Calendar CALENDAR = new MondayToFridayCalendar("TARGET");
-  private static final IborIndex EURIBOR3M_INDEX = IndexIborTestsMaster.getInstance().getIndex("EURIBOR3M", CALENDAR);
+  private static final IborIndex EURIBOR3M_INDEX = IndexIborMaster.getInstance().getIndex("EURIBOR3M", CALENDAR);
   // Future
   private static final ZonedDateTime SPOT_LAST_TRADING_DATE = DateUtils.getUTCDate(2012, 9, 19);
   private static final ZonedDateTime LAST_TRADING_DATE = ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, -EURIBOR3M_INDEX.getSpotLag(), CALENDAR);

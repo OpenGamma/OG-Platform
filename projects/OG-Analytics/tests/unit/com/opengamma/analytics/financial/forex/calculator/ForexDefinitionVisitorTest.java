@@ -35,6 +35,7 @@ import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefi
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.DeliverableSwapFuturesSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
@@ -298,12 +299,12 @@ public class ForexDefinitionVisitorTest {
     }
 
     @Override
-    public String visitPaymentFixed(PaymentFixedDefinition payment, T data) {
+    public String visitPaymentFixedDefinition(PaymentFixedDefinition payment, T data) {
       return null;
     }
 
     @Override
-    public String visitPaymentFixed(PaymentFixedDefinition payment) {
+    public String visitPaymentFixedDefinition(PaymentFixedDefinition payment) {
       return null;
     }
 
@@ -644,18 +645,6 @@ public class ForexDefinitionVisitorTest {
     }
 
     @Override
-    public String visitForwardRateAgreement(ForwardRateAgreementDefinition payment, T data) {
-      // TODO Auto-generated method stub
-      return null;
-    }
-
-    @Override
-    public String visitForwardRateAgreement(ForwardRateAgreementDefinition payment) {
-      // TODO Auto-generated method stub
-      return null;
-    }
-
-    @Override
     public String visitCouponIborRatchet(CouponIborRatchetDefinition payment, T data) {
       // TODO Auto-generated method stub
       return null;
@@ -710,6 +699,16 @@ public class ForexDefinitionVisitorTest {
 
     @Override
     public String visitSwaptionPhysicalFixedIborSpreadDefinition(SwaptionPhysicalFixedIborSpreadDefinition swaption) {
+      return null;
+    }
+
+    @Override
+    public String visitDeliverableSwapFuturesSecurityDefinition(DeliverableSwapFuturesSecurityDefinition futures, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitDeliverableSwapFuturesSecurityDefinition(DeliverableSwapFuturesSecurityDefinition futures) {
       return null;
     }
 

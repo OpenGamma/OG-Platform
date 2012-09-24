@@ -16,8 +16,8 @@ import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDe
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.instrument.index.generator.GeneratorSwapTestsMaster;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
@@ -44,7 +44,7 @@ import com.opengamma.util.time.DateUtils;
 public class SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationObjectiveTest {
 
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
-  private static final GeneratorSwapFixedIbor EUR1YEURIBOR6M = GeneratorSwapTestsMaster.getInstance().getGenerator("EUR1YEURIBOR6M", TARGET);
+  private static final GeneratorSwapFixedIbor EUR1YEURIBOR6M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("EUR1YEURIBOR6M", TARGET);
   private static final IborIndex EURIBOR6M = EUR1YEURIBOR6M.getIborIndex();
 
   private static final int[] SWAP_TENOR_YEAR = {1, 2, 3, 4, 5};

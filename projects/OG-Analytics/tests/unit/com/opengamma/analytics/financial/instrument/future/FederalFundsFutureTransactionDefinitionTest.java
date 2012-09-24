@@ -13,10 +13,8 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureSecurityDefinition;
-import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
-import com.opengamma.analytics.financial.instrument.index.indexon.FEDFUND;
+import com.opengamma.analytics.financial.instrument.index.IndexONMaster;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -31,7 +29,7 @@ import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeS
 public class FederalFundsFutureTransactionDefinitionTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
-  private static final IndexON INDEX_FEDFUND = new FEDFUND(NYC);
+  private static final IndexON INDEX_FEDFUND = IndexONMaster.getInstance().getIndex("FED FUND", NYC);
 
   private static final ZonedDateTime MARCH_1 = DateUtils.getUTCDate(2012, 3, 1);
   private static final double NOTIONAL = 5000000;

@@ -23,8 +23,8 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.curve.sensitivity.ParameterSensitivityCalculator;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.instrument.index.generator.GeneratorSwapTestsMaster;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
@@ -61,7 +61,7 @@ public abstract class ParameterSensitivityCalculatorTest {
   protected static final YieldAndDiscountCurve FORWARD_CURVE_SPREAD;
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
-  private static final GeneratorSwapFixedIbor USD6MLIBOR3M = GeneratorSwapTestsMaster.getInstance().getGenerator("USD6MLIBOR3M", NYC);
+  private static final GeneratorSwapFixedIbor USD6MLIBOR3M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("USD6MLIBOR3M", NYC);
   private static final IborIndex USDLIBOR6M = USD6MLIBOR3M.getIborIndex();
   private static final Currency USD = USDLIBOR6M.getCurrency();
   private static final FXMatrix FX_MATRIX = new FXMatrix(USD);

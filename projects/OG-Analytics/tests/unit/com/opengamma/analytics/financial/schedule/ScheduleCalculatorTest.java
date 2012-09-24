@@ -17,8 +17,8 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorDeposit;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
+import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
 import com.opengamma.analytics.financial.instrument.index.generator.EURDeposit;
-import com.opengamma.analytics.financial.instrument.index.iborindex.IndexIborTestsMaster;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.businessday.FollowingBusinessDayConvention;
@@ -42,7 +42,7 @@ public class ScheduleCalculatorTest {
 
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final GeneratorDeposit GENERATOR_DEPOSIT = new EURDeposit(CALENDAR);
-  private static final IborIndex INDEX_EURIBOR6M = IndexIborTestsMaster.getInstance().getIndex("EURIBOR6M", CALENDAR);
+  private static final IborIndex INDEX_EURIBOR6M = IndexIborMaster.getInstance().getIndex("EURIBOR6M", CALENDAR);
 
   private static final Calendar ALL = new AllCalendar();
   private static final Calendar WEEKEND = new WeekendCalendar();

@@ -177,12 +177,12 @@ public class ForwardRateAgreementDefinition extends CouponFloatingDefinition {
 
   @Override
   public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
-    return visitor.visitForwardRateAgreement(this, data);
+    return visitor.visitForwardRateAgreementDefinition(this, data);
   }
 
   @Override
   public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
-    return visitor.visitForwardRateAgreement(this);
+    return visitor.visitForwardRateAgreementDefinition(this);
   }
 
   @Override
