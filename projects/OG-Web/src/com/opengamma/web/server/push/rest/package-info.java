@@ -52,22 +52,22 @@
  * {@link com.opengamma.web.portfolio.WebPortfoliosResource#getJSON}
  * for an example.</p>
  *
- * <h2>Querying Available Data Sources, View Definitions, Market Data Snapshots and Aggregators</h2>
- * <p>The data sources, view definitions, market data snapshots and aggregators available in the system can be queried as follows:</p>
+ * <h2>Querying the data needed for setting up views</h2>
+ * <h3>Live Data Sources</h3>
  * <pre>
  *   /jax/livedatasources</pre>
  * <p>returns</p>
  * <pre>
  *   [dataSourceName1, dataSourceName2, ...]
  * </pre>
- * <p>and</p>
+ * <h3>View Definitions</h3>
  * <pre>
  *   /jax/viewdefinitions</pre>
  * <p>returns</p>
  * <pre>
  *   [{id: viewDefId1, name: viewDefName1}, {id: viewDefId2, name: viewDefName2}, ...]
  * </pre>
- * <p>and</p>
+ * <h3>Market Data Snapshots</h3>
  * <pre>
  *   /jax/marketdatasnapshots</pre>
  * <p>returns</p>
@@ -75,12 +75,19 @@
  *   [{basisViewName: basisViewName1, snapshots: [{id: snapshot1Id, name: snapshot1Name}, {id: snapshot2Id, name: snapshot2Name}, ...]},
  *    {basisViewName: basisViewName2, snapshots: [{id: snapshot3Id, name: snapshot3Name}, {id: snapshot4Id, name: snapshot4Name}, ...]}, ...]
  * </pre>
- * <p>and</p>
+ * <h3>Aggregators</h3>
  * <pre>
  *   /jax/aggregators</pre>
  * <p>returns</p>
  * <pre>
  *   [aggregatorName1, aggregatorName2, ...]
+ * </pre>
+ * <h3>Time Series Resolver Keys</h3>
+ * <pre>
+ *   /jax/timeseriesresolverkeys</pre>
+ * <p>returns</p>
+ * <pre>
+ *   [keyName1, keyName2, ...]
  * </pre>
  *
  * <h2>Analytics</h2>
