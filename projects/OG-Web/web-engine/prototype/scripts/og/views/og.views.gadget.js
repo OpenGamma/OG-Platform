@@ -12,18 +12,15 @@ $.register_module({
             init: function () {for (var rule in view.rules) routes.add(view.rules[rule]);},
             root: function () {$content.html('No gadget was specified.');},
             grid: function (args) {
-                // TODO this is a global ... remove it!
-                grid = new og.analytics.Grid({
-                    selector: content,
-                    sparklines: false,
-                    source: {
-                        type: 'portfolio',
-                        depgraph: true,
-                        viewdefinition: args.id,
-                        row: 4, col: 6,
-                        providers: [{'marketDataType': 'live', source: 'Bloomberg'}]
-                    }
-                });
+                og.api.rest.compressor.get({content: args.blob})
+                    .pipe(function (result) {
+                        // TODO this is a global ... remove it!
+                        grid = new og.analytics.Grid({
+                            selector: content,
+                            sparklines: false,
+                            source: result.data.data
+                        });
+                    });
             },
             gadgetscontainer: function (args) {
                 ['center'].forEach(function (val) {
@@ -51,19 +48,19 @@ $.register_module({
                 if (args.id) options.id = args.id; else options.data = og.api.common.cache_get(args.key);
                 if (args.key) og.api.common.cache_del(args.key);
                 if (!options.data && !options.id) return $('#gadget_content').html('There is no data to load.');
-                gadgets.timeseries(options);
+                new gadgets.Timeseries(options);
             },
             rules: {
-                root: {route: '/frame:?', method: module.name + '.root'},
-                grid: {route: '/grid/:id/frame:?', method: module.name + '.grid'},
+                root: {route: '/', method: module.name + '.root'},
+                grid: {route: '/grid/:blob', method: module.name + '.grid'},
                 gadgetscontainer: {
-                    route: '/gadgetscontainer/:center/frame:?',
+                    route: '/gadgetscontainer/:center',
                     method: module.name + '.gadgetscontainer'
                 },
-                positions: {route: '/positions/:id/trades:?/frame:?', method: module.name + '.positions'},
-                positions: {route: '/positions/:id/trades:?/frame:?', method: module.name + '.positions'},
-                securities: {route: '/securities/:id/frame:?', method: module.name + '.securities'},
-                timeseries: {route: '/timeseries/id:?/key:?/frame:?', method: module.name + '.timeseries'}
+                positions: {route: '/positions/:id/trades:?', method: module.name + '.positions'},
+                positions: {route: '/positions/:id/trades:?', method: module.name + '.positions'},
+                securities: {route: '/securities/:id', method: module.name + '.securities'},
+                timeseries: {route: '/timeseries/id:?/key:?', method: module.name + '.timeseries'}
             }
         }
     }

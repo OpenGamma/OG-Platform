@@ -148,7 +148,7 @@ $.register_module({
                             }, '')
                         ).end().find('.OG-table').tablesorter();
                         // Plot
-                        common.gadgets.timeseries({
+                        new common.gadgets.Timeseries({
                             selector: '.OG-timeseries-container',
                             id: result.data.template_data.object_id,
                             datapoints: true, height: 400

@@ -6,7 +6,7 @@
  * @see http://code.google.com/p/flot/
  */
 $.register_module({
-    name: 'og.common.gadgets.timeseries',
+    name: 'og.common.gadgets.Timeseries',
     dependencies: ['og.api.rest', 'og.common.gadgets.manager'],
     obj: function () {
         var api = og.api, prefix = 'timeseries_', counter = 1;
