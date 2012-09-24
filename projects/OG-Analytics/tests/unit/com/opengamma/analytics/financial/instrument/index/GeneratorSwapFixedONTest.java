@@ -11,8 +11,6 @@ import javax.time.calendar.Period;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.instrument.index.generator.USD1YFEDFUND;
-import com.opengamma.analytics.financial.instrument.index.indexon.FEDFUND;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -22,10 +20,10 @@ import com.opengamma.financial.convention.daycount.DayCount;
 /**
  * Tests related to the construction of Fixed/ON (OIS) generators.
  */
-public class GeneratorFixedONTest {
+public class GeneratorSwapFixedONTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
-  private static final IndexON INDEX_FEDFUND = new FEDFUND(NYC);
+  private static final IndexON INDEX_FEDFUND = IndexONMaster.getInstance().getIndex("FED FUND", NYC);
   private static final String USD_NAME = "USD1YFEDFUND";
   private static final Period USD_PERIOD = Period.ofMonths(12);
   private static final DayCount USD_DAYCOUNT_FIXED = INDEX_FEDFUND.getDayCount();
@@ -33,31 +31,31 @@ public class GeneratorFixedONTest {
   private static final boolean USD_IS_EOM = true;
   private static final int USD_SPOT_LAG = 2;
 
-  private static final GeneratorFixedON USD_GENERATOR_OIS = new GeneratorFixedON(USD_NAME, INDEX_FEDFUND, USD_PERIOD, USD_DAYCOUNT_FIXED, USD_BUSINESS_DAY, USD_IS_EOM, USD_SPOT_LAG);
+  private static final GeneratorSwapFixedON USD_GENERATOR_OIS = new GeneratorSwapFixedON(USD_NAME, INDEX_FEDFUND, USD_PERIOD, USD_DAYCOUNT_FIXED, USD_BUSINESS_DAY, USD_IS_EOM, USD_SPOT_LAG);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullCurrency() {
-    new GeneratorFixedON(null, INDEX_FEDFUND, USD_PERIOD, USD_DAYCOUNT_FIXED, USD_BUSINESS_DAY, USD_IS_EOM, USD_SPOT_LAG);
+    new GeneratorSwapFixedON(null, INDEX_FEDFUND, USD_PERIOD, USD_DAYCOUNT_FIXED, USD_BUSINESS_DAY, USD_IS_EOM, USD_SPOT_LAG);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullPeriod() {
-    new GeneratorFixedON(USD_NAME, INDEX_FEDFUND, null, USD_DAYCOUNT_FIXED, USD_BUSINESS_DAY, USD_IS_EOM, USD_SPOT_LAG);
+    new GeneratorSwapFixedON(USD_NAME, INDEX_FEDFUND, null, USD_DAYCOUNT_FIXED, USD_BUSINESS_DAY, USD_IS_EOM, USD_SPOT_LAG);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullDayCount() {
-    new GeneratorFixedON(USD_NAME, INDEX_FEDFUND, USD_PERIOD, null, USD_BUSINESS_DAY, USD_IS_EOM, USD_SPOT_LAG);
+    new GeneratorSwapFixedON(USD_NAME, INDEX_FEDFUND, USD_PERIOD, null, USD_BUSINESS_DAY, USD_IS_EOM, USD_SPOT_LAG);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullBusinessDay() {
-    new GeneratorFixedON(USD_NAME, INDEX_FEDFUND, USD_PERIOD, USD_DAYCOUNT_FIXED, null, USD_IS_EOM, USD_SPOT_LAG);
+    new GeneratorSwapFixedON(USD_NAME, INDEX_FEDFUND, USD_PERIOD, USD_DAYCOUNT_FIXED, null, USD_IS_EOM, USD_SPOT_LAG);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullIndex() {
-    new GeneratorFixedON(USD_NAME, null, USD_PERIOD, USD_DAYCOUNT_FIXED, USD_BUSINESS_DAY, USD_IS_EOM, USD_SPOT_LAG);
+    new GeneratorSwapFixedON(USD_NAME, null, USD_PERIOD, USD_DAYCOUNT_FIXED, USD_BUSINESS_DAY, USD_IS_EOM, USD_SPOT_LAG);
   }
 
   @Test
@@ -81,7 +79,7 @@ public class GeneratorFixedONTest {
    * Tests the standard USD OIS builders.
    */
   public void usdStandard() {
-    GeneratorFixedON usdStandard = new USD1YFEDFUND(NYC);
+    GeneratorSwapFixedON usdStandard = GeneratorSwapFixedONMaster.getInstance().getGenerator("USD1YFEDFUND", NYC);
     assertEquals("Generator OIS: standard", USD_NAME, usdStandard.getName());
     assertEquals("Generator OIS: standard", USD_PERIOD, usdStandard.getLegsPeriod());
     assertEquals("Generator OIS: standard", USD_DAYCOUNT_FIXED, usdStandard.getFixedLegDayCount());

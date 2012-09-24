@@ -20,7 +20,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 /**
  * Generator (or template) for OIS.
  */
-public class GeneratorFixedON extends GeneratorInstrument {
+public class GeneratorSwapFixedON extends GeneratorInstrument {
 
   /**
    * The ON index of the floating leg.
@@ -69,7 +69,7 @@ public class GeneratorFixedON extends GeneratorInstrument {
    * @param endOfMonth The flag indicating if the end-of-month rule is used (used for both legs).
    * @param spotLag The index spot lag in days between trade and settlement date (usually 2 or 0).
    */
-  public GeneratorFixedON(final String name, final IndexON index, final Period legsPeriod, final DayCount fixedLegDayCount, final BusinessDayConvention businessDayConvention,
+  public GeneratorSwapFixedON(final String name, final IndexON index, final Period legsPeriod, final DayCount fixedLegDayCount, final BusinessDayConvention businessDayConvention,
       final boolean endOfMonth, final int spotLag) {
     super(name);
     Validate.notNull(legsPeriod, "Period");
@@ -98,7 +98,7 @@ public class GeneratorFixedON extends GeneratorInstrument {
    * @param spotLag The index spot lag in days between trade and settlement date (usually 2 or 0).
    * @param paymentLag The lag in days between the last ON fixing date and the coupon payment.
    */
-  public GeneratorFixedON(final String name, final IndexON index, final Period legsPeriod, final DayCount fixedLegDayCount, final BusinessDayConvention businessDayConvention,
+  public GeneratorSwapFixedON(final String name, final IndexON index, final Period legsPeriod, final DayCount fixedLegDayCount, final BusinessDayConvention businessDayConvention,
       final boolean endOfMonth, final int spotLag, final int paymentLag) {
     super(name);
     Validate.notNull(legsPeriod, "Period");
@@ -229,7 +229,7 @@ public class GeneratorFixedON extends GeneratorInstrument {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    GeneratorFixedON other = (GeneratorFixedON) obj;
+    GeneratorSwapFixedON other = (GeneratorSwapFixedON) obj;
     if (!ObjectUtils.equals(_businessDayConvention, other._businessDayConvention)) {
       return false;
     }

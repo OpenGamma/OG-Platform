@@ -20,7 +20,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.calculator.PresentValueMCACalculator;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.instrument.index.iborindex.IndexIborTestsMaster;
+import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundedDefinition;
 import com.opengamma.analytics.financial.interestrate.FDCurveSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
@@ -45,7 +45,7 @@ import com.opengamma.util.tuple.DoublesPair;
 public class CouponIborCompoundedDiscountingMethodTest {
 
   private static final Calendar TOR = new MondayToFridayCalendar("TOR");
-  private static final IborIndex CDOR3M = IndexIborTestsMaster.getInstance().getIndex("CADCDOR3M", TOR);
+  private static final IborIndex CDOR3M = IndexIborMaster.getInstance().getIndex("CADCDOR3M", TOR);
   private static final Period M6 = Period.ofMonths(6);
   private static final double NOTIONAL = 123000000;
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2012, 8, 24);

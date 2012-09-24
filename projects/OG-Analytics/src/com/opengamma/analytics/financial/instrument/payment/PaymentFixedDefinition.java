@@ -88,12 +88,12 @@ public class PaymentFixedDefinition extends PaymentDefinition {
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
-    return visitor.visitPaymentFixed(this, data);
+    return visitor.visitPaymentFixedDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
-    return visitor.visitPaymentFixed(this);
+    return visitor.visitPaymentFixedDefinition(this);
   }
 
   @Override
