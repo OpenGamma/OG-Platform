@@ -87,8 +87,8 @@ $.register_module({
             m.$dom.cntr = config.$cntr.html($((Handlebars.compile(tmpl))(data)));
             m.$dom.title = $('.og-option-title', m.$dom.cntr);
             m.$dom.title_default_txt = $('Select aggregation type...');
-            m.$dom.title_start = $('<div>').append('<span>Aggregated by</span>');
-            m.$dom.title_conjunction = $('<div>').append('<span>then</span>');
+            m.$dom.title_prefix = $('<div>');
+            m.$dom.title_infix = $('<div>');
             m.$dom.menu = $('.OG-analytics-form-menu', m.$dom.cntr)
             m.$dom.menu_actions = $('.OG-dropmenu-actions', m.$dom.menu);
             m.$dom.opt = $('.OG-dropmenu-options', m.$dom.menu);
