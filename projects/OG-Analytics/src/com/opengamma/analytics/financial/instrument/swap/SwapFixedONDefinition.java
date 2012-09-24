@@ -12,7 +12,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponOISDefinition;
-import com.opengamma.analytics.financial.instrument.index.GeneratorFixedON;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
@@ -46,7 +46,7 @@ public class SwapFixedONDefinition extends SwapDefinition {
    * @param isPayer The flag indicating if the annuity is paying (true) or receiving (false).
    * @return The swap.
    */
-  public static SwapFixedONDefinition from(final ZonedDateTime settlementDate, final Period tenorAnnuity, final double notional, final GeneratorFixedON generator, final double fixedRate,
+  public static SwapFixedONDefinition from(final ZonedDateTime settlementDate, final Period tenorAnnuity, final double notional, final GeneratorSwapFixedON generator, final double fixedRate,
       final boolean isPayer) {
     AnnuityCouponOISDefinition oisLeg = AnnuityCouponOISDefinition.from(settlementDate, tenorAnnuity, notional, generator, !isPayer);
     final double sign = isPayer ? -1.0 : 1.0;
@@ -64,7 +64,7 @@ public class SwapFixedONDefinition extends SwapDefinition {
    * @param isPayer The flag indicating if the annuity is paying (true) or receiving (false).
    * @return The swap.
    */
-  public static SwapFixedONDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime endFixingPeriodDate, final double notional, final GeneratorFixedON generator, 
+  public static SwapFixedONDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime endFixingPeriodDate, final double notional, final GeneratorSwapFixedON generator, 
       final double fixedRate, final boolean isPayer) {
     AnnuityCouponOISDefinition oisLeg = AnnuityCouponOISDefinition.from(settlementDate, endFixingPeriodDate, notional, generator, !isPayer);
     final double sign = isPayer ? -1.0 : 1.0;
@@ -84,7 +84,7 @@ public class SwapFixedONDefinition extends SwapDefinition {
    * @return The swap.
    */
   public static SwapFixedONDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime endFixingPeriodDate, final double notionalFixed, final double notionalOIS,
-      final GeneratorFixedON generator, final double fixedRate, final boolean isPayer) {
+      final GeneratorSwapFixedON generator, final double fixedRate, final boolean isPayer) {
     AnnuityCouponOISDefinition oisLeg = AnnuityCouponOISDefinition.from(settlementDate, endFixingPeriodDate, notionalOIS, generator, !isPayer);
     final double sign = isPayer ? -1.0 : 1.0;
     double notionalSigned = sign * notionalFixed;

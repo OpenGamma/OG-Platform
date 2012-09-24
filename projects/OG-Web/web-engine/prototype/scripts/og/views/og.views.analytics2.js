@@ -13,6 +13,7 @@ $.register_module({
         return view = {
             check_state: og.views.common.state.check.partial('/'),
             default_details: function () {
+                og.analytics.containers.initialize({});
                 og.api.text({module: 'og.analytics.grid.configure_tash'}).pipe(function (markup) {
                     var template = Handlebars.compile(markup);
                     $('.OG-layout-analytics-center').html(template({}));
@@ -20,35 +21,19 @@ $.register_module({
                 });
             },
             load: function (args) {
-                if (!args.id) return view.default_details();
+                view.check_state({args: args, conditions: [{new_page: view.default_details}]});
                 og.analytics.resize();
-                og.analytics.containers.initialize(args);
                 og.analytics.form('.OG-layout-analytics-masthead');
             },
             load_item: function (args) {
                 view.check_state({args: args, conditions: [{new_page: view.load}]});
-                // TODO: remove global
-                grid = new og.analytics.Grid({
-                   selector: '.OG-layout-analytics-center',
-                   source: {
-                       type: 'portfolio',
-                       depgraph: false,
-                       viewdefinition: args.id,
-                       providers: [{'marketDataType': 'live', source: 'Bloomberg'}]
-                   }
-                });
-                grid.on('cellhover', function (cell) {
-                    if (!cell.value || cell.type === 'PRIMITIVE' || cell.col < 2) return  cellmenu.hide();
-                    cellmenu.show(cell);
-                });
-                grid.on('cellselect', function () {});
+                og.analytics.url.process(args);                
                 og.analytics.resize();
             },
             init: function () {for (var rule in view.rules) routes.add(view.rules[rule]);},
             rules: {
                 load: {route: '/', method: module.name + '.load'},
-                load_item: {route: '/:id/south:?/dock-north:?/dock-center:?/dock-south:?',
-                    method: module.name + '.load_item'}
+                load_item: {route: '/:data', method: module.name + '.load_item'}
             }
         };
     }

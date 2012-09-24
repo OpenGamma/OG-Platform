@@ -13,7 +13,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.instrument.index.iborindex.IndexIborTestsMaster;
+import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -30,7 +30,7 @@ public class CouponIborTest {
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27);
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
-  private static final IndexIborTestsMaster INDEX_IBOR_MASTER = IndexIborTestsMaster.getInstance();
+  private static final IndexIborMaster INDEX_IBOR_MASTER = IndexIborMaster.getInstance();
   private static final IborIndex INDEX_EURIBOR3M = INDEX_IBOR_MASTER.getIndex("EURIBOR3M", TARGET);
   private static final Currency EUR = INDEX_EURIBOR3M.getCurrency();
   // Coupon

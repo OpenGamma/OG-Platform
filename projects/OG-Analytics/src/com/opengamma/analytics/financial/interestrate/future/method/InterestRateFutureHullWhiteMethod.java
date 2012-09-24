@@ -25,6 +25,8 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Method to compute the price for an interest rate future with convexity adjustment from a Hull-White one factor model.
+ * <p> Reference: Henrard M., Eurodollar Futures and Options: Convexity Adjustment in HJM One-Factor Model. March 2005. 
+ * Available at <a href="http://ssrn.com/abstract=682343">http://ssrn.com/abstract=682343</a>
  */
 public final class InterestRateFutureHullWhiteMethod extends InterestRateFutureMethod {
 

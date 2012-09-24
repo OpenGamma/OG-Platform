@@ -18,7 +18,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.instrument.index.GeneratorFixedON;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
@@ -53,7 +53,7 @@ public class AnnuityCouponOISDefinitionTest {
   private static final double NOTIONAL = 100000000;
   private static final IndexON INDEX = new IndexON("O/N", CCY, DAY_COUNT, 0, CALENDAR);
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-  private static final GeneratorFixedON GENERATOR = new GeneratorFixedON("OIS", INDEX, PAYMENT_PERIOD, DAY_COUNT, BUSINESS_DAY, IS_EOM, 1);
+  private static final GeneratorSwapFixedON GENERATOR = new GeneratorSwapFixedON("OIS", INDEX, PAYMENT_PERIOD, DAY_COUNT, BUSINESS_DAY, IS_EOM, 1);
   private static final boolean IS_PAYER = true;
   private static final AnnuityCouponOISDefinition DEFINITION = AnnuityCouponOISDefinition.from(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL, GENERATOR, IS_PAYER);
   private static final int NUM_PAYMENTS = DEFINITION.getNumberOfPayments();
@@ -116,7 +116,7 @@ public class AnnuityCouponOISDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullGenerator1() {
-    AnnuityCouponOISDefinition.from(SETTLEMENT_DATE, MATURITY_TENOR, NOTIONAL, (GeneratorFixedON) null, IS_PAYER);
+    AnnuityCouponOISDefinition.from(SETTLEMENT_DATE, MATURITY_TENOR, NOTIONAL, (GeneratorSwapFixedON) null, IS_PAYER);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -131,7 +131,7 @@ public class AnnuityCouponOISDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullGenerator2() {
-    AnnuityCouponOISDefinition.from(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL, (GeneratorFixedON) null, IS_PAYER);
+    AnnuityCouponOISDefinition.from(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL, (GeneratorSwapFixedON) null, IS_PAYER);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -168,7 +168,7 @@ public class AnnuityCouponOISDefinitionTest {
     assertFalse(DEFINITION.equals(definition));
     definition = AnnuityCouponOISDefinition.from(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL / 2, GENERATOR, IS_PAYER);
     assertFalse(DEFINITION.equals(definition));
-    definition = AnnuityCouponOISDefinition.from(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL, new GeneratorFixedON("OIS", INDEX, PAYMENT_PERIOD, DAY_COUNT, BUSINESS_DAY, IS_EOM, 0), IS_PAYER);
+    definition = AnnuityCouponOISDefinition.from(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL, new GeneratorSwapFixedON("OIS", INDEX, PAYMENT_PERIOD, DAY_COUNT, BUSINESS_DAY, IS_EOM, 0), IS_PAYER);
     assertFalse(DEFINITION.equals(definition));
     definition = AnnuityCouponOISDefinition.from(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL, GENERATOR, !IS_PAYER);
     assertFalse(DEFINITION.equals(definition));

@@ -13,11 +13,10 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
-import com.opengamma.analytics.financial.instrument.index.indexon.FEDFUND;
+import com.opengamma.analytics.financial.instrument.index.IndexONMaster;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
-import com.opengamma.analytics.financial.interestrate.future.method.FederalFundsFutureSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
@@ -30,7 +29,7 @@ public class FederalFundsFutureSecurityDiscountingMethodTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 1, 30);
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
-  private static final IndexON INDEX_FEDFUND = new FEDFUND(NYC);
+  private static final IndexON INDEX_FEDFUND = IndexONMaster.getInstance().getIndex("FED FUND", NYC);
   private static final ZonedDateTime MARCH_1 = DateUtils.getUTCDate(2012, 3, 1);
 
   private static final FederalFundsFutureSecurityDefinition FUTURE_SECURITY_DEFINITION = FederalFundsFutureSecurityDefinition.fromFedFund(MARCH_1, INDEX_FEDFUND);

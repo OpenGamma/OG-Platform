@@ -9,8 +9,8 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorDeposit;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
 import com.opengamma.analytics.financial.instrument.index.IndexSwap;
-import com.opengamma.analytics.financial.instrument.index.generator.GeneratorSwapTestsMaster;
 import com.opengamma.analytics.financial.instrument.index.generator.USDDeposit;
 import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSSpreadDefinition;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
@@ -30,7 +30,7 @@ import com.opengamma.util.time.DateUtils;
 public class CapFloorCMSSpreadG2ppMethodTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
-  private static final GeneratorSwapFixedIbor GEN_USD6MLIBOR3M = GeneratorSwapTestsMaster.getInstance().getGenerator("USD6MLIBOR3M", NYC);
+  private static final GeneratorSwapFixedIbor GEN_USD6MLIBOR3M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("USD6MLIBOR3M", NYC);
   private static final GeneratorDeposit GEN_USD_DEPOSIT = new USDDeposit(NYC);
   private static final IndexSwap SWAP_USD10Y = new IndexSwap(GEN_USD6MLIBOR3M, Period.ofYears(10));
   private static final IndexSwap SWAP_USD2Y = new IndexSwap(GEN_USD6MLIBOR3M, Period.ofYears(2));

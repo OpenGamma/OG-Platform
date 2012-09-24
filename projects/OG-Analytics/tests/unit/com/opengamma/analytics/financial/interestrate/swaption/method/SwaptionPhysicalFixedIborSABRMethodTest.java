@@ -21,10 +21,10 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
+import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
 import com.opengamma.analytics.financial.instrument.index.IndexSwap;
-import com.opengamma.analytics.financial.instrument.index.generator.GeneratorSwapTestsMaster;
-import com.opengamma.analytics.financial.instrument.index.iborindex.IndexIborTestsMaster;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
@@ -375,12 +375,12 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
    * Analyzes the smoothness of sensitivities.
    */
   public void analysisSensitivities() {
-    IborIndex USDLIBOR3M = IndexIborTestsMaster.getInstance().getIndex("USDLIBOR3M", CALENDAR);
+    IborIndex USDLIBOR3M = IndexIborMaster.getInstance().getIndex("USDLIBOR3M", CALENDAR);
     Period expiryTenor = Period.ofYears(5);
     Period underlyingTenor = Period.ofYears(10);
     ZonedDateTime expiryDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, expiryTenor, USDLIBOR3M);
     ZonedDateTime settleDate = ScheduleCalculator.getAdjustedDate(expiryDate, USDLIBOR3M.getSpotLag(), CALENDAR);
-    GeneratorSwapFixedIbor USD6MLIBOR3M = GeneratorSwapTestsMaster.getInstance().getGenerator("USD6MLIBOR3M", CALENDAR);
+    GeneratorSwapFixedIbor USD6MLIBOR3M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("USD6MLIBOR3M", CALENDAR);
     double notional = 1000000; // 1m
     double strikeRange = 0.1150;
     double strikeStart = 0.0050;

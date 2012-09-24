@@ -232,8 +232,10 @@ $.register_module({
                             position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
                             display: i === arr.length - 1 ? 'block' : 'none'
                         });
-                    gadgets.splice(idx || gadgets.length, 0,
-                        gadget = {id: id, config: obj, type: type, gadget: new constructor(options)});
+                    try {
+                        gadgets.splice(idx || gadgets.length, 0,
+                            gadget = {id: id, config: obj, type: type, gadget: new constructor(options)});
+                    } catch (error) {debugger;}
                     return gadget;
                 });
                 update_tabs(new_gadgets[new_gadgets.length - 1].id);

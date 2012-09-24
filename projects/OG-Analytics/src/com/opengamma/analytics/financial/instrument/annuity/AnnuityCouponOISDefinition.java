@@ -12,7 +12,7 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.analytics.financial.instrument.index.GeneratorFixedON;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapIborON;
 import com.opengamma.analytics.financial.instrument.payment.CouponOISDefinition;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
@@ -46,7 +46,7 @@ public class AnnuityCouponOISDefinition extends AnnuityCouponDefinition<CouponOI
    * @param isPayer The flag indicating if the annuity is paying (true) or receiving (false).
    * @return The annuity.
    */
-  public static AnnuityCouponOISDefinition from(final ZonedDateTime settlementDate, final Period tenorAnnuity, final double notional, final GeneratorFixedON generator, final boolean isPayer) {
+  public static AnnuityCouponOISDefinition from(final ZonedDateTime settlementDate, final Period tenorAnnuity, final double notional, final GeneratorSwapFixedON generator, final boolean isPayer) {
     ArgumentChecker.notNull(settlementDate, "settlement date");
     ArgumentChecker.notNull(tenorAnnuity, "tenor annuity");
     ArgumentChecker.notNull(generator, "generator");
@@ -82,7 +82,7 @@ public class AnnuityCouponOISDefinition extends AnnuityCouponDefinition<CouponOI
    * @param isPayer The flag indicating if the annuity is paying (true) or receiving (false).
    * @return The annuity.
    */
-  public static AnnuityCouponOISDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime endFixingPeriodDate, final double notional, final GeneratorFixedON generator,
+  public static AnnuityCouponOISDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime endFixingPeriodDate, final double notional, final GeneratorSwapFixedON generator,
       final boolean isPayer) {
     ArgumentChecker.notNull(settlementDate, "settlement date");
     ArgumentChecker.notNull(endFixingPeriodDate, "End fixing period date");
@@ -111,7 +111,7 @@ public class AnnuityCouponOISDefinition extends AnnuityCouponDefinition<CouponOI
     return AnnuityCouponOISDefinition.from(settlementDate, endFixingPeriodDates, notional, generator, isPayer);
   }
 
-  private static AnnuityCouponOISDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime[] endFixingPeriodDate, final double notional, final GeneratorFixedON generator,
+  private static AnnuityCouponOISDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime[] endFixingPeriodDate, final double notional, final GeneratorSwapFixedON generator,
       final boolean isPayer) {
     final double sign = isPayer ? -1.0 : 1.0;
     final double notionalSigned = sign * notional;

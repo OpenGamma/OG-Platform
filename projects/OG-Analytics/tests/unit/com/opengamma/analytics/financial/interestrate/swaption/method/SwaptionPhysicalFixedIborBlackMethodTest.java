@@ -20,7 +20,7 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.horizon.ConstantSpreadHorizonThetaCalculator;
 import com.opengamma.analytics.financial.horizon.ConstantSpreadSwaptionBlackRolldown;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
-import com.opengamma.analytics.financial.instrument.index.generator.GeneratorSwapTestsMaster;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.analytics.financial.interestrate.BlackSwaptionSensitivityNodeCalculator;
@@ -56,7 +56,7 @@ public class SwaptionPhysicalFixedIborBlackMethodTest {
   // Data
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 1, 10);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("TARGET");
-  private static final GeneratorSwapTestsMaster GENERATOR_SWAP_MASTER = GeneratorSwapTestsMaster.getInstance();
+  private static final GeneratorSwapFixedIborMaster GENERATOR_SWAP_MASTER = GeneratorSwapFixedIborMaster.getInstance();
   private static final GeneratorSwapFixedIbor GENERATOR_EUR1YEURIBOR6M = GENERATOR_SWAP_MASTER.getGenerator("EUR1YEURIBOR6M", CALENDAR);
   private static final YieldCurveBundle CURVES = TestsDataSetsBlack.createCurvesEUR();
   private static final BlackSwaptionParameters BLACK = TestsDataSetsBlack.createBlackSwaptionEUR6();

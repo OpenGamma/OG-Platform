@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.instrument.cash.DepositIborDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.instrument.index.iborindex.IndexIborTestsMaster;
+import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbor;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
@@ -25,7 +25,7 @@ import com.opengamma.util.time.DateUtils;
 public class DepositIborDefinitionTest {
 
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
-  private static final IborIndex INDEX = IndexIborTestsMaster.getInstance().getIndex("EURIBOR6M", TARGET);
+  private static final IborIndex INDEX = IndexIborMaster.getInstance().getIndex("EURIBOR6M", TARGET);
   private static final Currency EUR = INDEX.getCurrency();
 
   private static final ZonedDateTime TRADE_DATE = DateUtils.getUTCDate(2011, 12, 12);

@@ -16,9 +16,9 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.instrument.index.GeneratorFixedON;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedONMaster;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
-import com.opengamma.analytics.financial.instrument.index.generator.USD1YFEDFUND;
 import com.opengamma.analytics.financial.instrument.payment.CouponOISSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedONDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedONSimplifiedDefinition;
@@ -323,7 +323,7 @@ public class CouponOISDiscountingMethodTest {
 
   // Swap Fed Fund 6M (the fixing take place at the end of the period; in some cases a negative time discount factor is required).
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
-  private static final GeneratorFixedON OIS_USD_GENERATOR = new USD1YFEDFUND(NYC);
+  private static final GeneratorSwapFixedON OIS_USD_GENERATOR = GeneratorSwapFixedONMaster.getInstance().getGenerator("USD1YFEDFUND", NYC);
   private static final double USD_FIXED_RATE = 0.0050;
   private static final Period TENOR_6M = Period.ofMonths(6);
   private static final SwapFixedONDefinition OIS_DEFINITION = SwapFixedONDefinition.from(START_ACCRUAL_DATE, TENOR_6M, NOTIONAL, OIS_USD_GENERATOR, USD_FIXED_RATE, IS_PAYER);

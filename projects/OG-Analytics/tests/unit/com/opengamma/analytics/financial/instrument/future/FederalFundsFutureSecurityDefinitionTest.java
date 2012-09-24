@@ -16,10 +16,8 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
-import com.opengamma.analytics.financial.instrument.index.indexon.EONIA;
-import com.opengamma.analytics.financial.instrument.index.indexon.FEDFUND;
+import com.opengamma.analytics.financial.instrument.index.IndexONMaster;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
@@ -37,7 +35,7 @@ import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeS
 public class FederalFundsFutureSecurityDefinitionTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
-  private static final IndexON INDEX_FEDFUND = new FEDFUND(NYC);
+  private static final IndexON INDEX_FEDFUND = IndexONMaster.getInstance().getIndex("FED FUND", NYC);
   private static final BusinessDayConvention BUSINESS_DAY_PRECEDING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding");
   private static final BusinessDayConvention BUSINESS_DAY_FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final ZonedDateTime MARCH_1 = DateUtils.getUTCDate(2012, 3, 1);
@@ -128,7 +126,8 @@ public class FederalFundsFutureSecurityDefinitionTest {
     FederalFundsFutureSecurityDefinition modifiedFuture;
     modifiedFuture = new FederalFundsFutureSecurityDefinition(PERIOD_LAST_DATE, INDEX_FEDFUND, FIXING_DATE, FIXING_ACCURAL_FACTOR, NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME);
     assertFalse(FUTURE_FEDFUND_DEFINITION.equals(modifiedFuture));
-    modifiedFuture = new FederalFundsFutureSecurityDefinition(LAST_TRADING_DATE, new EONIA(NYC), FIXING_DATE, FIXING_ACCURAL_FACTOR, NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME);
+    modifiedFuture = new FederalFundsFutureSecurityDefinition(LAST_TRADING_DATE, IndexONMaster.getInstance().getIndex("EONIA", NYC), FIXING_DATE, FIXING_ACCURAL_FACTOR, NOTIONAL,
+        PAYMENT_ACCURAL_FACTOR, NAME);
     assertFalse(FUTURE_FEDFUND_DEFINITION.equals(modifiedFuture));
     modifiedFuture = new FederalFundsFutureSecurityDefinition(LAST_TRADING_DATE, INDEX_FEDFUND, FIXING_DATE, FIXING_ACCURAL_FACTOR, NOTIONAL + 1.0, PAYMENT_ACCURAL_FACTOR, NAME);
     assertFalse(FUTURE_FEDFUND_DEFINITION.equals(modifiedFuture));
