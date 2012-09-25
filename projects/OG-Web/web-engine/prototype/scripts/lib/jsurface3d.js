@@ -3,7 +3,7 @@
  * Please see distribution for license.
  */
 (function () {
-    var webgl = Detector.webgl ? true : false, util = {},
+    var webgl = Detector.webgl ? true : false, util = {}, stylesheet,
         default_settings = {
             axis_offset: 1.5,           // distance from surface
             debug: false,
@@ -14,6 +14,7 @@
             font_height: 4,             // extrusion height for 3D text
             font_color: '0x000000',     // font color for value labels
             font_color_axis_labels: '0xcccccc',
+            hud: true,
             interactive_color_nix: '0xff0000',
             interactive_color_css: '#f00',
             precision_lbl: 2,           // floating point presions for labels
@@ -250,9 +251,14 @@
             }
             return group;
         };
-        gadget.die = function () {
+        /**
+         * Clean up this jsurface3d instance or all instances
+         * @param {Boolean} all also remove shared stylesheet
+         */
+        gadget.die = function (all) {
             load_buffer.clear();
             cancelAnimationFrame(animation_frame);
+            if (all) $(stylesheet).remove();
         };
         /**
          * Creates floor
@@ -523,7 +529,6 @@
             camera.aspect = width / height;
             camera.updateProjectionMatrix();
             renderer.setSize(width, height);
-            hud.load();
             renderer.render(scene, camera);
         };
         /**
@@ -538,22 +543,51 @@
          * Loads 2D overlay display with form
          */
         hud.load = function () {
-            $.when(og.api.text({module: 'og.views.gadgets.surface.hud_tash'})).then(function (tmpl) {
-                var min = vol_min.toFixed(settings.precision_hud), max = vol_max.toFixed(settings.precision_hud),
-                    html = (Handlebars.compile(tmpl))({min: min, max: max}),
-                    $html = $(html).appendTo($selector);
-                hud.vol_canvas_height = height / 2;
-                if (webgl) hud.volatility($html.find('canvas')[0]);
-                else $html.find('.og-volatility').hide();
-                hud.form();
-            });
+            if (!default_settings.hud) return;
+            (function () {
+                if ($(stylesheet).length) return;
+                var css = '\
+                    .OG-s {bottom: 10px; left: 10px; top: 0; position: absolute;}\
+                    .OG-s .og-o {position: absolute; top: 10px; white-space: nowrap;}\
+                    .OG-s .og-o input {vertical-align: top;}\
+                    .OG-s .og-v {padding-top: 9px; padding-bottom: 3px; position: absolute; bottom: 0;}\
+                    .OG-s .og-v canvas {border: 1px solid #ccc;}\
+                    .OG-s .og-v span {position: absolute; left: 20px;}\
+                    .OG-s .og-v .og-max {top: 0;}\
+                    .OG-s .og-v .og-min {bottom: 0;}\
+                    .OG-s .og-v .og-vol {display: none; background: #eee; border: 1px solid #ddd; padding: 0 5px;}\
+                    .OG-s .og-v .og-vol:after {content: ""; display: block; position: absolute; \
+                        width: 0; height: 0; left: -10px; top: 50%; margin-top: -4px; \
+                        border-top: 5px solid transparent; border-right: 10px solid #ddd; \
+                        border-bottom: 5px solid transparent;}',
+                    head = document.querySelector('head'), style = document.createElement('style');
+                style.setAttribute('data-og', 'surface');
+                if (style.styleSheet) style.styleSheet.cssText = css; // IE
+                else style.appendChild(document.createTextNode(css));
+                head.appendChild(stylesheet = style);
+            })();
+            var tmpl = '\
+                <div class="OG-s">\
+                  <div class="og-o"><label>Log<input type="checkbox" checked="checked" /></label></div>\
+                  <div class="og-v">\
+                    <span class="og-max">{{max}}</span><span class="og-min">{{min}}</span><span class="og-vol"></span>\
+                    <canvas>canvas</canvas>\
+                  </div>\
+                </div>',
+                min = vol_min.toFixed(settings.precision_hud), max = vol_max.toFixed(settings.precision_hud),
+                html = tmpl.replace(/{{(?:max|min)}}/g, function (m) {return m === '{{min}}' ? min : max}),
+                $html = $(html).appendTo($selector);
+            hud.vol_canvas_height = height / 2;
+            if (webgl) hud.volatility($html.find('canvas')[0]);
+            else $html.find('.og-v').hide();
+            hud.form();
         };
         /**
          * Configure surface gadget display
          */
         hud.form = function () {
             $selector
-                .find('.og-options input')
+                .find('.og-o input')
                 .prop('checked', local_settings.log)
                 .on('change', function () {
                     local_settings.log = $(this).is(':checked');
@@ -565,9 +599,10 @@
          * @param {Number} value The value to set. If value is not a number the indicator is hidden
          */
         hud.set_volatility = function (value) {
+            if (!default_settings.hud) return;
             var top = (util.scale([vol_min, value, vol_max], hud.vol_canvas_height, 0))[1],
                 css = {top: top + 'px', color: settings.interactive_color_css},
-                $vol = $selector.find('.og-val-vol');
+                $vol = $selector.find('.og-vol');
             typeof value === 'number'
                 ? $vol.html(value.toFixed(settings.precision_hud)).css(css).show()
                 : $vol.empty().hide();
@@ -1156,6 +1191,7 @@
                     group.rotation.x = -Math.PI * .5;
                     if (val === 'x') {
                         group.position.x = vertices[0][val] - offset;
+                        group.position.z = (settings.surface_z / 2) + 12 + settings.axis_offset;
                         group.position.z = (settings.surface_z / 2) + 12 + settings.axis_offset;
                     }
                     if (val === 'z') {
