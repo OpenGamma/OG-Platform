@@ -9,17 +9,17 @@ import javax.ws.rs.DELETE;
 
 import com.opengamma.web.server.push.analytics.AnalyticsView;
 import com.opengamma.web.server.push.analytics.GridStructure;
-import com.opengamma.web.server.push.analytics.ViewportSpecification;
+import com.opengamma.web.server.push.analytics.ViewportDefinition;
 
 /**
- *
+ * REST resource for a grid displaying the dependency graph showing the calculation steps for a cell's value.
  */
 public class DependencyGraphResource extends AbstractGridResource {
 
   private final int _graphId;
 
   /**
-   * @param gridType
+   * @param gridType The type of the main grid associated with this dependency graph
    * @param view The view whose data the grid displays.
    * @param graphId The ID of the dependency graph
    */
@@ -34,8 +34,8 @@ public class DependencyGraphResource extends AbstractGridResource {
   }
 
   @Override
-  /* package */ long createViewport(int viewportId, String callbackId, ViewportSpecification viewportSpecification) {
-    return _view.createViewport(_gridType, _graphId, viewportId, callbackId, viewportSpecification).getFirst();
+  /* package */ long createViewport(int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
+    return _view.createViewport(_gridType, _graphId, viewportId, callbackId, viewportDefinition).getFirst();
   }
 
   @Override
@@ -43,6 +43,9 @@ public class DependencyGraphResource extends AbstractGridResource {
     return new DependencyGraphViewportResource(_gridType, _view, _graphId, viewportId);
   }
 
+  /**
+   * Closes the grid.
+   */
   @DELETE
   public void close() {
     _view.closeDependencyGraph(_gridType, _graphId);

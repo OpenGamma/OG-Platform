@@ -53,28 +53,30 @@ import com.opengamma.util.ArgumentChecker;
 
   /**
    * Creates a viewport for viewing this grid's data.
+   *
    * @param viewportId ID of the viewport, must be unique
    * @param callbackId ID that will be passed to listeners when the grid's data changes, can be any unique value, the
    * grid makes no assumptions about its form
-   * @param viewportSpecification Defines the extent and properties of the viewport
+   * @param viewportDefinition Defines the extent and properties of the viewport
    * @return The version number of the new viewport
    */
-  /* package */ long createViewport(int viewportId, String callbackId, ViewportSpecification viewportSpecification) {
+  /* package */ long createViewport(int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
     if (_viewports.containsKey(viewportId)) {
       throw new IllegalArgumentException("Viewport ID " + viewportId + " is already in use");
     }
-    V viewport = createViewport(viewportSpecification, callbackId);
+    V viewport = createViewport(viewportDefinition, callbackId);
     _viewports.put(viewportId, viewport);
     return viewport.getVersion();
   }
 
   /**
    * For subclasses to create implementation-specific viewport instances.
-   * @param viewportSpecification Defines the extent and properties of the viewport
+   *
+   * @param viewportDefinition Defines the extent and properties of the viewport
    * @param callbackId ID that will be passed to listeners when the grid's data changes
    * @return The new viewport
    */
-  protected abstract V createViewport(ViewportSpecification viewportSpecification, String callbackId);
+  protected abstract V createViewport(ViewportDefinition viewportDefinition, String callbackId);
 
   /**
    * Deletes a viewport.

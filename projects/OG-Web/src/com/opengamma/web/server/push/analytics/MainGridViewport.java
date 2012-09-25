@@ -14,59 +14,60 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * TODO label and quantity columns are hard-coded here and in {@link MainGridStructure}. there has to be a better way
+ * Viewport on one of the main analytics grids displaying portfolio or primitives data.
  */
 public class MainGridViewport extends AnalyticsViewport {
 
+  /** Row and column structure of the grid. */
   private final MainGridStructure _gridStructure;
 
   /**
-   * @param viewportSpec Definition of the viewport
    * @param gridStructure Row and column structure of the grid
    * @param callbackId ID that's passed to listeners when the grid structure changes
    * @param cache Cache of calculation results used to populate the viewport's data
    */
-  /* package */ MainGridViewport(ViewportSpecification viewportSpec,
+  /* package */ MainGridViewport(ViewportDefinition viewportDefinition,
                                  MainGridStructure gridStructure,
                                  String callbackId,
                                  ResultsCache cache) {
     super(callbackId);
     ArgumentChecker.notNull(gridStructure, "gridStructure");
     _gridStructure = gridStructure;
-    update(viewportSpec, cache);
+    update(viewportDefinition, cache);
   }
 
+  /**
+   * Updates the data in the viewport using the results in the cache.
+   * @param cache The latest results
+   * @return If any of the data in this viewport was updated in the last calculation cycyel the callback ID of the
+   * viewport is returned. If none of the data in the viewport was updated then null is returned.
+   */
   /* package */ String updateResults(ResultsCache cache) {
     boolean updated = false;
-    List<List<ViewportResults.Cell>> allResults = Lists.newArrayList();
-    // iterate over each row in the viewport
-    for (int rowIndex : _viewportSpec.getRows()) {
+    List<ViewportResults.Cell> results = Lists.newArrayList();
+    for (GridCell cell : _viewportDefinition) {
+      int rowIndex = cell.getRow();
+      int colIndex = cell.getColumn();
       MainGridStructure.Row row = _gridStructure.getRowAtIndex(rowIndex);
-      // create a list for each row of results
-      List<ViewportResults.Cell> rowResults = Lists.newArrayListWithCapacity(_viewportSpec.getColumns().size() + 1);
-      // iterate over all columns in the viewport and populate the results for the current row
-      for (int colIndex : _viewportSpec.getColumns()) {
-        if (colIndex == MainGridStructure.LABEL_COLUMN) {
-          rowResults.add(ViewportResults.stringCell(row.getName()));
-        } else if (colIndex == MainGridStructure.QUANTITY_COLUMN) {
-          rowResults.add(ViewportResults.valueCell(row.getQuantity(), null, Collections.emptyList()));
+      if (colIndex == MainGridStructure.LABEL_COLUMN) {
+        results.add(ViewportResults.stringCell(row.getName(), colIndex));
+      } else if (colIndex == MainGridStructure.QUANTITY_COLUMN) {
+        results.add(ViewportResults.valueCell(row.getQuantity(), null, Collections.emptyList(), colIndex));
+      } else {
+        Pair<String, ValueSpecification> cellTarget = _gridStructure.getTargetForCell(rowIndex, colIndex);
+        if (cellTarget != null) {
+          Class<?> columnType = _gridStructure.getColumnType(colIndex);
+          String calcConfigName = cellTarget.getFirst();
+          ValueSpecification valueSpec = cellTarget.getSecond();
+          ResultsCache.Result cacheResult = cache.getResult(calcConfigName, valueSpec, columnType);
+          updated = updated || cacheResult.isUpdated();
+          results.add(ViewportResults.valueCell(cacheResult.getValue(), valueSpec, cacheResult.getHistory(), colIndex));
         } else {
-          Pair<String, ValueSpecification> cellTarget = _gridStructure.getTargetForCell(rowIndex, colIndex);
-          if (cellTarget != null) {
-            Class<?> columnType = _gridStructure.getColumnType(colIndex);
-            String calcConfigName = cellTarget.getFirst();
-            ValueSpecification valueSpec = cellTarget.getSecond();
-            ResultsCache.Result cacheResult = cache.getResult(calcConfigName, valueSpec, columnType);
-            updated = updated || cacheResult.isUpdated();
-            rowResults.add(ViewportResults.valueCell(cacheResult.getValue(), valueSpec, cacheResult.getHistory()));
-          } else {
-            rowResults.add(ViewportResults.emptyCell());
-          }
+          results.add(ViewportResults.emptyCell());
         }
       }
-      allResults.add(rowResults);
     }
-    _latestResults = new ViewportResults(allResults, _viewportSpec, _gridStructure.getColumnStructure(), _version);
+    _latestResults = new ViewportResults(results, _viewportDefinition, _gridStructure.getColumnStructure(), _version);
     if (updated) {
       return _callbackId;
     } else {
@@ -74,14 +75,21 @@ public class MainGridViewport extends AnalyticsViewport {
     }
   }
 
-  public long update(ViewportSpecification viewportSpec, ResultsCache cache) {
-    ArgumentChecker.notNull(viewportSpec, "viewportSpec");
+  /**
+   * Updates the viewport definition (e.g. in reponse to the user scrolling the grid and changing the visible area).
+   * @param viewportDefinition The new viewport definition
+   * @param cache The current results
+   * @return The version number of the viewport, this allows clients to ensure the data they receive for a viewport
+   * was built for the current version of the viewport
+   */
+  public long update(ViewportDefinition viewportDefinition, ResultsCache cache) {
+    ArgumentChecker.notNull(viewportDefinition, "viewportDefinition");
     ArgumentChecker.notNull(cache, "cache");
-    if (!viewportSpec.isValidFor(_gridStructure)) {
+    if (!viewportDefinition.isValidFor(_gridStructure)) {
       throw new IllegalArgumentException("Viewport contains cells outside the bounds of the grid. Viewport: " +
-                                             viewportSpec + ", grid: " + _gridStructure);
+                                             viewportDefinition + ", grid: " + _gridStructure);
     }
-    _viewportSpec = viewportSpec;
+    _viewportDefinition = viewportDefinition;
     _version++;
     updateResults(cache);
     return _version;

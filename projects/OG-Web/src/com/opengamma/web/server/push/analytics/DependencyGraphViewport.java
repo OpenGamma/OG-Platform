@@ -23,14 +23,13 @@ public class DependencyGraphViewport extends AnalyticsViewport {
   private final DependencyGraphGridStructure _gridStructure;
 
   /**
-   * @param viewportSpec Definition of the viewport
    * @param calcConfigName Calculation configuration used to calculate the dependency graph
    * @param gridStructure Row and column structure of the grid
    * @param cycle Calculation cycle that produced the most recent results
    * @param cache Cache of calculation results used to populate the viewport's data
    * @param callbackId ID that's passed to listeners when the viewport's data changes
    */
-  /* package */ DependencyGraphViewport(ViewportSpecification viewportSpec,
+  /* package */ DependencyGraphViewport(ViewportDefinition viewportDefinition,
                                         String calcConfigName,
                                         DependencyGraphGridStructure gridStructure,
                                         ViewCycle cycle,
@@ -39,26 +38,26 @@ public class DependencyGraphViewport extends AnalyticsViewport {
     super(callbackId);
     _calcConfigName = calcConfigName;
     _gridStructure = gridStructure;
-    update(viewportSpec, cycle, cache);
+    update(viewportDefinition, cycle, cache);
   }
 
   /**
    * Updates the viewport, e.g. in response to the user scrolling the grid.
-   * @param viewportSpec The definition of the updated viewport
+   *
    * @param cycle The cycle used to calculate the latest set of results
    * @param cache Cache of results for the grid
    * @return Version number of the viewport, allows the client to confirm a set of results corresponds to the
    * current state of the viewport
    */
-  /* package */ long update(ViewportSpecification viewportSpec, ViewCycle cycle, ResultsCache cache) {
-    ArgumentChecker.notNull(viewportSpec, "viewportSpec");
+  /* package */ long update(ViewportDefinition viewportDefinition, ViewCycle cycle, ResultsCache cache) {
+    ArgumentChecker.notNull(viewportDefinition, "viewportSpec");
     ArgumentChecker.notNull(cycle, "cycle");
     ArgumentChecker.notNull(cache, "cache");
-    if (!viewportSpec.isValidFor(_gridStructure)) {
+    if (!viewportDefinition.isValidFor(_gridStructure)) {
       throw new IllegalArgumentException("Viewport contains cells outside the bounds of the grid. Viewport: " +
-                                             viewportSpec + ", grid: " + _gridStructure);
+                                             viewportDefinition + ", grid: " + _gridStructure);
     }
-    _viewportSpec = viewportSpec;
+    _viewportDefinition = viewportDefinition;
     ++_version;
     updateResults(cycle, cache);
     return _version;
@@ -76,8 +75,8 @@ public class DependencyGraphViewport extends AnalyticsViewport {
     query.setValueSpecifications(_gridStructure.getValueSpecifications());
     ComputationCacheResponse cacheResponse = cycle.queryComputationCaches(query);
     cache.put(_calcConfigName, cacheResponse.getResults());
-    List<List<ViewportResults.Cell>> gridResults = _gridStructure.createResultsForViewport(_viewportSpec, cache, _calcConfigName);
-    _latestResults = new ViewportResults(gridResults, _viewportSpec, _gridStructure.getColumnStructure(), _version);
+    List<ViewportResults.Cell> gridResults = _gridStructure.createResultsForViewport(_viewportDefinition, cache, _calcConfigName);
+    _latestResults = new ViewportResults(gridResults, _viewportDefinition, _gridStructure.getColumnStructure(), _version);
     // TODO return null if nothing was updated
     return _callbackId;
   }
