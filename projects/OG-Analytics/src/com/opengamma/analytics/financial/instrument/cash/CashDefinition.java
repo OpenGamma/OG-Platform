@@ -9,7 +9,6 @@ import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
@@ -17,6 +16,7 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorDeposit;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -62,11 +62,12 @@ public class CashDefinition implements InstrumentDefinition<Cash> {
    * @param rate The deposit rate.
    * @param accrualFactor The deposit accrual factor.
    */
-  public CashDefinition(final Currency currency, final ZonedDateTime startDate, final ZonedDateTime endDate, final double notional, final double rate, final double accrualFactor) {
-    Validate.notNull(startDate, "Start date");
-    Validate.notNull(endDate, "End date");
-    Validate.notNull(currency, "Currency");
-    Validate.isTrue(endDate.isAfter(startDate), "End date should be strictly after start date");
+  public CashDefinition(final Currency currency, final ZonedDateTime startDate, final ZonedDateTime endDate, final double notional, final double rate,
+      final double accrualFactor) {
+    ArgumentChecker.notNull(startDate, "Start date");
+    ArgumentChecker.notNull(endDate, "End date");
+    ArgumentChecker.notNull(currency, "Currency");
+    ArgumentChecker.isTrue(endDate.isAfter(startDate), "End date should be strictly after start date");
     _startDate = startDate;
     _endDate = endDate;
     _notional = notional;
@@ -86,11 +87,11 @@ public class CashDefinition implements InstrumentDefinition<Cash> {
    * @return The deposit.
    */
   public static CashDefinition fromStart(final ZonedDateTime startDate, final Period tenor, final double notional, final double rate, final GeneratorDeposit generator) {
-    Validate.notNull(startDate, "Start date");
-    Validate.notNull(tenor, "Tenor");
-    Validate.notNull(generator, "Generator");
-    ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, tenor, generator);
-    double accrualFactor = generator.getDayCount().getDayCountFraction(startDate, endDate);
+    ArgumentChecker.notNull(startDate, "Start date");
+    ArgumentChecker.notNull(tenor, "Tenor");
+    ArgumentChecker.notNull(generator, "Generator");
+    final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, tenor, generator);
+    final double accrualFactor = generator.getDayCount().getDayCountFraction(startDate, endDate);
     return new CashDefinition(generator.getCurrency(), startDate, endDate, notional, rate, accrualFactor);
   }
 
@@ -103,10 +104,10 @@ public class CashDefinition implements InstrumentDefinition<Cash> {
    * @return The deposit.
    */
   public static CashDefinition fromStart(final ZonedDateTime startDate, final double notional, final double rate, final GeneratorDeposit generator) {
-    Validate.notNull(startDate, "Start date");
-    Validate.notNull(generator, "Generator");
-    ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, 1, generator.getCalendar());
-    double accrualFactor = generator.getDayCount().getDayCountFraction(startDate, endDate);
+    ArgumentChecker.notNull(startDate, "Start date");
+    ArgumentChecker.notNull(generator, "Generator");
+    final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, 1, generator.getCalendar());
+    final double accrualFactor = generator.getDayCount().getDayCountFraction(startDate, endDate);
     return new CashDefinition(generator.getCurrency(), startDate, endDate, notional, rate, accrualFactor);
   }
 
@@ -120,12 +121,12 @@ public class CashDefinition implements InstrumentDefinition<Cash> {
    * @return The deposit.
    */
   public static CashDefinition fromTrade(final ZonedDateTime tradeDate, final Period tenor, final double notional, final double rate, final GeneratorDeposit generator) {
-    Validate.notNull(tradeDate, "Trade date");
-    Validate.notNull(tenor, "Tenor");
-    Validate.notNull(generator, "Generator");
-    ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(tradeDate, generator.getSpotLag(), generator.getCalendar());
-    ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, tenor, generator);
-    double accrualFactor = generator.getDayCount().getDayCountFraction(startDate, endDate);
+    ArgumentChecker.notNull(tradeDate, "Trade date");
+    ArgumentChecker.notNull(tenor, "Tenor");
+    ArgumentChecker.notNull(generator, "Generator");
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(tradeDate, generator.getSpotLag(), generator.getCalendar());
+    final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, tenor, generator);
+    final double accrualFactor = generator.getDayCount().getDayCountFraction(startDate, endDate);
     return new CashDefinition(generator.getCurrency(), startDate, endDate, notional, rate, accrualFactor);
   }
 
@@ -139,11 +140,11 @@ public class CashDefinition implements InstrumentDefinition<Cash> {
    * @return The deposit.
    */
   public static CashDefinition fromTrade(final ZonedDateTime tradeDate, final int start, final double notional, final double rate, final GeneratorDeposit generator) {
-    Validate.notNull(tradeDate, "Trade date");
-    Validate.notNull(generator, "Generator");
-    ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(tradeDate, start, generator.getCalendar());
-    ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, 1, generator.getCalendar());
-    double accrualFactor = generator.getDayCount().getDayCountFraction(startDate, endDate);
+    ArgumentChecker.notNull(tradeDate, "Trade date");
+    ArgumentChecker.notNull(generator, "Generator");
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(tradeDate, start, generator.getCalendar());
+    final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, 1, generator.getCalendar());
+    final double accrualFactor = generator.getDayCount().getDayCountFraction(startDate, endDate);
     return new CashDefinition(generator.getCurrency(), startDate, endDate, notional, rate, accrualFactor);
   }
 
@@ -209,9 +210,9 @@ public class CashDefinition implements InstrumentDefinition<Cash> {
   }
 
   @Override
-  public Cash toDerivative(ZonedDateTime date, String... yieldCurveNames) {
-    Validate.isTrue(!date.isAfter(_endDate), "date is after end date");
-    double startTime = TimeCalculator.getTimeBetween(date, _startDate);
+  public Cash toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    ArgumentChecker.isTrue(!date.isAfter(_endDate), "date {} is after end date {}", date, _endDate);
+    final double startTime = TimeCalculator.getTimeBetween(date, _startDate);
     if (startTime < 0) {
       return new Cash(_currency, 0, TimeCalculator.getTimeBetween(date, _endDate), _notional, 0, _rate, _accrualFactor, yieldCurveNames[0]);
     }
@@ -236,7 +237,7 @@ public class CashDefinition implements InstrumentDefinition<Cash> {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -246,7 +247,7 @@ public class CashDefinition implements InstrumentDefinition<Cash> {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CashDefinition other = (CashDefinition) obj;
+    final CashDefinition other = (CashDefinition) obj;
     if (Double.doubleToLongBits(_accrualFactor) != Double.doubleToLongBits(other._accrualFactor)) {
       return false;
     }

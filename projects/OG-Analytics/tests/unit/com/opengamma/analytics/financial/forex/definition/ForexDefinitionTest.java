@@ -13,7 +13,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
@@ -62,8 +61,8 @@ public class ForexDefinitionTest {
     assertEquals("ForexDefinition getter", CUR_1, FX.getCurrency1());
     assertEquals(CUR_2, FX.getCurrency2());
     assertEquals(PAYMENT_DATE, FX.getExchangeDate());
-    assertEquals(NOMINAL_1, FX.getPaymentCurrency1().getAmount());
-    assertEquals(-NOMINAL_1 * FX_RATE, FX.getPaymentCurrency2().getAmount());
+    assertEquals(NOMINAL_1, FX.getPaymentCurrency1().getReferenceAmount());
+    assertEquals(-NOMINAL_1 * FX_RATE, FX.getPaymentCurrency2().getReferenceAmount());
     assertEquals(new PaymentFixedDefinition(CUR_1, PAYMENT_DATE, NOMINAL_1), FX.getPaymentCurrency1());
     assertEquals(new PaymentFixedDefinition(CUR_2, PAYMENT_DATE, -NOMINAL_1 * FX_RATE), FX.getPaymentCurrency2());
   }
@@ -73,7 +72,7 @@ public class ForexDefinitionTest {
    * Tests the class builder.
    */
   public void from() {
-    ForexDefinition fXfrom = ForexDefinition.fromAmounts(CUR_1, CUR_2, PAYMENT_DATE, NOMINAL_1, -FX_RATE * NOMINAL_1);
+    final ForexDefinition fXfrom = ForexDefinition.fromAmounts(CUR_1, CUR_2, PAYMENT_DATE, NOMINAL_1, -FX_RATE * NOMINAL_1);
     assertEquals("ForexDefinition builder", FX, fXfrom);
   }
 

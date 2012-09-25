@@ -65,15 +65,15 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
 
   private static final ZonedDateTime startDate = DateUtils.getUTCDate(2007, 10, 22);
   private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2007, 10, 23);
-  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2017, 12, 20);
-  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2014, 10, 22);
+  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2013, 8, 16);
+  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2012, 10, 22);
 
   private static final StubType stubType = StubType.FRONTSHORT;
   private static final PeriodFrequency couponFrequency = PeriodFrequency.QUARTERLY;
   private static final DayCount daycountFractionConvention = DayCountFactory.INSTANCE.getDayCount("ACT/360");
   private static final BusinessDayConvention businessdayAdjustmentConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
 
-  private static final boolean immAdjustMaturityDate = true;
+  private static final boolean immAdjustMaturityDate = false;
   private static final boolean adjustMaturityDate = true;
 
   private static final double notional = 10000000.0;

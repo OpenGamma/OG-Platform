@@ -8,9 +8,9 @@ package com.opengamma.analytics.financial.credit;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.GenerateCreditDefaultSwapPremiumLegSchedule;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.PresentValueCreditDefaultSwap;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.ArgumentChecker;
 
@@ -34,10 +34,12 @@ public class CalibrateSurvivalCurve {
   private static final double DEFAULT_HAZARD_RATE_RANGE_MULTIPLIER = 0.5;
   private final double _hazardRateRangeMultiplier;
 
+  // Ctor to initialise a CalibrateSurvivalCurve object with the default values for the root finder
   public CalibrateSurvivalCurve() {
     this(DEFAULT_MAX_NUMBER_OF_ITERATIONS, DEFAULT_TOLERANCE, DEFAULT_HAZARD_RATE_RANGE_MULTIPLIER);
   }
 
+  //Ctor to initialise a CalibrateSurvivalCurve object with user specified values for the root finder
   public CalibrateSurvivalCurve(int maximumNumberOfIterations, double tolerance, double hazardRateRangeMultiplier) {
     _tolerance = tolerance;
     _maximumNumberOfIterations = maximumNumberOfIterations;
@@ -49,11 +51,11 @@ public class CalibrateSurvivalCurve {
   // TODO : Lots of work to do in here still a complete mess at the moment - Work In Progress
 
   // TODO : Add arg checkers to check that length of the tenor and parCDSSpreads vectors are the same
-  // TODO : Is there a better way to set the tolerence?
   // TODO : Replace the root finder with something more sophisticated (bisection was used to ensure a root is found if it exists)
   // TODO : Verify that the valuation date is valid i.e. should be equal to the start date (or effective date - check this)
   // TODO : Should convertDatesToDoubles be moved into the schedule generation class (seems a more natural place for it)
   // TODO : Check the case where the spread is flat but very large e.g. 50K bps
+  // TODO : Remember to make sure return survival probs NOT hazard rates
 
   // ------------------------------------------------------------------------
 
@@ -98,13 +100,16 @@ public class CalibrateSurvivalCurve {
     // Vector of (calibrated) piecewise constant hazard rates that we compute from the solver
     double[] hazardRates = new double[numberOfTenors];
 
-    // Vector of survival probabilities (includes time zero)
-    double[] calibratedSurvivalCurve = new double[numberOfTenors + 1];
+    // Vector of survival probabilities that are to be returned (does not include time zero - valuationDate)
+    double[] calibratedSurvivalCurve = new double[numberOfTenors];
 
     // ----------------------------------------------------------------------------
 
+    // Build a cashflow schedule - need to do this just to convert tenors to doubles - bit stupid having to do this
+    GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
+
     // Convert the ZonedDateTime tenors into doubles (measured from valuationDate)
-    double[] tenorsAsDoubles = convertDatesToDoubles(valuationDate, tenors, dayCount);
+    double[] tenorsAsDoubles = cashflowSchedule.convertDatesToDoubles(valuationDate, tenors, dayCount);
 
     // Create an object for getting the PV of a CDS
     final PresentValueCreditDefaultSwap presentValueCDS = new PresentValueCreditDefaultSwap();
@@ -172,7 +177,7 @@ public class CalibrateSurvivalCurve {
       upperHazardRate = 1.0;
     }
 
-    // Construct a survival curve using the first m tenors in runningTenors
+    // Construct a hazard rate curve using the first m tenors in runningTenors
     SurvivalCurve survivalCurve = new SurvivalCurve(runningTenors, hazardRates);
 
     // ------------------------------------------------------------------------
@@ -248,6 +253,7 @@ public class CalibrateSurvivalCurve {
 
   // ------------------------------------------------------------------------
 
+  /*
   // Private member function to convert the input ZonedDateTime tenors into doubles
   private double[] convertDatesToDoubles(ZonedDateTime valuationDate, ZonedDateTime[] tenors, DayCount dayCount) {
 
@@ -262,6 +268,7 @@ public class CalibrateSurvivalCurve {
 
     return tenorsAsDoubles;
   }
+  */
 
   // ------------------------------------------------------------------------
 }

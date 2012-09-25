@@ -76,15 +76,15 @@ public abstract class BondTransactionDefinition<N extends PaymentDefinition, C e
     this._settlementDate = settlementDate;
     _settlementExCouponDate = ScheduleCalculator.getAdjustedDate(_settlementDate, _underlyingBond.getExCouponDays(), _underlyingBond.getCalendar());
     this._price = price;
-    final int nbCoupon = underlyingBond.getCoupon().getNumberOfPayments();
+    final int nbCoupon = underlyingBond.getCoupons().getNumberOfPayments();
     for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
-      if (underlyingBond.getCoupon().getNthPayment(loopcpn).getAccrualEndDate().isAfter(_settlementExCouponDate)) {
+      if (underlyingBond.getCoupons().getNthPayment(loopcpn).getAccrualEndDate().isAfter(_settlementExCouponDate)) {
         _couponIndex = loopcpn;
         break;
       }
     }
-    _previousAccrualDate = underlyingBond.getCoupon().getNthPayment(getCouponIndex()).getAccrualStartDate();
-    _nextAccrualDate = underlyingBond.getCoupon().getNthPayment(getCouponIndex()).getAccrualEndDate();
+    _previousAccrualDate = underlyingBond.getCoupons().getNthPayment(getCouponIndex()).getAccrualStartDate();
+    _nextAccrualDate = underlyingBond.getCoupons().getNthPayment(getCouponIndex()).getAccrualEndDate();
   }
 
   /**

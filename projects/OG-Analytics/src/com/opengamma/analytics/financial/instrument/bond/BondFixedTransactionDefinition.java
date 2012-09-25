@@ -7,8 +7,6 @@ package com.opengamma.analytics.financial.instrument.bond;
 
 import javax.time.calendar.ZonedDateTime;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
@@ -16,6 +14,7 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedS
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.daycount.AccruedInterestCalculator;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Describes a transaction on a fixed coupon bond issue.
@@ -37,11 +36,12 @@ public class BondFixedTransactionDefinition extends BondTransactionDefinition<Pa
   public BondFixedTransactionDefinition(final BondFixedSecurityDefinition underlyingBond, final double quantity, final ZonedDateTime settlementDate, final double price) {
     super(underlyingBond, quantity, settlementDate, price);
     _accruedInterestAtSettlement = 0;
-    final int nbCoupon = underlyingBond.getCoupon().getNumberOfPayments();
-    final double accruedInterest = AccruedInterestCalculator.getAccruedInterest(getUnderlyingBond().getDayCount(), getCouponIndex(), nbCoupon, getPreviousAccrualDate(), settlementDate,
-        getNextAccrualDate(), underlyingBond.getCoupon().getNthPayment(getCouponIndex()).getRate(), underlyingBond.getCouponPerYear(), underlyingBond.isEOM());
+    final int nbCoupon = underlyingBond.getCoupons().getNumberOfPayments();
+    final double accruedInterest = AccruedInterestCalculator.getAccruedInterest(getUnderlyingBond().getDayCount(), getCouponIndex(), nbCoupon, getPreviousAccrualDate(),
+        settlementDate, getNextAccrualDate(), underlyingBond.getCoupons().getNthPayment(getCouponIndex()).getRate(), underlyingBond.getCouponPerYear(),
+        underlyingBond.isEOM());
     if (underlyingBond.getExCouponDays() != 0 && getNextAccrualDate().minusDays(underlyingBond.getExCouponDays()).isBefore(settlementDate)) {
-      _accruedInterestAtSettlement = accruedInterest - underlyingBond.getCoupon().getNthPayment(getCouponIndex()).getRate();
+      _accruedInterestAtSettlement = accruedInterest - underlyingBond.getCoupons().getNthPayment(getCouponIndex()).getRate();
     } else {
       _accruedInterestAtSettlement = accruedInterest;
     }
@@ -67,21 +67,21 @@ public class BondFixedTransactionDefinition extends BondTransactionDefinition<Pa
   @Override
   public BondFixedTransaction toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     // Implementation note: First yield curve used for coupon and notional (credit), the second for risk free settlement.
-    Validate.notNull(date, "date");
-    Validate.notNull(yieldCurveNames, "yield curve names");
-    Validate.isTrue(yieldCurveNames.length > 0, "at least one curve required");
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
+    ArgumentChecker.isTrue(yieldCurveNames.length > 0, "at least one curve required");
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getUnderlyingBond().getSettlementDays(), getUnderlyingBond().getCalendar());
     final BondFixedSecurity bondPurchase = getUnderlyingBond().toDerivative(date, getSettlementDate(), yieldCurveNames);
     final BondFixedSecurity bondStandard = getUnderlyingBond().toDerivative(date, yieldCurveNames);
-    final int nbCoupon = getUnderlyingBond().getCoupon().getNumberOfPayments();
+    final int nbCoupon = getUnderlyingBond().getCoupons().getNumberOfPayments();
     int couponIndex = 0; // The index of the coupon of the spot date.
     for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
-      if (getUnderlyingBond().getCoupon().getNthPayment(loopcpn).getAccrualEndDate().isAfter(spot)) {
+      if (getUnderlyingBond().getCoupons().getNthPayment(loopcpn).getAccrualEndDate().isAfter(spot)) {
         couponIndex = loopcpn;
         break;
       }
     }
-    final double notionalStandard = getUnderlyingBond().getCoupon().getNthPayment(couponIndex).getNotional();
+    final double notionalStandard = getUnderlyingBond().getCoupons().getNthPayment(couponIndex).getNotional();
     double price;
     if (getSettlementDate().isBefore(date)) { // If settlement already took place, the price is set to 0.
       price = 0.0;

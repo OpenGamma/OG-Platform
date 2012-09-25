@@ -25,14 +25,15 @@ public class BondFutureOptionPremiumTransactionDefinitionTest {
   private static final double STRIKE = 1.20;
   private static final boolean IS_CALL = true;
   private static final ZonedDateTime EXPIRATION_DATE = DateUtils.getUTCDate(2011, 8, 26);
-  private static final BondFutureOptionPremiumSecurityDefinition FVU1_C120_SEC_DEFINITION = new BondFutureOptionPremiumSecurityDefinition(FVU1_DEFINITION, EXPIRATION_DATE, STRIKE, IS_CALL);
+  private static final BondFutureOptionPremiumSecurityDefinition FVU1_C120_SEC_DEFINITION = new BondFutureOptionPremiumSecurityDefinition(FVU1_DEFINITION,
+      EXPIRATION_DATE, STRIKE, IS_CALL);
   // Option transaction
   private static final ZonedDateTime PREMIUM_DATE = DateUtils.getUTCDate(2011, 6, 17);
   private static final double TRANSACTION_PRICE = -62.5 / 64d; // Prices for options quoted in 1/64.
   private static final int QUANTITY = -123;
   private static final double PREMIUM_AMOUNT = TRANSACTION_PRICE * QUANTITY * FVU1_C120_SEC_DEFINITION.getNotional();
-  private static final BondFutureOptionPremiumTransactionDefinition FVU1_C120_TR_DEFINITION = new BondFutureOptionPremiumTransactionDefinition(FVU1_C120_SEC_DEFINITION, QUANTITY, PREMIUM_DATE,
-      PREMIUM_AMOUNT);
+  private static final BondFutureOptionPremiumTransactionDefinition FVU1_C120_TR_DEFINITION = new BondFutureOptionPremiumTransactionDefinition(FVU1_C120_SEC_DEFINITION,
+      QUANTITY, PREMIUM_DATE, PREMIUM_AMOUNT);
 
   private static final String[] CURVE_NAMES = FutureInstrumentsDescriptionDataSet.curveNames();
 
@@ -48,8 +49,9 @@ public class BondFutureOptionPremiumTransactionDefinitionTest {
 
   @Test
   public void fromTradePrice() {
-    BondFutureOptionPremiumTransactionDefinition from = BondFutureOptionPremiumTransactionDefinition.fromTradePrice(FVU1_C120_SEC_DEFINITION, QUANTITY, PREMIUM_DATE, TRANSACTION_PRICE);
-    assertEquals("Bond future option premium transaction definition", from.getPremium().getAmount(), PREMIUM_AMOUNT);
+    final BondFutureOptionPremiumTransactionDefinition from = BondFutureOptionPremiumTransactionDefinition.fromTradePrice(FVU1_C120_SEC_DEFINITION, QUANTITY,
+        PREMIUM_DATE, TRANSACTION_PRICE);
+    assertEquals("Bond future option premium transaction definition", from.getPremium().getReferenceAmount(), PREMIUM_AMOUNT);
     assertEquals("Bond future option premium transaction definition", from, FVU1_C120_TR_DEFINITION);
   }
 
@@ -59,11 +61,12 @@ public class BondFutureOptionPremiumTransactionDefinitionTest {
    */
   public void equalHash() {
     assertTrue(FVU1_C120_TR_DEFINITION.equals(FVU1_C120_TR_DEFINITION));
-    BondFutureOptionPremiumTransactionDefinition other = new BondFutureOptionPremiumTransactionDefinition(FVU1_C120_SEC_DEFINITION, QUANTITY, PREMIUM_DATE, PREMIUM_AMOUNT);
+    final BondFutureOptionPremiumTransactionDefinition other = new BondFutureOptionPremiumTransactionDefinition(FVU1_C120_SEC_DEFINITION, QUANTITY, PREMIUM_DATE,
+        PREMIUM_AMOUNT);
     assertTrue(FVU1_C120_TR_DEFINITION.equals(other));
     assertTrue(FVU1_C120_TR_DEFINITION.hashCode() == other.hashCode());
     BondFutureOptionPremiumTransactionDefinition modified;
-    BondFutureOptionPremiumSecurityDefinition modifiedSec = new BondFutureOptionPremiumSecurityDefinition(FVU1_DEFINITION, EXPIRATION_DATE, STRIKE + 0.01, IS_CALL);
+    final BondFutureOptionPremiumSecurityDefinition modifiedSec = new BondFutureOptionPremiumSecurityDefinition(FVU1_DEFINITION, EXPIRATION_DATE, STRIKE + 0.01, IS_CALL);
     modified = new BondFutureOptionPremiumTransactionDefinition(modifiedSec, QUANTITY, PREMIUM_DATE, PREMIUM_AMOUNT);
     assertFalse(FVU1_C120_TR_DEFINITION.equals(modified));
     modified = new BondFutureOptionPremiumTransactionDefinition(FVU1_C120_SEC_DEFINITION, QUANTITY + 1, PREMIUM_DATE, PREMIUM_AMOUNT);
@@ -81,10 +84,11 @@ public class BondFutureOptionPremiumTransactionDefinitionTest {
    * Tests the toDerivative method.
    */
   public void toDerivativeBeforeSettle() {
-    ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 6, 16);
-    BondFutureOptionPremiumTransaction transactionConverted = FVU1_C120_TR_DEFINITION.toDerivative(referenceDate, CURVE_NAMES);
-    PaymentFixed premium = FVU1_C120_TR_DEFINITION.getPremium().toDerivative(referenceDate, CURVE_NAMES[1]);
-    BondFutureOptionPremiumTransaction transactionExpected = new BondFutureOptionPremiumTransaction(FVU1_C120_SEC_DEFINITION.toDerivative(referenceDate, CURVE_NAMES), QUANTITY, premium);
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 6, 16);
+    final BondFutureOptionPremiumTransaction transactionConverted = FVU1_C120_TR_DEFINITION.toDerivative(referenceDate, CURVE_NAMES);
+    final PaymentFixed premium = FVU1_C120_TR_DEFINITION.getPremium().toDerivative(referenceDate, CURVE_NAMES[1]);
+    final BondFutureOptionPremiumTransaction transactionExpected = new BondFutureOptionPremiumTransaction(FVU1_C120_SEC_DEFINITION.toDerivative(referenceDate,
+        CURVE_NAMES), QUANTITY, premium);
     assertEquals("Bond future option premium security definition: toDerivative", transactionExpected, transactionConverted);
   }
 
@@ -93,10 +97,11 @@ public class BondFutureOptionPremiumTransactionDefinitionTest {
    * Tests the toDerivative method.
    */
   public void toDerivativeOnSettle() {
-    ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 6, 17);
-    BondFutureOptionPremiumTransaction transactionConverted = FVU1_C120_TR_DEFINITION.toDerivative(referenceDate, CURVE_NAMES);
-    PaymentFixed premium = FVU1_C120_TR_DEFINITION.getPremium().toDerivative(referenceDate, CURVE_NAMES[1]);
-    BondFutureOptionPremiumTransaction transactionExpected = new BondFutureOptionPremiumTransaction(FVU1_C120_SEC_DEFINITION.toDerivative(referenceDate, CURVE_NAMES), QUANTITY, premium);
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 6, 17);
+    final BondFutureOptionPremiumTransaction transactionConverted = FVU1_C120_TR_DEFINITION.toDerivative(referenceDate, CURVE_NAMES);
+    final PaymentFixed premium = FVU1_C120_TR_DEFINITION.getPremium().toDerivative(referenceDate, CURVE_NAMES[1]);
+    final BondFutureOptionPremiumTransaction transactionExpected = new BondFutureOptionPremiumTransaction(FVU1_C120_SEC_DEFINITION.toDerivative(referenceDate,
+        CURVE_NAMES), QUANTITY, premium);
     assertEquals("Bond future option premium security definition: toDerivative", transactionExpected, transactionConverted);
   }
 
@@ -105,10 +110,11 @@ public class BondFutureOptionPremiumTransactionDefinitionTest {
    * Tests the toDerivative method.
    */
   public void toDerivativeAfterSettle() {
-    ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 6, 20);
-    BondFutureOptionPremiumTransaction transactionConverted = FVU1_C120_TR_DEFINITION.toDerivative(referenceDate, CURVE_NAMES);
-    PaymentFixed premium = new PaymentFixed(FVU1_C120_TR_DEFINITION.getCurrency(), 0.0, 0.0, CURVE_NAMES[1]);
-    BondFutureOptionPremiumTransaction transactionExpected = new BondFutureOptionPremiumTransaction(FVU1_C120_SEC_DEFINITION.toDerivative(referenceDate, CURVE_NAMES), QUANTITY, premium);
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 6, 20);
+    final BondFutureOptionPremiumTransaction transactionConverted = FVU1_C120_TR_DEFINITION.toDerivative(referenceDate, CURVE_NAMES);
+    final PaymentFixed premium = new PaymentFixed(FVU1_C120_TR_DEFINITION.getCurrency(), 0.0, 0.0, CURVE_NAMES[1]);
+    final BondFutureOptionPremiumTransaction transactionExpected = new BondFutureOptionPremiumTransaction(FVU1_C120_SEC_DEFINITION.toDerivative(referenceDate,
+        CURVE_NAMES), QUANTITY, premium);
     assertEquals("Bond future option premium security definition: toDerivative", transactionExpected, transactionConverted);
   }
 

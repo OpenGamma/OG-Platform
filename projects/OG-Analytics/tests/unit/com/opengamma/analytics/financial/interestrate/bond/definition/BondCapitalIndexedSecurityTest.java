@@ -71,9 +71,9 @@ public class BondCapitalIndexedSecurityTest {
   private static final double SETTLEMENT_TIME = TimeCalculator.getTimeBetween(PRICING_DATE, SPOT_DATE);
   private static final DoubleTimeSeries<ZonedDateTime> UK_RPI = MarketDataSets.ukRpiFrom2010();
   private static final Annuity<Coupon> NOMINAL = (Annuity<Coupon>) BOND_SECURITY_DEFINITION.getNominal().toDerivative(PRICING_DATE, "Not used");
-  private static final Annuity<Coupon> COUPON = (Annuity<Coupon>) BOND_SECURITY_DEFINITION.getCoupon().toDerivative(PRICING_DATE, UK_RPI, "Not used");
+  private static final Annuity<Coupon> COUPON = (Annuity<Coupon>) BOND_SECURITY_DEFINITION.getCoupons().toDerivative(PRICING_DATE, UK_RPI, "Not used");
   private static final double ACCRUED_INTEREST = BOND_SECURITY_DEFINITION.accruedInterest(SPOT_DATE);
-  private static final AnnuityDefinition<CouponDefinition> COUPON_DEFINITION = (AnnuityDefinition<CouponDefinition>) BOND_SECURITY_DEFINITION.getCoupon().trimBefore(SPOT_DATE);
+  private static final AnnuityDefinition<CouponDefinition> COUPON_DEFINITION = (AnnuityDefinition<CouponDefinition>) BOND_SECURITY_DEFINITION.getCoupons().trimBefore(SPOT_DATE);
   private static final double factorSpot = DAY_COUNT_GILT_1.getAccruedInterest(COUPON_DEFINITION.getNthPayment(0).getAccrualStartDate(), SPOT_DATE, COUPON_DEFINITION.getNthPayment(0)
       .getAccrualEndDate(), 1.0, COUPON_PER_YEAR_GILT_1);
   private static final double factorPeriod = DAY_COUNT_GILT_1.getAccruedInterest(COUPON_DEFINITION.getNthPayment(0).getAccrualStartDate(), COUPON_DEFINITION.getNthPayment(0).getAccrualEndDate(),

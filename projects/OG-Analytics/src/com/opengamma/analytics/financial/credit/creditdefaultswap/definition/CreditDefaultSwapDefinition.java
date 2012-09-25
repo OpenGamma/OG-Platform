@@ -448,7 +448,7 @@ public class CreditDefaultSwapDefinition {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // Builder method to allow the premium leg coupon of a CDS object to be modified (used during calibration of the survival curve)
+  // Builder method to allow the curve recovery rate of a CDS object to be modified (used during calibration of the survival curve)
 
   public CreditDefaultSwapDefinition withCurveRecoveryRate(double curveRecoveryRate) {
 

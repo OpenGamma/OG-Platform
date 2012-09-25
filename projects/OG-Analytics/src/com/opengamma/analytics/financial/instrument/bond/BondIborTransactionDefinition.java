@@ -64,22 +64,22 @@ public class BondIborTransactionDefinition extends BondTransactionDefinition<Pay
       settlementTime = actAct.getDayCountFraction(date, getSettlementDate());
     }
     final AnnuityPaymentFixed nominal = (AnnuityPaymentFixed) getUnderlyingBond().getNominal().toDerivative(date, creditCurveName);
-    final Annuity<Coupon> coupon = (Annuity<Coupon>) getUnderlyingBond().getCoupon().toDerivative(date, couponCurveName);
+    final Annuity<Coupon> coupon = (Annuity<Coupon>) getUnderlyingBond().getCoupons().toDerivative(date, couponCurveName);
     final AnnuityPaymentFixed nominalPurchase = nominal.trimBefore(settlementTime);
     final Annuity<Coupon> couponPurchase = coupon.trimBefore(settlementTime);
     final AnnuityPaymentFixed nominalStandard = nominal.trimBefore(spotTime);
     final Annuity<Coupon> couponStandard = coupon.trimBefore(spotTime);
     final BondIborSecurity bondPurchase = new BondIborSecurity(nominalPurchase, couponPurchase, settlementTime, discountingCurveName);
     final BondIborSecurity bondStandard = new BondIborSecurity(nominalStandard, couponStandard, spotTime, discountingCurveName);
-    final int nbCoupon = getUnderlyingBond().getCoupon().getNumberOfPayments();
+    final int nbCoupon = getUnderlyingBond().getCoupons().getNumberOfPayments();
     int couponIndex = 0; // The index of the coupon of the spot date.
     for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
-      if (getUnderlyingBond().getCoupon().getNthPayment(loopcpn).getAccrualEndDate().isAfter(spot)) {
+      if (getUnderlyingBond().getCoupons().getNthPayment(loopcpn).getAccrualEndDate().isAfter(spot)) {
         couponIndex = loopcpn;
         break;
       }
     }
-    final double notionalStandard = getUnderlyingBond().getCoupon().getNthPayment(couponIndex).getNotional();
+    final double notionalStandard = getUnderlyingBond().getCoupons().getNthPayment(couponIndex).getNotional();
     final BondIborTransaction result = new BondIborTransaction(bondPurchase, getQuantity(), getPrice(), bondStandard, notionalStandard);
     return result;
   }
@@ -105,22 +105,22 @@ public class BondIborTransactionDefinition extends BondTransactionDefinition<Pay
       settlementTime = actAct.getDayCountFraction(date, getSettlementDate());
     }
     final AnnuityPaymentFixed nominal = (AnnuityPaymentFixed) getUnderlyingBond().getNominal().toDerivative(date, creditCurveName);
-    final Annuity<Coupon> coupon = (Annuity<Coupon>) getUnderlyingBond().getCoupon().toDerivative(date, indexFixingTS, couponCurveName);
+    final Annuity<Coupon> coupon = (Annuity<Coupon>) getUnderlyingBond().getCoupons().toDerivative(date, indexFixingTS, couponCurveName);
     final AnnuityPaymentFixed nominalPurchase = nominal.trimBefore(settlementTime);
     final Annuity<Coupon> couponPurchase = coupon.trimBefore(settlementTime);
     final AnnuityPaymentFixed nominalStandard = nominal.trimBefore(spotTime);
     final Annuity<Coupon> couponStandard = coupon.trimBefore(spotTime);
     final BondIborSecurity bondPurchase = new BondIborSecurity(nominalPurchase, couponPurchase, settlementTime, discountingCurveName);
     final BondIborSecurity bondStandard = new BondIborSecurity(nominalStandard, couponStandard, spotTime, discountingCurveName);
-    final int nbCoupon = getUnderlyingBond().getCoupon().getNumberOfPayments();
+    final int nbCoupon = getUnderlyingBond().getCoupons().getNumberOfPayments();
     int couponIndex = 0; // The index of the coupon of the spot date.
     for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
-      if (getUnderlyingBond().getCoupon().getNthPayment(loopcpn).getAccrualEndDate().isAfter(spot)) {
+      if (getUnderlyingBond().getCoupons().getNthPayment(loopcpn).getAccrualEndDate().isAfter(spot)) {
         couponIndex = loopcpn;
         break;
       }
     }
-    final double notionalStandard = getUnderlyingBond().getCoupon().getNthPayment(couponIndex).getNotional();
+    final double notionalStandard = getUnderlyingBond().getCoupons().getNthPayment(couponIndex).getNotional();
     final BondIborTransaction result = new BondIborTransaction(bondPurchase, getQuantity(), getPrice(), bondStandard, notionalStandard);
     return result;
   }

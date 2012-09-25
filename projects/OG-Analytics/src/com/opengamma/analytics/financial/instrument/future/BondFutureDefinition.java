@@ -10,7 +10,6 @@ import java.util.Arrays;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
@@ -20,6 +19,7 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutu
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -73,24 +73,23 @@ public class BondFutureDefinition implements InstrumentDefinitionWithData<BondFu
    * @param deliveryBasket The basket of deliverable bonds.
    * @param conversionFactor The conversion factor of each bond in the basket.
    */
-  public BondFutureDefinition(final ZonedDateTime tradingLastDate, final ZonedDateTime noticeFirstDate, final ZonedDateTime noticeLastDate, double notional,
+  public BondFutureDefinition(final ZonedDateTime tradingLastDate, final ZonedDateTime noticeFirstDate, final ZonedDateTime noticeLastDate, final double notional,
       final BondFixedSecurityDefinition[] deliveryBasket, final double[] conversionFactor) {
-    super();
-    Validate.notNull(tradingLastDate, "Last trading date");
-    Validate.notNull(noticeFirstDate, "First notice date");
-    Validate.notNull(noticeLastDate, "Last notice date");
-    Validate.notNull(deliveryBasket, "Delivery basket");
-    Validate.notNull(conversionFactor, "Conversion factor");
-    Validate.isTrue(deliveryBasket.length > 0, "At least one bond in basket");
-    Validate.isTrue(deliveryBasket.length == conversionFactor.length, "Conversion factor size");
-    this._tradingLastDate = tradingLastDate;
-    this._noticeFirstDate = noticeFirstDate;
-    this._noticeLastDate = noticeLastDate;
+    ArgumentChecker.notNull(tradingLastDate, "Last trading date");
+    ArgumentChecker.notNull(noticeFirstDate, "First notice date");
+    ArgumentChecker.notNull(noticeLastDate, "Last notice date");
+    ArgumentChecker.notNull(deliveryBasket, "Delivery basket");
+    ArgumentChecker.notNull(conversionFactor, "Conversion factor");
+    ArgumentChecker.isTrue(deliveryBasket.length > 0, "At least one bond in basket");
+    ArgumentChecker.isTrue(deliveryBasket.length == conversionFactor.length, "Conversion factor size");
+    _tradingLastDate = tradingLastDate;
+    _noticeFirstDate = noticeFirstDate;
+    _noticeLastDate = noticeLastDate;
     _notional = notional;
-    this._deliveryBasket = deliveryBasket;
-    this._conversionFactor = conversionFactor;
+    _deliveryBasket = deliveryBasket;
+    _conversionFactor = conversionFactor;
     _settlementDays = _deliveryBasket[0].getSettlementDays();
-    Calendar calendar = _deliveryBasket[0].getCalendar();
+    final Calendar calendar = _deliveryBasket[0].getCalendar();
     _deliveryFirstDate = ScheduleCalculator.getAdjustedDate(_noticeFirstDate, _settlementDays, calendar);
     _deliveryLastDate = ScheduleCalculator.getAdjustedDate(_noticeLastDate, _settlementDays, calendar);
   }
@@ -176,16 +175,17 @@ public class BondFutureDefinition implements InstrumentDefinitionWithData<BondFu
   }
 
   @Override
-  public BondFuture toDerivative(ZonedDateTime date, String... yieldCurveNames) {
-    throw new UnsupportedOperationException("The method toDerivative of " + this.getClass().getSimpleName() + " does not support the two argument method (without margin price data).");
+  public BondFuture toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    throw new UnsupportedOperationException("The method toDerivative of " + getClass().getSimpleName()
+        + " does not support the two argument method (without margin price data).");
   }
 
   @Override
-  public BondFuture toDerivative(ZonedDateTime valDate, Double referencePrice, String... yieldCurveNames) {
-    Validate.notNull(valDate, "valDate must always be provided to form a Derivative from a Definition");
-    Validate.isTrue(!valDate.isAfter(getDeliveryLastDate()), "Valuation date is after last delivery date");
-    Validate.notNull(yieldCurveNames, "yield curve names");
-    Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
+  public BondFuture toDerivative(final ZonedDateTime valDate, final Double referencePrice, final String... yieldCurveNames) {
+    ArgumentChecker.notNull(valDate, "valDate must always be provided to form a Derivative from a Definition");
+    ArgumentChecker.isTrue(!valDate.isAfter(getDeliveryLastDate()), "Valuation date is after last delivery date");
+    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
+    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
 
     final double lastTradingTime = TimeCalculator.getTimeBetween(valDate, getTradingLastDate());
     final double firstNoticeTime = TimeCalculator.getTimeBetween(valDate, getNoticeFirstDate());
@@ -198,17 +198,18 @@ public class BondFutureDefinition implements InstrumentDefinitionWithData<BondFu
       basket[loopbasket] = _deliveryBasket[loopbasket].toDerivative(valDate, _deliveryLastDate, yieldCurveNames);
     }
 
-    BondFuture futureDeriv = new BondFuture(lastTradingTime, firstNoticeTime, lastNoticeTime, firstDeliveryTime, lastDeliveryTime, _notional, basket, _conversionFactor, referencePrice);
+    final BondFuture futureDeriv = new BondFuture(lastTradingTime, firstNoticeTime, lastNoticeTime, firstDeliveryTime, lastDeliveryTime, _notional, basket,
+        _conversionFactor, referencePrice);
     return futureDeriv;
   }
 
   @Override
-  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     return visitor.visitBondFutureSecurityDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitBondFutureSecurityDefinition(this);
   }
 
@@ -231,7 +232,7 @@ public class BondFutureDefinition implements InstrumentDefinitionWithData<BondFu
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -241,7 +242,7 @@ public class BondFutureDefinition implements InstrumentDefinitionWithData<BondFu
     if (getClass() != obj.getClass()) {
       return false;
     }
-    BondFutureDefinition other = (BondFutureDefinition) obj;
+    final BondFutureDefinition other = (BondFutureDefinition) obj;
     if (!Arrays.equals(_conversionFactor, other._conversionFactor)) {
       return false;
     }
