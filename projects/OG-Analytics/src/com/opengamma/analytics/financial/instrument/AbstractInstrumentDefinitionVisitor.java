@@ -307,22 +307,22 @@ public class AbstractInstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> impleme
   }
 
   @Override
-  public RESULT_TYPE visitCouponFixed(final CouponFixedDefinition payment, final DATA_TYPE data) {
+  public RESULT_TYPE visitCouponFixedDefinition(final CouponFixedDefinition payment, final DATA_TYPE data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponFixedDefinition()");
   }
 
   @Override
-  public RESULT_TYPE visitCouponFixed(final CouponFixedDefinition payment) {
+  public RESULT_TYPE visitCouponFixedDefinition(final CouponFixedDefinition payment) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponFixedDefinition()");
   }
 
   @Override
-  public RESULT_TYPE visitCouponIbor(final CouponIborDefinition payment, final DATA_TYPE data) {
+  public RESULT_TYPE visitCouponIborDefinition(final CouponIborDefinition payment, final DATA_TYPE data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIborDefinition()");
   }
 
   @Override
-  public RESULT_TYPE visitCouponIbor(final CouponIborDefinition payment) {
+  public RESULT_TYPE visitCouponIborDefinition(final CouponIborDefinition payment) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIborDefinition()");
   }
 

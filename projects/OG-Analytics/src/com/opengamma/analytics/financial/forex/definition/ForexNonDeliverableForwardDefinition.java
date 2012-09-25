@@ -59,19 +59,19 @@ public class ForexNonDeliverableForwardDefinition implements InstrumentDefinitio
    * @param fixingDate The exchange rate fixing date.
    * @param paymentDate The transaction payment or settlement date.
    */
-  public ForexNonDeliverableForwardDefinition(final Currency currency1, final Currency currency2, final double notional, final double exchangeRate, final ZonedDateTime fixingDate,
-      final ZonedDateTime paymentDate) {
+  public ForexNonDeliverableForwardDefinition(final Currency currency1, final Currency currency2, final double notional, final double exchangeRate,
+      final ZonedDateTime fixingDate, final ZonedDateTime paymentDate) {
     ArgumentChecker.notNull(currency1, "First currency");
     ArgumentChecker.notNull(currency2, "Second currency");
     ArgumentChecker.notNull(fixingDate, "Fixing date");
     ArgumentChecker.notNull(paymentDate, "Payment date");
     ArgumentChecker.isTrue(!paymentDate.isBefore(fixingDate), "Payment date should be on or after fixing date");
-    this._currency1 = currency1;
-    this._currency2 = currency2;
-    this._notional = notional;
+    _currency1 = currency1;
+    _currency2 = currency2;
+    _notional = notional;
     _exchangeRate = exchangeRate;
-    this._fixingDate = fixingDate;
-    this._paymentDate = paymentDate;
+    _fixingDate = fixingDate;
+    _paymentDate = paymentDate;
   }
 
   /**
@@ -126,8 +126,8 @@ public class ForexNonDeliverableForwardDefinition implements InstrumentDefinitio
   public ForexNonDeliverableForward toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.isTrue(!date.isAfter(_fixingDate), "Date is after fixing date");
     ArgumentChecker.isTrue(yieldCurveNames.length > 1, "At least two curves required");
-    return new ForexNonDeliverableForward(_currency1, _currency2, _notional, _exchangeRate, TimeCalculator.getTimeBetween(date, _fixingDate), TimeCalculator.getTimeBetween(date, _paymentDate),
-        yieldCurveNames[0], yieldCurveNames[1]);
+    return new ForexNonDeliverableForward(_currency1, _currency2, _notional, _exchangeRate, TimeCalculator.getTimeBetween(date, _fixingDate),
+        TimeCalculator.getTimeBetween(date, _paymentDate), yieldCurveNames[0], yieldCurveNames[1]);
   }
 
   @Override

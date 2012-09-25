@@ -177,13 +177,13 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
 
   RESULT_TYPE visitPaymentFixedDefinition(PaymentFixedDefinition payment);
 
-  RESULT_TYPE visitCouponFixed(CouponFixedDefinition payment, DATA_TYPE data);
+  RESULT_TYPE visitCouponFixedDefinition(CouponFixedDefinition payment, DATA_TYPE data);
 
-  RESULT_TYPE visitCouponFixed(CouponFixedDefinition payment);
+  RESULT_TYPE visitCouponFixedDefinition(CouponFixedDefinition payment);
 
-  RESULT_TYPE visitCouponIbor(CouponIborDefinition payment, DATA_TYPE data);
+  RESULT_TYPE visitCouponIborDefinition(CouponIborDefinition payment, DATA_TYPE data);
 
-  RESULT_TYPE visitCouponIbor(CouponIborDefinition payment);
+  RESULT_TYPE visitCouponIborDefinition(CouponIborDefinition payment);
 
   RESULT_TYPE visitCouponIborSpread(CouponIborSpreadDefinition payment, DATA_TYPE data);
 
