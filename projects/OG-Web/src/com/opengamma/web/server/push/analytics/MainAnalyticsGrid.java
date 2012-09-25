@@ -124,14 +124,15 @@ import com.opengamma.util.tuple.Pair;
 
   /**
    * Updates a viewport on the main grid, e.g. in response the the user scrolling the grid.
+   *
    * @param viewportId ID of the viewport
-   * @param viewportSpecification Definition of the updated viewport
+   * @param viewportDefinition Definition of the updated viewport
    * @return Version number of the updated viewport, allows the client to check that any data it receives corresponds
    * to the current state of the viewport
    * @throws DataNotFoundException If no viewport exists with the specified ID
    */
-  /* package */ long updateViewport(int viewportId, ViewportSpecification viewportSpecification) {
-    return getViewport(viewportId).update(viewportSpecification, _cache);
+  /* package */ long updateViewport(int viewportId, ViewportDefinition viewportDefinition) {
+    return getViewport(viewportId).update(viewportDefinition, _cache);
   }
 
   // -------- dependency graph grids --------
@@ -203,28 +204,30 @@ import com.opengamma.util.tuple.Pair;
 
   /**
    * Creates a viewport on a dependency graph grid.
+   *
    * @param graphId ID of the dependency graph
    * @param viewportId ID of the viewport, can be any unique value
    * @param callbackId ID passed to listeners when the viewport's data changes, can be any unique value
-   * @param viewportSpec Definition of the viewport
+   * @param viewportDefinition Definition of the viewport
    * @return Version number of the viewport, allows clients to ensure any data they receive for a viewport matches
    * the current viewport state
    */
-  /* package */ long createViewport(int graphId, int viewportId, String callbackId, ViewportSpecification viewportSpec) {
-    return getDependencyGraph(graphId).createViewport(viewportId, callbackId, viewportSpec);
+  /* package */ long createViewport(int graphId, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
+    return getDependencyGraph(graphId).createViewport(viewportId, callbackId, viewportDefinition);
   }
 
   /**
    * Updates an existing viewport on a dependency graph grid
+   *
    * @param graphId ID of the dependency graph
    * @param viewportId ID of the viewport
-   * @param viewportSpec Definition of the viewport
+   * @param viewportDefinition Definition of the viewport
    * @return Version number of the viewport, allows clients to ensure any data they receive for a viewport matches
    * the current viewport state
    * @throws DataNotFoundException If no dependency graph exists with the specified ID
    */
-  /* package */ long updateViewport(int graphId, int viewportId, ViewportSpecification viewportSpec) {
-    return getDependencyGraph(graphId).updateViewport(viewportId, viewportSpec, _cycle, _cache);
+  /* package */ long updateViewport(int graphId, int viewportId, ViewportDefinition viewportDefinition) {
+    return getDependencyGraph(graphId).updateViewport(viewportId, viewportDefinition, _cycle, _cache);
   }
 
   /**
@@ -279,8 +282,8 @@ import com.opengamma.util.tuple.Pair;
   }
 
   @Override
-  protected MainGridViewport createViewport(ViewportSpecification viewportSpecification, String callbackId) {
-    return new MainGridViewport(viewportSpecification, _gridStructure, callbackId, _cache);
+  protected MainGridViewport createViewport(ViewportDefinition viewportDefinition, String callbackId) {
+    return new MainGridViewport(viewportDefinition, _gridStructure, callbackId, _cache);
   }
 
   /**

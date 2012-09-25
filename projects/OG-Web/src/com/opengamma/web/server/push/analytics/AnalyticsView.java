@@ -57,13 +57,14 @@ public interface AnalyticsView {
    * cells in the viewport and only receives notification of new data if data in the viewport changes. If the only data
    * that changes in a calculation cycle is not part of a viewport then no update needs to be sent to the client.
    * There can be any number of viewports for each grid.
+   *
    * @param gridType Specifies the grid.
    * @param viewportId A unique ID for the viewport
    * than the fact that it must be unique for each viewport in a view.
    * @param callbackId A value that is sent to the client with notification that new data is available for the
    * viewport. The server makes no assumptions about its format other than the fact that it must be unique for each
    * viewport in a view.
-   * @param viewportSpec Defines the rows and columns in the viewport and whether the viewport's data should be
+   * @param viewportDefinition Defines the rows and columns in the viewport and whether the viewport's data should be
    * expanded or a summary for data types which can't fit in a cell, e.g. vectors, matrices, curves.
    * @return The version of the viewport and the viewport's callback ID. The version allows the client to ensure
    * that data received for the viewport corresponds to the current viewport structure. If the client makes an
@@ -71,13 +72,14 @@ public interface AnalyticsView {
    * and it is possible the client could display the old viewport's data in the updated viewport. The viewport version
    * allows this situation to be detected and avoided.
    */
-  Pair<Long, String> createViewport(GridType gridType, int viewportId, String callbackId, ViewportSpecification viewportSpec);
+  Pair<Long, String> createViewport(GridType gridType, int viewportId, String callbackId, ViewportDefinition viewportDefinition);
 
   /**
    * Updates a viewport. A viewport will be updated when the user scrolls the grid.
+   *
    * @param gridType Specifies the grid
    * @param viewportId ID of the viewport
-   * @param viewportSpec Defines the rows and columns in the viewport and whether the viewport's data should be
+   * @param viewportDefinition Defines the rows and columns in the viewport and whether the viewport's data should be
    * expanded or a summary for data types which can't fit in a cell, e.g. vectors, matrices, curves.
    * @return The version of the viewport and the viewport's callback ID. The version allows the client to ensure
    * that data received for the viewport corresponds to the current viewport structure. If the client makes an
@@ -85,7 +87,7 @@ public interface AnalyticsView {
    * and it is possible the client could display the old viewport's data in the updated viewport. The viewport version
    * allows this situation to be detected and avoided.
    */
-  Pair<Long, String> updateViewport(GridType gridType, int viewportId, ViewportSpecification viewportSpec);
+  Pair<Long, String> updateViewport(GridType gridType, int viewportId, ViewportDefinition viewportDefinition);
 
   /**
    * Deletes a viewport.
@@ -145,13 +147,14 @@ public interface AnalyticsView {
    * cells in the viewport and only receives notification of new data if data in the viewport changes. If the only data
    * that changes in a calculation cycle is not part of a viewport then no update needs to be sent to the client.
    * There can be any number of viewports for each grid.
+   *
    * @param gridType Specifies which of the main grids the dependency graph grid belongs to
    * @param graphId The ID of the dependency graph
    * @param viewportId A unique ID for the viewport
    * @param callbackId A value that is sent to the client with notification that new data is available for the
    * viewport. The server makes no assumptions about its format other than the fact that it must be unique for each
    * viewport in a view.
-   * @param viewportSpec Defines the rows and columns in the viewport and whether the viewport's data should be
+   * @param viewportDefinition Defines the rows and columns in the viewport and whether the viewport's data should be
    * expanded or a summary for data types which can't fit in a cell, e.g. vectors, matrices, curves.
    * @return The version of the viewport and the viewport's callback ID. The version allows the client to ensure
    * that data received for the viewport corresponds to the current viewport structure. If the client makes an
@@ -159,14 +162,15 @@ public interface AnalyticsView {
    * and it is possible the client could display the old viewport's data in the updated viewport. The viewport version
    * allows this situation to be detected and avoided.
    */
-  Pair<Long, String> createViewport(GridType gridType, int graphId, int viewportId, String callbackId, ViewportSpecification viewportSpec);
+  Pair<Long, String> createViewport(GridType gridType, int graphId, int viewportId, String callbackId, ViewportDefinition viewportDefinition);
 
   /**
    * Updates a viewport of a dependency graph grid. A viewport will be updated when the user scrolls the grid.
+   *
    * @param gridType Specifies which of the main grids the dependency graph grid belongs to
    * @param graphId The ID of the dependency graph
    * @param viewportId ID of the viewport
-   * @param viewportSpec Defines the rows and columns in the viewport and whether the viewport's data should be
+   * @param viewportDefinition Defines the rows and columns in the viewport and whether the viewport's data should be
    * expanded or a summary for data types which can't fit in a cell, e.g. vectors, matrices, curves.
    * @return The version of the viewport and the viewport's callback ID. The version allows the client to ensure
    * that data received for the viewport corresponds to the current viewport structure. If the client makes an
@@ -174,7 +178,7 @@ public interface AnalyticsView {
    * and it is possible the client could display the old viewport's data in the updated viewport. The viewport version
    * allows this situation to be detected and avoided.
    */
-  Pair<Long, String> updateViewport(GridType gridType, int graphId, int viewportId, ViewportSpecification viewportSpec);
+  Pair<Long, String> updateViewport(GridType gridType, int graphId, int viewportId, ViewportDefinition viewportDefinition);
 
   /**
    * Deletes a viewport from a dependency graph grid.

@@ -75,7 +75,7 @@ public class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> 
   }
 
   @Override
-  protected DependencyGraphViewport createViewport(ViewportSpecification viewportSpec, String callbackId) {
+  protected DependencyGraphViewport createViewport(ViewportDefinition viewportSpec, String callbackId) {
     return new DependencyGraphViewport(viewportSpec, _calcConfigName, _gridStructure, _latestCycle, _cache, callbackId);
   }
 
@@ -88,7 +88,7 @@ public class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> 
     return updatedIds;
   }
 
-  /* package */ long updateViewport(int viewportId, ViewportSpecification viewportSpec, ViewCycle cycle, ResultsCache cache) {
-    return getViewport(viewportId).update(viewportSpec, cycle, cache);
+  /* package */ long updateViewport(int viewportId, ViewportDefinition viewportDefinition, ViewCycle cycle, ResultsCache cache) {
+    return getViewport(viewportId).update(viewportDefinition, cycle, cache);
   }
 }

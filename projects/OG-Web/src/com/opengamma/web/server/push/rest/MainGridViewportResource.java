@@ -6,11 +6,12 @@
 package com.opengamma.web.server.push.rest;
 
 import com.opengamma.web.server.push.analytics.AnalyticsView;
+import com.opengamma.web.server.push.analytics.ViewportDefinition;
 import com.opengamma.web.server.push.analytics.ViewportResults;
-import com.opengamma.web.server.push.analytics.ViewportSpecification;
 
 /**
- *
+ * REST resource for a viewport on one of the main grids displaying analytics data. The viewport represents the
+ * visible part of the grid.
  */
 public class MainGridViewportResource extends AbstractViewportResource {
 
@@ -19,7 +20,7 @@ public class MainGridViewportResource extends AbstractViewportResource {
   }
 
   @Override
-  public long update(ViewportSpecification viewportSpec) {
+  public long update(ViewportDefinition viewportSpec) {
     return _view.updateViewport(_gridType, _viewportId, viewportSpec).getFirst();
   }
 

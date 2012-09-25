@@ -19,7 +19,7 @@ import com.opengamma.util.ArgumentChecker;
   protected final String _callbackId;
 
   /** Defines the extent of the viewport. */
-  protected ViewportSpecification _viewportSpec;
+  protected ViewportDefinition _viewportDefinition;
   /** The current viewport data. */
   protected ViewportResults _latestResults;
   /**

@@ -64,20 +64,20 @@ import com.opengamma.util.tuple.Pair;
   }
 
   @Override
-  public Pair<Long, String> createViewport(GridType gridType, int viewportId, String callbackId, ViewportSpecification viewportSpec) {
+  public Pair<Long, String> createViewport(GridType gridType, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
     try {
       _lock.writeLock().lock();
-      return _delegate.createViewport(gridType, viewportId, callbackId, viewportSpec);
+      return _delegate.createViewport(gridType, viewportId, callbackId, viewportDefinition);
     } finally {
       _lock.writeLock().unlock();
     }
   }
 
   @Override
-  public Pair<Long, String> updateViewport(GridType gridType, int viewportId, ViewportSpecification viewportSpec) {
+  public Pair<Long, String> updateViewport(GridType gridType, int viewportId, ViewportDefinition viewportDefinition) {
     try {
       _lock.writeLock().lock();
-      return _delegate.updateViewport(gridType, viewportId, viewportSpec);
+      return _delegate.updateViewport(gridType, viewportId, viewportDefinition);
     } finally {
       _lock.writeLock().unlock();
     }
@@ -134,20 +134,20 @@ import com.opengamma.util.tuple.Pair;
   }
 
   @Override
-  public Pair<Long, String> createViewport(GridType gridType, int graphId, int viewportId, String callbackId, ViewportSpecification viewportSpec) {
+  public Pair<Long, String> createViewport(GridType gridType, int graphId, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
     try {
       _lock.writeLock().lock();
-      return _delegate.createViewport(gridType, graphId, viewportId, callbackId, viewportSpec);
+      return _delegate.createViewport(gridType, graphId, viewportId, callbackId, viewportDefinition);
     } finally {
       _lock.writeLock().unlock();
     }
   }
 
   @Override
-  public Pair<Long, String> updateViewport(GridType gridType, int graphId, int viewportId, ViewportSpecification viewportSpec) {
+  public Pair<Long, String> updateViewport(GridType gridType, int graphId, int viewportId, ViewportDefinition viewportDefinition) {
     try {
       _lock.writeLock().lock();
-      return _delegate.updateViewport(gridType, graphId, viewportId, viewportSpec);
+      return _delegate.updateViewport(gridType, graphId, viewportId, viewportDefinition);
     } finally {
       _lock.writeLock().unlock();
     }

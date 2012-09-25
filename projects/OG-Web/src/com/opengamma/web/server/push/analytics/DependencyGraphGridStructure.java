@@ -9,7 +9,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.SortedSet;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -77,42 +76,24 @@ public class DependencyGraphGridStructure implements GridStructure {
 
   /**
    * Builds the results for a viewport given a set of results for the entire grid and a definition of the viewport.
-   * @param viewportSpec Defines the viewport
+   * @param viewportDefinition Defines the viewport
    * @param cache Cache of results for the grid
    * @param calcConfigName Calculation configuration used when calculating the dependency graph
    * @return The results for the rows in the viewport
    */
-  /* package */ List<List<ViewportResults.Cell>> createResultsForViewport(ViewportSpecification viewportSpec,
-                                                                          ResultsCache cache,
-                                                                          String calcConfigName) {
-    List<List<ViewportResults.Cell>> resultsList = Lists.newArrayList();
-    for (Integer rowIndex : viewportSpec.getRows()) {
-      resultsList.add(createResultsForRow(rowIndex, viewportSpec.getColumns(), cache, calcConfigName));
+  /* package */ List<ViewportResults.Cell> createResultsForViewport(ViewportDefinition viewportDefinition,
+                                                                    ResultsCache cache,
+                                                                    String calcConfigName) {
+    List<ViewportResults.Cell> results = Lists.newArrayList();
+    for (GridCell cell : viewportDefinition) {
+      int rowIndex = cell.getRow();
+      ResultsCache.Result cacheResult = cache.getResult(calcConfigName, _valueSpecs.get(rowIndex), null);
+      Object value = cacheResult.getValue();
+      ValueSpecification spec = _valueSpecs.get(rowIndex);
+      String fnName = _fnNames.get(rowIndex);
+      results.add(createValueForColumn(cell.getColumn(), spec, fnName, value, cache, calcConfigName));
     }
-    return resultsList;
-  }
-
-  /**
-   * Builds the results for a single row in the viewport.
-   * @param rowIndex The row index in the grid
-   * @param cols The columns visible in the viewport
-   * @param cache Cache of results for the grid
-   * @param calcConfigName Calculation configuration used when calculating the dependency graph
-   * @return The results for the row
-   */
-  private List<ViewportResults.Cell> createResultsForRow(int rowIndex,
-                                                         SortedSet<Integer> cols,
-                                                         ResultsCache cache,
-                                                         String calcConfigName) {
-    ResultsCache.Result cacheResult = cache.getResult(calcConfigName, _valueSpecs.get(rowIndex), null);
-    Object value = cacheResult.getValue();
-    ValueSpecification spec = _valueSpecs.get(rowIndex);
-    String fnName = _fnNames.get(rowIndex);
-    List<ViewportResults.Cell> rowResults = Lists.newArrayListWithCapacity(cols.size());
-    for (Integer colIndex : cols) {
-      rowResults.add(createValueForColumn(colIndex, spec, fnName, value, cache, calcConfigName));
-    }
-    return rowResults;
+    return results;
   }
 
   /**
@@ -133,18 +114,18 @@ public class DependencyGraphGridStructure implements GridStructure {
                                                           String calcConfigName) {
     switch (colIndex) {
       case 0: // target
-        return ViewportResults.stringCell(getTargetName(valueSpec.getTargetSpecification()));
+        return ViewportResults.stringCell(getTargetName(valueSpec.getTargetSpecification()), colIndex);
       case 1: // target type
-        return ViewportResults.stringCell(getTargetTypeName(valueSpec.getTargetSpecification().getType()));
+        return ViewportResults.stringCell(getTargetTypeName(valueSpec.getTargetSpecification().getType()), colIndex);
       case 2: // value name
-        return ViewportResults.stringCell(valueSpec.getValueName());
+        return ViewportResults.stringCell(valueSpec.getValueName(), colIndex);
       case 3: // value
         Collection<Object> cellHistory = cache.getHistory(calcConfigName, valueSpec);
-        return ViewportResults.valueCell(value, valueSpec, cellHistory);
+        return ViewportResults.valueCell(value, valueSpec, cellHistory, colIndex);
       case 4: // function name
-        return ViewportResults.stringCell(fnName);
+        return ViewportResults.stringCell(fnName, colIndex);
       case 5: // properties
-        return ViewportResults.stringCell(getValuePropertiesForDisplay(valueSpec.getProperties()));
+        return ViewportResults.stringCell(getValuePropertiesForDisplay(valueSpec.getProperties()), colIndex);
       default: // never happen
         throw new IllegalArgumentException("Column index " + colIndex + " is invalid");
     }

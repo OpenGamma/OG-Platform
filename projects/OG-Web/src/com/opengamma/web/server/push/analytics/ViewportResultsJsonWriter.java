@@ -37,56 +37,50 @@ public class ViewportResultsJsonWriter {
     _formatter = formatter;
   }
 
-  public String getJson(ViewportResults results) {
-    List<List<ViewportResults.Cell>> viewportCells = results.getResults();
-    List<List<Object>> allResults = Lists.newArrayListWithCapacity(viewportCells.size());
-    for (List<ViewportResults.Cell> rowCells : viewportCells) {
-      List<Object> rowResults = Lists.newArrayListWithCapacity(rowCells.size());
-      int viewportColIndex = 0;
-      for (ViewportResults.Cell cell : rowCells) {
-        Object formattedValue;
-        Object cellValue = cell.getValue();
-        ValueSpecification cellValueSpec = cell.getValueSpecification();
-        if (results.isExpanded()) {
-          formattedValue = _formatter.formatForExpandedDisplay(cellValue, cellValueSpec);
-        } else {
-          formattedValue = _formatter.formatForDisplay(cellValue, cellValueSpec);
-        }
-        Collection<Object> history = cell.getHistory();
-        Class<?> columnType = results.getColumnType(viewportColIndex++);
-
-        if (columnType == null || history != null || cell.isError()) {
-          // if there is history, an error or we need to send type info then we need to send an object, not just the value
-          Map<String, Object> valueMap = Maps.newHashMap();
-          valueMap.put(VALUE, formattedValue);
-          // if the the column type isn't known then send the type with the value
-          if (columnType == null) {
-            Formatter.FormatType formatType;
-            if (cellValue == null) {
-              formatType = Formatter.FormatType.PRIMITIVE;
-            } else {
-              formatType = _formatter.getFormatType(cellValue.getClass());
-            }
-            valueMap.put(TYPE, formatType.name());
-          }
-          if (history != null) {
-            List<Object> formattedHistory = Lists.newArrayListWithCapacity(history.size());
-            for (Object historyValue : history) {
-              formattedHistory.add(_formatter.formatForHistory(historyValue, cellValueSpec));
-            }
-            valueMap.put(HISTORY, formattedHistory);
-          }
-          if (cell.isError()) {
-            valueMap.put(ERROR, true);
-          }
-          rowResults.add(valueMap);
-        } else {
-          rowResults.add(formattedValue);
-        }
+  public String getJson(ViewportResults viewportResults) {
+    List<ViewportResults.Cell> viewportCells = viewportResults.getResults();
+    List<Object> results = Lists.newArrayListWithCapacity(viewportCells.size());
+    for (ViewportResults.Cell cell : viewportCells) {
+      Object formattedValue;
+      Object cellValue = cell.getValue();
+      ValueSpecification cellValueSpec = cell.getValueSpecification();
+      if (viewportResults.isExpanded()) {
+        formattedValue = _formatter.formatForExpandedDisplay(cellValue, cellValueSpec);
+      } else {
+        formattedValue = _formatter.formatForDisplay(cellValue, cellValueSpec);
       }
-      allResults.add(rowResults);
+      Collection<Object> history = cell.getHistory();
+      Class<?> columnType = viewportResults.getColumnType(cell.getColumn());
+      if (columnType == null || history != null || cell.isError()) {
+        // if there is history, an error or we need to send type info then we need to send an object, not just the value
+        Map<String, Object> valueMap = Maps.newHashMap();
+        valueMap.put(VALUE, formattedValue);
+        // if the the column type isn't known then send the type with the value
+        if (columnType == null) {
+          Formatter.FormatType formatType;
+          if (cellValue == null) {
+            formatType = Formatter.FormatType.PRIMITIVE;
+          } else {
+            formatType = _formatter.getFormatType(cellValue.getClass());
+          }
+          valueMap.put(TYPE, formatType.name());
+        }
+        if (history != null) {
+          List<Object> formattedHistory = Lists.newArrayListWithCapacity(history.size());
+          for (Object historyValue : history) {
+            formattedHistory.add(_formatter.formatForHistory(historyValue, cellValueSpec));
+          }
+          valueMap.put(HISTORY, formattedHistory);
+        }
+        if (cell.isError()) {
+          valueMap.put(ERROR, true);
+        }
+        results.add(valueMap);
+      } else {
+        results.add(formattedValue);
+      }
     }
-    ImmutableMap<String, Object> resultsMap = ImmutableMap.of(VERSION, results.getVersion(), DATA, allResults);
+    ImmutableMap<String, Object> resultsMap = ImmutableMap.of(VERSION, viewportResults.getVersion(), DATA, results);
     return new JSONObject(resultsMap).toString();
   }
 }
