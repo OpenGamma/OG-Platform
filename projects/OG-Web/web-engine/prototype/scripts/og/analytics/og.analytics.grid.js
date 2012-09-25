@@ -93,10 +93,10 @@ $.register_module({
             return $(grid.id).length ? true : !grid.elements.style.remove();
         };
         constructor.prototype.cell = function (selection) {
-            var grid = this, cell, viewport = grid.meta.viewport;
+            var grid = this, cell, viewport = grid.meta.viewport, rows = viewport.rows, cols = viewport.cols;
             return 1 !== selection.rows.length || 1 !== selection.cols.length ? null : {
                 row: selection.rows[0], col: selection.cols[0], value: cell = grid
-                    .data[viewport.rows.indexOf(selection.rows[0])][viewport.cols.indexOf(selection.cols[0])],
+                    .data[rows.indexOf(selection.rows[0]) * cols.length + cols.indexOf(selection.cols[0])],
                 type: cell.t || selection.type[0]
             };
         };
@@ -238,16 +238,17 @@ $.register_module({
         })();
         constructor.prototype.render_rows = (function () {
             var row_data = function (grid, data, fixed) {
-                var meta = grid.meta, fixed_length = meta.fixed_length, i, j, data_len = data.length, slice, slice_len,
-                    result = {holder_height: meta.viewport.height + (fixed ? scrollbar_size : 0), rows: []},
-                    data_row, grid_row, value, type, column, cells;
-                for (i = 0, grid_row = meta.available.indexOf(meta.viewport.rows[0]); i < data_len; i += 1) {
-                    slice = fixed ? data[i].slice(0, fixed_length) : data[i].slice(fixed_length);
+                var meta = grid.meta, viewport = meta.viewport, fixed_len = meta.fixed_length, i, j, index, data_row,
+                    cols = viewport.cols, rows = viewport.rows, grid_row = meta.available.indexOf(rows[0]), value,
+                    types = meta.columns.types, type, total_cols = cols.length, formatter = grid.formatter, col_end,
+                    row_len = rows.length, col_len = fixed ? fixed_len : total_cols - fixed_len, column, cells,
+                    result = {holder_height: viewport.height + (fixed ? scrollbar_size : 0), rows: []};
+                for (i = 0; i < row_len; i += 1) {
                     result.rows.push({top: grid_row++ * row_height, cells: (cells = [])});
-                    for (j = 0, slice_len = slice.length, data_row = meta.viewport.rows[i]; j < slice_len; j += 1) {
-                        column = meta.viewport.cols[fixed ? j : fixed_length + j];
-                        value = grid.formatter[type = meta.columns.types[column]] ? grid.formatter[type](slice[j])
-                            : slice[j] || '';
+                    if (fixed) {j = 0; col_end = col_len;} else {j = fixed_len; col_end = col_len + fixed_len;}
+                    for (data_row = rows[i]; j < col_end; j += 1) {
+                        index = i * total_cols + j; column = cols[j];
+                        value = (formatter[type = types[column]] ? formatter[type](data[index]) : data[index]) || '';
                         cells.push({column: column, value: fixed && !j ? meta.unraveled[data_row] + value : value});
                     }
                 }
@@ -294,7 +295,6 @@ $.register_module({
             meta.viewport = {
                 height: meta.rows * row_height, width: Math.min(width, data_width) - meta.columns.width.fixed
             };
-            // height = Math.min(height, meta.viewport.height);
             meta.visible_rows = Math.min(Math.ceil((height - header_height) / row_height), meta.rows);
             css = templates.css({
                 id: id, viewport_width: meta.viewport.width,
@@ -315,8 +315,7 @@ $.register_module({
         constructor.prototype.transpose_selection = function (raw) {
             var grid = this, meta = grid.meta;
             return {
-                cols: raw.cols,
-                rows: raw.rows.map(function (row) {return meta.available[row];}),
+                cols: raw.cols, rows: raw.rows.map(function (row) {return meta.available[row];}),
                 type: raw.cols.map(function (col) {return meta.columns.types[col];})
             };
         };
@@ -344,25 +343,23 @@ $.register_module({
             };
         })();
         constructor.prototype.viewport = function (handler) {
-            var grid = this, top_position = grid.elements.scroll_body.scrollTop(),
-                left_position = grid.elements.scroll_head.scrollLeft(),
-                fixed_len = grid.meta.fixed_length,
-                row_start = Math.floor((top_position / grid.meta.viewport.height) * grid.meta.rows),
-                row_len = grid.meta.visible_rows, row_end = row_start + row_len, lcv = row_start,
-                scroll_position = left_position + grid.meta.viewport.width,
-                scroll_cols = grid.meta.columns.scroll
+            var grid = this, meta = grid.meta, viewport = meta.viewport, elements = grid.elements,
+                top_position = elements.scroll_body.scrollTop(), left_position = elements.scroll_head.scrollLeft(),
+                fixed_len = meta.fixed_length, row_start = Math.floor((top_position / viewport.height) * meta.rows),
+                row_len = meta.visible_rows, row_end = row_start + row_len - 1, lcv = row_start,
+                scroll_position = left_position + viewport.width, scroll_cols = meta.columns.scroll
                     .reduce(function (acc, set) {return acc.concat(set.columns);}, []);
-            grid.meta.viewport.rows = [];
-            while (lcv < row_end) grid.meta.viewport.rows.push(grid.meta.available[lcv++]);
-            (grid.meta.viewport.cols = []), (lcv = 0);
-            while (lcv < fixed_len) grid.meta.viewport.cols.push(lcv++);
-            grid.meta.viewport.cols = grid.meta.viewport.cols.concat(scroll_cols.reduce(function (acc, col, idx) {
+            viewport.rows = [];
+            while (lcv < row_end) viewport.rows.push(meta.available[lcv++]);
+            (viewport.cols = []), (lcv = 0);
+            while (lcv < fixed_len) viewport.cols.push(lcv++);
+            viewport.cols = viewport.cols.concat(scroll_cols.reduce(function (acc, col, idx) {
                 if (!('scan' in acc)) return acc;
                 if ((acc.scan += col.width) >= left_position) acc.cols.push(idx + fixed_len);
                 if (acc.scan > scroll_position) delete acc.scan;
                 return acc;
             }, {scan: 0, cols: []}).cols);
-            grid.dataman.viewport(grid.meta.viewport);
+            grid.dataman.viewport(viewport);
             if (handler) handler.call(grid);
             return grid;
         };

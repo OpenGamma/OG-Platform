@@ -8,7 +8,7 @@ $.register_module({
         'og.views.common.state', 'og.common.routes', 'og.common.gadgets.GadgetsContainer','og.analytics.CellMenu'
     ],
     obj: function () {
-        var routes = og.common.routes, module = this, view, cellmenu = new og.analytics.CellMenu();
+        var routes = og.common.routes, module = this, view;
         module.rules = {load: {route: '/', method: module.name + '.load'}};
         return view = {
             check_state: og.views.common.state.check.partial('/'),
