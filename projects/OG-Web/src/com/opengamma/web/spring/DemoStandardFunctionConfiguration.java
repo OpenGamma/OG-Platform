@@ -48,6 +48,7 @@ import com.opengamma.financial.analytics.CurrencyPairsDefaults;
 import com.opengamma.financial.analytics.CurrencyPairsFunction;
 import com.opengamma.financial.analytics.DV01Function;
 import com.opengamma.financial.analytics.FilteringSummingFunction;
+import com.opengamma.financial.analytics.FixedCashFlowFunction;
 import com.opengamma.financial.analytics.LastHistoricalValueFunction;
 import com.opengamma.financial.analytics.MissingInputsFunction;
 import com.opengamma.financial.analytics.PositionScalingFunction;
@@ -477,9 +478,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(ForwardPricePositionRenamingFunction.class));
     functionConfigs.add(functionConfiguration(ForwardPriceSecurityRenamingFunction.class));
     functionConfigs.add(functionConfiguration(ForwardPriceTradeRenamingFunction.class));
-
-
-
   }
 
   public static void addScalingFunction(final List<FunctionConfiguration> functionConfigs, final String requirementName) {
@@ -626,8 +624,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(PositionExchangeTradedPnLFunction.class));
     functionConfigs.add(functionConfiguration(PortfolioExchangeTradedPnLFunction.class));
     functionConfigs.add(functionConfiguration(PortfolioExchangeTradedDailyPnLFunction.Impl.class));
-    functionConfigs.add(functionConfiguration(AggregationDefaultPropertyFunction.class, ValueRequirementNames.DAILY_PNL,
-        MissingInputsFunction.AGGREGATION_STYLE_FULL));
+    functionConfigs.add(functionConfiguration(AggregationDefaultPropertyFunction.class, ValueRequirementNames.DAILY_PNL, MissingInputsFunction.AGGREGATION_STYLE_FULL));
 
     addPnLCalculators(functionConfigs);
     addVaRCalculators(functionConfigs);
@@ -657,6 +654,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addLocalVolatilityCalculators(functionConfigs);
     addExternallyProvidedSensitivitiesFunctions(functionConfigs);
 
+    addCashFlowFunctions(functionConfigs);
     addScalingFunction(functionConfigs, ValueRequirementNames.FAIR_VALUE);
 
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.SPOT_RATE_FOR_SECURITY);
@@ -974,10 +972,9 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(BondZSpreadPresentValueSensitivityFromCurveCleanPriceFunction.class));
     functionConfigs.add(functionConfiguration(BondZSpreadPresentValueSensitivityFromMarketCleanPriceFunction.class));
     functionConfigs.add(functionConfiguration(NelsonSiegelSvenssonBondCurveFunction.class));
-    functionConfigs.add(functionConfiguration(BondDefaultCurveNamesFunction.class, PriorityClass.ABOVE_NORMAL.name(),
-        "USD", "Discounting", "DefaultTwoCurveUSDConfig", "Discounting", "DefaultTwoCurveUSDConfig",
-        "EUR", "Discounting", "DefaultTwoCurveEURConfig", "Discounting", "DefaultTwoCurveEURConfig",
-        "GBP", "Discounting", "DefaultTwoCurveGBPConfig", "Discounting", "DefaultTwoCurveGBPConfig"));
+    functionConfigs.add(functionConfiguration(BondDefaultCurveNamesFunction.class, PriorityClass.ABOVE_NORMAL.name(), "USD", "Discounting", "DefaultTwoCurveUSDConfig",
+        "Discounting", "DefaultTwoCurveUSDConfig", "EUR", "Discounting", "DefaultTwoCurveEURConfig", "Discounting", "DefaultTwoCurveEURConfig", "GBP", "Discounting",
+        "DefaultTwoCurveGBPConfig", "Discounting", "DefaultTwoCurveGBPConfig"));
   }
 
   private static void addForexOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
@@ -1007,33 +1004,14 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(FXOptionBlackForwardSlideThetaFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackVolatilitySurfaceForwardSlideThetaFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackYieldCurvesForwardSlideThetaFunction.class));
-    functionConfigs.add(functionConfiguration(FXOptionBlackCurveDefaults.class, PriorityClass.BELOW_NORMAL.name(),
-        "USD", "DefaultTwoCurveUSDConfig", "Discounting", 
-        "EUR", "DefaultTwoCurveEURConfig", "Discounting",
-        "CAD", "DefaultTwoCurveCADConfig", "Discounting",
-        "AUD", "DefaultTwoCurveAUDConfig", "Discounting",
-        "CHF", "DefaultTwoCurveCHFConfig", "Discounting",
-        "MXN", "DefaultCashCurveMXNConfig", "Cash",
-        "JPY", "DefaultTwoCurveJPYConfig", "Discounting",
-        "GBP", "DefaultTwoCurveGBPConfig", "Discounting",
-        "NZD", "DefaultTwoCurveNZDConfig", "Discounting",
-        "HUF", "DefaultCashCurveHUFConfig", "Cash",
-        "KRW", "DefaultCashCurveKRWConfig", "Cash",
-        "BRL", "DefaultCashCurveBRLConfig", "Cash",
-        "HKD", "DefaultCashCurveHKDConfig", "Cash"));
-    functionConfigs.add(functionConfiguration(FXOptionBlackSurfaceDefaults.class, PriorityClass.BELOW_NORMAL.name(), DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR, LINEAR_EXTRAPOLATOR,
-        "USD", "EUR", "TULLETT",
-        "USD", "CAD", "TULLETT",
-        "USD", "AUD", "TULLETT",
-        "USD", "CHF", "TULLETT",
-        "USD", "MXN", "TULLETT",
-        "USD", "JPY", "TULLETT",
-        "USD", "GBP", "TULLETT",
-        "USD", "NZD", "TULLETT",
-        "USD", "HUF", "TULLETT",
-        "USD", "KRW", "TULLETT",
-        "USD", "BRL", "TULLETT",
-        "EUR", "CHF", "TULLETT",
+    functionConfigs.add(functionConfiguration(FXOptionBlackCurveDefaults.class, PriorityClass.BELOW_NORMAL.name(), "USD", "DefaultTwoCurveUSDConfig", "Discounting",
+        "EUR", "DefaultTwoCurveEURConfig", "Discounting", "CAD", "DefaultTwoCurveCADConfig", "Discounting", "AUD", "DefaultTwoCurveAUDConfig", "Discounting", "CHF",
+        "DefaultTwoCurveCHFConfig", "Discounting", "MXN", "DefaultCashCurveMXNConfig", "Cash", "JPY", "DefaultTwoCurveJPYConfig", "Discounting", "GBP",
+        "DefaultTwoCurveGBPConfig", "Discounting", "NZD", "DefaultTwoCurveNZDConfig", "Discounting", "HUF", "DefaultCashCurveHUFConfig", "Cash", "KRW",
+        "DefaultCashCurveKRWConfig", "Cash", "BRL", "DefaultCashCurveBRLConfig", "Cash", "HKD", "DefaultCashCurveHKDConfig", "Cash"));
+    functionConfigs.add(functionConfiguration(FXOptionBlackSurfaceDefaults.class, PriorityClass.BELOW_NORMAL.name(), DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR,
+        LINEAR_EXTRAPOLATOR, "USD", "EUR", "TULLETT", "USD", "CAD", "TULLETT", "USD", "AUD", "TULLETT", "USD", "CHF", "TULLETT", "USD", "MXN", "TULLETT", "USD", "JPY",
+        "TULLETT", "USD", "GBP", "TULLETT", "USD", "NZD", "TULLETT", "USD", "HUF", "TULLETT", "USD", "KRW", "TULLETT", "USD", "BRL", "TULLETT", "EUR", "CHF", "TULLETT",
         "USD", "HKD", "TULLETT"));
   }
 
@@ -1556,8 +1534,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackGammaFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackPriceFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionConstantSpreadThetaFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackDefaults.class, PriorityClass.ABOVE_NORMAL.name(),
-        "USD", "DefaultTwoCurveUSDConfig", "DEFAULT"));
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackDefaults.class, PriorityClass.ABOVE_NORMAL.name(), "USD", "DefaultTwoCurveUSDConfig",
+        "DEFAULT"));
     functionConfigs.add(functionConfiguration(MarginPriceFunction.class));
     functionConfigs.add(functionConfiguration(SwaptionBlackPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(SwaptionBlackVolatilitySensitivityFunction.class));
@@ -1651,11 +1629,15 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         defaultSamplingFunctionName, defaultReturnCalculatorName, defaultStdDevCalculatorName, defaultExcessReturnCalculatorName));
     functionConfigs.add(functionConfiguration(TotalRiskAlphaPositionFunction.class, DEFAULT_CONFIG_NAME));
     functionConfigs.add(functionConfiguration(TotalRiskAlphaPortfolioNodeFunction.class, DEFAULT_CONFIG_NAME));
-    //    functionConfigs.add(functionConfiguration(PositionWeightFromNAVFunction.class, "56000000"));
+  }
+
+  private static void addCashFlowFunctions(final List<FunctionConfiguration> functionConfigs) {
+    addSummingFunction(functionConfigs, ValueRequirementNames.FIXED_CASH_FLOWS);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.FIXED_CASH_FLOWS);
+    functionConfigs.add(functionConfiguration(FixedCashFlowFunction.class));
   }
 
   private static void addExternallyProvidedSensitivitiesFunctions(final List<FunctionConfiguration> functionConfigs) {
-    //final String defaultReturnCalculatorName = TimeSeriesReturnCalculatorFactory.SIMPLE_NET_LENIENT;
     final String defaultSamplingPeriodName = "P2Y";
     final String defaultScheduleName = ScheduleCalculatorFactory.DAILY;
     final String defaultSamplingCalculatorName = TimeSeriesSamplingFunctionFactory.PREVIOUS_AND_FIRST_VALUE_PADDING;

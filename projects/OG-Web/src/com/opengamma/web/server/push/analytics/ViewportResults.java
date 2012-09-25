@@ -18,33 +18,33 @@ import com.opengamma.util.ArgumentChecker;
 public class ViewportResults {
 
   /** An empty grid cell. */
-  private static final Cell s_emptyCell = new Cell(null, null, null);
+  private static final Cell s_emptyCell = new Cell(null, null, null, 0);
 
   /** The result values by row. */
-  private final List<List<Cell>> _allResults;
+  private final List<Cell> _allResults;
   /** The grid columns. */
   private final AnalyticsColumnGroups _columns;
   /** Definition of the viewport. */
-  private final ViewportSpecification _viewportSpec;
+  private final ViewportDefinition _viewportDefinition;
   /** Version of the viewport used when building these results. */
   private final long _version;
 
   /**
    * @param allResults Cells in the viewport containing the data, history and the value specification. The outer
    * list contains the data by rows and the inner lists contain the data for each row
-   * @param viewportSpec Definition of the rows and columns in the viewport
+   * @param viewportDefinition Definition of the rows and columns in the viewport
    * @param columns The columns in the viewport's grid
    * @param version The version of the viewport used when creating the results
    */
-  /* package */ ViewportResults(List<List<Cell>> allResults,
-                                ViewportSpecification viewportSpec,
+  /* package */ ViewportResults(List<Cell> allResults,
+                                ViewportDefinition viewportDefinition,
                                 AnalyticsColumnGroups columns,
                                 long version) {
     ArgumentChecker.notNull(allResults, "allResults");
     ArgumentChecker.notNull(columns, "columns");
-    ArgumentChecker.notNull(viewportSpec, "viewportSpec");
+    ArgumentChecker.notNull(viewportDefinition, "viewportSpec");
     _allResults = allResults;
-    _viewportSpec = viewportSpec;
+    _viewportDefinition = viewportDefinition;
     _columns = columns;
     _version = version;
   }
@@ -53,7 +53,7 @@ public class ViewportResults {
    * @return Cells in the viewport containing the data, history and the value specification. The outer
    * list contains the data by rows and the inner lists contain the data for each row
    */
-  /* package */ List<List<Cell>> getResults() {
+  /* package */ List<Cell> getResults() {
     return _allResults;
   }
 
@@ -63,7 +63,7 @@ public class ViewportResults {
    * the full data might need more space. e.g. displaying matrix data in a window that pops up over the main grid.
    */
   /* package */ boolean isExpanded() {
-    return _viewportSpec.isExpanded();
+    return _viewportDefinition.isExpanded();
   }
 
   /**
@@ -75,14 +75,11 @@ public class ViewportResults {
   }
 
   /**
-   * @param viewportColIndex The column index <em>in terms of the viewport columns</em>. For exmaple, if a viewport
-   * contains columns 3 and 5 a call to {@code getColumnType(0)} will return the type of column 3 and
-   * {@code getColumnType(1)} will return the type of column 5
+   * @param colIndex The column index in the grid (zero based)
    * @return The type of the specified column
    */
-  /* package */ Class<?> getColumnType(int viewportColIndex) {
-    Integer gridColIndex = _viewportSpec.getGridColumnIndex(viewportColIndex);
-    return _columns.getColumn(gridColIndex).getType();
+  /* package */ Class<?> getColumnType(int colIndex) {
+    return _columns.getColumn(colIndex).getType();
   }
 
   /**
@@ -90,9 +87,9 @@ public class ViewportResults {
    * @param value The cell's value
    * @return A cell for displaying the value
    */
-  /* package */ static Cell stringCell(String value) {
+  /* package */ static Cell stringCell(String value, int column) {
     ArgumentChecker.notNull(value, "value");
-    return new Cell(value, null, null);
+    return new Cell(value, null, null, column);
   }
 
   /**
@@ -102,8 +99,8 @@ public class ViewportResults {
    * @param history The value's history
    * @return A cell for displaying the value
    */
-  /* package */ static Cell valueCell(Object value, ValueSpecification valueSpecification, Collection<Object> history) {
-    return new Cell(value, valueSpecification, history);
+  /* package */ static Cell valueCell(Object value, ValueSpecification valueSpecification, Collection<Object> history, int column) {
+    return new Cell(value, valueSpecification, history, column);
   }
 
   /**
@@ -119,7 +116,7 @@ public class ViewportResults {
     return "ViewportResults [" +
         "_allResults=" + _allResults +
         ", _columns=" + _columns +
-        ", _viewportSpec=" + _viewportSpec +
+        ", _viewportDefinition=" + _viewportDefinition +
         ", _version=" + _version +
         "]";
   }
@@ -132,11 +129,13 @@ public class ViewportResults {
     private final Object _value;
     private final ValueSpecification _valueSpecification;
     private final Collection<Object> _history;
+    private final int _column;
 
-    private Cell(Object value, ValueSpecification valueSpecification, Collection<Object> history) {
+    private Cell(Object value, ValueSpecification valueSpecification, Collection<Object> history, int column) {
       _value = value;
       _valueSpecification = valueSpecification;
       _history = history;
+      _column = column;
     }
 
     /**
@@ -165,6 +164,10 @@ public class ViewportResults {
      */
     /* package */ boolean isError() {
       return _value instanceof MissingInput;
+    }
+
+    public int getColumn() {
+      return _column;
     }
   }
 }

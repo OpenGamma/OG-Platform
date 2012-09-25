@@ -119,7 +119,7 @@ public class CalibrateSurvivalCurveTest {
   @Test
   public void testCalibrateSurvivalCurve() {
 
-    final boolean outputResults = false;
+    final boolean outputResults = true;
 
     int numberOfTenors = 10;
 
@@ -381,11 +381,11 @@ public class CalibrateSurvivalCurveTest {
     final CalibrateSurvivalCurve curve = new CalibrateSurvivalCurve();
 
     // Calibrate the survival curve to the market observed par CDS spreads
-    double[] calibratedSurvivalCurve = curve.getCalibratedSurvivalCurve(calibrationCDS, tenors, marketSpreads, yieldCurve);
+    //double[] calibratedSurvivalCurve = curve.getCalibratedSurvivalCurve(calibrationCDS, tenors, marketSpreads, yieldCurve);
 
     if (outputResults) {
       for (int i = 0; i < numberOfTenors; i++) {
-        System.out.println(calibratedSurvivalCurve[i]);
+        //  System.out.println(calibratedSurvivalCurve[i]);
       }
     }
   }

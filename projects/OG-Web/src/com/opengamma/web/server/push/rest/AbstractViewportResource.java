@@ -14,11 +14,12 @@ import javax.ws.rs.PUT;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.push.analytics.AnalyticsView;
+import com.opengamma.web.server.push.analytics.GridCell;
+import com.opengamma.web.server.push.analytics.ViewportDefinition;
 import com.opengamma.web.server.push.analytics.ViewportResults;
-import com.opengamma.web.server.push.analytics.ViewportSpecification;
 
 /**
- * REST resource superclass
+ * REST resource superclass for grid viewports. A viewport represents the part of the grid that is visible.
  */
 public abstract class AbstractViewportResource {
 
@@ -38,16 +39,29 @@ public abstract class AbstractViewportResource {
   @PUT
   public ViewportVersion update(@FormParam("rows") List<Integer> rows,
                                 @FormParam("columns") List<Integer> columns,
+                                @FormParam("cells") List<GridCell> cells,
                                 @FormParam("expanded") boolean expanded) {
-    long version = update(new ViewportSpecification(rows, columns, expanded));
+    long version = update(ViewportDefinition.create(rows, columns, cells, expanded));
     return new ViewportVersion(version);
   }
 
-  public abstract long update(ViewportSpecification viewportSpecification);
+  /**
+   * Updates the viewport, e.g. in response to the user scrolling the grid and changing the visible area.
+   * @param viewportDefinition The new viewport definition
+   * @return The version ID of the updated viewport, allows the client to ensure that the data they receive for the
+   * viewport was created for the correct version of the viewport
+   */
+  public abstract long update(ViewportDefinition viewportDefinition);
 
+  /**
+   * Deletes the viewport
+   */
   @DELETE
   public abstract void delete();
 
+  /**
+   * @return The data to display in the viewport
+   */
   @GET
   public abstract ViewportResults getData();
 }

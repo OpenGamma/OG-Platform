@@ -13,7 +13,7 @@ import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.web.server.push.analytics.AnalyticsView;
 import com.opengamma.web.server.push.analytics.GridStructure;
-import com.opengamma.web.server.push.analytics.ViewportSpecification;
+import com.opengamma.web.server.push.analytics.ViewportDefinition;
 
 /**
  *
@@ -30,8 +30,8 @@ public class MainGridResource extends AbstractGridResource implements Dependency
   }
 
   @Override
-  /* package */ long createViewport(int viewportId, String callbackId, ViewportSpecification viewportSpecification) {
-    return _view.createViewport(_gridType, viewportId, callbackId, viewportSpecification).getFirst();
+  /* package */ long createViewport(int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
+    return _view.createViewport(_gridType, viewportId, callbackId, viewportDefinition).getFirst();
   }
 
   @Override

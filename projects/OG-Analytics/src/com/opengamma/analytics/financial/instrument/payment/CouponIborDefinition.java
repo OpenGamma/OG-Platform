@@ -270,12 +270,12 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
-    return visitor.visitCouponIbor(this, data);
+    return visitor.visitCouponIborDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
-    return visitor.visitCouponIbor(this);
+    return visitor.visitCouponIborDefinition(this);
   }
 
   @Override

@@ -5,7 +5,9 @@
  */
 package com.opengamma.analytics.financial.credit;
 
-import javax.time.calendar.ZonedDateTime;
+import com.opengamma.analytics.math.curve.DoublesCurve;
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class for constructing and querying a survival curve from a user-input set of tenors and hazard rates for these tenors
@@ -22,13 +24,18 @@ public class SurvivalCurve {
 
   private final int _numberOfTenors;
 
-  private final ZonedDateTime[] _tenors;
+  //private final ZonedDateTime[] _tenors;
   private final double[] _tenorsAsDoubles;
 
   private final double[] _hazardRates;
 
+  private static String _curveName;
+
+  private final DoublesCurve _survivalCurve;
+
   // --------------------------------------------------------------------------------------
 
+  /*
   public SurvivalCurve(ZonedDateTime[] tenors, double[] hazardRates) {
 
     _numberOfTenors = tenors.length;
@@ -39,6 +46,7 @@ public class SurvivalCurve {
     _hazardRates = hazardRates;
 
   }
+  */
 
   // --------------------------------------------------------------------------------------
 
@@ -46,11 +54,27 @@ public class SurvivalCurve {
 
     _numberOfTenors = tenors.length;
 
-    _tenors = null;
+    //_tenors = null;
+
+    _survivalCurve = null;
     _tenorsAsDoubles = tenors;
 
     _hazardRates = hazardRates;
 
+  }
+
+  public SurvivalCurve(/*String curveName, */InterpolatedDoublesCurve survivalCurve) {
+
+    //ArgumentChecker.notNull(curveName, "Survival Curve");
+    ArgumentChecker.notNull(survivalCurve, "Survival Curve");
+
+    _numberOfTenors = 0;
+
+    _tenorsAsDoubles = null;
+    _hazardRates = null;
+
+    //_curveName = curveName;
+    _survivalCurve = survivalCurve;
   }
 
   // --------------------------------------------------------------------------------------  
@@ -80,13 +104,33 @@ public class SurvivalCurve {
 
   // --------------------------------------------------------------------------------------
 
+  /*
+  public SurvivalCurve(String curveName) {
+
+    ArgumentChecker.notNull(curveName, "Survival Curve");
+
+    _curveName = curveName;
+  }
+  */
+
+  public static SurvivalCurve from(InterpolatedDoublesCurve survivalCurve) {
+
+    ArgumentChecker.notNull(survivalCurve, "Survival Curve");
+
+    return new SurvivalCurve(/*SurvivalCurve.getCurveName(), */survivalCurve);
+  }
+
+  // --------------------------------------------------------------------------------------
+
   public int getNumberOfTenors() {
     return _numberOfTenors;
   }
 
+  /*
   public ZonedDateTime[] getTenors() {
     return _tenors;
   }
+  */
 
   public double[] getHazardRates() {
     return _hazardRates;
@@ -96,14 +140,22 @@ public class SurvivalCurve {
     return _tenorsAsDoubles;
   }
 
+  /*
+  public static String getCurveName() {
+    return _curveName;
+  }
+  */
+
   // --------------------------------------------------------------------------------------
 
+  /*
   public SurvivalCurve bootstrapHelperSurvivalCurve(ZonedDateTime[] tenors, double[] hazardRates) {
 
     SurvivalCurve modifiedSurvivalCurve = new SurvivalCurve(tenors, hazardRates);
 
     return modifiedSurvivalCurve;
   }
+  */
 
   // --------------------------------------------------------------------------------------
 

@@ -8,13 +8,13 @@ package com.opengamma.analytics.financial.instrument.bond;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.method.BillSecurityDiscountingMethod;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Describes a (Treasury) Bill transaction.
@@ -50,9 +50,9 @@ public class BillTransactionDefinition implements InstrumentDefinition<BillTrans
    * @param settlementAmount The amount paid at settlement date for the bill transaction. The amount is negative for a purchase (_quantity>0) and positive for a sell (_quantity<0).
    */
   public BillTransactionDefinition(final BillSecurityDefinition underlying, final double quantity, final ZonedDateTime settlementDate, final double settlementAmount) {
-    Validate.notNull(underlying, "Underlying");
-    Validate.notNull(settlementDate, "Settlement date");
-    Validate.isTrue(quantity * settlementAmount <= 0, "Quantity and settlement amount should have opposite signs");
+    ArgumentChecker.notNull(underlying, "Underlying");
+    ArgumentChecker.notNull(settlementDate, "Settlement date");
+    ArgumentChecker.isTrue(quantity * settlementAmount <= 0, "Quantity and settlement amount should have opposite signs");
     _underlying = underlying;
     _quantity = quantity;
     _settlementDate = settlementDate;
@@ -68,10 +68,10 @@ public class BillTransactionDefinition implements InstrumentDefinition<BillTrans
    * @return The bill transaction.
    */
   public static BillTransactionDefinition fromYield(final BillSecurityDefinition underlying, final double quantity, final ZonedDateTime settlementDate, final double yield) {
-    Validate.notNull(underlying, "Underlying");
-    Validate.notNull(settlementDate, "Settlement date");
-    double accrualFactor = underlying.getDayCount().getDayCountFraction(settlementDate, underlying.getEndDate());
-    double settlementAmount = -quantity * underlying.getNotional() * METHOD_BILL_SECURITY.priceFromYield(underlying.getYieldConvention(), yield, accrualFactor);
+    ArgumentChecker.notNull(underlying, "Underlying");
+    ArgumentChecker.notNull(settlementDate, "Settlement date");
+    final double accrualFactor = underlying.getDayCount().getDayCountFraction(settlementDate, underlying.getEndDate());
+    final double settlementAmount = -quantity * underlying.getNotional() * METHOD_BILL_SECURITY.priceFromYield(underlying.getYieldConvention(), yield, accrualFactor);
     return new BillTransactionDefinition(underlying, quantity, settlementDate, settlementAmount);
   }
 
@@ -113,22 +113,22 @@ public class BillTransactionDefinition implements InstrumentDefinition<BillTrans
   }
 
   @Override
-  public BillTransaction toDerivative(ZonedDateTime date, String... yieldCurveNames) {
-    Validate.notNull(date, "Reference date");
-    Validate.notNull(yieldCurveNames, "Yield curve names");
-    BillSecurity purchased = _underlying.toDerivative(date, _settlementDate, yieldCurveNames);
-    BillSecurity standard = _underlying.toDerivative(date, yieldCurveNames);
-    double amount = (_settlementDate.isBefore(date)) ? 0.0 : _settlementAmount;
+  public BillTransaction toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    ArgumentChecker.notNull(date, "Reference date");
+    ArgumentChecker.notNull(yieldCurveNames, "Yield curve names");
+    final BillSecurity purchased = _underlying.toDerivative(date, _settlementDate, yieldCurveNames);
+    final BillSecurity standard = _underlying.toDerivative(date, yieldCurveNames);
+    final double amount = (_settlementDate.isBefore(date)) ? 0.0 : _settlementAmount;
     return new BillTransaction(purchased, _quantity, amount, standard);
   }
 
   @Override
-  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     return visitor.visitBillTransactionDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitBillTransactionDefinition(this);
   }
 
@@ -147,7 +147,7 @@ public class BillTransactionDefinition implements InstrumentDefinition<BillTrans
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -157,7 +157,7 @@ public class BillTransactionDefinition implements InstrumentDefinition<BillTrans
     if (getClass() != obj.getClass()) {
       return false;
     }
-    BillTransactionDefinition other = (BillTransactionDefinition) obj;
+    final BillTransactionDefinition other = (BillTransactionDefinition) obj;
     if (Double.doubleToLongBits(_quantity) != Double.doubleToLongBits(other._quantity)) {
       return false;
     }

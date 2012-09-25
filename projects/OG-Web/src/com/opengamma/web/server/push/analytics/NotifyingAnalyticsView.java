@@ -52,15 +52,15 @@ import com.opengamma.web.server.push.UpdateListener;
   }
 
   @Override
-  public Pair<Long, String> createViewport(GridType gridType, int viewportId, String callbackId, ViewportSpecification viewportSpec) {
-    Pair<Long, String> pair = _delegate.createViewport(gridType, viewportId, callbackId, viewportSpec);
+  public Pair<Long, String> createViewport(GridType gridType, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
+    Pair<Long, String> pair = _delegate.createViewport(gridType, viewportId, callbackId, viewportDefinition);
     _listener.itemUpdated(pair.getSecond());
     return pair;
   }
 
   @Override
-  public Pair<Long, String> updateViewport(GridType gridType, int viewportId, ViewportSpecification viewportSpec) {
-    Pair<Long, String> pair = _delegate.updateViewport(gridType, viewportId, viewportSpec);
+  public Pair<Long, String> updateViewport(GridType gridType, int viewportId, ViewportDefinition viewportDefinition) {
+    Pair<Long, String> pair = _delegate.updateViewport(gridType, viewportId, viewportDefinition);
     _listener.itemUpdated(pair.getSecond());
     return pair;
   }
@@ -97,8 +97,8 @@ import com.opengamma.web.server.push.UpdateListener;
                                            int graphId,
                                            int viewportId,
                                            String callbackId,
-                                           ViewportSpecification viewportSpec) {
-    Pair<Long, String> pair = _delegate.createViewport(gridType, graphId, viewportId, callbackId, viewportSpec);
+                                           ViewportDefinition viewportDefinition) {
+    Pair<Long, String> pair = _delegate.createViewport(gridType, graphId, viewportId, callbackId, viewportDefinition);
     _listener.itemUpdated(pair.getSecond());
     return pair;
   }
@@ -107,8 +107,8 @@ import com.opengamma.web.server.push.UpdateListener;
   public Pair<Long, String> updateViewport(GridType gridType,
                                            int graphId,
                                            int viewportId,
-                                           ViewportSpecification viewportSpec) {
-    Pair<Long, String> pair = _delegate.updateViewport(gridType, graphId, viewportId, viewportSpec);
+                                           ViewportDefinition viewportDefinition) {
+    Pair<Long, String> pair = _delegate.updateViewport(gridType, graphId, viewportId, viewportDefinition);
     _listener.itemUpdated(pair.getSecond());
     return pair;
   }

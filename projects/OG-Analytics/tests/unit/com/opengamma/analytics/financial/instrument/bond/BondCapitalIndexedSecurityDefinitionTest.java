@@ -131,11 +131,11 @@ public class BondCapitalIndexedSecurityDefinitionTest {
     @SuppressWarnings("unchecked")
     final Annuity<Coupon> nominal = (Annuity<Coupon>) bondFromDefinition.getNominal().toDerivative(pricingDate, "Not used");
     @SuppressWarnings("unchecked")
-    final Annuity<Coupon> coupon = (Annuity<Coupon>) bondFromDefinition.getCoupon().toDerivative(pricingDate, ukRpi, "Not used");
+    final Annuity<Coupon> coupon = (Annuity<Coupon>) bondFromDefinition.getCoupons().toDerivative(pricingDate, ukRpi, "Not used");
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(pricingDate, SETTLEMENT_DAYS_GILT_1, CALENDAR_GBP);
     final double settleTime = TimeCalculator.getTimeBetween(pricingDate, spot);
     @SuppressWarnings("unchecked")
-    final AnnuityDefinition<CouponDefinition> couponDefinition = (AnnuityDefinition<CouponDefinition>) bondFromDefinition.getCoupon().trimBefore(spot);
+    final AnnuityDefinition<CouponDefinition> couponDefinition = (AnnuityDefinition<CouponDefinition>) bondFromDefinition.getCoupons().trimBefore(spot);
     final double accruedInterest = bondFromDefinition.accruedInterest(spot);
     final double factorSpot = DAY_COUNT_GILT_1.getAccruedInterest(couponDefinition.getNthPayment(0).getAccrualStartDate(), spot, couponDefinition.getNthPayment(0).getAccrualEndDate(), 1.0,
         COUPON_PER_YEAR_GILT_1);

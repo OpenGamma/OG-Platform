@@ -14,15 +14,16 @@ $.register_module({
             process: function (args) {
                 og.api.rest.compressor.get({content: args.data})
                     .pipe(function (result) {
-                        var config = result.data.data, current_main;
+                        var config = result.data.data, current_main, cellmenu = new og.analytics.CellMenu;
                         if (config.main && last.main !== (current_main = JSON.stringify(config.main))) {
-                            // TODO remove global
-                            grid = new og.analytics.Grid({selector: '.OG-layout-analytics-center', source: config.main});
-                            grid.on('cellhover', function (cell) {
-                                if (!cell.value || cell.type === 'PRIMITIVE' || cell.col < 2) return  cellmenu.hide();
+                            og.analytics.grid = new og.analytics.Grid({
+                                selector: '.OG-layout-analytics-center', source: config.main
+                            });
+                            og.analytics.grid.on('cellhover', function (cell) {
+                                if (!cell.value || cell.type === 'PRIMITIVE' || cell.col < 2) return cellmenu.hide();
                                 cellmenu.show(cell);
                             });
-                            grid.on('cellselect', function () {});
+                            og.analytics.grid.on('cellselect', function () {});
                             last.main = current_main;
                         }
                         if (config.containers) config.containers.forEach(function (container) {

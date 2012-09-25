@@ -8,7 +8,6 @@ package com.opengamma.analytics.financial.forex.definition;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
@@ -16,6 +15,7 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -41,10 +41,10 @@ public class ForexDefinition implements InstrumentDefinition<InstrumentDerivativ
    * @param fxRate The forex rate, understood as 1.0 Currency1 is exchanged for fxRate Currency2. The amount in Currency2 will be -amountCurrency1*fxRate.
    */
   public ForexDefinition(final Currency currency1, final Currency currency2, final ZonedDateTime exchangeDate, final double amountCurrency1, final double fxRate) {
-    Validate.notNull(currency1, "Currency 1");
-    Validate.notNull(currency2, "Currency 2");
-    Validate.notNull(exchangeDate, "Exchange date");
-    Validate.isTrue(fxRate > 0, "FX rate must be positive");
+    ArgumentChecker.notNull(currency1, "Currency 1");
+    ArgumentChecker.notNull(currency2, "Currency 2");
+    ArgumentChecker.notNull(exchangeDate, "Exchange date");
+    ArgumentChecker.isTrue(fxRate > 0, "FX rate must be positive");
     _paymentCurrency1 = new PaymentFixedDefinition(currency1, exchangeDate, amountCurrency1);
     _paymentCurrency2 = new PaymentFixedDefinition(currency2, exchangeDate, -amountCurrency1 * fxRate);
   }
@@ -55,10 +55,10 @@ public class ForexDefinition implements InstrumentDefinition<InstrumentDerivativ
    * @param paymentCurrency2 The second currency payment.
    */
   public ForexDefinition(final PaymentFixedDefinition paymentCurrency1, final PaymentFixedDefinition paymentCurrency2) {
-    Validate.notNull(paymentCurrency1, "Payment 1");
-    Validate.notNull(paymentCurrency2, "Payment 2");
-    Validate.isTrue(paymentCurrency1.getPaymentDate().equals(paymentCurrency2.getPaymentDate()), "Payments on different date");
-    Validate.isTrue((paymentCurrency1.getAmount() * paymentCurrency2.getAmount()) <= 0, "Payments with same sign");
+    ArgumentChecker.notNull(paymentCurrency1, "Payment 1");
+    ArgumentChecker.notNull(paymentCurrency2, "Payment 2");
+    ArgumentChecker.isTrue(paymentCurrency1.getPaymentDate().equals(paymentCurrency2.getPaymentDate()), "Payments on different date");
+    ArgumentChecker.isTrue((paymentCurrency1.getReferenceAmount() * paymentCurrency2.getReferenceAmount()) <= 0, "Payments with same sign");
     this._paymentCurrency1 = paymentCurrency1;
     this._paymentCurrency2 = paymentCurrency2;
   }
@@ -72,13 +72,14 @@ public class ForexDefinition implements InstrumentDefinition<InstrumentDerivativ
    * @param amountCurrency2 The amount in the second currency.
    * @return The Forex transaction.
    */
-  public static ForexDefinition fromAmounts(final Currency currency1, final Currency currency2, final ZonedDateTime exchangeDate, final double amountCurrency1, final double amountCurrency2) {
-    Validate.notNull(currency1, "Currency 1");
-    Validate.notNull(currency2, "Currency 2");
-    Validate.notNull(exchangeDate, "Exchange date");
-    Validate.isTrue(amountCurrency1 * amountCurrency2 <= 0, "Amounts should have different signs");
-    PaymentFixedDefinition paymentCurrency1 = new PaymentFixedDefinition(currency1, exchangeDate, amountCurrency1);
-    PaymentFixedDefinition paymentCurrency2 = new PaymentFixedDefinition(currency2, exchangeDate, amountCurrency2);
+  public static ForexDefinition fromAmounts(final Currency currency1, final Currency currency2, final ZonedDateTime exchangeDate, final double amountCurrency1,
+      final double amountCurrency2) {
+    ArgumentChecker.notNull(currency1, "Currency 1");
+    ArgumentChecker.notNull(currency2, "Currency 2");
+    ArgumentChecker.notNull(exchangeDate, "Exchange date");
+    ArgumentChecker.isTrue(amountCurrency1 * amountCurrency2 <= 0, "Amounts should have different signs");
+    final PaymentFixedDefinition paymentCurrency1 = new PaymentFixedDefinition(currency1, exchangeDate, amountCurrency1);
+    final PaymentFixedDefinition paymentCurrency2 = new PaymentFixedDefinition(currency2, exchangeDate, amountCurrency2);
     return new ForexDefinition(paymentCurrency1, paymentCurrency2);
   }
 
@@ -127,8 +128,8 @@ public class ForexDefinition implements InstrumentDefinition<InstrumentDerivativ
    * The first curve is the discounting curve for the first currency and the second curve is the discounting curve for the second currency.
    */
   public Forex toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    Validate.notNull(date, "date");
-    Validate.notNull(yieldCurveNames, "Curves");
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.notNull(yieldCurveNames, "Curves");
     final PaymentFixed payment1 = _paymentCurrency1.toDerivative(date, yieldCurveNames[0]);
     final PaymentFixed payment2 = _paymentCurrency2.toDerivative(date, yieldCurveNames[1]);
     return new Forex(payment1, payment2);

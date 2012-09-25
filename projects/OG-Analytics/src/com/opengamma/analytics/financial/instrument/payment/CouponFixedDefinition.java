@@ -8,13 +8,12 @@ package com.opengamma.analytics.financial.instrument.payment;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorDeposit;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -41,8 +40,8 @@ public class CouponFixedDefinition extends CouponDefinition {
    * @param notional Coupon notional.
    * @param rate Fixed rate.
    */
-  public CouponFixedDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double paymentYearFraction,
-      final double notional, final double rate) {
+  public CouponFixedDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
+      final double paymentYearFraction, final double notional, final double rate) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional);
     _rate = rate;
     _amount = notional * rate * paymentYearFraction;
@@ -55,8 +54,8 @@ public class CouponFixedDefinition extends CouponDefinition {
    */
   public CouponFixedDefinition(final CouponDefinition coupon, final double rate) {
     super(coupon.getCurrency(), coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(), coupon.getPaymentYearFraction(), coupon.getNotional());
-    this._rate = rate;
-    this._amount = coupon.getNotional() * rate * coupon.getPaymentYearFraction();
+    _rate = rate;
+    _amount = coupon.getNotional() * rate * coupon.getPaymentYearFraction();
   }
 
   /**
@@ -70,19 +69,19 @@ public class CouponFixedDefinition extends CouponDefinition {
    * @param rate Fixed rate.
    * @return The fixed coupon definition
    */
-  public static CouponFixedDefinition from(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
-      final double paymentYearFraction, final double notional, final double rate) {
+  public static CouponFixedDefinition from(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate,
+      final ZonedDateTime accrualEndDate, final double paymentYearFraction, final double notional, final double rate) {
     return new CouponFixedDefinition(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional, rate);
   }
 
   public static CouponFixedDefinition from(final CouponFloatingDefinition floatingCoupon, final double fixedRate) {
-    return new CouponFixedDefinition(floatingCoupon.getCurrency(), floatingCoupon.getPaymentDate(), floatingCoupon.getAccrualStartDate(), floatingCoupon.getAccrualEndDate(),
-        floatingCoupon.getPaymentYearFraction(), floatingCoupon.getNotional(), fixedRate);
+    return new CouponFixedDefinition(floatingCoupon.getCurrency(), floatingCoupon.getPaymentDate(), floatingCoupon.getAccrualStartDate(),
+        floatingCoupon.getAccrualEndDate(), floatingCoupon.getPaymentYearFraction(), floatingCoupon.getNotional(), fixedRate);
   }
 
   public static CouponFixedDefinition from(final CouponIborSpreadDefinition floatingCoupon, final double fixedRate) {
-    return new CouponFixedDefinition(floatingCoupon.getCurrency(), floatingCoupon.getPaymentDate(), floatingCoupon.getAccrualStartDate(), floatingCoupon.getAccrualEndDate(),
-        floatingCoupon.getPaymentYearFraction(), floatingCoupon.getNotional(), fixedRate + floatingCoupon.getSpread());
+    return new CouponFixedDefinition(floatingCoupon.getCurrency(), floatingCoupon.getPaymentDate(), floatingCoupon.getAccrualStartDate(),
+        floatingCoupon.getAccrualEndDate(), floatingCoupon.getPaymentYearFraction(), floatingCoupon.getNotional(), fixedRate + floatingCoupon.getSpread());
   }
 
   /**
@@ -94,9 +93,11 @@ public class CouponFixedDefinition extends CouponDefinition {
    * @param fixedRate The coupon fixed rate.
    * @return The coupon.
    */
-  public static CouponFixedDefinition from(final ZonedDateTime startDate, final Period tenor, final GeneratorDeposit generator, final double notional, final double fixedRate) {
-    ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, tenor, generator.getBusinessDayConvention(), generator.getCalendar(), generator.isEndOfMonth());
-    double paymentYearFraction = generator.getDayCount().getDayCountFraction(startDate, endDate);
+  public static CouponFixedDefinition from(final ZonedDateTime startDate, final Period tenor, final GeneratorDeposit generator, final double notional,
+      final double fixedRate) {
+    final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, tenor, generator.getBusinessDayConvention(), generator.getCalendar(),
+        generator.isEndOfMonth());
+    final double paymentYearFraction = generator.getDayCount().getDayCountFraction(startDate, endDate);
     return new CouponFixedDefinition(generator.getCurrency(), endDate, startDate, endDate, paymentYearFraction, notional, fixedRate);
   }
 
@@ -165,10 +166,10 @@ public class CouponFixedDefinition extends CouponDefinition {
 
   @Override
   public CouponFixed toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    Validate.notNull(date, "date");
-    Validate.notNull(yieldCurveNames, "yield curve names");
-    Validate.isTrue(yieldCurveNames.length > 0, "at least one curve required");
-    Validate.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date"); // Required: reference date <= payment date
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
+    ArgumentChecker.isTrue(yieldCurveNames.length > 0, "at least one curve required");
+    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date {} is after payment date {}", date, getPaymentDate()); // Required: reference date <= payment date
     final String fundingCurveName = yieldCurveNames[0];
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
     return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), getRate(), getAccrualStartDate(), getAccrualEndDate());
@@ -176,12 +177,12 @@ public class CouponFixedDefinition extends CouponDefinition {
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
-    return visitor.visitCouponFixed(this, data);
+    return visitor.visitCouponFixedDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
-    return visitor.visitCouponFixed(this);
+    return visitor.visitCouponFixedDefinition(this);
   }
 
 }
