@@ -1,0 +1,4 @@
+build/
+dist/
+tests/classes/
+tests/output/
