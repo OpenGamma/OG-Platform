@@ -166,16 +166,13 @@ public class ForexSecurityConverter extends FinancialSecurityVisitorAdapter<Inst
       throw new OpenGammaRuntimeException("Could not get base/quote order for currency pair (" + putCurrency + ", " + callCurrency + ")");
     }
     ForexDefinition underlying;
-    double strike;
     boolean isCall;
     if (baseQuotePair.getBase().equals(putCurrency)) {
       underlying = ForexDefinition.fromAmounts(putCurrency, callCurrency, settlementDate, putAmount, -callAmount);
-      strike = callAmount / putAmount;
       isCall = false;
     } else {
       underlying = ForexDefinition.fromAmounts(callCurrency, putCurrency, settlementDate, callAmount, -putAmount);
-      strike = putAmount / callAmount;
-      isCall= true;
+      isCall = true;
     }
     return new ForexOptionSingleBarrierDefinition(new ForexOptionVanillaDefinition(underlying, expiry, isCall, isLong), barrier);
   }

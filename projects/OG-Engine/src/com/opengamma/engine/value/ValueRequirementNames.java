@@ -104,7 +104,7 @@ public final class ValueRequirementNames {
   /**
    * The cash-flows of a security or portfolio
    */
-  public static final String CASH_FLOWS = "Cash flows";
+  public static final String FIXED_CASH_FLOWS = "Fixed Cash flows";
   /**
    * The reset dates and indices of a security or portfolio
    */

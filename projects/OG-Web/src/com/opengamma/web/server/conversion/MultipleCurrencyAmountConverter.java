@@ -11,7 +11,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
@@ -25,6 +24,7 @@ public class MultipleCurrencyAmountConverter implements ResultConverter<Multiple
   public MultipleCurrencyAmountConverter(DoubleConverter doubleConverter) {
     _doubleConverter = doubleConverter;
   }
+  
   @Override
   public Object convertForDisplay(ResultConverterCache context, ValueSpecification valueSpec, MultipleCurrencyAmount value, ConversionMode mode) {
     Map<String, Object> result = new HashMap<String, Object>();
@@ -43,17 +43,7 @@ public class MultipleCurrencyAmountConverter implements ResultConverter<Multiple
       }
       result.put("full", labelledValues);
     }
-    
     return result;
-//    StringBuilder sb = new StringBuilder();
-//    Iterator<CurrencyAmount> iterator = value.iterator();
-//    while (iterator.hasNext()) {
-//      sb.append(_doubleConverter.convertForDisplay(context, valueSpec, iterator.next(), mode));
-//      if (iterator.hasNext()) {
-//        sb.append(", ");
-//      }
-//    }
-//    return sb.toString();
   }
 
   @Override

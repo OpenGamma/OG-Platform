@@ -97,6 +97,10 @@ public class SumUtils {
       final DoubleLabelledMatrix3D previousMatrix = (DoubleLabelledMatrix3D) currentTotal;
       final DoubleLabelledMatrix3D currentMatrix = (DoubleLabelledMatrix3D) value;
       return previousMatrix.add(currentMatrix, 0.005, 0.005, 0.005);
+    } else if (value instanceof PaymentScheduleMatrix) {
+      final PaymentScheduleMatrix previousMatrix = (PaymentScheduleMatrix) currentTotal;
+      final PaymentScheduleMatrix currentMatrix = (PaymentScheduleMatrix) value;
+      return previousMatrix.add(currentMatrix);
     }
     throw new IllegalArgumentException("Cannot sum results of type " + value.getClass());
   }
