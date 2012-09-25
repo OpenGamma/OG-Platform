@@ -64,9 +64,9 @@ public class BondFixedTransactionTest {
   private static final ZonedDateTime STANDARD_SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_Z_1, SETTLEMENT_DAYS, CALENDAR);
   private static final double STANDARD_SETTLEMENT_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_Z_1, STANDARD_SETTLEMENT_DATE);
   private static final double QUANTITY = 100000000; //100m
-  private static final AnnuityCouponFixedDefinition COUPON_DEFINITION = BOND_SECURITY_DEFINITION.getCoupon();
+  private static final AnnuityCouponFixedDefinition COUPON_DEFINITION = BOND_SECURITY_DEFINITION.getCoupons();
   private static final AnnuityCouponFixedDefinition COUPON_DEFINITION_TRIM = COUPON_DEFINITION.trimBefore(STANDARD_SETTLEMENT_DATE);
-  private static final AnnuityCouponFixed COUPON = BOND_SECURITY_DEFINITION.getCoupon().toDerivative(REFERENCE_DATE_Z_1, CURVES_NAME);
+  private static final AnnuityCouponFixed COUPON = BOND_SECURITY_DEFINITION.getCoupons().toDerivative(REFERENCE_DATE_Z_1, CURVES_NAME);
   private static final AnnuityPaymentFixed NOMINAL = (AnnuityPaymentFixed) BOND_SECURITY_DEFINITION.getNominal().toDerivative(REFERENCE_DATE_Z_1, CURVES_NAME);
   private static final AnnuityCouponFixed COUPON_TR = COUPON.trimBefore(BOND_SETTLEMENT_TIME);
   private static final AnnuityPaymentFixed NOMINAL_TR = NOMINAL.trimBefore(BOND_SETTLEMENT_TIME);
