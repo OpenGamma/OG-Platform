@@ -32,7 +32,9 @@
             tick_length: 20,
             y_segments: 10,             // number of segments to thin vol out to for smile planes
             vertex_shading_hue_min: 180,// vertex shading hue range min value
-            vertex_shading_hue_max: 0   // vertex shading hue range max value
+            vertex_shading_hue_max: 0,   // vertex shading hue range max value
+            zoom_default: 160,
+            zoom_sensitivity: 10
         };
     /**
      * Custom THREE.SceneUtils.createMultiMaterialObject, THREE's current version creates flickering
@@ -378,6 +380,11 @@
                     $(document).off('mouse.gadget.interactive');
                 });
             });
+            $selector.on('mousewheel.gadget.interactive', function (event, direction) {
+                var pos = camera.position.z - (direction * default_settings.zoom_sensitivity);
+                camera.position.z = pos < 1 ? 1 : pos;
+                camera.lookAt({x: 0, y: 0, z: 0});
+            });
             /**
              * Only implement rotation for non webgl browsers
              */
@@ -497,7 +504,7 @@
             animation_group.rotation.y = Math.PI * 0.25;
             camera.position.x = 0;
             camera.position.y = 125;
-            camera.position.z = 160;
+            camera.position.z = default_settings.zoom_default;
             camera.lookAt({x: 0, y: 0, z: 0});
             // render scene
             renderer = webgl ? new THREE.WebGLRenderer({antialias: true}) : new THREE.CanvasRenderer();
