@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.analytics.url',
     dependencies: ['og.common.routes', 'og.api.rest'],
     obj: function () {
-        var last_fingerprint = {}, last_object = {}, routes = og.common.routes,
+        var last_fingerprint = {}, last_object = {}, routes = og.common.routes, cellmenu,
             layout = ['south', 'dock-north', 'dock-center', 'dock-south'];
         var go = function () {
             og.api.rest.compressor.put({content: last_object}).pipe(function (result) {
@@ -20,10 +20,15 @@ $.register_module({
                 go();
             },
             last: last_object,
+            main: function (params) {
+                last_object.main = params;
+                go();
+            },
             process: function (args) {
                 og.api.rest.compressor.get({content: args.data})
                     .pipe(function (result) {
-                        var config = result.data.data, current_main, cellmenu = new og.analytics.CellMenu, panel;
+                        var config = result.data.data, current_main, panel;
+                        if (!cellmenu) cellmenu = new og.analytics.CellMenu;
                         for (panel in last_object) delete last_object[panel];
                         if (config.main && last_fingerprint.main !== (current_main = JSON.stringify(config.main))) {
                             og.analytics.grid = new og.analytics.Grid({
