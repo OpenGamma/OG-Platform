@@ -32,7 +32,7 @@ $.register_module({
                         for (panel in last_object) delete last_object[panel];
                         if (config.main && last_fingerprint.main !== (current_main = JSON.stringify(config.main))) {
                             og.analytics.grid = new og.analytics.Grid({
-                                selector: '.OG-layout-analytics-center', source: config.main
+                                selector: '.OG-layout-analytics-center', source: JSON.parse(current_main)
                             });
                             og.analytics.grid.on('cellhover', function (cell) {
                                 if (!cell.value || cell.type === 'PRIMITIVE' || cell.col < 2) return cellmenu.hide();
