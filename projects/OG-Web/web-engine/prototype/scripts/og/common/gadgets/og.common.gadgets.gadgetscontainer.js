@@ -114,7 +114,8 @@ $.register_module({
                             $overflow_panel.hide();
                         }
                         // set inactive tab widths to calculated value
-                        $tabs.each(function () {if (!$(this).hasClass('og-active')) $(this).outerWidth(new_tab_width)});
+                        $tabs.each(function () {if (!$(this).hasClass('og-active'))
+                            $(this).outerWidth(new_tab_width)});
                         // unset width of tabs in overflow panel
                         if ($tabs_to_move) $tabs_to_move.each(function () {$(this).attr('style', '');});
                         // set position of overflow panel
@@ -143,7 +144,8 @@ $.register_module({
                     if (id === void 0) id = live_id;
                     tabs = gadgets.reduce(function (acc, val) {
                         return acc.push({
-                            'name': val.config.name, 'active': (id === val.id), 'delete': true, 'id': val.id
+                            'type': val.config.type, 'row_name': val.config.row_name, 'col_name': val.config.col_name,
+                            'active': (id === val.id), 'delete': true, 'id': val.id
                         }) && acc;
                     }, []);
                     $header.html(tabs_template({'tabs': tabs}));
@@ -180,35 +182,45 @@ $.register_module({
                         return {
                             gadget: 'og.common.gadgets.timeseries',
                             options: {id: id, datapoints_link: false, child: true},
-                            name: 'Timeseries: ' + id
+                            row_name: 'Bond Tenor',
+                            col_name: 'T7 1/8 02/15/23',
+                            type: 'timeseries'
                         }
                     };
                     options.surface = function (id) {
                         return {
                             gadget: 'og.common.gadgets.surface',
-                            name: 'Surface: ' + id,
-                            options: {id: id, child: true}
+                            options: {id: id, child: true},
+                            row_name: 'Bond Tenor',
+                            col_name: 'T7 1/8 02/15/23',
+                            type: 'Surface'
                         }
                     };
                     options.curve = function (id) {
                         return {
                             gadget: 'og.common.gadgets.curve',
-                            name: 'Curve: ' + id,
-                            options: {id: id, child: true}
+                            options: {id: id, child: true},
+                            row_name: 'Bond Tenor',
+                            col_name: 'T7 1/8 02/15/23',
+                            type: 'Curve'
                         }
                     };
                     options.data = function (id) {
                         return {
                             gadget: 'og.common.gadgets.data',
-                            name: 'Data: ' + id,
-                            options: {id: id, child: true}
+                            options: {id: id, child: true},
+                            row_name: 'Bond Tenor',
+                            col_name: 'T7 1/8 02/15/23',
+                            type: 'Data'
                         }
                     };
                     options.depgraph = function (id) {
                         return {
                             gadget: 'og.common.gadgets.depgraph',
-                            name: 'Dependency graph: ' + id,
-                            options: {id: id, child: true}
+                            options: {id: id, child: true},
+                            row_name: 'Bond Tenor',
+                            col_name: 'T7 1/8 02/15/23',
+                            type: 'Dependency Graph'
                         }
                     };
                     options.grid = function (id) {

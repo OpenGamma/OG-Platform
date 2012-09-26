@@ -3,48 +3,52 @@
  * Please see distribution for license.
  */
 (function () {
-    var webgl = Detector.webgl ? true : false, util = {},
+    var webgl = Detector.webgl ? true : false, util = {}, stylesheet,
         default_settings = {
-            axis_offset: 1.5,           // distance from surface
-            debug: false,
-            floating_height: 5,         // how high the top surface floats over the bottom grid
-            font_face_2d: 'Arial',      // 2D text font
+            axis_offset: 1.7,           // X and Z axis distance from the surface
+            debug: false,               // Stats.js is required for debugging (https://github.com/mrdoob/stats.js/)
+            floating_height: 5,         // Height the surface floats over the floor
             font_face_3d: 'helvetiker', // 3D text font (glyphs for 3D fonts need to be loaded separatly)
-            font_size: 40,
-            font_height: 4,             // extrusion height for 3D text
-            font_color: '0x000000',     // font color for value labels
-            font_color_axis_labels: '0xcccccc',
-            interactive_color_nix: '0xff0000',
-            interactive_color_css: '#f00',
-            precision_lbl: 2,           // floating point presions for labels
-            precision_hud: 3,           // floating point presions for vol display
-            slice_handle_color: '0xbbbbbb',
-            slice_handle_color_hover: '0x999999',
-            slice_bar_color: '0xe7e7e7',
-            slice_bar_color_active: '0xffbd00',
-            smile_distance: 50,         // distance away from the surface
-            snap_distance: 3,           // mouse proximit to vertices before an interaction is approved
-            surface_x: 100,             // width
-            surface_z: 100,             // depth
-            surface_y: 40,              // the height range of the surface
-            texture_size: 512,
-            tick_length: 20,
-            y_segments: 10,             // number of segments to thin vol out to for smile planes
-            vertex_shading_hue_min: 180,// vertex shading hue range min value
-            vertex_shading_hue_max: 0   // vertex shading hue range max value
+            font_size: 35,              // 3D text font size (not in any particular units)
+            font_height: 4,             // Extrusion height for 3D text
+            font_color: '0x000000',     // Font color for value labels
+            font_color_axis_labels: '0xcccccc',   // Font color for axis labels
+            hud: true,                            // Toggle options overlay and volatility display
+            interactive_surface_color: '0xff0000',// Highlight for interactive surface elements (in hex)
+            interactive_hud_color: '#f00',        // Highlight colour for volatility display (in css)
+            precision_lbl: 2,                     // Floating point presions for labels
+            precision_hud: 3,                     // Floating point presions for vol display
+            slice_handle_color: '0xbbbbbb',       // Default colour for slice handles
+            slice_handle_color_hover: '0x999999', // Hover colour for slice handles
+            slice_bar_color: '0xe7e7e7',          // Default slice bar colour
+            slice_bar_color_active: '0xffbd00',   // Active slice bar colour
+            smile_distance: 50,                   // Distance the smile planes are from the surface
+            snap_distance: 3,                     // Mouse proximit to vertices before an interaction is approved
+            surface_wire_colour: '0x000000',      // Colour of surface wireframe
+            surface_x: 100,                       // Width
+            surface_z: 100,                       // Depth
+            surface_y: 40,                        // The height range of the surface
+            texture_size: 512,                    // Texture map size for axis ticks
+            tick_length: 20,                      // Axis tick lenght
+            y_segments: 10,                       // Number of segments to thin vol out to for smile planes
+            vertex_shading_hue_min: 180,          // vertex shading hue range min value
+            vertex_shading_hue_max: 0,            // vertex shading hue range max value
+            zoom_default: 160,                    // Bigger numbers are further away
+            zoom_sensitivity: 10                  // Mouse wheel sensitivity
         };
     /**
      * Custom THREE.SceneUtils.createMultiMaterialObject, THREE's current version creates flickering
+     * @param {THREE.PlaneGeometry} geometry
+     * @param {Array} materials Array of THREE materials
      */
     util.create_multimaterial_object = function (geometry, materials) {
-      var i, il = materials.length,
-        group = new THREE.Object3D();
-      for (i = 0; i < il; i++) {
-        var object = new THREE.Mesh(geometry, materials[i]);
-        object.position.y = i / 100;
-        group.add(object);
-      }
-      return group;
+        var i = 0, il = materials.length, group = new THREE.Object3D();
+        for (; i < il; i++) {
+            var object = new THREE.Mesh(geometry, materials[i]);
+            object.position.y = i / 100;
+            group.add(object);
+        }
+        return group;
     };
     /**
      * Apply Natrual Log to each item in Array
@@ -61,9 +65,7 @@
      */
     util.scale = function (arr, range_min, range_max) {
         var min = Math.min.apply(null, arr), max = Math.max.apply(null, arr);
-        return arr.map(function (val) {
-            return ((val - min) / (max - min) * (range_max - range_min) + range_min);
-        });
+        return arr.map(function (val) {return ((val - min) / (max - min) * (range_max - range_min) + range_min);});
     };
     /**
      * Remove every nth item in Array keeping the first and last,
@@ -81,7 +83,15 @@
     };
     /**
      * Creates a surface gadget
-     * @param {Object} config
+     * @param {Object} config surface configuration object
+     *     @param {String} config.selector css selector, location to load surface
+     *     @param {Object} config.options override for default_settings
+     *     @param {Object} config.data surface data object
+     *         @param {Array} config.data.vol surface data points
+     *         @param {Array} config.data.xs x axis data points
+     *         @param {Array} config.data.zs z axis data points
+     *         @param {String} config.data.xs_label x axis label
+     *         @param {String} config.data.zs_label z axis label
      */
     window.JSurface3D = function (config) {
         var gadget = this, $selector = $(config.selector), width, height, data = config.data,
@@ -90,20 +100,21 @@
             sel_offset, // needed to calculate mouse coordinates for raycasting
             hud = {}, matlib = {}, smile = {}, surface = {}, slice = {}, char_geometries = {}, stats = {},
             animation_group = new THREE.Object3D(), // everything in animation_group rotates on mouse drag
-            hover_group,          // THREE.Object3D that gets created on hover and destroyed afterward
-            surface_group_top,    // actual surface and anything that needs to be at that y pos
-            surface_group_bottom, // the bottom grid, axis etc
-            surface_group,        // full surface group, including axis
-            slice_group,          // geomerty used when slicing
-            vertex_sphere,        // the sphere displayed on vertex hover
-            surface_plane,        // reference to the surface mesh
+            hover_group,                            // THREE.Object3D that gets created on hover and destroyed afterward
+            surface_group_top,                      // actual surface and anything that needs to be at that y pos
+            surface_group_bottom,                   // the bottom grid, axis etc
+            surface_group,                          // full surface group, including axis
+            slice_group,                            // geomerty used when slicing
+            vertex_sphere,                          // the sphere displayed on vertex hover
+            surface_plane,                          // reference to the surface mesh
             x_segments = data.xs.length - 1, z_segments = data.zs.length - 1, y_segments = settings.y_segments,
-            ys, adjusted_vol, adjusted_xs, adjusted_ys, adjusted_zs, // gadget.init_data calculates these values
+            ys, adjusted_vol, adjusted_xs, adjusted_ys, adjusted_zs, // surface.init_data calculates these values
             vol_max = Math.max.apply(null, data.vol), vol_min = Math.min.apply(null, data.vol),
             renderer, camera, scene, backlight, keylight, filllight, ambientlight, projector = new THREE.Projector(),
             hover_buffer, slice_buffer, load_buffer, surface_buffer, animation_frame, timeout;
         /**
          * Buffer constructor
+         * Create buffers that store references to objects that requre their webgl buffers to be cleared together
          */
         var Buffer = function () {
             var buffer = {};
@@ -169,7 +180,7 @@
         };
         /**
          * Constructor for 3D text geometry, also cache character geometry calculations
-         * @param {String} str a single character
+         * @param {String} str
          * @param {Object} options text geometry options
          * @returns {THREE.Geometry}
          */
@@ -185,6 +196,10 @@
             geometry.computeBoundingBox();
             return char_geometries[str] = geometry;
         };
+        /**
+         * Slice handle constructor
+         * @return {THREE.Mesh}
+         */
         var Handle = function () {
             var geo = new THREE.CubeGeometry(3, 1.2, 3, 2, 0, 0);
             geo.vertices // move middle vertices out to a point
@@ -192,6 +207,11 @@
                 .forEach(function (vertex) {vertex.z = -2.9});
             return new THREE.Mesh(geo, matlib.get_material('phong', settings.slice_handle_color));
         };
+        /**
+         * Slice Bar constructor
+         * @param {String} orientation 'x' or 'z'
+         * @return {THREE.Mesh}
+         */
         var SliceBar = function (orientation) {
             var geo = new THREE.CubeGeometry(settings['surface_' + orientation], 1, 2, 0, 0),
                 mesh = new THREE.Mesh(geo, matlib.get_material('phong', settings.slice_bar_color));
@@ -207,7 +227,10 @@
         /**
          * Constructor for 3D text
          * @param {String} str String you want to create
-         * @returns {THREE.TextGeometry}
+         * @param {String} color text colour in hex
+         * @param {Boolean} preserve_kerning set to true to cache geometry without breaking it into characters
+         * @param {Boolean} bevel
+         * @returns {THREE.Mesh}
          */
         var Text3D = function (str, color, preserve_kerning, bevel) {
             var object, merged = new THREE.Geometry(), material = matlib.get_material('phong', color), xpos = 0,
@@ -234,6 +257,7 @@
          * (Spline is supported, but we dont want that), so we create separate tubes and add them to an object.
          * Also linewidth doest seem to work for a LineBasicMaterial, thus using tube
          * @param {Array} points Array of Vector3's
+         * @param {String} color hex colour
          * @return {THREE.Object3D}
          */
         var Tube = function (points, color) {
@@ -250,270 +274,14 @@
             }
             return group;
         };
-        gadget.die = function () {
+        /**
+         * Clean up this jsurface3d instance or all instances
+         * @param {Boolean} all also remove shared stylesheet
+         */
+        gadget.die = function (all) {
             load_buffer.clear();
             cancelAnimationFrame(animation_frame);
-        };
-        /**
-         * Creates floor
-         * @return {THREE.Object3D}
-         */
-        gadget.create_floor = function () {
-            var plane = new THREE.PlaneGeometry(5000, 5000, 100, 100), floor;
-            floor = util.create_multimaterial_object(plane, matlib.get_material('compound_floor_wire'));
-            floor.position.y = -0.01;
-            return floor;
-        };
-        /**
-         * Scale data to fit surface dimentions, apply Log scales (to x and z) if enabled
-         */
-        gadget.init_data = function () {
-            // adjusted data is the original data scaled to fit 2D grids width/length/height.
-            // It is used to set the distance between plane segments. Then the real data is used as the values
-            adjusted_vol = util.scale(data.vol, 0, settings.surface_y);
-            adjusted_xs = util.scale(
-                local_settings.log ? util.log(data.xs) : data.xs,
-                -(settings.surface_x / 2), settings.surface_x / 2
-            );
-            adjusted_zs = util.scale(
-                local_settings.log ? util.log(data.zs) : data.zs,
-                -(settings.surface_z / 2), settings.surface_z / 2
-            );
-            // data.ys doesnt exist, so we need to create adjusted_ys manualy out of the given
-            // vol plane range: 0 - settings.surface_y
-            adjusted_ys = (function () {
-                var increment = settings.surface_y / y_segments, arr = [], i;
-                for (i = 0; i < y_segments + 1; i++) arr.push(i * increment);
-                return arr;
-            }());
-            // create data.ys out of vol_min and vol_max, call it ys not to confuse with config paramater
-            // we are not using ys to create adjusted_ys as we want more control over adjusted_ys
-            // than a standard util.scale
-            ys = (function () {
-                var increment = (vol_max - vol_min) / y_segments, arr = [], i;
-                for (i = 0; i < y_segments + 1; i++)
-                    arr.push((+vol_min + (i * increment)).toFixed(settings.precision_lbl));
-                return arr;
-            }());
-        };
-        /**
-         * Test if the cursor is over a mesh
-         * @event {Object} mouse event object
-         * @meshes {Array} meshes array of meshes to test
-         * @return {Object} THREE.Ray intersects object
-         */
-        gadget.intersects = function (event, meshes) {
-            var mouse = {x: 0, y: 0}, vector, ray;
-            mouse.x = ((event.clientX - sel_offset.left) / width) * 2 - 1;
-            mouse.y = -((event.clientY - sel_offset.top) / height) * 2 + 1;
-            vector = new THREE.Vector3(mouse.x, mouse.y, 0.5);
-            projector.unprojectVector(vector, camera);
-            ray = new THREE.Ray(camera.position, vector.subSelf(camera.position).normalize());
-            return ray.intersectObjects(meshes);
-        };
-        gadget.interactive = function () {
-            var imeshes = gadget.interactive_meshes.meshes,
-                surface_hittest, handle_hittest, // store the return value of successful raycasts
-                mousedown = false, sx = 0, sy = 0, mouse_x = null, mouse_y = null,
-                hit_handle = false, rotation_enabled = true, slice_enabled = false;
-            /**
-             * Populate surface_hittest and handle_hittest
-             * Trigger rotate_world and slice_handle_drag events
-             */
-            $selector.on('mousemove.gadget.interactive', function (event) {
-                event.preventDefault();
-                local_settings.play = true;
-                local_settings.stopping = false;
-                var xlft = gadget.intersects(event, [imeshes.lft_x_handle]),
-                    xrgt = gadget.intersects(event, [imeshes.rgt_x_handle]),
-                    zlft = gadget.intersects(event, [imeshes.lft_z_handle]),
-                    zrgt = gadget.intersects(event, [imeshes.rgt_z_handle]);
-                /**
-                 * slice handle interactions
-                 */
-                hit_handle = false;
-                if (xlft.length) handle_hittest = xlft, handle_hittest[0].lbl = 'lft_x_handle', hit_handle = true;
-                if (xrgt.length) handle_hittest = xrgt, handle_hittest[0].lbl = 'rgt_x_handle', hit_handle = true;
-                if (zlft.length) handle_hittest = zlft, handle_hittest[0].lbl = 'lft_z_handle', hit_handle = true;
-                if (zrgt.length) handle_hittest = zrgt, handle_hittest[0].lbl = 'rgt_z_handle', hit_handle = true;
-                hit_handle ? $selector.trigger('handle_over') : $selector.trigger('handle_out');
-                /**
-                 * surface interaction
-                 */
-                surface_hittest = gadget.intersects(event, [imeshes.surface]);
-                if (surface_hittest.length > 0 && surface_hittest[0].face.materialIndex === 1)
-                    $selector.trigger('surface_over', surface_hittest);
-                else $selector.trigger('surface_out');
-                /**
-                 * original mouse x & y
-                 */
-                mouse_x = event.clientX;
-                mouse_y = event.clientY;
-                /**
-                 * Trigger custom events
-                 */
-                if (mousedown && rotation_enabled) $selector.trigger('rotate_world', event);
-                if (webgl && mousedown && slice_enabled) $selector.trigger('slice_handle_drag', event);
-            });
-            $selector.on('rotate_world', function () {
-                var dx = mouse_x - sx, dy = mouse_y - sy;
-                animation_group.rotation.y += dx * 0.01;
-                animation_group.rotation.x += dy * 0.01;
-                sx += dx, sy += dy;
-            });
-            $selector.on('mousedown.gadget.interactive', function (event) {
-                event.preventDefault();
-                mousedown = true, sx = event.clientX, sy = event.clientY;
-                if (hit_handle) $selector.trigger('slice_handle_click');
-                $(document).on('mouseup.gadget.interactive', function () {
-                    rotation_enabled = true;
-                    slice_enabled = false;
-                    mousedown = false;
-                    $(document).off('mouse.gadget.interactive');
-                });
-            });
-            /**
-             * Only implement rotation for non webgl browsers
-             */
-            if (!webgl) return;
-            $selector.on('surface_over', function (event, intersects) {
-                var faces = 'abcd', i, index, vertex, vertex_world_position,
-                    intersected_obj = $.isArray(intersects) ? intersects[0] : intersects,
-                    object = intersected_obj.object, point = intersected_obj.point;
-                for (i = 0; i < 4; i++) { // loop through vertices
-                    index = intersected_obj.face[faces.charAt(i)];
-                    vertex = object.geometry.vertices[index];
-                    vertex_world_position = object.matrixWorld.multiplyVector3(vertex.clone());
-                    if (vertex_world_position.distanceTo(point) < settings.snap_distance) {
-                        surface.hover(vertex, index, object);
-                    }
-                }
-            });
-            $selector.on('surface_out', function () {
-                if (hover_group) surface_group_top.remove(hover_group), hover_buffer.clear();
-                vertex_sphere.visible = false;
-                hud.set_volatility();
-            });
-            $selector.on('handle_over', function () {
-                slice.reset_handle_material();
-                handle_hittest[0].object.material = matlib.get_material('phong', settings.slice_handle_color_hover);
-                $selector.css({cursor: 'pointer'});
-            });
-            $selector.on('handle_out', function () {
-                slice.reset_handle_material();
-                $selector.css({cursor: 'default'});
-            });
-            $selector.on('slice_handle_click', function () {
-                slice_enabled = true;
-                rotation_enabled = false;
-            });
-            /**
-             * Move the drag handles and update the bar
-             */
-            $selector.on('slice_handle_drag', function (event, original_event) {
-                var handle_lbl = handle_hittest[0].lbl, axis = handle_lbl.replace(/^.*_([xz])_.*$/, '$1'),
-                    particles = slice[axis + '_particles'];
-                (function () {
-                    var intersects = gadget.intersects(original_event, [slice.intersection_plane]),
-                        vertices = particles.geometry.vertices, vertex, vertex_world_position, index,
-                        i = vertices.length, dist = [] /* distances from raycast/plane intersection & particles */;
-                    while (i--) {
-                        vertex = vertices[i];
-                        vertex_world_position = particles.matrixWorld.multiplyVector3(vertices[i].clone());
-                        dist[i] = vertex_world_position.distanceTo(intersects[0].point);
-                    }
-                    index = dist.indexOf(Math.min.apply(null, dist));
-                    if (index !== slice[handle_lbl + '_position']) {
-                        slice.reset_handle_material();
-                        handle_hittest[0].object.material = matlib
-                            .get_material('phong', settings.slice_handle_color_hover);
-                        /**
-                         * move handles along particles
-                         */
-                        slice[handle_lbl + '_position'] = index;
-                        slice[handle_lbl].position[axis] = vertices[index].x;
-                        /**
-                         * recreate surface plane
-                         */
-                        slice_group.remove(surface_plane);
-                        slice_group.add(surface_plane = surface.create_surface_plane());
-                        /**
-                         * update resize bars
-                         */
-                        slice.create_slice_bar(axis);
-                    }
-                }());
-            });
-        };
-        /**
-         * Keeps a tally of meshes that need to support raycasting
-         */
-        gadget.interactive_meshes = {
-            add: function (name, mesh) {
-                if (!gadget.interactive_meshes.meshes[name]) gadget.interactive_meshes.meshes[name] = {};
-                gadget.interactive_meshes.meshes[name] = mesh;
-            },
-            meshes: {},
-            remove: function (name) {
-                if (name in gadget.interactive_meshes.meshes) delete gadget.interactive_meshes.meshes[name];
-            }
-        };
-        gadget.load = function () {
-            sel_offset = $selector.offset();
-            width = $selector.width(), height = $selector.height();
-            gadget.init_data();
-            vertex_sphere = surface.vertex_sphere();
-            // init buffers
-            hover_buffer = new Buffer();
-            slice_buffer = new Buffer();
-            surface_buffer = new Buffer();
-            load_buffer = new Buffer();
-            // create lights
-            keylight = new THREE.DirectionalLight(0xf2f6ff, 0.7, 300); // surface light
-            keylight.position.set(-80, 150, 80);
-            backlight = new THREE.DirectionalLight(0xf2f6ff, 0.5, 500); // smile left
-            backlight.position.set(-150, 100, 100);
-            filllight = new THREE.DirectionalLight(0xf2f6ff, 0.5, 500); // smile right
-            filllight.position.set(100, 100, 150);
-            ambientlight = new THREE.AmbientLight(0xffffff);
-            // setup actors / groups & create scene
-            camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000); /* fov, aspect, near, far */
-            animation_group.add(ambientlight);
-            animation_group.add(backlight);
-            animation_group.add(keylight);
-            animation_group.add(filllight);
-            animation_group.add(surface.create_surface());
-            load_buffer.add(animation_group);
-            scene = new THREE.Scene();
-            scene.add(animation_group);
-            scene.add(camera);
-            // positions & rotations
-            animation_group.rotation.y = Math.PI * 0.25;
-            camera.position.x = 0;
-            camera.position.y = 125;
-            camera.position.z = 160;
-            camera.lookAt({x: 0, y: 0, z: 0});
-            // render scene
-            renderer = webgl ? new THREE.WebGLRenderer({antialias: true}) : new THREE.CanvasRenderer();
-            renderer.setSize(width, height);
-            $selector.html(renderer.domElement).find('canvas').css({position: 'relative'});
-            hud.load();
-            // stats
-            if (settings.debug) {
-                stats.loop = new Stats();
-                stats.loop.domElement.style.position = 'absolute';
-                stats.loop.domElement.style.top = '0';
-                stats.loop.domElement.style.right = '0';
-                $(stats.loop.domElement).appendTo($selector);
-                stats.render = new Stats();
-                stats.render.domElement.style.position = 'absolute';
-                stats.render.domElement.style.top = '50px';
-                stats.render.domElement.style.right = '0';
-                $(stats.render.domElement).appendTo($selector);
-            }
-            gadget.interactive();
-            if (webgl) slice.load();
-            return gadget;
+            if (all) $(stylesheet).remove();
         };
         gadget.resize = function () {
             width = $selector.width();
@@ -523,14 +291,13 @@
             camera.aspect = width / height;
             camera.updateProjectionMatrix();
             renderer.setSize(width, height);
-            hud.load();
             renderer.render(scene, camera);
         };
         /**
          * Updates without reloading everything
          */
         gadget.update = function () {
-            gadget.init_data();
+            surface.init_data();
             animation_group.add(surface.create_surface());
             if (webgl) slice.load();
         };
@@ -538,22 +305,51 @@
          * Loads 2D overlay display with form
          */
         hud.load = function () {
-            $.when(og.api.text({module: 'og.views.gadgets.surface.hud_tash'})).then(function (tmpl) {
-                var min = vol_min.toFixed(settings.precision_hud), max = vol_max.toFixed(settings.precision_hud),
-                    html = (Handlebars.compile(tmpl))({min: min, max: max}),
-                    $html = $(html).appendTo($selector);
-                hud.vol_canvas_height = height / 2;
-                if (webgl) hud.volatility($html.find('canvas')[0]);
-                else $html.find('.og-volatility').hide();
-                hud.form();
-            });
+            if (!default_settings.hud) return;
+            (function () {
+                if ($(stylesheet).length) return;
+                var css = '\
+                    .OG-s {bottom: 10px; left: 10px; top: 0; position: absolute;}\
+                    .OG-s .og-o {position: absolute; top: 10px; white-space: nowrap;}\
+                    .OG-s .og-o input {vertical-align: top;}\
+                    .OG-s .og-v {padding-top: 9px; padding-bottom: 3px; position: absolute; bottom: 0;}\
+                    .OG-s .og-v canvas {border: 1px solid #ccc;}\
+                    .OG-s .og-v span {position: absolute; left: 20px;}\
+                    .OG-s .og-v .og-max {top: 0;}\
+                    .OG-s .og-v .og-min {bottom: 0;}\
+                    .OG-s .og-v .og-vol {display: none; background: #eee; border: 1px solid #ddd; padding: 0 5px;}\
+                    .OG-s .og-v .og-vol:after {content: ""; display: block; position: absolute; \
+                        width: 0; height: 0; left: -10px; top: 50%; margin-top: -4px; \
+                        border-top: 5px solid transparent; border-right: 10px solid #ddd; \
+                        border-bottom: 5px solid transparent;}',
+                    head = document.querySelector('head'), style = document.createElement('style');
+                style.setAttribute('data-og', 'surface');
+                if (style.styleSheet) style.styleSheet.cssText = css; // IE
+                else style.appendChild(document.createTextNode(css));
+                head.appendChild(stylesheet = style);
+            })();
+            var tmpl = '\
+                <div class="OG-s">\
+                  <div class="og-o"><label>Log<input type="checkbox" checked="checked" /></label></div>\
+                  <div class="og-v">\
+                    <span class="og-max">{{max}}</span><span class="og-min">{{min}}</span><span class="og-vol"></span>\
+                    <canvas>canvas</canvas>\
+                  </div>\
+                </div>',
+                min = vol_min.toFixed(settings.precision_hud), max = vol_max.toFixed(settings.precision_hud),
+                html = tmpl.replace(/{{(?:max|min)}}/g, function (m) {return m === '{{min}}' ? min : max}),
+                $html = $(html).appendTo($selector);
+            hud.vol_canvas_height = height / 2;
+            if (webgl) hud.volatility($html.find('canvas')[0]);
+            else $html.find('.og-v').hide();
+            hud.form();
         };
         /**
          * Configure surface gadget display
          */
         hud.form = function () {
             $selector
-                .find('.og-options input')
+                .find('.og-o input')
                 .prop('checked', local_settings.log)
                 .on('change', function () {
                     local_settings.log = $(this).is(':checked');
@@ -565,9 +361,10 @@
          * @param {Number} value The value to set. If value is not a number the indicator is hidden
          */
         hud.set_volatility = function (value) {
+            if (!default_settings.hud) return;
             var top = (util.scale([vol_min, value, vol_max], hud.vol_canvas_height, 0))[1],
-                css = {top: top + 'px', color: settings.interactive_color_css},
-                $vol = $selector.find('.og-val-vol');
+                css = {top: top + 'px', color: settings.interactive_hud_color},
+                $vol = $selector.find('.og-vol');
             typeof value === 'number'
                 ? $vol.html(value.toFixed(settings.precision_hud)).css(css).show()
                 : $vol.empty().hide();
@@ -640,7 +437,7 @@
         };
         matlib.compound_surface_wire = function () {
             if (!webgl) return matlib.canvas.compound_surface_wire();
-            return [matlib.transparent(), matlib.wire('0xffffff')]
+            return [matlib.transparent(), matlib.wire(settings.surface_wire_colour)]
         };
         matlib.wire = function (color) {
             if (!webgl) return matlib.canvas.wire(color);
@@ -723,8 +520,8 @@
             slice.rgt_x_handle.position.z = zpos;
             surface_group_bottom.add(slice.lft_x_handle);
             surface_group_bottom.add(slice.rgt_x_handle);
-            gadget.interactive_meshes.add('lft_x_handle', slice.lft_x_handle);
-            gadget.interactive_meshes.add('rgt_x_handle', slice.rgt_x_handle);
+            surface.interactive_meshes.add('lft_x_handle', slice.lft_x_handle);
+            surface.interactive_meshes.add('rgt_x_handle', slice.rgt_x_handle);
             slice.lft_x_handle.position.x = slice.x_particles.geometry.vertices[slice.lft_x_handle_position].x;
             slice.rgt_x_handle.position.x = slice.x_particles.geometry.vertices[slice.rgt_x_handle_position].x;
             /**
@@ -759,8 +556,8 @@
             slice.rgt_z_handle.rotation.y = -Math.PI * .5;
             surface_group_bottom.add(slice.lft_z_handle);
             surface_group_bottom.add(slice.rgt_z_handle);
-            gadget.interactive_meshes.add('lft_z_handle', slice.lft_z_handle);
-            gadget.interactive_meshes.add('rgt_z_handle', slice.rgt_z_handle);
+            surface.interactive_meshes.add('lft_z_handle', slice.lft_z_handle);
+            surface.interactive_meshes.add('rgt_z_handle', slice.rgt_z_handle);
             slice.lft_z_handle.position.z = slice.z_particles.geometry.vertices[slice.lft_z_handle_position].x;
             slice.rgt_z_handle.position.z = slice.z_particles.geometry.vertices[slice.rgt_z_handle_position].x;
             /**
@@ -868,20 +665,22 @@
                 lbl_arr = util.thin(config.labels, nth), pos_arr = util.thin(config.spacing, nth),
                 axis_len = settings['surface_' + config.axis];
             (function () { // axis values
-                var value;
+                var value, n;
                 for (i = 0; i < lbl_arr.length; i++) {
-                    value = new Text3D(lbl_arr[i], settings.font_color);
+                    n = lbl_arr[i];
+                    n = n % 1 === 0 ? n : (+n).toFixed(settings.precision_lbl).replace(/0+$/, '');
+                    value = new Text3D(n, settings.font_color);
                     value.scale.set(0.1, 0.1, 0.1);
                     if (config.axis === 'y') {
                         value.position.x = pos_arr[i] - 6;
                         value.position.z = config.right
-                            ? -(THREE.FontUtils.drawText(lbl_arr[i]).offset * 0.2) + 18
+                            ? -(THREE.FontUtils.drawText(n).offset * 0.2) + 18
                             : 2;
                         value.rotation.z = -Math.PI * .5;
                         value.rotation.x = -Math.PI * .5;
                     } else {
                         value.rotation.x = -Math.PI * .5;
-                        value.position.x = pos_arr[i] - ((THREE.FontUtils.drawText(lbl_arr[i]).offset * 0.2) / 2);
+                        value.position.x = pos_arr[i] - ((THREE.FontUtils.drawText(n).offset * 0.2) / 2);
                         value.position.y = 0.1;
                         value.position.z = 12;
                     }
@@ -950,12 +749,22 @@
             return mesh;
         };
         /**
+         * Creates floor
+         * @return {THREE.Object3D}
+         */
+        surface.create_floor = function () {
+            var plane = new THREE.PlaneGeometry(5000, 5000, 100, 100), floor;
+            floor = util.create_multimaterial_object(plane, matlib.get_material('compound_floor_wire'));
+            floor.position.y = -0.01;
+            return floor;
+        };
+        /**
          * Create the actual full surface object with axis. Removes any existing ones first
          * @return {THREE.Object3D}
          */
         surface.create_surface = function () {
             if (surface_group) animation_group.remove(surface_group), surface_buffer.clear();
-            gadget.interactive_meshes.remove('surface');
+            surface.interactive_meshes.remove('surface');
             surface_group = new THREE.Object3D();
             slice_group = slice_buffer.add(new THREE.Object3D());
             surface_group_top = new THREE.Object3D();
@@ -967,7 +776,7 @@
             if (webgl) surface_group_top.position.y = settings.floating_height;
             if (webgl) surface_group_bottom.add(surface_buffer.add(surface.create_bottom_grid()));
             if (webgl) surface_group_bottom.add(surface_buffer.add(smile.shadows()));
-            if (webgl) surface_group_bottom.add(surface_buffer.add(gadget.create_floor()));
+            if (webgl) surface_group_bottom.add(surface_buffer.add(surface.create_floor()));
             if (webgl) surface_group_bottom.add(surface.create_axes());
             surface_group.add(surface_buffer.add(surface_group_top));
             surface_group.add(surface_buffer.add(slice_group));
@@ -1038,7 +847,7 @@
                 mesh.doubleSided = true;
                 mesh.matrixAutoUpdate = false;
             });
-            gadget.interactive_meshes.add('surface', group.children[0]);
+            surface.interactive_meshes.add('surface', group.children[0]);
             return group;
         };
         /**
@@ -1058,7 +867,7 @@
             (function () {
                 // [xz]from & [xz]to are the start and end vertex indexes for a vertex row or column
                 var x, xvertices = [], xvertices_bottom = [], z, zvertices = [], zvertices_bottom = [],
-                    color = settings.interactive_color_nix,
+                    color = settings.interactive_surface_color,
                     xfrom = index - (index % (x_segments + 1)),
                     xto   = xfrom + x_segments + 1,
                     zfrom = index % (x_segments + 1),
@@ -1157,6 +966,7 @@
                     if (val === 'x') {
                         group.position.x = vertices[0][val] - offset;
                         group.position.z = (settings.surface_z / 2) + 12 + settings.axis_offset;
+                        group.position.z = (settings.surface_z / 2) + 12 + settings.axis_offset;
                     }
                     if (val === 'z') {
                         group.position.x = -((settings.surface_x / 2) + 12) - settings.axis_offset;
@@ -1172,15 +982,272 @@
             }());
             surface_group_top.add(hover_group);
         };
+        /**
+         * Scale data to fit surface dimentions, apply Log (to x and z) if enabled
+         */
+        surface.init_data = function () {
+            // adjusted data is the original data scaled to fit 2D grids width/length/height.
+            // It is used to set the distance between plane segments. Then the real data is used as the values
+            adjusted_vol = util.scale(data.vol, 0, settings.surface_y);
+            adjusted_xs = util.scale(
+                local_settings.log ? util.log(data.xs) : data.xs,
+                -(settings.surface_x / 2), settings.surface_x / 2
+            );
+            adjusted_zs = util.scale(
+                local_settings.log ? util.log(data.zs) : data.zs,
+                -(settings.surface_z / 2), settings.surface_z / 2
+            );
+            // data.ys doesnt exist, so we need to create adjusted_ys manualy out of the given
+            // vol plane range: 0 - settings.surface_y
+            adjusted_ys = (function () {
+                var increment = settings.surface_y / y_segments, arr = [], i;
+                for (i = 0; i < y_segments + 1; i++) arr.push(i * increment);
+                return arr;
+            }());
+            // create data.ys out of vol_min and vol_max, call it ys not to confuse with config paramater
+            // we are not using ys to create adjusted_ys as we want more control over adjusted_ys
+            // than a standard util.scale
+            ys = (function () {
+                var increment = (vol_max - vol_min) / y_segments, arr = [], i;
+                for (i = 0; i < y_segments + 1; i++)
+                    arr.push((+vol_min + (i * increment)).toFixed(settings.precision_lbl));
+                return arr;
+            }());
+        };
+        surface.interactive = function () {
+            var imeshes = surface.interactive_meshes.meshes,
+                surface_hittest, handle_hittest, // store the return value of successful raycasts
+                mousedown = false, sx = 0, sy = 0, mouse_x = null, mouse_y = null,
+                hit_handle = false, rotation_enabled = true, slice_enabled = false;
+            /**
+             * Populate surface_hittest and handle_hittest
+             * Trigger rotate_world and slice_handle_drag events
+             */
+            $selector.on('mousemove.surface.interactive', function (event) {
+                event.preventDefault();
+                local_settings.play = true;
+                local_settings.stopping = false;
+                var xlft = surface.intersects(event, [imeshes.lft_x_handle]),
+                    xrgt = surface.intersects(event, [imeshes.rgt_x_handle]),
+                    zlft = surface.intersects(event, [imeshes.lft_z_handle]),
+                    zrgt = surface.intersects(event, [imeshes.rgt_z_handle]);
+                /**
+                 * slice handle interactions
+                 */
+                hit_handle = false;
+                if (xlft.length) handle_hittest = xlft, handle_hittest[0].lbl = 'lft_x_handle', hit_handle = true;
+                if (xrgt.length) handle_hittest = xrgt, handle_hittest[0].lbl = 'rgt_x_handle', hit_handle = true;
+                if (zlft.length) handle_hittest = zlft, handle_hittest[0].lbl = 'lft_z_handle', hit_handle = true;
+                if (zrgt.length) handle_hittest = zrgt, handle_hittest[0].lbl = 'rgt_z_handle', hit_handle = true;
+                hit_handle ? $selector.trigger('handle_over') : $selector.trigger('handle_out');
+                /**
+                 * surface interaction
+                 */
+                surface_hittest = surface.intersects(event, [imeshes.surface]);
+                if (surface_hittest.length > 0 && surface_hittest[0].face.materialIndex === 1)
+                    $selector.trigger('surface_over', surface_hittest);
+                else $selector.trigger('surface_out');
+                /**
+                 * original mouse x & y
+                 */
+                mouse_x = event.clientX;
+                mouse_y = event.clientY;
+                /**
+                 * Trigger custom events
+                 */
+                if (mousedown && rotation_enabled) $selector.trigger('rotate_world', event);
+                if (webgl && mousedown && slice_enabled) $selector.trigger('slice_handle_drag', event);
+            });
+            $selector.on('rotate_world', function () {
+                var dx = mouse_x - sx, dy = mouse_y - sy;
+                animation_group.rotation.y += dx * 0.01;
+                animation_group.rotation.x += dy * 0.01;
+                sx += dx, sy += dy;
+            });
+            $selector.on('mousedown.surface.interactive', function (event) {
+                event.preventDefault();
+                mousedown = true, sx = event.clientX, sy = event.clientY;
+                if (hit_handle) $selector.trigger('slice_handle_click');
+                $(document).on('mouseup.surface.interactive', function () {
+                    rotation_enabled = true;
+                    slice_enabled = false;
+                    mousedown = false;
+                    $(document).off('mouse.surface.interactive');
+                });
+            });
+            $selector.on('mousewheel.surface.interactive', function (event, direction) {
+                if (!direction) return; // jquery mousewheel plugin doesnt exist
+                var pos = camera.position.z - (direction * default_settings.zoom_sensitivity);
+                camera.position.z = pos < 1 ? 1 : pos;
+                camera.lookAt({x: 0, y: 0, z: 0});
+            });
+            /**
+             * Only implement hover interactivity for webgl browsers
+             */
+            if (!webgl) return;
+            $selector.on('surface_over', function (event, intersects) {
+                var faces = 'abcd', i = 0, index, vertex, vertex_world_position,
+                    intersected_obj = $.isArray(intersects) ? intersects[0] : intersects,
+                    object = intersected_obj.object, point = intersected_obj.point;
+                for (; i < 4; i++) { // loop through vertices
+                    index = intersected_obj.face[faces.charAt(i)];
+                    vertex = object.geometry.vertices[index];
+                    vertex_world_position = object.matrixWorld.multiplyVector3(vertex.clone());
+                    if (vertex_world_position.distanceTo(point) < settings.snap_distance) {
+                        surface.hover(vertex, index, object);
+                    }
+                }
+            });
+            $selector.on('surface_out', function () {
+                if (hover_group) surface_group_top.remove(hover_group), hover_buffer.clear();
+                vertex_sphere.visible = false;
+                hud.set_volatility();
+            });
+            $selector.on('handle_over', function () {
+                slice.reset_handle_material();
+                handle_hittest[0].object.material = matlib.get_material('phong', settings.slice_handle_color_hover);
+                $selector.css({cursor: 'pointer'});
+            });
+            $selector.on('handle_out', function () {
+                slice.reset_handle_material();
+                $selector.css({cursor: 'default'});
+            });
+            $selector.on('slice_handle_click', function () {
+                slice_enabled = true;
+                rotation_enabled = false;
+            });
+            /**
+             * Move the drag handles and update the bar
+             */
+            $selector.on('slice_handle_drag', function (event, original_event) {
+                var handle_lbl = handle_hittest[0].lbl, axis = handle_lbl.replace(/^.*_([xz])_.*$/, '$1'),
+                    particles = slice[axis + '_particles'];
+                (function () {
+                    var intersects = surface.intersects(original_event, [slice.intersection_plane]),
+                        vertices = particles.geometry.vertices, vertex, vertex_world_position, index,
+                        i = vertices.length, dist = [] /* distances from raycast/plane intersection & particles */;
+                    while (i--) {
+                        vertex = vertices[i];
+                        vertex_world_position = particles.matrixWorld.multiplyVector3(vertices[i].clone());
+                        dist[i] = vertex_world_position.distanceTo(intersects[0].point);
+                    }
+                    index = dist.indexOf(Math.min.apply(null, dist));
+                    if (index !== slice[handle_lbl + '_position']) {
+                        slice.reset_handle_material();
+                        handle_hittest[0].object.material = matlib
+                            .get_material('phong', settings.slice_handle_color_hover);
+                        /**
+                         * move handles along particles
+                         */
+                        slice[handle_lbl + '_position'] = index;
+                        slice[handle_lbl].position[axis] = vertices[index].x;
+                        /**
+                         * recreate surface plane
+                         */
+                        slice_group.remove(surface_plane);
+                        slice_group.add(surface_plane = surface.create_surface_plane());
+                        /**
+                         * update resize bars
+                         */
+                        slice.create_slice_bar(axis);
+                    }
+                }());
+            });
+        };
+        /**
+         * Keeps a tally of meshes that need to support raycasting
+         */
+        surface.interactive_meshes = {
+            add: function (name, mesh) {
+                if (!surface.interactive_meshes.meshes[name]) surface.interactive_meshes.meshes[name] = {};
+                surface.interactive_meshes.meshes[name] = mesh;
+            },
+            meshes: {},
+            remove: function (name) {
+                if (name in surface.interactive_meshes.meshes) delete surface.interactive_meshes.meshes[name];
+            }
+        };
+        /**
+         * Test if the cursor is over a mesh
+         * @event {Object} mouse event object
+         * @meshes {Array} meshes array of meshes to test
+         * @return {Object} THREE.Ray intersects object
+         */
+        surface.intersects = function (event, meshes) {
+            var mouse = {x: 0, y: 0}, vector, ray;
+            mouse.x = ((event.clientX - sel_offset.left) / width) * 2 - 1;
+            mouse.y = -((event.clientY - sel_offset.top) / height) * 2 + 1;
+            vector = new THREE.Vector3(mouse.x, mouse.y, 0.5);
+            projector.unprojectVector(vector, camera);
+            ray = new THREE.Ray(camera.position, vector.subSelf(camera.position).normalize());
+            return ray.intersectObjects(meshes);
+        };
+        surface.load = function () {
+            sel_offset = $selector.offset();
+            width = $selector.width(), height = $selector.height();
+            surface.init_data();
+            vertex_sphere = surface.vertex_sphere();
+            // init buffers
+            hover_buffer = new Buffer();
+            slice_buffer = new Buffer();
+            surface_buffer = new Buffer();
+            load_buffer = new Buffer();
+            // create lights
+            keylight = new THREE.DirectionalLight(0xf2f6ff, 0.7, 300); // surface light
+            keylight.position.set(-80, 150, 80);
+            backlight = new THREE.DirectionalLight(0xf2f6ff, 0.5, 500); // smile left
+            backlight.position.set(-150, 100, 100);
+            filllight = new THREE.DirectionalLight(0xf2f6ff, 0.5, 500); // smile right
+            filllight.position.set(100, 100, 150);
+            ambientlight = new THREE.AmbientLight(0xffffff);
+            // setup actors / groups & create scene
+            camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000); /* fov, aspect, near, far */
+            animation_group.add(ambientlight);
+            animation_group.add(backlight);
+            animation_group.add(keylight);
+            animation_group.add(filllight);
+            animation_group.add(surface.create_surface());
+            load_buffer.add(animation_group);
+            scene = new THREE.Scene();
+            scene.add(animation_group);
+            scene.add(camera);
+            // positions & rotations
+            animation_group.rotation.y = Math.PI * 0.25;
+            camera.position.x = 0;
+            camera.position.y = 125;
+            camera.position.z = default_settings.zoom_default;
+            camera.lookAt({x: 0, y: 0, z: 0});
+            // render scene
+            renderer = webgl ? new THREE.WebGLRenderer({antialias: true}) : new THREE.CanvasRenderer();
+            renderer.setSize(width, height);
+            $selector.html(renderer.domElement).find('canvas').css({position: 'relative'});
+            hud.load();
+            // stats
+            if (settings.debug) {
+                stats.loop = new Stats();
+                stats.loop.domElement.style.position = 'absolute';
+                stats.loop.domElement.style.top = '0';
+                stats.loop.domElement.style.right = '0';
+                $(stats.loop.domElement).appendTo($selector);
+                stats.render = new Stats();
+                stats.render.domElement.style.position = 'absolute';
+                stats.render.domElement.style.top = '50px';
+                stats.render.domElement.style.right = '0';
+                $(stats.render.domElement).appendTo($selector);
+            }
+            surface.interactive();
+            if (webgl) slice.load();
+            return gadget;
+        };
         surface.vertex_sphere = function () {
             var sphere = new THREE.Mesh(
-                new THREE.SphereGeometry(1.5, 10, 10), matlib.get_material('phong', settings.interactive_color_nix)
+                new THREE.SphereGeometry(1.5, 10, 10), matlib.get_material('phong', settings.interactive_surface_color)
             );
             sphere.matrixAutoUpdate = false;
             sphere.visible = false;
             return sphere;
         };
-        gadget.load();
+        surface.load();
         (function animate() {
             if (settings.debug) stats.loop.update();
             if (local_settings.play === null || local_settings.play) {
@@ -1193,4 +1260,4 @@
             animation_frame = requestAnimationFrame(animate);
         }());
     };
-}());
+})();

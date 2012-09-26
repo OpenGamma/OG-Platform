@@ -23,7 +23,6 @@ $.register_module({
                                 if (!cell.value || cell.type === 'PRIMITIVE' || cell.col < 2) return cellmenu.hide();
                                 cellmenu.show(cell);
                             });
-                            og.analytics.grid.on('cellselect', function () {});
                             last.main = current_main;
                         }
                         if (config.containers) config.containers.forEach(function (container) {
@@ -31,14 +30,15 @@ $.register_module({
                             last[container.name] = container.gadgets.map(function (gadget, index) {
                                 var current_gadget = JSON.stringify(gadget);
                                 if (last[container.name][index] === current_gadget) return current_gadget;
-                                og.analytics.containers[container.name].add([gadget], index)
+                                og.analytics.containers[container.name].add([gadget], index);
                                 return current_gadget;
                             });
                         });
                     });
             },
             remove: function (container, index) {
-                // remove a gadget from the URL
+                if (!last[container] || !last[container].length) return;
+                last[container].splice(index, 1);
             }
         };
     }

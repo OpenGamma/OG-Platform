@@ -58,7 +58,6 @@ $.register_module({
                     method: module.name + '.gadgetscontainer'
                 },
                 positions: {route: '/positions/:id/trades:?', method: module.name + '.positions'},
-                positions: {route: '/positions/:id/trades:?', method: module.name + '.positions'},
                 securities: {route: '/securities/:id', method: module.name + '.securities'},
                 timeseries: {route: '/timeseries/id:?/key:?', method: module.name + '.timeseries'}
             }

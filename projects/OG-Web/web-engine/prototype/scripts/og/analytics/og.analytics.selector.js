@@ -123,7 +123,7 @@ $.register_module({
         constructor.prototype.selection = function (rectangle) {
             if (!this.rectangle && !rectangle) return null;
             var selector = this, bottom_right = (rectangle = rectangle || selector.rectangle).bottom_right,
-                top_left = rectangle.top_left,
+                top_left = rectangle.top_left, grid = selector.grid,
                 row_start = Math.floor(top_left.top / grid.meta.row_height),
                 row_end = Math.floor(bottom_right.bottom / grid.meta.row_height),
                 lcv, scan = grid.meta.columns.scan.all, rows = [], cols = [];

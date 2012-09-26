@@ -4,53 +4,22 @@
  */
 $.register_module({
     name: 'og.analytics.CellMenu',
-    dependencies: ['og.common.routes'],
+    dependencies: ['og.common.routes', 'og.common.gadgets.mapping'],
     obj: function () {
-        var icons = '.og-num, .og-icon-new-window-2', open_icon = '.og-icon-right-chevron',
-            expand_class = 'og-expanded', routes = og.common.routes;
+        var icons = '.og-num, .og-icon-new-window-2', open_icon = '.og-small',
+            expand_class = 'og-expanded', routes = og.common.routes, mapping = og.common.gadgets.mapping;
         /**
          * TODO: replace with api / this temporary solution until the api is ready
          */
         var get_url = function (cell, panel) {
-            /**
-             * Mappings for cell data tyes / gadgets and panel defaults
-             */
-            var mappings = {
-                gadgets: ['dep_graph', 'data', 'surface', 'curve', 'timeseries'],
-                functions: [
-                    function () {type = 'depgraph'; id = cell.col + '|' + cell.row},
-                    function () {type = 'data'; id = cell.col + '|' + cell.row},
-                    function () {type = 'surface'; id = 1},
-                    function () {type = 'curve'; id = '1|1'},
-                    function () {type = 'timeseries'; id = 1}
-                ],
-                type_map: { // available views per data type
-                    CURVE: [1, 3],
-                    DOUBLE: [0],
-                    LABELLED_MATRIX_1D: [0, 1],
-                    LABELLED_MATRIX_2D: [0, 1, 2, 3],
-                    LABELLED_MATRIX_3D: [0, 1],
-                    PRIMITIVE: [0],
-                    SURFACE_DATA: [2, 1],
-                    TENOR: [0],
-                    TIME_SERIES: [4, 1],
-                    UNKNOWN: [0]
-                },
-                order: { // default view preference for data type per location
-                    'south': [0, 2, 4, 3, 1],
-                    'dock-north': [2, 4, 3, 1, 0],
-                    'dock-center': [2, 4, 3, 1, 0],
-                    'dock-south': [2, 4, 3, 1, 0],
-                    'new-window': [2, 4, 3, 1, 0]
+            var order = mapping.panel_preference[panel || 'new-window'],
+                type_map = mapping.typemap[cell.type], i, k, id, type;
+            test: for (i = 0; i < order.length; i++) for (k = 0; k < type_map.length; k++) {
+                if (order[i] === type_map[k]) {
+                    type = mapping.gadgets[order[i]], id = id = cell.col + '|' + cell.row;
+                    break test;
                 }
-            };
-            var order = mappings.order[panel || 'new-window'], type_map = mappings.type_map[cell.type], i, k, id, type;
-                test: for (i = 0; i < order.length; i++) for (k = 0; k < type_map.length; k++) {
-                    if (order[i] === type_map[k]) {
-                        mappings.functions[order[i]]();
-                        break test;
-                    }
-                }
+            }
             return (!panel)
                 ? 'gadget.ftl#/gadgetscontainer/' + type + ':' + id
                 : (function () {
@@ -66,7 +35,7 @@ $.register_module({
                     self.menu = $(tmpl);
                     self.show = function (cell) {
                         cur_cell = cell;
-                        if (self.menu.length) self.menu.css({top: cell.top, left: cell.right - 32}).show();
+                        if (self.menu.length) self.menu.css({top: cell.top, left: cell.right - 34}).show();
                     };
                     self.menu.hide()
                         .on('mouseleave', function () {
