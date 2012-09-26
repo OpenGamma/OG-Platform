@@ -8,7 +8,7 @@ $.register_module({
     obj: function () {
         var module = this, counter = 1, api = og.api.rest.views;
         var constructor = function (config) {
-            var data = this, id = 'data_' + counter++, meta, cols, fire = og.analytics.events.fire,
+            var data = this, id = 'data_' + counter++, meta, cols, fire = og.common.events.fire,
                 viewport = null, view_id = config.view, graph_id, viewport_id, viewport_version, subscribed = false,
                 ROOT = 'rootNode', SETS = 'columnSets', ROWS = 'rowCount',
                 grid_type = config.type, depgraph = !!config.depgraph,
@@ -98,7 +98,7 @@ $.register_module({
             };
             initialize();
         };
-        constructor.prototype.on = og.analytics.events.on;
+        constructor.prototype.on = og.common.events.on;
         return constructor;
     }
 });

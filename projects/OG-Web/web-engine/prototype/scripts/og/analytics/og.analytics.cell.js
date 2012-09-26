@@ -4,9 +4,9 @@
  */
 $.register_module({
     name: 'og.analytics.Cell',
-    dependencies: ['og.api.rest', 'og.analytics.Data', 'og.analytics.events'],
+    dependencies: ['og.api.rest', 'og.analytics.Data', 'og.common.events'],
     obj: function () {
-        var events = og.analytics.events, constructor = function (config) {
+        var events = og.common.events, constructor = function (config) {
             var cell = this;
             cell.events = {data: []};
             new og.analytics.Data(config.source).viewport({rows: [config.row], cols: [config.col], expanded: true})

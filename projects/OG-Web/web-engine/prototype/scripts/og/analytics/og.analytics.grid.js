@@ -4,10 +4,10 @@
  */
 $.register_module({
     name: 'og.analytics.Grid',
-    dependencies: ['og.api.text', 'og.analytics.events', 'og.analytics.Data'],
+    dependencies: ['og.api.text', 'og.common.events', 'og.analytics.Data'],
     obj: function () {
         var module = this, counter = 1, row_height = 19, templates = null,
-            fire = og.analytics.events.fire, scrollbar_size = (function () {
+            fire = og.common.events.fire, scrollbar_size = (function () {
                 var html = '<div style="width: 100px; height: 100px; position: absolute; \
                     visibility: hidden; overflow: auto; left: -10000px; z-index: -10000; bottom: 100px" />';
                 return 100 - $(html).appendTo('body').append('<div />').find('div').css('height', '200px').width();
@@ -211,7 +211,7 @@ $.register_module({
             top = bottom - grid.meta.row_height;
             return {top: top, bottom: bottom, left: scan[lcv - 1] || 0, right: scan[lcv]};
         };
-        constructor.prototype.on = og.analytics.events.on;
+        constructor.prototype.on = og.common.events.on;
         constructor.prototype.render_header = (function () {
             var head_data = function (meta, sets, depgraph, col_offset, set_offset) {
                 var width = meta.columns.width, index = 0;

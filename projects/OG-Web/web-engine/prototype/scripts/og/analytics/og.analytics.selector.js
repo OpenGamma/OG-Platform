@@ -4,7 +4,7 @@
  */
 $.register_module({
     name: 'og.analytics.Selector',
-    dependencies: ['og.analytics.Grid', 'og.analytics.events'],
+    dependencies: ['og.analytics.Grid', 'og.common.events'],
     obj: function () {
         var module = this, namespace = '.og_analytics_selector', overlay = '.OG-g-sel', cell = '.OG-g-cell';
         var constructor = function (grid) {
@@ -28,7 +28,7 @@ $.register_module({
                 var selection = selector.selection();
                 $(document).off(namespace);
                 (auto_scroll.timeout = clearTimeout(auto_scroll.timeout)), (auto_scroll.scroll = false);
-                if (selection) og.analytics.events.fire(selector.events.select, selection);
+                if (selection) og.common.events.fire(selector.events.select, selection);
                 selector.busy(false);
             };
             var initialize = function () {
@@ -119,7 +119,7 @@ $.register_module({
             $(selector.grid.id + ' ' + overlay).remove();
             selector.regions = selector.rectangle = null;
         };
-        constructor.prototype.on = og.analytics.events.on;
+        constructor.prototype.on = og.common.events.on;
         constructor.prototype.selection = function (rectangle) {
             if (!this.rectangle && !rectangle) return null;
             var selector = this, bottom_right = (rectangle = rectangle || selector.rectangle).bottom_right,

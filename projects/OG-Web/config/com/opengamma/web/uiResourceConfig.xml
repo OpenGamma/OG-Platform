@@ -236,6 +236,7 @@
       <fragment>/scripts/og/views/common/og.views.common.layout.js</fragment>
       <fragment>/scripts/og/common/og.common.routes.js</fragment>
       <fragment>/scripts/og/common/og.common.lang.js</fragment>
+      <fragment>/scripts/og/common/og.common.events.js</fragment>
   </bundle>
   <bundle id="api.js">
     <fragment>/scripts/og/api/og.api.text.js</fragment>
@@ -284,8 +285,7 @@
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.mapping.js</fragment>
   </bundle>
   <bundle id="grid.js">
-      <fragment>/scripts/og/analytics/og.analytics.url.js</fragment>
-    <fragment>/scripts/og/analytics/og.analytics.events.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.url.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.data.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.cell.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.cellmenu.js</fragment>

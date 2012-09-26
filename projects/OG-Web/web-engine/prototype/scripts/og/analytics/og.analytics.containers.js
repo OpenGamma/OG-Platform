@@ -9,7 +9,9 @@ $.register_module({
         var GadgetsContainer = og.common.gadgets.GadgetsContainer, containers = {
             initialize: function (args) {
                 ['south', 'dock-north', 'dock-center', 'dock-south'].forEach(function (val) {
-                    containers[val] = new GadgetsContainer('.OG-layout-analytics-', val).add(args[val]);
+                    containers[val] = new GadgetsContainer('.OG-layout-analytics-', val)
+                        .add(args[val])
+                        .on('del', function (index) {og.analytics.url.remove(val, index);});
                 });
                 delete containers.initialize;
             }

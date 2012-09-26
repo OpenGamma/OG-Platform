@@ -8,7 +8,7 @@ $.register_module({
     obj: function () {
         var api = og.api, tabs_template, overflow_template, dropbox_template, counter = 1,
             header = ' .ui-layout-header';
-        return function (selector_prefix, pane) {
+        var constructor = function (selector_prefix, pane) {
             var initialized = false, loading, gadgets = [], container = this, highlight_timer,
                 selector = selector_prefix + pane, $selector = $(selector),
                 class_prefix = selector_prefix.substring(1),
@@ -244,10 +244,8 @@ $.register_module({
                             position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
                             display: i === arr.length - 1 ? 'block' : 'none'
                         });
-                    try {
-                        gadgets.splice(idx || gadgets.length, 0,
-                            gadget = {id: id, config: obj, type: type, gadget: new constructor(options)});
-                    } catch (error) {debugger;}
+                    gadgets.splice(idx || gadgets.length, 0,
+                        gadget = {id: id, config: obj, type: type, gadget: new constructor(options)});
                     return gadget;
                 });
                 update_tabs(new_gadgets[new_gadgets.length - 1].id);
@@ -258,16 +256,18 @@ $.register_module({
                 return !!$selector.length;
             };
             container.del = function (obj) {
-                var id;
+                var id, index = gadgets.indexOf(obj);
                 $(selector + ' .OG-gadget-container .OG-gadget-' + obj.id).remove();
                 gadgets[gadgets.length - 1].gadget.alive();
-                gadgets.splice(gadgets.indexOf(obj), 1);
+                gadgets.splice(index, 1);
                 id = gadgets.length
                     ? live_id === obj.id ? gadgets[gadgets.length - 1].id : live_id
                     : null;
                 if (id) gadgets[extract_index(id)].gadget.resize();
                 update_tabs(id); // new active tab or empty
+                og.common.events.fire(container.events.del, index);
             };
+            container.events = {del: []};
             /**
              * Highlight gadget panel with number
              * @param show {Boolean} turn on / off
@@ -347,5 +347,7 @@ $.register_module({
                 });
             }
         };
+        constructor.prototype.on = og.common.events.on;
+        return constructor;
     }
 });
