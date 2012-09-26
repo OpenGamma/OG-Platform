@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.util.generate.scripts.Scriptable;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
@@ -32,6 +33,7 @@ import com.opengamma.master.portfolio.PortfolioMaster;
  * Tool to read currency pairs from a text file and store them in the config master.
  * The pairs must be in the format AAA/BBB, one per line in the file.
  */
+@Scriptable
 public class ConfigImportExportTool extends AbstractTool<ToolContext> {
   private static final Logger s_logger = LoggerFactory.getLogger(ConfigImportExportTool.class);
 
