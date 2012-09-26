@@ -13,7 +13,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Named group of columns in a grid displaying analytics data.
  */
-/* package */ class AnalyticsColumnGroup {
+public class AnalyticsColumnGroup {
 
   private final String _name;
   private final List<AnalyticsColumn> _columns;
@@ -32,14 +32,14 @@ import com.opengamma.util.ArgumentChecker;
   /**
    * @return The name of the group
    */
-  /* package */ String getName() {
+  public String getName() {
     return _name;
   }
 
   /**
    * @return The columns in the group
    */
-  /* package */ List<AnalyticsColumn> getColumns() {
+  public List<AnalyticsColumn> getColumns() {
     return _columns;
   }
 
