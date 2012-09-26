@@ -346,8 +346,8 @@ $.register_module({
             var grid = this, meta = grid.meta, viewport = meta.viewport, elements = grid.elements,
                 top_position = elements.scroll_body.scrollTop(), left_position = elements.scroll_head.scrollLeft(),
                 fixed_len = meta.fixed_length, row_start = Math.floor((top_position / viewport.height) * meta.rows),
-                row_len = meta.visible_rows, row_end = row_start + row_len - 1, lcv = row_start,
-                scroll_position = left_position + viewport.width, scroll_cols = meta.columns.scroll
+                row_len = meta.visible_rows, row_end = Math.min(row_start + row_len, meta.available.length),
+                lcv = row_start, scroll_position = left_position + viewport.width, scroll_cols = meta.columns.scroll
                     .reduce(function (acc, set) {return acc.concat(set.columns);}, []);
             viewport.rows = [];
             while (lcv < row_end) viewport.rows.push(meta.available[lcv++]);

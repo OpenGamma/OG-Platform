@@ -10,7 +10,7 @@ $.register_module({
             var cell = this;
             cell.events = {data: []};
             new og.analytics.Data(config.source).viewport({rows: [config.row], cols: [config.col], expanded: true})
-                .on('data', function (data) {events.fire(cell.events.data, data[0][0]);});
+                .on('data', function (data) {events.fire(cell.events.data, data[0]);});
         };
         constructor.prototype.on = events.on;
         return constructor;
