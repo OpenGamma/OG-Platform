@@ -42,35 +42,59 @@ public class DefaultRiskFactorsConfigurationProvider implements RiskFactorsConfi
     }
     return "Forward" + suffix;
   }
+  
+  @Override
+  public String getFXCurve(Currency ccy) {
+    return "Discounting";
+  }
 
   @Override
   public String getFXVanillaOptionSurfaceName(Currency ccy1, Currency ccy2) {
-    return "DEFAULT_" + ccy1.getCode() + ccy2.getCode();
+    return "TULLETT";//_" + ccy1.getCode() + ccy2.getCode();
   }
 
   @Override
   public String getIRFutureOptionVolatilitySurfaceName(String futureCode) {
-    return "DEFAULT_" + futureCode;
+    return "DEFAULT";// + futureCode;;
   }
   
   @Override
   public String getCommodityFutureOptionVolatilitySurfaceName(String futureCode) {
-    return "DEFAULT_" + futureCode;
+    return "DEFAULT";// + futureCode;
   }
 
   @Override
   public String getEquityIndexOptionVolatilitySurfaceName(String tickerPlusMarketSector) {
-    return "DEFAULT_" + tickerPlusMarketSector;
+    return "BBG";// + tickerPlusMarketSector;
   }
 
   @Override
   public String getSwaptionVolatilitySurfaceName(Currency ccy) {
-    return "DEFAULT_" + ccy.getCode();
+    return "DEFAULT";//_ + ccy.getCode();
   }
 
   @Override
   public String getSwaptionVolatilityCubeName(Currency ccy) {
-    return "DEFAULT_" + ccy.getCode();
+    return "BLOOMBERG";// + ccy.getCode();
   }
   
+  @Override
+  public String getFXCalculationMethod() {
+    return "BlackMethod";
+  }
+  
+  @Override
+  public String getEquityFundingCurve() {
+    return "FUNDING";
+  }
+  
+  @Override
+  public String getEquityCalculationMethod() {
+    return "BlackMethod";
+  }
+  
+  @Override
+  public String getEquitySmileInterpolator() {
+    return "Spline";
+  }
 }
