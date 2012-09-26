@@ -726,6 +726,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
                                                                _processContext.getMarketDataProviderResolver());
     } catch (Exception e) {
       s_logger.error("Failed to create data provider", e);
+      _marketDataProvider = null;
     }
     if (_marketDataProvider != null) {
       _marketDataProvider.addListener(this);
