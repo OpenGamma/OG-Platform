@@ -381,6 +381,7 @@
                 });
             });
             $selector.on('mousewheel.gadget.interactive', function (event, direction) {
+                if (!direction) return;
                 var pos = camera.position.z - (direction * default_settings.zoom_sensitivity);
                 camera.position.z = pos < 1 ? 1 : pos;
                 camera.lookAt({x: 0, y: 0, z: 0});

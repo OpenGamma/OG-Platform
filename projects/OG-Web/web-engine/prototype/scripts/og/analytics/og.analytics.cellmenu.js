@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.analytics.CellMenu',
     dependencies: ['og.common.routes', 'og.common.gadgets.mapping'],
     obj: function () {
-        var icons = '.og-num, .og-icon-new-window-2', open_icon = '.og-icon-right-chevron',
+        var icons = '.og-num, .og-icon-new-window-2', open_icon = '.og-small',
             expand_class = 'og-expanded', routes = og.common.routes, mapping = og.common.gadgets.mapping;
         /**
          * TODO: replace with api / this temporary solution until the api is ready
@@ -35,7 +35,7 @@ $.register_module({
                     self.menu = $(tmpl);
                     self.show = function (cell) {
                         cur_cell = cell;
-                        if (self.menu.length) self.menu.css({top: cell.top, left: cell.right - 32}).show();
+                        if (self.menu.length) self.menu.css({top: cell.top, left: cell.right - 34}).show();
                     };
                     self.menu.hide()
                         .on('mouseleave', function () {
