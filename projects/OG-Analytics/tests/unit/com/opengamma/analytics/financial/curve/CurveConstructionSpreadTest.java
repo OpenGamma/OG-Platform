@@ -353,7 +353,7 @@ public class CurveConstructionSpreadTest {
   private static final SwapFixedIborDefinition SWAP_DEFINITION = SwapFixedIborDefinition.from(SWAP_SETTLE, SWAP_TENOR, USD6MLIBOR3M, 1000000, 0.02, true);
   private static final SwapFixedCoupon<Coupon> SWAP = SWAP_DEFINITION.toDerivative(NOW, new String[] {CURVE_NAME_DSC_USD, CURVE_NAME_FWD3_USD});
 
-  private static final double TOLERANCE_PV = 1.0E-10;
+  private static final double TOLERANCE_CAL = 1.0E-9;
   private static final double TOLERANCE_PNL = 1.0E+0;
 
   @BeforeSuite
@@ -399,7 +399,7 @@ public class CurveConstructionSpreadTest {
         pv[loopcurve] = new double[instruments[loopcurve].length];
         for (int loopins = 0; loopins < instruments[loopcurve].length; loopins++) {
           pv[loopcurve][loopins] = curves.getFxRates().convert(PV_CALCULATOR.visit(instruments[loopcurve][loopins], curves), CCY_USD).getAmount();
-          assertEquals("Curve construction: node block " + loopblock + " - instrument " + loopins, 0, pv[loopcurve][loopins], TOLERANCE_PV);
+          assertEquals("Curve construction: block " + block + ", unit " + loopblock + " - instrument " + loopins, 0, pv[loopcurve][loopins], TOLERANCE_CAL);
         }
       }
     }
