@@ -32,8 +32,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeListener;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraph;
-import com.opengamma.engine.marketdata.CompositeMarketDataProvider;
-import com.opengamma.engine.marketdata.CompositeMarketDataProviderFactory;
 import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
@@ -81,7 +79,6 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   private final EngineResourceManagerInternal<SingleComputationCycle> _cycleManager;
   private final ViewCycleTrigger _masterCycleTrigger;
   private final FixedTimeTrigger _compilationExpiryCycleTrigger;
-  private final CompositeMarketDataProviderFactory _compositeMarketDataProviderFactory;
   private final boolean _executeCycles;
 
   private int _cycleCount;
@@ -107,7 +104,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
    */
   private double _totalTimeNanos;
 
-  private CompositeMarketDataProvider _marketDataProvider;
+  private ViewComputationJobDataProvider _marketDataProvider;
 
   public ViewComputationJob(ViewProcessImpl viewProcess,
                             ViewExecutionOptions executionOptions,
@@ -122,7 +119,6 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     _processContext = processContext;
     _cycleManager = cycleManager;
     _marketDataChanged = !executionOptions.getFlags().contains(ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER);
-    _compositeMarketDataProviderFactory = new CompositeMarketDataProviderFactory(_processContext.getMarketDataProviderResolver());
     _compilationExpiryCycleTrigger = new FixedTimeTrigger();
     _masterCycleTrigger = createViewCycleTrigger(executionOptions);
     _executeCycles = !getExecutionOptions().getFlags().contains(ViewExecutionFlags.COMPILE_ONLY);
@@ -724,11 +720,14 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   }
 
   private void setMarketDataProvider(List<MarketDataSpecification> marketDataSpecs) {
-    _marketDataProvider = _compositeMarketDataProviderFactory.create(_viewDefinition.getMarketDataUser(),
-                                                                     marketDataSpecs);
-    if (_marketDataProvider == null) {
-      s_logger.error("Couldn't resolve {}", marketDataSpecs);
-    } else {
+    try {
+      _marketDataProvider = new ViewComputationJobDataProvider(_viewDefinition.getMarketDataUser(),
+                                                               marketDataSpecs,
+                                                               _processContext.getMarketDataProviderResolver());
+    } catch (Exception e) {
+      s_logger.error("Failed to create data provider", e);
+    }
+    if (_marketDataProvider != null) {
       _marketDataProvider.addListener(this);
     }
   }

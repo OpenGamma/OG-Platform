@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.marketdata;
+package com.opengamma.engine.view.calc;
 
 import java.util.List;
 import java.util.Map;
@@ -15,6 +15,7 @@ import javax.time.Instant;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
@@ -50,9 +51,19 @@ import com.opengamma.util.ArgumentChecker;
     return UniqueId.of(MARKET_DATA_SNAPSHOT_ID_SCHEME, "CompositeMarketDataSnapshot:" + getSnapshotTime());
   }
 
+  /**
+   * @return The first non-null indication of snapshot time from the underlying snapshots
+   * @throws IllegalStateException If none of the underlying snapshots return a value
+   */
   @Override
   public Instant getSnapshotTimeIndication() {
-    return _snapshots.get(0).getSnapshotTimeIndication();
+    for (MarketDataSnapshot snapshot : _snapshots) {
+      Instant snapshotTimeIndication = snapshot.getSnapshotTimeIndication();
+      if (snapshotTimeIndication != null) {
+        return snapshotTimeIndication;
+      }
+    }
+    throw new IllegalStateException("None of the underlying snapshots returned a snapshot time indication");
   }
 
   /**
@@ -82,18 +93,27 @@ import com.opengamma.util.ArgumentChecker;
       // TODO whole timeout? or divide timeout between all delegate snapshots and keep track of how much is left?
       // the combined snapshot does this but that seems broken to me
       Set<ValueRequirement> snapshotRequirements = Sets.intersection(snapshotSubscriptions, requirements);
-      if (!snapshotRequirements.isEmpty()) {
+      if (snapshotRequirements.isEmpty()) {
+        snapshot.init();
+      } else {
         snapshot.init(snapshotSubscriptions, timeout, unit);
       }
     }
   }
 
   /**
-   * @return The time associated with the first delegate snapshot
+   * @return The first non-null snapshot time from the underlying snapshots
+   * @throws IllegalStateException If none of the underlying snapshots return a value
    */
   @Override
   public Instant getSnapshotTime() {
-    return _snapshots.get(0).getSnapshotTime();
+    for (MarketDataSnapshot snapshot : _snapshots) {
+      Instant snapshotTime = snapshot.getSnapshotTime();
+      if (snapshotTime != null) {
+        return snapshotTime;
+      }
+    }
+    throw new IllegalStateException("None of the underlying snapshots returned a snapshot time");
   }
 
   /**

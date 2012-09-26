@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.marketdata;
+package com.opengamma.engine.view.calc;
 
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyObject;
@@ -13,12 +13,15 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.stub;
 import static org.mockito.Mockito.verify;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
+import javax.time.Instant;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -29,6 +32,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.UniqueId;
 
@@ -64,6 +68,10 @@ public class CompositeMarketDataSnapshotTest {
     stub(_delegate2.query(REQUIREMENT2)).toReturn(VALUE2);
     stub(_delegate1.query(Sets.newHashSet(REQUIREMENT1))).toReturn(ImmutableMap.of(REQUIREMENT1, VALUE1));
     stub(_delegate2.query(Sets.newHashSet(REQUIREMENT2))).toReturn(ImmutableMap.of(REQUIREMENT2, VALUE2));
+    stub(_delegate1.getSnapshotTime()).toReturn(null);
+    stub(_delegate2.getSnapshotTime()).toReturn(Instant.now());
+    stub(_delegate1.getSnapshotTimeIndication()).toReturn(null);
+    stub(_delegate2.getSnapshotTimeIndication()).toReturn(Instant.now());
   }
 
   @Test
@@ -85,7 +93,7 @@ public class CompositeMarketDataSnapshotTest {
     _snapshot.init(reqs, 0, TimeUnit.MILLISECONDS);
     verify(_delegate1).init(Sets.newHashSet(REQUIREMENT1), 0, TimeUnit.MILLISECONDS);
     verify(_delegate1, never()).init();
-    verify(_delegate2, never()).init();
+    verify(_delegate2).init();
     verify(_delegate2, never()).init(anySet(), anyLong(), (TimeUnit) anyObject());
   }
 
@@ -134,6 +142,22 @@ public class CompositeMarketDataSnapshotTest {
     assertEquals(VALUE1, result.get(REQUIREMENT1));
     assertEquals(VALUE2, result.get(REQUIREMENT2));
     assertNull(result.get(UNKNOWN_REQUIREMENT));
+  }
+
+  /**
+   * If the first underlying provider doesn't have a snapshot time then the others should be tried
+   */
+  @Test
+  public void snapshotTime() {
+    assertNotNull(_snapshot.getSnapshotTime());
+  }
+
+  /**
+   * If the first underlying provider doesn't have a snapshot time indication then the others should be tried
+   */
+  @Test
+  public void snapshotTimeIndication() {
+    assertNotNull(_snapshot.getSnapshotTimeIndication());
   }
 
   private static ValueRequirement requirement(String valueName) {
