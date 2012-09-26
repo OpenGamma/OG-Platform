@@ -13,6 +13,10 @@ import java.util.TreeMap;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 
+import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.joda.beans.impl.flexi.FlexiBean;
 import org.slf4j.Logger;
@@ -57,16 +61,16 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
    * Creates the resource.
    * @param securityMaster  the security master, not null
    * @param securityLoader  the security loader, not null
-   * @param htsSource  the historical time series source, not null
+   * @param htsMaster  the historical time series master, not null
    */
-  protected AbstractWebSecurityResource(final SecurityMaster securityMaster, final SecurityLoader securityLoader, final HistoricalTimeSeriesSource htsSource) {
+  protected AbstractWebSecurityResource(final SecurityMaster securityMaster, final SecurityLoader securityLoader, final HistoricalTimeSeriesMaster htsMaster) {
     ArgumentChecker.notNull(securityMaster, "securityMaster");
     ArgumentChecker.notNull(securityLoader, "securityLoader");
-    ArgumentChecker.notNull(htsSource, "htsSource");
+    ArgumentChecker.notNull(htsMaster, "htsMaster");
     _data = new WebSecuritiesData();
     data().setSecurityMaster(securityMaster);
     data().setSecurityLoader(securityLoader);
-    data().setHistoricalTimeSeriesSource(htsSource);
+    data().setHistoricalTimeSeriesMaster(htsMaster);
   }
 
   /**
@@ -198,9 +202,33 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
   private List<FactorExposure> convertToFactorExposure(List<FactorExposureData> factorExposureDataList) {
     List<FactorExposure> results = new ArrayList<FactorExposure>();
     for (FactorExposureData exposure : factorExposureDataList) {
-      HistoricalTimeSeries exposureHTS = data().getHistoricalTimeSeriesSource().getHistoricalTimeSeries("EXPOSURE", exposure.getExposureExternalId().toBundle(), null);
-      HistoricalTimeSeries convexityHTS = data().getHistoricalTimeSeriesSource().getHistoricalTimeSeries("CONVEXITY", exposure.getExposureExternalId().toBundle(), null);
-      HistoricalTimeSeries priceHTS = data().getHistoricalTimeSeriesSource().getHistoricalTimeSeries("PX_LAST", exposure.getFactorExternalId().toBundle(), null);
+      HistoricalTimeSeriesInfoSearchRequest exposureSearchRequest = new HistoricalTimeSeriesInfoSearchRequest();
+      exposureSearchRequest.addExternalId(exposure.getExposureExternalId());
+      exposureSearchRequest.setDataField("EXPOSURE");
+      HistoricalTimeSeriesInfoSearchResult exposureSearchResult = data().getHistoricalTimeSeriesMaster().search(exposureSearchRequest);
+      HistoricalTimeSeries exposureHTS = null;
+      if (exposureSearchResult.getFirstInfo() != null) {
+        exposureHTS = data().getHistoricalTimeSeriesMaster().getTimeSeries(exposureSearchResult.getFirstInfo().getTimeSeriesObjectId(), VersionCorrection.LATEST);
+      }
+
+      HistoricalTimeSeriesInfoSearchRequest convexitySearchRequest = new HistoricalTimeSeriesInfoSearchRequest();
+      convexitySearchRequest.addExternalId(exposure.getExposureExternalId());
+      convexitySearchRequest.setDataField("CONVEXITY");
+      HistoricalTimeSeriesInfoSearchResult convexitySearchResult = data().getHistoricalTimeSeriesMaster().search(convexitySearchRequest);
+      HistoricalTimeSeries convexityHTS = null;
+      if (convexitySearchResult.getFirstInfo() != null) {
+        convexityHTS = data().getHistoricalTimeSeriesMaster().getTimeSeries(convexitySearchResult.getFirstInfo().getTimeSeriesObjectId(), VersionCorrection.LATEST);
+      }
+
+      HistoricalTimeSeriesInfoSearchRequest priceSearchRequest = new HistoricalTimeSeriesInfoSearchRequest();
+      priceSearchRequest.addExternalId(exposure.getExposureExternalId());
+      priceSearchRequest.setDataField("PX_LAST");
+      HistoricalTimeSeriesInfoSearchResult priceSearchResult = data().getHistoricalTimeSeriesMaster().search(priceSearchRequest);
+      HistoricalTimeSeries priceHTS = null;
+      if (priceSearchResult.getFirstInfo() != null) {
+        priceHTS = data().getHistoricalTimeSeriesMaster().getTimeSeries(priceSearchResult.getFirstInfo().getTimeSeriesObjectId(), VersionCorrection.LATEST);
+      }
+
       results.add(new FactorExposure(exposure.getFactorType().getFactorType(),
         exposure.getFactorName(),
         exposure.getNode(),
