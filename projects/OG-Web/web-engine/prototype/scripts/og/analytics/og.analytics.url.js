@@ -31,19 +31,17 @@ $.register_module({
                         if (!cellmenu) cellmenu = new og.analytics.CellMenu;
                         for (panel in last_object) delete last_object[panel];
                         if (config.main && last_fingerprint.main !== (current_main = JSON.stringify(config.main))) {
-                            og.analytics.grid = new og.analytics.Grid({
-                                selector: '.OG-layout-analytics-center', source: JSON.parse(current_main)
-                            });
+                            last_object.main = JSON.parse(last_fingerprint.main = current_main);
+                            og.analytics.grid = new og.analytics
+                                .Grid({selector: '.OG-layout-analytics-center', source: last_object.main});
                             og.analytics.grid.on('cellhover', function (cell) {
                                 if (!cell.value || cell.type === 'PRIMITIVE' || cell.col < 2) return cellmenu.hide();
                                 cellmenu.show(cell);
                             });
-                            last_fingerprint.main = current_main;
-                            last_object.main = JSON.parse(current_main);
                         }
                         layout.forEach(function (panel) {
-                            if (!config[panel]) return;
                             var gadgets = config[panel];
+                            if (!gadgets) return;
                             if (!last_fingerprint[panel]) last_fingerprint[panel] = [];
                             if (!last_object[panel]) last_object[panel] = [];
                             last_fingerprint[panel] = gadgets.map(function (gadget, index) {
