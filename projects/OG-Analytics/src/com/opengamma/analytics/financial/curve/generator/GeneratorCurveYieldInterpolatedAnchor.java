@@ -47,12 +47,12 @@ public class GeneratorCurveYieldInterpolatedAnchor extends GeneratorCurve {
 
   @Override
   public YieldAndDiscountCurve generateCurve(String name, double[] parameters) {
-    throw new UnsupportedOperationException("Cannot generate curves for a GeneratorCurveYieldInterpolated");
+    throw new UnsupportedOperationException("Cannot generate curves for a GeneratorCurveYieldInterpolatedAnchor");
   }
 
   @Override
   public YieldAndDiscountCurve generateCurve(String name, YieldCurveBundle bundle, double[] parameters) {
-    throw new UnsupportedOperationException("Cannot generate curves for a GeneratorCurveYieldInterpolated");
+    throw new UnsupportedOperationException("Cannot generate curves for a GeneratorCurveYieldInterpolatedAnchor");
   }
 
   /**
