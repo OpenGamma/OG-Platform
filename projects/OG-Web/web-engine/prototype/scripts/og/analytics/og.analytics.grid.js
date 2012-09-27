@@ -94,14 +94,10 @@ $.register_module({
             return $(grid.id).length ? true : !grid.elements.style.remove();
         };
         constructor.prototype.cell = function (selection) {
-            var grid = this, cell, viewport = grid.meta.viewport, rows = viewport.rows, cols = viewport.cols;
             if (1 !== selection.rows.length || 1 !== selection.cols.length) return null;
-            cell = grid
-                .data[rows.indexOf(selection.rows[0]) * cols.length + cols.indexOf(selection.cols[0])];
-            return {
-                row: selection.rows[0], col: selection.cols[0], value: cell,
-                type: cell.t || selection.type[0]
-            };
+            var grid = this, viewport = grid.meta.viewport, rows = viewport.rows, cols = viewport.cols,
+                cell = grid.data[rows.indexOf(selection.rows[0]) * cols.length + cols.indexOf(selection.cols[0])];
+            return {row: selection.rows[0], col: selection.cols[0], value: cell, type: cell.t || selection.type[0]};
         };
         constructor.prototype.init_data = function () {
             var grid = this, $ = grid.$, config = grid.config;
@@ -140,14 +136,15 @@ $.register_module({
                             fixed_width = grid.meta.columns.width.fixed,
                             x = page_x - grid.offset.left + (page_x > fixed_width ? scroll_left : 0),
                             y = page_y - grid.offset.top + scroll_top - grid.meta.header_height, corner, corner_cache,
-                            rectangle = {top_left: (corner = grid.nearest_cell(x, y)), bottom_right: corner};
-                        if (last_corner === (corner_cache = JSON.stringify(corner))) return;
-                        cell = grid.cell(grid.transpose_selection(grid.selector.selection(rectangle)));
+                            rectangle = {top_left: (corner = grid.nearest_cell(x, y)), bottom_right: corner},
+                            selection = grid.selector.selection(rectangle);
+                        if (!selection || last_corner === (corner_cache = JSON.stringify(corner))) return;
+                        cell = grid.cell(grid.transpose_selection(selection));
                         cell.top = corner.top - scroll_top + grid.meta.header_height;
                         cell.right = corner.right - (page_x > fixed_width ? scroll_left : 0);
-                        fire(grid.events.cellhoverin, cell);
                         last_corner = corner_cache; last_x = page_x; last_y = page_y;
-                    }
+                        fire(grid.events.cellhoverin, cell);
+                    };
                 })(last_x = null, last_y = null, page_x, page_y, last_corner))
                 .on('mouseleave', function (event) {
                     if (last_corner) (last_corner = null), fire(grid.events.cellhoverout, cell);
@@ -270,9 +267,8 @@ $.register_module({
                 grid.elements.fixed_body.html(templates.row(row_data(grid, data, true)));
                 grid.elements.scroll_body.html(templates.row(row_data(grid, data, false)));
                 grid.updated(+new Date);
-                fire(grid.events.render);
                 grid.dataman.busy(false);
-                grid.elements.scroll_body.focus(); // focus on scroll body so arrow keys will work
+                fire(grid.events.render);
             };
         })();
         constructor.prototype.resize = function (handler) {
