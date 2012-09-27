@@ -82,7 +82,7 @@ public class ResultConverterCache {
     registerConverter(Double[][].class, new DoubleObjectArrayConverter());
     registerConverter(List.class, new ListDoubleArrayConverter());
     registerConverter(PresentValueForexBlackVolatilitySensitivity.class, new PresentValueVolatilitySensitivityConverter(_doubleConverter));
-    registerConverter(PaymentScheduleMatrix.class, new PaymentScheduleMatrixConverter(_doubleConverter));
+    registerConverter(PaymentScheduleMatrix.class, new PaymentScheduleMatrixConverter());
   }
 
   private <T> void registerConverter(final Class<T> clazz, final ResultConverter<? super T> converter) {

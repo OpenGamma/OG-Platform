@@ -55,10 +55,12 @@ import com.opengamma.financial.security.swap.SwapSecurity;
  */
 public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAdapter<T> implements FinancialSecurityVisitor<T> {
 
+  @SuppressWarnings("synthetic-access")
   public static <T> Builder<T> builder() {
     return new Builder<T>();
   }
 
+  @SuppressWarnings("synthetic-access")
   public static <T> Builder<T> builder(final FinancialSecurityVisitor<T> visitor) {
     return new Builder<T>(visitor);
   }
