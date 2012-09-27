@@ -200,6 +200,7 @@ import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackV
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackVegaMatrixFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackVegaQuoteMatrixFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackVommaFunction;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackYCNSFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackCurrencyExposureFunctionDeprecated;
 import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackPV01FunctionDeprecated;
 import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackPresentValueCurveSensitivityFunctionDeprecated;
@@ -978,8 +979,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   }
 
   private static void addForexOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(CurrencyPairsFunction.class));
-    functionConfigs.add(functionConfiguration(CurrencyPairsDefaults.class, CurrencyPairs.DEFAULT_CURRENCY_PAIRS));
     functionConfigs.add(functionConfiguration(BloombergFXSpotRateMarketDataFunction.class));
     functionConfigs.add(functionConfiguration(BloombergFXSpotRatePercentageChangeFunction.class));
     functionConfigs.add(functionConfiguration(BloombergFXOptionSpotRateFunction.class));
@@ -1004,6 +1003,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(FXOptionBlackForwardSlideThetaFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackVolatilitySurfaceForwardSlideThetaFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackYieldCurvesForwardSlideThetaFunction.class));
+    functionConfigs.add(functionConfiguration(FXOptionBlackYCNSFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackCurveDefaults.class, PriorityClass.BELOW_NORMAL.name(), "USD", "DefaultTwoCurveUSDConfig", "Discounting",
         "EUR", "DefaultTwoCurveEURConfig", "Discounting", "CAD", "DefaultTwoCurveCADConfig", "Discounting", "AUD", "DefaultTwoCurveAUDConfig", "Discounting", "CHF",
         "DefaultTwoCurveCHFConfig", "Discounting", "MXN", "DefaultCashCurveMXNConfig", "Cash", "JPY", "DefaultTwoCurveJPYConfig", "Discounting", "GBP",

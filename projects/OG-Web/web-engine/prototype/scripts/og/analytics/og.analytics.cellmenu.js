@@ -28,7 +28,7 @@ $.register_module({
                     return routes.hash(rule, args, {add: add});
                 })();
         };
-        return function () {
+        return function (grid) {
             var self = this, timer, cur_cell, panels = ['south', 'dock-north', 'dock-center', 'dock-south'],
                 handler = function (tmpl) {
                     self.hide = function () {self.menu.hide()};
@@ -60,7 +60,11 @@ $.register_module({
                             else routes.go(hash);
                             self.hide();
                         });
-                    $('body').append(self.menu);
+                    grid.on('cellhoverin', function (cell) {
+                        if (!cell.value || cell.type === 'PRIMITIVE' || cell.col < 2) return self.hide();
+                        if (cell.right > grid.elements.parent.width()) return self.hide();
+                        self.show(cell);
+                    }).on('cellhoverout', self.hide).elements.parent.append(self.menu);
                 };
             $.when(og.api.text({module: 'og.analytics.cell_options'})).then(handler);
         }

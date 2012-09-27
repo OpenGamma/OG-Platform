@@ -4,9 +4,7 @@
  */
 $.register_module({
     name: 'og.views.analytics2',
-    dependencies: [
-        'og.views.common.state', 'og.common.routes', 'og.common.gadgets.GadgetsContainer','og.analytics.CellMenu'
-    ],
+    dependencies: ['og.views.common.state', 'og.common.routes', 'og.common.gadgets.GadgetsContainer'],
     obj: function () {
         var routes = og.common.routes, module = this, view;
         module.rules = {load: {route: '/', method: module.name + '.load'}};

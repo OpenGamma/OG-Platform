@@ -40,8 +40,7 @@ public class CreditDefaultSwapDefinition {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // TODO : Replace some of the argument checkers with notNegative e.g. notional, parSpread
-  // TODO : Extend this class definition to include standard CDS contracts (post big-bang) i.e. quoted spread etc
+  // TODO : Extend this class definition to include standard CDS contracts (post big-bang) i.e. quoted spread, upfront payment etc
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -219,13 +218,13 @@ public class CreditDefaultSwapDefinition {
     ArgumentChecker.notNull(daycountFractionConvention, "Daycount convention field is null");
     ArgumentChecker.notNull(businessdayAdjustmentConvention, "Business day adjustment convention field is null");
 
-    ArgumentChecker.isTrue(notional >= 0.0, "Notional amount should be greater than or equal to zero");
-    ArgumentChecker.isTrue(premiumLegCoupon >= 0.0, "CDS par spread should be greater than or equal to zero");
+    ArgumentChecker.notNegative(notional, "Notional amount");
+    ArgumentChecker.notNegative(premiumLegCoupon, "Premium Leg coupon");
 
-    ArgumentChecker.isTrue(valuationRecoveryRate >= 0.0, "Valuation recovery rate should be greater than or equal to 0%");
+    ArgumentChecker.notNegative(valuationRecoveryRate, "Valuation Recovery Rate");
+    ArgumentChecker.notNegative(curveRecoveryRate, "Curve Recovery Rate");
+
     ArgumentChecker.isTrue(valuationRecoveryRate <= 1.0, "Valuation recovery rate should be less than or equal to 100%");
-
-    ArgumentChecker.isTrue(curveRecoveryRate >= 0.0, "Curve recovery rate should be greater than or equal to 0%");
     ArgumentChecker.isTrue(curveRecoveryRate <= 1.0, "Curve recovery rate should be less than or equal to 100%");
 
     // ------------------------------------------------------------------------------------------------
@@ -457,6 +456,21 @@ public class CreditDefaultSwapDefinition {
         _impliedRating, _sector, _region, _country, _calendar, _startDate, _effectiveDate, _maturityDate, _valuationDate, _stubType, _couponFrequency,
         _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustMaturityDate, _notional, _premiumLegCoupon,
         _valuationRecoveryRate, curveRecoveryRate, _includeAccruedPremium);
+
+    return modifiedCDS;
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Builder method to allow the valuationDate of a CDS object to be modified (used during testing and in simulation models)
+
+  public CreditDefaultSwapDefinition withValuationDate(ZonedDateTime valuationDate) {
+
+    CreditDefaultSwapDefinition modifiedCDS = new CreditDefaultSwapDefinition(_buySellProtection, _protectionBuyer, _protectionSeller, _referenceEntityTicker,
+        _referenceEntityShortName, _referenceEntityREDCode, _currency, _debtSeniority, _restructuringClause, _compositeRating,
+        _impliedRating, _sector, _region, _country, _calendar, _startDate, _effectiveDate, _maturityDate, valuationDate, _stubType, _couponFrequency,
+        _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustMaturityDate, _notional, _premiumLegCoupon,
+        _valuationRecoveryRate, _curveRecoveryRate, _includeAccruedPremium);
 
     return modifiedCDS;
   }

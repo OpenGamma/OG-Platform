@@ -363,7 +363,8 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
       marketValues[i] = isPV ? 0 : marketRates[i];
       nodes[i] = MATURITY_CALCULATOR.visit(instruments.get(i));
     }
-    final List<double[]> curveKnots = Arrays.asList(nodes);
+    final List<double[]> curveKnots = new ArrayList<double[]>();
+    curveKnots.add(nodes);
     final List<String> curveNames = Arrays.asList(SINGLE_CURVE_NAME);
     final double[] rates = new double[nNodes];
     for (int i = 0; i < nNodes; i++) {

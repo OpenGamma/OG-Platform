@@ -214,12 +214,12 @@ public class CapFloorCMSDefinition extends CouponFloatingDefinition implements C
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
-    return visitor.visitCapFloorCMS(this, data);
+    return visitor.visitCapFloorCMSDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
-    return visitor.visitCapFloorCMS(this);
+    return visitor.visitCapFloorCMSDefinition(this);
   }
 
   @Override

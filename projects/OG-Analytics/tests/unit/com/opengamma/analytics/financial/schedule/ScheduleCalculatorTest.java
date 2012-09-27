@@ -565,7 +565,7 @@ public class ScheduleCalculatorTest {
 
       @Override
       public double getDayCountFraction(final LocalDate firstDate, final LocalDate secondDate) {
-        return getDayCountFraction(firstDate.toLocalDate(), secondDate.toLocalDate());
+        return ((double) (secondDate.getMonthOfYear().getValue() - firstDate.getMonthOfYear().getValue())) / 12;
       }
 
       @Override

@@ -103,14 +103,14 @@ public class CholeskyDecompositionOpenGammaTest {
       resultOG3 = CDOG.evaluate(A3);
     }
     endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " Cholesky decomposition 3x3 (OpenGamma): " + (endTime - startTime) + " ms - " + resultOG3.getL().getData());
+    System.out.println(nbTest + " Cholesky decomposition 3x3 (OpenGamma): " + (endTime - startTime) + " ms - " + resultOG3.getL());
     // Performance note: Cholesky decomposition: 4-Nov-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 105 ms for 10000 decomposition 3x3.
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       resultC3 = CDC.evaluate(A3);
     }
     endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " Cholesky decomposition 3x3 (Common wrapper): " + (endTime - startTime) + " ms - " + resultC3.getL().getData());
+    System.out.println(nbTest + " Cholesky decomposition 3x3 (Common wrapper): " + (endTime - startTime) + " ms - " + resultC3.getL());
     // Performance note: Cholesky decomposition: 4-Nov-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 205 ms for 10000 decomposition 3x3.  
 
     // ===== 5 x 5 =====
@@ -119,14 +119,14 @@ public class CholeskyDecompositionOpenGammaTest {
       resultOG5 = CDOG.evaluate(A5);
     }
     endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " Cholesky decomposition 5x5 (OpenGamma): " + (endTime - startTime) + " ms - " + resultOG5.getL().getData());
+    System.out.println(nbTest + " Cholesky decomposition 5x5 (OpenGamma): " + (endTime - startTime) + " ms - " + resultOG5.getL());
     // Performance note: Cholesky decomposition: 4-Nov-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 105 ms for 10000 decomposition 5x5.
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       resultC5 = CDC.evaluate(A5);
     }
     endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " Cholesky decomposition 5x5 (Common wrapper): " + (endTime - startTime) + " ms - " + resultC5.getL().getData());
+    System.out.println(nbTest + " Cholesky decomposition 5x5 (Common wrapper): " + (endTime - startTime) + " ms - " + resultC5.getL());
     // Performance note: Cholesky decomposition: 4-Nov-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 205 ms for 10000 decomposition 5x5.
   }
 

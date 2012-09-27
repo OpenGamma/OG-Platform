@@ -321,12 +321,12 @@ public final class CouponIborCompoundedDefinition extends CouponDefinition imple
 
   @Override
   public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
-    return visitor.visitCouponIborCompounded(this, data);
+    return visitor.visitCouponIborCompoundedDefinition(this, data);
   }
 
   @Override
   public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
-    return visitor.visitCouponIborCompounded(this);
+    return visitor.visitCouponIborCompoundedDefinition(this);
   }
 
   @Override

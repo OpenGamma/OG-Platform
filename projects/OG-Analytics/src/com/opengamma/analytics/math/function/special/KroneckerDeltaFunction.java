@@ -24,10 +24,10 @@ import com.opengamma.analytics.math.function.Function2D;
 public class KroneckerDeltaFunction extends Function2D<Integer, Integer> {
 
   @Override
-  public Integer evaluate(final Integer i, Integer j) {
+  public Integer evaluate(Integer i, Integer j) {
     Validate.notNull(i, "i");
     Validate.notNull(j, "j");
-    return i == j ? 1 : 0;
+    return i.intValue() == j.intValue() ? 1 : 0;
   }
 
 }

@@ -60,7 +60,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod implements Pricin
   @Override
   public CurrencyAmount presentValue(InstrumentDerivative instrument, IMarketBundle market) {
     Validate.isTrue(instrument instanceof BondCapitalIndexedSecurity<?>, "Capital inflation indexed bond.");
-    return presentValue(instrument, market);
+    return presentValue((BondCapitalIndexedSecurity<?>) instrument, (MarketDiscountBundle) market);
   }
 
   /**

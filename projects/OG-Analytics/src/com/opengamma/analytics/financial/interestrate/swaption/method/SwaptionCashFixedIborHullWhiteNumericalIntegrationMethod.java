@@ -88,9 +88,9 @@ public class SwaptionCashFixedIborHullWhiteNumericalIntegrationMethod implements
 
   @Override
   public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
-    Validate.isTrue(instrument instanceof SwaptionPhysicalFixedIbor, "Physical delivery swaption");
+    Validate.isTrue(instrument instanceof SwaptionCashFixedIbor, "Cash delivery swaption");
     Validate.isTrue(curves instanceof HullWhiteOneFactorPiecewiseConstantDataBundle, "Bundle should contain Hull-White data");
-    return presentValue(instrument, curves);
+    return presentValue((SwaptionCashFixedIbor) instrument, (HullWhiteOneFactorPiecewiseConstantDataBundle) curves);
   }
 
   /**

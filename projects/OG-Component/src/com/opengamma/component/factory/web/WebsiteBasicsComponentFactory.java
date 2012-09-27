@@ -150,7 +150,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     repo.getRestComponents().publishResource(reg);
     
     JerseyRestResourceFactory sec = new JerseyRestResourceFactory(WebSecuritiesResource.class,
-        getSecurityMaster(), getSecurityLoader(), getHistoricalTimeSeriesSource());
+        getSecurityMaster(), getSecurityLoader(), getHistoricalTimeSeriesMaster());
     repo.getRestComponents().publishResource(sec);
     
     JerseyRestResourceFactory pos = new JerseyRestResourceFactory(WebPositionsResource.class,

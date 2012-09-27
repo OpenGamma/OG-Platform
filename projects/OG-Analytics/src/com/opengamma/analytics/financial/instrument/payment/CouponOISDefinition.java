@@ -225,12 +225,12 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
-    return visitor.visitCouponOIS(this, data);
+    return visitor.visitCouponOISDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
-    return visitor.visitCouponOIS(this);
+    return visitor.visitCouponOISDefinition(this);
   }
 
   @Override

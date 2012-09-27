@@ -6,6 +6,8 @@
 package com.opengamma.engine.depgraph;
 
 import java.io.PrintStream;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,6 +23,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ResolutionFailurePrinter extends ResolutionFailureVisitor<Void> {
 
+  private final Set<ResolutionFailure> _visited;
   private final PrintStream _out;
   private final String _indent;
 
@@ -29,18 +32,17 @@ public class ResolutionFailurePrinter extends ResolutionFailureVisitor<Void> {
   }
 
   public ResolutionFailurePrinter(final PrintStream out) {
-    this("", out);
-  }
-
-  protected ResolutionFailurePrinter(final String indent, final PrintStream out) {
-    ArgumentChecker.notNull(indent, "indent");
     ArgumentChecker.notNull(out, "out");
     _out = out;
-    _indent = indent;
+    _indent = "";
+    _visited = Collections.newSetFromMap(new IdentityHashMap<ResolutionFailure, Boolean>());
   }
 
-  protected ResolutionFailurePrinter indent() {
-    return new ResolutionFailurePrinter(_indent + "  ", _out);
+  protected ResolutionFailurePrinter(final ResolutionFailurePrinter parent) {
+    ArgumentChecker.notNull(parent, "parent");
+    _out = parent._out;
+    _indent = parent._indent + "  ";
+    _visited = parent._visited;
   }
 
   protected void println(final String str) {
@@ -182,9 +184,14 @@ public class ResolutionFailurePrinter extends ResolutionFailureVisitor<Void> {
   @Override
   protected synchronized Void visitFailedFunction(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
       final Map<ValueSpecification, ValueRequirement> satisfied, final Set<ResolutionFailure> unsatisfied) {
-    println("Couldn't satisfy " + toStringResolutionFailures(unsatisfied) + " to produce " + toString(desiredOutput) + " for " + toString(valueRequirement) + ". Caused by:");
+    println("Couldn't satisfy " + toStringResolutionFailures(unsatisfied) + " for " + toString(function) + " to produce " + toString(desiredOutput) + " for " + toString(valueRequirement) +
+        ". Caused by:");
     for (ResolutionFailure requirement : unsatisfied) {
-      requirement.accept(indent());
+      if (_visited.add(requirement)) {
+        requirement.accept(new ResolutionFailurePrinter(this));
+      } else {
+        println("  ...");
+      }
     }
     return null;
   }

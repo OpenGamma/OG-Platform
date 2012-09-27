@@ -33,6 +33,9 @@ import com.opengamma.engine.value.ValueSpecification;
 
     public Callback(final ResolvedValueCallback callback) {
       _callback = callback;
+      // Don't reference count the callback; the interface doesn't support it and if it is something like an
+      // AggregateResolvedValueProducer then counting references in this direction will introduce a loop and
+      // prevent dead tasks from being identified
     }
 
     @Override
@@ -127,11 +130,9 @@ import com.opengamma.engine.value.ValueSpecification;
             }
             _pumping = 0;
           }
-          if ((pumped != null) || lastResult) {
-            pumpCallbacks(context, pumped, lastResult);
-            if (lastResult) {
-              finished(context);
-            }
+          pumpCallbacks(context, pumped, lastResult);
+          if (lastResult) {
+            finished(context);
           }
         } else {
           if (finished) {
@@ -365,8 +366,7 @@ import com.opengamma.engine.value.ValueSpecification;
   protected abstract void pumpImpl(final GraphBuildingContext context);
 
   /**
-   * Call when there are no more values that can be pushed. Any callbacks that have had pump called on them will
-   * receive a failure notification. This must only be called once.
+   * Call when there are no more values that can be pushed. Any callbacks that have had pump called on them will receive a failure notification. This must only be called once.
    */
   protected void finished(final GraphBuildingContext context) {
     assert !_finished;
@@ -412,9 +412,8 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   /**
-   * Returns the current results in the order they were produced. If the producer is not
-   * in a "finished" state, the results are the current intermediate values. The caller
-   * must not modify the content of the array.
+   * Returns the current results in the order they were produced. If the producer is not in a "finished" state, the results are the current intermediate values. The caller must not modify the content
+   * of the array.
    * 
    * @return the current results
    */

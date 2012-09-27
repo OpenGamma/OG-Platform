@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.interestrate;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNull;
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 import java.util.ArrayList;
@@ -178,7 +179,7 @@ public class MultipleYieldCurveFinderDataBundleTest {
     assertEquals(DATA.getDerivatives(), DERIVATIVES);
     assertEquals(DATA.getInterpolatorForCurve(CURVE_NAME1), INTERPOLATOR1);
     assertEquals(DATA.getInterpolatorForCurve(CURVE_NAME2), INTERPOLATOR2);
-    assertEquals(DATA.getKnownCurves(), null);
+    assertNull(DATA.getKnownCurves());
     assertEquals(DATA.getTotalNodes(), TIMES1.length * 2);
     assertEquals(DATA.getUnknownCurveInterpolators(), INTERPOLATORS);
     assertEquals(DATA.getUnknownCurveNodePoints(), NODES);

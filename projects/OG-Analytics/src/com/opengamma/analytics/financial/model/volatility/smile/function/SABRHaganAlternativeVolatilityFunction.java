@@ -87,8 +87,14 @@ public class SABRHaganAlternativeVolatilityFunction extends VolatilityFunctionPr
 
   @Override
   public boolean equals(final Object obj) {
+    if (obj == null) {
+      return false;
+    }
     if (this == obj) {
       return true;
+    }
+    if (obj == null) {
+      return false;
     }
     if (getClass() != obj.getClass()) {
       return false;

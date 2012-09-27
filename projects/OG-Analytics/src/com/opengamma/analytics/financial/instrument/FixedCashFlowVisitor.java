@@ -25,8 +25,7 @@ import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefi
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
-import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
-import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
@@ -41,6 +40,11 @@ public final class FixedCashFlowVisitor extends AbstractInstrumentDefinitionVisi
   }
 
   private FixedCashFlowVisitor() {
+  }
+
+  @Override
+  public Map<LocalDate, MultipleCurrencyAmount> visit(final InstrumentDefinition<?> definition, final LocalDate fromDate) {
+    return Collections.emptyMap();
   }
 
   @Override
@@ -114,7 +118,7 @@ public final class FixedCashFlowVisitor extends AbstractInstrumentDefinitionVisi
 
   @Override
   public Map<LocalDate, MultipleCurrencyAmount> visitForwardRateAgreementDefinition(final ForwardRateAgreementDefinition forwardRateAgreement, final LocalDate fromDate) {
-    ArgumentChecker.notNull(forwardRateAgreement, "payment");
+    ArgumentChecker.notNull(forwardRateAgreement, "FRA");
     ArgumentChecker.notNull(fromDate, "date");
     final LocalDate endDate = forwardRateAgreement.getPaymentDate().toLocalDate();
     if (endDate.isBefore(fromDate)) {
@@ -132,17 +136,10 @@ public final class FixedCashFlowVisitor extends AbstractInstrumentDefinitionVisi
   }
 
   @Override
-  public Map<LocalDate, MultipleCurrencyAmount> visitSwapFixedIborDefinition(final SwapFixedIborDefinition swap, final LocalDate fromDate) {
+  public Map<LocalDate, MultipleCurrencyAmount> visitSwapDefinition(final SwapDefinition swap, final LocalDate fromDate) {
     ArgumentChecker.notNull(swap, "swap");
     ArgumentChecker.notNull(fromDate, "date");
-    return getDatesAndPaymentsFromAnnuity(swap.getFixedLeg(), fromDate);
-  }
-
-  @Override
-  public Map<LocalDate, MultipleCurrencyAmount> visitSwapFixedIborSpreadDefinition(final SwapFixedIborSpreadDefinition swap, final LocalDate fromDate) {
-    ArgumentChecker.notNull(swap, "swap");
-    ArgumentChecker.notNull(fromDate, "date");
-    return getDatesAndPaymentsFromAnnuity(swap.getFixedLeg(), fromDate);
+    return (swap.getFirstLeg().isPayer()) ? swap.getFirstLeg().accept(this, fromDate) : swap.getSecondLeg().accept(this, fromDate);
   }
 
   @Override
@@ -199,7 +196,7 @@ public final class FixedCashFlowVisitor extends AbstractInstrumentDefinitionVisi
   }
 
   private static final class FixedPaymentVisitor extends AbstractInstrumentDefinitionVisitor<Object, Boolean> {
-    static final FixedPaymentVisitor s_instance = new FixedPaymentVisitor();
+    private static final FixedPaymentVisitor s_instance = new FixedPaymentVisitor();
 
     static FixedPaymentVisitor getInstance() {
       return s_instance;

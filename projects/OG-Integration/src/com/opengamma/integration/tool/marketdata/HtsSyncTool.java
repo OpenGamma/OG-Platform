@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.opengamma.util.generate.scripts.Scriptable;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
@@ -21,6 +22,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 /**
  * The entry point for running OpenGamma batches. 
  */
+@Scriptable
 public class HtsSyncTool extends AbstractDualComponentTool {
 
   /**

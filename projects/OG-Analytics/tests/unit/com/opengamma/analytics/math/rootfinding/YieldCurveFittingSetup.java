@@ -414,8 +414,8 @@ public abstract class YieldCurveFittingSetup {
     final double tauFloat = 1. / floatLegFreq.getPeriodsPerYear();
     final double tauFixed = 1. / fixedLegFreq.getPeriodsPerYear();
 
-    Validate.isTrue(tauFloat * floatPayments == time, "float payments will not finish on time");
-    Validate.isTrue(tauFixed * fixedPayments == time, "fixed payments will not finish on time");
+    Validate.isTrue(Double.doubleToLongBits(tauFloat * floatPayments) == time, "float payments will not finish on time");
+    Validate.isTrue(Double.doubleToLongBits(tauFixed * fixedPayments) == time, "fixed payments will not finish on time");
 
     final double[] fixed = new double[fixedPayments];
     final double[] floating = new double[floatPayments];

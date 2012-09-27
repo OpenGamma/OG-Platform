@@ -168,12 +168,12 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
 
   @Override
   public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
-    return visitor.visitCapFloorCMSSpread(this, data);
+    return visitor.visitCapFloorCMSSpreadDefinition(this, data);
   }
 
   @Override
   public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
-    return visitor.visitCapFloorCMSSpread(this);
+    return visitor.visitCapFloorCMSSpreadDefinition(this);
   }
 
   @Override

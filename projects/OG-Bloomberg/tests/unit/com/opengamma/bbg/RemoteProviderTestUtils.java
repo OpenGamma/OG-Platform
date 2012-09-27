@@ -43,10 +43,10 @@ public class RemoteProviderTestUtils {
     _fudgeContext = OpenGammaFudgeContext.getInstance();
     final Properties props = TestProperties.getTestProperties();
     final String baseUrl = new StringBuilder("http://")
-      .append("localhost:8090/")
-//      .append(System.getProperty("web.host", props.getProperty("opengamma.provider.host"))).append(':')
-//      .append(System.getProperty("web.port", props.getProperty("opengamma.provider.port")))
-//      .append(System.getProperty("web.path", props.getProperty("opengamma.provider.path")))
+//      .append("localhost:8090/")
+      .append(System.getProperty("web.host", props.getProperty("opengamma.provider.host"))).append(':')
+      .append(System.getProperty("web.port", props.getProperty("opengamma.provider.port")))
+      .append(System.getProperty("web.path", props.getProperty("opengamma.provider.path")))
       .append("jax").toString();
     URI componentsUri = URI.create(baseUrl);
     RemoteComponentServer remote = new RemoteComponentServer(componentsUri);

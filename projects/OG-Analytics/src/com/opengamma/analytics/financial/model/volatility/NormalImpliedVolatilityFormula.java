@@ -48,7 +48,7 @@ public class NormalImpliedVolatilityFormula {
     final double intrinsicPrice = numeraire * Math.max(0, (isCall ? 1 : -1) * (f - k));
     Validate.isTrue(optionPrice > intrinsicPrice || CompareUtils.closeEquals(optionPrice, intrinsicPrice, 1e-6), "option price (" + optionPrice + ") less than intrinsic value (" + intrinsicPrice
         + ")");
-    if (optionPrice == intrinsicPrice) {
+    if (Double.doubleToLongBits(optionPrice) == Double.doubleToLongBits(intrinsicPrice)) {
       return 0.0;
     }
     double sigma = (Math.abs(data.getNormalVolatility()) < 1E-10 ? 0.3 * f : data.getNormalVolatility());

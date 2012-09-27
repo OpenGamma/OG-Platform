@@ -267,11 +267,11 @@ public class CouponIborSpreadDefinition extends CouponFloatingDefinition {
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
-    return visitor.visitCouponIborSpread(this, data);
+    return visitor.visitCouponIborSpreadDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
-    return visitor.visitCouponIborSpread(this);
+    return visitor.visitCouponIborSpreadDefinition(this);
   }
 }

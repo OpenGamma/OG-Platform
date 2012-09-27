@@ -30,6 +30,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
@@ -69,11 +70,11 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
    * Creates the resource.
    * @param securityMaster  the security master, not null
    * @param securityLoader  the security loader, not null
-   * @param htsSource  the historical time series source, not null
+   * @param htsMaster  the historical time series master, not null
    */
   public WebSecuritiesResource(
-      final SecurityMaster securityMaster, final SecurityLoader securityLoader, final HistoricalTimeSeriesSource htsSource) {
-    super(securityMaster, securityLoader, htsSource);
+      final SecurityMaster securityMaster, final SecurityLoader securityLoader, final HistoricalTimeSeriesMaster htsMaster) {
+    super(securityMaster, securityLoader, htsMaster);
   }
 
   //-------------------------------------------------------------------------

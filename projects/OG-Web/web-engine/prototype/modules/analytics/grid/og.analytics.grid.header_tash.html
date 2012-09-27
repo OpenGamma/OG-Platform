@@ -1,8 +1,9 @@
 <div class="OG-g-h-sets" style="position: relative; width: {{width}}px; padding-right: {{padding_right}}px;">
   {{#each sets}}
     <div class="OG-g-h-set">
-      <div class="OG-g-h-set-name s{{index}}"{{#if depgraph}} style="display: none"{{/if}}><div>{{name}}</div>
-      </div>
+      {{#if not_depgraph}}
+        <div class="OG-g-h-set-name s{{index}}"><div>{{name}}</div></div>
+      {{/if}}
       <div class="OG-g-h-cols">
         {{#each columns}}
             <div class="OG-g-h-col c{{index}}">{{name}}</div>
