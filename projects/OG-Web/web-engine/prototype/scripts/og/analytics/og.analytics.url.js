@@ -4,41 +4,63 @@
  */
 $.register_module({
     name: 'og.analytics.url',
-    dependencies: ['og.api.rest'],
+    dependencies: ['og.common.routes', 'og.api.rest'],
     obj: function () {
-        var last = {};
+        var last_fingerprint = {}, last_object = {}, routes = og.common.routes, cellmenu,
+            layout = ['south', 'dock-north', 'dock-center', 'dock-south'];
+        var go = function () {
+            og.api.rest.compressor.put({content: last_object}).pipe(function (result) {
+                routes.go(routes.hash(og.views.analytics2.rules.load_item, {data: result.data.data}));
+            });
+        };
         return {
             add: function (container, params) {
-                // add a gadget to the URL
+                if (!last_object[container]) last_object[container] = [];
+                last_object[container].push(params);
+                go();
+            },
+            last: last_object,
+            main: function (params) {
+                last_object.main = params;
+                go();
             },
             process: function (args) {
                 og.api.rest.compressor.get({content: args.data})
                     .pipe(function (result) {
-                        var config = result.data.data, current_main, cellmenu = new og.analytics.CellMenu;
-                        if (config.main && last.main !== (current_main = JSON.stringify(config.main))) {
-                            og.analytics.grid = new og.analytics.Grid({
-                                selector: '.OG-layout-analytics-center', source: config.main
-                            });
+                        var config = result.data.data, current_main, panel;
+                        if (!cellmenu) cellmenu = new og.analytics.CellMenu;
+                        for (panel in last_object) delete last_object[panel];
+                        if (config.main && last_fingerprint.main !== (current_main = JSON.stringify(config.main))) {
+                            last_object.main = JSON.parse(last_fingerprint.main = current_main);
+                            og.analytics.grid = new og.analytics
+                                .Grid({selector: '.OG-layout-analytics-center', source: last_object.main});
                             og.analytics.grid.on('cellhover', function (cell) {
                                 if (!cell.value || cell.type === 'PRIMITIVE' || cell.col < 2) return cellmenu.hide();
                                 cellmenu.show(cell);
                             });
-                            last.main = current_main;
                         }
-                        if (config.containers) config.containers.forEach(function (container) {
-                            if (!last[container.name]) last[container.name] = [];
-                            last[container.name] = container.gadgets.map(function (gadget, index) {
+                        layout.forEach(function (panel) {
+                            var gadgets = config[panel];
+                            if (!gadgets) return;
+                            if (!last_fingerprint[panel]) last_fingerprint[panel] = [];
+                            if (!last_object[panel]) last_object[panel] = [];
+                            last_fingerprint[panel] = gadgets.map(function (gadget, index) {
                                 var current_gadget = JSON.stringify(gadget);
-                                if (last[container.name][index] === current_gadget) return current_gadget;
-                                og.analytics.containers[container.name].add([gadget], index);
+                                last_object[panel][index] = JSON.parse(current_gadget);
+                                if (last_fingerprint[panel][index] === current_gadget) return current_gadget;
+                                og.analytics.containers[panel].add([gadget], index);
                                 return current_gadget;
                             });
                         });
                     });
             },
             remove: function (container, index) {
-                if (!last[container] || !last[container].length) return;
-                last[container].splice(index, 1);
+                if (!last_fingerprint[container] || !last_fingerprint[container].length) return;
+                last_fingerprint[container].splice(index, 1);
+                last_object[container].splice(index, 1);
+                if (!last_fingerprint[container].length) delete last_fingerprint[container];
+                if (!last_object[container].length) delete last_object[container];
+                go();
             }
         };
     }

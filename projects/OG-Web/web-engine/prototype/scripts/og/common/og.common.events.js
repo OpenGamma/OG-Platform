@@ -3,7 +3,7 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.analytics.events',
+    name: 'og.common.events',
     dependencies: [],
     obj: function () {
         var module = this;
