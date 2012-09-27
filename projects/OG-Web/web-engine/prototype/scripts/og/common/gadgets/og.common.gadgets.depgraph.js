@@ -9,13 +9,13 @@ $.register_module({
         var prefix = 'og_depgraph_gadget_', counter = 1;
         return function (config) {
             var gadget = this, alive = prefix + counter++, selector = $(config.selector),
-                css_position = {position: 'absolute', top: '0', left: 0, right: 0, bottom: 0}, grid,
-                cellmenu = new og.analytics.CellMenu();
+                css_position = {position: 'absolute', top: '0', left: 0, right: 0, bottom: 0}, grid;
             gadget.alive = function () {return !!$('.' + alive).length;};
             gadget.load = function () {
                 selector.addClass(alive).css(css_position);
                 grid = new og.analytics.Grid({
                    selector: selector,
+                   cellmenu: true,
                    source: {
                        type: 'portfolio',
                        depgraph: true,
@@ -26,10 +26,6 @@ $.register_module({
                        row: 5,
                        col: 5
                    }
-                });
-                grid.on('cellhover', function (cell) {
-                    if (!cell.value || cell.type === 'PRIMITIVE') return  cellmenu.hide();
-                    cellmenu.show(cell);
                 });
             };
             gadget.load();

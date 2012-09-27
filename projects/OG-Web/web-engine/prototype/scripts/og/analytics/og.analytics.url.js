@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.analytics.url',
     dependencies: ['og.common.routes', 'og.api.rest'],
     obj: function () {
-        var last_fingerprint = {}, last_object = {}, routes = og.common.routes, cellmenu,
+        var last_fingerprint = {}, last_object = {}, routes = og.common.routes,
             layout = ['south', 'dock-north', 'dock-center', 'dock-south'];
         var go = function () {
             og.api.rest.compressor.put({content: last_object}).pipe(function (result) {
@@ -27,16 +27,12 @@ $.register_module({
             process: function (args) {
                 og.api.rest.compressor.get({content: args.data})
                     .pipe(function (result) {
-                        var config = result.data.data, current_main, panel;
-                        if (!cellmenu) cellmenu = new og.analytics.CellMenu;
+                        var config = result.data.data, current_main, panel, cellmenu;
                         for (panel in last_object) delete last_object[panel];
                         if (config.main && last_fingerprint.main !== (current_main = JSON.stringify(config.main))) {
                             last_object.main = JSON.parse(last_fingerprint.main = current_main);
-                            og.analytics.grid = new og.analytics
-                                .Grid({selector: '.OG-layout-analytics-center', source: last_object.main});
-                            og.analytics.grid.on('cellhover', function (cell) {
-                                if (!cell.value || cell.type === 'PRIMITIVE' || cell.col < 2) return cellmenu.hide();
-                                cellmenu.show(cell);
+                            og.analytics.grid = new og.analytics.Grid({
+                                selector: '.OG-layout-analytics-center', source: last_object.main, cellmenu: true,
                             });
                         }
                         layout.forEach(function (panel) {

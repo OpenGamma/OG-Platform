@@ -4,7 +4,7 @@
  */
 $.register_module({
     name: 'og.analytics.Grid',
-    dependencies: ['og.api.text', 'og.common.events', 'og.analytics.Data'],
+    dependencies: ['og.api.text', 'og.common.events', 'og.analytics.Data', 'og.analytics.CellMenu'],
     obj: function () {
         var module = this, counter = 1, row_height = 19, templates = null,
             fire = og.common.events.fire, scrollbar_size = (function () {
@@ -62,7 +62,8 @@ $.register_module({
             grid.config = config || {};
             grid.elements = {empty: true};
             grid.events = {
-                cellhover: [], cellselect: [], mousedown: [], rangeselect: [], render: [], scroll: [], select: []
+                cellhoverin: [], cellhoverout: [], cellselect: [],
+                mousedown: [], rangeselect: [], render: [], scroll: [], select: []
             };
             grid.formatter = new og.analytics.Formatter(grid);
             grid.id = '#analytics_grid_' + counter++;
@@ -119,11 +120,12 @@ $.register_module({
             });
         };
         constructor.prototype.init_elements = function () {
-            var grid = this, $ = grid.$, config = grid.config, elements;
+            var grid = this, $ = grid.$, config = grid.config, elements,
+                last_x, last_y, page_x, page_y, last_corner, cell // cached values for mousemove and mouseleave events;
             (elements = grid.elements).style = $('<style type="text/css" />').appendTo('head');
             elements.parent = $(config.selector).html(templates.container({id: grid.id.substring(1)}))
                 .on('mousedown', function (event) {event.preventDefault(), fire(grid.events.mousedown, event);})
-                .on('mousemove', '.OG-g-sel, .OG-g-cell', (function (last_x, last_y, page_x, page_y, last_corner) {
+                .on('mousemove', '.OG-g-sel, .OG-g-cell', (function () {
                     var resolution = 8, counter = 0; // only accept 1/resolution of the mouse moves, we have too many
                     return function (event) {
                         (page_x = event.pageX), (page_y = event.pageY);
@@ -136,15 +138,18 @@ $.register_module({
                             fixed_width = grid.meta.columns.width.fixed,
                             x = page_x - grid.offset.left + (page_x > fixed_width ? scroll_left : 0),
                             y = page_y - grid.offset.top + scroll_top - grid.meta.header_height, corner, corner_cache,
-                            rectangle = {top_left: (corner = grid.nearest_cell(x, y)), bottom_right: corner}, cell;
+                            rectangle = {top_left: (corner = grid.nearest_cell(x, y)), bottom_right: corner};
                         if (last_corner === (corner_cache = JSON.stringify(corner))) return;
                         cell = grid.cell(grid.transpose_selection(grid.selector.selection(rectangle)));
-                        cell.top = corner.top + grid.offset.top - scroll_top + grid.meta.header_height;
-                        cell.right = corner.right + grid.offset.left - (page_x > fixed_width ? scroll_left : 0);
-                        fire(grid.events.cellhover, cell);
+                        cell.top = corner.top - scroll_top + grid.meta.header_height;
+                        cell.right = corner.right - (page_x > fixed_width ? scroll_left : 0);
+                        fire(grid.events.cellhoverin, cell);
                         last_corner = corner_cache; last_x = page_x; last_y = page_y;
                     }
-                })(null, null));
+                })(last_x = null, last_y = null, page_x, page_y, last_corner))
+                .on('mouseleave', function (event) {
+                    if (last_corner) (last_corner = null), fire(grid.events.cellhoverout, cell);
+                });
             elements.parent[0].onselectstart = function () {return false;}; // stop selections in IE
             elements.main = $(grid.id);
             elements.fixed_body = $(grid.id + ' .OG-g-b-fixed');
@@ -182,6 +187,7 @@ $.register_module({
                     fire(grid.events.rangeselect, selection);
                 fire(grid.events.select, selection); // fire for both single and multiple selection
             });
+            if (config.cellmenu) new og.analytics.CellMenu(grid);
             og.common.gadgets.manager.register({alive: grid.alive, resize: grid.resize, context: grid});
             elements.empty = false;
         };
@@ -211,6 +217,7 @@ $.register_module({
             top = bottom - grid.meta.row_height;
             return {top: top, bottom: bottom, left: scan[lcv - 1] || 0, right: scan[lcv]};
         };
+        constructor.prototype.off = og.common.events.off;
         constructor.prototype.on = og.common.events.on;
         constructor.prototype.render_header = (function () {
             var head_data = function (meta, sets, depgraph, col_offset, set_offset) {
