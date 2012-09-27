@@ -189,6 +189,7 @@ import com.opengamma.engine.value.ValueSpecification;
           unsubscribes = null;
         } else {
           unsubscribes = new ArrayList<Cancelable>(_inputHandles.values());
+          // TODO: should we clear out the inputHandles here? Not doing so will mean multiple calls to "cancel" if there are other failures??
         }
         state = _taskState;
         _taskState = null;
