@@ -50,7 +50,7 @@ public abstract class AbstractSecurityFXHistoricalTimeSeriesFunction extends Abs
     final String desiredCurrency = desiredValue.getConstraint(ValuePropertyNames.CURRENCY);
     final Collection<Currency> currencies = FinancialSecurityUtils.getCurrencies(target.getSecurity(), _securitySource);
     if (currencies.size() != inputs.getAllValues().size()) {
-      if (!currencies.contains(desiredCurrency)) {
+      if (!currencies.contains(Currency.of(desiredCurrency))) {
         throw new OpenGammaRuntimeException("Do not have one FX series for each requested");
       }
     }
