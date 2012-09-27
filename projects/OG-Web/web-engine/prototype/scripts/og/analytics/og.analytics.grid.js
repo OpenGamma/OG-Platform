@@ -120,7 +120,7 @@ $.register_module({
             });
         };
         constructor.prototype.init_elements = function () {
-            var grid = this, $ = grid.$, config = grid.config, elements,
+            var grid = this, $ = grid.$, config = grid.config, elements, cellmenu,
                 last_x, last_y, page_x, page_y, last_corner, cell // cached values for mousemove and mouseleave events;
             (elements = grid.elements).style = $('<style type="text/css" />').appendTo('head');
             elements.parent = $(config.selector).html(templates.container({id: grid.id.substring(1)}))
@@ -164,6 +164,7 @@ $.register_module({
                         if (!started && $(event.target).is(elements.fixed_body)) started = 'fixed';
                         if (started !== 'fixed') return clearTimeout(timeout);
                         grid.dataman.busy(true);
+                        if (cellmenu) cellmenu.hide();
                         elements.scroll_body.scrollTop(elements.fixed_body.scrollTop());
                         timeout = clearTimeout(timeout) || setTimeout(jump, pause);
                     };
@@ -173,6 +174,7 @@ $.register_module({
                         if (!started && $(event.target).is(elements.scroll_body)) started = 'scroll';
                         if (started !== 'scroll') return clearTimeout(timeout);
                         grid.dataman.busy(true);
+                        if (cellmenu) cellmenu.hide();
                         elements.scroll_head.scrollLeft(elements.scroll_body.scrollLeft());
                         elements.fixed_body.scrollTop(elements.scroll_body.scrollTop());
                         timeout = clearTimeout(timeout) || setTimeout(jump, pause);
@@ -187,7 +189,7 @@ $.register_module({
                     fire(grid.events.rangeselect, selection);
                 fire(grid.events.select, selection); // fire for both single and multiple selection
             });
-            if (config.cellmenu) new og.analytics.CellMenu(grid);
+            if (config.cellmenu) cellmenu = new og.analytics.CellMenu(grid);
             og.common.gadgets.manager.register({alive: grid.alive, resize: grid.resize, context: grid});
             elements.empty = false;
         };

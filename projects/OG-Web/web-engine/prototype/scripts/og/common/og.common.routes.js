@@ -35,7 +35,7 @@ $.register_module({
                 });
                 $(window).on('hashchange', function () {
                     routes.handler();
-                    set_title(title || 'OpenGamma ' + (new Date).toLocaleTimeString());
+                    set_title(title || (new Date).toLocaleTimeString());
                     title = null;
                 });
                 // escape key will break long-polling, so prevent the default action
@@ -57,7 +57,7 @@ $.register_module({
                     else
                         if (og.api.rest) og.api.rest.subscribe();
                     routes.handler();
-                    set_title('OpenGamma ' + (new Date).toLocaleTimeString());
+                    set_title((new Date).toLocaleTimeString());
                 });
                 // IE does not allow deleting from window so set to void 0 if it fails
                 try {delete window.RouteMap;} catch (error) {window.RouteMap = void 0;}
