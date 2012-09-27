@@ -178,10 +178,12 @@ public class CalibrateSurvivalCurve {
     }
 
     // Construct a hazard rate curve using the first m tenors in runningTenors
-    SurvivalCurve survivalCurve = new SurvivalCurve(runningTenors, hazardRates);
+    //SurvivalCurve survivalCurve = new SurvivalCurve(runningTenors, hazardRates);
 
     // ------------------------------------------------------------------------
 
+    /*
+    
     // Now do the root search (in hazard rate space) - simple bisection method for the moment (guaranteed to work and we are not concerned with speed at the moment)
 
     // Calculate the CDS PV at the lower hazard rate bound
@@ -220,6 +222,7 @@ public class CalibrateSurvivalCurve {
         return calibratedHazardRate;
       }
     }
+    */
 
     // ------------------------------------------------------------------------
 
@@ -243,32 +246,13 @@ public class CalibrateSurvivalCurve {
     hazardRates[numberOfTenors - 1] = hazardRateMidPoint;
 
     // Modify the survival curve so that it has the modified vector of hazard rates as an input to the ctor
-    survivalCurve = survivalCurve.bootstrapHelperSurvivalCurve(tenors, hazardRates);
+    //survivalCurve = survivalCurve.bootstrapHelperSurvivalCurve(tenors, hazardRates);
 
     // Compute the PV of the CDS with this term structure of hazard rates
-    double cdsPresentValueAtMidpoint = presentValueCDS.getPresentValueCreditDefaultSwap(calibrationCDS, yieldCurve, survivalCurve);
+    double cdsPresentValueAtMidpoint = 0.0; //presentValueCDS.getPresentValueCreditDefaultSwap(calibrationCDS, yieldCurve, survivalCurve);
 
     return cdsPresentValueAtMidpoint;
   }
-
-  // ------------------------------------------------------------------------
-
-  /*
-  // Private member function to convert the input ZonedDateTime tenors into doubles
-  private double[] convertDatesToDoubles(ZonedDateTime valuationDate, ZonedDateTime[] tenors, DayCount dayCount) {
-
-    int numberOfTenors = tenors.length;
-
-    double[] tenorsAsDoubles = new double[numberOfTenors];
-
-    for (int i = 0; i < numberOfTenors; i++) {
-
-      tenorsAsDoubles[i] = TimeCalculator.getTimeBetween(valuationDate, tenors[i], dayCount);
-    }
-
-    return tenorsAsDoubles;
-  }
-  */
 
   // ------------------------------------------------------------------------
 }

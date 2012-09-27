@@ -119,7 +119,7 @@ public class CalibrateSurvivalCurveTest {
   @Test
   public void testCalibrateSurvivalCurve() {
 
-    final boolean outputResults = true;
+    final boolean outputResults = false;
 
     int numberOfTenors = 10;
 
@@ -372,13 +372,13 @@ public class CalibrateSurvivalCurveTest {
     */
 
     // Create a calibration CDS (will be a modified version of the baseline CDS)
-    CreditDefaultSwapDefinition calibrationCDS = cds;
+    //CreditDefaultSwapDefinition calibrationCDS = cds;
 
     // Set the recovery rate of the calibration CDS used for the curve calibration
-    calibrationCDS = calibrationCDS.withCurveRecoveryRate(curveRecoveryRate);
+    //calibrationCDS = calibrationCDS.withCurveRecoveryRate(curveRecoveryRate);
 
     // Create a survival curve object
-    final CalibrateSurvivalCurve curve = new CalibrateSurvivalCurve();
+    //final CalibrateSurvivalCurve curve = new CalibrateSurvivalCurve();
 
     // Calibrate the survival curve to the market observed par CDS spreads
     //double[] calibratedSurvivalCurve = curve.getCalibratedSurvivalCurve(calibrationCDS, tenors, marketSpreads, yieldCurve);

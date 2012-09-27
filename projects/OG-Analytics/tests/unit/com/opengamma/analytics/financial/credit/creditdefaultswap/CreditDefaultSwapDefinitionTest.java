@@ -472,7 +472,7 @@ public class CreditDefaultSwapDefinitionTest {
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testPositiveParSpread() {
+  public void testPositivePremiumLegCoupon() {
     new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
         referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
@@ -499,7 +499,7 @@ public class CreditDefaultSwapDefinitionTest {
         referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
         impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
         stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustMaturityDate, notional, premiumLegCoupon,
-        1.0 + valuationRecoveryRate,
+        1.1 + valuationRecoveryRate,
         curveRecoveryRate, includeAccruedPremium);
   }
 
