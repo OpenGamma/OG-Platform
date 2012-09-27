@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.analytics.Grid',
     dependencies: ['og.api.text', 'og.common.events', 'og.analytics.Data', 'og.analytics.CellMenu'],
     obj: function () {
-        var module = this, counter = 1, row_height = 19, templates = null,
+        var module = this, counter = 1, row_height = 19, title_height = 31, set_height = 24, templates = null,
             fire = og.common.events.fire, scrollbar_size = (function () {
                 var html = '<div style="width: 100px; height: 100px; position: absolute; \
                     visibility: hidden; overflow: auto; left: -10000px; z-index: -10000; bottom: 100px" />';
@@ -95,9 +95,11 @@ $.register_module({
         };
         constructor.prototype.cell = function (selection) {
             var grid = this, cell, viewport = grid.meta.viewport, rows = viewport.rows, cols = viewport.cols;
-            return 1 !== selection.rows.length || 1 !== selection.cols.length ? null : {
-                row: selection.rows[0], col: selection.cols[0], value: cell = grid
-                    .data[rows.indexOf(selection.rows[0]) * cols.length + cols.indexOf(selection.cols[0])],
+            if (1 !== selection.rows.length || 1 !== selection.cols.length) return null;
+            cell = grid
+                .data[rows.indexOf(selection.rows[0]) * cols.length + cols.indexOf(selection.cols[0])];
+            return {
+                row: selection.rows[0], col: selection.cols[0], value: cell,
                 type: cell.t || selection.type[0]
             };
         };
@@ -197,9 +199,7 @@ $.register_module({
             var grid = this, config = grid.config, columns = metadata.columns;
             grid.meta = metadata;
             grid.meta.row_height = row_height;
-            grid.meta.sets_height = config.source.depgraph ? 0 : 24;
-            grid.meta.col_lbl_height = 31;
-            grid.meta.header_height = grid.meta.sets_height + grid.meta.col_lbl_height;
+            grid.meta.header_height =  (config.source.depgraph ? 0 : set_height) + title_height;
             grid.meta.fixed_length = grid.meta.columns.fixed
                 .reduce(function (acc, set) {return acc + set.columns.length;}, 0);
             grid.meta.scroll_length = grid.meta.columns.fixed
@@ -231,7 +231,7 @@ $.register_module({
                             return {index: (col_offset || 0) + index++, name: col.header, width: col.width};
                         });
                         return {
-                            name: set.name, index: idx + (set_offset || 0), columns: columns, depgraph: depgraph,
+                            name: set.name, index: idx + (set_offset || 0), columns: columns, not_depgraph: !depgraph,
                             width: columns.reduce(function (acc, col) {return acc + col.width;}, 0)
                         };
                     })
@@ -312,7 +312,7 @@ $.register_module({
                 scroll_width: columns.width.scroll, fixed_width: columns.width.fixed + scrollbar_size,
                 scroll_left: columns.width.fixed,
                 height: height - header_height, header_height: header_height, row_height: row_height,
-                sets_height: grid.meta.sets_height,
+                set_height: config.source.depgraph ? 0 : set_height,
                 columns: col_css(id, columns.fixed).concat(col_css(id, columns.scroll, meta.fixed_length)),
                 sets: set_css(id, columns.fixed).concat(set_css(id, columns.scroll, columns.fixed.length))
             });

@@ -127,6 +127,7 @@ $.register_module({
                 row_start = Math.floor(top_left.top / grid.meta.row_height),
                 row_end = Math.floor(bottom_right.bottom / grid.meta.row_height),
                 lcv, scan = grid.meta.columns.scan.all, rows = [], cols = [];
+            if (row_start < 0) return null; // bad input
             for (lcv = 0; lcv < scan.length; lcv += 1)
                 if (scan[lcv] <= bottom_right.right && scan[lcv] > top_left.left) cols.push(lcv);
                 else if (scan[lcv] > bottom_right.right) break;
