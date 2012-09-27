@@ -189,7 +189,7 @@ public class FXMatrix {
 
   @Override
   public String toString() {
-    return _currencies.keySet().toString() + " - " + _fxRates;
+    return _currencies.keySet().toString() + " - " + Arrays.toString(_fxRates);
   }
 
   @Override

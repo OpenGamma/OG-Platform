@@ -11,13 +11,13 @@ import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.money.Currency;
 
 public class CashExample {
-  public static Currency ccy = Currency.EUR;
-  public static double t = 1.0;
-  public static double notional = 10000.0;
-  public static double r = 0.03;
+  public static final Currency ccy = Currency.EUR;
+  public static final double t = 1.0;
+  public static final double notional = 10000.0;
+  public static final double r = 0.03;
 
-  public static String yieldCurveName = "Euro Yield Curve Fixed 2%";
-  public static double y = 0.02;
+  public static final String yieldCurveName = "Euro Yield Curve Fixed 2%";
+  public static final double y = 0.02;
 
   public static void cashDemo(PrintStream out) {
     Cash loan = new Cash(ccy, 0.0, t, notional, r, t, yieldCurveName);
