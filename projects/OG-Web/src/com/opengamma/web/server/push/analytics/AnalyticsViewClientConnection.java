@@ -178,7 +178,7 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
   /**
    * Wrapper that hides a bit of the ugliness of {@link AggregatedViewDefinitionManager}.
    */
-  private static class AggregatedViewDefinition {
+  private static final class AggregatedViewDefinition {
 
     private final AggregatedViewDefinitionManager _aggregatedViewDefManager;
     private final UniqueId _baseViewDefId;

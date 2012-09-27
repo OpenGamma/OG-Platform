@@ -125,7 +125,7 @@ public class AnalyticsViewManager {
   /**
    * Closes a view when the associated client disconnects.
    */
-  private class DisconnectionListener implements ClientConnection.DisconnectionListener {
+  private final class DisconnectionListener implements ClientConnection.DisconnectionListener {
 
     private final String _viewId;
 

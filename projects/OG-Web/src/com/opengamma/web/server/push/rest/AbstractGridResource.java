@@ -20,6 +20,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.http.HttpHeaders;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.push.analytics.AnalyticsView;
 import com.opengamma.web.server.push.analytics.GridCell;
@@ -37,6 +38,7 @@ public abstract class AbstractGridResource {
   /** The view whose data the grid displays. */
   protected final AnalyticsView _view;
 
+  /** The type of data displayed in the grid (portfolio or primitives). */
   protected final AnalyticsView.GridType _gridType;
 
   /**
@@ -56,6 +58,16 @@ public abstract class AbstractGridResource {
   @GET
   public abstract GridStructure getGridStructure();
 
+  /**
+   * Creates a new viewport which represents a part of a grid that the user is viewing.
+   * @param uriInfo Details of the request URI
+   * @param rows Indices of rows in the viewport, can be empty if {@code cells} is non-empty
+   * @param columns Indices of columns in the viewport, can be empty if {@code cells} is non-empty
+   * @param cells Cells in the viewport, can be empty if {@code rows} and {@code columns} are non-empty
+   * @param expanded Whether the full data should be returned (e.g. for display in a popup window) or if it should
+   * be formatted to fit in a single grid cell
+   * @return A response with the viewport's URL in the {@code Location} header
+   */
   @POST
   @Path("viewports")
   public Response createViewport(@Context UriInfo uriInfo,
@@ -84,7 +96,12 @@ public abstract class AbstractGridResource {
    */
   /* package */ abstract long createViewport(int viewportId, String callbackId, ViewportDefinition viewportDefinition);
 
+  /**
+   * Returns a resource for a viewport. If the ID is unknown a resource will be returned but a
+   * {@link DataNotFoundException} will be thrown when it is used.
+   * @param viewportId The viewport ID
+   * @return A resource for the viewport with the given ID, not null
+   */
   @Path("viewports/{viewportId}")
   public abstract AbstractViewportResource getViewport(@PathParam("viewportId") int viewportId);
-
 }
