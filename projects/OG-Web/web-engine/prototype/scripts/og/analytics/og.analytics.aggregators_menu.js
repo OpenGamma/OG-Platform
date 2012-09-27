@@ -35,11 +35,17 @@ $.register_module({
                     if (arr.length > 1) arr.splice(-1, 0, $dom.title_infix.html());
                 },
                 del_handler = function (elem) {
-                    var parent = elem.parents(options_s), pos = parent.data('pos'), 
-                        entry = ag_opts.pluck('pos').indexOf(pos);
-                    menu.del_handler(parent);
-                    remove_entry(entry);
-                    process_ag_opts();
+                    var parent = elem.parents(options_s), pos, entry;
+                    if (ag_opts.length > 1) {
+                        entry = ag_opts.pluck('pos').indexOf(parent.data('pos'));
+                        menu.del_handler(parent);
+                        if (entry !== -1) {
+                            remove_entry(entry);
+                            for (var i = entry, len = ag_opts.length; i < len;)
+                                 ag_opts[i++].pos-=1;
+                            process_ag_opts();
+                        }
+                    }
                 },
                 add_handler = function () {
                     if (data.length === opts.length) return;
