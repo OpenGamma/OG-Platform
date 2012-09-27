@@ -63,7 +63,7 @@ public class FloatingCashFlowFunction extends AbstractFunction.NonCompiledInvoke
 
     @Override
     public String visitSwapSecurity(final SwapSecurity security) {
-
+      return null;
     }
   }
 }
