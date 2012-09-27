@@ -19,8 +19,8 @@ import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZer
 import com.opengamma.analytics.financial.interestrate.PresentValueInflationCalculator;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
-import com.opengamma.analytics.financial.interestrate.market.MarketDiscountBundle;
 import com.opengamma.analytics.financial.interestrate.market.MarketDataSets;
+import com.opengamma.analytics.financial.interestrate.market.description.MarketDiscountBundle;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -30,7 +30,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
-import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
@@ -79,12 +79,12 @@ public class BondCapitalIndexedTransactionDiscountingMethodTest {
 
   @Test
   public void presentValueTips1() {
-    CurrencyAmount pv = METHOD_BOND_TRANSACTION.presentValue(BOND_TIPS_1_TRANSACTION, MARKET);
-    CurrencyAmount pvSecurity = METHOD_BOND_SECURITY.presentValue(BOND_SECURITY_TIPS_1, MARKET);
-    CurrencyAmount pvSettlement = PVIC.visit(BOND_TIPS_1_TRANSACTION.getBondTransaction().getSettlement(), MARKET).multipliedBy(
+    MultipleCurrencyAmount pv = METHOD_BOND_TRANSACTION.presentValue(BOND_TIPS_1_TRANSACTION, MARKET);
+    MultipleCurrencyAmount pvSecurity = METHOD_BOND_SECURITY.presentValue(BOND_SECURITY_TIPS_1, MARKET);
+    MultipleCurrencyAmount pvSettlement = PVIC.visit(BOND_TIPS_1_TRANSACTION.getBondTransaction().getSettlement(), MARKET).multipliedBy(
         BOND_TIPS_1_TRANSACTION.getQuantity() * BOND_TIPS_1_TRANSACTION.getBondTransaction().getCoupon().getNthPayment(0).getNotional());
-    assertEquals("Inflation Capital Indexed bond transaction: present value", BOND_SECURITY_TIPS_1.getCurrency(), pv.getCurrency());
-    assertEquals("Inflation Capital Indexed bond transaction: present value", pvSecurity.multipliedBy(QUANTITY_TIPS_1).plus(pvSettlement).getAmount(), pv.getAmount(), 1.0E-2);
+    assertEquals("Inflation Capital Indexed bond transaction: present value", pvSecurity.multipliedBy(QUANTITY_TIPS_1).plus(pvSettlement).getAmount(BOND_SECURITY_TIPS_1.getCurrency()),
+        pv.getAmount(BOND_SECURITY_TIPS_1.getCurrency()), 1.0E-2);
   }
 
   @Test
@@ -92,8 +92,8 @@ public class BondCapitalIndexedTransactionDiscountingMethodTest {
    * Tests the present value Method vs Calculator.
    */
   public void presentValueMethodVsCalculator() {
-    CurrencyAmount pvMethod = METHOD_BOND_TRANSACTION.presentValue(BOND_TIPS_1_TRANSACTION, MARKET);
-    CurrencyAmount pvCalculator = PVIC.visit(BOND_TIPS_1_TRANSACTION, MARKET);
+    MultipleCurrencyAmount pvMethod = METHOD_BOND_TRANSACTION.presentValue(BOND_TIPS_1_TRANSACTION, MARKET);
+    MultipleCurrencyAmount pvCalculator = PVIC.visit(BOND_TIPS_1_TRANSACTION, MARKET);
     assertEquals("Inflation Capital Indexed bond transaction: Method vs Calculator", pvMethod, pvCalculator);
   }
 }

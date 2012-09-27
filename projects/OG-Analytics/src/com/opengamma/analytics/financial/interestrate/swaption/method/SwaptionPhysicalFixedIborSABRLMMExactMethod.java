@@ -87,7 +87,7 @@ public class SwaptionPhysicalFixedIborSABRLMMExactMethod implements PricingMetho
   @Override
   public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof SwaptionPhysicalFixedIbor, "Physical delivery swaption");
-    Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "Bundle should contain LMM data");
+    Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "Bundle should contain SABR data");
     return presentValue((SwaptionPhysicalFixedIbor) instrument, (SABRInterestRateDataBundle) curves);
   }
 

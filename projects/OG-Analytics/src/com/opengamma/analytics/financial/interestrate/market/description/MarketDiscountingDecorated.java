@@ -3,16 +3,17 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.market;
+package com.opengamma.analytics.financial.interestrate.market.description;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * A market bundle decorated for a given discounting curve.
+ * A market bundle decorated (i.e. some methods are changed in special cases) for a given discounting curve.
  */
 public class MarketDiscountingDecorated extends MarketDiscountBundle {
+  // TODO: review to make an extension of IMarketBundle
 
   /**
    * The currency for which the discounting curve is decorated.

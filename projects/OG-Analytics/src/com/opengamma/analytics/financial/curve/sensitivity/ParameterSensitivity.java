@@ -16,6 +16,7 @@ import com.opengamma.analytics.math.matrix.CommonsMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -101,13 +102,25 @@ public class ParameterSensitivity {
   }
 
   /**
-   * Returns the sensitivity for a given name.
+   * Returns the sensitivity for a given name/currency pair.
    * @param nameCcy The name and the currency.
    * @return The sensitivity.
    */
   public DoubleMatrix1D getSensitivity(final Pair<String, Currency> nameCcy) {
     ArgumentChecker.notNull(nameCcy, "Name");
     return _sensitivity.get(nameCcy);
+  }
+
+  /**
+   * Returns the sensitivity for a given name.
+   * @param name The name.
+   * @param ccy The currency.
+   * @return The sensitivity.
+   */
+  public DoubleMatrix1D getSensitivity(final String name, final Currency ccy) {
+    ArgumentChecker.notNull(name, "Name");
+    ArgumentChecker.notNull(ccy, "Currency");
+    return _sensitivity.get(new ObjectsPair<String, Currency>(name, ccy));
   }
 
   /**

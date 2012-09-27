@@ -12,7 +12,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationGearing;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.market.IMarketBundle;
+import com.opengamma.analytics.financial.interestrate.market.description.IMarketBundle;
 import com.opengamma.util.money.Currency;
 
 /**

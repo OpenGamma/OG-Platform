@@ -10,11 +10,11 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.PresentValueInflationCalculator;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
-import com.opengamma.analytics.financial.interestrate.market.IMarketBundle;
-import com.opengamma.analytics.financial.interestrate.market.MarketDiscountBundle;
+import com.opengamma.analytics.financial.interestrate.market.description.IMarketBundle;
+import com.opengamma.analytics.financial.interestrate.market.description.MarketDiscountBundle;
 import com.opengamma.analytics.financial.interestrate.method.PricingMarketMethod;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
-import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Pricing method for inflation bond transaction. The price is computed by index estimation and discounting.
@@ -36,14 +36,15 @@ public final class BondCapitalIndexedTransactionDiscountingMethod implements Pri
    * @param market The market.
    * @return The present value.
    */
-  public CurrencyAmount presentValue(final BondCapitalIndexedTransaction<?> bond, final MarketDiscountBundle market) {
-    final CurrencyAmount pvBond = PVIC.visit(bond.getBondTransaction(), market);
-    CurrencyAmount pvSettlement = PVIC.visit(bond.getBondTransaction().getSettlement(), market).multipliedBy(bond.getQuantity() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional());
+  public MultipleCurrencyAmount presentValue(final BondCapitalIndexedTransaction<?> bond, final MarketDiscountBundle market) {
+    final MultipleCurrencyAmount pvBond = PVIC.visit(bond.getBondTransaction(), market);
+    MultipleCurrencyAmount pvSettlement = PVIC.visit(bond.getBondTransaction().getSettlement(), market).multipliedBy(
+        bond.getQuantity() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional());
     return pvBond.multipliedBy(bond.getQuantity()).plus(pvSettlement);
   }
 
   @Override
-  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final IMarketBundle market) {
+  public MultipleCurrencyAmount presentValue(final InstrumentDerivative instrument, final IMarketBundle market) {
     Validate.isTrue(instrument instanceof BondCapitalIndexedTransaction<?>, "Capital inflation indexed bond.");
     return presentValue((BondCapitalIndexedTransaction<?>) instrument, (MarketDiscountBundle) market);
   }
@@ -55,11 +56,12 @@ public final class BondCapitalIndexedTransactionDiscountingMethod implements Pri
    * @param cleanPriceReal The clean price.
    * @return The present value.
    */
-  public CurrencyAmount presentValueFromCleanPriceReal(final BondCapitalIndexedTransaction<Coupon> bond, final MarketDiscountBundle market, final double cleanPriceReal) {
+  public MultipleCurrencyAmount presentValueFromCleanPriceReal(final BondCapitalIndexedTransaction<Coupon> bond, final MarketDiscountBundle market, final double cleanPriceReal) {
     Validate.notNull(bond, "Coupon");
     Validate.notNull(market, "Market");
-    CurrencyAmount pvBond = METHOD_SECURITY.presentValueFromCleanPriceReal(bond.getBondTransaction(), market, cleanPriceReal);
-    CurrencyAmount pvSettlement = PVIC.visit(bond.getBondTransaction().getSettlement(), market).multipliedBy(bond.getQuantity() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional());
+    MultipleCurrencyAmount pvBond = METHOD_SECURITY.presentValueFromCleanPriceReal(bond.getBondTransaction(), market, cleanPriceReal);
+    MultipleCurrencyAmount pvSettlement = PVIC.visit(bond.getBondTransaction().getSettlement(), market).multipliedBy(
+        bond.getQuantity() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional());
     return pvBond.plus(pvSettlement);
   }
 

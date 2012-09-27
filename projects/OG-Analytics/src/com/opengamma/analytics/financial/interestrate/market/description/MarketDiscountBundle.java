@@ -3,9 +3,10 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.market;
+package com.opengamma.analytics.financial.interestrate.market.description;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,8 +18,10 @@ import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Triple;
 
 /**
  * Class describing a "market" with discounting, forward, price index and credit curves.
@@ -105,7 +108,28 @@ public class MarketDiscountBundle implements IMarketBundle {
   }
 
   @Override
-  public double getForwardRate(IborIndex index, double startTime, double endTime, double accrualFactor) {
+  public Set<Currency> getAllCurrencies() {
+    return _discountingCurves.keySet();
+  }
+
+  @Override
+  public double[] parameterSensitivity(Currency ccy, List<DoublesPair> pointSensitivity) {
+    final YieldAndDiscountCurve curve = _discountingCurves.get(ccy);
+    final int nbParameters = curve.getNumberOfParameters();
+    final double[] result = new double[nbParameters];
+    if (pointSensitivity != null && pointSensitivity.size() > 0) {
+      for (final DoublesPair timeAndS : pointSensitivity) {
+        double[] sensi1Point = curve.getInterestRateParameterSensitivity(timeAndS.getFirst());
+        for (int loopparam = 0; loopparam < nbParameters; loopparam++) {
+          result[loopparam] += timeAndS.getSecond() * sensi1Point[loopparam];
+        }
+      }
+    }
+    return result;
+  }
+
+  @Override
+  public double getForwardRate(IndexDeposit index, double startTime, double endTime, double accrualFactor) {
     if (_forwardCurves.containsKey(index)) {
       return (_forwardCurves.get(index).getDiscountFactor(startTime) / _forwardCurves.get(index).getDiscountFactor(endTime) - 1) / accrualFactor;
     }
@@ -113,16 +137,46 @@ public class MarketDiscountBundle implements IMarketBundle {
   }
 
   @Override
-  public double getForwardRate(IborIndex index, double startTime) {
+  public double getForwardRate(IndexDeposit index, double startTime) {
     throw new UnsupportedOperationException("The Curve implementation of the Market bundle does not support the forward rate without end time and accrual factor.");
   }
 
   @Override
-  public String getName(IborIndex index) {
+  public String getName(IndexDeposit index) {
     if (_forwardCurves.containsKey(index)) {
       return _forwardCurves.get(index).getName();
     }
     throw new IllegalArgumentException("Forward curve not found: " + index);
+  }
+
+  @Override
+  public Set<IndexDeposit> getAllIndexDeposit() {
+    return _forwardCurves.keySet();
+  }
+
+  @Override
+  public double[] parameterSensitivity(IndexDeposit index, List<MarketForwardSensitivity> pointSensitivity) {
+    final YieldAndDiscountCurve curve = _forwardCurves.get(index);
+    final int nbParameters = curve.getNumberOfParameters();
+    final double[] result = new double[nbParameters];
+    if (pointSensitivity != null && pointSensitivity.size() > 0) {
+      for (final MarketForwardSensitivity timeAndS : pointSensitivity) {
+        Triple<Double, Double, Double> point = timeAndS.getPoint();
+        double forwardBar = timeAndS.getValue();
+        // Implementation note: only the sensitivity to the forward is available. The sensitivity to the pseudo-discount factors need to be computed.
+        double dfForwardStart = curve.getDiscountFactor(point.getFirst());
+        double dfForwardEnd = curve.getDiscountFactor(point.getSecond());
+        final double dFwddyStart = -point.getFirst() * dfForwardStart / (dfForwardEnd * point.getThird());
+        final double dFwddyEnd = point.getSecond() * dfForwardStart / (dfForwardEnd * point.getThird());
+        double[] sensiPtStart = curve.getInterestRateParameterSensitivity(point.getFirst());
+        double[] sensiPtEnd = curve.getInterestRateParameterSensitivity(point.getSecond());
+        for (int loopparam = 0; loopparam < nbParameters; loopparam++) {
+          result[loopparam] += dFwddyStart * sensiPtStart[loopparam] * forwardBar;
+          result[loopparam] += dFwddyEnd * sensiPtEnd[loopparam] * forwardBar;
+        }
+      }
+    }
+    return result;
   }
 
   @Override
@@ -166,7 +220,7 @@ public class MarketDiscountBundle implements IMarketBundle {
    * @param index The Ibor index.
    * @return The curve.
    */
-  public YieldAndDiscountCurve getCurve(IborIndex index) {
+  public YieldAndDiscountCurve getCurve(IndexDeposit index) {
     if (_forwardCurves.containsKey(index)) {
       return _forwardCurves.get(index);
     }
@@ -299,6 +353,21 @@ public class MarketDiscountBundle implements IMarketBundle {
       throw new IllegalArgumentException("Currency discounting curve not in set: " + ccy);
     }
     _discountingCurves.put(ccy, curve);
+  }
+
+  /**
+   * Replaces the forward curve for a given index.
+   * @param index The index.
+   * @param curve The yield curve used for forward.
+   *  @throws IllegalArgumentException if curve name NOT already present 
+   */
+  public void replaceCurve(final IndexDeposit index, final YieldAndDiscountCurve curve) {
+    Validate.notNull(index, "Index");
+    Validate.notNull(curve, "curve");
+    if (!_forwardCurves.containsKey(index)) {
+      throw new IllegalArgumentException("Forward curve not in set: " + index);
+    }
+    _forwardCurves.put(index, curve);
   }
 
   /**
