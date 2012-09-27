@@ -327,102 +327,102 @@ public class AbstractInstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> impleme
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborSpread(final CouponIborSpreadDefinition payment, final DATA_TYPE data) {
+  public RESULT_TYPE visitCouponIborSpreadDefinition(final CouponIborSpreadDefinition payment, final DATA_TYPE data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIborSpreadDefinition()");
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborSpread(final CouponIborSpreadDefinition payment) {
+  public RESULT_TYPE visitCouponIborSpreadDefinition(final CouponIborSpreadDefinition payment) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIborSpreadDefinition()");
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborGearing(final CouponIborGearingDefinition payment, final DATA_TYPE data) {
+  public RESULT_TYPE visitCouponIborGearingDefinition(final CouponIborGearingDefinition payment, final DATA_TYPE data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIborGearingDefinition()");
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborGearing(final CouponIborGearingDefinition payment) {
+  public RESULT_TYPE visitCouponIborGearingDefinition(final CouponIborGearingDefinition payment) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIborGearingDefinition()");
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborCompounded(final CouponIborCompoundedDefinition payment, final DATA_TYPE data) {
+  public RESULT_TYPE visitCouponIborCompoundedDefinition(final CouponIborCompoundedDefinition payment, final DATA_TYPE data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIborCompoundedDefinition()");
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborCompounded(final CouponIborCompoundedDefinition payment) {
+  public RESULT_TYPE visitCouponIborCompoundedDefinition(final CouponIborCompoundedDefinition payment) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIborCompoundedDefinition()");
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborRatchet(final CouponIborRatchetDefinition payment, final DATA_TYPE data) {
+  public RESULT_TYPE visitCouponIborRatchetDefinition(final CouponIborRatchetDefinition payment, final DATA_TYPE data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIborRatchetDefinition()");
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborRatchet(final CouponIborRatchetDefinition payment) {
+  public RESULT_TYPE visitCouponIborRatchetDefinition(final CouponIborRatchetDefinition payment) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIborRatchetDefinition()");
   }
 
   @Override
-  public RESULT_TYPE visitCapFloorIbor(final CapFloorIborDefinition payment, final DATA_TYPE data) {
+  public RESULT_TYPE visitCapFloorIborDefinition(final CapFloorIborDefinition payment, final DATA_TYPE data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCapFloorIborDefinition()");
   }
 
   @Override
-  public RESULT_TYPE visitCapFloorIbor(final CapFloorIborDefinition payment) {
+  public RESULT_TYPE visitCapFloorIborDefinition(final CapFloorIborDefinition payment) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCapFloorIborDefinition()");
   }
 
   @Override
-  public RESULT_TYPE visitCouponOISSimplified(final CouponOISSimplifiedDefinition payment, final DATA_TYPE data) {
+  public RESULT_TYPE visitCouponOISSimplifiedDefinition(final CouponOISSimplifiedDefinition payment, final DATA_TYPE data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponOISSimplifiedDefinition()");
   }
 
   @Override
-  public RESULT_TYPE visitCouponOISSimplified(final CouponOISSimplifiedDefinition payment) {
+  public RESULT_TYPE visitCouponOISSimplifiedDefinition(final CouponOISSimplifiedDefinition payment) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponOISSimplifiedDefinition()");
   }
 
   @Override
-  public RESULT_TYPE visitCouponOIS(final CouponOISDefinition payment, final DATA_TYPE data) {
+  public RESULT_TYPE visitCouponOISDefinition(final CouponOISDefinition payment, final DATA_TYPE data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponOISDefinition()");
   }
 
   @Override
-  public RESULT_TYPE visitCouponOIS(final CouponOISDefinition payment) {
+  public RESULT_TYPE visitCouponOISDefinition(final CouponOISDefinition payment) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponOISDefinition()");
   }
 
   @Override
-  public RESULT_TYPE visitCouponCMS(final CouponCMSDefinition payment, final DATA_TYPE data) {
+  public RESULT_TYPE visitCouponCMSDefinition(final CouponCMSDefinition payment, final DATA_TYPE data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponCMSDefinition()");
   }
 
   @Override
-  public RESULT_TYPE visitCouponCMS(final CouponCMSDefinition payment) {
+  public RESULT_TYPE visitCouponCMSDefinition(final CouponCMSDefinition payment) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponCMSDefinition()");
   }
 
   @Override
-  public RESULT_TYPE visitCapFloorCMS(final CapFloorCMSDefinition payment, final DATA_TYPE data) {
+  public RESULT_TYPE visitCapFloorCMSDefinition(final CapFloorCMSDefinition payment, final DATA_TYPE data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCapFloorCMSDefinition()");
   }
 
   @Override
-  public RESULT_TYPE visitCapFloorCMS(final CapFloorCMSDefinition payment) {
+  public RESULT_TYPE visitCapFloorCMSDefinition(final CapFloorCMSDefinition payment) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCapFloorCMSDefinition()");
   }
 
   @Override
-  public RESULT_TYPE visitCapFloorCMSSpread(final CapFloorCMSSpreadDefinition payment, final DATA_TYPE data) {
+  public RESULT_TYPE visitCapFloorCMSSpreadDefinition(final CapFloorCMSSpreadDefinition payment, final DATA_TYPE data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCapFloorCMSSpreadDefinition()");
   }
 
   @Override
-  public RESULT_TYPE visitCapFloorCMSSpread(final CapFloorCMSSpreadDefinition payment) {
+  public RESULT_TYPE visitCapFloorCMSSpreadDefinition(final CapFloorCMSSpreadDefinition payment) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCapFloorCMSSpreadDefinition()");
   }
 

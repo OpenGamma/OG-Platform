@@ -327,10 +327,10 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
    * Returns a mutual function exclusion group name. A {@link FunctionExclusionGroups} implementation may recognize {@link DefaultPropertyFunction} instances and use this to declare application
    * exclusions.
    * 
-   * @return the mutual exclusion group, defaults to null for none
+   * @return the mutual exclusion group, defaults to the function instance's class name so that any given default function is only applied once in the resolution chain
    */
   public String getMutualExclusionGroup() {
-    return null;
+    return getClass().getName();
   }
 
 }

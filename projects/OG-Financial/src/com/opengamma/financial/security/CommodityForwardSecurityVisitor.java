@@ -1,3 +1,9 @@
+/**
+ * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+
 package com.opengamma.financial.security;
 
 import com.opengamma.financial.security.forward.AgricultureForwardSecurity;
@@ -5,9 +11,7 @@ import com.opengamma.financial.security.forward.EnergyForwardSecurity;
 import com.opengamma.financial.security.forward.MetalForwardSecurity;
 
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
- * Please see distribution for license.
+ * @param <T> The return type of the visitor
  */
 public interface CommodityForwardSecurityVisitor<T> {
 

@@ -94,9 +94,8 @@ public class PDEResultCollection implements Iterable<Pair<Greek, double[]>> {
     }
   };
   /** The Black driftless vanna for each strike value on the space grid at expiry */
-  public static final Greek GRID_BLACK_VANNA = new Greek(
-      new MixedOrderUnderlying(Arrays.asList(new NthOrderUnderlying(1, UnderlyingType.FORWARD), new NthOrderUnderlying(1, UnderlyingType.IMPLIED_VOLATILITY))),
-      "Forward Black vanna") {
+  public static final Greek GRID_BLACK_VANNA = new Greek(new MixedOrderUnderlying(Arrays.asList(new NthOrderUnderlying(1, UnderlyingType.FORWARD),
+      new NthOrderUnderlying(1, UnderlyingType.IMPLIED_VOLATILITY))), "Forward Black vanna") {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
@@ -152,9 +151,8 @@ public class PDEResultCollection implements Iterable<Pair<Greek, double[]>> {
     }
   };
   /** The driftless vanna for each strike value on the space grid at expiry */
-  public static final Greek GRID_VANNA = new Greek(
-      new MixedOrderUnderlying(Arrays.asList(new NthOrderUnderlying(1, UnderlyingType.FORWARD), new NthOrderUnderlying(1, UnderlyingType.IMPLIED_VOLATILITY))),
-      "Forward vanna") {
+  public static final Greek GRID_VANNA = new Greek(new MixedOrderUnderlying(Arrays.asList(new NthOrderUnderlying(1, UnderlyingType.FORWARD), new NthOrderUnderlying(1,
+      UnderlyingType.IMPLIED_VOLATILITY))), "Forward vanna") {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
@@ -246,10 +244,10 @@ public class PDEResultCollection implements Iterable<Pair<Greek, double[]>> {
     for (final Map.Entry<Greek, double[]> entry : _gridDataMap.entrySet()) {
       result = prime * result + entry.getKey().hashCode();
       if (entry.getValue() != null) {
-        result = prime * result + entry.getValue().hashCode();
+        result = prime * result + Arrays.hashCode(entry.getValue());
       }
     }
-    result = prime * result + _strikes.hashCode();
+    result = prime * result + Arrays.hashCode(_strikes);
     return result;
   }
 

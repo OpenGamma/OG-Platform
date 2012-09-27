@@ -63,7 +63,7 @@ public final class CouponIborSpreadDiscountingMethod implements PricingMethod {
   @Override
   public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof CouponIborSpread, "Coupon Ibor Spread");
-    return presentValue(instrument, curves);
+    return presentValue((CouponIborSpread) instrument, curves);
   }
 
   /**

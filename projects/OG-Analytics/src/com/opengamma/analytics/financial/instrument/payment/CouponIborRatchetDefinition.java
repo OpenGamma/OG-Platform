@@ -167,12 +167,12 @@ public class CouponIborRatchetDefinition extends CouponFloatingDefinition {
 
   @Override
   public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
-    return visitor.visitCouponIborRatchet(this, data);
+    return visitor.visitCouponIborRatchetDefinition(this, data);
   }
 
   @Override
   public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
-    return visitor.visitCouponIborRatchet(this);
+    return visitor.visitCouponIborRatchetDefinition(this);
   }
 
   @Override

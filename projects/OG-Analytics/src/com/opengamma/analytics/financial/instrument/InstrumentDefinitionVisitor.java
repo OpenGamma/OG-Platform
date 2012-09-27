@@ -185,45 +185,45 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
 
   RESULT_TYPE visitCouponIborDefinition(CouponIborDefinition payment);
 
-  RESULT_TYPE visitCouponIborSpread(CouponIborSpreadDefinition payment, DATA_TYPE data);
+  RESULT_TYPE visitCouponIborSpreadDefinition(CouponIborSpreadDefinition payment, DATA_TYPE data);
 
-  RESULT_TYPE visitCouponIborSpread(CouponIborSpreadDefinition payment);
+  RESULT_TYPE visitCouponIborSpreadDefinition(CouponIborSpreadDefinition payment);
 
-  RESULT_TYPE visitCouponIborGearing(CouponIborGearingDefinition payment, DATA_TYPE data);
+  RESULT_TYPE visitCouponIborGearingDefinition(CouponIborGearingDefinition payment, DATA_TYPE data);
 
-  RESULT_TYPE visitCouponIborGearing(CouponIborGearingDefinition payment);
+  RESULT_TYPE visitCouponIborGearingDefinition(CouponIborGearingDefinition payment);
 
-  RESULT_TYPE visitCouponIborCompounded(CouponIborCompoundedDefinition payment, DATA_TYPE data);
+  RESULT_TYPE visitCouponIborCompoundedDefinition(CouponIborCompoundedDefinition payment, DATA_TYPE data);
 
-  RESULT_TYPE visitCouponIborCompounded(CouponIborCompoundedDefinition payment);
+  RESULT_TYPE visitCouponIborCompoundedDefinition(CouponIborCompoundedDefinition payment);
 
-  RESULT_TYPE visitCouponIborRatchet(CouponIborRatchetDefinition payment, DATA_TYPE data);
+  RESULT_TYPE visitCouponIborRatchetDefinition(CouponIborRatchetDefinition payment, DATA_TYPE data);
 
-  RESULT_TYPE visitCouponIborRatchet(CouponIborRatchetDefinition payment);
+  RESULT_TYPE visitCouponIborRatchetDefinition(CouponIborRatchetDefinition payment);
 
-  RESULT_TYPE visitCapFloorIbor(CapFloorIborDefinition payment, DATA_TYPE data);
+  RESULT_TYPE visitCapFloorIborDefinition(CapFloorIborDefinition payment, DATA_TYPE data);
 
-  RESULT_TYPE visitCapFloorIbor(CapFloorIborDefinition payment);
+  RESULT_TYPE visitCapFloorIborDefinition(CapFloorIborDefinition payment);
 
-  RESULT_TYPE visitCouponOISSimplified(CouponOISSimplifiedDefinition payment, DATA_TYPE data);
+  RESULT_TYPE visitCouponOISSimplifiedDefinition(CouponOISSimplifiedDefinition payment, DATA_TYPE data);
 
-  RESULT_TYPE visitCouponOISSimplified(CouponOISSimplifiedDefinition payment);
+  RESULT_TYPE visitCouponOISSimplifiedDefinition(CouponOISSimplifiedDefinition payment);
 
-  RESULT_TYPE visitCouponOIS(CouponOISDefinition payment, DATA_TYPE data);
+  RESULT_TYPE visitCouponOISDefinition(CouponOISDefinition payment, DATA_TYPE data);
 
-  RESULT_TYPE visitCouponOIS(CouponOISDefinition payment);
+  RESULT_TYPE visitCouponOISDefinition(CouponOISDefinition payment);
 
-  RESULT_TYPE visitCouponCMS(CouponCMSDefinition payment, DATA_TYPE data);
+  RESULT_TYPE visitCouponCMSDefinition(CouponCMSDefinition payment, DATA_TYPE data);
 
-  RESULT_TYPE visitCouponCMS(CouponCMSDefinition payment);
+  RESULT_TYPE visitCouponCMSDefinition(CouponCMSDefinition payment);
 
-  RESULT_TYPE visitCapFloorCMS(CapFloorCMSDefinition payment, DATA_TYPE data);
+  RESULT_TYPE visitCapFloorCMSDefinition(CapFloorCMSDefinition payment, DATA_TYPE data);
 
-  RESULT_TYPE visitCapFloorCMS(CapFloorCMSDefinition payment);
+  RESULT_TYPE visitCapFloorCMSDefinition(CapFloorCMSDefinition payment);
 
-  RESULT_TYPE visitCapFloorCMSSpread(CapFloorCMSSpreadDefinition payment, DATA_TYPE data);
+  RESULT_TYPE visitCapFloorCMSSpreadDefinition(CapFloorCMSSpreadDefinition payment, DATA_TYPE data);
 
-  RESULT_TYPE visitCapFloorCMSSpread(CapFloorCMSSpreadDefinition payment);
+  RESULT_TYPE visitCapFloorCMSSpreadDefinition(CapFloorCMSSpreadDefinition payment);
 
   // -----     Annuity     -----
 

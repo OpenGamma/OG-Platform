@@ -102,7 +102,7 @@ public class SwapDefinition implements InstrumentDefinitionWithData<Swap<? exten
     return visitor.visitSwapDefinition(this);
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes"})
+  @SuppressWarnings({"unchecked", "rawtypes" })
   @Override
   public Swap<? extends Payment, ? extends Payment> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     final Annuity<? extends Payment> firstLeg = getFirstLeg().toDerivative(date, yieldCurveNames);
@@ -110,7 +110,7 @@ public class SwapDefinition implements InstrumentDefinitionWithData<Swap<? exten
     return new Swap(firstLeg, secondLeg);
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes"})
+  @SuppressWarnings({"unchecked", "rawtypes" })
   @Override
   public Swap<? extends Payment, ? extends Payment> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime>[] data, final String... yieldCurveNames) {
     ArgumentChecker.notNull(data, "index data time series array");

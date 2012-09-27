@@ -7,6 +7,9 @@ package com.opengamma.analytics.financial.interestrate;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.time.calendar.Period;
 
 import org.testng.annotations.Test;
@@ -293,13 +296,21 @@ public class InstrumentDerivativeVisitorTest {
     }
 
     @Override
-    public Class<?>[] visit(final InstrumentDerivative[] derivative, final Object data) {
-      return visit(derivative, data);
+    public Class<?>[] visit(final InstrumentDerivative[] derivatives, final Object data) {
+      List<Class<?>> results = new ArrayList<Class<?>>();
+      for (InstrumentDerivative derivative : derivatives) {
+        results.add(derivative.accept(this, data));
+      }
+      return results.toArray(new Class[0]);
     }
 
     @Override
-    public Class<?>[] visit(final InstrumentDerivative[] derivative) {
-      return visit(derivative);
+    public Class<?>[] visit(final InstrumentDerivative[] derivatives) {
+      List<Class<?>> results = new ArrayList<Class<?>>();
+      for (InstrumentDerivative derivative : derivatives) {
+        results.add(derivative.accept(this));
+      }
+      return results.toArray(new Class[0]);
     }
 
     @Override

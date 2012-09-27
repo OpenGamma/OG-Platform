@@ -195,12 +195,12 @@ public class CouponOISSimplifiedDefinition extends CouponDefinition {
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
-    return visitor.visitCouponOISSimplified(this, data);
+    return visitor.visitCouponOISSimplifiedDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
-    return visitor.visitCouponOISSimplified(this);
+    return visitor.visitCouponOISSimplifiedDefinition(this);
   }
 
 }

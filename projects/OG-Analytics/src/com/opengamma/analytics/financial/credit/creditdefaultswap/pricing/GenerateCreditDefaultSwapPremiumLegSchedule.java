@@ -29,67 +29,43 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // -------------------------------------------------------------------------------------------
 
   // TODO : Add a check if the calendar is 'null' to signify no adjustment of business dates? Overloaded method  
-  // TODO : Add the calculations for the accrual begin/end periods
+  // TODO : Add the calculations for the accrual begin/end periods (stored in columns 2 and 3 of the returned cashflow schedule
   // TODO : Eventually replace the n x 3 array returned with something more elegant
   // TODO : Add the code to check if we should business day adjust the first/final maturity date or not
-  // TODO : Add the code for the back stubs (is there a better way of handling this?) - front stubs seem to work okay
+  // TODO : Add the code for the back stubs (is there a better way of handling this than just duplicating code?) - front stubs seem to work okay
   // TODO : Do we need to add any more business day adjustment conventions?
   // TODO : Do we need any more argument checkers?
-  // TODO : Should convertDatesToDoubles be put somewhere else? To use it, need to create a GenerateCreditDefaultSwapPremiumLegSchedule object
+  // TODO : Should convertDatesToDoubles be put somewhere else? To use it, need to create a GenerateCreditDefaultSwapPremiumLegSchedule object which is a bit wasteful
 
   // -------------------------------------------------------------------------------------------
 
-  // Public method to generate the premium leg cashflow schedule from the (unadjusted) CDS contract specification
+  // (Public) method to generate the premium leg cashflow schedule from the input CDS contract specification
   public ZonedDateTime[][] constructCreditDefaultSwapPremiumLegSchedule(CreditDefaultSwapDefinition cds) {
+
+    // ------------------------------------------------
 
     // Check input CDS object is not null
     ArgumentChecker.notNull(cds, "CDS field");
 
     // ------------------------------------------------
 
-    // The return array is organised as below
-
-    // ZonedDateTime[][0] The premium leg cashflow dates
-    // ZonedDateTime[][1] The accrual period begin dates
-    // ZonedDateTime[][2] The accrual period end dates
-
-    // ------------------------------------------------
-
-    // Extract the relevant CDS contract parameters necessary to build the premium schedule
-
-    ZonedDateTime effectiveDate = cds.getEffectiveDate();
-    ZonedDateTime maturityDate = cds.getMaturityDate();
-
-    ZonedDateTime adjustedMaturityDate = maturityDate;
-
-    Calendar calendar = cds.getCalendar();
-    StubType stubType = cds.getStubType();
-    PeriodFrequency couponFrequency = cds.getCouponFrequency();
-    BusinessDayConvention businessdayAdjustmentConvention = cds.getBusinessDayAdjustmentConvention();
-
-    boolean immAdjustMaturityDate = cds.getIMMAdjustMaturityDate();
-
-    // ------------------------------------------------
-
-    // First, adjust the (user input) effective date for non-business days (currently assuming the user chooses the effective date)
-    ZonedDateTime adjustedEffectiveDate = businessDayAdjustDate(effectiveDate, calendar, businessdayAdjustmentConvention);
+    // First, adjust the (user input) effective date for non-business days (currently assuming the user chooses the effective date to be anything they want)
+    ZonedDateTime adjustedEffectiveDate = getAdjustedEffectiveDate(cds);
 
     // ------------------------------------------------
 
     // Second, adjust the maturity date so that it falls on the next IMM date (if the user specifies this to be so)
-    if (immAdjustMaturityDate) {
-      adjustedMaturityDate = immAdjustMaturityDate(maturityDate);
-    }
+    ZonedDateTime adjustedMaturityDate = getAdjustedMaturityDate(cds);
 
     // ------------------------------------------------
 
-    // Third, construct the schedule of premium leg cashflows given the adjusted effective and adjusted maturity dates and stub type
-    ZonedDateTime[][] cashflowSchedule = calculateCashflowDates(adjustedEffectiveDate, adjustedMaturityDate, couponFrequency, stubType);
+    // Third, construct the schedule of premium leg cashflows given the adjusted effective and adjusted maturity dates and other contract specifications
+    ZonedDateTime[][] cashflowSchedule = calculateCashflowDates(cds, adjustedEffectiveDate, adjustedMaturityDate);
 
     // ------------------------------------------------
 
-    // Fourth, business day adjust the generated schedule cashflow dates
-    cashflowSchedule = businessDayAdjustcashflowSchedule(cashflowSchedule, calendar, businessdayAdjustmentConvention);
+    // Fourth, business day adjust the previously generated schedule cashflow dates
+    cashflowSchedule = businessDayAdjustcashflowSchedule(cds, cashflowSchedule);
 
     // ------------------------------------------------
 
@@ -98,8 +74,43 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
   // -------------------------------------------------------------------------------------------
 
-  // Public member function to convert the input ZonedDateTime tenors into doubles
+  //(Public) method to extract just the adjusted maturity date for a CDS according to the contract specifications (don't have to go through the whole schedule gen process)
+  public ZonedDateTime getAdjustedMaturityDate(CreditDefaultSwapDefinition cds) {
+
+    // Check input CDS object is not null
+    ArgumentChecker.notNull(cds, "CDS field");
+
+    ZonedDateTime adjustedMaturityDate = cds.getMaturityDate();
+
+    boolean immAdjustMaturityDate = cds.getIMMAdjustMaturityDate();
+
+    if (immAdjustMaturityDate) {
+      adjustedMaturityDate = immAdjustMaturityDate(cds.getMaturityDate());
+    }
+
+    return adjustedMaturityDate;
+  }
+
+  // -------------------------------------------------------------------------------------------
+
+  // (Public) method to extract just the adjusted effective date for a CDS according to the contract specifications (don't have to go through the whole schedule gen process)
+  public ZonedDateTime getAdjustedEffectiveDate(CreditDefaultSwapDefinition cds) {
+
+    // Check input CDS object is not null
+    ArgumentChecker.notNull(cds, "CDS field");
+
+    ZonedDateTime adjustedEffectiveDate = businessDayAdjustDate(cds.getEffectiveDate(), cds.getCalendar(), cds.getBusinessDayAdjustmentConvention());
+
+    return adjustedEffectiveDate;
+  }
+
+  // -------------------------------------------------------------------------------------------
+
+  // (Public) member function to convert the input ZonedDateTime tenors into doubles
   public double[] convertDatesToDoubles(ZonedDateTime valuationDate, ZonedDateTime[] tenors, DayCount dayCount) {
+
+    ArgumentChecker.notNull(valuationDate, "valuation date field");
+    ArgumentChecker.notNull(tenors, "tenors field");
 
     int numberOfTenors = tenors.length;
 
@@ -115,7 +126,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
   // -------------------------------------------------------------------------------------------
 
-  // Keep all these as private as they are internal methods of the cashflow schedule generation class
+  // Keep all these as private as they are internal methods of the cashflow schedule generation class (don't need to check the input arguments)
 
   // Function to return a vector of daycount fractions given an input cashflow schedule
   private double[] calculateDaycountFraction(ZonedDateTime adjustedEffectiveDate, ZonedDateTime[][] cashflowSchedule, DayCount daycountFractionConvention) {
@@ -133,8 +144,14 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
   // -------------------------------------------------------------------------------------------
 
-  // Method to business day adjust an input cashflow schedule
-  private ZonedDateTime[][] businessDayAdjustcashflowSchedule(ZonedDateTime[][] cashflowSchedule, Calendar calendar, BusinessDayConvention businessdayAdjustmentConvention) {
+  // Method to business day adjust an input cashflow schedule according to a specified convention
+  private ZonedDateTime[][] businessDayAdjustcashflowSchedule(CreditDefaultSwapDefinition cds, ZonedDateTime[][] cashflowSchedule) {
+
+    // Get the business day calendar
+    Calendar calendar = cds.getCalendar();
+
+    // Get the convention for adjusting non-business days
+    BusinessDayConvention businessdayAdjustmentConvention = cds.getBusinessDayAdjustmentConvention();
 
     int numberOfCashflows = cashflowSchedule.length;
 
@@ -150,7 +167,13 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // -------------------------------------------------------------------------------------------
 
   // Method to calculate the premium leg cashflow dates given the adjusted effective and maturity dates 
-  private ZonedDateTime[][] calculateCashflowDates(ZonedDateTime adjustedEffectiveDate, ZonedDateTime adjustedMaturityDate, PeriodFrequency couponFrequency, StubType stubType) {
+  private ZonedDateTime[][] calculateCashflowDates(CreditDefaultSwapDefinition cds, ZonedDateTime adjustedEffectiveDate, ZonedDateTime adjustedMaturityDate) {
+
+    // Get the coupon stub type
+    StubType stubType = cds.getStubType();
+
+    // Get the coupon frequency
+    PeriodFrequency couponFrequency = cds.getCouponFrequency();
 
     // Compute the number of cashflows in the premium leg schedule (based on the adjusted effective and maturity dates and the coupon frequency)
     int numberOfCashflows = calculateNumberOfPremiumLegCashflows(adjustedEffectiveDate, adjustedMaturityDate, couponFrequency, stubType);

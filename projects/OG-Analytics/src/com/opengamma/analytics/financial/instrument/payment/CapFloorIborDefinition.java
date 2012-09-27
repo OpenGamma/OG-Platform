@@ -240,12 +240,12 @@ public class CapFloorIborDefinition extends CouponFloatingDefinition implements 
 
   @Override
   public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
-    return visitor.visitCapFloorIbor(this, data);
+    return visitor.visitCapFloorIborDefinition(this, data);
   }
 
   @Override
   public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
-    return visitor.visitCapFloorIbor(this);
+    return visitor.visitCapFloorIborDefinition(this);
   }
 
   @Override

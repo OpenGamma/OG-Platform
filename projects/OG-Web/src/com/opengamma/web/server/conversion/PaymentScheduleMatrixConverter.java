@@ -12,19 +12,12 @@ import javax.time.calendar.LocalDate;
 
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.PaymentScheduleMatrix;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * 
  */
 public class PaymentScheduleMatrixConverter implements ResultConverter<PaymentScheduleMatrix> {
-  private final DoubleConverter _doubleConverter;
-
-  public PaymentScheduleMatrixConverter(final DoubleConverter doubleConverter) {
-    ArgumentChecker.notNull(doubleConverter, "double converter");
-    _doubleConverter = doubleConverter;
-  }
 
   @Override
   public Object convertForDisplay(final ResultConverterCache context, final ValueSpecification valueSpec, final PaymentScheduleMatrix value, final ConversionMode mode) {
@@ -43,8 +36,14 @@ public class PaymentScheduleMatrixConverter implements ResultConverter<PaymentSc
       for (int i = 0; i < dates.length; i++) {
         xLabels[i] = dates[i].toString();
         for (int j = 0; j < value.getMaxCurrencyAmounts(); j++) {
-          yLabels[j] = "";
-          amounts[i][j] = _doubleConverter.convertForDisplay(context, valueSpec, ca[i][j], mode);
+          if (j == 0) {
+            yLabels[j] = "";
+          }
+          if (ca[i][j] != null) {
+            amounts[i][j] = ca[i][j].toString();
+          } else {
+            amounts[i][j] = "";
+          }
         }
       }
       result.put("x", xLabels);

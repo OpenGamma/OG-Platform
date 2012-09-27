@@ -100,7 +100,7 @@ public class EndOfYearScheduleCalculatorTest extends ScheduleCalculatorTestCase 
     for (int i = 1; i < months; i++) {
       if (forward[i].getYear() == forward[i - 1].getYear()) {
         assertEquals(forward[i].getYear() - forward[i - 1].getYear(), 1);
-        assertEquals(forward[i].getMonthOfYear(), 12);
+        assertEquals(forward[i].getMonthOfYear().getValue(), 12);
         assertEquals(forward[i].getDayOfMonth(), 31);
       }
     }
@@ -145,7 +145,7 @@ public class EndOfYearScheduleCalculatorTest extends ScheduleCalculatorTestCase 
     for (int i = 1; i < months; i++) {
       if (forward[i].getYear() == forward[i - 1].getYear()) {
         assertEquals(forward[i].getYear() - forward[i - 1].getYear(), 1);
-        assertEquals(forward[i].getMonthOfYear(), 12);
+        assertEquals(forward[i].getMonthOfYear().getValue(), 12);
         assertEquals(forward[i].getDayOfMonth(), 31);
       }
     }
