@@ -27,7 +27,7 @@
       <property name="option" value="space"/>
     </module>
     <module name="EqualsHashCode"/>
-    <module name="IllegalImport"/>
+    <module name="IllegalImport"/><!-- other imports disallowed by regex below -->
     <module name="IllegalInstantiation">
       <property name="classes" value="Boolean"/>
     </module>
@@ -50,7 +50,7 @@
     <module name="LocalFinalVariableName"/>
     <module name="LocalVariableName"/>
     <module name="MemberName">
-      <property name="format" value="^_[a-z][a-zA-Z0-9]*$"/>
+      <property name="format" value="^_[a-z][a-zA-Z0-9$]*$"/>
     </module>
     <module name="MethodLength">
       <property name="max" value="300"/>
@@ -110,7 +110,39 @@
     <module name="UncommentedMain"/>
   </module>
   <module name="SuppressionFilter">
-    <property name="file" value="${basedir}/suppressions.xml"/>
+    <property name="file" value="${basedir}/../../common/checkstyle-suppressions.xml"/>
+  </module>
+  <module name="RegexpHeader">
+    <property name="headerFile" value="${basedir}/../../common/checkstyle-header.txt"/>
+    <property name="fileExtensions" value="java,proto"/>
+    <!-- property name="severity" value="error"/   proto generated files cause errors-->
+  </module>
+  <module name="RegexpSingleline">
+    <property name="format" value="\{\@code true\}"/>
+    <property name="message" value="Use true instead of @code true"/>
+  </module>
+  <module name="RegexpSingleline">
+    <property name="format" value="\{\@code false\}"/>
+    <property name="message" value="Use false instead of @code false"/>
+  </module>
+  <module name="RegexpSingleline">
+    <property name="format" value="\{\@code null\}"/>
+    <property name="message" value="Use null instead of @code null"/>
+  </module>
+  <module name="RegexpSingleline">
+    <property name="format" value="import org.testng.collections."/>
+    <property name="message" value="Invalid import, maybe you want com.google.common.collect"/>
+    <property name="severity" value="error"/>
+  </module>
+  <module name="RegexpSingleline">
+    <property name="format" value="import org.testng.internal."/>
+    <property name="message" value="Invalid import, internal testng classes not allowed"/>
+    <property name="severity" value="error"/>
+  </module>
+  <module name="RegexpSingleline">
+    <property name="format" value="import com.beust.jcommander.internal."/>
+    <property name="message" value="Invalid import, maybe you want com.google.common.collect"/>
+    <property name="severity" value="error"/>
   </module>
   <module name="SuppressionCommentFilter">
     <property name="offCommentFormat" value="CSOFF"/>
@@ -119,6 +151,7 @@
   <module name="FileLength"/>
   <module name="FileTabCharacter">
     <property name="eachLine" value="true"/>
+    <property name="severity" value="error"/>
   </module>
   <module name="NewlineAtEndOfFile"/>
   <module name="SuppressWithNearbyCommentFilter">

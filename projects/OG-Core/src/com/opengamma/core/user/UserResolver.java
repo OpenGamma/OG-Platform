@@ -16,7 +16,7 @@ import com.opengamma.util.PublicAPI;
 /**
  * Resolver capable of providing users.
  * <p>
- * This resolver provides lookup of an {@link OGUSer user} to the engine functions.
+ * This resolver provides lookup of an {@link OGUser user} to the engine functions.
  * The lookup may require selecting a single "best match" from a set of potential options.
  * The best match behavior is the key part that distinguishes one implementation from another.
  * Best match selection may use a version-correction, configuration or code as appropriate.

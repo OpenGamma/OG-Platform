@@ -27,6 +27,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -117,7 +118,7 @@ public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction
     }
     final Set<String> currencies = constraints.getValues(ValuePropertyNames.CURVE_CURRENCY);
     if (currencies == null || currencies.size() != 1) {
-      s_logger.error("Did not specify a currency for requirement {}", desiredValue);
+      s_logger.error("Did not specify a curve currency for requirement {}", desiredValue);
       return null;
     }
     final Set<String> putCurveNames = constraints.getValues(PUT_CURVE);
@@ -208,7 +209,7 @@ public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction
     }
     final UnorderedCurrencyPair baseQuotePair = UnorderedCurrencyPair.of(putCurrency, callCurrency);
     requirements.add(new ValueRequirement(ValueRequirementNames.SPOT_RATE, baseQuotePair));
-    requirements.add(new ValueRequirement(ValueRequirementNames.CURRENCY_PAIRS, target.toSpecification()));
+    requirements.add(new ValueRequirement(ValueRequirementNames.CURRENCY_PAIRS, ComputationTargetType.PRIMITIVE, baseQuotePair.getUniqueId()));
     return requirements;
   }
 
@@ -227,7 +228,6 @@ public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction
     }
     assert currency != null;
     assert curveName != null;
-    //final String resultCurrency = getResultCurrency(target);
     final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(),
         getResultProperties(currency, curveName).get());
     return Collections.singleton(resultSpec);
@@ -246,12 +246,10 @@ public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction
         .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
         .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
         .withAny(ValuePropertyNames.CURRENCY)
-        //.with(ValuePropertyNames.CURRENCY, getResultCurrency(target))
         .withAny(ValuePropertyNames.CURVE_CURRENCY)
         .withAny(ValuePropertyNames.CURVE);
   }
 
-//  private ValueProperties.Builder getResultProperties(final String resultCurrency, final String currency, final String curveName) {
   private ValueProperties.Builder getResultProperties(final String currency, final String curveName) {
     return createValueProperties()
         .withAny(PUT_CURVE)
@@ -263,8 +261,7 @@ public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction
         .withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
         .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
         .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
-        .withAny(ValuePropertyNames.CURRENCY)
-//        .with(ValuePropertyNames.CURRENCY, resultCurrency)
+        .with(ValuePropertyNames.CURRENCY, currency)
         .with(ValuePropertyNames.CURVE_CURRENCY, currency)
         .with(ValuePropertyNames.CURVE, curveName);
   }
@@ -281,7 +278,6 @@ public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction
     final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
     final String currency = desiredValue.getConstraint(ValuePropertyNames.CURVE_CURRENCY);
     final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
-    final String resultCurrency = getResultCurrency(target, baseQuotePair);
     return createValueProperties()
         .with(PUT_CURVE, putCurveName)
         .with(CALL_CURVE, callCurveName)
@@ -292,7 +288,7 @@ public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction
         .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorName)
         .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
         .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName)
-        .with(ValuePropertyNames.CURRENCY, resultCurrency)
+        .with(ValuePropertyNames.CURRENCY, currency)
         .with(ValuePropertyNames.CURVE_CURRENCY, currency)
         .with(ValuePropertyNames.CURVE, curveName);
   }

@@ -17,20 +17,20 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.util.money.Currency;
 
 public class AnnuityExample {
-  public static double[] FUNDING_CURVE_TIMES = new double[] {1, 2, 5, 10, 20, 31};
-  public static double[] LIBOR_CURVE_TIMES = new double[] {0.5, 1, 2, 5, 10, 20, 31};
-  public static double[] FUNDING_YIELDS = new double[] {0.021, 0.036, 0.06, 0.054, 0.049, 0.044};
-  public static double[] LIBOR_YIELDS = new double[] {0.01, 0.02, 0.035, 0.06, 0.055, 0.05, 0.045};
+  public static final double[] FUNDING_CURVE_TIMES = new double[] {1, 2, 5, 10, 20, 31};
+  public static final double[] LIBOR_CURVE_TIMES = new double[] {0.5, 1, 2, 5, 10, 20, 31};
+  public static final double[] FUNDING_YIELDS = new double[] {0.021, 0.036, 0.06, 0.054, 0.049, 0.044};
+  public static final double[] LIBOR_YIELDS = new double[] {0.01, 0.02, 0.035, 0.06, 0.055, 0.05, 0.045};
 
-  public static Currency CCY = Currency.EUR;
-  public static double T = 1.0;
-  public static double NOTIONAL = 10000.0;
-  public static double R = 0.03;
+  public static final Currency CCY = Currency.EUR;
+  public static final double T = 1.0;
+  public static final double NOTIONAL = 10000.0;
+  public static final double R = 0.03;
 
-  public static String FUNDING_CURVE_NAME = "Funding Curve";
-  public static String LIBOR_CURVE_NAME = "Libor Curve";
+  public static final String FUNDING_CURVE_NAME = "Funding Curve";
+  public static final String LIBOR_CURVE_NAME = "Libor Curve";
 
-  public static int MATURITY = 5;
+  public static final int MATURITY = 5;
 
   public static YieldCurveBundle getBundle() {
     YieldCurveBundle bundle = new YieldCurveBundle();

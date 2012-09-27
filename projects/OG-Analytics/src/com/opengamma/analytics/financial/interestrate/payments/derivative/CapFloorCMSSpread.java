@@ -74,8 +74,8 @@ public class CapFloorCMSSpread extends CouponFloating implements CapFloor {
     Validate.isTrue(underlyingSwap1.isIborOrFixed(), "underlying swap not of vanilla type");
     Validate.notNull(underlyingSwap2, "underlying swap");
     Validate.isTrue(underlyingSwap2.isIborOrFixed(), "underlying swap not of vanilla type");
-    Validate.isTrue(fundingCurveName == underlyingSwap1.getFixedLeg().getDiscountCurve(), "coherence in pricing");
-    Validate.isTrue(fundingCurveName == underlyingSwap2.getFixedLeg().getDiscountCurve(), "coherence in pricing");
+    Validate.isTrue(fundingCurveName.equals(underlyingSwap1.getFixedLeg().getDiscountCurve()), "coherence in pricing");
+    Validate.isTrue(fundingCurveName.equals(underlyingSwap2.getFixedLeg().getDiscountCurve()), "coherence in pricing");
     _underlyingSwap1 = underlyingSwap1;
     _cmsIndex1 = cmsIndex1;
     _underlyingSwap2 = underlyingSwap2;
@@ -100,7 +100,7 @@ public class CapFloorCMSSpread extends CouponFloating implements CapFloor {
   public static CapFloorCMSSpread from(final CouponFloating coupon, final SwapFixedCoupon<Coupon> underlyingSwap1, final IndexSwap cmsIndex1, final SwapFixedCoupon<Coupon> underlyingSwap2,
       final IndexSwap cmsIndex2, final double settlementTime, final double strike, final boolean isCap) {
     Validate.notNull(coupon, "floating coupon");
-    Validate.isTrue(coupon.getFundingCurveName() == underlyingSwap2.getFixedLeg().getDiscountCurve(), "coherence in pricing");
+    Validate.isTrue(coupon.getFundingCurveName().equals(underlyingSwap2.getFixedLeg().getDiscountCurve()), "coherence in pricing");
     return new CapFloorCMSSpread(coupon.getCurrency(), coupon.getPaymentTime(), coupon.getPaymentYearFraction(), coupon.getNotional(), coupon.getFixingTime(), underlyingSwap1, cmsIndex1,
         underlyingSwap2, cmsIndex2, settlementTime, strike, isCap, coupon.getFundingCurveName());
   }

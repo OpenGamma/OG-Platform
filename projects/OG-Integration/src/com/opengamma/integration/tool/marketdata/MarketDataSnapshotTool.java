@@ -24,6 +24,7 @@ import javax.time.calendar.ZonedDateTime;
 import javax.time.calendar.format.DateTimeFormatter;
 import javax.time.calendar.format.DateTimeFormatters;
 
+import com.opengamma.util.generate.scripts.Scriptable;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang.StringUtils;
@@ -61,6 +62,7 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 /**
  * The entry point for running OpenGamma batches. 
  */
+@Scriptable
 public class MarketDataSnapshotTool extends AbstractComponentTool {
 
   /** Logger. */

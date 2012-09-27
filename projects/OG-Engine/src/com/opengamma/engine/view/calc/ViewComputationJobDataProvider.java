@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.marketdata;
+package com.opengamma.engine.view.calc;
 
 import java.util.Collection;
 import java.util.List;
@@ -17,6 +17,10 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.opengamma.engine.marketdata.MarketDataListener;
+import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
+import com.opengamma.engine.marketdata.MarketDataProvider;
+import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailability;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
@@ -33,9 +37,8 @@ import com.opengamma.util.ArgumentChecker;
  * instances of this class shouldn't be shared between multiple view processes.</p>
  * <p>This class isn't thread safe. It is intended for use in ViewComputationJob where it will only ever be accessed
  * by a single thread.</p>
- * TODO should this be in the same package as ViewComputationJob? it's not used anywhere else and isn't general purpose
  */
-public class CompositeMarketDataProvider {
+/* package */ class ViewComputationJobDataProvider {
 
   /** The underlying providers in priority order. */
   private final List<MarketDataProvider> _providers;
@@ -51,10 +54,11 @@ public class CompositeMarketDataProvider {
    * @param user The user requesting the data, not null
    * @param specs Specifications of the underlying providers in priority order, not empty
    * @param resolver For resolving market data specifications into providers, not null
+   * @throws IllegalArgumentException If any of the data providers in {@code specs} can't be resolved
    */
-  public CompositeMarketDataProvider(UserPrincipal user,
-                                     List<MarketDataSpecification> specs,
-                                     MarketDataProviderResolver resolver) {
+  /* package */ ViewComputationJobDataProvider(UserPrincipal user,
+                                               List<MarketDataSpecification> specs,
+                                               MarketDataProviderResolver resolver) {
     ArgumentChecker.notNull(user, "user");
     ArgumentChecker.notEmpty(specs, "specs");
     ArgumentChecker.notNull(resolver, "resolver");
@@ -78,7 +82,7 @@ public class CompositeMarketDataProvider {
    * Adds a listener that will be notified of market data updates and subscription changes.
    * @param listener The listener, not null
    */
-  public void addListener(MarketDataListener listener) {
+  /* package */ void addListener(MarketDataListener listener) {
     ArgumentChecker.notNull(listener, "listener");
     _listeners.add(listener);
   }
@@ -87,7 +91,7 @@ public class CompositeMarketDataProvider {
    * Removes a listener.
    * @param listener The listener, not null
    */
-  public void removeListener(MarketDataListener listener) {
+  /* package */ void removeListener(MarketDataListener listener) {
     _listeners.remove(listener);
   }
 
@@ -117,7 +121,7 @@ public class CompositeMarketDataProvider {
    * Sets up subscriptions for market data
    * @param requirements The market data requirements, not null
    */
-  public void subscribe(Set<ValueRequirement> requirements) {
+  /* package */ void subscribe(Set<ValueRequirement> requirements) {
     ArgumentChecker.notNull(requirements, "requirements");
     List<Set<ValueRequirement>> reqsByProvider = partitionRequirementsByProvider(requirements);
     for (int i = 0; i < reqsByProvider.size(); i++) {
@@ -132,7 +136,7 @@ public class CompositeMarketDataProvider {
    * Unsubscribes from market data.
    * @param requirements The subscriptions that should be removed, not null
    */
-  public void unsubscribe(Set<ValueRequirement> requirements) {
+  /* package */ void unsubscribe(Set<ValueRequirement> requirements) {
     ArgumentChecker.notNull(requirements, "requirements");
     Set<ValueRequirement> remainingReqs = Sets.newHashSet(requirements);
     for (int i = 0; i < _subscriptions.size(); i++) {
@@ -149,21 +153,21 @@ public class CompositeMarketDataProvider {
   /**
    * @return An availability provider backed by the availability providers of the underlying market data providers
    */
-  public MarketDataAvailabilityProvider getAvailabilityProvider() {
+  /* package */ MarketDataAvailabilityProvider getAvailabilityProvider() {
     return _availabilityProvider;
   }
 
   /**
    * @return An permissions provider backed by the permissions providers of the underlying market data providers
    */
-  public MarketDataPermissionProvider getPermissionProvider() {
+  /* package */ MarketDataPermissionProvider getPermissionProvider() {
     return _permissionsProvider;
   }
 
   /**
    * @return A snapshot of market data backed by snapshots from the underlying providers.
    */
-  public MarketDataSnapshot snapshot() {
+  /* package */ MarketDataSnapshot snapshot() {
     List<MarketDataSnapshot> snapshots = Lists.newArrayListWithCapacity(_providers.size());
     for (int i = 0; i < _providers.size(); i++) {
       MarketDataSnapshot snapshot = _providers.get(i).snapshot(_specs.get(i));
@@ -172,11 +176,11 @@ public class CompositeMarketDataProvider {
     return new CompositeMarketDataSnapshot(snapshots, new SubscriptionSupplier());
   }
 
-  public Duration getRealTimeDuration(Instant fromInstant, Instant toInstant) {
+  /* package */ Duration getRealTimeDuration(Instant fromInstant, Instant toInstant) {
     return Duration.between(fromInstant, toInstant);
   }
 
-  public List<MarketDataSpecification> getMarketDataSpecifications() {
+  /* package */ List<MarketDataSpecification> getMarketDataSpecifications() {
     return _specs;
   }
 

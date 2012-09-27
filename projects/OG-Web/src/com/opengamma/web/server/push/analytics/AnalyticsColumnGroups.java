@@ -39,7 +39,7 @@ public class AnalyticsColumnGroups {
   /**
    * @return Total number of columns in all column groups
    */
-  /* package */ int getColumnCount() {
+  public int getColumnCount() {
     return _columns.size();
   }
 

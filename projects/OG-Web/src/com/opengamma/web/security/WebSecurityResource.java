@@ -6,6 +6,7 @@
 package com.opengamma.web.security;
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.Collections;
 
 import javax.ws.rs.Consumes;
@@ -19,6 +20,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
+import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
@@ -131,11 +137,12 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
     
     // Get the last price HTS for the security
     ObjectId tsObjectId = null;
-    HistoricalTimeSeriesSource htsSource = data().getHistoricalTimeSeriesSource();
-    HistoricalTimeSeries series = htsSource.getHistoricalTimeSeries(
-        MarketDataRequirementNames.MARKET_VALUE, doc.getSecurity().getExternalIdBundle(), null, null, false, null, false, 0);
-    if (series != null) {
-      tsObjectId = series.getUniqueId().getObjectId();
+    HistoricalTimeSeriesMaster htsMaster = data().getHistoricalTimeSeriesMaster();
+    HistoricalTimeSeriesInfoSearchRequest searchRequest =
+        new HistoricalTimeSeriesInfoSearchRequest(doc.getSecurity().getExternalIdBundle());
+    HistoricalTimeSeriesInfoSearchResult searchResult = data().getHistoricalTimeSeriesMaster().search(searchRequest);
+    if (searchResult.getFirstInfo() != null) {
+        tsObjectId = searchResult.getFirstInfo().getUniqueId().getObjectId();
     }
 
     out.put("securityAttributes", doc.getSecurity().getAttributes());
