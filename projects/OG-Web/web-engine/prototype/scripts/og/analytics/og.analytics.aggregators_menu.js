@@ -10,13 +10,15 @@ $.register_module({
                 $dom.title_prefix.append('<span>Aggregated by</span>');
                 $dom.title_infix.append('<span>then</span>');
                 process_ag_opts = function () {
-                    var i = 0, arr = [], query, str;
-                    ag_opts.sort(sort_ag_opts).forEach(function (entry) {
-                        if (i > 0) arr[i++] = $dom.title_infix.html() + " ";
-                        arr[i++] = entry;
-                    });
-                    query = arr.reduce(function (a, v) {return a += v.val ? v.val : v;}, '');
-                    $ag_selection.html(query);
+                    if(ag_opts.length) {
+                        var i = 0, arr = [], query, str;
+                        ag_opts.sort(sort_ag_opts).forEach(function (entry) {
+                            if (i > 0) arr[i++] = $dom.title_infix.html() + " ";
+                            arr[i++] = entry;
+                        });
+                        query = arr.reduce(function (a, v) {return a += v.val ? v.val : v;}, '');
+                        $ag_selection.html(query);
+                    }
                 },
                 sort_ag_opts = function (a, b) {
                     if (a.pos < b.pos) return -1;
@@ -27,45 +29,58 @@ $.register_module({
                     ag_opts[pos].val = val;
                 },
                 remove_entry = function (pos) {
-                    if (ag_opts.length === 1) return $ag_selection.text(default_sel_txt), ag_opts = [];
+                    if (ag_opts.length === 1) {
+                        return $ag_selection.find('select').val(default_sel_txt).focus(), 
+                            $ag_selection.text(default_sel_txt), ag_opts = [];
+                    }
                     ag_opts.splice(pos, 1);
                 },
-                add_infix = function (array) {
-                    var arr = this;
-                    if (arr.length > 1) arr.splice(-1, 0, $dom.title_infix.html());
-                },
                 del_handler = function (elem) {
-                    var parent = elem.parents(options_s), pos, entry;
-                    if (ag_opts.length > 1) {
-                        entry = ag_opts.pluck('pos').indexOf(parent.data('pos'));
-                        menu.del_handler(parent);
-                        if (entry !== -1) {
-                            remove_entry(entry);
-                            for (var i = entry, len = ag_opts.length; i < len;)
-                                 ag_opts[i++].pos-=1;
-                            process_ag_opts();
-                        }
+                    var parent = elem.parents(options_s), pos = parent.data('pos'), entry, 
+                        checkbox = parent.find('.og-option :checkbox');
+                    if (menu.opts.length === 1) {
+                        return checkbox.attr('disabled', true), $ag_selection.html(default_sel_txt), 
+                            parent.find('select').val(default_sel_txt).focus(),
+                            remove_entry();
+                    }
+                    entry = ag_opts.pluck('pos').indexOf(pos);
+                    menu.del_handler(parent); 
+                    update_opts_positions(entry !== -1 ? entry : pos);
+                    if (entry !== -1) {
+                        remove_entry(entry);
+                        process_ag_opts();
                     }
                 },
+                update_opts_positions = function (entry) {
+                    for (var i = entry, len = ag_opts.length; i < len;)
+                        ag_opts[i++].pos-=1;
+                }
                 add_handler = function () {
                     if (data.length === opts.length) return;
                     menu.add_handler(); 
                 };
                 select_handler = function (elem) {
                     var parent = elem.parents(options_s), pos = parent.data('pos'), text, val = elem.val(),
-                        entry = ag_opts.pluck('pos').indexOf(pos);
-                    if (val === default_sel_txt) remove_entry(entry);
+                        entry = ag_opts.pluck('pos').indexOf(pos), checkbox = parent.find('.og-option :checkbox');
+                    if (val === default_sel_txt) {
+                        remove_entry(entry);
+                        checkbox.attr('disabled', true);
+                        if (ag_opts.length === 0) return $ag_selection.html(default_sel_txt);
+                    }
                     else if (entry !== -1) replace_entry(entry, val);
-                    else ag_opts.splice(pos, 0, {pos:pos, val:val});
+                    else {
+                        ag_opts.splice(pos, 0, {pos:pos, val:val, required_field:false});
+                        checkbox.removeAttr('disabled');
+                    }
                     process_ag_opts();
                 },
-                /*checkbox_handler = function (elem) {
-                     var parent = elem.closest(options_s), pos = parent.data('data'),
+                checkbox_handler = function (elem) {
+                    var parent = elem.closest(options_s), pos = parent.data('data'),
                         entry = ag_opts.pluck('pos').indexOf(pos);
-                    if (elem.checked && entry === -1) ag_opts[pos].required_field = true; // probably use add_infix here!?
-                    else if (elem.checked && entry !== -1) ag_opts[entry].required_field = true;
+                    if (elem.checked && entry !== -1) ag_opts[entry].required_field = true;
+                    else if (!elem.checked && entry !== -1) ag_opts[entry].required_field = false;
                     elem.focus();
-                },*/
+                },
                 menu_handler = function (event) {
                     var elem = $(event.target);
                     if (elem.is(menu.$dom.add)) add_handler();

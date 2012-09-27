@@ -62,7 +62,7 @@ $.register_module({
         };
         Menu.prototype.update_opt_nums = function (pos) {
             var menu = this;
-            for (var i = pos || 0, len = menu.opts.length; i < len;) 
+            for (var i = pos || 0, len = menu.opts.length; i < len;)
                 menu.opts[i].data("pos", i).find('.number span').text(i+=1);
         };
         Menu.prototype.stop = function (event) {
