@@ -15,6 +15,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import cern.colt.Arrays;
 import cern.jet.random.engine.MersenneTwister;
 
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
@@ -319,7 +320,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     System.out.println(nbTest + " swaption LMM approximation method - LMM volatility parameters sensitivity (20x2): " + (endTime - startTime) + " ms");
     // Performance note: LMM approximation - LMM sensi: 1-Sep-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 30 ms for 1000 swaptions.
 
-    System.out.println("Approximation: " + pvPayerLongApproximation.toString());
+    System.out.println("Approximation: " + Arrays.toString(pvPayerLongApproximation));
 
     final int nbTest2 = 10;
     final YieldAndDiscountCurve dsc = CURVES.getCurve(CURVES_NAME[0]);

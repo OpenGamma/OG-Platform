@@ -45,7 +45,7 @@ public final class BondCapitalIndexedTransactionDiscountingMethod implements Pri
   @Override
   public CurrencyAmount presentValue(final InstrumentDerivative instrument, final IMarketBundle market) {
     Validate.isTrue(instrument instanceof BondCapitalIndexedTransaction<?>, "Capital inflation indexed bond.");
-    return presentValue((BondCapitalIndexedTransaction<?>) instrument, market);
+    return presentValue((BondCapitalIndexedTransaction<?>) instrument, (MarketDiscountBundle) market);
   }
 
   /**

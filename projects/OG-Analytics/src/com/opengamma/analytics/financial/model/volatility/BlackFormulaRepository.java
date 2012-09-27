@@ -487,7 +487,7 @@ public abstract class BlackFormulaRepository {
     }
     Validate.isTrue(price >= intrinsicPrice, "option price (" + price + ") less than intrinsic value (" + intrinsicPrice + ")");
 
-    if (price == intrinsicPrice) {
+    if (Double.doubleToLongBits(price) == Double.doubleToLongBits(intrinsicPrice)) {
       return 0.0;
     }
     double sigma = 0.3;

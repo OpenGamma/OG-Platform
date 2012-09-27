@@ -39,9 +39,9 @@ public class FloatingRateNote extends Swap<PaymentFixed, CouponIborSpread> {
 
     Validate.isTrue(initalPayment.getPaymentTime() <= annuity.getNthPayment(0).getPaymentTime(), "initial payment after first floating payments");
 
-    Validate.isTrue(curveName == initalPayment.getFundingCurveName(), "inital payment discounted off different curve to floating payments");
+    Validate.isTrue(curveName.equals(initalPayment.getFundingCurveName()), "inital payment discounted off different curve to floating payments");
 
-    Validate.isTrue(curveName == finalPayment.getFundingCurveName(), "final payment discounted off different curve to floating payments");
+    Validate.isTrue(curveName.equals(finalPayment.getFundingCurveName()), "final payment discounted off different curve to floating payments");
 
     Validate.isTrue(initalPayment.getAmount() * finalPayment.getAmount() < 0, "inital payment should be oposite sign to final");
 

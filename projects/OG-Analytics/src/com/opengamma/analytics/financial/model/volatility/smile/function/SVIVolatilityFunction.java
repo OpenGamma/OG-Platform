@@ -181,6 +181,9 @@ public class SVIVolatilityFunction extends VolatilityFunctionProvider<SVIFormula
     if (this == obj) {
       return true;
     }
+    if (obj == null) {
+      return false;
+    }
     if (getClass() != obj.getClass()) {
       return false;
     }

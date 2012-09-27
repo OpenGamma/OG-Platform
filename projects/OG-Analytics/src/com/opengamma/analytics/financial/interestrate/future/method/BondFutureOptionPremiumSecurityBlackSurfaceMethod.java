@@ -174,7 +174,7 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
   public SurfaceValue priceBlackSensitivity(final BondFutureOptionPremiumSecurity security, final YieldCurveBundle curves) {
     if (curves instanceof YieldCurveWithBlackCubeBundle) {
       return priceBlackSensitivity(security, (YieldCurveWithBlackCubeBundle) curves);
-    } else if (curves instanceof YieldCurveWithBlackForexTermStructureBundle) {
+    } else if (curves instanceof YieldCurveWithBlackCubeAndForwardBundle) {
       return priceBlackSensitivity(security, (YieldCurveWithBlackCubeAndForwardBundle) curves);
     }
     throw new IllegalArgumentException("Yield curve bundle should contain Black cube");
@@ -216,7 +216,7 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
   public double optionPriceDelta(final BondFutureOptionPremiumSecurity security, final YieldCurveBundle curves) {
     if (curves instanceof YieldCurveWithBlackCubeBundle) {
       return optionPriceDelta(security, (YieldCurveWithBlackCubeBundle) curves);
-    } else if (curves instanceof YieldCurveWithBlackForexTermStructureBundle) {
+    } else if (curves instanceof YieldCurveWithBlackCubeAndForwardBundle) {
       return optionPriceDelta(security, (YieldCurveWithBlackCubeAndForwardBundle) curves);
     }
     throw new IllegalArgumentException("Yield curve bundle should contain Black cube");
@@ -261,7 +261,7 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
   public double optionPriceGamma(final BondFutureOptionPremiumSecurity security, final YieldCurveBundle curves) {
     if (curves instanceof YieldCurveWithBlackCubeBundle) {
       return optionPriceGamma(security, (YieldCurveWithBlackCubeBundle) curves);
-    } else if (curves instanceof YieldCurveWithBlackForexTermStructureBundle) {
+    } else if (curves instanceof YieldCurveWithBlackCubeAndForwardBundle) {
       return optionPriceGamma(security, (YieldCurveWithBlackCubeAndForwardBundle) curves);
     }
     throw new IllegalArgumentException("Yield curve bundle should contain Black cube");
@@ -303,7 +303,7 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
   public double optionPriceVega(final BondFutureOptionPremiumSecurity security, final YieldCurveBundle curves) {
     if (curves instanceof YieldCurveWithBlackCubeBundle) {
       return optionPriceVega(security, (YieldCurveWithBlackCubeBundle) curves);
-    } else if (curves instanceof YieldCurveWithBlackForexTermStructureBundle) {
+    } else if (curves instanceof YieldCurveWithBlackCubeAndForwardBundle) {
       return optionPriceVega(security, (YieldCurveWithBlackCubeAndForwardBundle) curves);
     }
     throw new IllegalArgumentException("Yield curve bundle should contain Black cube");
@@ -325,7 +325,7 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
   public double impliedVolatility(final BondFutureOptionPremiumSecurity security, final YieldCurveBundle curves) {
     if (curves instanceof YieldCurveWithBlackCubeBundle) {
       return optionPriceVega(security, (YieldCurveWithBlackCubeBundle) curves);
-    } else if (curves instanceof YieldCurveWithBlackForexTermStructureBundle) {
+    } else if (curves instanceof YieldCurveWithBlackCubeAndForwardBundle) {
       return optionPriceVega(security, (YieldCurveWithBlackCubeAndForwardBundle) curves);
     }
     throw new IllegalArgumentException("Yield curve bundle should contain Black cube");

@@ -27,7 +27,7 @@ public class KroneckerDeltaFunction extends Function2D<Integer, Integer> {
   public Integer evaluate(Integer i, Integer j) {
     Validate.notNull(i, "i");
     Validate.notNull(j, "j");
-    return i.equals(j) ? 1 : 0;
+    return i.intValue() == j.intValue() ? 1 : 0;
   }
 
 }

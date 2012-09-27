@@ -195,12 +195,12 @@ public class CouponCMSDefinition extends CouponFloatingDefinition {
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
-    return visitor.visitCouponCMS(this, data);
+    return visitor.visitCouponCMSDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
-    return visitor.visitCouponCMS(this);
+    return visitor.visitCouponCMSDefinition(this);
   }
 
   @Override

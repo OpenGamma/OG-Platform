@@ -16,6 +16,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import cern.colt.Arrays;
 import cern.jet.random.engine.MersenneTwister;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
@@ -436,7 +437,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
     System.out.println("Difference explicit-approximation: " + difference2);
     System.out.println("Difference explicit-Monte Carlo: " + difference3);
     System.out.println("Curve sensitivity: " + pvcs.toString());
-    System.out.println("HW sensitivity: " + pvhws.toString());
+    System.out.println("HW sensitivity: " + Arrays.toString(pvhws));
   }
 
   @Test(enabled = false)

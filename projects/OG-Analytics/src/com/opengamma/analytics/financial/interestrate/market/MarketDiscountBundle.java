@@ -280,7 +280,7 @@ public class MarketDiscountBundle implements IMarketBundle {
   public void setCurve(final String issuer, final Currency ccy, final YieldAndDiscountCurve curve) {
     Validate.notNull(issuer, "issuer");
     Validate.notNull(curve, "curve");
-    if (_issuerCurves.containsKey(issuer)) {
+    if (_issuerCurves.containsKey(Pair.of(issuer, ccy))) {
       throw new IllegalArgumentException("Issuer curve already set: " + issuer);
     }
     _issuerCurves.put(ObjectsPair.of(issuer, ccy), curve);

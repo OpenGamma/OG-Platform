@@ -203,8 +203,8 @@ public class VarianceSwap implements Derivative {
     result = prime * result + ((_currency == null) ? 0 : _currency.hashCode());
     result = prime * result + _nObsDisrupted;
     result = prime * result + _nObsExpected;
-    result = prime * result + Arrays.hashCode(_observationWeights);
-    result = prime * result + Arrays.hashCode(_observations);
+    result = prime * result + ((_observations == null) ? 0 : Arrays.hashCode(_observations));
+    result = prime * result + ((_observationWeights == null) ? 0 : Arrays.hashCode(_observations));
     temp = Double.doubleToLongBits(_timeToObsEnd);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_timeToObsStart);

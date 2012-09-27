@@ -226,22 +226,22 @@ public class InstrumentDefinitionVisitorTest {
     }
 
     @Override
-    public String visitCouponCMS(final CouponCMSDefinition payment, final T data) {
+    public String visitCouponCMSDefinition(final CouponCMSDefinition payment, final T data) {
       return "CouponCMS1";
     }
 
     @Override
-    public String visitCouponCMS(final CouponCMSDefinition payment) {
+    public String visitCouponCMSDefinition(final CouponCMSDefinition payment) {
       return "CouponCMS2";
     }
 
     @Override
-    public String visitCouponIborSpread(final CouponIborSpreadDefinition payment, final T data) {
+    public String visitCouponIborSpreadDefinition(final CouponIborSpreadDefinition payment, final T data) {
       return "CouponIborSpread1";
     }
 
     @Override
-    public String visitCouponIborSpread(final CouponIborSpreadDefinition payment) {
+    public String visitCouponIborSpreadDefinition(final CouponIborSpreadDefinition payment) {
       return "CouponIborSpread2";
     }
 
@@ -431,12 +431,12 @@ public class InstrumentDefinitionVisitorTest {
     }
 
     @Override
-    public String visitCapFloorCMS(final CapFloorCMSDefinition payment, final T data) {
+    public String visitCapFloorCMSDefinition(final CapFloorCMSDefinition payment, final T data) {
       return null;
     }
 
     @Override
-    public String visitCapFloorCMS(final CapFloorCMSDefinition payment) {
+    public String visitCapFloorCMSDefinition(final CapFloorCMSDefinition payment) {
       return null;
     }
 
@@ -501,22 +501,22 @@ public class InstrumentDefinitionVisitorTest {
     }
 
     @Override
-    public String visitCouponOISSimplified(final CouponOISSimplifiedDefinition payment, final T data) {
+    public String visitCouponOISSimplifiedDefinition(final CouponOISSimplifiedDefinition payment, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponOISSimplified(final CouponOISSimplifiedDefinition payment) {
+    public String visitCouponOISSimplifiedDefinition(final CouponOISSimplifiedDefinition payment) {
       return null;
     }
 
     @Override
-    public String visitCouponOIS(final CouponOISDefinition payment, final T data) {
+    public String visitCouponOISDefinition(final CouponOISDefinition payment, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponOIS(final CouponOISDefinition payment) {
+    public String visitCouponOISDefinition(final CouponOISDefinition payment) {
       return null;
     }
 
@@ -695,25 +695,25 @@ public class InstrumentDefinitionVisitorTest {
     }
 
     @Override
-    public String visitCouponIborGearing(final CouponIborGearingDefinition payment, final T data) {
+    public String visitCouponIborGearingDefinition(final CouponIborGearingDefinition payment, final T data) {
       // TODO Auto-generated method stub
       return null;
     }
 
     @Override
-    public String visitCouponIborGearing(final CouponIborGearingDefinition payment) {
+    public String visitCouponIborGearingDefinition(final CouponIborGearingDefinition payment) {
       // TODO Auto-generated method stub
       return null;
     }
 
     @Override
-    public String visitCouponIborCompounded(final CouponIborCompoundedDefinition payment, final T data) {
+    public String visitCouponIborCompoundedDefinition(final CouponIborCompoundedDefinition payment, final T data) {
       // TODO Auto-generated method stub
       return null;
     }
 
     @Override
-    public String visitCouponIborCompounded(final CouponIborCompoundedDefinition payment) {
+    public String visitCouponIborCompoundedDefinition(final CouponIborCompoundedDefinition payment) {
       // TODO Auto-generated method stub
       return null;
     }
@@ -725,37 +725,37 @@ public class InstrumentDefinitionVisitorTest {
     }
 
     @Override
-    public String visitCouponIborRatchet(final CouponIborRatchetDefinition payment, final T data) {
+    public String visitCouponIborRatchetDefinition(final CouponIborRatchetDefinition payment, final T data) {
       // TODO Auto-generated method stub
       return null;
     }
 
     @Override
-    public String visitCouponIborRatchet(final CouponIborRatchetDefinition payment) {
+    public String visitCouponIborRatchetDefinition(final CouponIborRatchetDefinition payment) {
       // TODO Auto-generated method stub
       return null;
     }
 
     @Override
-    public String visitCapFloorIbor(final CapFloorIborDefinition payment, final T data) {
+    public String visitCapFloorIborDefinition(final CapFloorIborDefinition payment, final T data) {
       // TODO Auto-generated method stub
       return null;
     }
 
     @Override
-    public String visitCapFloorIbor(final CapFloorIborDefinition payment) {
+    public String visitCapFloorIborDefinition(final CapFloorIborDefinition payment) {
       // TODO Auto-generated method stub
       return null;
     }
 
     @Override
-    public String visitCapFloorCMSSpread(final CapFloorCMSSpreadDefinition payment, final T data) {
+    public String visitCapFloorCMSSpreadDefinition(final CapFloorCMSSpreadDefinition payment, final T data) {
       // TODO Auto-generated method stub
       return null;
     }
 
     @Override
-    public String visitCapFloorCMSSpread(final CapFloorCMSSpreadDefinition payment) {
+    public String visitCapFloorCMSSpreadDefinition(final CapFloorCMSSpreadDefinition payment) {
       // TODO Auto-generated method stub
       return null;
     }

@@ -357,7 +357,7 @@ public final class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethod i
   public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof SwaptionBermudaFixedIbor, "Physical delivery swaption");
     Validate.isTrue(curves instanceof HullWhiteOneFactorPiecewiseConstantDataBundle, "Bundle should contain Hull-White data");
-    return presentValue(instrument, curves);
+    return presentValue((SwaptionBermudaFixedIbor) instrument, (HullWhiteOneFactorPiecewiseConstantDataBundle) curves);
   }
 
   /**
