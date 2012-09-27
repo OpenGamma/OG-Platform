@@ -12,7 +12,6 @@ import java.util.Set;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexDeposit;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
@@ -302,7 +301,7 @@ public class MarketDiscountBundle implements IMarketBundle {
    * @param index The index.
    * @param curve The curve.
    */
-  public void setCurve(final IborIndex index, final YieldAndDiscountCurve curve) {
+  public void setCurve(final IndexDeposit index, final YieldAndDiscountCurve curve) {
     Validate.notNull(index, "index");
     Validate.notNull(curve, "curve");
     if (_forwardCurves.containsKey(index)) {
