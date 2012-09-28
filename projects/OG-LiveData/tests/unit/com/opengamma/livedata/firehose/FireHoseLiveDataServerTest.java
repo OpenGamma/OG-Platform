@@ -189,7 +189,7 @@ public class FireHoseLiveDataServerTest {
     }
   }
 
-  @Test(invocationCount = 3, successPercentage = 25)
+  @Test(invocationCount = 5, successPercentage = 19)
   public void testRapidUpdates() throws InterruptedException {
     // If the live data server abstraction is slow to consume the fire hose, updates will be lost and the
     // most recent values should win.

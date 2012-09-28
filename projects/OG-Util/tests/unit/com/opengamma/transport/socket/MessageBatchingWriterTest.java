@@ -77,6 +77,7 @@ public class MessageBatchingWriterTest {
     assertEquals(count * FudgeSize.calculateMessageEnvelopeSize(FudgeContext.EMPTY_MESSAGE), _out._writes.get(Thread.currentThread()).intValue());
   }
 
+  @Test(invocationCount = 5, successPercentage = 19)
   public void concurrentWritesWithBatching() throws InterruptedException {
     final Thread[] threads = new Thread[6];
     for (int i = 0; i < threads.length; i++) {
