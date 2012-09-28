@@ -119,7 +119,7 @@ public class MarketDiscountDataSets {
     MARKET_1.setCurve(PRICE_INDEX_GBP, PRICE_INDEX_CURVE_GBP);
     MARKET_1.setCurve(PRICE_INDEX_USD, PRICE_INDEX_CURVE_USD);
     MARKET_1.setCurve(ISSUER_UK_GOVT, Currency.GBP, CURVE_GBP_30);
-    MARKET_1.setCurve(ISSUER_US_GOVT, Currency.GBP, CURVE_USD_30);
+    MARKET_1.setCurve(ISSUER_US_GOVT, Currency.USD, CURVE_USD_30);
   }
   // Seasonal factors (from February/January to December/November)
   //  private static final double[] SEASONAL_FACTOR_EUR = new double[] {1.0010, 1.0010, 1.0020, 0.9990, 0.9990, 0.9990, 0.9990, 1.0000, 1.0010, 1.0010, 1.0010};
@@ -191,12 +191,12 @@ public class MarketDiscountDataSets {
    */
   public static MarketDiscountBundle createMarket1(ZonedDateTime pricingDate) {
     MarketDiscountBundle market = new MarketDiscountBundle();
-    MARKET_1.setCurve(Currency.USD, USD_DSC);
-    MARKET_1.setCurve(Currency.EUR, EUR_DSC);
+    market.setCurve(Currency.USD, USD_DSC);
+    market.setCurve(Currency.EUR, EUR_DSC);
     market.setCurve(Currency.GBP, CURVE_GBP_35);
-    MARKET_1.setCurve(USDLIBOR_3M, USD_FWD3);
-    MARKET_1.setCurve(EURIBOR_3M, EUR_FWD3);
-    MARKET_1.setCurve(EURIBOR_6M, EUR_FWD6);
+    market.setCurve(USDLIBOR_3M, USD_FWD3);
+    market.setCurve(EURIBOR_3M, EUR_FWD3);
+    market.setCurve(EURIBOR_6M, EUR_FWD6);
     market.setCurve(PRICE_INDEX_EUR, PRICE_INDEX_CURVE_EUR);
     market.setCurve(PRICE_INDEX_GBP, PRICE_INDEX_CURVE_GBP);
     market.setCurve(ISSUER_UK_GOVT, Currency.GBP, CURVE_GBP_30);
