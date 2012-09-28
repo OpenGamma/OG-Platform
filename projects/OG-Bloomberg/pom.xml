@@ -45,7 +45,7 @@
 
   <properties>
     <tests.testng.includedgroups>unit</tests.testng.includedgroups>
-    <tests.testng.exludedgroups>integration, bbgSecurityLoaderTests, bbgSecurityFutureTests, bbgSubscriptionTests</tests.testng.excludedgroups>
+    <tests.testng.excludedgroups>integration, bbgSecurityLoaderTests, bbgSecurityFutureTests, bbgSubscriptionTests</tests.testng.excludedgroups>
   </properties>
 
 </project>
