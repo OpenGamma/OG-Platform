@@ -12,6 +12,9 @@ import javax.time.calendar.format.DateTimeFormatters;
 
 import org.apache.commons.lang.Validate;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
 import com.opengamma.financial.analytics.model.FutureOptionExpiries;
@@ -26,6 +29,16 @@ public class BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider exte
   private static final ExternalScheme SCHEME = ExternalSchemes.BLOOMBERG_TICKER_WEAK;
   private static final DateTimeFormatter FORMAT = DateTimeFormatters.pattern("MM/dd/yy");
   private static final FutureOptionExpiries EXPIRY_UTILS = FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY, 1));
+
+  private static final BiMap<String, FutureOptionExpiries> EXPIRY_RULES;
+  static {
+    EXPIRY_RULES = HashBiMap.create();
+    EXPIRY_RULES.put("NKY", FutureOptionExpiries.of(new NextExpiryAdjuster(2, DayOfWeek.FRIDAY)));
+    EXPIRY_RULES.put("DJX", FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY, 1)));
+    EXPIRY_RULES.put("SPX", FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY, 1)));
+    EXPIRY_RULES.put("UKX", FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY)));
+    //TODO DAX, EUROSTOXX 50 (SX5E)
+  }
 
   /**
    * @param futureOptionPrefix the prefix to the resulting code (eg DJX)
@@ -53,10 +66,15 @@ public class BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider exte
   @Override
   public ExternalId getInstrument(final Number futureOptionNumber, final Double strike, final LocalDate surfaceDate) {
     Validate.notNull(futureOptionNumber, "futureOptionNumber");
+    final String prefix = getFutureOptionPrefix();
     final StringBuffer ticker = new StringBuffer();
-    ticker.append(getFutureOptionPrefix());
+    ticker.append(prefix);
     ticker.append(" ");
-    final LocalDate expiry = EXPIRY_UTILS.getFutureOptionExpiry(futureOptionNumber.intValue(), surfaceDate);
+    FutureOptionExpiries expiryRule = EXPIRY_RULES.get(prefix);
+    if (expiryRule == null) {
+      throw new OpenGammaRuntimeException("No expiry rule has been setup for " + prefix + ". Determine week and day pattern and add to EXPIRY_RULES.");
+    }
+    final LocalDate expiry = expiryRule.getFutureOptionExpiry(futureOptionNumber.intValue(), surfaceDate);
     ticker.append(FORMAT.print(expiry));
     ticker.append(" ");
     ticker.append(strike > useCallAboveStrike() ? "C" : "P");
