@@ -98,7 +98,7 @@ $.register_module({
         }
         var post_process = function (data, url) {return post_processors[url] ? post_processors[url](data) : data;};
         post_processors[live_data_root + 'compressor/compress'] = function (data) {
-            return (data.data = data.data.replace(/\=/g, '(').replace(/\//g, ')').replace(/\+/g, '*')), data;
+            return (data.data = data.data.replace(/\=/g, '-').replace(/\//g, '_').replace(/\+/g, '.')), data;
         };
         var Promise = function () {
             var deferred = new $.Deferred, promise = deferred.promise();
@@ -233,7 +233,7 @@ $.register_module({
                     var root = this.root, method = [root, 'decompress'], data = {}, meta;
                     meta = check({bundle: {method: root + '#get', config: config}, required: [{all_of: ['content']}]});
                     meta.type = 'POST';
-                    data.content = config.content.replace(/\(/g, '=').replace(/\)/g, '\/').replace(/\*/g, '+');
+                    data.content = config.content.replace(/\-/g, '=').replace(/\_/g, '\/').replace(/\./g, '+');
                     return request(method, {data: data, meta: meta});
                 },
                 put: function (config) {
