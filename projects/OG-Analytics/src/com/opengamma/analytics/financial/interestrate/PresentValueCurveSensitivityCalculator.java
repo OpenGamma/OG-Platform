@@ -301,12 +301,13 @@ public class PresentValueCurveSensitivityCalculator extends AbstractInstrumentDe
     final Map<String, List<DoublesPair>> map = new HashMap<String, List<DoublesPair>>();
     for (final Payment p : annuity.getPayments()) {
       final Map<String, List<DoublesPair>> tempMap = visit(p, data);
-      for (final String name : tempMap.keySet()) {
+      for (final Map.Entry<String, List<DoublesPair>> entry : tempMap.entrySet()) {
+        final String name = entry.getKey();
         if (!map.containsKey(name)) {
-          map.put(name, tempMap.get(name));
+          map.put(name, entry.getValue());
         } else {
           final List<DoublesPair> tempList = map.get(name);
-          tempList.addAll(tempMap.get(name));
+          tempList.addAll(entry.getValue());
           map.put(name, tempList);
         }
       }

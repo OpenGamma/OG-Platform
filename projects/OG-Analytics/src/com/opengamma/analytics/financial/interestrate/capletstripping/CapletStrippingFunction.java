@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.interestrate.capletstripping;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
@@ -44,10 +44,8 @@ public class CapletStrippingFunction extends Function1D<DoubleMatrix1D, DoubleMa
 
   // private final int _totalNodes;
 
-  public CapletStrippingFunction(final List<CapFloor> caps, final YieldCurveBundle yieldCurves,
-      final LinkedHashMap<String, double[]> knotPoints,
-      final LinkedHashMap<String, Interpolator1D> interpolators,
-      final LinkedHashMap<String, ParameterLimitsTransform> parameterTransforms,
+  public CapletStrippingFunction(final List<CapFloor> caps, final YieldCurveBundle yieldCurves, final LinkedHashMap<String, double[]> knotPoints,
+      final LinkedHashMap<String, Interpolator1D> interpolators, final LinkedHashMap<String, ParameterLimitsTransform> parameterTransforms,
       final LinkedHashMap<String, InterpolatedDoublesCurve> knownParameterTermSturctures) {
     Validate.notNull(caps, "caps null");
     Validate.notNull(knotPoints, "null node points");
@@ -60,20 +58,16 @@ public class CapletStrippingFunction extends Function1D<DoubleMatrix1D, DoubleMa
       Validate.isTrue(knotPoints.containsKey(NU) && interpolators.containsKey(NU), "nu curve not found");
       Validate.isTrue(knotPoints.containsKey(RHO) && interpolators.containsKey(RHO), "rho curve not found");
     } else {
-      Validate.isTrue((knotPoints.containsKey(ALPHA) && interpolators.containsKey(ALPHA))
-          ^ knownParameterTermSturctures.containsKey(ALPHA), "alpha curve not found");
-      Validate.isTrue((knotPoints.containsKey(BETA) && interpolators.containsKey(BETA))
-          ^ knownParameterTermSturctures.containsKey(BETA), "beta curve not found");
-      Validate.isTrue((knotPoints.containsKey(NU) && interpolators.containsKey(NU))
-          ^ knownParameterTermSturctures.containsKey(NU), "nu curve not found");
-      Validate.isTrue((knotPoints.containsKey(RHO) && interpolators.containsKey(RHO))
-          ^ knownParameterTermSturctures.containsKey(RHO), "rho curve not found");
+      Validate.isTrue((knotPoints.containsKey(ALPHA) && interpolators.containsKey(ALPHA)) ^ knownParameterTermSturctures.containsKey(ALPHA), "alpha curve not found");
+      Validate.isTrue((knotPoints.containsKey(BETA) && interpolators.containsKey(BETA)) ^ knownParameterTermSturctures.containsKey(BETA), "beta curve not found");
+      Validate.isTrue((knotPoints.containsKey(NU) && interpolators.containsKey(NU)) ^ knownParameterTermSturctures.containsKey(NU), "nu curve not found");
+      Validate.isTrue((knotPoints.containsKey(RHO) && interpolators.containsKey(RHO)) ^ knownParameterTermSturctures.containsKey(RHO), "rho curve not found");
     }
 
     final LinkedHashMap<String, Interpolator1D> transInterpolators = new LinkedHashMap<String, Interpolator1D>();
-    final Set<String> names = interpolators.keySet();
-    for (final String name : names) {
-      final Interpolator1D temp = new TransformedInterpolator1D(interpolators.get(name), parameterTransforms.get(name));
+    for (final Map.Entry<String, Interpolator1D> entry : interpolators.entrySet()) {
+      final String name = entry.getKey();
+      final Interpolator1D temp = new TransformedInterpolator1D(entry.getValue(), parameterTransforms.get(name));
       transInterpolators.put(name, temp);
     }
 

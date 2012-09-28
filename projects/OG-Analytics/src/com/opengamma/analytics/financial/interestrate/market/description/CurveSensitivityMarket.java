@@ -57,7 +57,7 @@ public class CurveSensitivityMarket {
    * @param sensitivityPriceCurve The map.
    */
   public CurveSensitivityMarket(final Map<String, List<DoublesPair>> sensitivityYieldDiscounting, final Map<String, List<MarketForwardSensitivity>> sensitivityForward,
-      Map<String, List<DoublesPair>> sensitivityPriceCurve) {
+      final Map<String, List<DoublesPair>> sensitivityPriceCurve) {
     Validate.notNull(sensitivityYieldDiscounting, "Sensitivity yield curve");
     Validate.notNull(sensitivityForward, "Sensitivity forward");
     Validate.notNull(sensitivityPriceCurve, "Sensitivity price index curve");
@@ -71,7 +71,7 @@ public class CurveSensitivityMarket {
    * @param sensitivityYieldDiscounting The map.
    * @return The sensitivity.
    */
-  public static CurveSensitivityMarket fromYieldDiscounting(Map<String, List<DoublesPair>> sensitivityYieldDiscounting) {
+  public static CurveSensitivityMarket fromYieldDiscounting(final Map<String, List<DoublesPair>> sensitivityYieldDiscounting) {
     return new CurveSensitivityMarket(sensitivityYieldDiscounting, new HashMap<String, List<MarketForwardSensitivity>>(), new HashMap<String, List<DoublesPair>>());
   }
 
@@ -81,7 +81,8 @@ public class CurveSensitivityMarket {
    * @param sensitivityForward The map.
    * @return The sensitivity.
    */
-  public static CurveSensitivityMarket fromYieldDiscountingAndForward(Map<String, List<DoublesPair>> sensitivityYieldDiscounting, Map<String, List<MarketForwardSensitivity>> sensitivityForward) {
+  public static CurveSensitivityMarket fromYieldDiscountingAndForward(final Map<String, List<DoublesPair>> sensitivityYieldDiscounting,
+      final Map<String, List<MarketForwardSensitivity>> sensitivityForward) {
     return new CurveSensitivityMarket(sensitivityYieldDiscounting, sensitivityForward, new HashMap<String, List<DoublesPair>>());
   }
 
@@ -91,7 +92,8 @@ public class CurveSensitivityMarket {
    * @param sensitivityPriceCurve The map.
    * @return The sensitivity.
    */
-  public static CurveSensitivityMarket fromYieldDiscountingAndPrice(Map<String, List<DoublesPair>> sensitivityYieldDiscounting, Map<String, List<DoublesPair>> sensitivityPriceCurve) {
+  public static CurveSensitivityMarket fromYieldDiscountingAndPrice(final Map<String, List<DoublesPair>> sensitivityYieldDiscounting,
+      final Map<String, List<DoublesPair>> sensitivityPriceCurve) {
     return new CurveSensitivityMarket(sensitivityYieldDiscounting, new HashMap<String, List<MarketForwardSensitivity>>(), sensitivityPriceCurve);
   }
 
@@ -124,19 +126,20 @@ public class CurveSensitivityMarket {
    * @param other The sensitivity to add.
    * @return The total sensitivity.
    */
-  public CurveSensitivityMarket plus(CurveSensitivityMarket other) {
+  public CurveSensitivityMarket plus(final CurveSensitivityMarket other) {
     ArgumentChecker.notNull(other, "sensitivity");
-    Map<String, List<DoublesPair>> resultDsc = plus(_sensitivityYieldDiscounting, other._sensitivityYieldDiscounting);
-    Map<String, List<MarketForwardSensitivity>> resultFwd = plusFwd(_sensitivityForward, other._sensitivityForward);
-    Map<String, List<DoublesPair>> resultPrice = plus(_sensitivityPriceCurve, other._sensitivityPriceCurve);
+    final Map<String, List<DoublesPair>> resultDsc = plus(_sensitivityYieldDiscounting, other._sensitivityYieldDiscounting);
+    final Map<String, List<MarketForwardSensitivity>> resultFwd = plusFwd(_sensitivityForward, other._sensitivityForward);
+    final Map<String, List<DoublesPair>> resultPrice = plus(_sensitivityPriceCurve, other._sensitivityPriceCurve);
     return new CurveSensitivityMarket(resultDsc, resultFwd, resultPrice);
   }
 
-  private static Map<String, List<DoublesPair>> plus(Map<String, List<DoublesPair>> map1, Map<String, List<DoublesPair>> map2) {
+  private static Map<String, List<DoublesPair>> plus(final Map<String, List<DoublesPair>> map1, final Map<String, List<DoublesPair>> map2) {
     final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
-    for (final String name : map1.keySet()) {
+    for (final Map.Entry<String, List<DoublesPair>> entry : map1.entrySet()) {
+      final String name = entry.getKey();
       final List<DoublesPair> temp = new ArrayList<DoublesPair>();
-      for (final DoublesPair pair : map1.get(name)) {
+      for (final DoublesPair pair : entry.getValue()) {
         temp.add(pair);
       }
       if (map2.containsKey(name)) {
@@ -146,10 +149,11 @@ public class CurveSensitivityMarket {
       }
       result.put(name, temp);
     }
-    for (final String name : map2.keySet()) {
+    for (final Map.Entry<String, List<DoublesPair>> entry : map2.entrySet()) {
+      final String name = entry.getKey();
       if (!result.containsKey(name)) {
         final List<DoublesPair> temp = new ArrayList<DoublesPair>();
-        for (final DoublesPair pair : map2.get(name)) {
+        for (final DoublesPair pair : entry.getValue()) {
           temp.add(pair);
         }
         result.put(name, temp);
@@ -158,11 +162,13 @@ public class CurveSensitivityMarket {
     return result;
   }
 
-  private static Map<String, List<MarketForwardSensitivity>> plusFwd(Map<String, List<MarketForwardSensitivity>> map1, Map<String, List<MarketForwardSensitivity>> map2) {
+  private static Map<String, List<MarketForwardSensitivity>> plusFwd(final Map<String, List<MarketForwardSensitivity>> map1,
+      final Map<String, List<MarketForwardSensitivity>> map2) {
     final Map<String, List<MarketForwardSensitivity>> result = new HashMap<String, List<MarketForwardSensitivity>>();
-    for (final String name : map1.keySet()) {
+    for (final Map.Entry<String, List<MarketForwardSensitivity>> entry : map1.entrySet()) {
       final List<MarketForwardSensitivity> temp = new ArrayList<MarketForwardSensitivity>();
-      for (final MarketForwardSensitivity pair : map1.get(name)) {
+      final String name = entry.getKey();
+      for (final MarketForwardSensitivity pair : entry.getValue()) {
         temp.add(pair);
       }
       if (map2.containsKey(name)) {
@@ -172,10 +178,11 @@ public class CurveSensitivityMarket {
       }
       result.put(name, temp);
     }
-    for (final String name : map2.keySet()) {
+    for (final Map.Entry<String, List<MarketForwardSensitivity>> entry : map2.entrySet()) {
+      final String name = entry.getKey();
       if (!result.containsKey(name)) {
         final List<MarketForwardSensitivity> temp = new ArrayList<MarketForwardSensitivity>();
-        for (final MarketForwardSensitivity pair : map2.get(name)) {
+        for (final MarketForwardSensitivity pair : entry.getValue()) {
           temp.add(pair);
         }
         result.put(name, temp);
@@ -189,15 +196,15 @@ public class CurveSensitivityMarket {
    * @param factor The multiplicative factor.
    * @return The multiplied sensitivity.
    */
-  public CurveSensitivityMarket multiply(double factor) {
-    Map<String, List<DoublesPair>> resultDsc = multiply(_sensitivityYieldDiscounting, factor);
-    Map<String, List<MarketForwardSensitivity>> resultFwd = multiplyFwd(_sensitivityForward, factor);
-    Map<String, List<DoublesPair>> resultPrice = multiply(_sensitivityPriceCurve, factor);
+  public CurveSensitivityMarket multiply(final double factor) {
+    final Map<String, List<DoublesPair>> resultDsc = multiply(_sensitivityYieldDiscounting, factor);
+    final Map<String, List<MarketForwardSensitivity>> resultFwd = multiplyFwd(_sensitivityForward, factor);
+    final Map<String, List<DoublesPair>> resultPrice = multiply(_sensitivityPriceCurve, factor);
     return new CurveSensitivityMarket(resultDsc, resultFwd, resultPrice);
   }
 
-  private static Map<String, List<DoublesPair>> multiply(Map<String, List<DoublesPair>> map, double factor) {
-    Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+  private static Map<String, List<DoublesPair>> multiply(final Map<String, List<DoublesPair>> map, final double factor) {
+    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
     for (final String name : map.keySet()) {
       final List<DoublesPair> curveSensi = new ArrayList<DoublesPair>();
       for (final DoublesPair pair : map.get(name)) {
@@ -208,8 +215,8 @@ public class CurveSensitivityMarket {
     return result;
   }
 
-  private static Map<String, List<MarketForwardSensitivity>> multiplyFwd(Map<String, List<MarketForwardSensitivity>> map, double factor) {
-    Map<String, List<MarketForwardSensitivity>> result = new HashMap<String, List<MarketForwardSensitivity>>();
+  private static Map<String, List<MarketForwardSensitivity>> multiplyFwd(final Map<String, List<MarketForwardSensitivity>> map, final double factor) {
+    final Map<String, List<MarketForwardSensitivity>> result = new HashMap<String, List<MarketForwardSensitivity>>();
     for (final String name : map.keySet()) {
       final List<MarketForwardSensitivity> curveSensi = new ArrayList<MarketForwardSensitivity>();
       for (final MarketForwardSensitivity pair : map.get(name)) {
@@ -225,47 +232,47 @@ public class CurveSensitivityMarket {
    * @return The cleaned sensitivity.
    */
   public CurveSensitivityMarket cleaned() {
-    Map<String, List<DoublesPair>> resultDsc = cleaned(_sensitivityYieldDiscounting);
-    Map<String, List<MarketForwardSensitivity>> resultFwd = cleanedFwd(_sensitivityForward);
-    Map<String, List<DoublesPair>> resultPrice = cleaned(_sensitivityPriceCurve);
+    final Map<String, List<DoublesPair>> resultDsc = cleaned(_sensitivityYieldDiscounting);
+    final Map<String, List<MarketForwardSensitivity>> resultFwd = cleanedFwd(_sensitivityForward);
+    final Map<String, List<DoublesPair>> resultPrice = cleaned(_sensitivityPriceCurve);
     return new CurveSensitivityMarket(resultDsc, resultFwd, resultPrice);
   }
 
-  private static Map<String, List<DoublesPair>> cleaned(Map<String, List<DoublesPair>> map) {
+  private static Map<String, List<DoublesPair>> cleaned(final Map<String, List<DoublesPair>> map) {
     //TODO: improve the sorting algorithm.
-    Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
-    for (final String name : map.keySet()) {
-      List<DoublesPair> list = map.get(name);
-      List<DoublesPair> listClean = new ArrayList<DoublesPair>();
-      Set<Double> set = new TreeSet<Double>();
+    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+    for (final Map.Entry<String, List<DoublesPair>> entry : map.entrySet()) {
+      final List<DoublesPair> list = entry.getValue();
+      final List<DoublesPair> listClean = new ArrayList<DoublesPair>();
+      final Set<Double> set = new TreeSet<Double>();
       for (final DoublesPair pair : list) {
         set.add(pair.getFirst());
       }
-      for (Double time : set) {
+      for (final Double time : set) {
         double sensi = 0;
         for (int looplist = 0; looplist < list.size(); looplist++) {
-          if (list.get(looplist).getFirst().doubleValue() == time.doubleValue()) {
+          if (Double.doubleToLongBits(list.get(looplist).getFirst()) == Double.doubleToLongBits(time)) {
             sensi += list.get(looplist).second;
           }
         }
         listClean.add(new DoublesPair(time, sensi));
       }
-      result.put(name, listClean);
+      result.put(entry.getKey(), listClean);
     }
     return result;
   }
 
-  private static Map<String, List<MarketForwardSensitivity>> cleanedFwd(Map<String, List<MarketForwardSensitivity>> map) {
+  private static Map<String, List<MarketForwardSensitivity>> cleanedFwd(final Map<String, List<MarketForwardSensitivity>> map) {
     //TODO: improve the sorting algorithm.
-    Map<String, List<MarketForwardSensitivity>> result = new HashMap<String, List<MarketForwardSensitivity>>();
-    for (final String name : map.keySet()) {
-      List<MarketForwardSensitivity> list = map.get(name);
-      List<MarketForwardSensitivity> listClean = new ArrayList<MarketForwardSensitivity>();
-      Set<Triple<Double, Double, Double>> set = new TreeSet<Triple<Double, Double, Double>>();
+    final Map<String, List<MarketForwardSensitivity>> result = new HashMap<String, List<MarketForwardSensitivity>>();
+    for (final Map.Entry<String, List<MarketForwardSensitivity>> entry : map.entrySet()) {
+      final List<MarketForwardSensitivity> list = entry.getValue();
+      final List<MarketForwardSensitivity> listClean = new ArrayList<MarketForwardSensitivity>();
+      final Set<Triple<Double, Double, Double>> set = new TreeSet<Triple<Double, Double, Double>>();
       for (final MarketForwardSensitivity pair : list) {
         set.add(pair.getPoint());
       }
-      for (Triple<Double, Double, Double> time : set) {
+      for (final Triple<Double, Double, Double> time : set) {
         double sensi = 0;
         for (int looplist = 0; looplist < list.size(); looplist++) {
           if (list.get(looplist).getPoint().equals(time)) {
@@ -274,7 +281,7 @@ public class CurveSensitivityMarket {
         }
         listClean.add(new MarketForwardSensitivity(time, sensi));
       }
-      result.put(name, listClean);
+      result.put(entry.getKey(), listClean);
     }
     return result;
   }
@@ -304,20 +311,22 @@ public class CurveSensitivityMarket {
    * @param tolerance The tolerance.
    * @return True if the difference is below the tolerance and False if not. If the curves are not the same it returns False.
    */
-  private static boolean compareFwd(final Map<String, List<MarketForwardSensitivity>> sensi1, final Map<String, List<MarketForwardSensitivity>> sensi2, final double tolerance) {
+  private static boolean compareFwd(final Map<String, List<MarketForwardSensitivity>> sensi1, final Map<String, List<MarketForwardSensitivity>> sensi2,
+      final double tolerance) {
     Validate.notNull(sensi1, "sensitivity");
     Validate.notNull(sensi2, "sensitivity");
-    for (final String name : sensi1.keySet()) {
+    for (final Map.Entry<String, List<MarketForwardSensitivity>> entry : sensi1.entrySet()) {
+      final String name = entry.getKey();
       if (sensi2.containsKey(name)) {
-        if (!compareFwd(sensi1.get(name), sensi2.get(name), tolerance)) {
+        if (!compareFwd(entry.getValue(), sensi2.get(name), tolerance)) {
           return false;
         }
       } else {
         return false;
       }
     }
-    for (final String name : sensi2.keySet()) {
-      if (!(sensi1.containsKey(name))) {
+    for (final Map.Entry<String, List<MarketForwardSensitivity>> entry : sensi2.entrySet()) {
+      if (!(sensi1.containsKey(entry.getKey()))) {
         return false;
       }
     }
@@ -352,7 +361,7 @@ public class CurveSensitivityMarket {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -362,7 +371,7 @@ public class CurveSensitivityMarket {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CurveSensitivityMarket other = (CurveSensitivityMarket) obj;
+    final CurveSensitivityMarket other = (CurveSensitivityMarket) obj;
     if (!ObjectUtils.equals(_sensitivityForward, other._sensitivityForward)) {
       return false;
     }

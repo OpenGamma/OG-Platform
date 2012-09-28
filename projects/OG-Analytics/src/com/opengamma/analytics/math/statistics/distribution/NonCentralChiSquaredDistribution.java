@@ -56,7 +56,7 @@ public class NonCentralChiSquaredDistribution implements ProbabilityDistribution
     final double s = Math.sqrt(_lambdaOverTwo * 2.0);
     final double mu = Math.sqrt(x);
     double z;
-    if (mu == s) {
+    if (Double.doubleToLongBits(mu) == Double.doubleToLongBits(s)) {
       z = (1 - _dofOverTwo * 2.0) / 2 / s;
     } else {
       z = mu - s - (_dofOverTwo * 2.0 - 1) / 2 * (Math.log(mu) - Math.log(s)) / (mu - s);

@@ -509,7 +509,7 @@ public class SABRExtrapolationRightFunction {
   /**
    * Inner class to solve the one dimension equation required to obtain c parameters. 
    */
-  private class CFunction extends Function1D<Double, Double> {
+  private static final class CFunction extends Function1D<Double, Double> {
     /**
      * Array with the option price and its derivatives at the cut-off strike;
      */

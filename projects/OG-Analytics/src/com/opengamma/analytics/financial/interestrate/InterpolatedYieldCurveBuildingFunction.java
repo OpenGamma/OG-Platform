@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.interestrate;
 
 import java.util.LinkedHashMap;
-import java.util.Set;
+import java.util.Map;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.InterpolatedCurveBuildingFunction;
@@ -29,9 +29,8 @@ public class InterpolatedYieldCurveBuildingFunction extends YieldCurveBundleBuil
   public YieldCurveBundle evaluate(DoubleMatrix1D x) {
     YieldCurveBundle res = new YieldCurveBundle();
     LinkedHashMap<String, InterpolatedDoublesCurve> curves = _curveBuilder.evaluate(x);
-    Set<String> names = curves.keySet();
-    for (String name : names) {
-      res.setCurve(name, YieldCurve.from(curves.get(name)));
+    for (Map.Entry<String, InterpolatedDoublesCurve> entry : curves.entrySet()) {
+      res.setCurve(entry.getKey(), YieldCurve.from(entry.getValue()));
     }
 
     return res;

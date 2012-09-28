@@ -259,7 +259,7 @@ public class SwaptionPhysicalFixedIborSABRLMMExactMethod implements PricingMetho
     return pvcsTot;
   }
 
-  class VolatilityLMMAngle extends Function1D<Double, Double[]> {
+  private static final class VolatilityLMMAngle extends Function1D<Double, Double[]> {
     /**
      * The angle between the factors: factor 1 weight is cos(angle*t/20) and factor 2 weight is sin(angle*t/20).
      * For the angle = 0, there is only one factor. For angle = pi/2, the 0Y rate is independent of the 20Y rate.

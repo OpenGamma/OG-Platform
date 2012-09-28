@@ -7,7 +7,7 @@ package com.opengamma.analytics.math.curve;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
-import java.util.Set;
+import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
@@ -25,14 +25,13 @@ public class InterpolatedCurveBuildingFunction {
   private final LinkedHashMap<String, Interpolator1D> _interpolators;
   private final int _nNodes;
 
-  public InterpolatedCurveBuildingFunction(final LinkedHashMap<String, double[]> knotPoints, LinkedHashMap<String, Interpolator1D> interpolators) {
+  public InterpolatedCurveBuildingFunction(final LinkedHashMap<String, double[]> knotPoints, final LinkedHashMap<String, Interpolator1D> interpolators) {
     Validate.notNull(knotPoints, "null knot points");
     Validate.notNull(interpolators, "null interpolators");
     int count = 0;
-    Set<String> names = knotPoints.keySet();
-    for (String name : names) {
-      int size = knotPoints.get(name).length;
-      Validate.isTrue(size > 0, "no knot points for " + name);
+    for (final Map.Entry<String, double[]> entry : knotPoints.entrySet()) {
+      final int size = entry.getValue().length;
+      Validate.isTrue(size > 0, "no knot points for " + entry.getKey());
       count += size;
     }
     _knotPoints = knotPoints;
@@ -40,11 +39,11 @@ public class InterpolatedCurveBuildingFunction {
     _nNodes = count;
   }
 
-  public LinkedHashMap<String, InterpolatedDoublesCurve> evaluate(DoubleMatrix1D x) {
+  public LinkedHashMap<String, InterpolatedDoublesCurve> evaluate(final DoubleMatrix1D x) {
     Validate.notNull(x, "null data x");
     Validate.isTrue(_nNodes == x.getNumberOfElements(), "x wrong length");
 
-    LinkedHashMap<String, InterpolatedDoublesCurve> res = new LinkedHashMap<String, InterpolatedDoublesCurve>();
+    final LinkedHashMap<String, InterpolatedDoublesCurve> res = new LinkedHashMap<String, InterpolatedDoublesCurve>();
     int index = 0;
 
     for (final String name : _interpolators.keySet()) {
@@ -52,7 +51,7 @@ public class InterpolatedCurveBuildingFunction {
       final double[] nodes = _knotPoints.get(name);
       final double[] values = Arrays.copyOfRange(x.getData(), index, index + nodes.length);
       index += nodes.length;
-      InterpolatedDoublesCurve curve = InterpolatedDoublesCurve.from(nodes, values, interpolator);
+      final InterpolatedDoublesCurve curve = InterpolatedDoublesCurve.from(nodes, values, interpolator);
       res.put(name, curve);
     }
 

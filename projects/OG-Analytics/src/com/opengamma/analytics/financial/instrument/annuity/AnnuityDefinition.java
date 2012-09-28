@@ -113,11 +113,12 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements Instrumen
 
   @Override
   public String toString() {
-    String result = "Annuity:";
+    StringBuffer result = new StringBuffer("Annuity:");
     for (final P payment : _payments) {
-      result += payment.toString();
+      result.append(payment.toString());
+      result.append(" ");
     }
-    return result;
+    return result.toString();
   }
 
   @Override

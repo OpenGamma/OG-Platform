@@ -157,7 +157,7 @@ public final class VarianceSwapSensitivityCalculator extends DerivativeSensitivi
     final int nObsSoFar = swap.getObservations().length;
     final int nObsDidntHappen = swap.getObsDisrupted();
 
-    return (nObsExpected - nObsSoFar - nObsDidntHappen) / nObsExpected * swap.getVarNotional();
+    return (nObsExpected - nObsSoFar - nObsDidntHappen) / (double) nObsExpected * swap.getVarNotional();
   }
 
 }

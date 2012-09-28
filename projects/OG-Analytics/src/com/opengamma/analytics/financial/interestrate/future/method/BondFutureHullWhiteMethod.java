@@ -82,16 +82,16 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
     Validate.notNull(future, "Future");
     Validate.notNull(hwData, "Hull-White data bundle");
     final int nbBond = future.getDeliveryBasket().length;
-    YieldAndDiscountCurve bndCurve = hwData.getCurve(future.getDeliveryBasket()[0].getDiscountingCurveName());
-    double expiry = future.getNoticeLastTime();
-    double delivery = future.getDeliveryLastTime();
-    double dfdelivery = bndCurve.getDiscountFactor(delivery);
+    final YieldAndDiscountCurve bndCurve = hwData.getCurve(future.getDeliveryBasket()[0].getDiscountingCurveName());
+    final double expiry = future.getNoticeLastTime();
+    final double delivery = future.getDeliveryLastTime();
+    final double dfdelivery = bndCurve.getDiscountFactor(delivery);
     // Constructing non-homogeneous point series for the numerical estimations.
-    final int nbPtWing = ((int) Math.floor(nbPoint / 20)); // Number of point on each wing.
+    final int nbPtWing = ((int) Math.floor(nbPoint / 20.)); // Number of point on each wing.
     final int nbPtCenter = nbPoint - 2 * nbPtWing;
     final double prob = 1.0 / (2.0 * nbPtCenter);
     final double xStart = NORMAL.getInverseCDF(prob);
-    double[] x = new double[nbPoint];
+    final double[] x = new double[nbPoint];
     for (int loopwing = 0; loopwing < nbPtWing; loopwing++) {
       x[loopwing] = xStart * (1.0 + (nbPtWing - loopwing) / 2.0);
       x[nbPoint - 1 - loopwing] = -xStart * (1.0 + (nbPtWing - loopwing) / 2.0);
@@ -100,17 +100,17 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
       x[nbPtWing + loopcent] = xStart + loopcent * (-2.0 * xStart) / (nbPtCenter - 1);
     }
     // Figures for each bond
-    double[][] cfTime = new double[nbBond][];
-    double[][] df = new double[nbBond][];
-    double[][] alpha = new double[nbBond][];
-    double[][] beta = new double[nbBond][];
-    double[][] cfaAdjusted = new double[nbBond][];
-    double[] e = new double[nbBond];
-    double[][] pv = new double[nbPoint][nbBond];
-    AnnuityPaymentFixed[] cf = new AnnuityPaymentFixed[nbBond];
+    final double[][] cfTime = new double[nbBond][];
+    final double[][] df = new double[nbBond][];
+    final double[][] alpha = new double[nbBond][];
+    final double[][] beta = new double[nbBond][];
+    final double[][] cfaAdjusted = new double[nbBond][];
+    final double[] e = new double[nbBond];
+    final double[][] pv = new double[nbPoint][nbBond];
+    final AnnuityPaymentFixed[] cf = new AnnuityPaymentFixed[nbBond];
     for (int loopbnd = 0; loopbnd < nbBond; loopbnd++) {
       cf[loopbnd] = CFEC.visit(future.getDeliveryBasket()[loopbnd], hwData);
-      int nbCf = cf[loopbnd].getNumberOfPayments();
+      final int nbCf = cf[loopbnd].getNumberOfPayments();
       cfTime[loopbnd] = new double[nbCf];
       df[loopbnd] = new double[nbCf];
       alpha[loopbnd] = new double[nbCf];
@@ -121,7 +121,8 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
         df[loopbnd][loopcf] = bndCurve.getDiscountFactor(cfTime[loopbnd][loopcf]);
         alpha[loopbnd][loopcf] = MODEL.alpha(hwData.getHullWhiteParameter(), 0.0, expiry, delivery, cfTime[loopbnd][loopcf]);
         beta[loopbnd][loopcf] = MODEL.futureConvexityFactor(hwData.getHullWhiteParameter(), expiry, cfTime[loopbnd][loopcf], delivery);
-        cfaAdjusted[loopbnd][loopcf] = df[loopbnd][loopcf] / dfdelivery * beta[loopbnd][loopcf] * cf[loopbnd].getNthPayment(loopcf).getAmount() / future.getConversionFactor()[loopbnd];
+        cfaAdjusted[loopbnd][loopcf] = df[loopbnd][loopcf] / dfdelivery * beta[loopbnd][loopcf] * cf[loopbnd].getNthPayment(loopcf).getAmount()
+            / future.getConversionFactor()[loopbnd];
         for (int looppt = 0; looppt < nbPoint; looppt++) {
           pv[looppt][loopbnd] += cfaAdjusted[loopbnd][loopcf] * Math.exp(-alpha[loopbnd][loopcf] * alpha[loopbnd][loopcf] / 2.0 - alpha[loopbnd][loopcf] * x[looppt]);
         }
@@ -132,8 +133,8 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
       }
     }
     // Minimum: create a list of index of the CTD in each interval and a first estimate of the crossing point (x[]).
-    double[] pvMin = new double[nbPoint];
-    int[] indMin = new int[nbPoint];
+    final double[] pvMin = new double[nbPoint];
+    final int[] indMin = new int[nbPoint];
     for (int looppt = 0; looppt < nbPoint; looppt++) {
       pvMin[looppt] = Double.POSITIVE_INFINITY;
       for (int loopbnd = 0; loopbnd < nbBond; loopbnd++) {
@@ -143,8 +144,8 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
         }
       }
     }
-    ArrayList<Double> refx = new ArrayList<Double>();
-    ArrayList<Integer> ctd = new ArrayList<Integer>();
+    final ArrayList<Double> refx = new ArrayList<Double>();
+    final ArrayList<Integer> ctd = new ArrayList<Integer>();
     int lastInd = indMin[0];
     ctd.add(indMin[0]);
     for (int looppt = 1; looppt < nbPoint; looppt++) {
@@ -156,8 +157,8 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
     }
 
     // Sum on each interval
-    int nbInt = ctd.size();
-    double[] kappa = new double[nbInt - 1];
+    final int nbInt = ctd.size();
+    final double[] kappa = new double[nbInt - 1];
     double price = 0.0;
     if (nbInt == 1) {
       for (int loopcf = 0; loopcf < cfaAdjusted[ctd.get(0)].length; loopcf++) {
@@ -167,11 +168,11 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
     } else {
       // The intersections
       final BracketRoot bracketer = new BracketRoot();
-      double accuracy = 1.0E-8;
+      final double accuracy = 1.0E-8;
       final RidderSingleRootFinder rootFinder = new RidderSingleRootFinder(accuracy);
       for (int loopint = 1; loopint < nbInt; loopint++) {
-        BondDifference cross = new BondDifference(cfaAdjusted[ctd.get(loopint - 1)], alpha[ctd.get(loopint - 1)], e[ctd.get(loopint - 1)], cfaAdjusted[ctd.get(loopint)], alpha[ctd.get(loopint)],
-            e[ctd.get(loopint)]);
+        final BondDifference cross = new BondDifference(cfaAdjusted[ctd.get(loopint - 1)], alpha[ctd.get(loopint - 1)], e[ctd.get(loopint - 1)],
+            cfaAdjusted[ctd.get(loopint)], alpha[ctd.get(loopint)], e[ctd.get(loopint)]);
         final double[] range = bracketer.getBracketedPoints(cross, refx.get(loopint - 1) - 0.01, refx.get(loopint - 1) + 0.01);
         kappa[loopint - 1] = rootFinder.getRoot(cross, range[0], range[1]);
       }
@@ -183,7 +184,8 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
       // Between cross
       for (int loopint = 1; loopint < nbInt - 1; loopint++) {
         for (int loopcf = 0; loopcf < cfaAdjusted[ctd.get(loopint)].length; loopcf++) {
-          price += cfaAdjusted[ctd.get(loopint)][loopcf] * (NORMAL.getCDF(kappa[loopint] + alpha[ctd.get(loopint)][loopcf]) - NORMAL.getCDF(kappa[loopint - 1] + alpha[ctd.get(loopint)][loopcf]));
+          price += cfaAdjusted[ctd.get(loopint)][loopcf]
+              * (NORMAL.getCDF(kappa[loopint] + alpha[ctd.get(loopint)][loopcf]) - NORMAL.getCDF(kappa[loopint - 1] + alpha[ctd.get(loopint)][loopcf]));
         }
         price -= e[ctd.get(loopint)] * (NORMAL.getCDF(kappa[loopint]) - NORMAL.getCDF(kappa[loopint - 1]));
       }
@@ -243,16 +245,16 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
     Validate.notNull(future, "Future");
     Validate.notNull(hwData, "Hull-White data bundle");
     final int nbBond = future.getDeliveryBasket().length;
-    YieldAndDiscountCurve bndCurve = hwData.getCurve(future.getDeliveryBasket()[0].getDiscountingCurveName());
-    double expiry = future.getNoticeLastTime();
-    double delivery = future.getDeliveryLastTime();
-    double dfdelivery = bndCurve.getDiscountFactor(delivery);
+    final YieldAndDiscountCurve bndCurve = hwData.getCurve(future.getDeliveryBasket()[0].getDiscountingCurveName());
+    final double expiry = future.getNoticeLastTime();
+    final double delivery = future.getDeliveryLastTime();
+    final double dfdelivery = bndCurve.getDiscountFactor(delivery);
     // Constructing non-homogeneous point series for the numerical estimations.
-    final int nbPtWing = ((int) Math.floor(nbPoint / 20)); // Number of point on each wing.
+    final int nbPtWing = ((int) Math.floor(nbPoint / 20.)); // Number of point on each wing.
     final int nbPtCenter = nbPoint - 2 * nbPtWing;
     final double prob = 1.0 / (2.0 * nbPtCenter);
     final double xStart = NORMAL.getInverseCDF(prob);
-    double[] x = new double[nbPoint];
+    final double[] x = new double[nbPoint];
     for (int loopwing = 0; loopwing < nbPtWing; loopwing++) {
       x[loopwing] = xStart * (1.0 + (nbPtWing - loopwing) / 2.0);
       x[nbPoint - 1 - loopwing] = -xStart * (1.0 + (nbPtWing - loopwing) / 2.0);
@@ -261,17 +263,17 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
       x[nbPtWing + loopcent] = xStart + loopcent * (-2.0 * xStart) / (nbPtCenter - 1);
     }
     // Figures for each bond
-    double[][] cfTime = new double[nbBond][];
-    double[][] df = new double[nbBond][];
-    double[][] alpha = new double[nbBond][];
-    double[][] beta = new double[nbBond][];
-    double[][] cfaAdjusted = new double[nbBond][];
-    double[] e = new double[nbBond];
-    double[][] pv = new double[nbPoint][nbBond];
-    AnnuityPaymentFixed[] cf = new AnnuityPaymentFixed[nbBond];
+    final double[][] cfTime = new double[nbBond][];
+    final double[][] df = new double[nbBond][];
+    final double[][] alpha = new double[nbBond][];
+    final double[][] beta = new double[nbBond][];
+    final double[][] cfaAdjusted = new double[nbBond][];
+    final double[] e = new double[nbBond];
+    final double[][] pv = new double[nbPoint][nbBond];
+    final AnnuityPaymentFixed[] cf = new AnnuityPaymentFixed[nbBond];
     for (int loopbnd = 0; loopbnd < nbBond; loopbnd++) {
       cf[loopbnd] = CFEC.visit(future.getDeliveryBasket()[loopbnd], hwData);
-      int nbCf = cf[loopbnd].getNumberOfPayments();
+      final int nbCf = cf[loopbnd].getNumberOfPayments();
       cfTime[loopbnd] = new double[nbCf];
       df[loopbnd] = new double[nbCf];
       alpha[loopbnd] = new double[nbCf];
@@ -282,7 +284,8 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
         df[loopbnd][loopcf] = bndCurve.getDiscountFactor(cfTime[loopbnd][loopcf]);
         alpha[loopbnd][loopcf] = MODEL.alpha(hwData.getHullWhiteParameter(), 0.0, expiry, delivery, cfTime[loopbnd][loopcf]);
         beta[loopbnd][loopcf] = MODEL.futureConvexityFactor(hwData.getHullWhiteParameter(), expiry, cfTime[loopbnd][loopcf], delivery);
-        cfaAdjusted[loopbnd][loopcf] = df[loopbnd][loopcf] / dfdelivery * beta[loopbnd][loopcf] * cf[loopbnd].getNthPayment(loopcf).getAmount() / future.getConversionFactor()[loopbnd];
+        cfaAdjusted[loopbnd][loopcf] = df[loopbnd][loopcf] / dfdelivery * beta[loopbnd][loopcf] * cf[loopbnd].getNthPayment(loopcf).getAmount()
+            / future.getConversionFactor()[loopbnd];
         for (int looppt = 0; looppt < nbPoint; looppt++) {
           pv[looppt][loopbnd] += cfaAdjusted[loopbnd][loopcf] * Math.exp(-alpha[loopbnd][loopcf] * alpha[loopbnd][loopcf] / 2.0 - alpha[loopbnd][loopcf] * x[looppt]);
         }
@@ -293,8 +296,8 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
       }
     }
     // Minimum: create a list of index of the CTD in each interval and a first estimate of the crossing point (x[]).
-    double[] pvMin = new double[nbPoint];
-    int[] indMin = new int[nbPoint];
+    final double[] pvMin = new double[nbPoint];
+    final int[] indMin = new int[nbPoint];
     for (int looppt = 0; looppt < nbPoint; looppt++) {
       pvMin[looppt] = Double.POSITIVE_INFINITY;
       for (int loopbnd = 0; loopbnd < nbBond; loopbnd++) {
@@ -304,8 +307,8 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
         }
       }
     }
-    ArrayList<Double> refx = new ArrayList<Double>();
-    ArrayList<Integer> ctd = new ArrayList<Integer>();
+    final ArrayList<Double> refx = new ArrayList<Double>();
+    final ArrayList<Integer> ctd = new ArrayList<Integer>();
     int lastInd = indMin[0];
     ctd.add(indMin[0]);
     for (int looppt = 1; looppt < nbPoint; looppt++) {
@@ -316,34 +319,34 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
       }
     }
     // Sum on each interval
-    int nbInt = ctd.size();
-    double[] kappa = new double[nbInt - 1];
+    final int nbInt = ctd.size();
+    final double[] kappa = new double[nbInt - 1];
     //    double price = 0.0;
     if (nbInt != 1) {
       // The intersections
       final BracketRoot bracketer = new BracketRoot();
-      double accuracy = 1.0E-8;
+      final double accuracy = 1.0E-8;
       final RidderSingleRootFinder rootFinder = new RidderSingleRootFinder(accuracy);
       for (int loopint = 1; loopint < nbInt; loopint++) {
-        BondDifference cross = new BondDifference(cfaAdjusted[ctd.get(loopint - 1)], alpha[ctd.get(loopint - 1)], e[ctd.get(loopint - 1)], cfaAdjusted[ctd.get(loopint)], alpha[ctd.get(loopint)],
-            e[ctd.get(loopint)]);
+        final BondDifference cross = new BondDifference(cfaAdjusted[ctd.get(loopint - 1)], alpha[ctd.get(loopint - 1)], e[ctd.get(loopint - 1)],
+            cfaAdjusted[ctd.get(loopint)], alpha[ctd.get(loopint)], e[ctd.get(loopint)]);
         final double[] range = bracketer.getBracketedPoints(cross, refx.get(loopint - 1) - 0.01, refx.get(loopint - 1) + 0.01);
         kappa[loopint - 1] = rootFinder.getRoot(cross, range[0], range[1]);
       }
     }
 
     // === Backward Sweep ===
-    double priceBar = 1.0;
-    double[][] cfaAdjustedBar = new double[nbBond][];
-    double[][] dfBar = new double[nbBond][];
+    final double priceBar = 1.0;
+    final double[][] cfaAdjustedBar = new double[nbBond][];
+    final double[][] dfBar = new double[nbBond][];
     for (int loopbnd = 0; loopbnd < nbBond; loopbnd++) {
-      int nbCf = cf[loopbnd].getNumberOfPayments();
+      final int nbCf = cf[loopbnd].getNumberOfPayments();
       cfaAdjustedBar[loopbnd] = new double[nbCf];
       dfBar[loopbnd] = new double[nbCf];
     }
     double dfdeliveryBar = 0.0;
-    Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
-    List<DoublesPair> listCredit = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
+    final List<DoublesPair> listCredit = new ArrayList<DoublesPair>();
     if (nbInt == 1) {
       for (int loopcf = 0; loopcf < cfaAdjusted[ctd.get(0)].length; loopcf++) {
         cfaAdjustedBar[ctd.get(0)][loopcf] = priceBar;
@@ -361,7 +364,9 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
       // Between cross
       for (int loopint = 1; loopint < nbInt - 1; loopint++) {
         for (int loopcf = 0; loopcf < cfaAdjusted[ctd.get(loopint)].length; loopcf++) {
-          cfaAdjustedBar[ctd.get(loopint)][loopcf] = (NORMAL.getCDF(kappa[loopint] + alpha[ctd.get(loopint)][loopcf]) - NORMAL.getCDF(kappa[loopint - 1] + alpha[ctd.get(loopint)][loopcf])) * priceBar;
+          cfaAdjustedBar[ctd.get(loopint)][loopcf] = (NORMAL.getCDF(kappa[loopint] + alpha[ctd.get(loopint)][loopcf]) - NORMAL.getCDF(kappa[loopint - 1]
+              + alpha[ctd.get(loopint)][loopcf]))
+              * priceBar;
         }
       }
       // From last cross to +infinity
@@ -370,7 +375,8 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
       }
       for (int loopbnd = 0; loopbnd < nbBond; loopbnd++) { // Could be reduced to only the ctd intervals.
         for (int loopcf = 0; loopcf < cfaAdjusted[loopbnd].length; loopcf++) {
-          dfBar[loopbnd][loopcf] = beta[loopbnd][loopcf] / dfdelivery * cf[loopbnd].getNthPayment(loopcf).getAmount() / future.getConversionFactor()[loopbnd] * cfaAdjustedBar[loopbnd][loopcf];
+          dfBar[loopbnd][loopcf] = beta[loopbnd][loopcf] / dfdelivery * cf[loopbnd].getNthPayment(loopcf).getAmount() / future.getConversionFactor()[loopbnd]
+              * cfaAdjustedBar[loopbnd][loopcf];
           listCredit.add(new DoublesPair(cfTime[loopbnd][loopcf], -cfTime[loopbnd][loopcf] * df[loopbnd][loopcf] * dfBar[loopbnd][loopcf]));
           dfdeliveryBar += -cfaAdjusted[loopbnd][loopcf] / dfdelivery * cfaAdjustedBar[loopbnd][loopcf];
         }
@@ -378,7 +384,7 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
       listCredit.add(new DoublesPair(delivery, -delivery * dfdelivery * dfdeliveryBar));
     }
     resultMap.put(future.getDeliveryBasket()[0].getDiscountingCurveName(), listCredit);
-    InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
+    final InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
     return result;
   }
 
@@ -414,7 +420,7 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
   /**
    * Internal class to estimate the price difference between two bonds.
    */
-  private class BondDifference extends Function1D<Double, Double> {
+  private static final class BondDifference extends Function1D<Double, Double> {
 
     private final double[] _cfa1;
     private final double[] _alpha1;
@@ -423,7 +429,7 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
     private final double[] _alpha2;
     private final double _e2;
 
-    public BondDifference(double[] cfa1, double[] alpha1, double e1, double[] cfa2, double[] alpha2, double e2) {
+    public BondDifference(final double[] cfa1, final double[] alpha1, final double e1, final double[] cfa2, final double[] alpha2, final double e2) {
       _cfa1 = cfa1;
       _alpha1 = alpha1;
       _e1 = e1;
@@ -433,7 +439,7 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
     }
 
     @Override
-    public Double evaluate(Double x) {
+    public Double evaluate(final Double x) {
       double pv = 0.0;
       for (int loopcf = 0; loopcf < _cfa1.length; loopcf++) {
         pv += _cfa1[loopcf] * Math.exp(-_alpha1[loopcf] * _alpha1[loopcf] / 2.0 - _alpha1[loopcf] * x);
