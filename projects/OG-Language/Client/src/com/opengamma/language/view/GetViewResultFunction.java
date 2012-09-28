@@ -152,7 +152,7 @@ public class GetViewResultFunction extends AbstractFunctionInvoker implements Pu
             _resultPosted.set(false);
           }
           if (result != null) {
-            if (!result.getViewCycleId().equals(result)) {
+            if (!result.getViewCycleId().equals(_lastViewCycleId)) {
               s_logger.debug("Posting full result");
               postResult(result);
             } else {

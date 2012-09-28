@@ -170,6 +170,7 @@ import com.opengamma.transport.FudgeMessageSender;
       final JobInfo job = getPendingJobs().remove(message.getResult().getSpecification());
       if (job == null) {
         s_logger.warn("Duplicate or result for cancelled callback {} received", message.getResult().getSpecification());
+        return;
       }
       if (_launched.addAndGet(job.getLaunchDelta()) < _capacity) {
         // We check for below capacity. We can get "equal" here, but that means there is an invoke taking place which will be dealt with

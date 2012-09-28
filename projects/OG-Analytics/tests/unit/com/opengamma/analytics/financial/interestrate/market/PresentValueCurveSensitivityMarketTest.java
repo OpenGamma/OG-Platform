@@ -15,6 +15,8 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.interestrate.market.description.CurveSensitivityMarket;
+import com.opengamma.analytics.financial.interestrate.market.description.MarketForwardSensitivity;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -35,41 +37,41 @@ public class PresentValueCurveSensitivityMarketTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullDsc() {
-    new PresentValueCurveSensitivityMarket(null, new HashMap<String, List<DoublesPair>>(), new HashMap<String, List<DoublesPair>>());
+    new CurveSensitivityMarket(null, new HashMap<String, List<MarketForwardSensitivity>>(), new HashMap<String, List<DoublesPair>>());
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullFwd() {
-    new PresentValueCurveSensitivityMarket(new HashMap<String, List<DoublesPair>>(), null, new HashMap<String, List<DoublesPair>>());
+    new CurveSensitivityMarket(new HashMap<String, List<DoublesPair>>(), null, new HashMap<String, List<DoublesPair>>());
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullPrice() {
-    new PresentValueCurveSensitivityMarket(new HashMap<String, List<DoublesPair>>(), new HashMap<String, List<DoublesPair>>(), null);
+    new CurveSensitivityMarket(new HashMap<String, List<DoublesPair>>(), new HashMap<String, List<MarketForwardSensitivity>>(), null);
   }
 
   @Test
   public void testAddMultiply() {
     SENSI_11.put(CURVE_NAME_1, SENSI_DATA_1);
-    PresentValueCurveSensitivityMarket pvSensi_11 = PresentValueCurveSensitivityMarket.fromYieldDiscounting(SENSI_11);
+    CurveSensitivityMarket pvSensi_11 = CurveSensitivityMarket.fromYieldDiscounting(SENSI_11);
     SENSI_22.put(CURVE_NAME_2, SENSI_DATA_2);
-    PresentValueCurveSensitivityMarket pvSensi_22 = PresentValueCurveSensitivityMarket.fromYieldDiscounting(SENSI_22);
+    CurveSensitivityMarket pvSensi_22 = CurveSensitivityMarket.fromYieldDiscounting(SENSI_22);
     SENSI_12.put(CURVE_NAME_1, SENSI_DATA_2);
-    PresentValueCurveSensitivityMarket pvSensi_12 = PresentValueCurveSensitivityMarket.fromYieldDiscounting(SENSI_12);
+    CurveSensitivityMarket pvSensi_12 = CurveSensitivityMarket.fromYieldDiscounting(SENSI_12);
     SENSI_33.put(CURVE_NAME_3, SENSI_DATA_3);
-    PresentValueCurveSensitivityMarket pvSensi_33 = PresentValueCurveSensitivityMarket.fromYieldDiscounting(SENSI_33);
+    CurveSensitivityMarket pvSensi_33 = CurveSensitivityMarket.fromYieldDiscounting(SENSI_33);
     // Simple add
     Map<String, List<DoublesPair>> expectedSensi11add22 = new HashMap<String, List<DoublesPair>>();
     expectedSensi11add22.put(CURVE_NAME_1, SENSI_DATA_1);
     expectedSensi11add22.put(CURVE_NAME_2, SENSI_DATA_2);
     assertEquals(expectedSensi11add22, pvSensi_11.plus(pvSensi_22).getYieldDiscountingSensitivities());
-    assertEquals(PresentValueCurveSensitivityMarket.fromYieldDiscounting(expectedSensi11add22), pvSensi_11.plus(pvSensi_22));
+    assertEquals(CurveSensitivityMarket.fromYieldDiscounting(expectedSensi11add22), pvSensi_11.plus(pvSensi_22));
     // Multiply
     List<DoublesPair> sensiData1Multiply050 = Arrays.asList(new DoublesPair[] {new DoublesPair(1, 5.0), new DoublesPair(2, 10.0), new DoublesPair(3, 15.0), new DoublesPair(4, 20.0)});
     Map<String, List<DoublesPair>> expectedSensi1Multiply05 = new HashMap<String, List<DoublesPair>>();
     expectedSensi1Multiply05.put(CURVE_NAME_1, sensiData1Multiply050);
     assertEquals(expectedSensi1Multiply05, pvSensi_11.multiply(0.5).getYieldDiscountingSensitivities());
-    assertEquals(PresentValueCurveSensitivityMarket.fromYieldDiscounting(expectedSensi1Multiply05), pvSensi_11.multiply(0.5));
+    assertEquals(CurveSensitivityMarket.fromYieldDiscounting(expectedSensi1Multiply05), pvSensi_11.multiply(0.5));
     // Add on the same curve
     List<DoublesPair> expectedSensiData1add2 = new ArrayList<DoublesPair>();
     expectedSensiData1add2.addAll(SENSI_DATA_1);
@@ -77,27 +79,26 @@ public class PresentValueCurveSensitivityMarketTest {
     Map<String, List<DoublesPair>> expectedSensi11add12 = new HashMap<String, List<DoublesPair>>();
     expectedSensi11add12.put(CURVE_NAME_1, expectedSensiData1add2);
     assertEquals(expectedSensi11add12, pvSensi_11.plus(pvSensi_12).getYieldDiscountingSensitivities());
-    assertEquals(PresentValueCurveSensitivityMarket.fromYieldDiscounting(expectedSensi11add12), pvSensi_11.plus(pvSensi_12));
+    assertEquals(CurveSensitivityMarket.fromYieldDiscounting(expectedSensi11add12), pvSensi_11.plus(pvSensi_12));
     // Add multi-curve
     Map<String, List<DoublesPair>> expectedSensiAddMulti = new HashMap<String, List<DoublesPair>>();
     expectedSensiAddMulti.put(CURVE_NAME_1, expectedSensiData1add2);
     expectedSensiAddMulti.put(CURVE_NAME_2, SENSI_DATA_2);
     expectedSensiAddMulti.put(CURVE_NAME_3, SENSI_DATA_3);
     assertEquals(expectedSensiAddMulti, pvSensi_11.plus(pvSensi_22.plus(pvSensi_33.plus(pvSensi_12))).getYieldDiscountingSensitivities());
-    assertEquals(PresentValueCurveSensitivityMarket.fromYieldDiscounting(expectedSensiAddMulti), pvSensi_11.plus(pvSensi_22.plus(pvSensi_33.plus(pvSensi_12))));
+    assertEquals(CurveSensitivityMarket.fromYieldDiscounting(expectedSensiAddMulti), pvSensi_11.plus(pvSensi_22.plus(pvSensi_33.plus(pvSensi_12))));
   }
 
   @Test
   public void testClean() {
 
     SENSI_11.put(CURVE_NAME_1, SENSI_DATA_1);
-    PresentValueCurveSensitivityMarket pvSensi_11 = PresentValueCurveSensitivityMarket.fromYieldDiscounting(SENSI_11);
+    CurveSensitivityMarket pvSensi_11 = CurveSensitivityMarket.fromYieldDiscounting(SENSI_11);
     SENSI_12.put(CURVE_NAME_1, SENSI_DATA_2);
-    PresentValueCurveSensitivityMarket pvSensi_12 = PresentValueCurveSensitivityMarket.fromYieldDiscounting(SENSI_12);
+    CurveSensitivityMarket pvSensi_12 = CurveSensitivityMarket.fromYieldDiscounting(SENSI_12);
     List<DoublesPair> expectedSensiDataClean12 = Arrays.asList(new DoublesPair[] {new DoublesPair(1, 50), new DoublesPair(2, 50), new DoublesPair(3, 50), new DoublesPair(4, 50)});
     Map<String, List<DoublesPair>> expectedSensiClean12 = new HashMap<String, List<DoublesPair>>();
     expectedSensiClean12.put(CURVE_NAME_1, expectedSensiDataClean12);
-    assertEquals(PresentValueCurveSensitivityMarket.fromYieldDiscounting(expectedSensiClean12).getYieldDiscountingSensitivities(), pvSensi_11.plus(pvSensi_12).cleaned()
-        .getYieldDiscountingSensitivities());
+    assertEquals(CurveSensitivityMarket.fromYieldDiscounting(expectedSensiClean12).getYieldDiscountingSensitivities(), pvSensi_11.plus(pvSensi_12).cleaned().getYieldDiscountingSensitivities());
   }
 }

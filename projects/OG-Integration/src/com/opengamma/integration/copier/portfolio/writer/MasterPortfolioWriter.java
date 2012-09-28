@@ -14,15 +14,14 @@ import java.util.Stack;
 
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.UniqueId;
-import com.opengamma.util.beancompare.BeanCompare;
-import com.opengamma.util.beancompare.BeanDifference;
 import org.apache.commons.lang.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.id.ExternalIdSearch;
 import com.opengamma.id.ExternalIdSearchType;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
@@ -42,9 +41,9 @@ import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.master.security.SecuritySearchSortOrder;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.beancompare.BeanCompare;
+import com.opengamma.util.beancompare.BeanDifference;
 import com.opengamma.util.tuple.ObjectsPair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A class that writes securities and portfolio positions and trades to the OG masters
@@ -312,7 +311,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     
     // Degenerate case
     if (path.length == 1) {
-      if (startNode.name().equals(path[0])) {
+      if (startNode.getName().equals(path[0])) {
         return startNode;
       } else {
         return null;

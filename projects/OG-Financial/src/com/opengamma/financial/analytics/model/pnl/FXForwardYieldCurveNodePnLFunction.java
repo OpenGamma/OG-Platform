@@ -152,7 +152,7 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
     }
     final DoubleTimeSeries<?> fxSpotTS = ((HistoricalTimeSeries) fxSpotTSObject).getTimeSeries();
     DoubleTimeSeries<?> result;
-    if (payCurrency.equals(currencyBase.getCode())) {
+    if (payCurrency.equals(currencyBase)) {
       result = payResult;
       result = result.add(receiveResult.multiply(fxSpotTS));
     } else {

@@ -11,6 +11,7 @@ import java.util.List;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
@@ -167,6 +168,23 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
           paymentDates[loopcpn]), sign * notional, fixedRate);
     }
     return new AnnuityCouponFixedDefinition(coupons);
+  }
+
+  /**
+   * Annuity builder from a swap generator (only the fixed leg part is used).
+   * @param settlementDate The settlement date.
+   * @param tenor The annuity tenor.
+   * @param generator The swap generator.
+   * @param notional The annuity notional.
+   * @param fixedRate The annuity fixed rate.
+   * @param isPayer The payer flag.
+   * @return The annuity.
+   */
+  public static AnnuityCouponFixedDefinition from(final ZonedDateTime settlementDate, final Period tenor, final GeneratorSwapFixedIbor generator, final double notional, final double fixedRate,
+      final boolean isPayer) {
+    ArgumentChecker.notNull(generator, "Swap generator");
+    return AnnuityCouponFixedDefinition.from(generator.getCurrency(), settlementDate, tenor, generator.getFixedLegPeriod(), generator.getCalendar(), generator.getFixedLegDayCount(), generator
+        .getIborIndex().getBusinessDayConvention(), generator.getIborIndex().isEndOfMonth(), notional, fixedRate, isPayer);
   }
 
   /**

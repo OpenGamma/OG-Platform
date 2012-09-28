@@ -11,9 +11,9 @@ import com.opengamma.analytics.financial.instrument.inflation.CouponInflationGea
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.PresentValueInflationCalculator;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
-import com.opengamma.analytics.financial.interestrate.market.IMarketBundle;
-import com.opengamma.analytics.financial.interestrate.market.MarketDiscountBundle;
-import com.opengamma.analytics.financial.interestrate.market.MarketDiscountingDecorated;
+import com.opengamma.analytics.financial.interestrate.market.description.IMarketBundle;
+import com.opengamma.analytics.financial.interestrate.market.description.MarketDiscountBundle;
+import com.opengamma.analytics.financial.interestrate.market.description.MarketDiscountingDecorated;
 import com.opengamma.analytics.financial.interestrate.method.PricingMarketMethod;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.math.function.Function1D;
@@ -22,7 +22,7 @@ import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
 import com.opengamma.analytics.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Pricing method for inflation bond. The price is computed by index estimation and discounting.
@@ -49,16 +49,16 @@ public final class BondCapitalIndexedSecurityDiscountingMethod implements Pricin
    * @param market The market.
    * @return The present value.
    */
-  public CurrencyAmount presentValue(final BondCapitalIndexedSecurity<?> bond, final MarketDiscountBundle market) {
+  public MultipleCurrencyAmount presentValue(final BondCapitalIndexedSecurity<?> bond, final MarketDiscountBundle market) {
     ArgumentChecker.notNull(bond, "Bond");
     MarketDiscountBundle creditDiscounting = new MarketDiscountingDecorated(market, bond.getCurrency(), market.getCurve(bond.getIssuerCurrency()));
-    final CurrencyAmount pvNominal = PVIC.visit(bond.getNominal(), creditDiscounting);
-    final CurrencyAmount pvCoupon = PVIC.visit(bond.getCoupon(), creditDiscounting);
+    final MultipleCurrencyAmount pvNominal = PVIC.visit(bond.getNominal(), creditDiscounting);
+    final MultipleCurrencyAmount pvCoupon = PVIC.visit(bond.getCoupon(), creditDiscounting);
     return pvNominal.plus(pvCoupon);
   }
 
   @Override
-  public CurrencyAmount presentValue(InstrumentDerivative instrument, IMarketBundle market) {
+  public MultipleCurrencyAmount presentValue(InstrumentDerivative instrument, IMarketBundle market) {
     Validate.isTrue(instrument instanceof BondCapitalIndexedSecurity<?>, "Capital inflation indexed bond.");
     return presentValue((BondCapitalIndexedSecurity<?>) instrument, (MarketDiscountBundle) market);
   }
@@ -71,7 +71,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod implements Pricin
    * @param cleanPriceReal The clean price.
    * @return The present value.
    */
-  public CurrencyAmount presentValueFromCleanPriceReal(final BondCapitalIndexedSecurity<Coupon> bond, final MarketDiscountBundle market, final double cleanPriceReal) {
+  public MultipleCurrencyAmount presentValueFromCleanPriceReal(final BondCapitalIndexedSecurity<Coupon> bond, final MarketDiscountBundle market, final double cleanPriceReal) {
     Validate.notNull(bond, "Coupon");
     Validate.notNull(market, "Market");
     final double notional = bond.getCoupon().getNthPayment(0).getNotional();
@@ -80,7 +80,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod implements Pricin
     double dirtyPriceAjusted = dirtyPriceReal * estimatedIndex / bond.getIndexStartValue();
     double dfSettle = market.getDiscountFactor(bond.getCurrency(), bond.getSettlementTime());
     double pv = dirtyPriceAjusted * bond.getCoupon().getNthPayment(0).getNotional() * dfSettle;
-    return CurrencyAmount.of(bond.getCurrency(), pv);
+    return MultipleCurrencyAmount.of(bond.getCurrency(), pv);
   }
 
   /**

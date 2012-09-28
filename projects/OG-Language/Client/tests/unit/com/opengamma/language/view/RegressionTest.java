@@ -7,7 +7,6 @@ package com.opengamma.language.view;
 
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 import java.util.concurrent.LinkedBlockingQueue;
@@ -173,14 +172,11 @@ public class RegressionTest {
     try {
       viewClient.setResultListener(createResultListener());
       viewClient.attachToViewProcess(viewClientDescriptor.getViewId(), viewClientDescriptor.getExecutionOptions(), true);
-      viewClient.triggerCycle();
-      Object result = getResult();
-      assertEquals(result, "COMPILED");
       Instant valuationInstant = firstValuationInstant;
       do {
         viewClient.triggerCycle();
-        result = getResult();
-        assertNotNull(result);
+        assertEquals(getResult(), "COMPILED");
+        final Object result = getResult();
         s_logger.debug("Got result {}", result);
         assertTrue(result instanceof ViewComputationResultModel);
         ViewComputationResultModel model = (ViewComputationResultModel) result;
@@ -188,8 +184,7 @@ public class RegressionTest {
         valuationInstant = valuationInstant.plus(1, TimeUnit.DAYS);
       } while (!valuationInstant.isAfter(lastValuationInstant));
       viewClient.triggerCycle();
-      result = getResult();
-      assertEquals(result, "COMPLETED");
+      assertEquals(getResult(), "COMPLETED");
     } finally {
       viewClient.shutdown();
     }

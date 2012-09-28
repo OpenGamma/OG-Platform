@@ -37,7 +37,7 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 
 /**
- * Calculator of the present value curve sensitivity for Forex derivatives.
+ * Calculator of the present value curve sensitivity as multiple currency interest rate curve sensitivity.
  */
 public class PresentValueCurveSensitivityMCSCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, MultipleCurrencyInterestRateCurveSensitivity> {
 

@@ -24,7 +24,7 @@ import com.opengamma.web.server.push.analytics.formatting.ResultsFormatter;
 public class ViewportResultsJsonWriterTest {
 
   private final ViewportDefinition _viewportDefinition =
-      ViewportDefinition.create(ImmutableList.of(0), ImmutableList.of(0), null, false);
+      ViewportDefinition.create(ImmutableList.of(0), ImmutableList.of(0), ImmutableList.<GridCell>of(), false);
   private final ValueRequirement _valueReq =
       new ValueRequirement("valueName", ComputationTargetType.POSITION, UniqueId.of("foo", "bar"));
   private final ValueSpecification _valueSpec = new ValueSpecification(_valueReq, "fnName");

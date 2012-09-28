@@ -33,9 +33,11 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexVanillaBarrierOptionFunction;
 import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.BarrierDirection;
 import com.opengamma.financial.security.option.BarrierType;
@@ -73,8 +75,6 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-
-
     final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
     final FXBarrierOptionSecurity barrierSec = (FXBarrierOptionSecurity) target.getSecurity();
 
@@ -106,7 +106,18 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
     final Object results = computeValues(vanillas, market);
 
     // 5. Properties of what's required of this function
-    final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), desiredValue.getConstraints());
+    final Object baseQuotePairsObject = inputs.getValue(ValueRequirementNames.CURRENCY_PAIRS);
+    if (baseQuotePairsObject == null) {
+      throw new OpenGammaRuntimeException("Could not get base/quote pair data");
+    }
+    final Currency putCurrency = barrierSec.getPutCurrency();
+    final Currency callCurrency = barrierSec.getCallCurrency();
+    final CurrencyPairs baseQuotePairs = (CurrencyPairs) baseQuotePairsObject;
+    final CurrencyPair baseQuotePair = baseQuotePairs.getCurrencyPair(putCurrency, callCurrency);
+    if (baseQuotePair == null) {
+      throw new OpenGammaRuntimeException("Could not get base/quote pair for currency pair (" + putCurrency + ", " + callCurrency + ")");
+    }
+    final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), getResultProperties(target, desiredValue, baseQuotePair).get());
     // 6. Return result
     return Collections.singleton(new ComputedValue(spec, results));
 
@@ -125,11 +136,20 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
     return properties.withAny(ValuePropertyNames.BINARY_OVERHEDGE)
                      .withAny(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH);
   }
+  
   @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final CurrencyPair baseQuotePair) {
     Builder properties = super.getResultProperties(target, baseQuotePair);
     return properties.withAny(ValuePropertyNames.BINARY_OVERHEDGE)
                      .withAny(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH);
+  }
+  
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue, final CurrencyPair baseQuotePair) {
+    final Builder properties = super.getResultProperties(target, desiredValue, baseQuotePair);
+    final String binaryOverhead = desiredValue.getConstraint(ValuePropertyNames.BINARY_OVERHEDGE);
+    final String binarySmoothing = desiredValue.getConstraint(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH);
+    return properties.with(ValuePropertyNames.BINARY_OVERHEDGE, binaryOverhead)
+                     .with(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH, binarySmoothing);
   }
   /**
    * This method is defined by extending Functions

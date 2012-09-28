@@ -6,8 +6,8 @@
 package com.opengamma.analytics.financial.interestrate.method;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.market.IMarketBundle;
-import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.analytics.financial.interestrate.market.description.IMarketBundle;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Interface for interest rate pricing methods.
@@ -20,6 +20,6 @@ public interface PricingMarketMethod {
    * @param market The curves market.
    * @return The present value.
    */
-  CurrencyAmount presentValue(final InstrumentDerivative instrument, final IMarketBundle market);
+  MultipleCurrencyAmount presentValue(final InstrumentDerivative instrument, final IMarketBundle market);
 
 }

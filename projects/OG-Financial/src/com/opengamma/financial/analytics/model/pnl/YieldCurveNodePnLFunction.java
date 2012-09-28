@@ -122,7 +122,7 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
         final Map<UnorderedCurrencyPair, HistoricalTimeSeries> allFXSeries = (Map<UnorderedCurrencyPair, HistoricalTimeSeries>) inputs.getValue(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES);
         final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
         final CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
-        if (desiredCurrency.equals(currencyPairs.getCurrencyPair(Currency.of(desiredCurrency), currency).getBase())) {
+        if (desiredCurrency.equals(currencyPairs.getCurrencyPair(Currency.of(desiredCurrency), currency).getBase().getCode())) {
           isInverse = false;
         }
         if (allFXSeries.size() != 1) {

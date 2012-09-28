@@ -7,15 +7,12 @@ package com.opengamma.integration.tool;
 
 import java.io.FileWriter;
 
-import com.opengamma.financial.tool.ToolContext;
 import org.joda.beans.MetaProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import au.com.bytecode.opencsv.CSVWriter;
-
 import com.opengamma.component.tool.AbstractTool;
-import com.opengamma.integration.tool.config.ConfigImportExportTool;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecurityMetaDataRequest;
@@ -23,6 +20,8 @@ import com.opengamma.master.security.SecurityMetaDataResult;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.generate.scripts.Scriptable;
+
+import au.com.bytecode.opencsv.CSVWriter;
 
 /**
  * Tool to generate a template for doing field mapping tasks
@@ -51,6 +50,7 @@ public class SecurityFieldMappingTemplateGenerator extends AbstractTool<ToolCont
   private void dumpSecurityStructure(CSVWriter csvWriter, String securityType, ManageableSecurity firstSecurity) {
     if (firstSecurity == null) {
       s_logger.error("null security passed to dumpSecurityStructure");
+      return;
     }
     s_logger.info("Processing security " + firstSecurity);
     csvWriter.writeNext(new String[] {securityType });
