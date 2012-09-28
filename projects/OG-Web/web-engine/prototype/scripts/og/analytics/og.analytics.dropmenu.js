@@ -2,7 +2,7 @@ $.register_module({
     name: 'og.analytics.DropMenu',
     dependencies: [],
     obj: function () {
-        var module = this, events = {
+        var events = {
                 focus: 'dropmenu:focus',
                 focused:'dropmenu:focused',
                 open: 'dropmenu:open',
@@ -77,18 +77,21 @@ $.register_module({
             var menu = this;
             return menu.opened;
         };
-        DropMenu = function (config) {
-            var m = new Menu(), tmpl = config.tmpl, data = config.data || {};
+        /**
+         * TODO AG: Must provide Getters/Setters instance properites as these should really be private
+         * and not accessible directly via the instance.
+         */
+        return DropMenu = function (config) {
+            var m = new Menu(), tmpl = config.tmpl, dummy_s = '<div>', data = config.data || {};
             m.state = 'closed';
             m.opened = false;
             m.data = data;
             m.$dom = {};
             m.$dom.cntr = config.$cntr.html($((Handlebars.compile(tmpl))(data)));
             m.$dom.title = $('.og-option-title', m.$dom.cntr);
-            m.$dom.title_default_txt = $('Select aggregation type...');
-            m.$dom.title_prefix = $('<div>');
-            m.$dom.title_infix = $('<div>');
-            m.$dom.menu = $('.OG-analytics-form-menu', m.$dom.cntr)
+            m.$dom.title_prefix = $(dummy_s);
+            m.$dom.title_infix = $(dummy_s);
+            m.$dom.menu = $('.OG-analytics-form-menu', m.$dom.cntr);
             m.$dom.menu_actions = $('.OG-dropmenu-actions', m.$dom.menu);
             m.$dom.opt = $('.OG-dropmenu-options', m.$dom.menu);
             m.$dom.opt.data("pos", ((m.opts = []).push(m.$dom.opt), m.opts.length-1));
@@ -99,6 +102,5 @@ $.register_module({
                 .addListener(events.focus, m.focus.bind(m));
             return m;
         };
-        return DropMenu;
     }
 });

@@ -13,7 +13,7 @@ $.register_module({
     obj: function () { 
         return function (selector) {
             var emitter = new EventEmitter(), Form, ag_dropmenu = og.analytics.AggregatorsMenu,
-                ds_dropmenu = og.analytics.DatasourcesMenu, Status, events = {
+                ds_dropmenu = og.analytics.DatasourcesMenu, Status, MastHead, events = {
                     focus: 'dropmenu:focus',
                     focused:'dropmenu:focused',
                     open: 'dropmenu:open',
@@ -23,8 +23,7 @@ $.register_module({
                     closeall: 'dropmenu:closeall'
                 };
             Status = function (selector) {
-                var status = this, interval, ini
-                t = false;
+                var status = this, interval, init = false;
                 $(selector + ' button').on('click', function () {
                     if (!status.status || status.status === 'paused') return status.play();
                     if (status.status === 'playing') return status.pause();
@@ -50,7 +49,7 @@ $.register_module({
                 status.status = null;
                 return status;
             };
-            MastHead = function (template, search, aggregators, datasource) { //TODO AG: Keep things DRY as poss!
+            MastHead = function (template, search, aggregators, datasource) {
                 var MastHead = this, Form, ag_dropdwn, ds_dropdwn, vd_s = '.og-view',
                     fcntrls_s = 'input, select, button', ac_s = 'input autocompletechange autocompleteselect', 
                     $form = $(selector).html(template), $ag = $('.og-aggregation', $form), 
@@ -61,7 +60,7 @@ $.register_module({
                         keydown_handler = function (event) {
                             if (event.keyCode !== 9) return;
                             var $elem = $(this), shift_key = event.shiftKey,
-                                active_pos = function (elms, pos) {return $elem.is(elms[pos]())}
+                                active_pos = function (elms, pos) {return $elem.is(elms[pos]())};
                             if (!shift_key && ac_menu.state === 'focused') ag_dropdwn.emitEvent(events.open);
                             if (!shift_key && active_pos($ag_fcntrls,'last')) ds_dropdwn.emitEvent(events.open);
                             if (!shift_key && active_pos($ds_fcntrls, 'last')) ds_dropdwn.emitEvent(events.close);

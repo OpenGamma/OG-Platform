@@ -5,13 +5,12 @@ $.register_module({
     obj: function () { 
         return function (config) {
             var menu = new og.analytics.DropMenu(config), $dom = menu.$dom, opts = menu.opts, data = menu.data,
-                ag_opts = [], $ag_selection = $('.aggregation-selection', $dom.title),
-                default_sel_txt = 'select aggregation type...', options_s = '.OG-dropmenu-options';
-                $dom.title_prefix.append('<span>Aggregated by</span>');
-                $dom.title_infix.append('<span>then</span>');
+                ag_opts = [], $ag_selection = $('.aggregation-selection', $dom.title), sel_val, sel_pos, $sel_parent,
+                $sel_select, $sel_checkbox, default_sel_txt = 'select aggregation type...', del_s = '.og-icon-delete',
+                options_s = '.OG-dropmenu-options', select_s = 'select', checkbox_s = '.og-option :checkbox',
                 process_ag_opts = function () {
                     if(ag_opts.length) {
-                        var i = 0, arr = [], query, str;
+                        var i = 0, arr = [], query;
                         ag_opts.sort(sort_ag_opts).forEach(function (entry) {
                             if (i > 0) arr[i++] = $dom.title_infix.html() + " ";
                             arr[i++] = entry;
@@ -24,71 +23,76 @@ $.register_module({
                     if (a.pos < b.pos) return -1;
                     if (a.pos > b.pos) return 1;
                     return 0;
-                }
-                replace_entry = function (pos, val) {
-                    ag_opts[pos].val = val;
                 },
-                remove_entry = function (pos) {
+                remove_entry = function (entry) {
                     if (ag_opts.length === 1) {
-                        return $ag_selection.find('select').val(default_sel_txt).focus(), 
+                        return $sel_select.val(default_sel_txt).focus(),
                             $ag_selection.text(default_sel_txt), ag_opts = [];
                     }
-                    ag_opts.splice(pos, 1);
+                    ag_opts.splice(entry, 1);
                 },
-                del_handler = function (elem) {
-                    var parent = elem.parents(options_s), pos = parent.data('pos'), entry, 
-                        checkbox = parent.find('.og-option :checkbox');
+                del_handler = function (entry) {
                     if (menu.opts.length === 1) {
-                        return checkbox.attr('disabled', true), $ag_selection.html(default_sel_txt), 
-                            parent.find('select').val(default_sel_txt).focus(),
-                            remove_entry();
+                        return $sel_checkbox[0].disabled = true, $ag_selection.html(default_sel_txt), 
+                            $sel_select.val(default_sel_txt).focus(), remove_entry();
                     }
-                    entry = ag_opts.pluck('pos').indexOf(pos);
-                    menu.del_handler(parent); 
-                    update_opts_positions(entry !== -1 ? entry : pos);
+                    menu.del_handler($sel_parent); 
+                    for (var i = entry !== -1 ? entry : sel_pos, len = ag_opts.length; i < len; ag_opts[i++].pos-=1);
                     if (entry !== -1) {
                         remove_entry(entry);
                         process_ag_opts();
                     }
                 },
-                update_opts_positions = function (entry) {
-                    for (var i = entry, len = ag_opts.length; i < len;)
-                        ag_opts[i++].pos-=1;
-                }
                 add_handler = function () {
                     if (data.length === opts.length) return;
                     menu.add_handler(); 
-                };
-                select_handler = function (elem) {
-                    var parent = elem.parents(options_s), pos = parent.data('pos'), text, val = elem.val(),
-                        entry = ag_opts.pluck('pos').indexOf(pos), checkbox = parent.find('.og-option :checkbox');
-                    if (val === default_sel_txt) {
+                },
+                select_handler = function (entry) {
+                    if (sel_val === default_sel_txt) {
                         remove_entry(entry);
-                        checkbox.attr('disabled', true);
+                        $sel_checkbox[0].disabled = true;
                         if (ag_opts.length === 0) return $ag_selection.html(default_sel_txt);
-                    }
-                    else if (entry !== -1) replace_entry(entry, val);
+                    } else if (entry !== -1) ag_opts[entry].val = sel_val;
                     else {
-                        ag_opts.splice(pos, 0, {pos:pos, val:val, required_field:false});
-                        checkbox.removeAttr('disabled');
+                        ag_opts.splice(sel_pos, 0, {pos:sel_pos, val:sel_val, required_field:false});
+                        $sel_checkbox[0].disabled = false;
                     }
                     process_ag_opts();
                 },
-                checkbox_handler = function (elem) {
-                    var parent = elem.closest(options_s), pos = parent.data('data'),
-                        entry = ag_opts.pluck('pos').indexOf(pos);
-                    if (elem.checked && entry !== -1) ag_opts[entry].required_field = true;
-                    else if (!elem.checked && entry !== -1) ag_opts[entry].required_field = false;
-                    elem.focus();
+                checkbox_handler = function (entry) {
+                    if ($sel_checkbox.checked && entry !== -1) ag_opts[entry].required_field = true;
+                    else if (!$sel_checkbox.checked && entry !== -1) ag_opts[entry].required_field = false;
+                    $sel_checkbox.focus();
                 },
                 menu_handler = function (event) {
-                    var elem = $(event.target);
-                    if (elem.is(menu.$dom.add)) add_handler();
-                    if (elem.is('.og-icon-delete')) del_handler(elem);
-                    if (elem.is(':checkbox')) checkbox_handler(elem);
-                    if (elem.is('select')) select_handler(elem);
                     menu.stop(event);
+                    var elem = $(event.srcElement), entry;
+                        $sel_parent = elem.parents(options_s);
+                        $sel_select = $sel_parent.find(select_s);
+                        $sel_checkbox = $sel_parent.find(checkbox_s);
+                        sel_val = elem.val();
+                        sel_pos = $sel_parent.data('pos');
+                        entry = ag_opts.pluck('pos').indexOf(sel_pos);
+                    if (elem.is(menu.$dom.add)) return add_handler();
+                    if (elem.is(del_s)) return  del_handler(entry);
+                    if (elem.is($sel_checkbox)) return checkbox_handler(entry); 
+                    if (elem.is($sel_select)) return select_handler(entry);
+                },
+                // for replaying!
+                get_selected_position = function () {
+                    if (sel_pos !== undefined) return sel_pos
+                },
+                get_selected_parent = function () {
+                    if ($sel_parent !== undefined) return $sel_parent;
+                },
+                get_selected_value = function () {
+                    if (sel_val !== undefined) return sel_val;
+                },
+                get_selected_checkbox = function () {
+                    if ($sel_checkbox !== undefined) return $sel_checkbox; 
                 };
+            $dom.title_prefix.append('<span>Aggregated by</span>');
+            $dom.title_infix.append('<span>then</span>');
             $dom.title.on('click', menu.title_handler.bind(menu));
             $dom.menu.on('click', menu_handler).on('change', menu_handler);
             return menu;
