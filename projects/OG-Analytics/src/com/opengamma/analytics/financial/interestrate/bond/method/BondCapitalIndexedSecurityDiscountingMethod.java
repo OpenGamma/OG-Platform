@@ -13,7 +13,7 @@ import com.opengamma.analytics.financial.interestrate.PresentValueInflationCalcu
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.analytics.financial.interestrate.market.description.IMarketBundle;
 import com.opengamma.analytics.financial.interestrate.market.description.MarketDiscountBundle;
-import com.opengamma.analytics.financial.interestrate.market.description.MarketDiscountingDecorated;
+import com.opengamma.analytics.financial.interestrate.market.description.MarketDiscountBundleDiscountingDecorated;
 import com.opengamma.analytics.financial.interestrate.method.PricingMarketMethod;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.math.function.Function1D;
@@ -51,7 +51,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod implements Pricin
    */
   public MultipleCurrencyAmount presentValue(final BondCapitalIndexedSecurity<?> bond, final MarketDiscountBundle market) {
     ArgumentChecker.notNull(bond, "Bond");
-    MarketDiscountBundle creditDiscounting = new MarketDiscountingDecorated(market, bond.getCurrency(), market.getCurve(bond.getIssuerCurrency()));
+    MarketDiscountBundle creditDiscounting = new MarketDiscountBundleDiscountingDecorated(market, bond.getCurrency(), market.getCurve(bond.getIssuerCurrency()));
     final MultipleCurrencyAmount pvNominal = PVIC.visit(bond.getNominal(), creditDiscounting);
     final MultipleCurrencyAmount pvCoupon = PVIC.visit(bond.getCoupon(), creditDiscounting);
     return pvNominal.plus(pvCoupon);

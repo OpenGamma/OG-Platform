@@ -19,7 +19,7 @@ import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
 import com.opengamma.analytics.financial.interestrate.PresentValueInflationCalculator;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolation;
-import com.opengamma.analytics.financial.interestrate.market.MarketDataSets;
+import com.opengamma.analytics.financial.interestrate.market.MarketDiscountDataSets;
 import com.opengamma.analytics.financial.interestrate.market.description.CurveSensitivityMarket;
 import com.opengamma.analytics.financial.interestrate.market.description.MarketDiscountBundle;
 import com.opengamma.analytics.financial.interestrate.method.market.SensitivityFiniteDifferenceMarket;
@@ -37,12 +37,12 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class CouponInflationZeroCouponInterpolationDiscountingMethodTest {
 
-  private static final MarketDiscountBundle MARKET = MarketDataSets.createMarket1();
-  private static final IndexPrice[] PRICE_INDEXES = MarketDataSets.getPriceIndexes();
+  private static final MarketDiscountBundle MARKET = MarketDiscountDataSets.createMarket1();
+  private static final IndexPrice[] PRICE_INDEXES = MarketDiscountDataSets.getPriceIndexes();
   private static final IndexPrice PRICE_INDEX_EUR = PRICE_INDEXES[0];
   //  private static final PriceIndex PRICE_INDEX_UK = PRICE_INDEXES[1];
   private static final IndexPrice PRICE_INDEX_US = PRICE_INDEXES[2];
-  private static final IborIndex[] IBOR_INDEXES = MarketDataSets.getIborIndexes();
+  private static final IborIndex[] IBOR_INDEXES = MarketDiscountDataSets.getIborIndexes();
   private static final IborIndex EURIBOR3M = IBOR_INDEXES[0];
   //  private static final IborIndex EURIBOR6M = IBOR_INDEXES[1];
   private static final IborIndex USDLIBOR3M = IBOR_INDEXES[2];
@@ -124,7 +124,7 @@ public class CouponInflationZeroCouponInterpolationDiscountingMethodTest {
    * Tests the present value for curves with seasonal adjustment.
    */
   public void presentValueSeasonality() {
-    MarketDiscountBundle marketSeason = MarketDataSets.createMarket2(PRICING_DATE);
+    MarketDiscountBundle marketSeason = MarketDiscountDataSets.createMarket2(PRICING_DATE);
     int tenorYear = 5;
     double notional = 100000000;
     ZonedDateTime settleDate = ScheduleCalculator.getAdjustedDate(PRICING_DATE, USDLIBOR3M.getSpotLag(), CALENDAR_USD);
