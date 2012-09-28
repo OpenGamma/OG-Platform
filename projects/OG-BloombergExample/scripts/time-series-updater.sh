@@ -1,5 +1,3 @@
 #!/bin/sh
 
-cd `dirname $0`/..
-
-scripts/run-tool.sh com.opengamma.integration.tool.marketdata.BloombergTimeSeriesUpdateTool -c config/toolcontext/toolcontext-bloombergexample-bin.properties -l com/opengamma/util/test/info-logback.xml
+`dirname $0`/run-tool.sh com.opengamma.integration.tool.marketdata.BloombergTimeSeriesUpdateTool -c classpath:toolcontext/toolcontext-bloombergexample-bin.properties -l com/opengamma/util/test/info-logback.xml
