@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics;
@@ -84,7 +84,7 @@ public class PositionTradeScalingFunction extends AbstractFunction.NonCompiledIn
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     // Result properties are anything that was common to the input specifications
     ValueProperties common = null;
-    for (ValueSpecification input : inputs.keySet()) {
+    for (final ValueSpecification input : inputs.keySet()) {
       common = SumUtils.addProperties(common, input.getProperties());
     }
     if (common == null) {
@@ -101,7 +101,7 @@ public class PositionTradeScalingFunction extends AbstractFunction.NonCompiledIn
     ValueProperties common = null;
     // TODO: What if there are multiple trades? The original function requested them all as inputs and chose an arbitrary one here. We process them all as the
     // intersection of properties is required for the result
-    for (ComputedValue input : inputs.getAllValues()) {
+    for (final ComputedValue input : inputs.getAllValues()) {
       final Object value = input.getValue();
       if (value instanceof Double) {
         Double doubleValue = (Double) value;
@@ -185,7 +185,7 @@ public class PositionTradeScalingFunction extends AbstractFunction.NonCompiledIn
         final double scale = target.getPosition().getQuantity().doubleValue();
         for (int i = 0; i < n; i++) {
           for (int j = 0; j < m; j++) {
-            for (final int k = 0; k < l; j++) {
+            for (int k = 0; k < l; k++) {
               scaledValues[i][j][k] = values[i][j][k] * scale;
             }
           }
