@@ -22,7 +22,7 @@ public class ExchangeTradedInstrumentExpiryCalculatorFactory {
 
   public static ExchangeTradedInstrumentExpiryCalculator getCalculator(final String name) {
     final ExchangeTradedInstrumentExpiryCalculator calculator = s_instances.get(name);
-    if (s_instances != null) {
+    if (calculator != null) {
       return calculator;
     }
     throw new IllegalArgumentException("Could not get calculator called " + name);

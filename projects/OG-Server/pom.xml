@@ -30,9 +30,10 @@
           </execution>
         </executions>
         <configuration>
-          <templateFile>scripts-tools/script-template.ftl</templateFile>
+          <templateFile>scripts-templates/script-template.ftl</templateFile>
           <additionalScripts>
-            <param>scripts-tools/run-tool.sh</param>
+            <param>scripts-templates/run-tool.sh</param>
+            <param>scripts-templates/java-utils.sh</param>
           </additionalScripts>
         </configuration>      
       </plugin>
@@ -46,6 +47,8 @@
               <target>
                 <zip basedir="${project.build.directory}/scripts-tools" destfile="${project.build.directory}/scripts-tools.zip" />
                 <attachartifact file="${project.build.directory}/scripts-tools.zip" classifier="scripts-tools" type="zip" />
+                <zip basedir="scripts-templates" destfile="${project.build.directory}/scripts-templates.zip" />
+                <attachartifact file="${project.build.directory}/scripts-templates.zip" classifier="scripts-templates" type="zip" />
               </target>
             </configuration>
             <goals>

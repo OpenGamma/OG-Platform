@@ -97,7 +97,10 @@ public class PresentValueCreditDefaultSwapTest {
   private static final YieldCurve yieldCurve = YieldCurve.from(R);
 
   // Construct a survival curve based on a flat hazard rate term structure (for testing purposes only)
-  private static final SurvivalCurve flatSurvivalCurve = new SurvivalCurve();
+  private static final double hazardRate = (premiumLegCoupon / 10000.0) / (1 - curveRecoveryRate);
+  private static final double[] tenorsAsDoubles = new double[] {5 };
+  private static final double[] hazardRates = new double[] {hazardRate };
+  private static final SurvivalCurve flatSurvivalCurve = new SurvivalCurve(tenorsAsDoubles, hazardRates);
 
   // ----------------------------------------------------------------------------------
 

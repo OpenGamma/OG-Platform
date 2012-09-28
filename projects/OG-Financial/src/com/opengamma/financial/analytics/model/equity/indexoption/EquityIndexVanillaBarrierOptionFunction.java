@@ -84,7 +84,9 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
 
     // 2. Break the barrier security into it's vanilla analytic derivatives
     final Set<EquityIndexOption> vanillas = vanillaDecomposition(now, barrierSec, smoothing, overhedge);
-
+    if (vanillas.iterator().next().getTimeToSettlement() < 0.0) {
+      throw new OpenGammaRuntimeException("EquityBarrierOptionSecurity with expiry, " + barrierSec.getExpiry().getExpiry().toString() + ", has already settled.");
+    }
     // 3. Build up the market data bundle
     final StaticReplicationDataBundle market = buildMarketBundle(underlyingId, executionContext, inputs, target, desiredValues);
 

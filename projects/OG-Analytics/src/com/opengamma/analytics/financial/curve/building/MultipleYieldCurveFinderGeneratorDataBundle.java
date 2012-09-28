@@ -51,11 +51,13 @@ public class MultipleYieldCurveFinderGeneratorDataBundle {
   }
 
   /**
-   * Gets the instruments to be used for the curve construction..
+   * Gets the instruments to be used for the curve construction.
    * @return The instruments.
    */
   public InstrumentDerivative[] getInstruments() {
-    return _instruments;
+    InstrumentDerivative[] instruments = new InstrumentDerivative[_nbInstruments];
+    System.arraycopy(_instruments, 0, instruments, 0, _nbInstruments);
+    return instruments;
   }
 
   /**

@@ -118,7 +118,7 @@ public class SwaptionCashFixedIborG2ppNumericalIntegrationMethod implements Pric
   /**
    * Inner class to implement the integration used in price replication.
    */
-  private class SwaptionIntegrant extends Function2D<Double, Double> {
+  private static final class SwaptionIntegrant extends Function2D<Double, Double> {
 
     private final double[] _discountedCashFlowFixed;
     private final double[][] _alphaFixed;

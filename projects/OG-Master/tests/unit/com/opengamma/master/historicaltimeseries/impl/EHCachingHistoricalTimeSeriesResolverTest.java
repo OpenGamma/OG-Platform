@@ -30,7 +30,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 /**
  * Tests the {@link EHCachingHistoricalTimeSeriesResolver} class.
  */
-@Test
+@Test(singleThreaded = true)
 public class EHCachingHistoricalTimeSeriesResolverTest {
 
   private final LocalDate _date1 = LocalDate.now();

@@ -95,7 +95,7 @@ public class SwaptionCashFixedIborHullWhiteNumericalIntegrationMethod implements
   /**
    * Inner class to implement the integration used in price replication.
    */
-  private class SwaptionIntegrant extends Function1D<Double, Double> {
+  private static final class SwaptionIntegrant extends Function1D<Double, Double> {
 
     private final double[] _discountedCashFlowFixed;
     private final double[] _alphaFixed;

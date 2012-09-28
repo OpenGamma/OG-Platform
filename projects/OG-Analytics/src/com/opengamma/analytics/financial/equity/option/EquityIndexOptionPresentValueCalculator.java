@@ -5,14 +5,14 @@
  */
 package com.opengamma.analytics.financial.equity.option;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.analytics.financial.equity.AbstractDerivativeVisitor;
 import com.opengamma.analytics.financial.equity.Derivative;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
 import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap;
-
-import org.apache.commons.lang.Validate;
 
 /**
  * 
@@ -35,7 +35,7 @@ public final class EquityIndexOptionPresentValueCalculator extends AbstractDeriv
    * @param market The market curve bundle includes BlackVolatilitySurface, Forward Equity Curve, and Funding Curve
    * @return The fair value of the option
    */
-  public Double visitEquityIndexOption(EquityIndexOption derivative, StaticReplicationDataBundle market) {
+  public Double visitEquityIndexOption(final EquityIndexOption derivative, final StaticReplicationDataBundle market) {
     Validate.notNull(market);
     Validate.notNull(derivative);
     return PRICER.presentValue(derivative, market);
@@ -49,30 +49,28 @@ public final class EquityIndexOptionPresentValueCalculator extends AbstractDeriv
   }
 
   @Override
-  public Double visit(Derivative derivative) {
-    if (derivative instanceof EquityIndexOption) {
-      return visitEquityIndexOption((EquityIndexOption) derivative);
-    }
+  public Double visit(final Derivative derivative) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visit(EquityFuture).");
   }
 
   @Override
-  public Double visitEquityIndexOption(EquityIndexOption equityIndexOption) {
+  public Double visitEquityIndexOption(final EquityIndexOption equityIndexOption) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support an EquityIndexOption without an EquityOptionDataBundle");
   }
 
   @Override
-  public Double visitEquityFuture(EquityFuture equityFuture) {
+  public Double visitEquityFuture(final EquityFuture equityFuture) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitEquityFuture(). Try EquityFuturesPresentValueCalculator");
   }
 
   @Override
-  public Double visitEquityIndexDividendFuture(EquityIndexDividendFuture equityIndexDividendFuture) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitEquityIndexDividendFuture(). Try EquityFuturesPresentValueCalculator");
+  public Double visitEquityIndexDividendFuture(final EquityIndexDividendFuture equityIndexDividendFuture) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass()
+        + ") does not support visitEquityIndexDividendFuture(). Try EquityFuturesPresentValueCalculator");
   }
 
   @Override
-  public Double visitVarianceSwap(VarianceSwap derivative) {
+  public Double visitVarianceSwap(final VarianceSwap derivative) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitVarianceSwap(). Try VarianceSwapPresentValueCalculator");
   }
 

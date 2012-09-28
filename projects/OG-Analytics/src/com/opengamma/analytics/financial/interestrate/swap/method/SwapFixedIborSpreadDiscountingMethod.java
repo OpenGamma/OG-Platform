@@ -43,7 +43,7 @@ public final class SwapFixedIborSpreadDiscountingMethod extends SwapFixedCouponD
   /**
    * The methods.
    */
-  protected static final CouponIborSpreadDiscountingMethod METHOD_CPN_IBOR_SPREAD = CouponIborSpreadDiscountingMethod.getInstance();
+  private static final CouponIborSpreadDiscountingMethod METHOD_CPN_IBOR_SPREAD = CouponIborSpreadDiscountingMethod.getInstance();
 
   /**
    * Computes the coupon equivalent of a swap with margins (all coupons on the non-fixed leg should be CouponIborSpread).
@@ -54,8 +54,8 @@ public final class SwapFixedIborSpreadDiscountingMethod extends SwapFixedCouponD
    */
   public double couponEquivalentSpreadModified(final SwapFixedCoupon<? extends Payment> fixedCouponSwap, final double pvbp, final YieldCurveBundle curves) {
     ArgumentChecker.isTrue(fixedCouponSwap.getFirstLeg().getCurrency() == fixedCouponSwap.getSecondLeg().getCurrency(), "Both legs should be in the same currency");
-    double pvFixed = METHOD_ANNUITY.presentValuePositiveNotional(fixedCouponSwap.getFixedLeg(), curves).getAmount();
-    double pvSpread = presentValueSpreadPositiveNotional(fixedCouponSwap.getSecondLeg(), curves).getAmount();
+    final double pvFixed = METHOD_ANNUITY.presentValuePositiveNotional(fixedCouponSwap.getFixedLeg(), curves).getAmount();
+    final double pvSpread = presentValueSpreadPositiveNotional(fixedCouponSwap.getSecondLeg(), curves).getAmount();
     return (pvFixed - pvSpread) / pvbp;
   }
 
@@ -68,7 +68,7 @@ public final class SwapFixedIborSpreadDiscountingMethod extends SwapFixedCouponD
    * @return The spread-modified forward.
    */
   public double forwardSwapSpreadModified(final SwapFixedCoupon<? extends Payment> fixedCouponSwap, final double pvbp, final YieldCurveBundle curves) {
-    double pvFloatNoSpread = presentValueIborNoSpreadPositiveNotional(fixedCouponSwap.getSecondLeg(), curves).getAmount();
+    final double pvFloatNoSpread = presentValueIborNoSpreadPositiveNotional(fixedCouponSwap.getSecondLeg(), curves).getAmount();
     return pvFloatNoSpread / pvbp;
   }
 
@@ -78,12 +78,13 @@ public final class SwapFixedIborSpreadDiscountingMethod extends SwapFixedCouponD
    * @param curves The curves.
    * @return The present value.
    */
-  public CurrencyAmount presentValueSpreadPositiveNotional(Annuity<? extends Payment> leg, final YieldCurveBundle curves) {
+  public CurrencyAmount presentValueSpreadPositiveNotional(final Annuity<? extends Payment> leg, final YieldCurveBundle curves) {
     double pv = 0.0;
     for (int loopcpn = 0; loopcpn < leg.getNumberOfPayments(); loopcpn++) {
       ArgumentChecker.isTrue(leg.getNthPayment(loopcpn) instanceof CouponIborSpread, "Coupon should be Ibor with spread");
-      CouponIborSpread cpn = (CouponIborSpread) leg.getNthPayment(loopcpn);
-      pv += Math.abs(cpn.getNotional()) * cpn.getSpread() * cpn.getPaymentYearFraction() * curves.getCurve(cpn.getFundingCurveName()).getDiscountFactor(cpn.getPaymentTime());
+      final CouponIborSpread cpn = (CouponIborSpread) leg.getNthPayment(loopcpn);
+      pv += Math.abs(cpn.getNotional()) * cpn.getSpread() * cpn.getPaymentYearFraction()
+          * curves.getCurve(cpn.getFundingCurveName()).getDiscountFactor(cpn.getPaymentTime());
     }
     return CurrencyAmount.of(leg.getCurrency(), pv);
   }
@@ -94,7 +95,7 @@ public final class SwapFixedIborSpreadDiscountingMethod extends SwapFixedCouponD
    * @param curves The curves.
    * @return The present value.
    */
-  public CurrencyAmount presentValueIborNoSpreadPositiveNotional(Annuity<? extends Payment> leg, final YieldCurveBundle curves) {
+  public CurrencyAmount presentValueIborNoSpreadPositiveNotional(final Annuity<? extends Payment> leg, final YieldCurveBundle curves) {
     double pv = 0.0;
     for (int loopcpn = 0; loopcpn < leg.getNumberOfPayments(); loopcpn++) {
       ArgumentChecker.isTrue(leg.getNthPayment(loopcpn) instanceof CouponIborSpread, "Coupon should be Ibor with spread");

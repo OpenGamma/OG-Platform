@@ -64,11 +64,11 @@ public class CalibrateSurvivalCurveTest {
   private static final DayCount daycountFractionConvention = DayCountFactory.INSTANCE.getDayCount("ACT/360");
   private static final BusinessDayConvention businessdayAdjustmentConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
 
-  private static final boolean immAdjustMaturityDate = false;
+  private static final boolean immAdjustMaturityDate = true;
   private static final boolean adjustMaturityDate = false;
 
   private static final double notional = 10000000.0;
-  private static final double premiumLegCoupon = 60.0;
+  private static final double premiumLegCoupon = 100.0;
   private static final double valuationRecoveryRate = 0.40;
   private static double curveRecoveryRate = 0.40;
   private static final boolean includeAccruedPremium = false;
@@ -113,6 +113,124 @@ public class CalibrateSurvivalCurveTest {
       valuationRecoveryRate,
       curveRecoveryRate,
       includeAccruedPremium);
+
+  // ---------------------------------------------------------------------------------------
+
+  // Test to demonstrate calibration of a survival curve to market data
+
+  @Test
+  public void testBaselineSurvivalCurveCalibration() {
+
+    // -------------------------------------------------------------------------------------
+
+    final boolean outputResults = false;
+
+    // -------------------------------------------------------------------------------------
+
+    if (outputResults) {
+      System.out.println("Running Baseline Survival Curve Calibration test ...");
+    }
+
+    // -------------------------------------------------------------------------------------
+
+    // Define the market data
+
+    // The number of CDS instruments used to calibrate against
+    int numberOfCalibrationCDS = 1;
+
+    // The CDS tenors to calibrate to
+    final ZonedDateTime[] tenors = new ZonedDateTime[numberOfCalibrationCDS];
+
+    tenors[0] = DateUtils.getUTCDate(2008, 12, 20);
+    /*
+    tenors[1] = DateUtils.getUTCDate(2009, 6, 20);
+    tenors[2] = DateUtils.getUTCDate(2010, 6, 20);
+    tenors[3] = DateUtils.getUTCDate(2011, 6, 20);
+    tenors[4] = DateUtils.getUTCDate(2012, 6, 20);
+    tenors[5] = DateUtils.getUTCDate(2014, 6, 20);
+    tenors[6] = DateUtils.getUTCDate(2017, 6, 20);
+    tenors[7] = DateUtils.getUTCDate(2022, 6, 20);
+    tenors[8] = DateUtils.getUTCDate(2030, 6, 20);
+    tenors[9] = DateUtils.getUTCDate(2040, 6, 20);
+    */
+
+    // The market observed par CDS spreads at these tenors
+    final double[] marketSpreads = new double[numberOfCalibrationCDS];
+
+    marketSpreads[0] = 100.0;
+    /*
+    marketSpreads[1] = 100.0;
+    marketSpreads[2] = 100.0;
+    marketSpreads[3] = 100.0;
+    marketSpreads[4] = 100.0;
+    marketSpreads[5] = 100.0;
+    marketSpreads[6] = 100.0;
+    marketSpreads[7] = 100.0;
+    marketSpreads[8] = 100.0;
+    marketSpreads[9] = 100.0;
+    */
+
+    // The recovery rate assumption used in the PV calculations when calibrating
+    curveRecoveryRate = 0.40;
+
+    // -------------------------------------------------------------------------------------
+
+    // Create a calibration CDS (will be a modified version of the baseline CDS)
+    CreditDefaultSwapDefinition calibrationCDS = cds;
+
+    // Set the recovery rate of the calibration CDS used for the curve calibration
+    calibrationCDS = calibrationCDS.withCurveRecoveryRate(curveRecoveryRate);
+
+    // -------------------------------------------------------------------------------------
+
+    // Create a calibrate survival curve object
+    final CalibrateSurvivalCurve curve = new CalibrateSurvivalCurve();
+
+    // Calibrate the survival curve to the market observed par CDS spreads (returns survival probabilities as a vector of doubles)
+    double[] calibratedSurvivalCurve = curve.getCalibratedSurvivalCurve(calibrationCDS, tenors, marketSpreads, yieldCurve);
+
+    if (outputResults) {
+      for (int i = 0; i < numberOfCalibrationCDS; i++) {
+        System.out.println(calibratedSurvivalCurve[i]);
+      }
+    }
+
+    // -------------------------------------------------------------------------------------
+
+    /*
+    // Create the interpolation/extrapolation object
+
+    String interpolatorName = Interpolator1DFactory.LINEAR;
+    String leftExtrapolatorName = Interpolator1DFactory.FLAT_EXTRAPOLATOR;
+    String rightExtrapolatorName = Interpolator1DFactory.FLAT_EXTRAPOLATOR;
+
+    Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
+    */
+
+    // -----------------------------------------------------------------------------------------------
+
+    /*
+
+
+    // Get the daycount fraction convention of the CDS to be calibrated
+    DayCount dayCount = calibrationCDS.getDayCountFractionConvention();
+
+
+    GenerateCreditDefaultSwapPremiumLegSchedule temp = new GenerateCreditDefaultSwapPremiumLegSchedule();
+
+    // Convert the ZonedDateTime tenors into doubles (measured from valuationDate)
+    double[] tenorsAsDoubles = temp.convertDatesToDoubles(valuationDate, tenors, dayCount);
+
+    // Build the survival curve interpolation object from the calibrated survival probabilities
+    InterpolatedDoublesCurve S = InterpolatedDoublesCurve.from(tenorsAsDoubles, calibratedSurvivalCurve, interpolator);
+
+    // Construct the survival curve from the DoublesCurve (complete with interpolator/extrapolator)
+    //final SurvivalCurve testCurve = SurvivalCurve.from(S);
+     */
+
+    // -------------------------------------------------------------------------------------
+
+  }
 
   // ---------------------------------------------------------------------------------------
 

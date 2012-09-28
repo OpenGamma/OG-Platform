@@ -20,11 +20,13 @@ canonicalize() {
 
 BASENAME=${0##*/}
 COMPONENT=${BASENAME%.sh}
-PROJECT=og-examples
-PROJECTJAR=${PROJECT}.jar
 BASEDIR="$(dirname "$(dirname "$(canonicalize "$0")")")"
 SCRIPTDIR=${BASEDIR}/scripts
 cd "${BASEDIR}" || exit 1
+
+. ${SCRIPTDIR}/project-utils.sh
+. ${SCRIPTDIR}/java-utils.sh
+. ${SCRIPTDIR}/componentserver-init-utils.sh
 
 if [ ! -f ${BASEDIR}/install/db/hsqldb/example-db.properties ]; then
   echo The ${PROJECT} database could not be found.
@@ -32,8 +34,6 @@ if [ ! -f ${BASEDIR}/install/db/hsqldb/example-db.properties ]; then
   echo Exiting immediately...
   exit 1
 fi
-
-. ${SCRIPTDIR}/componentserver-init-utils.sh
 
 # Read default configs
 load_default_config

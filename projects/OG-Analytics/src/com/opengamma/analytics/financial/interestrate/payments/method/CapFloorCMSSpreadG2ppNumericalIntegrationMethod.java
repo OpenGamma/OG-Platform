@@ -145,7 +145,7 @@ public class CapFloorCMSSpreadG2ppNumericalIntegrationMethod {
   /**
    * Inner class to implement the integration used in price replication.
    */
-  private class SpreadIntegrant extends Function2D<Double, Double> {
+  private static final class SpreadIntegrant extends Function2D<Double, Double> {
 
     private final double[][] _discountedCashFlowFixed;
     private final double[][][] _alphaFixed;

@@ -62,7 +62,7 @@ public final class FixedCashFlowVisitor extends AbstractInstrumentDefinitionVisi
   public Map<LocalDate, MultipleCurrencyAmount> visitBondFixedTransactionDefinition(final BondFixedTransactionDefinition bond, final LocalDate fromDate) {
     ArgumentChecker.notNull(bond, "Fixed-coupon bond");
     ArgumentChecker.notNull(fromDate, "date");
-    return visitBondFixedSecurityDefinition(bond.getUnderlyingBond());
+    return bond.getUnderlyingBond().accept(this, fromDate);
   }
 
   @Override
@@ -80,7 +80,7 @@ public final class FixedCashFlowVisitor extends AbstractInstrumentDefinitionVisi
   public Map<LocalDate, MultipleCurrencyAmount> visitBillTransactionDefinition(final BillTransactionDefinition bill, final LocalDate fromDate) {
     ArgumentChecker.notNull(bill, "bill");
     ArgumentChecker.notNull(fromDate, "date");
-    return visitBillSecurityDefinition(bill.getUnderlying());
+    return bill.getUnderlying().accept(this, fromDate);
   }
 
   @Override

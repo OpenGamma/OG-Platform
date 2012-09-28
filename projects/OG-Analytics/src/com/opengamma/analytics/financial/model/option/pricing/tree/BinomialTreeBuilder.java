@@ -79,7 +79,7 @@ public abstract class BinomialTreeBuilder<T extends StandardOptionDataBundle> {
         double p;
         if (diff == 0.0) {
           // some branches of the tree are stuck at spot = 0.0 - this is not a problem as such
-          Validate.isTrue(forwards[j] == nodes[j], "inconsistent nodes");
+          Validate.isTrue(Double.doubleToLongBits(forwards[j]) == Double.doubleToLongBits(nodes[j]), "inconsistent nodes");
           p = 0.5; // Arbitrary as nodes are degenerate
         } else {
           p = (forwards[j] - nodes[j]) / diff;

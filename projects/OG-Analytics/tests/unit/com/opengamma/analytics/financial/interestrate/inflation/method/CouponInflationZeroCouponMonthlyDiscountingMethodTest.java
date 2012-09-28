@@ -19,7 +19,7 @@ import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyDefinition;
 import com.opengamma.analytics.financial.interestrate.PresentValueInflationCalculator;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthly;
-import com.opengamma.analytics.financial.interestrate.market.MarketDataSets;
+import com.opengamma.analytics.financial.interestrate.market.MarketDiscountDataSets;
 import com.opengamma.analytics.financial.interestrate.market.description.CurveSensitivityMarket;
 import com.opengamma.analytics.financial.interestrate.market.description.MarketDiscountBundle;
 import com.opengamma.analytics.financial.interestrate.method.market.SensitivityFiniteDifferenceMarket;
@@ -36,7 +36,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * Tests the present value and its sensitivities for zero-coupon with reference index on the first of the month.
  */
 public class CouponInflationZeroCouponMonthlyDiscountingMethodTest {
-  private static final MarketDiscountBundle MARKET = MarketDataSets.createMarket1();
+  private static final MarketDiscountBundle MARKET = MarketDiscountDataSets.createMarket1();
   private static final IndexPrice[] PRICE_INDEXES = MARKET.getPriceIndexes().toArray(new IndexPrice[0]);
   private static final IndexPrice PRICE_INDEX_EUR = PRICE_INDEXES[0];
   private static final IborIndex[] IBOR_INDEXES = MARKET.getIborIndexes().toArray(new IborIndex[0]);

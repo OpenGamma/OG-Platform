@@ -144,11 +144,12 @@ public class Annuity<P extends Payment> implements InstrumentDerivative {
 
   @Override
   public String toString() {
-    String result = "Annuity:";
+    StringBuffer result = new StringBuffer("Annuity:");
     for (final P payment : _payments) {
-      result += payment.toString() + "\n";
+      result.append(payment.toString());
+      result.append("\n");
     }
-    return result;
+    return result.toString();
   }
 
   @Override

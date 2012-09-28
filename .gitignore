@@ -55,3 +55,4 @@ LOCAL_STASH
 docs.sqlite3
 *.pid
 *.pyc
+.settings/

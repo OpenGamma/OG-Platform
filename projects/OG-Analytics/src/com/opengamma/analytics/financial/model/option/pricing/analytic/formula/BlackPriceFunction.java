@@ -66,7 +66,7 @@ public class BlackPriceFunction implements OptionPriceFunction<BlackFunctionData
     // Implementation Note: Forward sweep.
     double volblack = 0, kappa = 0, d1 = 0, d2 = 0;
     double x = 0;
-    if (strike < eps | sqrttheta < eps) {
+    if (strike < eps || sqrttheta < eps) {
       x = omega * (forward - strike);
       priceAdjoint[0] = (x > 0 ? discountFactor * x : 0.0);
     } else {
@@ -79,7 +79,7 @@ public class BlackPriceFunction implements OptionPriceFunction<BlackFunctionData
     // Implementation Note: Backward sweep.
     double pBar = 1.0;
     double forwardBar = 0, strikeBar = 0, volblackBar = 0, volatilityBar = 0;
-    if (strike < eps | sqrttheta < eps) {
+    if (strike < eps || sqrttheta < eps) {
       forwardBar = (x > 0 ? discountFactor * omega : 0.0);
       strikeBar = (x > 0 ? -discountFactor * omega : 0.0);
     } else {
@@ -129,7 +129,7 @@ public class BlackPriceFunction implements OptionPriceFunction<BlackFunctionData
     // Implementation Note: Forward sweep.
     double volblack = 0, kappa = 0, d1 = 0, d2 = 0;
     double x = 0;
-    if (strike < eps | sqrttheta < eps) {
+    if (strike < eps || sqrttheta < eps) {
       x = omega * (forward - strike);
       p = (x > 0 ? discountFactor * x : 0.0);
     } else {
@@ -144,7 +144,7 @@ public class BlackPriceFunction implements OptionPriceFunction<BlackFunctionData
     double density1 = 0.0;
     double d1Bar = 0.0;
     double forwardBar = 0, strikeBar = 0, volblackBar = 0, volatilityBar = 0;
-    if (strike < eps | sqrttheta < eps) {
+    if (strike < eps || sqrttheta < eps) {
       forwardBar = (x > 0 ? discountFactor * omega : 0.0);
       strikeBar = (x > 0 ? -discountFactor * omega : 0.0);
     } else {

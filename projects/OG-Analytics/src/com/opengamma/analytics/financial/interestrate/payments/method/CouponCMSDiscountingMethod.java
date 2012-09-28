@@ -63,6 +63,7 @@ public final class CouponCMSDiscountingMethod implements PricingMethod {
   @Override
   public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof CouponCMS, "Coupon CMS");
+    Validate.isTrue(curves instanceof HullWhiteOneFactorPiecewiseConstantDataBundle, "Hull-White data");
     return presentValue((CouponCMS) instrument, (HullWhiteOneFactorPiecewiseConstantDataBundle) curves);
   }
 
