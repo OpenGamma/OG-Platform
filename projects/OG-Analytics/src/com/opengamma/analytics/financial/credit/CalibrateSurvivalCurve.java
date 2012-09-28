@@ -39,7 +39,7 @@ public class CalibrateSurvivalCurve {
     this(DEFAULT_MAX_NUMBER_OF_ITERATIONS, DEFAULT_TOLERANCE, DEFAULT_HAZARD_RATE_RANGE_MULTIPLIER);
   }
 
-  //Ctor to initialise a CalibrateSurvivalCurve object with user specified values for the root finder
+  // Ctor to initialise a CalibrateSurvivalCurve object with user specified values for the root finder
   public CalibrateSurvivalCurve(int maximumNumberOfIterations, double tolerance, double hazardRateRangeMultiplier) {
     _tolerance = tolerance;
     _maximumNumberOfIterations = maximumNumberOfIterations;
@@ -68,6 +68,13 @@ public class CalibrateSurvivalCurve {
     // ----------------------------------------------------------------------------
 
     int numberOfTenors = tenors.length;
+    int numberOfMarketSpreads = marketSpreads.length;
+
+    // Vector of (calibrated) piecewise constant hazard rates that we compute from the solver
+    double[] hazardRates = new double[numberOfTenors];
+
+    // Vector of survival probabilities that are to be returned (does not include time zero - the valuationDate where surv prob is unity)
+    double[] calibratedSurvivalCurve = new double[numberOfTenors];
 
     // ----------------------------------------------------------------------------
 
@@ -81,6 +88,10 @@ public class CalibrateSurvivalCurve {
     ArgumentChecker.notNull(tenors, "Tenors field");
     ArgumentChecker.notNull(marketSpreads, "Market observed CDS spreads field");
 
+    // Check that the number of input tenors matches the number of input spreads
+    ArgumentChecker.isTrue(numberOfTenors == numberOfMarketSpreads, "Number of tenors and number of spreads should be equal");
+
+    // Check the efficacy of the input market data
     for (int m = 1; m < numberOfTenors; m++) {
       ArgumentChecker.isTrue(tenors[m].isAfter(tenors[m - 1]), "Tenors not in ascending order");
       ArgumentChecker.notNegative(marketSpreads[m], "Market spread at tenor " + tenors[m]);
@@ -94,14 +105,6 @@ public class CalibrateSurvivalCurve {
 
     // Get the daycount fraction convention
     DayCount dayCount = cds.getDayCountFractionConvention();
-
-    // ----------------------------------------------------------------------------
-
-    // Vector of (calibrated) piecewise constant hazard rates that we compute from the solver
-    double[] hazardRates = new double[numberOfTenors];
-
-    // Vector of survival probabilities that are to be returned (does not include time zero - valuationDate)
-    double[] calibratedSurvivalCurve = new double[numberOfTenors];
 
     // ----------------------------------------------------------------------------
 
@@ -128,6 +131,12 @@ public class CalibrateSurvivalCurve {
       // Populate this vector with the first m tenors (needed to construct the survival curve using these tenors)
       for (int i = 0; i <= m; i++) {
         runningTenors[i] = tenorsAsDoubles[i];
+      }
+
+      if (m == 0) {
+        double hazardRateGuess = (calibrationCDS.getPremiumLegCoupon() / 10000.0) / (1 - calibrationCDS.getCurveRecoveryRate());
+
+        hazardRates[m] = hazardRateGuess;
       }
 
       // Modify the calibration CDS to have a maturity of tenor[m] and contractual spread marketSpread[m] 
@@ -161,6 +170,8 @@ public class CalibrateSurvivalCurve {
     double deltaHazardRate = 0.0;
     double calibratedHazardRate = 0.0;
 
+    // ------------------------------------------------------------------------
+
     // Calculate the initial guess for the calibrated hazard rate
     double hazardRateGuess = (calibrationCDS.getPremiumLegCoupon() / 10000.0) / (1 - calibrationCDS.getCurveRecoveryRate());
 
@@ -168,22 +179,28 @@ public class CalibrateSurvivalCurve {
     double lowerHazardRate = (1.0 - _hazardRateRangeMultiplier) * hazardRateGuess;
     double upperHazardRate = (1.0 + _hazardRateRangeMultiplier) * hazardRateGuess;
 
+    // ------------------------------------------------------------------------
+
     // Make sure the initial hazard rate bounds are in the range [0, 1] (otherwise would have arbitrage)
-    if (lowerHazardRate < 0.0) {
+    if ((lowerHazardRate) < 0.0) {
       lowerHazardRate = 0.0;
     }
 
-    if (upperHazardRate > 1.0) {
+    if ((upperHazardRate) > 1.0) {
       upperHazardRate = 1.0;
     }
 
+    // ------------------------------------------------------------------------
+
     // Construct a hazard rate curve using the first m tenors in runningTenors
-    //SurvivalCurve survivalCurve = new SurvivalCurve(runningTenors, hazardRates);
+    SurvivalCurve survivalCurve = new SurvivalCurve(runningTenors, hazardRates);
+
+    for (int i = 0; i < runningTenors.length; i++) {
+      System.out.println(runningTenors[i] + "\t" + hazardRates[i]);
+    }
 
     // ------------------------------------------------------------------------
 
-    /*
-    
     // Now do the root search (in hazard rate space) - simple bisection method for the moment (guaranteed to work and we are not concerned with speed at the moment)
 
     // Calculate the CDS PV at the lower hazard rate bound
@@ -193,12 +210,16 @@ public class CalibrateSurvivalCurve {
     double cdsPresentValueAtMidPoint = calculateCDSPV(calibrationCDS, presentValueCDS, runningTenors, hazardRates, upperHazardRate, yieldCurve, survivalCurve);
 
     // Orient the search
-    if (cdsPresentValueAtLowerPoint < 0.0) {
+    if ((cdsPresentValueAtLowerPoint) < 0.0) {
+
       deltaHazardRate = upperHazardRate - lowerHazardRate;
       calibratedHazardRate = lowerHazardRate;
+
     } else {
+
       deltaHazardRate = lowerHazardRate - upperHazardRate;
       calibratedHazardRate = upperHazardRate;
+
     }
 
     // The actual bisection routine
@@ -213,16 +234,17 @@ public class CalibrateSurvivalCurve {
       // Calculate the CDS PV at the hazard rate range midpoint
       cdsPresentValueAtMidPoint = calculateCDSPV(calibrationCDS, presentValueCDS, runningTenors, hazardRates, hazardRateMidpoint, yieldCurve, survivalCurve);
 
-      if (cdsPresentValueAtMidPoint <= 0.0) {
+      //System.out.println("i = " + i + ", cdsPresentValueAtMidPoint = " + cdsPresentValueAtMidPoint);
+
+      if ((cdsPresentValueAtMidPoint) <= 0.0) {
         calibratedHazardRate = hazardRateMidpoint;
       }
 
       // Check to see if we have converged to within the specified tolerance or that we are at the root
-      if (Math.abs(deltaHazardRate) < _tolerance || cdsPresentValueAtMidPoint == 0.0) {
+      if ((Math.abs(deltaHazardRate)) < _tolerance || (cdsPresentValueAtMidPoint) == 0.0) {
         return calibratedHazardRate;
       }
     }
-    */
 
     // ------------------------------------------------------------------------
 
@@ -246,10 +268,12 @@ public class CalibrateSurvivalCurve {
     hazardRates[numberOfTenors - 1] = hazardRateMidPoint;
 
     // Modify the survival curve so that it has the modified vector of hazard rates as an input to the ctor
-    //survivalCurve = survivalCurve.bootstrapHelperSurvivalCurve(tenors, hazardRates);
+    survivalCurve = survivalCurve.bootstrapHelperSurvivalCurve(tenors, hazardRates);
 
     // Compute the PV of the CDS with this term structure of hazard rates
-    double cdsPresentValueAtMidpoint = 0.0; //presentValueCDS.getPresentValueCreditDefaultSwap(calibrationCDS, yieldCurve, survivalCurve);
+    double cdsPresentValueAtMidpoint = presentValueCDS.getPresentValueCreditDefaultSwap(calibrationCDS, yieldCurve, survivalCurve);
+
+    System.out.println("hazardRateMidPoint = " + hazardRateMidPoint);
 
     return cdsPresentValueAtMidpoint;
   }
