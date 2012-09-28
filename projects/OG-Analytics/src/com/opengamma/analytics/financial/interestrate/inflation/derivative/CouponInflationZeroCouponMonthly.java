@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.interestrate.inflation.derivative;
 
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.market.IMarketBundle;
+import com.opengamma.analytics.financial.interestrate.market.description.IMarketBundle;
 import com.opengamma.util.money.Currency;
 
 /**

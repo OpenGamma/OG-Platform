@@ -44,7 +44,8 @@
   </dependencies>
 
   <properties>
-    <og-platform.basedir>${project.parent.basedir}/../..</og-platform.basedir>
+    <tests.testng.includedgroups>unit</tests.testng.includedgroups>
+    <tests.testng.exludedgroups>integration, bbgSecurityLoaderTests, bbgSecurityFutureTests, bbgSubscriptionTests</tests.testng.excludedgroups>
   </properties>
 
 </project>

@@ -21,8 +21,8 @@ import com.opengamma.analytics.financial.interestrate.PresentValueInflationCalcu
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.analytics.financial.interestrate.inflation.method.CouponInflationZeroCouponInterpolationGearingDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.inflation.method.CouponInflationZeroCouponMonthlyGearingDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.market.MarketDiscountBundle;
 import com.opengamma.analytics.financial.interestrate.market.MarketDataSets;
+import com.opengamma.analytics.financial.interestrate.market.description.MarketDiscountBundle;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
@@ -35,7 +35,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
-import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
@@ -88,15 +88,14 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
     MarketDiscountBundle marketUKGovt = new MarketDiscountBundle();
     marketUKGovt.setCurve(BOND_SECURITY_GILT_1.getCurrency(), MARKET.getCurve(BOND_SECURITY_GILT_1.getIssuerCurrency()));
     marketUKGovt.setCurve(PRICE_INDEX_UKRPI, MARKET.getCurve(PRICE_INDEX_UKRPI));
-    CurrencyAmount pvNominal = METHOD_INFLATION_ZC_MONTHLY.presentValue(BOND_SECURITY_GILT_1.getNominal().getNthPayment(0), marketUKGovt);
-    CurrencyAmount pvCoupon = CurrencyAmount.of(BOND_SECURITY_GILT_1.getCurrency(), 0.0);
+    MultipleCurrencyAmount pvNominal = METHOD_INFLATION_ZC_MONTHLY.presentValue(BOND_SECURITY_GILT_1.getNominal().getNthPayment(0), marketUKGovt);
+    MultipleCurrencyAmount pvCoupon = MultipleCurrencyAmount.of(BOND_SECURITY_GILT_1.getCurrency(), 0.0);
     for (int loopcpn = 0; loopcpn < BOND_SECURITY_GILT_1.getCoupon().getNumberOfPayments(); loopcpn++) {
       pvCoupon = pvCoupon.plus(PVIC.visit(BOND_SECURITY_GILT_1.getCoupon().getNthPayment(loopcpn), marketUKGovt));
     }
-    CurrencyAmount pvExpectd = pvNominal.plus(pvCoupon);
-    CurrencyAmount pv = METHOD_BOND_INFLATION.presentValue(BOND_SECURITY_GILT_1, MARKET);
-    assertEquals("Inflation Capital Indexed bond: present value", pvExpectd.getAmount(), pv.getAmount(), 1.0E-2);
-    assertEquals("Inflation Capital Indexed bond: present value", pvExpectd.getCurrency(), pv.getCurrency());
+    MultipleCurrencyAmount pvExpectd = pvNominal.plus(pvCoupon);
+    MultipleCurrencyAmount pv = METHOD_BOND_INFLATION.presentValue(BOND_SECURITY_GILT_1, MARKET);
+    assertEquals("Inflation Capital Indexed bond: present value", pvExpectd.getAmount(BOND_SECURITY_GILT_1.getCurrency()), pv.getAmount(BOND_SECURITY_GILT_1.getCurrency()), 1.0E-2);
   }
 
   @Test
@@ -104,8 +103,8 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
    * Tests the present value Method vs Calculator.
    */
   public void presentValueMethodVsCalculator() {
-    CurrencyAmount pvMethod = METHOD_BOND_INFLATION.presentValue(BOND_SECURITY_GILT_1, MARKET);
-    CurrencyAmount pvCalculator = PVIC.visit(BOND_SECURITY_GILT_1, MARKET);
+    MultipleCurrencyAmount pvMethod = METHOD_BOND_INFLATION.presentValue(BOND_SECURITY_GILT_1, MARKET);
+    MultipleCurrencyAmount pvCalculator = PVIC.visit(BOND_SECURITY_GILT_1, MARKET);
     assertEquals("Inflation Capital Indexed bond: present value", pvMethod, pvCalculator);
   }
 
@@ -138,15 +137,14 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
     MarketDiscountBundle marketUSGovt = new MarketDiscountBundle();
     marketUSGovt.setCurve(BOND_SECURITY_TIPS_1.getCurrency(), MARKET.getCurve(BOND_SECURITY_TIPS_1.getIssuerCurrency()));
     marketUSGovt.setCurve(PRICE_INDEX_USCPI, MARKET.getCurve(PRICE_INDEX_USCPI));
-    CurrencyAmount pvNominal = METHOD_INFLATION_ZC_INTERPOLATION.presentValue(BOND_SECURITY_TIPS_1.getNominal().getNthPayment(0), marketUSGovt);
-    CurrencyAmount pvCoupon = CurrencyAmount.of(BOND_SECURITY_TIPS_1.getCurrency(), 0.0);
+    MultipleCurrencyAmount pvNominal = METHOD_INFLATION_ZC_INTERPOLATION.presentValue(BOND_SECURITY_TIPS_1.getNominal().getNthPayment(0), marketUSGovt);
+    MultipleCurrencyAmount pvCoupon = MultipleCurrencyAmount.of(BOND_SECURITY_TIPS_1.getCurrency(), 0.0);
     for (int loopcpn = 0; loopcpn < BOND_SECURITY_TIPS_1.getCoupon().getNumberOfPayments(); loopcpn++) {
       pvCoupon = pvCoupon.plus(PVIC.visit(BOND_SECURITY_TIPS_1.getCoupon().getNthPayment(loopcpn), marketUSGovt));
     }
-    CurrencyAmount pvExpectd = pvNominal.plus(pvCoupon);
-    CurrencyAmount pv = METHOD_BOND_INFLATION.presentValue(BOND_SECURITY_TIPS_1, MARKET);
-    assertEquals("Inflation Capital Indexed bond: present value", pvExpectd.getAmount(), pv.getAmount(), 1.0E-2);
-    assertEquals("Inflation Capital Indexed bond: present value", pvExpectd.getCurrency(), pv.getCurrency());
+    MultipleCurrencyAmount pvExpectd = pvNominal.plus(pvCoupon);
+    MultipleCurrencyAmount pv = METHOD_BOND_INFLATION.presentValue(BOND_SECURITY_TIPS_1, MARKET);
+    assertEquals("Inflation Capital Indexed bond: present value", pvExpectd.getAmount(BOND_SECURITY_TIPS_1.getCurrency()), pv.getAmount(BOND_SECURITY_TIPS_1.getCurrency()), 1.0E-2);
   }
 
   @Test
@@ -155,7 +153,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
    */
   public void presentValueFromCleanPriceRealTips1() {
     double cleanPriceReal = 1.05;
-    CurrencyAmount pv = METHOD_BOND_INFLATION.presentValueFromCleanPriceReal(BOND_SECURITY_TIPS_1, MARKET, cleanPriceReal);
+    MultipleCurrencyAmount pv = METHOD_BOND_INFLATION.presentValueFromCleanPriceReal(BOND_SECURITY_TIPS_1, MARKET, cleanPriceReal);
 
     double dirtyReal = cleanPriceReal + BOND_SECURITY_TIPS_1.getAccruedInterest() / NOTIONAL_TIPS_1;
     ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(PRICING_DATE, SETTLEMENT_DAYS_TIPS_1, CALENDAR_USD);
@@ -173,7 +171,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
     double pvAtSettle = dirtyReal * estimatedIndex / BOND_SECURITY_TIPS_1.getIndexStartValue() * NOTIONAL_TIPS_1;
     double dfSettle = MARKET.getDiscountFactor(BOND_SECURITY_TIPS_1.getCurrency(), BOND_SECURITY_TIPS_1.getSettlementTime());
     double pvExpected = pvAtSettle * dfSettle;
-    assertEquals("Inflation Capital Indexed bond: present value from clean real price", pvExpected, pv.getAmount(), 1.0E-6);
+    assertEquals("Inflation Capital Indexed bond: present value from clean real price", pvExpected, pv.getAmount(BOND_SECURITY_TIPS_1.getCurrency()), 1.0E-6);
   }
 
   @Test

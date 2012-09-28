@@ -71,6 +71,9 @@ public class ExternallyProvidedSensitivitiesYieldCurveCS01Function extends Abstr
       return createValueProperties(); //TODO what to do in this case?
     }
     final Currency ccy = FinancialSecurityUtils.getCurrency(security);
+    if (ccy == null) {
+      return createValueProperties(); //TODO is a problem for externally-provided securities 
+    }
     final ValueProperties.Builder properties = createValueProperties();
     properties.with(ValuePropertyNames.CURRENCY, ccy.getCode());
     return properties;

@@ -3,11 +3,11 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.market;
+package com.opengamma.analytics.financial.interestrate.market.description;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.instrument.index.IborIndex;
+import com.opengamma.analytics.financial.instrument.index.IndexDeposit;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
 /**
@@ -18,7 +18,7 @@ public class MarketForwardTimeDecorated extends MarketDiscountBundle {
   /**
    * The Ibor index for which the market is decorated.
    */
-  private final IborIndex _index;
+  private final IndexDeposit _index;
   /**
    * The curve to be decorated. 
    */
@@ -39,7 +39,7 @@ public class MarketForwardTimeDecorated extends MarketDiscountBundle {
    * @param time The time.
    * @param shift The shift.
    */
-  public MarketForwardTimeDecorated(MarketDiscountBundle market, IborIndex index, double time, double shift) {
+  public MarketForwardTimeDecorated(MarketDiscountBundle market, IndexDeposit index, double time, double shift) {
     super(market);
     Validate.notNull(index, "Index");
     _index = index;
@@ -49,7 +49,7 @@ public class MarketForwardTimeDecorated extends MarketDiscountBundle {
   }
 
   @Override
-  public double getForwardRate(IborIndex index, double startTime, double endTime, double accuralFactor) {
+  public double getForwardRate(IndexDeposit index, double startTime, double endTime, double accuralFactor) {
     if (index == _index) {
       if (_time == startTime) {
         double rateStart = -Math.log(_forwardCurve.getDiscountFactor(_time)) / _time;

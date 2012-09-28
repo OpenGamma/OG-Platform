@@ -88,7 +88,7 @@ public class PresentValueForexBlackVolatilityQuoteSensitivityDataBundle {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
@@ -98,17 +98,17 @@ public class PresentValueForexBlackVolatilityQuoteSensitivityDataBundle {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final PresentValueForexBlackVolatilityQuoteSensitivityDataBundle other = (PresentValueForexBlackVolatilityQuoteSensitivityDataBundle) obj;
+    PresentValueForexBlackVolatilityQuoteSensitivityDataBundle other = (PresentValueForexBlackVolatilityQuoteSensitivityDataBundle) obj;
     if (!ObjectUtils.equals(_currencyPair, other._currencyPair)) {
       return false;
     }
-    if (!ObjectUtils.equals(_vega, other._vega)) {
+    if (!Arrays.equals(_delta, other._delta)) {
       return false;
     }
-    if (!ObjectUtils.equals(_expiries, other._expiries)) {
+    if (!Arrays.equals(_expiries, other._expiries)) {
       return false;
     }
-    if (!ObjectUtils.equals(_delta, other._delta)) {
+    if (!Arrays.equals(_vega, other._vega)) {
       return false;
     }
     return true;

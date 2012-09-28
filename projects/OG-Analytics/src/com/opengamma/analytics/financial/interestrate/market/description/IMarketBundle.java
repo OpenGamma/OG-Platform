@@ -3,11 +3,15 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.market;
+package com.opengamma.analytics.financial.interestrate.market.description;
 
-import com.opengamma.analytics.financial.instrument.index.IborIndex;
+import java.util.List;
+import java.util.Set;
+
+import com.opengamma.analytics.financial.instrument.index.IndexDeposit;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -37,6 +41,20 @@ public interface IMarketBundle {
   String getName(Currency ccy);
 
   /**
+   * Returns a set of all the currencies available for discounting.
+   * @return The currency set.
+   */
+  Set<Currency> getAllCurrencies();
+
+  /**
+   * Computes the sensitivity to the parameters of the given currency discounting curve from the sensitivity to yield (continuously compounded) at intermediary points.
+   * @param ccy The currency.
+   * @param pointSensitivity The point yield sensitivity.
+   * @return The parameters sensitivity.
+   */
+  double[] parameterSensitivity(Currency ccy, List<DoublesPair> pointSensitivity);
+
+  /**
    * Gets the forward for one Ibor index between start and end times.
    * @param index The Ibor index.
    * @param startTime The start time.
@@ -44,7 +62,7 @@ public interface IMarketBundle {
    * @param accrualFactor The Ibor accrual factor.
    * @return The forward rate.
    */
-  double getForwardRate(IborIndex index, double startTime, double endTime, double accrualFactor);
+  double getForwardRate(IndexDeposit index, double startTime, double endTime, double accrualFactor);
 
   /**
    * Gets the forward for one Ibor index between start and end times.
@@ -52,14 +70,28 @@ public interface IMarketBundle {
    * @param startTime The start time.
    * @return The forward rate.
    */
-  double getForwardRate(IborIndex index, double startTime);
+  double getForwardRate(IndexDeposit index, double startTime);
 
   /**
-   * Returns the name associated to the forward in an index.
+   * Returns the curve name associated to an index.
    * @param index The index.
    * @return The name.
    */
-  String getName(IborIndex index);
+  String getName(IndexDeposit index);
+
+  /**
+   * Returns a set of all the index available for forward.
+   * @return The index set.
+   */
+  Set<IndexDeposit> getAllIndexDeposit();
+
+  /**
+   * Computes the sensitivity to the parameters of the given index forward curve from the sensitivity to forward rate at intermediary points.
+   * @param index The index.
+   * @param pointSensitivity The point yield sensitivity.
+   * @return The parameters sensitivity.
+   */
+  double[] parameterSensitivity(IndexDeposit index, List<MarketForwardSensitivity> pointSensitivity);
 
   /**
    * Gets the estimated price index for a given reference time.

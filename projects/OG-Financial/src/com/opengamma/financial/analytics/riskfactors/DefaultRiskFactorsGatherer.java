@@ -243,7 +243,7 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
       if (type == InterestRateInstrumentType.SWAP_CMS_CMS ||
         type == InterestRateInstrumentType.SWAP_FIXED_CMS ||
         type == InterestRateInstrumentType.SWAP_IBOR_CMS) {
-        builder.add(getVegaCubeMatrix(ValueProperties.with(ValuePropertyNames.CUBE, "BLOOMBERG")));
+        builder.add(getVegaQuoteCubeMatrix(ValueProperties.with(ValuePropertyNames.CUBE, "BLOOMBERG")));
       } else if (type == InterestRateInstrumentType.SWAP_FIXED_IBOR ||
         type == InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD ||
         type == InterestRateInstrumentType.SWAP_IBOR_IBOR) {
@@ -262,6 +262,7 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
       .add(getEquityValue(ValueRequirementNames.PRESENT_VALUE, underlyingId))
       .add(getEquityValue(ValueRequirementNames.VEGA_QUOTE_MATRIX, underlyingId))
+      .add(getEquityValue(ValueRequirementNames.VEGA_MATRIX, underlyingId))
       .add(getEquityValue(ValueRequirementNames.VALUE_VEGA, underlyingId))
       .add(getEquityValue(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, underlyingId))
       .add(getEquityValue(ValueRequirementNames.VALUE_DELTA, underlyingId))
@@ -278,6 +279,7 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
       .add(getEquityValue(ValueRequirementNames.PRESENT_VALUE, underlyingId))
       .add(getEquityValue(ValueRequirementNames.VEGA_QUOTE_MATRIX, underlyingId))
+      .add(getEquityValue(ValueRequirementNames.VEGA_MATRIX, underlyingId))
       .add(getEquityValue(ValueRequirementNames.VALUE_VEGA, underlyingId))
       .add(getEquityValue(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, underlyingId))
       .add(getEquityValue(ValueRequirementNames.VALUE_DELTA, underlyingId))
@@ -313,6 +315,9 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
         .add(getFXYieldCurveNodeSensitivities(_configProvider.getFXCurve(security.getPutCurrency()), security.getPutCurrency()));
       String surfaceName = _configProvider.getFXVanillaOptionSurfaceName(security.getCallCurrency(), security.getPutCurrency());
       if (surfaceName != null) {
+        builder.add(getFXVegaQuoteMatrix(ValueProperties
+            .with(ValuePropertyNames.SURFACE, surfaceName) 
+            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)));
         builder.add(getFXVegaMatrix(ValueProperties
             .with(ValuePropertyNames.SURFACE, surfaceName) 
             .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)));
@@ -331,6 +336,9 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
         .add(getFXYieldCurveNodeSensitivities(_configProvider.getFXCurve(security.getPutCurrency()), security.getPutCurrency()));
       String surfaceName = _configProvider.getFXVanillaOptionSurfaceName(security.getCallCurrency(), security.getPutCurrency());
       if (surfaceName != null) {
+        builder.add(getFXVegaQuoteMatrix(ValueProperties
+            .with(ValuePropertyNames.SURFACE, surfaceName) 
+            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)));
         builder.add(getFXVegaMatrix(ValueProperties
             .with(ValuePropertyNames.SURFACE, surfaceName) 
             .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)));
@@ -349,6 +357,9 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
         .add(getFXYieldCurveNodeSensitivities(_configProvider.getFXCurve(security.getPutCurrency()), security.getPutCurrency()));
       String surfaceName = _configProvider.getFXVanillaOptionSurfaceName(security.getCallCurrency(), security.getPutCurrency());
       if (surfaceName != null) {
+        builder.add(getFXVegaQuoteMatrix(ValueProperties
+            .with(ValuePropertyNames.SURFACE, surfaceName) 
+            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)));
         builder.add(getFXVegaMatrix(ValueProperties
             .with(ValuePropertyNames.SURFACE, surfaceName) 
             .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)));
@@ -365,7 +376,7 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
       .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCurrency()), security.getCurrency()))
       .addAll(getSabrSensitivities())
       .add(getPresentValue(ValueProperties.with(ValuePropertyNames.CUBE, _configProvider.getSwaptionVolatilityCubeName(security.getCurrency()))))
-      .add(getVegaCubeMatrix(ValueProperties.with(ValuePropertyNames.CUBE, "BLOOMBERG"))).build();
+      .add(getVegaQuoteCubeMatrix(ValueProperties.with(ValuePropertyNames.CUBE, "BLOOMBERG"))).build();
   }
 
   @Override
@@ -380,7 +391,7 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
       .add(getYieldCurveNodeSensitivities(getForwardCurve(ccy), ccy))
       .add(getPresentValue(ValueProperties.with(ValuePropertyNames.SURFACE, surfaceName)
                                           .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION)))
-      .add(getVegaMatrix(ValueProperties
+      .add(getVegaQuoteMatrix(ValueProperties
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION))).build();
   }
@@ -406,6 +417,9 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
         .add(getFXYieldCurveNodeSensitivities(_configProvider.getFXCurve(security.getPutCurrency()), security.getPutCurrency()));
       String surfaceName = _configProvider.getFXVanillaOptionSurfaceName(security.getCallCurrency(), security.getPutCurrency());
       if (surfaceName != null) {
+        builder.add(getFXVegaQuoteMatrix(ValueProperties
+            .with(ValuePropertyNames.SURFACE, surfaceName) 
+            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)));
         builder.add(getFXVegaMatrix(ValueProperties
             .with(ValuePropertyNames.SURFACE, surfaceName) 
             .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)));
@@ -424,6 +438,9 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
         .add(getFXYieldCurveNodeSensitivities(_configProvider.getFXCurve(security.getPutCurrency()), security.getPutCurrency()));
       String surfaceName = _configProvider.getFXVanillaOptionSurfaceName(security.getCallCurrency(), security.getPutCurrency());
       if (surfaceName != null) {
+        builder.add(getFXVegaQuoteMatrix(ValueProperties
+            .with(ValuePropertyNames.SURFACE, surfaceName) 
+            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)));
         builder.add(getFXVegaMatrix(ValueProperties
             .with(ValuePropertyNames.SURFACE, surfaceName) 
             .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)));
@@ -462,7 +479,7 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
       .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()))
       .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCurrency()), security.getCurrency()))
       .addAll(getSabrSensitivities())
-      .add(getVegaCubeMatrix(ValueProperties.with(ValuePropertyNames.CUBE, cubeName)))
+      .add(getVegaQuoteCubeMatrix(ValueProperties.with(ValuePropertyNames.CUBE, cubeName)))
       .add(getPresentValue(ValueProperties.with(ValuePropertyNames.CUBE, cubeName))).build();
   }
 
@@ -473,7 +490,7 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
       .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()))
       .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCurrency()), security.getCurrency()))
       .addAll(getSabrSensitivities())
-      .add(getVegaCubeMatrix(ValueProperties.with(ValuePropertyNames.CUBE, cubeName)))
+      .add(getVegaQuoteCubeMatrix(ValueProperties.with(ValuePropertyNames.CUBE, cubeName)))
       .add(getPresentValue(ValueProperties.with(ValuePropertyNames.CUBE, cubeName))).build();
   }
 
@@ -485,7 +502,7 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
       return ImmutableSet.<Pair<String, ValueProperties>>builder()
         .add(getPresentValue(ValueProperties.builder()))
         .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()))
-        .add(getVegaMatrix(ValueProperties
+        .add(getVegaQuoteMatrix(ValueProperties
           .with(ValuePropertyNames.SURFACE, "DEFAULT")
           .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, "EQUITY_OPTION"))).build();
     } else {
@@ -629,16 +646,24 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
   private Pair<String, ValueProperties> getFXCurrencyExposure(final ValueProperties.Builder constraints) {
     return getRiskFactor(ValueRequirementNames.FX_CURRENCY_EXPOSURE, constraints, false);
   }
-
+  
   private Pair<String, ValueProperties> getVegaMatrix(final ValueProperties.Builder constraints) {
-    return getRiskFactor(ValueRequirementNames.VEGA_QUOTE_MATRIX, constraints, false);
+    return getRiskFactor(ValueRequirementNames.VEGA_MATRIX, constraints, false);
   }
   
   private Pair<String, ValueProperties> getFXVegaMatrix(final ValueProperties.Builder constraints) {
+    return getRiskFactor(ValueRequirementNames.VEGA_MATRIX, constraints.with(ValuePropertyNames.CALCULATION_METHOD, _configProvider.getFXCalculationMethod()), false);
+  }
+  
+  private Pair<String, ValueProperties> getVegaQuoteMatrix(final ValueProperties.Builder constraints) {
+    return getRiskFactor(ValueRequirementNames.VEGA_QUOTE_MATRIX, constraints, false);
+  }
+  
+  private Pair<String, ValueProperties> getFXVegaQuoteMatrix(final ValueProperties.Builder constraints) {
     return getRiskFactor(ValueRequirementNames.VEGA_QUOTE_MATRIX, constraints.with(ValuePropertyNames.CALCULATION_METHOD, _configProvider.getFXCalculationMethod()), false);
   }
 
-  private Pair<String, ValueProperties> getVegaCubeMatrix(final ValueProperties.Builder constraints) {
+  private Pair<String, ValueProperties> getVegaQuoteCubeMatrix(final ValueProperties.Builder constraints) {
     return getRiskFactor(ValueRequirementNames.VEGA_QUOTE_CUBE, constraints, false);
   }
   

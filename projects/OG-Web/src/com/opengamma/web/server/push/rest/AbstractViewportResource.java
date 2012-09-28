@@ -27,6 +27,11 @@ public abstract class AbstractViewportResource {
   protected final AnalyticsView _view;
   protected final int _viewportId;
 
+  /**
+   * @param gridType The type of data in the grid (portfolio or primitives)
+   * @param view The view that supplies data to the grid
+   * @param viewportId This viewport's ID
+   */
   public AbstractViewportResource(AnalyticsView.GridType gridType, AnalyticsView view, int viewportId) {
     ArgumentChecker.notNull(gridType, "gridType");
     ArgumentChecker.notNull(view, "view");
@@ -36,6 +41,16 @@ public abstract class AbstractViewportResource {
     _viewportId = viewportId;
   }
 
+  /**
+   * Updates the viewport, e.g. in response to the user scrolling the grid and changing the visible area.
+   * @param rows Indices of rows in the viewport, can be empty if {@code cells} is non-empty
+   * @param columns Indices of columns in the viewport, can be empty if {@code cells} is non-empty
+   * @param cells Cells in the viewport, can be empty if {@code rows} and {@code columns} are non-empty
+   * @param expanded Whether the full data should be returned (e.g. for display in a popup window) or if it should
+   * be formatted to fit in a single grid cell
+   * @return Viewport version number, allows clients to ensure the data they receive for a viewport corresponds to
+   * its current state
+   */
   @PUT
   public ViewportVersion update(@FormParam("rows") List<Integer> rows,
                                 @FormParam("columns") List<Integer> columns,

@@ -1004,14 +1004,34 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(FXOptionBlackVolatilitySurfaceForwardSlideThetaFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackYieldCurvesForwardSlideThetaFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackYCNSFunction.class));
-    functionConfigs.add(functionConfiguration(FXOptionBlackCurveDefaults.class, PriorityClass.BELOW_NORMAL.name(), "USD", "DefaultTwoCurveUSDConfig", "Discounting",
-        "EUR", "DefaultTwoCurveEURConfig", "Discounting", "CAD", "DefaultTwoCurveCADConfig", "Discounting", "AUD", "DefaultTwoCurveAUDConfig", "Discounting", "CHF",
-        "DefaultTwoCurveCHFConfig", "Discounting", "MXN", "DefaultCashCurveMXNConfig", "Cash", "JPY", "DefaultTwoCurveJPYConfig", "Discounting", "GBP",
-        "DefaultTwoCurveGBPConfig", "Discounting", "NZD", "DefaultTwoCurveNZDConfig", "Discounting", "HUF", "DefaultCashCurveHUFConfig", "Cash", "KRW",
-        "DefaultCashCurveKRWConfig", "Cash", "BRL", "DefaultCashCurveBRLConfig", "Cash", "HKD", "DefaultCashCurveHKDConfig", "Cash"));
-    functionConfigs.add(functionConfiguration(FXOptionBlackSurfaceDefaults.class, PriorityClass.BELOW_NORMAL.name(), DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR,
-        LINEAR_EXTRAPOLATOR, "USD", "EUR", "TULLETT", "USD", "CAD", "TULLETT", "USD", "AUD", "TULLETT", "USD", "CHF", "TULLETT", "USD", "MXN", "TULLETT", "USD", "JPY",
-        "TULLETT", "USD", "GBP", "TULLETT", "USD", "NZD", "TULLETT", "USD", "HUF", "TULLETT", "USD", "KRW", "TULLETT", "USD", "BRL", "TULLETT", "EUR", "CHF", "TULLETT",
+    functionConfigs.add(functionConfiguration(FXOptionBlackCurveDefaults.class, PriorityClass.NORMAL.name(), 
+        "USD", "DefaultTwoCurveUSDConfig", "Discounting",
+        "EUR", "DefaultTwoCurveEURConfig", "Discounting", 
+        "CAD", "DefaultTwoCurveCADConfig", "Discounting", 
+        "AUD", "DefaultTwoCurveAUDConfig", "Discounting", 
+        "CHF", "DefaultTwoCurveCHFConfig", "Discounting", 
+        "MXN", "DefaultCashCurveMXNConfig", "Cash", 
+        "JPY", "DefaultTwoCurveJPYConfig", "Discounting", 
+        "GBP", "DefaultTwoCurveGBPConfig", "Discounting", 
+        "NZD", "DefaultTwoCurveNZDConfig", "Discounting", 
+        "HUF", "DefaultCashCurveHUFConfig", "Cash", 
+        "KRW", "DefaultCashCurveKRWConfig", "Cash", 
+        "BRL", "DefaultCashCurveBRLConfig", "Cash", 
+        "HKD", "DefaultCashCurveHKDConfig", "Cash"));
+    functionConfigs.add(functionConfiguration(FXOptionBlackSurfaceDefaults.class, PriorityClass.NORMAL.name(), DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR,
+        LINEAR_EXTRAPOLATOR, 
+        "USD", "EUR", "TULLETT", 
+        "USD", "CAD", "TULLETT", 
+        "USD", "AUD", "TULLETT", 
+        "USD", "CHF", "TULLETT", 
+        "USD", "MXN", "TULLETT", 
+        "USD", "JPY", "TULLETT", 
+        "USD", "GBP", "TULLETT", 
+        "USD", "NZD", "TULLETT", 
+        "USD", "HUF", "TULLETT", 
+        "USD", "KRW", "TULLETT", 
+        "USD", "BRL", "TULLETT", 
+        "EUR", "CHF", "TULLETT",
         "USD", "HKD", "TULLETT"));
   }
 
@@ -1045,8 +1065,11 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(FXForwardCurrencyExposureFunction.class));
     functionConfigs.add(functionConfiguration(FXForwardYCNSFunction.class));
     functionConfigs.add(functionConfiguration(FXForwardPresentValueCurveSensitivityFunction.class));
-    functionConfigs.add(functionConfiguration(FXForwardDefaults.class, PriorityClass.NORMAL.name(), "USD", "DefaultTwoCurveUSDConfig", "Discounting", "EUR",
-        "DefaultTwoCurveEURConfig", "Discounting", "CHF", "DefaultTwoCurveCHFConfig", "Discounting", "RUB", "DefaultCashCurveRUBConfig", "Cash"));
+    functionConfigs.add(functionConfiguration(FXForwardDefaults.class, PriorityClass.NORMAL.name(), 
+        "USD", "DefaultTwoCurveUSDConfig", "Discounting", 
+        "EUR", "DefaultTwoCurveEURConfig", "Discounting", 
+        "CHF", "DefaultTwoCurveCHFConfig", "Discounting", 
+        "RUB", "DefaultCashCurveRUBConfig", "Cash"));
   }
 
   private static void addDeprecatedForexForwardCalculators(final List<FunctionConfiguration> functionConfigs) {

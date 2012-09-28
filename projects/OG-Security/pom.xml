@@ -47,7 +47,7 @@
   </dependencies>
 
   <properties>
-    <og-platform.basedir>${project.parent.basedir}/../..</og-platform.basedir>
+    <tests.testng.threads>1</tests.testng.threads>
   </properties>
 
 </project>
