@@ -242,26 +242,6 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>properties-maven-plugin</artifactId>
-        <version>1.0-alpha-2</version>
-        <executions>
-          <execution>
-            <id>read-properties</id>
-            <phase>initialize</phase>
-            <goals>
-              <goal>read-project-properties</goal>
-            </goals>
-            <configuration>
-              <files>
-                <file>${og-platform.basedir}/common/build.properties</file>
-                <file>build.properties</file>
-              </files>
-            </configuration> 
-          </execution>
-        </executions>                              
-      </plugin> 
     </plugins>
     <pluginManagement>
       <plugins>
@@ -972,7 +952,12 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <og.spring.version>3.0.7.RELEASE</og.spring.version>
-    <og-platform.basedir>${project.basedir}/../..</og-platform.basedir>
+    <junit.maxheap>2G</junit.maxheap>
+    <junit.logback>com/opengamma/util/test/warn-logback.xml</junit.logback>
+    <tests.testng.parallel>classes</tests.testng.parallel>
+    <tests.testng.threads>4</tests.testng.threads>
+    <tests.testng.includedgroups></tests.testng.includedgroups>
+    <tests.testng.excludedgroups></tests.testng.excludedgroups>
   </properties>
 
 </project>
