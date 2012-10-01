@@ -36,11 +36,12 @@ public final class SimpleFrequencyFactory {
    */
   private SimpleFrequencyFactory() {
     store(SimpleFrequency.NEVER);
-    store(SimpleFrequency.ANNUAL, "12m", "Yearly");
+    store(SimpleFrequency.ANNUAL, "12m", "1y", "Yearly");
     store(SimpleFrequency.SEMI_ANNUAL, "6m", "Half Yearly");
     store(SimpleFrequency.QUARTERLY, "3m");
     store(SimpleFrequency.BIMONTHLY, "2m");
     store(SimpleFrequency.MONTHLY, "1m");
+    store(SimpleFrequency.TWENTY_EIGHT_DAYS, "28d");
     store(SimpleFrequency.BIWEEKLY, "2w");
     store(SimpleFrequency.WEEKLY, "1w");
     store(SimpleFrequency.DAILY);
