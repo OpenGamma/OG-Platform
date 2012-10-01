@@ -31,5 +31,4 @@ public enum StubType {
   NONE;
 
   // TODO : Double check these definitions
-  // TODO : Maybe use the existing stub type definitions (however the names here are consistent with ISDA CDS model and CDS market)
 }

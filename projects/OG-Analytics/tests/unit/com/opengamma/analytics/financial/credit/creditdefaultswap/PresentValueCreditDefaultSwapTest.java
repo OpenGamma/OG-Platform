@@ -73,7 +73,7 @@ public class PresentValueCreditDefaultSwapTest {
   private static final ZonedDateTime startDate = DateUtils.getUTCDate(2007, 10, 22);
   private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2007, 10, 23);
   private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2012, 12, 20);
-  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2007, 12, 23);
+  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2007, 10, 23);
 
   private static final StubType stubType = StubType.FRONTSHORT;
   private static final PeriodFrequency couponFrequency = PeriodFrequency.QUARTERLY;
@@ -81,11 +81,12 @@ public class PresentValueCreditDefaultSwapTest {
   private static final BusinessDayConvention businessdayAdjustmentConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
 
   private static final boolean immAdjustMaturityDate = true;
+  private static final boolean adjustEffectiveDate = true;
   private static final boolean adjustMaturityDate = true;
 
   private static final double notional = 10000000.0;
   private static final double premiumLegCoupon = 100.0;
-  private static final double valuationRecoveryRate = 0.40;
+  private static final double valuationRecoveryRate = 1.0;
   private static final double curveRecoveryRate = 0.40;
   private static final boolean includeAccruedPremium = false;
 
@@ -129,6 +130,7 @@ public class PresentValueCreditDefaultSwapTest {
       daycountFractionConvention,
       businessdayAdjustmentConvention,
       immAdjustMaturityDate,
+      adjustEffectiveDate,
       adjustMaturityDate,
       notional,
       premiumLegCoupon,
@@ -175,7 +177,7 @@ public class PresentValueCreditDefaultSwapTest {
 
       presentValue = testCDS.getPresentValueCreditDefaultSwap(valuationCDS, yieldCurve, flatSurvivalCurve);
 
-      System.out.println(presentValue);
+      System.out.println(rollingValuationDate + "\t" + presentValue);
     }
     */
 

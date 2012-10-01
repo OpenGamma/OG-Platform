@@ -65,7 +65,8 @@ public class CalibrateSurvivalCurveTest {
   private static final BusinessDayConvention businessdayAdjustmentConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
 
   private static final boolean immAdjustMaturityDate = true;
-  private static final boolean adjustMaturityDate = false;
+  private static final boolean adjustEffectiveDate = true;
+  private static final boolean adjustMaturityDate = true;
 
   private static final double notional = 10000000.0;
   private static final double premiumLegCoupon = 100.0;
@@ -107,6 +108,7 @@ public class CalibrateSurvivalCurveTest {
       daycountFractionConvention,
       businessdayAdjustmentConvention,
       immAdjustMaturityDate,
+      adjustEffectiveDate,
       adjustMaturityDate,
       notional,
       premiumLegCoupon,
@@ -136,13 +138,12 @@ public class CalibrateSurvivalCurveTest {
     // Define the market data
 
     // The number of CDS instruments used to calibrate against
-    int numberOfCalibrationCDS = 1;
+    int numberOfCalibrationCDS = 10;
 
     // The CDS tenors to calibrate to
     final ZonedDateTime[] tenors = new ZonedDateTime[numberOfCalibrationCDS];
 
     tenors[0] = DateUtils.getUTCDate(2008, 12, 20);
-    /*
     tenors[1] = DateUtils.getUTCDate(2009, 6, 20);
     tenors[2] = DateUtils.getUTCDate(2010, 6, 20);
     tenors[3] = DateUtils.getUTCDate(2011, 6, 20);
@@ -152,26 +153,23 @@ public class CalibrateSurvivalCurveTest {
     tenors[7] = DateUtils.getUTCDate(2022, 6, 20);
     tenors[8] = DateUtils.getUTCDate(2030, 6, 20);
     tenors[9] = DateUtils.getUTCDate(2040, 6, 20);
-    */
 
     // The market observed par CDS spreads at these tenors
     final double[] marketSpreads = new double[numberOfCalibrationCDS];
 
-    marketSpreads[0] = 100.0;
-    /*
-    marketSpreads[1] = 100.0;
-    marketSpreads[2] = 100.0;
-    marketSpreads[3] = 100.0;
-    marketSpreads[4] = 100.0;
-    marketSpreads[5] = 100.0;
-    marketSpreads[6] = 100.0;
-    marketSpreads[7] = 100.0;
-    marketSpreads[8] = 100.0;
-    marketSpreads[9] = 100.0;
-    */
+    marketSpreads[0] = 3865.0;
+    marketSpreads[1] = 3072.0;
+    marketSpreads[2] = 2559.0;
+    marketSpreads[3] = 2243.0;
+    marketSpreads[4] = 2141.0;
+    marketSpreads[5] = 2045.0;
+    marketSpreads[6] = 1944.0;
+    marketSpreads[7] = 1856.0;
+    marketSpreads[8] = 1805.0;
+    marketSpreads[9] = 1774.0;
 
     // The recovery rate assumption used in the PV calculations when calibrating
-    curveRecoveryRate = 0.40;
+    curveRecoveryRate = 0.20;
 
     // -------------------------------------------------------------------------------------
 
@@ -179,7 +177,7 @@ public class CalibrateSurvivalCurveTest {
     CreditDefaultSwapDefinition calibrationCDS = cds;
 
     // Set the recovery rate of the calibration CDS used for the curve calibration
-    calibrationCDS = calibrationCDS.withCurveRecoveryRate(curveRecoveryRate);
+    calibrationCDS = calibrationCDS.withValuationRecoveryRate(curveRecoveryRate);
 
     // -------------------------------------------------------------------------------------
 
@@ -234,7 +232,7 @@ public class CalibrateSurvivalCurveTest {
 
   // ---------------------------------------------------------------------------------------
 
-  @Test
+  //@Test
   public void testCalibrateSurvivalCurve() {
 
     final boolean outputResults = false;
