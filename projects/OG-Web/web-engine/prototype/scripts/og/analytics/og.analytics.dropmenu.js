@@ -78,7 +78,7 @@ $.register_module({
             return menu.opened;
         };
         /**
-         * TODO AG: Must provide Getters/Setters instance properites as these should really be private
+         * TODO AG: Must provide Getters/Setters for instance properties as these should really be private
          * and not accessible directly via the instance.
          */
         return DropMenu = function (config) {
