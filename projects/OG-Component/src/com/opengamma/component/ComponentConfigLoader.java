@@ -110,8 +110,9 @@ public class ComponentConfigLoader {
       map.put("${" + key + "}", input.get(key));
     }
     for (Map.Entry<String, String> entry : map.entrySet()) {
-      boolean hasChanged = false;
+      boolean hasChanged;
       do {
+        hasChanged = false;
         String value = entry.getValue();
         for (Map.Entry<String, String> replacementEntry : map.entrySet()) {
           if (value.contains(replacementEntry.getKey())) {
