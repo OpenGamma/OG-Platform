@@ -101,6 +101,10 @@ public class SumUtils {
       final PaymentScheduleMatrix previousMatrix = (PaymentScheduleMatrix) currentTotal;
       final PaymentScheduleMatrix currentMatrix = (PaymentScheduleMatrix) value;
       return previousMatrix.add(currentMatrix);
+    } else if (value instanceof ResetScheduleMatrix) {
+      final ResetScheduleMatrix previousMatrix = (ResetScheduleMatrix) currentTotal;
+      final ResetScheduleMatrix currentMatrix = (ResetScheduleMatrix) value;
+      return previousMatrix.add(currentMatrix);
     }
     throw new IllegalArgumentException("Cannot sum results of type " + value.getClass());
   }

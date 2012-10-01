@@ -13,35 +13,35 @@ import javax.time.calendar.LocalDate;
 import org.apache.commons.lang.StringUtils;
 
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.PaymentScheduleMatrix;
+import com.opengamma.financial.analytics.ResetScheduleMatrix;
 
 /**
  * 
  */
-public class PaymentScheduleMatrixConverter implements ResultConverter<PaymentScheduleMatrix> {
+public class ResetScheduleMatrixConverter implements ResultConverter<ResetScheduleMatrix> {
 
   @Override
-  public Object convertForDisplay(final ResultConverterCache context, final ValueSpecification valueSpec, final PaymentScheduleMatrix value, final ConversionMode mode) {
+  public Object convertForDisplay(final ResultConverterCache context, final ValueSpecification valueSpec, final ResetScheduleMatrix value, final ConversionMode mode) {
     final Map<String, Object> result = new HashMap<String, Object>();
     final Map<String, Object> summary = new HashMap<String, Object>();
     final int rowCount = value.getDatesAsArray().length;
-    final int columnCount = value.getMaxCurrencyAmounts();
+    final int columnCount = value.getMaxEntries();
     summary.put("rowCount", rowCount);
     summary.put("colCount", columnCount);
     result.put("summary", summary);
     if (mode == ConversionMode.FULL) {
       final LocalDate[] dates = value.getDatesAsArray();
       final String[][] ca = value.getCurrencyAmountsAsStringArray();
-      final String[] xLabels = new String[rowCount];
-      final String[] yLabels = new String[columnCount];
+      final String[] xLabels = new String[columnCount];
+      final String[] yLabels = new String[rowCount];
       final Object[][] amounts = new Object[rowCount][columnCount];
-      for (int i = 0; i < rowCount; i++) {
+      for (int i = 0; i < columnCount; i++) {
         xLabels[i] = dates[i].toString();
-        for (int j = 0; j < columnCount; j++) {
+        for (int j = 0; j < rowCount; j++) {
           if (i == 0) {
             yLabels[j] = StringUtils.EMPTY;
           }
-          amounts[i][j] = ca[i][j].toString();
+          amounts[j][i] = ca[j][i].toString();
         }
       }
       result.put("x", xLabels);
@@ -52,12 +52,12 @@ public class PaymentScheduleMatrixConverter implements ResultConverter<PaymentSc
   }
 
   @Override
-  public Object convertForHistory(final ResultConverterCache context, final ValueSpecification valueSpec, final PaymentScheduleMatrix value) {
+  public Object convertForHistory(final ResultConverterCache context, final ValueSpecification valueSpec, final ResetScheduleMatrix value) {
     return null;
   }
 
   @Override
-  public String convertToText(final ResultConverterCache context, final ValueSpecification valueSpec, final PaymentScheduleMatrix value) {
+  public String convertToText(final ResultConverterCache context, final ValueSpecification valueSpec, final ResetScheduleMatrix value) {
     return value.getClass().getSimpleName();
   }
 

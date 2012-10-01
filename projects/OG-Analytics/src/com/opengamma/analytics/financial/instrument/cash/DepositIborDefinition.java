@@ -8,13 +8,13 @@ package com.opengamma.analytics.financial.instrument.cash;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbor;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -37,10 +37,11 @@ public class DepositIborDefinition extends CashDefinition {
    * @param accrualFactor The deposit accrual factor.
    * @param index The associated index.
    */
-  public DepositIborDefinition(final Currency currency, final ZonedDateTime startDate, final ZonedDateTime endDate, double notional, double rate, double accrualFactor, final IborIndex index) {
+  public DepositIborDefinition(final Currency currency, final ZonedDateTime startDate, final ZonedDateTime endDate, final double notional, final double rate,
+      final double accrualFactor, final IborIndex index) {
     super(currency, startDate, endDate, notional, rate, accrualFactor);
-    Validate.notNull(index, "Index");
-    Validate.isTrue(currency.equals(index.getCurrency()), "Currency should be equal to index currency");
+    ArgumentChecker.notNull(index, "Index");
+    ArgumentChecker.isTrue(currency.equals(index.getCurrency()), "Currency should be equal to index currency");
     _index = index;
   }
 
@@ -53,8 +54,8 @@ public class DepositIborDefinition extends CashDefinition {
    * @return The deposit.
    */
   public static DepositIborDefinition fromStart(final ZonedDateTime startDate, final double notional, final double rate, final IborIndex index) {
-    ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, index);
-    double accrualFactor = index.getDayCount().getDayCountFraction(startDate, endDate);
+    final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, index);
+    final double accrualFactor = index.getDayCount().getDayCountFraction(startDate, endDate);
     return new DepositIborDefinition(index.getCurrency(), startDate, endDate, notional, rate, accrualFactor, index);
   }
 
@@ -67,9 +68,9 @@ public class DepositIborDefinition extends CashDefinition {
    * @return The deposit.
    */
   public static DepositIborDefinition fromTrade(final ZonedDateTime tradeDate, final double notional, final double rate, final IborIndex index) {
-    ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(tradeDate, index.getSpotLag(), index.getCalendar());
-    ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, index);
-    double accrualFactor = index.getDayCount().getDayCountFraction(startDate, endDate);
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(tradeDate, index.getSpotLag(), index.getCalendar());
+    final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, index);
+    final double accrualFactor = index.getDayCount().getDayCountFraction(startDate, endDate);
     return new DepositIborDefinition(index.getCurrency(), startDate, endDate, notional, rate, accrualFactor, index);
   }
 
@@ -82,13 +83,15 @@ public class DepositIborDefinition extends CashDefinition {
   }
 
   @Override
-  public DepositIbor toDerivative(ZonedDateTime date, String... yieldCurveNames) {
-    Validate.isTrue(!date.isAfter(getEndDate()), "date is after end date");
-    double startTime = TimeCalculator.getTimeBetween(date, getStartDate());
+  public DepositIbor toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    ArgumentChecker.isTrue(!date.isAfter(getEndDate()), "date is after end date");
+    final double startTime = TimeCalculator.getTimeBetween(date, getStartDate());
     if (startTime < 0) {
-      return new DepositIbor(getCurrency(), 0, TimeCalculator.getTimeBetween(date, getEndDate()), getNotional(), 0, getRate(), getAccrualFactor(), _index, yieldCurveNames[0]);
+      return new DepositIbor(getCurrency(), 0, TimeCalculator.getTimeBetween(date, getEndDate()), getNotional(), 0, getRate(), getAccrualFactor(), _index,
+          yieldCurveNames[0]);
     }
-    return new DepositIbor(getCurrency(), startTime, TimeCalculator.getTimeBetween(date, getEndDate()), getNotional(), getNotional(), getRate(), getAccrualFactor(), _index, yieldCurveNames[0]);
+    return new DepositIbor(getCurrency(), startTime, TimeCalculator.getTimeBetween(date, getEndDate()), getNotional(), getNotional(), getRate(), getAccrualFactor(),
+        _index, yieldCurveNames[0]);
   }
 
   @Override
@@ -100,7 +103,7 @@ public class DepositIborDefinition extends CashDefinition {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -110,7 +113,7 @@ public class DepositIborDefinition extends CashDefinition {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    DepositIborDefinition other = (DepositIborDefinition) obj;
+    final DepositIborDefinition other = (DepositIborDefinition) obj;
     if (!ObjectUtils.equals(_index, other._index)) {
       return false;
     }
@@ -118,12 +121,12 @@ public class DepositIborDefinition extends CashDefinition {
   }
 
   @Override
-  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     return visitor.visitDepositIborDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitDepositIborDefinition(this);
   }
 
