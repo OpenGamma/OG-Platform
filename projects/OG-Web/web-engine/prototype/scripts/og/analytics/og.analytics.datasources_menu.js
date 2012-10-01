@@ -30,7 +30,7 @@ $.register_module({
                     }
                 },
                 menu_handler = function (event) {
-                    var target = event.srcElement || event.target, //eh!?
+                    var target = event.srcElement || event.target,
                         elem = $(target), entry;
                         $sel_parent = elem.parents(options_s);
                         $type_select = $sel_parent.find(type_s);
