@@ -13,7 +13,7 @@ $.register_module({
             gadget.alive = function () {return !!$('.' + alive).length;};
             gadget.load = function () {
                 $selector.addClass(alive).css(css_position);
-                grid = new og.analytics.Grid({selector: config.selector, cellmenu: true, source: config.source});
+                grid = new og.analytics.Grid({selector: config.selector, source: config.source});
             };
             gadget.load();
             gadget.resize = gadget.load;
