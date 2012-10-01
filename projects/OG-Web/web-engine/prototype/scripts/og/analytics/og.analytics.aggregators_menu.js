@@ -90,6 +90,18 @@ $.register_module({
                 },
                 get_selected_checkbox = function () {
                     if ($sel_checkbox !== undefined) return $sel_checkbox; 
+                },
+                set_selected_position = function () {
+                    if (sel_pos !== undefined) return sel_pos
+                },
+                set_selected_parent = function () {
+                    if ($sel_parent !== undefined) return $sel_parent;
+                },
+                set_selected_value = function () {
+                    if (sel_val !== undefined) return sel_val;
+                },
+                set_selected_checkbox = function () {
+                    if ($sel_checkbox !== undefined) return $sel_checkbox; 
                 };
             $dom.title_prefix.append('<span>Aggregated by</span>');
             $dom.title_infix.append('<span>then</span>');
