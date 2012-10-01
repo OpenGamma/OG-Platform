@@ -92,10 +92,11 @@ $.register_module({
                                     e.stopPropagation();
                                     $overflow_panel.toggle();
                                     var wins = [window].concat(Array.prototype.slice.call(window.frames));
-                                    if ($overflow_panel.is(":visible")) $(wins).on('click.overflow_handler', function () {
-                                        $overflow_panel.hide();
-                                        $(wins).off('click.overflow_handler');
-                                    });
+                                    if ($overflow_panel.is(':visible'))
+                                        $(wins).on('click.overflow_handler', function () {
+                                            $overflow_panel.hide();
+                                            $(wins).off('click.overflow_handler');
+                                        });
                                     else $(wins).off('click.overflow_handler');
                                 });
                             }
@@ -164,85 +165,21 @@ $.register_module({
              *     obj.margin   Boolean
              */
             container.add = function (data, idx) {
-                var panel_container = selector + ' .OG-gadget-container', new_gadgets, arr;
+                var panel_container = selector + ' .OG-gadget-container', new_gadgets;
                 if (!loading && !initialized)
                     return container.init(), setTimeout(container.add.partial(data || null), 10), container;
                 if (!initialized) return setTimeout(container.add.partial(data || null), 10), container;
                 if (!data) return container; // no gadgets for this container
                 if (!selector) throw new TypeError('GadgetsContainer has not been initialized');
-                var generate_arr = function (data) { // create gadgets object array from url args using default settings
-                    var obj, type, gadgets = [], options = {};
-                    obj = data.split(';').reduce(function (acc, val) {
-                        var data = val.split(':');
-                        acc[data[0]] = data[1].split(',');
-                        return acc;
-                    }, {});
-                    // TODO: move default options to gadgets
-                    options.timeseries = function (id) {
-                        return {
-                            gadget: 'og.common.gadgets.timeseries',
-                            options: {id: id, datapoints_link: false, child: true},
-                            row_name: 'Bond Tenor',
-                            col_name: 'T7 1/8 02/15/23',
-                            type: 'timeseries'
-                        }
-                    };
-                    options.surface = function (id) {
-                        return {
-                            gadget: 'og.common.gadgets.surface',
-                            options: {id: id, child: true},
-                            row_name: 'Bond Tenor',
-                            col_name: 'T7 1/8 02/15/23',
-                            type: 'Surface'
-                        }
-                    };
-                    options.curve = function (id) {
-                        return {
-                            gadget: 'og.common.gadgets.curve',
-                            options: {id: id, child: true},
-                            row_name: 'Bond Tenor',
-                            col_name: 'T7 1/8 02/15/23',
-                            type: 'Curve'
-                        }
-                    };
-                    options.data = function (id) {
-                        return {
-                            gadget: 'og.common.gadgets.data',
-                            options: {id: id, child: true},
-                            row_name: 'Bond Tenor',
-                            col_name: 'T7 1/8 02/15/23',
-                            type: 'Data'
-                        }
-                    };
-                    options.depgraph = function (id) {
-                        return {
-                            gadget: 'og.common.gadgets.depgraph',
-                            options: {id: id, child: true},
-                            row_name: 'Bond Tenor',
-                            col_name: 'T7 1/8 02/15/23',
-                            type: 'Dependency Graph'
-                        }
-                    };
-                    options.grid = function (id) {
-                        return {gadget: 'og.analytics.Grid', name: 'grid ' + id, options: {}}
-                    };
-                    for (type in obj) if (obj.hasOwnProperty(type))
-                        obj[type].forEach(function (val) {gadgets.push(options[type](val));});
-                    return gadgets;
-                };
-                arr = typeof data === 'string' ? generate_arr(data) : data;
-                new_gadgets = arr.map(function (obj, i) {
+                new_gadgets = data.map(function (obj, i) {
                     var id, gadget_class = 'OG-gadget-' + (id = counter++), gadget,
-                        gadget_selector = panel_container + ' .' + gadget_class,
-                        options = $.extend(true, obj.options || {}, {selector: gadget_selector}),
+                        options = $.extend(true, obj.options || {}, {selector: panel_container + ' .' + gadget_class}),
                         constructor = obj.gadget.split('.').reduce(function (acc, val) {return acc[val];}, window),
                         type = obj.gadget.replace(/^[a-z0-9.-_]+\.([a-z0-9.-_]+?)$/, '$1').toLowerCase();
-                    $(panel_container)
-                        .append('<div class="' + gadget_class + '" />')
-                        .find('.' + gadget_class)
+                    $(panel_container).append('<div class="' + gadget_class + '" />').find('.' + gadget_class)
                         .css({
                             position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
-                            display: i === arr.length - 1 ? 'block' : 'none'
+                            display: i === data.length - 1 ? 'block' : 'none'
                         });
                     gadgets.splice(idx || gadgets.length, 0,
                         gadget = {id: id, config: obj, type: type, gadget: new constructor(options)});
@@ -281,7 +218,7 @@ $.register_module({
                 if (show) (strong ? $html.addClass('strong') : $html.removeClass('strong')).show();
                 else clearTimeout(highlight_timer), highlight_timer = setTimeout(function () {$html.hide()}, 250);
             };
-            container.init = function (arr) {
+            container.init = function (data) {
                 var toggle_dropbox = function () {
                         var $db = $('.og-drop').length, $dbs_span = $('.OG-dropbox span');
                         if ($db) $dbs_span.removeClass('og-icon-new-window').addClass('og-icon-drop');
@@ -310,7 +247,7 @@ $.register_module({
                                 if (id) gadgets[index].gadget.resize();
                             }
                         });
-                    if (!arr) update_tabs(null); else container.add(arr);
+                    if (!data) update_tabs(null); else container.add(data);
                     // implement drop
                     $selector.droppable({
                         hoverClass: 'og-drop',

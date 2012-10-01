@@ -3,7 +3,7 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.common.gadgets.data',
+    name: 'og.common.gadgets.Data',
     dependencies: ['og.common.gadgets.manager'],
     obj: function () {
         var prefix = 'og_data_gadget_', counter = 1;
