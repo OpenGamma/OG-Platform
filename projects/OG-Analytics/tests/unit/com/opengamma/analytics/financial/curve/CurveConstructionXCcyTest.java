@@ -31,7 +31,7 @@ import com.opengamma.analytics.financial.curve.building.CurveBuildingBlockBundle
 import com.opengamma.analytics.financial.curve.building.MultipleYieldCurveFinderGeneratorDataBundle;
 import com.opengamma.analytics.financial.curve.building.MultipleYieldCurveFinderGeneratorFunction;
 import com.opengamma.analytics.financial.curve.building.MultipleYieldCurveFinderGeneratorJacobian;
-import com.opengamma.analytics.financial.curve.generator.GeneratorCurve;
+import com.opengamma.analytics.financial.curve.generator.GeneratorYDCurve;
 import com.opengamma.analytics.financial.curve.generator.GeneratorCurveYieldInterpolated;
 import com.opengamma.analytics.financial.curve.sensitivity.ParameterSensitivity;
 import com.opengamma.analytics.financial.curve.sensitivity.ParameterSensitivityBlockCalculator;
@@ -294,7 +294,7 @@ public class CurveConstructionXCcyTest {
   public static final int[] NB_UNITS = new int[] {3, 3, 1};
   public static final int NB_BLOCKS = NB_UNITS.length;
   public static final InstrumentDefinition<?>[][][][] DEFINITIONS_UNITS = new InstrumentDefinition<?>[NB_BLOCKS][][][];
-  public static final GeneratorCurve[][][] GENERATORS_UNITS = new GeneratorCurve[NB_BLOCKS][][];
+  public static final GeneratorYDCurve[][][] GENERATORS_UNITS = new GeneratorYDCurve[NB_BLOCKS][][];
   public static final String[][][] NAMES_UNITS = new String[NB_BLOCKS][][];
   public static final YieldCurveBundle KNOWN_DATA = new YieldCurveBundle(FX_MATRIX, CCY_MAP);
 
@@ -316,17 +316,17 @@ public class CurveConstructionXCcyTest {
     DEFINITIONS_UNITS[1][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD};
     DEFINITIONS_UNITS[1][2] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_JPY, DEFINITIONS_FWD3_JPY, DEFINITIONS_FWD6_JPY};
     DEFINITIONS_UNITS[2][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD, DEFINITIONS_FWD3_USD, DEFINITIONS_DSC_JPY, DEFINITIONS_FWD3_JPY, DEFINITIONS_FWD6_JPY};
-    GeneratorCurve genInt = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR);
-    GENERATORS_UNITS[0] = new GeneratorCurve[NB_UNITS[0]][];
-    GENERATORS_UNITS[1] = new GeneratorCurve[NB_UNITS[1]][];
-    GENERATORS_UNITS[2] = new GeneratorCurve[NB_UNITS[2]][];
-    GENERATORS_UNITS[0][0] = new GeneratorCurve[] {genInt};
-    GENERATORS_UNITS[0][1] = new GeneratorCurve[] {genInt};
-    GENERATORS_UNITS[0][2] = new GeneratorCurve[] {genInt, genInt};
-    GENERATORS_UNITS[1][0] = new GeneratorCurve[] {genInt};
-    GENERATORS_UNITS[1][1] = new GeneratorCurve[] {genInt};
-    GENERATORS_UNITS[1][2] = new GeneratorCurve[] {genInt, genInt, genInt};
-    GENERATORS_UNITS[2][0] = new GeneratorCurve[] {genInt, genInt, genInt, genInt, genInt};
+    GeneratorYDCurve genInt = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR);
+    GENERATORS_UNITS[0] = new GeneratorYDCurve[NB_UNITS[0]][];
+    GENERATORS_UNITS[1] = new GeneratorYDCurve[NB_UNITS[1]][];
+    GENERATORS_UNITS[2] = new GeneratorYDCurve[NB_UNITS[2]][];
+    GENERATORS_UNITS[0][0] = new GeneratorYDCurve[] {genInt};
+    GENERATORS_UNITS[0][1] = new GeneratorYDCurve[] {genInt};
+    GENERATORS_UNITS[0][2] = new GeneratorYDCurve[] {genInt, genInt};
+    GENERATORS_UNITS[1][0] = new GeneratorYDCurve[] {genInt};
+    GENERATORS_UNITS[1][1] = new GeneratorYDCurve[] {genInt};
+    GENERATORS_UNITS[1][2] = new GeneratorYDCurve[] {genInt, genInt, genInt};
+    GENERATORS_UNITS[2][0] = new GeneratorYDCurve[] {genInt, genInt, genInt, genInt, genInt};
     NAMES_UNITS[0] = new String[NB_UNITS[0]][];
     NAMES_UNITS[1] = new String[NB_UNITS[1]][];
     NAMES_UNITS[2] = new String[NB_UNITS[2]][];
@@ -543,7 +543,7 @@ public class CurveConstructionXCcyTest {
     return definitions;
   }
 
-  private static Pair<YieldCurveBundle, Double[]> makeUnit(InstrumentDerivative[] instruments, double[] initGuess, LinkedHashMap<String, GeneratorCurve> curveGenerators, YieldCurveBundle knownData,
+  private static Pair<YieldCurveBundle, Double[]> makeUnit(InstrumentDerivative[] instruments, double[] initGuess, LinkedHashMap<String, GeneratorYDCurve> curveGenerators, YieldCurveBundle knownData,
       final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> calculator, final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> sensitivityCalculator) {
     final MultipleYieldCurveFinderGeneratorDataBundle data = new MultipleYieldCurveFinderGeneratorDataBundle(instruments, knownData, curveGenerators);
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MultipleYieldCurveFinderGeneratorFunction(calculator, data);
@@ -553,7 +553,7 @@ public class CurveConstructionXCcyTest {
     return new ObjectsPair<YieldCurveBundle, Double[]>(newCurves, ArrayUtils.toObject(parameters));
   }
 
-  private static DoubleMatrix2D[] makeCurveMatrix(InstrumentDerivative[] instrumentsTotal, LinkedHashMap<String, GeneratorCurve> curveGeneratorsTotal, int startBlock, int[] nbParameters,
+  private static DoubleMatrix2D[] makeCurveMatrix(InstrumentDerivative[] instrumentsTotal, LinkedHashMap<String, GeneratorYDCurve> curveGeneratorsTotal, int startBlock, int[] nbParameters,
       Double[] parametersTotal, YieldCurveBundle knownData, final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> sensitivityCalculator) {
     final MultipleYieldCurveFinderGeneratorDataBundle data = new MultipleYieldCurveFinderGeneratorDataBundle(instrumentsTotal, knownData, curveGeneratorsTotal);
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MultipleYieldCurveFinderGeneratorJacobian(new ParameterSensitivityCalculator(sensitivityCalculator), data);
@@ -573,13 +573,13 @@ public class CurveConstructionXCcyTest {
     return result;
   }
 
-  private static Pair<YieldCurveBundle, CurveBuildingBlockBundle> makeCurves(final InstrumentDefinition<?>[][][] definitions, GeneratorCurve[][] curveGenerators, String[][] curveNames,
+  private static Pair<YieldCurveBundle, CurveBuildingBlockBundle> makeCurves(final InstrumentDefinition<?>[][][] definitions, GeneratorYDCurve[][] curveGenerators, String[][] curveNames,
       YieldCurveBundle knownData, final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> calculator,
       final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> sensitivityCalculator, boolean withToday, int block) {
     int nbBlocks = curveGenerators.length;
     YieldCurveBundle knownSoFarData = knownData.copy();
     List<InstrumentDerivative> instrumentsSoFar = new ArrayList<InstrumentDerivative>();
-    LinkedHashMap<String, GeneratorCurve> generatorsSoFar = new LinkedHashMap<String, GeneratorCurve>();
+    LinkedHashMap<String, GeneratorYDCurve> generatorsSoFar = new LinkedHashMap<String, GeneratorYDCurve>();
     LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> unitBundleSoFar = new LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>>();
     List<Double> parametersSoFar = new ArrayList<Double>();
     LinkedHashMap<String, Pair<Integer, Integer>> unitMap = new LinkedHashMap<String, Pair<Integer, Integer>>();
@@ -590,13 +590,13 @@ public class CurveConstructionXCcyTest {
       instrumentsSoFar.addAll(Arrays.asList(instruments));
       InstrumentDerivative[] instrumentsSoFarArray = instrumentsSoFar.toArray(new InstrumentDerivative[0]);
       double[] initGuess = initialGuess(definitions[loopunit]);
-      LinkedHashMap<String, GeneratorCurve> gen = new LinkedHashMap<String, GeneratorCurve>();
+      LinkedHashMap<String, GeneratorYDCurve> gen = new LinkedHashMap<String, GeneratorYDCurve>();
       int[] nbIns = new int[curveGenerators[loopunit].length];
       for (int loopcurve = 0; loopcurve < curveGenerators[loopunit].length; loopcurve++) {
         nbIns[loopcurve] = definitions[loopunit][loopcurve].length;
         InstrumentDerivative[] insCurve = new InstrumentDerivative[nbIns[loopcurve]];
         System.arraycopy(instruments, startBlock, insCurve, 0, nbIns[loopcurve]);
-        GeneratorCurve tmp = curveGenerators[loopunit][loopcurve].finalGenerator(insCurve);
+        GeneratorYDCurve tmp = curveGenerators[loopunit][loopcurve].finalGenerator(insCurve);
         gen.put(curveNames[loopunit][loopcurve], tmp);
         generatorsSoFar.put(curveNames[loopunit][loopcurve], tmp);
         unitMap.put(curveNames[loopunit][loopcurve], new ObjectsPair<Integer, Integer>(start + startBlock, nbIns[loopcurve]));

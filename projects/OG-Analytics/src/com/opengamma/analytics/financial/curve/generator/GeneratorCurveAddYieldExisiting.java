@@ -15,12 +15,12 @@ import com.opengamma.util.ArgumentChecker;
  * (operation on the continuously-compounded zero-coupon rates): an existing curve referenced by its name and a new curve. 
  * The generated curve is a YieldAndDiscountAddZeroSpreadCurve.
  */
-public class GeneratorCurveAddYieldExisiting extends GeneratorCurve {
+public class GeneratorCurveAddYieldExisiting extends GeneratorYDCurve {
 
   /**
    * The generator for the new curve.
    */
-  private final GeneratorCurve _generator;
+  private final GeneratorYDCurve _generator;
   /**
    * If true the rate of the new curve will be subtracted from the first one. If false the rates are added.
    */
@@ -36,7 +36,7 @@ public class GeneratorCurveAddYieldExisiting extends GeneratorCurve {
    * @param substract If true the rate of the new curve will be subtracted from the first one. If false the rates are added.
    * @param existingCurveName The name of the existing curve.
    */
-  public GeneratorCurveAddYieldExisiting(final GeneratorCurve generator, final boolean substract, final String existingCurveName) {
+  public GeneratorCurveAddYieldExisiting(final GeneratorYDCurve generator, final boolean substract, final String existingCurveName) {
     ArgumentChecker.notNull(generator, "Generator");
     ArgumentChecker.notNull(existingCurveName, "Exisitng curve name");
     _generator = generator;
@@ -62,7 +62,7 @@ public class GeneratorCurveAddYieldExisiting extends GeneratorCurve {
   }
 
   @Override
-  public GeneratorCurve finalGenerator(Object data) {
+  public GeneratorYDCurve finalGenerator(Object data) {
     return new GeneratorCurveAddYieldExisiting(_generator.finalGenerator(data), _substract, _existingCurveName);
   }
 

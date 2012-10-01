@@ -12,6 +12,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IndexDeposit;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
@@ -44,6 +45,10 @@ public class MarketDiscountBundle implements IMarketBundle {
    * A map with issuer discounting curves.
    */
   private final Map<Pair<String, Currency>, YieldAndDiscountCurve> _issuerCurves;
+  /**
+   * The matrix containing the exchange rates.
+   */
+  private final FXMatrix _fxMatrix;
 
   /**
    * Constructor with empty maps for discounting, forward and price index.
@@ -53,6 +58,24 @@ public class MarketDiscountBundle implements IMarketBundle {
     _forwardCurves = new LinkedHashMap<IndexDeposit, YieldAndDiscountCurve>();
     _priceIndexCurves = new LinkedHashMap<IndexPrice, PriceIndexCurve>();
     _issuerCurves = new LinkedHashMap<Pair<String, Currency>, YieldAndDiscountCurve>();
+    _fxMatrix = new FXMatrix();
+  }
+
+  /**
+   * Constructor from an existing market. The given market maps are used for the new market (the same maps are used, not copied).
+   * @param discountingCurves A map with one (discounting) curve by currency.
+   * @param forwardCurves A map with one (forward) curve by Ibor/OIS index.
+   * @param priceIndexCurves A map with one price curve by price index.
+   * @param issuerCurves A map with issuer discounting curves.
+   * @param fxMatrix The FXMatrix.
+   */
+  public MarketDiscountBundle(final Map<Currency, YieldAndDiscountCurve> discountingCurves, final Map<IndexDeposit, YieldAndDiscountCurve> forwardCurves,
+      final Map<IndexPrice, PriceIndexCurve> priceIndexCurves, final Map<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurves, final FXMatrix fxMatrix) {
+    _discountingCurves = discountingCurves;
+    _forwardCurves = forwardCurves;
+    _priceIndexCurves = priceIndexCurves;
+    _issuerCurves = issuerCurves;
+    _fxMatrix = fxMatrix;
   }
 
   /**
@@ -68,6 +91,7 @@ public class MarketDiscountBundle implements IMarketBundle {
     _forwardCurves = forwardCurves;
     _priceIndexCurves = priceIndexCurves;
     _issuerCurves = issuerCurves;
+    _fxMatrix = new FXMatrix();
   }
 
   /**
@@ -79,6 +103,7 @@ public class MarketDiscountBundle implements IMarketBundle {
     _forwardCurves = market._forwardCurves;
     _priceIndexCurves = market._priceIndexCurves;
     _issuerCurves = market._issuerCurves;
+    _fxMatrix = market._fxMatrix;
   }
 
   @Override
@@ -87,7 +112,8 @@ public class MarketDiscountBundle implements IMarketBundle {
     final LinkedHashMap<IndexDeposit, YieldAndDiscountCurve> forwardCurves = new LinkedHashMap<IndexDeposit, YieldAndDiscountCurve>(_forwardCurves);
     final LinkedHashMap<IndexPrice, PriceIndexCurve> priceIndexCurves = new LinkedHashMap<IndexPrice, PriceIndexCurve>(_priceIndexCurves);
     final LinkedHashMap<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurves = new LinkedHashMap<Pair<String, Currency>, YieldAndDiscountCurve>(_issuerCurves);
-    return new MarketDiscountBundle(discountingCurves, forwardCurves, priceIndexCurves, issuerCurves);
+    final FXMatrix fxMatrix = new FXMatrix(_fxMatrix);
+    return new MarketDiscountBundle(discountingCurves, forwardCurves, priceIndexCurves, issuerCurves, fxMatrix);
   }
 
   @Override
@@ -125,6 +151,11 @@ public class MarketDiscountBundle implements IMarketBundle {
       }
     }
     return result;
+  }
+
+  @Override
+  public int getNumberOfParameters(Currency ccy) {
+    return _discountingCurves.get(ccy).getNumberOfParameters();
   }
 
   @Override
@@ -176,6 +207,11 @@ public class MarketDiscountBundle implements IMarketBundle {
       }
     }
     return result;
+  }
+
+  @Override
+  public int getNumberOfParameters(IndexDeposit index) {
+    return _forwardCurves.get(index).getNumberOfParameters();
   }
 
   @Override
@@ -382,6 +418,20 @@ public class MarketDiscountBundle implements IMarketBundle {
       throw new IllegalArgumentException("Price index curve not in set: " + index);
     }
     _priceIndexCurves.put(index, curve);
+  }
+
+  @Override
+  public double getFxRate(Currency ccy1, Currency ccy2) {
+    return _fxMatrix.getFxRate(ccy1, ccy2);
+  }
+
+  /**
+   * Gets the underlying FXMatrix containing the exchange rates.
+   * @return The matrix.
+   */
+  @Override
+  public FXMatrix getFxRates() {
+    return _fxMatrix;
   }
 
 }

@@ -17,7 +17,7 @@ import com.opengamma.util.ArgumentChecker;
  * One extra node with value zero is added at the mid point between the first and second point. This extra anchor is required when two translation invariant curves descriptions
  * are added in a spread curve (two translations would create a singular system).
  */
-public class GeneratorCurveYieldInterpolatedAnchorNode extends GeneratorCurve {
+public class GeneratorCurveYieldInterpolatedAnchorNode extends GeneratorYDCurve {
 
   /**
    * The nodes (times) on which the interpolated curves is constructed. Does not include the extra anchor node.

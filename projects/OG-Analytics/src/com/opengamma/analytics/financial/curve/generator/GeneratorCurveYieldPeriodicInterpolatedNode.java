@@ -15,7 +15,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Store the details and generate the required curve. The curve is interpolated on the rate (periodically compounded).
  */
-public class GeneratorCurveYieldPeriodicInterpolatedNode extends GeneratorCurve {
+public class GeneratorCurveYieldPeriodicInterpolatedNode extends GeneratorYDCurve {
 
   /**
    * The nodes (times) on which the interpolated curves is constructed.

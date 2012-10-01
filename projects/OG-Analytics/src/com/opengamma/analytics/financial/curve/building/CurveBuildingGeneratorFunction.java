@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.curve.generator.GeneratorCurve;
+import com.opengamma.analytics.financial.curve.generator.GeneratorYDCurve;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundleBuildingFunction;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -24,7 +24,7 @@ public class CurveBuildingGeneratorFunction extends YieldCurveBundleBuildingFunc
   /**
    * The map with the curve names and the related generators.
    */
-  private final LinkedHashMap<String, GeneratorCurve> _curveGenerators;
+  private final LinkedHashMap<String, GeneratorYDCurve> _curveGenerators;
   /**
    * The yield curve bundle with known data (curves).
    */
@@ -34,7 +34,7 @@ public class CurveBuildingGeneratorFunction extends YieldCurveBundleBuildingFunc
    * Constructor
    * @param curveGenerators The curve constructor. The order is important.
    */
-  public CurveBuildingGeneratorFunction(LinkedHashMap<String, GeneratorCurve> curveGenerators) {
+  public CurveBuildingGeneratorFunction(LinkedHashMap<String, GeneratorYDCurve> curveGenerators) {
     ArgumentChecker.notNull(curveGenerators, "Curve generator map");
     _curveGenerators = curveGenerators;
     _knownData = new YieldCurveBundle();
@@ -45,7 +45,7 @@ public class CurveBuildingGeneratorFunction extends YieldCurveBundleBuildingFunc
    * @param curveGenerators The curve constructor. The order is important.
    * @param knownData The yield curve bundle with known data (curves).
    */
-  public CurveBuildingGeneratorFunction(LinkedHashMap<String, GeneratorCurve> curveGenerators, final YieldCurveBundle knownData) {
+  public CurveBuildingGeneratorFunction(LinkedHashMap<String, GeneratorYDCurve> curveGenerators, final YieldCurveBundle knownData) {
     ArgumentChecker.notNull(curveGenerators, "Curve generator map");
     _curveGenerators = curveGenerators;
     _knownData = knownData;
@@ -65,7 +65,7 @@ public class CurveBuildingGeneratorFunction extends YieldCurveBundleBuildingFunc
     Set<String> names = _curveGenerators.keySet();
     int index = 0;
     for (String name : names) {
-      GeneratorCurve gen = _curveGenerators.get(name);
+      GeneratorYDCurve gen = _curveGenerators.get(name);
       double[] paramCurve = Arrays.copyOfRange(x.getData(), index, index + gen.getNumberOfParameter());
       index += gen.getNumberOfParameter();
       YieldAndDiscountCurve newCurve = gen.generateCurve(name, bundle, paramCurve);

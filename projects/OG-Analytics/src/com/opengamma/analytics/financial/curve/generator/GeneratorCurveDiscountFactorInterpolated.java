@@ -16,7 +16,7 @@ import com.opengamma.util.ArgumentChecker;
  * Store the details and generate the required curve. The curve is interpolated on the discount factor. 
  * Only the lastTimeCalculator is stored. The node are computed from the instruments.
  */
-public class GeneratorCurveDiscountFactorInterpolated extends GeneratorCurve {
+public class GeneratorCurveDiscountFactorInterpolated extends GeneratorYDCurve {
 
   /**
    * Calculator of the node associated to instruments.
@@ -53,7 +53,7 @@ public class GeneratorCurveDiscountFactorInterpolated extends GeneratorCurve {
   }
 
   @Override
-  public GeneratorCurve finalGenerator(Object data) {
+  public GeneratorYDCurve finalGenerator(Object data) {
     ArgumentChecker.isTrue(data instanceof InstrumentDerivative[], "data should be an array of InstrumentDerivative");
     InstrumentDerivative[] instruments = (InstrumentDerivative[]) data;
     double[] node = new double[instruments.length];
