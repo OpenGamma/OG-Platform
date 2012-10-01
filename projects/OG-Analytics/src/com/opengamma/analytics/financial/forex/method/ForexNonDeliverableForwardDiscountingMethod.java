@@ -85,7 +85,7 @@ public final class ForexNonDeliverableForwardDiscountingMethod implements ForexP
 
   @Override
   public MultipleCurrencyAmount currencyExposure(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
-    Validate.isTrue(instrument instanceof Forex, "Derivative should be ForexNonDeliverableForward");
+    Validate.isTrue(instrument instanceof ForexNonDeliverableForward, "Derivative should be ForexNonDeliverableForward");    
     return currencyExposure((ForexNonDeliverableForward) instrument, curves);
   }
 

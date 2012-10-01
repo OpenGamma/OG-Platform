@@ -10,6 +10,7 @@ import static org.testng.Assert.fail;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.logging.Logger;
 
 import org.mockito.Mockito;
 import org.springframework.jdbc.datasource.AbstractDataSource;
@@ -42,7 +43,10 @@ public class BoneCPHackTest {
       public Connection getConnection(String username, String password) throws SQLException {
         return getConnection();
       }
-
+      
+      public Logger getParentLogger() {
+        return null;
+      }
     });
     config.setConnectionTimeoutInMs(Timeout.standardTimeoutMillis());
     config.setConnectionHook(new BoneCPHack(config.getConnectionHook()));

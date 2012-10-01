@@ -76,16 +76,16 @@ public class CurveShiftFunctionFactory {
    */
   public static DoublesCurve getShiftedCurve(final Curve<Double, Double> curve, final double x, final double shift) {
     if (curve instanceof ConstantDoublesCurve) {
-      return CONSTANT.evaluate((ConstantDoublesCurve) curve, x, shift);
+      throw new UnsupportedOperationException("Cannot shift a single point on a constant curve");
     }
     if (curve instanceof FunctionalDoublesCurve) {
-      return FUNCTIONAL.evaluate((FunctionalDoublesCurve) curve, x, shift);
+      throw new UnsupportedOperationException("Cannot shift a single point on a functional curve");
     }
     if (curve instanceof InterpolatedDoublesCurve) {
       return INTERPOLATED.evaluate((InterpolatedDoublesCurve) curve, x, shift);
     }
     if (curve instanceof SpreadDoublesCurve) {
-      return SPREAD.evaluate((SpreadDoublesCurve) curve, x, shift);
+      throw new UnsupportedOperationException("Cannot shift a single point on a spread curve");
     }
     throw new IllegalArgumentException("Do not have a curve shift function for curve " + curve.getClass());
   }
@@ -100,16 +100,16 @@ public class CurveShiftFunctionFactory {
    */
   public static DoublesCurve getShiftedCurve(final Curve<Double, Double> curve, final double[] x, final double[] y) {
     if (curve instanceof ConstantDoublesCurve) {
-      return CONSTANT.evaluate((ConstantDoublesCurve) curve, x, y);
+      throw new UnsupportedOperationException("Cannot shift a single point on a constant curve");
     }
     if (curve instanceof FunctionalDoublesCurve) {
-      return FUNCTIONAL.evaluate((FunctionalDoublesCurve) curve, x, y);
+      throw new UnsupportedOperationException("Cannot shift a single point on a functional curve");
     }
     if (curve instanceof InterpolatedDoublesCurve) {
       return INTERPOLATED.evaluate((InterpolatedDoublesCurve) curve, x, y);
     }
     if (curve instanceof SpreadDoublesCurve) {
-      return SPREAD.evaluate((SpreadDoublesCurve) curve, x, y);
+      throw new UnsupportedOperationException("Cannot shift a single point on a spread curve");
     }
     throw new IllegalArgumentException("Do not have a curve shift function for curve " + curve.getClass());
   }
@@ -149,16 +149,16 @@ public class CurveShiftFunctionFactory {
    */
   public static DoublesCurve getShiftedCurve(final Curve<Double, Double> curve, final double x, final double shift, final String newName) {
     if (curve instanceof ConstantDoublesCurve) {
-      return CONSTANT.evaluate((ConstantDoublesCurve) curve, x, shift, newName);
+      throw new UnsupportedOperationException("Cannot shift a single point on a constant curve");
     }
     if (curve instanceof FunctionalDoublesCurve) {
-      return FUNCTIONAL.evaluate((FunctionalDoublesCurve) curve, x, shift, newName);
+      throw new UnsupportedOperationException("Cannot shift a single point on a functional curve");
     }
     if (curve instanceof InterpolatedDoublesCurve) {
       return INTERPOLATED.evaluate((InterpolatedDoublesCurve) curve, x, shift, newName);
     }
     if (curve instanceof SpreadDoublesCurve) {
-      return SPREAD.evaluate((SpreadDoublesCurve) curve, x, shift, newName);
+      throw new UnsupportedOperationException("Cannot shift a single point on a spread curve");
     }
     throw new IllegalArgumentException("Do not have a curve shift function for curve " + curve.getClass());
   }
@@ -174,16 +174,16 @@ public class CurveShiftFunctionFactory {
    */
   public static DoublesCurve getShiftedCurve(final Curve<Double, Double> curve, final double[] x, final double[] y, final String newName) {
     if (curve instanceof ConstantDoublesCurve) {
-      return CONSTANT.evaluate((ConstantDoublesCurve) curve, x, y, newName);
+      throw new UnsupportedOperationException("Cannot shift a single point on a constant curve");
     }
     if (curve instanceof FunctionalDoublesCurve) {
-      return FUNCTIONAL.evaluate((FunctionalDoublesCurve) curve, x, y, newName);
+      throw new UnsupportedOperationException("Cannot shift a single point on a functional curve");
     }
     if (curve instanceof InterpolatedDoublesCurve) {
       return INTERPOLATED.evaluate((InterpolatedDoublesCurve) curve, x, y, newName);
     }
     if (curve instanceof SpreadDoublesCurve) {
-      return SPREAD.evaluate((SpreadDoublesCurve) curve, x, y, newName);
+      throw new UnsupportedOperationException("Cannot shift a single point on a spread curve");
     }
     throw new IllegalArgumentException("Do not have a curve shift function for curve " + curve.getClass());
   }

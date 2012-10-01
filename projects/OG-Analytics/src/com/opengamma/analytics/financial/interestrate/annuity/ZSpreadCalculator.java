@@ -93,18 +93,18 @@ public final class ZSpreadCalculator {
     Validate.notNull(curves, "curves");
 
     final Map<String, List<DoublesPair>> temp = PV_SENSITIVITY_CALCULATOR.visit(annuity, curves);
-    if (zSpread == 0.0) {
+    if (Double.doubleToLongBits(zSpread) == 0) {
       return temp;
     }
     final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
-    for (final String name : temp.keySet()) {
-      final List<DoublesPair> unadjusted = temp.get(name);
+    for (final Map.Entry<String, List<DoublesPair>> entry : result.entrySet()) {
+      final List<DoublesPair> unadjusted = entry.getValue();
       final ArrayList<DoublesPair> adjusted = new ArrayList<DoublesPair>(unadjusted.size());
       for (final DoublesPair pair : unadjusted) {
         final DoublesPair newPair = new DoublesPair(pair.first, pair.second * Math.exp(-zSpread * pair.first));
         adjusted.add(newPair);
       }
-      result.put(name, adjusted);
+      result.put(entry.getKey(), adjusted);
     }
     return result;
   }
@@ -114,19 +114,17 @@ public final class ZSpreadCalculator {
     Validate.notNull(curves, "curves");
 
     final double dPricedZ = calculatePriceSensitivityToZSpread(annuity, curves, zSpread);
-    Validate.isTrue(dPricedZ != 0.0, "Price Sensitivity To ZSpread is zero");
-
-    final Map<String, List<DoublesPair>> temp = PV_SENSITIVITY_CALCULATOR.visit(annuity, curves);
+    Validate.isTrue(Double.doubleToLongBits(dPricedZ) != 0, "Price Sensitivity To ZSpread is zero");
 
     final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
-    for (final String name : temp.keySet()) {
-      final List<DoublesPair> unadjusted = temp.get(name);
+    for (final Map.Entry<String, List<DoublesPair>> entry : result.entrySet()) {
+      final List<DoublesPair> unadjusted = entry.getValue();
       final ArrayList<DoublesPair> adjusted = new ArrayList<DoublesPair>(unadjusted.size());
       for (final DoublesPair pair : unadjusted) {
         final DoublesPair newPair = new DoublesPair(pair.first, -pair.second * Math.exp(-zSpread * pair.first) / dPricedZ);
         adjusted.add(newPair);
       }
-      result.put(name, adjusted);
+      result.put(entry.getKey(), adjusted);
     }
     return result;
   }

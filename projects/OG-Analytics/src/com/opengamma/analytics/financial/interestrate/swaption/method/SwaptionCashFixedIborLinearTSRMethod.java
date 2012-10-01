@@ -99,7 +99,7 @@ public class SwaptionCashFixedIborLinearTSRMethod implements PricingMethod {
   /**
    * Inner class to implement the integration used in price replication.
    */
-  private class LinearTSRIntegrant extends Function1D<Double, Double> {
+  private static final class LinearTSRIntegrant extends Function1D<Double, Double> {
 
     private static final double EPS = 1E-10;
 

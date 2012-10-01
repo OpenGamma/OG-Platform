@@ -7,7 +7,7 @@ package com.opengamma.analytics.math.interpolation.data;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
-import java.util.Set;
+import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
@@ -28,10 +28,9 @@ public class Interpolator1DDataBundleBuilderFunction extends Function1D<DoubleMa
     Validate.notNull(knotPoints, "null knot points");
     Validate.notNull(interpolators, "null interpolators");
     int count = 0;
-    final Set<String> names = knotPoints.keySet();
-    for (final String name : names) {
-      final int size = knotPoints.get(name).length;
-      Validate.isTrue(size > 0, "no knot points for " + name);
+    for (final Map.Entry<String, double[]> entry : knotPoints.entrySet()) {
+      final int size = entry.getValue().length;
+      Validate.isTrue(size > 0, "no knot points for " + entry.getKey());
       count += size;
     }
     _knotPoints = knotPoints;

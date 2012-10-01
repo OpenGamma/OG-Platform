@@ -21,7 +21,7 @@ import com.opengamma.analytics.financial.interestrate.PresentValueInflationCalcu
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.analytics.financial.interestrate.inflation.method.CouponInflationZeroCouponInterpolationGearingDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.inflation.method.CouponInflationZeroCouponMonthlyGearingDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.market.MarketDataSets;
+import com.opengamma.analytics.financial.interestrate.market.MarketDiscountDataSets;
 import com.opengamma.analytics.financial.interestrate.market.description.MarketDiscountBundle;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -44,11 +44,11 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  */
 public class BondCapitalIndexedSecurityDiscountingMethodTest {
 
-  private static final MarketDiscountBundle MARKET = MarketDataSets.createMarket1();
-  private static final IndexPrice[] PRICE_INDEXES = MarketDataSets.getPriceIndexes();
+  private static final MarketDiscountBundle MARKET = MarketDiscountDataSets.createMarket1();
+  private static final IndexPrice[] PRICE_INDEXES = MarketDiscountDataSets.getPriceIndexes();
   private static final IndexPrice PRICE_INDEX_UKRPI = PRICE_INDEXES[1];
   private static final IndexPrice PRICE_INDEX_USCPI = PRICE_INDEXES[2];
-  private static final String[] ISSUER_NAMES = MarketDataSets.getIssuerNames();
+  private static final String[] ISSUER_NAMES = MarketDiscountDataSets.getIssuerNames();
   private static final String ISSUER_US_GOVT = ISSUER_NAMES[0];
   private static final String ISSUER_UK_GOVT = ISSUER_NAMES[1];
 
@@ -77,7 +77,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
   private static final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> BOND_SECURITY_GILT_1_DEFINITION = BondCapitalIndexedSecurityDefinition.fromMonthly(
       PRICE_INDEX_UKRPI, MONTH_LAG_GILT_1, START_DATE_GILT_1, INDEX_START_GILT_1, FIRST_COUPON_DATE_GILT_1, MATURITY_DATE_GILT_1, COUPON_PERIOD_GILT_1, NOTIONAL_GILT_1, REAL_RATE_GILT_1,
       BUSINESS_DAY_GBP, SETTLEMENT_DAYS_GILT_1, CALENDAR_GBP, DAY_COUNT_GILT_1, YIELD_CONVENTION_GILT_1, IS_EOM_GILT_1, ISSUER_UK_GOVT);
-  private static final DoubleTimeSeries<ZonedDateTime> UK_RPI = MarketDataSets.ukRpiFrom2010();
+  private static final DoubleTimeSeries<ZonedDateTime> UK_RPI = MarketDiscountDataSets.ukRpiFrom2010();
   private static final BondCapitalIndexedSecurity<Coupon> BOND_SECURITY_GILT_1 = BOND_SECURITY_GILT_1_DEFINITION.toDerivative(PRICING_DATE, UK_RPI, "Not used");
 
   @Test
@@ -126,7 +126,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
   private static final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> BOND_SECURITY_TIPS_1_DEFINITION = BondCapitalIndexedSecurityDefinition
       .fromInterpolation(PRICE_INDEX_USCPI, MONTH_LAG_TIPS_1, START_DATE_TIPS_1, INDEX_START_TIPS_1, MATURITY_DATE_TIPS_1, COUPON_PERIOD_TIPS_1, NOTIONAL_TIPS_1, REAL_RATE_TIPS_1, BUSINESS_DAY_USD,
           SETTLEMENT_DAYS_TIPS_1, CALENDAR_USD, DAY_COUNT_TIPS_1, YIELD_CONVENTION_TIPS_1, IS_EOM_TIPS_1, ISSUER_US_GOVT);
-  private static final DoubleTimeSeries<ZonedDateTime> US_CPI = MarketDataSets.usCpiFrom2009();
+  private static final DoubleTimeSeries<ZonedDateTime> US_CPI = MarketDiscountDataSets.usCpiFrom2009();
   private static final BondCapitalIndexedSecurity<Coupon> BOND_SECURITY_TIPS_1 = BOND_SECURITY_TIPS_1_DEFINITION.toDerivative(PRICING_DATE, US_CPI, "Not used");
 
   @Test
@@ -231,7 +231,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
   public void priceYieldExternalValues1() {
     double m1 = 1000000; // Notional of the external figures.
     final ZonedDateTime pricingDate20110817 = DateUtils.getUTCDate(2011, 8, 17); // Spot 18-Aug-2011
-    MarketDiscountBundle market = MarketDataSets.createMarket1(pricingDate20110817);
+    MarketDiscountBundle market = MarketDiscountDataSets.createMarket1(pricingDate20110817);
     double cleanRealPrice = 1.00;
     final BondCapitalIndexedSecurity<Coupon> bond_110817 = BOND_SECURITY_TIPS_1_DEFINITION.toDerivative(pricingDate20110817, US_CPI, "Not used");
     double referenceIndexExpected = 225.83129;
@@ -261,7 +261,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
   public void priceYieldExternalValues2() {
     double m1 = 1000000; // Notional of the external figures.
     final ZonedDateTime pricingDate20110817 = DateUtils.getUTCDate(2011, 8, 17); // Spot 18-Aug-2011
-    MarketDiscountBundle market = MarketDataSets.createMarket1(pricingDate20110817);
+    MarketDiscountBundle market = MarketDiscountDataSets.createMarket1(pricingDate20110817);
     double cleanRealPrice = 1.13 + 0.01 / 32;
     final BondCapitalIndexedSecurity<Coupon> bond_110817 = BOND_SECURITY_TIPS_1_DEFINITION.toDerivative(pricingDate20110817, US_CPI, "Not used");
     double referenceIndexExpected = 225.83129;
@@ -291,7 +291,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
   public void priceYieldExternalValues3() {
     double m1 = 1000000; // Notional of the external figures.
     final ZonedDateTime pricingDate20110817 = DateUtils.getUTCDate(2011, 8, 18); // Spot 19-Aug-2011
-    MarketDiscountBundle market = MarketDataSets.createMarket1(pricingDate20110817);
+    MarketDiscountBundle market = MarketDiscountDataSets.createMarket1(pricingDate20110817);
     double cleanRealPrice = 1.00;
     final BondCapitalIndexedSecurity<Coupon> bond_110817 = BOND_SECURITY_TIPS_1_DEFINITION.toDerivative(pricingDate20110817, US_CPI, "Not used");
     double referenceIndexExpected = 225.82348;

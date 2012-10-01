@@ -22,6 +22,9 @@ import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.curve.MultiplyCurveSpreadFunction;
 import com.opengamma.analytics.math.curve.SpreadDoublesCurve;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
+import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -36,22 +39,45 @@ import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeS
 /**
  * Sets of market data used in tests.
  */
-public class MarketDataSets {
+public class MarketDiscountDataSets {
 
-  private static final Calendar CALENDAR_EUR = new MondayToFridayCalendar("EUR");
+  private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
+      Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+
   private static final Calendar CALENDAR_USD = new MondayToFridayCalendar("USD");
+  private static final Calendar CALENDAR_EUR = new MondayToFridayCalendar("EUR");
   //  private static final Calendar CALENDAR_GBP = new MondayToFridayCalendar("GBP");
+
+  private static final double[] USD_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0};
+  private static final double[] USD_DSC_RATE = new double[] {0.0100, 0.0120, 0.0120, 0.0140, 0.0140};
+  private static final String USD_DSC_NAME = "USD Dsc";
+  private static final YieldAndDiscountCurve USD_DSC = new YieldCurve(USD_DSC_NAME, new InterpolatedDoublesCurve(USD_DSC_TIME, USD_DSC_RATE, LINEAR_FLAT, true, USD_DSC_NAME));
+  private static final double[] USD_FWD3_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0};
+  private static final double[] USD_FWD3_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0150};
+  private static final String USD_FWD3_NAME = "EUR EURIBOR 3M";
+  private static final YieldAndDiscountCurve USD_FWD3 = new YieldCurve(USD_FWD3_NAME, new InterpolatedDoublesCurve(USD_FWD3_TIME, USD_FWD3_RATE, LINEAR_FLAT, true, USD_FWD3_NAME));
+
+  private static final double[] EUR_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0};
+  private static final double[] EUR_DSC_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0150};
+  private static final String EUR_DSC_NAME = "EUR Dsc";
+  private static final YieldAndDiscountCurve EUR_DSC = new YieldCurve(EUR_DSC_NAME, new InterpolatedDoublesCurve(EUR_DSC_TIME, EUR_DSC_RATE, LINEAR_FLAT, true, EUR_DSC_NAME));
+  private static final double[] EUR_FWD3_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 10.0};
+  private static final double[] EUR_FWD3_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0175, 0.0190, 0.0200, 0.0210};
+  private static final String EUR_FWD3_NAME = "EUR EURIBOR 3M";
+  private static final YieldAndDiscountCurve EUR_FWD3 = new YieldCurve(EUR_FWD3_NAME, new InterpolatedDoublesCurve(EUR_FWD3_TIME, EUR_FWD3_RATE, LINEAR_FLAT, true, EUR_FWD3_NAME));
+  private static final double[] EUR_FWD6_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0};
+  private static final double[] EUR_FWD6_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0150};
+  private static final String EUR_FWD6_NAME = "EUR EURIBOR 6M";
+  private static final YieldAndDiscountCurve EUR_FWD6 = new YieldCurve(EUR_FWD6_NAME, new InterpolatedDoublesCurve(EUR_FWD6_TIME, EUR_FWD6_RATE, LINEAR_FLAT, true, EUR_FWD6_NAME));
+
   private static final MarketDiscountBundle MARKET_1 = new MarketDiscountBundle();
-  private static final YieldAndDiscountCurve CURVE_EUR_50 = YieldCurve.from(ConstantDoublesCurve.from(0.0500, "EUR 5.00"));
-  private static final YieldAndDiscountCurve CURVE_EUR_45 = YieldCurve.from(ConstantDoublesCurve.from(0.0450, "EUR 4.50"));
-  private static final YieldAndDiscountCurve CURVE_EUR_40 = YieldCurve.from(ConstantDoublesCurve.from(0.0400, "EUR 4.00"));
   private static final YieldAndDiscountCurve CURVE_GBP_35 = YieldCurve.from(ConstantDoublesCurve.from(0.0350, "GBP 3.50"));
   private static final YieldAndDiscountCurve CURVE_GBP_30 = YieldCurve.from(ConstantDoublesCurve.from(0.0400, "GBP 3.00"));
-  private static final YieldAndDiscountCurve CURVE_USD_35 = YieldCurve.from(ConstantDoublesCurve.from(0.0350, "USD 3.50"));
   private static final YieldAndDiscountCurve CURVE_USD_30 = YieldCurve.from(ConstantDoublesCurve.from(0.0300, "USD 3.00"));
+
+  private static final IborIndex USDLIBOR_3M = IndexIborMaster.getInstance().getIndex("USDLIBOR3M", CALENDAR_USD);
   private static final IborIndex EURIBOR_3M = IndexIborMaster.getInstance().getIndex("EURIBOR3M", CALENDAR_EUR);
   private static final IborIndex EURIBOR_6M = IndexIborMaster.getInstance().getIndex("EURIBOR6M", CALENDAR_EUR);
-  private static final IborIndex USDLIBOR_3M = IndexIborMaster.getInstance().getIndex("USDLIBOR3M", CALENDAR_USD);
 
   private static final String NAME_EUR_PRICE_INDEX = "Euro HICP x";
   private static final Period LAG_EUR = Period.ofDays(14);
@@ -83,12 +109,12 @@ public class MarketDataSets {
   private static final String ISSUER_UK_GOVT = "UK GOVT";
   private static final String ISSUER_US_GOVT = "US GOVT";
   static {
-    MARKET_1.setCurve(Currency.EUR, CURVE_EUR_40);
-    MARKET_1.setCurve(Currency.USD, CURVE_USD_30);
+    MARKET_1.setCurve(Currency.USD, USD_DSC);
+    MARKET_1.setCurve(Currency.EUR, EUR_DSC);
     MARKET_1.setCurve(Currency.GBP, CURVE_GBP_35);
-    MARKET_1.setCurve(EURIBOR_3M, CURVE_EUR_45);
-    MARKET_1.setCurve(EURIBOR_6M, CURVE_EUR_50);
-    MARKET_1.setCurve(USDLIBOR_3M, CURVE_USD_35);
+    MARKET_1.setCurve(USDLIBOR_3M, USD_FWD3);
+    MARKET_1.setCurve(EURIBOR_3M, EUR_FWD3);
+    MARKET_1.setCurve(EURIBOR_6M, EUR_FWD6);
     MARKET_1.setCurve(PRICE_INDEX_EUR, PRICE_INDEX_CURVE_EUR);
     MARKET_1.setCurve(PRICE_INDEX_GBP, PRICE_INDEX_CURVE_GBP);
     MARKET_1.setCurve(PRICE_INDEX_USD, PRICE_INDEX_CURVE_USD);
@@ -165,12 +191,12 @@ public class MarketDataSets {
    */
   public static MarketDiscountBundle createMarket1(ZonedDateTime pricingDate) {
     MarketDiscountBundle market = new MarketDiscountBundle();
-    market.setCurve(Currency.EUR, CURVE_EUR_40);
-    market.setCurve(Currency.USD, CURVE_USD_30);
+    market.setCurve(Currency.USD, USD_DSC);
+    market.setCurve(Currency.EUR, EUR_DSC);
     market.setCurve(Currency.GBP, CURVE_GBP_35);
-    market.setCurve(EURIBOR_3M, CURVE_EUR_45);
-    market.setCurve(EURIBOR_6M, CURVE_EUR_50);
-    market.setCurve(USDLIBOR_3M, CURVE_USD_35);
+    market.setCurve(USDLIBOR_3M, USD_FWD3);
+    market.setCurve(EURIBOR_3M, EUR_FWD3);
+    market.setCurve(EURIBOR_6M, EUR_FWD6);
     market.setCurve(PRICE_INDEX_EUR, PRICE_INDEX_CURVE_EUR);
     market.setCurve(PRICE_INDEX_GBP, PRICE_INDEX_CURVE_GBP);
     market.setCurve(ISSUER_UK_GOVT, Currency.GBP, CURVE_GBP_30);

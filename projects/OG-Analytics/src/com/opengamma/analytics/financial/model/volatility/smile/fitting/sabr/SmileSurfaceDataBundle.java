@@ -5,15 +5,15 @@
  */
 package com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr;
 
-import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.util.ArgumentChecker;
-
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -70,36 +70,33 @@ public abstract class SmileSurfaceDataBundle {
   protected void checkVolatilities(final double[] expiries, final double[][] strikes, final double[][] vols) {
     final int nExpiries = expiries.length;
     // Build a map keyed by the strike
-    HashMap<Double, ArrayList<Double>> strikeVarMap = new HashMap<Double, ArrayList<Double>>();
+    final HashMap<Double, ArrayList<Double>> strikeVarMap = new HashMap<Double, ArrayList<Double>>();
     for (int k = 0; k < strikes[0].length; k++) {
-      ArrayList<Double> intVar = new ArrayList<Double>();
+      final ArrayList<Double> intVar = new ArrayList<Double>();
       intVar.add(vols[0][k] * vols[0][k] * expiries[0]);
       strikeVarMap.put(strikes[0][k], intVar);
     }
     // Loop over expiries
     for (int i = 1; i < nExpiries; i++) {
-      int nK = strikes[i].length;
+      final int nK = strikes[i].length;
       for (int k = 0; k < nK; k++) {
         if (strikeVarMap.containsKey(strikes[i][k])) {
           // Add Vol to existing key
           strikeVarMap.get(strikes[i][k]).add(vols[i][k] * vols[i][k] * expiries[i]);
         } else { // Add new key
-          ArrayList<Double> intVar = new ArrayList<Double>();
+          final ArrayList<Double> intVar = new ArrayList<Double>();
           intVar.add(vols[i][k] * vols[i][k] * expiries[i]);
           strikeVarMap.put(strikes[i][k], intVar);
         }
       }
     }
     // Perform check by looping over strikes confirming that variance increases with expiry
-    Iterator<Double> strikeIter = strikeVarMap.keySet().iterator();
-    while (strikeIter.hasNext()) {
-      Double strike = strikeIter.next();
-      ArrayList<Double> intVar = strikeVarMap.get(strike);
-      int nVars = intVar.size();
+    for (final Map.Entry<Double, ArrayList<Double>> entry : strikeVarMap.entrySet()) {
+      final ArrayList<Double> intVar = entry.getValue();
+      final int nVars = intVar.size();
       if (nVars > 1) {
         for (int t = 1; t < nVars; t++) {
           if (intVar.get(t) < intVar.get(t - 1)) {
-            // throw new OpenGammaRuntimeException("Integrated variance not increasing, have " + intVar.get(t - 1) + "," + intVar.get(t));
             s_logger.error("Integrated variance not increasing, have (" + (t - 1) + "," + intVar.get(t - 1) + "),(" + t + "," + intVar.get(t) + ")");
           }
         }

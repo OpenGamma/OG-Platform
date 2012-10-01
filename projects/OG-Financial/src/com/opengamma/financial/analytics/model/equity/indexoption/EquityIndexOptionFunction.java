@@ -92,6 +92,9 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     final ExternalId underlyingId = security.getUnderlyingId();
     final EquityIndexOptionDefinition defn = _converter.visitEquityIndexOptionSecurity(security);
     final EquityIndexOption derivative = (EquityIndexOption) defn.toDerivative(now);
+    if (derivative.getTimeToSettlement() < 0.0) {
+      throw new OpenGammaRuntimeException("EquityIndexOption with expiry, " + security.getExpiry().getExpiry().toString() + ", has already settled.");
+    }
 
     // 2. Build up the market data bundle
     final StaticReplicationDataBundle market = buildMarketBundle(underlyingId, executionContext, inputs, target, desiredValues);

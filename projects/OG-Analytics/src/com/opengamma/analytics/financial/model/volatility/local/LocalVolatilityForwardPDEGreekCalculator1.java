@@ -96,8 +96,10 @@ public class LocalVolatilityForwardPDEGreekCalculator1<T extends StrikeType> {
     LocalVolatilitySurfaceStrike strikeLocalVolatility;
     if (localVolatility instanceof LocalVolatilitySurfaceStrike) {
       strikeLocalVolatility = (LocalVolatilitySurfaceStrike) localVolatility;
-    } else {
+    } else if (localVolatility instanceof LocalVolatilitySurfaceMoneyness) {      
       strikeLocalVolatility = LocalVolatilitySurfaceConverter.toStrikeSurface(((LocalVolatilitySurfaceMoneyness) localVolatility));
+    } else {
+      throw new IllegalArgumentException("Cannot handle surface of type " + localVolatility.getClass());
     }
     return gridGreeks(forwardCurve, strikeLocalVolatility, isCall, option);
   }
@@ -110,8 +112,10 @@ public class LocalVolatilityForwardPDEGreekCalculator1<T extends StrikeType> {
     LocalVolatilitySurfaceStrike strikeLocalVolatility;
     if (localVolatility instanceof LocalVolatilitySurfaceStrike) {
       strikeLocalVolatility = (LocalVolatilitySurfaceStrike) localVolatility;
-    } else {
+    } else if (localVolatility instanceof LocalVolatilitySurfaceMoneyness) {
       strikeLocalVolatility = LocalVolatilitySurfaceConverter.toStrikeSurface(((LocalVolatilitySurfaceMoneyness) localVolatility));
+    } else {
+      throw new IllegalArgumentException("Cannot handle surface of type " + localVolatility.getClass());
     }
     return bucketedVega(strikeLocalVolatility, data, option);
   }

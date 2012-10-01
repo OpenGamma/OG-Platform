@@ -112,7 +112,7 @@ public final class CapFloorCMSHullWhiteNumericalIntegrationMethod implements Pri
   /**
    * Inner class to implement the integration used in price computation.
    */
-  private class CMSIntegrant extends Function1D<Double, Double> {
+  private static final class CMSIntegrant extends Function1D<Double, Double> {
 
     private final double[] _discountedCashFlowFixed;
     private final double[] _alphaFixed;

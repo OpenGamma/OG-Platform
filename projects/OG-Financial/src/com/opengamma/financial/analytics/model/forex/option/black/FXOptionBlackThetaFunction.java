@@ -65,9 +65,24 @@ public class FXOptionBlackThetaFunction extends FXOptionBlackSingleValuedFunctio
         .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
         .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
         .withAny(ValuePropertyNames.CURRENCY);
-        //.with(ValuePropertyNames.CURRENCY, getResultCurrency(target));
   }
 
+  @Override
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final CurrencyPair baseQuotePair) {
+    return createValueProperties()
+        .with(ValuePropertyNames.CALCULATION_METHOD, BLACK_METHOD)
+        .with(ThetaPropertyNamesAndValues.PROPERTY_THETA_CALCULATION_METHOD, OPTION_THETA)
+        .withAny(PUT_CURVE)
+        .withAny(PUT_CURVE_CALC_CONFIG)
+        .withAny(CALL_CURVE)
+        .withAny(CALL_CURVE_CALC_CONFIG)
+        .withAny(ValuePropertyNames.SURFACE)
+        .withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
+        .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
+        .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
+        .with(ValuePropertyNames.CURRENCY, getResultCurrency(target, baseQuotePair));
+  }
+  
   @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue, final CurrencyPair baseQuotePair) {
     final String putCurveName = desiredValue.getConstraint(PUT_CURVE);

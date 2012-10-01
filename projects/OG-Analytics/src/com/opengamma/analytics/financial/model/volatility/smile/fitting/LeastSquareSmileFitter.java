@@ -41,11 +41,10 @@ public abstract class LeastSquareSmileFitter {
     final double fwd = data[0].getForward();
     final double df = data[0].getDiscountFactor();
 
-    //TODO This is stupid, the interface should take a single forward, expiry and discount factor, a an array of strikes and vols
     for (int i = 1; i < n; i++) {
-      Validate.isTrue(options[i].getTimeToExpiry() == t, "options not all at same time horizon");
-      Validate.isTrue(data[i].getForward() == fwd, "options don't all have same forward");
-      Validate.isTrue(data[i].getDiscountFactor() == df, "options don't all have same discount factors");
+      Validate.isTrue(Double.doubleToLongBits(options[i].getTimeToExpiry()) == Double.doubleToLongBits(t), "options not all at same time horizon");
+      Validate.isTrue(Double.doubleToLongBits(data[i].getForward()) == Double.doubleToLongBits(fwd), "options don't all have same forward");
+      Validate.isTrue(Double.doubleToLongBits(data[i].getDiscountFactor()) == Double.doubleToLongBits(df), "options don't all have same discount factors");
     }
   }
 }

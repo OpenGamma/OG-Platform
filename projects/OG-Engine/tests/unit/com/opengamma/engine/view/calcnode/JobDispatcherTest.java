@@ -357,7 +357,7 @@ public class JobDispatcherTest {
 
   }
 
-  @Test(invocationCount = 3, successPercentage = 25)
+  @Test(invocationCount = 5, successPercentage = 19)
   public void testJobTimeoutFailure() {
     s_logger.info("testJobTimeoutFailure");
     final JobDispatcher jobDispatcher = new JobDispatcher();
@@ -373,7 +373,7 @@ public class JobDispatcherTest {
     assertEquals(jobDispatcher.getJobFailureNodeId(), jobResult.getComputeNodeId());
   }
   
-  @Test(invocationCount = 3, successPercentage = 25)
+  @Test(invocationCount = 5, successPercentage = 19)
   public void testJobTimeoutSuccess() {
     s_logger.info("testJobTimeoutSuccess");
     final JobDispatcher jobDispatcher = new JobDispatcher();
@@ -389,7 +389,7 @@ public class JobDispatcherTest {
     assertEquals(blockingInvoker.getInvokerId (), jobResult.getComputeNodeId());
   }
 
-  @Test(invocationCount = 3, successPercentage = 25)
+  @Test(invocationCount = 5, successPercentage = 19)
   public void testJobTimeoutQuerySuccess () {
     s_logger.info("testJobTimeoutQuerySuccess");
     final JobDispatcher jobDispatcher = new JobDispatcher();
@@ -408,7 +408,7 @@ public class JobDispatcherTest {
     assertTrue (blockingInvoker._isAlive.get () > 0);
   }
 
-  @Test(invocationCount = 3, successPercentage = 25)
+  @Test(invocationCount = 5, successPercentage = 19)
   public void testJobTimeoutQueryFailure () {
     s_logger.info("testJobTimeoutQueryFailure");
     final JobDispatcher jobDispatcher = new JobDispatcher();
@@ -425,7 +425,7 @@ public class JobDispatcherTest {
     assertEquals(jobDispatcher.getJobFailureNodeId(), jobResult.getComputeNodeId());
   }
   
-  @Test(invocationCount = 3, successPercentage = 25)
+  @Test(invocationCount = 5, successPercentage = 19)
   public void testJobCancel() {
     s_logger.info("testJobCancel");
     final JobDispatcher jobDispatcher = new JobDispatcher();

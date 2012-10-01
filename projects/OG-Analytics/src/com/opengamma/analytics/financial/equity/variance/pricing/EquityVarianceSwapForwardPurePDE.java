@@ -100,7 +100,7 @@ public class EquityVarianceSwapForwardPurePDE {
     while (n > 0 && count < n && dividends.getTau(count) < expiry) {
       count++;
     }
-    final boolean divAtExp = n > 0 && count < n && dividends.getTau(count) == expiry;
+    final boolean divAtExp = n > 0 && count < n && Double.doubleToLongBits(dividends.getTau(count)) == Double.doubleToLongBits(expiry);
     final int nDivsBeforeExpiry = count;
     final int[] steps = new int[nDivsBeforeExpiry + 1];
     int tSteps = 0;
