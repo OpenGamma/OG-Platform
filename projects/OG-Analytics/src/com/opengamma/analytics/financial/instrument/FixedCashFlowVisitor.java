@@ -25,7 +25,6 @@ import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefi
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
-import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborSpreadDefinition;
 import com.opengamma.util.ArgumentChecker;
@@ -137,22 +136,14 @@ public final class FixedCashFlowVisitor extends AbstractInstrumentDefinitionVisi
     return getDatesAndPaymentsFromAnnuity(annuity, fromDate);
   }
 
-  //TODO the case where there has been a fixing on the floating leg
-  @Override
-  public Map<LocalDate, MultipleCurrencyAmount> visitSwapDefinition(final SwapDefinition swap, final LocalDate fromDate) {
-    ArgumentChecker.notNull(swap, "swap");
-    ArgumentChecker.notNull(fromDate, "date");
-    return (swap.getFirstLeg().isPayer()) ? swap.getFirstLeg().accept(this, fromDate) : swap.getSecondLeg().accept(this, fromDate);
-  }
-
   @Override
   public Map<LocalDate, MultipleCurrencyAmount> visitSwapFixedIborDefinition(final SwapFixedIborDefinition swap, final LocalDate fromDate) {
     ArgumentChecker.notNull(swap, "swap");
     ArgumentChecker.notNull(fromDate, "date");
     if (swap.getFixedLeg().isPayer()) {
-      return swap.getFixedLeg().accept(this, fromDate);
+      return (swap.getFixedLeg().accept(this, fromDate));
     }
-    return Collections.emptyMap();
+    return swap.getIborLeg().accept(this, fromDate);
   }
 
   @Override
@@ -162,7 +153,7 @@ public final class FixedCashFlowVisitor extends AbstractInstrumentDefinitionVisi
     if (swap.getFixedLeg().isPayer()) {
       return swap.getFixedLeg().accept(this, fromDate);
     }
-    return Collections.emptyMap();
+    return swap.getIborLeg().accept(this, fromDate);
   }
 
   @Override
