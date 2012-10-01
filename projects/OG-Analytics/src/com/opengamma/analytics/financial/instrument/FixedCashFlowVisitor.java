@@ -11,10 +11,10 @@ import java.util.Map;
 
 import javax.time.calendar.LocalDate;
 
+import com.google.common.collect.Maps;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableForwardDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexSwapDefinition;
-import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BillSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BillTransactionDefinition;
@@ -48,15 +48,14 @@ public final class FixedCashFlowVisitor extends AbstractInstrumentDefinitionVisi
     return Collections.emptyMap();
   }
 
+  //TODO should check to see if bonds are long or short
   @Override
   public Map<LocalDate, MultipleCurrencyAmount> visitBondFixedSecurityDefinition(final BondFixedSecurityDefinition bond, final LocalDate fromDate) {
     ArgumentChecker.notNull(bond, "Fixed-coupon bond");
     ArgumentChecker.notNull(fromDate, "date");
-    final AnnuityCouponFixedDefinition coupons = bond.getCoupons();
-    final AnnuityDefinition<PaymentFixedDefinition> nominal = bond.getNominal();
-    final Map<LocalDate, MultipleCurrencyAmount> result = getDatesAndPaymentsFromAnnuity(coupons, fromDate);
-    result.putAll(getDatesAndPaymentsFromAnnuity(nominal, fromDate));
-    return result;
+    final Map<LocalDate, MultipleCurrencyAmount> coupons = bond.getCoupons().accept(this, fromDate);
+    final Map<LocalDate, MultipleCurrencyAmount> nominal = bond.getNominal().accept(this, fromDate);
+    return add(coupons, nominal);
   }
 
   @Override
@@ -114,7 +113,7 @@ public final class FixedCashFlowVisitor extends AbstractInstrumentDefinitionVisi
     if (endDate.isBefore(fromDate)) {
       return Collections.emptyMap();
     }
-    return Collections.singletonMap(endDate, MultipleCurrencyAmount.of(coupon.getCurrency(), coupon.getReferenceAmount()));
+    return Collections.singletonMap(endDate, MultipleCurrencyAmount.of(coupon.getCurrency(), coupon.getAmount()));
   }
 
   @Override
@@ -204,6 +203,18 @@ public final class FixedCashFlowVisitor extends AbstractInstrumentDefinitionVisi
             }
           }
         }
+      }
+    }
+    return result;
+  }
+
+  private Map<LocalDate, MultipleCurrencyAmount> add(final Map<LocalDate, MultipleCurrencyAmount> map1, final Map<LocalDate, MultipleCurrencyAmount> map2) {
+    final Map<LocalDate, MultipleCurrencyAmount> result = Maps.newHashMap(map1);
+    for (final Map.Entry<LocalDate, MultipleCurrencyAmount> entry : map2.entrySet()) {
+      if (result.containsKey(entry.getKey())) {
+        result.put(entry.getKey(), entry.getValue().plus(result.get(entry.getKey())));
+      } else {
+        result.put(entry.getKey(), entry.getValue());
       }
     }
     return result;

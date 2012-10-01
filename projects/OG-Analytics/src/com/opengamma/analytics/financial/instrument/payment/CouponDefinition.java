@@ -36,19 +36,20 @@ public abstract class CouponDefinition extends PaymentDefinition {
 
   /**
    * Constructor from all the coupon details.
-   * @param currency The coupn currency.
+   * @param currency The coupon currency.
    * @param paymentDate The coupon payment date.
    * @param accrualStartDate The start date of the accrual period.
    * @param accrualEndDate The end date of the accrual period.
    * @param paymentAccrualFactor The accrual factor of the accrual period.
    * @param notional The coupon notional.
    */
-  public CouponDefinition(Currency currency, ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double paymentAccrualFactor, double notional) {
+  public CouponDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
+      final double paymentAccrualFactor, final double notional) {
     super(currency, paymentDate);
     Validate.notNull(accrualStartDate, "accrual start date");
     this._accrualStartDate = accrualStartDate;
     Validate.notNull(accrualEndDate, "accrual end date");
-    Validate.isTrue(!accrualEndDate.isBefore(accrualStartDate), "end before start"); // REview
+    Validate.isTrue(!accrualEndDate.isBefore(accrualStartDate), "end before start"); // REVIEW
     this._accrualEndDate = accrualEndDate;
     Validate.isTrue(paymentAccrualFactor >= 0.0, "year fraction < 0");
     this._paymentYearFraction = paymentAccrualFactor;
@@ -63,7 +64,8 @@ public abstract class CouponDefinition extends PaymentDefinition {
    * @param accrualFactor Accrual factor of the accrual period.
    * @param notional Coupon notional.
    */
-  public CouponDefinition(Currency currency, ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, double accrualFactor, double notional) {
+  public CouponDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final double accrualFactor,
+      final double notional) {
     super(currency, paymentDate);
     Validate.notNull(accrualStartDate, "accrual start date");
     this._accrualStartDate = accrualStartDate;
@@ -106,7 +108,8 @@ public abstract class CouponDefinition extends PaymentDefinition {
 
   @Override
   public String toString() {
-    return super.toString() + ", Coupon period = [" + _accrualStartDate.toString() + " - " + _accrualEndDate.toString() + " - " + _paymentYearFraction + "], Notional = " + _notional;
+    return super.toString() + ", Coupon period = [" + _accrualStartDate.toString() + " - " + _accrualEndDate.toString() + " - " + _paymentYearFraction + "], Notional = "
+        + _notional;
   }
 
   @Override
@@ -135,7 +138,7 @@ public abstract class CouponDefinition extends PaymentDefinition {
    * @see java.lang.Object#equals(java.lang.Object)
    */
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -145,7 +148,7 @@ public abstract class CouponDefinition extends PaymentDefinition {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponDefinition other = (CouponDefinition) obj;
+    final CouponDefinition other = (CouponDefinition) obj;
     if (!ObjectUtils.equals(_accrualEndDate, other._accrualEndDate)) {
       return false;
     }
