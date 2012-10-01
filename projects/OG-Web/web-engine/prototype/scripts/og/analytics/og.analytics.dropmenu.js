@@ -63,7 +63,7 @@ $.register_module({
         Menu.prototype.update_opt_nums = function (pos) {
             var menu = this;
             for (var i = pos || 0, len = menu.opts.length; i < len;)
-                menu.opts[i].data("pos", i).find('.number span').text(i+=1);
+                menu.opts[i].data('pos', i).find('.number span').text(i+=1);
         };
         Menu.prototype.stop = function (event) {
             event.stopPropagation();
@@ -81,7 +81,7 @@ $.register_module({
          * TODO AG: Must provide Getters/Setters for instance properties as these should really be private
          * and not accessible directly via the instance.
          */
-        return DropMenu = function (config) {
+        DropMenu = function (config) {
             var m = new Menu(), tmpl = config.tmpl, dummy_s = '<div>', data = config.data || {};
             m.state = 'closed';
             m.opened = false;
@@ -94,7 +94,7 @@ $.register_module({
             m.$dom.menu = $('.OG-analytics-form-menu', m.$dom.cntr);
             m.$dom.menu_actions = $('.OG-dropmenu-actions', m.$dom.menu);
             m.$dom.opt = $('.OG-dropmenu-options', m.$dom.menu);
-            m.$dom.opt.data("pos", ((m.opts = []).push(m.$dom.opt), m.opts.length-1));
+            m.$dom.opt.data('pos', ((m.opts = []).push(m.$dom.opt), m.opts.length-1));
             m.$dom.add = $('.OG-link-add', m.$dom.menu);
             m.$dom.opt_cp = m.$dom.opt.clone(true);
             m.addListener(events.open, m.open.bind(m))
@@ -102,5 +102,6 @@ $.register_module({
                 .addListener(events.focus, m.focus.bind(m));
             return m;
         };
+        return DropMenu;
     }
 });

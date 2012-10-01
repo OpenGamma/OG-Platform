@@ -36,7 +36,7 @@ $.register_module({
                         return $sel_checkbox[0].disabled = true, $ag_selection.html(default_sel_txt), 
                             $sel_select.val(default_sel_txt).focus(), remove_entry();
                     }
-                    menu.del_handler($sel_parent); 
+                    if($sel_select !== undefined) menu.del_handler($sel_parent);
                     for (var i = entry !== -1 ? entry : sel_pos, len = ag_opts.length; i < len; ag_opts[i++].pos-=1);
                     if (entry !== -1) {
                         remove_entry(entry);
@@ -65,12 +65,12 @@ $.register_module({
                     $sel_checkbox.focus();
                 },
                 menu_handler = function (event) {
-                    menu.stop(event);
-                    var elem = $(event.srcElement), entry;
+                    var target = event.srcElement || event.target, //eh!?
+                        elem = $(target), entry;
                         $sel_parent = elem.parents(options_s);
                         $sel_select = $sel_parent.find(select_s);
                         $sel_checkbox = $sel_parent.find(checkbox_s);
-                        sel_val = elem.val();
+                        sel_val = $sel_select.val();
                         sel_pos = $sel_parent.data('pos');
                         entry = ag_opts.pluck('pos').indexOf(sel_pos);
                     if (elem.is(menu.$dom.add)) return add_handler();
@@ -105,8 +105,10 @@ $.register_module({
                 };
             $dom.title_prefix.append('<span>Aggregated by</span>');
             $dom.title_infix.append('<span>then</span>');
-            $dom.title.on('click', menu.title_handler.bind(menu));
-            $dom.menu.on('click', menu_handler).on('change', menu_handler);
+            if ($dom) {
+                if ($dom.title) $dom.title.on('click', menu.title_handler.bind(menu));
+                if ($dom.menu) $dom.menu.on('click', menu_handler).on('change', menu_handler);
+            } 
             return menu;
         };
     }
