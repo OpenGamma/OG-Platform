@@ -29,6 +29,9 @@ $.register_module({
                         case 'Live': populate_livedatasources(); break;
                     }
                 },
+                add_handler = function () {
+                    menu.add_handler(); 
+                },
                 menu_handler = function (event) {
                     var target = event.srcElement || event.target,
                         elem = $(target), entry;
