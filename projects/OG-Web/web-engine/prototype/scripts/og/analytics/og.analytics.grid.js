@@ -96,12 +96,12 @@ $.register_module({
         };
         constructor.prototype.cell = function (selection) {
             if (1 !== selection.rows.length || 1 !== selection.cols.length) return null;
-            var grid = this, meta = grid.meta, viewport = grid.meta.viewport,
-                rows = viewport.rows, cols = viewport.cols, row = selection.rows[0], col = selection.cols[0],
-                data_index = rows.indexOf(row) * cols.length + cols.indexOf(col), cell = grid.data[data_index];
+            var grid = this, meta = grid.meta, viewport = grid.meta.viewport, rows = viewport.rows,
+                cols = viewport.cols, row = selection.rows[0], col = selection.cols[0], col_index = cols.indexOf(col),
+                data_index = rows.indexOf(row) * cols.length + col_index, cell = grid.data[data_index];
             return {
                 row: selection.rows[0], col: selection.cols[0], value: cell, type: cell.t || selection.type[0],
-                row_name: grid.data[data_index - col], col_name: meta.columns.headers[col]
+                row_name: grid.data[data_index - col_index], col_name: meta.columns.headers[col]
             };
         };
         constructor.prototype.init_data = function () {
