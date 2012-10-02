@@ -319,8 +319,7 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
             .with(ValuePropertyNames.SURFACE, surfaceName) 
             .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)));
         builder.add(getFXVegaMatrix(ValueProperties
-            .with(ValuePropertyNames.SURFACE, surfaceName) 
-            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)));
+            .with(ValuePropertyNames.SURFACE, surfaceName)));
       } else {
         s_logger.warn("Could not build surface name for {}", security);
       }
@@ -340,8 +339,7 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
             .with(ValuePropertyNames.SURFACE, surfaceName) 
             .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)));
         builder.add(getFXVegaMatrix(ValueProperties
-            .with(ValuePropertyNames.SURFACE, surfaceName) 
-            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)));
+            .with(ValuePropertyNames.SURFACE, surfaceName)));
       } else {
         s_logger.warn("Could not build surface name for {}", security);
       }
@@ -361,8 +359,7 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
             .with(ValuePropertyNames.SURFACE, surfaceName) 
             .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)));
         builder.add(getFXVegaMatrix(ValueProperties
-            .with(ValuePropertyNames.SURFACE, surfaceName) 
-            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)));
+            .with(ValuePropertyNames.SURFACE, surfaceName) ));
       } else {
         s_logger.warn("Could not build surface name for {}", security);
       }
@@ -421,8 +418,7 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
             .with(ValuePropertyNames.SURFACE, surfaceName) 
             .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)));
         builder.add(getFXVegaMatrix(ValueProperties
-            .with(ValuePropertyNames.SURFACE, surfaceName) 
-            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)));
+            .with(ValuePropertyNames.SURFACE, surfaceName)));
       } else {
         s_logger.warn("Could not build surface name for {}", security);
       }
@@ -442,8 +438,7 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
             .with(ValuePropertyNames.SURFACE, surfaceName) 
             .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)));
         builder.add(getFXVegaMatrix(ValueProperties
-            .with(ValuePropertyNames.SURFACE, surfaceName) 
-            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)));
+            .with(ValuePropertyNames.SURFACE, surfaceName)));
       } else {
         s_logger.warn("Could not build surface name for {}", security);
       }
