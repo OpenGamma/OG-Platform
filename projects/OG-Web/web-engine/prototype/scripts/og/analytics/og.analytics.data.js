@@ -81,6 +81,9 @@ $.register_module({
             })(false);
             data.events = {meta: [], data: []};
             data.id = id;
+            data.kill = function () {
+                if (view_id)  api.del({view_id: view_id}).pipe(function (result) {view_id = null;});
+            };
             data.meta = meta = {columns: {}};
             data.cols = cols = {};
             data.viewport = function (new_viewport) {

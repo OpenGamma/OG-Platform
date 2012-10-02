@@ -8,10 +8,12 @@ $.register_module({
     obj: function () {
         var events = og.common.events, constructor = function (config) {
             var cell = this;
-            cell.events = {data: []};
-            new og.analytics.Data(config.source).viewport({rows: [config.row], cols: [config.col], expanded: true})
+            cell.dataman = new og.analytics.Data(config.source)
+                .viewport({rows: [config.row], cols: [config.col], expanded: true})
                 .on('data', function (data) {events.fire(cell.events.data, data[0]);});
+            cell.events = {data: []};
         };
+        constructor.prototype.kill = function () {this.dataman.kill();};
         constructor.prototype.on = events.on;
         return constructor;
     }

@@ -164,14 +164,14 @@ $.register_module({
              *     obj.name     String
              *     obj.margin   Boolean
              */
-            container.add = function (data, idx) {
+            container.add = function (data, index, fingerprint) {
                 var panel_container = selector + ' .OG-gadget-container', new_gadgets;
                 if (!loading && !initialized)
-                    return container.init(), setTimeout(container.add.partial(data || null), 10), container;
-                if (!initialized) return setTimeout(container.add.partial(data || null), 10), container;
+                    return container.init(), setTimeout(container.add.partial(data, index, fingerprint), 10), container;
+                if (!initialized) return setTimeout(container.add.partial(data, index, fingerprint), 10), container;
                 if (!data) return container; // no gadgets for this container
                 if (!selector) throw new TypeError('GadgetsContainer has not been initialized');
-                new_gadgets = data.map(function (obj, i) {
+                new_gadgets = data.map(function (obj, idx) {
                     var id, gadget_class = 'OG-gadget-' + (id = counter++), gadget,
                         options = $.extend(true, obj.options || {}, {selector: panel_container + ' .' + gadget_class}),
                         constructor = obj.gadget.split('.').reduce(function (acc, val) {return acc[val];}, window),
@@ -179,10 +179,11 @@ $.register_module({
                     $(panel_container).append('<div class="' + gadget_class + '" />').find('.' + gadget_class)
                         .css({
                             position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
-                            display: i === data.length - 1 ? 'block' : 'none'
+                            display: idx === data.length - 1 ? 'block' : 'none'
                         });
-                    gadgets.splice(idx || gadgets.length, 0,
+                    gadgets.splice(index || gadgets.length, 0,
                         gadget = {id: id, config: obj, type: type, gadget: new constructor(options)});
+                    if (fingerprint) gadget.fingerprint = fingerprint;
                     return gadget;
                 });
                 update_tabs(new_gadgets[new_gadgets.length - 1].id);
@@ -192,7 +193,7 @@ $.register_module({
                 gadgets.forEach(function (obj) {obj.gadget.alive();});
                 return !!$selector.length;
             };
-            container.del = function (obj) {
+            container.del = function (obj, silent) {
                 var id, index = gadgets.indexOf(obj);
                 $(selector + ' .OG-gadget-container .OG-gadget-' + obj.id).remove();
                 gadgets[gadgets.length - 1].gadget.alive();
@@ -202,9 +203,10 @@ $.register_module({
                     : null;
                 if (id) gadgets[extract_index(id)].gadget.resize();
                 update_tabs(id); // new active tab or empty
-                og.common.events.fire(container.events.del, index);
+                if (!silent) og.common.events.fire(container.events.del, index);
             };
-            container.events = {del: []};
+            container.events = {del: [], drop: []};
+            container.gadgets = function () {return gadgets;};
             /**
              * Highlight gadget panel with number
              * @param show {Boolean} turn on / off
@@ -266,13 +268,15 @@ $.register_module({
                             } else {
                                 ui.draggable.draggable('option', 'revert', false);
                                 gadget.selector = gadget.selector.replace(re, selector_prefix + pane + ' ');
-                                container.add([data.gadget.config]);
+                                if (og.common.events.fire(container.events.drop, data.gadget.config))
+                                    container.add([data.gadget.config]);
                                 setTimeout(data.handler); // setTimeout to ensure handler is called after drag evt ends
                             }
                         }
                     });
                     og.common.gadgets.manager.register(container);
                 });
+                return container;
             };
             container.resize = function () {
                 gadgets.forEach(function (obj) {
@@ -283,6 +287,17 @@ $.register_module({
                     }
                 });
             }
+            container.verify = function (fingerprints) {
+                if (!initialized) return setTimeout(container.verify.partial(fingerprints), 10), container;
+                var gadget_prints = gadgets.pluck('fingerprint'), keep;
+                keep = (fingerprints || []).map(function (fingerprint) {
+                    var index;
+                    if (!fingerprint) return null;
+                    if (~(index = gadget_prints.indexOf(fingerprint))) return index; else return null;
+                }).reduce(function (acc, val) {if (val !== null) acc[val] = null; return acc;}, {});
+                gadgets.forEach(function (gadget, index) {if (!(index in keep)) container.del(gadgets[index], true);});
+                return container;
+            };
         };
         constructor.prototype.on = og.common.events.on;
         return constructor;

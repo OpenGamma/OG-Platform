@@ -579,7 +579,17 @@ $.register_module({
                     data['clientId'] = api.id;
                     return request(method, {data: data, meta: meta}, promise);
                 },
-                del: not_available.partial('del'),
+                del: function (config) {
+                    config = config || {};
+                    var root = this.root, method = [root], meta, view_id = str(config.view_id);
+                    meta = check({
+                        bundle: {method: root + '#del', config: config},
+                        required: [{all_of: ['view_id']}]
+                    });
+                    meta.type = 'DELETE';
+                    method = method.concat(view_id);
+                    return request(method, {data: {}, meta: meta});
+                },
                 portfolio: {
                     columns: {
                         root: 'views/{{id}}/portfolio/columns',

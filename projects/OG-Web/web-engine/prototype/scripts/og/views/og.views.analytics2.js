@@ -11,7 +11,7 @@ $.register_module({
         return view = {
             check_state: og.views.common.state.check.partial('/'),
             default_details: function () {
-                og.analytics.containers.initialize({});
+                og.analytics.containers.initialize();
                 og.api.text({module: 'og.analytics.grid.configure_tash'}).pipe(function (markup) {
                     var template = Handlebars.compile(markup);
                     $('.OG-layout-analytics-center').html(template({}));

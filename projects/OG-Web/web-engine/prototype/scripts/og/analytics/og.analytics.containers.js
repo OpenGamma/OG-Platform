@@ -7,11 +7,12 @@ $.register_module({
     dependencies: ['og.common.gadgets.GadgetsContainer'],
     obj: function () {
         var GadgetsContainer = og.common.gadgets.GadgetsContainer, containers = {
-            initialize: function (args) {
-                ['south', 'dock-north', 'dock-center', 'dock-south'].forEach(function (val) {
-                    containers[val] = new GadgetsContainer('.OG-layout-analytics-', val)
-                        .add(args[val])
-                        .on('del', function (index) {og.analytics.url.remove(val, index);});
+            initialize: function () {
+                ['south', 'dock-north', 'dock-center', 'dock-south'].forEach(function (panel) {
+                    containers[panel] = new GadgetsContainer('.OG-layout-analytics-', panel)
+                        .init()
+                        .on('del', function (index) {og.analytics.url.remove(panel, index);})
+                        .on('drop', function (params) {return og.analytics.url.add(panel, params), false;});
                 });
                 delete containers.initialize;
             }

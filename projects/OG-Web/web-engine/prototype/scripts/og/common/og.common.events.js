@@ -11,7 +11,9 @@ $.register_module({
             fire: function (events) {
                 var args = Array.prototype.slice.call(arguments, 1), lcv, len = events.length;
                 for (lcv = 0; lcv < len; lcv += 1)
-                    if (false === events[lcv].handler.apply(events[lcv].context, events[lcv].args.concat(args))) break;
+                    if (false === events[lcv].handler.apply(events[lcv].context, events[lcv].args.concat(args)))
+                        return false;
+                return true;
             },
             off: function (type, handler) {
                 if (type in this.events) this.events[type] = this.events[type].filter(function (listener) {

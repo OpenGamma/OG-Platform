@@ -6,7 +6,13 @@ $.register_module({
     name: 'og.common.gadgets.mapping',
     dependencies: [],
     obj: function () {
-        var module = this, mapping;
+        var module = this, mapping, gadget_names = {
+            'Curve': 'Curve',
+            'Data': 'Data',
+            'Depgraph': 'Dependency Graph',
+            'Surface': 'Surface',
+            'Timeseries': 'Time Series'
+        };
         return mapping = {
             gadgets: ['Depgraph', 'Data', 'Surface', 'Curve', 'Timeseries'],
             panel_preference: {
@@ -17,22 +23,17 @@ $.register_module({
                 'new-window' : [2, 4, 3, 1, 0]
             },
             options: function (cell, grid, panel) {
-                var type = mapping.type(cell, panel), source = $.extend({}, grid.source), options = {
-                    'Depgraph': function (cell) {
-                        source.depgraph = true;
-                        source.col = cell.col;
-                        source.row = cell.row;
-                        return {
-                            gadget: 'og.common.gadgets.Depgraph',
-                            options: {child: true, source: source},
-                            row_name: cell.row_name,
-                            col_name: cell.col_name,
-                            type: 'Dependency Graph'
-                        }
-                    }
+                var type = mapping.type(cell, panel), source = $.extend({}, grid.source), gadget_options = {
+                    gadget: 'og.common.gadgets.' + type,
+                    options: {source: source, child: true},
+                    row_name: cell.row_name,
+                    col_name: cell.col_name,
+                    type: gadget_names[type]
                 };
-                if (!options[type]) return og.dev.warn(type + ' does not exist in ' + module.name);
-                return options[type](cell);
+                if (type === 'Data') $.extend(gadget_options.options, {col: cell.col, row: cell.row});
+                if (type === 'Depgraph') $.extend(source, {depgraph: true, col: cell.col, row: cell.row});
+                if (type === 'Timeseries') gadget_options.options.datapoints_link = false;
+                return gadget_options;
             },
             type : function (cell, panel) {
                 var order = mapping.panel_preference[panel || 'new-window'],

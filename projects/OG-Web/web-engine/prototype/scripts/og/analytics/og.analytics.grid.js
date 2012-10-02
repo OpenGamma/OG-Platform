@@ -90,8 +90,9 @@ $.register_module({
             });
         };
         constructor.prototype.alive = function () {
-            var grid = this, $ = grid.$;
-            return $(grid.id).length ? true : !grid.elements.style.remove();
+            var grid = this, $ = grid.$, alive = $(grid.id).length ? true : !grid.elements.style.remove();
+            if (!alive) grid.dataman.kill();
+            return alive;
         };
         constructor.prototype.cell = function (selection) {
             if (1 !== selection.rows.length || 1 !== selection.cols.length) return null;

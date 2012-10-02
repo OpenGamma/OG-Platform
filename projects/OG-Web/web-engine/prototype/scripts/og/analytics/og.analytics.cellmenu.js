@@ -27,8 +27,7 @@ $.register_module({
                     var panel = panels[+$(this).text() - 1], cell = cellmenu.current,
                         options = mapping.options(cell, grid, panel);
                     cellmenu.hide();
-                    if (!panel) return console.log('new window!');
-                    og.analytics.url.add(panel, options);
+                    if (!panel) og.analytics.url.launch(options); else og.analytics.url.add(panel, options);
                 });
                 grid.on('cellhoverin', function (cell) {
                     var hide = !(cellmenu.current = cell).value || cell.type === 'PRIMITIVE' ||
