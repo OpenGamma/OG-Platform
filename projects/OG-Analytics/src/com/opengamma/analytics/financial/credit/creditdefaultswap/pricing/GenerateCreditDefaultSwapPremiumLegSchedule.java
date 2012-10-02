@@ -31,8 +31,10 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // TODO : Add a check if the calendar is 'null' to signify no adjustment of business dates? Overloaded method  
   // TODO : Add the calculations for the accrual begin/end periods (stored in columns 2 and 3 of the returned cashflow schedule)
   // TODO : Eventually replace the n x 3 array returned with something more elegant
-  // TODO : Add the code for the back stubs (is there a better way of handling this than just duplicating code?) - front stubs seem to work okay
+  // TODO : Fix the code for the back stubs (is there a better way of handling this than just duplicating code?) - front stubs seem to work okay
+  // TODO : Add the code for the first coupon's
   // TODO : Should convertDatesToDoubles be put somewhere else? To use it, need to create a GenerateCreditDefaultSwapPremiumLegSchedule object which is a bit wasteful
+  // TODO : Do we need all the ArgumentCheckers on things that have already been checked?
 
   // -------------------------------------------------------------------------------------------
 
@@ -71,26 +73,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
   // -------------------------------------------------------------------------------------------
 
-  //(Public) method to extract just the adjusted maturity date for a CDS according to the contract specifications (don't have to go through the whole schedule gen process)
-  public ZonedDateTime getAdjustedMaturityDate(CreditDefaultSwapDefinition cds) {
-
-    // Check input CDS object is not null
-    ArgumentChecker.notNull(cds, "CDS field");
-
-    ZonedDateTime adjustedMaturityDate = cds.getMaturityDate();
-
-    boolean immAdjustMaturityDate = cds.getIMMAdjustMaturityDate();
-
-    if (immAdjustMaturityDate) {
-      adjustedMaturityDate = immAdjustMaturityDate(cds.getMaturityDate());
-    }
-
-    return adjustedMaturityDate;
-  }
-
-  // -------------------------------------------------------------------------------------------
-
-  // (Public) method to extract just the adjusted effective date for a CDS according to the contract specifications (don't have to go through the whole schedule gen process)
+  // Public method to extract just the adjusted effective date for a CDS according to the contract specifications (don't have to go through the whole schedule gen process)
   public ZonedDateTime getAdjustedEffectiveDate(CreditDefaultSwapDefinition cds) {
 
     // Check input CDS object is not null
@@ -99,7 +82,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     // Set the adjusted effective date to be equal to the (user input) effective date
     ZonedDateTime adjustedEffectiveDate = cds.getEffectiveDate();
 
-    // If required adjust the effective date for non-business days
+    // If required adjust the effective date for non-business days using the appropriate non-business day convention
     if (cds.getAdjustEffectiveDate()) {
       adjustedEffectiveDate = businessDayAdjustDate(cds.getEffectiveDate(), cds.getCalendar(), cds.getBusinessDayAdjustmentConvention());
     }
@@ -109,28 +92,43 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
   // -------------------------------------------------------------------------------------------
 
-  // (Public) member function to convert the input ZonedDateTime tenors into doubles
-  public double[] convertDatesToDoubles(ZonedDateTime valuationDate, ZonedDateTime[] tenors, DayCount dayCount) {
+  //Public method to extract just the adjusted maturity date for a CDS according to the contract specifications (don't have to go through the whole schedule gen process)
+  public ZonedDateTime getAdjustedMaturityDate(CreditDefaultSwapDefinition cds) {
 
-    ArgumentChecker.notNull(valuationDate, "valuation date field");
+    // Check input CDS object is not null
+    ArgumentChecker.notNull(cds, "CDS field");
+
+    // Set the adjusted maturity date to be equal to the (user input) maturity date
+    ZonedDateTime adjustedMaturityDate = cds.getMaturityDate();
+
+    // If specified by the user adjust the maturity date to fall on the next IMM date
+    if (cds.getIMMAdjustMaturityDate()) {
+      adjustedMaturityDate = immAdjustMaturityDate(cds.getMaturityDate());
+    }
+
+    return adjustedMaturityDate;
+  }
+
+  // -------------------------------------------------------------------------------------------
+
+  // Public member function to convert the input ZonedDateTime tenors into doubles
+  public double[] convertTenorsToDoubles(CreditDefaultSwapDefinition cds, ZonedDateTime[] tenors) {
+
+    ArgumentChecker.notNull(cds, "CDS field");
     ArgumentChecker.notNull(tenors, "tenors field");
-    ArgumentChecker.notNull(dayCount, "Daycount convention field");
 
     int numberOfTenors = tenors.length;
 
     double[] tenorsAsDoubles = new double[numberOfTenors];
 
     for (int i = 0; i < numberOfTenors; i++) {
-
-      tenorsAsDoubles[i] = TimeCalculator.getTimeBetween(valuationDate, tenors[i], dayCount);
+      tenorsAsDoubles[i] = TimeCalculator.getTimeBetween(cds.getValuationDate(), tenors[i], cds.getDayCountFractionConvention());
     }
 
     return tenorsAsDoubles;
   }
 
   // -------------------------------------------------------------------------------------------
-
-  // Keep all these as private as they are internal methods of the cashflow schedule generation class (don't need to check the input arguments)
 
   // Function to return a vector of daycount fractions given an input cashflow schedule
   private double[] calculateDaycountFraction(ZonedDateTime adjustedEffectiveDate, ZonedDateTime[][] cashflowSchedule, DayCount daycountFractionConvention) {
@@ -155,8 +153,12 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // Method to business day adjust an input cashflow schedule according to a specified convention
   private ZonedDateTime[][] businessDayAdjustcashflowSchedule(CreditDefaultSwapDefinition cds, ZonedDateTime[][] cashflowSchedule) {
 
+    // -------------------------------------------------------------------------------
+
     ArgumentChecker.notNull(cds, "CDS field");
     ArgumentChecker.notNull(cashflowSchedule, "Cashflow schedule");
+
+    // -------------------------------------------------------------------------------
 
     // Get the business day calendar
     Calendar calendar = cds.getCalendar();
@@ -168,7 +170,9 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     ZonedDateTime[][] adjustedCashflowSchedule = new ZonedDateTime[numberOfCashflows][3];
 
-    // Business day adjust all of the cashflow dates except the final one
+    // -------------------------------------------------------------------------------
+
+    // Business day adjust all of the cashflow dates except the final one (which is handled seperately)
     for (int i = 0; i < numberOfCashflows - 1; i++) {
       adjustedCashflowSchedule[i][0] = businessDayAdjustDate(cashflowSchedule[i][0], calendar, businessdayAdjustmentConvention);
     }
@@ -180,6 +184,8 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
       adjustedCashflowSchedule[numberOfCashflows - 1][0] = cashflowSchedule[numberOfCashflows - 1][0];
     }
 
+    // -------------------------------------------------------------------------------
+
     return adjustedCashflowSchedule;
   }
 
@@ -188,9 +194,13 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // Method to calculate the premium leg cashflow dates given the adjusted effective and maturity dates 
   private ZonedDateTime[][] calculateCashflowDates(CreditDefaultSwapDefinition cds, ZonedDateTime adjustedEffectiveDate, ZonedDateTime adjustedMaturityDate) {
 
+    // -------------------------------------------------------------------------------
+
     ArgumentChecker.notNull(cds, "CDS field");
     ArgumentChecker.notNull(adjustedEffectiveDate, "Adjusted effective date");
     ArgumentChecker.notNull(adjustedMaturityDate, "Adjusted maturity date");
+
+    // -------------------------------------------------------------------------------
 
     // Get the coupon stub type
     StubType stubType = cds.getStubType();
@@ -203,6 +213,8 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     // Build the cashflow schedule (include the node at the effective date even though there is no cashflow on this date)
     ZonedDateTime[][] cashflowSchedule = new ZonedDateTime[numberOfCashflows + 1][3];
+
+    // -------------------------------------------------------------------------------
 
     // The stub is at the front of the premium leg schedule
     if (stubType == StubType.FRONTSHORT || stubType == StubType.FRONTLONG) {
@@ -224,6 +236,8 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
       cashflowSchedule[0][0] = adjustedEffectiveDate;
     }
 
+    // -------------------------------------------------------------------------------
+
     // The stub is at the back of the premium leg schedule
     if (stubType == StubType.BACKSHORT || stubType == StubType.BACKLONG) {
 
@@ -239,6 +253,8 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
         cashflowDate = cashflowDate.plus(couponFrequency.getPeriod());
       }
     }
+
+    // -------------------------------------------------------------------------------
 
     return cashflowSchedule;
   }
@@ -271,6 +287,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // Method to adjust the specified maturity date to the next IMM date
   private ZonedDateTime immAdjustMaturityDate(ZonedDateTime maturityDate) {
 
+    // Check that the input date is not null
     ArgumentChecker.notNull(maturityDate, "Maturity date field");
 
     // Start at the current maturityDate
@@ -279,7 +296,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     // Get the year of the contract maturity
     final int year = maturityDate.getYear();
 
-    // Construct an object with the IMM dates for 'year'
+    // Construct an IMM object with the IMM dates for 'year'
     IMMDates immDates = new IMMDates(year);
 
     // -------------------------------------------------------------------
@@ -287,24 +304,28 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     // First of all check that the maturity date isn't one of the IMM dates for 'year'
 
     if (maturityDate.equals(immDates.getImmDateMarch())) {
+
       immAdjustedMaturityDate = immDates.getImmDateMarch();
 
       return immAdjustedMaturityDate;
     }
 
     if (maturityDate.equals(immDates.getImmDateJune())) {
+
       immAdjustedMaturityDate = immDates.getImmDateJune();
 
       return immAdjustedMaturityDate;
     }
 
     if (maturityDate.equals(immDates.getImmDateSeptember())) {
+
       immAdjustedMaturityDate = immDates.getImmDateSeptember();
 
       return immAdjustedMaturityDate;
     }
 
     if (maturityDate.equals(immDates.getImmDateDecember())) {
+
       immAdjustedMaturityDate = immDates.getImmDateDecember();
 
       return immAdjustedMaturityDate;
@@ -316,6 +337,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     // Is the maturity date between 20/12 of the previous year and 20/3 of the current year
     if (maturityDate.isAfter(immDates.getImmDatePreviousDecember()) && maturityDate.isBefore(immDates.getImmDateMarch())) {
+
       immAdjustedMaturityDate = immDates.getImmDateMarch();
 
       return immAdjustedMaturityDate;
@@ -323,6 +345,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     // Is the maturity date between 20/3 of the current year and 20/6 of the current year
     if (maturityDate.isAfter(immDates.getImmDateMarch()) && maturityDate.isBefore(immDates.getImmDateJune())) {
+
       immAdjustedMaturityDate = immDates.getImmDateJune();
 
       return immAdjustedMaturityDate;
@@ -330,6 +353,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     // Is the maturity date between 20/6 of the current year and 20/9 of the current year
     if (maturityDate.isAfter(immDates.getImmDateJune()) && maturityDate.isBefore(immDates.getImmDateSeptember())) {
+
       immAdjustedMaturityDate = immDates.getImmDateSeptember();
 
       return immAdjustedMaturityDate;
@@ -337,6 +361,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     // Is the maturity date between 20/9 of the current year and 20/12 of the current year
     if (maturityDate.isAfter(immDates.getImmDateSeptember()) && maturityDate.isBefore(immDates.getImmDateDecember())) {
+
       immAdjustedMaturityDate = immDates.getImmDateDecember();
 
       return immAdjustedMaturityDate;
@@ -344,6 +369,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     // Is the maturity date between 20/12 of the current year and 20/3 of the next year
     if (maturityDate.isAfter(immDates.getImmDateDecember()) && maturityDate.isBefore(immDates.getImmDateNextMarch())) {
+
       immAdjustedMaturityDate = immDates.getImmDateNextMarch();
 
       return immAdjustedMaturityDate;
@@ -378,6 +404,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
       deltaDays = -1;
     }
 
+    // Adjust the input date until it falls on a business day
     while (!calendar.isWorkingDay(adjustedDate.toLocalDate())) {
       adjustedDate = adjustedDate.plusDays(deltaDays);
     }
@@ -390,17 +417,23 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // Method to calculate the number of premium leg cashflows given the adjusted effective and maturity dates and the coupon frequency
   private int calculateNumberOfPremiumLegCashflows(ZonedDateTime adjustedEffectiveDate, ZonedDateTime adjustedMaturityDate, PeriodFrequency couponFrequency, StubType stubType) {
 
+    // -------------------------------------------------------------------------------
+
     ArgumentChecker.notNull(adjustedEffectiveDate, "Adjusted effective date field");
     ArgumentChecker.notNull(adjustedMaturityDate, "Adjusted maturity date field");
     ArgumentChecker.notNull(couponFrequency, "Coupon frequency field");
     ArgumentChecker.notNull(stubType, "Stub type field");
 
+    // -------------------------------------------------------------------------------
+
     int numberOfCashflows = 0;
+
+    // -------------------------------------------------------------------------------
 
     // The stub is at the front of the premium leg schedule
     if (stubType == StubType.FRONTSHORT || stubType == StubType.FRONTLONG) {
 
-      // Start at the maturity of the contract
+      // Start at the adjusted maturity date of the contract
       ZonedDateTime cashflowDate = adjustedMaturityDate;
 
       // Step back in time in steps of size determined by the coupon frequency until we get to the first valid date after the adjusted effective date
@@ -413,6 +446,8 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
         numberOfCashflows++;
       }
     }
+
+    // -------------------------------------------------------------------------------
 
     // The stub is at the end of the premium leg schedule
     if (stubType == StubType.BACKSHORT || stubType == StubType.BACKLONG) {
@@ -430,6 +465,8 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
         numberOfCashflows++;
       }
     }
+
+    // -------------------------------------------------------------------------------
 
     return numberOfCashflows;
   }

@@ -42,6 +42,8 @@ public class CreditDefaultSwapDefinition {
 
   // TODO : Extend this class definition to include standard CDS contracts (post big-bang) i.e. quoted spread, upfront payment etc
   // TODO : Make sure the 'equals' method has all the necessary fields
+  // TODO : Replace the curveRecoveryRate and valuationRecoveryRate member variables with a single recoveryRate variable
+  // TODO : Add the Moodys, S&P and Fitch credit rating states?
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -459,22 +461,7 @@ public class CreditDefaultSwapDefinition {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // Builder method to allow the curve recovery rate of a CDS object to be modified (used during calibration of the survival curve)
-
-  public CreditDefaultSwapDefinition withCurveRecoveryRate(double curveRecoveryRate) {
-
-    CreditDefaultSwapDefinition modifiedCDS = new CreditDefaultSwapDefinition(_buySellProtection, _protectionBuyer, _protectionSeller, _referenceEntityTicker,
-        _referenceEntityShortName, _referenceEntityREDCode, _currency, _debtSeniority, _restructuringClause, _compositeRating,
-        _impliedRating, _sector, _region, _country, _calendar, _startDate, _effectiveDate, _maturityDate, _valuationDate, _stubType, _couponFrequency,
-        _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustEffectiveDate, _adjustMaturityDate, _notional, _premiumLegCoupon,
-        _valuationRecoveryRate, curveRecoveryRate, _includeAccruedPremium);
-
-    return modifiedCDS;
-  }
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  // Builder method to allow the curve recovery rate of a CDS object to be modified (used during calibration of the survival curve)
+  // Builder method to allow the valuation recovery rate of a CDS object to be modified (used during calibration of the survival curve)
 
   public CreditDefaultSwapDefinition withValuationRecoveryRate(double valuationRecoveryRate) {
 

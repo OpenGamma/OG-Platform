@@ -38,11 +38,14 @@ public class PresentValueCreditDefaultSwap {
   // -------------------------------------------------------------------------------------------------
 
   // TODO : Lots of work to do in this file - Work In Progress
+
   // TODO : Add a method to calc both the legs in one method (useful for performance reasons e.g. not computing survival probabilities and discount factors twice)
   // TODO : Check the calculation of the accrued premium carefully
   // TODO : If valuationDate = adjustedMatDate - 1day have to be more careful in how the contingent leg integral is calculated
-  // TODO : Replace the contingent leg calculation with a faster approximation (current method exactly reproduces the numbers from the ISDA model)
+  // TODO : Replace the contingent leg calculation with a faster approximation
   // TODO : Fix the bug when val date is very close to mat date
+  // TODO : Fix the bug in the contingent leg calc (the difference from the ISDA calc is in the survival probabilities)
+  // TODO : Revisit calculation of where in the sequence of cashflows valuationDate is (check that it is correct)
 
   // -------------------------------------------------------------------------------------------------
 
@@ -126,7 +129,7 @@ public class PresentValueCreditDefaultSwap {
   // -------------------------------------------------------------------------------------------------
 
   // Method (private) to calculate the value of the premium leg of a CDS (with a survival curve calibrated to market observed data)
-  private double calculatePremiumLeg(CreditDefaultSwapDefinition cds, /*ZonedDateTime[][] cashflowSchedule, */YieldCurve yieldCurve, SurvivalCurve survivalCurve) {
+  private double calculatePremiumLeg(CreditDefaultSwapDefinition cds, YieldCurve yieldCurve, SurvivalCurve survivalCurve) {
 
     // -------------------------------------------------------------
 

@@ -8,13 +8,13 @@ package com.opengamma.analytics.financial.credit;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Class for constructing and querying a survival curve from a user-input set of tenors and hazard rates for these tenors
+ * Class for constructing and querying a survival curve object from a supplied set of tenors and hazard rates for these tenors
  */
 public class SurvivalCurve {
 
   // TODO : Check the getSurvivalProbability routine more carefully (the counter and the calculation itself)
   // TODO : Need to include the interpolator and extrapolators
-  // TODO : Should really have these functions in a seperate 'HazardRateCurve' class
+  // TODO : Add the arg checker to verify the input vectors are the same size
   // TODO : This class needs revisiting - badly structured
 
   // --------------------------------------------------------------------------------------
@@ -31,7 +31,6 @@ public class SurvivalCurve {
 
     ArgumentChecker.notNull(tenorsAsDoubles, "Tenors as doubles field");
     ArgumentChecker.notNull(hazardRates, "Hazard rates field");
-    //ArgumentChecker.isTrue(tenorsAsDoubles.length == hazardRates.length, "Tenor and hazard rate vectors are not the same length");
 
     _numberOfTenors = tenorsAsDoubles.length;
 
@@ -79,11 +78,12 @@ public class SurvivalCurve {
 
   // --------------------------------------------------------------------------------------
 
+  // Builder method to build a new SurvivalCurve object given the tenor and hazard rate inputs
+
   public SurvivalCurve bootstrapHelperSurvivalCurve(double[] tenorsAsDoubles, double[] hazardRates) {
 
     ArgumentChecker.notNull(tenorsAsDoubles, "Tenors as doubles field");
     ArgumentChecker.notNull(hazardRates, "Hazard rates field");
-    //ArgumentChecker.isTrue(tenorsAsDoubles.length == hazardRates.length, "Tenor and hazard rate vectors are not the same length");
 
     SurvivalCurve modifiedSurvivalCurve = new SurvivalCurve(tenorsAsDoubles, hazardRates);
 

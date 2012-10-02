@@ -71,7 +71,7 @@ public class CalibrateSurvivalCurveTest {
   private static final double notional = 10000000.0;
   private static final double premiumLegCoupon = 100.0;
   private static final double valuationRecoveryRate = 0.40;
-  private static double curveRecoveryRate = 0.40;
+  private static final double curveRecoveryRate = 0.40;
   private static final boolean includeAccruedPremium = false;
 
   // Dummy yield curve
@@ -121,7 +121,7 @@ public class CalibrateSurvivalCurveTest {
   // Test to demonstrate calibration of a survival curve to market data
 
   @Test
-  public void testBaselineSurvivalCurveCalibration() {
+  public void testSurvivalCurveCalibrationCreditDefaultSwap() {
 
     // -------------------------------------------------------------------------------------
 
@@ -135,7 +135,7 @@ public class CalibrateSurvivalCurveTest {
 
     // -------------------------------------------------------------------------------------
 
-    // Define the market data
+    // Define the market data to calibrate to
 
     // The number of CDS instruments used to calibrate against
     int numberOfCalibrationCDS = 10;
@@ -169,23 +169,23 @@ public class CalibrateSurvivalCurveTest {
     marketSpreads[9] = 1774.0;
 
     // The recovery rate assumption used in the PV calculations when calibrating
-    curveRecoveryRate = 0.20;
+    final double calibrationRecoveryRate = 0.20;
 
     // -------------------------------------------------------------------------------------
 
     // Create a calibration CDS (will be a modified version of the baseline CDS)
     CreditDefaultSwapDefinition calibrationCDS = cds;
 
-    // Set the recovery rate of the calibration CDS used for the curve calibration
-    calibrationCDS = calibrationCDS.withValuationRecoveryRate(curveRecoveryRate);
+    // Set the recovery rate of the calibration CDS used for the curve calibration (this appears in the calculation of the contingent leg)
+    calibrationCDS = calibrationCDS.withValuationRecoveryRate(calibrationRecoveryRate);
 
     // -------------------------------------------------------------------------------------
 
     // Create a calibrate survival curve object
-    final CalibrateSurvivalCurve curve = new CalibrateSurvivalCurve();
+    final CalibrateHazardRate survivalCurve = new CalibrateHazardRate();
 
     // Calibrate the survival curve to the market observed par CDS spreads (returns survival probabilities as a vector of doubles)
-    double[] calibratedSurvivalCurve = curve.getCalibratedSurvivalCurve(calibrationCDS, tenors, marketSpreads, yieldCurve);
+    double[] calibratedSurvivalCurve = survivalCurve.getCalibratedHazardRateTermStructure(calibrationCDS, tenors, marketSpreads, yieldCurve);
 
     if (outputResults) {
       for (int i = 0; i < numberOfCalibrationCDS; i++) {
@@ -213,7 +213,6 @@ public class CalibrateSurvivalCurveTest {
     // Get the daycount fraction convention of the CDS to be calibrated
     DayCount dayCount = calibrationCDS.getDayCountFractionConvention();
 
-
     GenerateCreditDefaultSwapPremiumLegSchedule temp = new GenerateCreditDefaultSwapPremiumLegSchedule();
 
     // Convert the ZonedDateTime tenors into doubles (measured from valuationDate)
@@ -231,6 +230,8 @@ public class CalibrateSurvivalCurveTest {
   }
 
   // ---------------------------------------------------------------------------------------
+
+  // Don't remove this code yet
 
   //@Test
   public void testCalibrateSurvivalCurve() {
@@ -386,6 +387,7 @@ public class CalibrateSurvivalCurveTest {
     */
     // Downward, gentle
 
+    /*
     marketSpreads[0] = 280.0;
     marketSpreads[1] = 260.0;
     marketSpreads[2] = 240.0;
@@ -397,6 +399,7 @@ public class CalibrateSurvivalCurveTest {
     marketSpreads[8] = 120.0;
     marketSpreads[9] = 100.0;
     curveRecoveryRate = 0.40;
+    */
 
     // Downward, steep
     /*

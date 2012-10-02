@@ -11,6 +11,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
+import com.opengamma.analytics.financial.credit.CalibrateHazardRate;
 import com.opengamma.analytics.financial.credit.CreditRating;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.Region;
@@ -19,6 +20,7 @@ import com.opengamma.analytics.financial.credit.Sector;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.SurvivalCurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.GenerateCreditDefaultSwapPremiumLegSchedule;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.PresentValueCreditDefaultSwap;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
@@ -42,7 +44,7 @@ public class PresentValueCreditDefaultSwapTest {
 
   // TODO : Add all the tests
   // TODO : Move the calendar into a seperate TestCalendar class
-  // TODO : Sort out what exceptions to throw from the test cases
+  // TODO : Fix the time decay test
 
   // ----------------------------------------------------------------------------------
 
@@ -86,7 +88,7 @@ public class PresentValueCreditDefaultSwapTest {
 
   private static final double notional = 10000000.0;
   private static final double premiumLegCoupon = 100.0;
-  private static final double valuationRecoveryRate = 1.0;
+  private static final double valuationRecoveryRate = 0.40;
   private static final double curveRecoveryRate = 0.40;
   private static final boolean includeAccruedPremium = false;
 
@@ -140,69 +142,62 @@ public class PresentValueCreditDefaultSwapTest {
 
   // -----------------------------------------------------------------------------------------------
 
-  // Vary the valuationDate of a CDS from adjustedEffectiveDate to adjustedMaturityDate and compute PV
+  // Simple test to compute the PV of a CDS assuming a flat term structure of market observed CDS par spreads
 
   @Test
-  public void testTimeDecayOfPresentValueCreditDefaultSwap() {
+  public void testPresentValueCreditDefaultSwapFlatSurvivalCurve() {
 
     // -----------------------------------------------------------------------------------------------
 
-    final boolean outputSchedule = false;
+    final boolean outputResults = false;
 
     double presentValue = 0.0;
 
-    // -----------------------------------------------------------------------------------------------
+    if (outputResults) {
+      System.out.println("Running CDS PV test (with a simple flat survival curve) ...");
+    }
 
-    // Create a valuation CDS whose valuationDate will vary (will be a modified version of the baseline CDS)
-    CreditDefaultSwapDefinition valuationCDS = cds;
+    // -----------------------------------------------------------------------------------------------
 
     // Call the constructor to create a CDS whose PV we will compute
-    final PresentValueCreditDefaultSwap testCDS = new PresentValueCreditDefaultSwap();
+    final PresentValueCreditDefaultSwap creditDefaultSwap = new PresentValueCreditDefaultSwap();
 
     // Call the CDS PV calculator to get the current PV
-    presentValue = testCDS.getPresentValueCreditDefaultSwap(cds, yieldCurve, flatSurvivalCurve);
+    presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(cds, yieldCurve, flatSurvivalCurve);
 
-    //System.out.println(presentValue);
-
-    // -----------------------------------------------------------------------------------------------
-
-    /*
-    ZonedDateTime rollingValuationDate = cds.getValuationDate();
-
-    while (!rollingValuationDate.isAfter(cds.getMaturityDate())) {
-
-      rollingValuationDate = rollingValuationDate.plusDays(1);
-
-      valuationCDS = valuationCDS.withValuationDate(rollingValuationDate);
-
-      presentValue = testCDS.getPresentValueCreditDefaultSwap(valuationCDS, yieldCurve, flatSurvivalCurve);
-
-      System.out.println(rollingValuationDate + "\t" + presentValue);
+    if (outputResults) {
+      System.out.println("CDS PV = " + presentValue);
     }
-    */
 
-    // -----------------------------------------------------------------------------------------------
   }
 
   // -----------------------------------------------------------------------------------------------
 
+  // Simple test to calibrate a single name CDS to a term structure of market observed par CDS spreads and compute the PV
+
   @Test
-  public void testCalibrateAndGetPresentValueCreditDefaultSwap() {
+  public void testPresentValueCreditSwapCalibratedSurvivalCurve() {
 
     // -----------------------------------------------------------------------------------------------
 
-    final boolean outputSchedule = false;
+    final boolean outputResults = false;
+
+    double presentValue = 0.0;
+
+    if (outputResults) {
+      System.out.println("Running CDS PV test (with a calibrated survival curve) ...");
+    }
 
     // -----------------------------------------------------------------------------------------------
 
-    // Define the market data for this test
+    // Define the market data to calibrate to
 
-    int numberOfTenors = 10;
+    // The number of CDS instruments used to calibrate against
+    int numberOfCalibrationCDS = 10;
 
-    final ZonedDateTime[] tenors = new ZonedDateTime[numberOfTenors];
-    final double[] marketSpreads = new double[numberOfTenors];
+    // The CDS tenors to calibrate to
+    final ZonedDateTime[] tenors = new ZonedDateTime[numberOfCalibrationCDS];
 
-    // Set the tenors at which we have market observed par CDS spread quotes
     tenors[0] = DateUtils.getUTCDate(2008, 12, 20);
     tenors[1] = DateUtils.getUTCDate(2009, 6, 20);
     tenors[2] = DateUtils.getUTCDate(2010, 6, 20);
@@ -214,86 +209,124 @@ public class PresentValueCreditDefaultSwapTest {
     tenors[8] = DateUtils.getUTCDate(2030, 6, 20);
     tenors[9] = DateUtils.getUTCDate(2040, 6, 20);
 
-    // Set the market observed par CDS spreads for each of the tenors
-    marketSpreads[0] = 100.0;
-    marketSpreads[1] = 100.0;
-    marketSpreads[2] = 100.0;
-    marketSpreads[3] = 100.0;
-    marketSpreads[4] = 100.0;
-    marketSpreads[5] = 100.0;
-    marketSpreads[6] = 100.0;
-    marketSpreads[7] = 100.0;
-    marketSpreads[8] = 100.0;
-    marketSpreads[9] = 100.0;
+    // The market observed par CDS spreads at these tenors
+    final double[] marketSpreads = new double[numberOfCalibrationCDS];
 
-    // -----------------------------------------------------------------------------------------------
+    final double flatSpread = 100.0;
 
-    /*
-    // Create the interpolation/extrapolation object
+    marketSpreads[0] = flatSpread;
+    marketSpreads[1] = flatSpread;
+    marketSpreads[2] = flatSpread;
+    marketSpreads[3] = flatSpread;
+    marketSpreads[4] = flatSpread;
+    marketSpreads[5] = flatSpread;
+    marketSpreads[6] = flatSpread;
+    marketSpreads[7] = flatSpread;
+    marketSpreads[8] = flatSpread;
+    marketSpreads[9] = flatSpread;
 
-    String interpolatorName = Interpolator1DFactory.LINEAR;
-    String leftExtrapolatorName = Interpolator1DFactory.FLAT_EXTRAPOLATOR;
-    String rightExtrapolatorName = Interpolator1DFactory.FLAT_EXTRAPOLATOR;
+    // The recovery rate assumption used in the PV calculations when calibrating
+    final double calibrationRecoveryRate = 0.40;
 
-    Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
-    */
+    // -------------------------------------------------------------------------------------
 
-    // -----------------------------------------------------------------------------------------------
-
-    /*
-    // Step 1 - Calibrate the survival curve to the market observed data
+    // Calibrate the hazard rate term structure to the market observed par spreads
 
     // Create a calibration CDS (will be a modified version of the baseline CDS)
     CreditDefaultSwapDefinition calibrationCDS = cds;
 
-    // Get the daycount fraction convention of the CDS to be calibrated
-    DayCount dayCount = calibrationCDS.getDayCountFractionConvention();
+    // Set the recovery rate of the calibration CDS used for the curve calibration (this appears in the calculation of the contingent leg)
+    calibrationCDS = calibrationCDS.withValuationRecoveryRate(calibrationRecoveryRate);
 
-    // Set the recovery rate of the calibration CDS to be the rate used for the curve calibration
-    calibrationCDS = calibrationCDS.withCurveRecoveryRate(curveRecoveryRate);
+    // Create a calibrate survival curve object
+    final CalibrateHazardRate hazardRateCurve = new CalibrateHazardRate();
 
-    GenerateCreditDefaultSwapPremiumLegSchedule temp = new GenerateCreditDefaultSwapPremiumLegSchedule();
+    // Calibrate the survival curve to the market observed par CDS spreads (returns hazard rate term structure as a vector of doubles)
+    double[] calibratedHazardRateTermStructure = hazardRateCurve.getCalibratedHazardRateTermStructure(calibrationCDS, tenors, marketSpreads, yieldCurve);
+
+    // -------------------------------------------------------------------------------------
+
+    // Now want to create a new CDS and price it using the calibrated survival curve
+
+    // Create a cashflow schedule object (to facilitate the conversion of tenors into doubles)
+    GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
 
     // Convert the ZonedDateTime tenors into doubles (measured from valuationDate)
-    double[] tenorsAsDoubles = temp.convertDatesToDoubles(valuationDate, tenors, dayCount);
+    double[] tenorsAsDoubles = cashflowSchedule.convertTenorsToDoubles(cds, tenors);
 
-    // Create a survival curve object
-    final CalibrateSurvivalCurve survivalCurve = new CalibrateSurvivalCurve();
+    // Build a survival curve using the input tenors (converted to doubles) and the previously calibrated hazard rates
+    final SurvivalCurve survivalCurve = new SurvivalCurve(tenorsAsDoubles, calibratedHazardRateTermStructure);
 
-    // Calibrate the survival curve to the market observed par CDS spreads (returned as a vector of doubles)
-    double[] calibratedSurvivalCurve = survivalCurve.getCalibratedSurvivalCurve(calibrationCDS, tenors, marketSpreads, yieldCurve);
+    // Call the constructor to create a CDS whose PV we will compute
+    final PresentValueCreditDefaultSwap creditDefaultSwap = new PresentValueCreditDefaultSwap();
 
-    // Build the survival curve interpolation object from the calibrated survival probabilities
-    InterpolatedDoublesCurve S = InterpolatedDoublesCurve.from(tenorsAsDoubles, calibratedSurvivalCurve, interpolator);
+    // Call the CDS PV calculator to get the current PV (should be equal to zero)
+    presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(cds, yieldCurve, survivalCurve);
 
-    // Construct the survival curve from the DoublesCurve (complete with interpolator/extrapolator)
-    //final SurvivalCurve testCurve = SurvivalCurve.from(S);
-     */
+    if (outputResults) {
+      System.out.println("CDS PV = " + presentValue);
+    }
+
+    // -------------------------------------------------------------------------------------
+  }
+
+  // -----------------------------------------------------------------------------------------------
+
+  // Test to vary the valuationDate of a CDS from adjustedEffectiveDate to adjustedMaturityDate and compute PV
+
+  @Test
+  public void testPresentValueCreditDefaultSwapTimeDecay() {
 
     // -----------------------------------------------------------------------------------------------
 
-    // Step 2 - Calculate the CDS PV
+    final boolean outputResults = false;
+
+    double presentValue = 0.0;
+
+    if (outputResults) {
+      System.out.println("Running CDS PV time decay test ...");
+    }
+
+    // -----------------------------------------------------------------------------------------------
+
+    // Create a valuation CDS whose valuationDate will vary (will be a modified version of the baseline CDS)
+    CreditDefaultSwapDefinition valuationCDS = cds;
 
     // Call the constructor to create a CDS whose PV we will compute
-    //final PresentValueCreditDefaultSwap testCDS = new PresentValueCreditDefaultSwap();
+    final PresentValueCreditDefaultSwap creditDefaultSwap = new PresentValueCreditDefaultSwap();
 
     // Call the CDS PV calculator to get the current PV
-    //double presentValue = testCDS.getPresentValueCreditDefaultSwap(cds, yieldCurve, flatSurvivalCurve);
+    presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(cds, yieldCurve, flatSurvivalCurve);
 
-    // Report the result
-    if (outputSchedule) {
-      //System.out.println("CDS par spread = " + parSpread);
-      //System.out.println("CDS PV = " + presentValue);
+    if (outputResults) {
+      System.out.println(valuationDate + "\t" + presentValue);
+    }
 
-      for (int i = 0; i < numberOfTenors; i++) {
-        //System.out.println(calibratedSurvivalCurve[i]);
+    // -----------------------------------------------------------------------------------------------
+
+    // start at the initial valuation date
+    ZonedDateTime rollingValuationDate = cds.getValuationDate();
+
+    while (!rollingValuationDate.isAfter(cds.getMaturityDate().minusDays(10))) {
+
+      // Roll the current valuation date
+      rollingValuationDate = rollingValuationDate.plusDays(1);
+
+      // Modify the CDS's valuation date
+      valuationCDS = valuationCDS.withValuationDate(rollingValuationDate);
+
+      // Calculate the CDS PV
+      presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(valuationCDS, yieldCurve, flatSurvivalCurve);
+
+      if (outputResults) {
+        System.out.println(rollingValuationDate + "\t" + presentValue);
       }
     }
 
     // -----------------------------------------------------------------------------------------------
   }
 
-  // -----------------------------------------------------------------------------------------------
+  //-----------------------------------------------------------------------------------------------
 
   // Bespoke calendar class (have made this public - may want to change this)
   public static class MyCalendar implements Calendar {

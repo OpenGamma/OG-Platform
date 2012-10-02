@@ -34,6 +34,10 @@ public class CreditDefaultSwapDefinitionTest {
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
+  // TODO : Make sure that all the input arguments have been error checked 
+
+  // --------------------------------------------------------------------------------------------------------------------------------------------------
+
   // CDS contract parameters (don't need the curves in this case as we are just testing the validity of the input parameters)
 
   private static final BuySellProtection buySellProtection = BuySellProtection.BUY;
@@ -79,8 +83,6 @@ public class CreditDefaultSwapDefinitionTest {
   private static final boolean includeAccruedPremium = true;
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
-
-  // Tests of the construction of a CDS contract object
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBuySellField() {

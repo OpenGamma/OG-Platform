@@ -11,15 +11,14 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.Cre
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.GenerateCreditDefaultSwapPremiumLegSchedule;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.PresentValueCreditDefaultSwap;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Class to calibrate a single-name CDS survival curve to market observed term structure of par CDS spreads
+ * Class to calibrate a single-name CDS hazard rate term structure to market observed term structure of par CDS spreads
  * The input is a vector of tenors and market observed par CDS spread quotes for those tenors
- * The output is a vector of tenors (represented as doubles) and the calibrated survival probabilities for those tenors
+ * The output is a vector of tenors (represented as doubles) and the calibrated term structure of hazard rates for those tenors
  */
-public class CalibrateSurvivalCurve {
+public class CalibrateHazardRate {
 
   // ------------------------------------------------------------------------
 
@@ -35,12 +34,12 @@ public class CalibrateSurvivalCurve {
   private final double _hazardRateRangeMultiplier;
 
   // Ctor to initialise a CalibrateSurvivalCurve object with the default values for the root finder
-  public CalibrateSurvivalCurve() {
+  public CalibrateHazardRate() {
     this(DEFAULT_MAX_NUMBER_OF_ITERATIONS, DEFAULT_TOLERANCE, DEFAULT_HAZARD_RATE_RANGE_MULTIPLIER);
   }
 
   // Ctor to initialise a CalibrateSurvivalCurve object with user specified values for the root finder
-  public CalibrateSurvivalCurve(int maximumNumberOfIterations, double tolerance, double hazardRateRangeMultiplier) {
+  public CalibrateHazardRate(int maximumNumberOfIterations, double tolerance, double hazardRateRangeMultiplier) {
     _tolerance = tolerance;
     _maximumNumberOfIterations = maximumNumberOfIterations;
     _hazardRateRangeMultiplier = hazardRateRangeMultiplier;
@@ -48,20 +47,19 @@ public class CalibrateSurvivalCurve {
 
   // ------------------------------------------------------------------------
 
-  // TODO : Lots of work to do in here still a complete mess at the moment - Work In Progress
+  // TODO : Lots of work to do in here still - Work In Progress
 
   // TODO : Replace the root finder with something more sophisticated (bisection was used to ensure a root is found if it exists)
-  // TODO : Verify that the valuation date is valid i.e. should be equal to the start date (or effective date - check this)
-  // TODO : Should convertDatesToDoubles be moved into the schedule generation class (seems a more natural place for it)
-  // TODO : Should we verify that the tenors of the calibration instruments are after the valuation date? 
+  // TODO : Double.doubleToLongBits(Math.abs(deltaHazardRate)) seems to break the calculation - why is this
+  // TODO : Not happy with the structure of this solution (would prefer to input and return a DoublesCurve object not a single vector) - need to revisit
 
   // ------------------------------------------------------------------------
 
-  // Member function to calibrate a CDS objects survival curve to a term structure of market observed par CDS spreads
+  // Member function to calibrate a CDS objects hazard rate term structure to a term structure of market observed par CDS spreads
   // The input CDS object has all the schedule etc settings for computing the CDS's PV's etc
   // The user inputs the schedule of (future) dates on which we have observed par CDS spread quotes
 
-  public double[] getCalibratedSurvivalCurve(CreditDefaultSwapDefinition cds, ZonedDateTime[] tenors, double[] marketSpreads, YieldCurve yieldCurve) {
+  public double[] getCalibratedHazardRateTermStructure(CreditDefaultSwapDefinition cds, ZonedDateTime[] tenors, double[] marketSpreads, YieldCurve yieldCurve) {
 
     // ----------------------------------------------------------------------------
 
@@ -71,16 +69,10 @@ public class CalibrateSurvivalCurve {
     // Vector of (calibrated) piecewise constant hazard rates that we compute from the solver
     double[] hazardRates = new double[numberOfTenors];
 
-    // Vector of survival probabilities that are to be returned (does not include time zero - the valuationDate where surv prob is unity)
-    double[] calibratedSurvivalCurve = new double[numberOfTenors];
-
     // ----------------------------------------------------------------------------
 
     // Get the valuation date of the CDS
     ZonedDateTime valuationDate = cds.getValuationDate();
-
-    // Get the daycount fraction convention
-    DayCount dayCount = cds.getDayCountFractionConvention();
 
     // ----------------------------------------------------------------------------
 
@@ -98,10 +90,13 @@ public class CalibrateSurvivalCurve {
     ArgumentChecker.isTrue(numberOfTenors == numberOfMarketSpreads, "Number of tenors and number of spreads should be equal");
 
     // Check the efficacy of the input market data
-    for (int m = 1; m < numberOfTenors; m++) {
+    for (int m = 0; m < numberOfTenors; m++) {
 
       ArgumentChecker.isTrue(tenors[m].isAfter(valuationDate), "Calibration instrument of tenor {} is before the valuation date {}", tenors[m], valuationDate);
-      ArgumentChecker.isTrue(tenors[m].isAfter(tenors[m - 1]), "Tenors not in ascending order");
+
+      if (m > 0) {
+        ArgumentChecker.isTrue(tenors[m].isAfter(tenors[m - 1]), "Tenors not in ascending order");
+      }
 
       ArgumentChecker.notNegative(marketSpreads[m], "Market spread at tenor " + tenors[m]);
       ArgumentChecker.notZero(marketSpreads[m], _tolerance, "Market spread at tenor " + tenors[m]);
@@ -109,16 +104,20 @@ public class CalibrateSurvivalCurve {
 
     // ----------------------------------------------------------------------------
 
-    // Build a cashflow schedule - need to do this just to convert tenors to doubles - bit stupid having to do this
+    // Build a cashflow schedule - need to do this just to convert tenors to doubles
     GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
 
+    ZonedDateTime adjustedEffectiveDate = cashflowSchedule.getAdjustedEffectiveDate(cds);
+
+    ArgumentChecker.isTrue(adjustedEffectiveDate.equals(valuationDate), "Valuation date should equal the adjusted effective date for calibration");
+
     // Convert the ZonedDateTime tenors into doubles (measured from valuationDate)
-    double[] tenorsAsDoubles = cashflowSchedule.convertDatesToDoubles(valuationDate, tenors, dayCount);
+    double[] tenorsAsDoubles = cashflowSchedule.convertTenorsToDoubles(cds, tenors);
 
     // Create an object for getting the PV of a CDS
     final PresentValueCreditDefaultSwap presentValueCDS = new PresentValueCreditDefaultSwap();
 
-    // Create a calibration CDS object from the input CDS (maturity and contractual spread of this CDS will vary as we bootstrap the survival curve)
+    // Create a calibration CDS object from the input CDS (maturity and contractual spread of this CDS will vary as we bootstrap up the hazard rate term structure)
     CreditDefaultSwapDefinition calibrationCDS = cds;
 
     // ----------------------------------------------------------------------------
@@ -134,20 +133,19 @@ public class CalibrateSurvivalCurve {
         runningTenors[i] = tenorsAsDoubles[i];
       }
 
-      // Modify the calibration CDS to have a maturity of tenor[m] and contractual spread marketSpread[m] 
+      // Modify the calibration CDS to have a maturity of tenor[m] 
       calibrationCDS = calibrationCDS.withMaturity(tenors[m]);
+
+      // Modify the calibration CDS to have a contractual spread of marketSpread[m]
       calibrationCDS = calibrationCDS.withSpread(marketSpreads[m]);
 
       // Compute the calibrated hazard rate for tenor[m] (using the calibrated hazard rates for tenors 1, ..., m - 1) 
       hazardRates[m] = calibrateHazardRate(calibrationCDS, presentValueCDS, yieldCurve, runningTenors, hazardRates);
-
-      // Just return the hazard rates for now - will replace with survival probabilities
-      calibratedSurvivalCurve[m] = Math.exp(-hazardRates[m] * tenorsAsDoubles[m]);
     }
 
     // ----------------------------------------------------------------------------
 
-    return calibratedSurvivalCurve;
+    return hazardRates;
   }
 
   // ------------------------------------------------------------------------
@@ -177,17 +175,17 @@ public class CalibrateSurvivalCurve {
     // ------------------------------------------------------------------------
 
     // Make sure the initial hazard rate bounds are in the range [0, 1] (otherwise would have arbitrage)
-    if ((lowerHazardRate) < 0.0) {
+    if (Double.doubleToLongBits(lowerHazardRate) < 0.0) {
       lowerHazardRate = 0.0;
     }
 
-    if ((upperHazardRate) > 1.0) {
+    if (Double.doubleToLongBits(upperHazardRate) > 1.0) {
       upperHazardRate = 1.0;
     }
 
     // ------------------------------------------------------------------------
 
-    // Construct a hazard rate curve using the (calibrated) first m tenors in runningTenors
+    // Construct a survival curve using the (calibrated) first m tenors in runningTenors
     SurvivalCurve survivalCurve = new SurvivalCurve(runningTenors, hazardRates);
 
     // ------------------------------------------------------------------------
@@ -201,7 +199,7 @@ public class CalibrateSurvivalCurve {
     double cdsPresentValueAtMidPoint = calculateCDSPV(calibrationCDS, presentValueCDS, runningTenors, hazardRates, upperHazardRate, yieldCurve, survivalCurve);
 
     // Orient the search
-    if ((cdsPresentValueAtLowerPoint) < 0.0) {
+    if (Double.doubleToLongBits(cdsPresentValueAtLowerPoint) < 0.0) {
 
       deltaHazardRate = upperHazardRate - lowerHazardRate;
       calibratedHazardRate = lowerHazardRate;
@@ -225,14 +223,12 @@ public class CalibrateSurvivalCurve {
       // Calculate the CDS PV at the hazard rate range midpoint
       cdsPresentValueAtMidPoint = calculateCDSPV(calibrationCDS, presentValueCDS, runningTenors, hazardRates, hazardRateMidpoint, yieldCurve, survivalCurve);
 
-      //System.out.println("i = " + i + ", cdsPresentValueAtMidPoint = " + cdsPresentValueAtMidPoint);
-
-      if ((cdsPresentValueAtMidPoint) <= 0.0) {
+      if (Double.doubleToLongBits(cdsPresentValueAtMidPoint) <= 0.0) {
         calibratedHazardRate = hazardRateMidpoint;
       }
 
       // Check to see if we have converged to within the specified tolerance or that we are at the root
-      if ((Math.abs(deltaHazardRate)) < _tolerance || (cdsPresentValueAtMidPoint) == 0.0) {
+      if (Math.abs(deltaHazardRate) < _tolerance || Double.doubleToLongBits(cdsPresentValueAtMidPoint) == 0.0) {
         return calibratedHazardRate;
       }
     }
@@ -263,8 +259,6 @@ public class CalibrateSurvivalCurve {
 
     // Compute the PV of the CDS with this term structure of hazard rates
     double cdsPresentValueAtMidpoint = presentValueCDS.getPresentValueCreditDefaultSwap(calibrationCDS, yieldCurve, survivalCurve);
-
-    //System.out.println("hazardRateMidPoint = " + hazardRateMidPoint);
 
     return cdsPresentValueAtMidpoint;
   }
