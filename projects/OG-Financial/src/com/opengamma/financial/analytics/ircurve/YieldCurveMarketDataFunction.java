@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.ircurve;
@@ -38,7 +38,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Triple;
 
 /**
- * 
+ *
  */
 public class YieldCurveMarketDataFunction extends AbstractFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveMarketDataFunction.class);
@@ -64,7 +64,7 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
   }
 
   /**
-   * 
+   *
    */
   private final class CompiledImpl extends AbstractFunction.AbstractInvokingCompiledFunction {
 
@@ -128,7 +128,13 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
     final Map<UniqueId, Double> marketDataMap = new HashMap<UniqueId, Double>();
     for (final ComputedValue value : inputs.getAllValues()) {
       final ComputationTargetSpecification targetSpecification = value.getSpecification().getTargetSpecification();
-      marketDataMap.put(targetSpecification.getUniqueId(), (Double) value.getValue());
+      double rate = (Double) value.getValue();
+      //TODO this is here because KWCDC Curncy is not normalized
+      if (rate > 1.1) {
+        s_logger.warn("Performing normalization of rate in YieldCurveMarketDataFunction; if this is being used for anything other than KWCDC Curncy check market data normalization");
+        rate /= 100;
+      }
+      marketDataMap.put(targetSpecification.getUniqueId(), rate);
     }
     final SnapshotDataBundle snapshotDataBundle = new SnapshotDataBundle();
     snapshotDataBundle.setDataPoints(marketDataMap);
