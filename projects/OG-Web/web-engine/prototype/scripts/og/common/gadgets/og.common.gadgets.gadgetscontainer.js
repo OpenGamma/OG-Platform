@@ -268,7 +268,7 @@ $.register_module({
                             } else {
                                 ui.draggable.draggable('option', 'revert', false);
                                 gadget.selector = gadget.selector.replace(re, selector_prefix + pane + ' ');
-                                if (og.common.events.fire(container.events.drop, data.gadget.config))
+                                if (false !== og.common.events.fire(container.events.drop, data.gadget.config))
                                     container.add([data.gadget.config]);
                                 setTimeout(data.handler); // setTimeout to ensure handler is called after drag evt ends
                             }
