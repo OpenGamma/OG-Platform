@@ -41,6 +41,9 @@ public class CreditDefaultSwapDefinition {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // TODO : Extend this class definition to include standard CDS contracts (post big-bang) i.e. quoted spread, upfront payment etc
+  // TODO : Make sure the 'equals' method has all the necessary fields
+  // TODO : Replace the curveRecoveryRate and valuationRecoveryRate member variables with a single recoveryRate variable
+  // TODO : Add the Moodys, S&P and Fitch credit rating states?
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -111,6 +114,9 @@ public class CreditDefaultSwapDefinition {
   // Flag to determine if we adjust the maturity date to fall on the next IMM date
   private final boolean _immAdjustMaturityDate;
 
+  //Flag to determine if we business day adjust the user input effective date (not a feature of legacy or standard CDS)
+  private final boolean _adjustEffectiveDate;
+
   // Flag to determine if we business day adjust the final maturity date (not a feature of legacy or standard CDS)
   private final boolean _adjustMaturityDate;
 
@@ -136,7 +142,8 @@ public class CreditDefaultSwapDefinition {
 
   // Constructor for a CDS contract object
 
-  public CreditDefaultSwapDefinition(BuySellProtection buySellProtection,
+  public CreditDefaultSwapDefinition(
+      BuySellProtection buySellProtection,
       String protectionBuyer,
       String protectionSeller,
       String referenceEntityTicker,
@@ -160,6 +167,7 @@ public class CreditDefaultSwapDefinition {
       DayCount daycountFractionConvention,
       BusinessDayConvention businessdayAdjustmentConvention,
       boolean immAdjustMaturityDate,
+      boolean adjustEffectiveDate,
       boolean adjustMaturityDate,
       double notional,
       double premiumLegCoupon,
@@ -260,7 +268,9 @@ public class CreditDefaultSwapDefinition {
     _couponFrequency = couponFrequency;
     _daycountFractionConvention = daycountFractionConvention;
     _businessdayAdjustmentConvention = businessdayAdjustmentConvention;
+
     _immAdjustMaturityDate = immAdjustMaturityDate;
+    _adjustEffectiveDate = adjustEffectiveDate;
     _adjustMaturityDate = adjustMaturityDate;
 
     _notional = notional;
@@ -383,6 +393,10 @@ public class CreditDefaultSwapDefinition {
     return _immAdjustMaturityDate;
   }
 
+  public boolean getAdjustEffectiveDate() {
+    return _adjustEffectiveDate;
+  }
+
   public boolean getAdjustMaturityDate() {
     return _adjustMaturityDate;
   }
@@ -424,7 +438,7 @@ public class CreditDefaultSwapDefinition {
     CreditDefaultSwapDefinition modifiedCDS = new CreditDefaultSwapDefinition(_buySellProtection, _protectionBuyer, _protectionSeller, _referenceEntityTicker,
         _referenceEntityShortName, _referenceEntityREDCode, _currency, _debtSeniority, _restructuringClause, _compositeRating,
         _impliedRating, _sector, _region, _country, _calendar, _startDate, _effectiveDate, maturityDate, _valuationDate, _stubType, _couponFrequency,
-        _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustMaturityDate, _notional, _premiumLegCoupon,
+        _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustEffectiveDate, _adjustMaturityDate, _notional, _premiumLegCoupon,
         _valuationRecoveryRate, _curveRecoveryRate, _includeAccruedPremium);
 
     return modifiedCDS;
@@ -439,7 +453,7 @@ public class CreditDefaultSwapDefinition {
     CreditDefaultSwapDefinition modifiedCDS = new CreditDefaultSwapDefinition(_buySellProtection, _protectionBuyer, _protectionSeller, _referenceEntityTicker,
         _referenceEntityShortName, _referenceEntityREDCode, _currency, _debtSeniority, _restructuringClause, _compositeRating,
         _impliedRating, _sector, _region, _country, _calendar, _startDate, _effectiveDate, _maturityDate, _valuationDate, _stubType, _couponFrequency,
-        _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustMaturityDate, _notional, couponSpread,
+        _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustEffectiveDate, _adjustMaturityDate, _notional, couponSpread,
         _valuationRecoveryRate, _curveRecoveryRate, _includeAccruedPremium);
 
     return modifiedCDS;
@@ -447,15 +461,15 @@ public class CreditDefaultSwapDefinition {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // Builder method to allow the curve recovery rate of a CDS object to be modified (used during calibration of the survival curve)
+  // Builder method to allow the valuation recovery rate of a CDS object to be modified (used during calibration of the survival curve)
 
-  public CreditDefaultSwapDefinition withCurveRecoveryRate(double curveRecoveryRate) {
+  public CreditDefaultSwapDefinition withValuationRecoveryRate(double valuationRecoveryRate) {
 
     CreditDefaultSwapDefinition modifiedCDS = new CreditDefaultSwapDefinition(_buySellProtection, _protectionBuyer, _protectionSeller, _referenceEntityTicker,
         _referenceEntityShortName, _referenceEntityREDCode, _currency, _debtSeniority, _restructuringClause, _compositeRating,
         _impliedRating, _sector, _region, _country, _calendar, _startDate, _effectiveDate, _maturityDate, _valuationDate, _stubType, _couponFrequency,
-        _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustMaturityDate, _notional, _premiumLegCoupon,
-        _valuationRecoveryRate, curveRecoveryRate, _includeAccruedPremium);
+        _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustEffectiveDate, _adjustMaturityDate, _notional, _premiumLegCoupon,
+        valuationRecoveryRate, _curveRecoveryRate, _includeAccruedPremium);
 
     return modifiedCDS;
   }
@@ -469,7 +483,7 @@ public class CreditDefaultSwapDefinition {
     CreditDefaultSwapDefinition modifiedCDS = new CreditDefaultSwapDefinition(_buySellProtection, _protectionBuyer, _protectionSeller, _referenceEntityTicker,
         _referenceEntityShortName, _referenceEntityREDCode, _currency, _debtSeniority, _restructuringClause, _compositeRating,
         _impliedRating, _sector, _region, _country, _calendar, _startDate, _effectiveDate, _maturityDate, valuationDate, _stubType, _couponFrequency,
-        _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustMaturityDate, _notional, _premiumLegCoupon,
+        _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustEffectiveDate, _adjustMaturityDate, _notional, _premiumLegCoupon,
         _valuationRecoveryRate, _curveRecoveryRate, _includeAccruedPremium);
 
     return modifiedCDS;

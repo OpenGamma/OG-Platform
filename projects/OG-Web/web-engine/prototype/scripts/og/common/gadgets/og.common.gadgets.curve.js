@@ -3,29 +3,24 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.common.gadgets.curve',
+    name: 'og.common.gadgets.Curve',
     dependencies: ['og.common.gadgets.manager'],
     obj: function () {
         var prefix = 'og_curve_gadget_', counter = 1, module = this;
         return function (config) {
-            var source = {
-                type: 'portfolio',
-                depgraph: true,
-                viewdefinition: 'DbCfg~1475588',
-                live: true,
-                provider: 'Live market data (Bloomberg, Activ, TullettPrebon, ICAP)',
-                view_id: 'DbCfg~1475588',
-                row: 5,
-                col: 5
-            };
             var gadget = this, curve, alive = prefix + counter++, d;
-            gadget.alive = function () {return !!$('.' + alive).length;};
+            gadget.alive = function () {
+                var alive = !!$('.' + alive).length;
+                if (!alive) gadget.dataman.kill();
+                return alive;
+            };
             gadget.load = function () {
-                (new og.analytics.Cell({source: source, col: 3, row: 2})).on('data', function (data) {
-                    if (data.t !== 'CURVE') return og.dev.warn(module.name + ': data.v should be CURVE');
-                    d = $.isArray(data.v) && [{curve: data.v}];
-                    curve ? curve.update(d) : gadget.resize();
-                });
+                gadget.dataman = new og.analytics.Cell({source: config.source, row: config.row, col: config.col})
+                    .on('data', function (data) {
+                        if (data.t !== 'CURVE') return og.dev.warn(module.name + ': data.v should be CURVE');
+                        d = $.isArray(data.v) && [{curve: data.v}];
+                        curve ? curve.update(d) : gadget.resize();
+                    });
             };
             gadget.resize = function () {
                 curve = $(config.selector)

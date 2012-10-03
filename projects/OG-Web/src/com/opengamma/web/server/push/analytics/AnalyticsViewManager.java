@@ -123,7 +123,7 @@ public class AnalyticsViewManager {
   }
 
   /**
-   * Closes a view when the associated client disconnects.
+   * Closes a view if it's still open when the associated client disconnects.
    */
   private final class DisconnectionListener implements ClientConnection.DisconnectionListener {
 
@@ -135,7 +135,11 @@ public class AnalyticsViewManager {
 
     @Override
     public void clientDisconnected() {
-      deleteView(_viewId);
+      AnalyticsViewClientConnection connection = _viewConnections.remove(_viewId);
+      if (connection != null) {
+        s_logger.debug("Client disconnected, closing view with ID {}", _viewId);
+        connection.close();
+      }
     }
   }
 }

@@ -27,7 +27,7 @@ import com.opengamma.analytics.financial.calculator.PresentValueCurveSensitivity
 import com.opengamma.analytics.financial.calculator.PresentValueMCACalculator;
 import com.opengamma.analytics.financial.curve.building.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.curve.building.CurveBuildingFunction;
-import com.opengamma.analytics.financial.curve.generator.GeneratorCurve;
+import com.opengamma.analytics.financial.curve.generator.GeneratorYDCurve;
 import com.opengamma.analytics.financial.curve.generator.GeneratorCurveAddYield;
 import com.opengamma.analytics.financial.curve.generator.GeneratorCurveAddYieldExisiting;
 import com.opengamma.analytics.financial.curve.generator.GeneratorCurveAddYieldFixed;
@@ -232,7 +232,7 @@ public class CurveConstructionSpreadTest {
   public static final int[] NB_UNITS = new int[] {2, 2, 2, 3, 3, 1, 1, 2, 1, 1};
   public static final int NB_BLOCKS = NB_UNITS.length;
   public static final InstrumentDefinition<?>[][][][] DEFINITIONS_UNITS = new InstrumentDefinition<?>[NB_BLOCKS][][][];
-  public static final GeneratorCurve[][][] GENERATORS_UNITS = new GeneratorCurve[NB_BLOCKS][][];
+  public static final GeneratorYDCurve[][][] GENERATORS_UNITS = new GeneratorYDCurve[NB_BLOCKS][][];
   public static final String[][][] NAMES_UNITS = new String[NB_BLOCKS][][];
   public static final YieldCurveBundle KNOWN_DATA = new YieldCurveBundle(FX_MATRIX, CCY_MAP);
 
@@ -245,7 +245,7 @@ public class CurveConstructionSpreadTest {
     DEFINITIONS_FWD6_USD = getDefinitions(FWD6_USD_MARKET_QUOTES, FWD6_USD_GENERATORS, FWD6_USD_TENOR, new Double[FWD6_USD_MARKET_QUOTES.length]);
     for (int loopblock = 0; loopblock < NB_BLOCKS; loopblock++) {
       DEFINITIONS_UNITS[loopblock] = new InstrumentDefinition<?>[NB_UNITS[loopblock]][][];
-      GENERATORS_UNITS[loopblock] = new GeneratorCurve[NB_UNITS[loopblock]][];
+      GENERATORS_UNITS[loopblock] = new GeneratorYDCurve[NB_UNITS[loopblock]][];
       NAMES_UNITS[loopblock] = new String[NB_UNITS[loopblock]][];
     }
     DEFINITIONS_UNITS[0][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD};
@@ -266,14 +266,14 @@ public class CurveConstructionSpreadTest {
     DEFINITIONS_UNITS[7][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_USD_4};
     DEFINITIONS_UNITS[8][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD};
     DEFINITIONS_UNITS[9][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD};
-    GeneratorCurve genIntDQ = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_DQ);
-    GeneratorCurve genIntLin = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LINEAR);
+    GeneratorYDCurve genIntDQ = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_DQ);
+    GeneratorYDCurve genIntLin = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LINEAR);
     int compoundingRate = 1;
-    GeneratorCurve genIntRPLin = new GeneratorCurveYieldPeriodicInterpolated(MATURITY_CALCULATOR, compoundingRate, INTERPOLATOR_LINEAR);
-    GeneratorCurve genIntDFLL = new GeneratorCurveDiscountFactorInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LL);
-    GeneratorCurve genNS = new GeneratorCurveYieldNelsonSiegel();
-    GeneratorCurve genInt0 = new GeneratorCurveYieldInterpolatedAnchor(MATURITY_CALCULATOR, INTERPOLATOR_LINEAR);
-    GeneratorCurve genAddExistFwd3 = new GeneratorCurveAddYieldExisiting(genIntDQ, false, CURVE_NAME_FWD3_USD);
+    GeneratorYDCurve genIntRPLin = new GeneratorCurveYieldPeriodicInterpolated(MATURITY_CALCULATOR, compoundingRate, INTERPOLATOR_LINEAR);
+    GeneratorYDCurve genIntDFLL = new GeneratorCurveDiscountFactorInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LL);
+    GeneratorYDCurve genNS = new GeneratorCurveYieldNelsonSiegel();
+    GeneratorYDCurve genInt0 = new GeneratorCurveYieldInterpolatedAnchor(MATURITY_CALCULATOR, INTERPOLATOR_LINEAR);
+    GeneratorYDCurve genAddExistFwd3 = new GeneratorCurveAddYieldExisiting(genIntDQ, false, CURVE_NAME_FWD3_USD);
     LocalDate startTOY = LocalDate.of(2011, 12, 30);
     LocalDate endTOY = LocalDate.of(2012, 1, 2);
     double spreadTOY = 0.0025; // 25bps
@@ -286,31 +286,31 @@ public class CurveConstructionSpreadTest {
         TimeCalculator.getTimeBetween(NOW, endTOQ)};
     double[] df = {1.0, dfTOY, dfTOY, dfTOY * dfTOQ};
     YieldAndDiscountCurve curveTOY = new DiscountCurve("TOY", new InterpolatedDoublesCurve(times, df, INTERPOLATOR_LINEAR, true));
-    GeneratorCurve genAddFixed = new GeneratorCurveAddYieldFixed(genIntDQ, false, curveTOY);
-    GeneratorCurve genIntDQ0 = new GeneratorCurveYieldInterpolatedAnchor(MATURITY_CALCULATOR, INTERPOLATOR_DQ);
+    GeneratorYDCurve genAddFixed = new GeneratorCurveAddYieldFixed(genIntDQ, false, curveTOY);
+    GeneratorYDCurve genIntDQ0 = new GeneratorCurveYieldInterpolatedAnchor(MATURITY_CALCULATOR, INTERPOLATOR_DQ);
     int[] nbParameters = {5, DSC_USD_MARKET_QUOTES.length - 5};
-    GeneratorCurve gen2Blocks = new GeneratorCurveAddYieldNb(new GeneratorCurve[] {genIntDFLL, genIntDQ0}, nbParameters, false);
-    GENERATORS_UNITS[0][0] = new GeneratorCurve[] {genIntLin};
-    GENERATORS_UNITS[0][1] = new GeneratorCurve[] {genIntLin};
-    GENERATORS_UNITS[1][0] = new GeneratorCurve[] {genIntRPLin};
-    GENERATORS_UNITS[1][1] = new GeneratorCurve[] {genIntRPLin};
-    GENERATORS_UNITS[2][0] = new GeneratorCurve[] {genIntDFLL};
-    GENERATORS_UNITS[2][1] = new GeneratorCurve[] {genIntDFLL};
+    GeneratorYDCurve gen2Blocks = new GeneratorCurveAddYieldNb(new GeneratorYDCurve[] {genIntDFLL, genIntDQ0}, nbParameters, false);
+    GENERATORS_UNITS[0][0] = new GeneratorYDCurve[] {genIntLin};
+    GENERATORS_UNITS[0][1] = new GeneratorYDCurve[] {genIntLin};
+    GENERATORS_UNITS[1][0] = new GeneratorYDCurve[] {genIntRPLin};
+    GENERATORS_UNITS[1][1] = new GeneratorYDCurve[] {genIntRPLin};
+    GENERATORS_UNITS[2][0] = new GeneratorYDCurve[] {genIntDFLL};
+    GENERATORS_UNITS[2][1] = new GeneratorYDCurve[] {genIntDFLL};
     // 3xinterpolated / 2xinterpolated + spread over existing
-    GENERATORS_UNITS[3][0] = new GeneratorCurve[] {genIntDQ};
-    GENERATORS_UNITS[3][1] = new GeneratorCurve[] {genIntDQ};
-    GENERATORS_UNITS[3][2] = new GeneratorCurve[] {genIntDQ};
-    GENERATORS_UNITS[4][0] = new GeneratorCurve[] {genIntDQ};
-    GENERATORS_UNITS[4][1] = new GeneratorCurve[] {genIntDQ};
-    GENERATORS_UNITS[4][2] = new GeneratorCurve[] {genAddExistFwd3};
+    GENERATORS_UNITS[3][0] = new GeneratorYDCurve[] {genIntDQ};
+    GENERATORS_UNITS[3][1] = new GeneratorYDCurve[] {genIntDQ};
+    GENERATORS_UNITS[3][2] = new GeneratorYDCurve[] {genIntDQ};
+    GENERATORS_UNITS[4][0] = new GeneratorYDCurve[] {genIntDQ};
+    GENERATORS_UNITS[4][1] = new GeneratorYDCurve[] {genIntDQ};
+    GENERATORS_UNITS[4][2] = new GeneratorYDCurve[] {genAddExistFwd3};
     // 2xinterpolated / interpolated + spread over existing
-    GENERATORS_UNITS[5][0] = new GeneratorCurve[] {genIntDQ, genIntDQ};
-    GENERATORS_UNITS[6][0] = new GeneratorCurve[] {genIntDQ, genAddExistFwd3};
+    GENERATORS_UNITS[5][0] = new GeneratorYDCurve[] {genIntDQ, genIntDQ};
+    GENERATORS_UNITS[6][0] = new GeneratorYDCurve[] {genIntDQ, genAddExistFwd3};
     // interpolated + functional+interpolated
-    GENERATORS_UNITS[7][0] = new GeneratorCurve[] {genIntDQ};
-    GENERATORS_UNITS[7][1] = new GeneratorCurve[] {new GeneratorCurveAddYield(new GeneratorCurve[] {genNS, genInt0}, false)};
-    GENERATORS_UNITS[8][0] = new GeneratorCurve[] {genAddFixed};
-    GENERATORS_UNITS[9][0] = new GeneratorCurve[] {gen2Blocks};
+    GENERATORS_UNITS[7][0] = new GeneratorYDCurve[] {genIntDQ};
+    GENERATORS_UNITS[7][1] = new GeneratorYDCurve[] {new GeneratorCurveAddYield(new GeneratorYDCurve[] {genNS, genInt0}, false)};
+    GENERATORS_UNITS[8][0] = new GeneratorYDCurve[] {genAddFixed};
+    GENERATORS_UNITS[9][0] = new GeneratorYDCurve[] {gen2Blocks};
     NAMES_UNITS[0][0] = new String[] {CURVE_NAME_DSC_USD};
     NAMES_UNITS[0][1] = new String[] {CURVE_NAME_FWD3_USD};
     NAMES_UNITS[1][0] = new String[] {CURVE_NAME_DSC_USD};
@@ -606,15 +606,15 @@ public class CurveConstructionSpreadTest {
     return definitions;
   }
 
-  private static Pair<YieldCurveBundle, CurveBuildingBlockBundle> makeCurvesFromDefinitions(final InstrumentDefinition<?>[][][] definitions, GeneratorCurve[][] curveGenerators, String[][] curveNames,
+  private static Pair<YieldCurveBundle, CurveBuildingBlockBundle> makeCurvesFromDefinitions(final InstrumentDefinition<?>[][][] definitions, GeneratorYDCurve[][] curveGenerators, String[][] curveNames,
       YieldCurveBundle knownData, final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> calculator,
       final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> sensitivityCalculator, boolean withToday, int block) {
     int nbUnits = curveGenerators.length;
     double[][] parametersGuess = new double[nbUnits][];
-    GeneratorCurve[][] generatorFinal = new GeneratorCurve[nbUnits][];
+    GeneratorYDCurve[][] generatorFinal = new GeneratorYDCurve[nbUnits][];
     InstrumentDerivative[][][] instruments = new InstrumentDerivative[nbUnits][][];
     for (int loopunit = 0; loopunit < nbUnits; loopunit++) {
-      generatorFinal[loopunit] = new GeneratorCurve[curveGenerators[loopunit].length];
+      generatorFinal[loopunit] = new GeneratorYDCurve[curveGenerators[loopunit].length];
       int nbInsUnit = 0;
       for (int loopcurve = 0; loopcurve < curveGenerators[loopunit].length; loopcurve++) {
         nbInsUnit += definitions[loopunit][loopcurve].length;

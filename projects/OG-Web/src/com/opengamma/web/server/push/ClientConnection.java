@@ -98,7 +98,11 @@ public class ClientConnection implements ChangeListener, MasterChangeListener, U
       _connected = false;
       _timeoutTask.cancel();
       for (DisconnectionListener listener : _disconnectionListeners) {
-        listener.clientDisconnected();
+        try {
+          listener.clientDisconnected();
+        } catch (Exception e) {
+          s_logger.warn("Problem calling disconnection listener", e);
+        }
       }
     }
   }

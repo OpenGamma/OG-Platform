@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.curve.building;
 
 import java.util.LinkedHashMap;
 
-import com.opengamma.analytics.financial.curve.generator.GeneratorCurve;
+import com.opengamma.analytics.financial.curve.generator.GeneratorYDCurve;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.ArgumentChecker;
@@ -40,7 +40,7 @@ public class MultipleYieldCurveFinderGeneratorDataBundle {
    * @param knownData The bundle with the already build data.
    * @param curveGenerators The map of String/Curve generators.
    */
-  public MultipleYieldCurveFinderGeneratorDataBundle(InstrumentDerivative[] instruments, YieldCurveBundle knownData, LinkedHashMap<String, GeneratorCurve> curveGenerators) {
+  public MultipleYieldCurveFinderGeneratorDataBundle(InstrumentDerivative[] instruments, YieldCurveBundle knownData, LinkedHashMap<String, GeneratorYDCurve> curveGenerators) {
     ArgumentChecker.notNull(instruments, "Instruments");
     ArgumentChecker.notNull(knownData, "Known data");
     ArgumentChecker.notNull(curveGenerators, "Curve generators");

@@ -77,6 +77,15 @@ public class CurveSensitivityMarket {
 
   /**
    * Constructor from a yield discounting map and a forward map.
+   * @param sensitivityForward The map.
+   * @return The sensitivity.
+   */
+  public static CurveSensitivityMarket fromForward(final Map<String, List<MarketForwardSensitivity>> sensitivityForward) {
+    return new CurveSensitivityMarket(new HashMap<String, List<DoublesPair>>(), sensitivityForward, new HashMap<String, List<DoublesPair>>());
+  }
+
+  /**
+   * Constructor from a yield discounting map and a forward map.
    * @param sensitivityYieldDiscounting The map.
    * @param sensitivityForward The map.
    * @return The sensitivity.
@@ -92,8 +101,7 @@ public class CurveSensitivityMarket {
    * @param sensitivityPriceCurve The map.
    * @return The sensitivity.
    */
-  public static CurveSensitivityMarket fromYieldDiscountingAndPrice(final Map<String, List<DoublesPair>> sensitivityYieldDiscounting,
-      final Map<String, List<DoublesPair>> sensitivityPriceCurve) {
+  public static CurveSensitivityMarket fromYieldDiscountingAndPrice(final Map<String, List<DoublesPair>> sensitivityYieldDiscounting, final Map<String, List<DoublesPair>> sensitivityPriceCurve) {
     return new CurveSensitivityMarket(sensitivityYieldDiscounting, new HashMap<String, List<MarketForwardSensitivity>>(), sensitivityPriceCurve);
   }
 
@@ -162,8 +170,7 @@ public class CurveSensitivityMarket {
     return result;
   }
 
-  private static Map<String, List<MarketForwardSensitivity>> plusFwd(final Map<String, List<MarketForwardSensitivity>> map1,
-      final Map<String, List<MarketForwardSensitivity>> map2) {
+  private static Map<String, List<MarketForwardSensitivity>> plusFwd(final Map<String, List<MarketForwardSensitivity>> map1, final Map<String, List<MarketForwardSensitivity>> map2) {
     final Map<String, List<MarketForwardSensitivity>> result = new HashMap<String, List<MarketForwardSensitivity>>();
     for (final Map.Entry<String, List<MarketForwardSensitivity>> entry : map1.entrySet()) {
       final List<MarketForwardSensitivity> temp = new ArrayList<MarketForwardSensitivity>();
@@ -311,8 +318,7 @@ public class CurveSensitivityMarket {
    * @param tolerance The tolerance.
    * @return True if the difference is below the tolerance and False if not. If the curves are not the same it returns False.
    */
-  private static boolean compareFwd(final Map<String, List<MarketForwardSensitivity>> sensi1, final Map<String, List<MarketForwardSensitivity>> sensi2,
-      final double tolerance) {
+  private static boolean compareFwd(final Map<String, List<MarketForwardSensitivity>> sensi1, final Map<String, List<MarketForwardSensitivity>> sensi2, final double tolerance) {
     Validate.notNull(sensi1, "sensitivity");
     Validate.notNull(sensi2, "sensitivity");
     for (final Map.Entry<String, List<MarketForwardSensitivity>> entry : sensi1.entrySet()) {

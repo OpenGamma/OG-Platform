@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.credit;
 
 /**
- * Enumerate the possible credit rating states for a reference entity
+ * Enumerate the possible credit rating states for a reference entity (generic rating classifications)
  */
 public enum CreditRating {
   /**
@@ -53,6 +53,4 @@ public enum CreditRating {
    * No rating
    */
   NR;
-
-  // TODO: Extend this list to include Moodys, S&P and Fitch rating classifications (as seperate enum's)
 }

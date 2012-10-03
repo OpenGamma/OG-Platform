@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.credit;
 
 /**
- * Enumeration the different methods for creating the stub on the premium leg of a credit derivative
+ * Enumeration of the different methods for creating the stub on the premium leg of a credit default swap
  */
 public enum StubType {
   /**
@@ -31,5 +31,4 @@ public enum StubType {
   NONE;
 
   // TODO : Double check these definitions
-  // TODO : Maybe use the existing stub type definitions (however the names here are consistent with ISDA CDS model and CDS market)
 }

@@ -8,10 +8,10 @@ package com.opengamma.analytics.financial.instrument.payment;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
@@ -35,11 +35,11 @@ public abstract class CouponFloatingDefinition extends CouponDefinition implemen
    * @param notional Coupon notional.
    * @param fixingDate The coupon fixing date.
    */
-  public CouponFloatingDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor,
-      final double notional, final ZonedDateTime fixingDate) {
+  public CouponFloatingDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
+      final double accrualFactor, final double notional, final ZonedDateTime fixingDate) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional);
-    Validate.notNull(fixingDate, "fixing date");
-    Validate.isTrue(!fixingDate.isAfter(paymentDate), "payment date strictly before fixing");
+    ArgumentChecker.notNull(fixingDate, "fixing date");
+    ArgumentChecker.isTrue(!fixingDate.isAfter(paymentDate), "payment date strictly before fixing");
     this._fixingDate = fixingDate;
   }
 

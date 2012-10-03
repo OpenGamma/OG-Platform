@@ -371,7 +371,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     final String counterparty = "";
     final ExternalId floatingRateId = swapConvention.getSwapFloatingLegInitialRate();
     if (floatingRateId == null) {
-      throw new OpenGammaRuntimeException("Could not get + " + floatingRateId + " from convention");
+      throw new OpenGammaRuntimeException("Could not get floating rate id from convention");
     }
     final Double rate = marketValues.get(swapIdentifier);
     if (rate == null) {
@@ -487,11 +487,11 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     } else {
       floatingFrequency = swapConvention.getSwapFloatingLegFrequency();
       if (floatingFrequency == null) {
-        throw new OpenGammaRuntimeException("Could not get floating leg frequency " + floatingFrequency + " from convention");
+        throw new OpenGammaRuntimeException("Could not get floating leg frequency from convention");
       }
       floatingReferenceRateId = swapConvention.getSwapFloatingLegInitialRate();
       if (floatingReferenceRateId == null) {
-        throw new OpenGammaRuntimeException("Could not get floating reference rate " + floatingReferenceRateId + " from convention");
+        throw new OpenGammaRuntimeException("Could not get floating reference rate from convention");
       }
     }
     final FloatingInterestRateLeg oisLeg = new FloatingInterestRateLeg(swapConvention.getSwapFloatingLegDayCount(), floatingFrequency,

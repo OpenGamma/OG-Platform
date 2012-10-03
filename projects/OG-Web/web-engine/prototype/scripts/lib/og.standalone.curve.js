@@ -61,7 +61,7 @@
                         return acc;
                     }, range);
                 };
-            data.forEach(function (val, i) {
+            if ($.isArray(data)) data.forEach(function (val, i) {
                 if (val.curve) {
                     obj.data.push({data: val.curve});
                     obj.options.colors.push(color_arr[i]);

@@ -6,8 +6,10 @@
 package com.opengamma.analytics.financial.credit;
 
 /**
- * Class to construct a hazard rate term structure object
+ * Enumerate the possible credit rating states for a reference entity (Moodys rating classifications)
  */
-public class HazardRateCurve {
+public enum CreditRatingMoodys {
+
+  // TODO : Add the rating states
 
 }

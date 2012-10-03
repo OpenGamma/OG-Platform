@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.curve.generator;
 import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.interestrate.market.description.IMarketBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.util.ArgumentChecker;
@@ -19,7 +20,7 @@ import com.opengamma.util.ArgumentChecker;
  * TODO Change to have the anchor point flexible.
  * Only the lastTimeCalculator is stored. The node are computed from the instruments.
  */
-public class GeneratorCurveYieldInterpolatedAnchor extends GeneratorCurve {
+public class GeneratorCurveYieldInterpolatedAnchor extends GeneratorYDCurve {
 
   /**
    * Calculator of the node associated to instruments.
@@ -55,13 +56,18 @@ public class GeneratorCurveYieldInterpolatedAnchor extends GeneratorCurve {
     throw new UnsupportedOperationException("Cannot generate curves for a GeneratorCurveYieldInterpolatedAnchor");
   }
 
+  @Override
+  public YieldAndDiscountCurve generateCurve(String name, IMarketBundle bundle, double[] parameters) {
+    throw new UnsupportedOperationException("Cannot generate curves for a GeneratorCurveYieldInterpolatedAnchor");
+  }
+
   /**
    * The data passed should be one instrument for the anchor then one instrument for each of the nodes.
    * @param data The array of instruments.
    * @return The final generator.
    */
   @Override
-  public GeneratorCurve finalGenerator(Object data) {
+  public GeneratorYDCurve finalGenerator(Object data) {
     ArgumentChecker.isTrue(data instanceof InstrumentDerivative[], "data should be an array of InstrumentDerivative");
     InstrumentDerivative[] instruments = (InstrumentDerivative[]) data;
     double[] node = new double[instruments.length - 1];

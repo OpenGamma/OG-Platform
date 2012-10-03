@@ -90,14 +90,19 @@ $.register_module({
             });
         };
         constructor.prototype.alive = function () {
-            var grid = this, $ = grid.$;
-            return $(grid.id).length ? true : !grid.elements.style.remove();
+            var grid = this, $ = grid.$, alive = $(grid.id).length ? true : !grid.elements.style.remove();
+            if (!alive) grid.dataman.kill();
+            return alive;
         };
         constructor.prototype.cell = function (selection) {
             if (1 !== selection.rows.length || 1 !== selection.cols.length) return null;
-            var grid = this, viewport = grid.meta.viewport, rows = viewport.rows, cols = viewport.cols,
-                cell = grid.data[rows.indexOf(selection.rows[0]) * cols.length + cols.indexOf(selection.cols[0])];
-            return {row: selection.rows[0], col: selection.cols[0], value: cell, type: cell.t || selection.type[0]};
+            var grid = this, meta = grid.meta, viewport = grid.meta.viewport, rows = viewport.rows,
+                cols = viewport.cols, row = selection.rows[0], col = selection.cols[0], col_index = cols.indexOf(col),
+                data_index = rows.indexOf(row) * cols.length + col_index, cell = grid.data[data_index];
+            return {
+                row: selection.rows[0], col: selection.cols[0], value: cell, type: cell.t || selection.type[0],
+                row_name: grid.data[data_index - col_index], col_name: meta.columns.headers[col]
+            };
         };
         constructor.prototype.init_data = function () {
             var grid = this, $ = grid.$, config = grid.config;
@@ -201,10 +206,18 @@ $.register_module({
                 .reduce(function (acc, set) {return acc + set.columns.length;}, 0);
             grid.meta.scroll_length = grid.meta.columns.fixed
                 .reduce(function (acc, set) {return acc + set.columns.length;}, 0);
-            grid.meta.columns.types = columns.fixed[0].columns.map(function (col) {return col.type;})
-                .concat(columns.scroll.reduce(function (acc, set) {
-                    return acc.concat(set.columns.map(function (col) {return col.type;}));
-                }, []));
+            grid.meta.columns.headers = [];
+            grid.meta.columns.types = [];
+            columns.fixed[0].columns.forEach(function (col) {
+                grid.meta.columns.headers.push(col.header);
+                grid.meta.columns.types.push(col.type);
+            });
+            columns.scroll.forEach(function (set) {
+                set.columns.forEach(function (col) {
+                    grid.meta.columns.headers.push(col.header);
+                    grid.meta.columns.types.push(col.type);
+                });
+            });
             grid.unravel_structure();
             if (grid.elements.empty) grid.init_elements();
             grid.resize(grid.render_header);
