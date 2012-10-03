@@ -23,7 +23,7 @@ import com.opengamma.util.time.DateUtils;
 
 public class CouponFixedDiscountingMarketMethodTest {
 
-  private static final IborIndex[] IBOR_INDEXES = MarketDiscountDataSets.getIborIndexes();
+  private static final IborIndex[] IBOR_INDEXES = MarketDiscountDataSets.getIndexesIbor();
   private static final IborIndex EURIBOR3M = IBOR_INDEXES[0];
   private static final Currency EUR = EURIBOR3M.getCurrency();
 

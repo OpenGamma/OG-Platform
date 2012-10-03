@@ -10,6 +10,8 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
+import com.opengamma.analytics.financial.instrument.index.IndexON;
+import com.opengamma.analytics.financial.instrument.index.IndexONMaster;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.interestrate.market.description.MarketDiscountBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
@@ -75,9 +77,10 @@ public class MarketDiscountDataSets {
   private static final YieldAndDiscountCurve CURVE_GBP_30 = YieldCurve.from(ConstantDoublesCurve.from(0.0400, "GBP 3.00"));
   private static final YieldAndDiscountCurve CURVE_USD_30 = YieldCurve.from(ConstantDoublesCurve.from(0.0300, "USD 3.00"));
 
-  private static final IborIndex USDLIBOR_3M = IndexIborMaster.getInstance().getIndex("USDLIBOR3M", CALENDAR_USD);
-  private static final IborIndex EURIBOR_3M = IndexIborMaster.getInstance().getIndex("EURIBOR3M", CALENDAR_EUR);
-  private static final IborIndex EURIBOR_6M = IndexIborMaster.getInstance().getIndex("EURIBOR6M", CALENDAR_EUR);
+  private static final IborIndex USDLIBOR3M = IndexIborMaster.getInstance().getIndex("USDLIBOR3M", CALENDAR_USD);
+  private static final IborIndex EURIBOR3M = IndexIborMaster.getInstance().getIndex("EURIBOR3M", CALENDAR_EUR);
+  private static final IborIndex EURIBOR6M = IndexIborMaster.getInstance().getIndex("EURIBOR6M", CALENDAR_EUR);
+  private static final IndexON EONIA = IndexONMaster.getInstance().getIndex("EONIA", CALENDAR_EUR);
 
   private static final String NAME_EUR_PRICE_INDEX = "Euro HICP x";
   private static final Period LAG_EUR = Period.ofDays(14);
@@ -112,9 +115,10 @@ public class MarketDiscountDataSets {
     MARKET_1.setCurve(Currency.USD, USD_DSC);
     MARKET_1.setCurve(Currency.EUR, EUR_DSC);
     MARKET_1.setCurve(Currency.GBP, CURVE_GBP_35);
-    MARKET_1.setCurve(USDLIBOR_3M, USD_FWD3);
-    MARKET_1.setCurve(EURIBOR_3M, EUR_FWD3);
-    MARKET_1.setCurve(EURIBOR_6M, EUR_FWD6);
+    MARKET_1.setCurve(USDLIBOR3M, USD_FWD3);
+    MARKET_1.setCurve(EONIA, EUR_DSC);
+    MARKET_1.setCurve(EURIBOR3M, EUR_FWD3);
+    MARKET_1.setCurve(EURIBOR6M, EUR_FWD6);
     MARKET_1.setCurve(PRICE_INDEX_EUR, PRICE_INDEX_CURVE_EUR);
     MARKET_1.setCurve(PRICE_INDEX_GBP, PRICE_INDEX_CURVE_GBP);
     MARKET_1.setCurve(PRICE_INDEX_USD, PRICE_INDEX_CURVE_USD);
@@ -194,9 +198,9 @@ public class MarketDiscountDataSets {
     market.setCurve(Currency.USD, USD_DSC);
     market.setCurve(Currency.EUR, EUR_DSC);
     market.setCurve(Currency.GBP, CURVE_GBP_35);
-    market.setCurve(USDLIBOR_3M, USD_FWD3);
-    market.setCurve(EURIBOR_3M, EUR_FWD3);
-    market.setCurve(EURIBOR_6M, EUR_FWD6);
+    market.setCurve(USDLIBOR3M, USD_FWD3);
+    market.setCurve(EURIBOR3M, EUR_FWD3);
+    market.setCurve(EURIBOR6M, EUR_FWD6);
     market.setCurve(PRICE_INDEX_EUR, PRICE_INDEX_CURVE_EUR);
     market.setCurve(PRICE_INDEX_GBP, PRICE_INDEX_CURVE_GBP);
     market.setCurve(ISSUER_UK_GOVT, Currency.GBP, CURVE_GBP_30);
@@ -267,8 +271,12 @@ public class MarketDiscountDataSets {
     return new IndexPrice[] {PRICE_INDEX_EUR, PRICE_INDEX_GBP, PRICE_INDEX_USD};
   }
 
-  public static IborIndex[] getIborIndexes() {
-    return new IborIndex[] {EURIBOR_3M, EURIBOR_6M, USDLIBOR_3M};
+  public static IborIndex[] getIndexesIbor() {
+    return new IborIndex[] {EURIBOR3M, EURIBOR6M, USDLIBOR3M};
+  }
+
+  public static IndexON[] getIndexesON() {
+    return new IndexON[] {EONIA};
   }
 
   public static String[] getIssuerNames() {

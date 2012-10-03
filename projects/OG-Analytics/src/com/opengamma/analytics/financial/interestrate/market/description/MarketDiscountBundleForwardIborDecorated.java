@@ -6,20 +6,19 @@
 package com.opengamma.analytics.financial.interestrate.market.description;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.instrument.index.IndexDeposit;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * A market bundle decorated (i.e. some methods are changed in special cases) for a given forward curve.
  */
-public class MarketDiscountBundleForwardDecorated extends MarketDiscountBundle {
+public class MarketDiscountBundleForwardIborDecorated extends MarketDiscountBundle {
   // TODO: review to make an extension of IMarketBundle
 
   /**
    * The index for which the discounting curve is decorated.
    */
-  private final IndexDeposit _index;
+  private final IborIndex _index;
   /**
    * The replacing discounting curve.
    */
@@ -31,7 +30,7 @@ public class MarketDiscountBundleForwardDecorated extends MarketDiscountBundle {
    * @param index The index for which the forward curve will be decorated.
    * @param curve The replacing curve.
    */
-  public MarketDiscountBundleForwardDecorated(MarketDiscountBundle market, IndexDeposit index, YieldAndDiscountCurve curve) {
+  public MarketDiscountBundleForwardIborDecorated(MarketDiscountBundle market, IborIndex index, YieldAndDiscountCurve curve) {
     super(market);
     ArgumentChecker.notNull(index, "Index");
     ArgumentChecker.notNull(curve, "Curve");
