@@ -30,7 +30,8 @@ $.register_module({
                     col_name: cell.col_name,
                     type: gadget_names[type]
                 };
-                if (type === 'Data') $.extend(gadget_options.options, {col: cell.col, row: cell.row});
+                if (type === 'Data' || type === 'Curve' || type === 'Surface')
+                    $.extend(gadget_options.options, {col: cell.col, row: cell.row});
                 if (type === 'Depgraph') $.extend(source, {depgraph: true, col: cell.col, row: cell.row});
                 if (type === 'Timeseries') gadget_options.options.datapoints_link = false;
                 return gadget_options;
