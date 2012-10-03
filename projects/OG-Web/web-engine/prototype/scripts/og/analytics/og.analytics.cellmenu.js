@@ -4,11 +4,11 @@
  */
 $.register_module({
     name: 'og.analytics.CellMenu',
-    dependencies: ['og.common.routes', 'og.common.gadgets.mapping'],
+    dependencies: ['og.common.gadgets.mapping'],
     obj: function () {
         var icons = '.og-num, .og-icon-new-window-2', open_icon = '.og-small', expand_class = 'og-expanded',
             panels = ['south', 'dock-north', 'dock-center', 'dock-south'], width = 34,
-            routes = og.common.routes, mapping = og.common.gadgets.mapping;
+            mapping = og.common.gadgets.mapping;
         var constructor = function (grid) {
             var cellmenu = this, timer, depgraph = !!grid.config.source.depgraph, parent = grid.elements.parent;
             og.api.text({module: 'og.analytics.cell_options'}).pipe(function (template) {
