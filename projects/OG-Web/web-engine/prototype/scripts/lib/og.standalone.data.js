@@ -21,8 +21,10 @@
         };
         gadget.update = function(input) {
             var pdata = util.process_data(input);
-            if (data !== json_strify(pdata.data)) data = json_strify(pdata.data), grid.setData(pdata.data);
-            if (cols !== json_strify(pdata.columns)) cols = json_strify(pdata.columns), grid.setColumns(pdata.columns);
+            if (data !== json_strify(pdata.data)) 
+                data = json_strify(pdata.data), grid.setData(pdata.data), grid.invalidate();
+            if (cols !== json_strify(pdata.columns)) 
+                cols = json_strify(pdata.columns), grid.setColumns(pdata.columns), grid.invalidate();
         };
         gadget.on_column_resize = function(e, args) {
             var columns = args.grid.getColumns(), len = columns.length-1, i = 0, c = json_parse(cols), w;
