@@ -115,6 +115,31 @@ public class SwapFixedIborSpreadDefinition extends SwapDefinition {
   }
 
   /**
+   * Swap builder from the settlement date, a swap generator and other details of a swap.
+   * @param settlementDate The settlement date.
+   * @param maturityDate The swap maturity date.
+   * @param generator The swap generator.
+   * @param notionalFixed The fixed leg notional.
+   * @param notionalIbor The ibor leg notional.
+   * @param fixedRate The swap fixed rate.
+   * @param spread The spread.
+   * @param isPayer The payer flag of the fixed leg.
+   * @return The swap.
+   */
+  public static SwapFixedIborSpreadDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final GeneratorSwapFixedIbor generator,
+      final double notionalFixed, final double notionalIbor, final double fixedRate, final double spread, final boolean isPayer) {
+    ArgumentChecker.notNull(settlementDate, "Settlement date");
+    ArgumentChecker.notNull(maturityDate, "Maturity date");
+    ArgumentChecker.notNull(generator, "Swap generator");
+    final AnnuityCouponFixedDefinition fixedLeg = AnnuityCouponFixedDefinition.from(generator.getCurrency(), settlementDate, maturityDate, generator.getFixedLegPeriod(),
+        generator.getCalendar(), generator.getFixedLegDayCount(), generator.getIborIndex().getBusinessDayConvention(), generator.getIborIndex().isEndOfMonth(),
+        notionalFixed, fixedRate, isPayer);
+    final AnnuityCouponIborSpreadDefinition iborLeg = AnnuityCouponIborSpreadDefinition.from(settlementDate, maturityDate, notionalIbor, generator.getIborIndex(),
+        spread, !isPayer);
+    return new SwapFixedIborSpreadDefinition(fixedLeg, iborLeg);
+  }
+
+  /**
    * The fixed leg of the swap.
    * @return Fixed leg.
    */
