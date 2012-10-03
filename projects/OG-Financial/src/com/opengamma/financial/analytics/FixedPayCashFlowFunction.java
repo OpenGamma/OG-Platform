@@ -46,7 +46,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  *
  */
-public class FixedCashFlowFunction extends AbstractFunction.NonCompiledInvoker {
+public class FixedPayCashFlowFunction extends AbstractFunction.NonCompiledInvoker {
   private static final FixedPayCashFlowVisitor FIXED_CASH_FLOW_CALCULATOR = FixedPayCashFlowVisitor.getInstance();
   private FinancialSecurityVisitor<InstrumentDefinition<?>> _visitor;
 
@@ -82,7 +82,7 @@ public class FixedCashFlowFunction extends AbstractFunction.NonCompiledInvoker {
     final LocalDate date = snapshotClock.zonedDateTime().toLocalDate();
     final InstrumentDefinition<?> definition = ((FinancialSecurity) target.getSecurity()).accept(_visitor);
     final Map<LocalDate, MultipleCurrencyAmount> cashFlows = definition.accept(FIXED_CASH_FLOW_CALCULATOR, date);
-    return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.FIXED_CASH_FLOWS, target.toSpecification(), createValueProperties().get()),
+    return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.FIXED_PAY_CASH_FLOWS, target.toSpecification(), createValueProperties().get()),
         new PaymentScheduleMatrix(cashFlows)));
   }
 
@@ -101,7 +101,7 @@ public class FixedCashFlowFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.FIXED_CASH_FLOWS, target.toSpecification(), createValueProperties().get()));
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.FIXED_PAY_CASH_FLOWS, target.toSpecification(), createValueProperties().get()));
   }
 
   @Override

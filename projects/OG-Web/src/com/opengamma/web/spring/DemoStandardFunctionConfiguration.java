@@ -48,10 +48,12 @@ import com.opengamma.financial.analytics.CurrencyPairsDefaults;
 import com.opengamma.financial.analytics.CurrencyPairsFunction;
 import com.opengamma.financial.analytics.DV01Function;
 import com.opengamma.financial.analytics.FilteringSummingFunction;
-import com.opengamma.financial.analytics.FixedCashFlowFunction;
+import com.opengamma.financial.analytics.FixedPayCashFlowFunction;
+import com.opengamma.financial.analytics.FixedReceiveCashFlowFunction;
 import com.opengamma.financial.analytics.FloatingResetsFunction;
 import com.opengamma.financial.analytics.LastHistoricalValueFunction;
 import com.opengamma.financial.analytics.MissingInputsFunction;
+import com.opengamma.financial.analytics.NettingFixedCashFlowFunction;
 import com.opengamma.financial.analytics.PositionScalingFunction;
 import com.opengamma.financial.analytics.PositionTradeScalingFunction;
 import com.opengamma.financial.analytics.SummingFunction;
@@ -1637,11 +1639,17 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   }
 
   private static void addCashFlowFunctions(final List<FunctionConfiguration> functionConfigs) {
-    addSummingFunction(functionConfigs, ValueRequirementNames.FIXED_CASH_FLOWS);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.FIXED_CASH_FLOWS);
+    addSummingFunction(functionConfigs, ValueRequirementNames.FIXED_PAY_CASH_FLOWS);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.FIXED_PAY_CASH_FLOWS);
+    addSummingFunction(functionConfigs, ValueRequirementNames.FIXED_RECEIVE_CASH_FLOWS);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.FIXED_RECEIVE_CASH_FLOWS);
+    addSummingFunction(functionConfigs, ValueRequirementNames.NETTED_FIXED_CASH_FLOWS);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.NETTED_FIXED_CASH_FLOWS);
     addSummingFunction(functionConfigs, ValueRequirementNames.RESET_DATES);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.RESET_DATES);
-    functionConfigs.add(functionConfiguration(FixedCashFlowFunction.class));
+    functionConfigs.add(functionConfiguration(FixedPayCashFlowFunction.class));
+    functionConfigs.add(functionConfiguration(FixedReceiveCashFlowFunction.class));
+    functionConfigs.add(functionConfiguration(NettingFixedCashFlowFunction.class));
     functionConfigs.add(functionConfiguration(FloatingResetsFunction.class));
   }
 
