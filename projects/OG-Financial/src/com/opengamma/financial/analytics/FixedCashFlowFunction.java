@@ -12,7 +12,7 @@ import java.util.Set;
 import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.analytics.financial.instrument.FixedCashFlowVisitor;
+import com.opengamma.analytics.financial.instrument.FixedPayCashFlowVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.holiday.HolidaySource;
@@ -47,7 +47,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  *
  */
 public class FixedCashFlowFunction extends AbstractFunction.NonCompiledInvoker {
-  private static final FixedCashFlowVisitor FIXED_CASH_FLOW_CALCULATOR = FixedCashFlowVisitor.getInstance();
+  private static final FixedPayCashFlowVisitor FIXED_CASH_FLOW_CALCULATOR = FixedPayCashFlowVisitor.getInstance();
   private FinancialSecurityVisitor<InstrumentDefinition<?>> _visitor;
 
   @Override
