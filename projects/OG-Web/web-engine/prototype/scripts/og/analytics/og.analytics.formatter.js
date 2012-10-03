@@ -34,13 +34,15 @@ $.register_module({
                 grid.elements.parent.find('.OG-g .sp').sparkline('html', sp_options);
                 grid.elements.parent.find('.OG-g .fl').each(function () {
                     var $this = $(this), data;
-                    try {data = JSON.parse($this.text());} catch (error) {return;}
-                    $.plot($this, data, {
-                        colors: ['#456899'],
-                        grid: {borderWidth: 0, minBorderMargin: 1},
-                        series: {shadowSize: 0, lines: {lineWidth: 1}},
-                        xaxis: {show: false}, yaxis: {show: false}
-                    });
+                    try {
+                        data = JSON.parse($this.text());
+                        $.plot($this, data, {
+                            colors: ['#456899'],
+                            grid: {borderWidth: 0, minBorderMargin: 1},
+                            series: {shadowSize: 0, lines: {lineWidth: 1}},
+                            xaxis: {show: false}, yaxis: {show: false}
+                        });
+                    } catch (error) {return;}
                 });
             });
         };
