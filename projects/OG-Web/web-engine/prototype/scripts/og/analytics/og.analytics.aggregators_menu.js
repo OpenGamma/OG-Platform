@@ -8,6 +8,7 @@ $.register_module({
                 ag_opts = [], $ag_selection = $('.aggregation-selection', $dom.title), sel_val, sel_pos, $sel_parent,
                 $sel_select, $sel_checkbox, default_sel_txt = 'select aggregation type...', del_s = '.og-icon-delete',
                 options_s = '.OG-dropmenu-options', select_s = 'select', checkbox_s = '.og-option :checkbox',
+                menu_click_s = 'input, div.og-icon-delete, a.OG-link-add', menu_change_s = select_s,
                 process_ag_opts = function () {
                     if(ag_opts.length) {
                         var i = 0, arr = [], query;
@@ -60,8 +61,8 @@ $.register_module({
                     process_ag_opts();
                 },
                 checkbox_handler = function (entry) {
-                    if ($sel_checkbox.checked && entry !== -1) ag_opts[entry].required_field = true;
-                    else if (!$sel_checkbox.checked && entry !== -1) ag_opts[entry].required_field = false;
+                    if ($sel_checkbox[0].checked && entry !== -1) ag_opts[entry].required_field = true;
+                    else if (!$sel_checkbox[0].checked && entry !== -1) ag_opts[entry].required_field = false;
                     $sel_checkbox.focus();
                 },
                 menu_handler = function (event) {
@@ -107,7 +108,9 @@ $.register_module({
             $dom.title_infix.append('<span>then</span>');
             if ($dom) {
                 if ($dom.title) $dom.title.on('click', menu.title_handler.bind(menu));
-                if ($dom.menu) $dom.menu.on('click', menu_handler).on('change', menu_handler);
+                if ($dom.menu) {
+                    $dom.menu.on('click', menu_click_s, menu_handler).on('change', menu_change_s, menu_handler);
+                }
             } 
             return menu;
         };
