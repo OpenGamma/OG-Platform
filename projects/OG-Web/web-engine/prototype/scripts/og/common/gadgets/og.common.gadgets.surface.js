@@ -3,7 +3,7 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.common.gadgets.surface',
+    name: 'og.common.gadgets.Surface',
     dependencies: ['og.common.gadgets.manager', 'og.api.text'],
     obj: function () {
         var prefix = 'og_surface_gadget_', counter = 1;
@@ -35,22 +35,6 @@ $.register_module({
                 xs_label: 'Term (years)',
                 zs: ['0.55', '0.6', '0.65', '0.7', '0.75', '0.8', '0.85', '0.9', '0.95', '1', '1.05', '1.1', '1.15', '1.2', '1.25', '1.3', '1.35', '1.4', '1.45', '1.5'],
                 zs_label: 'Strike (GBP)'
-            },
-            2: {
-                vol: [
-                    0.1596, 0.3515, 0.3292, 0.297, 0.2467,
-                    0.1718, 0.3342, 0.3108, 0.2732, 0.2331,
-                    0.1708, 0.3173, 0.2918, 0.2588, 0.221,
-                    0.1708, 0.3016, 0.2785, 0.2449, 0.211,
-                    0.1686, 0.2803, 0.2586, 0.2255, 1.797,
-                    0.1651, 0.26, 0.2337, 0.21, 1.797
-                ],
-                xs: ['0.083', '0.25', '0.5', '1', '2'],
-                xs_label: 'X Axis',
-                xs_labels: ['1M', '3M', '6M', '1Y', '2Y'],
-                zs: ['2', '3', '4', '5', '7', '10'],
-                zs_label: 'Z Axis',
-                zs_labels: ['2Y', '3Y', '4Y', '5Y', '7Y', '10Y']
             }
         };
         return function (config) {
@@ -58,13 +42,13 @@ $.register_module({
                 surface_options = {
                     selector: config.selector,
                     data: {
-                        vol: tmp_data[config.id].vol,
-                        xs: tmp_data[config.id].xs,
-                        xs_labels: tmp_data[config.id].xs_labels,
-                        xs_label: tmp_data[config.id].xs_label,
-                        zs: tmp_data[config.id].zs,
-                        zs_labels: tmp_data[config.id].zs_labels,
-                        zs_label: tmp_data[config.id].zs_label
+                        vol: tmp_data[1].vol,
+                        xs: tmp_data[1].xs,
+                        xs_labels: tmp_data[1].xs_labels,
+                        xs_label: tmp_data[1].xs_label,
+                        zs: tmp_data[1].zs,
+                        zs_labels: tmp_data[1].zs_labels,
+                        zs_label: tmp_data[1].zs_label
                     },
                     options: {}
             };
