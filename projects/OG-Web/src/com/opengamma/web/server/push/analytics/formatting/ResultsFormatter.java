@@ -58,8 +58,6 @@ public class ResultsFormatter {
     DoubleFormatter doubleFormatter = new DoubleFormatter(bigDecimalFormatter);
     CurrencyAmountFormatter currencyAmountFormatter = new CurrencyAmountFormatter(bigDecimalFormatter);
 
-    _formatters.put(Boolean.class, _defaultFormatter);
-    _formatters.put(String.class, _defaultFormatter);
     _formatters.put(Double.class, doubleFormatter);
     _formatters.put(BigDecimal.class, bigDecimalFormatter);
     _formatters.put(CurrencyAmount.class, currencyAmountFormatter);
