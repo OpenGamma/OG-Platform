@@ -70,7 +70,8 @@ public class GeneratorSwapIborIbor extends GeneratorInstrument {
    * @param endOfMonth The end-of-month flag.
    * @param spotLag The swap spot lag (usually 2 or 0).
    */
-  public GeneratorSwapIborIbor(final String name, final IborIndex iborIndex1, final IborIndex iborIndex2, final BusinessDayConvention businessDayConvention, final boolean endOfMonth, final int spotLag) {
+  public GeneratorSwapIborIbor(final String name, final IborIndex iborIndex1, final IborIndex iborIndex2, final BusinessDayConvention businessDayConvention, 
+      final boolean endOfMonth, final int spotLag) {
     super(name);
     ArgumentChecker.notNull(iborIndex1, "ibor index 1");
     ArgumentChecker.notNull(iborIndex2, "ibor index 2");

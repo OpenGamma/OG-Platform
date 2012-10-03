@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.interestrate.market.description;
 
+import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexDeposit;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.ArgumentChecker;
@@ -39,7 +40,7 @@ public class MarketDiscountBundleForwardDecorated extends MarketDiscountBundle {
   }
 
   @Override
-  public double getForwardRate(IndexDeposit index, double startTime, double endTime, double accrualFactor) {
+  public double getForwardRate(IborIndex index, double startTime, double endTime, double accrualFactor) {
     if (_index.equals(index)) {
       return (_curve.getDiscountFactor(startTime) / _curve.getDiscountFactor(endTime) - 1) / accrualFactor;
     }
@@ -47,7 +48,7 @@ public class MarketDiscountBundleForwardDecorated extends MarketDiscountBundle {
   }
 
   @Override
-  public YieldAndDiscountCurve getCurve(IndexDeposit index) {
+  public YieldAndDiscountCurve getCurve(IborIndex index) {
     if (_index.equals(index)) {
       return _curve;
     }

@@ -173,7 +173,7 @@ public final class FixedPayCashFlowVisitor extends AbstractInstrumentDefinitionV
   /**
    * Returns a map containing all of the known payments in an annuity after a certain date. If there are no payments after this date, an empty map is returned.
    * @param annuity The annuity, not null
-   * @param fromDate The date from which to calculate the cash flow, not null
+   * @param fromDate The date from which to calculate the cash flows, not null
    * @return A map containing the payment dates and amounts
    */
   @Override
@@ -188,7 +188,9 @@ public final class FixedPayCashFlowVisitor extends AbstractInstrumentDefinitionV
    * is returned.<p> 
    * If the swap is a receiver and the date is after a fixing date, returns a map containing a single payment date and amount. Otherwise, an empty map is 
    * returned.
-   * 
+   * @param swap The swap, not null
+   * @param fromDate The date from which to calculate the cash flows, not null
+   * @return A map containing the payment dates and amounts
    */
   @Override
   public Map<LocalDate, MultipleCurrencyAmount> visitSwapFixedIborDefinition(final SwapFixedIborDefinition swap, final LocalDate fromDate) {

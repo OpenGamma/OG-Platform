@@ -12,9 +12,11 @@ import com.opengamma.analytics.financial.interestrate.market.description.IMarket
 import com.opengamma.analytics.financial.interestrate.market.description.MultipleCurrencyCurveSensitivityMarket;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.market.CouponFixedDiscountingMarketMethod;
 import com.opengamma.analytics.financial.interestrate.payments.market.CouponIborDiscountingMarketMethod;
+import com.opengamma.analytics.financial.interestrate.payments.market.CouponOISDiscountingMarketMethod;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.util.ArgumentChecker;
@@ -48,6 +50,7 @@ public final class PresentValueCurveSensitivityMarketCalculator extends Abstract
    */
   private static final CouponFixedDiscountingMarketMethod METHOD_CPN_FIXED = CouponFixedDiscountingMarketMethod.getInstance();
   private static final CouponIborDiscountingMarketMethod METHOD_CPN_IBOR = CouponIborDiscountingMarketMethod.getInstance();
+  private static final CouponOISDiscountingMarketMethod METHOD_CPN_ON = CouponOISDiscountingMarketMethod.getInstance();
 
   // -----     Payment/Coupon     ------
 
@@ -59,6 +62,11 @@ public final class PresentValueCurveSensitivityMarketCalculator extends Abstract
   @Override
   public MultipleCurrencyCurveSensitivityMarket visitCouponIbor(final CouponIbor payment, final IMarketBundle market) {
     return METHOD_CPN_IBOR.presentValueMarketSensitivity(payment, market);
+  }
+
+  @Override
+  public MultipleCurrencyCurveSensitivityMarket visitCouponOIS(final CouponOIS payment, final IMarketBundle market) {
+    return METHOD_CPN_ON.presentValueMarketSensitivity(payment, market);
   }
 
   // -----     Annuity     ------

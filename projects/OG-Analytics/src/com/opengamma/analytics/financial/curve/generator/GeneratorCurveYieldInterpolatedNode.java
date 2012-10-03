@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.curve.generator;
 
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.interestrate.market.description.IMarketBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
@@ -56,6 +57,11 @@ public class GeneratorCurveYieldInterpolatedNode extends GeneratorYDCurve {
 
   @Override
   public YieldAndDiscountCurve generateCurve(String name, YieldCurveBundle bundle, double[] parameters) {
+    return generateCurve(name, parameters);
+  }
+
+  @Override
+  public YieldAndDiscountCurve generateCurve(String name, IMarketBundle bundle, double[] parameters) {
     return generateCurve(name, parameters);
   }
 
