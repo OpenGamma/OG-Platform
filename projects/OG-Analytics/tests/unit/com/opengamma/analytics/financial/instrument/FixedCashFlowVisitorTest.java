@@ -82,8 +82,9 @@ public class FixedCashFlowVisitorTest {
   private static final IborIndex FRA_INDEX = new IborIndex(FIXED_INCOME_CURRENCY, Period.ofMonths(6), 0, NO_HOLIDAY, DAY_COUNT, NONE, false, "f");
   private static final double FRA_RATE = 0.004;
   private static final ForwardRateAgreementDefinition PAYER_FRA = ForwardRateAgreementDefinition.from(FRA_START, FRA_END, FRA_NOTIONAL, FRA_INDEX, FRA_RATE);
+  private static final ForwardRateAgreementDefinition RECEIVER_FRA = ForwardRateAgreementDefinition.from(FRA_START, FRA_END, -FRA_NOTIONAL, FRA_INDEX, FRA_RATE);
   private static final Set<InstrumentDefinition<?>> INSTRUMENTS;
-  private static final FixedCashFlowVisitor VISITOR = FixedCashFlowVisitor.getInstance();
+  private static final FixedPayCashFlowVisitor VISITOR = FixedPayCashFlowVisitor.getInstance();
 
   static {
     INSTRUMENTS = new HashSet<InstrumentDefinition<?>>();
@@ -95,6 +96,7 @@ public class FixedCashFlowVisitorTest {
     INSTRUMENTS.add(FIXED_PAYMENT);
     INSTRUMENTS.add(FIXED_COUPON);
     INSTRUMENTS.add(PAYER_FRA);
+    INSTRUMENTS.add(RECEIVER_FRA);
   }
 
   @Test
@@ -201,11 +203,22 @@ public class FixedCashFlowVisitorTest {
   @Test
   public void testFRA() {
     final LocalDate date = LocalDate.of(2012, 8, 1);
-    final Map<LocalDate, MultipleCurrencyAmount> payment = PAYER_FRA.accept(VISITOR, date);
+    Map<LocalDate, MultipleCurrencyAmount> payment = PAYER_FRA.accept(VISITOR, date);
     assertEquals(1, payment.size());
     assertEquals(FRA_START.toLocalDate(), Iterables.getOnlyElement(payment.keySet()));
-    final MultipleCurrencyAmount mca = Iterables.getOnlyElement(payment.values());
+    MultipleCurrencyAmount mca = Iterables.getOnlyElement(payment.values());
     assertEquals(1, mca.size());
+    CurrencyAmount ca = Iterables.getOnlyElement(mca);
+    assertEquals(FIXED_INCOME_CURRENCY, ca.getCurrency());
+    assertEquals(FRA_NOTIONAL * FRA_RATE * 0.5, ca.getAmount(), 1e-15);
+    payment = RECEIVER_FRA.accept(VISITOR, date);
+    assertEquals(1, payment.size());
+    assertEquals(FRA_START.toLocalDate(), Iterables.getOnlyElement(payment.keySet()));
+    mca = Iterables.getOnlyElement(payment.values());
+    assertEquals(1, mca.size());
+    ca = Iterables.getOnlyElement(mca);
+    assertEquals(FIXED_INCOME_CURRENCY, ca.getCurrency());
+    assertEquals(-FRA_NOTIONAL * FRA_RATE * 0.5, ca.getAmount(), 1e-15);
   }
 
   private static final class SemiAnnualDayCount extends DayCount {
