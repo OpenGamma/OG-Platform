@@ -8,6 +8,9 @@ package com.opengamma.web.server.push.analytics.formatting;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilitySensitivity;
 import com.opengamma.analytics.financial.greeks.BucketedGreekResultCollection;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
@@ -38,6 +41,8 @@ import com.opengamma.web.server.push.analytics.ValueTypes;
  * Data structures bigger than a single value are encoded as JSON.
  */
 public class ResultsFormatter {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(ResultsFormatter.class);
 
   /** For formatting null values. */
   private final Formatter _nullFormatter = new NullFormatter();
@@ -90,10 +95,14 @@ public class ResultsFormatter {
     } else {
       Class<?> type = ValueTypes.getTypeForValueName(valueSpec.getValueName());
       if (type != null) {
-        return getFormatterForType(type);
-      } else {
-        return getFormatterForType(value.getClass());
+        if (type.isInstance(value)) {
+          return getFormatterForType(type);
+        } else {
+          s_logger.warn("Unexpected type for value. Value name: '{}', expected type: {}, actual type: {}, value: {}",
+                        new Object[]{valueSpec.getValueName(), type.getName(), value.getClass().getName(), value});
+        }
       }
+      return getFormatterForType(value.getClass());
     }
   }
 
