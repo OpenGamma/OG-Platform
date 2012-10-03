@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.curve.generator;
 
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.interestrate.market.description.IMarketBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountAddZeroFixedCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.ArgumentChecker;
@@ -59,6 +60,11 @@ public class GeneratorCurveAddYieldFixed extends GeneratorYDCurve {
   public YieldAndDiscountCurve generateCurve(String name, YieldCurveBundle bundle, double[] parameters) {
     YieldAndDiscountCurve newCurve = _generator.generateCurve(name + "-0", bundle, parameters);
     return new YieldAndDiscountAddZeroFixedCurve(name, _substract, newCurve, _fixedCurve);
+  }
+
+  @Override
+  public YieldAndDiscountCurve generateCurve(String name, IMarketBundle bundle, double[] parameters) {
+    throw new UnsupportedOperationException("Cannot generate curves for a GeneratorCurveAddYieldFixed");
   }
 
   @Override

@@ -9,14 +9,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.commons.lang.Validate;
+import java.util.TreeSet;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
-import com.opengamma.analytics.financial.instrument.index.IndexDeposit;
+import com.opengamma.analytics.financial.instrument.index.IborIndex;
+import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.ObjectsPair;
@@ -34,9 +35,13 @@ public class MarketDiscountBundle implements IMarketBundle {
    */
   private final Map<Currency, YieldAndDiscountCurve> _discountingCurves;
   /**
-   * A map with one (forward) curve by Ibor/OIS index.
+   * A map with one (forward) curve by ON index.
    */
-  private final Map<IndexDeposit, YieldAndDiscountCurve> _forwardCurves;
+  private final Map<IndexON, YieldAndDiscountCurve> _forwardONCurves;
+  /**
+   * A map with one (forward) curve by Ibor index.
+   */
+  private final Map<IborIndex, YieldAndDiscountCurve> _forwardIborCurves;
   /**
    * A map with one price curve by price index.
    */
@@ -55,24 +60,41 @@ public class MarketDiscountBundle implements IMarketBundle {
    */
   public MarketDiscountBundle() {
     _discountingCurves = new LinkedHashMap<Currency, YieldAndDiscountCurve>();
-    _forwardCurves = new LinkedHashMap<IndexDeposit, YieldAndDiscountCurve>();
+    _forwardIborCurves = new LinkedHashMap<IborIndex, YieldAndDiscountCurve>();
+    _forwardONCurves = new LinkedHashMap<IndexON, YieldAndDiscountCurve>();
     _priceIndexCurves = new LinkedHashMap<IndexPrice, PriceIndexCurve>();
     _issuerCurves = new LinkedHashMap<Pair<String, Currency>, YieldAndDiscountCurve>();
     _fxMatrix = new FXMatrix();
   }
 
   /**
+   * Constructor with empty maps for discounting, forward and price index.
+   * @param fxMatrix The FXMatrix.
+   */
+  public MarketDiscountBundle(final FXMatrix fxMatrix) {
+    _discountingCurves = new LinkedHashMap<Currency, YieldAndDiscountCurve>();
+    _forwardIborCurves = new LinkedHashMap<IborIndex, YieldAndDiscountCurve>();
+    _forwardONCurves = new LinkedHashMap<IndexON, YieldAndDiscountCurve>();
+    _priceIndexCurves = new LinkedHashMap<IndexPrice, PriceIndexCurve>();
+    _issuerCurves = new LinkedHashMap<Pair<String, Currency>, YieldAndDiscountCurve>();
+    _fxMatrix = fxMatrix;
+  }
+
+  /**
    * Constructor from an existing market. The given market maps are used for the new market (the same maps are used, not copied).
    * @param discountingCurves A map with one (discounting) curve by currency.
-   * @param forwardCurves A map with one (forward) curve by Ibor/OIS index.
+   * @param forwardIborCurves A map with one (forward) curve by Ibor index.
+   * @param forwardONCurves A map with one (forward) curve by ON index.
    * @param priceIndexCurves A map with one price curve by price index.
    * @param issuerCurves A map with issuer discounting curves.
    * @param fxMatrix The FXMatrix.
    */
-  public MarketDiscountBundle(final Map<Currency, YieldAndDiscountCurve> discountingCurves, final Map<IndexDeposit, YieldAndDiscountCurve> forwardCurves,
-      final Map<IndexPrice, PriceIndexCurve> priceIndexCurves, final Map<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurves, final FXMatrix fxMatrix) {
+  public MarketDiscountBundle(final Map<Currency, YieldAndDiscountCurve> discountingCurves, final Map<IborIndex, YieldAndDiscountCurve> forwardIborCurves,
+      final Map<IndexON, YieldAndDiscountCurve> forwardONCurves, final Map<IndexPrice, PriceIndexCurve> priceIndexCurves, final Map<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurves,
+      final FXMatrix fxMatrix) {
     _discountingCurves = discountingCurves;
-    _forwardCurves = forwardCurves;
+    _forwardIborCurves = forwardIborCurves;
+    _forwardONCurves = forwardONCurves;
     _priceIndexCurves = priceIndexCurves;
     _issuerCurves = issuerCurves;
     _fxMatrix = fxMatrix;
@@ -81,14 +103,16 @@ public class MarketDiscountBundle implements IMarketBundle {
   /**
    * Constructor from an existing market. The given market maps are used for the new market (the same maps are used, not copied).
    * @param discountingCurves A map with one (discounting) curve by currency.
-   * @param forwardCurves A map with one (forward) curve by Ibor/OIS index.
+   * @param forwardIborCurves A map with one (forward) curve by Ibor index.
+   * @param forwardONCurves A map with one (forward) curve by ON index.
    * @param priceIndexCurves A map with one price curve by price index.
    * @param issuerCurves A map with issuer discounting curves.
    */
-  public MarketDiscountBundle(final Map<Currency, YieldAndDiscountCurve> discountingCurves, final Map<IndexDeposit, YieldAndDiscountCurve> forwardCurves,
-      final Map<IndexPrice, PriceIndexCurve> priceIndexCurves, final Map<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurves) {
+  public MarketDiscountBundle(final Map<Currency, YieldAndDiscountCurve> discountingCurves, final Map<IborIndex, YieldAndDiscountCurve> forwardIborCurves,
+      final Map<IndexON, YieldAndDiscountCurve> forwardONCurves, final Map<IndexPrice, PriceIndexCurve> priceIndexCurves, final Map<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurves) {
     _discountingCurves = discountingCurves;
-    _forwardCurves = forwardCurves;
+    _forwardIborCurves = forwardIborCurves;
+    _forwardONCurves = forwardONCurves;
     _priceIndexCurves = priceIndexCurves;
     _issuerCurves = issuerCurves;
     _fxMatrix = new FXMatrix();
@@ -100,7 +124,8 @@ public class MarketDiscountBundle implements IMarketBundle {
    */
   public MarketDiscountBundle(MarketDiscountBundle market) {
     _discountingCurves = market._discountingCurves;
-    _forwardCurves = market._forwardCurves;
+    _forwardIborCurves = market._forwardIborCurves;
+    _forwardONCurves = market._forwardONCurves;
     _priceIndexCurves = market._priceIndexCurves;
     _issuerCurves = market._issuerCurves;
     _fxMatrix = market._fxMatrix;
@@ -109,11 +134,12 @@ public class MarketDiscountBundle implements IMarketBundle {
   @Override
   public MarketDiscountBundle copy() {
     final LinkedHashMap<Currency, YieldAndDiscountCurve> discountingCurves = new LinkedHashMap<Currency, YieldAndDiscountCurve>(_discountingCurves);
-    final LinkedHashMap<IndexDeposit, YieldAndDiscountCurve> forwardCurves = new LinkedHashMap<IndexDeposit, YieldAndDiscountCurve>(_forwardCurves);
+    final LinkedHashMap<IborIndex, YieldAndDiscountCurve> forwardIborCurves = new LinkedHashMap<IborIndex, YieldAndDiscountCurve>(_forwardIborCurves);
+    final LinkedHashMap<IndexON, YieldAndDiscountCurve> forwardONCurves = new LinkedHashMap<IndexON, YieldAndDiscountCurve>(_forwardONCurves);
     final LinkedHashMap<IndexPrice, PriceIndexCurve> priceIndexCurves = new LinkedHashMap<IndexPrice, PriceIndexCurve>(_priceIndexCurves);
     final LinkedHashMap<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurves = new LinkedHashMap<Pair<String, Currency>, YieldAndDiscountCurve>(_issuerCurves);
     final FXMatrix fxMatrix = new FXMatrix(_fxMatrix);
-    return new MarketDiscountBundle(discountingCurves, forwardCurves, priceIndexCurves, issuerCurves, fxMatrix);
+    return new MarketDiscountBundle(discountingCurves, forwardIborCurves, forwardONCurves, priceIndexCurves, issuerCurves, fxMatrix);
   }
 
   @Override
@@ -133,7 +159,7 @@ public class MarketDiscountBundle implements IMarketBundle {
   }
 
   @Override
-  public Set<Currency> getAllCurrencies() {
+  public Set<Currency> getCurrencies() {
     return _discountingCurves.keySet();
   }
 
@@ -159,34 +185,34 @@ public class MarketDiscountBundle implements IMarketBundle {
   }
 
   @Override
-  public double getForwardRate(IndexDeposit index, double startTime, double endTime, double accrualFactor) {
-    if (_forwardCurves.containsKey(index)) {
-      return (_forwardCurves.get(index).getDiscountFactor(startTime) / _forwardCurves.get(index).getDiscountFactor(endTime) - 1) / accrualFactor;
+  public double getForwardRate(IborIndex index, double startTime, double endTime, double accrualFactor) {
+    if (_forwardIborCurves.containsKey(index)) {
+      return (_forwardIborCurves.get(index).getDiscountFactor(startTime) / _forwardIborCurves.get(index).getDiscountFactor(endTime) - 1) / accrualFactor;
     }
     throw new IllegalArgumentException("Forward curve not found: " + index);
   }
 
   @Override
-  public double getForwardRate(IndexDeposit index, double startTime) {
+  public double getForwardRate(IborIndex index, double startTime) {
     throw new UnsupportedOperationException("The Curve implementation of the Market bundle does not support the forward rate without end time and accrual factor.");
   }
 
   @Override
-  public String getName(IndexDeposit index) {
-    if (_forwardCurves.containsKey(index)) {
-      return _forwardCurves.get(index).getName();
+  public String getName(IborIndex index) {
+    if (_forwardIborCurves.containsKey(index)) {
+      return _forwardIborCurves.get(index).getName();
     }
     throw new IllegalArgumentException("Forward curve not found: " + index);
   }
 
   @Override
-  public Set<IndexDeposit> getAllIndexDeposit() {
-    return _forwardCurves.keySet();
+  public Set<IborIndex> getIndexesIbor() {
+    return _forwardIborCurves.keySet();
   }
 
   @Override
-  public double[] parameterSensitivity(IndexDeposit index, List<MarketForwardSensitivity> pointSensitivity) {
-    final YieldAndDiscountCurve curve = _forwardCurves.get(index);
+  public double[] parameterSensitivity(IborIndex index, List<MarketForwardSensitivity> pointSensitivity) {
+    final YieldAndDiscountCurve curve = _forwardIborCurves.get(index);
     final int nbParameters = curve.getNumberOfParameters();
     final double[] result = new double[nbParameters];
     if (pointSensitivity != null && pointSensitivity.size() > 0) {
@@ -210,8 +236,64 @@ public class MarketDiscountBundle implements IMarketBundle {
   }
 
   @Override
-  public int getNumberOfParameters(IndexDeposit index) {
-    return _forwardCurves.get(index).getNumberOfParameters();
+  public int getNumberOfParameters(IborIndex index) {
+    return _forwardIborCurves.get(index).getNumberOfParameters();
+  }
+
+  @Override
+  public double getForwardRate(IndexON index, double startTime, double endTime, double accrualFactor) {
+    if (_forwardONCurves.containsKey(index)) {
+      return (_forwardONCurves.get(index).getDiscountFactor(startTime) / _forwardONCurves.get(index).getDiscountFactor(endTime) - 1) / accrualFactor;
+    }
+    throw new IllegalArgumentException("Forward ON curve not found: " + index);
+  }
+
+  @Override
+  public double getForwardRate(IndexON index, double startTime) {
+    throw new UnsupportedOperationException("The Curve implementation of the Market bundle does not support the forward rate without end time and accrual factor.");
+  }
+
+  @Override
+  public String getName(IndexON index) {
+    if (_forwardONCurves.containsKey(index)) {
+      return _forwardONCurves.get(index).getName();
+    }
+    throw new IllegalArgumentException("Forward curve not found: " + index);
+  }
+
+  @Override
+  public Set<IndexON> getIndexesON() {
+    return _forwardONCurves.keySet();
+  }
+
+  @Override
+  public double[] parameterSensitivity(IndexON index, List<MarketForwardSensitivity> pointSensitivity) {
+    final YieldAndDiscountCurve curve = _forwardONCurves.get(index);
+    final int nbParameters = curve.getNumberOfParameters();
+    final double[] result = new double[nbParameters];
+    if (pointSensitivity != null && pointSensitivity.size() > 0) {
+      for (final MarketForwardSensitivity timeAndS : pointSensitivity) {
+        Triple<Double, Double, Double> point = timeAndS.getPoint();
+        double forwardBar = timeAndS.getValue();
+        // Implementation note: only the sensitivity to the forward is available. The sensitivity to the pseudo-discount factors need to be computed.
+        double dfForwardStart = curve.getDiscountFactor(point.getFirst());
+        double dfForwardEnd = curve.getDiscountFactor(point.getSecond());
+        final double dFwddyStart = -point.getFirst() * dfForwardStart / (dfForwardEnd * point.getThird());
+        final double dFwddyEnd = point.getSecond() * dfForwardStart / (dfForwardEnd * point.getThird());
+        double[] sensiPtStart = curve.getInterestRateParameterSensitivity(point.getFirst());
+        double[] sensiPtEnd = curve.getInterestRateParameterSensitivity(point.getSecond());
+        for (int loopparam = 0; loopparam < nbParameters; loopparam++) {
+          result[loopparam] += dFwddyStart * sensiPtStart[loopparam] * forwardBar;
+          result[loopparam] += dFwddyEnd * sensiPtEnd[loopparam] * forwardBar;
+        }
+      }
+    }
+    return result;
+  }
+
+  @Override
+  public int getNumberOfParameters(IndexON index) {
+    return _forwardONCurves.get(index).getNumberOfParameters();
   }
 
   @Override
@@ -255,9 +337,9 @@ public class MarketDiscountBundle implements IMarketBundle {
    * @param index The Ibor index.
    * @return The curve.
    */
-  public YieldAndDiscountCurve getCurve(IndexDeposit index) {
-    if (_forwardCurves.containsKey(index)) {
-      return _forwardCurves.get(index);
+  public YieldAndDiscountCurve getCurve(IborIndex index) {
+    if (_forwardIborCurves.containsKey(index)) {
+      return _forwardIborCurves.get(index);
     }
     throw new IllegalArgumentException("Forward curve not found: " + index);
   }
@@ -286,36 +368,40 @@ public class MarketDiscountBundle implements IMarketBundle {
     throw new IllegalArgumentException("Issuer curve not found: " + issuerCcy);
   }
 
-  /**
-   * Gets the set of all currencies in the market.
-   * @return The set of currencies.
-   */
-  public Set<Currency> getCurrencies() {
-    return _discountingCurves.keySet();
-  }
-
-  /**
-   * Gets the set of Ibor indexes defined in the market.
-   * @return The set of index.
-   */
-  public Set<IndexDeposit> getIborIndexes() {
-    return _forwardCurves.keySet();
-  }
-
-  /**
-   * Gets the set of price indexes defined in the market.
-   * @return The set of index.
-   */
+  @Override
   public Set<IndexPrice> getPriceIndexes() {
     return _priceIndexCurves.keySet();
   }
 
-  /**
-   * Gets the set of issuer names by currency defined in the market.
-   * @return The set of issuers names/currencies.
-   */
-  public Set<Pair<String, Currency>> getIssuers() {
+  @Override
+  public Set<Pair<String, Currency>> getIssuersCcy() {
     return _issuerCurves.keySet();
+  }
+
+  @Override
+  public Set<String> getAllNames() {
+    Set<String> names = new TreeSet<String>();
+    Set<Currency> ccySet = _discountingCurves.keySet();
+    for (Currency ccy : ccySet) {
+      names.add(_discountingCurves.get(ccy).getName());
+    }
+    Set<IborIndex> indexSet = _forwardIborCurves.keySet();
+    for (IborIndex index : indexSet) {
+      names.add(_forwardIborCurves.get(index).getName());
+    }
+    Set<IndexON> indexONSet = _forwardONCurves.keySet();
+    for (IndexON index : indexONSet) {
+      names.add(_forwardONCurves.get(index).getName());
+    }
+    Set<IndexPrice> priceSet = _priceIndexCurves.keySet();
+    for (IndexPrice price : priceSet) {
+      names.add(_priceIndexCurves.get(price).getName());
+    }
+    Set<Pair<String, Currency>> issuerSet = _issuerCurves.keySet();
+    for (Pair<String, Currency> issuer : issuerSet) {
+      names.add(_issuerCurves.get(issuer).getName());
+    }
+    return names;
   }
 
   /**
@@ -324,8 +410,8 @@ public class MarketDiscountBundle implements IMarketBundle {
    * @param curve The yield curve used for discounting.
    */
   public void setCurve(final Currency ccy, final YieldAndDiscountCurve curve) {
-    Validate.notNull(ccy, "currency");
-    Validate.notNull(curve, "curve");
+    ArgumentChecker.notNull(ccy, "currency");
+    ArgumentChecker.notNull(curve, "curve");
     if (_discountingCurves.containsKey(ccy)) {
       throw new IllegalArgumentException("Currency discounting curve already set: " + ccy.toString());
     }
@@ -337,13 +423,27 @@ public class MarketDiscountBundle implements IMarketBundle {
    * @param index The index.
    * @param curve The curve.
    */
-  public void setCurve(final IndexDeposit index, final YieldAndDiscountCurve curve) {
-    Validate.notNull(index, "index");
-    Validate.notNull(curve, "curve");
-    if (_forwardCurves.containsKey(index)) {
+  public void setCurve(final IborIndex index, final YieldAndDiscountCurve curve) {
+    ArgumentChecker.notNull(index, "index");
+    ArgumentChecker.notNull(curve, "curve");
+    if (_forwardIborCurves.containsKey(index)) {
       throw new IllegalArgumentException("Ibor index forward curve already set: " + index.toString());
     }
-    _forwardCurves.put(index, curve);
+    _forwardIborCurves.put(index, curve);
+  }
+
+  /**
+   * Sets the curve associated to an ON index.
+   * @param index The index.
+   * @param curve The curve.
+   */
+  public void setCurve(final IndexON index, final YieldAndDiscountCurve curve) {
+    ArgumentChecker.notNull(index, "index");
+    ArgumentChecker.notNull(curve, "curve");
+    if (_forwardONCurves.containsKey(index)) {
+      throw new IllegalArgumentException("ON index forward curve already set: " + index.toString());
+    }
+    _forwardONCurves.put(index, curve);
   }
 
   /**
@@ -352,8 +452,8 @@ public class MarketDiscountBundle implements IMarketBundle {
    * @param curve The curve.
    */
   public void setCurve(final IndexPrice index, final PriceIndexCurve curve) {
-    Validate.notNull(index, "index");
-    Validate.notNull(curve, "curve");
+    ArgumentChecker.notNull(index, "index");
+    ArgumentChecker.notNull(curve, "curve");
     if (_priceIndexCurves.containsKey(index)) {
       throw new IllegalArgumentException("Price index curve already set: " + index.toString());
     }
@@ -367,12 +467,26 @@ public class MarketDiscountBundle implements IMarketBundle {
    * @param curve The curve.
    */
   public void setCurve(final String issuer, final Currency ccy, final YieldAndDiscountCurve curve) {
-    Validate.notNull(issuer, "issuer");
-    Validate.notNull(curve, "curve");
+    ArgumentChecker.notNull(issuer, "issuer");
+    ArgumentChecker.notNull(curve, "curve");
     if (_issuerCurves.containsKey(Pair.of(issuer, ccy))) {
       throw new IllegalArgumentException("Issuer curve already set: " + issuer);
     }
     _issuerCurves.put(ObjectsPair.of(issuer, ccy), curve);
+  }
+
+  /**
+   * Set all the curves contains in another bundle. If a currency or index is already present in the map, the associated curve is changed.
+   * @param other The other bundle.
+   * TODO: REVIEW: Should we check that the curve are already present?
+   */
+  public void setAll(MarketDiscountBundle other) {
+    ArgumentChecker.notNull(other, "Market bundle");
+    _discountingCurves.putAll(other._discountingCurves);
+    _forwardIborCurves.putAll(other._forwardIborCurves);
+    _forwardONCurves.putAll(other._forwardONCurves);
+    _priceIndexCurves.putAll(other._priceIndexCurves);
+    _issuerCurves.putAll(other._issuerCurves);
   }
 
   /**
@@ -382,8 +496,8 @@ public class MarketDiscountBundle implements IMarketBundle {
    *  @throws IllegalArgumentException if curve name NOT already present 
    */
   public void replaceCurve(final Currency ccy, final YieldAndDiscountCurve curve) {
-    Validate.notNull(ccy, "Currency");
-    Validate.notNull(curve, "curve");
+    ArgumentChecker.notNull(ccy, "Currency");
+    ArgumentChecker.notNull(curve, "curve");
     if (!_discountingCurves.containsKey(ccy)) {
       throw new IllegalArgumentException("Currency discounting curve not in set: " + ccy);
     }
@@ -396,13 +510,13 @@ public class MarketDiscountBundle implements IMarketBundle {
    * @param curve The yield curve used for forward.
    *  @throws IllegalArgumentException if curve name NOT already present 
    */
-  public void replaceCurve(final IndexDeposit index, final YieldAndDiscountCurve curve) {
-    Validate.notNull(index, "Index");
-    Validate.notNull(curve, "curve");
-    if (!_forwardCurves.containsKey(index)) {
+  public void replaceCurve(final IborIndex index, final YieldAndDiscountCurve curve) {
+    ArgumentChecker.notNull(index, "Index");
+    ArgumentChecker.notNull(curve, "curve");
+    if (!_forwardIborCurves.containsKey(index)) {
       throw new IllegalArgumentException("Forward curve not in set: " + index);
     }
-    _forwardCurves.put(index, curve);
+    _forwardIborCurves.put(index, curve);
   }
 
   /**
@@ -412,8 +526,8 @@ public class MarketDiscountBundle implements IMarketBundle {
    *  @throws IllegalArgumentException if curve name NOT already present 
    */
   public void replaceCurve(final IndexPrice index, final PriceIndexCurve curve) {
-    Validate.notNull(index, "Price index");
-    Validate.notNull(curve, "curve");
+    ArgumentChecker.notNull(index, "Price index");
+    ArgumentChecker.notNull(curve, "curve");
     if (!_priceIndexCurves.containsKey(index)) {
       throw new IllegalArgumentException("Price index curve not in set: " + index);
     }

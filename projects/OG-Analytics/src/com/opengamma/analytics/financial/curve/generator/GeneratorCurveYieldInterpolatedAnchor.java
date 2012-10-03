@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.curve.generator;
 import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.interestrate.market.description.IMarketBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.util.ArgumentChecker;
@@ -52,6 +53,11 @@ public class GeneratorCurveYieldInterpolatedAnchor extends GeneratorYDCurve {
 
   @Override
   public YieldAndDiscountCurve generateCurve(String name, YieldCurveBundle bundle, double[] parameters) {
+    throw new UnsupportedOperationException("Cannot generate curves for a GeneratorCurveYieldInterpolatedAnchor");
+  }
+
+  @Override
+  public YieldAndDiscountCurve generateCurve(String name, IMarketBundle bundle, double[] parameters) {
     throw new UnsupportedOperationException("Cannot generate curves for a GeneratorCurveYieldInterpolatedAnchor");
   }
 

@@ -66,6 +66,14 @@ public class PriceIndexCurve {
   }
 
   /**
+   * Returns the curve name.
+   * @return The name.
+   */
+  public String getName() {
+    return _curve.getName();
+  }
+
+  /**
    * Returns the estimated price index for a given time to index.
    * @param timeToIndex The time 
    * @return The price index.

@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.curve.generator;
 
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.interestrate.market.description.IMarketBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
 /**
@@ -35,6 +36,15 @@ public abstract class GeneratorYDCurve {
    * @return The curve.
    */
   public abstract YieldAndDiscountCurve generateCurve(final String name, final YieldCurveBundle bundle, final double[] parameters);
+
+  /**
+   * Generate a curve using the parameters of a vector and an existing bundle. The existing bundle will be required if the generated curve depends on previous curves.
+   * @param name The curve name.
+   * @param bundle The market bundle of existing curves.
+   * @param parameters The parameters.
+   * @return The curve.
+   */
+  public abstract YieldAndDiscountCurve generateCurve(final String name, final IMarketBundle bundle, final double[] parameters);
 
   /**
    * Some generators require a two stage process. The generator with the general description (like interpolated) and 
