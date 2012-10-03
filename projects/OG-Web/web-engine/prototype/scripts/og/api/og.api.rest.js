@@ -239,7 +239,7 @@ $.register_module({
                 put: function (config) {
                     config = config || {};
                     var root = this.root, method = [root, 'compress'], data = {}, meta;
-                    meta = check({bundle: {method: root + '#get', config: config}, required: [{all_of: ['content']}]});
+                    meta = check({bundle: {method: root + '#put', config: config}, required: [{all_of: ['content']}]});
                     meta.type = 'POST';
                     data.content = JSON.stringify(config.content);
                     return request(method, {data: data, meta: meta});
