@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.common.gadgets.mapping',
     dependencies: [],
     obj: function () {
-        var module = this, mapping, gadget_names = {
+        var mapping, gadget_names = {
             'Curve': 'Curve',
             'Data': 'Data',
             'Depgraph': 'Dependency Graph',
