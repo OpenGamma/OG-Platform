@@ -42,6 +42,10 @@ public final class PeriodFrequency implements Frequency, Serializable {
    */
   public static final PeriodFrequency MONTHLY = new PeriodFrequency(MONTHLY_NAME, Period.ofMonths(1));
   /**
+   * A frequency with a period of twenty eight days.
+   */
+  public static final PeriodFrequency TWENTY_EIGHT_DAYS = new PeriodFrequency(TWENTY_EIGHT_DAYS_NAME, Period.ofDays(28));
+  /**
    * A frequency with a period of two weeks.
    */
   public static final PeriodFrequency BIWEEKLY = new PeriodFrequency(BIWEEKLY_NAME, Period.ofDays(14));

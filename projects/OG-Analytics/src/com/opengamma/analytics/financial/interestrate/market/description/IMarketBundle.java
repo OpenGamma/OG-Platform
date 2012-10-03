@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.interestrate.market.description;
 import java.util.List;
 import java.util.Set;
 
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IndexDeposit;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.util.money.Currency;
@@ -55,6 +56,13 @@ public interface IMarketBundle {
   double[] parameterSensitivity(Currency ccy, List<DoublesPair> pointSensitivity);
 
   /**
+   * Returns the number of parameters associated to a currency.
+   * @param ccy The currency.
+   * @return The number of parameters.
+   */
+  int getNumberOfParameters(Currency ccy);
+
+  /**
    * Gets the forward for one Ibor index between start and end times.
    * @param index The Ibor index.
    * @param startTime The start time.
@@ -94,6 +102,13 @@ public interface IMarketBundle {
   double[] parameterSensitivity(IndexDeposit index, List<MarketForwardSensitivity> pointSensitivity);
 
   /**
+   * Returns the number of parameters associated to an index.
+   * @param index The index.
+   * @return The number of parameters.
+   */
+  int getNumberOfParameters(IndexDeposit index);
+
+  /**
    * Gets the estimated price index for a given reference time.
    * @param index The price index.
    * @param time The reference time.
@@ -115,5 +130,19 @@ public interface IMarketBundle {
    * @return The discount factor.
    */
   double getDiscountFactor(Pair<String, Currency> issuerCcy, Double time);
+
+  /**
+   * Return the exchange rate between two currencies.
+   * @param ccy1 The first currency.
+   * @param ccy2 The second currency.
+   * @return The exchange rate: 1.0 * ccy1 = x * ccy2.
+   */
+  double getFxRate(final Currency ccy1, final Currency ccy2);
+
+  /**
+   * Gets the underlying FXMatrix containing the exchange rates.
+   * @return The matrix.
+   */
+  FXMatrix getFxRates();
 
 }

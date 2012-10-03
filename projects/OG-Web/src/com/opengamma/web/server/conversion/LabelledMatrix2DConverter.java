@@ -18,18 +18,18 @@ import com.opengamma.financial.analytics.LabelledMatrix2D;
 public class LabelledMatrix2DConverter implements ResultConverter<LabelledMatrix2D> {
 
   @Override
-  public Object convertForDisplay(ResultConverterCache context, ValueSpecification valueSpec, LabelledMatrix2D value, ConversionMode mode) {
-    Map<String, Object> result = new HashMap<String, Object>();
-    int rowCount = value.getYKeys().length;
-    int columnCount = value.getXKeys().length;
-    Map<String, Object> summary = new HashMap<String, Object>();
+  public Object convertForDisplay(final ResultConverterCache context, final ValueSpecification valueSpec, final LabelledMatrix2D value, final ConversionMode mode) {
+    final Map<String, Object> result = new HashMap<String, Object>();
+    final int rowCount = value.getYKeys().length;
+    final int columnCount = value.getXKeys().length;
+    final Map<String, Object> summary = new HashMap<String, Object>();
     summary.put("rowCount", rowCount);
     summary.put("colCount", columnCount);
     result.put("summary", summary);
 
     if (mode == ConversionMode.FULL) {
-      String[] xLabels = new String[columnCount];
-      String[] yLabels = new String[rowCount];
+      final String[] xLabels = new String[columnCount];
+      final String[] yLabels = new String[rowCount];
       for (int i = 0; i < xLabels.length; i++) {
         xLabels[i] = value.getXLabels()[i].toString();
       }
@@ -44,12 +44,12 @@ public class LabelledMatrix2DConverter implements ResultConverter<LabelledMatrix
   }
 
   @Override
-  public Object convertForHistory(ResultConverterCache context, ValueSpecification valueSpec, LabelledMatrix2D value) {
+  public Object convertForHistory(final ResultConverterCache context, final ValueSpecification valueSpec, final LabelledMatrix2D value) {
     return null;
   }
 
   @Override
-  public String convertToText(ResultConverterCache context, ValueSpecification valueSpec, LabelledMatrix2D value) {
+  public String convertToText(final ResultConverterCache context, final ValueSpecification valueSpec, final LabelledMatrix2D value) {
     return "Labelled Matrix 2D (" + value.getYKeys().length + " x " + value.getXKeys().length + ")";
   }
 

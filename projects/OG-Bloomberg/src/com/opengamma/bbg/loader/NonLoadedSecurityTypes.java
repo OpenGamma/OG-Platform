@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.bbg.loader;
@@ -25,6 +25,7 @@ public final class NonLoadedSecurityTypes {
   private static final String BLOOMBERG_NDF_SWAP_TYPE = "NDF SWAP";
   private static final String BLOOMBERG_OVERNIGHT_INDEXED_SWAP_TYPE = "OVERNIGHT INDEXED SWAP";
   private static final String BLOOMBERG_SWAP_TYPE = "SWAP";
+  private static final String BLOOMBERG_ONSHORE_SWAP_TYPE = "ONSHORE SWAP";
   /**
    * The valid Bloomberg security types for swaps
    */
@@ -32,7 +33,8 @@ public final class NonLoadedSecurityTypes {
       BLOOMBERG_SWAP_TYPE,
       BLOOMBERG_OVERNIGHT_INDEXED_SWAP_TYPE,
       BLOOMBERG_FWD_SWAP_TYPE,
-      BLOOMBERG_NDF_SWAP_TYPE);
+      BLOOMBERG_NDF_SWAP_TYPE,
+      BLOOMBERG_ONSHORE_SWAP_TYPE);
   /**
    * The valid Bloomberg security types for basis swaps
    */
@@ -66,12 +68,12 @@ public final class NonLoadedSecurityTypes {
   private static final String BLOOMBERG_FX_ONSHORE_FORWARD_TYPE = "ONSHORE FORWARD";
   private static final String BLOOMBERG_FX_NDF = "NON-DELIVERABLE FORWARD";
   private static final String BLOOMBERG_CD = "CD";
-  
+
   /**
    * CDS rates
    */
   private static final String BLOOMBERG_CDS_TYPE = "CREDIT DEFAULT SWAP";
-  
+
   /**
    * The valid Bloomberg security types for spot rates
    */
@@ -112,7 +114,7 @@ public final class NonLoadedSecurityTypes {
    * The valid Bloomberg security types for FX forwards
    */
   public static final Set<String> VALID_FX_FORWARD_TYPES = ImmutableSet.of(BLOOMBERG_FX_FORWARD_TYPE, BLOOMBERG_FX_ONSHORE_FORWARD_TYPE, BLOOMBERG_FX_NDF);
-  
+
   /**
    * The valid Bloomberg security types for CDS
    */

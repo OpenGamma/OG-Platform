@@ -11,7 +11,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 /**
  * Interface for describing and generating curves in curve construction process.
  */
-public abstract class GeneratorCurve {
+public abstract class GeneratorYDCurve {
 
   /**
    * Returns the number of parameters expected to generate the curve.
@@ -43,7 +43,7 @@ public abstract class GeneratorCurve {
    * @param data The additional data.
    * @return The final generator.
    */
-  public GeneratorCurve finalGenerator(Object data) {
+  public GeneratorYDCurve finalGenerator(Object data) {
     return this;
   }
 

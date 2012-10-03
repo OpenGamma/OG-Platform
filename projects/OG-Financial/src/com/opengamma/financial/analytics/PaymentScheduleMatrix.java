@@ -12,6 +12,7 @@ import java.util.TreeMap;
 import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.StringUtils;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
@@ -81,16 +82,21 @@ public class PaymentScheduleMatrix {
   }
 
   public LocalDate[] getDatesAsArray() {
-    return _values.keySet().toArray(new LocalDate[0]);
+    return _values.keySet().toArray(new LocalDate[_values.size()]);
   }
 
-  public CurrencyAmount[][] getCurrencyAmountsAsArray() {
-    final CurrencyAmount[][] matrix = new CurrencyAmount[_values.size()][getMaxCurrencyAmounts()];
+  public String[][] getCurrencyAmountsAsStringArray() {
+    final String[][] matrix = new String[_values.size()][getMaxCurrencyAmounts()];
     int i = 0;
     for (final MultipleCurrencyAmount mca : _values.values()) {
-      final CurrencyAmount[] ca = new CurrencyAmount[getMaxCurrencyAmounts()];
-      System.arraycopy(mca.getCurrencyAmounts(), 0, ca, 0, getMaxCurrencyAmounts());
-      matrix[i] = ca;
+      final CurrencyAmount[] ca = mca.getCurrencyAmounts();
+      for (int j = 0; j < getMaxCurrencyAmounts(); j++) {
+        if (j < mca.size()) {
+          matrix[i][j] = ca.toString();
+        } else {
+          matrix[i][j] = StringUtils.EMPTY;
+        }
+      }
       i++;
     }
     return matrix;

@@ -6,8 +6,10 @@
 package com.opengamma.analytics.financial.credit;
 
 /**
- * Class to calibrate a hazard rate term structure object to market observed par CDS spreads
+ * Enumerate the possible credit rating states for a reference entity (Standard & Poors rating classifications)
  */
-public class CalibrateHazardRateCurve {
+public enum CreditRatingStandandAndPoors {
+
+  // TODO : Add the rating states
 
 }

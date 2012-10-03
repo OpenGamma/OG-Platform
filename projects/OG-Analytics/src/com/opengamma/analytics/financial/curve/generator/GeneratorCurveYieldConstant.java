@@ -14,7 +14,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Store the details and generate the required curve. The curve is constant on the rate (continuously compounded).
  */
-public class GeneratorCurveYieldConstant extends GeneratorCurve {
+public class GeneratorCurveYieldConstant extends GeneratorYDCurve {
 
   @Override
   public int getNumberOfParameter() {

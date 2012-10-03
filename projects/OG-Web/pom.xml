@@ -36,6 +36,8 @@
                 <attachartifact file="${project.build.directory}/web-engine.zip" classifier="web-engine" type="zip" />
                 <zip basedir="web-sharedmasters" destfile="${project.build.directory}/web-sharedmasters.zip" />
                 <attachartifact file="${project.build.directory}/web-sharedmasters.zip" classifier="web-sharedmasters" type="zip" />
+                <zip basedir="web-marketdata" destfile="${project.build.directory}/web-marketdata.zip" />
+                <attachartifact file="${project.build.directory}/web-marketdata.zip" classifier="web-marketdata" type="zip" />
               </target>
             </configuration>
             <goals>

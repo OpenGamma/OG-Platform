@@ -18,12 +18,12 @@ import com.opengamma.util.ArgumentChecker;
  * (operation on the continuously-compounded zero-coupon rates)  produced by the array of generators. 
  * The generated curve is a YieldAndDiscountAddZeroSpreadCurve.
  */
-public class GeneratorCurveAddYield extends GeneratorCurve {
+public class GeneratorCurveAddYield extends GeneratorYDCurve {
 
   /**
    * The array of generators describing the different parts of the spread curve.
    */
-  private final GeneratorCurve[] _generators;
+  private final GeneratorYDCurve[] _generators;
   /**
    * If true, the rate of all curves, except the first one, will be subtracted from the first one. If false, all the rates are added.
    */
@@ -38,7 +38,7 @@ public class GeneratorCurveAddYield extends GeneratorCurve {
    * @param generators The array of constructors for the component curves.
    * @param substract If true, the rate of all curves, except the first one, will be subtracted from the first one. If false, all the rates are added.
    */
-  public GeneratorCurveAddYield(GeneratorCurve[] generators, boolean substract) {
+  public GeneratorCurveAddYield(GeneratorYDCurve[] generators, boolean substract) {
     ArgumentChecker.notNull(generators, "Generators");
     _generators = generators;
     _nbGenerators = generators.length;
@@ -80,10 +80,10 @@ public class GeneratorCurveAddYield extends GeneratorCurve {
    * @return The final generator.
    */
   @Override
-  public GeneratorCurve finalGenerator(Object data) {
+  public GeneratorYDCurve finalGenerator(Object data) {
     ArgumentChecker.isTrue(data instanceof InstrumentDerivative[], "data should be an array of InstrumentDerivative");
     InstrumentDerivative[] instruments = (InstrumentDerivative[]) data;
-    GeneratorCurve[] finalGenerator = new GeneratorCurve[_nbGenerators];
+    GeneratorYDCurve[] finalGenerator = new GeneratorYDCurve[_nbGenerators];
     int nbDataUsed = 0;
     int nbParam = 0;
     for (int loopgen = 0; loopgen < _nbGenerators - 1; loopgen++) {

@@ -16,7 +16,7 @@ import javax.time.calendar.ZonedDateTime;
 import com.opengamma.analytics.financial.curve.building.MultipleYieldCurveFinderGeneratorDataBundle;
 import com.opengamma.analytics.financial.curve.building.MultipleYieldCurveFinderGeneratorFunction;
 import com.opengamma.analytics.financial.curve.building.MultipleYieldCurveFinderGeneratorJacobian;
-import com.opengamma.analytics.financial.curve.generator.GeneratorCurve;
+import com.opengamma.analytics.financial.curve.generator.GeneratorYDCurve;
 import com.opengamma.analytics.financial.curve.generator.GeneratorCurveYieldInterpolatedNode;
 import com.opengamma.analytics.financial.curve.sensitivity.ParameterSensitivityCalculator;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
@@ -316,7 +316,7 @@ public class YieldCurveConstructionGeneratorTwoCurrenciesXCcyData {
       fwd2Node[j++] = MATURITY_CALCULATOR.visit(ird);
     }
 
-    final LinkedHashMap<String, GeneratorCurve> curveGenerators = new LinkedHashMap<String, GeneratorCurve>();
+    final LinkedHashMap<String, GeneratorYDCurve> curveGenerators = new LinkedHashMap<String, GeneratorYDCurve>();
     curveGenerators.put(CURVE_NAME_DSC_1, new GeneratorCurveYieldInterpolatedNode(dsc1Node, INTERPOLATOR));
     curveGenerators.put(CURVE_NAME_FWD_1, new GeneratorCurveYieldInterpolatedNode(fwd1Node, INTERPOLATOR));
     curveGenerators.put(CURVE_NAME_DSC_2, new GeneratorCurveYieldInterpolatedNode(dsc2Node, INTERPOLATOR));
@@ -402,7 +402,7 @@ public class YieldCurveConstructionGeneratorTwoCurrenciesXCcyData {
       initGuess1[i1++] = initialGuess(instrument);
       fwd1Node[j1++] = MATURITY_CALCULATOR.visit(ird);
     }
-    final LinkedHashMap<String, GeneratorCurve> curveGenerators1 = new LinkedHashMap<String, GeneratorCurve>();
+    final LinkedHashMap<String, GeneratorYDCurve> curveGenerators1 = new LinkedHashMap<String, GeneratorYDCurve>();
     curveGenerators1.put(CURVE_NAME_DSC_1, new GeneratorCurveYieldInterpolatedNode(dsc1Node, INTERPOLATOR));
     curveGenerators1.put(CURVE_NAME_FWD_1, new GeneratorCurveYieldInterpolatedNode(fwd1Node, INTERPOLATOR));
     final YieldCurveBundle knowData = new YieldCurveBundle(FX_MATRIX, CCY_MAP);
@@ -455,7 +455,7 @@ public class YieldCurveConstructionGeneratorTwoCurrenciesXCcyData {
       fwd2Node[j2++] = MATURITY_CALCULATOR.visit(ird);
     }
 
-    final LinkedHashMap<String, GeneratorCurve> curveGenerators2 = new LinkedHashMap<String, GeneratorCurve>();
+    final LinkedHashMap<String, GeneratorYDCurve> curveGenerators2 = new LinkedHashMap<String, GeneratorYDCurve>();
     curveGenerators2.put(CURVE_NAME_DSC_2, new GeneratorCurveYieldInterpolatedNode(dsc2Node, INTERPOLATOR));
     curveGenerators2.put(CURVE_NAME_FWD_2, new GeneratorCurveYieldInterpolatedNode(fwd2Node, INTERPOLATOR));
     final MultipleYieldCurveFinderGeneratorDataBundle data2 = new MultipleYieldCurveFinderGeneratorDataBundle(instruments2, bundle1, curveGenerators2);
@@ -469,7 +469,7 @@ public class YieldCurveConstructionGeneratorTwoCurrenciesXCcyData {
     final InstrumentDerivative[] instrumentsT = new InstrumentDerivative[nbDsc1 + nbFwd1 + nbDsc2 + nbFwd2];
     System.arraycopy(instruments1, 0, instrumentsT, 0, nbDsc1 + nbFwd1);
     System.arraycopy(instruments2, 0, instrumentsT, nbDsc1 + nbFwd1, nbDsc2 + nbFwd2);
-    final LinkedHashMap<String, GeneratorCurve> curveGeneratorsT = new LinkedHashMap<String, GeneratorCurve>();
+    final LinkedHashMap<String, GeneratorYDCurve> curveGeneratorsT = new LinkedHashMap<String, GeneratorYDCurve>();
     curveGeneratorsT.put(CURVE_NAME_DSC_1, new GeneratorCurveYieldInterpolatedNode(dsc1Node, INTERPOLATOR));
     curveGeneratorsT.put(CURVE_NAME_FWD_1, new GeneratorCurveYieldInterpolatedNode(fwd1Node, INTERPOLATOR));
     curveGeneratorsT.put(CURVE_NAME_DSC_2, new GeneratorCurveYieldInterpolatedNode(dsc2Node, INTERPOLATOR));

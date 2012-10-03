@@ -19,12 +19,12 @@ import com.opengamma.util.ArgumentChecker;
  * The number of parameter for each curve is imposed.
  * The generated curve is a YieldAndDiscountAddZeroSpreadCurve. 
  */
-public class GeneratorCurveAddYieldNb extends GeneratorCurve {
+public class GeneratorCurveAddYieldNb extends GeneratorYDCurve {
 
   /**
    * The array of generators describing the different parts of the spread curve.
    */
-  private final GeneratorCurve[] _generators;
+  private final GeneratorYDCurve[] _generators;
   /**
    * The number of parameter associated to each generator.
    */
@@ -48,7 +48,7 @@ public class GeneratorCurveAddYieldNb extends GeneratorCurve {
    * @param nbParameters The number of parameter associated to each generator.
    * @param substract If true, the rate of all curves, except the first one, will be subtracted from the first one. If false, all the rates are added.
    */
-  public GeneratorCurveAddYieldNb(GeneratorCurve[] generators, int[] nbParameters, boolean substract) {
+  public GeneratorCurveAddYieldNb(GeneratorYDCurve[] generators, int[] nbParameters, boolean substract) {
     ArgumentChecker.notNull(generators, "Generators");
     _generators = generators;
     ArgumentChecker.isTrue(generators.length == nbParameters.length, "Number of parameters should be the same a number of generatros.");
@@ -96,11 +96,11 @@ public class GeneratorCurveAddYieldNb extends GeneratorCurve {
    * @return The final generator.
    */
   @Override
-  public GeneratorCurve finalGenerator(Object data) {
+  public GeneratorYDCurve finalGenerator(Object data) {
     ArgumentChecker.isTrue(data instanceof InstrumentDerivative[], "data should be an array of InstrumentDerivative");
     InstrumentDerivative[] instruments = (InstrumentDerivative[]) data;
     ArgumentChecker.isTrue(instruments.length == _totalNbParameters, "The data should have the size prescribed by the _nbParameters");
-    GeneratorCurve[] finalGenerator = new GeneratorCurve[_nbGenerators];
+    GeneratorYDCurve[] finalGenerator = new GeneratorYDCurve[_nbGenerators];
     int nbDataUsed = 0;
     InstrumentDerivative[] instruments0 = new InstrumentDerivative[_nbParameters[0]];
     System.arraycopy(instruments, 0, instruments0, 0, _nbParameters[0]);

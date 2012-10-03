@@ -38,11 +38,14 @@ public class PresentValueCreditDefaultSwap {
   // -------------------------------------------------------------------------------------------------
 
   // TODO : Lots of work to do in this file - Work In Progress
-  // TODO : Revisit exactly when a coupon payment falls off the schedule - is it cashflow date - 1d (ssems to be this in the ISDA model)
+
   // TODO : Add a method to calc both the legs in one method (useful for performance reasons e.g. not computing survival probabilities and discount factors twice)
   // TODO : Check the calculation of the accrued premium carefully
-  // TODO : If valuationDate = adjustedMatDate - 1day have to be careful in how the contingent leg integral is calculated
-  // TODO : Check the time decay of the premium leg - are the coupons dropping off on the right day
+  // TODO : If valuationDate = adjustedMatDate - 1day have to be more careful in how the contingent leg integral is calculated
+  // TODO : Replace the contingent leg calculation with a faster approximation
+  // TODO : Fix the bug when val date is very close to mat date
+  // TODO : Fix the bug in the contingent leg calc (the difference from the ISDA calc is in the survival probabilities)
+  // TODO : Revisit calculation of where in the sequence of cashflows valuationDate is (check that it is correct)
 
   // -------------------------------------------------------------------------------------------------
 
@@ -98,7 +101,7 @@ public class PresentValueCreditDefaultSwap {
     // Construct a cashflow schedule object
     final GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
 
-    // Check if the valuationDate equals the adjusted effective date
+    // Check if the valuationDate equals the adjusted effective date (have to do this after the schedule is constructed)
     ArgumentChecker.isTrue(cds.getValuationDate().equals(cashflowSchedule.getAdjustedEffectiveDate(cds)), "Valuation Date should equal the adjusted effective date when computing par spreads");
 
     // -------------------------------------------------------------
@@ -126,7 +129,7 @@ public class PresentValueCreditDefaultSwap {
   // -------------------------------------------------------------------------------------------------
 
   // Method (private) to calculate the value of the premium leg of a CDS (with a survival curve calibrated to market observed data)
-  private double calculatePremiumLeg(CreditDefaultSwapDefinition cds, /*ZonedDateTime[][] cashflowSchedule, */YieldCurve yieldCurve, SurvivalCurve survivalCurve) {
+  private double calculatePremiumLeg(CreditDefaultSwapDefinition cds, YieldCurve yieldCurve, SurvivalCurve survivalCurve) {
 
     // -------------------------------------------------------------
 
@@ -174,13 +177,17 @@ public class PresentValueCreditDefaultSwap {
 
     // -------------------------------------------------------------
 
-    // If the valuationDate is after the adjusted maturity date then throw an exception
+    // If the valuationDate is after the adjusted maturity date then throw an exception (differs from check in ctor because of the adjusted maturity date)
     ArgumentChecker.isTrue(!valuationDate.isAfter(adjustedMaturityDate), "Valuation date {} must be on or before the adjusted maturity date {}", valuationDate, adjustedMaturityDate);
 
+    // If the valuation date is exactly the adjusted maturity date then simply return zero
+    if (valuationDate.equals(adjustedMaturityDate)) {
+      return 0.0;
+    }
     // -------------------------------------------------------------
 
-    // Determine where in the cashflow schedule the valuationDate is (if valuationDate = a coupon date - 1d, this coupon is not included in the remaining coupons)
-    while (valuationDate.isAfter(premiumLegSchedule[counter][0])) {
+    // Determine where in the cashflow schedule the valuationDate is
+    while (!valuationDate.isBefore(premiumLegSchedule[counter][0].minusDays(1))) {
       counter++;
     }
 
@@ -203,7 +210,7 @@ public class PresentValueCreditDefaultSwap {
 
       // If required, calculate the accrued premium contribution to the overall premium leg
       if (includeAccruedPremium) {
-        double tPrevious = TimeCalculator.getTimeBetween(valuationDate, premiumLegSchedule[i - 1][0]);
+        double tPrevious = TimeCalculator.getTimeBetween(valuationDate, premiumLegSchedule[i - 1][0], dayCount);
         double survivalProbabilityPrevious = survivalCurve.getSurvivalProbability(tPrevious);
 
         presentValueAccruedPremium += 0.5 * dcf * discountFactor * (survivalProbabilityPrevious - survivalProbability);
@@ -214,6 +221,8 @@ public class PresentValueCreditDefaultSwap {
 
     // Check these calcs carefully - not right yet
 
+    /*
+    // Calculate the additional accrued premiums when we are not standing on a coupon payment date
     if (includeAccruedPremium) {
 
       // Calculate the time of the last premium payment prior to valuationDate (check this)
@@ -230,6 +239,7 @@ public class PresentValueCreditDefaultSwap {
       deltaAccrual = dcf * discountFactor * (1 - survivalProbability);
 
     }
+     */
 
     // -------------------------------------------------------------
 
@@ -248,14 +258,21 @@ public class PresentValueCreditDefaultSwap {
     // Construct a schedule generation object (to access the adjusted maturity date method)
     GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
 
-    // Calculate the protection leg integral between the valuationDate (when protection begins) and adjustedMaturityDate (when protection ends)
+    // Get the date when protection begins
     ZonedDateTime valuationDate = cds.getValuationDate();
+
+    // Get the date when protection ends
     ZonedDateTime adjustedMaturityDate = cashflowSchedule.getAdjustedMaturityDate(cds);
 
     // -------------------------------------------------------------
 
-    // If the valuationDate is after the adjusted maturity date then throw an exception
+    // If the valuationDate is after the adjusted maturity date then throw an exception (differs from check in ctor because of the adjusted maturity date)
     ArgumentChecker.isTrue(!valuationDate.isAfter(adjustedMaturityDate), "Valuation date {} must be on or before the adjusted maturity date {}", valuationDate, adjustedMaturityDate);
+
+    // If the valuation date is exactly the adjusted maturity date then simply return zero
+    if (valuationDate.equals(adjustedMaturityDate)) {
+      return 0.0;
+    }
 
     // -------------------------------------------------------------
 
@@ -263,20 +280,27 @@ public class PresentValueCreditDefaultSwap {
 
     // -------------------------------------------------------------
 
-    // Calculate the discretisation interval for the time axis
+    // Calculate the partition of the time axis for the calculation of the integral in the contingent leg
+
+    // The period of time for which protection is provided
     double protectionPeriod = TimeCalculator.getTimeBetween(valuationDate, adjustedMaturityDate, cds.getDayCountFractionConvention());
+
+    // Given the protection period, how many partitions should it be divided into
     int numberOfPartitions = (int) (_numberOfIntegrationSteps * protectionPeriod + 0.5);
+
+    // The size of the time increments in the calculation of the integral
     double epsilon = protectionPeriod / numberOfPartitions;
 
     // -------------------------------------------------------------
 
-    // Calculate the integral for the contingent leg
+    // Calculate the integral for the contingent leg (note the limits of the loop)
     for (int k = 1; k <= numberOfPartitions; k++) {
 
       double t = k * epsilon;
       double tPrevious = (k - 1) * epsilon;
 
       double discountFactor = yieldCurve.getDiscountFactor(t);
+
       double survivalProbability = survivalCurve.getSurvivalProbability(t);
       double survivalProbabilityPrevious = survivalCurve.getSurvivalProbability(tPrevious);
 
