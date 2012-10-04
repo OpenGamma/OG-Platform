@@ -141,7 +141,13 @@ $.register_module({
                         var $load = $(selector + ' .og-load');
                         if ((ui && ui.item && ui.item.value || $(this).val()) !== '') {
                             $load.removeClass('og-disabled').on('click', function () {
-                                status.play();
+                                og.analytics.url.main({
+                                    type: 'portfolio',
+                                    depgraph: false,
+                                    viewdefinition: ui.item.value,
+                                    providers: [{'marketDataType': 'live', 'source': 'Bloomberg'}]
+                                });
+//                                status.play();
                             });
                         }
                         else $load.addClass('og-disabled').off('click');
