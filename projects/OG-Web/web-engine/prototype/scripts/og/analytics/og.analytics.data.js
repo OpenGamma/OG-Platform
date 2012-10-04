@@ -20,7 +20,7 @@ $.register_module({
                 if (result.data.version === viewport_version) fire(data.events.data, result.data.data);
             };
             var data_setup = function () {
-                if (!viewport) return;
+                if (!view_id || !viewport) return;
                 var viewports = (depgraph ? api[grid_type].depgraphs : api[grid_type]).viewports;
                 subscribed = true;
                 (viewport_id ? viewports.get({
@@ -57,6 +57,7 @@ $.register_module({
                 if (!subscribed) return data_setup();
             };
             var grid_setup = function () {
+                if (!view_id) return;
                 return depgraph ?
                     api[grid_type].grid.get({view_id: view_id, update: initialize}).pipe(function (result) {
                         if (result.error || !result.data[SETS].length) return; // goes to grid_handler so take care

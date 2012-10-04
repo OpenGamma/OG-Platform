@@ -19,10 +19,13 @@ $.register_module({
                 $(config.selector).addClass(alive).css(css_position);
                 gadget.dataman = new og.analytics.Cell({source: config.source, col: config.col, row: config.row})
                     .on('data', function (data) {
-                        if (data) {
+                        if (data && data.length) {
                             if (!instantiated)
                                 $data_grid = (instantiated = true) && $(config.selector).ogdata({data: data});
                             else gadget.update({data: data});
+                        } else {
+                            $(config.selector).html('Bad data!');
+                            gadget.die();
                         }
                     });
             };
@@ -33,7 +36,7 @@ $.register_module({
             gadget.update = function (input) {$data_grid.update(input);};
             gadget.load();
             gadget.resize = function () {
-                $data_grid.resize();
+                try {$data_grid.resize();} catch (error) {};
             }
             if (!config.child) og.common.gadgets.manager.register(gadget);
         };

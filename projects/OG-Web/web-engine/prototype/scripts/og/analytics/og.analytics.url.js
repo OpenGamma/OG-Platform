@@ -10,7 +10,6 @@ $.register_module({
             panels = ['south', 'dock-north', 'dock-center', 'dock-south'];
         var go = function () {
             og.api.rest.compressor.put({content: last_object, dependencies: ['data']}).pipe(function (result) {
-                console.log('GOING');
                 routes.go(routes.hash(og.views.analytics2.rules.load_item, {data: result.data.data}));
             });
         };
