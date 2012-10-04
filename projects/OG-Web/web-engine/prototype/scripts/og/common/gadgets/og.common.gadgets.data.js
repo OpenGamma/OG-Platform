@@ -30,7 +30,7 @@ $.register_module({
                 try {gadget.dataman.kill();} catch (error) {}
             };
             gadget.update = function (input) {$data_grid.update(input);};
-            gadget.resize = function () {try {$data_grid.resize();} catch (error) {};};
+            gadget.resize = function () {try {$data_grid.resize();} catch (error) {}};
             gadget.load();
             if (!config.child) og.common.gadgets.manager.register(gadget);
         };
