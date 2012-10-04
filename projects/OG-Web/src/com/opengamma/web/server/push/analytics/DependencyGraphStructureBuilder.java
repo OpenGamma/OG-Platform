@@ -51,6 +51,12 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
                                                 String calcConfigName,
                                                 ComputationTargetResolver targetResolver) {
     // TODO see [PLAT-2478] this is a bit nasty but will work as long as the engine and web are running in the same VM
+    // with this hack in place the user can open a dependency graph before the first set of results arrives
+    // and see the graph structure with no values. without this hack the graph would be completely empty.
+    // it might be better to try to get the dep graph from the view cycle (which is the only non-hacky way to get it
+    // ATM) and only fall back on the hack if that fails. at least that way the dep graphs would mostly work if the
+    // engine and web back-end are deployed in different VMs. you'd only see a problem if the user opens a dep graph
+    // before the first set of results arrives
     if (!(compiledViewDef instanceof CompiledViewDefinitionWithGraphs)) {
       s_logger.warn("Compiled view definition is not an instance of CompiledViewDefinitionWithGraphs, class={}." +
                         " Dependency graphs not supported");
