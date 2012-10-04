@@ -44,6 +44,7 @@ public class CreditDefaultSwapDefinition {
   // TODO : Make sure the 'equals' method has all the necessary fields
   // TODO : Replace the curveRecoveryRate and valuationRecoveryRate member variables with a single recoveryRate variable
   // TODO : Add the Moodys, S&P and Fitch credit rating states?
+  // TODO : Split off the obligor information into a seperate 'Obligor' class
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 

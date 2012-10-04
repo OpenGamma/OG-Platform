@@ -18,7 +18,7 @@ public class IMMDates {
   // ------------------------------------------------------------------------
 
   // TODO : Remove the previous December date (not needed because we always adjust to the following IMM date)
-  // TODO : Is there a better (more elegant) way of doing this?
+  // TODO : Eventually will replace this with methods based on the DateAdjuster class
 
   // ------------------------------------------------------------------------
 

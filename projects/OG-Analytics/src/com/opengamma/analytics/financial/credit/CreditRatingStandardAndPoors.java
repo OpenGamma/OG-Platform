@@ -6,9 +6,9 @@
 package com.opengamma.analytics.financial.credit;
 
 /**
- * Enumerate the possible credit rating states for a reference entity (Moodys rating classifications)
+ * Enumerate the possible credit rating states for a reference entity (Standard & Poors rating classifications)
  */
-public enum CreditRatingMoodys {
+public enum CreditRatingStandardAndPoors {
   /**
    * 
    */
