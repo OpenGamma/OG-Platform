@@ -6,7 +6,6 @@
 package com.opengamma.engine.view;
 
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.util.ArgumentChecker;
 
 /**
