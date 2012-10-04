@@ -11,7 +11,11 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.CreditRating;
+import com.opengamma.analytics.financial.credit.CreditRatingFitch;
+import com.opengamma.analytics.financial.credit.CreditRatingMoodys;
+import com.opengamma.analytics.financial.credit.CreditRatingStandardAndPoors;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
+import com.opengamma.analytics.financial.credit.Obligor;
 import com.opengamma.analytics.financial.credit.Region;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.Sector;
@@ -42,30 +46,62 @@ public class CreditDefaultSwapDefinitionTest {
 
   private static final BuySellProtection buySellProtection = BuySellProtection.BUY;
 
-  private static final String protectionBuyer = "ABC";
-  private static final String protectionSeller = "XYZ";
-  private static final String referenceEntityTicker = "MSFT";
-  private static final String referenceEntityShortName = "Microsoft";
-  private static final String referenceEntityREDCode = "ABC123";
+  private static final String protectionBuyerTicker = "MSFT";
+  private static final String protectionBuyerShortName = "Microsoft";
+  private static final String protectionBuyerREDCode = "ABC123";
+
+  private static final String protectionSellerTicker = "IBM";
+  private static final String protectionSellerShortName = "International Business Machines";
+  private static final String protectionSellerREDCode = "XYZ321";
+
+  private static final String referenceEntityTicker = "BT";
+  private static final String referenceEntityShortName = "British telecom";
+  private static final String referenceEntityREDCode = "123ABC";
+
+  private static final CreditRating protectionBuyerCompositeRating = CreditRating.AA;
+  private static final CreditRating protectionBuyerImpliedRating = CreditRating.A;
+
+  private static final CreditRating protectionSellerCompositeRating = CreditRating.AA;
+  private static final CreditRating protectionSellerImpliedRating = CreditRating.A;
+
+  private static final CreditRating referenceEntityCompositeRating = CreditRating.AA;
+  private static final CreditRating referenceEntityImpliedRating = CreditRating.A;
+
+  private static final CreditRatingMoodys protectionBuyerCreditRatingMoodys = CreditRatingMoodys.AA;
+  private static final CreditRatingStandardAndPoors protectionBuyerCreditRatingStandardAndPoors = CreditRatingStandardAndPoors.A;
+  private static final CreditRatingFitch protectionBuyerCreditRatingFitch = CreditRatingFitch.AA;
+
+  private static final CreditRatingMoodys protectionSellerCreditRatingMoodys = CreditRatingMoodys.AA;
+  private static final CreditRatingStandardAndPoors protectionSellerCreditRatingStandardAndPoors = CreditRatingStandardAndPoors.A;
+  private static final CreditRatingFitch protectionSellerCreditRatingFitch = CreditRatingFitch.AA;
+
+  private static final CreditRatingMoodys referenceEntityCreditRatingMoodys = CreditRatingMoodys.AA;
+  private static final CreditRatingStandardAndPoors referenceEntityCreditRatingStandardAndPoors = CreditRatingStandardAndPoors.A;
+  private static final CreditRatingFitch referenceEntityCreditRatingFitch = CreditRatingFitch.AA;
+
+  private static final Sector protectionBuyerSector = Sector.INDUSTRIALS;
+  private static final Region protectionBuyerRegion = Region.NORTHAMERICA;
+  private static final String protectionBuyerCountry = "United States";
+
+  private static final Sector protectionSellerSector = Sector.INDUSTRIALS;
+  private static final Region protectionSellerRegion = Region.NORTHAMERICA;
+  private static final String protectionSellerCountry = "United States";
+
+  private static final Sector referenceEntitySector = Sector.INDUSTRIALS;
+  private static final Region referenceEntityRegion = Region.EUROPE;
+  private static final String referenceEntityCountry = "United Kingdom";
 
   private static final Currency currency = Currency.USD;
 
   private static final DebtSeniority debtSeniority = DebtSeniority.SENIOR;
   private static final RestructuringClause restructuringClause = RestructuringClause.NORE;
 
-  private static final CreditRating compositeRating = CreditRating.AA;
-  private static final CreditRating impliedRating = CreditRating.A;
-
-  private static final Sector sector = Sector.INDUSTRIALS;
-  private static final Region region = Region.NORTHAMERICA;
-  private static final String country = "United States";
-
   private static final Calendar calendar = new MyCalendar();
 
   private static final ZonedDateTime startDate = DateUtils.getUTCDate(2007, 10, 22);
   private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2007, 10, 23);
   private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2012, 12, 20);
-  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2008, 10, 22);
+  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2007, 10, 23);
 
   private static final StubType stubType = StubType.FRONTSHORT;
   private static final PeriodFrequency couponFrequency = PeriodFrequency.QUARTERLY;
@@ -77,465 +113,299 @@ public class CreditDefaultSwapDefinitionTest {
   private static final boolean adjustMaturityDate = true;
 
   private static final double notional = 10000000.0;
-  private static final double premiumLegCoupon = 60.0;
+  private static final double premiumLegCoupon = 100.0;
   private static final double recoveryRate = 0.40;
-  private static final boolean includeAccruedPremium = true;
+  private static final boolean includeAccruedPremium = false;
+
+  // --------------------------------------------------------------------------------------------------------------------------------------------------
+
+  private static final Obligor protectionBuyer = new Obligor(
+      protectionBuyerTicker,
+      protectionBuyerShortName,
+      protectionBuyerREDCode,
+      protectionBuyerCompositeRating,
+      protectionBuyerImpliedRating,
+      protectionBuyerCreditRatingMoodys,
+      protectionBuyerCreditRatingStandardAndPoors,
+      protectionBuyerCreditRatingFitch,
+      protectionBuyerSector,
+      protectionBuyerRegion,
+      protectionBuyerCountry);
+
+  private static final Obligor protectionSeller = new Obligor(
+      protectionSellerTicker,
+      protectionSellerShortName,
+      protectionSellerREDCode,
+      protectionSellerCompositeRating,
+      protectionSellerImpliedRating,
+      protectionSellerCreditRatingMoodys,
+      protectionSellerCreditRatingStandardAndPoors,
+      protectionSellerCreditRatingFitch,
+      protectionSellerSector,
+      protectionSellerRegion,
+      protectionSellerCountry);
+
+  private static final Obligor referenceEntity = new Obligor(
+      referenceEntityTicker,
+      referenceEntityShortName,
+      referenceEntityREDCode,
+      referenceEntityCompositeRating,
+      referenceEntityImpliedRating,
+      referenceEntityCreditRatingMoodys,
+      referenceEntityCreditRatingStandardAndPoors,
+      referenceEntityCreditRatingFitch,
+      referenceEntitySector,
+      referenceEntityRegion,
+      referenceEntityCountry);
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullBuySellField() {
-    new CreditDefaultSwapDefinition(null, protectionBuyer, protectionSeller, referenceEntityTicker, referenceEntityShortName, referenceEntityREDCode,
-        currency, debtSeniority, restructuringClause, compositeRating, impliedRating, sector, region, country, calendar, startDate, effectiveDate,
-        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional,
-        premiumLegCoupon,
-        recoveryRate, includeAccruedPremium);
-  }
+  public void testNullBuySellProtectionField() {
 
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullProtectionBuyer() {
-    new CreditDefaultSwapDefinition(buySellProtection, null, protectionSeller, referenceEntityTicker,
-        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
-        stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, premiumLegCoupon,
-        recoveryRate,
-        includeAccruedPremium);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testEmptyProtectionBuyer() {
-    new CreditDefaultSwapDefinition(buySellProtection, "", protectionSeller, referenceEntityTicker,
-        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
-        stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, premiumLegCoupon,
-        recoveryRate,
-        includeAccruedPremium);
-  }
-
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullProtectionSeller() {
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, null, referenceEntityTicker,
-        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
-        stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, premiumLegCoupon,
-        recoveryRate,
-        includeAccruedPremium);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testEmptyProtectionSeller() {
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, "", referenceEntityTicker,
-        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
-        stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, premiumLegCoupon,
-        recoveryRate,
-        includeAccruedPremium);
+    new CreditDefaultSwapDefinition(null, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
+        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullReferenceEntityTicker() {
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, null,
-        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
-        stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, premiumLegCoupon,
-        recoveryRate,
-        includeAccruedPremium);
-  }
+  public void testNullProtectionBuyerField() {
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testEmptyReferenceEntityTicker() {
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, "",
-        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
-        stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, premiumLegCoupon,
-        recoveryRate,
-        includeAccruedPremium);
+    new CreditDefaultSwapDefinition(buySellProtection, null, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
+        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullReferenceEntityShortName() {
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
-        null, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
-        stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, premiumLegCoupon,
-        recoveryRate,
-        includeAccruedPremium);
-  }
+  public void testNullProtectionSellerField() {
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testEmptyReferenceEntityShortName() {
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
-        "", referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
-        stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, premiumLegCoupon,
-        recoveryRate,
-        includeAccruedPremium);
+    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, null, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
+        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullReferenceEntityREDCode() {
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
-        referenceEntityShortName, null, currency, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
-        stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, premiumLegCoupon,
-        recoveryRate,
-        includeAccruedPremium);
-  }
+  public void testNullReferenceEntityField() {
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testEmptyReferenceEntityREDCode() {
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
-        referenceEntityShortName, "", currency, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
-        stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, premiumLegCoupon,
-        recoveryRate,
-        includeAccruedPremium);
+    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, null, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
+        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullCurrency() {
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
-        referenceEntityShortName, referenceEntityREDCode, null, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
-        stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, premiumLegCoupon,
-        recoveryRate,
-        includeAccruedPremium);
+  public void testNullCurrencyField() {
+
+    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, null, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
+        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullDebtSeniority() {
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
-        referenceEntityShortName, referenceEntityREDCode, currency, null, restructuringClause, compositeRating,
-        impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
-        stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, premiumLegCoupon,
-        recoveryRate,
-        includeAccruedPremium);
+  public void testNullDebtSeniorityField() {
+
+    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, null, restructuringClause, calendar, startDate, effectiveDate,
+        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullRestructuringClause() {
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
-        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, null, compositeRating,
-        impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
-        stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, premiumLegCoupon,
-        recoveryRate,
-        includeAccruedPremium);
+  public void testNullRestructuringClauseField() {
+
+    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, null, calendar, startDate, effectiveDate,
+        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullCompositeRating() {
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
-        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, null,
-        impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
-        stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, premiumLegCoupon,
-        recoveryRate,
-        includeAccruedPremium);
+  public void testNullCalendarField() {
+
+    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, null, startDate, effectiveDate,
+        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullImpliedRating() {
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
-        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
-        null, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
-        stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, premiumLegCoupon,
-        recoveryRate,
-        includeAccruedPremium);
+  public void testNullStartDateField() {
+
+    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, null, effectiveDate,
+        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullSector() {
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
-        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, null, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
-        stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, premiumLegCoupon,
-        recoveryRate,
-        includeAccruedPremium);
+  public void testNullEffectiveDateField() {
+
+    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, null,
+        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullRegion() {
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
-        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, sector, null, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
-        stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, premiumLegCoupon,
-        recoveryRate,
-        includeAccruedPremium);
+  public void testNullMaturityDateField() {
+
+    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
+        null, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullCountry() {
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
-        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, sector, region, null, calendar, startDate, effectiveDate, maturityDate, valuationDate,
-        stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, premiumLegCoupon,
-        recoveryRate,
-        includeAccruedPremium);
+  public void testNullValuationDateField() {
+
+    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
+        maturityDate, null, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testEmptyCountry() {
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
-        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, sector, region, "", calendar, startDate, effectiveDate, maturityDate, valuationDate,
-        stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, premiumLegCoupon,
-        recoveryRate,
-        includeAccruedPremium);
+  public void testNullStubTypeField() {
+
+    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
+        maturityDate, valuationDate, null, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullCalendar() {
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
-        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, sector, region, country, null, startDate, effectiveDate, maturityDate, valuationDate,
-        stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, premiumLegCoupon,
-        recoveryRate,
-        includeAccruedPremium);
+  public void testNullCouponFrequencyField() {
+
+    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
+        maturityDate, valuationDate, stubType, null, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullStartDate() {
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
-        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, sector, region, country, calendar, null, effectiveDate, maturityDate, valuationDate,
-        stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, premiumLegCoupon,
-        recoveryRate,
-        includeAccruedPremium);
+  public void testNullDayCountFractionConventionField() {
+
+    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
+        maturityDate, valuationDate, stubType, couponFrequency, null, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullEffectiveDate() {
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
-        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, sector, region, country, calendar, startDate, null, maturityDate, valuationDate,
-        stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, premiumLegCoupon,
-        recoveryRate,
-        includeAccruedPremium);
+  public void testNullBusinessDayAdjustmentConventionField() {
+
+    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
+        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, null, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullMaturityDate() {
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
-        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, sector, region, country, calendar, startDate, effectiveDate, null, valuationDate,
-        stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, premiumLegCoupon,
-        recoveryRate,
-        includeAccruedPremium);
+  public void testNotionalIsPositive() {
+
+    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
+        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, -notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullValuationDate() {
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
-        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, null,
-        stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, premiumLegCoupon,
-        recoveryRate,
-        includeAccruedPremium);
+  public void testPremiumLegCouponIsPositive() {
+
+    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
+        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, -premiumLegCoupon, recoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testStartDateBeforeValuationDate() {
+  public void testRecoveryRateIsPositive() {
+
+    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
+        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, premiumLegCoupon, -recoveryRate, includeAccruedPremium);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testRecoveryRateIsLessThanUnity() {
+
+    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
+        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, premiumLegCoupon, 1.0 + recoveryRate, includeAccruedPremium);
+  }
+
+  // --------------------------------------------------------------------------------------------------------------------------------------------------
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStartDateIsBeforeValuationDate() {
 
     final ZonedDateTime testValuationDate = startDate.minusDays(1);
 
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
-        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, testValuationDate,
-        stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, premiumLegCoupon,
-        recoveryRate,
-        includeAccruedPremium);
+    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
+        maturityDate, testValuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
   }
 
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
-
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testStartDateBeforeEffectiveDate() {
+  public void testStartDateIsBeforeEffectiveDate() {
 
     final ZonedDateTime testEffectiveDate = startDate.minusDays(1);
 
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
-        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, sector, region, country, calendar, startDate, testEffectiveDate, maturityDate, valuationDate,
-        stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, premiumLegCoupon,
-        recoveryRate,
-        includeAccruedPremium);
+    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, testEffectiveDate,
+        maturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
   }
 
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
-
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testStartDateBeforeMaturityDate() {
+  public void testStartDateIsBeforeMaturityDate() {
 
     final ZonedDateTime testMaturityDate = startDate.minusDays(1);
 
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
-        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, sector, region, country, calendar, startDate, effectiveDate, testMaturityDate, valuationDate,
-        stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, premiumLegCoupon,
-        recoveryRate,
-        includeAccruedPremium);
+    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
+        testMaturityDate, valuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
   }
 
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
-
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testValuationDateBeforeMaturityDate() {
+  public void testValuationDateIsBeforeMaturityDate() {
 
-    final ZonedDateTime testValuationDate = maturityDate.minusDays(-1);
+    final ZonedDateTime testValuationDate = maturityDate.plusDays(1);
 
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
-        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, testValuationDate,
-        stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, premiumLegCoupon,
-        recoveryRate,
-        includeAccruedPremium);
+    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
+        maturityDate, testValuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
   }
 
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
-
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testValuationDateAfterEffectiveDate() {
+  public void testValuationDateIsAfterEffectiveDate() {
 
     final ZonedDateTime testValuationDate = effectiveDate.minusDays(1);
 
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
-        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, testValuationDate,
-        stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, premiumLegCoupon,
-        recoveryRate,
-        includeAccruedPremium);
-  }
-
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullstubType() {
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
-        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
-        null, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, premiumLegCoupon,
-        recoveryRate,
-        includeAccruedPremium);
-  }
-
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullCouponFrequency() {
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
-        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
-        stubType, null, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, premiumLegCoupon, recoveryRate,
-        includeAccruedPremium);
-  }
-
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullDaycountFractionConvention() {
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
-        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
-        stubType, couponFrequency, null, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, premiumLegCoupon, recoveryRate,
-        includeAccruedPremium);
-  }
-
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullBusinessdayAdjustmentConvention() {
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
-        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
-        stubType, couponFrequency, daycountFractionConvention, null, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, premiumLegCoupon, recoveryRate,
-        includeAccruedPremium);
-  }
-
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testPositiveNotional() {
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
-        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
-        stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, -notional, premiumLegCoupon,
-        recoveryRate,
-        includeAccruedPremium);
-  }
-
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testPositivePremiumLegCoupon() {
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
-        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
-        stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, -premiumLegCoupon,
-        recoveryRate,
-        includeAccruedPremium);
-  }
-
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testValuationRecoveryRateGreaterThanZero() {
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
-        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
-        stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, premiumLegCoupon,
-        -recoveryRate,
-        includeAccruedPremium);
-  }
-
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testValuationRecoveryRateLessThanOne() {
-    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntityTicker,
-        referenceEntityShortName, referenceEntityREDCode, currency, debtSeniority, restructuringClause, compositeRating,
-        impliedRating, sector, region, country, calendar, startDate, effectiveDate, maturityDate, valuationDate,
-        stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, premiumLegCoupon,
-        1.1 + recoveryRate,
-        includeAccruedPremium);
+    new CreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate,
+        maturityDate, testValuationDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate,
+        adjustMaturityDate, notional, premiumLegCoupon, recoveryRate, includeAccruedPremium);
   }
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------

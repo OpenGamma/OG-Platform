@@ -10,11 +10,9 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
-import com.opengamma.analytics.financial.credit.CreditRating;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
-import com.opengamma.analytics.financial.credit.Region;
+import com.opengamma.analytics.financial.credit.Obligor;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
-import com.opengamma.analytics.financial.credit.Sector;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -44,6 +42,7 @@ public class CreditDefaultSwapDefinition {
   // TODO : Make sure the 'equals' method has all the necessary fields and the hashCode method is correct
   // TODO : Add the Moodys, S&P and Fitch credit rating states?
   // TODO : Split off the obligor information into a seperate 'Obligor' class
+  // TODO : Check that buyer is not equal to the seller etc
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -52,13 +51,17 @@ public class CreditDefaultSwapDefinition {
   // From the users perspective, are we buying or selling protection
   private final BuySellProtection _buySellProtection;
 
-  // Identifiers for the (three) counterparties in the trade
-  private final String _protectionBuyer;
-  private final String _protectionSeller;
+  private final Obligor _protectionBuyer;
+  private final Obligor _protectionSeller;
+  private final Obligor _referenceEntity;
 
-  private final String _referenceEntityTicker;
-  private final String _referenceEntityShortName;
-  private final String _referenceEntityREDCode;
+  // Identifiers for the (three) counterparties in the trade
+  //private final String _protectionBuyer;
+  //private final String _protectionSeller;
+
+  //private final String _referenceEntityTicker;
+  //private final String _referenceEntityShortName;
+  //private final String _referenceEntityREDCode;
 
   // The currency the trade is executed in e.g. USD
   private final Currency _currency;
@@ -70,19 +73,19 @@ public class CreditDefaultSwapDefinition {
   private final RestructuringClause _restructuringClause;
 
   // The composite credit (curve) rating of the reference entity (MarkIt field)
-  private final CreditRating _compositeRating;
+  //private final CreditRating _compositeRating;
 
   // The implied credit rating of the reference entity (MarkIt field)
-  private final CreditRating _impliedRating;
+  //private final CreditRating _impliedRating;
 
   // The industrial classification of the reference entity
-  private final Sector _sector;
+  //private final Sector _sector;
 
   // The geographical domicile of the reference entity
-  private final Region _region;
+  //private final Region _region;
 
   // The country of domicile of the reference entity
-  private final String _country;
+  //private final String _country;
 
   // Holiday calendar for the determination of adjusted business days in the cashflow schedule
   private final Calendar _calendar;
@@ -141,19 +144,22 @@ public class CreditDefaultSwapDefinition {
 
   public CreditDefaultSwapDefinition(
       BuySellProtection buySellProtection,
-      String protectionBuyer,
-      String protectionSeller,
-      String referenceEntityTicker,
-      String referenceEntityShortName,
-      String referenceEntityREDCode,
+      Obligor protectionBuyer,
+      Obligor protectionSeller,
+      Obligor referenceEntity,
+      //String protectionBuyer,
+      //String protectionSeller,
+      //String referenceEntityTicker,
+      //String referenceEntityShortName,
+      //String referenceEntityREDCode,
       Currency currency,
       DebtSeniority debtSeniority,
       RestructuringClause restructuringClause,
-      CreditRating compositeRating,
-      CreditRating impliedRating,
-      Sector sector,
-      Region region,
-      String country,
+      //CreditRating compositeRating,
+      //CreditRating impliedRating,
+      //Sector sector,
+      //Region region,
+      //String country,
       Calendar calendar,
       ZonedDateTime startDate,
       ZonedDateTime effectiveDate,
@@ -177,38 +183,42 @@ public class CreditDefaultSwapDefinition {
 
     ArgumentChecker.notNull(buySellProtection, "Buy/Sell field is null");
 
-    ArgumentChecker.notNull(protectionBuyer, "Protection buyer field is null");
-    ArgumentChecker.isFalse(protectionBuyer.isEmpty(), "Protection buyer field is empty");
+    ArgumentChecker.notNull(protectionBuyer, "Protection buyer");
+    ArgumentChecker.notNull(protectionSeller, "Protection seller");
+    ArgumentChecker.notNull(referenceEntity, "Reference entity");
 
-    ArgumentChecker.notNull(protectionSeller, "Protection seller field is null");
-    ArgumentChecker.isFalse(protectionSeller.isEmpty(), "Protection seller field is empty");
+    //ArgumentChecker.notNull(protectionBuyer, "Protection buyer field is null");
+    //ArgumentChecker.isFalse(protectionBuyer.isEmpty(), "Protection buyer field is empty");
 
-    ArgumentChecker.notNull(referenceEntityTicker, "Reference entity ticker field is null");
-    ArgumentChecker.isFalse(referenceEntityTicker.isEmpty(), "Reference entity ticker field is empty");
+    //ArgumentChecker.notNull(protectionSeller, "Protection seller field is null");
+    //ArgumentChecker.isFalse(protectionSeller.isEmpty(), "Protection seller field is empty");
 
-    ArgumentChecker.notNull(referenceEntityShortName, "Reference entity short name field is null");
-    ArgumentChecker.isFalse(referenceEntityShortName.isEmpty(), "Reference entity short name field is empty");
+    //ArgumentChecker.notNull(referenceEntityTicker, "Reference entity ticker field is null");
+    //ArgumentChecker.isFalse(referenceEntityTicker.isEmpty(), "Reference entity ticker field is empty");
 
-    ArgumentChecker.notNull(referenceEntityREDCode, "Reference entity RED code field is null");
-    ArgumentChecker.isFalse(referenceEntityREDCode.isEmpty(), "Reference entity RED code field is empty");
+    //ArgumentChecker.notNull(referenceEntityShortName, "Reference entity short name field is null");
+    //ArgumentChecker.isFalse(referenceEntityShortName.isEmpty(), "Reference entity short name field is empty");
 
-    ArgumentChecker.notNull(currency, "Currency field is null");
-    ArgumentChecker.notNull(debtSeniority, "Debt seniority field is null");
-    ArgumentChecker.notNull(restructuringClause, "Restructuring clause field is null");
-    ArgumentChecker.notNull(compositeRating, "Composite rating field is null");
-    ArgumentChecker.notNull(impliedRating, "Implied rating field is null");
-    ArgumentChecker.notNull(sector, "Sector field is null");
-    ArgumentChecker.notNull(region, "Region field is null");
+    //ArgumentChecker.notNull(referenceEntityREDCode, "Reference entity RED code field is null");
+    //ArgumentChecker.isFalse(referenceEntityREDCode.isEmpty(), "Reference entity RED code field is empty");
 
-    ArgumentChecker.notNull(country, "Country field is null");
-    ArgumentChecker.isFalse(country.isEmpty(), "Country field is empty");
+    ArgumentChecker.notNull(currency, "Currency");
+    ArgumentChecker.notNull(debtSeniority, "Debt seniority");
+    ArgumentChecker.notNull(restructuringClause, "Restructuring clause");
+    //ArgumentChecker.notNull(compositeRating, "Composite rating field is null");
+    //ArgumentChecker.notNull(impliedRating, "Implied rating field is null");
+    //ArgumentChecker.notNull(sector, "Sector field is null");
+    //ArgumentChecker.notNull(region, "Region field is null");
 
-    ArgumentChecker.notNull(calendar, "Calendar field is null");
+    //ArgumentChecker.notNull(country, "Country field is null");
+    //ArgumentChecker.isFalse(country.isEmpty(), "Country field is empty");
 
-    ArgumentChecker.notNull(startDate, "Start date field is null");
-    ArgumentChecker.notNull(effectiveDate, "Effective date field is null");
-    ArgumentChecker.notNull(maturityDate, "Maturity date field is null");
-    ArgumentChecker.notNull(valuationDate, "Valuation date field is null");
+    ArgumentChecker.notNull(calendar, "Calendar");
+
+    ArgumentChecker.notNull(startDate, "Start date");
+    ArgumentChecker.notNull(effectiveDate, "Effective date");
+    ArgumentChecker.notNull(maturityDate, "Maturity date");
+    ArgumentChecker.notNull(valuationDate, "Valuation date");
 
     // Check the temporal ordering of the input dates (these are the unadjusted dates entered by the user)
     ArgumentChecker.isTrue(!startDate.isAfter(valuationDate), "Start date {} must be on or before valuation date {}", startDate, valuationDate);
@@ -217,10 +227,10 @@ public class CreditDefaultSwapDefinition {
     ArgumentChecker.isTrue(!valuationDate.isAfter(maturityDate), "Valuation date {} must be on or before maturity date {}", valuationDate, maturityDate);
     ArgumentChecker.isTrue(!valuationDate.isBefore(effectiveDate), "Valuation date {} must be on or after effective date {}", valuationDate, effectiveDate);
 
-    ArgumentChecker.notNull(stubType, "Stub Type method field is null");
-    ArgumentChecker.notNull(couponFrequency, "Coupon frequency field is null");
-    ArgumentChecker.notNull(daycountFractionConvention, "Daycount convention field is null");
-    ArgumentChecker.notNull(businessdayAdjustmentConvention, "Business day adjustment convention field is null");
+    ArgumentChecker.notNull(stubType, "Stub Type method");
+    ArgumentChecker.notNull(couponFrequency, "Coupon frequency");
+    ArgumentChecker.notNull(daycountFractionConvention, "Daycount convention");
+    ArgumentChecker.notNull(businessdayAdjustmentConvention, "Business day adjustment convention");
 
     ArgumentChecker.notNegative(notional, "Notional amount");
     ArgumentChecker.notNegative(premiumLegCoupon, "Premium Leg coupon");
@@ -233,22 +243,25 @@ public class CreditDefaultSwapDefinition {
     // Assign the member variables for the CDS object
 
     _buySellProtection = buySellProtection;
+
     _protectionBuyer = protectionBuyer;
     _protectionSeller = protectionSeller;
-    _referenceEntityTicker = referenceEntityTicker;
-    _referenceEntityShortName = referenceEntityShortName;
-    _referenceEntityREDCode = referenceEntityREDCode;
+    _referenceEntity = referenceEntity;
+
+    //_referenceEntityTicker = referenceEntityTicker;
+    //_referenceEntityShortName = referenceEntityShortName;
+    //_referenceEntityREDCode = referenceEntityREDCode;
 
     _currency = currency;
     _debtSeniority = debtSeniority;
     _restructuringClause = restructuringClause;
 
-    _compositeRating = compositeRating;
-    _impliedRating = impliedRating;
+    //_compositeRating = compositeRating;
+    //_impliedRating = impliedRating;
 
-    _sector = sector;
-    _region = region;
-    _country = country;
+    //_sector = sector;
+    //_region = region;
+    //_country = country;
 
     _calendar = calendar;
 
@@ -274,31 +287,38 @@ public class CreditDefaultSwapDefinition {
     _includeAccruedPremium = includeAccruedPremium;
 
     // REVIEW 29/8/2012 think about using UniqueId instead of _creditKey
-    _creditKey = _referenceEntityTicker + "_" + _currency + "_" + _debtSeniority + "_" + _restructuringClause;
+    _creditKey = _referenceEntity.getObligorTicker() + "_" + _currency + "_" + _debtSeniority + "_" + _restructuringClause;
 
     // ------------------------------------------------------------------------------------------------
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // Member variable accessor functions (all public)
+  // Public member accessor methods
 
   public BuySellProtection getBuySellProtection() {
     return _buySellProtection;
   }
 
-  public String getProtectionBuyer() {
+  public Obligor getProtectionBuyer() {
     return _protectionBuyer;
   }
 
-  public String getProtectionSeller() {
+  public Obligor getProtectionSeller() {
     return _protectionSeller;
   }
 
+  public Obligor getReferenceEntity() {
+    return _referenceEntity;
+  }
+
+  /*
   public String getReferenceEntityTicker() {
     return _referenceEntityTicker;
   }
+  */
 
+  /*
   public String getReferenceEntityShortName() {
     return _referenceEntityShortName;
   }
@@ -306,6 +326,7 @@ public class CreditDefaultSwapDefinition {
   public String getReferenceEntityREDCode() {
     return _referenceEntityREDCode;
   }
+  */
 
   //----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -321,6 +342,7 @@ public class CreditDefaultSwapDefinition {
     return _restructuringClause;
   }
 
+  /*
   public CreditRating getCompositeRating() {
     return _compositeRating;
   }
@@ -340,6 +362,7 @@ public class CreditDefaultSwapDefinition {
   public String getCountry() {
     return _country;
   }
+  */
 
   public Calendar getCalendar() {
     return _calendar;
@@ -423,9 +446,8 @@ public class CreditDefaultSwapDefinition {
 
   public CreditDefaultSwapDefinition withMaturity(ZonedDateTime maturityDate) {
 
-    CreditDefaultSwapDefinition modifiedCDS = new CreditDefaultSwapDefinition(_buySellProtection, _protectionBuyer, _protectionSeller, _referenceEntityTicker,
-        _referenceEntityShortName, _referenceEntityREDCode, _currency, _debtSeniority, _restructuringClause, _compositeRating,
-        _impliedRating, _sector, _region, _country, _calendar, _startDate, _effectiveDate, maturityDate, _valuationDate, _stubType, _couponFrequency,
+    CreditDefaultSwapDefinition modifiedCDS = new CreditDefaultSwapDefinition(_buySellProtection, _protectionBuyer, _protectionSeller, _referenceEntity, _currency,
+        _debtSeniority, _restructuringClause, _calendar, _startDate, _effectiveDate, maturityDate, _valuationDate, _stubType, _couponFrequency,
         _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustEffectiveDate, _adjustMaturityDate, _notional, _premiumLegCoupon,
         _recoveryRate, _includeAccruedPremium);
 
@@ -436,12 +458,11 @@ public class CreditDefaultSwapDefinition {
 
   // Builder method to allow the premium leg coupon of a CDS object to be modified (used during calibration of the survival curve)
 
-  public CreditDefaultSwapDefinition withSpread(double couponSpread) {
+  public CreditDefaultSwapDefinition withSpread(double premiumLegCoupon) {
 
-    CreditDefaultSwapDefinition modifiedCDS = new CreditDefaultSwapDefinition(_buySellProtection, _protectionBuyer, _protectionSeller, _referenceEntityTicker,
-        _referenceEntityShortName, _referenceEntityREDCode, _currency, _debtSeniority, _restructuringClause, _compositeRating,
-        _impliedRating, _sector, _region, _country, _calendar, _startDate, _effectiveDate, _maturityDate, _valuationDate, _stubType, _couponFrequency,
-        _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustEffectiveDate, _adjustMaturityDate, _notional, couponSpread,
+    CreditDefaultSwapDefinition modifiedCDS = new CreditDefaultSwapDefinition(_buySellProtection, _protectionBuyer, _protectionSeller, _referenceEntity, _currency,
+        _debtSeniority, _restructuringClause, _calendar, _startDate, _effectiveDate, _maturityDate, _valuationDate, _stubType, _couponFrequency,
+        _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustEffectiveDate, _adjustMaturityDate, _notional, premiumLegCoupon,
         _recoveryRate, _includeAccruedPremium);
 
     return modifiedCDS;
@@ -453,9 +474,8 @@ public class CreditDefaultSwapDefinition {
 
   public CreditDefaultSwapDefinition withRecoveryRate(double recoveryRate) {
 
-    CreditDefaultSwapDefinition modifiedCDS = new CreditDefaultSwapDefinition(_buySellProtection, _protectionBuyer, _protectionSeller, _referenceEntityTicker,
-        _referenceEntityShortName, _referenceEntityREDCode, _currency, _debtSeniority, _restructuringClause, _compositeRating,
-        _impliedRating, _sector, _region, _country, _calendar, _startDate, _effectiveDate, _maturityDate, _valuationDate, _stubType, _couponFrequency,
+    CreditDefaultSwapDefinition modifiedCDS = new CreditDefaultSwapDefinition(_buySellProtection, _protectionBuyer, _protectionSeller, _referenceEntity, _currency,
+        _debtSeniority, _restructuringClause, _calendar, _startDate, _effectiveDate, _maturityDate, _valuationDate, _stubType, _couponFrequency,
         _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustEffectiveDate, _adjustMaturityDate, _notional, _premiumLegCoupon,
         recoveryRate, _includeAccruedPremium);
 
@@ -468,9 +488,8 @@ public class CreditDefaultSwapDefinition {
 
   public CreditDefaultSwapDefinition withValuationDate(ZonedDateTime valuationDate) {
 
-    CreditDefaultSwapDefinition modifiedCDS = new CreditDefaultSwapDefinition(_buySellProtection, _protectionBuyer, _protectionSeller, _referenceEntityTicker,
-        _referenceEntityShortName, _referenceEntityREDCode, _currency, _debtSeniority, _restructuringClause, _compositeRating,
-        _impliedRating, _sector, _region, _country, _calendar, _startDate, _effectiveDate, _maturityDate, valuationDate, _stubType, _couponFrequency,
+    CreditDefaultSwapDefinition modifiedCDS = new CreditDefaultSwapDefinition(_buySellProtection, _protectionBuyer, _protectionSeller, _referenceEntity, _currency,
+        _debtSeniority, _restructuringClause, _calendar, _startDate, _effectiveDate, _maturityDate, valuationDate, _stubType, _couponFrequency,
         _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustEffectiveDate, _adjustMaturityDate, _notional, _premiumLegCoupon,
         _recoveryRate, _includeAccruedPremium);
 
@@ -532,6 +551,7 @@ public class CreditDefaultSwapDefinition {
       return false;
     }
 
+    /*
     if (_compositeRating != other._compositeRating) {
       return false;
     }
@@ -539,6 +559,7 @@ public class CreditDefaultSwapDefinition {
     if (!ObjectUtils.equals(_country, other._country)) {
       return false;
     }
+    */
 
     if (!ObjectUtils.equals(_couponFrequency, other._couponFrequency)) {
       return false;
@@ -564,9 +585,11 @@ public class CreditDefaultSwapDefinition {
       return false;
     }
 
+    /*
     if (_impliedRating != other._impliedRating) {
       return false;
     }
+    */
 
     if (_includeAccruedPremium != other._includeAccruedPremium) {
       return false;
@@ -592,6 +615,7 @@ public class CreditDefaultSwapDefinition {
       return false;
     }
 
+    /*
     if (!ObjectUtils.equals(_referenceEntityREDCode, other._referenceEntityREDCode)) {
       return false;
     }
@@ -607,6 +631,7 @@ public class CreditDefaultSwapDefinition {
     if (_region != other._region) {
       return false;
     }
+    */
 
     if (_restructuringClause != other._restructuringClause) {
       return false;
@@ -616,9 +641,11 @@ public class CreditDefaultSwapDefinition {
       return false;
     }
 
+    /*
     if (_sector != other._sector) {
       return false;
     }
+    */
 
     if (!ObjectUtils.equals(_startDate, other._startDate)) {
       return false;

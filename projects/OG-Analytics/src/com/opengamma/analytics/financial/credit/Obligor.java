@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.credit;
 
+import com.opengamma.util.ArgumentChecker;
+
 /**
  * Class for defining the characteristics of an obligor in a derivative contract
  * In the credit derivative context obligors can be protection buyers, protection sellers or the reference entity
@@ -12,27 +14,35 @@ package com.opengamma.analytics.financial.credit;
  */
 public class Obligor {
 
-  // ---------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // TODO : Sort out the hashCode and equals methods
 
-  // ---------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Private member variables
 
+  // The obligor identifiers
   private final String _obligorTicker;
   private final String _obligorShortName;
   private final String _obligorREDCode;
 
+  // The obligor credit rating (MarkIt fields)
   private final CreditRating _compositeRating;
   private final CreditRating _impliedRating;
 
+  // The obligor credit rating (Moodys, S&P and Fitch classifications)
   private final CreditRatingMoodys _moodysCreditRating;
-  private final CreditRatingStandardAndPoors _standardAdPoorsCreditRating;
+  private final CreditRatingStandardAndPoors _standardAndPoorsCreditRating;
   private final CreditRatingFitch _fitchCreditRating;
 
+  // The obligor industrial sector classification
   private final Sector _sector;
+
+  // The regional domicile of the obligor
   private final Region _region;
+
+  // The country of domicile of the obligor
   private final String _country;
 
   // ---------------------------------------------------------------------------------
@@ -45,11 +55,41 @@ public class Obligor {
       CreditRating compositeRating,
       CreditRating impliedRating,
       CreditRatingMoodys moodysCreditRating,
-      CreditRatingStandardAndPoors standardAdPoorsCreditRating,
+      CreditRatingStandardAndPoors standardAndPoorsCreditRating,
       CreditRatingFitch fitchCreditRating,
       Sector sector,
       Region region,
       String country) {
+
+    // ---------------------------------------------------------------------------------
+
+    // Check the validity of the input arguments
+
+    ArgumentChecker.notNull(obligorTicker, "Obligor ticker");
+    ArgumentChecker.isFalse(obligorTicker.isEmpty(), "Obligor ticker");
+
+    ArgumentChecker.notNull(obligorShortName, "Obligor short name");
+    ArgumentChecker.isFalse(obligorShortName.isEmpty(), "Obligor short name");
+
+    ArgumentChecker.notNull(obligorREDCode, "Obligor RED code");
+    ArgumentChecker.isFalse(obligorREDCode.isEmpty(), "Obligor RED code");
+
+    ArgumentChecker.notNull(compositeRating, "Composite rating field is null");
+    ArgumentChecker.notNull(impliedRating, "Implied rating field is null");
+
+    ArgumentChecker.notNull(moodysCreditRating, "Moodys credit rating");
+    ArgumentChecker.notNull(standardAndPoorsCreditRating, "S&P credit rating");
+    ArgumentChecker.notNull(fitchCreditRating, "Fitch credit rating");
+
+    ArgumentChecker.notNull(sector, "Sector field");
+    ArgumentChecker.notNull(region, "Region field");
+
+    ArgumentChecker.notNull(country, "Country field");
+    ArgumentChecker.isFalse(country.isEmpty(), "Country field");
+
+    // ---------------------------------------------------------------------------------
+
+    // Assign the member variables for the obligor object
 
     _obligorTicker = obligorTicker;
     _obligorShortName = obligorShortName;
@@ -59,12 +99,14 @@ public class Obligor {
     _impliedRating = impliedRating;
 
     _moodysCreditRating = moodysCreditRating;
-    _standardAdPoorsCreditRating = standardAdPoorsCreditRating;
+    _standardAndPoorsCreditRating = standardAndPoorsCreditRating;
     _fitchCreditRating = fitchCreditRating;
 
     _sector = sector;
     _region = region;
     _country = country;
+
+    // ---------------------------------------------------------------------------------
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -96,7 +138,7 @@ public class Obligor {
   }
 
   public CreditRatingStandardAndPoors getStandardAdPoorsCreditRating() {
-    return _standardAdPoorsCreditRating;
+    return _standardAndPoorsCreditRating;
   }
 
   public CreditRatingFitch getFitchCreditRating() {
@@ -131,7 +173,7 @@ public class Obligor {
     result = prime * result + ((_obligorTicker == null) ? 0 : _obligorTicker.hashCode());
     result = prime * result + ((_region == null) ? 0 : _region.hashCode());
     result = prime * result + ((_sector == null) ? 0 : _sector.hashCode());
-    result = prime * result + ((_standardAdPoorsCreditRating == null) ? 0 : _standardAdPoorsCreditRating.hashCode());
+    result = prime * result + ((_standardAndPoorsCreditRating == null) ? 0 : _standardAndPoorsCreditRating.hashCode());
     return result;
   }
 
@@ -178,7 +220,7 @@ public class Obligor {
       return false;
     if (_sector != other._sector)
       return false;
-    if (_standardAdPoorsCreditRating != other._standardAdPoorsCreditRating)
+    if (_standardAndPoorsCreditRating != other._standardAndPoorsCreditRating)
       return false;
     return true;
   }
