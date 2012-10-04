@@ -70,6 +70,8 @@ public class JmsAnalyticsDistributor implements AnalyticResultReceiver {
         FudgeMsg fudgeMsg = _fudgeContext.toFudgeMsg(computedValue).getMessage();
         final byte[] bytes = _fudgeContext.toByteArray(fudgeMsg);
         
+        s_logger.debug("sending {} to {}", fudgeMsg, destinationName);
+        
         _jmsConnector.getJmsTemplateTopic().send(destinationName, new MessageCreator() {
           @Override
           public Message createMessage(Session session) throws JMSException {

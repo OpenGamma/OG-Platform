@@ -140,6 +140,7 @@ public class AnalyticServiceServer implements TradeListener, Lifecycle {
 
   @Override
   public void tradeReceived(Trade trade) {
+    s_logger.debug("Trade {} received", trade);
     if (trade != null) {
       _tradeUpdaterExecutor.submit(new TradeUpdaterTask(trade));
     }
@@ -273,8 +274,10 @@ public class AnalyticServiceServer implements TradeListener, Lifecycle {
     }
         
     @Override
-    public void run() {          
+    public void run() {   
+      
       PortfolioDocument portfolioDocument = getPortfolioMaster().get(_portfolioId, VersionCorrection.LATEST);
+      s_logger.debug("Updating portfolio {} with {}", portfolioDocument.getUniqueId(), _trade);
       ManageablePortfolio portfolio = portfolioDocument.getPortfolio();
       ManageablePortfolioNode root = portfolio.getRootNode();
 
