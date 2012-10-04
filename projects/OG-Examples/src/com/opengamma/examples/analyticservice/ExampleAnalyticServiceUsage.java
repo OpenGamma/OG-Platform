@@ -104,8 +104,6 @@ public class ExampleAnalyticServiceUsage extends AbstractTool<ToolContext> {
         
     s_tradeUpdaterExecutor.submit(new TradeGenerator(securities, jmsConnectorFactoryBean.getObjectCreating(), destinationName, topics));
     
-    s_resultListenerExecutor.submit(null)
-    
     Thread.sleep(WAIT_BTW_TRADES * 10);
     jmsConnectionFactory.stop();
    
