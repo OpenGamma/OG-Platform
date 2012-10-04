@@ -166,6 +166,10 @@ public class WebSecurityResourceTest extends AbstractWebSecurityResourceTestCase
   public void testContinuousZeroDepositSecurity() {    
   }
   
+  @Override
+  public void testCDSSecurity() {
+  }
+  
   private void assertGetSecurity(final List<FinancialSecurity> securities) throws Exception {
     for (FinancialSecurity security : securities) {
       WebSecurityResource securityResource = _webSecuritiesResource.findSecurity(security.getUniqueId().toString());

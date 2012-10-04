@@ -309,7 +309,7 @@ public class PresentValueCreditDefaultSwap {
 
     // -------------------------------------------------------------
 
-    return cds.getNotional() * (1 - cds.getValuationRecoveryRate()) * presentValueContingentLeg;
+    return cds.getNotional() * (1 - cds.getRecoveryRate()) * presentValueContingentLeg;
   }
 
   // -------------------------------------------------------------------------------------------------

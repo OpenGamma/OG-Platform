@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.interestrate;
 
+import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableForward;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableOption;
@@ -188,6 +189,11 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
   public T visitFixedPayment(final PaymentFixed payment, final S data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedPayment()");
   }
+  
+  @Override
+  public T visitCDSDerivative(final ISDACDSDerivative cds, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedPayment()");
+  }
 
   @Override
   public T visitBondFixedSecurity(final BondFixedSecurity bond) {
@@ -286,6 +292,11 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
 
   @Override
   public T visitFixedPayment(final PaymentFixed payment) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedPayment()");
+  }
+  
+  @Override
+  public T visitCDSDerivative(final ISDACDSDerivative cds) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedPayment()");
   }
 

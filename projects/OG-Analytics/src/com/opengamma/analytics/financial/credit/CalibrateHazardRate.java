@@ -50,6 +50,7 @@ public class CalibrateHazardRate {
   // TODO : Lots of work to do in here still - Work In Progress
 
   // TODO : Replace the root finder with something more sophisticated (bisection was used to ensure a root is found if it exists)
+  // TODO : Add a method to convert the hazard rates to survival probabilities
   // TODO : Not happy with the structure of this solution (would prefer to input and return a DoublesCurve object not a single vector) - need to revisit
 
   // ------------------------------------------------------------------------
@@ -157,7 +158,7 @@ public class CalibrateHazardRate {
     // ------------------------------------------------------------------------
 
     // Calculate the initial guess for the calibrated hazard rate for this tenor
-    double hazardRateGuess = (calibrationCDS.getPremiumLegCoupon() / 10000.0) / (1 - calibrationCDS.getCurveRecoveryRate());
+    double hazardRateGuess = (calibrationCDS.getPremiumLegCoupon() / 10000.0) / (1 - calibrationCDS.getRecoveryRate());
 
     // Calculate the initial bounds for the hazard rate search
     double lowerHazardRate = (1.0 - _hazardRateRangeMultiplier) * hazardRateGuess;

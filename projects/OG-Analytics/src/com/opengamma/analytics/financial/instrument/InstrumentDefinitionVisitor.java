@@ -25,6 +25,7 @@ import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositCounterpartDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositIborDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositZeroDefinition;
+import com.opengamma.analytics.financial.instrument.cds.ISDACDSDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
@@ -296,6 +297,10 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
   RESULT_TYPE visitBondCapitalIndexedTransaction(BondCapitalIndexedTransactionDefinition<?> bond, DATA_TYPE data);
 
   RESULT_TYPE visitBondCapitalIndexedTransaction(BondCapitalIndexedTransactionDefinition<?> bond);
+
+  RESULT_TYPE visitCDSDefinition(ISDACDSDefinition cds, DATA_TYPE data);
+
+  RESULT_TYPE visitCDSDefinition(ISDACDSDefinition cds);
 
   // -----     Forex     -----
 
