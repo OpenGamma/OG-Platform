@@ -96,6 +96,19 @@ public class ResultsFormatter {
         if (type.isInstance(value)) {
           return getFormatterForType(type);
         } else {
+          // this happens if ValueTypes has a type for a value name but the actual value produced has a different type.
+          // there are several possible causes:
+          //   1) the type produced for a value has been changed (e.g. the function that produces it has been modified)
+          //      but the ValueTypes config hasn't been updated to match
+          //   2) the type produced for the value can change from cycle to cycle. to fix this the ValueTypes config
+          //      should be modified to specify a supertype of all possible types. if there isn't a common supertype
+          //      with a formatter that works for all possible values then the value name can be removed from the
+          //      ValueTypes config. this will give the value name a type of UNKNOWN and the type and formatting will
+          //      be decided from the value after every cycle
+          //   3) the type produced for the value is always the same but the value is converted to a different type
+          //      by Fudge depending on the value. e.g. an integer will be encoded as a byte if it is small enough
+          //      but will be encoded as an integer if it won't fit into a byte. the fix for this scenario is the same
+          //      as #2 above
           s_logger.warn("Unexpected type for value. Value name: '{}', expected type: {}, actual type: {}, value: {}",
                         new Object[]{valueSpec.getValueName(), type.getName(), value.getClass().getName(), value});
         }
