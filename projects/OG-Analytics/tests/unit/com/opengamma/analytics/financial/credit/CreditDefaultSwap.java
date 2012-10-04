@@ -3,26 +3,11 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.creditdefaultswap;
+package com.opengamma.analytics.financial.credit;
 
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.analytics.financial.credit.BuySellProtection;
-import com.opengamma.analytics.financial.credit.CreditRating;
-import com.opengamma.analytics.financial.credit.CreditRatingFitch;
-import com.opengamma.analytics.financial.credit.CreditRatingMoodys;
-import com.opengamma.analytics.financial.credit.CreditRatingStandardAndPoors;
-import com.opengamma.analytics.financial.credit.DebtSeniority;
-import com.opengamma.analytics.financial.credit.Obligor;
-import com.opengamma.analytics.financial.credit.Region;
-import com.opengamma.analytics.financial.credit.RestructuringClause;
-import com.opengamma.analytics.financial.credit.Sector;
-import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.PresentValueCreditDefaultSwapTest.MyCalendar;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.TestCDS;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -35,14 +20,11 @@ import com.opengamma.util.time.DateUtils;
 /**
  * 
  */
-public class TestCDSTest {
+public class CreditDefaultSwap {
 
-  //CDS contract parameters
+  private static final CreditDefaultSwap INSTANCE = new CreditDefaultSwap();
 
   private static final BuySellProtection buySellProtection = BuySellProtection.BUY;
-
-  //private static final String protectionBuyer = "ABC";
-  //private static final String protectionSeller = "XYZ";
 
   private static final String protectionBuyerTicker = "MSFT";
   private static final String protectionBuyerShortName = "Microsoft";
@@ -55,11 +37,6 @@ public class TestCDSTest {
   private static final String referenceEntityTicker = "BT";
   private static final String referenceEntityShortName = "British telecom";
   private static final String referenceEntityREDCode = "123ABC";
-
-  private static final Currency currency = Currency.USD;
-
-  private static final DebtSeniority debtSeniority = DebtSeniority.SENIOR;
-  private static final RestructuringClause restructuringClause = RestructuringClause.NORE;
 
   private static final CreditRating protectionBuyerCompositeRating = CreditRating.AA;
   private static final CreditRating protectionBuyerImpliedRating = CreditRating.A;
@@ -94,6 +71,11 @@ public class TestCDSTest {
   private static final Region referenceEntityRegion = Region.EUROPE;
   private static final String referenceEntityCountry = "United Kingdom";
 
+  private static final Currency currency = Currency.USD;
+
+  private static final DebtSeniority debtSeniority = DebtSeniority.SENIOR;
+  private static final RestructuringClause restructuringClause = RestructuringClause.NORE;
+
   private static final Calendar calendar = new MyCalendar();
 
   private static final ZonedDateTime startDate = DateUtils.getUTCDate(2007, 10, 22);
@@ -112,65 +94,11 @@ public class TestCDSTest {
 
   private static final double notional = 10000000.0;
   private static final double premiumLegCoupon = 100.0;
-  private static final double valuationRecoveryRate = 0.40;
-  private static final double curveRecoveryRate = 0.40;
+  private static final double recoveryRate = 0.40;
   private static final boolean includeAccruedPremium = false;
 
-  // Dummy yield curve
-  private static final double interestRate = 0.0;
-  private static final double[] TIME = new double[] {0, 3, 5, 10, 15, 40 };
-  private static final double[] RATES = new double[] {interestRate, interestRate, interestRate, interestRate, interestRate, interestRate };
-  private static final InterpolatedDoublesCurve R = InterpolatedDoublesCurve.from(TIME, RATES, new LinearInterpolator1D());
-  private static final YieldCurve yieldCurve = YieldCurve.from(R);
-
-  private static final Obligor protectionBuyer = new Obligor(
-      protectionBuyerTicker,
-      protectionBuyerShortName,
-      protectionBuyerREDCode,
-      protectionBuyerCompositeRating,
-      protectionBuyerImpliedRating,
-      protectionBuyerCreditRatingMoodys,
-      protectionBuyerCreditRatingStandardAndPoors,
-      protectionBuyerCreditRatingFitch,
-      protectionBuyerSector,
-      protectionBuyerRegion,
-      protectionBuyerCountry);
-
-  private static final Obligor protectionSeller = new Obligor(
-      protectionSellerTicker,
-      protectionSellerShortName,
-      protectionSellerREDCode,
-      protectionSellerCompositeRating,
-      protectionSellerImpliedRating,
-      protectionSellerCreditRatingMoodys,
-      protectionSellerCreditRatingStandardAndPoors,
-      protectionSellerCreditRatingFitch,
-      protectionSellerSector,
-      protectionSellerRegion,
-      protectionSellerCountry);
-
-  private static final Obligor referenceEntity = new Obligor(
-      referenceEntityTicker,
-      referenceEntityShortName,
-      referenceEntityREDCode,
-      referenceEntityCompositeRating,
-      referenceEntityImpliedRating,
-      referenceEntityCreditRatingMoodys,
-      referenceEntityCreditRatingStandardAndPoors,
-      referenceEntityCreditRatingFitch,
-      referenceEntitySector,
-      referenceEntityRegion,
-      referenceEntityCountry);
-
-  private static final TestCDS cds = new TestCDS(buySellProtection, protectionBuyer, protectionSeller, referenceEntity);
-
-  //@Test
-  public void testCDS() {
-
-    //System.out.println(cds.getBuySellProtection());
-
-    //System.out.println(cds.getProtectionBuyer().getObligorTicker());
-
+  public static CreditDefaultSwap getInstance() {
+    return INSTANCE;
   }
 
 }
