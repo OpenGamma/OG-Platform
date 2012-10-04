@@ -345,6 +345,18 @@ public class MarketDiscountBundle implements IMarketBundle {
   }
 
   /**
+   * Gets the forward curve associated to a given ON index in the market.
+   * @param index The ON index.
+   * @return The curve.
+   */
+  public YieldAndDiscountCurve getCurve(IndexON index) {
+    if (_forwardONCurves.containsKey(index)) {
+      return _forwardONCurves.get(index);
+    }
+    throw new IllegalArgumentException("Forward curve not found: " + index);
+  }
+
+  /**
    * Gets the price index curve associated to a given price index in the market.
    * @param index The Price index.
    * @return The curve.

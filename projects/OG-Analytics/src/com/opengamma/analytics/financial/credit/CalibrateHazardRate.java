@@ -50,7 +50,6 @@ public class CalibrateHazardRate {
   // TODO : Lots of work to do in here still - Work In Progress
 
   // TODO : Replace the root finder with something more sophisticated (bisection was used to ensure a root is found if it exists)
-  // TODO : Double.doubleToLongBits(Math.abs(deltaHazardRate)) seems to break the calculation - why is this
   // TODO : Not happy with the structure of this solution (would prefer to input and return a DoublesCurve object not a single vector) - need to revisit
 
   // ------------------------------------------------------------------------
@@ -60,19 +59,6 @@ public class CalibrateHazardRate {
   // The user inputs the schedule of (future) dates on which we have observed par CDS spread quotes
 
   public double[] getCalibratedHazardRateTermStructure(CreditDefaultSwapDefinition cds, ZonedDateTime[] tenors, double[] marketSpreads, YieldCurve yieldCurve) {
-
-    // ----------------------------------------------------------------------------
-
-    int numberOfTenors = tenors.length;
-    int numberOfMarketSpreads = marketSpreads.length;
-
-    // Vector of (calibrated) piecewise constant hazard rates that we compute from the solver
-    double[] hazardRates = new double[numberOfTenors];
-
-    // ----------------------------------------------------------------------------
-
-    // Get the valuation date of the CDS
-    ZonedDateTime valuationDate = cds.getValuationDate();
 
     // ----------------------------------------------------------------------------
 
@@ -87,12 +73,12 @@ public class CalibrateHazardRate {
     ArgumentChecker.notNull(marketSpreads, "Market observed CDS spreads field");
 
     // Check that the number of input tenors matches the number of input spreads
-    ArgumentChecker.isTrue(numberOfTenors == numberOfMarketSpreads, "Number of tenors and number of spreads should be equal");
+    ArgumentChecker.isTrue(tenors.length == marketSpreads.length, "Number of tenors and number of spreads should be equal");
 
     // Check the efficacy of the input market data
-    for (int m = 0; m < numberOfTenors; m++) {
+    for (int m = 0; m < tenors.length; m++) {
 
-      ArgumentChecker.isTrue(tenors[m].isAfter(valuationDate), "Calibration instrument of tenor {} is before the valuation date {}", tenors[m], valuationDate);
+      ArgumentChecker.isTrue(tenors[m].isAfter(cds.getValuationDate()), "Calibration instrument of tenor {} is before the valuation date {}", tenors[m], cds.getValuationDate());
 
       if (m > 0) {
         ArgumentChecker.isTrue(tenors[m].isAfter(tenors[m - 1]), "Tenors not in ascending order");
@@ -104,12 +90,17 @@ public class CalibrateHazardRate {
 
     // ----------------------------------------------------------------------------
 
-    // Build a cashflow schedule - need to do this just to convert tenors to doubles
+    // Vector of (calibrated) piecewise constant hazard rates that we compute from the solver
+    double[] hazardRates = new double[tenors.length];
+
+    // ----------------------------------------------------------------------------
+
+    // Build a cashflow schedule object - need to do this just to convert tenors to doubles
     GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
 
     ZonedDateTime adjustedEffectiveDate = cashflowSchedule.getAdjustedEffectiveDate(cds);
 
-    ArgumentChecker.isTrue(adjustedEffectiveDate.equals(valuationDate), "Valuation date should equal the adjusted effective date for calibration");
+    ArgumentChecker.isTrue(adjustedEffectiveDate.equals(cds.getValuationDate()), "Valuation date should equal the adjusted effective date for calibration");
 
     // Convert the ZonedDateTime tenors into doubles (measured from valuationDate)
     double[] tenorsAsDoubles = cashflowSchedule.convertTenorsToDoubles(cds, tenors);
@@ -123,7 +114,7 @@ public class CalibrateHazardRate {
     // ----------------------------------------------------------------------------
 
     // Loop through each of the input tenors
-    for (int m = 0; m < numberOfTenors; m++) {
+    for (int m = 0; m < tenors.length; m++) {
 
       // Construct a temporary vector of the first m tenors (note size of array)
       double[] runningTenors = new double[m + 1];
@@ -175,11 +166,11 @@ public class CalibrateHazardRate {
     // ------------------------------------------------------------------------
 
     // Make sure the initial hazard rate bounds are in the range [0, 1] (otherwise would have arbitrage)
-    if (Double.doubleToLongBits(lowerHazardRate) < 0.0) {
+    if (lowerHazardRate < 0.0) {
       lowerHazardRate = 0.0;
     }
 
-    if (Double.doubleToLongBits(upperHazardRate) > 1.0) {
+    if (upperHazardRate > 1.0) {
       upperHazardRate = 1.0;
     }
 
@@ -199,7 +190,7 @@ public class CalibrateHazardRate {
     double cdsPresentValueAtMidPoint = calculateCDSPV(calibrationCDS, presentValueCDS, runningTenors, hazardRates, upperHazardRate, yieldCurve, survivalCurve);
 
     // Orient the search
-    if (Double.doubleToLongBits(cdsPresentValueAtLowerPoint) < 0.0) {
+    if (cdsPresentValueAtLowerPoint < 0.0) {
 
       deltaHazardRate = upperHazardRate - lowerHazardRate;
       calibratedHazardRate = lowerHazardRate;

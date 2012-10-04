@@ -34,14 +34,14 @@ public class PaymentScheduleMatrixConverter implements ResultConverter<PaymentSc
       final String[][] ca = value.getCurrencyAmountsAsStringArray();
       final String[] xLabels = new String[rowCount];
       final String[] yLabels = new String[columnCount];
-      final Object[][] amounts = new Object[rowCount][columnCount];
+      final Object[][] amounts = new Object[columnCount][rowCount];
       for (int i = 0; i < rowCount; i++) {
         xLabels[i] = dates[i].toString();
         for (int j = 0; j < columnCount; j++) {
           if (i == 0) {
             yLabels[j] = StringUtils.EMPTY;
           }
-          amounts[i][j] = ca[i][j].toString();
+          amounts[j][i] = ca[i][j].toString();
         }
       }
       result.put("x", xLabels);

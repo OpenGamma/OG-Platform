@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.instrument;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.util.HashSet;
@@ -17,16 +18,23 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
+import org.testng.annotations.Test;
+
 import com.google.common.collect.Iterables;
+import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
+import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableForwardDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BillSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BillTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborSpreadDefinition;
 import com.opengamma.analytics.financial.schedule.NoHolidayCalendar;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -42,7 +50,7 @@ import com.opengamma.util.time.DateUtils;
 /**
  * 
  */
-public class FixedCashFlowVisitorTest {
+public class FixedReceiveCashFlowVisitorTest {
   private static final Calendar NO_HOLIDAY = new NoHolidayCalendar();
   private static final DayCount DAY_COUNT = new SemiAnnualDayCount();
   private static final BusinessDayConvention NONE = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("None");
@@ -77,12 +85,35 @@ public class FixedCashFlowVisitorTest {
   private static final ZonedDateTime FRA_START = DateUtils.getUTCDate(2013, 6, 3);
   private static final ZonedDateTime FRA_END = DateUtils.getUTCDate(2013, 12, 3);
   private static final double FRA_NOTIONAL = 567000;
-  private static final IborIndex FRA_INDEX = new IborIndex(FIXED_INCOME_CURRENCY, Period.ofMonths(6), 0, NO_HOLIDAY, DAY_COUNT, NONE, false, "f");
+  private static final IborIndex IBOR_INDEX = new IborIndex(FIXED_INCOME_CURRENCY, Period.ofMonths(6), 0, NO_HOLIDAY, DAY_COUNT, NONE, false, "f");
   private static final double FRA_RATE = 0.004;
-  private static final ForwardRateAgreementDefinition PAYER_FRA = ForwardRateAgreementDefinition.from(FRA_START, FRA_END, FRA_NOTIONAL, FRA_INDEX, FRA_RATE);
-  private static final ForwardRateAgreementDefinition RECEIVER_FRA = ForwardRateAgreementDefinition.from(FRA_START, FRA_END, -FRA_NOTIONAL, FRA_INDEX, FRA_RATE);
+  private static final ForwardRateAgreementDefinition PAYER_FRA = ForwardRateAgreementDefinition.from(FRA_START, FRA_END, FRA_NOTIONAL, IBOR_INDEX, FRA_RATE);
+  private static final ForwardRateAgreementDefinition RECEIVER_FRA = ForwardRateAgreementDefinition.from(FRA_START, FRA_END, -FRA_NOTIONAL, IBOR_INDEX, FRA_RATE);
+  private static final ZonedDateTime SWAP_START = DateUtils.getUTCDate(2001, 1, 1);
+  private static final ZonedDateTime SWAP_MATURITY = DateUtils.getUTCDate(2031, 1, 1);
+  private static final GeneratorSwapFixedIbor SWAP_GENERATOR = new GeneratorSwapFixedIbor("a", Period.ofMonths(6), DAY_COUNT, IBOR_INDEX);
+  private static final double SWAP_NOTIONAL = 789000;
+  private static final double SWAP_FIXED_RATE = 0.04;
+  private static final SwapFixedIborDefinition PAYER_SWAP = SwapFixedIborDefinition.from(SWAP_START, SWAP_MATURITY, SWAP_GENERATOR, SWAP_NOTIONAL, SWAP_FIXED_RATE, true);
+  private static final SwapFixedIborDefinition RECEIVER_SWAP = SwapFixedIborDefinition.from(SWAP_START, SWAP_MATURITY, SWAP_GENERATOR, SWAP_NOTIONAL, SWAP_FIXED_RATE,
+      false);
+  private static final SwapFixedIborSpreadDefinition PAYER_SWAP_WITH_SPREAD = SwapFixedIborSpreadDefinition.from(SWAP_START, SWAP_MATURITY, SWAP_GENERATOR,
+      SWAP_NOTIONAL, SWAP_NOTIONAL, SWAP_FIXED_RATE, 0.01, true);
+  private static final SwapFixedIborSpreadDefinition RECEIVER_SWAP_WITH_SPREAD = SwapFixedIborSpreadDefinition.from(SWAP_START, SWAP_MATURITY, SWAP_GENERATOR,
+      SWAP_NOTIONAL, SWAP_NOTIONAL, SWAP_FIXED_RATE, 0.01, false);
+  private static final Currency FX_PAY_CURRENCY = Currency.GBP;
+  private static final Currency FX_RECEIVE_CURRENCY = Currency.EUR;
+  private static final ZonedDateTime FX_MATURITY = DateUtils.getUTCDate(2013, 1, 1);
+  private static final double FX_PAY_AMOUNT = -12345;
+  private static final double FX_RECEIVE_AMOUNT = 23456;
+  private static final ForexDefinition FX_PAY_GBP = ForexDefinition.fromAmounts(FX_PAY_CURRENCY, FX_RECEIVE_CURRENCY, FX_MATURITY, FX_PAY_AMOUNT, FX_RECEIVE_AMOUNT);
+  private static final ForexDefinition FX_PAY_EUR = ForexDefinition.fromAmounts(FX_PAY_CURRENCY, FX_RECEIVE_CURRENCY, FX_MATURITY, -FX_PAY_AMOUNT, -FX_RECEIVE_AMOUNT);
+  private static final ForexNonDeliverableForwardDefinition LONG_NDF = new ForexNonDeliverableForwardDefinition(FX_PAY_CURRENCY, FX_RECEIVE_CURRENCY, -FX_PAY_AMOUNT,
+      -FX_RECEIVE_AMOUNT / FX_PAY_AMOUNT, FX_MATURITY, FX_MATURITY);
+  private static final ForexNonDeliverableForwardDefinition SHORT_NDF = new ForexNonDeliverableForwardDefinition(FX_PAY_CURRENCY, FX_RECEIVE_CURRENCY, FX_PAY_AMOUNT,
+      -FX_RECEIVE_AMOUNT / FX_PAY_AMOUNT, FX_MATURITY, FX_MATURITY);
   private static final Set<InstrumentDefinition<?>> INSTRUMENTS;
-  private static final FixedPayCashFlowVisitor VISITOR = FixedPayCashFlowVisitor.getInstance();
+  private static final FixedReceiveCashFlowVisitor VISITOR = FixedReceiveCashFlowVisitor.getInstance();
 
   static {
     INSTRUMENTS = new HashSet<InstrumentDefinition<?>>();
@@ -95,9 +126,17 @@ public class FixedCashFlowVisitorTest {
     INSTRUMENTS.add(FIXED_COUPON);
     INSTRUMENTS.add(PAYER_FRA);
     INSTRUMENTS.add(RECEIVER_FRA);
+    INSTRUMENTS.add(PAYER_SWAP);
+    INSTRUMENTS.add(RECEIVER_SWAP);
+    INSTRUMENTS.add(PAYER_SWAP_WITH_SPREAD);
+    INSTRUMENTS.add(RECEIVER_SWAP_WITH_SPREAD);
+    INSTRUMENTS.add(FX_PAY_GBP);
+    INSTRUMENTS.add(FX_PAY_EUR);
+    INSTRUMENTS.add(LONG_NDF);
+    INSTRUMENTS.add(SHORT_NDF);
   }
 
-  //  @Test
+  @Test
   public void testNoDate() {
     for (final InstrumentDefinition<?> definition : INSTRUMENTS) {
       try {
@@ -108,7 +147,7 @@ public class FixedCashFlowVisitorTest {
     }
   }
 
-  //  @Test
+  @Test
   public void testNullDate() {
     for (final InstrumentDefinition<?> definition : INSTRUMENTS) {
       try {
@@ -119,7 +158,7 @@ public class FixedCashFlowVisitorTest {
     }
   }
 
-  //  @Test
+  @Test
   public void testInstrumentsAfterExpiry() {
     final LocalDate date = LocalDate.of(2100, 1, 1);
     for (final InstrumentDefinition<?> definition : INSTRUMENTS) {
@@ -127,7 +166,7 @@ public class FixedCashFlowVisitorTest {
     }
   }
 
-  //  @Test
+  @Test
   public void testBond() {
     final LocalDate date = LocalDate.of(2012, 9, 1);
     final Map<LocalDate, MultipleCurrencyAmount> remainingPayments = new TreeMap<LocalDate, MultipleCurrencyAmount>(BOND.accept(VISITOR, date));
@@ -145,7 +184,7 @@ public class FixedCashFlowVisitorTest {
     }
   }
 
-  //  @Test
+  @Test
   public void testBill() {
     final LocalDate date = LocalDate.of(2012, 10, 1);
     final Map<LocalDate, MultipleCurrencyAmount> payment = BILL.accept(VISITOR, date);
@@ -159,7 +198,7 @@ public class FixedCashFlowVisitorTest {
     assertEquals(payment, BILL_TRADE.accept(VISITOR, date));
   }
 
-  //  @Test
+  @Test
   public void testCash() {
     final LocalDate date = LocalDate.of(2012, 8, 1);
     final Map<LocalDate, MultipleCurrencyAmount> payment = CASH.accept(VISITOR, date);
@@ -172,7 +211,7 @@ public class FixedCashFlowVisitorTest {
     assertEquals(CASH_NOTIONAL * CASH_RATE * 0.5, ca.getAmount());
   }
 
-  //  @Test
+  @Test
   public void testFixedPayment() {
     final LocalDate date = LocalDate.of(2012, 8, 1);
     final Map<LocalDate, MultipleCurrencyAmount> payment = FIXED_PAYMENT.accept(VISITOR, date);
@@ -185,7 +224,7 @@ public class FixedCashFlowVisitorTest {
     assertEquals(PAYMENT_AMOUNT, ca.getAmount());
   }
 
-  //  @Test
+  @Test
   public void testFixedCoupon() {
     final LocalDate date = LocalDate.of(2012, 8, 1);
     final Map<LocalDate, MultipleCurrencyAmount> payment = FIXED_COUPON.accept(VISITOR, date);
@@ -198,25 +237,75 @@ public class FixedCashFlowVisitorTest {
     assertEquals(FIXED_COUPON_NOTIONAL * FIXED_COUPON_RATE / 12, ca.getAmount(), 1e-15);
   }
 
-  //  @Test
+  @Test
   public void testFRA() {
     final LocalDate date = LocalDate.of(2012, 8, 1);
-    Map<LocalDate, MultipleCurrencyAmount> payment = PAYER_FRA.accept(VISITOR, date);
+    Map<LocalDate, MultipleCurrencyAmount> payment = RECEIVER_FRA.accept(VISITOR, date);
     assertEquals(1, payment.size());
     assertEquals(FRA_START.toLocalDate(), Iterables.getOnlyElement(payment.keySet()));
-    MultipleCurrencyAmount mca = Iterables.getOnlyElement(payment.values());
+    final MultipleCurrencyAmount mca = Iterables.getOnlyElement(payment.values());
     assertEquals(1, mca.size());
-    CurrencyAmount ca = Iterables.getOnlyElement(mca);
+    final CurrencyAmount ca = Iterables.getOnlyElement(mca);
     assertEquals(FIXED_INCOME_CURRENCY, ca.getCurrency());
     assertEquals(FRA_NOTIONAL * FRA_RATE * 0.5, ca.getAmount(), 1e-15);
-    payment = RECEIVER_FRA.accept(VISITOR, date);
+    payment = PAYER_FRA.accept(VISITOR, date);
+    assertTrue(payment.isEmpty());
+  }
+
+  @Test
+  public void testSwap() {
+    final LocalDate date = LocalDate.of(2012, 5, 1);
+    Map<LocalDate, MultipleCurrencyAmount> payments = new TreeMap<LocalDate, MultipleCurrencyAmount>(RECEIVER_SWAP.accept(VISITOR, date));
+    assertEquals(38, payments.size());
+    LocalDate paymentDate = LocalDate.of(2012, 7, 1);
+    for (final Map.Entry<LocalDate, MultipleCurrencyAmount> entry : payments.entrySet()) {
+      assertEquals(paymentDate, entry.getKey());
+      assertEquals(1, entry.getValue().size());
+      assertEquals(FIXED_INCOME_CURRENCY, entry.getValue().getCurrencyAmounts()[0].getCurrency());
+      assertEquals(SWAP_NOTIONAL * SWAP_FIXED_RATE / 2, entry.getValue().getCurrencyAmounts()[0].getAmount(), 1e-15);
+      paymentDate = paymentDate.plusMonths(6);
+    }
+    payments = PAYER_SWAP.accept(VISITOR, date);
+    assertTrue(payments.isEmpty());
+    payments = new TreeMap<LocalDate, MultipleCurrencyAmount>(RECEIVER_SWAP_WITH_SPREAD.accept(VISITOR, date));
+    assertEquals(38, payments.size());
+    paymentDate = LocalDate.of(2012, 7, 1);
+    for (final Map.Entry<LocalDate, MultipleCurrencyAmount> entry : payments.entrySet()) {
+      assertEquals(paymentDate, entry.getKey());
+      assertEquals(1, entry.getValue().size());
+      assertEquals(FIXED_INCOME_CURRENCY, entry.getValue().getCurrencyAmounts()[0].getCurrency());
+      assertEquals(SWAP_NOTIONAL * SWAP_FIXED_RATE / 2, entry.getValue().getCurrencyAmounts()[0].getAmount(), 1e-15);
+      paymentDate = paymentDate.plusMonths(6);
+    }
+    payments = PAYER_SWAP_WITH_SPREAD.accept(VISITOR, date);
+    assertTrue(payments.isEmpty());
+  }
+
+  @Test
+  public void testFX() {
+    final LocalDate date = LocalDate.of(2012, 10, 1);
+    Map<LocalDate, MultipleCurrencyAmount> payment = FX_PAY_GBP.accept(VISITOR, date);
     assertEquals(1, payment.size());
-    assertEquals(FRA_START.toLocalDate(), Iterables.getOnlyElement(payment.keySet()));
-    mca = Iterables.getOnlyElement(payment.values());
-    assertEquals(1, mca.size());
-    ca = Iterables.getOnlyElement(mca);
-    assertEquals(FIXED_INCOME_CURRENCY, ca.getCurrency());
-    assertEquals(-FRA_NOTIONAL * FRA_RATE * 0.5, ca.getAmount(), 1e-15);
+    assertEquals(FX_MATURITY.toLocalDate(), Iterables.getOnlyElement(payment.keySet()));
+    CurrencyAmount amount = Iterables.getOnlyElement(payment.values()).getCurrencyAmounts()[0];
+    assertEquals(CurrencyAmount.of(FX_RECEIVE_CURRENCY, FX_RECEIVE_AMOUNT), amount);
+    payment = FX_PAY_EUR.accept(VISITOR, date);
+    assertEquals(1, payment.size());
+    assertEquals(FX_MATURITY.toLocalDate(), Iterables.getOnlyElement(payment.keySet()));
+    amount = Iterables.getOnlyElement(payment.values()).getCurrencyAmounts()[0];
+    assertEquals(CurrencyAmount.of(FX_PAY_CURRENCY, -FX_PAY_AMOUNT), amount);
+  }
+
+  @Test
+  public void testNDF() {
+    final LocalDate date = LocalDate.of(2012, 10, 1);
+    Map<LocalDate, MultipleCurrencyAmount> payment = SHORT_NDF.accept(VISITOR, date);
+    assertEquals(0, payment.size());
+    payment = LONG_NDF.accept(VISITOR, date);
+    assertEquals(1, payment.size());
+    assertEquals(FX_MATURITY.toLocalDate(), Iterables.getOnlyElement(payment.keySet()));
+    final CurrencyAmount amount = Iterables.getOnlyElement(payment.values()).getCurrencyAmounts()[0];
+    assertEquals(CurrencyAmount.of(FX_RECEIVE_CURRENCY, -FX_PAY_AMOUNT), amount);
   }
 
   private static final class SemiAnnualDayCount extends DayCount {

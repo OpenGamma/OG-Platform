@@ -54,7 +54,8 @@ public class ActualTwoFiveTwo extends StatelessDayCount {
   }
 
   @Override
-  public double getAccruedInterest(final LocalDate previousCouponDate, final LocalDate date, final LocalDate nextCouponDate, final double coupon, final double paymentsPerYear) {
+  public double getAccruedInterest(final LocalDate previousCouponDate, final LocalDate date, final LocalDate nextCouponDate, final double coupon,
+      final double paymentsPerYear) {
     throw new UnsupportedOperationException();
   }
 
