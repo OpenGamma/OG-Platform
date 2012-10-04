@@ -5,6 +5,14 @@
  */
 package com.opengamma.component.tool;
 
+import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
+
+import org.joda.beans.MetaProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentManager;
 import com.opengamma.component.ComponentRepository;
@@ -12,15 +20,6 @@ import com.opengamma.component.ComponentServer;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.component.rest.RemoteComponentServer;
 import com.opengamma.financial.tool.ToolContext;
-import com.opengamma.util.ArgumentChecker;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.impl.direct.DirectBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.net.URI;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Utilities that assist with obtaining a tool context.
@@ -95,7 +94,7 @@ public final class ToolContextUtils {
       }
 
       // Populate the tool context from the remote component server
-      for (MetaProperty metaProperty : toolContext.metaBean().metaPropertyIterable()) {
+      for (MetaProperty<?> metaProperty : toolContext.metaBean().metaPropertyIterable()) {
         if (!metaProperty.name().equals("contextManager")) {
           try {
             ComponentInfo componentInfo =
