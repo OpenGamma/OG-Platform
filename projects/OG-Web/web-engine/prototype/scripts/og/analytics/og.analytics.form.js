@@ -144,7 +144,7 @@ $.register_module({
                                 og.analytics.url.main({
                                     type: 'portfolio',
                                     depgraph: false,
-                                    viewdefinition: ui.item.value,
+                                    viewdefinition: auto_combo_menu[0].value,
                                     providers: [{'marketDataType': 'live', 'source': 'Bloomberg'}]
                                 });
 //                                status.play();
