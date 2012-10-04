@@ -263,55 +263,6 @@ public class AnalyticServiceServer implements TradeListener, Lifecycle {
     _viewName = viewName;
   }
 
-  /**
-   * Main method to run the tool.
-   * 
-   * @param args  the arguments
-   */
-  public static void main(String[] args) { // CSIGNORE
-//    doRun(DEFAULT_CONFIG_URL, "DistributedAnalytics View");
-  }
-  
-//  private static void doRun(String configurationURL, String viewName) {
-//    Configuration configuration = getConfiguration(URI.create(configurationURL));
-//    
-//    ActiveMQConnectionFactoryFactoryBean activeMQConnectionFactoryFactoryBean = new ActiveMQConnectionFactoryFactoryBean();
-//    activeMQConnectionFactoryFactoryBean.setConfiguration(configuration);
-//    
-//    JmsConnectorFactoryBean jmsConnectorFactoryBean = new JmsConnectorFactoryBean();
-//    jmsConnectorFactoryBean.setName("ExampleAnalyticService");
-//    jmsConnectorFactoryBean.setConnectionFactory(activeMQConnectionFactoryFactoryBean.getObjectCreating());
-//    
-//    ViewProcessor viewProcessor = new RemoteViewProcessor(configuration.getURIConfiguration(VIEW_PROCESSEOR_CONFIG_ENTRY), jmsConnectorFactoryBean.getObjectCreating(), s_executor);
-//    PositionMaster positionMaster = new RemotePositionMaster(configuration.getURIConfiguration(POSITION_MASTER_CONFIG_ENTRY));
-//    PortfolioMaster portfolioMaster = new RemotePortfolioMaster(configuration.getURIConfiguration(PORTFOLIO_MASTER_CONFIG_ENTRY));
-//    ConfigSource configSource = new RemoteConfigSource(configuration.getURIConfiguration(CONFIG_SOURCE_CONFIG_ENTRY));
-//    SecurityMaster securityMaster = new RemoteSecurityMaster(configuration.getURIConfiguration(SECURITY_MASTER_ENTRY));
-//    
-//    final JmsTopicNameResolver jmsTopicNameResolver = new ExampleJmsTopicNameResolver(positionMaster);
-//    
-//    final AnalyticServiceServer analyticService = new AnalyticServiceServer(viewProcessor, positionMaster, portfolioMaster, configSource);
-//    analyticService.setUser(UserPrincipal.getTestUser());
-//    analyticService.setViewName(viewName);
-////    analyticService.setViewResultListener(new AnalyticViewResultListener());
-//    analyticService.setProviderIdName("providerId");
-//    analyticService.start();
-//    
-//    TradeProducer tradeProducer = new RandomTradeProducer(securityMaster);
-//    tradeProducer.addTradeListener(analyticService);
-//    
-//  }
-  
-//  private static Configuration getConfiguration(final URI configurationURI) {
-//    try {
-//      FudgeMsg msg = new RemoteConfiguration(configurationURI).getConfigurationMsg();
-//      Validater validater = UriEndPointDescriptionProvider.validater(Executors.newCachedThreadPool(), configurationURI);
-//      return new Configuration(s_fudgeContext, msg, validater);
-//      
-//    } catch (UniformInterfaceException404NotFound ex) {
-//      return new Configuration(s_fudgeContext, s_fudgeContext.newMessage(), null);
-//    }
-//  }
   
   private class TradeUpdaterTask implements Runnable {
     
@@ -344,11 +295,11 @@ public class AnalyticServiceServer implements TradeListener, Lifecycle {
       PortfolioDocument currentPortfolio = getPortfolioMaster().update(new PortfolioDocument(portfolio));
       s_logger.info("Portfolio ID {} updated", currentPortfolio.getUniqueId());
 
-      kickStartViewCalculation();
+      restartViewCalculation();
     }
   }
 
-  private void kickStartViewCalculation() {
+  private void restartViewCalculation() {
     _updateLock.lock();
     try {
       s_logger.debug("kick starting computation");
