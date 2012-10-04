@@ -15,6 +15,7 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.Trade;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.resolver.AbstractResolver;
 import com.opengamma.util.ArgumentChecker;
 
@@ -41,11 +42,11 @@ public class DefaultJmsTopicNameResolver extends AbstractResolver<JmsTopicNameRe
   public String resolve(JmsTopicNameResolveRequest request) {
     ValueSpecification valueSpecification = request.getValueSpecification();
     Position position = _positionSource.getPosition(valueSpecification.getTargetSpecification().getUniqueId());
-    String providerId = getProviderId(position);
+    String providerId = getProviderId(position); 
     String result = PREFIX + SEPARATOR + providerId + SEPARATOR + request.getCalcConfig() + SEPARATOR + request.getValueSpecification().getValueName();
-    if (request.getValueSpecification().getProperties() != null) {
-      result += SEPARATOR + request.getValueSpecification().getProperties().toSimpleString();
-    }
+//    if (request.getValueSpecification().getProperties() != null) {
+//      result += SEPARATOR + request.getValueSpecification().getProperties().toSimpleString();
+//    }
     s_logger.debug("{} resolved to {}", request, result);
     return result;
     
@@ -73,6 +74,8 @@ public class DefaultJmsTopicNameResolver extends AbstractResolver<JmsTopicNameRe
     }
     if (result == null) {
       result = MISSING_PROVIDER_ID;
+    } else {
+      result = ExternalId.parse(result).getValue();
     }
     return result;
   }
