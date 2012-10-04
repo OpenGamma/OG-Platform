@@ -41,8 +41,7 @@ public class CreditDefaultSwapDefinition {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // TODO : Extend this class definition to include standard CDS contracts (post big-bang) i.e. quoted spread, upfront payment etc
-  // TODO : Make sure the 'equals' method has all the necessary fields
-  // TODO : Replace the curveRecoveryRate and valuationRecoveryRate member variables with a single recoveryRate variable
+  // TODO : Make sure the 'equals' method has all the necessary fields and the hashCode method is correct
   // TODO : Add the Moodys, S&P and Fitch credit rating states?
   // TODO : Split off the obligor information into a seperate 'Obligor' class
 
@@ -127,11 +126,8 @@ public class CreditDefaultSwapDefinition {
   // The coupon (in bps) to apply to the premium leg (for legacy CDS where there is no exchange of upfront this is the par spread)
   private final double _premiumLegCoupon;
 
-  // The recovery rate to be used in the calculation of the CDS MtM (can be different to the rate used to calibrate the survival curve)
-  private final double _valuationRecoveryRate;
-
-  // The recovery rate to be used when calibrating the hazard rate term structure to the market observed par CDS spread quotes
-  private final double _curveRecoveryRate;
+  // The recovery rate to be used in the calculation of the CDS MtM (the recovery used in pricing can be different to the rate used to calibrate the hazard rates)
+  private final double _recoveryRate;
 
   // Flag to determine whether the accrued coupons should be included in the CDS premium leg calculation
   private final boolean _includeAccruedPremium;
@@ -172,8 +168,7 @@ public class CreditDefaultSwapDefinition {
       boolean adjustMaturityDate,
       double notional,
       double premiumLegCoupon,
-      double valuationRecoveryRate,
-      double curveRecoveryRate,
+      double recoveryRate,
       boolean includeAccruedPremium) {
 
     // ------------------------------------------------------------------------------------------------
@@ -230,11 +225,8 @@ public class CreditDefaultSwapDefinition {
     ArgumentChecker.notNegative(notional, "Notional amount");
     ArgumentChecker.notNegative(premiumLegCoupon, "Premium Leg coupon");
 
-    ArgumentChecker.notNegative(valuationRecoveryRate, "Valuation Recovery Rate");
-    ArgumentChecker.notNegative(curveRecoveryRate, "Curve Recovery Rate");
-
-    ArgumentChecker.isTrue(valuationRecoveryRate <= 1.0, "Valuation recovery rate should be less than or equal to 100%");
-    ArgumentChecker.isTrue(curveRecoveryRate <= 1.0, "Curve recovery rate should be less than or equal to 100%");
+    ArgumentChecker.notNegative(recoveryRate, "Recovery Rate");
+    ArgumentChecker.isTrue(recoveryRate <= 1.0, "Recovery rate should be less than or equal to 100%");
 
     // ------------------------------------------------------------------------------------------------
 
@@ -277,8 +269,7 @@ public class CreditDefaultSwapDefinition {
     _notional = notional;
     _premiumLegCoupon = premiumLegCoupon;
 
-    _valuationRecoveryRate = valuationRecoveryRate;
-    _curveRecoveryRate = curveRecoveryRate;
+    _recoveryRate = recoveryRate;
 
     _includeAccruedPremium = includeAccruedPremium;
 
@@ -412,12 +403,8 @@ public class CreditDefaultSwapDefinition {
     return _premiumLegCoupon;
   }
 
-  public double getValuationRecoveryRate() {
-    return _valuationRecoveryRate;
-  }
-
-  public double getCurveRecoveryRate() {
-    return _curveRecoveryRate;
+  public double getRecoveryRate() {
+    return _recoveryRate;
   }
 
   public boolean getIncludeAccruedPremium() {
@@ -440,7 +427,7 @@ public class CreditDefaultSwapDefinition {
         _referenceEntityShortName, _referenceEntityREDCode, _currency, _debtSeniority, _restructuringClause, _compositeRating,
         _impliedRating, _sector, _region, _country, _calendar, _startDate, _effectiveDate, maturityDate, _valuationDate, _stubType, _couponFrequency,
         _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustEffectiveDate, _adjustMaturityDate, _notional, _premiumLegCoupon,
-        _valuationRecoveryRate, _curveRecoveryRate, _includeAccruedPremium);
+        _recoveryRate, _includeAccruedPremium);
 
     return modifiedCDS;
   }
@@ -455,7 +442,7 @@ public class CreditDefaultSwapDefinition {
         _referenceEntityShortName, _referenceEntityREDCode, _currency, _debtSeniority, _restructuringClause, _compositeRating,
         _impliedRating, _sector, _region, _country, _calendar, _startDate, _effectiveDate, _maturityDate, _valuationDate, _stubType, _couponFrequency,
         _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustEffectiveDate, _adjustMaturityDate, _notional, couponSpread,
-        _valuationRecoveryRate, _curveRecoveryRate, _includeAccruedPremium);
+        _recoveryRate, _includeAccruedPremium);
 
     return modifiedCDS;
   }
@@ -464,13 +451,13 @@ public class CreditDefaultSwapDefinition {
 
   // Builder method to allow the valuation recovery rate of a CDS object to be modified (used during calibration of the survival curve)
 
-  public CreditDefaultSwapDefinition withValuationRecoveryRate(double valuationRecoveryRate) {
+  public CreditDefaultSwapDefinition withRecoveryRate(double recoveryRate) {
 
     CreditDefaultSwapDefinition modifiedCDS = new CreditDefaultSwapDefinition(_buySellProtection, _protectionBuyer, _protectionSeller, _referenceEntityTicker,
         _referenceEntityShortName, _referenceEntityREDCode, _currency, _debtSeniority, _restructuringClause, _compositeRating,
         _impliedRating, _sector, _region, _country, _calendar, _startDate, _effectiveDate, _maturityDate, _valuationDate, _stubType, _couponFrequency,
         _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustEffectiveDate, _adjustMaturityDate, _notional, _premiumLegCoupon,
-        valuationRecoveryRate, _curveRecoveryRate, _includeAccruedPremium);
+        recoveryRate, _includeAccruedPremium);
 
     return modifiedCDS;
   }
@@ -485,7 +472,7 @@ public class CreditDefaultSwapDefinition {
         _referenceEntityShortName, _referenceEntityREDCode, _currency, _debtSeniority, _restructuringClause, _compositeRating,
         _impliedRating, _sector, _region, _country, _calendar, _startDate, _effectiveDate, _maturityDate, valuationDate, _stubType, _couponFrequency,
         _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustEffectiveDate, _adjustMaturityDate, _notional, _premiumLegCoupon,
-        _valuationRecoveryRate, _curveRecoveryRate, _includeAccruedPremium);
+        _recoveryRate, _includeAccruedPremium);
 
     return modifiedCDS;
   }
@@ -499,14 +486,13 @@ public class CreditDefaultSwapDefinition {
     result = prime * result + (_adjustMaturityDate ? 1231 : 1237);
     result = prime * result + ((_calendar == null) ? 0 : _calendar.hashCode());
     long temp;
-    temp = Double.doubleToLongBits(_curveRecoveryRate);
+    temp = Double.doubleToLongBits(_notional);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + (_includeAccruedPremium ? 1231 : 1237);
-    temp = Double.doubleToLongBits(_notional);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_premiumLegCoupon);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_valuationRecoveryRate);
+    temp = Double.doubleToLongBits(_recoveryRate);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
@@ -563,10 +549,6 @@ public class CreditDefaultSwapDefinition {
     }
 
     if (!ObjectUtils.equals(_currency, other._currency)) {
-      return false;
-    }
-
-    if (Double.doubleToLongBits(_curveRecoveryRate) != Double.doubleToLongBits(other._curveRecoveryRate)) {
       return false;
     }
 
@@ -646,7 +628,7 @@ public class CreditDefaultSwapDefinition {
       return false;
     }
 
-    if (Double.doubleToLongBits(_valuationRecoveryRate) != Double.doubleToLongBits(other._valuationRecoveryRate)) {
+    if (Double.doubleToLongBits(_recoveryRate) != Double.doubleToLongBits(other._recoveryRate)) {
       return false;
     }
 

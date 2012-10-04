@@ -24,9 +24,9 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * Class to test the implementation of the calibration of the survival curve
+ * Class to test the implementation of the calibration of the hazard rate term structure
  */
-public class CalibrateSurvivalCurveTest {
+public class CalibrateHazardRateTest {
 
   // ---------------------------------------------------------------------------------------
 
@@ -70,8 +70,7 @@ public class CalibrateSurvivalCurveTest {
 
   private static final double notional = 10000000.0;
   private static final double premiumLegCoupon = 100.0;
-  private static final double valuationRecoveryRate = 0.40;
-  private static final double curveRecoveryRate = 0.40;
+  private static final double recoveryRate = 0.40;
   private static final boolean includeAccruedPremium = false;
 
   // Dummy yield curve
@@ -112,8 +111,7 @@ public class CalibrateSurvivalCurveTest {
       adjustMaturityDate,
       notional,
       premiumLegCoupon,
-      valuationRecoveryRate,
-      curveRecoveryRate,
+      recoveryRate,
       includeAccruedPremium);
 
   // ---------------------------------------------------------------------------------------
@@ -177,7 +175,7 @@ public class CalibrateSurvivalCurveTest {
     CreditDefaultSwapDefinition calibrationCDS = cds;
 
     // Set the recovery rate of the calibration CDS used for the curve calibration (this appears in the calculation of the contingent leg)
-    calibrationCDS = calibrationCDS.withValuationRecoveryRate(calibrationRecoveryRate);
+    calibrationCDS = calibrationCDS.withRecoveryRate(calibrationRecoveryRate);
 
     // -------------------------------------------------------------------------------------
 

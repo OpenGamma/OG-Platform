@@ -157,7 +157,7 @@ public class CalibrateHazardRate {
     // ------------------------------------------------------------------------
 
     // Calculate the initial guess for the calibrated hazard rate for this tenor
-    double hazardRateGuess = (calibrationCDS.getPremiumLegCoupon() / 10000.0) / (1 - calibrationCDS.getCurveRecoveryRate());
+    double hazardRateGuess = (calibrationCDS.getPremiumLegCoupon() / 10000.0) / (1 - calibrationCDS.getRecoveryRate());
 
     // Calculate the initial bounds for the hazard rate search
     double lowerHazardRate = (1.0 - _hazardRateRangeMultiplier) * hazardRateGuess;

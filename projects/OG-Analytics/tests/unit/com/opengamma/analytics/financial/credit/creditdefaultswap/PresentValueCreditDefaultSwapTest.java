@@ -88,8 +88,7 @@ public class PresentValueCreditDefaultSwapTest {
 
   private static final double notional = 10000000.0;
   private static final double premiumLegCoupon = 100.0;
-  private static final double valuationRecoveryRate = 0.40;
-  private static final double curveRecoveryRate = 0.40;
+  private static final double recoveryRate = 0.40;
   private static final boolean includeAccruedPremium = false;
 
   // Dummy yield curve
@@ -100,7 +99,7 @@ public class PresentValueCreditDefaultSwapTest {
   private static final YieldCurve yieldCurve = YieldCurve.from(R);
 
   // Construct a survival curve based on a flat hazard rate term structure (for testing purposes only)
-  private static final double hazardRate = (premiumLegCoupon / 10000.0) / (1 - curveRecoveryRate);
+  private static final double hazardRate = (premiumLegCoupon / 10000.0) / (1 - recoveryRate);
   private static final double[] tenorsAsDoubles = new double[] {5 };
   private static final double[] hazardRates = new double[] {hazardRate };
   private static final SurvivalCurve flatSurvivalCurve = new SurvivalCurve(tenorsAsDoubles, hazardRates);
@@ -136,8 +135,7 @@ public class PresentValueCreditDefaultSwapTest {
       adjustMaturityDate,
       notional,
       premiumLegCoupon,
-      valuationRecoveryRate,
-      curveRecoveryRate,
+      recoveryRate,
       includeAccruedPremium);
 
   // -----------------------------------------------------------------------------------------------
@@ -236,7 +234,7 @@ public class PresentValueCreditDefaultSwapTest {
     CreditDefaultSwapDefinition calibrationCDS = cds;
 
     // Set the recovery rate of the calibration CDS used for the curve calibration (this appears in the calculation of the contingent leg)
-    calibrationCDS = calibrationCDS.withValuationRecoveryRate(calibrationRecoveryRate);
+    calibrationCDS = calibrationCDS.withRecoveryRate(calibrationRecoveryRate);
 
     // Create a calibrate survival curve object
     final CalibrateHazardRate hazardRateCurve = new CalibrateHazardRate();

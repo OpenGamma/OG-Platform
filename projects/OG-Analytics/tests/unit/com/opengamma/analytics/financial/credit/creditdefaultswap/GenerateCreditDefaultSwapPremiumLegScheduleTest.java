@@ -79,8 +79,7 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
 
   private static final double notional = 10000000.0;
   private static final double premiumLegCoupon = 60.0;
-  private static final double valuationRecoveryRate = 0.40;
-  private static final double curveRecoveryRate = 0.40;
+  private static final double recoveryRate = 0.40;
   private static final boolean includeAccruedPremium = true;
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -114,8 +113,7 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
       adjustMaturityDate,
       notional,
       premiumLegCoupon,
-      valuationRecoveryRate,
-      curveRecoveryRate,
+      recoveryRate,
       includeAccruedPremium);
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
