@@ -239,9 +239,9 @@ public abstract class AbstractPortfolioGeneratorTool {
       instance.setSecurityPersister(new MasterSecurityPersister(context.getSecurityMaster()));
     } else {
       s_logger.info("Using dummy security writer");
-      final MockSecurityPersister securityPersister = new MockSecurityPersister();
+      final InMemorySecurityPersister securityPersister = new InMemorySecurityPersister();
       instance.setSecurityPersister(securityPersister);
-      securitySource = securityPersister.getMockSecuritySource();
+      securitySource = securityPersister.getSecuritySource();
     }
     if (currencies != null && currencies.length > 0) {
       instance.setCurrencies(currencies);
@@ -261,7 +261,7 @@ public abstract class AbstractPortfolioGeneratorTool {
       PortfolioDocument document = result.getFirstDocument();
       if (document != null) {
         s_logger.info("Overwriting portfolio {}", document.getUniqueId());
-        document.setPortfolio(newPortfolio);
+        document.setObject(newPortfolio);
         context.getPortfolioMaster().update(document);
       } else {
         document = new PortfolioDocument(newPortfolio);

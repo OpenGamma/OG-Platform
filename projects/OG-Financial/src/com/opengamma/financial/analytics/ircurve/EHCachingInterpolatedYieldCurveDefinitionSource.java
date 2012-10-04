@@ -11,6 +11,7 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.money.Currency;
@@ -82,7 +83,7 @@ public class EHCachingInterpolatedYieldCurveDefinitionSource implements Interpol
   }
 
   @Override
-  public YieldCurveDefinition getDefinition(Currency currency, String name, InstantProvider version) {
+  public YieldCurveDefinition getDefinition(Currency currency, String name, VersionCorrection version) {
     return _underlying.getDefinition(currency, name, version); // TODO PLAT-1308: I'm not caching this because this cache doesn't version things properly
   }
 

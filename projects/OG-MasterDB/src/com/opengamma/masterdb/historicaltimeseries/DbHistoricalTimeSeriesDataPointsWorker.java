@@ -184,7 +184,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
             return Pair.of(insertDataPoints(uniqueId, series, now), now);
       }
     });
-    getMaster().changeManager().entityChanged(ChangeType.UPDATED, uniqueId, result.getFirst(), result.getSecond());
+    getMaster().changeManager().entityChanged(ChangeType.CHANGED, objectId.getObjectId(), null, null, result.getSecond());
     return result.getFirst();
   }
 
@@ -260,7 +260,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
         return Pair.of(correctDataPoints(uniqueId, series, now), now);
       }
     });
-    getMaster().changeManager().entityChanged(ChangeType.CORRECTED, uniqueId, result.getFirst(), result.getSecond());
+    getMaster().changeManager().entityChanged(ChangeType.CHANGED, objectId.getObjectId(), null, null, result.getSecond());
     return result.getFirst();
   }
 
@@ -310,7 +310,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
         return Pair.of(removeDataPoints(uniqueId, fromDateInclusive, toDateInclusive, now), now);
       }
     });
-    getMaster().changeManager().entityChanged(ChangeType.UPDATED, uniqueId, result.getFirst(), result.getSecond());
+    getMaster().changeManager().entityChanged(ChangeType.CHANGED, objectId.getObjectId(), null, null, result.getSecond());
     return result.getFirst();
   }
 

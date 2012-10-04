@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.fxforwardcurve;
 import javax.time.Instant;
 
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -23,11 +24,11 @@ public class ConfigDBFXForwardCurveSpecificationSource implements FXForwardCurve
 
   @Override
   public FXForwardCurveSpecification getSpecification(final String name, final String currencyPair) {
-    return _configSource.getLatestByName(FXForwardCurveSpecification.class, name + "_" + currencyPair + "_FX_FORWARD");
+    return _configSource.getLatest(FXForwardCurveSpecification.class, name + "_" + currencyPair + "_FX_FORWARD");
   }
 
   @Override
-  public FXForwardCurveSpecification getSpecification(final String name, final String currencyPair, final Instant instant) {
-    return _configSource.getByName(FXForwardCurveSpecification.class, name + "_" + currencyPair + "_FX_FORWARD", instant);
+  public FXForwardCurveSpecification getSpecification(final String name, final String currencyPair, final VersionCorrection versionCorrection) {
+    return _configSource.getConfig(FXForwardCurveSpecification.class, name + "_" + currencyPair + "_FX_FORWARD", versionCorrection);
   }
 }

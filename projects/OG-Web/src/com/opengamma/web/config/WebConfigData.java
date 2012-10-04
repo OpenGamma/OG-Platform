@@ -65,13 +65,13 @@ public class WebConfigData extends DirectBean {
    * The {@code Object} type is necessary to handle generics in a practical way.
    */
   @PropertyDefinition
-  private ConfigDocument<?> _config;
+  private ConfigDocument _config;
   /**
    * The versioned config.
    * The {@code Object} type is necessary to handle generics in a practical way.
    */
   @PropertyDefinition
-  private ConfigDocument<?> _versioned;
+  private ConfigDocument _versioned;
   
   /**
    * The valid map of types.
@@ -176,10 +176,10 @@ public class WebConfigData extends DirectBean {
         setUriVersionId((String) newValue);
         return;
       case -1354792126:  // config
-        setConfig((ConfigDocument<?>) newValue);
+        setConfig((ConfigDocument) newValue);
         return;
       case -1407102089:  // versioned
-        setVersioned((ConfigDocument<?>) newValue);
+        setVersioned((ConfigDocument) newValue);
         return;
       case -853107774:  // typeMap
         setTypeMap((BiMap<String, Class<?>>) newValue);
@@ -357,7 +357,7 @@ public class WebConfigData extends DirectBean {
    * The {@code Object} type is necessary to handle generics in a practical way.
    * @return the value of the property
    */
-  public ConfigDocument<?> getConfig() {
+  public ConfigDocument getConfig() {
     return _config;
   }
 
@@ -366,7 +366,7 @@ public class WebConfigData extends DirectBean {
    * The {@code Object} type is necessary to handle generics in a practical way.
    * @param config  the new value of the property
    */
-  public void setConfig(ConfigDocument<?> config) {
+  public void setConfig(ConfigDocument config) {
     this._config = config;
   }
 
@@ -375,7 +375,7 @@ public class WebConfigData extends DirectBean {
    * The {@code Object} type is necessary to handle generics in a practical way.
    * @return the property, not null
    */
-  public final Property<ConfigDocument<?>> config() {
+  public final Property<ConfigDocument> config() {
     return metaBean().config().createProperty(this);
   }
 
@@ -385,7 +385,7 @@ public class WebConfigData extends DirectBean {
    * The {@code Object} type is necessary to handle generics in a practical way.
    * @return the value of the property
    */
-  public ConfigDocument<?> getVersioned() {
+  public ConfigDocument getVersioned() {
     return _versioned;
   }
 
@@ -394,7 +394,7 @@ public class WebConfigData extends DirectBean {
    * The {@code Object} type is necessary to handle generics in a practical way.
    * @param versioned  the new value of the property
    */
-  public void setVersioned(ConfigDocument<?> versioned) {
+  public void setVersioned(ConfigDocument versioned) {
     this._versioned = versioned;
   }
 
@@ -403,7 +403,7 @@ public class WebConfigData extends DirectBean {
    * The {@code Object} type is necessary to handle generics in a practical way.
    * @return the property, not null
    */
-  public final Property<ConfigDocument<?>> versioned() {
+  public final Property<ConfigDocument> versioned() {
     return metaBean().versioned().createProperty(this);
   }
 
@@ -499,13 +499,13 @@ public class WebConfigData extends DirectBean {
      * The meta-property for the {@code config} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ConfigDocument<?>> _config = DirectMetaProperty.ofReadWrite(
+    private final MetaProperty<ConfigDocument> _config = DirectMetaProperty.ofReadWrite(
         this, "config", WebConfigData.class, (Class) ConfigDocument.class);
     /**
      * The meta-property for the {@code versioned} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ConfigDocument<?>> _versioned = DirectMetaProperty.ofReadWrite(
+    private final MetaProperty<ConfigDocument> _versioned = DirectMetaProperty.ofReadWrite(
         this, "versioned", WebConfigData.class, (Class) ConfigDocument.class);
     /**
      * The meta-property for the {@code typeMap} property.
@@ -625,7 +625,7 @@ public class WebConfigData extends DirectBean {
      * The meta-property for the {@code config} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ConfigDocument<?>> config() {
+    public final MetaProperty<ConfigDocument> config() {
       return _config;
     }
 
@@ -633,7 +633,7 @@ public class WebConfigData extends DirectBean {
      * The meta-property for the {@code versioned} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ConfigDocument<?>> versioned() {
+    public final MetaProperty<ConfigDocument> versioned() {
       return _versioned;
     }
 

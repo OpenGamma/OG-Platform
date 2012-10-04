@@ -20,7 +20,7 @@ import com.sun.jersey.api.client.GenericType;
 /**
  * Provides access to a remote {@link PortfolioMaster}.
  */
-public class RemotePortfolioMaster extends AbstractRemoteDocumentMaster<PortfolioDocument> implements PortfolioMaster {
+public class RemotePortfolioMaster extends AbstractRemoteDocumentMaster<ManageablePortfolio, PortfolioDocument> implements PortfolioMaster {
 
   /**
    * Creates an instance.
@@ -76,8 +76,8 @@ public class RemotePortfolioMaster extends AbstractRemoteDocumentMaster<Portfoli
   @Override
   public PortfolioDocument add(final PortfolioDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getPortfolio(), "document.portfolio");
-    ArgumentChecker.notNull(document.getPortfolio().getRootNode(), "document.portfolio.rootNode");
+    ArgumentChecker.notNull(document.getObject(), "document.portfolio");
+    ArgumentChecker.notNull(document.getObject().getRootNode(), "document.portfolio.rootNode");
 
     URI uri = DataPortfolioMasterResource.uriAdd(getBaseUri());
     return accessRemote(uri).post(PortfolioDocument.class, document);
@@ -87,7 +87,7 @@ public class RemotePortfolioMaster extends AbstractRemoteDocumentMaster<Portfoli
   @Override
   public PortfolioDocument update(final PortfolioDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getPortfolio(), "document.portfolio");
+    ArgumentChecker.notNull(document.getObject(), "document.portfolio");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
 
     URI uri = (new DataPortfolioResource()).uri(getBaseUri(), document.getUniqueId(), null);
@@ -96,10 +96,10 @@ public class RemotePortfolioMaster extends AbstractRemoteDocumentMaster<Portfoli
 
   //-------------------------------------------------------------------------
   @Override
-  public void remove(final UniqueId uniqueId) {
-    ArgumentChecker.notNull(uniqueId, "uniqueId");
+  public void remove(final ObjectIdentifiable objectIdentifiable) {
+    ArgumentChecker.notNull(objectIdentifiable, "objectIdentifiable");
 
-    URI uri = (new DataPortfolioResource()).uri(getBaseUri(), uniqueId, null);
+    URI uri = (new DataPortfolioResource()).uri(getBaseUri(), objectIdentifiable, null);
     accessRemote(uri).delete();
   }
 
@@ -117,7 +117,7 @@ public class RemotePortfolioMaster extends AbstractRemoteDocumentMaster<Portfoli
   @Override
   public PortfolioDocument correct(final PortfolioDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getPortfolio(), "document.portfolio");
+    ArgumentChecker.notNull(document.getObject(), "document.portfolio");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
 
     URI uri = (new DataPortfolioResource()).uriVersion(getBaseUri(), document.getUniqueId());
@@ -139,8 +139,8 @@ public class RemotePortfolioMaster extends AbstractRemoteDocumentMaster<Portfoli
     ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
     for (PortfolioDocument replacementDocument : replacementDocuments) {
       ArgumentChecker.notNull(replacementDocument, "documentToAdd");
-      ArgumentChecker.notNull(replacementDocument.getPortfolio(), "document.portfolio");
-      ArgumentChecker.notNull(replacementDocument.getPortfolio().getRootNode(), "document.portfolio.rootNode");
+      ArgumentChecker.notNull(replacementDocument.getObject(), "document.portfolio");
+      ArgumentChecker.notNull(replacementDocument.getObject().getRootNode(), "document.portfolio.rootNode");
     }
     URI uri = (new DataPortfolioResource()).uriVersion(getBaseUri(), uniqueId);
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {
@@ -153,8 +153,8 @@ public class RemotePortfolioMaster extends AbstractRemoteDocumentMaster<Portfoli
     ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
     for (PortfolioDocument replacementDocument : replacementDocuments) {
       ArgumentChecker.notNull(replacementDocument, "documentToAdd");
-      ArgumentChecker.notNull(replacementDocument.getPortfolio(), "document.portfolio");
-      ArgumentChecker.notNull(replacementDocument.getPortfolio().getRootNode(), "document.portfolio.rootNode");
+      ArgumentChecker.notNull(replacementDocument.getObject(), "document.portfolio");
+      ArgumentChecker.notNull(replacementDocument.getObject().getRootNode(), "document.portfolio.rootNode");
     }
     URI uri = (new DataPortfolioResource()).uriAll(getBaseUri(), objectId, null);
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {
@@ -167,8 +167,8 @@ public class RemotePortfolioMaster extends AbstractRemoteDocumentMaster<Portfoli
     ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
     for (PortfolioDocument replacementDocument : replacementDocuments) {
       ArgumentChecker.notNull(replacementDocument, "documentToAdd");
-      ArgumentChecker.notNull(replacementDocument.getPortfolio(), "document.portfolio");
-      ArgumentChecker.notNull(replacementDocument.getPortfolio().getRootNode(), "document.portfolio.rootNode");
+      ArgumentChecker.notNull(replacementDocument.getObject(), "document.portfolio");
+      ArgumentChecker.notNull(replacementDocument.getObject().getRootNode(), "document.portfolio.rootNode");
     }
     URI uri = (new DataPortfolioResource()).uri(getBaseUri(), objectId, null);
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {

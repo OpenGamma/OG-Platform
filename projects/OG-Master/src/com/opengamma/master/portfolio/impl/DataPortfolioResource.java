@@ -14,17 +14,14 @@ import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.id.ObjectId;
 import com.opengamma.master.AbstractDocumentDataResource;
-import com.opengamma.master.portfolio.PortfolioDocument;
-import com.opengamma.master.portfolio.PortfolioHistoryRequest;
-import com.opengamma.master.portfolio.PortfolioHistoryResult;
-import com.opengamma.master.portfolio.PortfolioMaster;
+import com.opengamma.master.portfolio.*;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.RestUtils;
 
 /**
  * RESTful resource for a portfolio.
  */
-public class DataPortfolioResource extends AbstractDocumentDataResource<PortfolioDocument> {
+public class DataPortfolioResource extends AbstractDocumentDataResource<ManageablePortfolio, PortfolioDocument> {
 
   /**
    * The portfolios resource.

@@ -127,7 +127,7 @@ public class DbHistoricalTimeSeriesMasterWorkerUpdateTest extends AbstractDbHist
     assertEquals(null, updated.getVersionToInstant());
     assertEquals(now, updated.getCorrectionFromInstant());
     assertEquals(null, updated.getCorrectionToInstant());
-    assertEquals(input.getInfo(), updated.getInfo());
+    assertEquals(input.getObject(), updated.getObject());
     
     HistoricalTimeSeriesInfoDocument old = _htsMaster.get(UniqueId.of("DbHts", "101", "0"));
     assertEquals(base.getUniqueId(), old.getUniqueId());
@@ -135,7 +135,7 @@ public class DbHistoricalTimeSeriesMasterWorkerUpdateTest extends AbstractDbHist
     assertEquals(now, old.getVersionToInstant());  // old version ended
     assertEquals(base.getCorrectionFromInstant(), old.getCorrectionFromInstant());
     assertEquals(base.getCorrectionToInstant(), old.getCorrectionToInstant());
-    assertEquals(base.getInfo(), old.getInfo());
+    assertEquals(base.getObject(), old.getObject());
     
     HistoricalTimeSeriesInfoHistoryRequest search = new HistoricalTimeSeriesInfoHistoryRequest(base.getUniqueId(), null, now);
     HistoricalTimeSeriesInfoHistoryResult searchResult = _htsMaster.history(search);

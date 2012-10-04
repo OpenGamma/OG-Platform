@@ -7,6 +7,7 @@ package com.opengamma.master.config.impl;
 
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.master.AbstractMaster;
@@ -15,7 +16,7 @@ import com.opengamma.master.AbstractMaster;
  * This class is needed to work around problem with method name clash with generics 
  * when {@code ConfigMaster} interface is directly implemented
  */
-/*package*/ abstract class AbstractInMemoryMaster<D extends AbstractDocument> implements AbstractMaster<D> {
+/*package*/ abstract class AbstractInMemoryMaster<T extends UniqueIdentifiable, D extends AbstractDocument<T>> implements AbstractMaster<T, D> {
   
   @Override
   public D get(UniqueId uniqueId) {

@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.master.config.ConfigDocument;
@@ -62,9 +63,7 @@ public class CurrencyPairsConfigDocumentLoader {
    */
   private void savePairs(Set<CurrencyPair> pairs) {
     CurrencyPairs currencyPairs = CurrencyPairs.of(pairs);
-    ConfigDocument<CurrencyPairs> configDocument = new ConfigDocument<CurrencyPairs>(CurrencyPairs.class);
-    configDocument.setName(_configName);
-    configDocument.setValue(currencyPairs);
+    ConfigItem<CurrencyPairs> configDocument = ConfigItem.of(currencyPairs, _configName, CurrencyPairs.class);    
     ConfigMasterUtils.storeByName(_configMaster, configDocument);
   }
 

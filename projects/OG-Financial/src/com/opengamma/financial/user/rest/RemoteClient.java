@@ -13,8 +13,8 @@ import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitio
 import com.opengamma.financial.analytics.ircurve.rest.RemoteInterpolatedYieldCurveDefinitionMaster;
 import com.opengamma.financial.convention.ConventionBundleMaster;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
-import com.opengamma.financial.view.ManageableViewDefinitionRepository;
-import com.opengamma.financial.view.rest.RemoteManageableViewDefinitionRepository;
+import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.config.impl.RemoteConfigMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
@@ -199,7 +199,7 @@ public class RemoteClient {
 
     @Override
     public URI getViewDefinitionRepository() {
-      return DataFinancialClientResource.uriViewDefinitionMaster(_baseUri, _userName, _clientName);
+      return DataFinancialClientResource.uriConfigMaster(_baseUri, _userName, _clientName);
     }
 
     @Override
@@ -223,7 +223,7 @@ public class RemoteClient {
   private volatile PortfolioMaster _portfolioMaster;
   private volatile PositionMaster _positionMaster;
   private volatile SecurityMaster _securityMaster;
-  private volatile ManageableViewDefinitionRepository _viewDefinitionRepository;
+  private volatile ConfigMaster _configMaster;
   private volatile InterpolatedYieldCurveDefinitionMaster _interpolatedYieldCurveDefinitionMaster;
   private volatile MarketDataSnapshotMaster _marketDataSnapshotMaster;
   private volatile HistoricalTimeSeriesMaster _historicalTimeSeriesMaster;
@@ -260,11 +260,11 @@ public class RemoteClient {
     return _securityMaster;
   }
 
-  public ManageableViewDefinitionRepository getViewDefinitionRepository() {
-    if (_viewDefinitionRepository == null) {
-      _viewDefinitionRepository = new RemoteManageableViewDefinitionRepository(_targetProvider.getViewDefinitionRepository());
+  public ConfigMaster getConfigMaster() {
+    if (_configMaster == null) {
+      _configMaster = new RemoteConfigMaster(_targetProvider.getViewDefinitionRepository());
     }
-    return _viewDefinitionRepository;
+    return _configMaster;
   }
 
   public InterpolatedYieldCurveDefinitionMaster getInterpolatedYieldCurveDefinitionMaster() {

@@ -56,7 +56,7 @@ public class SecuritySearchResult extends AbstractSearchResult<SecurityDocument>
     List<ManageableSecurity> result = new ArrayList<ManageableSecurity>();
     if (getDocuments() != null) {
       for (SecurityDocument doc : getDocuments()) {
-        result.add(doc.getSecurity());
+        result.add(doc.getObject());
       }
     }
     return result;
@@ -68,7 +68,7 @@ public class SecuritySearchResult extends AbstractSearchResult<SecurityDocument>
    * @return the first security, null if none
    */
   public ManageableSecurity getFirstSecurity() {
-    return getDocuments().size() > 0 ? getDocuments().get(0).getSecurity() : null;
+    return getDocuments().size() > 0 ? getDocuments().get(0).getObject() : null;
   }
 
   /**
@@ -84,7 +84,7 @@ public class SecuritySearchResult extends AbstractSearchResult<SecurityDocument>
     if (getDocuments().size() != 1) {
       throw new OpenGammaRuntimeException("Expecting zero or single resulting match, and was " + getDocuments().size());
     } else {
-      return getDocuments().get(0).getSecurity();
+      return getDocuments().get(0).getObject();
     }
   }
 

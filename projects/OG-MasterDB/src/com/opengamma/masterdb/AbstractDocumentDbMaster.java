@@ -6,9 +6,12 @@
 package com.opengamma.masterdb;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.time.Instant;
@@ -25,10 +28,7 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.ChangeType;
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
+import com.opengamma.id.*;
 import com.opengamma.master.*;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
@@ -47,7 +47,7 @@ import com.opengamma.util.paging.PagingRequest;
  *
  * @param <D>  the type of the document
  */
-public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> extends AbstractDbMaster implements AbstractMaster<D> {
+public abstract class AbstractDocumentDbMaster<T extends UniqueIdentifiable, D extends AbstractDocument<? extends T>> extends AbstractDbMaster implements AbstractMaster<T, D> {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDocumentDbMaster.class);
@@ -297,7 +297,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
         return doAddInTransaction(document);
       }
     });
-    changeManager().entityChanged(ChangeType.ADDED, null, added.getUniqueId(), added.getVersionFromInstant());
+    changeManager().entityChanged(ChangeType.ADDED, added.getObjectId(), added.getVersionFromInstant(), added.getVersionToInstant(), now());
     return added;
   }
 
@@ -334,8 +334,8 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
       public D doInTransaction(final TransactionStatus status) {
         return doUpdateInTransaction(document);
       }
-    });
-    changeManager().entityChanged(ChangeType.UPDATED, beforeId, updated.getUniqueId(), updated.getVersionFromInstant());
+    });    
+    changeManager().entityChanged(ChangeType.CHANGED, updated.getObjectId(), updated.getVersionFromInstant(), updated.getVersionToInstant(), now());
     return updated;
   }
 
@@ -365,28 +365,28 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
 
   //-------------------------------------------------------------------------
   @Override
-  public void remove(final UniqueId uniqueId) {
-    ArgumentChecker.notNull(uniqueId, "uniqueId");
-    checkScheme(uniqueId);
-    s_logger.debug("remove {}", uniqueId);
+  public void remove(final ObjectIdentifiable objectIdentifiable) {
+    ArgumentChecker.notNull(objectIdentifiable, "objectIdentifiable");
+    checkScheme(objectIdentifiable);
+    s_logger.debug("remove {}", objectIdentifiable);
     D removed = getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<D>() {
       @Override
       public D doInTransaction(final TransactionStatus status) {
-        return doRemoveInTransaction(uniqueId);
+        return doRemoveInTransaction(objectIdentifiable);
       }
     });
-    changeManager().entityChanged(ChangeType.REMOVED, removed.getUniqueId(), null, removed.getVersionToInstant());
+    changeManager().entityChanged(ChangeType.REMOVED, removed.getObjectId(), removed.getVersionToInstant(), null, removed.getVersionToInstant());
   }
 
   /**
    * Processes the document update, within a retrying transaction.
    *
-   * @param uniqueId  the unique identifier to remove, not null
+   * @param objectIdentifiable the objectIdentifiable to remove, not null
    * @return the updated document, not null
    */
-  protected D doRemoveInTransaction(final UniqueId uniqueId) {
+  protected D doRemoveInTransaction(final ObjectIdentifiable objectIdentifiable) {
     // load old row
-    final D oldDoc = getCheckLatestVersion(uniqueId);
+    final D oldDoc = get(objectIdentifiable.getObjectId(), VersionCorrection.LATEST);
     // update old row
     final Instant now = now();
     oldDoc.setVersionToInstant(now);
@@ -409,7 +409,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
         return doCorrectInTransaction(document);
       }
     });
-    changeManager().entityChanged(ChangeType.CORRECTED, beforeId, corrected.getUniqueId(), corrected.getVersionFromInstant());
+    changeManager().entityChanged(ChangeType.CHANGED, corrected.getObjectId(), corrected.getVersionFromInstant(), corrected.getVersionToInstant(), now());
     return corrected;
   }
 
@@ -893,4 +893,13 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    * @throws IllegalArgumentException if the request is invalid
    */
   abstract public AbstractHistoryResult<D> historyByVersionsCorrections(AbstractHistoryRequest request);
+
+  @Override
+  public Map<UniqueId, D> get(Collection<UniqueId> uniqueIds) {
+    Map<UniqueId, D> map = newHashMap();
+    for (UniqueId uniqueId : uniqueIds) {
+      map.put(uniqueId, get(uniqueId));
+    }
+    return map;
+  }
 }

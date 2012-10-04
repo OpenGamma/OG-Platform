@@ -8,12 +8,7 @@ package com.opengamma.master.region;
 import java.io.Serializable;
 import java.util.Map;
 
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.PropertyDefinition;
+import org.joda.beans.*;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -24,6 +19,10 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 
 /**
  * A document used to pass into and out of the region master.
@@ -33,7 +32,7 @@ import com.opengamma.util.PublicSPI;
  */
 @PublicSPI
 @BeanDefinition
-public class RegionDocument extends AbstractDocument implements Serializable {
+public class RegionDocument extends AbstractDocument<ManageableRegion> implements Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -51,11 +50,6 @@ public class RegionDocument extends AbstractDocument implements Serializable {
    */
   @PropertyDefinition
   private ExternalId _providerId;
-  /**
-   * The region.
-   */
-  @PropertyDefinition
-  private ManageableRegion _region;
 
   /**
    * Creates an instance.
@@ -65,16 +59,16 @@ public class RegionDocument extends AbstractDocument implements Serializable {
 
   /**
    * Creates an instance from a region.
-   * 
+   *
    * @param region  the region, not null
    */
   public RegionDocument(final Region region) {
     ArgumentChecker.notNull(region, "region");
     setUniqueId(region.getUniqueId());
     if (region instanceof ManageableRegion) {
-      setRegion((ManageableRegion) region);
+      setObject((ManageableRegion) region);
     } else {
-      setRegion(new ManageableRegion(region));
+      setObject(new ManageableRegion(region));
     }
   }
 
@@ -84,6 +78,7 @@ public class RegionDocument extends AbstractDocument implements Serializable {
    * The meta-bean for {@code RegionDocument}.
    * @return the meta-bean, not null
    */
+  @SuppressWarnings("unchecked")
   public static RegionDocument.Meta meta() {
     return RegionDocument.Meta.INSTANCE;
   }
@@ -103,8 +98,6 @@ public class RegionDocument extends AbstractDocument implements Serializable {
         return getUniqueId();
       case 205149932:  // providerId
         return getProviderId();
-      case -934795532:  // region
-        return getRegion();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -117,9 +110,6 @@ public class RegionDocument extends AbstractDocument implements Serializable {
         return;
       case 205149932:  // providerId
         setProviderId((ExternalId) newValue);
-        return;
-      case -934795532:  // region
-        setRegion((ManageableRegion) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -134,7 +124,6 @@ public class RegionDocument extends AbstractDocument implements Serializable {
       RegionDocument other = (RegionDocument) obj;
       return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
           JodaBeanUtils.equal(getProviderId(), other.getProviderId()) &&
-          JodaBeanUtils.equal(getRegion(), other.getRegion()) &&
           super.equals(obj);
     }
     return false;
@@ -145,7 +134,6 @@ public class RegionDocument extends AbstractDocument implements Serializable {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getProviderId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegion());
     return hash ^ super.hashCode();
   }
 
@@ -210,34 +198,9 @@ public class RegionDocument extends AbstractDocument implements Serializable {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the region.
-   * @return the value of the property
-   */
-  public ManageableRegion getRegion() {
-    return _region;
-  }
-
-  /**
-   * Sets the region.
-   * @param region  the new value of the property
-   */
-  public void setRegion(ManageableRegion region) {
-    this._region = region;
-  }
-
-  /**
-   * Gets the the {@code region} property.
-   * @return the property, not null
-   */
-  public final Property<ManageableRegion> region() {
-    return metaBean().region().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * The meta-bean for {@code RegionDocument}.
    */
-  public static class Meta extends AbstractDocument.Meta {
+  public static class Meta extends AbstractDocument.Meta<ManageableRegion> {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -254,18 +217,12 @@ public class RegionDocument extends AbstractDocument implements Serializable {
     private final MetaProperty<ExternalId> _providerId = DirectMetaProperty.ofReadWrite(
         this, "providerId", RegionDocument.class, ExternalId.class);
     /**
-     * The meta-property for the {@code region} property.
-     */
-    private final MetaProperty<ManageableRegion> _region = DirectMetaProperty.ofReadWrite(
-        this, "region", RegionDocument.class, ManageableRegion.class);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "uniqueId",
-        "providerId",
-        "region");
+        "providerId");
 
     /**
      * Restricted constructor.
@@ -280,8 +237,6 @@ public class RegionDocument extends AbstractDocument implements Serializable {
           return _uniqueId;
         case 205149932:  // providerId
           return _providerId;
-        case -934795532:  // region
-          return _region;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -316,14 +271,6 @@ public class RegionDocument extends AbstractDocument implements Serializable {
      */
     public final MetaProperty<ExternalId> providerId() {
       return _providerId;
-    }
-
-    /**
-     * The meta-property for the {@code region} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<ManageableRegion> region() {
-      return _region;
     }
 
   }

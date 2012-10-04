@@ -30,7 +30,7 @@ import com.opengamma.util.paging.Paging;
  * This implementation does not copy stored elements, making it thread-hostile.
  * As such, this implementation is currently most useful for testing scenarios.
  */
-public class InMemoryRegionMaster extends SimpleAbstractInMemoryMaster<RegionDocument> implements RegionMaster {
+public class InMemoryRegionMaster extends SimpleAbstractInMemoryMaster<ManageableRegion, RegionDocument> implements RegionMaster {
 
   /**
    * The default scheme used for each {@link ObjectId}.
@@ -112,11 +112,11 @@ public class InMemoryRegionMaster extends SimpleAbstractInMemoryMaster<RegionDoc
   @Override
   public RegionDocument add(final RegionDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getRegion(), "document.region");
+    ArgumentChecker.notNull(document.getObject(), "document.region");
 
     final ObjectId objectId = _objectIdSupplier.get();
     final UniqueId uniqueId = objectId.atVersion("");
-    final ManageableRegion region = document.getRegion();
+    final ManageableRegion region = document.getObject();
     region.setUniqueId(uniqueId);
     document.setUniqueId(uniqueId);
     final Instant now = Instant.now();
@@ -125,7 +125,7 @@ public class InMemoryRegionMaster extends SimpleAbstractInMemoryMaster<RegionDoc
     document.setCorrectionFromInstant(now);
     document.setCorrectionToInstant(null);
     _store.put(objectId, document);
-    _changeManager.entityChanged(ChangeType.ADDED, null, uniqueId, now);
+    _changeManager.entityChanged(ChangeType.ADDED, objectId, document.getVersionFromInstant(), document.getVersionToInstant(), now);
     return document;
   }
 
@@ -134,7 +134,7 @@ public class InMemoryRegionMaster extends SimpleAbstractInMemoryMaster<RegionDoc
   public RegionDocument update(final RegionDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
-    ArgumentChecker.notNull(document.getRegion(), "document.region");
+    ArgumentChecker.notNull(document.getObject(), "document.region");
 
     final UniqueId uniqueId = document.getUniqueId();
     final Instant now = Instant.now();
@@ -149,18 +149,18 @@ public class InMemoryRegionMaster extends SimpleAbstractInMemoryMaster<RegionDoc
     if (_store.replace(uniqueId.getObjectId(), storedDocument, document) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }
-    _changeManager.entityChanged(ChangeType.UPDATED, uniqueId, document.getUniqueId(), now);
+    _changeManager.entityChanged(ChangeType.CHANGED, document.getObjectId(), storedDocument.getVersionFromInstant(), document.getVersionToInstant(), now);
     return document;
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public void remove(final UniqueId uniqueId) {
-    ArgumentChecker.notNull(uniqueId, "uniqueId");
-    if (_store.remove(uniqueId.getObjectId()) == null) {
-      throw new DataNotFoundException("Region not found: " + uniqueId);
+  public void remove(final ObjectIdentifiable objectIdentifiable) {
+    ArgumentChecker.notNull(objectIdentifiable, "objectIdentifiable");
+    if (_store.remove(objectIdentifiable.getObjectId()) == null) {
+      throw new DataNotFoundException("Region not found: " + objectIdentifiable);
     }
-    _changeManager.entityChanged(ChangeType.REMOVED, uniqueId, null, Instant.now());
+    _changeManager.entityChanged(ChangeType.REMOVED, objectIdentifiable.getObjectId(), null, null, Instant.now());
   }
 
   //-------------------------------------------------------------------------
@@ -187,6 +187,6 @@ public class InMemoryRegionMaster extends SimpleAbstractInMemoryMaster<RegionDoc
   @Override
   protected void validateDocument(RegionDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getRegion(), "document.region");
+    ArgumentChecker.notNull(document.getObject(), "document.region");
   }
 }

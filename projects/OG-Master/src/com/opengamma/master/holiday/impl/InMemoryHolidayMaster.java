@@ -16,6 +16,7 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.ChangeType;
+import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.*;
 import com.opengamma.master.SimpleAbstractInMemoryMaster;
@@ -31,7 +32,7 @@ import com.opengamma.util.paging.Paging;
  * This implementation does not copy stored elements, making it thread-hostile.
  * As such, this implementation is currently most useful for testing scenarios.
  */
-public class InMemoryHolidayMaster extends SimpleAbstractInMemoryMaster<HolidayDocument> implements HolidayMaster {
+public class InMemoryHolidayMaster extends SimpleAbstractInMemoryMaster<ManageableHoliday, HolidayDocument> implements HolidayMaster {
 
   /**
    * The default scheme used for each {@link ObjectId}.
@@ -78,7 +79,7 @@ public class InMemoryHolidayMaster extends SimpleAbstractInMemoryMaster<HolidayD
   protected void validateDocument(HolidayDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getName(), "document.name");
-    ArgumentChecker.notNull(document.getHoliday(), "document.holiday");
+    ArgumentChecker.notNull(document.getObject(), "document.holiday");
   }
 
   //-------------------------------------------------------------------------
@@ -131,11 +132,11 @@ public class InMemoryHolidayMaster extends SimpleAbstractInMemoryMaster<HolidayD
   public HolidayDocument add(final HolidayDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getName(), "document.name");
-    ArgumentChecker.notNull(document.getHoliday(), "document.holiday");
+    ArgumentChecker.notNull(document.getObject(), "document.holiday");
 
     final ObjectId objectId = _objectIdSupplier.get();
     final UniqueId uniqueId = objectId.atVersion("");
-    final ManageableHoliday holiday = document.getHoliday();
+    final ManageableHoliday holiday = document.getObject();
     holiday.setUniqueId(uniqueId);
     document.setUniqueId(uniqueId);
     final Instant now = Instant.now();
@@ -144,7 +145,7 @@ public class InMemoryHolidayMaster extends SimpleAbstractInMemoryMaster<HolidayD
     document.setCorrectionFromInstant(now);
     document.setCorrectionToInstant(null);
     _store.put(objectId, document);
-    _changeManager.entityChanged(ChangeType.ADDED, null, uniqueId, now);
+    _changeManager.entityChanged(ChangeType.ADDED, objectId, document.getVersionFromInstant(), document.getVersionToInstant(), now);
     return document;
   }
 
@@ -154,7 +155,7 @@ public class InMemoryHolidayMaster extends SimpleAbstractInMemoryMaster<HolidayD
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     ArgumentChecker.notNull(document.getName(), "document.name");
-    ArgumentChecker.notNull(document.getHoliday(), "document.holiday");
+    ArgumentChecker.notNull(document.getObject(), "document.holiday");
 
     final UniqueId uniqueId = document.getUniqueId();
     final Instant now = Instant.now();
@@ -169,18 +170,18 @@ public class InMemoryHolidayMaster extends SimpleAbstractInMemoryMaster<HolidayD
     if (_store.replace(uniqueId.getObjectId(), storedDocument, document) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }
-    _changeManager.entityChanged(ChangeType.UPDATED, uniqueId, document.getUniqueId(), now);
+    _changeManager.entityChanged(ChangeType.CHANGED, document.getObjectId(), storedDocument.getVersionFromInstant(), document.getVersionToInstant(), now);
     return document;
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public void remove(final UniqueId uniqueId) {
-    ArgumentChecker.notNull(uniqueId, "uniqueId");
-    if (_store.remove(uniqueId.getObjectId()) == null) {
-      throw new DataNotFoundException("Holiday not found: " + uniqueId);
+  public void remove(final ObjectIdentifiable objectIdentifiable) {
+    ArgumentChecker.notNull(objectIdentifiable, "objectIdentifiable");
+    if (_store.remove(objectIdentifiable.getObjectId()) == null) {
+      throw new DataNotFoundException("Holiday not found: " + objectIdentifiable);
     }
-    _changeManager.entityChanged(ChangeType.REMOVED, uniqueId, null, Instant.now());
+    _changeManager.entityChanged(ChangeType.REMOVED, objectIdentifiable.getObjectId(), null, null, Instant.now());
   }
 
   //-------------------------------------------------------------------------

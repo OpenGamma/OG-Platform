@@ -7,12 +7,9 @@ package com.opengamma.core.config.impl;
 
 import java.net.URI;
 import java.util.Collection;
+import java.util.Collections;
 
-import javax.time.Instant;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
@@ -42,7 +39,7 @@ public class DataConfigSourceResource extends AbstractDataResource {
 
   /**
    * Creates the resource, exposing the underlying source over REST.
-   * 
+   *
    * @param configSource  the underlying config source, not null
    */
   public DataConfigSourceResource(final ConfigSource configSource) {
@@ -51,9 +48,10 @@ public class DataConfigSourceResource extends AbstractDataResource {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Gets the configuration source.
-   * 
+   *
    * @return the configuration source, not null
    */
   public ConfigSource getConfigSource() {
@@ -69,137 +67,173 @@ public class DataConfigSourceResource extends AbstractDataResource {
   @GET
   @Path("configs")
   public Response search(
-      @QueryParam("type") String typeStr,
-      @QueryParam("versionAsOf") String versionAsOf,
-      @QueryParam("correctedTo") String correctedTo,
-      @QueryParam("name") String name) {
+    @QueryParam("type") String typeStr,
+    @QueryParam("versionAsOf") String versionAsOf,
+    @QueryParam("correctedTo") String correctedTo,
+    @QueryParam("name") String name) {
     final Class<?> type = ReflectionUtils.loadClass(typeStr);
     final VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
-    Collection<?> result = getConfigSource().getConfigs(type, name, vc);
-    return responseOkFudge(FudgeListWrapper.of(result));
+    if (name == null) {
+      Collection<?> result = getConfigSource().getAll(type, vc);
+      return responseOkFudge(FudgeListWrapper.of(result));
+    } else {
+      Collection<?> result = Collections.singleton(getConfigSource().get(type, name, vc));
+      return responseOkFudge(FudgeListWrapper.of(result));
+    }
   }
 
   @GET
-  @Path("configs/{configId}")
+  @Path("configs/{uid}")
   public Response get(
-      @PathParam("configId") String idStr,
-      @QueryParam("type") String typeStr,
-      @QueryParam("version") String version,
-      @QueryParam("versionAsOf") String versionAsOf,
-      @QueryParam("correctedTo") String correctedTo) {
-    final Class<?> type = ReflectionUtils.loadClass(typeStr);
+    @PathParam("uid") String uidStr) {
+    final UniqueId uid = UniqueId.parse(uidStr);
+    ConfigItem result = getConfigSource().get(uid);
+    return responseOkFudge(result);
+  }
+
+  /**
+   * Builds a URI.
+   *
+   * @param baseUri  the base URI, not null
+   * @param uniqueId  the unique identifier, may be null   
+   * @return the URI, not null
+   */
+  public static URI uriGet(URI baseUri, UniqueId uniqueId) {
+    ArgumentChecker.notNull(baseUri, "baseUri");
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("configs/{uid}");
+    return bld.build(uniqueId);
+  }
+
+  @GET
+  @Path("configs/{oid}/{versionCorrection}")
+  public Response getByOidVersionCorrection(
+    @PathParam("oid") String idStr,
+    @PathParam("versionCorrection") String versionCorrectionStr) {
+
     final ObjectId objectId = ObjectId.parse(idStr);
-    if (version != null) {
-      Object result = getConfigSource().getConfig(type, objectId.atVersion(version));
-      return responseOkFudge(result);
-    } else {
-      VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
-      Object result = getConfigSource().getConfig(type, objectId, vc);
-      return responseOkFudge(result);
-    }
+    final VersionCorrection versionCorrection = VersionCorrection.parse(versionCorrectionStr);
+    ConfigItem result = getConfigSource().get(objectId, versionCorrection);
+    return responseOkFudge(result);
   }
 
-  //-------------------------------------------------------------------------
-  /**
-   * Builds a URI.
-   * 
-   * @param baseUri  the base URI, not null
-   * @param vc  the version-correction, null means latest
-   * @param name  the name, may be null
-   * @param type  the config type, may be null
-   * @return the URI, not null
-   */
-  public static URI uriSearch(URI baseUri, VersionCorrection vc, String name, Class<?> type) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("configs");
-    if (vc != null) {
-      bld.queryParam("versionAsOf", vc.getVersionAsOfString());
-      bld.queryParam("correctedTo", vc.getCorrectedToString());
-    }
-    if (type != null) {
-      bld.queryParam("type", type.getName());
-    }
-    bld.queryParam("name", name);
-    return bld.build();
-  }
 
   /**
    * Builds a URI.
-   * 
-   * @param baseUri  the base URI, not null
-   * @param uniqueId  the unique identifier, may be null
-   * @param type  the config type, may be null
-   * @return the URI, not null
-   */
-  public static URI uriGet(URI baseUri, UniqueId uniqueId, Class<?> type) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("configs/{configId}");
-    if (uniqueId.getVersion() != null) {
-      bld.queryParam("version", uniqueId.getVersion());
-    }
-    if (type != null) {
-      bld.queryParam("type", type.getName());
-    }
-    return bld.build(uniqueId.getObjectId());
-  }
-
-  /**
-   * Builds a URI.
-   * 
+   *
    * @param baseUri  the base URI, not null
    * @param objectId  the object identifier, may be null
-   * @param vc  the version-correction, null means latest
-   * @param type  the config type, may be null
+   * @param versionCorrection  the version-correction, null means latest
    * @return the URI, not null
    */
-  public static URI uriGet(URI baseUri, ObjectId objectId, VersionCorrection vc, Class<?> type) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("configs/{configId}");
-    if (vc != null) {
-      bld.queryParam("versionAsOf", vc.getVersionAsOfString());
-      bld.queryParam("correctedTo", vc.getCorrectedToString());
-    }
-    if (type != null) {
-      bld.queryParam("type", type.getName());
-    }
-    return bld.build(objectId);
+  public static URI uriGet(URI baseUri, ObjectId objectId, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(baseUri, "baseUri");
+    ArgumentChecker.notNull(objectId, "objectId");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("configs/{oid}/{versionCorrection}");
+    versionCorrection = versionCorrection != null ? versionCorrection : VersionCorrection.LATEST;
+    return bld.build(objectId, versionCorrection);
   }
 
-  // deprecated
-  //-------------------------------------------------------------------------
   @GET
   @Path("configSearches/single")
   public Response searchSingle(
-      @QueryParam("type") String typeStr,
-      @QueryParam("versionAsOf") String versionAsOfStr,
-      @QueryParam("name") String name) {
+    @QueryParam("type") String typeStr,
+    @QueryParam("versionCorrection") String versionCorrectionStr,
+    @QueryParam("name") String name) {
     final Class<?> type = ReflectionUtils.loadClass(typeStr);
-    if (versionAsOfStr != null) {
-      final Instant versionAsOf = VersionCorrection.parse(versionAsOfStr, null).getVersionAsOf();
-      Object result = getConfigSource().getByName(type, name, versionAsOf);
+    if (versionCorrectionStr != null) {
+      final VersionCorrection versionCorrection = VersionCorrection.parse(versionCorrectionStr);
+      ConfigItem result = getConfigSource().get(type, name, versionCorrection);
       return responseOkFudge(result);
     } else {
-      Object result = getConfigSource().getLatestByName(type, name);
+      ConfigItem result = getConfigSource().get(type, name, VersionCorrection.LATEST);
       return responseOkFudge(result);
     }
   }
 
   /**
    * Builds a URI.
-   * 
+   *
    * @param baseUri  the base URI, not null
    * @param name  the name, may be null
-   * @param versionAsOf  the version to fetch, null means latest
+   * @param versionCorrection  the version to fetch, null means latest
    * @param type  the config type, may be null
    * @return the URI, not null
    */
-  public static URI uriSearchSingle(URI baseUri, String name, Instant versionAsOf, Class<?> type) {
+  public static URI uriSearchSingle(URI baseUri, String name, VersionCorrection versionCorrection, Class<?> type) {
+    ArgumentChecker.notNull(baseUri, "baseUri");
+    ArgumentChecker.notNull(name, "name");
+    ArgumentChecker.notNull(type, "type");
     UriBuilder bld = UriBuilder.fromUri(baseUri).path("configSearches/single");
     bld.queryParam("name", name);
-    if (type != null) {
-      bld.queryParam("type", type.getName());
-    }
-    if (versionAsOf != null) {
-      bld.queryParam("versionAsOf", versionAsOf.toString());
+    bld.queryParam("type", type.getName());
+
+    if (versionCorrection != null) {
+      bld.queryParam("versionCorrection", versionCorrection.toString());
+    } else {
+      bld.queryParam("versionCorrection", VersionCorrection.LATEST.toString());
     }
     return bld.build();
   }
 
+  @GET
+  @Path("configSearches")
+  public Response search(
+    @QueryParam("type") String typeStr,
+    @QueryParam("versionCorrection") String versionCorrectionStr) {
+    final Class<?> type = ReflectionUtils.loadClass(typeStr);
+    if (versionCorrectionStr != null) {
+      final VersionCorrection versionCorrection = VersionCorrection.parse(versionCorrectionStr);
+      Collection<? extends ConfigItem<?>> result = getConfigSource().getAll(type, versionCorrection);
+      return responseOkFudge(result);
+    } else {
+      Collection<? extends ConfigItem<?>> result = getConfigSource().getAll(type, VersionCorrection.LATEST);
+      return responseOkFudge(result);
+    }
+  }
+
+  /**
+   * Builds a URI.
+   *
+   * @param baseUri  the base URI, not null
+   * @param type  the config type, may be null
+   * @param versionCorrection  the version to fetch, null means latest
+   *
+   * @return the URI, not null
+   */
+  public static URI uriSearch(URI baseUri, Class<?> type, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(baseUri, "baseUri");
+    ArgumentChecker.notNull(type, "type");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("configSearches");
+    bld.queryParam("type", type.getName());
+
+    if (versionCorrection != null) {
+      bld.queryParam("versionCorrection", versionCorrection.toString());
+    } else {
+      bld.queryParam("versionCorrection", VersionCorrection.LATEST.toString());
+    }
+    return bld.build();
+  }
+
+  @PUT
+  @Path("put")
+  public Response put(
+    @QueryParam("type") String typeStr,
+    @QueryParam("versionCorrection") String versionCorrectionStr) {
+    final Class<?> type = ReflectionUtils.loadClass(typeStr);
+    if (versionCorrectionStr != null) {
+      final VersionCorrection versionCorrection = VersionCorrection.parse(versionCorrectionStr);
+      Collection<? extends ConfigItem<?>> result = getConfigSource().getAll(type, versionCorrection);
+      return responseOkFudge(result);
+    } else {
+      Collection<? extends ConfigItem<?>> result = getConfigSource().getAll(type, VersionCorrection.LATEST);
+      return responseOkFudge(result);
+    }
+  }
+
+  public static <T> URI uriPut(URI baseUri) {
+    ArgumentChecker.notNull(baseUri, "baseUri");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("put");
+    return bld.build();
+  }
 }

@@ -28,7 +28,7 @@ import com.opengamma.util.paging.Paging;
  * <p>
  * This security master does not support versioning of securities.
  */
-public class InMemorySecurityMaster extends SimpleAbstractInMemoryMaster<SecurityDocument> implements SecurityMaster {
+public class InMemorySecurityMaster extends SimpleAbstractInMemoryMaster<ManageableSecurity, SecurityDocument> implements SecurityMaster {
   // TODO: This is not hardened for production, as the data in the master can
   // be altered from outside as it is the same object
 
@@ -80,7 +80,7 @@ public class InMemorySecurityMaster extends SimpleAbstractInMemoryMaster<Securit
     if (request.isSecurityTypes()) {
       Set<String> types = new HashSet<String>();
       for (SecurityDocument doc : _store.values()) {
-        types.add(doc.getSecurity().getSecurityType());
+        types.add(doc.getObject().getSecurityType());
       }
       result.getSecurityTypes().addAll(types);
     }
@@ -125,18 +125,18 @@ public class InMemorySecurityMaster extends SimpleAbstractInMemoryMaster<Securit
   @Override
   public SecurityDocument add(final SecurityDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getSecurity(), "document.security");
+    ArgumentChecker.notNull(document.getObject(), "document.security");
 
     final ObjectId objectId = _objectIdSupplier.get();
     final UniqueId uniqueId = objectId.atVersion("");
-    final ManageableSecurity security = document.getSecurity();
+    final ManageableSecurity security = document.getObject();
     security.setUniqueId(uniqueId);
     final Instant now = Instant.now();
     final SecurityDocument doc = new SecurityDocument(security);
     doc.setVersionFromInstant(now);
     doc.setCorrectionFromInstant(now);
     _store.put(objectId, doc);
-    _changeManager.entityChanged(ChangeType.ADDED, null, uniqueId, now);
+    _changeManager.entityChanged(ChangeType.ADDED, objectId, doc.getVersionFromInstant(), doc.getVersionToInstant(), now);
     return doc;
   }
 
@@ -145,7 +145,7 @@ public class InMemorySecurityMaster extends SimpleAbstractInMemoryMaster<Securit
   public SecurityDocument update(final SecurityDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
-    ArgumentChecker.notNull(document.getSecurity(), "document.security");
+    ArgumentChecker.notNull(document.getObject(), "document.security");
 
     final UniqueId uniqueId = document.getUniqueId();
     final Instant now = Instant.now();
@@ -160,18 +160,18 @@ public class InMemorySecurityMaster extends SimpleAbstractInMemoryMaster<Securit
     if (_store.replace(uniqueId.getObjectId(), storedDocument, document) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }
-    _changeManager.entityChanged(ChangeType.UPDATED, uniqueId, document.getUniqueId(), now);
+    _changeManager.entityChanged(ChangeType.CHANGED, uniqueId.getObjectId(), storedDocument.getVersionFromInstant(), document.getVersionToInstant(), now);
     return document;
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public void remove(final UniqueId uniqueId) {
-    ArgumentChecker.notNull(uniqueId, "uniqueId");
-    if (_store.remove(uniqueId.getObjectId()) == null) {
-      throw new DataNotFoundException("Security not found: " + uniqueId);
+  public void remove(final ObjectIdentifiable objectIdentifiable) {
+    ArgumentChecker.notNull(objectIdentifiable, "objectIdentifiable");
+    if (_store.remove(objectIdentifiable.getObjectId()) == null) {
+      throw new DataNotFoundException("Security not found: " + objectIdentifiable);
     }
-    _changeManager.entityChanged(ChangeType.REMOVED, uniqueId, null, Instant.now());
+    _changeManager.entityChanged(ChangeType.REMOVED, objectIdentifiable.getObjectId(), null, null, Instant.now());
   }
 
   //-------------------------------------------------------------------------
@@ -198,6 +198,6 @@ public class InMemorySecurityMaster extends SimpleAbstractInMemoryMaster<Securit
   @Override
   protected void validateDocument(SecurityDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getSecurity(), "document.security");
+    ArgumentChecker.notNull(document.getObject(), "document.security");
   }
 }

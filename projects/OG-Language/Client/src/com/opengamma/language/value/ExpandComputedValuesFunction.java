@@ -103,7 +103,7 @@ public class ExpandComputedValuesFunction extends AbstractFunctionInvoker implem
       case SECURITY: {
         final SecuritySource securities = sessionContext.getGlobalContext().getSecuritySource();
         if (securities != null) {
-          final Security security = securities.getSecurity(targetSpec.getUniqueId());
+          final Security security = securities.get(targetSpec.getUniqueId());
           if (security != null) {
             return security.getName();
           } else {

@@ -13,6 +13,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
+
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
@@ -22,7 +24,7 @@ import org.joda.beans.Property;
  * A minimal document used for handling operations on versions and corrections
  */
 @BeanDefinition
-public class BasicDocument extends AbstractDocument {
+public class BasicDocument<T extends UniqueIdentifiable> extends AbstractDocument<T> {
   
   /**
    * The document unique identifier.
@@ -35,17 +37,20 @@ public class BasicDocument extends AbstractDocument {
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code BasicDocument}.
+   * @param <R>  the bean's generic type
    * @return the meta-bean, not null
    */
-  public static BasicDocument.Meta meta() {
+  @SuppressWarnings("unchecked")
+  public static <R extends UniqueIdentifiable> BasicDocument.Meta<R> meta() {
     return BasicDocument.Meta.INSTANCE;
   }
   static {
     JodaBeanUtils.registerMetaBean(BasicDocument.Meta.INSTANCE);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public BasicDocument.Meta metaBean() {
+  public BasicDocument.Meta<T> metaBean() {
     return BasicDocument.Meta.INSTANCE;
   }
 
@@ -74,7 +79,7 @@ public class BasicDocument extends AbstractDocument {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      BasicDocument other = (BasicDocument) obj;
+      BasicDocument<?> other = (BasicDocument<?>) obj;
       return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
           super.equals(obj);
     }
@@ -120,10 +125,11 @@ public class BasicDocument extends AbstractDocument {
   /**
    * The meta-bean for {@code BasicDocument}.
    */
-  public static class Meta extends AbstractDocument.Meta {
+  public static class Meta<T extends UniqueIdentifiable> extends AbstractDocument.Meta<T> {
     /**
      * The singleton instance of the meta-bean.
      */
+    @SuppressWarnings("rawtypes")
     static final Meta INSTANCE = new Meta();
 
     /**
@@ -154,13 +160,14 @@ public class BasicDocument extends AbstractDocument {
     }
 
     @Override
-    public BeanBuilder<? extends BasicDocument> builder() {
-      return new DirectBeanBuilder<BasicDocument>(new BasicDocument());
+    public BeanBuilder<? extends BasicDocument<T>> builder() {
+      return new DirectBeanBuilder<BasicDocument<T>>(new BasicDocument<T>());
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
-    public Class<? extends BasicDocument> beanType() {
-      return BasicDocument.class;
+    public Class<? extends BasicDocument<T>> beanType() {
+      return (Class) BasicDocument.class;
     }
 
     @Override

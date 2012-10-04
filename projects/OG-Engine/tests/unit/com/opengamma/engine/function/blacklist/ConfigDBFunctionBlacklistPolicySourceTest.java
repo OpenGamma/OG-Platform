@@ -23,7 +23,7 @@ public class ConfigDBFunctionBlacklistPolicySourceTest {
 
   public void testByName() {
     final ConfigSource configSource = Mockito.mock(ConfigSource.class);
-    Mockito.when(configSource.getLatestByName(FunctionBlacklistPolicy.class, "FOO_BLACKLIST")).thenReturn(
+    Mockito.when(configSource.getLatest(FunctionBlacklistPolicy.class, "FOO_BLACKLIST")).thenReturn(
         new DefaultFunctionBlacklistPolicy(UniqueId.of("Config", "Foo"), "FOO", 60, Collections.<FunctionBlacklistPolicy.Entry>emptySet()));
     final ConfigDBFunctionBlacklistPolicySource source = new ConfigDBFunctionBlacklistPolicySource(configSource);
     FunctionBlacklistPolicy policy = source.getPolicy("FOO");

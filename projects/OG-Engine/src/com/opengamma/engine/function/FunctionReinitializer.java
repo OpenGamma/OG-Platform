@@ -7,8 +7,11 @@ package com.opengamma.engine.function;
 
 import java.util.Collection;
 
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.PublicAPI;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Re-initialization hook for functions. When a function is being initialized, it can register itself
@@ -25,7 +28,7 @@ public interface FunctionReinitializer {
    * @param function the function to be reinitialized
    * @param identifier the identifier of the resource
    */
-  void reinitializeFunction(FunctionDefinition function, UniqueId identifier);
+  void reinitializeFunction(FunctionDefinition function, Pair<ObjectId, VersionCorrection> identifier);
 
   /**
    * Requests that the function be reinitialized if a change is detected to one or more of the resources
@@ -34,6 +37,6 @@ public interface FunctionReinitializer {
    * @param function the function to be reinitialized
    * @param identifiers the identifiers of the resources
    */
-  void reinitializeFunction(FunctionDefinition function, Collection<UniqueId> identifiers);
+  void reinitializeFunction(FunctionDefinition function, Collection<Pair<ObjectId, VersionCorrection>> identifiers);
 
 }

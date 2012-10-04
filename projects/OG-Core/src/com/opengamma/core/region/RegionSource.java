@@ -8,6 +8,7 @@ package com.opengamma.core.region;
 import java.util.Collection;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.Source;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
@@ -25,35 +26,7 @@ import com.opengamma.util.PublicSPI;
  * Implementations must be thread-safe.
  */
 @PublicSPI
-public interface RegionSource {
-
-  /**
-   * Gets a region by unique identifier.
-   * <p>
-   * A unique identifier exactly specifies a single region at a single version-correction.
-   * 
-   * @param uniqueId  the unique identifier to find, not null
-   * @return the matched region, not null
-   * @throws IllegalArgumentException if the identifier is invalid
-   * @throws DataNotFoundException if the region could not be found
-   * @throws RuntimeException if an error occurs
-   */
-  Region getRegion(UniqueId uniqueId);
-
-  /**
-   * Gets a region by object identifier and version-correction.
-   * <p>
-   * In combination, the object identifier and version-correction exactly specify
-   * a single region at a single version-correction.
-   * 
-   * @param objectId  the object identifier to find, not null
-   * @param versionCorrection  the version-correction, not null
-   * @return the matched region, not null
-   * @throws IllegalArgumentException if the identifier or version-correction is invalid
-   * @throws DataNotFoundException if the region could not be found
-   * @throws RuntimeException if an error occurs
-   */
-  Region getRegion(ObjectId objectId, VersionCorrection versionCorrection);
+public interface RegionSource extends Source<Region> {
 
   /**
    * Gets all regions at the given version-correction that match the specified
@@ -70,7 +43,7 @@ public interface RegionSource {
    * @throws DataNotFoundException if the region could not be found
    * @throws RuntimeException if an error occurs
    */
-  Collection<? extends Region> getRegions(ExternalIdBundle bundle, VersionCorrection versionCorrection);
+  Collection<? extends Region> get(ExternalIdBundle bundle, VersionCorrection versionCorrection);
 
   //-------------------------------------------------------------------------
   // TODO: remove below here

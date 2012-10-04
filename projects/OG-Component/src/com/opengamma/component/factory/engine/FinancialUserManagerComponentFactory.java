@@ -12,12 +12,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import javax.time.calendar.Period;
 
 import org.fudgemsg.FudgeContext;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.PropertyDefinition;
+import org.joda.beans.*;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -26,17 +21,22 @@ import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionMaster;
 import com.opengamma.financial.user.DefaultFinancialUsersTracker;
 import com.opengamma.financial.user.FinancialUserManager;
 import com.opengamma.financial.user.FinancialUserServices;
 import com.opengamma.financial.user.rest.DataFinancialUserManagerResource;
-import com.opengamma.financial.view.ManageableViewDefinitionRepository;
+import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 
 /**
  * Component factory for the user financial manager.
@@ -85,7 +85,7 @@ public class FinancialUserManagerComponentFactory extends AbstractComponentFacto
    * The view definition master.
    */
   @PropertyDefinition(validate = "notNull")
-  private ManageableViewDefinitionRepository _viewDefinitionMaster;
+  private ConfigMaster _configMaster;
   /**
    * The yield curve definition master.
    */
@@ -111,7 +111,7 @@ public class FinancialUserManagerComponentFactory extends AbstractComponentFacto
     services.setUserPositionMaster(getPositionMaster());
     services.setUserPortfolioMaster(getPortfolioMaster());
     services.setUserSnapshotMaster(getSnapshotMaster());
-    services.setUserViewDefinitionRepository(getViewDefinitionMaster());
+    services.setUserConfigMaster(getConfigMaster());
     services.setUserInterpolatedYieldCurveDefinitionMaster(getYieldCurveDefinitionMaster());
     DefaultFinancialUsersTracker tracker = new DefaultFinancialUsersTracker(services);
     FinancialUserManager manager = new FinancialUserManager(services, tracker, tracker);
@@ -162,8 +162,8 @@ public class FinancialUserManagerComponentFactory extends AbstractComponentFacto
         return getPortfolioMaster();
       case -2046916282:  // snapshotMaster
         return getSnapshotMaster();
-      case -1939319206:  // viewDefinitionMaster
-        return getViewDefinitionMaster();
+      case 10395716:  // configMaster
+        return getConfigMaster();
       case -354852073:  // yieldCurveDefinitionMaster
         return getYieldCurveDefinitionMaster();
       case -160710469:  // scheduler
@@ -198,8 +198,8 @@ public class FinancialUserManagerComponentFactory extends AbstractComponentFacto
       case -2046916282:  // snapshotMaster
         setSnapshotMaster((MarketDataSnapshotMaster) newValue);
         return;
-      case -1939319206:  // viewDefinitionMaster
-        setViewDefinitionMaster((ManageableViewDefinitionRepository) newValue);
+      case 10395716:  // configMaster
+        setConfigMaster((ConfigMaster) newValue);
         return;
       case -354852073:  // yieldCurveDefinitionMaster
         setYieldCurveDefinitionMaster((InterpolatedYieldCurveDefinitionMaster) newValue);
@@ -222,7 +222,7 @@ public class FinancialUserManagerComponentFactory extends AbstractComponentFacto
     JodaBeanUtils.notNull(_positionMaster, "positionMaster");
     JodaBeanUtils.notNull(_portfolioMaster, "portfolioMaster");
     JodaBeanUtils.notNull(_snapshotMaster, "snapshotMaster");
-    JodaBeanUtils.notNull(_viewDefinitionMaster, "viewDefinitionMaster");
+    JodaBeanUtils.notNull(_configMaster, "configMaster");
     JodaBeanUtils.notNull(_yieldCurveDefinitionMaster, "yieldCurveDefinitionMaster");
     super.validate();
   }
@@ -241,7 +241,7 @@ public class FinancialUserManagerComponentFactory extends AbstractComponentFacto
           JodaBeanUtils.equal(getPositionMaster(), other.getPositionMaster()) &&
           JodaBeanUtils.equal(getPortfolioMaster(), other.getPortfolioMaster()) &&
           JodaBeanUtils.equal(getSnapshotMaster(), other.getSnapshotMaster()) &&
-          JodaBeanUtils.equal(getViewDefinitionMaster(), other.getViewDefinitionMaster()) &&
+          JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
           JodaBeanUtils.equal(getYieldCurveDefinitionMaster(), other.getYieldCurveDefinitionMaster()) &&
           JodaBeanUtils.equal(getScheduler(), other.getScheduler()) &&
           JodaBeanUtils.equal(getClientTimeOut(), other.getClientTimeOut()) &&
@@ -260,7 +260,7 @@ public class FinancialUserManagerComponentFactory extends AbstractComponentFacto
     hash += hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSnapshotMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getViewDefinitionMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getYieldCurveDefinitionMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getScheduler());
     hash += hash * 31 + JodaBeanUtils.hashCode(getClientTimeOut());
@@ -453,25 +453,25 @@ public class FinancialUserManagerComponentFactory extends AbstractComponentFacto
    * Gets the view definition master.
    * @return the value of the property, not null
    */
-  public ManageableViewDefinitionRepository getViewDefinitionMaster() {
-    return _viewDefinitionMaster;
+  public ConfigMaster getConfigMaster() {
+    return _configMaster;
   }
 
   /**
    * Sets the view definition master.
-   * @param viewDefinitionMaster  the new value of the property, not null
+   * @param configMaster  the new value of the property, not null
    */
-  public void setViewDefinitionMaster(ManageableViewDefinitionRepository viewDefinitionMaster) {
-    JodaBeanUtils.notNull(viewDefinitionMaster, "viewDefinitionMaster");
-    this._viewDefinitionMaster = viewDefinitionMaster;
+  public void setConfigMaster(ConfigMaster configMaster) {
+    JodaBeanUtils.notNull(configMaster, "configMaster");
+    this._configMaster = configMaster;
   }
 
   /**
-   * Gets the the {@code viewDefinitionMaster} property.
+   * Gets the the {@code configMaster} property.
    * @return the property, not null
    */
-  public final Property<ManageableViewDefinitionRepository> viewDefinitionMaster() {
-    return metaBean().viewDefinitionMaster().createProperty(this);
+  public final Property<ConfigMaster> configMaster() {
+    return metaBean().configMaster().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -596,10 +596,10 @@ public class FinancialUserManagerComponentFactory extends AbstractComponentFacto
     private final MetaProperty<MarketDataSnapshotMaster> _snapshotMaster = DirectMetaProperty.ofReadWrite(
         this, "snapshotMaster", FinancialUserManagerComponentFactory.class, MarketDataSnapshotMaster.class);
     /**
-     * The meta-property for the {@code viewDefinitionMaster} property.
+     * The meta-property for the {@code configMaster} property.
      */
-    private final MetaProperty<ManageableViewDefinitionRepository> _viewDefinitionMaster = DirectMetaProperty.ofReadWrite(
-        this, "viewDefinitionMaster", FinancialUserManagerComponentFactory.class, ManageableViewDefinitionRepository.class);
+    private final MetaProperty<ConfigMaster> _configMaster = DirectMetaProperty.ofReadWrite(
+        this, "configMaster", FinancialUserManagerComponentFactory.class, ConfigMaster.class);
     /**
      * The meta-property for the {@code yieldCurveDefinitionMaster} property.
      */
@@ -627,7 +627,7 @@ public class FinancialUserManagerComponentFactory extends AbstractComponentFacto
         "positionMaster",
         "portfolioMaster",
         "snapshotMaster",
-        "viewDefinitionMaster",
+        "configMaster",
         "yieldCurveDefinitionMaster",
         "scheduler",
         "clientTimeOut");
@@ -655,8 +655,8 @@ public class FinancialUserManagerComponentFactory extends AbstractComponentFacto
           return _portfolioMaster;
         case -2046916282:  // snapshotMaster
           return _snapshotMaster;
-        case -1939319206:  // viewDefinitionMaster
-          return _viewDefinitionMaster;
+        case 10395716:  // configMaster
+          return _configMaster;
         case -354852073:  // yieldCurveDefinitionMaster
           return _yieldCurveDefinitionMaster;
         case -160710469:  // scheduler
@@ -740,11 +740,11 @@ public class FinancialUserManagerComponentFactory extends AbstractComponentFacto
     }
 
     /**
-     * The meta-property for the {@code viewDefinitionMaster} property.
+     * The meta-property for the {@code configMaster} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ManageableViewDefinitionRepository> viewDefinitionMaster() {
-      return _viewDefinitionMaster;
+    public final MetaProperty<ConfigMaster> configMaster() {
+      return _configMaster;
     }
 
     /**

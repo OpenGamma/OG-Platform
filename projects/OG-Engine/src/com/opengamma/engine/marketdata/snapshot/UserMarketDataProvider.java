@@ -24,6 +24,7 @@ import com.opengamma.engine.marketdata.availability.UnionMarketDataAvailabilityP
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
@@ -51,7 +52,7 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
     _permissionProvider = new PermissiveMarketDataPermissionProvider();
     _snapshotSourceChangeListener = new MarketDataSnapshotChangeListener() {
       @Override
-      public void snapshotChanged(UniqueId uid) {
+      public void objectChanged(ObjectId oid) {
         valuesChanged(_listeningValueRequirements);
       }
     };

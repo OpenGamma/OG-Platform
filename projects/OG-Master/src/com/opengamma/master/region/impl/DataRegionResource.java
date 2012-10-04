@@ -12,19 +12,18 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import com.opengamma.core.region.Region;
 import com.opengamma.id.ObjectId;
 import com.opengamma.master.AbstractDocumentDataResource;
-import com.opengamma.master.region.RegionDocument;
-import com.opengamma.master.region.RegionHistoryRequest;
-import com.opengamma.master.region.RegionHistoryResult;
-import com.opengamma.master.region.RegionMaster;
+import com.opengamma.master.AbstractMaster;
+import com.opengamma.master.region.*;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.RestUtils;
 
 /**
  * RESTful resource for an region.
  */
-public class DataRegionResource extends AbstractDocumentDataResource<RegionDocument> {
+public class DataRegionResource extends AbstractDocumentDataResource<ManageableRegion, RegionDocument> {
 
   /**
    * The regions resource.
@@ -83,10 +82,12 @@ public class DataRegionResource extends AbstractDocumentDataResource<RegionDocum
    *
    * @return the region master, not null
    */
-  public RegionMaster getMaster() {
+  @Override
+  protected RegionMaster getMaster() {
     return getRegionsResource().getRegionMaster();
   }
 
+  
   @GET
   @Path("versions")
   public Response history(@Context UriInfo uriInfo) {

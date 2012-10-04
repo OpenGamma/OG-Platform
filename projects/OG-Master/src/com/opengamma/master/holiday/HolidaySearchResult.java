@@ -56,7 +56,7 @@ public class HolidaySearchResult extends AbstractSearchResult<HolidayDocument> {
     List<ManageableHoliday> result = new ArrayList<ManageableHoliday>();
     if (getDocuments() != null) {
       for (HolidayDocument doc : getDocuments()) {
-        result.add(doc.getHoliday());
+        result.add(doc.getObject());
       }
     }
     return result;
@@ -68,7 +68,7 @@ public class HolidaySearchResult extends AbstractSearchResult<HolidayDocument> {
    * @return the first holiday, null if none
    */
   public ManageableHoliday getFirstHoliday() {
-    return getDocuments().size() > 0 ? getDocuments().get(0).getHoliday() : null;
+    return getDocuments().size() > 0 ? getDocuments().get(0).getObject() : null;
   }
 
   /**
@@ -84,7 +84,7 @@ public class HolidaySearchResult extends AbstractSearchResult<HolidayDocument> {
     if (getDocuments().size() != 1) {
       throw new OpenGammaRuntimeException("Expecting zero or single resulting match, and was " + getDocuments().size());
     } else {
-      return getDocuments().get(0).getHoliday();
+      return getDocuments().get(0).getObject();
     }
   }
 

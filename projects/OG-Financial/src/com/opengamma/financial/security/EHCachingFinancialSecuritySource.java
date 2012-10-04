@@ -1,361 +1,58 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.security;
 
-import java.io.Serializable;
-import java.math.BigInteger;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
-
-import javax.time.Instant;
-import javax.time.calendar.Period;
-
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.MapMaker;
-import com.opengamma.DataNotFoundException;
-import com.opengamma.core.change.BasicChangeManager;
-import com.opengamma.core.change.ChangeEvent;
-import com.opengamma.core.change.ChangeListener;
-import com.opengamma.core.change.ChangeManager;
-import com.opengamma.core.security.AbstractSecuritySource;
+import com.opengamma.core.AbstractEHCachingSource;
+import com.opengamma.core.AbstractEHCachingSourceWithExternalBundle;
 import com.opengamma.core.security.Security;
-import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
-import com.opengamma.util.map.Map2;
-import com.opengamma.util.map.SoftValueHashMap2;
-import com.opengamma.util.tuple.Triple;
+
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
 
 /**
  * A cache decorating a {@code FinancialSecuritySource}.
  * <p>
  * The cache is implemented using {@code EHCache}.
  */
-public class EHCachingFinancialSecuritySource extends AbstractSecuritySource implements FinancialSecuritySource {
+public class EHCachingFinancialSecuritySource extends AbstractEHCachingSourceWithExternalBundle<FinancialSecuritySource, Security> implements FinancialSecuritySource {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(EHCachingFinancialSecuritySource.class);
-  /** The single security cache key. */
-  /* package for testing */static final String SINGLE_SECURITY_CACHE = "single-security-cache";
-  /** The multiple security cache key. */
-  /* package for testing */static final String MULTI_SECURITIES_CACHE = "multi-securities-cache";
+
   /** The mulitple bonds cache key */
   /* package for testing */static final String MULTI_BONDS_CACHE = "multi-bonds-cache";
-  /** The Bundle hint cache key. */
-  /* package for testing */static final String BUNDLE_HINT_SECURITIES_CACHE = "multi-securities-hint-cache";
 
-  /**
-   * EHCache doesn't like being hammered repeatedly for the same objects. Also, if the window of objects being requested is bigger than the in memory window then new objects get created as the on-disk
-   * values get deserialized. The solution is to maintain a soft referenced buffer so that all the while the objects we have previously returned are in use we won't requery EHCache for them.
-   */
-  private final ConcurrentMap<UniqueId, Security> _frontCache = new MapMaker().weakValues().makeMap();
 
-  /**
-   * EHCache doesn't like being hammered repeatedly for the same objects. Also, if the window of objects being requested is bigger than the in memory window then new objects get created as the on-disk
-   * values get deserialized. The solution is to maintain a soft referenced buffer so that all the while the objects we have previously returned are in use we won't requery EHCache for them.
-   */
-  private final Map2<Object, VersionCorrection, Security> _frontCache2 = new SoftValueHashMap2<Object, VersionCorrection, Security>();
-
-  /**
-   * The underlying cache.
-   */
-  private final FinancialSecuritySource _underlying;
-  /**
-   * The cache manager.
-   */
-  private final CacheManager _manager;
-  /**
-   * The single security cache.
-   */
-  private final Cache _uidCache;
-  /**
-   * The multiple security cache.
-   */
-  private final Cache _bundleCache;
   /**
    * The bond cache.
    */
   private final Cache _bondCache;
-  /**
-   * The bundle hint cache.
-   */
-  private final Cache _bundleHintCache;
-  /**
-   * Listens for changes in the underlying security source.
-   */
-  private final ChangeListener _changeListener;
-  /**
-   * The local change manager.
-   */
-  private final ChangeManager _changeManager;
 
   /**
    * Creates an instance over an underlying source specifying the cache manager.
-   * 
+   *
    * @param underlying the underlying security source, not null
    * @param cacheManager the cache manager, not null
    */
   public EHCachingFinancialSecuritySource(final FinancialSecuritySource underlying, final CacheManager cacheManager) {
-    ArgumentChecker.notNull(underlying, "underlying");
-    ArgumentChecker.notNull(cacheManager, "cacheManager");
-    _underlying = underlying;
-    EHCacheUtils.addCache(cacheManager, SINGLE_SECURITY_CACHE);
-    EHCacheUtils.addCache(cacheManager, MULTI_SECURITIES_CACHE);
+    super(underlying, cacheManager);
+
     EHCacheUtils.addCache(cacheManager, MULTI_BONDS_CACHE);
-    EHCacheUtils.addCache(cacheManager, BUNDLE_HINT_SECURITIES_CACHE);
-    _uidCache = EHCacheUtils.getCacheFromManager(cacheManager, SINGLE_SECURITY_CACHE);
-    _bundleCache = EHCacheUtils.getCacheFromManager(cacheManager, MULTI_SECURITIES_CACHE);
-    _bundleHintCache = EHCacheUtils.getCacheFromManager(cacheManager, BUNDLE_HINT_SECURITIES_CACHE);
     _bondCache = EHCacheUtils.getCacheFromManager(cacheManager, MULTI_BONDS_CACHE);
-    _manager = cacheManager;
-    _changeManager = new BasicChangeManager();
-    _changeListener = new ChangeListener() {
-
-      @Override
-      public void entityChanged(ChangeEvent event) {
-        final UniqueId beforeId = event.getBeforeId();
-        if (beforeId != null) {
-          cleanCaches(beforeId);
-        }
-        final UniqueId afterId = event.getAfterId();
-        if (afterId != null) {
-          cleanCaches(afterId);
-        }
-        // Note: this is very inefficient
-        final Iterator<Security> itr = _frontCache2.values().iterator();
-        while (itr.hasNext()) {
-          final Security security = itr.next();
-          final UniqueId uid = security.getUniqueId();
-          if (uid.equals(beforeId) || uid.equals(afterId)) {
-            itr.remove();
-          }
-        }
-        changeManager().entityChanged(event.getType(), event.getBeforeId(), event.getAfterId(), event.getVersionInstant());
-      }
-
-    };
-    underlying.changeManager().addChangeListener(_changeListener);
   }
 
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the underlying source of securities.
-   * 
-   * @return the underlying source of securities, not null
-   */
-  protected FinancialSecuritySource getUnderlying() {
-    return _underlying;
-  }
-
-  /**
-   * Gets the cache manager.
-   * 
-   * @return the cache manager, not null
-   */
-  protected CacheManager getCacheManager() {
-    return _manager;
-  }
-
-  @Override
-  public Security getSecurity(UniqueId uid) {
-    ArgumentChecker.notNull(uid, "uid");
-    Security result = _frontCache.get(uid);
-    if (result != null) {
-      return result;
-    }
-    Element e = _uidCache.get(uid);
-    if (e != null) {
-      if (e.getObjectValue() instanceof Security) {
-        result = (Security) e.getObjectValue();
-        s_logger.debug("retrieved security: {} from single-security-cache", result);
-        final Security existing = _frontCache.putIfAbsent(uid, result);
-        if (existing != null) {
-          return existing;
-        } else {
-          return result;
-        }
-      } else {
-        s_logger.warn("returned object {} from single-security-cache not a Security", e.getObjectValue());
-        return null;
-      }
-    } else {
-      result = getUnderlying().getSecurity(uid);
-      final Security existing = _frontCache.putIfAbsent(uid, result);
-      if (existing != null) {
-        return existing;
-      } else {
-        _uidCache.put(new Element(uid, result));
-        return result;
-      }
-    }
-  }
-
-  @SuppressWarnings("unchecked")
-  private Map<VersionCorrection, Security> getObjectIdCacheEntry(final ObjectId objectId) {
-    final Element e = _uidCache.get(objectId);
-    if (e != null) {
-      if (e.getObjectValue() instanceof Map<?, ?>) {
-        return (Map<VersionCorrection, Security>) e.getObjectValue();
-      }
-    }
-    return null;
-  }
-
-  @Override
-  public Security getSecurity(final ObjectId objectId, final VersionCorrection versionCorrection) {
-    ArgumentChecker.notNull(objectId, "objectId");
-    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    Security result = _frontCache2.get(objectId, versionCorrection);
-    if (result != null) {
-      return result;
-    }
-    Map<VersionCorrection, Security> securities = getObjectIdCacheEntry(objectId);
-    if (securities != null) {
-      result = securities.get(versionCorrection);
-      if (result != null) {
-        final Security existing = _frontCache2.putIfAbsent(objectId, versionCorrection, result);
-        if (existing != null) {
-          return existing;
-        }
-      }
-    }
-    if (result == null) {
-      result = getUnderlying().getSecurity(objectId, versionCorrection);
-      if (result != null) {
-        final Security existing = _frontCache2.putIfAbsent(objectId, versionCorrection, result);
-        if (existing != null) {
-          return existing;
-        }
-        _uidCache.put(new Element(result.getUniqueId(), result));
-      }
-      final Map<VersionCorrection, Security> newSecurities = new HashMap<VersionCorrection, Security>();
-      synchronized (this) {
-        securities = getObjectIdCacheEntry(objectId);
-        if (securities != null) {
-          newSecurities.putAll(securities);
-        }
-        newSecurities.put(versionCorrection, result);
-        _uidCache.put(new Element(objectId, newSecurities));
-      }
-    }
-    return result;
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public Collection<Security> getSecurities(ExternalIdBundle bundle) {
-    ArgumentChecker.notNull(bundle, "bundle");
-    Element e = _bundleCache.get(bundle);
-    Collection<Security> result = new HashSet<Security>();
-    if (e != null) {
-      if (e.getObjectValue() instanceof Collection<?>) {
-        result.addAll((Collection<Security>) e.getObjectValue());
-      } else {
-        s_logger.warn("returned object {} from cache is not a Collection<Security>", e.getObjectValue());
-      }
-    } else {
-      result = getUnderlying().getSecurities(bundle);
-      if (result != null) {
-        _bundleCache.put(new Element(bundle, result));
-        cacheSecurities(result);
-      }
-    }
-    return result;
-  }
-
-  @Override
-  public Collection<Security> getSecurities(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
-    ArgumentChecker.notNull(bundle, "bundle");
-    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    Collection<Security> result = getUnderlying().getSecurities(bundle, versionCorrection);
-    if (result == null) {
-      return Collections.emptySet();
-    }
-    cacheSecurities(result);
-    return result;
-  }
-
-  @Override
-  public Security getSecurity(ExternalIdBundle bundle) {
-    ArgumentChecker.notNull(bundle, "bundle");
-    Collection<Security> matched = getSecurities(bundle);
-    if (matched.isEmpty()) {
-      return null;
-    }
-    return matched.iterator().next();
-  }
-
-  static final Period s_versionCorrectionBucketSize = Period.ofDays(1); //This is an attempt to avoid thrashing if we get conflicting queries
-  static final BigInteger s_versionCorrectionBucketSizeInNanos = BigInteger.valueOf(s_versionCorrectionBucketSize.totalNanosWith24HourDays());
-  static final int s_versionCorrectionBucketSizeInSeconds = (int) Period.ofDays(1).totalSecondsWith24HourDays();
-  static final BigInteger s_latestBucket = BigInteger.valueOf(-1);
-
-  @Override
-  public Security getSecurity(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
-    ArgumentChecker.notNull(bundle, "bundle");
-    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    Security result = _frontCache2.get(bundle, versionCorrection);
-    if (result != null) {
-      return result;
-    }
-    final Instant correctedTo = versionCorrection.getCorrectedTo();
-    final Instant versionAsOf = versionCorrection.getVersionAsOf();
-    final BigInteger correctedToBucket = correctedTo == null ? s_latestBucket : versionCorrection.getCorrectedTo().toEpochNanos().divide(s_versionCorrectionBucketSizeInNanos);
-    final BigInteger versionAsOfBucket = versionAsOf == null ? s_latestBucket : versionCorrection.getVersionAsOf().toEpochNanos().divide(s_versionCorrectionBucketSizeInNanos);
-    final Triple<ExternalIdBundle, BigInteger, BigInteger> key = Triple.of(bundle, correctedToBucket, versionAsOfBucket);
-    final Element hintUid = _bundleHintCache.get(key);
-    if (hintUid != null) {
-      final ObjectId hint = (ObjectId) hintUid.getValue();
-      try {
-        //Caching is based on the idea that this query is significantly faster
-        result = getSecurity(hint, versionCorrection);
-        if (result != null) {
-          if (result.getExternalIdBundle().containsAny(bundle)) {
-            //This is a good enough result with the current resolution logic,
-            // h'ver as soon as we have rules about which of multiple matches to use this caching must be rewritten
-            final Security existing = _frontCache2.putIfAbsent(bundle, versionCorrection, result);
-            if (existing != null) {
-              return existing;
-            } else {
-              return result;
-            }
-          }
-        }
-      } catch (DataNotFoundException dnfe) {
-        s_logger.debug("Hinted security {} has dissapeared", hint);
-      }
-    }
-    final Collection<Security> matched = getSecurities(bundle, versionCorrection);
-    if (matched.isEmpty()) {
-      return null;
-    }
-    result = matched.iterator().next();
-    final Security existing = _frontCache2.putIfAbsent(bundle, versionCorrection, result);
-    if (existing != null) {
-      return existing;
-    }
-    final Element element = new Element(key, result.getUniqueId().getObjectId());
-    element.setTimeToLive(s_versionCorrectionBucketSizeInSeconds);
-    _bundleHintCache.put(element);
-    return result;
-  }
 
   @SuppressWarnings("unchecked")
   @Override
@@ -378,43 +75,11 @@ public class EHCachingFinancialSecuritySource extends AbstractSecuritySource imp
     }
     return result;
   }
-
-  @Override
-  public ChangeManager changeManager() {
-    return _changeManager;
-  }
-
-  /**
-   * Call this at the end of a unit test run to clear the state of EHCache. It should not be part of a generic lifecycle method.
-   */
-  protected void shutdown() {
-    _underlying.changeManager().removeChangeListener(_changeListener);
-    _manager.removeCache(SINGLE_SECURITY_CACHE);
-    _manager.removeCache(MULTI_SECURITIES_CACHE);
-    _manager.removeCache(MULTI_BONDS_CACHE);
-    _manager.removeCache(BUNDLE_HINT_SECURITIES_CACHE);
-  }
-
-  //-------------------------------------------------------------------------
-  private void cleanCaches(UniqueId id) {
-    // Only care where the unversioned ID has been cached since it now represents something else
-    UniqueId latestId = id.toLatest();
-    _uidCache.remove(latestId);
-    _frontCache.remove(latestId);
-    // Destroy all version/correction cached values for the object
-    _uidCache.remove(id.getObjectId());
-  }
-
-  private void cacheSecurities(Collection<Security> securities) {
+  
+  private void cacheSecurities(Collection<Security> securities) {    
     for (Security security : securities) {
       _uidCache.put(new Element(security.getUniqueId(), security));
     }
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public String toString() {
-    return getClass().getSimpleName() + "[" + getUnderlying() + "]";
   }
 
 }

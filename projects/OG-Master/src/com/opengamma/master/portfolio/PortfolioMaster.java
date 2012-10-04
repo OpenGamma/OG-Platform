@@ -18,7 +18,7 @@ import com.opengamma.util.PublicSPI;
  * This interface provides methods that allow the master to be searched and updated.
  */
 @PublicSPI
-public interface PortfolioMaster extends AbstractMaster<PortfolioDocument>, ChangeProvider {
+public interface PortfolioMaster extends AbstractMaster<ManageablePortfolio, PortfolioDocument>, ChangeProvider {
 
   /**
    * Searches for portfolios matching the specified search criteria.

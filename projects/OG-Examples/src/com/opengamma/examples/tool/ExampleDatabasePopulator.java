@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.examples.generator.SyntheticPortfolioGeneratorTool;
 import com.opengamma.examples.loader.ExampleCurveAndSurfaceDefinitionLoader;
 import com.opengamma.examples.loader.ExampleCurveConfigurationLoader;
@@ -29,7 +30,6 @@ import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitio
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
 import com.opengamma.financial.generator.StaticNameGenerator;
 import com.opengamma.financial.tool.ToolContext;
-import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.util.generate.scripts.Scriptable;
@@ -129,11 +129,9 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
     final ToolContext toolContext = getToolContext();
     final ConfigMaster configMaster = toolContext.getConfigMaster();
 
-    final ConfigDocument<VolatilityCubeDefinition> doc = new ConfigDocument<VolatilityCubeDefinition>(VolatilityCubeDefinition.class);
-    doc.setName("SECONDARY_USD");
-    doc.setValue(createDefaultDefinition());
-    s_logger.info("Populating vol cube defn " + doc.getName());
-    ConfigMasterUtils.storeByName(configMaster, doc);
+    final ConfigItem<VolatilityCubeDefinition> config = ConfigItem.of(createDefaultDefinition(), "SECONDARY_USD", VolatilityCubeDefinition.class);
+    s_logger.info("Populating vol cube defn " + config.getName());
+    ConfigMasterUtils.storeByName(configMaster, config);
 
     VolatilityCubeConfigPopulator.populateVolatilityCubeConfigMaster(configMaster);
   }

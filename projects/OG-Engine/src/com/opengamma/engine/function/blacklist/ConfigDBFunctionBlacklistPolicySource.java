@@ -34,7 +34,7 @@ public class ConfigDBFunctionBlacklistPolicySource implements FunctionBlacklistP
 
   @Override
   public FunctionBlacklistPolicy getPolicy(final String name) {
-    return getConfigSource().getLatestByName(FunctionBlacklistPolicy.class, name + SUFFIX);
+    return getConfigSource().getLatest(FunctionBlacklistPolicy.class, name + SUFFIX);
   }
 
 }

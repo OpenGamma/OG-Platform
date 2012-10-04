@@ -52,7 +52,7 @@ public class RegionFileReaderTest {
     request.setName("United Kingdom");
     assertEquals(1, _regionMaster.search(request).getDocuments().size());
     RegionDocument doc = _regionMaster.search(request).getFirstDocument();
-    ManageableRegion ukRegion = doc.getRegion();
+    ManageableRegion ukRegion = doc.getObject();
     assertNotNull(ukRegion);
     assertEquals("United Kingdom", ukRegion.getName());
     assertEquals(RegionClassification.INDEPENDENT_STATE, ukRegion.getClassification());

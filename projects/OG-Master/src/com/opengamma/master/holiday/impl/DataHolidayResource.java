@@ -14,17 +14,15 @@ import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.id.ObjectId;
 import com.opengamma.master.AbstractDocumentDataResource;
-import com.opengamma.master.holiday.HolidayDocument;
-import com.opengamma.master.holiday.HolidayHistoryRequest;
-import com.opengamma.master.holiday.HolidayHistoryResult;
-import com.opengamma.master.holiday.HolidayMaster;
+import com.opengamma.master.AbstractMaster;
+import com.opengamma.master.holiday.*;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.RestUtils;
 
 /**
  * RESTful resource for a holiday.
  */
-public class DataHolidayResource extends AbstractDocumentDataResource<HolidayDocument> {
+public class DataHolidayResource extends AbstractDocumentDataResource<ManageableHoliday, HolidayDocument> {
 
   /**
    * The holidays resource.
@@ -83,9 +81,11 @@ public class DataHolidayResource extends AbstractDocumentDataResource<HolidayDoc
    *
    * @return the holiday master, not null
    */
-  public HolidayMaster getMaster() {
+  @Override
+  protected HolidayMaster getMaster() {
     return getHolidaysResource().getHolidayMaster();
   }
+
 
   //-------------------------------------------------------------------------
   @GET

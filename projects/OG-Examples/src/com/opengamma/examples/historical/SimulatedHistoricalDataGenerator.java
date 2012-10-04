@@ -124,7 +124,7 @@ public class SimulatedHistoricalDataGenerator {
       buf.append("\t").append(identifier).append(" ").append(dataField).append("\n");
       HistoricalTimeSeriesInfoDocument addedDoc = _htsMaster.add(new HistoricalTimeSeriesInfoDocument(info));
       LocalDateDoubleTimeSeries timeSeries = getHistoricalDataPoints(random, finishValue, TS_LENGTH);
-      _htsMaster.updateTimeSeriesDataPoints(addedDoc.getInfo().getTimeSeriesObjectId(), timeSeries);
+      _htsMaster.updateTimeSeriesDataPoints(addedDoc.getObject().getTimeSeriesObjectId(), timeSeries);
     }
     s_logger.info(buf.toString());
   }

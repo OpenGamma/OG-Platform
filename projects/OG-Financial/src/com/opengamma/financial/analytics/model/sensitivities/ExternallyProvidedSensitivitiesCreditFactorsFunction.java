@@ -153,7 +153,7 @@ public class ExternallyProvidedSensitivitiesCreditFactorsFunction extends Abstra
   private List<FactorExposureData> decodeSensitivities(final SecuritySource secSource, final RawSecurity rawSecurity) {
     final FudgeMsgEnvelope msg = OpenGammaFudgeContext.getInstance().deserialize(rawSecurity.getRawData());
     final SecurityEntryData securityEntryData = OpenGammaFudgeContext.getInstance().fromFudgeMsg(SecurityEntryData.class, msg.getMessage());
-    final RawSecurity underlyingRawSecurity = (RawSecurity) secSource.getSecurity(securityEntryData.getFactorSetId().toBundle());
+    final RawSecurity underlyingRawSecurity = (RawSecurity) secSource.getSingle(securityEntryData.getFactorSetId().toBundle());
     if (underlyingRawSecurity != null) {
       final FudgeMsgEnvelope factorIdMsg = OpenGammaFudgeContext.getInstance().deserialize(underlyingRawSecurity.getRawData());
       @SuppressWarnings("unchecked")

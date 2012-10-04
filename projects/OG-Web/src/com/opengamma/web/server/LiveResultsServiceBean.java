@@ -12,13 +12,14 @@ import javax.servlet.ServletContext;
 import org.cometd.Bayeux;
 import org.fudgemsg.FudgeContext;
 
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.financial.aggregation.PortfolioAggregationFunctions;
-import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
@@ -35,7 +36,7 @@ public class LiveResultsServiceBean {
   private ComputationTargetResolver _computationTargetResolver;
   private PortfolioMaster _userPortfolioMaster;
   private PositionMaster _userPositionMaster;
-  private ManageableViewDefinitionRepository _userViewDefinitionRepository;
+  private ConfigMaster _userConfigMaster;
   private PortfolioAggregationFunctions _portfolioAggregators;
   private MarketDataSnapshotMaster _snapshotMaster;
   private UserPrincipal _user;
@@ -94,12 +95,12 @@ public class LiveResultsServiceBean {
     _userPositionMaster = userPositionMaster;
   }
 
-  public ManageableViewDefinitionRepository getUserViewDefinitionRepository() {
-    return _userViewDefinitionRepository;
+  public ConfigMaster getUserConfigMaster() {
+    return _userConfigMaster;
   }
 
-  public void setUserViewDefinitionRepository(ManageableViewDefinitionRepository userViewDefinitionRepository) {
-    _userViewDefinitionRepository = userViewDefinitionRepository;
+  public void setUserConfigMaster(ConfigMaster userConfigMaster) {
+    _userConfigMaster = userConfigMaster;
   }
 
   public PortfolioAggregationFunctions getPortfolioAggregators() {
@@ -194,7 +195,7 @@ public class LiveResultsServiceBean {
 
   protected LiveResultsService createLiveResultsService() {
     return new LiveResultsService(getBayeux(), getViewProcessor(), getPositionSource(), getSecuritySource(),
-        getUserPortfolioMaster(), getUserPositionMaster(), getUserViewDefinitionRepository(), getSnapshotMaster(),
+        getUserPortfolioMaster(), getUserPositionMaster(), getUserConfigMaster(), getSnapshotMaster(),
         getUser(), getExecutorService(), getFudgeContext(), getViewProcessor().getNamedMarketDataSpecificationRepository(),
         getPortfolioAggregators(), getComputationTargetResolver());
   }

@@ -11,6 +11,7 @@ import javax.time.InstantProvider;
 
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.rest.AbstractRemoteClient;
@@ -40,11 +41,11 @@ public class RemoteVolatilityCubeDefinitionSource extends AbstractRemoteClient i
   }
 
   @Override
-  public VolatilityCubeDefinition getDefinition(Currency currency, String name, InstantProvider versionAsOf) {
+  public VolatilityCubeDefinition getDefinition(Currency currency, String name, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(currency, "currency");
     ArgumentChecker.notNull(name, "name");
     
-    URI uri = DataVolatilityCubeDefinitionSourceResource.uriSearchSingle(getBaseUri(), currency, name, versionAsOf);
+    URI uri = DataVolatilityCubeDefinitionSourceResource.uriSearchSingle(getBaseUri(), currency, name, versionCorrection.getVersionAsOf());
     return accessRemote(uri).get(VolatilityCubeDefinition.class);
   }
 

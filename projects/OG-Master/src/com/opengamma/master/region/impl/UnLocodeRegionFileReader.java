@@ -202,7 +202,7 @@ class UnLocodeRegionFileReader {
   private void store(Set<ManageableRegion> regions) {
     for (ManageableRegion region : regions) {
       RegionDocument doc = new RegionDocument();
-      doc.setRegion(region);
+      doc.setObject(region);
       RegionSearchRequest request = new RegionSearchRequest();
       request.addExternalIds(region.getExternalIdBundle());
       RegionSearchResult result = _regionMaster.search(request);
@@ -210,10 +210,10 @@ class UnLocodeRegionFileReader {
         _regionMaster.add(doc);
       } else {
         RegionDocument existing = result.getFirstDocument();
-        if (existing.getRegion().getName().equals(doc.getRegion().getName()) == false ||
-            existing.getRegion().getFullName().equals(doc.getRegion().getFullName()) == false) {
-          existing.getRegion().setName(doc.getRegion().getName());
-          existing.getRegion().setFullName(doc.getRegion().getFullName());
+        if (existing.getObject().getName().equals(doc.getObject().getName()) == false ||
+            existing.getObject().getFullName().equals(doc.getObject().getFullName()) == false) {
+          existing.getObject().setName(doc.getObject().getName());
+          existing.getObject().setFullName(doc.getObject().getFullName());
           _regionMaster.update(existing);
         }
       }

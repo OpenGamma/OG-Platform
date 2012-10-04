@@ -68,7 +68,7 @@ public class ModifyExchangeDbExchangeMasterWorkerAddTest extends AbstractDbExcha
     assertEquals(null, test.getVersionToInstant());
     assertEquals(now, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageableExchange testExchange = test.getExchange();
+    ManageableExchange testExchange = test.getObject();
     assertNotNull(testExchange);
     assertEquals(uniqueId, testExchange.getUniqueId());
     assertEquals("Test", test.getName());

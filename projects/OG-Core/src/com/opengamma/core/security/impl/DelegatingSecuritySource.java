@@ -8,6 +8,7 @@ package com.opengamma.core.security.impl;
 import java.util.Collection;
 import java.util.Map;
 
+import com.opengamma.core.ObjectChangeListener;
 import com.opengamma.core.change.AggregatingChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.security.AbstractSecuritySource;
@@ -68,68 +69,68 @@ public class DelegatingSecuritySource extends AbstractSecuritySource implements 
 
   //-------------------------------------------------------------------------
   @Override
-  public Security getSecurity(UniqueId uniqueId) {
+  public Security get(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    return _delegator.chooseDelegate(uniqueId.getScheme()).getSecurity(uniqueId);
+    return _delegator.chooseDelegate(uniqueId.getScheme()).get(uniqueId);
   }
   
   @Override
-  public Security getSecurity(ObjectId objectId, VersionCorrection versionCorrection) {
+  public Security get(ObjectId objectId, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    return _delegator.chooseDelegate(objectId.getScheme()).getSecurity(objectId, versionCorrection);
+    return _delegator.chooseDelegate(objectId.getScheme()).get(objectId, versionCorrection);
   }
 
   @Override
-  public Collection<Security> getSecurities(ExternalIdBundle bundle) {
+  public Collection<Security> get(ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
     // best implementation is to return first matching result
     for (SecuritySource delegateSource : _delegator.getDelegates().values()) {
-      Collection<Security> result = delegateSource.getSecurities(bundle);
+      Collection<Security> result = delegateSource.get(bundle);
       if (!result.isEmpty()) {
         return result;
       }
     }
-    return _delegator.getDefaultDelegate().getSecurities(bundle);
+    return _delegator.getDefaultDelegate().get(bundle);
   }
   
   @Override
-  public Collection<Security> getSecurities(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+  public Collection<Security> get(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(bundle, "bundle");
     // best implementation is to return first matching result
     for (SecuritySource delegateSource : _delegator.getDelegates().values()) {
-      Collection<Security> result = delegateSource.getSecurities(bundle, versionCorrection);
+      Collection<Security> result = delegateSource.get(bundle, versionCorrection);
       if (!result.isEmpty()) {
         return result;
       }
     }
-    return _delegator.getDefaultDelegate().getSecurities(bundle, versionCorrection);
+    return _delegator.getDefaultDelegate().get(bundle, versionCorrection);
   }
 
   @Override
-  public Security getSecurity(ExternalIdBundle bundle) {
+  public Security getSingle(ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
     // best implementation is to return first matching result
     for (SecuritySource delegateSource : _delegator.getDelegates().values()) {
-      Security result = delegateSource.getSecurity(bundle);
+      Security result = delegateSource.getSingle(bundle);
       if (result != null) {
         return result;
       }
     }
-    return _delegator.getDefaultDelegate().getSecurity(bundle);
+    return _delegator.getDefaultDelegate().getSingle(bundle);
   }
   
   @Override
-  public Security getSecurity(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+  public Security getSingle(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(bundle, "bundle");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     for (SecuritySource delegateSource : _delegator.getDelegates().values()) {
-      Security result = delegateSource.getSecurity(bundle, versionCorrection);
+      Security result = delegateSource.getSingle(bundle, versionCorrection);
       if (result != null) {
         return result;
       }
     }
-    return _delegator.getDefaultDelegate().getSecurity(bundle, versionCorrection);
+    return _delegator.getDefaultDelegate().getSingle(bundle, versionCorrection);
   }
 
   //-------------------------------------------------------------------------

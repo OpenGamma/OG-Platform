@@ -169,7 +169,7 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
     try {
       PortfolioDocument doc = data().getPortfolioMaster().get(oid);
       data().setPortfolio(doc);
-      data().setNode(doc.getPortfolio().getRootNode());
+      data().setNode(doc.getObject().getRootNode());
     } catch (DataNotFoundException ex) {
       PortfolioHistoryRequest historyRequest = new PortfolioHistoryRequest(oid);
       historyRequest.setPagingRequest(PagingRequest.ONE);
@@ -178,7 +178,7 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
         return null;
       }
       data().setPortfolio(historyResult.getFirstDocument());
-      data().setNode(historyResult.getFirstDocument().getPortfolio().getRootNode());
+      data().setNode(historyResult.getFirstDocument().getObject().getRootNode());
     }
     return new WebPortfolioResource(this);
   }

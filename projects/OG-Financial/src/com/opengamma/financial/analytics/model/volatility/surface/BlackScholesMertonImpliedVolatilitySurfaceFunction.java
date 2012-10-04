@@ -88,7 +88,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     final String curveName = curveNames.iterator().next();
     final EquityOptionSecurity optionSec = (EquityOptionSecurity) target.getSecurity();
     final SecuritySource securityMaster = context.getSecuritySource();
-    final Security underlying = securityMaster.getSecurity(ExternalIdBundle.of(optionSec.getUnderlyingId()));
+    final Security underlying = securityMaster.getSingle(ExternalIdBundle.of(optionSec.getUnderlyingId()));
     final ValueRequirement optionMarketDataReq = getPriceRequirement(optionSec.getUniqueId());
     final ValueRequirement underlyingMarketDataReq = getPriceRequirement(underlying.getUniqueId());
     final ValueRequirement discountCurveReq = getDiscountCurveMarketDataRequirement(optionSec.getCurrency().getUniqueId(), curveName);
@@ -119,7 +119,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     final EquityOptionSecurity optionSec = (EquityOptionSecurity) target.getSecurity();
 
     final SecuritySource secMaster = executionContext.getSecuritySource();
-    final Security underlying = secMaster.getSecurity(ExternalIdBundle.of(optionSec.getUnderlyingId()));
+    final Security underlying = secMaster.getSingle(ExternalIdBundle.of(optionSec.getUnderlyingId()));
 
     // Get inputs:
     final ValueRequirement optionPriceReq = getPriceRequirement(optionSec.getUniqueId());

@@ -7,6 +7,7 @@ package com.opengamma.core.exchange;
 
 import javax.time.calendar.TimeZone;
 
+import com.opengamma.id.ExternalBundleIdentifiable;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
@@ -22,27 +23,7 @@ import com.opengamma.util.PublicAPI;
  * Implementations may be mutable.
  */
 @PublicAPI
-public interface Exchange extends UniqueIdentifiable {
-
-  /**
-   * Gets the unique identifier of the exchange.
-   * <p>
-   * This specifies a single version-correction of the exchange.
-   * 
-   * @return the unique identifier for this exchange, not null within the engine
-   */
-  UniqueId getUniqueId();
-
-  /**
-   * Gets the external identifier bundle defining the exchange.
-   * <p>
-   * Each external system has one or more identifiers by which they refer to the exchange.
-   * Some of these may be unique within that system, while others may be more descriptive.
-   * This bundle stores the set of these external identifiers.
-   * 
-   * @return the bundle, null if not applicable
-   */
-  ExternalIdBundle getExternalIdBundle();
+public interface Exchange extends UniqueIdentifiable, ExternalBundleIdentifiable {
 
   /**
    * Gets the region external identifier bundle that defines where the exchange is located.

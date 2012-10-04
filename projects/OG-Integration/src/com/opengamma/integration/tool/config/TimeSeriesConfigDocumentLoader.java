@@ -13,6 +13,7 @@ import static com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSerie
 import java.util.ArrayList;
 import java.util.List;
 
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
@@ -22,7 +23,6 @@ import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRating
 
 /**
  * Puts an entry in the TSS configuration for default MetaData lookup.
- * See {@link TimeSeriesConfigDocumentLoaderTool}.
  */
 public class TimeSeriesConfigDocumentLoader {
 
@@ -53,11 +53,10 @@ public class TimeSeriesConfigDocumentLoader {
    * Runs the tool.
    */
   public void run() {
-    final ConfigDocument<HistoricalTimeSeriesRating> configDocument = new ConfigDocument<HistoricalTimeSeriesRating>(HistoricalTimeSeriesRating.class);
-    configDocument.setName(DEFAULT_CONFIG_NAME);
-    configDocument.setValue(DEFAULT_CONFIG);
+    final ConfigItem<HistoricalTimeSeriesRating> configItem = ConfigItem.of(DEFAULT_CONFIG, DEFAULT_CONFIG_NAME);
     final ConfigSearchRequest<HistoricalTimeSeriesRating> req = new ConfigSearchRequest<HistoricalTimeSeriesRating>();
-    req.setName(configDocument.getName());
+    req.setName(configItem.getName());
+    final ConfigDocument configDocument = new ConfigDocument(configItem);
     final ConfigSearchResult<HistoricalTimeSeriesRating> res = getConfigMaster().search(req);
     if (res.getDocuments().isEmpty()) {
       getConfigMaster().add(configDocument);

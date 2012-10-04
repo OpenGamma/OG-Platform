@@ -14,17 +14,14 @@ import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.id.ObjectId;
 import com.opengamma.master.AbstractDocumentDataResource;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryRequest;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryResult;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
+import com.opengamma.master.historicaltimeseries.*;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.RestUtils;
 
 /**
  * RESTful resource for accessing time-series info.
  */
-public class DataHistoricalTimeSeriesResource extends AbstractDocumentDataResource<HistoricalTimeSeriesInfoDocument> {
+public class DataHistoricalTimeSeriesResource extends AbstractDocumentDataResource<ManageableHistoricalTimeSeriesInfo, HistoricalTimeSeriesInfoDocument> {
 
   /**
    * The time-series resource.

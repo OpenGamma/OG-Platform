@@ -41,7 +41,7 @@ public class ConfigDBCurrencyMatrixSource implements CurrencyMatrixSource {
   //-------------------------------------------------------------------------
   @Override
   public CurrencyMatrix getCurrencyMatrix(final String name) {
-    return getConfigSource().getLatestByName(CurrencyMatrix.class, name);
+    return getConfigSource().getLatest(CurrencyMatrix.class, name);
   }
 
 }

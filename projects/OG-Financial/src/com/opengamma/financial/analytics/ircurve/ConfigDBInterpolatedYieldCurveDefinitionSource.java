@@ -9,6 +9,7 @@ import javax.time.Instant;
 import javax.time.InstantProvider;
 
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -44,13 +45,12 @@ public class ConfigDBInterpolatedYieldCurveDefinitionSource implements Interpola
   //-------------------------------------------------------------------------
   @Override
   public YieldCurveDefinition getDefinition(final Currency ccy, final String name) {
-    return _configSource.getLatestByName(YieldCurveDefinition.class, name + "_" + ccy.getCode());
+    return _configSource.getLatest(YieldCurveDefinition.class, name + "_" + ccy.getCode());
   }
 
   @Override
-  public YieldCurveDefinition getDefinition(final Currency ccy, final String name, final InstantProvider version) {
-    final Instant versionInstant = (version != null) ? version.toInstant() : null;
-    return _configSource.getByName(YieldCurveDefinition.class, name + "_" + ccy.getCode(), versionInstant);
+  public YieldCurveDefinition getDefinition(final Currency ccy, final String name, final VersionCorrection versionCorrection) {
+    return _configSource.getConfig(YieldCurveDefinition.class, name + "_" + ccy.getCode(), versionCorrection);
   }
 
 }

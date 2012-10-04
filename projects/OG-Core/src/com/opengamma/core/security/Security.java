@@ -6,6 +6,7 @@
 package com.opengamma.core.security;
 
 import com.opengamma.core.Attributable;
+import com.opengamma.id.ExternalBundleIdentifiable;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
@@ -22,27 +23,7 @@ import com.opengamma.util.PublicAPI;
  * Implementations may be mutable.
  */
 @PublicAPI
-public interface Security extends UniqueIdentifiable, Attributable {
-
-  /**
-   * Gets the unique identifier of the security.
-   * <p>
-   * This specifies a single version-correction of the security.
-   * 
-   * @return the unique identifier for this security, not null within the engine
-   */
-  UniqueId getUniqueId();
-
-  /**
-   * Gets the external identifier bundle that define the security.
-   * <p>
-   * Each external system has one or more identifiers by which they refer to the security.
-   * Some of these may be unique within that system, while others may be more descriptive.
-   * This bundle stores the set of these external identifiers.
-   * 
-   * @return the bundle defining the security, not null
-   */
-  ExternalIdBundle getExternalIdBundle();
+public interface Security extends UniqueIdentifiable, ExternalBundleIdentifiable, Attributable {
 
   /**
    * Gets the text-based type of this security.

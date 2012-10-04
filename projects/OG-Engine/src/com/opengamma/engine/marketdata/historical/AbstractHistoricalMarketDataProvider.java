@@ -173,7 +173,7 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
       case SECURITY:
         final Security security;
         try {
-          security = getSecuritySource().getSecurity(requirement.getTargetSpecification().getUniqueId());
+          security = getSecuritySource().get(requirement.getTargetSpecification().getUniqueId());
         } catch (DataNotFoundException ex) {
           return null;
         }

@@ -12,6 +12,7 @@ import javax.time.InstantProvider;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionSource;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.rest.AbstractRemoteClient;
@@ -48,12 +49,12 @@ public class RemoteInterpolatedYieldCurveDefinitionSource extends AbstractRemote
   }
 
   @Override
-  public YieldCurveDefinition getDefinition(Currency currency, String name, InstantProvider versionAsOf) {
+  public YieldCurveDefinition getDefinition(Currency currency, String name, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(currency, "currency");
     ArgumentChecker.notNull(name, "name");
     
     try {
-      URI uri = DataInterpolatedYieldCurveDefinitionSourceResource.uriSearchSingle(getBaseUri(), currency, name, versionAsOf);
+      URI uri = DataInterpolatedYieldCurveDefinitionSourceResource.uriSearchSingle(getBaseUri(), currency, name, versionCorrection.getVersionAsOf());
       return accessRemote(uri).get(YieldCurveDefinition.class);
     } catch (DataNotFoundException ex) {
       return null;

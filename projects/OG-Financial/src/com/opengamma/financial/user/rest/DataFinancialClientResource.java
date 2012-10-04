@@ -16,7 +16,8 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.analytics.ircurve.rest.DataInterpolatedYieldCurveDefinitionMasterResource;
 import com.opengamma.financial.user.FinancialClient;
-import com.opengamma.financial.view.rest.DataManageableViewDefinitionRepositoryResource;
+import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.config.impl.DataConfigMasterResource;
 import com.opengamma.master.marketdatasnapshot.impl.DataMarketDataSnapshotMasterResource;
 import com.opengamma.master.portfolio.impl.DataPortfolioMasterResource;
 import com.opengamma.master.position.impl.DataPositionMasterResource;
@@ -48,7 +49,7 @@ public class DataFinancialClientResource extends AbstractDataResource {
   /**
    * The path used to retrieve user view definitions.
    */
-  public static final String VIEW_DEFINITION_MASTER_PATH = "viewDefinitionMaster";
+  public static final String CONFIG_MASTER_PATH = "viewDefinitionMaster";
   /**
    * The path used to retrieve yield curve definitions.
    */
@@ -105,10 +106,10 @@ public class DataFinancialClientResource extends AbstractDataResource {
     return new DataPortfolioMasterResource(getClient().getPortfolioMaster());
   }
 
-  @Path(VIEW_DEFINITION_MASTER_PATH)
-  public DataManageableViewDefinitionRepositoryResource getViewDefinitionMaster() {
+  @Path(CONFIG_MASTER_PATH)
+  public DataConfigMasterResource getConfigMaster() {
     s_logger.debug("Accessed UserViewDefinitionMaster for {}", getClient());
-    return new DataManageableViewDefinitionRepositoryResource(getClient().getViewDefinitionMaster());
+    return new DataConfigMasterResource(getClient().getConfigMaster());
   }
 
   @Path(INTERPOLATED_YIELD_CURVE_DEFINITION_MASTER_PATH)
@@ -179,8 +180,8 @@ public class DataFinancialClientResource extends AbstractDataResource {
    * @param clientName  the client name, not null
    * @return the URI, not null
    */
-  public static URI uriViewDefinitionMaster(URI baseUri, String userName, String clientName) {
-    UriBuilder bld = UriBuilder.fromUri(DataFinancialClientManagerResource.uriClient(baseUri, userName, clientName)).path(VIEW_DEFINITION_MASTER_PATH);
+  public static URI uriConfigMaster(URI baseUri, String userName, String clientName) {
+    UriBuilder bld = UriBuilder.fromUri(DataFinancialClientManagerResource.uriClient(baseUri, userName, clientName)).path(CONFIG_MASTER_PATH);
     return bld.build();
   }
 

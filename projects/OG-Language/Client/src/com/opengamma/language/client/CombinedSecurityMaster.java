@@ -5,10 +5,12 @@
  */
 package com.opengamma.language.client;
 
-import java.util.List;
+import static com.google.common.collect.Maps.newHashMap;
+
+import java.util.Collection;
+import java.util.Map;
 
 import com.opengamma.core.change.ChangeManager;
-import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.*;
 
@@ -16,10 +18,10 @@ import com.opengamma.master.security.*;
  * A {@link SecurityMaster} that combines the behavior of the masters
  * in the session, user and global contexts. 
  */
-public class CombinedSecurityMaster extends CombinedMaster<SecurityDocument, SecurityMaster> implements SecurityMaster {
+public class CombinedSecurityMaster extends CombinedMaster<ManageableSecurity, SecurityDocument, SecurityMaster> implements SecurityMaster {
 
-  /* package */CombinedSecurityMaster(final CombiningMaster<SecurityDocument, SecurityMaster, ?> combining, final SecurityMaster sessionMaster, final SecurityMaster userMaster,
-      final SecurityMaster globalMaster) {
+  /* package */CombinedSecurityMaster(final CombiningMaster<ManageableSecurity, SecurityDocument, SecurityMaster, ?> combining, final SecurityMaster sessionMaster, final SecurityMaster userMaster,
+                                      final SecurityMaster globalMaster) {
     super(combining, sessionMaster, userMaster, globalMaster);
   }
 
@@ -46,6 +48,15 @@ public class CombinedSecurityMaster extends CombinedMaster<SecurityDocument, Sec
       result.getDocuments().addAll(getGlobalMaster().search(request).getDocuments());
     }
     return result;
+  }
+
+  @Override
+  public Map<UniqueId, SecurityDocument> get(Collection<UniqueId> uniqueIds) {
+    Map<UniqueId, SecurityDocument> map = newHashMap();
+    for (UniqueId uniqueId : uniqueIds) {
+      map.put(uniqueId, get(uniqueId));
+    }
+    return map;
   }
 
   /**

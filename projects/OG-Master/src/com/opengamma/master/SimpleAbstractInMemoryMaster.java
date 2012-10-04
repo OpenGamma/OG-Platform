@@ -5,8 +5,12 @@
  */
 package com.opengamma.master;
 
+import static com.google.common.collect.Maps.newHashMap;
+
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -18,10 +22,7 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.ChangeProvider;
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.ObjectIdSupplier;
-import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueId;
+import com.opengamma.id.*;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -32,7 +33,7 @@ import com.opengamma.util.ArgumentChecker;
  * This implementation does not copy stored elements, making it thread-hostile.
  * As such, this implementation is currently most useful for testing scenarios.
  */
-abstract public class SimpleAbstractInMemoryMaster<D extends AbstractDocument> implements AbstractMaster<D>, ChangeProvider {
+abstract public class SimpleAbstractInMemoryMaster<T extends UniqueIdentifiable, D extends AbstractDocument<? extends T>> implements AbstractMaster<T, D>, ChangeProvider {
 
   /**
    * A cache of documents by identifier.
@@ -167,5 +168,13 @@ abstract public class SimpleAbstractInMemoryMaster<D extends AbstractDocument> i
     }
   }
 
-
+  @Override
+  public Map<UniqueId, D> get(Collection<UniqueId> uniqueIds) {
+    Map<UniqueId, D> resultMap = newHashMap();
+    for (UniqueId uniqueId : uniqueIds) {
+      D doc = get(uniqueId);
+      resultMap.put(uniqueId, doc);
+    }
+    return resultMap;
+  }
 }

@@ -62,7 +62,7 @@ public class ExchangeTradedRowParser extends RowParser {
     ArgumentChecker.notNull(row, "row");
     
     for (ExternalScheme scheme : s_schemeWaterfall) {
-      ManageableSecurity security = _bbgSecSource.getSecurity(ExternalIdBundle.of(
+      ManageableSecurity security = _bbgSecSource.getSingle(ExternalIdBundle.of(
           ExternalId.of(scheme, getWithException(row, TICKER))
       ));
       if (security != null) {

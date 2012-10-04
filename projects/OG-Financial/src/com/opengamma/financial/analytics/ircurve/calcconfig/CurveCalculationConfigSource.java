@@ -7,6 +7,8 @@ package com.opengamma.financial.analytics.ircurve.calcconfig;
 
 import javax.time.InstantProvider;
 
+import com.opengamma.id.VersionCorrection;
+
 /**
  * 
  */
@@ -14,5 +16,5 @@ public interface CurveCalculationConfigSource {
 
   MultiCurveCalculationConfig getConfig(final String name);
 
-  MultiCurveCalculationConfig getConfig(final String name, final InstantProvider versionAsOf);
+  MultiCurveCalculationConfig getConfig(final String name, final VersionCorrection versionCorrection);
 }

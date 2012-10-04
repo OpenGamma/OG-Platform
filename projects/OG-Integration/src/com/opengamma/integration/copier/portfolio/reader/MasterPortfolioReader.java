@@ -66,10 +66,10 @@ public class MasterPortfolioReader implements PortfolioReader {
     if (_portfolioDocument == null) {
       throw new OpenGammaRuntimeException("Portfolio " + portfolioName + " could not be opened");
     }
-    _currentNode = _portfolioDocument.getPortfolio().getRootNode();
+    _currentNode = _portfolioDocument.getObject().getRootNode();
 
     List<ManageablePortfolioNode> rootNodeList = new ArrayList<ManageablePortfolioNode>(); 
-    rootNodeList.add(_portfolioDocument.getPortfolio().getRootNode());
+    rootNodeList.add(_portfolioDocument.getObject().getRootNode());
     
     _nodeIterator = rootNodeList.iterator();
     _nodeIteratorStack = new Stack<Iterator<ManageablePortfolioNode>>();
@@ -85,7 +85,7 @@ public class MasterPortfolioReader implements PortfolioReader {
     } else {
       ManageablePosition position;
       try {
-      position = _positionMaster.get(positionId, VersionCorrection.LATEST).getPosition();
+      position = _positionMaster.get(positionId, VersionCorrection.LATEST).getObject();
       } catch (Throwable t) {
         return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(null, null);
       }
@@ -103,7 +103,7 @@ public class MasterPortfolioReader implements PortfolioReader {
         
           Security underlying;
           try {
-            underlying = _securitySource.getSecurity(id.toBundle());
+            underlying = _securitySource.getSingle(id.toBundle());
             if (underlying != null) {
               return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(
                   position, 
@@ -130,7 +130,7 @@ public class MasterPortfolioReader implements PortfolioReader {
   @Override
   public String[] getCurrentPath() {
     Stack<ManageablePortfolioNode> stack = 
-        _portfolioDocument.getPortfolio().getRootNode().findNodeStackByObjectId(_currentNode.getUniqueId());
+        _portfolioDocument.getObject().getRootNode().findNodeStackByObjectId(_currentNode.getUniqueId());
     stack.remove(0);
     String[] result = new String[stack.size()];
     int i = stack.size();

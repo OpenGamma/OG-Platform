@@ -70,7 +70,7 @@ public class PortfolioCopierTest {
     rootNode.setUniqueId(UniqueId.of("abc", "123"));
     ManageablePortfolio portfolio = new ManageablePortfolio(PORTFOLIO_NAME, rootNode);
     PortfolioDocument portfolioDocument = new PortfolioDocument();
-    portfolioDocument.setPortfolio(portfolio);
+    portfolioDocument.setObject(portfolio);
     when(portfolioMaster.add(any(PortfolioDocument.class))).thenReturn(portfolioDocument);
     
     // file to masters

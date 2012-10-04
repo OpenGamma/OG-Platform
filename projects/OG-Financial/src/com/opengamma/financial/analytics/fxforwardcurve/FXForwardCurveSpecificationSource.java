@@ -7,6 +7,8 @@ package com.opengamma.financial.analytics.fxforwardcurve;
 
 import javax.time.Instant;
 
+import com.opengamma.id.VersionCorrection;
+
 /**
  * 
  */
@@ -14,5 +16,5 @@ public interface FXForwardCurveSpecificationSource {
 
   FXForwardCurveSpecification getSpecification(final String name, final String currencyPair);
 
-  FXForwardCurveSpecification getSpecification(final String name, final String currencyPair, final Instant version);
+  FXForwardCurveSpecification getSpecification(final String name, final String currencyPair, final VersionCorrection versionCorrection);
 }

@@ -43,11 +43,11 @@ public final class MarketDataELFunctions {
 
   public static Security getSecurity(final Object id) {
     if (id instanceof ExternalId) {
-      return getCompiler().getSecuritySource().getSecurity(ExternalIdBundle.of((ExternalId) id));
+      return getCompiler().getSecuritySource().getSingle(ExternalIdBundle.of((ExternalId) id));
     } else if (id instanceof UniqueId) {
-      return getCompiler().getSecuritySource().getSecurity((UniqueId) id);
+      return getCompiler().getSecuritySource().get((UniqueId) id);
     } else if (id instanceof ExternalIdBundle) {
-      return getCompiler().getSecuritySource().getSecurity((ExternalIdBundle) id);
+      return getCompiler().getSecuritySource().getSingle((ExternalIdBundle) id);
     } else if (id instanceof Security) {
       return (Security) id;
     } else {

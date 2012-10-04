@@ -96,7 +96,7 @@ public class ModifyHolidayDbHolidayMasterWorkerCorrectTest extends AbstractDbHol
     assertEquals(base.getVersionToInstant(), corrected.getVersionToInstant());
     assertEquals(now, corrected.getCorrectionFromInstant());
     assertEquals(null, corrected.getCorrectionToInstant());
-    assertEquals(input.getHoliday(), corrected.getHoliday());
+    assertEquals(input.getObject(), corrected.getObject());
     
     HolidayDocument old = _holMaster.get(UniqueId.of("DbHol", "101", "0"));
     assertEquals(base.getUniqueId(), old.getUniqueId());
@@ -104,7 +104,7 @@ public class ModifyHolidayDbHolidayMasterWorkerCorrectTest extends AbstractDbHol
     assertEquals(base.getVersionToInstant(), old.getVersionToInstant());
     assertEquals(base.getCorrectionFromInstant(), old.getCorrectionFromInstant());
     assertEquals(now, old.getCorrectionToInstant());  // old version ended
-    assertEquals(base.getHoliday(), old.getHoliday());
+    assertEquals(base.getObject(), old.getObject());
     
     HolidayHistoryRequest search = new HolidayHistoryRequest(base.getUniqueId(), now, null);
     HolidayHistoryResult searchResult = _holMaster.history(search);

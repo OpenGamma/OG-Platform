@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
@@ -66,9 +67,9 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
     assertEquals(_totalExternalIds, test.getPaging().getTotalItems());
     
     assertEquals(_totalExternalIds, test.getDocuments().size());
-    assert202(test.getDocuments().get(0));
-    assert102(test.getDocuments().get(1));
-    assert101(test.getDocuments().get(2));
+    assert202((ConfigItem<ExternalId>)test.getDocuments().get(0).getObject());
+    assert102((ConfigItem<ExternalId>)test.getDocuments().get(1).getObject());
+    assert101((ConfigItem<ExternalId>)test.getDocuments().get(2).getObject());
   }
 
   //-------------------------------------------------------------------------
@@ -83,8 +84,8 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
     assertEquals(_totalExternalIds, test.getPaging().getTotalItems());
     
     assertEquals(2, test.getDocuments().size());
-    assert202(test.getDocuments().get(0));
-    assert102(test.getDocuments().get(1));
+    assert202((ConfigItem<ExternalId>)test.getDocuments().get(0).getObject());
+    assert102((ConfigItem<ExternalId>)test.getDocuments().get(1).getObject());
   }
 
   @Test
@@ -98,7 +99,7 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
     assertEquals(_totalExternalIds, test.getPaging().getTotalItems());
     
     assertEquals(1, test.getDocuments().size());
-    assert101(test.getDocuments().get(0));
+    assert101((ConfigItem<ExternalId>)test.getDocuments().get(0).getObject());
   }
 
   //-------------------------------------------------------------------------
@@ -118,7 +119,7 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
     ConfigSearchResult<ExternalId> test = _cfgMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
-    assert102(test.getDocuments().get(0));
+    assert102((ConfigItem<ExternalId>)test.getDocuments().get(0).getObject());
   }
 
   @Test
@@ -128,7 +129,7 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
     ConfigSearchResult<ExternalId> test = _cfgMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
-    assert102(test.getDocuments().get(0));
+    assert102((ConfigItem<ExternalId>)test.getDocuments().get(0).getObject());
   }
 
   @Test
@@ -138,8 +139,8 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
     ConfigSearchResult<ExternalId> test = _cfgMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
-    assert102(test.getDocuments().get(0));
-    assert101(test.getDocuments().get(1));
+    assert102((ConfigItem<ExternalId>)test.getDocuments().get(0).getObject());
+    assert101((ConfigItem<ExternalId>)test.getDocuments().get(1).getObject());
   }
 
   @Test
@@ -149,8 +150,8 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
     ConfigSearchResult<ExternalId> test = _cfgMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
-    assert102(test.getDocuments().get(0));
-    assert101(test.getDocuments().get(1));
+    assert102((ConfigItem<ExternalId>)test.getDocuments().get(0).getObject());
+    assert101((ConfigItem<ExternalId>)test.getDocuments().get(1).getObject());
   }
 
   //-------------------------------------------------------------------------
@@ -172,8 +173,8 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
     ConfigSearchResult<ExternalId> test = _cfgMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
-    assert202(test.getDocuments().get(0));
-    assert101(test.getDocuments().get(1));
+    assert202((ConfigItem<ExternalId>)test.getDocuments().get(0).getObject());
+    assert101((ConfigItem<ExternalId>)test.getDocuments().get(1).getObject());
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -200,9 +201,9 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
     ConfigSearchResult<ExternalId> test = _cfgMaster.search(request);
     
     assertEquals(3, test.getDocuments().size());
-    assert201(test.getDocuments().get(0));  // old version
-    assert102(test.getDocuments().get(1));
-    assert101(test.getDocuments().get(2));
+    assert201((ConfigItem<ExternalId>)test.getDocuments().get(0).getObject());  // old version
+    assert102((ConfigItem<ExternalId>)test.getDocuments().get(1).getObject());
+    assert101((ConfigItem<ExternalId>)test.getDocuments().get(2).getObject());
   }
 
   @Test
@@ -212,9 +213,9 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
     ConfigSearchResult<ExternalId> test = _cfgMaster.search(request);
     
     assertEquals(3, test.getDocuments().size());
-    assert202(test.getDocuments().get(0));  // new version
-    assert102(test.getDocuments().get(1));
-    assert101(test.getDocuments().get(2));
+    assert202((ConfigItem<ExternalId>)test.getDocuments().get(0).getObject());  // new version
+    assert102((ConfigItem<ExternalId>)test.getDocuments().get(1).getObject());
+    assert101((ConfigItem<ExternalId>)test.getDocuments().get(2).getObject());
   }
 
   //-------------------------------------------------------------------------

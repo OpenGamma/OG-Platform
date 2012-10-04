@@ -5,11 +5,13 @@
  */
 package com.opengamma.core.holiday.impl;
 
-import static com.opengamma.util.ehcache.EHCacheUtils.get;
+import static com.google.common.collect.Maps.newHashMap;
 import static com.opengamma.util.ehcache.EHCacheUtils.putException;
 import static com.opengamma.util.ehcache.EHCacheUtils.putValue;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
 
 import javax.time.calendar.LocalDate;
 
@@ -17,6 +19,7 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.HolidayType;
@@ -55,13 +58,13 @@ public class EHCachingHolidaySource implements HolidaySource {
   }
 
   @Override
-  public Holiday getHoliday(final UniqueId uniqueId) {
+  public Holiday get(final UniqueId uniqueId) {
     final Element e = getCache().get(uniqueId);
     if (e != null) {
-      return get(e);
+      return EHCacheUtils.get(e);
     }
     try {
-      return putValue(uniqueId, getUnderlying().getHoliday(uniqueId), getCache());
+      return putValue(uniqueId, getUnderlying().get(uniqueId), getCache());
     } catch (RuntimeException ex) {
       return putException(uniqueId, ex, getCache());
     }
@@ -69,14 +72,14 @@ public class EHCachingHolidaySource implements HolidaySource {
 
   @SuppressWarnings("unchecked")
   @Override
-  public Holiday getHoliday(final ObjectId objectId, final VersionCorrection versionCorrection) {
+  public Holiday get(final ObjectId objectId, final VersionCorrection versionCorrection) {
     final Object key = Arrays.asList(objectId, versionCorrection);
     final Element e = getCache().get(key);
     if (e != null) {
-      return get(e);
+      return EHCacheUtils.get(e);
     }
     try {
-      return putValue(key, getUnderlying().getHoliday(objectId, versionCorrection), getCache());
+      return putValue(key, getUnderlying().get(objectId, versionCorrection), getCache());
     } catch (RuntimeException ex) {
       return putException(key, ex, getCache());
     }
@@ -88,7 +91,7 @@ public class EHCachingHolidaySource implements HolidaySource {
     final Object key = Arrays.asList(dateToCheck, currency);
     final Element e = getCache().get(key);
     if (e != null) {
-      return (Boolean) get(e);
+      return (Boolean) EHCacheUtils.get(e);
     }
     try {
       return (Boolean) putValue(key, getUnderlying().isHoliday(dateToCheck, currency), getCache());
@@ -103,7 +106,7 @@ public class EHCachingHolidaySource implements HolidaySource {
     final Object key = Arrays.asList(dateToCheck, holidayType, regionOrExchangeIds);
     final Element e = getCache().get(key);
     if (e != null) {
-      return (Boolean) get(e);
+      return (Boolean) EHCacheUtils.get(e);
     }
     try {
       return (Boolean) putValue(key, getUnderlying().isHoliday(dateToCheck, holidayType, regionOrExchangeIds), getCache());
@@ -118,7 +121,7 @@ public class EHCachingHolidaySource implements HolidaySource {
     final Object key = Arrays.asList(dateToCheck, holidayType, regionOrExchangeId);
     final Element e = getCache().get(key);
     if (e != null) {
-      return (Boolean) get(e);
+      return (Boolean) EHCacheUtils.get(e);
     }
     try {
       return (Boolean) putValue(key, getUnderlying().isHoliday(dateToCheck, holidayType, regionOrExchangeId), getCache());
@@ -127,4 +130,17 @@ public class EHCachingHolidaySource implements HolidaySource {
     }
   }
 
+  @Override
+  public Map<UniqueId, Holiday> get(Collection<UniqueId> uniqueIds) {
+    Map<UniqueId, Holiday> result = newHashMap();
+    for (UniqueId uniqueId : uniqueIds) {
+      try {
+        Holiday object = get(uniqueId);
+        result.put(uniqueId, object);
+      } catch (DataNotFoundException ex) {
+        // do nothing
+      }
+    }
+    return result;
+  }
 }

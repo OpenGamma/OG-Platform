@@ -41,7 +41,7 @@ import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.function.InMemoryCompiledFunctionRepository;
 import com.opengamma.engine.function.exclusion.AbstractFunctionExclusionGroups;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
-import com.opengamma.engine.test.OptimisticMarketDataAvailabilityProvider;
+import com.opengamma.engine.OptimisticMarketDataAvailabilityProvider;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;

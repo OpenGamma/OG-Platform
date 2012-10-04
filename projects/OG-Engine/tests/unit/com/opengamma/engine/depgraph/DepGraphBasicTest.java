@@ -19,7 +19,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
-import com.opengamma.engine.test.MockFunction;
+import com.opengamma.engine.MockFunction;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 

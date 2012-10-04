@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.fxforwardcurve;
 
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
@@ -33,27 +34,25 @@ public class FXForwardCurveConfigPopulator {
         Tenor.ofMonths(3), Tenor.ofMonths(6), Tenor.ofMonths(9), Tenor.ofMonths(12),
         Tenor.ofYears(5), Tenor.ofYears(10)};
     final FXForwardCurveDefinition definition = new FXForwardCurveDefinition("DEFAULT_FX_FORWARD", target, expiryTenors);
-    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(definition));
+    ConfigMasterUtils.storeByName(configMaster, makeConfig(definition));
   }
 
   private static void populateCurveSpecifications(final ConfigMaster configMaster, final UnorderedCurrencyPair target, final String currencyString, final String spotString) {
     final FXForwardCurveInstrumentProvider curveInstrumentProvider = new BloombergFXForwardCurveInstrumentProvider(currencyString, "Curncy", spotString,
         MarketDataRequirementNames.MARKET_VALUE);
     final FXForwardCurveSpecification spec = new FXForwardCurveSpecification("DEFAULT_FX_FORWARD", target, curveInstrumentProvider);
-    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(spec));
+    ConfigMasterUtils.storeByName(configMaster, makeConfig(spec));
   }
 
-  private static ConfigDocument<FXForwardCurveDefinition> makeConfigDocument(final FXForwardCurveDefinition definition) {
-    final ConfigDocument<FXForwardCurveDefinition> configDocument = new ConfigDocument<FXForwardCurveDefinition>(FXForwardCurveDefinition.class);
-    configDocument.setName(definition.getName());
-    configDocument.setValue(definition);
-    return configDocument;
+  private static ConfigItem<FXForwardCurveDefinition> makeConfig(final FXForwardCurveDefinition definition) {
+    final ConfigItem<FXForwardCurveDefinition> config = ConfigItem.of(definition);
+    config.setName(definition.getName());
+    return config;
   }
 
-  private static ConfigDocument<FXForwardCurveSpecification> makeConfigDocument(final FXForwardCurveSpecification specification) {
-    final ConfigDocument<FXForwardCurveSpecification> configDocument = new ConfigDocument<FXForwardCurveSpecification>(FXForwardCurveSpecification.class);
-    configDocument.setName(specification.getName());
-    configDocument.setValue(specification);
-    return configDocument;
+  private static ConfigItem<FXForwardCurveSpecification> makeConfig(final FXForwardCurveSpecification specification) {
+    final ConfigItem<FXForwardCurveSpecification> config = ConfigItem.of(specification);
+    config.setName(specification.getName());    
+    return config;
   }
 }

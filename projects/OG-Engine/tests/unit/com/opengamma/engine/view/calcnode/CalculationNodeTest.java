@@ -11,9 +11,9 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.engine.test.CalculationNodeUtils;
-import com.opengamma.engine.test.MockFunction;
-import com.opengamma.engine.test.TestCalculationNode;
+import com.opengamma.engine.CalculationNodeUtils;
+import com.opengamma.engine.MockFunction;
+import com.opengamma.engine.TestCalculationNode;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.ViewComputationCache;

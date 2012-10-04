@@ -119,7 +119,7 @@ public class TimeSeriesLoaderTest {
     LocalDateDoubleTimeSeries retrievedDataPoints = null;
     if (result != null && result.getFirstInfo() != null) {
       retrievedDataPoints = htsMaster.getTimeSeries(
-          htsMaster.get(result.getFirstInfo().getUniqueId()).getInfo().getTimeSeriesObjectId().atLatestVersion()).getTimeSeries();
+          htsMaster.get(result.getFirstInfo().getUniqueId()).getObject().getTimeSeriesObjectId().atLatestVersion()).getTimeSeries();
     }
     
     // Assert that the retrieved contents is as expected (combined existing and new dates/values)
@@ -158,7 +158,7 @@ public class TimeSeriesLoaderTest {
     LocalDateDoubleTimeSeries retrievedDataPoints = null;
     if (result != null && result.getFirstInfo() != null) {
       retrievedDataPoints = htsMaster.getTimeSeries(
-          htsMaster.get(result.getFirstInfo().getUniqueId()).getInfo().getTimeSeriesObjectId().atLatestVersion()).getTimeSeries();
+          htsMaster.get(result.getFirstInfo().getUniqueId()).getObject().getTimeSeriesObjectId().atLatestVersion()).getTimeSeries();
     }
     assert(dataPoints.equals(retrievedDataPoints));
   }
@@ -217,7 +217,7 @@ public class TimeSeriesLoaderTest {
     LocalDateDoubleTimeSeries retrievedDataPoints = null;
     if (result != null && result.getFirstInfo() != null) {
       retrievedDataPoints = htsMaster.getTimeSeries(
-          htsMaster.get(result.getFirstInfo().getUniqueId()).getInfo().getTimeSeriesObjectId().atLatestVersion()).getTimeSeries();
+          htsMaster.get(result.getFirstInfo().getUniqueId()).getObject().getTimeSeriesObjectId().atLatestVersion()).getTimeSeries();
     }
     
     assert(compareDataPoints.equals(retrievedDataPoints));
@@ -260,7 +260,7 @@ public class TimeSeriesLoaderTest {
     htsInfoDoc = htsMaster.add(htsInfoDoc);
 
     // Create the actual time series and add to HTS master
-    htsMaster.updateTimeSeriesDataPoints(htsInfoDoc.getInfo().getTimeSeriesObjectId(), lddts);
+    htsMaster.updateTimeSeriesDataPoints(htsInfoDoc.getObject().getTimeSeriesObjectId(), lddts);
     return htsMaster;
   }
 

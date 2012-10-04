@@ -7,11 +7,9 @@ package com.opengamma.core.exchange;
 
 import java.util.Collection;
 
-import com.opengamma.DataNotFoundException;
+import com.opengamma.core.Source;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.PublicSPI;
 
@@ -25,35 +23,7 @@ import com.opengamma.util.PublicSPI;
  * Implementations must be thread-safe.
  */
 @PublicSPI
-public interface ExchangeSource {
-
-  /**
-   * Gets an exchange by unique identifier.
-   * <p>
-   * A unique identifier exactly specifies a single exchange at a single version-correction.
-   * 
-   * @param uniqueId  the unique identifier to find, not null
-   * @return the matched exchange, not null
-   * @throws IllegalArgumentException if the identifier is invalid
-   * @throws DataNotFoundException if the exchange could not be found
-   * @throws RuntimeException if an error occurs
-   */
-  Exchange getExchange(UniqueId uniqueId);
-
-  /**
-   * Gets an exchange by object identifier and version-correction.
-   * <p>
-   * In combination, the object identifier and version-correction exactly specify
-   * a single exchange at a single version-correction.
-   * 
-   * @param objectId  the object identifier to find, not null
-   * @param versionCorrection  the version-correction, not null
-   * @return the matched exchange, not null
-   * @throws IllegalArgumentException if the identifier or version-correction is invalid
-   * @throws DataNotFoundException if the exchange could not be found
-   * @throws RuntimeException if an error occurs
-   */
-  Exchange getExchange(ObjectId objectId, VersionCorrection versionCorrection);
+public interface ExchangeSource extends Source<Exchange> {
 
   /**
    * Gets all exchanges at the given version-correction that match the specified
@@ -69,7 +39,7 @@ public interface ExchangeSource {
    * @throws IllegalArgumentException if the identifier bundle is invalid
    * @throws RuntimeException if an error occurs
    */
-  Collection<? extends Exchange> getExchanges(ExternalIdBundle bundle, VersionCorrection versionCorrection);
+  Collection<? extends Exchange> get(ExternalIdBundle bundle, VersionCorrection versionCorrection);
 
   //-------------------------------------------------------------------------
   // TODO: remove below here
@@ -84,7 +54,7 @@ public interface ExchangeSource {
    * @throws IllegalArgumentException if the identifier is invalid
    * @throws RuntimeException if an error occurs
    */
-  Exchange getSingleExchange(ExternalId identifier);
+  Exchange getSingle(ExternalId identifier);
 
   /**
    * Finds a specific exchange by identifier bundle.
@@ -97,6 +67,5 @@ public interface ExchangeSource {
    * @throws IllegalArgumentException if the identifier is invalid
    * @throws RuntimeException if an error occurs
    */
-  Exchange getSingleExchange(ExternalIdBundle identifierBundle);
-
+  Exchange getSingle(ExternalIdBundle identifierBundle);
 }

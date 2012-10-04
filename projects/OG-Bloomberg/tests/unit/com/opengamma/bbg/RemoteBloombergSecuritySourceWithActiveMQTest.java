@@ -192,7 +192,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
   public void aaplEquityByBbgTicker() throws Exception {
     ExternalIdBundle equityKey = ExternalIdBundle.of(
         ExternalSchemes.bloombergTickerSecurityId(AAPL_EQUITY_TICKER));
-    Security sec = _remoteSecSource.getSecurity(equityKey);
+    Security sec = _remoteSecSource.getSingle(equityKey);
     EquitySecurity expectedEquity = makeAAPLEquitySecurity(true);
     assertEquitySecurity(expectedEquity, sec);
   }
@@ -201,7 +201,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
   public void aaplEquityByBbgUnique() throws Exception {
     ExternalIdBundle equityKey = ExternalIdBundle.of(
         ExternalSchemes.bloombergBuidSecurityId("EQ0010169500001000"));
-    Security sec = _remoteSecSource.getSecurity(equityKey);
+    Security sec = _remoteSecSource.getSingle(equityKey);
     EquitySecurity expectedEquity = makeAAPLEquitySecurity(false);
     assertEquitySecurity(expectedEquity, sec);
   }
@@ -211,7 +211,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
     ExternalIdBundle equityKey = ExternalIdBundle.of(
         ExternalSchemes.bloombergTickerSecurityId(AAPL_EQUITY_TICKER));
     EquitySecurity expectedEquity = makeAAPLEquitySecurity(true);
-    Collection<Security> securities = _remoteSecSource.getSecurities(equityKey);
+    Collection<Security> securities = _remoteSecSource.get(equityKey);
     assertNotNull(securities);
     assertEquals(1, securities.size());
     Security sec = securities.iterator().next();
@@ -223,7 +223,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
     ExternalIdBundle equityKey = ExternalIdBundle.of(
         ExternalSchemes.bloombergBuidSecurityId("EQ0010169500001000"));
     EquitySecurity expectedEquity = makeAAPLEquitySecurity(false);
-    Collection<Security> securities = _remoteSecSource.getSecurities(equityKey);
+    Collection<Security> securities = _remoteSecSource.get(equityKey);
     assertNotNull(securities);
     assertEquals(1, securities.size());
     Security sec = securities.iterator().next();
@@ -235,7 +235,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
     ExternalIdBundle equityKey = ExternalIdBundle.of(
         ExternalSchemes.bloombergTickerSecurityId(ATT_EQUITY_TICKER));
     EquitySecurity expectedEquity = makeATTEquitySecurity(true);
-    Security sec = _remoteSecSource.getSecurity(equityKey);
+    Security sec = _remoteSecSource.getSingle(equityKey);
     assertEquitySecurity(expectedEquity, sec);
   }
 
@@ -244,7 +244,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
     ExternalIdBundle equityKey = ExternalIdBundle.of(
         ExternalSchemes.bloombergTickerSecurityId(ATT_EQUITY_TICKER));
     EquitySecurity expectedEquity = makeATTEquitySecurity(true);
-    Collection<Security> securities = _remoteSecSource.getSecurities(equityKey);
+    Collection<Security> securities = _remoteSecSource.get(equityKey);
     assertNotNull(securities);
     assertEquals(1, securities.size());
     Security sec = securities.iterator().next();
@@ -256,7 +256,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
     ExternalIdBundle equityKey = ExternalIdBundle.of(
         ExternalSchemes.bloombergBuidSecurityId("EQ0010137600001000"));
     EquitySecurity expectedEquity = makeATTEquitySecurity(false);
-    Security sec = _remoteSecSource.getSecurity(equityKey);
+    Security sec = _remoteSecSource.getSingle(equityKey);
     assertEquitySecurity(expectedEquity, sec);
   }
 
@@ -265,7 +265,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
     ExternalIdBundle equityKey = ExternalIdBundle.of(
         ExternalSchemes.bloombergBuidSecurityId("EQ0010137600001000"));
     EquitySecurity expectedEquity = makeATTEquitySecurity(false);
-    Collection<Security> securities = _remoteSecSource.getSecurities(equityKey);
+    Collection<Security> securities = _remoteSecSource.get(equityKey);
     assertNotNull(securities);
     assertEquals(1, securities.size());
     Security sec = securities.iterator().next();
@@ -277,7 +277,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
     ExternalIdBundle equityOptionKey = ExternalIdBundle.of(
         ExternalSchemes.bloombergTickerSecurityId(APV_EQUITY_OPTION_TICKER));
     EquityOptionSecurity expectedOption = makeAPVLEquityOptionSecurity(true);
-    Security sec = _remoteSecSource.getSecurity(equityOptionKey);
+    Security sec = _remoteSecSource.getSingle(equityOptionKey);
     assertAmericanVanillaEquityOptionSecurity(expectedOption, sec);
   }
 
@@ -287,7 +287,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
         ExternalSchemes.bloombergTickerSecurityId(APV_EQUITY_OPTION_TICKER));
     EquityOptionSecurity expectedOption = makeAPVLEquityOptionSecurity(true);
     Collection<Security> securities = _remoteSecSource
-        .getSecurities(equityOptionKey);
+        .get(equityOptionKey);
     assertNotNull(securities);
     assertEquals(1, securities.size());
     Security sec = securities.iterator().next();
@@ -300,7 +300,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
         ExternalSchemes.bloombergBuidSecurityId("EO1016952010010397C00001"));
     EquityOptionSecurity expectedOption = makeAPVLEquityOptionSecurity(false);
     Collection<Security> securities = _remoteSecSource
-        .getSecurities(equityOptionKey);
+        .get(equityOptionKey);
     assertNotNull(securities);
     assertEquals(1, securities.size());
     Security sec = securities.iterator().next();
@@ -312,7 +312,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
     ExternalIdBundle equityOptionKey = ExternalIdBundle.of(
         ExternalSchemes.bloombergBuidSecurityId("EO1016952010010397C00001"));
     EquityOptionSecurity expectedOption = makeAPVLEquityOptionSecurity(false);
-    Security sec = _remoteSecSource.getSecurity(equityOptionKey);
+    Security sec = _remoteSecSource.getSingle(equityOptionKey);
     assertAmericanVanillaEquityOptionSecurity(expectedOption, sec);
   }
 
@@ -321,7 +321,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
     ExternalIdBundle indexOptionKey = ExternalIdBundle.of(
         ExternalSchemes.bloombergTickerSecurityId(SPX_INDEX_OPTION_TICKER));
     EquityIndexOptionSecurity expectedOption = makeSPXIndexOptionSecurity(true);
-    Security sec = _remoteSecSource.getSecurity(indexOptionKey);
+    Security sec = _remoteSecSource.getSingle(indexOptionKey);
     BloombergSecuritySourceTestCase.assertEuropeanVanillaEquityIndexOptionSecurity(expectedOption, sec);
   }
 
@@ -331,7 +331,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
         ExternalSchemes.bloombergTickerSecurityId(SPX_INDEX_OPTION_TICKER));
     EquityIndexOptionSecurity expectedOption = makeSPXIndexOptionSecurity(true);
     Collection<Security> securities = _remoteSecSource
-        .getSecurities(indexOptionKey);
+        .get(indexOptionKey);
     assertNotNull(securities);
     assertEquals(1, securities.size());
     Security sec = securities.iterator().next();
@@ -343,7 +343,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
     ExternalIdBundle indexOptionKey = ExternalIdBundle.of(
         ExternalSchemes.bloombergBuidSecurityId("IX3961626-0-9B80"));
     EquityIndexOptionSecurity expectedOption = makeSPXIndexOptionSecurity(false);
-    Security sec = _remoteSecSource.getSecurity(indexOptionKey);
+    Security sec = _remoteSecSource.getSingle(indexOptionKey);
     BloombergSecuritySourceTestCase.assertEuropeanVanillaEquityIndexOptionSecurity(expectedOption, sec);
   }
 
@@ -353,7 +353,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
         ExternalSchemes.bloombergBuidSecurityId("IX3961626-0-9B80"));
     EquityIndexOptionSecurity expectedOption = makeSPXIndexOptionSecurity(false);
     Collection<Security> securities = _remoteSecSource
-        .getSecurities(indexOptionKey);
+        .get(indexOptionKey);
     assertNotNull(securities);
     assertEquals(1, securities.size());
     Security sec = securities.iterator().next();
@@ -364,7 +364,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
   public void invalidSecurity() throws Exception {
     ExternalIdBundle invalidKey = ExternalIdBundle.of(
         ExternalSchemes.bloombergTickerSecurityId("INVALID"));
-    Security sec = _remoteSecSource.getSecurity(invalidKey);
+    Security sec = _remoteSecSource.getSingle(invalidKey);
     assertNull(sec);
   }
 
@@ -373,7 +373,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
     ExternalIdBundle invalidKey = ExternalIdBundle.of(
         ExternalSchemes.bloombergTickerSecurityId("INVALID"));
     Collection<Security> securities = _remoteSecSource
-        .getSecurities(invalidKey);
+        .get(invalidKey);
     assertNotNull(securities);
     assertTrue(securities.isEmpty());
   }
@@ -584,7 +584,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
     }
 
     public Security call() throws Exception {
-      return _remoteSecSource.getSecurity(_secKey);
+      return _remoteSecSource.getSingle(_secKey);
     }
   }
 

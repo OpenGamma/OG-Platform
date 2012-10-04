@@ -18,9 +18,9 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.InMemorySecuritySource;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.availability.FixedMarketDataAvailabilityProvider;
-import com.opengamma.engine.test.MockSecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
@@ -51,7 +51,7 @@ public class LiveMarketDataProviderTest {
     availabilityProvider.addAvailableRequirement(test2Requirement);
     availabilityProvider.addAvailableRequirement(test3Requirement);
     LiveMarketDataProvider provider =
-        new LiveMarketDataProvider(client, availabilityProvider, new MockSecuritySource(), UserPrincipal.getTestUser());
+        new LiveMarketDataProvider(client, availabilityProvider, new InMemorySecuritySource(), UserPrincipal.getTestUser());
     
     provider.subscribe(test1Requirement);
     provider.subscribe(test2Requirement);

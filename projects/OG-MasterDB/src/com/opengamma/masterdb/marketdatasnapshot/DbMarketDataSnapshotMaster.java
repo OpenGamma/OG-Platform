@@ -53,7 +53,7 @@ import com.opengamma.util.paging.Paging;
  * This class is mutable but must be treated as immutable after configuration.
  */
 public class DbMarketDataSnapshotMaster
-    extends AbstractDocumentDbMaster<MarketDataSnapshotDocument>
+    extends AbstractDocumentDbMaster<ManageableMarketDataSnapshot, MarketDataSnapshotDocument>
     implements MarketDataSnapshotMaster {
 
   static {
@@ -158,10 +158,10 @@ public class DbMarketDataSnapshotMaster
    */
   @Override
   protected MarketDataSnapshotDocument insert(final MarketDataSnapshotDocument document) {
-    ArgumentChecker.notNull(document.getSnapshot(), "document.snapshot");
+    ArgumentChecker.notNull(document.getObject(), "document.snapshot");
     ArgumentChecker.notNull(document.getName(), "document.name");
     
-    final ManageableMarketDataSnapshot marketDataSnaphshot = document.getSnapshot();
+    final ManageableMarketDataSnapshot marketDataSnaphshot = document.getObject();
     final long docId = nextId("snp_snapshot_seq");
     final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
     // set the uniqueId (needs to go in Fudge message)
@@ -236,7 +236,7 @@ public class DbMarketDataSnapshotMaster
       doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
       doc.setCorrectionFromInstant(DbDateUtils.fromSqlTimestamp(correctionFrom));
       doc.setCorrectionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(correctionTo));
-      doc.setSnapshot(marketDataSnapshot);
+      doc.setObject(marketDataSnapshot);
       _documents.add(doc);
     }
   }

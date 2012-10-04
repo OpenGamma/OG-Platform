@@ -10,6 +10,7 @@ import javax.time.Instant;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.id.VersionCorrection;
 
 /**
  * 
@@ -28,11 +29,11 @@ public class ConfigDBFuturePriceCurveSpecificationSource implements FuturePriceC
 
   @Override
   public FuturePriceCurveSpecification getSpecification(final String name, final String instrumentType) {
-    return _configSource.getLatestByName(FuturePriceCurveSpecification.class, name + "_" + instrumentType);
+    return _configSource.getLatest(FuturePriceCurveSpecification.class, name + "_" + instrumentType);
   }
 
   @Override
-  public FuturePriceCurveSpecification getSpecification(final String name, final String instrumentType, final Instant version) {
-    return _configSource.getByName(FuturePriceCurveSpecification.class, name, version);
+  public FuturePriceCurveSpecification getSpecification(final String name, final String instrumentType, final VersionCorrection versionCorrection) {
+    return _configSource.getConfig(FuturePriceCurveSpecification.class, name, versionCorrection);
   }
 }

@@ -202,7 +202,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
   @Override
   public void init() {
     try {
-      _snapshot = getSnapshotSource().getSnapshot(getSnapshotId());
+      _snapshot = getSnapshotSource().get(getSnapshotId());
     } catch (DataNotFoundException ex) {
       _snapshot = null;
     }

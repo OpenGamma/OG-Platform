@@ -174,7 +174,7 @@ public class CoalescingSecuritySource implements SecuritySource {
   }
 
   @Override
-  public Security getSecurity(final UniqueId uniqueId) {
+  public Security get(final UniqueId uniqueId) {
     if (!_fetching.compareAndSet(false, true)) {
       final SingleCallback callback = new SingleCallback();
       _pending.add(Pair.of(uniqueId, callback));
@@ -187,7 +187,7 @@ public class CoalescingSecuritySource implements SecuritySource {
       addPendingToRequest(pending, request);
       final Map<UniqueId, Security> fullResult;
       try {
-        fullResult = getUnderlying().getSecurities(request);
+        fullResult = getUnderlying().get(request);
         notifyPending(pending, fullResult);
       } catch (RuntimeException t) {
         errorPending(pending);
@@ -204,7 +204,7 @@ public class CoalescingSecuritySource implements SecuritySource {
         // Single request
         Security security = null;
         try {
-          security = getUnderlying().getSecurity(uniqueId);
+          security = getUnderlying().get(uniqueId);
         } catch (DataNotFoundException ex) {
           // Ignore
         } finally {
@@ -221,7 +221,7 @@ public class CoalescingSecuritySource implements SecuritySource {
         addPendingToRequest(pending, request);
         final Map<UniqueId, Security> fullResult;
         try {
-          fullResult = getUnderlying().getSecurities(request);
+          fullResult = getUnderlying().get(request);
           notifyPending(pending, fullResult);
         } catch (RuntimeException t) {
           errorPending(pending);
@@ -236,7 +236,7 @@ public class CoalescingSecuritySource implements SecuritySource {
   }
 
   @Override
-  public Map<UniqueId, Security> getSecurities(final Collection<UniqueId> uniqueIds) {
+  public Map<UniqueId, Security> get(final Collection<UniqueId> uniqueIds) {
     if (!_fetching.compareAndSet(false, true)) {
       final MultipleCallback callback = new MultipleCallback(uniqueIds.size());
       for (UniqueId uniqueId : uniqueIds) {
@@ -251,7 +251,7 @@ public class CoalescingSecuritySource implements SecuritySource {
       addPendingToRequest(pending, request);
       final Map<UniqueId, Security> fullResult;
       try {
-        fullResult = getUnderlying().getSecurities(request);
+        fullResult = getUnderlying().get(request);
         notifyPending(pending, fullResult);
       } catch (RuntimeException t) {
         errorPending(pending);
@@ -268,7 +268,7 @@ public class CoalescingSecuritySource implements SecuritySource {
         // Direct request
         final Map<UniqueId, Security> result;
         try {
-          result = getUnderlying().getSecurities(uniqueIds);
+          result = getUnderlying().get(uniqueIds);
         } finally {
           _fetching.set(false);
           releaseOtherWritingThreads();
@@ -283,7 +283,7 @@ public class CoalescingSecuritySource implements SecuritySource {
         addPendingToRequest(pending, request);
         final Map<UniqueId, Security> fullResult;
         try {
-          fullResult = getUnderlying().getSecurities(request);
+          fullResult = getUnderlying().get(request);
           notifyPending(pending, fullResult);
         } catch (RuntimeException t) {
           errorPending(pending);
@@ -305,28 +305,28 @@ public class CoalescingSecuritySource implements SecuritySource {
   }
 
   @Override
-  public Security getSecurity(final ObjectId objectId, final VersionCorrection versionCorrection) {
-    return getUnderlying().getSecurity(objectId, versionCorrection);
+  public Security get(final ObjectId objectId, final VersionCorrection versionCorrection) {
+    return getUnderlying().get(objectId, versionCorrection);
   }
 
   @Override
-  public Collection<Security> getSecurities(final ExternalIdBundle bundle, final VersionCorrection versionCorrection) {
-    return getUnderlying().getSecurities(bundle, versionCorrection);
+  public Collection<Security> get(final ExternalIdBundle bundle, final VersionCorrection versionCorrection) {
+    return getUnderlying().get(bundle, versionCorrection);
   }
 
   @Override
-  public Collection<Security> getSecurities(final ExternalIdBundle bundle) {
-    return getUnderlying().getSecurities(bundle);
+  public Collection<Security> get(final ExternalIdBundle bundle) {
+    return getUnderlying().get(bundle);
   }
 
   @Override
-  public Security getSecurity(final ExternalIdBundle bundle) {
-    return getUnderlying().getSecurity(bundle);
+  public Security getSingle(final ExternalIdBundle bundle) {
+    return getUnderlying().getSingle(bundle);
   }
 
   @Override
-  public Security getSecurity(final ExternalIdBundle bundle, final VersionCorrection versionCorrection) {
-    return getUnderlying().getSecurity(bundle, versionCorrection);
+  public Security getSingle(final ExternalIdBundle bundle, final VersionCorrection versionCorrection) {
+    return getUnderlying().getSingle(bundle, versionCorrection);
   }
 
 }

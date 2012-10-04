@@ -14,17 +14,14 @@ import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.id.ObjectId;
 import com.opengamma.master.AbstractDocumentDataResource;
-import com.opengamma.master.security.SecurityDocument;
-import com.opengamma.master.security.SecurityHistoryRequest;
-import com.opengamma.master.security.SecurityHistoryResult;
-import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.*;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.RestUtils;
 
 /**
  * RESTful resource for a security.
  */
-public class DataSecurityResource extends AbstractDocumentDataResource<SecurityDocument> {
+public class DataSecurityResource extends AbstractDocumentDataResource<ManageableSecurity, SecurityDocument> {
 
   /**
    * The securities resource.

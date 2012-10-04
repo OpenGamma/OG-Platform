@@ -137,9 +137,9 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
     final VersionCorrection vc = getVersionCorrection();  // lock against change
     ManageablePortfolio manPrt;
     if (vc != null) {
-      manPrt = getPortfolioMaster().get(uniqueId, vc).getPortfolio();
+      manPrt = getPortfolioMaster().get(uniqueId, vc).getObject();
     } else {
-      manPrt = getPortfolioMaster().get(uniqueId).getPortfolio();
+      manPrt = getPortfolioMaster().get(uniqueId).getObject();
     }
     SimplePortfolio prt = new SimplePortfolio(manPrt.getUniqueId(), manPrt.getName());
     convertNode(manPrt.getRootNode(), prt.getRootNode(), vc);
@@ -161,7 +161,7 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
   public Portfolio getPortfolio(ObjectId objectId, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    ManageablePortfolio manPrt = getPortfolioMaster().get(objectId, versionCorrection).getPortfolio();
+    ManageablePortfolio manPrt = getPortfolioMaster().get(objectId, versionCorrection).getObject();
     SimplePortfolio prt = new SimplePortfolio(manPrt.getUniqueId(), manPrt.getName());
     convertNode(manPrt.getRootNode(), prt.getRootNode(), versionCorrection);
     copyAttributes(manPrt, prt);
@@ -209,9 +209,9 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
     final VersionCorrection vc = getVersionCorrection();  // lock against change
     ManageablePosition manPos;
     if (vc != null) {
-      manPos = getPositionMaster().get(posId, vc).getPosition();
+      manPos = getPositionMaster().get(posId, vc).getObject();
     } else {
-      manPos = getPositionMaster().get(posId).getPosition();
+      manPos = getPositionMaster().get(posId).getObject();
     }
     if (manPos == null) {
       throw new DataNotFoundException("Unable to find position: " + uniqueId);
@@ -281,7 +281,7 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
       positionSearch.setVersionCorrection(versionCorrection);
       final PositionSearchResult positions = getPositionMaster().search(positionSearch);
       for (PositionDocument position : positions.getDocuments()) {
-        positionCache.put(position.getObjectId(), position.getPosition());
+        positionCache.put(position.getObjectId(), position.getObject());
       }
     } else {
       positionCache = null;

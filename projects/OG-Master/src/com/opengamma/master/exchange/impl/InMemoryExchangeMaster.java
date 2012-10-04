@@ -29,7 +29,7 @@ import com.opengamma.util.paging.Paging;
  * This implementation does not copy stored elements, making it thread-hostile.
  * As such, this implementation is currently most useful for testing scenarios.
  */
-public class InMemoryExchangeMaster extends SimpleAbstractInMemoryMaster<ExchangeDocument> implements ExchangeMaster {
+public class InMemoryExchangeMaster extends SimpleAbstractInMemoryMaster<ManageableExchange, ExchangeDocument> implements ExchangeMaster {
 
   /**
    * The default scheme used for each {@link ObjectId}.
@@ -110,21 +110,21 @@ public class InMemoryExchangeMaster extends SimpleAbstractInMemoryMaster<Exchang
   @Override
   public ExchangeDocument add(final ExchangeDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getExchange(), "document.exchange");
+    ArgumentChecker.notNull(document.getObject(), "document.exchange");
 
     final ObjectId objectId = _objectIdSupplier.get();
     final UniqueId uniqueId = objectId.atVersion("");
-    final ManageableExchange exchange = document.getExchange().clone();
+    final ManageableExchange exchange = document.getObject().clone();
     exchange.setUniqueId(uniqueId);
     document.setUniqueId(uniqueId);
     final Instant now = Instant.now();
     final ExchangeDocument doc = new ExchangeDocument();
-    doc.setExchange(exchange);
+    doc.setObject(exchange);
     doc.setUniqueId(uniqueId);
     doc.setVersionFromInstant(now);
     doc.setCorrectionFromInstant(now);
     _store.put(objectId, doc);
-    _changeManager.entityChanged(ChangeType.ADDED, null, uniqueId, now);
+    _changeManager.entityChanged(ChangeType.ADDED, objectId, doc.getVersionFromInstant(), doc.getVersionToInstant(), now);
     return doc;
   }
 
@@ -133,7 +133,7 @@ public class InMemoryExchangeMaster extends SimpleAbstractInMemoryMaster<Exchang
   public ExchangeDocument update(final ExchangeDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
-    ArgumentChecker.notNull(document.getExchange(), "document.exchange");
+    ArgumentChecker.notNull(document.getObject(), "document.exchange");
 
     final UniqueId uniqueId = document.getUniqueId();
     final Instant now = Instant.now();
@@ -149,18 +149,18 @@ public class InMemoryExchangeMaster extends SimpleAbstractInMemoryMaster<Exchang
     if (_store.replace(uniqueId.getObjectId(), storedDocument, document) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }
-    _changeManager.entityChanged(ChangeType.UPDATED, uniqueId, document.getUniqueId(), now);
+    _changeManager.entityChanged(ChangeType.CHANGED, document.getObjectId(), storedDocument.getVersionFromInstant(), document.getVersionToInstant(), now);
     return document;
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public void remove(final UniqueId uniqueId) {
-    ArgumentChecker.notNull(uniqueId, "uniqueId");
-    if (_store.remove(uniqueId.getObjectId()) == null) {
-      throw new DataNotFoundException("Exchange not found: " + uniqueId);
+  public void remove(final ObjectIdentifiable objectIdentifiable) {
+    ArgumentChecker.notNull(objectIdentifiable, "objectIdentifiable");
+    if (_store.remove(objectIdentifiable.getObjectId()) == null) {
+      throw new DataNotFoundException("Exchange not found: " + objectIdentifiable);
     }
-    _changeManager.entityChanged(ChangeType.REMOVED, uniqueId, null, Instant.now());
+    _changeManager.entityChanged(ChangeType.REMOVED, objectIdentifiable.getObjectId(), null, null, Instant.now());
   }
 
   //-------------------------------------------------------------------------
@@ -187,7 +187,7 @@ public class InMemoryExchangeMaster extends SimpleAbstractInMemoryMaster<Exchang
   @Override
   protected void validateDocument(ExchangeDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getExchange(), "document.exchange");
+    ArgumentChecker.notNull(document.getObject(), "document.exchange");
   }
 
 }

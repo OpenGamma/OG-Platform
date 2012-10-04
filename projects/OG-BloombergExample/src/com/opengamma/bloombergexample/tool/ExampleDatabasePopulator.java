@@ -180,7 +180,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
     SecuritySearchResult searchResult = securityMaster.search(request);
     List<SecurityDocument> documents = searchResult.getDocuments();
     for (SecurityDocument securityDocument : documents) {
-      result.add((EquitySecurity) securityDocument.getSecurity());
+      result.add((EquitySecurity) securityDocument.getObject());
     }
     return result;
   }

@@ -14,17 +14,14 @@ import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.id.ObjectId;
 import com.opengamma.master.AbstractDocumentDataResource;
-import com.opengamma.master.position.PositionDocument;
-import com.opengamma.master.position.PositionHistoryRequest;
-import com.opengamma.master.position.PositionHistoryResult;
-import com.opengamma.master.position.PositionMaster;
+import com.opengamma.master.position.*;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.RestUtils;
 
 /**
  * RESTful resource for a position in the position master.
  */
-public class DataPositionResource extends AbstractDocumentDataResource<PositionDocument> {
+public class DataPositionResource extends AbstractDocumentDataResource<ManageablePosition, PositionDocument> {
 
   /**
    * The parent resource.

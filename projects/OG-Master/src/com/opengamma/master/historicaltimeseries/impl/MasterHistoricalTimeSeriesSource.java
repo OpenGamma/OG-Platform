@@ -27,12 +27,7 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractMasterSource;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesGetFilter;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
-import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
+import com.opengamma.master.historicaltimeseries.*;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.PublicSPI;
@@ -48,8 +43,7 @@ import com.opengamma.util.tuple.Pair;
  */
 @PublicSPI
 public class MasterHistoricalTimeSeriesSource
-    extends AbstractMasterSource<HistoricalTimeSeriesInfoDocument, HistoricalTimeSeriesMaster>
-    implements HistoricalTimeSeriesSource {
+    extends AbstractMasterSource<ManageableHistoricalTimeSeriesInfo, HistoricalTimeSeriesInfoDocument, HistoricalTimeSeriesMaster> implements HistoricalTimeSeriesSource {
   
   private static final Logger s_logger = LoggerFactory.getLogger(MasterHistoricalTimeSeriesSource.class);
 
@@ -473,8 +467,8 @@ public class MasterHistoricalTimeSeriesSource
   @Override
   public ExternalIdBundle getExternalIdBundle(UniqueId uniqueId) {
     HistoricalTimeSeriesInfoDocument historicalTimeSeriesInfoDocument = getMaster().get(uniqueId);
-    if (historicalTimeSeriesInfoDocument != null && historicalTimeSeriesInfoDocument.getInfo() != null && historicalTimeSeriesInfoDocument.getInfo().getExternalIdBundle() != null) {
-      return historicalTimeSeriesInfoDocument.getInfo().getExternalIdBundle().toBundle();  
+    if (historicalTimeSeriesInfoDocument != null && historicalTimeSeriesInfoDocument.getObject() != null && historicalTimeSeriesInfoDocument.getObject().getExternalIdBundle() != null) {
+      return historicalTimeSeriesInfoDocument.getObject().getExternalIdBundle().toBundle();  
     } else {
       s_logger.warn("Cannot find time series info document, or info field is null, or id bundle is null, returning null");
       return null;

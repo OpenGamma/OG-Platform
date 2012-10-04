@@ -8,6 +8,7 @@ package com.opengamma.integration.tool.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.id.ExternalIdOrderConfig;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.master.config.ConfigDocument;
@@ -36,8 +37,7 @@ public class ExternalIdOrderConfigDocumentLoader {
   }
   
   public void run() {
-    ConfigDocument<ExternalIdOrderConfig> doc = new ConfigDocument<ExternalIdOrderConfig>(ExternalIdOrderConfig.class);
-    doc.setValue(ExternalIdOrderConfig.DEFAULT_CONFIG);
+    ConfigItem<ExternalIdOrderConfig> doc = ConfigItem.of(ExternalIdOrderConfig.DEFAULT_CONFIG);
     doc.setName(_configName);
     ConfigMasterUtils.storeByName(_configMaster, doc);
   }

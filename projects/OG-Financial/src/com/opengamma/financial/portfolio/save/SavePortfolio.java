@@ -257,7 +257,7 @@ public class SavePortfolio {
       document = result.getFirstDocument();
       // TODO why did this assume document will never be null? is that valid or have I broken something?
       if (document != null) {
-        final ManageablePortfolio resultPortfolio = document.getPortfolio();
+        final ManageablePortfolio resultPortfolio = document.getObject();
         if (nodesEqual(manageablePortfolio.getRootNode(), resultPortfolio.getRootNode())) {
           s_logger.debug("Found existing match at {}", document.getUniqueId());
           return document.getUniqueId();
@@ -266,7 +266,7 @@ public class SavePortfolio {
     } else {
       document = null;
       for (PortfolioDocument resultDocument : result.getDocuments()) {
-        final ManageablePortfolio resultPortfolio = resultDocument.getPortfolio();
+        final ManageablePortfolio resultPortfolio = resultDocument.getObject();
         if (manageablePortfolio.getName().equals(resultPortfolio.getName()) && nodesEqual(manageablePortfolio.getRootNode(), resultPortfolio.getRootNode())) {
           s_logger.debug("Found existing match at {}", resultDocument.getUniqueId());
           return resultDocument.getUniqueId();
@@ -281,7 +281,7 @@ public class SavePortfolio {
     } else {
       s_logger.debug("Updating {} within master", document.getUniqueId());
       // Retain existing visibility
-      document.setPortfolio(manageablePortfolio);
+      document.setObject(manageablePortfolio);
       document = _portfolios.update(document);
     }
     s_logger.info("Portfolio '{}' saved as {}", manageablePortfolio.getName(), document.getUniqueId());

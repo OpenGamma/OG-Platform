@@ -226,7 +226,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageableExchange exchange = test.getExchange();
+    ManageableExchange exchange = test.getObject();
     assertNotNull(exchange);
     assertEquals(uniqueId, exchange.getUniqueId());
     assertEquals("TestExchange101", test.getName());
@@ -242,7 +242,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageableExchange exchange = test.getExchange();
+    ManageableExchange exchange = test.getObject();
     assertNotNull(exchange);
     assertEquals(uniqueId, exchange.getUniqueId());
     assertEquals("TestExchange102", test.getName());
@@ -258,7 +258,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
     assertEquals(_version2Instant, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageableExchange exchange = test.getExchange();
+    ManageableExchange exchange = test.getObject();
     assertNotNull(exchange);
     assertEquals(uniqueId, exchange.getUniqueId());
     assertEquals("TestExchange201", test.getName());
@@ -274,7 +274,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version2Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageableExchange exchange = test.getExchange();
+    ManageableExchange exchange = test.getObject();
     assertNotNull(exchange);
     assertEquals(uniqueId, exchange.getUniqueId());
     assertEquals("TestExchange202", test.getName());

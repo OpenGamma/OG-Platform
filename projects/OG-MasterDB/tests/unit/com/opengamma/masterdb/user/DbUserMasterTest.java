@@ -133,20 +133,20 @@ public class DbUserMasterTest extends DbTest {
     docs = source.getUsers(ExternalIdBundle.of(ExternalId.of("A", "5")), VersionCorrection.LATEST);
     assertNotNull(docs);
     assertEquals(2, docs.size());
-    assertTrue("Docs was " + docs, docs.contains(doc5.getUser()));
-    assertTrue("Docs was " + docs, docs.contains(doc6.getUser()));
+    assertTrue("Docs was " + docs, docs.contains(doc5.getObject()));
+    assertTrue("Docs was " + docs, docs.contains(doc6.getObject()));
 
     docs = source.getUsers(ExternalIdBundle.of(ExternalId.of("A", "5"), ExternalId.of("B", "2")), VersionCorrection.LATEST);
     assertNotNull(docs);
     assertEquals(3, docs.size());
-    assertTrue("Docs was " + docs, docs.contains(doc4.getUser()));
-    assertTrue("Docs was " + docs, docs.contains(doc5.getUser()));
-    assertTrue("Docs was " + docs, docs.contains(doc6.getUser()));
+    assertTrue("Docs was " + docs, docs.contains(doc4.getObject()));
+    assertTrue("Docs was " + docs, docs.contains(doc5.getObject()));
+    assertTrue("Docs was " + docs, docs.contains(doc6.getObject()));
 
     docs = source.getUsers("user-2", VersionCorrection.LATEST);
     assertNotNull(docs);
     assertEquals(1, docs.size());
-    assertTrue("Docs was " + docs, docs.contains(doc2.getUser()));
+    assertTrue("Docs was " + docs, docs.contains(doc2.getObject()));
   }
   
   protected UserDocument addUser(String userName, String passwordHash, ExternalIdBundle idBundle, String... entitlements) {

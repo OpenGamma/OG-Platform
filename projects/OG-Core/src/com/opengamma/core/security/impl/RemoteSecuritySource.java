@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.AbstractRemoteSource;
+import com.opengamma.core.ObjectChangeListener;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.security.Security;
@@ -28,7 +30,7 @@ import com.opengamma.util.rest.UniformInterfaceException404NotFound;
 /**
  * Provides remote access to an {@link SecuritySource}.
  */
-public class RemoteSecuritySource extends AbstractRemoteClient implements SecuritySource {
+public class RemoteSecuritySource extends AbstractRemoteSource<Security> implements SecuritySource {
 
   /**
    * The change manager.
@@ -58,7 +60,7 @@ public class RemoteSecuritySource extends AbstractRemoteClient implements Securi
 
   //-------------------------------------------------------------------------
   @Override
-  public Security getSecurity(final UniqueId uniqueId) {
+  public Security get(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
     URI uri = DataSecuritySourceResource.uriGet(getBaseUri(), uniqueId);
@@ -66,7 +68,7 @@ public class RemoteSecuritySource extends AbstractRemoteClient implements Securi
   }
 
   @Override
-  public Security getSecurity(final ObjectId objectId, final VersionCorrection versionCorrection) {
+  public Security get(final ObjectId objectId, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     
@@ -76,7 +78,7 @@ public class RemoteSecuritySource extends AbstractRemoteClient implements Securi
 
   @SuppressWarnings("unchecked")
   @Override
-  public Collection<Security> getSecurities(final ExternalIdBundle bundle, final VersionCorrection versionCorrection) {
+  public Collection<Security> get(final ExternalIdBundle bundle, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(bundle, "bundle");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     
@@ -86,7 +88,7 @@ public class RemoteSecuritySource extends AbstractRemoteClient implements Securi
 
   @SuppressWarnings("unchecked")
   @Override
-  public Map<UniqueId, Security> getSecurities(final Collection<UniqueId> uniqueIds) {
+  public Map<UniqueId, Security> get(final Collection<UniqueId> uniqueIds) {
     ArgumentChecker.notNull(uniqueIds, "uniqueIds");
     
     URI uri = DataSecuritySourceResource.uriBulk(getBaseUri(), uniqueIds);
@@ -106,7 +108,7 @@ public class RemoteSecuritySource extends AbstractRemoteClient implements Securi
   //-------------------------------------------------------------------------
   @SuppressWarnings("unchecked")
   @Override
-  public Collection<Security> getSecurities(final ExternalIdBundle bundle) {
+  public Collection<Security> get(final ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
     
     URI uri = DataSecuritySourceResource.uriSearchList(getBaseUri(), bundle);
@@ -114,7 +116,7 @@ public class RemoteSecuritySource extends AbstractRemoteClient implements Securi
   }
 
   @Override
-  public Security getSecurity(final ExternalIdBundle bundle) {
+  public Security getSingle(final ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
     
     try {
@@ -128,7 +130,7 @@ public class RemoteSecuritySource extends AbstractRemoteClient implements Securi
   }
 
   @Override
-  public Security getSecurity(final ExternalIdBundle bundle, final VersionCorrection versionCorrection) {
+  public Security getSingle(final ExternalIdBundle bundle, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(bundle, "bundle");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     

@@ -286,7 +286,7 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
       return false;
     }
     final HolidayDocument document = (HolidayDocument) obj;
-    final ManageableHoliday holiday = document.getHoliday();
+    final ManageableHoliday holiday = document.getObject();
     if (getHolidayObjectIds() != null && getHolidayObjectIds().contains(document.getObjectId()) == false) {
       return false;
     }

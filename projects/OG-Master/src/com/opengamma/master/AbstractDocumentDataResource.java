@@ -8,27 +8,20 @@ package com.opengamma.master;
 import java.net.URI;
 import java.util.List;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.portfolio.PortfolioHistoryRequest;
-import com.opengamma.master.portfolio.PortfolioHistoryResult;
+import com.opengamma.id.*;
 import com.opengamma.util.rest.AbstractDataResource;
 import com.opengamma.util.rest.RestUtils;
 
 /**
  * Abstract base class for RESTful resources.
  */
-public abstract class AbstractDocumentDataResource<D extends AbstractDocument> extends AbstractDataResource {
+public abstract class AbstractDocumentDataResource<T extends UniqueIdentifiable, D extends AbstractDocument<? extends T>> extends AbstractDataResource {
 
-  abstract protected AbstractMaster<D> getMaster();
+  abstract protected AbstractMaster<T, D> getMaster();
 
   abstract protected String getResourceName();
 
@@ -47,7 +40,7 @@ public abstract class AbstractDocumentDataResource<D extends AbstractDocument> e
   // @POST
   protected Response update(/*@Context*/ UriInfo uriInfo, D request) {
     if (getUrlId().equals(request.getUniqueId().getObjectId()) == false) {
-      throw new IllegalArgumentException("Document objectId does not match URI");
+      throw new IllegalArgumentException("Document objectIdentifiable does not match URI");
     }
     D result = getMaster().update(request);
     URI uri = uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
@@ -99,17 +92,17 @@ public abstract class AbstractDocumentDataResource<D extends AbstractDocument> e
    * Builds a URI for the resource.
    *
    * @param baseUri  the base URI, not null
-   * @param objectId  the object identifier, not null
+   * @param objectIdentifiable  the object identifier, not null
    * @param vc  the version-correction locator, null for latest
    * @return the URI, not null
    */
-  public URI uri(URI baseUri, ObjectIdentifiable objectId, VersionCorrection vc) {
+  public URI uri(URI baseUri, ObjectIdentifiable objectIdentifiable, VersionCorrection vc) {
     UriBuilder bld = UriBuilder.fromUri(baseUri).path("/" + getResourceName() + "/{id}");
     if (vc != null) {
       bld.queryParam("versionAsOf", vc.getVersionAsOfString());
       bld.queryParam("correctedTo", vc.getCorrectedToString());
     }
-    return bld.build(objectId.getObjectId());
+    return bld.build(objectIdentifiable.getObjectId());
   }
 
   /**

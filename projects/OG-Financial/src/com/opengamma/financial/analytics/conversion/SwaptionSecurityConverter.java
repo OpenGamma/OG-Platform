@@ -40,7 +40,7 @@ public class SwaptionSecurityConverter extends FinancialSecurityVisitorAdapter<I
     Validate.notNull(swaptionSecurity, "swaption security");
     final ExternalId underlyingIdentifier = swaptionSecurity.getUnderlyingId();
     final ZonedDateTime expiry = swaptionSecurity.getExpiry().getExpiry();
-    final InstrumentDefinition<?> underlyingSwap = ((SwapSecurity) _securitySource.getSecurity(ExternalIdBundle.of(underlyingIdentifier))).accept(_swapConverter);
+    final InstrumentDefinition<?> underlyingSwap = ((SwapSecurity) _securitySource.get(ExternalIdBundle.of(underlyingIdentifier))).accept(_swapConverter);
     if (!(underlyingSwap instanceof SwapFixedIborDefinition)) {
       throw new OpenGammaRuntimeException("Need a fixed-float swap to create a swaption");
     }

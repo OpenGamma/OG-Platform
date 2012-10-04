@@ -32,10 +32,12 @@ import com.opengamma.core.change.ChangeListener;
 import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.view.ViewProcessorInternal;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.VersionedSource;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Manages a set of view processors that share common resources, making system configuration appear atomic to them.
@@ -55,7 +57,7 @@ public class ViewProcessorManager implements Lifecycle {
   private final ReentrantLock _lifecycleLock = new ReentrantLock();
   private final ReentrantLock _changeLock = new ReentrantLock();
   private final ExecutorService _executor = Executors.newCachedThreadPool();
-  private final Set<UniqueId> _watchSet = new HashSet<UniqueId>();
+  private final Set<Pair<ObjectId, VersionCorrection>> _watchSet = new HashSet<Pair<ObjectId, VersionCorrection>>();
   private final Set<WatchSetProvider> _watchSetProviders = new HashSet<WatchSetProvider>();
   private boolean _isRunning;
 
@@ -132,8 +134,8 @@ public class ViewProcessorManager implements Lifecycle {
             final ChangeListener listener = new ChangeListener() {
               @Override
               public void entityChanged(ChangeEvent event) {
-                if (_watchSet.contains(event.getBeforeId())) {
-                  ViewProcessorManager.this.onMasterChanged(Instant.now(), source, event.getBeforeId());
+                if (_watchSet.contains(event.getObjectId())) {
+                  ViewProcessorManager.this.onMasterChanged(Instant.now(), source, event.getObjectId());
                 }
               }
             };
@@ -152,7 +154,7 @@ public class ViewProcessorManager implements Lifecycle {
         }
         s_logger.info("Initializing functions");
         for (CompiledFunctionService function : _functions) {
-          final Set<UniqueId> watch = function.initialize();
+          final Set<Pair<ObjectId, VersionCorrection>> watch = function.initialize();
           _watchSet.addAll(watch);
           addAlternateWatchSet(watch);
         }
@@ -189,7 +191,7 @@ public class ViewProcessorManager implements Lifecycle {
     }
   }
 
-  private void onMasterChanged(final Instant latchInstant, final VersionedSource source, final UniqueId uniqueIdentifier) {
+  private void onMasterChanged(final Instant latchInstant, final VersionedSource source, final ObjectId uniqueIdentifier) {
     s_logger.debug("Change timestamp {} for {} - change from {}", new Object[] {latchInstant, source, uniqueIdentifier});
     _changeLock.lock();
     try {
@@ -250,7 +252,7 @@ public class ViewProcessorManager implements Lifecycle {
       s_logger.debug("Re-initializing functions");
       _watchSet.clear();
       for (CompiledFunctionService functions : _functions) {
-        final Set<UniqueId> watch = functions.reinitialize();
+        final Set<Pair<ObjectId, VersionCorrection>> watch = functions.reinitialize();
         _watchSet.addAll(watch);
         addAlternateWatchSet(watch);
       }
@@ -265,9 +267,9 @@ public class ViewProcessorManager implements Lifecycle {
     }
   }
 
-  private void addAlternateWatchSet(final Set<UniqueId> watchSet) {
+  private void addAlternateWatchSet(final Set<Pair<ObjectId, VersionCorrection>> watchSet) {
     for (WatchSetProvider provider : _watchSetProviders) {
-      final Set<UniqueId> additional = provider.getAdditionalWatchSet(watchSet);
+      final Set<Pair<ObjectId, VersionCorrection>> additional = provider.getAdditionalWatchSet(watchSet);
       if (additional != null) {
         _watchSet.addAll(additional);
       }

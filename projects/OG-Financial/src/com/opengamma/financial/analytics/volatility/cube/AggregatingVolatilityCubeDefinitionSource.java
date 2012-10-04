@@ -11,6 +11,7 @@ import java.util.Collection;
 import javax.time.Instant;
 import javax.time.InstantProvider;
 
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -36,10 +37,9 @@ public class AggregatingVolatilityCubeDefinitionSource implements VolatilityCube
   }
 
   @Override
-  public VolatilityCubeDefinition getDefinition(Currency currency, String name, InstantProvider version) {
-    version = Instant.of(version);
+  public VolatilityCubeDefinition getDefinition(Currency currency, String name, VersionCorrection versionCorrection) {
     for (VolatilityCubeDefinitionSource source : _sources) {
-      VolatilityCubeDefinition definition = source.getDefinition(currency, name, version);
+      VolatilityCubeDefinition definition = source.getDefinition(currency, name, versionCorrection);
       if (definition != null) {
         return definition;
       }

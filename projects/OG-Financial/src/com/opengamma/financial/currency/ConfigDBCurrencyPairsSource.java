@@ -39,7 +39,7 @@ public class ConfigDBCurrencyPairsSource implements CurrencyPairsSource {
     if (name == null) {
       name = CurrencyPairs.DEFAULT_CURRENCY_PAIRS;
     }
-    return _configSource.getLatestByName(CurrencyPairs.class, name);
+    return _configSource.getLatest(CurrencyPairs.class, name);
   }
 
   @Override

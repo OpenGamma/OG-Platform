@@ -15,6 +15,7 @@ import com.opengamma.core.change.ChangeListener;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.core.change.ChangeType;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 
 /**
@@ -35,8 +36,8 @@ public class TestChangeManager implements ChangeManager, ChangeProvider {
   }
 
   @Override
-  public void entityChanged(ChangeType type, UniqueId beforeId, UniqueId afterId, Instant versionInstant) {
-    ChangeEvent event = new ChangeEvent(type, beforeId, afterId, versionInstant);
+  public void entityChanged(ChangeType type, ObjectId objectId, Instant versonFrom, Instant versionTo, Instant versionInstant) {
+    ChangeEvent event = new ChangeEvent(type, objectId, versonFrom, versionTo, versionInstant);
     for (ChangeListener listener : _listeners) {
       listener.entityChanged(event);
     }

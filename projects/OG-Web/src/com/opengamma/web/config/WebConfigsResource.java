@@ -28,6 +28,7 @@ import org.joda.beans.impl.flexi.FlexiBean;
 import com.google.common.collect.BiMap;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
@@ -167,11 +168,13 @@ public class WebConfigsResource extends AbstractWebConfigResource {
      
     final Object configObj = parseXML(xml);
     final Class<?> logicalClazz = getLogicalClazz(type);
-    
-    ConfigDocument<Object> doc = new ConfigDocument<Object>(logicalClazz);
-    doc.setName(name);
-    doc.setValue(configObj);
-    ConfigDocument<?> added = data().getConfigMaster().add(doc);
+
+    ConfigItem<?> item = ConfigItem.of(configObj);
+    item.setName(name);
+    item.setType(logicalClazz);
+    ConfigDocument doc = new ConfigDocument(item);    
+
+    ConfigDocument added = data().getConfigMaster().add(doc);
     URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
     return Response.seeOther(uri).build();
   }
@@ -212,10 +215,11 @@ public class WebConfigsResource extends AbstractWebConfigResource {
         result = Response.status(Status.BAD_REQUEST).build();
       } else {
         final Class<?> logicalClazz = getLogicalClazz(type);
-        ConfigDocument<Object> doc = new ConfigDocument<Object>(logicalClazz);
-        doc.setName(name);
-        doc.setValue(configObj);
-        ConfigDocument<?> added = data().getConfigMaster().add(doc);
+        ConfigItem<?> item = ConfigItem.of(configObj);
+        item.setName(name);
+        item.setType(logicalClazz);        
+        ConfigDocument doc = new ConfigDocument(item);        
+        ConfigDocument added = data().getConfigMaster().add(doc);
         URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
         result = Response.created(uri).build();
       }
@@ -264,7 +268,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
     data().setUriConfigId(idStr);
     UniqueId oid = UniqueId.parse(idStr);
     try {
-      ConfigDocument<?> doc = data().getConfigMaster().get(oid);
+      ConfigDocument doc = data().getConfigMaster().get(oid);
       data().setConfig(doc);
     } catch (DataNotFoundException ex) {
       ConfigHistoryRequest<Object> historyRequest = new ConfigHistoryRequest<Object>(oid, Object.class);

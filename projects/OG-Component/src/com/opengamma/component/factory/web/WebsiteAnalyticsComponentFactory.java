@@ -21,13 +21,14 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.financial.aggregation.PortfolioAggregationFunctions;
-import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
@@ -72,7 +73,7 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
    * The user master.
    */
   @PropertyDefinition(validate = "notNull")
-  private ManageableViewDefinitionRepository _userViewDefinitionRepository;
+  private ConfigMaster _userConfigMaster;
   /**
    * The underlying master.
    */
@@ -109,7 +110,7 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
     bean.setComputationTargetResolver(getComputationTargetResolver());
     bean.setUserPortfolioMaster(getUserPortfolioMaster());
     bean.setUserPositionMaster(getUserPositionMaster());
-    bean.setUserViewDefinitionRepository(getUserViewDefinitionRepository());
+    bean.setUserConfigMaster(getUserConfigMaster());
     bean.setSnapshotMaster(getSnapshotMaster());
     bean.setPortfolioAggregators(getPortfolioAggregationFunctions());
     bean.setUser(getUser());
@@ -154,8 +155,8 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
         return getUserPositionMaster();
       case 686514815:  // userPortfolioMaster
         return getUserPortfolioMaster();
-      case -1371772371:  // userViewDefinitionRepository
-        return getUserViewDefinitionRepository();
+      case -763459665:  // userConfigMaster
+        return getUserConfigMaster();
       case -2046916282:  // snapshotMaster
         return getSnapshotMaster();
       case -1697555603:  // viewProcessor
@@ -188,8 +189,8 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
       case 686514815:  // userPortfolioMaster
         setUserPortfolioMaster((PortfolioMaster) newValue);
         return;
-      case -1371772371:  // userViewDefinitionRepository
-        setUserViewDefinitionRepository((ManageableViewDefinitionRepository) newValue);
+      case -763459665:  // userConfigMaster
+        setUserConfigMaster((ConfigMaster) newValue);
         return;
       case -2046916282:  // snapshotMaster
         setSnapshotMaster((MarketDataSnapshotMaster) newValue);
@@ -217,7 +218,7 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
     JodaBeanUtils.notNull(_computationTargetResolver, "computationTargetResolver");
     JodaBeanUtils.notNull(_userPositionMaster, "userPositionMaster");
     JodaBeanUtils.notNull(_userPortfolioMaster, "userPortfolioMaster");
-    JodaBeanUtils.notNull(_userViewDefinitionRepository, "userViewDefinitionRepository");
+    JodaBeanUtils.notNull(_userConfigMaster, "userConfigMaster");
     JodaBeanUtils.notNull(_snapshotMaster, "snapshotMaster");
     JodaBeanUtils.notNull(_viewProcessor, "viewProcessor");
     JodaBeanUtils.notNull(_portfolioAggregationFunctions, "portfolioAggregationFunctions");
@@ -238,7 +239,7 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getComputationTargetResolver(), other.getComputationTargetResolver()) &&
           JodaBeanUtils.equal(getUserPositionMaster(), other.getUserPositionMaster()) &&
           JodaBeanUtils.equal(getUserPortfolioMaster(), other.getUserPortfolioMaster()) &&
-          JodaBeanUtils.equal(getUserViewDefinitionRepository(), other.getUserViewDefinitionRepository()) &&
+          JodaBeanUtils.equal(getUserConfigMaster(), other.getUserConfigMaster()) &&
           JodaBeanUtils.equal(getSnapshotMaster(), other.getSnapshotMaster()) &&
           JodaBeanUtils.equal(getViewProcessor(), other.getViewProcessor()) &&
           JodaBeanUtils.equal(getPortfolioAggregationFunctions(), other.getPortfolioAggregationFunctions()) &&
@@ -257,7 +258,7 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getComputationTargetResolver());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUserPositionMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUserPortfolioMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserViewDefinitionRepository());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUserConfigMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSnapshotMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioAggregationFunctions());
@@ -401,25 +402,25 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
    * Gets the user master.
    * @return the value of the property, not null
    */
-  public ManageableViewDefinitionRepository getUserViewDefinitionRepository() {
-    return _userViewDefinitionRepository;
+  public ConfigMaster getUserConfigMaster() {
+    return _userConfigMaster;
   }
 
   /**
    * Sets the user master.
-   * @param userViewDefinitionRepository  the new value of the property, not null
+   * @param userConfigMaster  the new value of the property, not null
    */
-  public void setUserViewDefinitionRepository(ManageableViewDefinitionRepository userViewDefinitionRepository) {
-    JodaBeanUtils.notNull(userViewDefinitionRepository, "userViewDefinitionRepository");
-    this._userViewDefinitionRepository = userViewDefinitionRepository;
+  public void setUserConfigMaster(ConfigMaster userConfigMaster) {
+    JodaBeanUtils.notNull(userConfigMaster, "userConfigMaster");
+    this._userConfigMaster = userConfigMaster;
   }
 
   /**
-   * Gets the the {@code userViewDefinitionRepository} property.
+   * Gets the the {@code userConfigMaster} property.
    * @return the property, not null
    */
-  public final Property<ManageableViewDefinitionRepository> userViewDefinitionRepository() {
-    return metaBean().userViewDefinitionRepository().createProperty(this);
+  public final Property<ConfigMaster> userConfigMaster() {
+    return metaBean().userConfigMaster().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -588,10 +589,10 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<PortfolioMaster> _userPortfolioMaster = DirectMetaProperty.ofReadWrite(
         this, "userPortfolioMaster", WebsiteAnalyticsComponentFactory.class, PortfolioMaster.class);
     /**
-     * The meta-property for the {@code userViewDefinitionRepository} property.
+     * The meta-property for the {@code userConfigMaster} property.
      */
-    private final MetaProperty<ManageableViewDefinitionRepository> _userViewDefinitionRepository = DirectMetaProperty.ofReadWrite(
-        this, "userViewDefinitionRepository", WebsiteAnalyticsComponentFactory.class, ManageableViewDefinitionRepository.class);
+    private final MetaProperty<ConfigMaster> _userConfigMaster = DirectMetaProperty.ofReadWrite(
+        this, "userConfigMaster", WebsiteAnalyticsComponentFactory.class, ConfigMaster.class);
     /**
      * The meta-property for the {@code snapshotMaster} property.
      */
@@ -627,7 +628,7 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
         "computationTargetResolver",
         "userPositionMaster",
         "userPortfolioMaster",
-        "userViewDefinitionRepository",
+        "userConfigMaster",
         "snapshotMaster",
         "viewProcessor",
         "portfolioAggregationFunctions",
@@ -653,8 +654,8 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
           return _userPositionMaster;
         case 686514815:  // userPortfolioMaster
           return _userPortfolioMaster;
-        case -1371772371:  // userViewDefinitionRepository
-          return _userViewDefinitionRepository;
+        case -763459665:  // userConfigMaster
+          return _userConfigMaster;
         case -2046916282:  // snapshotMaster
           return _snapshotMaster;
         case -1697555603:  // viewProcessor
@@ -726,11 +727,11 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
     }
 
     /**
-     * The meta-property for the {@code userViewDefinitionRepository} property.
+     * The meta-property for the {@code userConfigMaster} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ManageableViewDefinitionRepository> userViewDefinitionRepository() {
-      return _userViewDefinitionRepository;
+    public final MetaProperty<ConfigMaster> userConfigMaster() {
+      return _userConfigMaster;
     }
 
     /**

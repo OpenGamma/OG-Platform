@@ -5,24 +5,29 @@
  */
 package com.opengamma.financial.user;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.AbstractChangeProvidingMaster;
+import com.opengamma.master.ChangeProvidingDecorator;
 import com.opengamma.master.portfolio.*;
 
 /**
  * Wraps a portfolio master to trap calls to record user based information to allow clean up and
  * hooks for access control logics if needed.
  */
-public class FinancialUserPortfolioMaster extends AbstractFinancialUserService implements PortfolioMaster {
+public class FinancialUserPortfolioMaster extends AbstractFinancialUserMaster<ManageablePortfolio, PortfolioDocument> implements PortfolioMaster {
 
   /**
    * The underlying master.
    */
   private final PortfolioMaster _underlying;
+  private final AbstractChangeProvidingMaster<ManageablePortfolio, PortfolioDocument> _changeProvidingMaster;
 
   /**
    * Creates an instance.
@@ -35,6 +40,7 @@ public class FinancialUserPortfolioMaster extends AbstractFinancialUserService i
   public FinancialUserPortfolioMaster(String userName, String clientName, FinancialUserDataTracker tracker, PortfolioMaster underlying) {
     super(userName, clientName, tracker, FinancialUserDataType.PORTFOLIO);
     _underlying = underlying;
+    _changeProvidingMaster = ChangeProvidingDecorator.wrap(underlying);
   }
 
   /**
@@ -46,42 +52,73 @@ public class FinancialUserPortfolioMaster extends AbstractFinancialUserService i
   public FinancialUserPortfolioMaster(FinancialClient client, PortfolioMaster underlying) {
     super(client, FinancialUserDataType.PORTFOLIO);
     _underlying = underlying;
+    _changeProvidingMaster = ChangeProvidingDecorator.wrap(underlying);
   }
 
-  //-------------------------------------------------------------------------
-  @Override
-  public PortfolioSearchResult search(PortfolioSearchRequest request) {
-    return _underlying.search(request);
+  public PortfolioDocument add(PortfolioDocument document) {
+    return _changeProvidingMaster.add(document);
   }
 
-  @Override
-  public PortfolioDocument get(UniqueId uniqueId) {
-    return _underlying.get(uniqueId);
+  public UniqueId addVersion(ObjectIdentifiable objectId, PortfolioDocument documentToAdd) {
+    return _changeProvidingMaster.addVersion(objectId, documentToAdd);
+  }
+
+  public PortfolioDocument correct(PortfolioDocument document) {
+    return _changeProvidingMaster.correct(document);
   }
 
   @Override
   public PortfolioDocument get(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
-    return _underlying.get(objectId, versionCorrection);
+    return _changeProvidingMaster.get(objectId, versionCorrection);
   }
 
   @Override
-  public PortfolioDocument add(PortfolioDocument document) {
-    document = _underlying.add(document);
-    if (document.getUniqueId() != null) {
-      created(document.getUniqueId());
-    }
-    return document;
+  public PortfolioDocument get(UniqueId uniqueId) {
+    return _changeProvidingMaster.get(uniqueId);
+  }
+
+  public Map<UniqueId, PortfolioDocument> get(Collection<UniqueId> uniqueIds) {
+    return _changeProvidingMaster.get(uniqueIds);
   }
 
   @Override
+  public void remove(ObjectIdentifiable objectIdentifiable) {
+    _changeProvidingMaster.remove(objectIdentifiable);
+  }
+
+  @Override
+  public void removeVersion(UniqueId uniqueId) {
+    _changeProvidingMaster.removeVersion(uniqueId);
+  }
+
+  public List<UniqueId> replaceAllVersions(ObjectIdentifiable objectId, List<PortfolioDocument> replacementDocuments) {
+    return _changeProvidingMaster.replaceAllVersions(objectId, replacementDocuments);
+  }
+
+  public UniqueId replaceVersion(PortfolioDocument replacementDocument) {
+    return _changeProvidingMaster.replaceVersion(replacementDocument);
+  }
+
+  public List<UniqueId> replaceVersion(UniqueId uniqueId, List<PortfolioDocument> replacementDocuments) {
+    return _changeProvidingMaster.replaceVersion(uniqueId, replacementDocuments);
+  }
+
+  public List<UniqueId> replaceVersions(ObjectIdentifiable objectId, List<PortfolioDocument> replacementDocuments) {
+    return _changeProvidingMaster.replaceVersions(objectId, replacementDocuments);
+  }
+
   public PortfolioDocument update(PortfolioDocument document) {
-    return _underlying.update(document);
+    return _changeProvidingMaster.update(document);
   }
 
   @Override
-  public void remove(UniqueId uniqueId) {
-    _underlying.remove(uniqueId);
-    deleted(uniqueId);
+  public ChangeManager changeManager() {
+    return _changeProvidingMaster.changeManager();
+  }
+
+  @Override
+  public ManageablePortfolioNode getNode(UniqueId nodeId) {
+    return _underlying.getNode(nodeId);
   }
 
   @Override
@@ -90,53 +127,7 @@ public class FinancialUserPortfolioMaster extends AbstractFinancialUserService i
   }
 
   @Override
-  public PortfolioDocument correct(PortfolioDocument document) {
-    return _underlying.correct(document);
-  }
-
-  @Override
-  public ManageablePortfolioNode getNode(UniqueId nodeId) {
-    return _underlying.getNode(nodeId);
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public ChangeManager changeManager() {
-    return _underlying.changeManager();
-  }
-
-  @Override
-  public UniqueId addVersion(ObjectIdentifiable objectId, PortfolioDocument documentToAdd) {
-    documentToAdd = _underlying.add(documentToAdd);
-    if (documentToAdd.getUniqueId() != null) {
-      created(documentToAdd.getUniqueId());
-    }
-    return documentToAdd.getUniqueId();
-  }
-
-  @Override
-  public List<UniqueId> replaceVersion(UniqueId uniqueId, List<PortfolioDocument> replacementDocuments) {
-    return _underlying.replaceVersion(uniqueId, replacementDocuments);
-  }
-
-  @Override
-  public List<UniqueId> replaceAllVersions(ObjectIdentifiable objectId, List<PortfolioDocument> replacementDocuments) {
-    return _underlying.replaceAllVersions(objectId, replacementDocuments);
-  }
-
-  @Override
-  public List<UniqueId> replaceVersions(ObjectIdentifiable objectId, List<PortfolioDocument> replacementDocuments) {
-    return _underlying.replaceVersions(objectId, replacementDocuments);
-  }
-
-  @Override
-  public UniqueId replaceVersion(PortfolioDocument replacementDocument) {
-    return _underlying.replaceVersion(replacementDocument);
-  }
-
-  @Override
-  public void removeVersion(UniqueId uniqueId) {
-    _underlying.removeVersion(uniqueId);
-    deleted(uniqueId);
+  public PortfolioSearchResult search(PortfolioSearchRequest request) {
+    return _underlying.search(request);
   }
 }

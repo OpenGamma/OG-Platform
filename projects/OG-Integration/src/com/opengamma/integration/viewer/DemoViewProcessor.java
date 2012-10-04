@@ -17,10 +17,10 @@ import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentServer;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.component.rest.RemoteComponentServer;
-import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.engine.view.ViewProcessor;
-import com.opengamma.financial.view.rest.RemoteViewDefinitionRepository;
 import com.opengamma.financial.view.rest.RemoteViewProcessor;
+import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.config.impl.RemoteConfigMaster;
 import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.jms.JmsConnectorFactoryBean;
 
@@ -71,9 +71,9 @@ public final class DemoViewProcessor {
     return new RemoteViewProcessor(uri, jmsConnector, _scheduler);
   }
 
-  public ViewDefinitionRepository getViewDefinitionRepository() {
-    ComponentInfo info = _componentServer.getComponentInfo(ViewDefinitionRepository.class, "main");
-    return new RemoteViewDefinitionRepository(info.getUri());
+  public ConfigMaster getConfigMaster() {
+    ComponentInfo info = _componentServer.getComponentInfo(ConfigMaster.class, "main");
+    return new RemoteConfigMaster(info.getUri());
   }
 
 }

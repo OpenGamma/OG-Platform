@@ -71,7 +71,7 @@ public class WebHolidayResource extends AbstractWebHolidayResource {
 //      @FormParam("idvalue") String idValue,
 //      @FormParam("regionscheme") String regionScheme,
 //      @FormParam("regionvalue") String regionValue) {
-//    if (data().getHoliday().isLatest() == false) {
+//    if (data().getObject().isLatest() == false) {
 //      return Response.status(Status.FORBIDDEN).entity(get()).build();
 //    }
 //    
@@ -98,7 +98,7 @@ public class WebHolidayResource extends AbstractWebHolidayResource {
 //      String html = getFreemarker().build("holidays/holiday-update.ftl", out);
 //      return Response.ok(html).build();
 //    }
-//    Holiday holiday = data().getHoliday().getHoliday().clone();
+//    Holiday holiday = data().getObject().getObject().clone();
 //    holiday.setName(name);
 //    holiday.setIdentifiers(ExternalIdBundle.of(Identifier.of(idScheme, idValue)));
 //    holiday.setRegionId(Identifier.of(regionScheme, regionValue));
@@ -111,7 +111,7 @@ public class WebHolidayResource extends AbstractWebHolidayResource {
 //
 //  @DELETE
 //  public Response delete() {
-//    HolidayDocument doc = data().getHoliday();
+//    HolidayDocument doc = data().getObject();
 //    if (doc.isLatest() == false) {
 //      return Response.status(Status.FORBIDDEN).entity(get()).build();
 //    }
@@ -130,10 +130,10 @@ public class WebHolidayResource extends AbstractWebHolidayResource {
     FlexiBean out = super.createRootData();
     HolidayDocument doc = data().getHoliday();
     out.put("holidayDoc", doc);
-    out.put("holiday", doc.getHoliday());
+    out.put("holiday", doc.getObject());
     out.put("deleted", !doc.isLatest());
     List<Pair<Year, List<LocalDate>>> map = new ArrayList<Pair<Year, List<LocalDate>>>();
-    List<LocalDate> dates = doc.getHoliday().getHolidayDates();
+    List<LocalDate> dates = doc.getObject().getHolidayDates();
     if (dates.size() > 0) {
       int year = dates.get(0).getYear();
       int start = 0;

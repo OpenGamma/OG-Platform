@@ -21,8 +21,8 @@ import com.opengamma.engine.view.listener.CycleStartedCall;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.marketdata.spec.MarketData;
-import com.opengamma.engine.test.TestViewResultListener;
-import com.opengamma.engine.test.ViewProcessorTestEnvironment;
+import com.opengamma.engine.TestViewResultListener;
+import com.opengamma.engine.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.calc.ViewComputationJob;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewClientState;

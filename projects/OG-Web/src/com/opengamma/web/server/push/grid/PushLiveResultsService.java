@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetResolver;
@@ -21,9 +22,11 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.financial.aggregation.PortfolioAggregationFunctions;
-import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.config.impl.MasterConfigSource;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.util.ArgumentChecker;
@@ -47,6 +50,7 @@ public class PushLiveResultsService implements ViewportManager {
   /** Client's web view keyed on viewport ID */
   private final Map<String, PushWebView> _viewportIdToView = new HashMap<String, PushWebView>();
   private final ViewProcessor _viewProcessor;
+  private final ConfigSource _configSource;
   private final UserPrincipal _user;
   private final ResultConverterCache _resultConverterCache;
   private final Object _lock = new Object();
@@ -59,7 +63,7 @@ public class PushLiveResultsService implements ViewportManager {
                                 ComputationTargetResolver computationTargetResolver,
                                 PortfolioMaster userPortfolioMaster,
                                 PositionMaster userPositionMaster,
-                                ManageableViewDefinitionRepository userViewDefinitionRepository,
+                                ConfigMaster userConfigMaster,
                                 UserPrincipal user,
                                 FudgeContext fudgeContext,
                                 PortfolioAggregationFunctions portfolioAggregators) {
@@ -71,12 +75,12 @@ public class PushLiveResultsService implements ViewportManager {
     _resultConverterCache = new ResultConverterCache(fudgeContext);
     _aggregatedViewDefinitionManager = new AggregatedViewDefinitionManager(positionSource,
                                                                            securitySource,
-                                                                           viewProcessor.getViewDefinitionRepository(),
-                                                                           userViewDefinitionRepository,
+                                                                           userConfigMaster,
                                                                            userPortfolioMaster,
                                                                            userPositionMaster,
                                                                            portfolioAggregators.getMappedFunctions());
     _computationTargetResolver = computationTargetResolver;
+    _configSource = new MasterConfigSource(userConfigMaster);
   }
 
   public void closeViewport(String viewportId) {
@@ -151,7 +155,7 @@ public class PushLiveResultsService implements ViewportManager {
   }
 
   private UniqueId getViewDefinitionId(String viewDefinitionName) {
-    ViewDefinition view = _viewProcessor.getViewDefinitionRepository().getDefinition(viewDefinitionName);
+    ViewDefinition view = _configSource.getConfig(ViewDefinition.class, viewDefinitionName, VersionCorrection.LATEST);
     if (view == null) {
       throw new OpenGammaRuntimeException("Unable to find view definition with name " + viewDefinitionName);
     }

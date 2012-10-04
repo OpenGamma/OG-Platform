@@ -8,6 +8,7 @@ package com.opengamma.core.holiday;
 import javax.time.calendar.LocalDate;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.Source;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
@@ -26,35 +27,7 @@ import com.opengamma.util.money.Currency;
  * Implementations must be thread-safe.
  */
 @PublicSPI
-public interface HolidaySource {
-
-  /**
-   * Gets a holiday by unique identifier.
-   * <p>
-   * A unique identifier exactly specifies a single holiday at a single version-correction.
-   * 
-   * @param uniqueId  the unique identifier to find, not null
-   * @return the matched holiday, not null
-   * @throws IllegalArgumentException if the identifier is invalid
-   * @throws DataNotFoundException if the holiday could not be found
-   * @throws RuntimeException if an error occurs
-   */
-  Holiday getHoliday(UniqueId uniqueId);
-
-  /**
-   * Gets a holiday by object identifier and version-correction.
-   * <p>
-   * In combination, the object identifier and version-correction exactly specify
-   * a single holiday at a single version-correction.
-   * 
-   * @param objectId  the object identifier to find, not null
-   * @param versionCorrection  the version-correction, not null
-   * @return the matched holiday, not null
-   * @throws IllegalArgumentException if the identifier or version-correction is invalid
-   * @throws DataNotFoundException if the holiday could not be found
-   * @throws RuntimeException if an error occurs
-   */
-  Holiday getHoliday(ObjectId objectId, VersionCorrection versionCorrection);
+public interface HolidaySource extends Source<Holiday> {  
 
   //-------------------------------------------------------------------------
   // TODO: remove below here

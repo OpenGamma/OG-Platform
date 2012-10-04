@@ -14,17 +14,14 @@ import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.id.ObjectId;
 import com.opengamma.master.AbstractDocumentDataResource;
-import com.opengamma.master.exchange.ExchangeDocument;
-import com.opengamma.master.exchange.ExchangeHistoryRequest;
-import com.opengamma.master.exchange.ExchangeHistoryResult;
-import com.opengamma.master.exchange.ExchangeMaster;
+import com.opengamma.master.exchange.*;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.RestUtils;
 
 /**
  * RESTful resource for an exchange.
  */
-public class DataExchangeResource extends AbstractDocumentDataResource<ExchangeDocument> {
+public class DataExchangeResource extends AbstractDocumentDataResource<ManageableExchange, ExchangeDocument> {
 
   /**
    * The exchanges resource.

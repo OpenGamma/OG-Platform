@@ -14,7 +14,7 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.opengamma.engine.test.TestCalculationNode;
+import com.opengamma.engine.TestCalculationNode;
 import com.opengamma.util.test.Timeout;
 
 /**

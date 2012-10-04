@@ -229,7 +229,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
   }
 
   protected CurveSpecificationBuilderConfiguration getCurrencyCurveConfig(final Currency currency) {
-    CurveSpecificationBuilderConfiguration config = getConfigSource().getByName(CurveSpecificationBuilderConfiguration.class, getCurrencyCurveName() + "_" + currency.getCode(), null);
+    CurveSpecificationBuilderConfiguration config = getConfigSource().getConfig(CurveSpecificationBuilderConfiguration.class, getCurrencyCurveName() + "_" + currency.getCode(), null);
     return config;
   }
 

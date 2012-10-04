@@ -86,7 +86,7 @@ public class RandomTimeSeriesLoader implements HistoricalTimeSeriesLoader {
       HistoricalTimeSeriesInfoDocument addedDoc = _htsMaster.add(new HistoricalTimeSeriesInfoDocument(info));
       // add the series
       LocalDateDoubleTimeSeries timeSeries = generateRandomHistoricalTimeSeries(startDate, endDate);
-      UniqueId uid = _htsMaster.updateTimeSeriesDataPoints(addedDoc.getInfo().getTimeSeriesObjectId(), timeSeries);
+      UniqueId uid = _htsMaster.updateTimeSeriesDataPoints(addedDoc.getObject().getTimeSeriesObjectId(), timeSeries);
       result.put(identifier, uid);
     }
     return result;

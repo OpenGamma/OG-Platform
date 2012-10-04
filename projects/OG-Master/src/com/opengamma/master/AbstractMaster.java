@@ -5,11 +5,14 @@
  */
 package com.opengamma.master;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.PublicSPI;
 
@@ -20,18 +23,18 @@ import com.opengamma.util.PublicSPI;
  * This interface provides methods that allow the documents to be
  * added, updated, corrected, removed and retrieved.
  * Sub interfaces typically add methods for searching.
- * 
+ *
  * @param <D>  the type of the document
  */
 @PublicSPI
-public interface AbstractMaster<D extends AbstractDocument> {
+public interface AbstractMaster<T extends UniqueIdentifiable, D extends AbstractDocument<? extends T>> {
 
   /**
    * Gets a document by unique identifier.
    * <p>
    * The identifier version string will be used to return the correct historic version providing
    * that the master supports history.
-   * 
+   *
    * @param uniqueId  the unique identifier, not null
    * @return the document, not null
    * @throws IllegalArgumentException if the request is invalid
@@ -44,7 +47,7 @@ public interface AbstractMaster<D extends AbstractDocument> {
    * <p>
    * The version-correction will be used to return the correct historic version providing
    * that the master supports history.
-   * 
+   *
    * @param objectId  the object identifier, not null
    * @param versionCorrection  the version-correction locator to search at, not null
    * @return the document, not null
@@ -54,11 +57,22 @@ public interface AbstractMaster<D extends AbstractDocument> {
   D get(ObjectIdentifiable objectId, VersionCorrection versionCorrection);
 
   /**
+   * Gets objects by unique identifier.
+   * <p>
+   * A unique identifier exactly specifies a single object at a single version-correction.
+   * This bulk method is potentially a more efficient form of {@link #get} for multiple lookups.
+   *
+   * @param uniqueIds the unique identifiers to query, not null
+   * @return the map of results, if there is no data for an identifier it will be missing from the map, not null
+   */
+  Map<UniqueId, D> get(Collection<UniqueId> uniqueIds);
+
+  /**
    * Adds a document to the data store.
    * <p>
    * This always adds to the data store, even if the document was previously added.
    * The version instant, correction instant and identifier will be set in the response.
-   * 
+   *
    * @param document  the document, not null
    * @return the added document, may be an update of the input document, not null
    * @throws IllegalArgumentException if the request is invalid
@@ -74,7 +88,7 @@ public interface AbstractMaster<D extends AbstractDocument> {
    * <p>
    * A full master will store detailed historic information on documents.
    * Thus, an update does not prevent retrieval or correction of an earlier version.
-   * 
+   *
    * @param document  the document, not null
    * @return the current state of the document, may be an update of the input document, not null
    * @throws IllegalArgumentException if the request is invalid
@@ -90,13 +104,12 @@ public interface AbstractMaster<D extends AbstractDocument> {
    * Thus, a removal does not prevent retrieval or correction of an earlier version.
    * <p>
    * If the identifier has a version it must be the latest version.
-   * 
-   * @param uniqueId  the unique identifier to remove, not null
+   *
+   * @param oid  the object identifier to remove, not null
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
-  void remove(final UniqueId uniqueId);
-  // TODO: AbstractMaster remove() should take an ObjectIdentifiable
+  void remove(final ObjectIdentifiable oid);
 
   /**
    * Corrects a document in the data store.
@@ -109,7 +122,7 @@ public interface AbstractMaster<D extends AbstractDocument> {
    * <p>
    * The specified document must contain the unique identifier.
    * The unique identifier must specify the last correction of a specific version of the document.
-   * 
+   *
    * @param document  the document, not null
    * @return the corrected state of the version, may be an update of the input document, not null
    * @throws IllegalArgumentException if the request is invalid
@@ -119,6 +132,7 @@ public interface AbstractMaster<D extends AbstractDocument> {
   // TODO: deprecate
 
   //-------------------------------------------------------------------------
+
   /**
    * Replaces a single version of the document in the data store.
    * <p>
@@ -135,7 +149,7 @@ public interface AbstractMaster<D extends AbstractDocument> {
    * The unique identifier must specify a version of the document that is active when
    * queried with the {@link VersionCorrection latest correction instant}.
    * The unique identifier in each specified document will be ignored on input.
-   * 
+   *
    * @param uniqueId  the unique identifier to replace, not null
    * @param replacementDocuments  the replacement documents, not null
    * @return the list of versioned documents matching the input list, not null
@@ -159,7 +173,7 @@ public interface AbstractMaster<D extends AbstractDocument> {
    * If the object identifier is a {@link UniqueId}, then it must specify a version of the
    * document that is active when queried with the {@link VersionCorrection latest correction instant}.
    * The unique identifier in each specified document will be ignored on input.
-   * 
+   *
    * @param objectId  the object identifier of the document to replace, not null
    * @param replacementDocuments  the replacement documents, not null
    * @return the list of unique identifiers matching the input list, not null
@@ -169,10 +183,11 @@ public interface AbstractMaster<D extends AbstractDocument> {
   List<UniqueId> replaceAllVersions(ObjectIdentifiable objectId, List<D> replacementDocuments);
 
   List<UniqueId> replaceVersions(ObjectIdentifiable objectId, List<D> replacementDocuments);
-  
-  
+
+
   //-------------------------------------------------------------------------
   // convenience methods
+
   /**
    * Replaces a single version of the document in the data store.
    * <p>
@@ -185,7 +200,7 @@ public interface AbstractMaster<D extends AbstractDocument> {
    * The document "version" and "correction" instants will be ignored on input.
    * The unique identifier must specify a version of the document that is active when
    * queried with the {@link VersionCorrection latest correction instant}.
-   * 
+   *
    * @param replacementDocument  the replacement document, not null
    * @return the versioned document matching the input one, not null
    * @throws IllegalArgumentException if the request is invalid
@@ -204,7 +219,7 @@ public interface AbstractMaster<D extends AbstractDocument> {
    * <p>
    * The unique identifier must specify a version of the document that is active when
    * queried with the {@link VersionCorrection latest correction instant}.
-   * 
+   *
    * @param uniqueId  the unique identifier to remove, not null
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
@@ -224,7 +239,7 @@ public interface AbstractMaster<D extends AbstractDocument> {
    * <p>
    * If the object identifier is a {@link UniqueId}, then it must specify a version of the
    * document that is active when queried with the {@link VersionCorrection latest correction instant}.
-   * 
+   *
    * @param objectId  the object identifier of the document to add a version to, not null
    * @param documentToAdd  the document, not null
    * @return the current state of the document, may be an update of the input document, not null
@@ -232,8 +247,5 @@ public interface AbstractMaster<D extends AbstractDocument> {
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
   UniqueId addVersion(ObjectIdentifiable objectId, D documentToAdd);
-  // if "version from" is non-null this is equivalent to a search to find the active document
-  // for the "version from" instant and using replaceVersion() with a list of two documents
-  // if "version from" is null this is equivalent to update(), but update() can hopefully be deprecated
 
 }

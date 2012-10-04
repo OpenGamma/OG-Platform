@@ -30,11 +30,7 @@ import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.impl.SimpleSecurity;
-import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.DefaultCachingComputationTargetResolver;
-import com.opengamma.engine.DefaultComputationTargetResolver;
+import com.opengamma.engine.*;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphBuilderFactory;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
@@ -44,8 +40,7 @@ import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
-import com.opengamma.engine.test.MockFunction;
-import com.opengamma.engine.test.MockSecuritySource;
+import com.opengamma.engine.InMemorySecuritySource;
 import com.opengamma.engine.view.ResultOutputMode;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
@@ -73,7 +68,7 @@ public class ViewDefinitionCompilerTest {
     positionSource.addPortfolio(p);
     SimpleSecurity defSec = new SimpleSecurity("");
     defSec.addExternalId(secIdentifier);
-    MockSecuritySource securitySource = new MockSecuritySource();
+    InMemorySecuritySource securitySource = new InMemorySecuritySource();
     securitySource.addSecurity(defSec);
     InMemoryLKVMarketDataProvider snapshotProvider = new InMemoryLKVMarketDataProvider();
     InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
@@ -105,7 +100,7 @@ public class ViewDefinitionCompilerTest {
     positionSource.addPortfolio(p);
     SimpleSecurity defSec = new SimpleSecurity("My Sec");
     defSec.addExternalId(secIdentifier);
-    MockSecuritySource securitySource = new MockSecuritySource();
+    InMemorySecuritySource securitySource = new InMemorySecuritySource();
     securitySource.addSecurity(defSec);
     InMemoryLKVMarketDataProvider snapshotProvider = new InMemoryLKVMarketDataProvider();
     // This function doesn't actually require anything, so it can compute at the node level without anything else.
@@ -152,7 +147,7 @@ public class ViewDefinitionCompilerTest {
     sec1.addExternalId(secIdentifier1);
     SimpleSecurity sec2 = new SimpleSecurity("Your Sec");
     sec2.addExternalId(secIdentifier2);
-    MockSecuritySource securitySource = new MockSecuritySource();
+    InMemorySecuritySource securitySource = new InMemorySecuritySource();
     securitySource.addSecurity(sec1);
     securitySource.addSecurity(sec2);
     InMemoryLKVMarketDataProvider snapshotProvider = new InMemoryLKVMarketDataProvider();
@@ -224,7 +219,7 @@ public class ViewDefinitionCompilerTest {
     ExternalId secIdentifier1 = ExternalId.of("SEC", "1");
     SimpleSecurity sec1 = new SimpleSecurity("My Sec");
     sec1.addExternalId(secIdentifier1);
-    MockSecuritySource securitySource = new MockSecuritySource();
+    InMemorySecuritySource securitySource = new InMemorySecuritySource();
     securitySource.addSecurity(sec1);
     UniqueId t1 = UniqueId.of("TestScheme", "t1");
     InMemoryLKVMarketDataProvider snapshotProvider = new InMemoryLKVMarketDataProvider();
@@ -275,7 +270,7 @@ public class ViewDefinitionCompilerTest {
     final CompiledFunctionService cfs = new CompiledFunctionService(functionRepo, new CachingFunctionRepositoryCompiler(), compilationContext);
     cfs.initialize();
     final DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(cfs);
-    final SecuritySource securitySource = new MockSecuritySource();
+    final SecuritySource securitySource = new InMemorySecuritySource();
     final DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource),
         EHCacheUtils.createCacheManager());
     final ExecutorService executorService = Executors.newSingleThreadExecutor();

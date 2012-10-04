@@ -53,7 +53,7 @@ public class WebPositionVersionResource extends AbstractWebPositionResource {
     if (builder != null) {
       return builder.build();
     }
-    data().getVersioned().getPosition().getSecurityLink().resolveQuiet(data().getSecuritySource());
+    data().getVersioned().getObject().getSecurityLink().resolveQuiet(data().getSecuritySource());
     FlexiBean out = createRootData();
     String json = getFreemarker().build("positions/jsonposition.ftl", out);
     return Response.ok(json).tag(etag).build();
@@ -69,10 +69,10 @@ public class WebPositionVersionResource extends AbstractWebPositionResource {
     PositionDocument latestPositionDoc = data().getPosition();
     PositionDocument versionedPosition = (PositionDocument) data().getVersioned();
     out.put("latestPositionDoc", latestPositionDoc);
-    out.put("latestPosition", latestPositionDoc.getPosition());
+    out.put("latestPosition", latestPositionDoc.getObject());
     out.put("positionDoc", versionedPosition);
-    out.put("position", versionedPosition.getPosition());
-    out.put("security", versionedPosition.getPosition().getSecurity());
+    out.put("position", versionedPosition.getObject());
+    out.put("security", versionedPosition.getObject().getSecurity());
     out.put("deleted", !latestPositionDoc.isLatest());
     
     TradeAttributesModel tradeAttributesModel = getTradeAttributesModel();
@@ -82,7 +82,7 @@ public class WebPositionVersionResource extends AbstractWebPositionResource {
 
   private TradeAttributesModel getTradeAttributesModel() {
     PositionDocument doc = data().getVersioned();
-    TradeAttributesModel getTradeAttributesModel = new TradeAttributesModel(doc.getPosition());
+    TradeAttributesModel getTradeAttributesModel = new TradeAttributesModel(doc.getObject());
     return getTradeAttributesModel;
   }
   

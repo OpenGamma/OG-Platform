@@ -20,6 +20,7 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -48,14 +49,13 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
 
       ObjectId baseOid = setupTestData(now);
       _cfgMaster.setTimeSource(TimeSource.fixed(now.plus(2, TimeUnit.HOURS)));
-      ConfigDocument<?> latestDoc = _cfgMaster.get(baseOid, VersionCorrection.LATEST);
+      ConfigDocument latestDoc = _cfgMaster.get(baseOid, VersionCorrection.LATEST);
       Instant latestFrom = latestDoc.getVersionFromInstant();
 
-      List<ConfigDocument<String>> replacement = newArrayList();
+      List<ConfigDocument> replacement = newArrayList();
       for (int i = 0; i <= 10; i++) {
-        String val = "test" + i;
-        ConfigDocument<String> doc = new ConfigDocument<String>(String.class);
-        doc.setValue(val);
+        String val = "test" + i;        
+        ConfigDocument doc = new ConfigDocument(ConfigItem.of(val));
         doc.setVersionFromInstant(latestFrom.plus(i, TimeUnit.MINUTES));
         replacement.add(doc);
       }
@@ -67,10 +67,10 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
       searchRequest.setVersionCorrection(VersionCorrection.LATEST);
       searchRequest.setType(String.class);
       ConfigSearchResult<String> result = _cfgMaster.search(searchRequest);
-      List<String> values = result.getValues();
+      List<ConfigItem<String>> values = result.getValues();
 
       assertEquals(1, values.size());
-      String val = values.get(0);
+      String val = values.get(0).getValue();
       assertEquals("test10", val);
 
     } finally {
@@ -86,14 +86,13 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
 
       ObjectId baseOid = setupTestData(now);
       _cfgMaster.setTimeSource(TimeSource.fixed(now.plus(2, TimeUnit.HOURS)));
-      ConfigDocument<?> latestDoc = _cfgMaster.get(baseOid, VersionCorrection.LATEST);
+      ConfigDocument latestDoc = _cfgMaster.get(baseOid, VersionCorrection.LATEST);
       Instant latestFrom = latestDoc.getVersionFromInstant();
 
-      List<ConfigDocument<String>> replacement = newArrayList();
+      List<ConfigDocument> replacement = newArrayList();
       for (int i = 1; i <= 10; i++) {
         String val = "test" + i;
-        ConfigDocument<String> doc = new ConfigDocument<String>(String.class);
-        doc.setValue(val);
+        ConfigDocument doc = new ConfigDocument(ConfigItem.of(val));
         doc.setVersionFromInstant(latestFrom.plus(i, TimeUnit.MINUTES));
         replacement.add(doc);
       }
@@ -104,10 +103,10 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
       searchRequest.addConfigId(baseOid);
       searchRequest.setVersionCorrection(VersionCorrection.LATEST);
       ConfigSearchResult<String> result = _cfgMaster.search(searchRequest);
-      List<String> values = result.getValues();
+      List<ConfigItem<String>> values = result.getValues();
 
       assertEquals(1, values.size());
-      String val = values.get(0);
+      String val = values.get(0).getValue();
       assertEquals("test10", val);
 
     } finally {
@@ -128,17 +127,16 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
       historyRequest.setObjectId(baseOid);
       historyRequest.setCorrectionsToInstant(null);
       ConfigHistoryResult<String> result = _cfgMaster.history(historyRequest);
-      List<ConfigDocument<String>> confDocs = result.getDocuments();
+      List<ConfigDocument> confDocs = result.getDocuments();
 
-      ConfigDocument<String> lastButOneDoc = confDocs.get(confDocs.size() - 1);
+      ConfigDocument lastButOneDoc = confDocs.get(confDocs.size() - 1);
       Instant lastButOneDocVersionFrom = lastButOneDoc.getVersionFromInstant();
 
 
-      List<ConfigDocument<String>> replacement = newArrayList();
+      List<ConfigDocument> replacement = newArrayList();
       for (int i = 1; i <= 10; i++) {
         String val = "test" + i;
-        ConfigDocument<String> doc = new ConfigDocument<String>(String.class);
-        doc.setValue(val);
+        ConfigDocument doc = new ConfigDocument(ConfigItem.of(val));
         doc.setVersionFromInstant(lastButOneDocVersionFrom.plus(i, TimeUnit.MINUTES));
         replacement.add(doc);
       }
@@ -164,17 +162,16 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
       historyRequest.setObjectId(baseOid);
       historyRequest.setCorrectionsToInstant(null);
       ConfigHistoryResult<String> result = _cfgMaster.history(historyRequest);
-      List<ConfigDocument<String>> confDocs = result.getDocuments();
+      List<ConfigDocument> confDocs = result.getDocuments();
 
-      ConfigDocument<String> lastButOneDoc = confDocs.get(confDocs.size() - 3);
+      ConfigDocument lastButOneDoc = confDocs.get(confDocs.size() - 3);
       Instant lastButOneDocVersionFrom = lastButOneDoc.getVersionFromInstant();
 
 
-      List<ConfigDocument<String>> replacement = newArrayList();
+      List<ConfigDocument> replacement = newArrayList();
       for (int i = 1; i <= 10; i++) {
         String val = "test" + i;
-        ConfigDocument<String> doc = new ConfigDocument<String>(String.class);
-        doc.setValue(val);
+        ConfigDocument doc = new ConfigDocument(ConfigItem.of(val));
         doc.setVersionFromInstant(lastButOneDocVersionFrom.plus(i, TimeUnit.MINUTES));
         replacement.add(doc);
       }
@@ -194,15 +191,14 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
 
       ObjectId baseOid = setupTestData(now);
       _cfgMaster.setTimeSource(TimeSource.fixed(now.plus(2, TimeUnit.HOURS)));
-      ConfigDocument<?> latestDoc = _cfgMaster.get(baseOid, VersionCorrection.LATEST);
+      ConfigDocument latestDoc = _cfgMaster.get(baseOid, VersionCorrection.LATEST);
       Instant latestFrom = latestDoc.getVersionFromInstant();
 
 
-      List<ConfigDocument<String>> replacement = newArrayList();
+      List<ConfigDocument> replacement = newArrayList();
       for (int i = 0; i <= 10; i++) {
         String val = "test" + i;
-        ConfigDocument<String> doc = new ConfigDocument<String>(String.class);
-        doc.setValue(val);
+        ConfigDocument doc = new ConfigDocument(ConfigItem.of(val));
         doc.setVersionFromInstant(latestFrom.plus(i, TimeUnit.SECONDS));
         replacement.add(doc);
       }
@@ -213,7 +209,7 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
       historyRequest.setObjectId(baseOid);
       historyRequest.setCorrectionsFromInstant(now.plus(2, TimeUnit.HOURS));
       ConfigHistoryResult<String> result = _cfgMaster.history(historyRequest);
-      List<ConfigDocument<String>> confDocs = result.getDocuments();
+      List<ConfigDocument> confDocs = result.getDocuments();
 
       assertEquals(15, confDocs.size());
 
@@ -230,15 +226,14 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
 
       ObjectId baseOid = setupTestData(now);
       _cfgMaster.setTimeSource(TimeSource.fixed(now.plus(2, TimeUnit.HOURS)));
-      ConfigDocument<?> latestDoc = _cfgMaster.get(baseOid, VersionCorrection.LATEST);
+      ConfigDocument latestDoc = _cfgMaster.get(baseOid, VersionCorrection.LATEST);
       Instant latestFrom = latestDoc.getVersionFromInstant();
 
 
-      List<ConfigDocument<String>> replacement = newArrayList();
+      List<ConfigDocument> replacement = newArrayList();
       for (int i = 0; i <= 10; i++) {
         String val = "test" + i;
-        ConfigDocument<String> doc = new ConfigDocument<String>(String.class);
-        doc.setValue(val);
+        ConfigDocument doc = new ConfigDocument(ConfigItem.of(val));
         doc.setVersionFromInstant(latestFrom.plus(i - 3, TimeUnit.MINUTES));
         replacement.add(doc);
       }
@@ -249,7 +244,7 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
       historyRequest.setObjectId(baseOid);
       historyRequest.setCorrectionsFromInstant(now.plus(2, TimeUnit.HOURS));
       ConfigHistoryResult<String> result = _cfgMaster.history(historyRequest);
-      List<ConfigDocument<String>> confDocs = result.getDocuments();
+      List<ConfigDocument> confDocs = result.getDocuments();
 
       assertEquals(12, confDocs.size());
 
@@ -297,14 +292,13 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
 
       ObjectId baseOid = setupTestData(now);
       _cfgMaster.setTimeSource(TimeSource.fixed(now.plus(2, TimeUnit.HOURS)));
-      ConfigDocument<?> latestDoc = _cfgMaster.get(baseOid, VersionCorrection.LATEST);
+      ConfigDocument latestDoc = _cfgMaster.get(baseOid, VersionCorrection.LATEST);
 
 
-      List<ConfigDocument<String>> replacement = newArrayList();
+      List<ConfigDocument> replacement = newArrayList();
       for (int i = 1; i <= 3; i++) {
         String val = "replace_" + i;
-        ConfigDocument<String> doc = new ConfigDocument<String>(String.class);
-        doc.setValue(val);
+        ConfigDocument doc = new ConfigDocument(ConfigItem.of(val));
         doc.setVersionFromInstant(now.plus(1, TimeUnit.MINUTES).plus(i * 10, TimeUnit.SECONDS));
         replacement.add(doc);
       }
@@ -313,9 +307,9 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
       historyRequest.setObjectId(baseOid);
       historyRequest.setCorrectionsFromInstant(now.plus(2, TimeUnit.HOURS));
       ConfigHistoryResult<String> result = _cfgMaster.history(historyRequest);
-      List<ConfigDocument<String>> confDocs = result.getDocuments();
+      List<ConfigDocument> confDocs = result.getDocuments();
 
-      ConfigDocument<String> secondVersionDoc = confDocs.get(confDocs.size() - 2);
+      ConfigDocument secondVersionDoc = confDocs.get(confDocs.size() - 2);
 
       _cfgMaster.replaceVersion(secondVersionDoc.getUniqueId(), replacement);
 
@@ -364,14 +358,13 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
 
       ObjectId baseOid = setupTestData(now);
       _cfgMaster.setTimeSource(TimeSource.fixed(now.plus(2, TimeUnit.HOURS)));
-      ConfigDocument<?> latestDoc = _cfgMaster.get(baseOid, VersionCorrection.LATEST);
+      ConfigDocument latestDoc = _cfgMaster.get(baseOid, VersionCorrection.LATEST);
 
 
-      List<ConfigDocument<String>> replacement = newArrayList();
+      List<ConfigDocument> replacement = newArrayList();
       for (int i = 1; i <= 3; i++) {
         String val = "replace_" + i;
-        ConfigDocument<String> doc = new ConfigDocument<String>(String.class);
-        doc.setValue(val);
+        ConfigDocument doc = new ConfigDocument(ConfigItem.of(val));
         doc.setVersionFromInstant(now.plus(1, TimeUnit.MINUTES).plus(i * 10, TimeUnit.SECONDS));
         replacement.add(doc);
       }
@@ -381,9 +374,9 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
       historyRequest.setObjectId(baseOid);
       historyRequest.setCorrectionsFromInstant(now.plus(2, TimeUnit.HOURS));
       ConfigHistoryResult<String> result = _cfgMaster.history(historyRequest);
-      List<ConfigDocument<String>> confDocs = result.getDocuments();
+      List<ConfigDocument> confDocs = result.getDocuments();
 
-      ConfigDocument<String> secondVersionDoc = confDocs.get(confDocs.size() - 2);
+      ConfigDocument secondVersionDoc = confDocs.get(confDocs.size() - 2);
 
       _cfgMaster.replaceVersion(secondVersionDoc.getUniqueId(), replacement);
     } finally {
@@ -431,11 +424,10 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
       _cfgMaster.setTimeSource(TimeSource.fixed(now.plus(2, TimeUnit.HOURS)));
 
 
-      List<ConfigDocument<String>> replacement = newArrayList();
+      List<ConfigDocument> replacement = newArrayList();
       for (int i = 0; i <= 2; i++) {
         String val = "replace_" + i;
-        ConfigDocument<String> doc = new ConfigDocument<String>(String.class);
-        doc.setValue(val);
+        ConfigDocument doc = new ConfigDocument(ConfigItem.of(val));
         doc.setVersionFromInstant(now.plus(1, TimeUnit.MINUTES).plus(i * 20, TimeUnit.SECONDS));
         replacement.add(doc);
       }
@@ -445,9 +437,9 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
       historyRequest.setObjectId(baseOid);
       historyRequest.setCorrectionsFromInstant(now.plus(2, TimeUnit.HOURS));
       ConfigHistoryResult<String> result = _cfgMaster.history(historyRequest);
-      List<ConfigDocument<String>> confDocs = result.getDocuments();
+      List<ConfigDocument> confDocs = result.getDocuments();
 
-      ConfigDocument<String> secondVersionDoc = confDocs.get(confDocs.size() - 2);
+      ConfigDocument secondVersionDoc = confDocs.get(confDocs.size() - 2);
 
       _cfgMaster.replaceVersion(secondVersionDoc.getUniqueId(), replacement);
 
@@ -524,11 +516,10 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
       _cfgMaster.setTimeSource(TimeSource.fixed(now.plus(2, TimeUnit.HOURS)));
 
 
-      List<ConfigDocument<String>> replacement = newArrayList();
+      List<ConfigDocument> replacement = newArrayList();
       for (int i = 0; i <= 2; i++) {
         String val = "replace_" + i;
-        ConfigDocument<String> doc = new ConfigDocument<String>(String.class);
-        doc.setValue(val);
+        ConfigDocument doc = new ConfigDocument(ConfigItem.of(val));
         doc.setVersionFromInstant(now.plus(1, TimeUnit.MINUTES).plus(i * 20, TimeUnit.SECONDS));
         replacement.add(doc);
       }
@@ -537,9 +528,9 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
       historyRequest.setObjectId(baseOid);
       historyRequest.setCorrectionsFromInstant(now.plus(2, TimeUnit.HOURS));
       ConfigHistoryResult<String> result = _cfgMaster.history(historyRequest);
-      List<ConfigDocument<String>> confDocs = result.getDocuments();
+      List<ConfigDocument> confDocs = result.getDocuments();
 
-      ConfigDocument<String> secondVersionDoc = confDocs.get(confDocs.size() - 2);
+      ConfigDocument secondVersionDoc = confDocs.get(confDocs.size() - 2);
 
       _cfgMaster.replaceVersion(secondVersionDoc.getUniqueId(), replacement);
 
@@ -586,11 +577,10 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
       _cfgMaster.setTimeSource(TimeSource.fixed(now.plus(2, TimeUnit.HOURS)));
 
 
-      List<ConfigDocument<String>> replacement = newArrayList();
+      List<ConfigDocument> replacement = newArrayList();
       for (int i = 0; i <= 2; i++) {
         String val = "replace_" + i;
-        ConfigDocument<String> doc = new ConfigDocument<String>(String.class);
-        doc.setValue(val);
+        ConfigDocument doc = new ConfigDocument(ConfigItem.of(val));
         doc.setVersionFromInstant(now.plus(1, TimeUnit.MINUTES).plus(i * 20, TimeUnit.SECONDS));
         replacement.add(doc);
       }
@@ -610,8 +600,7 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
   public void test_replaceVersion_notFound() {
     UniqueId uniqueId = UniqueId.of("DbCfg", "0", "0");
     String val = "Test";
-    ConfigDocument<String> doc = new ConfigDocument<String>(String.class);
-    doc.setValue(val);
+    ConfigDocument doc = new ConfigDocument(ConfigItem.of(val));
     doc.setUniqueId(uniqueId);
     _cfgMaster.replaceVersion(doc);
   }

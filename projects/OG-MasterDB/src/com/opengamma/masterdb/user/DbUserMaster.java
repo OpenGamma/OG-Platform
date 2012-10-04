@@ -35,7 +35,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 /**
  * 
  */
-public class DbUserMaster extends AbstractDocumentDbMaster<UserDocument> implements UserMaster {
+public class DbUserMaster extends AbstractDocumentDbMaster<ManageableOGUser, UserDocument> implements UserMaster {
   /** Logger. */
   @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(DbUserMaster.class);
@@ -70,10 +70,10 @@ public class DbUserMaster extends AbstractDocumentDbMaster<UserDocument> impleme
 
   @Override
   protected UserDocument insert(UserDocument document) {
-    ArgumentChecker.notNull(document.getUser(), "document.user");
+    ArgumentChecker.notNull(document.getObject(), "document.user");
     ArgumentChecker.notNull(document.getName(), "document.name");
     
-    final ManageableOGUser user = document.getUser();
+    final ManageableOGUser user = document.getObject();
     final long docId = nextId("usr_oguser_seq");
     final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
     final UniqueId uniqueId = createUniqueId(docOid, docId);
@@ -203,7 +203,7 @@ public class DbUserMaster extends AbstractDocumentDbMaster<UserDocument> impleme
       doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
       doc.setCorrectionFromInstant(DbDateUtils.fromSqlTimestamp(correctionFrom));
       doc.setCorrectionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(correctionTo));
-      doc.setUser(user);
+      doc.setObject(user);
       _documents.add(doc);
     }
   }

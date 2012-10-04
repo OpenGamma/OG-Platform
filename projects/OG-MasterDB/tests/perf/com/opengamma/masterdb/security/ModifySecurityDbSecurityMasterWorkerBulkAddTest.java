@@ -53,7 +53,7 @@ public class ModifySecurityDbSecurityMasterWorkerBulkAddTest extends AbstractDbS
     
     ManageableSecurity security = new ManageableSecurity(null, "TestSecurity", "EQUITY", ExternalIdBundle.of("A", "B"));
     SecurityDocument doc = new SecurityDocument();
-    doc.setSecurity(security);
+    doc.setObject(security);
     SecurityDocument test = _secMaster.add(doc);
     
     UniqueId uniqueId = test.getUniqueId();
@@ -66,7 +66,7 @@ public class ModifySecurityDbSecurityMasterWorkerBulkAddTest extends AbstractDbS
     assertEquals(null, test.getVersionToInstant());
     assertEquals(now, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageableSecurity testSecurity = test.getSecurity();
+    ManageableSecurity testSecurity = test.getObject();
     assertNotNull(testSecurity);
     assertEquals(uniqueId, testSecurity.getUniqueId());
     assertEquals("TestSecurity", security.getName());
@@ -81,7 +81,7 @@ public class ModifySecurityDbSecurityMasterWorkerBulkAddTest extends AbstractDbS
   public void test_add_addThenGet() {
     ManageableSecurity security = new ManageableSecurity(null, "TestSecurity", "EQUITY", ExternalIdBundle.of("A", "B"));
     SecurityDocument doc = new SecurityDocument();
-    doc.setSecurity(security);
+    doc.setObject(security);
     SecurityDocument added = _secMaster.add(doc);
     
     SecurityDocument test = _secMaster.get(added.getUniqueId());

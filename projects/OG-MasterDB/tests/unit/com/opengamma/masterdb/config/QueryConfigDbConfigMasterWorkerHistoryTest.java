@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ObjectId;
 import com.opengamma.master.config.ConfigHistoryRequest;
@@ -49,8 +50,8 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
     ConfigHistoryResult<ExternalId> test = _cfgMaster.history(request);
     
     assertEquals(2, test.getDocuments().size());
-    assert202(test.getDocuments().get(0));
-    assert201(test.getDocuments().get(1));
+    assert202((ConfigItem<ExternalId>)test.getDocuments().get(0).getObject());
+    assert201((ConfigItem<ExternalId>)test.getDocuments().get(1).getObject());
   }
 
   private ConfigHistoryRequest<ExternalId> createRequest(ObjectId oid) {
@@ -69,8 +70,8 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
     assertEquals(2, test.getPaging().getTotalItems());
     
     assertEquals(2, test.getDocuments().size());
-    assert202(test.getDocuments().get(0));
-    assert201(test.getDocuments().get(1));
+    assert202((ConfigItem<ExternalId>)test.getDocuments().get(0).getObject());
+    assert201((ConfigItem<ExternalId>)test.getDocuments().get(1).getObject());
   }
 
   //-------------------------------------------------------------------------
@@ -86,7 +87,7 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
     assertEquals(2, test.getPaging().getTotalItems());
     
     assertEquals(1, test.getDocuments().size());
-    assert202(test.getDocuments().get(0));
+    assert202((ConfigItem<ExternalId>)test.getDocuments().get(0).getObject());
   }
 
   @Test
@@ -104,7 +105,7 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
     
     assertNotNull(test.getDocuments());
     assertEquals(1, test.getDocuments().size());
-    assert201(test.getDocuments().get(0));
+    assert201((ConfigItem<ExternalId>)test.getDocuments().get(0).getObject());
   }
 
   //-------------------------------------------------------------------------
@@ -118,8 +119,8 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
     assertEquals(2, test.getPaging().getTotalItems());
     
     assertEquals(2, test.getDocuments().size());
-    assert202(test.getDocuments().get(0));
-    assert201(test.getDocuments().get(1));
+    assert202((ConfigItem<ExternalId>)test.getDocuments().get(0).getObject());
+    assert201((ConfigItem<ExternalId>)test.getDocuments().get(1).getObject());
   }
 
   @Test
@@ -130,8 +131,8 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
     ConfigHistoryResult<ExternalId> test = _cfgMaster.history(request);
     
     assertEquals(2, test.getPaging().getTotalItems());
-    assert202(test.getDocuments().get(0));
-    assert201(test.getDocuments().get(1));
+    assert202((ConfigItem<ExternalId>)test.getDocuments().get(0).getObject());
+    assert201((ConfigItem<ExternalId>)test.getDocuments().get(1).getObject());
   }
 
   @Test
@@ -142,7 +143,7 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
     ConfigHistoryResult<ExternalId> test = _cfgMaster.history(request);
     
     assertEquals(1, test.getPaging().getTotalItems());
-    assert202(test.getDocuments().get(0));
+    assert202((ConfigItem<ExternalId>)test.getDocuments().get(0).getObject());
   }
 
   //-------------------------------------------------------------------------
@@ -166,7 +167,7 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
     ConfigHistoryResult<ExternalId> test = _cfgMaster.history(request);
     
     assertEquals(1, test.getPaging().getTotalItems());
-    assert201(test.getDocuments().get(0));
+    assert201((ConfigItem<ExternalId>)test.getDocuments().get(0).getObject());
   }
 
   @Test
@@ -179,8 +180,8 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
     assertEquals(2, test.getPaging().getTotalItems());
     
     assertEquals(2, test.getDocuments().size());
-    assert202(test.getDocuments().get(0));
-    assert201(test.getDocuments().get(1));
+    assert202((ConfigItem<ExternalId>)test.getDocuments().get(0).getObject());
+    assert201((ConfigItem<ExternalId>)test.getDocuments().get(1).getObject());
   }
 
 }

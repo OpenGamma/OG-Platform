@@ -8,16 +8,21 @@ package com.opengamma.language.client;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.financial.user.rest.RemoteClient;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.master.AbstractMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
+import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioMaster;
+import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
+import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 
@@ -30,8 +35,7 @@ import com.opengamma.master.security.SecurityMaster;
  * @param <M> the type of the master(s)
  * @param <Master> the combined master
  */
-public abstract class CombiningMaster<D extends AbstractDocument, M extends AbstractMaster<D>, Master extends CombinedMaster<D, M>> {
-
+public abstract class CombiningMaster<T extends UniqueIdentifiable, D extends AbstractDocument<? extends T>, M extends AbstractMaster<T, D>, Master extends CombinedMaster<T, D, M>> {
   /**
    * Misleading name constant for the "session" store. Should be called "session" but that might confuse people until
    * we have the per-user store implemented correctly.
@@ -53,8 +57,8 @@ public abstract class CombiningMaster<D extends AbstractDocument, M extends Abst
   /**
    * Singleton instance for MarketDataSnapshotMaster.
    */
-  public static final CombiningMaster<MarketDataSnapshotDocument, MarketDataSnapshotMaster, CombinedMarketDataSnapshotMaster> MARKET_DATA_SNAPSHOT =
-      new CombiningMaster<MarketDataSnapshotDocument, MarketDataSnapshotMaster, CombinedMarketDataSnapshotMaster>() {
+  public static final CombiningMaster<ManageableMarketDataSnapshot, MarketDataSnapshotDocument, MarketDataSnapshotMaster, CombinedMarketDataSnapshotMaster> MARKET_DATA_SNAPSHOT =
+      new CombiningMaster<ManageableMarketDataSnapshot, MarketDataSnapshotDocument, MarketDataSnapshotMaster, CombinedMarketDataSnapshotMaster>() {
 
         @Override
         protected MarketDataSnapshotMaster getMasterImpl(final RemoteClient client) {
@@ -72,7 +76,7 @@ public abstract class CombiningMaster<D extends AbstractDocument, M extends Abst
   /**
    * Singleton instance for PortfolioMaster.
    */
-  public static final CombiningMaster<PortfolioDocument, PortfolioMaster, CombinedPortfolioMaster> PORTFOLIO = new CombiningMaster<PortfolioDocument, PortfolioMaster, CombinedPortfolioMaster>() {
+  public static final CombiningMaster<ManageablePortfolio, PortfolioDocument, PortfolioMaster, CombinedPortfolioMaster> PORTFOLIO = new CombiningMaster<ManageablePortfolio, PortfolioDocument, PortfolioMaster, CombinedPortfolioMaster>() {
 
     @Override
     protected PortfolioMaster getMasterImpl(final RemoteClient client) {
@@ -89,7 +93,7 @@ public abstract class CombiningMaster<D extends AbstractDocument, M extends Abst
   /**
    * Singleton instance for PositionMaster.
    */
-  public static final CombiningMaster<PositionDocument, PositionMaster, CombinedPositionMaster> POSITION = new CombiningMaster<PositionDocument, PositionMaster, CombinedPositionMaster>() {
+  public static final CombiningMaster<ManageablePosition, PositionDocument, PositionMaster, CombinedPositionMaster> POSITION = new CombiningMaster<ManageablePosition, PositionDocument, PositionMaster, CombinedPositionMaster>() {
 
     @Override
     protected PositionMaster getMasterImpl(final RemoteClient client) {
@@ -106,7 +110,7 @@ public abstract class CombiningMaster<D extends AbstractDocument, M extends Abst
   /**
    * Singleton instance for SecurityMaster.
    */
-  public static final CombiningMaster<SecurityDocument, SecurityMaster, CombinedSecurityMaster> SECURITY = new CombiningMaster<SecurityDocument, SecurityMaster, CombinedSecurityMaster>() {
+  public static final CombiningMaster<ManageableSecurity, SecurityDocument, SecurityMaster, CombinedSecurityMaster> SECURITY = new CombiningMaster<ManageableSecurity, SecurityDocument, SecurityMaster, CombinedSecurityMaster>() {
 
     @Override
     protected SecurityMaster getMasterImpl(final RemoteClient client) {

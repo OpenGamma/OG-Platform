@@ -5,8 +5,11 @@
  */
 package com.opengamma.financial.analytics.fixedincome;
 
+import static com.google.common.collect.Maps.newHashMap;
+
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.TimeZone;
@@ -23,46 +26,55 @@ import com.opengamma.financial.convention.DefaultConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
+import com.opengamma.id.*;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public class SecurityToFixedIncomeFutureDefinitionConverterTest {
   private static final HolidaySource HOLIDAY_SOURCE = new MyHolidaySource();
   private static final ExchangeSource EXCHANGE_SOURCE = new MyExchangeSource();
   private static final ConventionBundleSource CONVENTION_SOURCE = new DefaultConventionBundleSource(
-      new InMemoryConventionBundleMaster());
+    new InMemoryConventionBundleMaster());
 
   private static class MyHolidaySource implements HolidaySource {
     private static final Calendar WEEKEND_HOLIDAY = new MondayToFridayCalendar("D");
 
     @Override
-    public Holiday getHoliday(final UniqueId uniqueId) {
+    public Holiday get(final UniqueId uniqueId) {
       throw new UnsupportedOperationException();
     }
+
     @Override
-    public Holiday getHoliday(final ObjectId objectId, final VersionCorrection versionCorrection) {
+    public Holiday get(final ObjectId objectId, final VersionCorrection versionCorrection) {
       throw new UnsupportedOperationException();
     }
+
     @Override
     public boolean isHoliday(final LocalDate dateToCheck, final Currency currency) {
       return WEEKEND_HOLIDAY.isWorkingDay(dateToCheck);
     }
+
     @Override
     public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType,
-        final ExternalIdBundle regionOrExchangeIds) {
+                             final ExternalIdBundle regionOrExchangeIds) {
       return WEEKEND_HOLIDAY.isWorkingDay(dateToCheck);
     }
+
     @Override
     public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType,
-        final ExternalId regionOrExchangeId) {
+                             final ExternalId regionOrExchangeId) {
       return WEEKEND_HOLIDAY.isWorkingDay(dateToCheck);
+    }
+
+    @Override
+    public Map<UniqueId, Holiday> get(Collection<UniqueId> uniqueIds) {
+      Map<UniqueId, Holiday> map = newHashMap();
+      for (UniqueId uniqueId : uniqueIds) {
+        map.put(uniqueId, get(uniqueId));
+      }
+      return map;
     }
   }
 
@@ -70,6 +82,7 @@ public class SecurityToFixedIncomeFutureDefinitionConverterTest {
   public void test() {
     //TODO
   }
+
   private static class MyExchangeSource implements ExchangeSource {
     private static final Exchange EXCHANGE = new Exchange() {
 
@@ -101,24 +114,37 @@ public class SecurityToFixedIncomeFutureDefinitionConverterTest {
     };
 
     @Override
-    public Exchange getExchange(final UniqueId uid) {
+    public Exchange get(final UniqueId uid) {
       return EXCHANGE;
     }
+
     @Override
-    public Exchange getExchange(ObjectId objectId, VersionCorrection versionCorrection) {
+    public Exchange get(ObjectId objectId, VersionCorrection versionCorrection) {
       return EXCHANGE;
     }
+
     @Override
-    public Collection<? extends Exchange> getExchanges(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+    public Collection<? extends Exchange> get(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
       return Collections.singleton(EXCHANGE);
     }
+
     @Override
-    public Exchange getSingleExchange(final ExternalId identifier) {
+    public Exchange getSingle(final ExternalId identifier) {
       return EXCHANGE;
     }
+
     @Override
-    public Exchange getSingleExchange(final ExternalIdBundle identifierBundle) {
+    public Exchange getSingle(final ExternalIdBundle identifierBundle) {
       return EXCHANGE;
+    }
+
+    @Override
+    public Map<UniqueId, Exchange> get(Collection<UniqueId> uniqueIds) {
+      Map<UniqueId, Exchange> map = newHashMap();
+      for (UniqueId uniqueId : uniqueIds) {
+        map.put(uniqueId, get(uniqueId));
+      }
+      return map;
     }
   }
 }

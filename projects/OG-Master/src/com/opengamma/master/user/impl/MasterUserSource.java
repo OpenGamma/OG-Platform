@@ -34,7 +34,7 @@ public class MasterUserSource implements UserSource {
   public OGUser getUser(UniqueId uniqueId) {
     UserDocument userDoc = _userMaster.get(uniqueId);
     if (userDoc != null) {
-      return userDoc.getUser();
+      return userDoc.getObject();
     }
     return null;
   }
@@ -43,7 +43,7 @@ public class MasterUserSource implements UserSource {
   public OGUser getUser(ObjectId objectId, VersionCorrection versionCorrection) {
     UserDocument userDoc = _userMaster.get(objectId, versionCorrection);
     if (userDoc != null) {
-      return userDoc.getUser();
+      return userDoc.getObject();
     }
     return null;
   }

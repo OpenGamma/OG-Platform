@@ -45,18 +45,18 @@ public class EHCachingHolidaySourceTest {
 
   public void getHoliday_uniqueId() {
     final Holiday h = new SimpleHoliday();
-    when(_underlyingSource.getHoliday(UID)).thenReturn(h);
-    assertSame(_cachingSource.getHoliday(UID), h);
-    assertSame(_cachingSource.getHoliday(UID), h);
-    verify(_underlyingSource, times(1)).getHoliday(UID);
+    when(_underlyingSource.get(UID)).thenReturn(h);
+    assertSame(_cachingSource.get(UID), h);
+    assertSame(_cachingSource.get(UID), h);
+    verify(_underlyingSource, times(1)).get(UID);
   }
 
   public void getHoliday_objectId() {
     final Holiday h = new SimpleHoliday();
-    when(_underlyingSource.getHoliday(OID, VC)).thenReturn(h);
-    assertSame(_cachingSource.getHoliday(OID, VC), h);
-    assertSame(_cachingSource.getHoliday(OID, VC), h);
-    verify(_underlyingSource, times(1)).getHoliday(OID, VC);
+    when(_underlyingSource.get(OID, VC)).thenReturn(h);
+    assertSame(_cachingSource.get(OID, VC), h);
+    assertSame(_cachingSource.get(OID, VC), h);
+    verify(_underlyingSource, times(1)).get(OID, VC);
   }
 
 }

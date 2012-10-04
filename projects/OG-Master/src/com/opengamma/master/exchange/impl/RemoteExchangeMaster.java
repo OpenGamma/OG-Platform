@@ -20,7 +20,7 @@ import com.sun.jersey.api.client.GenericType;
 /**
  * Provides access to a remote {@link ExchangeMaster}.
  */
-public class RemoteExchangeMaster extends AbstractRemoteDocumentMaster<ExchangeDocument> implements ExchangeMaster {
+public class RemoteExchangeMaster extends AbstractRemoteDocumentMaster<ManageableExchange, ExchangeDocument> implements ExchangeMaster {
 
   /**
    * Creates an instance.
@@ -76,7 +76,7 @@ public class RemoteExchangeMaster extends AbstractRemoteDocumentMaster<ExchangeD
   @Override
   public ExchangeDocument add(final ExchangeDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getExchange(), "document.exchange");
+    ArgumentChecker.notNull(document.getObject(), "document.exchange");
 
     URI uri = DataExchangeMasterResource.uriAdd(getBaseUri());
     return accessRemote(uri).post(ExchangeDocument.class, document);
@@ -86,7 +86,7 @@ public class RemoteExchangeMaster extends AbstractRemoteDocumentMaster<ExchangeD
   @Override
   public ExchangeDocument update(final ExchangeDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getExchange(), "document.exchange");
+    ArgumentChecker.notNull(document.getObject(), "document.exchange");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
 
     URI uri = (new DataExchangeResource()).uri(getBaseUri(), document.getUniqueId(), null);
@@ -95,10 +95,10 @@ public class RemoteExchangeMaster extends AbstractRemoteDocumentMaster<ExchangeD
 
   //-------------------------------------------------------------------------
   @Override
-  public void remove(final UniqueId uniqueId) {
-    ArgumentChecker.notNull(uniqueId, "uniqueId");
+  public void remove(final ObjectIdentifiable objectIdentifiable) {
+    ArgumentChecker.notNull(objectIdentifiable, "objectIdentifiable");
 
-    URI uri = (new DataExchangeResource()).uri(getBaseUri(), uniqueId, null);
+    URI uri = (new DataExchangeResource()).uri(getBaseUri(), objectIdentifiable, null);
     accessRemote(uri).delete();
   }
 
@@ -116,7 +116,7 @@ public class RemoteExchangeMaster extends AbstractRemoteDocumentMaster<ExchangeD
   @Override
   public ExchangeDocument correct(final ExchangeDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getExchange(), "document.exchange");
+    ArgumentChecker.notNull(document.getObject(), "document.exchange");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
 
     URI uri = (new DataExchangeResource()).uriVersion(getBaseUri(), document.getUniqueId());
@@ -129,7 +129,7 @@ public class RemoteExchangeMaster extends AbstractRemoteDocumentMaster<ExchangeD
     ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
     for (ExchangeDocument replacementDocument : replacementDocuments) {
       ArgumentChecker.notNull(replacementDocument, "replacementDocument");
-      ArgumentChecker.notNull(replacementDocument.getExchange(), "replacementDocument.exchange");
+      ArgumentChecker.notNull(replacementDocument.getObject(), "replacementDocument.exchange");
     }
 
     URI uri = (new DataExchangeResource()).uriVersion(getBaseUri(), uniqueId);
@@ -143,7 +143,7 @@ public class RemoteExchangeMaster extends AbstractRemoteDocumentMaster<ExchangeD
     ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
     for (ExchangeDocument replacementDocument : replacementDocuments) {
       ArgumentChecker.notNull(replacementDocument, "replacementDocument");
-      ArgumentChecker.notNull(replacementDocument.getExchange(), "replacementDocument.exchange");
+      ArgumentChecker.notNull(replacementDocument.getObject(), "replacementDocument.exchange");
     }
     URI uri = (new DataExchangeResource()).uriAll(getBaseUri(), objectId, null);
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {
@@ -156,7 +156,7 @@ public class RemoteExchangeMaster extends AbstractRemoteDocumentMaster<ExchangeD
     ArgumentChecker.notNull(replacementDocuments, "replacementDocuments");
     for (ExchangeDocument replacementDocument : replacementDocuments) {
       ArgumentChecker.notNull(replacementDocument, "replacementDocument");
-      ArgumentChecker.notNull(replacementDocument.getExchange(), "replacementDocument.exchange");
+      ArgumentChecker.notNull(replacementDocument.getObject(), "replacementDocument.exchange");
     }
     URI uri = (new DataExchangeResource()).uri(getBaseUri(), objectId, null);
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {

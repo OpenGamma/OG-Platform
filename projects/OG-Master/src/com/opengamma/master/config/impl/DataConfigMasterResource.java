@@ -94,8 +94,8 @@ public class DataConfigMasterResource extends AbstractDataResource {
   @POST
   @Path("configs")
   public Response add(@Context UriInfo uriInfo, ConfigDocument request) {
-    ConfigDocument<?> result = getConfigMaster().add(request);
-    URI createdUri = DataConfigResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId(), result.getType());
+    ConfigDocument result = getConfigMaster().add(request);
+    URI createdUri = DataConfigResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
     return responseCreatedFudge(createdUri, result);
   }
 

@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.volatility;
 import javax.time.Instant;
 
 import com.opengamma.financial.analytics.volatility.cube.SwaptionVolatilityCubeSpecification;
+import com.opengamma.id.VersionCorrection;
 
 /**
  * A source of swaption volatility cube specifications.
@@ -27,5 +28,5 @@ public interface SwaptionVolatilityCubeSpecificationSource {
    * @param version The version instant, not null 
    * @return The specification, null if not found
    */
-  SwaptionVolatilityCubeSpecification getSpecification(String name, Instant version);
+  SwaptionVolatilityCubeSpecification getSpecification(String name, VersionCorrection versionCorrection);
 }

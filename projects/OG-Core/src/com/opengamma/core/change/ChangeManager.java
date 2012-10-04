@@ -5,15 +5,18 @@
  */
 package com.opengamma.core.change;
 
+import java.util.List;
+
 import javax.time.Instant;
 
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 
 /**
  * Manager for receiving and handling entity change events.
  * <p>
- * Events are sent when an entity is added, updated, removed or corrected.
+ * Events are sent when an entity is added, updated or removed.
  * <p>
  * This interface must be implemented in a thread-safe manner.
  */
@@ -45,10 +48,11 @@ public interface ChangeManager {
    * It is invoked whenever an entity has been successfully changed.
    * 
    * @param type  the type of change, not null
-   * @param beforeId  the unique identifier of the entity before the change, may be null
-   * @param afterId  the unique identifier of the entity after the change, may be null
+   * @param oid  the object id of the entity, not null
+   * @param versionFrom  the begining of a timespan of the change of the entity, not null
+   * @param versionTo  the end of a timespan of the change of the entity, may be null
    * @param versionInstant  the instant at which the change is recorded as happening, not null
    */
-  void entityChanged(final ChangeType type, final UniqueId beforeId, final UniqueId afterId, final Instant versionInstant);
+  void entityChanged(final ChangeType type, final ObjectId oid, final Instant versionFrom, final Instant versionTo, final Instant versionInstant);
 
 }

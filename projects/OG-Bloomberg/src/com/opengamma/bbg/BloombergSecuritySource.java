@@ -78,7 +78,7 @@ public final class BloombergSecuritySource implements SecuritySource {
 
   //-------------------------------------------------------------------------
   @Override
-  public Security getSecurity(UniqueId uniqueId) {
+  public Security get(UniqueId uniqueId) {
     if (BLOOMBERG_SCHEME.equals(uniqueId.getScheme()) == false) {
       throw new IllegalArgumentException("Identifier must be a Bloomberg unique identifier: " + uniqueId);
     }
@@ -86,7 +86,7 @@ public final class BloombergSecuritySource implements SecuritySource {
   }
 
   @Override
-  public Security getSecurity(ObjectId objectId, VersionCorrection versionCorrection) {
+  public Security get(ObjectId objectId, VersionCorrection versionCorrection) {
     if (BLOOMBERG_SCHEME.equals(objectId.getScheme()) == false) {
       throw new IllegalArgumentException("Identifier must be a Bloomberg object identifier: " + objectId);
     }
@@ -94,22 +94,22 @@ public final class BloombergSecuritySource implements SecuritySource {
   }
 
   @Override
-  public Collection<Security> getSecurities(ExternalIdBundle bundle) {
-    Security sec = getSecurity(bundle);
+  public Collection<Security> get(ExternalIdBundle bundle) {
+    Security sec = getSingle(bundle);
     if (sec != null) {
-      return Collections.<Security>singleton(getSecurity(bundle));
+      return Collections.<Security>singleton(getSingle(bundle));
     } else {
       return Collections.emptyList();
     }
   }
 
   @Override
-  public Collection<Security> getSecurities(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
-    return getSecurities(bundle);
+  public Collection<Security> get(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+    return get(bundle);
   }
 
   @Override
-  public ManageableSecurity getSecurity(ExternalIdBundle bundle) {
+  public ManageableSecurity getSingle(ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
     Validate.isTrue(bundle.size() > 0, "Cannot load security for empty identifiers");
     
@@ -123,8 +123,8 @@ public final class BloombergSecuritySource implements SecuritySource {
   }
 
   @Override
-  public Security getSecurity(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
-    return getSecurity(bundle);
+  public Security getSingle(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+    return getSingle(bundle);
   }
 
   //-------------------------------------------------------------------------
@@ -147,11 +147,11 @@ public final class BloombergSecuritySource implements SecuritySource {
   private Security getSecurity(String bbgIdValue) {
     ExternalId bbgId = ExternalSchemes.bloombergBuidSecurityId(bbgIdValue);
     ExternalIdBundle bundle = ExternalIdBundle.of(bbgId);
-    return getSecurity(bundle);
+    return getSingle(bundle);
   }
 
   @Override
-  public Map<UniqueId, Security> getSecurities(Collection<UniqueId> uniqueIds) {
+  public Map<UniqueId, Security> get(Collection<UniqueId> uniqueIds) {
     final Map<UniqueId, Security> result = Maps.newHashMap();
     Map<ExternalIdBundle, UniqueId> uniqueIdMap = createBundle2UniqueIdMap(uniqueIds);
     Map<ExternalIdBundle, ManageableSecurity> securities = _bloombergBulkSecurityLoader.loadSecurity(uniqueIdMap.keySet());

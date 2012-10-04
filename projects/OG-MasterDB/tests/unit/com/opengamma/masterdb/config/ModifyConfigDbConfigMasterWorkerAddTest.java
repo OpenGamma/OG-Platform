@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
@@ -43,18 +44,17 @@ public class ModifyConfigDbConfigMasterWorkerAddTest extends AbstractDbConfigMas
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_add_noConfig() {
-    ConfigDocument<ExternalId> doc = new ConfigDocument<ExternalId>(ExternalId.class);
-    _cfgMaster.add(doc);
+    ConfigItem<ExternalId> item = ConfigItem.of(null);
+    _cfgMaster.add(new ConfigDocument(item));
   }
 
   @Test
   public void test_add_add() {
     Instant now = Instant.now(_cfgMaster.getTimeSource());
     
-    ConfigDocument<ExternalId> doc = new ConfigDocument<ExternalId>(ExternalId.class);
-    doc.setName("TestConfig");
-    doc.setValue(ExternalId.of("A", "B"));
-    ConfigDocument<ExternalId> test = _cfgMaster.add(doc);
+    ConfigItem<ExternalId> item = ConfigItem.of(ExternalId.of("A", "B"));
+    item.setName("TestConfig");
+    ConfigDocument test = _cfgMaster.add(new ConfigDocument(item));
     
     UniqueId uniqueId = test.getUniqueId();
     assertNotNull(uniqueId);
@@ -66,18 +66,17 @@ public class ModifyConfigDbConfigMasterWorkerAddTest extends AbstractDbConfigMas
     assertEquals(null, test.getVersionToInstant());
     assertEquals(now, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    assertEquals(ExternalId.of("A", "B"), test.getValue());
+    assertEquals(ExternalId.of("A", "B"), test.getObject().getValue());
     assertEquals("TestConfig", test.getName());
   }
   
   @Test
   public void test_add_addThenGet() {
-    ConfigDocument<ExternalId> doc = new ConfigDocument<ExternalId>(ExternalId.class);
-    doc.setName("TestConfig");
-    doc.setValue(ExternalId.of("A", "B"));
-    ConfigDocument<ExternalId> added = _cfgMaster.add(doc);
+    ConfigItem<ExternalId> item = ConfigItem.of(ExternalId.of("A", "B"));
+    item.setName("TestConfig");
+    ConfigDocument added = _cfgMaster.add(new ConfigDocument(item));
     
-    ConfigDocument<ExternalId> test = _cfgMaster.get(added.getUniqueId(), ExternalId.class);
+    ConfigDocument test = _cfgMaster.get(added.getUniqueId());
     assertEquals(added, test);
   }
 

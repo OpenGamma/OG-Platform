@@ -30,6 +30,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter;
@@ -138,8 +139,8 @@ public class MarketDataSnapshotTool extends AbstractComponentTool {
       ConfigSearchRequest<ViewDefinition> searchRequest = new ConfigSearchRequest<ViewDefinition>(ViewDefinition.class);
       searchRequest.setName(viewDefinitionName);
       ConfigSearchResult<ViewDefinition> searchResult = configMaster.search(searchRequest);
-      for (ViewDefinition viewDefinition : searchResult.getValues()) {
-        task = new FutureTask<List<StructuredMarketDataSnapshot>>(new SingleSnapshotter(marketDataSnapshotter, viewProcessor, viewDefinition, viewExecutionOptions, task));
+      for (ConfigItem<ViewDefinition> viewDefinition : searchResult.getValues()) {
+        task = new FutureTask<List<StructuredMarketDataSnapshot>>(new SingleSnapshotter(marketDataSnapshotter, viewProcessor, viewDefinition.getValue(), viewExecutionOptions, task));
         executor.execute(task);
       }
     }

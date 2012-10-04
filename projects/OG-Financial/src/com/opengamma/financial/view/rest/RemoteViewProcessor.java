@@ -12,9 +12,13 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.JmsChangeManager;
+import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.config.impl.DataConfigSourceResource;
+import com.opengamma.core.config.impl.RemoteConfigSource;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
 import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter;
-import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.calc.EngineResourceManager;
@@ -36,6 +40,7 @@ public class RemoteViewProcessor implements ViewProcessor {
   private final ScheduledExecutorService _heartbeatScheduler;
   private final FudgeRestClient _client;
   private final JmsConnector _jmsConnector;
+  private final ChangeManager _changeManager;
 
   /**
    * Constructs an instance.
@@ -48,7 +53,8 @@ public class RemoteViewProcessor implements ViewProcessor {
     _baseUri = baseUri;
     _heartbeatScheduler = heartbeatScheduler;
     _client = FudgeRestClient.create();
-    _jmsConnector = jmsConnector;    
+    _jmsConnector = jmsConnector;
+    _changeManager = new JmsChangeManager(_jmsConnector); 
   }
   
   @Override
@@ -58,9 +64,10 @@ public class RemoteViewProcessor implements ViewProcessor {
   }
 
   @Override
-  public ViewDefinitionRepository getViewDefinitionRepository() {
-    URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessorResource.PATH_DEFINITION_REPOSITORY).build();
-    return new RemoteViewDefinitionRepository(uri);
+  public ConfigSource getConfigSource() {
+    URI uri = null; //TODO      get the uri for RemoteConfigSource !!!!!
+    
+    return new RemoteConfigSource(uri, _changeManager);
   }
 
   @Override

@@ -5,23 +5,28 @@
  */
 package com.opengamma.master.impl;
 
+import static com.google.common.collect.Maps.newHashMap;
+
 import java.net.URI;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
-import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueId;
+import com.opengamma.id.*;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.master.AbstractMaster;
+import com.opengamma.master.region.RegionDocument;
 
 /**
  * Abstract base class for remote masters.
  * <p>
  * A remote master provides a client-side view of a remote master over REST.
  */
-public abstract class AbstractRemoteDocumentMaster<D extends AbstractDocument> extends AbstractRemoteMaster implements AbstractMaster<D> {
+public abstract class AbstractRemoteDocumentMaster<T extends UniqueIdentifiable, D extends AbstractDocument<? extends T>> extends AbstractRemoteMaster implements AbstractMaster<T, D> {
 
   /**
    * Creates an instance.
@@ -67,6 +72,16 @@ public abstract class AbstractRemoteDocumentMaster<D extends AbstractDocument> e
     } else {
       return result.get(0);
     }
+  }
+
+  @Override
+  public Map<UniqueId, D> get(Collection<UniqueId> uniqueIds) {
+    Map<UniqueId, D> resultMap = newHashMap();
+    for (UniqueId uniqueId : uniqueIds) {
+      D doc = get(uniqueId);
+      resultMap.put(uniqueId, doc);
+    }
+    return resultMap;
   }
 
 }

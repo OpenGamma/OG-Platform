@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.volatility.surface;
 
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.id.UniqueId;
@@ -41,21 +42,19 @@ public class EquityOptionSurfaceConfigPopulator {
     }
     final VolatilitySurfaceDefinition<LocalDate, Double> usVolSurfaceDefinition =
         new VolatilitySurfaceDefinition<LocalDate, Double>("DEFAULT_EQUITY_OPTION", UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), "DJX Index"), equityOptionExpiries, strikes);
-    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(usVolSurfaceDefinition));
+    ConfigMasterUtils.storeByName(configMaster, makeConfig(usVolSurfaceDefinition));
   }
 
-  private static ConfigDocument<VolatilitySurfaceDefinition<LocalDate, Double>> makeConfigDocument(final VolatilitySurfaceDefinition<LocalDate, Double> definition) {
-    final ConfigDocument<VolatilitySurfaceDefinition<LocalDate, Double>> configDocument = new ConfigDocument<VolatilitySurfaceDefinition<LocalDate, Double>>(VolatilitySurfaceDefinition.class);
-    configDocument.setName(definition.getName());
-    configDocument.setValue(definition);
-    return configDocument;
+  private static ConfigItem<VolatilitySurfaceDefinition<LocalDate, Double>> makeConfig(final VolatilitySurfaceDefinition<LocalDate, Double> definition) {
+    final ConfigItem<VolatilitySurfaceDefinition<LocalDate, Double>> config = ConfigItem.of(definition);
+    config.setName(definition.getName());
+    return config;
   }
 
-  private static ConfigDocument<VolatilitySurfaceSpecification> makeConfigDocument(final VolatilitySurfaceSpecification specification) {
-    final ConfigDocument<VolatilitySurfaceSpecification> configDocument = new ConfigDocument<VolatilitySurfaceSpecification>(VolatilitySurfaceSpecification.class);
-    configDocument.setName(specification.getName());
-    configDocument.setValue(specification);
-    return configDocument;
+  private static ConfigItem<VolatilitySurfaceSpecification> makeConfig(final VolatilitySurfaceSpecification specification) {
+    final ConfigItem<VolatilitySurfaceSpecification> config = ConfigItem.of(specification);
+    config.setName(specification.getName());
+    return config;
   }
 
   private static void populateVolatilitySurfaceSpecifications(final ConfigMaster configMaster) {
@@ -64,6 +63,6 @@ public class EquityOptionSurfaceConfigPopulator {
     final VolatilitySurfaceSpecification usVolSurfaceSpec = new VolatilitySurfaceSpecification("DEFAULT_DJX_EQUITY_OPTION",
         UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), "DJX Index"), SurfaceAndCubeQuoteType.CALL_AND_PUT_STRIKE,
         surfaceInstrumentProvider);
-    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(usVolSurfaceSpec));
+    ConfigMasterUtils.storeByName(configMaster, makeConfig(usVolSurfaceSpec));
   }
 }

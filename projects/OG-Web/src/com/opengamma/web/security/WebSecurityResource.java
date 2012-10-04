@@ -88,7 +88,7 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
   }
 
   private URI updateSecurity(SecurityDocument doc) {
-    ExternalIdBundle identifierBundle = doc.getSecurity().getExternalIdBundle();
+    ExternalIdBundle identifierBundle = doc.getObject().getExternalIdBundle();
     data().getSecurityLoader().loadSecurity(Collections.singleton(identifierBundle));
     return WebSecurityResource.uri(data());
   }
@@ -133,17 +133,17 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
     ObjectId tsObjectId = null;
     HistoricalTimeSeriesSource htsSource = data().getHistoricalTimeSeriesSource();
     HistoricalTimeSeries series = htsSource.getHistoricalTimeSeries(
-        MarketDataRequirementNames.MARKET_VALUE, doc.getSecurity().getExternalIdBundle(), null, null, false, null, false, 0);
+        MarketDataRequirementNames.MARKET_VALUE, doc.getObject().getExternalIdBundle(), null, null, false, null, false, 0);
     if (series != null) {
       tsObjectId = series.getUniqueId().getObjectId();
     }
 
-    out.put("securityAttributes", doc.getSecurity().getAttributes());
+    out.put("securityAttributes", doc.getObject().getAttributes());
     out.put("securityDoc", doc); 
-    out.put("security", doc.getSecurity());
+    out.put("security", doc.getObject());
     out.put("timeSeriesId", tsObjectId);
     out.put("deleted", !doc.isLatest());
-    addSecuritySpecificMetaData(doc.getSecurity(), out);
+    addSecuritySpecificMetaData(doc.getObject(), out);
     out.put("customRenderer", FreemarkerCustomRenderer.INSTANCE);
     return out;
   }

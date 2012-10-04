@@ -1,24 +1,23 @@
 /**
- * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
- * Please see distribution for license.
+ *   Functional
+ *   Copyright (c) Daniel Kwiecinski. All rights reserved.
+ *   The use and distribution terms for this software are covered by the
+ *   Eclipse Public License 1.0 (http://opensource.org/licenses/eclipse-1.0.php)
+ *   which can be found in the file epl-v10.html at the root of this distribution.
+ *   By using this software in any fashion, you are agreeing to be bound by
+ *   the terms of this license.
+ *   You must not remove this notice, or any other, from this software.
  */
 package com.opengamma.util.functional;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+
+import com.sun.jersey.api.client.GenericType;
 
 /**
- * Set of functional-like utilities.
+ * Functional λ-flavoured java 
  */
-public class Functional {
+public class Functional<S> implements Iterable<S> {
 
   public static <T> T first(Collection<T> collection) {
     Iterator<T> it = collection.iterator();
@@ -45,7 +44,7 @@ public class Functional {
 
   /**
    * Creates an array of type V out of provided objects (of type V as well)
-   * 
+   *
    * @param <V>  the object type
    * @param array objects out of which the array is created
    * @return an array of type V out of provided objects
@@ -75,7 +74,7 @@ public class Functional {
 
   /**
    * Returns part of the provided map which keys are contained by provided set of keys.
-   * 
+   *
    * @param map  the map, not null
    * @param keys  the set of keys, not null
    * @param <K> type of map keys
@@ -94,7 +93,7 @@ public class Functional {
 
   /**
    * Creates reversed map of type Map<V, Collection<K>> from map of type Map<K, V>.
-   * 
+   *
    * @param map  the underlying map, not null
    * @param <K> type of map keys
    * @param <V> type of map values
@@ -117,7 +116,7 @@ public class Functional {
   /**
    * Merges source map into target one by mutating it (overwriting entries if
    * the target map already contains the same keys).
-   * 
+   *
    * @param target  the target map, not null
    * @param source  the source map, not null
    * @param <K> type of map keys
@@ -133,20 +132,26 @@ public class Functional {
 
   /**
    * Returns sorted list of elements from unsorted collection.
-   * 
+   *
    * @param coll  unsorted collection
    * @param <T> type if elements in unsorted collection (must implement Comparable interface)
    * @return list sorted using internal entries' {@link Comparable#compareTo(Object)} compareTo} method.
    */
-  @SuppressWarnings({"rawtypes", "unchecked" })
+  @SuppressWarnings("unchecked")
   public static <T extends Comparable> List<T> sort(final Collection<T> coll) {
     List<T> list = new ArrayList<T>(coll);
     Collections.sort(list);
     return list;
   }
 
+  public static <T extends Comparable> List<T> sortBy(final Collection<T> coll, java.util.Comparator<? super T> comparator) {
+    List<T> list = new ArrayList<T>(coll);
+    Collections.sort(list, comparator);
+    return list;
+  }
+
   public static <T, S> T reduce(final T acc, final Iterator<? extends S> iter, final Function2<T, S, T> reducer) {
-    T result = acc;    
+    T result = acc;
     while (iter.hasNext()) {
       result = reducer.execute(result, iter.next());
     }
@@ -168,6 +173,23 @@ public class Functional {
     }
   }
 
+  public static <T, S> Map<T, Collection<S>> groupBy(final Iterable<? extends S> c, final Function1<S, T> mapper) {
+    Map<T, Collection<S>> grouping = new HashMap<T, Collection<S>>();
+    final Iterator<? extends S> iter = c.iterator();
+    return reduce(grouping, iter, new Function2<Map<T, Collection<S>>, S, Map<T, Collection<S>>>() {
+      @Override
+      public Map<T, Collection<S>> execute(Map<T, Collection<S>> acc, S s) {
+        T key = mapper.execute(s);
+        if (!acc.containsKey(key)) {
+          acc.put(key, new ArrayList<S>());
+        }
+        Collection<S> values = acc.get(key);
+        values.add(s);
+        return acc;
+      }
+    });
+  }
+
   public static <T> boolean any(final Iterable<? extends T> c, final Function1<T, Boolean> predicate) {
     final Iterator<? extends T> iter = c.iterator();
     boolean any = false;
@@ -176,7 +198,7 @@ public class Functional {
     }
     return any;
   }
-  
+
   public static <T> boolean all(final Iterable<? extends T> c, final Function1<T, Boolean> predicate) {
     final Iterator<? extends T> iter = c.iterator();
     boolean all = true;
@@ -194,7 +216,7 @@ public class Functional {
       }
     };
   }
-  
+
   public static <T> List<T> filter(Iterable<? extends T> c, final Function1<T, Boolean> predicate) {
     return reduce(new LinkedList<T>(), c, new Function2<LinkedList<T>, T, LinkedList<T>>() {
       @Override
@@ -236,9 +258,10 @@ public class Functional {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Class for implementing a reducer.
-   * 
+   *
    * @param <T>  the first type
    * @param <S>  the second type
    */
@@ -263,7 +286,7 @@ public class Functional {
 
   /**
    * Class for implementing a reducer on a single type.
-   * 
+   *
    * @param <S>  the second type
    */
   public abstract static class ReduceSame<S> extends Function2<Iterable<? extends S>, Function2<S, S, S>, S> {
@@ -285,4 +308,170 @@ public class Functional {
     }
   }
 
+  public static <S> Functional<S> functional(Iterable<S> c) {
+    return new Functional<S>(c);
+  }
+
+  private Iterable<S> _collection;
+
+  private Functional(final Iterable<S> c) {
+    _collection = c;
+  }
+
+  public <T, X extends Collection<T>> Functional<T> map(X into, Function1<S, T> mapper) {
+    for (S arg : _collection) {
+      into.add(mapper.execute(arg));
+    }
+    return new Functional<T>(into);
+  }
+
+  public <T> Functional<T> map(Function1<S, T> mapper) {
+    return new Functional<T>(map(new LinkedList<T>(), _collection, mapper));
+  }
+
+  public Functional<S> filter(final Function1<S, Boolean> predicate) {
+    return new Functional<S>(reduce(new LinkedList<S>(), new Function2<LinkedList<S>, S, LinkedList<S>>() {
+      @Override
+      public LinkedList<S> execute(LinkedList<S> acc, S e) {
+        if (predicate.execute(e)) {
+          acc.add(e);
+        }
+        return acc;
+      }
+    }));
+  }
+
+
+  public <T> T reduce(final T acc, final Function2<T, S, T> reducer) {
+    T result = acc;
+    for (S s : _collection) {
+      result = reducer.execute(result, s);
+    }
+    return result;
+  }
+
+
+  static <T> ArrayList<T> iterable2collection(Iterable<T> iterable) {
+    ArrayList<T> collection;
+    if (iterable instanceof Collection) {
+      collection = new ArrayList<T>((Collection<T>) iterable);
+    } else {
+      collection = new ArrayList<T>();
+      for (T s : iterable) {
+        collection.add(s);
+      }
+    }
+    return collection;
+  }
+
+  public Functional<S> sortBy(java.util.Comparator<? super S> comparator) {
+    Collection<S> collection = iterable2collection(_collection);
+    Collections.sort((List<S>) collection, comparator);
+    return new Functional<S>(collection);
+  }
+
+  public Functional<S> sort() {
+    GenericType<S> gtS = new GenericType<S>() {
+    };
+    GenericType<Comparable<? extends S>> gtCS = new GenericType<Comparable<? extends S>>() {
+    };
+
+    if (gtCS.getRawClass().isAssignableFrom(gtS.getRawClass())) {
+      java.util.Comparator<? super S> comparator = new Comparator<S>() {
+        @SuppressWarnings("unchecked")
+        @Override
+        public int compare(S s, S s1) {
+          return ((Comparable<S>) s).compareTo(s1);
+        }
+      };
+      return sortBy(comparator);
+    } else {
+      return this;
+    }
+  }
+
+  public S first() {
+    ArrayList<? extends S> collection = iterable2collection(_collection);
+
+    if (collection.isEmpty()) {
+      return null;
+    } else {
+      return collection.get(collection.size() - 1);
+    }
+  }
+
+  public S last() {
+    ArrayList<? extends S> collection = iterable2collection(_collection);
+
+    if (collection.isEmpty()) {
+      return null;
+    } else {
+      return collection.get(collection.size() - 1);
+    }
+  }
+
+  public Functional<S> first(int count) {
+    ArrayList<? extends S> collection = iterable2collection(_collection);
+
+    if (collection.isEmpty()) {
+      return new Functional<S>(Collections.<S>emptyList());
+    } else {
+      Collection<S> c = new ArrayList<S>();
+      try {
+        for (int i = 0; i <= count; i++) {
+          c.add(collection.get(i));
+        }
+      } catch (IndexOutOfBoundsException e) {
+        // ok we have got them all
+      }
+      return new Functional<S>(c);
+    }
+  }
+
+  public Functional<S> last(int count) {
+    ArrayList<? extends S> collection = iterable2collection(_collection);
+
+    if (collection.isEmpty()) {
+      return new Functional<S>(Collections.<S>emptyList());
+    } else {
+      List<S> c = new ArrayList<S>();
+      try {
+        for (int i = (count - 1); i >= 0; i--) {
+          c.add(collection.get(i));
+        }
+      } catch (IndexOutOfBoundsException e) {
+        // ok we have got them all
+      }
+      Collections.reverse(c);
+      return new Functional<S>(c);
+    }
+  }
+
+  public Functional<S> each(Function1<S, ?> sideEfectsExecutor) {
+    for (S s : this) {
+      sideEfectsExecutor.execute(s);
+    }
+    return this;
+  }
+
+  public Iterable<S> value() {
+    return _collection;
+  }
+
+  public Collection<S> asCollection() {
+    return iterable2collection(_collection);
+  }
+  
+  public List<S> asList() {
+    return iterable2collection(_collection);
+  }
+
+  @Override
+  public Iterator<S> iterator() {
+    return _collection.iterator();
+  }
+
+
 }
+
+

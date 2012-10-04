@@ -1,6 +1,7 @@
 package com.opengamma.web.server.push.rest;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -12,8 +13,10 @@ import javax.ws.rs.core.MediaType;
 import org.json.JSONArray;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.engine.view.ViewDefinitionRepository;
-import com.opengamma.id.UniqueId;
+import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.config.impl.ConfigItem;
+import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.id.VersionCorrection;
 
 /**
  * REST interface that produces a JSON list of view definition names for populating the web client.
@@ -21,10 +24,10 @@ import com.opengamma.id.UniqueId;
 @Path("viewdefinitions")
 public class ViewDefinitionEntriesResource {
 
-  private final ViewDefinitionRepository _viewDefinitionRepository;
+  private final ConfigSource _configSource;
 
-  public ViewDefinitionEntriesResource(ViewDefinitionRepository viewDefinitionRepository) {
-    _viewDefinitionRepository = viewDefinitionRepository;
+  public ViewDefinitionEntriesResource(ConfigSource configSource) {
+    _configSource = configSource;
   }
 
   /**
@@ -33,12 +36,10 @@ public class ViewDefinitionEntriesResource {
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public String getViewDefinitionEntriesJson() {
-    Map<UniqueId, String> viewDefs = _viewDefinitionRepository.getDefinitionEntries();
+    Collection<ConfigItem<ViewDefinition>> viewDefs = _configSource.getAll(ViewDefinition.class, VersionCorrection.LATEST);
     List<Map<String, Object>> viewDefList = new ArrayList<Map<String, Object>>(viewDefs.size());
-    for (Map.Entry<UniqueId, String> entry : viewDefs.entrySet()) {
-      UniqueId id = entry.getKey();
-      String name = entry.getValue();
-      viewDefList.add(ImmutableMap.<String, Object>of("id", id, "name", name));
+    for (ConfigItem<ViewDefinition> viewDef : viewDefs) {
+      viewDefList.add(ImmutableMap.<String, Object>of("id", viewDef.getUniqueId(), "name", viewDef.getName()));
     }
     return new JSONArray(viewDefList).toString();
   }

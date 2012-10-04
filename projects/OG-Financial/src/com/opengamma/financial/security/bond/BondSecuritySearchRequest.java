@@ -59,10 +59,10 @@ public class BondSecuritySearchRequest extends SecuritySearchRequest {
    * @return true if matches
    */
   public boolean matches(SecurityDocument document) {
-    if (super.matches(document) == false || document.getSecurity() instanceof BondSecurity == false) {
+    if (super.matches(document) == false || document.getObject() instanceof BondSecurity == false) {
       return false;
     }
-    BondSecurity security = (BondSecurity) document.getSecurity();
+    BondSecurity security = (BondSecurity) document.getObject();
     if (getIssuerName() != null && RegexUtils.wildcardMatch(getIssuerName(), security.getIssuerName()) == false) {
       return false;
     }

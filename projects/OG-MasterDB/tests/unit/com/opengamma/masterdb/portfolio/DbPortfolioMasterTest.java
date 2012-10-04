@@ -70,11 +70,11 @@ public class DbPortfolioMasterTest extends DbTest {
   @Test(description = "[PLAT-1723]") 
   public void test_duplicate_names() throws Exception {
     PortfolioDocument a = new PortfolioDocument();
-    a.setPortfolio( new ManageablePortfolio("Name"));
+    a.setObject( new ManageablePortfolio("Name"));
     _prtMaster.add(a);
     
     PortfolioDocument b = new PortfolioDocument();
-    b.setPortfolio( new ManageablePortfolio("Name"));
+    b.setObject( new ManageablePortfolio("Name"));
     _prtMaster.add(b);
     
     PortfolioSearchResult search = _prtMaster.search(new PortfolioSearchRequest());
@@ -89,28 +89,28 @@ public class DbPortfolioMasterTest extends DbTest {
     {
       String portfolioName = "Portfolio";
       PortfolioDocument a = new PortfolioDocument();
-      a.setPortfolio( new ManageablePortfolio(portfolioName));
+      a.setObject( new ManageablePortfolio(portfolioName));
       _prtMaster.add(a);
       for (int j = 0;j<10;j++){
         ManageablePortfolioNode child = new ManageablePortfolioNode("X");
         child.addChildNode(new ManageablePortfolioNode("Y"));
-        a.getPortfolio().getRootNode().addChildNode(child);
+        a.getObject().getRootNode().addChildNode(child);
         _prtMaster.update(a);
       }
       
       PortfolioDocument b = new PortfolioDocument();
-      b.setPortfolio( new ManageablePortfolio(portfolioName));
+      b.setObject( new ManageablePortfolio(portfolioName));
       for (int j = 0;j<10;j++){
         ManageablePortfolioNode childB = new ManageablePortfolioNode("X");
         childB.addChildNode(new ManageablePortfolioNode("Y"));
-        b.getPortfolio().getRootNode().addChildNode(childB);
+        b.getObject().getRootNode().addChildNode(childB);
       }
       _prtMaster.add(b);
   
       for (int j = 0;j<10;j++){
         ManageablePortfolioNode child = new ManageablePortfolioNode("X");
         child.addChildNode(new ManageablePortfolioNode("Y"));
-        a.getPortfolio().getRootNode().addChildNode(child);
+        a.getObject().getRootNode().addChildNode(child);
         _prtMaster.update(a);
         
         PortfolioSearchRequest request = new PortfolioSearchRequest();

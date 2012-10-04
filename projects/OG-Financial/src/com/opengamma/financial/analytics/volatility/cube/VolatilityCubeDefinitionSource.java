@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.volatility.cube;
 
 import javax.time.InstantProvider;
 
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -32,6 +33,6 @@ public interface VolatilityCubeDefinitionSource {
    * @param version  the version instant, not null
    * @return the definition, null if not found
    */
-  VolatilityCubeDefinition getDefinition(Currency currency, String name, InstantProvider version);
+  VolatilityCubeDefinition getDefinition(Currency currency, String name, VersionCorrection versionCorrection);
 
 }

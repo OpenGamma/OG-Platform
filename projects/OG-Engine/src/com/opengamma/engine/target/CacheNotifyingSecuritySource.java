@@ -47,8 +47,8 @@ public class CacheNotifyingSecuritySource implements SecuritySource {
   }
 
   @Override
-  public Security getSecurity(final UniqueId uniqueId) {
-    final Security security = getUnderlying().getSecurity(uniqueId);
+  public Security get(final UniqueId uniqueId) {
+    final Security security = getUnderlying().get(uniqueId);
     if (security != null) {
       getCache().cacheSecurities(Collections.singleton(security));
     }
@@ -56,8 +56,8 @@ public class CacheNotifyingSecuritySource implements SecuritySource {
   }
 
   @Override
-  public Map<UniqueId, Security> getSecurities(final Collection<UniqueId> uniqueIds) {
-    final Map<UniqueId, Security> securities = getUnderlying().getSecurities(uniqueIds);
+  public Map<UniqueId, Security> get(final Collection<UniqueId> uniqueIds) {
+    final Map<UniqueId, Security> securities = getUnderlying().get(uniqueIds);
     if (!securities.isEmpty()) {
       getCache().cacheSecurities(securities.values());
     }
@@ -65,8 +65,8 @@ public class CacheNotifyingSecuritySource implements SecuritySource {
   }
 
   @Override
-  public Security getSecurity(final ObjectId objectId, final VersionCorrection versionCorrection) {
-    final Security security = getUnderlying().getSecurity(objectId, versionCorrection);
+  public Security get(final ObjectId objectId, final VersionCorrection versionCorrection) {
+    final Security security = getUnderlying().get(objectId, versionCorrection);
     if (security != null) {
       getCache().cacheSecurities(Collections.singleton(security));
     }
@@ -74,8 +74,8 @@ public class CacheNotifyingSecuritySource implements SecuritySource {
   }
 
   @Override
-  public Collection<Security> getSecurities(final ExternalIdBundle bundle, final VersionCorrection versionCorrection) {
-    final Collection<Security> securities = getUnderlying().getSecurities(bundle, versionCorrection);
+  public Collection<Security> get(final ExternalIdBundle bundle, final VersionCorrection versionCorrection) {
+    final Collection<Security> securities = getUnderlying().get(bundle, versionCorrection);
     if (!securities.isEmpty()) {
       getCache().cacheSecurities(securities);
     }
@@ -83,8 +83,8 @@ public class CacheNotifyingSecuritySource implements SecuritySource {
   }
 
   @Override
-  public Collection<Security> getSecurities(final ExternalIdBundle bundle) {
-    final Collection<Security> securities = getUnderlying().getSecurities(bundle);
+  public Collection<Security> get(final ExternalIdBundle bundle) {
+    final Collection<Security> securities = getUnderlying().get(bundle);
     if (!securities.isEmpty()) {
       getCache().cacheSecurities(securities);
     }
@@ -92,8 +92,8 @@ public class CacheNotifyingSecuritySource implements SecuritySource {
   }
 
   @Override
-  public Security getSecurity(final ExternalIdBundle bundle) {
-    final Security security = getUnderlying().getSecurity(bundle);
+  public Security getSingle(final ExternalIdBundle bundle) {
+    final Security security = getUnderlying().getSingle(bundle);
     if (security != null) {
       getCache().cacheSecurities(Collections.singleton(security));
     }
@@ -101,8 +101,8 @@ public class CacheNotifyingSecuritySource implements SecuritySource {
   }
 
   @Override
-  public Security getSecurity(final ExternalIdBundle bundle, final VersionCorrection versionCorrection) {
-    final Security security = getUnderlying().getSecurity(bundle, versionCorrection);
+  public Security getSingle(final ExternalIdBundle bundle, final VersionCorrection versionCorrection) {
+    final Security security = getUnderlying().getSingle(bundle, versionCorrection);
     if (security != null) {
       getCache().cacheSecurities(Collections.singleton(security));
     }

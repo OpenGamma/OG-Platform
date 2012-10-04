@@ -28,7 +28,7 @@ import com.opengamma.util.paging.Paging;
  * <p>
  * This snapshot master does not support versioning of snapshots.
  */
-public class InMemorySnapshotMaster extends SimpleAbstractInMemoryMaster<MarketDataSnapshotDocument> implements MarketDataSnapshotMaster {
+public class InMemorySnapshotMaster extends SimpleAbstractInMemoryMaster<ManageableMarketDataSnapshot, MarketDataSnapshotDocument> implements MarketDataSnapshotMaster {
   //TODO: This is not hardened for production, as the data in the master can
   // be altered from outside as it is the same object
 
@@ -129,18 +129,18 @@ public class InMemorySnapshotMaster extends SimpleAbstractInMemoryMaster<MarketD
   @Override
   public MarketDataSnapshotDocument add(MarketDataSnapshotDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getSnapshot(), "document.snapshot");
+    ArgumentChecker.notNull(document.getObject(), "document.snapshot");
 
     final ObjectId objectId = _objectIdSupplier.get();
     final UniqueId uniqueId = objectId.atVersion("");
-    final ManageableMarketDataSnapshot snapshot = document.getSnapshot();
+    final ManageableMarketDataSnapshot snapshot = document.getObject();
     snapshot.setUniqueId(uniqueId);
     final Instant now = Instant.now();
     final MarketDataSnapshotDocument doc = new MarketDataSnapshotDocument(snapshot);
     doc.setVersionFromInstant(now);
     doc.setCorrectionFromInstant(now);
     _store.put(objectId, doc);
-    _changeManager.entityChanged(ChangeType.ADDED, null, uniqueId, now);
+    _changeManager.entityChanged(ChangeType.ADDED, objectId, doc.getVersionFromInstant(), doc.getVersionToInstant(), now);
     return doc;
   }
 
@@ -149,7 +149,7 @@ public class InMemorySnapshotMaster extends SimpleAbstractInMemoryMaster<MarketD
   public MarketDataSnapshotDocument update(MarketDataSnapshotDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
-    ArgumentChecker.notNull(document.getSnapshot(), "document.snapshot");
+    ArgumentChecker.notNull(document.getObject(), "document.snapshot");
     final UniqueId uniqueId = document.getUniqueId();
     validateUniqueId(uniqueId);
     final Instant now = Instant.now();
@@ -164,19 +164,19 @@ public class InMemorySnapshotMaster extends SimpleAbstractInMemoryMaster<MarketD
     if (_store.replace(uniqueId.getObjectId(), storedDocument, document) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }
-    _changeManager.entityChanged(ChangeType.UPDATED, uniqueId, document.getUniqueId(), now);
+    _changeManager.entityChanged(ChangeType.CHANGED, document.getObjectId(), document.getVersionFromInstant(), document.getVersionToInstant(), now);
     return document;
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public void remove(UniqueId uniqueId) {
-    ArgumentChecker.notNull(uniqueId, "uniqueId");
-    validateUniqueId(uniqueId);
-    if (_store.remove(uniqueId.getObjectId()) == null) {
-      throw new DataNotFoundException("Security not found: " + uniqueId);
+  public void remove(ObjectIdentifiable objectIdentifiable) {
+    ArgumentChecker.notNull(objectIdentifiable, "objectIdentifiable");
+    validateObjectId(objectIdentifiable.getObjectId());
+    if (_store.remove(objectIdentifiable.getObjectId()) == null) {
+      throw new DataNotFoundException("Security not found: " + objectIdentifiable);
     }
-    _changeManager.entityChanged(ChangeType.REMOVED, uniqueId, null, Instant.now());
+    _changeManager.entityChanged(ChangeType.REMOVED, objectIdentifiable.getObjectId(), null, null, Instant.now());
   }
 
   //-------------------------------------------------------------------------
@@ -202,6 +202,6 @@ public class InMemorySnapshotMaster extends SimpleAbstractInMemoryMaster<MarketD
   @Override
   protected void validateDocument(MarketDataSnapshotDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getSnapshot(), "document.snapshot");
+    ArgumentChecker.notNull(document.getObject(), "document.snapshot");
   }
 }

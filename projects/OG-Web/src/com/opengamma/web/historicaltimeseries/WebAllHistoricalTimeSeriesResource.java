@@ -147,8 +147,8 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
       HistoricalTimeSeriesInfoSearchResult searchResult = data().getHistoricalTimeSeriesMaster().search(searchRequest);
       for (HistoricalTimeSeriesInfoDocument doc : searchResult.getDocuments()) {
         // replace ids with one's sorted the way we want.
-        ExternalIdBundleWithDates withCustomIdOrdering = doc.getInfo().getExternalIdBundle().withCustomIdOrdering(comparator);
-        doc.getInfo().setExternalIdBundle(withCustomIdOrdering);
+        ExternalIdBundleWithDates withCustomIdOrdering = doc.getObject().getExternalIdBundle().withCustomIdOrdering(comparator);
+        doc.getObject().setExternalIdBundle(withCustomIdOrdering);
       }
       out.put("searchResult", searchResult);
       out.put("paging", new WebPaging(searchResult.getPaging(), data().getUriInfo()));
@@ -366,7 +366,7 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
     try {
       // Try to fetch the data-points
       series = data().getHistoricalTimeSeriesMaster().getTimeSeries(
-          info.getInfo().getTimeSeriesObjectId(), VersionCorrection.LATEST);
+          info.getObject().getTimeSeriesObjectId(), VersionCorrection.LATEST);
     } catch (DataNotFoundException ex) {
       // If not there, return an empty collection of data-points
       series = new ManageableHistoricalTimeSeries();

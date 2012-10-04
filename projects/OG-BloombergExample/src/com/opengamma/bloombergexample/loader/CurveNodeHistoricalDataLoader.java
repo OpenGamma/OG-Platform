@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 import com.opengamma.bloombergexample.tool.AbstractExampleTool;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.ircurve.ConfigDBInterpolatedYieldCurveSpecificationBuilder;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithIdentifier;
@@ -38,6 +39,7 @@ import com.opengamma.financial.convention.DefaultConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
@@ -183,7 +185,7 @@ public class CurveNodeHistoricalDataLoader extends AbstractExampleTool {
     ConfigSearchRequest<YieldCurveDefinition> searchReq = new ConfigSearchRequest<YieldCurveDefinition>(YieldCurveDefinition.class);
     searchReq.setName(nameExpr);
     ConfigSearchResult<YieldCurveDefinition> result = configMaster.search(searchReq);
-    for (ConfigDocument<YieldCurveDefinition> document : result.getDocuments()) {
+    for (ConfigItem<YieldCurveDefinition> document : result.getValues()) {
       results.add(document.getValue());
     }
     return results;
@@ -200,12 +202,12 @@ public class CurveNodeHistoricalDataLoader extends AbstractExampleTool {
     Set<ExternalId> externalIds = newHashSet();
     for (String name : names) {
       s_logger.info("Processing curve " + name);
-      YieldCurveDefinition curveDefinition = configSource.getByName(YieldCurveDefinition.class, name, null);
+      ConfigItem<YieldCurveDefinition> curveDefinition = configSource.get(YieldCurveDefinition.class, name, VersionCorrection.LATEST);
       if (curveDefinition != null) {
         InterpolatedYieldCurveSpecificationBuilder builder = new ConfigDBInterpolatedYieldCurveSpecificationBuilder(configSource);
         for (LocalDate date : dates) {
           s_logger.info("Processing curve date " + date);
-          InterpolatedYieldCurveSpecification curveSpec = builder.buildCurve(date, curveDefinition);
+          InterpolatedYieldCurveSpecification curveSpec = builder.buildCurve(date, curveDefinition.getValue());
           for (FixedIncomeStripWithIdentifier strip : curveSpec.getStrips()) {
             s_logger.info("Processing strip " + strip.getSecurity());
             externalIds.add(strip.getSecurity());
@@ -229,12 +231,12 @@ public class CurveNodeHistoricalDataLoader extends AbstractExampleTool {
     Set<ExternalIdBundle> externalIds = newHashSet();
     for (String name : names) {
       s_logger.info("Processing curve " + name);
-      YieldCurveDefinition curveDefinition = configSource.getByName(YieldCurveDefinition.class, name, null);
+      ConfigItem<YieldCurveDefinition> curveDefinition = configSource.get(YieldCurveDefinition.class, name, VersionCorrection.LATEST);
       if (curveDefinition != null) {
         InterpolatedYieldCurveSpecificationBuilder builder = new ConfigDBInterpolatedYieldCurveSpecificationBuilder(configSource);
         for (LocalDate date : dates) {
           s_logger.info("Processing curve date " + date);
-          InterpolatedYieldCurveSpecification curveSpec = builder.buildCurve(date, curveDefinition);
+          InterpolatedYieldCurveSpecification curveSpec = builder.buildCurve(date, curveDefinition.getValue());
           for (FixedIncomeStripWithIdentifier strip : curveSpec.getStrips()) {
             s_logger.info("Processing strip " + strip.getSecurity());
             if (strip.getStrip().getInstrumentType().equals(StripInstrumentType.FUTURE)) {

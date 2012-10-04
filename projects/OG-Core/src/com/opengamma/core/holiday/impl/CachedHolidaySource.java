@@ -5,19 +5,20 @@
  */
 package com.opengamma.core.holiday.impl;
 
+import static com.google.common.collect.Maps.newHashMap;
+
+import java.util.Collection;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.HolidayType;
-import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
+import com.opengamma.id.*;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.map.HashMap2;
 import com.opengamma.util.map.HashMap3;
@@ -69,13 +70,13 @@ public class CachedHolidaySource implements HolidaySource {
   }
 
   @Override
-  public Holiday getHoliday(final UniqueId uniqueId) {
+  public Holiday get(final UniqueId uniqueId) {
     Object result = _getHoliday1.get(uniqueId);
     if (result != null) {
       return getOrThrow(result);
     }
     try {
-      final Holiday h = getUnderlying().getHoliday(uniqueId);
+      final Holiday h = getUnderlying().get(uniqueId);
       result = _getHoliday1.putIfAbsent(uniqueId, safeNull(h));
       if (result != null) {
         return getOrThrow(result);
@@ -88,13 +89,13 @@ public class CachedHolidaySource implements HolidaySource {
   }
 
   @Override
-  public Holiday getHoliday(final ObjectId objectId, final VersionCorrection versionCorrection) {
+  public Holiday get(final ObjectId objectId, final VersionCorrection versionCorrection) {
     Object result = _getHoliday2.get(objectId, versionCorrection);
     if (result != null) {
       return getOrThrow(result);
     }
     try {
-      final Holiday h = getUnderlying().getHoliday(objectId, versionCorrection);
+      final Holiday h = getUnderlying().get(objectId, versionCorrection);
       result = _getHoliday2.putIfAbsent(objectId, versionCorrection, safeNull(h));
       if (result != null) {
         return getOrThrow(result);
@@ -160,6 +161,20 @@ public class CachedHolidaySource implements HolidaySource {
       _isHoliday3.putIfAbsent(dateToCheck, holidayType, regionOrExchangeId, ex);
       throw ex;
     }
+  }
+
+  @Override
+  public Map<UniqueId, Holiday> get(Collection<UniqueId> uniqueIds) {
+    Map<UniqueId, Holiday> result = newHashMap();
+    for (UniqueId uniqueId : uniqueIds) {
+      try {
+        Holiday object = get(uniqueId);
+        result.put(uniqueId, object);
+      } catch (DataNotFoundException ex) {
+        // do nothing
+      }
+    }
+    return result;
   }
 
 }

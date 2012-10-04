@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.ircurve;
 
 import javax.time.InstantProvider;
 
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -34,6 +35,6 @@ public interface InterpolatedYieldCurveDefinitionSource {
    * @param versionAsOf  the version instant, null for latest
    * @return the definition, null if not found
    */
-  YieldCurveDefinition getDefinition(Currency currency, String name, InstantProvider versionAsOf);
+  YieldCurveDefinition getDefinition(Currency currency, String name, VersionCorrection versionCorrection);
 
 }

@@ -227,7 +227,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
       return false;
     }
     final RegionDocument document = (RegionDocument) obj;
-    final ManageableRegion region = document.getRegion();
+    final ManageableRegion region = document.getObject();
     if (getObjectIds() != null && getObjectIds().contains(document.getObjectId()) == false) {
       return false;
     }

@@ -15,9 +15,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.examples.historical.SimulatedHistoricalDataGenerator;
 import com.opengamma.examples.tool.AbstractExampleTool;
-import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRating;
@@ -51,17 +51,15 @@ public class ExampleTimeSeriesRatingLoader extends AbstractExampleTool {
   //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
-    ConfigMaster configMaster = getToolContext().getConfigMaster();
-    ConfigDocument<HistoricalTimeSeriesRating> configDoc = new ConfigDocument<HistoricalTimeSeriesRating>(HistoricalTimeSeriesRating.class);
+    ConfigMaster configMaster = getToolContext().getConfigMaster();    
     List<HistoricalTimeSeriesRatingRule> rules = new ArrayList<HistoricalTimeSeriesRatingRule>();
     rules.add(new HistoricalTimeSeriesRatingRule(DATA_SOURCE_NAME, "BLOOMBERG", 1));
     rules.add(new HistoricalTimeSeriesRatingRule(DATA_SOURCE_NAME, SimulatedHistoricalDataGenerator.OG_DATA_SOURCE, 2));
     rules.add(new HistoricalTimeSeriesRatingRule(DATA_PROVIDER_NAME, "CMPL", 1));
     rules.add(new HistoricalTimeSeriesRatingRule(DATA_PROVIDER_NAME, SimulatedHistoricalDataGenerator.OG_DATA_PROVIDER, 2));
     HistoricalTimeSeriesRating ratingConfig = new HistoricalTimeSeriesRating(rules);
-    configDoc.setName(DEFAULT_CONFIG_NAME);
-    configDoc.setValue(ratingConfig);
-    ConfigMasterUtils.storeByName(configMaster, configDoc);
+    ConfigItem<HistoricalTimeSeriesRating> config = ConfigItem.of(ratingConfig, DEFAULT_CONFIG_NAME, HistoricalTimeSeriesRating.class);
+    ConfigMasterUtils.storeByName(configMaster, config);
   }
 
 }

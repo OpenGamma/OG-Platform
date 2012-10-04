@@ -5,13 +5,7 @@
  */
 package com.opengamma.web.server;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.regex.Pattern;
 
@@ -35,6 +29,8 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
+import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -42,6 +38,7 @@ import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.execution.ExecutionFlags;
@@ -49,16 +46,12 @@ import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.financial.aggregation.PortfolioAggregationFunctions;
-import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryResult;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
+import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.config.impl.MasterConfigSource;
+import com.opengamma.master.marketdatasnapshot.*;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.util.ArgumentChecker;
@@ -83,6 +76,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     
   private final ViewProcessor _viewProcessor;
   private final MarketDataSnapshotMaster _snapshotMaster;
+  private final ConfigSource _configSource;
   private final UserPrincipal _user;
   private final ResultConverterCache _resultConverterCache;
   private final NamedMarketDataSpecificationRepository _namedMarketDataSpecificationRepository;
@@ -92,7 +86,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
   public LiveResultsService(final Bayeux bayeux, final ViewProcessor viewProcessor,
       final PositionSource positionSource, final SecuritySource securitySource,
       final PortfolioMaster userPortfolioMaster, final PositionMaster userPositionMaster,
-      final ManageableViewDefinitionRepository userViewDefinitionRepository,
+      final ConfigMaster userConfigMaster,
       final MarketDataSnapshotMaster snapshotMaster, final UserPrincipal user, final ExecutorService executorService,
       final FudgeContext fudgeContext, final NamedMarketDataSpecificationRepository namedMarketDataSpecificationRepository,
       final PortfolioAggregationFunctions portfolioAggregators, final ComputationTargetResolver computationTargetResolver) {
@@ -103,14 +97,15 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     ArgumentChecker.notNull(securitySource, "securitySource");
     ArgumentChecker.notNull(userPortfolioMaster, "userPortfolioMaster");
     ArgumentChecker.notNull(userPositionMaster, "userPositionMaster");
-    ArgumentChecker.notNull(userViewDefinitionRepository, "userViewDefinitionRepository");
+    ArgumentChecker.notNull(userConfigMaster, "userConfigMaster");
     ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
     ArgumentChecker.notNull(user, "user");
     ArgumentChecker.notNull(executorService, "executorService");
     ArgumentChecker.notNull(namedMarketDataSpecificationRepository, "namedMarketDataSpecificationRepository");
     ArgumentChecker.notNull(portfolioAggregators, "portfolioAggregators");
     ArgumentChecker.notNull(computationTargetResolver, "computationTargetResolver");
-    
+
+    _configSource = new MasterConfigSource(userConfigMaster);
     _viewProcessor = viewProcessor;
     _snapshotMaster = snapshotMaster;
     _user = user;
@@ -118,10 +113,10 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     _resultConverterCache = new ResultConverterCache(fudgeContext);
     _namedMarketDataSpecificationRepository = namedMarketDataSpecificationRepository;
     _aggregatedViewDefinitionManager = new AggregatedViewDefinitionManager(positionSource, securitySource,
-        viewProcessor.getViewDefinitionRepository(), userViewDefinitionRepository, userPortfolioMaster, userPositionMaster,
-        portfolioAggregators.getMappedFunctions());
+      userConfigMaster, userPortfolioMaster, userPositionMaster,
+      portfolioAggregators.getMappedFunctions());
     _computationTargetResolver = computationTargetResolver;
-    viewProcessor.getViewDefinitionRepository().changeManager().addChangeListener(new ChangeListener() {
+    viewProcessor.getConfigSource().changeManager().addChangeListener(new ChangeListener() {
 
       @Override
       public void entityChanged(ChangeEvent event) {
@@ -286,16 +281,16 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
 
   private List<Map<String, String>> getViewDefinitions() {
     List<Map<String, String>> result = new ArrayList<Map<String, String>>();
-    Map<UniqueId, String> availableViewEntries = _viewProcessor.getViewDefinitionRepository().getDefinitionEntries();
-    s_logger.debug("Available view entries: " + availableViewEntries);
-    for (Map.Entry<UniqueId, String> entry : availableViewEntries.entrySet()) {
-      if (s_guidPattern.matcher(entry.getValue()).find()) {
-        s_logger.debug("Ignoring view definition which appears to have an auto-generated name: {}", entry.getValue());
+    Collection<ConfigItem<ViewDefinition>> views = _configSource.getAll(ViewDefinition.class, VersionCorrection.LATEST);
+    s_logger.debug("Available view entries: " + views);
+    for (ConfigItem<ViewDefinition> view : views) {
+      if (s_guidPattern.matcher(view.getName()).find()) {
+        s_logger.debug("Ignoring view definition which appears to have an auto-generated name: {}", view.getName());
         continue;
       }
       Map<String, String> resultEntry = new HashMap<String, String>();
-      resultEntry.put("id", entry.getKey().toLatest().toString());
-      resultEntry.put("name", entry.getValue());
+      resultEntry.put("id", view.getUniqueId().toLatest().toString());
+      resultEntry.put("name", view.getName());
       result.add(resultEntry);
     }
     Collections.sort(result, new Comparator<Map<String, String>>() {
@@ -460,7 +455,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
   
   private boolean validateViewDefinitionId(UniqueId viewDefinitionId) {
     try {
-      return _viewProcessor.getViewDefinitionRepository().getDefinition(viewDefinitionId) != null;
+      return _configSource.get(viewDefinitionId) != null;
     } catch (Exception e) {
       s_logger.warn("Error validating view definition ID " + viewDefinitionId, e);
       return false;

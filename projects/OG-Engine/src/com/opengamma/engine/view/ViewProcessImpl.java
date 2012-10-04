@@ -121,7 +121,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
 
   @Override
   public ViewDefinition getLatestViewDefinition() {
-    return getProcessContext().getViewDefinitionRepository().getDefinition(getDefinitionId());
+    return getProcessContext().getConfigSource().getConfig(ViewDefinition.class, getDefinitionId());
   }
 
   @Override
@@ -395,7 +395,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   /**
    * Sets the current view process state.
    *
-   * @param computationState  the new view process state
+   * @param state  the new view process state
    */
   private void setState(ViewProcessState state) {
     _state = state;
@@ -435,7 +435,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   /**
    * Sets the current computation job's thread
    *
-   * @param recalcThread  the current computation job thread
+   * @param computationJobThread  the current computation job thread
    */
   private void setComputationThread(Thread computationJobThread) {
     _computationThread = computationJobThread;

@@ -9,9 +9,10 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.DefinitionAnnotater;
@@ -48,8 +49,8 @@ public class ViewIdFunction extends AbstractFunctionInvoker implements Published
     _meta = info.annotate(new MetaFunction(Categories.VIEW, "ViewId", getParameters(), this));
   }
   
-  public UniqueId invoke(ViewDefinitionRepository repository, String viewDefinitionName) {
-    ViewDefinition definition = repository.getDefinition(viewDefinitionName);
+  public UniqueId invoke(ConfigSource configSource, String viewDefinitionName) {
+    ViewDefinition definition = configSource.getConfig(ViewDefinition.class, viewDefinitionName, VersionCorrection.LATEST);
     if (definition == null) {
       throw new DataNotFoundException("No view definition found with name '" + viewDefinitionName + "'");
     }
@@ -58,9 +59,9 @@ public class ViewIdFunction extends AbstractFunctionInvoker implements Published
 
   @Override
   protected Object invokeImpl(SessionContext sessionContext, Object[] parameters) throws AsynchronousExecution {
-    final ViewDefinitionRepository repository = sessionContext.getGlobalContext().getViewProcessor().getViewDefinitionRepository();
+    final ConfigSource configSource = sessionContext.getGlobalContext().getViewProcessor().getConfigSource();
     final String viewDefinitionName = (String) parameters[0];
-    return invoke(repository, viewDefinitionName);
+    return invoke(configSource, viewDefinitionName);
   }
 
   @Override

@@ -9,6 +9,7 @@ import javax.time.Instant;
 
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.analytics.volatility.SwaptionVolatilityCubeSpecificationSource;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -25,14 +26,14 @@ public class ConfigDBSwaptionVolatilityCubeSpecificationSource implements Swapti
   @Override
   public SwaptionVolatilityCubeSpecification getSpecification(final String name) {
     ArgumentChecker.notNull(name, "name");
-    return _configSource.getLatestByName(SwaptionVolatilityCubeSpecification.class, name);
+    return _configSource.getLatest(SwaptionVolatilityCubeSpecification.class, name);
   }
 
   @Override
-  public SwaptionVolatilityCubeSpecification getSpecification(final String name, final Instant version) {
+  public SwaptionVolatilityCubeSpecification getSpecification(final String name, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(name, "name");
-    ArgumentChecker.notNull(version, "version");
-    return _configSource.getByName(SwaptionVolatilityCubeSpecification.class, name, version);
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    return _configSource.getConfig(SwaptionVolatilityCubeSpecification.class, name, versionCorrection);
   }
 
 }

@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.master.AbstractMaster;
@@ -23,23 +24,23 @@ import com.opengamma.master.AbstractSearchResult;
  * @param <D> master document type
  * @param <M> master type
  */
-/* package */abstract class CombinedMaster<D extends AbstractDocument, M extends AbstractMaster<D>> implements AbstractMaster<D> {
+/* package */abstract class CombinedMaster<T extends UniqueIdentifiable, D extends AbstractDocument<? extends T>, M extends AbstractMaster<T, D>> implements AbstractMaster<T, D> {
 
   private static final Logger s_logger = LoggerFactory.getLogger(CombinedMaster.class);
 
-  private final CombiningMaster<D, M, ?> _combining;
+  private final CombiningMaster<T, D, M, ?> _combining;
   private final M _sessionMaster;
   private final M _userMaster;
   private final M _globalMaster;
 
-  protected CombinedMaster(final CombiningMaster<D, M, ?> combining, final M sessionMaster, final M userMaster, final M globalMaster) {
+  protected CombinedMaster(final CombiningMaster<T, D, M, ?> combining, final M sessionMaster, final M userMaster, final M globalMaster) {
     _combining = combining;
     _sessionMaster = sessionMaster;
     _userMaster = userMaster;
     _globalMaster = globalMaster;
   }
 
-  private CombiningMaster<D, M, ?> getCombining() {
+  private CombiningMaster<T, D, M, ?> getCombining() {
     return _combining;
   }
 
@@ -181,18 +182,18 @@ import com.opengamma.master.AbstractSearchResult;
   }
 
   @Override
-  public void remove(final UniqueId uniqueId) {
-    final M master = getMasterByScheme(uniqueId.getScheme());
+  public void remove(final ObjectIdentifiable objectIdentifiable) {
+    final M master = getMasterByScheme(objectIdentifiable.getObjectId().getScheme());
     if (master != null) {
-      master.remove(uniqueId);
+      master.remove(objectIdentifiable);
     }
     (new Try<Void>() {
       @Override
       public Void tryMaster(final M master) {
-        master.remove(uniqueId);
+        master.remove(objectIdentifiable);
         return null;
       }
-    }).each(uniqueId.getScheme());
+    }).each(objectIdentifiable.getObjectId().getScheme());
   }
 
   @Override

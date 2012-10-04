@@ -59,7 +59,7 @@ public class DataConfigSourceResourceTest {
     
     when(_underlying.getConfig(eq(SimpleExchange.class), eq(UID))).thenReturn(target);
     
-    Response test = _resource.get(OID.toString(), SimpleExchange.class.getName(), UID.getVersion(), "", "");
+    Response test = _resource.get(UID.toString());
     assertEquals(Status.OK.getStatusCode(), test.getStatus());
     assertSame(target, test.getEntity());
   }
@@ -71,7 +71,7 @@ public class DataConfigSourceResourceTest {
     
     when(_underlying.getConfig(eq(SimpleExchange.class), eq(OID), eq(VC))).thenReturn(target);
     
-    Response test = _resource.get(OID.toString(), SimpleExchange.class.getName(), null, VC.getVersionAsOfString(), VC.getCorrectedToString());
+    Response test = _resource.getByOidVersionCorrection(OID.toString(), VC.toString());
     assertEquals(Status.OK.getStatusCode(), test.getStatus());
     assertSame(target, test.getEntity());
   }
@@ -81,13 +81,12 @@ public class DataConfigSourceResourceTest {
   public void testSearch() {
     final SimpleExchange target = new SimpleExchange();
     target.setName("Test");
-    Collection targetColl = ImmutableList.of(target);
     
-    when(_underlying.getConfigs(eq(SimpleExchange.class), eq(NAME), eq(VC))).thenReturn(targetColl);
+    when(_underlying.getConfig(eq(SimpleExchange.class), eq(NAME), eq(VC))).thenReturn(target);
     
     Response test = _resource.search(SimpleExchange.class.getName(), VC.getVersionAsOfString(), VC.getCorrectedToString(), NAME);
     assertEquals(Status.OK.getStatusCode(), test.getStatus());
-    assertEquals(FudgeListWrapper.of(targetColl), test.getEntity());
+    assertEquals(target, test.getEntity());
   }
 
 }

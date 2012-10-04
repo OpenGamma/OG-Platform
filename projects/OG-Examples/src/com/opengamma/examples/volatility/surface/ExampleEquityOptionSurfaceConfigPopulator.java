@@ -7,6 +7,7 @@ package com.opengamma.examples.volatility.surface;
 
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceInstrumentProvider;
@@ -48,18 +49,12 @@ public class ExampleEquityOptionSurfaceConfigPopulator {
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(usVolSurfaceDefinition));
   }
 
-  private static ConfigDocument<VolatilitySurfaceDefinition<LocalDate, Double>> makeConfigDocument(final VolatilitySurfaceDefinition<LocalDate, Double> definition) {
-    final ConfigDocument<VolatilitySurfaceDefinition<LocalDate, Double>> configDocument = new ConfigDocument<VolatilitySurfaceDefinition<LocalDate, Double>>(VolatilitySurfaceDefinition.class);
-    configDocument.setName(definition.getName());
-    configDocument.setValue(definition);
-    return configDocument;
+  private static ConfigItem<VolatilitySurfaceDefinition<LocalDate, Double>> makeConfigDocument(final VolatilitySurfaceDefinition<LocalDate, Double> definition) {
+    return ConfigItem.of(definition, definition.getName(), VolatilitySurfaceDefinition.class);
   }
 
-  private static ConfigDocument<VolatilitySurfaceSpecification> makeConfigDocument(final VolatilitySurfaceSpecification specification) {
-    final ConfigDocument<VolatilitySurfaceSpecification> configDocument = new ConfigDocument<VolatilitySurfaceSpecification>(VolatilitySurfaceSpecification.class);
-    configDocument.setName(specification.getName());
-    configDocument.setValue(specification);
-    return configDocument;
+  private static ConfigItem<VolatilitySurfaceSpecification> makeConfigDocument(final VolatilitySurfaceSpecification specification) {
+    return ConfigItem.of(specification, specification.getName(), VolatilitySurfaceSpecification.class);
   }
 
   private static void populateVolatilitySurfaceSpecifications(final ConfigMaster configMaster) {

@@ -7,6 +7,7 @@ package com.opengamma.core.change;
 
 import javax.time.Instant;
 
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 
 /**
@@ -36,8 +37,7 @@ public final class DummyChangeManager implements ChangeManager {
   }
 
   @Override
-  public void entityChanged(ChangeType type, UniqueId beforeId, UniqueId afterId, Instant versionInstant) {
+  public void entityChanged(ChangeType type, ObjectId oid, Instant versionFrom, Instant versionTo, Instant versionInstant) {
     // dummy manager does nothing
   }
-
 }

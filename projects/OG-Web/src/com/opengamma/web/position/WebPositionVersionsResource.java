@@ -79,7 +79,7 @@ public class WebPositionVersionsResource extends AbstractWebPositionResource {
     FlexiBean out = super.createRootData();
     PositionDocument doc = data().getPosition();
     out.put("positionDoc", doc);
-    out.put("position", doc.getPosition());
+    out.put("position", doc.getObject());
     out.put("deleted", !doc.isLatest());
     return out;
   }

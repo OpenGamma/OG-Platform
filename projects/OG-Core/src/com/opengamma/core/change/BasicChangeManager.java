@@ -11,6 +11,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.time.Instant;
 
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
@@ -79,19 +80,10 @@ public class BasicChangeManager implements ChangeManager {
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Handles an event when an entity changes.
-   * <p>
-   * This method should only be called by the owner of the change manager.
-   * 
-   * @param type  the type of change, not null
-   * @param beforeId  the unique identifier of the entity before the change, may be null
-   * @param afterId  the unique identifier of the entity after the change, may be null
-   * @param versionInstant  the instant at which the change is recorded as happening, not null
-   */
+
   @Override
-  public void entityChanged(final ChangeType type, final UniqueId beforeId, final UniqueId afterId, final Instant versionInstant) {
-    ChangeEvent event = new ChangeEvent(type, beforeId, afterId, versionInstant);
+  public void entityChanged(ChangeType type, ObjectId oid, Instant versionFrom, Instant versionTo, Instant versionInstant) {
+    ChangeEvent event = new ChangeEvent(type, oid, versionFrom, versionTo, versionInstant);
     handleEntityChanged(event);
   }
 

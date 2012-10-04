@@ -75,7 +75,7 @@ public class CurrentMarketCapAggregationFunction implements AggregationFunction<
   private FinancialSecurityVisitor<Double> _equityOptionSecurityVisitor = new FinancialSecurityVisitorAdapter<Double>() {
     @Override
     public Double visitEquityOptionSecurity(EquityOptionSecurity security) {
-      EquitySecurity underlying = (EquitySecurity) _secSource.getSecurity(ExternalIdBundle.of(security.getUnderlyingId()));
+      EquitySecurity underlying = (EquitySecurity) _secSource.get(ExternalIdBundle.of(security.getUnderlyingId()));
       return getCurrentMarketCap(underlying);
     }
   };

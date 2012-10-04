@@ -19,6 +19,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Lists;
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -41,12 +42,12 @@ public class EHCachingMasterConfigSourceTest {
   private UnitTestConfigMaster _underlyingConfigMaster;
   private EHCachingMasterConfigSource _cachingSource;
   
-  private static final ConfigDocument<ExternalId> DOC;
+  private static final ConfigItem<ExternalId> ITEM;
   static {
-    ConfigDocument<ExternalId> doc = new ConfigDocument<ExternalId>(ExternalId.class);
-    doc.setName(CONFIG_NAME);
-    doc.setValue(CONFIG);
-    DOC = doc;
+    ConfigItem<ExternalId> item = new ConfigItem<ExternalId>(CONFIG);
+    item.setName(CONFIG_NAME);
+    item.setType(ExternalId.class);
+    ITEM = item;
   }
  
   @BeforeMethod
@@ -58,55 +59,55 @@ public class EHCachingMasterConfigSourceTest {
   }
 
   public void getConfig_uniqueId() {
-    UniqueId uniqueId = _underlyingConfigMaster.add(DOC).getUniqueId();
+    UniqueId uniqueId = _underlyingConfigMaster.add(new ConfigDocument(ITEM)).getUniqueId();
     assertSame(_cachingSource.getConfig(ExternalId.class, uniqueId), CONFIG);
     assertSame(_cachingSource.getConfig(ExternalId.class, uniqueId), CONFIG);
     assertEquals(1, _underlyingConfigMaster.getCounter().get());
   }
   
   public void getConfig_objectId() {
-    UniqueId uniqueId = _underlyingConfigMaster.add(DOC).getUniqueId();
+    UniqueId uniqueId = _underlyingConfigMaster.add(new ConfigDocument(ITEM)).getUniqueId();
     assertSame(_cachingSource.getConfig(ExternalId.class, uniqueId.getObjectId(), VC), CONFIG);
     assertSame(_cachingSource.getConfig(ExternalId.class, uniqueId.getObjectId(), VC), CONFIG);
     assertEquals(2, _underlyingConfigMaster.getCounter().get());
   }
   
   public void getByName() {
-    final Instant versionAsOf = Instant.now();
-    _underlyingConfigMaster.add(DOC);
-    assertSame(_cachingSource.getByName(ExternalId.class, CONFIG_NAME, versionAsOf), CONFIG);
-    assertSame(_cachingSource.getByName(ExternalId.class, CONFIG_NAME, versionAsOf), CONFIG);
+    final VersionCorrection versionCorrection = VersionCorrection.of(Instant.now(), null);
+    _underlyingConfigMaster.add(new ConfigDocument(ITEM));
+    assertSame(_cachingSource.get(ExternalId.class, CONFIG_NAME, versionCorrection), CONFIG);
+    assertSame(_cachingSource.get(ExternalId.class, CONFIG_NAME, versionCorrection), CONFIG);
     assertEquals(1, _underlyingConfigMaster.getCounter().get());
   }
   
   public void getLatestByName() {
-    _underlyingConfigMaster.add(DOC);
-    assertSame(_cachingSource.getLatestByName(ExternalId.class, CONFIG_NAME), CONFIG);
-    assertSame(_cachingSource.getLatestByName(ExternalId.class, CONFIG_NAME), CONFIG);
+    _underlyingConfigMaster.add(new ConfigDocument(ITEM));
+    assertSame(_cachingSource.getLatest(ExternalId.class, CONFIG_NAME), CONFIG);
+    assertSame(_cachingSource.getLatest(ExternalId.class, CONFIG_NAME), CONFIG);
     assertEquals(1, _underlyingConfigMaster.getCounter().get());
   }
 
   public void getConfigs() {
     final Collection<ExternalId> configs = Lists.newArrayList(CONFIG, CONFIG);
-    _underlyingConfigMaster.add(DOC);
-    _underlyingConfigMaster.add(DOC);
+    _underlyingConfigMaster.add(new ConfigDocument(ITEM));
+    _underlyingConfigMaster.add(new ConfigDocument(ITEM));
     
-    assertEquals(configs, _cachingSource.getConfigs(ExternalId.class, CONFIG_NAME, VC));
-    assertEquals(configs, _cachingSource.getConfigs(ExternalId.class, CONFIG_NAME, VC));
+    assertEquals(configs, _cachingSource.getConfig(ExternalId.class, CONFIG_NAME, VC));
+    assertEquals(configs, _cachingSource.getConfig(ExternalId.class, CONFIG_NAME, VC));
     assertEquals(1, _underlyingConfigMaster.getCounter().get());
   }
   
   public void getLatestByNameAfterUpdate() {
-    ConfigDocument<ExternalId> addedDoc = _underlyingConfigMaster.add(DOC);
-    assertSame(_cachingSource.getLatestByName(ExternalId.class, CONFIG_NAME), CONFIG);
-    assertSame(_cachingSource.getLatestByName(ExternalId.class, CONFIG_NAME), CONFIG);
+    ConfigDocument addedDoc = _underlyingConfigMaster.add(new ConfigDocument(ITEM));
+    assertSame(_cachingSource.getLatest(ExternalId.class, CONFIG_NAME), CONFIG);
+    assertSame(_cachingSource.getLatest(ExternalId.class, CONFIG_NAME), CONFIG);
     assertEquals(1, _underlyingConfigMaster.getCounter().get());
     
     final ExternalId lastestConfig = ExternalId.of ("Test", "sec1");
-    addedDoc.setValue(lastestConfig);
+    addedDoc.setObject(new ConfigItem<ExternalId>(lastestConfig));
     _underlyingConfigMaster.update(addedDoc);
-    assertSame(_cachingSource.getLatestByName(ExternalId.class, CONFIG_NAME), lastestConfig);
-    assertSame(_cachingSource.getLatestByName(ExternalId.class, CONFIG_NAME), lastestConfig);
+    assertSame(_cachingSource.getLatest(ExternalId.class, CONFIG_NAME), lastestConfig);
+    assertSame(_cachingSource.getLatest(ExternalId.class, CONFIG_NAME), lastestConfig);
     assertEquals(2, _underlyingConfigMaster.getCounter().get());
   }
   
@@ -119,22 +120,16 @@ public class EHCachingMasterConfigSourceTest {
     }
 
     @Override
-    public ConfigDocument<?> get(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+    public ConfigDocument get(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
       _counter.getAndIncrement();
       return super.get(objectId, versionCorrection);
     }
 
     @Override
-    public <T> ConfigDocument<T> get(ObjectIdentifiable objectId, VersionCorrection versionCorrection, Class<T> clazz) {
-      _counter.getAndIncrement();
-      return super.get(objectId, versionCorrection, clazz);
-    }
-
-    @Override
-    public <T> ConfigSearchResult<T> search(ConfigSearchRequest<T> request) {
+    public ConfigSearchResult search(ConfigSearchRequest request) {
       _counter.getAndIncrement();
       return super.search(request);
-    }   
+    }       
   }
   
 }

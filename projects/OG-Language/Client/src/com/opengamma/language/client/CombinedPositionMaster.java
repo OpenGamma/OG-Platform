@@ -5,7 +5,11 @@
  */
 package com.opengamma.language.client;
 
+import static com.google.common.collect.Maps.newHashMap;
+
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.ObjectIdentifiable;
@@ -16,9 +20,9 @@ import com.opengamma.master.position.*;
  * A {@link PositionMaster} that combines the behavior of the masters
  * in the session, user and global contexts. 
  */
-public class CombinedPositionMaster extends CombinedMaster<PositionDocument, PositionMaster> implements PositionMaster {
+public class CombinedPositionMaster extends CombinedMaster<ManageablePosition, PositionDocument, PositionMaster> implements PositionMaster {
 
-  /* package */CombinedPositionMaster(final CombiningMaster<PositionDocument, PositionMaster, ?> combining, final PositionMaster sessionMaster, final PositionMaster userMaster,
+  /* package */CombinedPositionMaster(final CombiningMaster<ManageablePosition, PositionDocument, PositionMaster, ?> combining, final PositionMaster sessionMaster, final PositionMaster userMaster,
       final PositionMaster globalMaster) {
     super(combining, sessionMaster, userMaster, globalMaster);
   }
@@ -76,4 +80,12 @@ public class CombinedPositionMaster extends CombinedMaster<PositionDocument, Pos
     return null;
   }
 
+  @Override
+  public Map<UniqueId, PositionDocument> get(Collection<UniqueId> uniqueIds) {
+    Map<UniqueId, PositionDocument> map = newHashMap();
+    for (UniqueId uniqueId : uniqueIds) {
+      map.put(uniqueId, get(uniqueId));
+    }
+    return map;
+  }
 }

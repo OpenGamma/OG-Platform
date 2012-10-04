@@ -22,7 +22,7 @@ import com.opengamma.engine.function.CompiledFunctionRepository;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
-import com.opengamma.engine.test.OptimisticMarketDataAvailabilityProvider;
+import com.opengamma.engine.OptimisticMarketDataAvailabilityProvider;
 import com.opengamma.engine.view.compilation.PortfolioCompiler;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;

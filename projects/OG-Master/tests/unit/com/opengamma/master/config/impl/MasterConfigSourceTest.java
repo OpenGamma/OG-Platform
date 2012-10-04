@@ -16,6 +16,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
@@ -27,12 +28,11 @@ import com.opengamma.master.config.ConfigSearchRequest;
 @Test
 public class MasterConfigSourceTest {
 
-  private static final ConfigDocument<ExternalId> DOC;
+  private static final ConfigItem<ExternalId> ITEM;
   static {
-    ConfigDocument<ExternalId> doc = new ConfigDocument<ExternalId>(ExternalId.class);
-    doc.setName("Test");
-    doc.setValue(ExternalId.of("A", "B"));
-    DOC = doc;
+    ConfigItem<ExternalId> item = new ConfigItem<ExternalId>(ExternalId.of("A", "B"));
+    item.setName("Test");    
+    ITEM = item;
   }
   
   private MasterConfigSource _configSource;
@@ -40,8 +40,8 @@ public class MasterConfigSourceTest {
   @BeforeMethod
   public void setUp() throws Exception {
     InMemoryConfigMaster configMaster = new InMemoryConfigMaster();
-    ConfigDocument<?> added = configMaster.add(DOC);
-    DOC.setUniqueId(added.getUniqueId());
+    ConfigDocument added = configMaster.add(new ConfigDocument(ITEM));
+    ITEM.setUniqueId(added.getUniqueId());
     _configSource = new MasterConfigSource(configMaster);
   }
 
@@ -65,13 +65,13 @@ public class MasterConfigSourceTest {
     ConfigSearchRequest<ExternalId> request = new ConfigSearchRequest<ExternalId>();
     request.setName("Test");
     request.setType(ExternalId.class);
-    List<ExternalId> searchResult = _configSource.search(request);
+    List<ConfigItem<ExternalId>> searchResult = _configSource.search(request);
     assertTrue(searchResult.size() == 1);
-    assertEquals(ExternalId.of("A", "B"), searchResult.get(0));
+    assertEquals(ExternalId.of("A", "B"), searchResult.get(0).getValue());
   }
 
   public void get() throws Exception {
-    ExternalId test = _configSource.getConfig(ExternalId.class, DOC.getUniqueId());
+    ExternalId test = _configSource.getConfig(ExternalId.class, ITEM.getUniqueId());
     assertEquals(ExternalId.of("A", "B"), test);
   }
 

@@ -122,9 +122,9 @@ public class ExampleBondPortfolioLoader extends AbstractExampleTool {
    * @return the equity security, not null
    */
   protected BondSecurity loadFullSecurity(SecurityDocument shellDoc) {
-    s_logger.warn("Loading security {} {}", shellDoc.getUniqueId(), shellDoc.getSecurity().getName());
+    s_logger.warn("Loading security {} {}", shellDoc.getUniqueId(), shellDoc.getObject().getName());
     SecurityDocument doc = getToolContext().getSecurityMaster().get(shellDoc.getUniqueId());
-    BondSecurity sec = (BondSecurity) doc.getSecurity();
+    BondSecurity sec = (BondSecurity) doc.getObject();
     return sec;
   }
 

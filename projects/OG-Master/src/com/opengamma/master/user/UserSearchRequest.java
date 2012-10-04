@@ -64,7 +64,7 @@ public class UserSearchRequest extends AbstractSearchRequest {
       return false;
     }
     UserDocument userDoc = (UserDocument) document;
-    ManageableOGUser user = userDoc.getUser();
+    ManageableOGUser user = userDoc.getObject();
     if ((getUserName() != null) && !getUserName().equals(user.getName())) {
       return false;
     }

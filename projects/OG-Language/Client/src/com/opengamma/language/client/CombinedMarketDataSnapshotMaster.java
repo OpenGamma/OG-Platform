@@ -5,9 +5,14 @@
  */
 package com.opengamma.language.client;
 
+import static com.google.common.collect.Maps.newHashMap;
+
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.marketdatasnapshot.*;
@@ -16,9 +21,9 @@ import com.opengamma.master.marketdatasnapshot.*;
  * A {@link MarketDataSnapshotMaster} that combines the behavior of the masters
  * in the session, user and global contexts. 
  */
-public class CombinedMarketDataSnapshotMaster extends CombinedMaster<MarketDataSnapshotDocument, MarketDataSnapshotMaster> implements MarketDataSnapshotMaster {
+public class CombinedMarketDataSnapshotMaster extends CombinedMaster<ManageableMarketDataSnapshot, MarketDataSnapshotDocument, MarketDataSnapshotMaster> implements MarketDataSnapshotMaster {
 
-  /* package */CombinedMarketDataSnapshotMaster(final CombiningMaster<MarketDataSnapshotDocument, MarketDataSnapshotMaster, ?> combining,
+  /* package */CombinedMarketDataSnapshotMaster(final CombiningMaster<ManageableMarketDataSnapshot, MarketDataSnapshotDocument, MarketDataSnapshotMaster, ?> combining,
       final MarketDataSnapshotMaster sessionMaster, final MarketDataSnapshotMaster userMaster, final MarketDataSnapshotMaster globalMaster) {
     super(combining, sessionMaster, userMaster, globalMaster);
   }
@@ -42,6 +47,15 @@ public class CombinedMarketDataSnapshotMaster extends CombinedMaster<MarketDataS
       result.getDocuments().addAll(getGlobalMaster().search(request).getDocuments());
     }
     return result;
+  }
+
+  @Override
+  public Map<UniqueId, MarketDataSnapshotDocument> get(Collection<UniqueId> uniqueIds) {
+    Map<UniqueId, MarketDataSnapshotDocument> map = newHashMap();
+    for (UniqueId uniqueId : uniqueIds) {
+      map.put(uniqueId, get(uniqueId));      
+    }
+    return map;
   }
 
   /**

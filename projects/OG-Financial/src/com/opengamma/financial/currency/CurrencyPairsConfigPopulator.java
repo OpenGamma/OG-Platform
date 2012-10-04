@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
@@ -57,9 +58,8 @@ public class CurrencyPairsConfigPopulator {
   }
 
   private static void storeCurrencyMatrix(final ConfigMaster cfgMaster, final String name, final CurrencyPairs currencyPairs) {
-    ConfigDocument<CurrencyPairs> doc = new ConfigDocument<CurrencyPairs>(CurrencyPairs.class);
+    ConfigItem<CurrencyPairs> doc = ConfigItem.of(currencyPairs);
     doc.setName(name);
-    doc.setValue(currencyPairs);
     ConfigMasterUtils.storeByName(cfgMaster, doc);
   }
 

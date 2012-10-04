@@ -65,17 +65,18 @@ public class EHCachingConfigSourceTest {
   
   public void getByName() {
     final Instant versionAsOf = Instant.now();
-    when(_underlyingSource.getByName(ExternalId.class, CONFIG_NAME, versionAsOf)).thenReturn(CONFIG);
-    assertSame(_cachingSource.getByName(ExternalId.class, CONFIG_NAME, versionAsOf), CONFIG);
-    assertSame(_cachingSource.getByName(ExternalId.class, CONFIG_NAME, versionAsOf), CONFIG);
-    verify(_underlyingSource, times(1)).getByName(ExternalId.class, CONFIG_NAME, versionAsOf);
+    final VersionCorrection versionCorrection = VersionCorrection.ofVersionAsOf(versionAsOf);
+    when(_underlyingSource.getConfig(ExternalId.class, CONFIG_NAME, versionCorrection)).thenReturn(CONFIG);
+    assertSame(_cachingSource.getConfig(ExternalId.class, CONFIG_NAME, versionCorrection), CONFIG);
+    assertSame(_cachingSource.getConfig(ExternalId.class, CONFIG_NAME, versionCorrection), CONFIG);
+    verify(_underlyingSource, times(1)).getConfig(ExternalId.class, CONFIG_NAME, versionCorrection);
   }
   
   public void getLatestByName() {
-    when(_underlyingSource.getLatestByName(ExternalId.class, CONFIG_NAME)).thenReturn(CONFIG);
-    assertSame(_cachingSource.getLatestByName(ExternalId.class, CONFIG_NAME), CONFIG);
-    assertSame(_cachingSource.getLatestByName(ExternalId.class, CONFIG_NAME), CONFIG);
-    verify(_underlyingSource, times(2)).getLatestByName(ExternalId.class, CONFIG_NAME);
+    when(_underlyingSource.getLatest(ExternalId.class, CONFIG_NAME)).thenReturn(CONFIG);
+    assertSame(_cachingSource.getLatest(ExternalId.class, CONFIG_NAME), CONFIG);
+    assertSame(_cachingSource.getLatest(ExternalId.class, CONFIG_NAME), CONFIG);
+    verify(_underlyingSource, times(2)).getLatest(ExternalId.class, CONFIG_NAME);
   }
   
 }

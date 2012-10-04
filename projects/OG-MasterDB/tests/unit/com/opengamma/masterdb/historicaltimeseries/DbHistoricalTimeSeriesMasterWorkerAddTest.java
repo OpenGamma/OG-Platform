@@ -77,7 +77,7 @@ public class DbHistoricalTimeSeriesMasterWorkerAddTest extends AbstractDbHistori
     assertEquals(null, test.getVersionToInstant());
     assertEquals(now, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    ManageableHistoricalTimeSeriesInfo testInfo = test.getInfo();
+    ManageableHistoricalTimeSeriesInfo testInfo = test.getObject();
     assertNotNull(testInfo);
     assertEquals(uniqueId, testInfo.getUniqueId());
     assertEquals("Added", testInfo.getName());

@@ -38,10 +38,7 @@ import com.opengamma.core.security.SecurityLink;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.DefaultComputationTargetResolver;
+import com.opengamma.engine.*;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
 import com.opengamma.engine.depgraph.DependencyGraphBuilderFactory;
 import com.opengamma.engine.function.AbstractFunction;
@@ -60,7 +57,7 @@ import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.function.resolver.FunctionPriority;
 import com.opengamma.engine.function.resolver.FunctionResolver;
 import com.opengamma.engine.marketdata.availability.DomainMarketDataAvailabilityProvider;
-import com.opengamma.engine.test.MockSecuritySource;
+import com.opengamma.engine.InMemorySecuritySource;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
@@ -251,7 +248,7 @@ public class DefaultPropertyFunctionsTest {
   }
 
   private SecuritySource createSecuritySource() {
-    final MockSecuritySource securities = new MockSecuritySource();
+    final InMemorySecuritySource securities = new InMemorySecuritySource();
     final ZonedDateTime zdt = ZonedDateTime.now();
     final SwapLeg leg = new FixedInterestRateLeg(DayCountFactory.INSTANCE.getDayCount("ACT/365"), SimpleFrequency.ANNUAL, ExternalId.of("Test", "Region"),
         BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), new InterestRateNotional(Currency.USD, 0d), false, 0d);
@@ -660,7 +657,7 @@ public class DefaultPropertyFunctionsTest {
     final DependencyGraphBuilder builder = createBuilder();
     final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
     config.setDefaultProperties(ValueProperties.with("SECURITY.Present Value.DEFAULT_ForwardCurve", "BarForward").with("SECURITY.*.DEFAULT_FundingCurve", "BarFunding").get());
-    final ValueRequirement req1 = createValueRequirement(builder.getCompilationContext().getSecuritySource().getSecurity(ExternalIdBundle.of(ExternalId.of("Security", "Swap"))),
+    final ValueRequirement req1 = createValueRequirement(builder.getCompilationContext().getSecuritySource().get(ExternalIdBundle.of(ExternalId.of("Security", "Swap"))),
         ValueProperties.none());
     builder.addTarget(req1);
     builder.getDependencyGraph();
@@ -675,7 +672,7 @@ public class DefaultPropertyFunctionsTest {
     final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
     config.setDefaultProperties(ValueProperties.with("SECURITY.Present Value.DEFAULT_ForwardCurve.Security~Swap", "BarForward")
         .with("SECURITY.*.DEFAULT_FundingCurve.Security~Swap", "BarFunding").get());
-    final ValueRequirement req1 = createValueRequirement(builder.getCompilationContext().getSecuritySource().getSecurity(ExternalIdBundle.of(ExternalId.of("Security", "Swap"))),
+    final ValueRequirement req1 = createValueRequirement(builder.getCompilationContext().getSecuritySource().get(ExternalIdBundle.of(ExternalId.of("Security", "Swap"))),
         ValueProperties.none());
     builder.addTarget(req1);
     builder.getDependencyGraph();
@@ -690,7 +687,7 @@ public class DefaultPropertyFunctionsTest {
     final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
     config.setDefaultProperties(ValueProperties.with("SECURITY.*.DEFAULT_ForwardCurve", "GenericForward").with("SECURITY.*.DEFAULT_FundingCurve", "GenericFunding")
         .with("SECURITY.Present Value.DEFAULT_ForwardCurve.Security~Swap", "BarForward").with("SECURITY.Present Value.DEFAULT_FundingCurve.Security~Swap", "BarFunding").get());
-    final ValueRequirement req1 = createValueRequirement(builder.getCompilationContext().getSecuritySource().getSecurity(ExternalIdBundle.of(ExternalId.of("Security", "Swap"))),
+    final ValueRequirement req1 = createValueRequirement(builder.getCompilationContext().getSecuritySource().get(ExternalIdBundle.of(ExternalId.of("Security", "Swap"))),
         ValueProperties.none());
     builder.addTarget(req1);
     builder.getDependencyGraph();

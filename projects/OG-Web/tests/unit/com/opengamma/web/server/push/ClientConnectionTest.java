@@ -53,7 +53,7 @@ public class ClientConnectionTest {
    */
   @Test
   public void subscribeToEntityEvent() {
-    ChangeEvent event = new ChangeEvent(ChangeType.UPDATED, _uid1, _uid1, Instant.now());
+    ChangeEvent event = new ChangeEvent(ChangeType.CHANGED, _uid1.getObjectId(), null, null, Instant.now());
 
     // send an event and make sure the _listener doesn't receive it before subscription
     _connection.entityChanged(event);
@@ -90,7 +90,7 @@ public class ClientConnectionTest {
    */
   @Test
   public void multipleSubscriptionsToEntity() {
-    ChangeEvent event = new ChangeEvent(ChangeType.UPDATED, _uid1, _uid1, Instant.now());
+    ChangeEvent event = new ChangeEvent(ChangeType.CHANGED, _uid1.getObjectId(), null, null, Instant.now());
 
     // subscribe and verify the listener receives the event
     _connection.subscribe(_uid1, TEST_URL1);
@@ -125,8 +125,8 @@ public class ClientConnectionTest {
    */
   @Test
   public void multipeEntitySubscriptionsForSameUrl() {
-    ChangeEvent event1 = new ChangeEvent(ChangeType.UPDATED, _uid1, _uid1, Instant.now());
-    ChangeEvent event2 = new ChangeEvent(ChangeType.UPDATED, _uid2, _uid2, Instant.now());
+    ChangeEvent event1 = new ChangeEvent(ChangeType.CHANGED, _uid1.getObjectId(), null, null, Instant.now());
+    ChangeEvent event2 = new ChangeEvent(ChangeType.CHANGED, _uid2.getObjectId(), null, null, Instant.now());
 
     // subscribe and verify the listener receives the event
     _connection.subscribe(_uid1, TEST_URL1);
@@ -166,7 +166,7 @@ public class ClientConnectionTest {
     _connection.subscribe(MasterType.PORTFOLIO, TEST_URL1);
     _connection.masterChanged(MasterType.PORTFOLIO);
     verify(_listener).itemsUpdated(CollectionMatcher.collectionOf(TEST_URL1));
-    _connection.entityChanged(new ChangeEvent(ChangeType.UPDATED, _uid1, _uid1, Instant.now()));
+    _connection.entityChanged(new ChangeEvent(ChangeType.CHANGED, _uid1.getObjectId(), null, null, Instant.now()));
     verifyNoMoreInteractions(_listener);
   }
 
@@ -178,7 +178,7 @@ public class ClientConnectionTest {
   public void masterAndEntitySubscriptionForSameUrlEntityChangesFirst() {
     _connection.subscribe(_uid1, TEST_URL1);
     _connection.subscribe(MasterType.PORTFOLIO, TEST_URL1);
-    _connection.entityChanged(new ChangeEvent(ChangeType.UPDATED, _uid1, _uid1, Instant.now()));
+    _connection.entityChanged(new ChangeEvent(ChangeType.CHANGED, _uid1.getObjectId(), null, null, Instant.now()));
     verify(_listener).itemsUpdated(CollectionMatcher.collectionOf(TEST_URL1));
     _connection.masterChanged(MasterType.PORTFOLIO);
     verifyNoMoreInteractions(_listener);
@@ -190,7 +190,7 @@ public class ClientConnectionTest {
   @Test
   public void subscriptionForDifferentEntity() {
     _connection.subscribe(_uid1, TEST_URL1);
-    _connection.entityChanged(new ChangeEvent(ChangeType.UPDATED, _uid2, _uid2, Instant.now()));
+    _connection.entityChanged(new ChangeEvent(ChangeType.CHANGED, _uid2.getObjectId(), null, null, Instant.now()));
     verifyZeroInteractions(_listener);
   }
 

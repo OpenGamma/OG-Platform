@@ -17,7 +17,7 @@ import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.function.resolver.FunctionPriority;
 import com.opengamma.engine.marketdata.availability.FixedMarketDataAvailabilityProvider;
-import com.opengamma.engine.test.MockFunction;
+import com.opengamma.engine.MockFunction;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;

@@ -30,6 +30,7 @@ import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
 import com.opengamma.bbg.tool.BloombergToolContext;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.ircurve.ConfigDBInterpolatedYieldCurveSpecificationBuilder;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithIdentifier;
@@ -174,7 +175,7 @@ public class CurveHtsResolverTool extends AbstractTool {
     ConfigSearchRequest<YieldCurveDefinition> searchReq = new ConfigSearchRequest<YieldCurveDefinition>(YieldCurveDefinition.class);
     searchReq.setName(nameExpr);
     ConfigSearchResult<YieldCurveDefinition> result = configMaster.search(searchReq);
-    for (ConfigDocument<YieldCurveDefinition> document : result.getDocuments()) {
+    for (ConfigItem<YieldCurveDefinition> document : result.getValues()) {
       results.add(document.getValue());
     }
     return results;
@@ -191,7 +192,7 @@ public class CurveHtsResolverTool extends AbstractTool {
     Set<ExternalId> externalIds = newHashSet();
     for (String name : names) {
       s_logger.info("Processing curve " + name);
-      YieldCurveDefinition curveDefinition = configSource.getByName(YieldCurveDefinition.class, name, null);
+      YieldCurveDefinition curveDefinition = configSource.get(YieldCurveDefinition.class, name, null).getValue();
       if (curveDefinition != null) {
         InterpolatedYieldCurveSpecificationBuilder builder = new ConfigDBInterpolatedYieldCurveSpecificationBuilder(configSource);
         for (LocalDate date : dates) {

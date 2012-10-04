@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
@@ -92,17 +93,15 @@ public class ConfigLoader {
     for (ConfigEntry entry : configs) {
       try {
         Class<?> clazz = Class.forName(entry.getType());
-        ConfigDocument<Object> document = new ConfigDocument<Object>(clazz);
-        document.setName(entry.getName());
-        Object object = entry.getObject();
+        Object object = entry.getObject();        
         if (object instanceof ViewDefinition) {
           if (_attemptToPortPortfolioIds) {
             object = attemptToPortPortfolioIds((ViewDefinition) object, idNameMap);
           }
         }
-        document.setValue(object);
+        ConfigItem<Object> item = ConfigItem.of(object, entry.getName(), clazz);
         if (_actuallyStore) {
-          ConfigMasterUtils.storeByName(_configMaster, document);
+          ConfigMasterUtils.storeByName(_configMaster, item);
           if (_verbose) {
             s_logger.info("Stored " + entry.getName() + " of type " + entry.getType());
           }

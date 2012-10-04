@@ -6,14 +6,15 @@
 
 package com.opengamma.language.view;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import static com.google.common.collect.Maps.newHashMap;
 
+import java.util.*;
+
+import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.DefinitionAnnotater;
@@ -49,18 +50,19 @@ public class ViewsFunction extends AbstractFunctionInvoker implements PublishedF
     this(new DefinitionAnnotater(ViewsFunction.class));
   }
 
-  public static Map<UniqueId, String> invoke(final ViewDefinitionRepository repository, final String viewName) {
-    final Map<UniqueId, String> entries;
+  public static Map<UniqueId, String> invoke(final ConfigSource configSource, final String viewName) {
+    final Map<UniqueId, String> entries = newHashMap();
     if (viewName == null) {
-      entries = repository.getDefinitionEntries();
+      Collection<ConfigItem<ViewDefinition>> entries2 = configSource.getAll(ViewDefinition.class, VersionCorrection.LATEST);
+      for (ConfigItem<ViewDefinition> viewDefinitionConfigItem : entries2) {
+        entries.put(viewDefinitionConfigItem.getUniqueId(), viewDefinitionConfigItem.getName());
+      }
     } else {
       // TODO: the "viewName" could take wild-cards
-      final ViewDefinition viewDefinition = repository.getDefinition(viewName);
-      if (viewDefinition != null) {
-        entries = Collections.singletonMap(viewDefinition.getUniqueId(), viewDefinition.getName());
-      } else {
-        entries = Collections.emptyMap();
-      }
+      final ConfigItem<ViewDefinition> viewDefinitionItem = configSource.get(ViewDefinition.class, viewName, VersionCorrection.LATEST);
+      if (viewDefinitionItem != null) {
+        entries.putAll(Collections.singletonMap(viewDefinitionItem.getUniqueId(), viewDefinitionItem.getName()));
+      } 
     }
     return entries;
   }
@@ -69,9 +71,9 @@ public class ViewsFunction extends AbstractFunctionInvoker implements PublishedF
 
   @Override
   protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) {
-    final ViewDefinitionRepository repository = sessionContext.getGlobalContext().getViewProcessor().getViewDefinitionRepository();
+    final ConfigSource configSource = sessionContext.getGlobalContext().getViewProcessor().getConfigSource();
     final String viewName = (String) parameters[0];
-    return invoke(repository, viewName);
+    return invoke(configSource, viewName);
   }
 
   // PublishedFunction

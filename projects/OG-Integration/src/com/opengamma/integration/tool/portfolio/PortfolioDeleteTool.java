@@ -88,7 +88,7 @@ public class PortfolioDeleteTool extends AbstractTool {
       
       deletingPortfolioCopier.copy(
           new MasterPortfolioReader(
-              portfolioDocument.getPortfolio().getName(), 
+              portfolioDocument.getObject().getName(), 
               getToolContext().getPortfolioMaster(), 
               getToolContext().getPositionMaster(), 
               getToolContext().getSecuritySource()), 
@@ -99,11 +99,11 @@ public class PortfolioDeleteTool extends AbstractTool {
       if (getCommandLine().hasOption(DELETE_PORTFOLIOS_OPT)) {
         if (getCommandLine().hasOption(WRITE_OPT)) {
           getToolContext().getPortfolioMaster().remove(portfolioDocument.getUniqueId());
-          s_logger.warn("Deleted " + portfolioDocument.getPortfolio().getUniqueId() + 
-              " (" + portfolioDocument.getPortfolio().getName() + ")");
+          s_logger.warn("Deleted " + portfolioDocument.getObject().getUniqueId() + 
+              " (" + portfolioDocument.getObject().getName() + ")");
         } else {
-          s_logger.warn("Matched " + portfolioDocument.getPortfolio().getUniqueId() + 
-              " (" + portfolioDocument.getPortfolio().getName() + ")");
+          s_logger.warn("Matched " + portfolioDocument.getObject().getUniqueId() + 
+              " (" + portfolioDocument.getObject().getName() + ")");
         }
       }
     }

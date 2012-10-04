@@ -7,11 +7,7 @@ package com.opengamma.integration.marketdata;
 
 import java.io.PrintWriter;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -38,6 +34,7 @@ import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentServer;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.component.rest.RemoteComponentServer;
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
@@ -45,6 +42,7 @@ import com.opengamma.core.security.impl.RemoteSecuritySource;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
@@ -56,10 +54,7 @@ import com.opengamma.engine.view.execution.ViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
 import com.opengamma.financial.view.rest.RemoteViewProcessor;
-import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalScheme;
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.UniqueId;
+import com.opengamma.id.*;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.jms.JmsConnectorFactoryBean;
@@ -96,7 +91,7 @@ public class WatchListRecorder {
     if (requirement.getTargetSpecification().getType() == ComputationTargetType.SECURITY) {
       Security security;
       try {
-        security = _securitySource.getSecurity(id);
+        security = _securitySource.get(id);
       } catch (DataNotFoundException ex) {
         s_logger.warn("Couldn't resolve security {}", id);
         security = null;
@@ -166,11 +161,12 @@ public class WatchListRecorder {
   }
 
   public void run() {
-    final Set<ObjectId> viewDefinitionIds = _viewProcessor.getViewDefinitionRepository().getDefinitionIds();
+    final Collection<ConfigItem<ViewDefinition>> viewDefinitions = _viewProcessor.getConfigSource().getAll(ViewDefinition.class, VersionCorrection.LATEST);
+        
     final Set<ExternalId> emitted = Sets.newHashSet();
     final Set<ExternalId> emittedRecently = Sets.newHashSet();
     final Instant now = OffsetDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).with(LocalTime.MIDDAY).toInstant();
-    s_logger.info("{} view(s) defined in demo view processor", viewDefinitionIds.size());
+    s_logger.info("{} view(s) defined in demo view processor", viewDefinitions.size());
     _writer.println("# Automatically generated");
     
     ViewClient client = _viewProcessor.createViewClient(UserPrincipal.getLocalUser());
@@ -189,44 +185,44 @@ public class WatchListRecorder {
 
       @Override
       public void viewDefinitionCompilationFailed(Instant valuationTime, Exception exception) {
-        s_logger.error("Error while compiling view definition " + viewDefinitionIds + " for instant " + valuationTime, exception);
+        s_logger.error("Error while compiling view definition " + viewDefinitions + " for instant " + valuationTime, exception);
       }
 
     });
     
-    for (ObjectId viewDefinitionId : viewDefinitionIds) {
+    for (ConfigItem<ViewDefinition> viewDefinition : viewDefinitions) {
       
-      if (_viewProcessor.getViewDefinitionRepository().getDefinition(viewDefinitionId.atLatestVersion()).getName().startsWith("10K")) { 
+      if (viewDefinition.getName().startsWith("10K")) { 
         // Don't do the huge ones!
-        s_logger.warn("Skipping {}", viewDefinitionId);
+        s_logger.warn("Skipping {}", viewDefinition);
         _writer.println();
         _writer.print("# Skipping ");
-        _writer.println(viewDefinitionId);
+        _writer.println(viewDefinition);
         continue;
       }
       
-      s_logger.debug("Compiling view {}", viewDefinitionId);
+      s_logger.debug("Compiling view {}", viewDefinition);
       _writer.println();
-      _writer.println("# " + viewDefinitionId);
+      _writer.println("# " + viewDefinition);
       
-      client.attachToViewProcess(viewDefinitionId.atLatestVersion(), generateExecutionOptions(now));
+      client.attachToViewProcess(viewDefinition.getUniqueId(), generateExecutionOptions(now));
       try {
         client.waitForCompletion();
       } catch (InterruptedException e) {
-        s_logger.warn("Interrupted while waiting for '{}' to complete" + viewDefinitionId);
+        s_logger.warn("Interrupted while waiting for '{}' to complete" + viewDefinition);
       }
       client.detachFromViewProcess();
       
       if (compilations.size() == 0) {
-        _writer.println("# ERROR - Failed to compile " + viewDefinitionId);
+        _writer.println("# ERROR - Failed to compile " + viewDefinition);
       } else {
-        _writer.println("# " + compilations.size() + " different compilations of " + viewDefinitionId + " for the next " + VALIDITY_PERIOD_DAYS + " days");
+        _writer.println("# " + compilations.size() + " different compilations of " + viewDefinition + " for the next " + VALIDITY_PERIOD_DAYS + " days");
       }
       
       for (int i = 0; i < compilations.size(); i++) {
         CompiledViewDefinition compilation = compilations.get(i);
         final Map<ValueRequirement, ValueSpecification> liveData = compilation.getMarketDataRequirements();
-        s_logger.info("{} live data requirements for view {} for compilation {}", new Object[] {liveData.size(), viewDefinitionId, compilation.toString()});
+        s_logger.info("{} live data requirements for view {} for compilation {}", new Object[] {liveData.size(), viewDefinition, compilation.toString()});
         _writer.println("# " + (i + 1) + " of " + compilations.size() + " - " + compilation);
         for (ValueRequirement requirement : liveData.keySet()) {
           s_logger.debug("Requirement {}", requirement);

@@ -46,7 +46,7 @@ public class PractitionerBlackScholesVolatilitySurfaceFunction extends AbstractF
     final ZonedDateTime now = Clock.system(TimeZone.UTC).zonedDateTime();
     final EquityOptionSecurity option = (EquityOptionSecurity) target.getSecurity();
     final SecuritySource securityMaster = executionContext.getSecuritySource();
-    final Security underlying = securityMaster.getSecurity(ExternalIdBundle.of(option.getUnderlyingId()));
+    final Security underlying = securityMaster.getSingle(ExternalIdBundle.of(option.getUnderlyingId()));
     final ValueRequirement underlyingPriceRequirement = getPriceRequirement(underlying.getUniqueId());
     final ValueRequirement discountCurveDataRequirement = getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueId());
     final YieldAndDiscountCurve discountCurve = (YieldAndDiscountCurve) inputs.getValue(discountCurveDataRequirement);
@@ -85,7 +85,7 @@ public class PractitionerBlackScholesVolatilitySurfaceFunction extends AbstractF
       // above holds)
       final Set<ValueRequirement> optionRequirements = new HashSet<ValueRequirement>();
       final SecuritySource securityMaster = context.getSecuritySource();
-      final Security underlying = securityMaster.getSecurity(ExternalIdBundle.of(option.getUnderlyingId()));
+      final Security underlying = securityMaster.getSingle(ExternalIdBundle.of(option.getUnderlyingId()));
       optionRequirements.add(getPriceRequirement(underlying.getUniqueId()));
       optionRequirements.add(getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueId()));
       // TODO: add the other stuff
