@@ -16,10 +16,15 @@ $.register_module({
             return window.parent.og.analytics.Grid.partial(undefined, $); // if already compiled, use that
         var available = (function () {
             var unravel = function (nodes, arr, result) {
-                var start = arr[0], end = arr[1], children = arr[2];
+                var start = arr[0], end = arr[1], children = arr[2], last_end = null;
                 result.push(start);
                 if (!nodes[start]) return result;
-                if (children.length) return children.forEach(function (child) {unravel(nodes, child, result);}), result;
+                children.forEach(function (child) {
+                    var current_start = child[0], current_end = child[1], lcv;
+                    if (last_end !== null) for (lcv = last_end + 1; lcv < current_start; lcv += 1) result.push(lcv);
+                    last_end = start = current_end;
+                    unravel(nodes, child, result);
+                });
                 while (++start <= end) result.push(start);
                 return result;
             };
@@ -117,7 +122,7 @@ $.register_module({
             }).on('mousedown', function (event) {
                 var $target = $(event.target), row;
                 if (!$target.is('.node')) return;
-                grid.meta.nodes[row = $target.attr('data-row')] = !grid.meta.nodes[row];
+                grid.meta.nodes[row = +$target.attr('data-row')] = !grid.meta.nodes[row];
                 grid.resize().selector.clear();
                 return false; // kill bubbling if it's a node
             });
@@ -338,21 +343,27 @@ $.register_module({
             };
         };
         constructor.prototype.unravel_structure = (function () {
-            var times = function (str, rep) {var result = ''; if (rep) while (--rep) result += str; return result;};
-            var unravel = function (arr, indent) {
-                var start = arr[0], end = arr[1], children = arr[2], str = '&nbsp;&nbsp;&nbsp;', result = [], prefix;
-                result.push(end > start ? {
-                    prefix: times(str, indent + 1) + '<span data-row="' + start + '" class="node"></span>&nbsp;',
+            var times = function (str, rep) {var result = ''; if (rep) while (rep--) result += str; return result;};
+            var unravel = function (arr, indent, result) {
+                var start = arr[0], end = arr[1], children = arr[2], str = '&nbsp;&nbsp;&nbsp;', prefix, last_end;
+                result[start] = {
+                    prefix: times(str, indent) + '<span data-row="' + start + '" class="node"></span>&nbsp;',
                     node: true, length: end - start
-                } : {prefix: times(str, indent)});
-                if (children.length) return children.map(function (child) {return unravel(child, indent + 1);})
-                    .forEach(function (child) {Array.prototype.push.apply(result, child);}), result;
-                while (start++ < end) result.push({prefix: prefix || (prefix = times(str, indent + 2))});
+                };
+                children.forEach(function (child) {
+                    var current_start = child[0], current_end = child[1], lcv;
+                    if (last_end !== null) for (lcv = last_end + 1; lcv < current_start; lcv += 1)
+                        result[lcv] = {prefix: times(str, indent + 2)};
+                    last_end = start = current_end;
+                    unravel(child, indent + 1, result);
+                });
+                prefix = times(str, indent + 2);
+                while (++start <= end) result[start] = {prefix: prefix};
                 return result;
             };
             return function () {
                 var grid = this, unraveled;
-                grid.meta.nodes = (unraveled = unravel(grid.meta.structure, 0))
+                grid.meta.nodes = (unraveled = unravel(grid.meta.structure, 0, []))
                     .reduce(function (acc, val, idx) {
                         if (val.node) (acc[idx] = true), (acc.all.push(idx)), (acc.ranges.push(val.length));
                         return acc;
