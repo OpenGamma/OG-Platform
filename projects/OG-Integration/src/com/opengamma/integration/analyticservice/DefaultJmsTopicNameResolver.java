@@ -5,40 +5,44 @@
  */
 package com.opengamma.integration.analyticservice;
 
-import org.apache.commons.lang.StringUtils;
+import java.util.Collection;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Objects;
+import com.opengamma.core.position.Position;
+import com.opengamma.core.position.PositionSource;
+import com.opengamma.core.position.Trade;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.ExternalId;
-import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.resolver.AbstractResolver;
-import com.opengamma.master.position.PositionMaster;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Resolves 
  */
 public class DefaultJmsTopicNameResolver extends AbstractResolver<JmsTopicNameResolveRequest, String> implements JmsTopicNameResolver {
-
+  
   /** Logger **/
   private static final Logger s_logger = LoggerFactory.getLogger(DefaultJmsTopicNameResolver.class);
-  
+
+  private static final String PROVIDER_ID_FIELD = "providerId";
   private static final String PREFIX = "OGAnalytics";
+  private static final String MISSING_PROVIDER_ID = "UNKNOWN_ID";
   
-  private final PositionMaster _positionMaster;
+  private final PositionSource _positionSource;
   
-  public DefaultJmsTopicNameResolver(final PositionMaster positionMaster) {
-    ArgumentChecker.notNull(positionMaster, "positionMaster");
-    _positionMaster = positionMaster;
+  public DefaultJmsTopicNameResolver(final PositionSource positionSource) {
+    ArgumentChecker.notNull(positionSource, "positionSource");
+    _positionSource = positionSource;
   }
 
   @Override
   public String resolve(JmsTopicNameResolveRequest request) {
     ValueSpecification valueSpecification = request.getValueSpecification();
-    ExternalId providerId = _positionMaster.get(getPositionId(valueSpecification.getTargetSpecification().getUniqueId())).getPosition().getProviderId();
-    String result = PREFIX + SEPARATOR + providerId.getValue() + SEPARATOR + request.getCalcConfig() + SEPARATOR + request.getValueSpecification().getValueName();
+    Position position = _positionSource.getPosition(valueSpecification.getTargetSpecification().getUniqueId());
+    String providerId = getProviderId(position);
+    String result = PREFIX + SEPARATOR + providerId + SEPARATOR + request.getCalcConfig() + SEPARATOR + request.getValueSpecification().getValueName();
     if (request.getValueSpecification().getProperties() != null) {
       result += SEPARATOR + request.getValueSpecification().getProperties().toSimpleString();
     }
@@ -46,16 +50,31 @@ public class DefaultJmsTopicNameResolver extends AbstractResolver<JmsTopicNameRe
     return result;
     
   }
-  
-  private UniqueId getPositionId(final UniqueId uniqueId) {
-    String[] schemes = StringUtils.split(uniqueId.getScheme(), '-');
-    String[] values = StringUtils.split(uniqueId.getValue(), '-');
-    String[] versions = Objects.firstNonNull(StringUtils.split(uniqueId.getVersion(), '-'), new String[] {null, null});
-    if (schemes.length != 2 || values.length != 2 || versions.length != 2) {
-      throw new IllegalArgumentException("Invalid position identifier for MasterPositionSource: " + uniqueId);
+
+  private String getProviderId(final Position position) {
+    String result = null;
+    Map<String, String> positionAttrs = position.getAttributes();
+    if (positionAttrs != null) {
+      result = positionAttrs.get(PROVIDER_ID_FIELD);
+      if (result == null) {
+        Collection<Trade> trades = position.getTrades();
+        if (trades != null) {
+          for (Trade trade : trades) {
+            if (trade != null) {
+              Map<String, String> tradeAttrs = trade.getAttributes();
+              result = tradeAttrs.get(PROVIDER_ID_FIELD);
+              if (result != null) {
+                break;
+              }
+            }
+          }
+        }
+      }
     }
-    return UniqueId.of(schemes[1], values[1], versions[1]);
+    if (result == null) {
+      result = MISSING_PROVIDER_ID;
+    }
+    return result;
   }
-  
   
 }

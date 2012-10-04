@@ -22,6 +22,7 @@ import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.position.PositionSource;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.portfolio.PortfolioMaster;
@@ -63,6 +64,9 @@ public class AnalyticServiceServerFactory extends AbstractComponentFactory {
   
   @PropertyDefinition
   private UserPrincipal _user;
+ 
+  @PropertyDefinition(validate = "notNull")
+  private PositionSource _positionSource;
     
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
@@ -82,7 +86,7 @@ public class AnalyticServiceServerFactory extends AbstractComponentFactory {
     container.setPubSubDomain(true);
     container.setConnectionFactory(getListenJmsConnector().getConnectionFactory());
     
-    JmsAnalyticsDistributor analyticsDistributor = new JmsAnalyticsDistributor(new DefaultJmsTopicNameResolver(_positionMaster), OpenGammaFudgeContext.getInstance(), _listenJmsConnector);
+    JmsAnalyticsDistributor analyticsDistributor = new JmsAnalyticsDistributor(new DefaultJmsTopicNameResolver(getPositionSource()), OpenGammaFudgeContext.getInstance(), _listenJmsConnector);
     server.setAnalyticResultReceiver(analyticsDistributor);
     
     tradeProducer.addTradeListener(server);
@@ -130,6 +134,8 @@ public class AnalyticServiceServerFactory extends AbstractComponentFactory {
         return getProviderIdName();
       case 3599307:  // user
         return getUser();
+      case -1655657820:  // positionSource
+        return getPositionSource();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -164,6 +170,9 @@ public class AnalyticServiceServerFactory extends AbstractComponentFactory {
       case 3599307:  // user
         setUser((UserPrincipal) newValue);
         return;
+      case -1655657820:  // positionSource
+        setPositionSource((PositionSource) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -178,6 +187,7 @@ public class AnalyticServiceServerFactory extends AbstractComponentFactory {
     JodaBeanUtils.notNull(_configSource, "configSource");
     JodaBeanUtils.notNull(_viewProcessor, "viewProcessor");
     JodaBeanUtils.notNull(_providerIdName, "providerIdName");
+    JodaBeanUtils.notNull(_positionSource, "positionSource");
     super.validate();
   }
 
@@ -197,6 +207,7 @@ public class AnalyticServiceServerFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getViewProcessor(), other.getViewProcessor()) &&
           JodaBeanUtils.equal(getProviderIdName(), other.getProviderIdName()) &&
           JodaBeanUtils.equal(getUser(), other.getUser()) &&
+          JodaBeanUtils.equal(getPositionSource(), other.getPositionSource()) &&
           super.equals(obj);
     }
     return false;
@@ -214,6 +225,7 @@ public class AnalyticServiceServerFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
     hash += hash * 31 + JodaBeanUtils.hashCode(getProviderIdName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUser());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionSource());
     return hash ^ super.hashCode();
   }
 
@@ -452,6 +464,32 @@ public class AnalyticServiceServerFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the positionSource.
+   * @return the value of the property, not null
+   */
+  public PositionSource getPositionSource() {
+    return _positionSource;
+  }
+
+  /**
+   * Sets the positionSource.
+   * @param positionSource  the new value of the property, not null
+   */
+  public void setPositionSource(PositionSource positionSource) {
+    JodaBeanUtils.notNull(positionSource, "positionSource");
+    this._positionSource = positionSource;
+  }
+
+  /**
+   * Gets the the {@code positionSource} property.
+   * @return the property, not null
+   */
+  public final Property<PositionSource> positionSource() {
+    return metaBean().positionSource().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code AnalyticServiceServerFactory}.
    */
   public static class Meta extends AbstractComponentFactory.Meta {
@@ -506,6 +544,11 @@ public class AnalyticServiceServerFactory extends AbstractComponentFactory {
     private final MetaProperty<UserPrincipal> _user = DirectMetaProperty.ofReadWrite(
         this, "user", AnalyticServiceServerFactory.class, UserPrincipal.class);
     /**
+     * The meta-property for the {@code positionSource} property.
+     */
+    private final MetaProperty<PositionSource> _positionSource = DirectMetaProperty.ofReadWrite(
+        this, "positionSource", AnalyticServiceServerFactory.class, PositionSource.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -518,7 +561,8 @@ public class AnalyticServiceServerFactory extends AbstractComponentFactory {
         "configSource",
         "viewProcessor",
         "providerIdName",
-        "user");
+        "user",
+        "positionSource");
 
     /**
      * Restricted constructor.
@@ -547,6 +591,8 @@ public class AnalyticServiceServerFactory extends AbstractComponentFactory {
           return _providerIdName;
         case 3599307:  // user
           return _user;
+        case -1655657820:  // positionSource
+          return _positionSource;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -637,6 +683,14 @@ public class AnalyticServiceServerFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<UserPrincipal> user() {
       return _user;
+    }
+
+    /**
+     * The meta-property for the {@code positionSource} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<PositionSource> positionSource() {
+      return _positionSource;
     }
 
   }
