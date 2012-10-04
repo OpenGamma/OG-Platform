@@ -30,6 +30,7 @@ import com.opengamma.masterdb.security.hibernate.bond.BondSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.capfloor.CapFloorCMSSpreadSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.capfloor.CapFloorSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.cash.CashSecurityBeanOperation;
+import com.opengamma.masterdb.security.hibernate.cds.CDSSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.equity.EquitySecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.equity.EquityVarianceSwapSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.forward.CommodityForwardSecurityBeanOperation;
@@ -172,6 +173,7 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
     loadBeanOperation(CapFloorSecurityBeanOperation.INSTANCE);
     loadBeanOperation(CapFloorCMSSpreadSecurityBeanOperation.INSTANCE);
     loadBeanOperation(EquityVarianceSwapSecurityBeanOperation.INSTANCE);
+    loadBeanOperation(CDSSecurityBeanOperation.INSTANCE);
   }
 
   //-------------------------------------------------------------------------

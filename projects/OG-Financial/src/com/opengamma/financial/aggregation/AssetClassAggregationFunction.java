@@ -22,6 +22,7 @@ import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.cds.CDSSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
@@ -95,6 +96,7 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
   /* package */static final String CAP_FLOOR_CMS_SPREAD = "Cap/Floor CMS Spread";
   /* package */static final String UNKNOWN = "Unknown Security Type";
   /* package */static final String NAME = "Asset Class";
+  /* package */static final String CDSS = "CDSs"; // TODO: is this the correct abreviation? 
 
   private final Comparator<Position> _comparator = new SimplePositionComparator();
 
@@ -331,6 +333,11 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
         @Override
         public String visitMetalForwardSecurity(MetalForwardSecurity security) {
           return FORWARDS;
+        }
+        
+        @Override
+        public String visitCDSSecurity(CDSSecurity security) {
+          return CDSS;
         }
       });
     } else {

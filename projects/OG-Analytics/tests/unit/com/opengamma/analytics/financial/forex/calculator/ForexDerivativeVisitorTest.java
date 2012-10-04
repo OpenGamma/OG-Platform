@@ -10,6 +10,7 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableForward;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableOption;
@@ -807,6 +808,16 @@ public class ForexDerivativeVisitorTest {
     }
 
     @Override
+    public String visitCDSDerivative(ISDACDSDerivative cds, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCDSDerivative(ISDACDSDerivative cds) {
+      return null;
+    }
+
+    @Override
     public String visitDeliverableSwapFuturesSecurity(DeliverableSwapFuturesSecurity futures, T data) {
       return null;
     }
@@ -815,6 +826,7 @@ public class ForexDerivativeVisitorTest {
     public String visitDeliverableSwapFuturesSecurity(DeliverableSwapFuturesSecurity futures) {
       return null;
     }
+
 
   }
 

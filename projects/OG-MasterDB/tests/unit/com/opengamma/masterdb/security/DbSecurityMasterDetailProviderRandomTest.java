@@ -275,4 +275,10 @@ public class DbSecurityMasterDetailProviderRandomTest extends DbTest implements 
   public void testContinuousZeroDepositSecurity() {
     return;
   }
+  
+  @Override
+  @Test
+  public void testCDSSecurity() {
+    _testCase.testCDSSecurity();
+  }
 }
