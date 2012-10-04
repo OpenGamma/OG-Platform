@@ -9,19 +9,20 @@ $.register_module({
         var url, last_fingerprint = {}, last_object = {}, routes = og.common.routes,
             panels = ['south', 'dock-north', 'dock-center', 'dock-south'];
         var go = function () {
-            og.api.rest.compressor.put({content: last_object}).pipe(function (result) {
+            og.api.rest.compressor.put({content: last_object, dependencies: ['data']}).pipe(function (result) {
+                console.log('GOING');
                 routes.go(routes.hash(og.views.analytics2.rules.load_item, {data: result.data.data}));
             });
         };
         return url = {
-            add: function (container, params) {
-                return (last_object[container] || (last_object[container] = [])).push(params), go(), url;
+            add: function (container, params, silent) {
+                return (last_object[container] || (last_object[container] = [])).push(params), (!silent && go()), url;
             },
             last: last_object,
             launch: function (params) {console.log('new window!', params);},
             main: function (params) {(last_object.main = params), go(), url;},
             process: function (args) {
-                og.api.rest.compressor.get({content: args.data})
+                og.api.rest.compressor.get({content: args.data, dependencies: ['data']})
                     .pipe(function (result) {
                         var config = result.data.data, current_main, panel, cellmenu;
                         panels.forEach(function (panel) {delete last_object[panel];});
@@ -49,13 +50,13 @@ $.register_module({
                     });
                 return url;
             },
-            remove: function (container, index) {
+            remove: function (container, index, silent) {
                 if (!last_fingerprint[container] || !last_fingerprint[container].length) return;
                 last_fingerprint[container].splice(index, 1);
                 last_object[container].splice(index, 1);
                 if (!last_fingerprint[container].length) delete last_fingerprint[container];
                 if (!last_object[container].length) delete last_object[container];
-                return go(), url;
+                return (!silent && go()), url;
             }
         };
     }

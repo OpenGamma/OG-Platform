@@ -27,10 +27,10 @@ $.register_module({
                     });
             };
             gadget.die = function () {
-                $data_grid.die();
-                gadget.dataman.kill();
+                try {$data_grid.die();} catch (error) {};
+                try {gadget.dataman.kill();} catch (error) {};
             };
-            gadget.update = function(input) {$data_grid.update(input);};
+            gadget.update = function (input) {$data_grid.update(input);};
             gadget.load();
             gadget.resize = function () {
                 $data_grid.resize();
