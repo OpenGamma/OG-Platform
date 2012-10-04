@@ -190,7 +190,7 @@ public class AnalyticServiceServer implements TradeListener, Lifecycle {
 
         @Override
         public UserPrincipal getUser() {
-          return _user;
+          return getUser();
         }
 
         @Override

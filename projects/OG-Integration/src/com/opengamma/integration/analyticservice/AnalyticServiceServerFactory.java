@@ -62,7 +62,7 @@ public class AnalyticServiceServerFactory extends AbstractComponentFactory {
   @PropertyDefinition(validate = "notNull")
   private String _providerIdName;
   
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private UserPrincipal _user;
  
   @PropertyDefinition(validate = "notNull")
@@ -89,7 +89,7 @@ public class AnalyticServiceServerFactory extends AbstractComponentFactory {
     JmsAnalyticsDistributor analyticsDistributor = new JmsAnalyticsDistributor(new DefaultJmsTopicNameResolver(getPositionSource()), OpenGammaFudgeContext.getInstance(), _listenJmsConnector);
     server.setAnalyticResultReceiver(analyticsDistributor);
     
-    tradeProducer.addTradeListener(server);
+    server.setTradeProducer(tradeProducer);
     repo.registerLifecycle(server);
     repo.registerLifecycle(container);
     
