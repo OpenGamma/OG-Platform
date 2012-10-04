@@ -7,17 +7,15 @@ package com.opengamma.examples.analyticservice;
 
 import java.math.BigDecimal;
 import java.net.URI;
-import java.util.List;
 import java.util.Random;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.jms.BytesMessage;
+import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.Message;
+import javax.jms.MessageConsumer;
 import javax.jms.Session;
+import javax.jms.Topic;
 import javax.time.calendar.LocalDate;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -28,28 +26,25 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeMsgEnvelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jms.core.MessageCreator;
 
-import com.google.common.collect.Lists;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.position.Counterparty;
-import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.SimpleCounterparty;
 import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ExternalId;
-import com.opengamma.master.security.ManageableSecurity;
-import com.opengamma.master.security.SecurityMaster;
-import com.opengamma.master.security.SecuritySearchRequest;
-import com.opengamma.master.security.SecuritySearchResult;
+import com.opengamma.transport.ByteArrayFudgeMessageReceiver;
+import com.opengamma.transport.FudgeMessageReceiver;
+import com.opengamma.transport.jms.JmsByteArrayMessageDispatcher;
 import com.opengamma.util.GUIDGenerator;
-import com.opengamma.util.TerminatableJob;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.generate.scripts.Scriptable;
 import com.opengamma.util.jms.JmsConnector;
@@ -73,16 +68,13 @@ public class ExampleAnalyticServiceUsage extends AbstractTool<ToolContext> {
   private static final String PREFIX = "OGAnalytics";
   private static final String SEPARATOR = ".";
   
+  private final Random _random = new Random();
+  
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
   
-  private static final ExecutorService s_tradeUpdaterExecutor = Executors.newSingleThreadExecutor();
-  
-  private static final ExecutorService s_resultListenerExecutor = Executors.newSingleThreadExecutor();
   
   @Override
   protected void doRun() throws Exception {
-    ToolContext toolContext = getToolContext();
-    List<ExternalId> securities = getSecurityIds(toolContext.getSecurityMaster());
     
     CommandLine commandLine = getCommandLine();
     
@@ -100,24 +92,82 @@ public class ExampleAnalyticServiceUsage extends AbstractTool<ToolContext> {
     jmsConnectorFactoryBean.setConnectionFactory(jmsConnectionFactory);
     jmsConnectorFactoryBean.setClientBrokerUri(URI.create(activeMQUrl));
     
-    BlockingQueue<String> topics = new LinkedBlockingQueue<String>();
-        
-    s_tradeUpdaterExecutor.submit(new TradeGenerator(securities, jmsConnectorFactoryBean.getObjectCreating(), destinationName, topics));
+    JmsConnector jmsConnector = jmsConnectorFactoryBean.getObjectCreating();
+    
+    String providerId = generateTrade("ARG", destinationName, jmsConnector);
+    String topicStr = PREFIX + SEPARATOR + providerId + SEPARATOR + "Default" + SEPARATOR + ValueRequirementNames.FAIR_VALUE;
+    
+    ByteArrayFudgeMessageReceiver fudgeReceiver = new ByteArrayFudgeMessageReceiver(new FudgeMessageReceiver() {
+      
+      @Override
+      public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
+        FudgeMsg message = msgEnvelope.getMessage();
+        s_logger.debug("received {}", message);
+      }
+    }, s_fudgeContext);
+    final JmsByteArrayMessageDispatcher jmsDispatcher = new JmsByteArrayMessageDispatcher(fudgeReceiver);
+    
+    Connection connection = jmsConnector.getConnectionFactory().createConnection();
+    try {
+      connection.start();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      
+      Topic topic = session.createTopic(topicStr);
+
+      final MessageConsumer messageConsumer = session.createConsumer(topic);
+      messageConsumer.setMessageListener(jmsDispatcher);
+    } catch (JMSException e) {
+      throw new OpenGammaRuntimeException("Failed to create subscription to JMS topics ", e);
+    }  
+    
+//    DefaultMessageListenerContainer container = new DefaultMessageListenerContainer();
+//    container.setMessageListener(
+//        new JmsByteArrayMessageDispatcher(
+//            new ByteArrayFudgeMessageReceiver(new FudgeMessageReceiver() {
+//              
+//              @Override
+//              public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
+//                
+//              }
+//            })));
+//    container.setDestinationName(topic);
+//    container.setPubSubDomain(true);
+//    container.setConnectionFactory(jmsConnector.getConnectionFactory());
+//    
+//    container.start();
     
     Thread.sleep(WAIT_BTW_TRADES * 10);
+    connection.stop();
     jmsConnectionFactory.stop();
    
   }
   
-  private List<ExternalId> getSecurityIds(final SecurityMaster securityMaster) {
-    List<ExternalId> result = Lists.newArrayList();
-    SecuritySearchRequest request = new SecuritySearchRequest();
-    request.setSecurityType(EquitySecurity.SECURITY_TYPE);
-    SecuritySearchResult searchResult = securityMaster.search(request);
-    for (ManageableSecurity security : searchResult.getSecurities()) {
-      result.add(security.getExternalIdBundle().getExternalId(ExternalSchemes.OG_SYNTHETIC_TICKER));
-    }
-    return result;
+  private String generateTrade(String securityId, String destinationName, JmsConnector jmsConnector) {
+    SimpleTrade trade = new SimpleTrade();
+    trade.setCounterparty(COUNTERPARTY);
+    trade.setPremiumCurrency(Currency.USD);
+    trade.setQuantity(BigDecimal.valueOf(_random.nextInt(10) + 10));
+    trade.setTradeDate(LocalDate.now());
+    String providerId = GUIDGenerator.generate().toString();
+    trade.addAttribute(PROVIDER_ID_NAME, RANDOM_ID_SCHEME + "~" + providerId);
+    trade.setSecurityLink(new SimpleSecurityLink(ExternalSchemes.syntheticSecurityId(securityId)));
+    s_logger.debug("Generated {}", trade);
+    
+    FudgeMsg msg = s_fudgeContext.toFudgeMsg(trade).getMessage();
+    
+    s_logger.debug("sending {} to {}", msg, destinationName);
+    
+    final byte[] bytes = s_fudgeContext.toByteArray(msg);
+    
+    jmsConnector.getJmsTemplateTopic().send(destinationName, new MessageCreator() {
+      @Override
+      public Message createMessage(Session session) throws JMSException {
+        BytesMessage bytesMessage = session.createBytesMessage();
+        bytesMessage.writeBytes(bytes);
+        return bytesMessage;
+      }
+    });
+    return providerId;
   }
 
   /**
@@ -155,86 +205,4 @@ public class ExampleAnalyticServiceUsage extends AbstractTool<ToolContext> {
                         .create("q");
   }
   
-  private class ResultListener extends TerminatableJob {
-    
-    private final BlockingQueue<String> _topics;
-    
-    public ResultListener(BlockingQueue<String> topics) {
-      _topics = topics;
-    }
-
-    @Override
-    protected void runOneCycle() {
-      try {
-        String topic = _topics.take();
-        
-        
-        
-      } catch (InterruptedException ex) {
-        s_logger.warn("interuupted waiting", ex);
-      }
-    }
-    
-  }
-  
-  private class TradeGenerator extends TerminatableJob {
-    
-    private final List<ExternalId> _securities;
-    private final JmsConnector _jmsConnector;
-    private final String _destinationName;
-    private final Random _random = new Random();
-    private final BlockingQueue<String> _topics;
-    
-    public TradeGenerator(List<ExternalId> securities, JmsConnector jmsConnector, String destinationName, BlockingQueue<String> topics) {
-      _securities = securities;
-      _jmsConnector = jmsConnector;
-      _destinationName = destinationName;
-      _topics = topics;
-    }
-
-    @Override
-    protected void runOneCycle() {
-      Trade trade = generateTrade();
-      
-      FudgeMsg msg = s_fudgeContext.toFudgeMsg(trade).getMessage();
-      
-      s_logger.debug("sending {} to {}", msg, _destinationName);
-      
-      final byte[] bytes = s_fudgeContext.toByteArray(msg);
-      
-      _jmsConnector.getJmsTemplateTopic().send(_destinationName, new MessageCreator() {
-        @Override
-        public Message createMessage(Session session) throws JMSException {
-          BytesMessage bytesMessage = session.createBytesMessage();
-          bytesMessage.writeBytes(bytes);
-          return bytesMessage;
-        }
-      });
-      
-      try {
-        Thread.sleep(WAIT_BTW_TRADES);
-      } catch (InterruptedException ex) {
-        s_logger.warn("interuppted while sleeping ", ex);
-        
-      }
-    }
-    
-    private Trade generateTrade() {
-      SimpleTrade trade = new SimpleTrade();
-      trade.setCounterparty(COUNTERPARTY);
-      trade.setPremiumCurrency(Currency.USD);
-      trade.setQuantity(BigDecimal.valueOf(_random.nextInt(10) + 10));
-      trade.setTradeDate(LocalDate.now());
-      String providerId = GUIDGenerator.generate().toString();
-      trade.addAttribute(PROVIDER_ID_NAME, RANDOM_ID_SCHEME + "~" + providerId);
-      String topic = PREFIX + SEPARATOR + providerId + SEPARATOR + "Default" + SEPARATOR + ValueRequirementNames.FAIR_VALUE;
-      _topics.offer(topic);
-      ExternalId externalId = _securities.get(_random.nextInt(_securities.size()));
-      trade.setSecurityLink(new SimpleSecurityLink(externalId));
-      s_logger.debug("Generated {}", trade);
-      return trade;
-    }
-    
-  }
-
 }
