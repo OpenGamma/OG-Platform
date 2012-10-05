@@ -40,8 +40,6 @@ public class CreditDefaultSwapDefinition {
 
   // TODO : Extend this class definition to include standard CDS contracts (post big-bang) i.e. quoted spread, upfront payment etc
   // TODO : Make sure the 'equals' method has all the necessary fields and the hashCode method is correct
-  // TODO : Add the Moodys, S&P and Fitch credit rating states?
-  // TODO : Split off the obligor information into a seperate 'Obligor' class
   // TODO : Check that buyer is not equal to the seller etc
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -51,17 +49,10 @@ public class CreditDefaultSwapDefinition {
   // From the users perspective, are we buying or selling protection
   private final BuySellProtection _buySellProtection;
 
+  // The (three) counterparties in the trade
   private final Obligor _protectionBuyer;
   private final Obligor _protectionSeller;
   private final Obligor _referenceEntity;
-
-  // Identifiers for the (three) counterparties in the trade
-  //private final String _protectionBuyer;
-  //private final String _protectionSeller;
-
-  //private final String _referenceEntityTicker;
-  //private final String _referenceEntityShortName;
-  //private final String _referenceEntityREDCode;
 
   // The currency the trade is executed in e.g. USD
   private final Currency _currency;
@@ -71,21 +62,6 @@ public class CreditDefaultSwapDefinition {
 
   // The restructuring type in the event of a credit event deemed to be a restructuring of the reference entities debt
   private final RestructuringClause _restructuringClause;
-
-  // The composite credit (curve) rating of the reference entity (MarkIt field)
-  //private final CreditRating _compositeRating;
-
-  // The implied credit rating of the reference entity (MarkIt field)
-  //private final CreditRating _impliedRating;
-
-  // The industrial classification of the reference entity
-  //private final Sector _sector;
-
-  // The geographical domicile of the reference entity
-  //private final Region _region;
-
-  // The country of domicile of the reference entity
-  //private final String _country;
 
   // Holiday calendar for the determination of adjusted business days in the cashflow schedule
   private final Calendar _calendar;
@@ -147,19 +123,9 @@ public class CreditDefaultSwapDefinition {
       Obligor protectionBuyer,
       Obligor protectionSeller,
       Obligor referenceEntity,
-      //String protectionBuyer,
-      //String protectionSeller,
-      //String referenceEntityTicker,
-      //String referenceEntityShortName,
-      //String referenceEntityREDCode,
       Currency currency,
       DebtSeniority debtSeniority,
       RestructuringClause restructuringClause,
-      //CreditRating compositeRating,
-      //CreditRating impliedRating,
-      //Sector sector,
-      //Region region,
-      //String country,
       Calendar calendar,
       ZonedDateTime startDate,
       ZonedDateTime effectiveDate,
@@ -187,31 +153,9 @@ public class CreditDefaultSwapDefinition {
     ArgumentChecker.notNull(protectionSeller, "Protection seller");
     ArgumentChecker.notNull(referenceEntity, "Reference entity");
 
-    //ArgumentChecker.notNull(protectionBuyer, "Protection buyer field is null");
-    //ArgumentChecker.isFalse(protectionBuyer.isEmpty(), "Protection buyer field is empty");
-
-    //ArgumentChecker.notNull(protectionSeller, "Protection seller field is null");
-    //ArgumentChecker.isFalse(protectionSeller.isEmpty(), "Protection seller field is empty");
-
-    //ArgumentChecker.notNull(referenceEntityTicker, "Reference entity ticker field is null");
-    //ArgumentChecker.isFalse(referenceEntityTicker.isEmpty(), "Reference entity ticker field is empty");
-
-    //ArgumentChecker.notNull(referenceEntityShortName, "Reference entity short name field is null");
-    //ArgumentChecker.isFalse(referenceEntityShortName.isEmpty(), "Reference entity short name field is empty");
-
-    //ArgumentChecker.notNull(referenceEntityREDCode, "Reference entity RED code field is null");
-    //ArgumentChecker.isFalse(referenceEntityREDCode.isEmpty(), "Reference entity RED code field is empty");
-
     ArgumentChecker.notNull(currency, "Currency");
     ArgumentChecker.notNull(debtSeniority, "Debt seniority");
     ArgumentChecker.notNull(restructuringClause, "Restructuring clause");
-    //ArgumentChecker.notNull(compositeRating, "Composite rating field is null");
-    //ArgumentChecker.notNull(impliedRating, "Implied rating field is null");
-    //ArgumentChecker.notNull(sector, "Sector field is null");
-    //ArgumentChecker.notNull(region, "Region field is null");
-
-    //ArgumentChecker.notNull(country, "Country field is null");
-    //ArgumentChecker.isFalse(country.isEmpty(), "Country field is empty");
 
     ArgumentChecker.notNull(calendar, "Calendar");
 
@@ -227,7 +171,7 @@ public class CreditDefaultSwapDefinition {
     ArgumentChecker.isTrue(!valuationDate.isAfter(maturityDate), "Valuation date {} must be on or before maturity date {}", valuationDate, maturityDate);
     ArgumentChecker.isTrue(!valuationDate.isBefore(effectiveDate), "Valuation date {} must be on or after effective date {}", valuationDate, effectiveDate);
 
-    ArgumentChecker.notNull(stubType, "Stub Type method");
+    ArgumentChecker.notNull(stubType, "Stub Type");
     ArgumentChecker.notNull(couponFrequency, "Coupon frequency");
     ArgumentChecker.notNull(daycountFractionConvention, "Daycount convention");
     ArgumentChecker.notNull(businessdayAdjustmentConvention, "Business day adjustment convention");
@@ -248,20 +192,9 @@ public class CreditDefaultSwapDefinition {
     _protectionSeller = protectionSeller;
     _referenceEntity = referenceEntity;
 
-    //_referenceEntityTicker = referenceEntityTicker;
-    //_referenceEntityShortName = referenceEntityShortName;
-    //_referenceEntityREDCode = referenceEntityREDCode;
-
     _currency = currency;
     _debtSeniority = debtSeniority;
     _restructuringClause = restructuringClause;
-
-    //_compositeRating = compositeRating;
-    //_impliedRating = impliedRating;
-
-    //_sector = sector;
-    //_region = region;
-    //_country = country;
 
     _calendar = calendar;
 
@@ -312,22 +245,6 @@ public class CreditDefaultSwapDefinition {
     return _referenceEntity;
   }
 
-  /*
-  public String getReferenceEntityTicker() {
-    return _referenceEntityTicker;
-  }
-  */
-
-  /*
-  public String getReferenceEntityShortName() {
-    return _referenceEntityShortName;
-  }
-
-  public String getReferenceEntityREDCode() {
-    return _referenceEntityREDCode;
-  }
-  */
-
   //----------------------------------------------------------------------------------------------------------------------------------------
 
   public Currency getCurrency() {
@@ -341,28 +258,6 @@ public class CreditDefaultSwapDefinition {
   public RestructuringClause getRestructuringClause() {
     return _restructuringClause;
   }
-
-  /*
-  public CreditRating getCompositeRating() {
-    return _compositeRating;
-  }
-
-  public CreditRating getImpliedRating() {
-    return _impliedRating;
-  }
-
-  public Sector getSector() {
-    return _sector;
-  }
-
-  public Region getRegion() {
-    return _region;
-  }
-
-  public String getCountry() {
-    return _country;
-  }
-  */
 
   public Calendar getCalendar() {
     return _calendar;
@@ -551,16 +446,6 @@ public class CreditDefaultSwapDefinition {
       return false;
     }
 
-    /*
-    if (_compositeRating != other._compositeRating) {
-      return false;
-    }
-
-    if (!ObjectUtils.equals(_country, other._country)) {
-      return false;
-    }
-    */
-
     if (!ObjectUtils.equals(_couponFrequency, other._couponFrequency)) {
       return false;
     }
@@ -584,12 +469,6 @@ public class CreditDefaultSwapDefinition {
     if (!ObjectUtils.equals(_effectiveDate, other._effectiveDate)) {
       return false;
     }
-
-    /*
-    if (_impliedRating != other._impliedRating) {
-      return false;
-    }
-    */
 
     if (_includeAccruedPremium != other._includeAccruedPremium) {
       return false;
@@ -615,24 +494,6 @@ public class CreditDefaultSwapDefinition {
       return false;
     }
 
-    /*
-    if (!ObjectUtils.equals(_referenceEntityREDCode, other._referenceEntityREDCode)) {
-      return false;
-    }
-
-    if (!ObjectUtils.equals(_referenceEntityShortName, other._referenceEntityShortName)) {
-      return false;
-    }
-
-    if (!ObjectUtils.equals(_referenceEntityTicker, other._referenceEntityTicker)) {
-      return false;
-    }
-
-    if (_region != other._region) {
-      return false;
-    }
-    */
-
     if (_restructuringClause != other._restructuringClause) {
       return false;
     }
@@ -640,12 +501,6 @@ public class CreditDefaultSwapDefinition {
     if (_stubType != other._stubType) {
       return false;
     }
-
-    /*
-    if (_sector != other._sector) {
-      return false;
-    }
-    */
 
     if (!ObjectUtils.equals(_startDate, other._startDate)) {
       return false;
@@ -662,7 +517,7 @@ public class CreditDefaultSwapDefinition {
     return true;
   }
 
-  //---------------------------------------------------------------------------------------------------------------------------------------- 
+  // ---------------------------------------------------------------------------------------------------------------------------------------- 
 }
 
-//----------------------------------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------------------------------------------
