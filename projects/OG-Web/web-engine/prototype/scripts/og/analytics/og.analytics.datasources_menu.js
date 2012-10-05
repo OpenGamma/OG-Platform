@@ -32,8 +32,21 @@ $.register_module({
                         case 'Live': populate_livedatasources(); break;
                     }
                 },
+                remove_entry = function (entry) {
+                    if (ds_opts.length === 1) {
+                        return $type_select.val(default_sel_txt).focus(),
+                            $ds_selection.text(default_sel_txt), ds_opts.length = 0;
+                    }
+                    ds_opts.splice(entry, 1);
+                },
                 add_handler = function () {
                     menu.add_handler(); 
+                },
+                del_handler = function () {
+                    if (menu.opts.length === 1) {
+                        return $ds_selection.html(default_sel_txt),
+                            $type_select.val(default_sel_txt).focus(), $ds_select.val(default_sel_txt), remove_entry();
+                    }
                 },
                 menu_handler = function (event) {
                     var target = event.srcElement || event.target,

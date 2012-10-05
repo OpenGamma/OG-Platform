@@ -28,7 +28,7 @@ $.register_module({
                 remove_entry = function (entry) {
                     if (ag_opts.length === 1) {
                         return $sel_select.val(default_sel_txt).focus(),
-                            $ag_selection.text(default_sel_txt), ag_opts = [];
+                            $ag_selection.text(default_sel_txt), ag_opts.length = 0;
                     }
                     ag_opts.splice(entry, 1);
                 },
@@ -38,8 +38,8 @@ $.register_module({
                             $sel_select.val(default_sel_txt).focus(), remove_entry();
                     }
                     if($sel_select !== undefined) menu.del_handler($sel_parent);
-                    for (var i = entry !== -1 ? entry : sel_pos, len = ag_opts.length; i < len; ag_opts[i++].pos-=1);
-                    if (entry !== -1) {
+                    for (var i = ~entry ? entry : sel_pos, len = ag_opts.length; i < len; ag_opts[i++].pos-=1);
+                    if (~entry) {
                         remove_entry(entry);
                         process_ag_opts();
                     }
@@ -53,7 +53,7 @@ $.register_module({
                         remove_entry(entry);
                         $sel_checkbox[0].disabled = true;
                         if (ag_opts.length === 0) return $ag_selection.html(default_sel_txt);
-                    } else if (entry !== -1) ag_opts[entry].val = sel_val;
+                    } else if (~entry) ag_opts[entry].val = sel_val;
                     else {
                         ag_opts.splice(sel_pos, 0, {pos:sel_pos, val:sel_val, required_field:false});
                         $sel_checkbox[0].disabled = false;
@@ -61,8 +61,8 @@ $.register_module({
                     process_ag_opts();
                 },
                 checkbox_handler = function (entry) {
-                    if ($sel_checkbox[0].checked && entry !== -1) ag_opts[entry].required_field = true;
-                    else if (!$sel_checkbox[0].checked && entry !== -1) ag_opts[entry].required_field = false;
+                    if ($sel_checkbox[0].checked && ~entry) ag_opts[entry].required_field = true;
+                    else if (!$sel_checkbox[0].checked && ~entry) ag_opts[entry].required_field = false;
                     $sel_checkbox.focus();
                 },
                 menu_handler = function (event) {
