@@ -34,7 +34,7 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
     if (builderSpecDoc != null) {
       return builderSpecDoc;
     }
-    builderSpecDoc = _configSource.getLatest(CurveSpecificationBuilderConfiguration.class, conventionName);
+    builderSpecDoc = _configSource.getLatestByName(CurveSpecificationBuilderConfiguration.class, conventionName);
     if (builderSpecDoc != null) {
       cache.put(conventionName, builderSpecDoc);
     }

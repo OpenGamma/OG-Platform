@@ -6,6 +6,7 @@
 package com.opengamma.master;
 
 import static com.google.common.collect.Maps.newHashMap;
+import static com.opengamma.util.functional.Functional.functional;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -22,6 +23,7 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.ChangeProvider;
+import com.opengamma.core.change.ChangeType;
 import com.opengamma.id.*;
 import com.opengamma.util.ArgumentChecker;
 
@@ -122,7 +124,7 @@ abstract public class SimpleAbstractInMemoryMaster<T extends UniqueIdentifiable,
 
     if (replacementDocuments.isEmpty()) {
       _store.remove(objectId.getObjectId());
-      //_changeManager.entityChanged(ChangeType.REMOVED, uniqueId, document.getUniqueId(), now);
+      _changeManager.entityChanged(ChangeType.REMOVED, objectId.getObjectId(), null, null, now);
       return Collections.emptyList();
     } else {
       Instant storedVersionFrom = storedDocument.getVersionFromInstant();
@@ -135,6 +137,7 @@ abstract public class SimpleAbstractInMemoryMaster<T extends UniqueIdentifiable,
       if (_store.replace(objectId.getObjectId(), storedDocument, lastReplacementDocument) == false) {
         throw new IllegalArgumentException("Concurrent modification");
       }
+      changeManager().entityChanged(ChangeType.CHANGED, objectId.getObjectId(), functional(orderedReplacementDocuments).first().getVersionFromInstant(), functional(orderedReplacementDocuments).last().getVersionToInstant(), now);
       return ImmutableList.of(lastReplacementDocument.getUniqueId());
     }
   }

@@ -33,7 +33,7 @@ import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.marketdata.InMemoryNamedMarketDataSpecificationRepository;
-import com.opengamma.engine.MockFunction;
+import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessorInternal;
 import com.opengamma.engine.view.calc.EngineResourceManager;

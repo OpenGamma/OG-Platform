@@ -7,7 +7,7 @@ package com.opengamma.engine.fudgemsg;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.engine.TestViewDefinitionProvider;
+import com.opengamma.engine.test.TestViewDefinitionProvider;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 

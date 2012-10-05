@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine;
+package com.opengamma.engine.test;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -12,6 +12,8 @@ import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;

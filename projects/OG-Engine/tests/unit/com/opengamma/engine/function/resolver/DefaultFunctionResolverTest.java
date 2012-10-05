@@ -15,7 +15,7 @@ import org.testng.annotations.Test;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.ParameterizedFunction;
-import com.opengamma.engine.PrimitiveTestFunction;
+import com.opengamma.engine.test.PrimitiveTestFunction;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;

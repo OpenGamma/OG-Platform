@@ -13,6 +13,7 @@ import static org.testng.AssertJUnit.assertSame;
 
 import java.net.URI;
 import java.util.Collection;
+import java.util.Collections;
 
 import javax.time.Instant;
 import javax.ws.rs.core.Response;
@@ -27,6 +28,7 @@ import com.opengamma.core.exchange.impl.SimpleExchange;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.transport.jaxrs.FudgeResponse;
 import com.opengamma.util.fudgemsg.FudgeListWrapper;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
@@ -79,14 +81,15 @@ public class DataConfigSourceResourceTest {
   @SuppressWarnings({"rawtypes", "unchecked" })
   @Test
   public void testSearch() {
-    final SimpleExchange target = new SimpleExchange();
+    final ConfigItem<SimpleExchange> target = ConfigItem.of(new SimpleExchange());
     target.setName("Test");
     
-    when(_underlying.getConfig(eq(SimpleExchange.class), eq(NAME), eq(VC))).thenReturn(target);
+    when(_underlying.get(eq(SimpleExchange.class), eq(NAME), eq(VC))).thenReturn(target);
     
     Response test = _resource.search(SimpleExchange.class.getName(), VC.getVersionAsOfString(), VC.getCorrectedToString(), NAME);
     assertEquals(Status.OK.getStatusCode(), test.getStatus());
-    assertEquals(target, test.getEntity());
+    assertEquals(new FudgeResponse(Collections.singleton(target)), test.getEntity());
   }
+  
 
 }

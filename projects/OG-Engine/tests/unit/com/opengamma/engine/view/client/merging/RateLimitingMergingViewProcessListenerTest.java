@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.TestViewResultListener;
+import com.opengamma.engine.test.TestViewResultListener;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;

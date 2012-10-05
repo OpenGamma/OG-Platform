@@ -9,8 +9,8 @@
         </#if>
         "dataFields": ["id","name" <#if searchRequest.securityType = ''>, "type"</#if>]
     },
-    "data" : [<#if searchResult??><#list searchResult.documents as item>
-        "${item.uniqueId.objectId}|${item.security.name}<#if searchRequest.securityType = ''>|${item.security.securityType}</#if>"<#if item_has_next>,</#if>
+    "data" : [<#if searchResult??><#list searchResult.securities as security>
+        "${security.uniqueId.objectId}|${security.name}<#if searchRequest.securityType = ''>|${security.securityType}</#if>"<#if security_has_next>,</#if>
      </#list> </#if>]
 }
 </#escape>

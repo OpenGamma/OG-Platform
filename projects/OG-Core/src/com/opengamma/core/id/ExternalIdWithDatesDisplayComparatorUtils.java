@@ -29,7 +29,7 @@ public class ExternalIdWithDatesDisplayComparatorUtils {
       s_logger.error("null config source, defaulting to default configuration");
       return new ExternalIdWithDatesDisplayComparator(ExternalIdOrderConfig.DEFAULT_CONFIG);
     } else {
-      config = configSource.getLatest(ExternalIdOrderConfig.class, name);
+      config = configSource.getLatestByName(ExternalIdOrderConfig.class, name);
       if (config == null) {
         s_logger.error("No ExternalIdOrderConfig object called " + name + " in config database, defaulting");
         return new ExternalIdWithDatesDisplayComparator(ExternalIdOrderConfig.DEFAULT_CONFIG); 

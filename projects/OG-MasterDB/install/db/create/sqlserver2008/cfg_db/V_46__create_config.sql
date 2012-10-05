@@ -33,7 +33,9 @@ CREATE TABLE cfg_config (
     config IMAGE NOT NULL,
     PRIMARY KEY (id),
     CONSTRAINT cfg_chk_config_ver_order CHECK (ver_from_instant <= ver_to_instant),
-    CONSTRAINT cfg_chk_config_corr_order CHECK (corr_from_instant <= corr_to_instant)
+    CONSTRAINT cfg_chk_config_corr_order CHECK (corr_from_instant <= corr_to_instant),
+    CONSTRAINT name_type_unique UNIQUE (name, config_type, corr_from_instant, ver_from_instant), 
+    CONSTRAINT oid_unique UNIQUE (oid, corr_from_instant, ver_from_instant) 
 );
 CREATE INDEX ix_cfg_config_oid ON cfg_config(oid);
 CREATE INDEX ix_cfg_config_ver_from_instant ON cfg_config(ver_from_instant);

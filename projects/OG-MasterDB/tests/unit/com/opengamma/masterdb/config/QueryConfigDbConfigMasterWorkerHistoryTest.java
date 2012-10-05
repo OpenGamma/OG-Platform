@@ -50,8 +50,8 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
     ConfigHistoryResult<ExternalId> test = _cfgMaster.history(request);
     
     assertEquals(2, test.getDocuments().size());
-    assert202((ConfigItem<ExternalId>)test.getDocuments().get(0).getObject());
-    assert201((ConfigItem<ExternalId>)test.getDocuments().get(1).getObject());
+    assert202(test.getDocuments().get(0));
+    assert201(test.getDocuments().get(1));
   }
 
   private ConfigHistoryRequest<ExternalId> createRequest(ObjectId oid) {
@@ -70,8 +70,8 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
     assertEquals(2, test.getPaging().getTotalItems());
     
     assertEquals(2, test.getDocuments().size());
-    assert202((ConfigItem<ExternalId>)test.getDocuments().get(0).getObject());
-    assert201((ConfigItem<ExternalId>)test.getDocuments().get(1).getObject());
+    assert202(test.getDocuments().get(0));
+    assert201(test.getDocuments().get(1));
   }
 
   //-------------------------------------------------------------------------
@@ -87,7 +87,7 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
     assertEquals(2, test.getPaging().getTotalItems());
     
     assertEquals(1, test.getDocuments().size());
-    assert202((ConfigItem<ExternalId>)test.getDocuments().get(0).getObject());
+    assert202(test.getDocuments().get(0));
   }
 
   @Test
@@ -105,7 +105,7 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
     
     assertNotNull(test.getDocuments());
     assertEquals(1, test.getDocuments().size());
-    assert201((ConfigItem<ExternalId>)test.getDocuments().get(0).getObject());
+    assert201(test.getDocuments().get(0));
   }
 
   //-------------------------------------------------------------------------
@@ -119,8 +119,8 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
     assertEquals(2, test.getPaging().getTotalItems());
     
     assertEquals(2, test.getDocuments().size());
-    assert202((ConfigItem<ExternalId>)test.getDocuments().get(0).getObject());
-    assert201((ConfigItem<ExternalId>)test.getDocuments().get(1).getObject());
+    assert202(test.getDocuments().get(0));
+    assert201(test.getDocuments().get(1));
   }
 
   @Test
@@ -131,8 +131,8 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
     ConfigHistoryResult<ExternalId> test = _cfgMaster.history(request);
     
     assertEquals(2, test.getPaging().getTotalItems());
-    assert202((ConfigItem<ExternalId>)test.getDocuments().get(0).getObject());
-    assert201((ConfigItem<ExternalId>)test.getDocuments().get(1).getObject());
+    assert202(test.getDocuments().get(0));
+    assert201(test.getDocuments().get(1));
   }
 
   @Test
@@ -143,7 +143,7 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
     ConfigHistoryResult<ExternalId> test = _cfgMaster.history(request);
     
     assertEquals(1, test.getPaging().getTotalItems());
-    assert202((ConfigItem<ExternalId>)test.getDocuments().get(0).getObject());
+    assert202(test.getDocuments().get(0));
   }
 
   //-------------------------------------------------------------------------
@@ -167,7 +167,7 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
     ConfigHistoryResult<ExternalId> test = _cfgMaster.history(request);
     
     assertEquals(1, test.getPaging().getTotalItems());
-    assert201((ConfigItem<ExternalId>)test.getDocuments().get(0).getObject());
+    assert201(test.getDocuments().get(0));
   }
 
   @Test
@@ -180,8 +180,8 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
     assertEquals(2, test.getPaging().getTotalItems());
     
     assertEquals(2, test.getDocuments().size());
-    assert202((ConfigItem<ExternalId>)test.getDocuments().get(0).getObject());
-    assert201((ConfigItem<ExternalId>)test.getDocuments().get(1).getObject());
+    assert202(test.getDocuments().get(0));
+    assert201(test.getDocuments().get(1));
   }
 
 }

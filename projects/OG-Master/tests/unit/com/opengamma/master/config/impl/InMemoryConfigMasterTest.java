@@ -92,7 +92,7 @@ public class InMemoryConfigMasterTest {
     request.addConfigId(_item2.getObjectId());
     ConfigSearchResult<ExternalId> result = _testPopulated.search(request);
     assertEquals(1, result.getDocuments().size());
-    assertEquals(_item2, result.getFirstDocument());
+    assertEquals(_item2, result.getFirstDocument().getObject());
   }
 
   //-------------------------------------------------------------------------
@@ -142,7 +142,7 @@ public class InMemoryConfigMasterTest {
     ConfigSearchResult<Object> result = _testPopulated.search(request);
     assertEquals(1, result.getPaging().getTotalItems());
     assertEquals(1, result.getDocuments().size());
-    assertEquals(true, result.getDocuments().contains(_item1));
+    assertEquals(true, result.getValues().contains(_item1));
   }
 
   public void test_search_populatedMaster_filterByType() {
@@ -151,8 +151,8 @@ public class InMemoryConfigMasterTest {
     ConfigSearchResult<ExternalId> result = _testPopulated.search(request);
     assertEquals(2, result.getPaging().getTotalItems());
     assertEquals(2, result.getDocuments().size());
-    assertEquals(true, result.getDocuments().contains(_item1));
-    assertEquals(true, result.getDocuments().contains(_item2));
+    assertEquals(true, result.getValues().contains(_item1));
+    assertEquals(true, result.getValues().contains(_item2));
   }
 
   //-------------------------------------------------------------------------
@@ -162,10 +162,10 @@ public class InMemoryConfigMasterTest {
   }
 
   public void test_get_populatedMaster() {
-    assertSame(_item1, _testPopulated.get(_item1.getUniqueId()));
-    assertSame(_item2, _testPopulated.get(_item2.getUniqueId()));
-    assertSame(_item3, _testPopulated.get(_item3.getUniqueId()));
-    assertSame(_item4, _testPopulated.get(_item4.getUniqueId()));
+    assertSame(_item1, _testPopulated.get(_item1.getUniqueId()).getObject());
+    assertSame(_item2, _testPopulated.get(_item2.getUniqueId()).getObject());
+    assertSame(_item3, _testPopulated.get(_item3.getUniqueId()).getObject());
+    assertSame(_item4, _testPopulated.get(_item4.getUniqueId()).getObject());
   }
 
   public void test_get_typed_populatedMaster() {
@@ -180,7 +180,6 @@ public class InMemoryConfigMasterTest {
     assertSame(_item4, storedDoc4);
   }
 
-  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_get_invalid_typed_populatedMaster() {
     ConfigItem<?> storedDoc1 = _testPopulated.get(_item1.getUniqueId()).getObject();
     assertSame(_item1, storedDoc1);
@@ -190,10 +189,10 @@ public class InMemoryConfigMasterTest {
   public void test_add_emptyMaster() {
     ConfigItem<ExternalId> item = new ConfigItem<ExternalId>(VAL1);
     item.setName("Test");
-    ConfigItem<?> added = _testEmpty.add(new ConfigDocument(item)).getObject();
-    assertNotNull(added.getVersionFromInstant());
-    assertEquals("Test", added.getUniqueId().getScheme());
-    assertSame(VAL1, added.getValue());
+    ConfigDocument doc = _testEmpty.add(new ConfigDocument(item));
+    assertNotNull(doc.getVersionFromInstant());
+    assertEquals("Test", doc.getUniqueId().getScheme());
+    assertSame(VAL1, doc.getObject().getValue());
   }
 
   //-------------------------------------------------------------------------
@@ -207,9 +206,9 @@ public class InMemoryConfigMasterTest {
   public void test_update_populatedMaster() {
     ConfigItem<ExternalId> item = new ConfigItem<ExternalId>(VAL1);
     item.setUniqueId(_item1.getUniqueId());
-    ConfigItem<?> updated = _testPopulated.update(new ConfigDocument(item)).getObject();
+    ConfigDocument updated = _testPopulated.update(new ConfigDocument(item));
     assertEquals(_item1.getUniqueId(), updated.getUniqueId());
-    assertNotNull(_item1.getVersionFromInstant());
+    assertNotNull(updated.getVersionFromInstant());
     assertNotNull(updated.getVersionFromInstant());
   }
 

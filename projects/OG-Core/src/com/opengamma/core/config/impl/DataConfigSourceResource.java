@@ -16,6 +16,7 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.exchange.impl.SimpleExchange;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -75,10 +76,10 @@ public class DataConfigSourceResource extends AbstractDataResource {
     final VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
     if (name == null) {
       Collection<?> result = getConfigSource().getAll(type, vc);
-      return responseOkFudge(FudgeListWrapper.of(result));
+      return responseOkFudge(result);
     } else {
       Collection<?> result = Collections.singleton(getConfigSource().get(type, name, vc));
-      return responseOkFudge(FudgeListWrapper.of(result));
+      return responseOkFudge(result);
     }
   }
 
@@ -87,7 +88,7 @@ public class DataConfigSourceResource extends AbstractDataResource {
   public Response get(
     @PathParam("uid") String uidStr) {
     final UniqueId uid = UniqueId.parse(uidStr);
-    ConfigItem result = getConfigSource().get(uid);
+    SimpleExchange result = getConfigSource().getConfig(SimpleExchange.class, uid);
     return responseOkFudge(result);
   }
 
@@ -113,8 +114,8 @@ public class DataConfigSourceResource extends AbstractDataResource {
 
     final ObjectId objectId = ObjectId.parse(idStr);
     final VersionCorrection versionCorrection = VersionCorrection.parse(versionCorrectionStr);
-    ConfigItem result = getConfigSource().get(objectId, versionCorrection);
-    return responseOkFudge(result);
+    SimpleExchange exchange = getConfigSource().getConfig(SimpleExchange.class, objectId, versionCorrection);
+    return responseOkFudge(exchange);
   }
 
 

@@ -26,7 +26,7 @@ public class ConfigDBSwaptionVolatilityCubeSpecificationSource implements Swapti
   @Override
   public SwaptionVolatilityCubeSpecification getSpecification(final String name) {
     ArgumentChecker.notNull(name, "name");
-    return _configSource.getLatest(SwaptionVolatilityCubeSpecification.class, name);
+    return _configSource.getLatestByName(SwaptionVolatilityCubeSpecification.class, name);
   }
 
   @Override

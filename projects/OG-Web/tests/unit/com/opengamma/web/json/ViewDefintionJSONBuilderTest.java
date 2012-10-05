@@ -5,7 +5,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.engine.TestViewDefinitionProvider;
+import com.opengamma.engine.test.TestViewDefinitionProvider;
 import com.opengamma.engine.view.ViewDefinition;
 
 

@@ -36,7 +36,7 @@ public class ConfigDBVolatilityCubeDefinitionSource implements VolatilityCubeDef
   
   @Override
   public VolatilityCubeDefinition getDefinition(Currency ccy, String name) {
-    return _configSource.getLatest(VolatilityCubeDefinition.class, name + "_" + ccy.getCode());
+    return _configSource.getLatestByName(VolatilityCubeDefinition.class, name + "_" + ccy.getCode());
   }
 
   @Override

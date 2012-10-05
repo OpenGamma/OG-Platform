@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.view.calc.stats;
+package com.opengamma.engine.test;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -34,8 +34,7 @@ public class MockConfigSource implements ConfigSource {
   public <T> ConfigItem<T> get(Class<T> clazz, String configName, VersionCorrection versionCorrection) {
     for (ConfigItem<?> configItem : _store.values()) {
       if (clazz.isAssignableFrom(configItem.getType()) &&
-        configItem.getName().equals(configName) &&
-        isVersionCorrection(versionCorrection, configItem.getVersionFromInstant(), configItem.getVersionToInstant(), configItem.getCorrectionFromInstant(), configItem.getCorrectionToInstant()))
+        configItem.getName().equals(configName))
         return (ConfigItem<T>) configItem;
     }
     return null;
@@ -43,14 +42,13 @@ public class MockConfigSource implements ConfigSource {
 
   @Override
   public ConfigItem<?> get(UniqueId uniqueId) {
-    return _store.get(uniqueId);
+    return _store.get(uniqueId.getObjectId());
   }
 
   @Override
   public ConfigItem<?> get(ObjectId objectId, VersionCorrection versionCorrection) {
     for (ConfigItem<?> configItem : _store.values()) {
-      if (configItem.getObjectId().equals(objectId) &&
-        isVersionCorrection(versionCorrection, configItem.getVersionFromInstant(), configItem.getVersionToInstant(), configItem.getCorrectionFromInstant(), configItem.getCorrectionToInstant()))
+      if (configItem.getObjectId().equals(objectId))        
         return configItem;
     }
     return null;
@@ -61,8 +59,7 @@ public class MockConfigSource implements ConfigSource {
   public <T> Collection<ConfigItem<T>> getAll(Class<T> clazz, VersionCorrection versionCorrection) {
     List<ConfigItem<T>> list = newArrayList();
     for (ConfigItem<?> configItem : _store.values()) {
-      if (clazz.isAssignableFrom(configItem.getType()) &&
-        isVersionCorrection(versionCorrection, configItem.getVersionFromInstant(), configItem.getVersionToInstant(), configItem.getCorrectionFromInstant(), configItem.getCorrectionToInstant()))
+      if (clazz.isAssignableFrom(configItem.getType()))
         list.add((ConfigItem<T>) configItem);
     }
     return list;
@@ -86,8 +83,8 @@ public class MockConfigSource implements ConfigSource {
   }
 
   @Override
-  public <T> T getLatest(Class<T> clazz, String configName) {
-    return get(clazz, configName, VersionCorrection.LATEST).getValue();
+  public <T> T getLatestByName(Class<T> clazz, String name) {
+    return getConfig(clazz, name, VersionCorrection.LATEST);
   }
 
   @Override
@@ -107,6 +104,9 @@ public class MockConfigSource implements ConfigSource {
 
   public ConfigItem<ViewDefinition> put(ViewDefinition viewDefinition) {
     ConfigItem<ViewDefinition> item = ConfigItem.of(viewDefinition);
+    if(item.getValue().getUniqueId() == null){
+      item.getValue().setUniqueId(UniqueId.of(ViewDefinition.class.getName(), item.getValue().getName()));
+    }
     _store.put(viewDefinition.getUniqueId().getObjectId(), item);
     return item;
   }

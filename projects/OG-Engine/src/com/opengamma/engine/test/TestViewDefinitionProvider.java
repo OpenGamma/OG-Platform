@@ -1,4 +1,4 @@
-package com.opengamma.engine;
+package com.opengamma.engine.test;
 
 import com.opengamma.engine.function.resolver.SimpleResolutionRuleTransform;
 import com.opengamma.engine.value.ValueProperties;

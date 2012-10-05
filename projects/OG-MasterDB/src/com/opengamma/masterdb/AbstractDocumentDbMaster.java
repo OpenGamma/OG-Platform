@@ -7,6 +7,7 @@ package com.opengamma.masterdb;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
+import static com.opengamma.util.functional.Functional.functional;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -351,6 +352,7 @@ public abstract class AbstractDocumentDbMaster<T extends UniqueIdentifiable, D e
     // update old row
     final Instant now = now();
     oldDoc.setVersionToInstant(now);
+    oldDoc.setCorrectionToInstant(now);
     updateVersionToInstant(oldDoc);
     // insert new row
     document.setVersionFromInstant(now);
@@ -387,6 +389,10 @@ public abstract class AbstractDocumentDbMaster<T extends UniqueIdentifiable, D e
   protected D doRemoveInTransaction(final ObjectIdentifiable objectIdentifiable) {
     // load old row
     final D oldDoc = get(objectIdentifiable.getObjectId(), VersionCorrection.LATEST);
+    
+    if(oldDoc == null){
+      throw new DataNotFoundException("There is no document with oid:"+objectIdentifiable.getObjectId());
+    }
     // update old row
     final Instant now = now();
     oldDoc.setVersionToInstant(now);
@@ -468,7 +474,7 @@ public abstract class AbstractDocumentDbMaster<T extends UniqueIdentifiable, D e
         storedDocument.setCorrectionToInstant(now);
         updateCorrectionToInstant(storedDocument);
 
-        //TODO changeManager().entityChanged(ChangeType.REMOVED, , null, now);
+        
 
         List<D> orderedReplacementDocuments = MasterUtils.adjustVersionInstants(now, storedVersionFrom, storedVersionTo, replacementDocuments);
 
@@ -489,14 +495,17 @@ public abstract class AbstractDocumentDbMaster<T extends UniqueIdentifiable, D e
             previousDocument.setUniqueId(uniqueId.getUniqueId().toLatest());
             insert(previousDocument);
             newVersions.add(previousDocument);
+            changeManager().entityChanged(ChangeType.CHANGED, storedDocument.getObjectId(), storedVersionFrom, storedVersionTo, now);
+          }else{
+            changeManager().entityChanged(ChangeType.REMOVED, storedDocument.getObjectId(), null, null, now);  
           }
-        } else {
+        } else {          
           for (D replacementDocument : orderedReplacementDocuments) {
             replacementDocument.setUniqueId(uniqueId.getUniqueId().toLatest());
             insert(replacementDocument);
-            newVersions.add(replacementDocument);
-            //TODO changeManager()
+            newVersions.add(replacementDocument);            
           }
+          changeManager().entityChanged(ChangeType.CHANGED, storedDocument.getObjectId(), storedVersionFrom, storedVersionTo, now);
         }
         return MasterUtils.mapToUniqueIDs(newVersions);
       }
@@ -668,15 +677,15 @@ public abstract class AbstractDocumentDbMaster<T extends UniqueIdentifiable, D e
         }
 
         if (terminatedAny && replacementDocuments.isEmpty()) {
-          // changeManager().entityChanged(ChangeType.REMOVED, objectId.getObjectId(), null, now);
+          changeManager().entityChanged(ChangeType.REMOVED, objectId.getObjectId(), null, null, now);          
           return Collections.emptyList();
         } else {
           List<D> orderedReplacementDocuments = MasterUtils.adjustVersionInstants(now, null, null, replacementDocuments);
           for (D replacementDocument : orderedReplacementDocuments) {
             replacementDocument.setUniqueId(objectId.getObjectId().atLatestVersion());
-            insert(replacementDocument);
-            //TODO changeManager()                             
+            insert(replacementDocument);                          
           }
+          changeManager().entityChanged(ChangeType.CHANGED, objectId.getObjectId(), functional(orderedReplacementDocuments).first().getVersionFromInstant(), functional(orderedReplacementDocuments).last().getVersionToInstant(), now);
           return MasterUtils.mapToUniqueIDs(orderedReplacementDocuments);
         }
       }
@@ -741,14 +750,14 @@ public abstract class AbstractDocumentDbMaster<T extends UniqueIdentifiable, D e
             }
           }
           if (terminatedAny && replacementDocuments.isEmpty()) {
-            // changeManager().entityChanged(ChangeType.REMOVED, objectId.getObjectId(), null, now);
+            changeManager().entityChanged(ChangeType.REMOVED, objectId.getObjectId(), null, null, now);
             return Collections.emptyList();
           } else {
             for (D replacementDocument : orderedReplacementDocuments) {
               replacementDocument.setUniqueId(objectId.getObjectId().atLatestVersion());
-              insert(replacementDocument);
-              //TODO changeManager()                             
+              insert(replacementDocument);                                         
             }
+            changeManager().entityChanged(ChangeType.CHANGED, objectId.getObjectId(), functional(orderedReplacementDocuments).first().getVersionFromInstant(), functional(orderedReplacementDocuments).last().getVersionToInstant(), now);
             return MasterUtils.mapToUniqueIDs(orderedReplacementDocuments);
           }
 

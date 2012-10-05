@@ -102,22 +102,6 @@ public class DbConfigMasterTest extends DbTest {
   }
   
   //-------------------------------------------------------------------------
-  @Test(expectedExceptions = DataNotFoundException.class)
-  public void test_get_invalid_type() throws Exception {
-    ConfigItem<ExternalId> identifierDoc = ConfigItem.of(ExternalId.of("A", "B"));
-    identifierDoc.setName("ExternalId test");
-    
-    _cfgMaster.add(new ConfigDocument(identifierDoc));
-    
-    ConfigItem<ExternalIdBundle> bundleDoc = ConfigItem.of(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D")));
-    bundleDoc.setName("Bundle test");
-    
-    ConfigDocument addedBundle = _cfgMaster.add(new ConfigDocument(bundleDoc));
-    
-    _cfgMaster.get(addedBundle.getUniqueId());    
-  }
-  
-  //-------------------------------------------------------------------------
   @Test
   public void test_toString() {
     assertEquals("DbConfigMaster[DbCfg]", _cfgMaster.toString());

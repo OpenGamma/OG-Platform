@@ -111,20 +111,9 @@ public class RemoteConfigSource extends AbstractRemoteSource<ConfigItem<?>> impl
     return accessRemote(uri).get(gt.getRawClass());
   }
 
-  //-------------------------------------------------------------------------
   @Override
-  public <T> T getLatest(Class<T> clazz, String name) {
-    ArgumentChecker.notNull(clazz, "clazz");
-    ArgumentChecker.notNull(name, "name");
-
-    try {
-      URI uri = DataConfigSourceResource.uriSearchSingle(getBaseUri(), name, null, clazz);
-      return accessRemote(uri).get(clazz);
-    } catch (DataNotFoundException ex) {
-      return null;
-    } catch (UniformInterfaceException404NotFound ex) {
-      return null;
-    }
+  public <T> T getLatestByName(Class<T> clazz, String name) {
+    return getConfig(clazz, name, VersionCorrection.LATEST);
   }
 
   @Override

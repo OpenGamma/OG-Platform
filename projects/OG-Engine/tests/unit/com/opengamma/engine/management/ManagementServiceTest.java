@@ -22,7 +22,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.marketdata.spec.MarketData;
-import com.opengamma.engine.ViewProcessorTestEnvironment;
+import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessorImpl;
 import com.opengamma.engine.view.calc.stats.TotallingGraphStatisticsGathererProvider;

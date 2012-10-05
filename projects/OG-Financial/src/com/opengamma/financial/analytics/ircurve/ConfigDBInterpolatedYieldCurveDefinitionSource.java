@@ -45,7 +45,7 @@ public class ConfigDBInterpolatedYieldCurveDefinitionSource implements Interpola
   //-------------------------------------------------------------------------
   @Override
   public YieldCurveDefinition getDefinition(final Currency ccy, final String name) {
-    return _configSource.getLatest(YieldCurveDefinition.class, name + "_" + ccy.getCode());
+    return _configSource.getLatestByName(YieldCurveDefinition.class, name + "_" + ccy.getCode());
   }
 
   @Override

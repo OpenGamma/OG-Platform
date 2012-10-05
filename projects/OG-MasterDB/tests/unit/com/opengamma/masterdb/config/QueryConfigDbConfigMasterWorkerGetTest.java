@@ -51,28 +51,28 @@ public class QueryConfigDbConfigMasterWorkerGetTest extends AbstractDbConfigMast
   public void test_getConfig_versioned_oneConfigKey() {
     UniqueId uniqueId = UniqueId.of("DbCfg", "101", "0");
     ConfigDocument test = _cfgMaster.get(uniqueId);
-    assert101((ConfigItem<ExternalId>)test.getObject());
+    assert101(test);
   }
 
   @Test
   public void test_getConfig_versioned_twoConfigKeys() {
     UniqueId uniqueId = UniqueId.of("DbCfg", "102", "0");
     ConfigDocument test = _cfgMaster.get(uniqueId);
-    assert102((ConfigItem<ExternalId>)test.getObject());
+    assert102(test);
   }
 
   @Test
   public void test_getConfig_versioned_notLatest() {
     UniqueId uniqueId = UniqueId.of("DbCfg", "201", "0");
     ConfigDocument test = _cfgMaster.get(uniqueId);
-    assert201((ConfigItem<ExternalId>)test.getObject());
+    assert201(test);
   }
 
   @Test
   public void test_getConfig_versioned_latest() {
     UniqueId uniqueId = UniqueId.of("DbCfg", "201", "1");
     ConfigDocument test = _cfgMaster.get(uniqueId);
-    assert202((ConfigItem<ExternalId>)test.getObject());
+    assert202(test);
   }
 
   //-------------------------------------------------------------------------
@@ -86,7 +86,7 @@ public class QueryConfigDbConfigMasterWorkerGetTest extends AbstractDbConfigMast
   public void test_getConfig_unversioned() {
     UniqueId uid = UniqueId.of("DbCfg", "201");
     ConfigDocument test = _cfgMaster.get(uid);
-    assert202((ConfigItem<ExternalId>)test.getObject());
+    assert202(test);
   }
   
   @SuppressWarnings("unchecked")
@@ -97,7 +97,7 @@ public class QueryConfigDbConfigMasterWorkerGetTest extends AbstractDbConfigMast
     assertNotNull(test);
     if (test.getObject().getValue() instanceof ExternalId) {
       assertEquals(test.getType(), ExternalId.class);
-      assert101((ConfigItem<ExternalId>)test.getObject());
+      assert101(test);
     } else {
       Assert.fail();
     }

@@ -24,7 +24,7 @@ public class ConfigDBFXForwardCurveDefinitionSource implements FXForwardCurveDef
 
   @Override
   public FXForwardCurveDefinition getDefinition(final String name, final String currencyPair) {
-    return _configSource.getLatest(FXForwardCurveDefinition.class, name + "_" + currencyPair + "_FX_FORWARD");
+    return _configSource.getLatestByName(FXForwardCurveDefinition.class, name + "_" + currencyPair + "_FX_FORWARD");
   }
 
   @Override

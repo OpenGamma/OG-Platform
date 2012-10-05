@@ -117,10 +117,11 @@ public class ModifyConfigDbConfigMasterWorkerUpdateTest extends AbstractDbConfig
 
     UniqueId uniqueId = UniqueId.of("DbCfg", "101", "0");
     ConfigDocument base = _cfgMaster.get(uniqueId);
-    ConfigItem<ExternalId> input = ConfigItem.of(null);
-    ConfigDocument doc = new ConfigDocument(input);
-    input.setName("NewName");
+    //ConfigItem<ExternalId> input = ConfigItem.of(null);
+    ConfigDocument doc = new ConfigDocument(null);
+    //input.setName("NewName");
     doc.setUniqueId(uniqueId);
+    doc.setName("NewName");
 
     ConfigDocument updated = _cfgMaster.update(doc);
     assertEquals(false, base.getUniqueId().equals(updated.getUniqueId()));

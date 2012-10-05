@@ -106,7 +106,7 @@ public final class IdUtils {
     return
       (asOf == null && to == null)
         ||
-        (to == null || to.isAfter(asOf)) && !from.isAfter(asOf);
+        (to == null || to.isAfter(asOf)) && (from == null || !from.isAfter(asOf));
   }
 
   /**

@@ -46,12 +46,12 @@ public class ChangeEvent extends DirectBean implements Serializable {
   /**
    * The begining of a timespan of the change of the entity, not null.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private Instant _versionFrom;
   /**
    * The end of a timespan of the change of the entity, not null.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private Instant _versionTo;
   /**
    * The object id of the entity, not null.
@@ -81,9 +81,7 @@ public class ChangeEvent extends DirectBean implements Serializable {
    */
   public ChangeEvent(final ChangeType type, final ObjectId oid, final Instant versionFrom, final Instant versionTo, final Instant versionInstant) {
     ArgumentChecker.notNull(type, "type");
-    ArgumentChecker.notNull(oid, "oid");
-    ArgumentChecker.notNull(versionFrom, "versionFrom");
-    ArgumentChecker.notNull(versionTo, "versionTo");
+    ArgumentChecker.notNull(oid, "oid");    
     ArgumentChecker.notNull(versionInstant, "versionInstant");
     setType(type);
     setObjectId(oid);
@@ -152,8 +150,6 @@ public class ChangeEvent extends DirectBean implements Serializable {
   @Override
   protected void validate() {
     JodaBeanUtils.notNull(_type, "type");
-    JodaBeanUtils.notNull(_versionFrom, "versionFrom");
-    JodaBeanUtils.notNull(_versionTo, "versionTo");
     JodaBeanUtils.notNull(_objectId, "objectId");
     JodaBeanUtils.notNull(_versionInstant, "versionInstant");
     super.validate();
@@ -215,7 +211,7 @@ public class ChangeEvent extends DirectBean implements Serializable {
   //-----------------------------------------------------------------------
   /**
    * Gets the begining of a timespan of the change of the entity, not null.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public Instant getVersionFrom() {
     return _versionFrom;
@@ -223,10 +219,9 @@ public class ChangeEvent extends DirectBean implements Serializable {
 
   /**
    * Sets the begining of a timespan of the change of the entity, not null.
-   * @param versionFrom  the new value of the property, not null
+   * @param versionFrom  the new value of the property
    */
   public void setVersionFrom(Instant versionFrom) {
-    JodaBeanUtils.notNull(versionFrom, "versionFrom");
     this._versionFrom = versionFrom;
   }
 
@@ -241,7 +236,7 @@ public class ChangeEvent extends DirectBean implements Serializable {
   //-----------------------------------------------------------------------
   /**
    * Gets the end of a timespan of the change of the entity, not null.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public Instant getVersionTo() {
     return _versionTo;
@@ -249,10 +244,9 @@ public class ChangeEvent extends DirectBean implements Serializable {
 
   /**
    * Sets the end of a timespan of the change of the entity, not null.
-   * @param versionTo  the new value of the property, not null
+   * @param versionTo  the new value of the property
    */
   public void setVersionTo(Instant versionTo) {
-    JodaBeanUtils.notNull(versionTo, "versionTo");
     this._versionTo = versionTo;
   }
 

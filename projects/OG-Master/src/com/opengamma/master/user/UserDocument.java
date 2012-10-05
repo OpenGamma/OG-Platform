@@ -36,13 +36,24 @@ public class UserDocument extends AbstractDocument<ManageableOGUser> implements 
    * This field is managed by the master but must be set for updates.
    */
   @PropertyDefinition
-  private UniqueId _uniqueId;
-  /**
-   * The OGUser.
-   */
-  @PropertyDefinition
-  private ManageableOGUser _user;
+  private UniqueId _uniqueId;  
   
+  /**
+   * Gets the OGUser.
+   * @return the value of the property
+   */
+  public ManageableOGUser getUser() {
+    return getObject();
+  }
+
+  /**
+   * Sets the OGUser.
+   * @param user  the new value of the property
+   */
+  public void setUser(ManageableOGUser user) {
+    setObject(user);
+  }
+
   /**
    * Creates an instance.
    */
@@ -94,8 +105,6 @@ public class UserDocument extends AbstractDocument<ManageableOGUser> implements 
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
-      case 3599307:  // user
-        return getUser();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -105,9 +114,6 @@ public class UserDocument extends AbstractDocument<ManageableOGUser> implements 
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         setUniqueId((UniqueId) newValue);
-        return;
-      case 3599307:  // user
-        setUser((ManageableOGUser) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -121,7 +127,6 @@ public class UserDocument extends AbstractDocument<ManageableOGUser> implements 
     if (obj != null && obj.getClass() == this.getClass()) {
       UserDocument other = (UserDocument) obj;
       return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getUser(), other.getUser()) &&
           super.equals(obj);
     }
     return false;
@@ -131,7 +136,6 @@ public class UserDocument extends AbstractDocument<ManageableOGUser> implements 
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUser());
     return hash ^ super.hashCode();
   }
 
@@ -165,31 +169,6 @@ public class UserDocument extends AbstractDocument<ManageableOGUser> implements 
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the OGUser.
-   * @return the value of the property
-   */
-  public ManageableOGUser getUser() {
-    return _user;
-  }
-
-  /**
-   * Sets the OGUser.
-   * @param user  the new value of the property
-   */
-  public void setUser(ManageableOGUser user) {
-    this._user = user;
-  }
-
-  /**
-   * Gets the the {@code user} property.
-   * @return the property, not null
-   */
-  public final Property<ManageableOGUser> user() {
-    return metaBean().user().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * The meta-bean for {@code UserDocument}.
    */
   public static class Meta extends AbstractDocument.Meta<ManageableOGUser> {
@@ -204,17 +183,11 @@ public class UserDocument extends AbstractDocument<ManageableOGUser> implements 
     private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(
         this, "uniqueId", UserDocument.class, UniqueId.class);
     /**
-     * The meta-property for the {@code user} property.
-     */
-    private final MetaProperty<ManageableOGUser> _user = DirectMetaProperty.ofReadWrite(
-        this, "user", UserDocument.class, ManageableOGUser.class);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "uniqueId",
-        "user");
+        "uniqueId");
 
     /**
      * Restricted constructor.
@@ -227,8 +200,6 @@ public class UserDocument extends AbstractDocument<ManageableOGUser> implements 
       switch (propertyName.hashCode()) {
         case -294460212:  // uniqueId
           return _uniqueId;
-        case 3599307:  // user
-          return _user;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -255,14 +226,6 @@ public class UserDocument extends AbstractDocument<ManageableOGUser> implements 
      */
     public final MetaProperty<UniqueId> uniqueId() {
       return _uniqueId;
-    }
-
-    /**
-     * The meta-property for the {@code user} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<ManageableOGUser> user() {
-      return _user;
     }
 
   }

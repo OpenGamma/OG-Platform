@@ -5,6 +5,7 @@
  */
 package com.opengamma.master.config;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -16,12 +17,12 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.jodah.typetools.TypeResolver;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.master.AbstractSearchResult;
 import com.opengamma.util.PublicSPI;
-import com.sun.jersey.api.client.GenericType;
 
 /**
  * Result from searching for configuration documents.
@@ -34,6 +35,16 @@ import com.sun.jersey.api.client.GenericType;
 @BeanDefinition
 public class ConfigSearchResult<T> extends AbstractSearchResult<ConfigDocument> {
 
+  private T _parameter;
+  Type _parameterType = null;
+  {
+    try {
+      _parameterType = ConfigSearchResult.class.getDeclaredField("_parameter").getGenericType();
+    } catch (NoSuchFieldException e) {
+      e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+    }
+  }
+  
   /**
    * Creates an instance.
    */
@@ -57,13 +68,10 @@ public class ConfigSearchResult<T> extends AbstractSearchResult<ConfigDocument> 
    */
   @SuppressWarnings("unchecked")
   public List<ConfigItem<T>> getValues() {
-    GenericType<T> gt = new GenericType<T>(){};
     List<ConfigItem<T>> result = new ArrayList<ConfigItem<T>>();
     if (getDocuments() != null) {
       for (ConfigDocument doc : getDocuments()) {
-        if(gt.getRawClass().isAssignableFrom(doc.getObject().getType())){
-          result.add((ConfigItem<T>) doc.getObject());
-        }
+        result.add((ConfigItem<T>) doc.getObject());
       }
     }
     return result;

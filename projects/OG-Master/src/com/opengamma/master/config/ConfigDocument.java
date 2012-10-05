@@ -43,21 +43,31 @@ public class ConfigDocument extends AbstractDocument<ConfigItem<?>> {
   public <T> ConfigDocument(T value, Class<T> type, String name, UniqueId uid, Instant versionFrom, Instant versionTo, Instant correctionFrom, Instant correctionTo) {
     ConfigItem<T> item = new ConfigItem<T>(value);
     item.setName(name);
-    item.setVersionFromInstant(versionFrom);
-    item.setVersionToInstant(versionTo);
-    item.setCorrectionFromInstant(correctionFrom);
-    item.setCorrectionToInstant(correctionTo);
+    setVersionFromInstant(versionFrom);
+    setVersionToInstant(versionTo);
+    setCorrectionFromInstant(correctionFrom);
+    setCorrectionToInstant(correctionTo);
     item.setType(type);
     setObject(item);
   }
 
+  /**
+   * The config unique identifier.
+   * This field is managed by the master but must be set for updates.
+   */
+  private UniqueId _uniqueId;
+
   @Override
   public UniqueId getUniqueId() {
-    return getObject() != null ? getObject().getUniqueId() : null;
+    if (_uniqueId == null && getObject() != null && getObject().getUniqueId() != null) {
+      _uniqueId = getObject().getUniqueId();
+    }
+    return _uniqueId;
   }
 
   @Override
   public void setUniqueId(UniqueId uniqueId) {
+    _uniqueId = uniqueId;
     if (getObject() != null) {
       getObject().setUniqueId(uniqueId);
     }
@@ -72,61 +82,47 @@ public class ConfigDocument extends AbstractDocument<ConfigItem<?>> {
   }
 
   @Override
-  public Instant getCorrectionFromInstant() {
-    return getObject().getCorrectionFromInstant();
-  }
-
-  @Override
-  public Instant getCorrectionToInstant() {
-    return getObject().getCorrectionToInstant();
-  }
-
-  @Override
   public ObjectId getObjectId() {
     return getObject().getObjectId();
   }
+ 
+  private String _name;
 
-  @Override
-  public Instant getVersionFromInstant() {
-    return getObject().getVersionFromInstant();
-  }
-
-  @Override
-  public Instant getVersionToInstant() {
-    return getObject().getVersionToInstant();
-  }
-
-  @Override
-  public void setCorrectionFromInstant(Instant correctionFromInstant) {
+  public void setName(String name) {
+    _name = name;
     if (getObject() != null) {
-      getObject().setCorrectionFromInstant(correctionFromInstant);
+      getObject().setName(_name);
     }
   }
 
-  @Override
-  public void setCorrectionToInstant(Instant correctionToInstant) {
-    if (getObject() != null) {
-      getObject().setCorrectionToInstant(correctionToInstant);
-    }
-  }
-
-  @Override
-  public void setVersionFromInstant(Instant versionFromInstant) {
-    if (getObject() != null) {
-      getObject().setVersionFromInstant(versionFromInstant);
-    }
-  }
-
-  @Override
-  public void setVersionToInstant(Instant versionToInstant) {
-    if (getObject() != null) {
-      getObject().setVersionToInstant(versionToInstant);
-    }
-  }
 
   public String getName() {
+    if (_name == null && getObject() != null && getObject().getName() != null) {
+      _name = getObject().getName();
+    }
+    return _name;
+  }
+
+  @Override
+  public void setObject(ConfigItem<?> object) {
+    super.setObject(object);
+    if (object != null) {
+      if (_name == null && object.getName() != null) {
+        _name = object.getName();
+      } else if (_name != null && object.getName() == null) {
+        object.setName(_name);
+      }
+      if (_uniqueId == null && object.getUniqueId() != null) {
+        _uniqueId = object.getUniqueId();
+      } else if (_uniqueId != null && object.getUniqueId() == null) {
+        object.setUniqueId(_uniqueId);
+      }
+    }
+  }
+
+  public Class getType() {
     if (getObject() != null) {
-      return getObject().getName();
+      return getObject().getType();
     } else {
       return null;
     }

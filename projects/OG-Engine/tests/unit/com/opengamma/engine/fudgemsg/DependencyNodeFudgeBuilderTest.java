@@ -7,7 +7,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.MockFunction;
+import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.value.ValueProperties;

@@ -21,7 +21,7 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.resolver.FunctionPriority;
-import com.opengamma.engine.MockFunction;
+import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 

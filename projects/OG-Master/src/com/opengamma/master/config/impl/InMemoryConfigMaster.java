@@ -200,7 +200,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
     if (request.isConfigTypes()) {
       Set<Class<?>> types = Sets.newHashSet();
       for (ConfigDocument doc : _store.values()) {
-        types.add(doc.getObject().getClass());
+        types.add(doc.getObject().getType());
       }
       result.getConfigTypes().addAll(types);
     }

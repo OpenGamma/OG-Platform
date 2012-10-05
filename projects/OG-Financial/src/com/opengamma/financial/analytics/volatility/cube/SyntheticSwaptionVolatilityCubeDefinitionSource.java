@@ -27,7 +27,7 @@ public class SyntheticSwaptionVolatilityCubeDefinitionSource implements Volatili
   @Override
   public VolatilityCubeDefinition getDefinition(final Currency currency, final String name) {
     ArgumentChecker.notNull(name, "name");
-    return _configSource.getLatest(VolatilityCubeDefinition.class, name);
+    return _configSource.getLatestByName(VolatilityCubeDefinition.class, name);
   }
 
   @Override

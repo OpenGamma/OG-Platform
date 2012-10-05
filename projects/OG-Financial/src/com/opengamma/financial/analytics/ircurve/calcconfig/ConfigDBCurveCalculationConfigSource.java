@@ -25,7 +25,7 @@ public class ConfigDBCurveCalculationConfigSource implements CurveCalculationCon
 
   @Override
   public MultiCurveCalculationConfig getConfig(final String name) {
-    return _configSource.getLatest(MultiCurveCalculationConfig.class, name);
+    return _configSource.getLatestByName(MultiCurveCalculationConfig.class, name);
   }
 
   @Override

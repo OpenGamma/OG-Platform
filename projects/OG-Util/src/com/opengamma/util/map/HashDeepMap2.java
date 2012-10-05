@@ -96,10 +96,6 @@ public class HashDeepMap2<K1, K2, V> implements DeepMap2<K1, K2, V> {
   }
 
 
-  GenericType<K1> gt = new GenericType<K1>() {
-  };
-
-
   @Override
   public V remove(final K1 key1, final K2 key2) {
     K1 k = borrowKey(key1);

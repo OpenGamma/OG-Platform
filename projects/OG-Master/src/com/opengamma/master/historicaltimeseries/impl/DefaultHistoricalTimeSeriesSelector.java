@@ -50,7 +50,7 @@ public class DefaultHistoricalTimeSeriesSelector implements HistoricalTimeSeries
         return Iterables.getOnlyElement(candidates);  
       default:
         // Pick best using rules from configuration
-        HistoricalTimeSeriesRating rating = _configSource.getLatest(HistoricalTimeSeriesRating.class, selectionKey);
+        HistoricalTimeSeriesRating rating = _configSource.getLatestByName(HistoricalTimeSeriesRating.class, selectionKey);
         if (rating == null) {
           s_logger.warn("Resolver failed to find configuration: {}", selectionKey);
           return null;

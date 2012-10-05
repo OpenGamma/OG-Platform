@@ -8,10 +8,12 @@ package com.opengamma.master.config.impl;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.opengamma.util.functional.Functional.functional;
 
-import java.util.ArrayList;
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+
+import org.jodah.typetools.TypeResolver;
 
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
@@ -142,7 +144,7 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
     ArgumentChecker.notNull(request.getType(), "request.type");
     request.setVersionCorrection(getVersionCorrection());
     ConfigSearchResult<T> searchResult = getMaster().search(request);
-    return searchResult.getValues();    
+    return searchResult.getValues();
   }
 
   //-------------------------------------------------------------------------
@@ -181,7 +183,11 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
 
   @Override
   public <T> T getConfig(Class<T> clazz, String configName, VersionCorrection versionCorrection) {
-    return get(clazz, configName, versionCorrection).getValue();
+    ConfigItem<T> result = get(clazz, configName, versionCorrection);
+    if(result != null){
+      return result.getValue();
+    }
+    return null;
   }
 
   @SuppressWarnings("unchecked")
@@ -197,28 +203,23 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
 
   @Override
   public <T> ConfigItem<T> get(Class<T> clazz, String configName, VersionCorrection versionCorrection) {
-    GenericType<T> gt = new GenericType<T>() {
-    };
-    ConfigSearchRequest<T> searchRequest = new ConfigSearchRequest<T>(gt.getRawClass());
-    searchRequest.setType(gt.getRawClass());
+    ConfigSearchRequest<T> searchRequest = new ConfigSearchRequest<T>(clazz);
     searchRequest.setName(configName);
     searchRequest.setVersionCorrection(versionCorrection);
     return functional(getMaster().search(searchRequest).getValues()).first();
   }
 
   @Override
-  public <T> Collection<ConfigItem<T>> getAll(Class<T> clazz, VersionCorrection versionCorrection) {
-    GenericType<T> gt = new GenericType<T>() {
-    };
-    ConfigSearchRequest<T> searchRequest = new ConfigSearchRequest<T>(gt.getRawClass());
-    searchRequest.setType(gt.getRawClass());
+  public <T> Collection<ConfigItem<T>> getAll(Class<T> clazz, VersionCorrection versionCorrection) {    
+    ConfigSearchRequest<T> searchRequest = new ConfigSearchRequest<T>(clazz);
+    searchRequest.setType(clazz);
     searchRequest.setVersionCorrection(versionCorrection);
     return getMaster().search(searchRequest).getValues();
   }
 
   @Override
-  public <T> T getLatest(Class<T> clazz, String name) {
-    return get(clazz, name, VersionCorrection.LATEST).getValue();
+  public <T> T getLatestByName(Class<T> clazz, String name) {
+    return getConfig(clazz, name, VersionCorrection.LATEST);
   }
 
   @Override
@@ -230,6 +231,6 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
     }
     return map;
   }
-  
-  
+
+
 }

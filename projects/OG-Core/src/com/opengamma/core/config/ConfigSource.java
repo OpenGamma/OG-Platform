@@ -163,7 +163,5 @@ public interface ConfigSource extends Source<ConfigItem<?>>, ChangeProvider {
    * @return the latest configuration element matching the request, null if not found
    * @throws RuntimeException if an error occurs
    */
-  <T> T getLatest(Class<T> clazz, String name);
-
-  
+  <T> T getLatestByName(Class<T> clazz, String name);
 }

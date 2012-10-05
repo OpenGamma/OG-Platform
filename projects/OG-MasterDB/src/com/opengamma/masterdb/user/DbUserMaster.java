@@ -73,7 +73,6 @@ public class DbUserMaster extends AbstractDocumentDbMaster<ManageableOGUser, Use
   @Override
   protected UserDocument insert(UserDocument document) {
     ArgumentChecker.notNull(document.getObject(), "document.user");
-    ArgumentChecker.notNull(document.getName(), "document.name");
     
     final ManageableOGUser user = document.getObject();
     final long docId = nextId("usr_oguser_seq");

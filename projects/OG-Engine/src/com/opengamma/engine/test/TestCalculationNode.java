@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine;
+package com.opengamma.engine.test;
 
 import java.util.concurrent.Executors;
 
@@ -11,6 +11,8 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.core.position.impl.MockPositionSource;
+import com.opengamma.engine.DefaultComputationTargetResolver;
+import com.opengamma.engine.InMemorySecuritySource;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionCompilationContext;

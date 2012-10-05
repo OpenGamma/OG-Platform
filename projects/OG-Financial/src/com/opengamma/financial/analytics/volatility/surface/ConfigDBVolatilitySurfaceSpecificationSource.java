@@ -45,14 +45,14 @@ public class ConfigDBVolatilitySurfaceSpecificationSource implements VolatilityS
 
   @Override
   public VolatilitySurfaceSpecification getSpecification(final String name, final String instrumentType) {
-    final VolatilitySurfaceSpecification specification = _configSource.getLatest(VolatilitySurfaceSpecification.class, name + "_" + instrumentType);
+    final VolatilitySurfaceSpecification specification = _configSource.getLatestByName(VolatilitySurfaceSpecification.class, name + "_" + instrumentType);
     if (specification == null && InstrumentTypeProperties.FOREX.equals(instrumentType)) {
       final String[] substrings = name.split("_");
       if (substrings.length == 2 && substrings[1].length() == 6) {
         final String firstCcy = substrings[1].substring(0, 3);
         final String secondCcy = substrings[1].substring(3, 6);
         final String reversedCcys = secondCcy + firstCcy;
-        return _configSource.getLatest(VolatilitySurfaceSpecification.class, substrings[0] + "_" + reversedCcys + "_" + instrumentType);
+        return _configSource.getLatestByName(VolatilitySurfaceSpecification.class, substrings[0] + "_" + reversedCcys + "_" + instrumentType);
       }
     }
     return specification;

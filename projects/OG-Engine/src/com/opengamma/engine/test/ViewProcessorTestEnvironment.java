@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine;
+package com.opengamma.engine.test;
 
 import java.util.concurrent.Executors;
 
@@ -15,6 +15,7 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.impl.MockPositionSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.*;
 import com.opengamma.engine.depgraph.DependencyGraphBuilderFactory;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
 import com.opengamma.engine.function.CompiledFunctionService;
@@ -43,7 +44,6 @@ import com.opengamma.engine.view.calc.ExecutionResult;
 import com.opengamma.engine.view.calc.SingleNodeExecutorFactory;
 import com.opengamma.engine.view.calc.ViewComputationJob;
 import com.opengamma.engine.view.calc.ViewResultListenerFactory;
-import com.opengamma.engine.view.calc.stats.MockConfigSource;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.LocalNodeJobInvoker;
 import com.opengamma.engine.view.calcnode.SimpleCalculationNode;

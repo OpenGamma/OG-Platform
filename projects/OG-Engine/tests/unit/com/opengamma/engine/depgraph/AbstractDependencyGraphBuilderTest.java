@@ -24,7 +24,7 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.MockFunction;
+import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ValueRequirement;
 
 /**

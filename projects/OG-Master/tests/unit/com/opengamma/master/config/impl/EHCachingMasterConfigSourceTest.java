@@ -5,6 +5,7 @@
  */
 package com.opengamma.master.config.impl;
 
+import static org.testng.Assert.assertTrue;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertSame;
 
@@ -36,7 +37,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 public class EHCachingMasterConfigSourceTest {
   
   private static final VersionCorrection VC = VersionCorrection.LATEST;
-  private static final ExternalId CONFIG = ExternalId.of ("Test", "sec1");
+  private static final ExternalId CONFIG = ExternalId.of("Test", "sec1");
   private static final String CONFIG_NAME = "Test";
   
   private UnitTestConfigMaster _underlyingConfigMaster;
@@ -69,21 +70,21 @@ public class EHCachingMasterConfigSourceTest {
     UniqueId uniqueId = _underlyingConfigMaster.add(new ConfigDocument(ITEM)).getUniqueId();
     assertSame(_cachingSource.getConfig(ExternalId.class, uniqueId.getObjectId(), VC), CONFIG);
     assertSame(_cachingSource.getConfig(ExternalId.class, uniqueId.getObjectId(), VC), CONFIG);
-    assertEquals(2, _underlyingConfigMaster.getCounter().get());
+    assertEquals(1, _underlyingConfigMaster.getCounter().get());
   }
   
   public void getByName() {
     final VersionCorrection versionCorrection = VersionCorrection.of(Instant.now(), null);
     _underlyingConfigMaster.add(new ConfigDocument(ITEM));
-    assertSame(_cachingSource.get(ExternalId.class, CONFIG_NAME, versionCorrection), CONFIG);
-    assertSame(_cachingSource.get(ExternalId.class, CONFIG_NAME, versionCorrection), CONFIG);
+    assertSame(_cachingSource.get(ExternalId.class, CONFIG_NAME, versionCorrection).getValue(), CONFIG);
+    assertSame(_cachingSource.get(ExternalId.class, CONFIG_NAME, versionCorrection).getValue(), CONFIG);
     assertEquals(1, _underlyingConfigMaster.getCounter().get());
   }
   
   public void getLatestByName() {
     _underlyingConfigMaster.add(new ConfigDocument(ITEM));
-    assertSame(_cachingSource.getLatest(ExternalId.class, CONFIG_NAME), CONFIG);
-    assertSame(_cachingSource.getLatest(ExternalId.class, CONFIG_NAME), CONFIG);
+    assertSame(_cachingSource.getLatestByName(ExternalId.class, CONFIG_NAME), CONFIG);
+    assertSame(_cachingSource.getLatestByName(ExternalId.class, CONFIG_NAME), CONFIG);
     assertEquals(1, _underlyingConfigMaster.getCounter().get());
   }
 
@@ -92,22 +93,22 @@ public class EHCachingMasterConfigSourceTest {
     _underlyingConfigMaster.add(new ConfigDocument(ITEM));
     _underlyingConfigMaster.add(new ConfigDocument(ITEM));
     
-    assertEquals(configs, _cachingSource.getConfig(ExternalId.class, CONFIG_NAME, VC));
-    assertEquals(configs, _cachingSource.getConfig(ExternalId.class, CONFIG_NAME, VC));
+    assertTrue(configs.contains(_cachingSource.getConfig(ExternalId.class, CONFIG_NAME, VC)));
+    assertTrue(configs.contains(_cachingSource.getConfig(ExternalId.class, CONFIG_NAME, VC)));
     assertEquals(1, _underlyingConfigMaster.getCounter().get());
   }
   
   public void getLatestByNameAfterUpdate() {
     ConfigDocument addedDoc = _underlyingConfigMaster.add(new ConfigDocument(ITEM));
-    assertSame(_cachingSource.getLatest(ExternalId.class, CONFIG_NAME), CONFIG);
-    assertSame(_cachingSource.getLatest(ExternalId.class, CONFIG_NAME), CONFIG);
+    assertSame(_cachingSource.getLatestByName(ExternalId.class, CONFIG_NAME), CONFIG);
+    assertSame(_cachingSource.getLatestByName(ExternalId.class, CONFIG_NAME), CONFIG);
     assertEquals(1, _underlyingConfigMaster.getCounter().get());
     
     final ExternalId lastestConfig = ExternalId.of ("Test", "sec1");
-    addedDoc.setObject(new ConfigItem<ExternalId>(lastestConfig));
+    addedDoc.setObject(ConfigItem.of(lastestConfig));
     _underlyingConfigMaster.update(addedDoc);
-    assertSame(_cachingSource.getLatest(ExternalId.class, CONFIG_NAME), lastestConfig);
-    assertSame(_cachingSource.getLatest(ExternalId.class, CONFIG_NAME), lastestConfig);
+    assertSame(_cachingSource.getLatestByName(ExternalId.class, CONFIG_NAME), lastestConfig);
+    assertSame(_cachingSource.getLatestByName(ExternalId.class, CONFIG_NAME), lastestConfig);
     assertEquals(2, _underlyingConfigMaster.getCounter().get());
   }
   
@@ -123,6 +124,12 @@ public class EHCachingMasterConfigSourceTest {
     public ConfigDocument get(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
       _counter.getAndIncrement();
       return super.get(objectId, versionCorrection);
+    }
+
+    @Override
+    public ConfigDocument get(UniqueId uniqueId) {
+      _counter.getAndIncrement();
+      return super.get(uniqueId);
     }
 
     @Override

@@ -88,7 +88,7 @@ public class ModifyConfigDbConfigMasterWorkerReplaceAllVersionsTest extends Abst
       List<ConfigDocument> replacement = newArrayList();
       for (int i = 1; i <= 4; i++) {
         String val = "replace_" + i;
-        ConfigDocument doc = new ConfigDocument(ConfigItem.of(val));
+        ConfigDocument doc = new ConfigDocument(ConfigItem.of(val, "some_name_"+i));
 
         doc.setVersionFromInstant(now.plus(2, TimeUnit.MINUTES).plus(i * 20, TimeUnit.SECONDS));
         replacement.add(doc);
@@ -174,7 +174,7 @@ public class ModifyConfigDbConfigMasterWorkerReplaceAllVersionsTest extends Abst
       List<ConfigDocument> replacement = newArrayList();
       for (int i = 1; i <= 4; i++) {
         String val = "replace_" + i;
-        ConfigDocument doc = new ConfigDocument(ConfigItem.of(val));
+        ConfigDocument doc = new ConfigDocument(ConfigItem.of(val,  "some_name_"+i));
 
         doc.setVersionFromInstant(now.plus(2, TimeUnit.MINUTES).plus(i * 20, TimeUnit.SECONDS));
         replacement.add(doc);
@@ -257,7 +257,7 @@ public class ModifyConfigDbConfigMasterWorkerReplaceAllVersionsTest extends Abst
       List<ConfigDocument> replacement = newArrayList();
       for (int i = 1; i <= 4; i++) {
         String val = "replace_" + i;
-        ConfigDocument doc = new ConfigDocument(ConfigItem.of(val));
+        ConfigDocument doc = new ConfigDocument(ConfigItem.of(val, "some_name_"+i));
 
         doc.setVersionFromInstant(now.minus(60, TimeUnit.SECONDS).plus(i * 30, TimeUnit.SECONDS));
         replacement.add(doc);

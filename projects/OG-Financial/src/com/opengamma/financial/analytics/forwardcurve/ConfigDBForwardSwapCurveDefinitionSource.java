@@ -25,7 +25,7 @@ public class ConfigDBForwardSwapCurveDefinitionSource implements ForwardCurveDef
 
   @Override
   public ForwardSwapCurveDefinition getDefinition(final String name, final String currency) {
-    return _configSource.getLatest(ForwardSwapCurveDefinition.class, name + "_" + currency + SUFFIX);
+    return _configSource.getLatestByName(ForwardSwapCurveDefinition.class, name + "_" + currency + SUFFIX);
   }
 
   @Override

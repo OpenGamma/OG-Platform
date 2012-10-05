@@ -84,7 +84,7 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
       _cfgMaster.setTimeSource(TimeSource.fixed(now));
 
       String initialValue = "initial";
-      ConfigItem<String> initial = ConfigItem.of(initialValue);      
+      ConfigItem<String> initial = ConfigItem.of(initialValue, "some_name");      
       _cfgMaster.add(new ConfigDocument(initial));
 
       ObjectId baseOid = initial.getObjectId();
@@ -93,9 +93,10 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
       List<ConfigDocument> firstReplacement = newArrayList();
       for (int i = 0; i < 5; i++) {
         String val = "setup_" + i;
-        ConfigItem<String> item = ConfigItem.of(val);        
-        item.setVersionFromInstant(now.plus(i, TimeUnit.MINUTES));
-        firstReplacement.add(new ConfigDocument(item));
+        ConfigItem<String> item = ConfigItem.of(val, "some_name_"+i);
+        ConfigDocument doc = new ConfigDocument(item);
+        doc.setVersionFromInstant(now.plus(i, TimeUnit.MINUTES));
+        firstReplacement.add(doc);
       }
       _cfgMaster.setTimeSource(TimeSource.fixed(now.plus(1, TimeUnit.HOURS)));
       _cfgMaster.replaceVersions(baseOid.getObjectId(), firstReplacement);
@@ -186,7 +187,7 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
   }
 
   //-------------------------------------------------------------------------
-  protected void assert101(final ConfigItem<ExternalId> test) {
+  protected void assert101(final ConfigDocument test) {
     UniqueId uniqueId = UniqueId.of("DbCfg", "101", "0");
     assertNotNull(test);
     assertEquals(uniqueId, test.getUniqueId());
@@ -195,10 +196,10 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
     assertEquals(_version1aInstant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     assertEquals("TestConfig101", test.getName());
-    assertEquals(ExternalId.of("A", "B"), test.getValue());
+    assertEquals(ExternalId.of("A", "B"), test.getObject().getValue());
   }
 
-  protected void assert102(final ConfigItem<ExternalId> test) {
+  protected void assert102(final ConfigDocument test) {
     UniqueId uniqueId = UniqueId.of("DbCfg", "102", "0");
     assertNotNull(test);
     assertEquals(uniqueId, test.getUniqueId());
@@ -207,10 +208,10 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
     assertEquals(_version1bInstant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     assertEquals("TestConfig102", test.getName());
-    assertEquals(ExternalId.of("A", "B"), test.getValue());
+    assertEquals(ExternalId.of("A", "B"), test.getObject().getValue());
   }
 
-  protected void assert201(final ConfigItem<ExternalId> test) {
+  protected void assert201(final ConfigDocument test) {
     UniqueId uniqueId = UniqueId.of("DbCfg", "201", "0");
     assertNotNull(test);
     assertEquals(uniqueId, test.getUniqueId());
@@ -219,10 +220,10 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
     assertEquals(_version1cInstant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     assertEquals("TestConfig201", test.getName());
-    assertEquals(ExternalId.of("A", "B"), test.getValue());
+    assertEquals(ExternalId.of("A", "B"), test.getObject().getValue());
   }
 
-  protected void assert202(final ConfigItem<ExternalId> test) {
+  protected void assert202(final ConfigDocument test) {
     UniqueId uniqueId = UniqueId.of("DbCfg", "201", "1");
     assertNotNull(test);
     assertEquals(uniqueId, test.getUniqueId());
@@ -230,7 +231,7 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version2Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    assertEquals(ExternalId.of("A", "B"), test.getValue());
+    assertEquals(ExternalId.of("A", "B"), test.getObject().getValue());
   }
 
 }

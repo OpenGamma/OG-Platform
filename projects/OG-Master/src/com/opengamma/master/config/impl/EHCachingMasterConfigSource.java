@@ -5,11 +5,12 @@
  */
 package com.opengamma.master.config.impl;
 
-import static com.opengamma.util.ehcache.EHCacheUtils.*;
+import static com.opengamma.util.ehcache.EHCacheUtils.putException;
+import static com.opengamma.util.ehcache.EHCacheUtils.putValue;
+import static com.opengamma.util.functional.Functional.functional;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
@@ -24,12 +25,10 @@ import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.paging.PagingRequest;
-import com.sun.jersey.api.client.GenericType;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
-import sun.net.www.content.text.Generic;
 
 /**
  * A cache to optimize the results of {@code MasterConfigSource}.
@@ -67,12 +66,12 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
     _configCache = EHCacheUtils.getCacheFromManager(cacheManager, CONFIG_CACHE);
   }
 
-  //-------------------------------------------------------------------------
+
   public CacheManager getCacheManager() {
     return _cacheManager;
   }
 
-  //-------------------------------------------------------------------------
+  @SuppressWarnings("unchecked")
   @Override
   public <T> T getConfig(Class<T> clazz, UniqueId uniqueId) {
     ArgumentChecker.notNull(clazz, "clazz");
@@ -80,47 +79,41 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
 
     final Element element = _configCache.get(uniqueId);
     if (element != null) {
-      return EHCacheUtils.<T>get(element);
+      return (T) ((ConfigDocument) EHCacheUtils.get(element)).getObject().getValue();
     }
     try {
-      putValue(uniqueId.getObjectId(), super.getConfig(clazz, uniqueId), _configCache);
-      return putValue(uniqueId, super.getConfig(clazz, uniqueId), _configCache);
+      ConfigDocument doc = getMaster().get(uniqueId);
+      putValue(uniqueId.getObjectId(), doc, _configCache);
+      return (T) putValue(uniqueId, doc, _configCache).getObject().getValue();
     } catch (RuntimeException ex) {
-      return EHCacheUtils.<T>putException(uniqueId, ex, _configCache);
+      return EHCacheUtils.putException(uniqueId, ex, _configCache);
     }
   }
 
-  //-------------------------------------------------------------------------
   @SuppressWarnings("unchecked")
   @Override
   public <T> T getConfig(Class<T> clazz, ObjectId objectId, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-
-    final GenericType<ConfigItem<T>> gt = new GenericType<ConfigItem<T>>(){};
       
     final Object searchKey = Arrays.asList(clazz, objectId, versionCorrection);
     final Element element = _configCache.get(searchKey);
     if (element != null) {
-      return EHCacheUtils.<T>get(element);
+      return ((T) ((ConfigDocument) EHCacheUtils.get(element)).getObject().getValue());
     }
     try {
-      ConfigItem<?> item = get(objectId, versionCorrection);
-      if(gt.getRawClass().isAssignableFrom(item.getClass())){
-        ConfigItem<T> itemT = (ConfigItem<T>) item;
-        putValue(itemT.getUniqueId().getObjectId(), itemT.getValue(), _configCache);
-        putValue(itemT.getUniqueId(), itemT.getValue(), _configCache);
-        return putValue(searchKey, itemT, _configCache).getValue();
-      }else{
-        throw new RuntimeException("config object is not instance of "+gt.getRawClass());  
-      }
+      ConfigDocument doc = getMaster().get(objectId, versionCorrection);
+      ConfigItem<T> item = (ConfigItem<T>) doc.getObject();
+      putValue(item.getUniqueId().getObjectId(), doc, _configCache);
+      putValue(item.getUniqueId(), doc, _configCache);
+      return (T) putValue(searchKey, doc, _configCache).getObject().getValue();
     } catch (RuntimeException ex) {
-      return EHCacheUtils.<T>putException(searchKey, ex, _configCache);
+      return EHCacheUtils.putException(searchKey, ex, _configCache);
     }
   }
 
-  //-------------------------------------------------------------------------
+  @SuppressWarnings("unchecked")
   @Override
   public <T> T getConfig(Class<T> clazz, String configName, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(clazz, "clazz");
@@ -130,21 +123,25 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
     final Object searchKey = Arrays.asList(clazz, configName, versionCorrection);
     final Element element = _configCache.get(searchKey);
     if (element != null) {
-      return EHCacheUtils.get(element);
+      return (T) ((ConfigDocument) EHCacheUtils.get(element)).getObject().getValue();
     }
     try {
 
-      ConfigItem<T> item = get(clazz, configName, versionCorrection);
-      putValue(item.getUniqueId().getObjectId(), item.getValue(), _configCache);
-      putValue(item.getUniqueId(), item.getValue(), _configCache);
+      ConfigSearchRequest<T> searchRequest = new ConfigSearchRequest<T>(clazz);
+      searchRequest.setName(configName);
+      searchRequest.setVersionCorrection(versionCorrection);
+      ConfigDocument doc = functional(getMaster().search(searchRequest).getDocuments()).first();
+      
+      putValue(doc.getUniqueId().getObjectId(), doc, _configCache);
+      putValue(doc.getUniqueId(), doc, _configCache);
 
-      return putValue(searchKey, item.getValue(), _configCache);
+      return (T) putValue(searchKey, doc, _configCache).getObject().getValue();
     } catch (RuntimeException ex) {
       return putException(searchKey, ex, _configCache);
     }
   }
 
-  //-------------------------------------------------------------------------
+  @SuppressWarnings("unchecked")
   @Override
   public <T> ConfigItem<T> get(Class<T> clazz, String name, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(clazz, "clazz");
@@ -153,17 +150,20 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
     final Object searchKey = Arrays.asList(clazz, name, versionCorrection);
     final Element element = _configCache.get(searchKey);
     if (element != null) {
-      return EHCacheUtils.get(element);
+      return (ConfigItem<T>) ((ConfigDocument) EHCacheUtils.get(element)).getObject();
     }
     try {
+      
+      ConfigSearchRequest<T> searchRequest = new ConfigSearchRequest<T>(clazz);
+      searchRequest.setName(name);
+      searchRequest.setVersionCorrection(versionCorrection);
+      ConfigDocument doc = functional(getMaster().search(searchRequest).getDocuments()).first();
 
-      ConfigItem<T> item = get(clazz, name, versionCorrection);
-      T config = null;
-      if (item != null) {
-        putValue(item.getUniqueId().getObjectId(), item.getValue(), _configCache);
-        putValue(item.getUniqueId(), item.getValue(), _configCache);
+      if (doc != null) {
+        putValue(doc.getUniqueId().getObjectId(), doc, _configCache);
+        putValue(doc.getUniqueId(), doc, _configCache);
       }
-      return putValue(searchKey, item, _configCache);
+      return (ConfigItem<T>) putValue(searchKey, doc, _configCache).getObject();
     } catch (RuntimeException ex) {
       return EHCacheUtils.putException(searchKey, ex, _configCache);
     }
@@ -183,8 +183,8 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
   }
 
   @Override
-  public <T> T getLatest(Class<T> clazz, String name) {
-    return get(clazz, name, VersionCorrection.LATEST).getValue();
+  public <T> T getLatestByName(Class<T> clazz, String name) {
+    return getConfig(clazz, name, VersionCorrection.LATEST);
   }
 
   private class ConfigDocumentChangeListener implements ChangeListener {

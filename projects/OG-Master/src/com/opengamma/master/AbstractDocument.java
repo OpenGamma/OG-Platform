@@ -33,11 +33,6 @@ import org.joda.beans.Property;
 @BeanDefinition
 public abstract class AbstractDocument<T extends UniqueIdentifiable> extends DirectBean
   implements UniqueIdentifiable, MutableUniqueIdentifiable, ObjectIdentifiable {
-  
-  public Class<T> getType(){
-   GenericType<T> gt = new GenericType<T>(){}; 
-   return gt.getRawClass();
-  }
 
   /**
    * The start of an interval that the version of the document is accurate for.
@@ -69,7 +64,7 @@ public abstract class AbstractDocument<T extends UniqueIdentifiable> extends Dir
   /**
    * The object held by the document
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition()
   private T _object;
 
   /**
@@ -186,12 +181,6 @@ public abstract class AbstractDocument<T extends UniqueIdentifiable> extends Dir
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_object, "object");
-    super.validate();
   }
 
   @Override
@@ -342,7 +331,7 @@ public abstract class AbstractDocument<T extends UniqueIdentifiable> extends Dir
   //-----------------------------------------------------------------------
   /**
    * Gets the object held by the document
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public T getObject() {
     return _object;
@@ -350,10 +339,9 @@ public abstract class AbstractDocument<T extends UniqueIdentifiable> extends Dir
 
   /**
    * Sets the object held by the document
-   * @param object  the new value of the property, not null
+   * @param object  the new value of the property
    */
   public void setObject(T object) {
-    JodaBeanUtils.notNull(object, "object");
     this._object = object;
   }
 

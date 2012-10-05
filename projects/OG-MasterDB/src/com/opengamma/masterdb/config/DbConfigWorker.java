@@ -102,7 +102,7 @@ import com.opengamma.util.paging.PagingRequest;
     ArgumentChecker.notNull(document.getName(), "document.name");
     ArgumentChecker.notNull(document.getObject(), "document.value");
     
-    final Object value = document.getObject();
+    final Object value = document.getObject().getValue();
     final long docId = nextId("cfg_config_seq");
     final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
     // set the uniqueId
@@ -196,7 +196,7 @@ import com.opengamma.util.paging.PagingRequest;
     if (request.equals(PagingRequest.ALL)) {
       List<ConfigDocument> queryResult = namedJdbc.query(sql[0], args, configDocumentExtractor);
       for (ConfigDocument configDocument : queryResult) {
-        if (request.getType().isInstance(configDocument.getObject())) {
+        if (request.getType().isInstance(configDocument.getObject().getValue())) {
           result.getDocuments().add(configDocument);
         }
       }
@@ -207,7 +207,7 @@ import com.opengamma.util.paging.PagingRequest;
       if (count > 0 && request.getPagingRequest().equals(PagingRequest.NONE) == false) {
         List<ConfigDocument> queryResult = namedJdbc.query(sql[0], args, configDocumentExtractor);
         for (ConfigDocument configDocument : queryResult) {
-          if (request.getType().isInstance(configDocument.getObject())) {
+          if (request.getType().isInstance(configDocument.getObject().getValue())) {
             result.getDocuments().add(configDocument);
           }
         }
@@ -234,7 +234,7 @@ import com.opengamma.util.paging.PagingRequest;
     if (request.getPagingRequest().equals(PagingRequest.ALL)) {
       List<ConfigDocument> queryResult = namedJdbc.query(sql[0], args, extractor);
       for (ConfigDocument configDocument : queryResult) {
-        if (request.getType() == null || request.getType().isInstance(configDocument.getObject())) {
+        if (request.getType() == null || request.getType().isInstance(configDocument.getObject().getValue())) {
           result.getDocuments().add(configDocument);
         }
       }
@@ -245,7 +245,7 @@ import com.opengamma.util.paging.PagingRequest;
       if (count > 0 && request.getPagingRequest().equals(PagingRequest.NONE) == false) {
         List<ConfigDocument> queryResult = namedJdbc.query(sql[0], args, extractor);
         for (ConfigDocument configDocument : queryResult) {
-          if (request.getType() == null || request.getType().isInstance(configDocument.getObject())) {
+          if (request.getType() == null || request.getType().isInstance(configDocument.getObject().getValue())) {
             result.getDocuments().add(configDocument);
           }
         }

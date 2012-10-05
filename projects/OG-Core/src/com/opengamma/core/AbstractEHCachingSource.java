@@ -32,7 +32,6 @@ import com.opengamma.util.map.HashDeepMap2;
 import com.opengamma.util.map.Map2;
 import com.opengamma.util.map.SoftValueHashMap2;
 import com.opengamma.util.tuple.Pair;
-import com.sun.jersey.api.client.GenericType;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -152,8 +151,6 @@ public abstract class AbstractEHCachingSource<S extends Source<T> & ChangeProvid
     return _manager;
   }
 
-  GenericType<T> gt = new GenericType<T>() {
-  };
 
   @Override
   public T get(UniqueId uid) {
@@ -164,20 +161,12 @@ public abstract class AbstractEHCachingSource<S extends Source<T> & ChangeProvid
     }
     Element e = _uidCache.get(uid);
     if (e != null) {
-      /* below is equivalent of 'e.getObjectValue() instanceof T' */
-      if (gt.getRawClass().isAssignableFrom(e.getObjectValue().getClass())) {
-        /* below is equivalent of '(T) e.getObjectValue()' */
-        result = gt.getRawClass().cast(e.getObjectValue());
-        s_logger.debug("retrieved security: {} from single-security-cache", result);
-        final T existing = _frontCache.putIfAbsent(uid, result);
-        if (existing != null) {
-          return existing;
-        } else {
-          return result;
-        }
+      s_logger.debug("retrieved security: {} from single-security-cache", result);
+      final T existing = _frontCache.putIfAbsent(uid, result);
+      if (existing != null) {
+        return existing;
       } else {
-        s_logger.warn("returned object {} from single-security-cache not a Security", e.getObjectValue());
-        return null;
+        return result;
       }
     } else {
       result = getUnderlying().get(uid);

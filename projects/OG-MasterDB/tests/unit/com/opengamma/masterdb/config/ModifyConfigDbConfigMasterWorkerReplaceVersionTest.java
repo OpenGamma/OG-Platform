@@ -55,7 +55,7 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
       List<ConfigDocument> replacement = newArrayList();
       for (int i = 0; i <= 10; i++) {
         String val = "test" + i;        
-        ConfigDocument doc = new ConfigDocument(ConfigItem.of(val));
+        ConfigDocument doc = new ConfigDocument(ConfigItem.of(val, "some_name_"+i));
         doc.setVersionFromInstant(latestFrom.plus(i, TimeUnit.MINUTES));
         replacement.add(doc);
       }
@@ -198,7 +198,7 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
       List<ConfigDocument> replacement = newArrayList();
       for (int i = 0; i <= 10; i++) {
         String val = "test" + i;
-        ConfigDocument doc = new ConfigDocument(ConfigItem.of(val));
+        ConfigDocument doc = new ConfigDocument(ConfigItem.of(val, "some_name_"+i));
         doc.setVersionFromInstant(latestFrom.plus(i, TimeUnit.SECONDS));
         replacement.add(doc);
       }
@@ -233,7 +233,7 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
       List<ConfigDocument> replacement = newArrayList();
       for (int i = 0; i <= 10; i++) {
         String val = "test" + i;
-        ConfigDocument doc = new ConfigDocument(ConfigItem.of(val));
+        ConfigDocument doc = new ConfigDocument(ConfigItem.of(val, "some_name_"+i));
         doc.setVersionFromInstant(latestFrom.plus(i - 3, TimeUnit.MINUTES));
         replacement.add(doc);
       }
@@ -427,7 +427,7 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
       List<ConfigDocument> replacement = newArrayList();
       for (int i = 0; i <= 2; i++) {
         String val = "replace_" + i;
-        ConfigDocument doc = new ConfigDocument(ConfigItem.of(val));
+        ConfigDocument doc = new ConfigDocument(ConfigItem.of(val, "some_name_"+i));
         doc.setVersionFromInstant(now.plus(1, TimeUnit.MINUTES).plus(i * 20, TimeUnit.SECONDS));
         replacement.add(doc);
       }
@@ -519,7 +519,7 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
       List<ConfigDocument> replacement = newArrayList();
       for (int i = 0; i <= 2; i++) {
         String val = "replace_" + i;
-        ConfigDocument doc = new ConfigDocument(ConfigItem.of(val));
+        ConfigDocument doc = new ConfigDocument(ConfigItem.of(val, "some_name_"+i));
         doc.setVersionFromInstant(now.plus(1, TimeUnit.MINUTES).plus(i * 20, TimeUnit.SECONDS));
         replacement.add(doc);
       }

@@ -47,6 +47,11 @@ import com.opengamma.web.server.push.analytics.ViewportResultsJsonWriter;
 import com.opengamma.web.server.push.analytics.formatting.ResultsFormatter;
 import com.opengamma.web.server.push.rest.*;
 import com.opengamma.web.server.push.rest.json.*;
+import java.util.Map;
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 
 /**
  * Component factory for the main website viewports (for analytics).
@@ -376,8 +381,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getMarketDataSnapshotMaster(), other.getMarketDataSnapshotMaster()) &&
           JodaBeanUtils.equal(getUser(), other.getUser()) &&
           JodaBeanUtils.equal(getFudgeContext(), other.getFudgeContext()) &&
-        JodaBeanUtils.equal(getMarketDataSpecificationRepository(), other.getMarketDataSpecificationRepository()) &&
-        super.equals(obj);
+          JodaBeanUtils.equal(getMarketDataSpecificationRepository(), other.getMarketDataSpecificationRepository()) &&
+          super.equals(obj);
     }
     return false;
   }
@@ -848,7 +853,6 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   }
 
   //-----------------------------------------------------------------------
-
   /**
    * The meta-bean for {@code WebsiteViewportsComponentFactory}.
    */
@@ -942,7 +946,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
      * The meta-property for the {@code marketDataSpecificationRepository} property.
      */
     private final MetaProperty<NamedMarketDataSpecificationRepository> _marketDataSpecificationRepository = DirectMetaProperty.ofReadWrite(
-      this, "marketDataSpecificationRepository", WebsiteViewportsComponentFactory.class, NamedMarketDataSpecificationRepository.class);
+        this, "marketDataSpecificationRepository", WebsiteViewportsComponentFactory.class, NamedMarketDataSpecificationRepository.class);
     /**
      * The meta-properties.
      */
@@ -963,8 +967,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
         "portfolioAggregationFunctions",
         "marketDataSnapshotMaster",
         "user",
-      "fudgeContext",
-      "marketDataSpecificationRepository");
+        "fudgeContext",
+        "marketDataSpecificationRepository");
 
     /**
      * Restricted constructor.

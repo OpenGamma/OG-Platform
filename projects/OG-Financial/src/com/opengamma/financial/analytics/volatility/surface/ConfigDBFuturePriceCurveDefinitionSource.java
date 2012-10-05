@@ -29,7 +29,7 @@ public class ConfigDBFuturePriceCurveDefinitionSource implements FuturePriceCurv
 
   @Override
   public FuturePriceCurveDefinition<?> getDefinition(final String name, final String instrumentType) {
-    return _configSource.getLatest(FuturePriceCurveDefinition.class, name + "_" + instrumentType);
+    return _configSource.getLatestByName(FuturePriceCurveDefinition.class, name + "_" + instrumentType);
   }
 
   @Override
