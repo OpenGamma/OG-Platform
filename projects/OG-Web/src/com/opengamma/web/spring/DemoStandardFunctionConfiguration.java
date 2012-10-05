@@ -48,10 +48,12 @@ import com.opengamma.financial.analytics.CurrencyPairsDefaults;
 import com.opengamma.financial.analytics.CurrencyPairsFunction;
 import com.opengamma.financial.analytics.DV01Function;
 import com.opengamma.financial.analytics.FilteringSummingFunction;
-import com.opengamma.financial.analytics.FixedCashFlowFunction;
+import com.opengamma.financial.analytics.FixedPayCashFlowFunction;
+import com.opengamma.financial.analytics.FixedReceiveCashFlowFunction;
 import com.opengamma.financial.analytics.FloatingResetsFunction;
 import com.opengamma.financial.analytics.LastHistoricalValueFunction;
 import com.opengamma.financial.analytics.MissingInputsFunction;
+import com.opengamma.financial.analytics.NettingFixedCashFlowFunction;
 import com.opengamma.financial.analytics.PositionScalingFunction;
 import com.opengamma.financial.analytics.PositionTradeScalingFunction;
 import com.opengamma.financial.analytics.SummingFunction;
@@ -82,6 +84,10 @@ import com.opengamma.financial.analytics.model.bond.BondZSpreadFromMarketCleanPr
 import com.opengamma.financial.analytics.model.bond.BondZSpreadPresentValueSensitivityFromCurveCleanPriceFunction;
 import com.opengamma.financial.analytics.model.bond.BondZSpreadPresentValueSensitivityFromMarketCleanPriceFunction;
 import com.opengamma.financial.analytics.model.bond.NelsonSiegelSvenssonBondCurveFunction;
+import com.opengamma.financial.analytics.model.cds.ISDAApproxCDSPriceFlatSpreadFunction;
+import com.opengamma.financial.analytics.model.cds.ISDAApproxCDSPriceHazardCurveFunction;
+import com.opengamma.financial.analytics.model.cds.ISDAApproxDiscountCurveFunction;
+import com.opengamma.financial.analytics.model.cds.ISDAApproxFlatSpreadFunction;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackDeltaFunction;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackFromFuturePresentValueFunction;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackGammaFunction;
@@ -527,6 +533,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.DAILY_PNL);
     //TODO PRESENT_VALUE_CURVE_SENSITIVITY
     addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_DELTA);
+    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_GAMMA);
+    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_VEGA);
     addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_THETA);
     addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_SPEED);
     addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_VOMMA);
@@ -814,6 +822,12 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 
     functionConfigs.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "FUNDING"));
     functionConfigs.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "SECONDARY"));
+    
+    functionConfigs.add(functionConfiguration(ISDAApproxCDSPriceFlatSpreadFunction.class));
+    functionConfigs.add(functionConfiguration(ISDAApproxCDSPriceHazardCurveFunction.class));
+    functionConfigs.add(functionConfiguration(ISDAApproxFlatSpreadFunction.class));
+    functionConfigs.add(functionConfiguration(ISDAApproxDiscountCurveFunction.class));
+    
 
     final RepositoryConfiguration repoConfig = new RepositoryConfiguration(functionConfigs);
 
@@ -1637,11 +1651,17 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   }
 
   private static void addCashFlowFunctions(final List<FunctionConfiguration> functionConfigs) {
-    addSummingFunction(functionConfigs, ValueRequirementNames.FIXED_CASH_FLOWS);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.FIXED_CASH_FLOWS);
+    addSummingFunction(functionConfigs, ValueRequirementNames.FIXED_PAY_CASH_FLOWS);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.FIXED_PAY_CASH_FLOWS);
+    addSummingFunction(functionConfigs, ValueRequirementNames.FIXED_RECEIVE_CASH_FLOWS);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.FIXED_RECEIVE_CASH_FLOWS);
+    addSummingFunction(functionConfigs, ValueRequirementNames.NETTED_FIXED_CASH_FLOWS);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.NETTED_FIXED_CASH_FLOWS);
     addSummingFunction(functionConfigs, ValueRequirementNames.RESET_DATES);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.RESET_DATES);
-    functionConfigs.add(functionConfiguration(FixedCashFlowFunction.class));
+    functionConfigs.add(functionConfiguration(FixedPayCashFlowFunction.class));
+    functionConfigs.add(functionConfiguration(FixedReceiveCashFlowFunction.class));
+    functionConfigs.add(functionConfiguration(NettingFixedCashFlowFunction.class));
     functionConfigs.add(functionConfiguration(FloatingResetsFunction.class));
   }
 

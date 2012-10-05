@@ -33,7 +33,8 @@ $.register_module({
                 if (type === 'Data' || type === 'Curve' || type === 'Surface')
                     $.extend(gadget_options.options, {col: cell.col, row: cell.row});
                 if (type === 'Depgraph') $.extend(source, {depgraph: true, col: cell.col, row: cell.row});
-                if (type === 'Timeseries') gadget_options.options.datapoints_link = false;
+                if (type === 'Timeseries')
+                    $.extend(gadget_options.options, {datapoints_link: false, id: cell.row_name});
                 return gadget_options;
             },
             type : function (cell, panel) {
@@ -46,7 +47,7 @@ $.register_module({
                 CURVE             : [1, 3],
                 DOUBLE            : [0],
                 LABELLED_MATRIX_1D: [0, 1],
-                LABELLED_MATRIX_2D: [0, 1, 2, 3],
+                LABELLED_MATRIX_2D: [0, 1],
                 LABELLED_MATRIX_3D: [0, 1],
                 PRIMITIVE         : [0],
                 SURFACE_DATA      : [2, 1],

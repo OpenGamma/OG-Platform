@@ -11,6 +11,7 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -178,6 +179,22 @@ public final class Converters {
     final YieldConvention yc = YieldConventionFactory.INSTANCE.getYieldConvention(name);
     if (yc == null) {
       throw new OpenGammaRuntimeException("Bad value for yieldConvention (" + name + ")");
+    }
+  }
+  
+  public static StubType stubTypeBeanToStubType(final StubTypeBean stubTypeBean) {
+    if (stubTypeBean == null) {
+      return null;
+    }
+    validateStubType(stubTypeBean.getName());
+    return StubType.valueOf(stubTypeBean.getName());
+  }
+
+  private static void validateStubType(String name) {
+    try {
+      StubType.valueOf(name);
+    } catch (IllegalArgumentException e) {
+      throw new OpenGammaRuntimeException("Bad value for stub type (" + name + ")");
     }
   }
 

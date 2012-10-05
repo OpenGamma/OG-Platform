@@ -17,6 +17,7 @@ import com.opengamma.analytics.financial.forex.definition.ForexOptionSingleBarri
 import com.opengamma.analytics.financial.forex.definition.ForexOptionVanillaDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexSwapDefinition;
 import com.opengamma.analytics.financial.instrument.AbstractInstrumentDefinitionVisitor;
+import com.opengamma.analytics.financial.instrument.cds.ISDACDSDefinition;
 
 /**
  * Tests the visitor of Forex definitions.
@@ -126,6 +127,15 @@ public class ForexDefinitionVisitorTest {
       return "ForexOptionDigital1";
     }
 
+    @Override
+    public String visitCDSDefinition(ISDACDSDefinition cds, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCDSDefinition(ISDACDSDefinition cds) {
+      return null;
+    }
   }
 
 }

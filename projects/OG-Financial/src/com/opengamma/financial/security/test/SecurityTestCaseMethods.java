@@ -79,5 +79,7 @@ public interface SecurityTestCaseMethods {
   void testPeriodicZeroDepositSecurity();
 
   void testContinuousZeroDepositSecurity();
+  
+  void testCDSSecurity();
 
 }

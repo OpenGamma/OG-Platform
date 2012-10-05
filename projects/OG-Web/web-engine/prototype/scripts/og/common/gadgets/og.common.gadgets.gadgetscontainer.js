@@ -115,8 +115,10 @@ $.register_module({
                             $overflow_panel.hide();
                         }
                         // set inactive tab widths to calculated value
-                        $tabs.each(function () {if (!$(this).hasClass('og-active'))
-                            $(this).outerWidth(new_tab_width)});
+                        $tabs.each(function () {if (!$(this).hasClass('og-active')) {
+                            var original_width = $(this).outerWidth();
+                            $(this).outerWidth(original_width < new_tab_width ? original_width : new_tab_width);
+                        }});
                         // unset width of tabs in overflow panel
                         if ($tabs_to_move) $tabs_to_move.each(function () {$(this).attr('style', '');});
                         // set position of overflow panel
@@ -254,6 +256,7 @@ $.register_module({
                     $selector.droppable({
                         hoverClass: 'og-drop',
                         accept: function (draggable) {return $(draggable).is('li[class^=og-tab-]')}, // is it a tab...
+                        tolerance: 'pointer',
                         over: function () {setTimeout(toggle_dropbox)}, // can't guarantee over and out fire in correct
                         out: function () {setTimeout(toggle_dropbox)},  // order, toggle function seems to solve issue
                         drop: function(e, ui) {

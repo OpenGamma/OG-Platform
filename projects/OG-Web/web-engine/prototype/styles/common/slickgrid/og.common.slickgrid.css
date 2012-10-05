@@ -201,3 +201,9 @@
 .OG-gadget-container .grid-canvas .slick-cell{
   color: #555;
 }
+
+.OG-gadget-container .matrix .slick-row .l0 {
+  background-color: #ecf5fa;
+  color: #555;
+  font-weight: bold;
+}

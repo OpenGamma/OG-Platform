@@ -88,7 +88,8 @@ import com.opengamma.analytics.math.interpolation.LinearExtrapolator1D;
       if (extrapolatorName.equals(Interpolator1DFactory.LINEAR_EXTRAPOLATOR)) {
         return new LinearExtrapolator1D(interpolator);
       }
-      return null;
+      return Interpolator1DFactory.getInterpolator(extrapolatorName);
+      //return null;
     }
   }
 

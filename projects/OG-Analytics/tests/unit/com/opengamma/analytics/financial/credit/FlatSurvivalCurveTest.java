@@ -16,10 +16,10 @@ public class FlatSurvivalCurveTest {
 
   // Parameters to build the simple (flat) survival curve
   private static final double parSpread = 60.0;
-  private static final double curveRecoveryRate = 0.40;
+  private static final double recoveryRate = 0.40;
 
   // Construct a survival curve based on a flat hazard rate term structure (for testing purposes only)
-  private static final FlatSurvivalCurve survivalCurve = new FlatSurvivalCurve(parSpread, curveRecoveryRate);
+  private static final FlatSurvivalCurve survivalCurve = new FlatSurvivalCurve(parSpread, recoveryRate);
 
   // ----------------------------------------------------------------------------------
 

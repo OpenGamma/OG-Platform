@@ -105,4 +105,6 @@ public interface HibernateSecurityMasterDao {
   void persistFutureBundleBeans(final Date now, final FutureSecurityBean future);  
   
   ContractCategoryBean getOrCreateContractCategoryBean(String name);
+  
+  StubTypeBean getOrCreateStubTypeBean(String name);
 }

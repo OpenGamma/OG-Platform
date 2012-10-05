@@ -25,6 +25,7 @@ import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositCounterpartDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositIborDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositZeroDefinition;
+import com.opengamma.analytics.financial.instrument.cds.ISDACDSDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
@@ -584,6 +585,16 @@ public class AbstractInstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> impleme
   @Override
   public RESULT_TYPE visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransactionDefinition<?> bond) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondCapitalIndexedTransaction()");
+  }
+
+  @Override
+  public RESULT_TYPE visitCDSDefinition(final ISDACDSDefinition cds) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCDSDefinition()");
+  }
+
+  @Override
+  public RESULT_TYPE visitCDSDefinition(final ISDACDSDefinition cds, final DATA_TYPE data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCDSDefinition()");
   }
 
   @Override

@@ -23,6 +23,7 @@ import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.cds.CDSSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
@@ -499,6 +500,11 @@ public class FinancialSecurityUtils {
         public Currency visitMetalForwardSecurity(final MetalForwardSecurity security) {
           return security.getCurrency();
         }
+        
+        @Override
+        public Currency visitCDSSecurity(CDSSecurity security) {
+          return security.getCurrency();
+        }
       });
       return ccy;
     } else if (security instanceof RawSecurity) {
@@ -776,6 +782,11 @@ public class FinancialSecurityUtils {
 
         @Override
         public Collection<Currency> visitMetalForwardSecurity(final MetalForwardSecurity security) {
+          return Collections.singletonList(security.getCurrency());
+        }
+        
+        @Override
+        public Collection<Currency> visitCDSSecurity(CDSSecurity security) {
           return Collections.singletonList(security.getCurrency());
         }
       });

@@ -11,10 +11,8 @@ import java.util.Map;
 
 import javax.time.calendar.LocalDate;
 
-import com.google.common.collect.Maps;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableForwardDefinition;
-import com.opengamma.analytics.financial.forex.definition.ForexSwapDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
@@ -27,7 +25,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * Returns all of the known payer cash-flows of an instrument from a particular date. If there are no known cash-flows, an empty map is returned.
+ * Returns all of the known cash-flows to be paid of an instrument from a particular date. If there are no known cash-flows, an empty map is returned.
+ * The payments are always positive.
  */
 public final class FixedPayCashFlowVisitor extends AbstractInstrumentDefinitionVisitor<LocalDate, Map<LocalDate, MultipleCurrencyAmount>> {
   private static final FixedPayCashFlowVisitor INSTANCE = new FixedPayCashFlowVisitor();
@@ -50,41 +49,6 @@ public final class FixedPayCashFlowVisitor extends AbstractInstrumentDefinitionV
     return Collections.emptyMap();
   }
 
-  //
-  //  @Override
-  //  public Map<LocalDate, MultipleCurrencyAmount> visitBondFixedSecurityDefinition(final BondFixedSecurityDefinition bond, final LocalDate fromDate) {
-  //    ArgumentChecker.notNull(bond, "Fixed-coupon bond");
-  //    ArgumentChecker.notNull(fromDate, "date");
-  //    final Map<LocalDate, MultipleCurrencyAmount> coupons = bond.getCoupons().accept(this, fromDate);
-  //    final Map<LocalDate, MultipleCurrencyAmount> nominal = bond.getNominal().accept(this, fromDate);
-  //    return add(coupons, nominal);
-  //  }
-  //
-  //  @Override
-  //  public Map<LocalDate, MultipleCurrencyAmount> visitBondFixedTransactionDefinition(final BondFixedTransactionDefinition bond, final LocalDate fromDate) {
-  //    ArgumentChecker.notNull(bond, "Fixed-coupon bond");
-  //    ArgumentChecker.notNull(fromDate, "date");
-  //    return bond.getUnderlyingBond().accept(this, fromDate);
-  //  }
-  //
-  //  @Override
-  //  public Map<LocalDate, MultipleCurrencyAmount> visitBillSecurityDefinition(final BillSecurityDefinition bill, final LocalDate fromDate) {
-  //    ArgumentChecker.notNull(bill, "bill");
-  //    ArgumentChecker.notNull(fromDate, "date");
-  //    final LocalDate endDate = bill.getEndDate().toLocalDate();
-  //    if (endDate.isBefore(fromDate)) {
-  //      return Collections.emptyMap();
-  //    }
-  //    return Collections.singletonMap(endDate, MultipleCurrencyAmount.of(bill.getCurrency(), bill.getNotional()));
-  //  }
-  //
-  //  @Override
-  //  public Map<LocalDate, MultipleCurrencyAmount> visitBillTransactionDefinition(final BillTransactionDefinition bill, final LocalDate fromDate) {
-  //    ArgumentChecker.notNull(bill, "bill");
-  //    ArgumentChecker.notNull(fromDate, "date");
-  //    return bill.getUnderlying().accept(this, fromDate);
-  //  }
-
   /**
    * If the date is after the maturity of the instrument, or if the notional is positive (i.e. an amount is to be received), returns an empty map.
    * Otherwise, returns a map containing a single payment date and amount to be paid.
@@ -103,7 +67,7 @@ public final class FixedPayCashFlowVisitor extends AbstractInstrumentDefinitionV
     if (endDate.isBefore(fromDate)) {
       return Collections.emptyMap();
     }
-    return Collections.singletonMap(endDate, MultipleCurrencyAmount.of(cash.getCurrency(), cash.getInterestAmount()));
+    return Collections.singletonMap(endDate, MultipleCurrencyAmount.of(cash.getCurrency(), Math.abs(cash.getInterestAmount())));
   }
 
   /**
@@ -124,7 +88,7 @@ public final class FixedPayCashFlowVisitor extends AbstractInstrumentDefinitionV
     if (endDate.isBefore(fromDate)) {
       return Collections.emptyMap();
     }
-    return Collections.singletonMap(endDate, MultipleCurrencyAmount.of(payment.getCurrency(), payment.getReferenceAmount()));
+    return Collections.singletonMap(endDate, MultipleCurrencyAmount.of(payment.getCurrency(), Math.abs(payment.getReferenceAmount())));
   }
 
   /**
@@ -145,7 +109,7 @@ public final class FixedPayCashFlowVisitor extends AbstractInstrumentDefinitionV
     if (endDate.isBefore(fromDate)) {
       return Collections.emptyMap();
     }
-    return Collections.singletonMap(endDate, MultipleCurrencyAmount.of(coupon.getCurrency(), coupon.getAmount()));
+    return Collections.singletonMap(endDate, MultipleCurrencyAmount.of(coupon.getCurrency(), Math.abs(coupon.getAmount())));
   }
 
   /**
@@ -186,8 +150,6 @@ public final class FixedPayCashFlowVisitor extends AbstractInstrumentDefinitionV
   /**
    * If the swap is a payer, returns a map containing all of the fixed payments after a certain date. If there are no payments after this date, an empty map
    * is returned.<p> 
-   * If the swap is a receiver and the date is after a fixing date, returns a map containing a single payment date and amount. Otherwise, an empty map is 
-   * returned.
    * @param swap The swap, not null
    * @param fromDate The date from which to calculate the cash flows, not null
    * @return A map containing the payment dates and amounts
@@ -199,9 +161,16 @@ public final class FixedPayCashFlowVisitor extends AbstractInstrumentDefinitionV
     if (swap.getFixedLeg().isPayer()) {
       return (swap.getFixedLeg().accept(this, fromDate));
     }
-    return swap.getIborLeg().accept(this, fromDate);
+    return Collections.emptyMap();
   }
 
+  /**
+   * If the swap is a payer, returns a map containing all of the fixed payments after a certain date. If there are no payments after this date, an empty map
+   * is returned.<p> 
+   * @param swap The swap, not null
+   * @param fromDate The date from which to calculate the cash flows, not null
+   * @return A map containing the payment dates and amounts
+   */
   @Override
   public Map<LocalDate, MultipleCurrencyAmount> visitSwapFixedIborSpreadDefinition(final SwapFixedIborSpreadDefinition swap, final LocalDate fromDate) {
     ArgumentChecker.notNull(swap, "swap");
@@ -209,38 +178,43 @@ public final class FixedPayCashFlowVisitor extends AbstractInstrumentDefinitionV
     if (swap.getFixedLeg().isPayer()) {
       return swap.getFixedLeg().accept(this, fromDate);
     }
-    return swap.getIborLeg().accept(this, fromDate);
+    return Collections.emptyMap();
   }
 
+  /**
+   * If the date is after the maturity of the instrument, returns an empty map. Otherwise, returns a map containing a single date and payment.
+   * @param fx The FX instrument, not null
+   * @param fromDate The date from which to calculate the cash flows, not null
+   * @return A map containing the (single) payment date and amount
+   */
   @Override
   public Map<LocalDate, MultipleCurrencyAmount> visitForexDefinition(final ForexDefinition fx, final LocalDate fromDate) {
     ArgumentChecker.notNull(fx, "fx");
     ArgumentChecker.notNull(fromDate, "date");
-    final Map<LocalDate, MultipleCurrencyAmount> result = new HashMap<LocalDate, MultipleCurrencyAmount>();
-    result.putAll(fx.getPaymentCurrency1().accept(this, fromDate));
-    result.putAll(fx.getPaymentCurrency2().accept(this, fromDate));
-    return result;
+    if (fx.getPaymentCurrency1().getReferenceAmount() < 0) {
+      return fx.getPaymentCurrency1().accept(this, fromDate);
+    }
+    return fx.getPaymentCurrency2().accept(this, fromDate);
   }
 
-  @Override
-  public Map<LocalDate, MultipleCurrencyAmount> visitForexSwapDefinition(final ForexSwapDefinition fxSwap, final LocalDate fromDate) {
-    ArgumentChecker.notNull(fxSwap, "FX swap");
-    ArgumentChecker.notNull(fromDate, "date");
-    final Map<LocalDate, MultipleCurrencyAmount> result = new HashMap<LocalDate, MultipleCurrencyAmount>();
-    result.putAll(fxSwap.getFarLeg().accept(this, fromDate));
-    result.putAll(fxSwap.getNearLeg().accept(this, fromDate));
-    return result;
-  }
-
+  /**
+   * If the date is after the maturity of the instrument, returns an empty map. Otherwise, returns a map containing a single date and payment.
+   * @param ndf The NDF, not null
+   * @param fromDate The date from which to calculate the cash flows, not null
+   * @return A map containing the (single) payment date and amount
+   */
   @Override
   public Map<LocalDate, MultipleCurrencyAmount> visitForexNonDeliverableForwardDefinition(final ForexNonDeliverableForwardDefinition ndf, final LocalDate fromDate) {
     ArgumentChecker.notNull(ndf, "ndf");
     ArgumentChecker.notNull(fromDate, "date");
-    final LocalDate endDate = ndf.getPaymentDate().toLocalDate();
-    if (endDate.isAfter(fromDate)) {
+    if (ndf.getNotional() > 0) {
       return Collections.emptyMap();
     }
-    return Collections.singletonMap(endDate, MultipleCurrencyAmount.of(ndf.getCurrency2(), ndf.getNotional()));
+    final LocalDate endDate = ndf.getPaymentDate().toLocalDate();
+    if (endDate.isBefore(fromDate)) {
+      return Collections.emptyMap();
+    }
+    return Collections.singletonMap(endDate, MultipleCurrencyAmount.of(ndf.getCurrency2(), Math.abs(ndf.getNotional())));
   }
 
   private Map<LocalDate, MultipleCurrencyAmount> getDatesAndPaymentsFromAnnuity(final AnnuityDefinition<? extends PaymentDefinition> annuity, final LocalDate fromDate) {
@@ -252,26 +226,16 @@ public final class FixedPayCashFlowVisitor extends AbstractInstrumentDefinitionV
         if (!paymentDate.isBefore(fromDate)) {
           final Map<LocalDate, MultipleCurrencyAmount> payments = payment.accept(this, fromDate);
           for (final Map.Entry<LocalDate, MultipleCurrencyAmount> entry : payments.entrySet()) {
+            final int scale = entry.getValue().getCurrencyAmounts()[0].getAmount() < 0 ? -1 : 1;
+            final MultipleCurrencyAmount mca = entry.getValue().multipliedBy(scale);
             final LocalDate key = entry.getKey();
             if (result.containsKey(key)) {
-              result.put(key, result.get(key).plus(entry.getValue()));
+              result.put(key, result.get(key).plus(mca));
             } else {
-              result.put(key, entry.getValue());
+              result.put(key, mca);
             }
           }
         }
-      }
-    }
-    return result;
-  }
-
-  private Map<LocalDate, MultipleCurrencyAmount> add(final Map<LocalDate, MultipleCurrencyAmount> map1, final Map<LocalDate, MultipleCurrencyAmount> map2) {
-    final Map<LocalDate, MultipleCurrencyAmount> result = Maps.newHashMap(map1);
-    for (final Map.Entry<LocalDate, MultipleCurrencyAmount> entry : map2.entrySet()) {
-      if (result.containsKey(entry.getKey())) {
-        result.put(entry.getKey(), entry.getValue().plus(result.get(entry.getKey())));
-      } else {
-        result.put(entry.getKey(), entry.getValue());
       }
     }
     return result;

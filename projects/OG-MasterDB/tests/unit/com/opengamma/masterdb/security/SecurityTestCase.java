@@ -54,6 +54,7 @@ import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.cds.CDSSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.equity.GICSCode;
@@ -485,6 +486,18 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
         return randomBytes;
       }
     });
+    s_dataProviders.put(int.class, new TestDataProvider<Integer>() {
+      @Override
+      public void getValues(Collection<Integer> values) {
+        values.add(0);
+        int i;
+        do {
+          i = s_random.nextInt();
+        } while (i == 0);
+        values.add(i * 100);
+        values.add(i * -100);
+      }
+    });
   }
 
   protected static <T> List<T> getTestObjects(final Class<T> clazz, final Class<?> parent) {
@@ -894,5 +907,11 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
   @Test
   public void testContinuousZeroDepositSecurity() {
     return;
+  }
+  
+  @Override
+  @Test
+  public void testCDSSecurity() {
+    assertSecurities(CDSSecurity.class);
   }
 }

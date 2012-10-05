@@ -35,6 +35,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // TODO : Add the code for the first coupon's
   // TODO : Should convertDatesToDoubles be put somewhere else? To use it, need to create a GenerateCreditDefaultSwapPremiumLegSchedule object which is a bit wasteful
   // TODO : Do we need all the ArgumentCheckers on things that have already been checked?
+  // TODO : Look at DateAdjuster class for IMM date handling
 
   // -------------------------------------------------------------------------------------------
 

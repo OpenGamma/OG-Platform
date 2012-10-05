@@ -1,0 +1,60 @@
+/**
+ * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
+package com.opengamma.analytics.financial.instrument;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.time.calendar.LocalDate;
+
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.MultipleCurrencyAmount;
+
+/**
+ * Returns the netted results of pay and receive cash-flows, where a negative value implies a net liability.
+ */
+public final class NettingFixedCashFlowVisitor extends AbstractInstrumentDefinitionVisitor<LocalDate, Map<LocalDate, MultipleCurrencyAmount>> {
+  private static final FixedPayCashFlowVisitor PAY_VISITOR = FixedPayCashFlowVisitor.getInstance();
+  private static final FixedReceiveCashFlowVisitor RECEIVE_VISITOR = FixedReceiveCashFlowVisitor.getInstance();
+  private static final NettingFixedCashFlowVisitor INSTANCE = new NettingFixedCashFlowVisitor();
+
+  public static NettingFixedCashFlowVisitor getInstance() {
+    return INSTANCE;
+  }
+
+  private NettingFixedCashFlowVisitor() {
+  }
+
+  /**
+   * Returns netted cash-flows after a particular date. If the date is after the maturity of the object, an empty map is returned.
+   * @param instrument The instrument, not null
+   * @param fromDate The date from which to list the cash-flows.
+   * @return A map containing netted cash-flows.
+   */
+  @Override
+  public Map<LocalDate, MultipleCurrencyAmount> visit(final InstrumentDefinition<?> instrument, final LocalDate fromDate) {
+    ArgumentChecker.notNull(instrument, "instrument");
+    ArgumentChecker.notNull(fromDate, "date");
+    final Map<LocalDate, MultipleCurrencyAmount> payCashFlows = instrument.accept(PAY_VISITOR, fromDate);
+    final Map<LocalDate, MultipleCurrencyAmount> receiveCashFlows = instrument.accept(RECEIVE_VISITOR, fromDate);
+    return add(payCashFlows, receiveCashFlows);
+  }
+
+  private Map<LocalDate, MultipleCurrencyAmount> add(final Map<LocalDate, MultipleCurrencyAmount> payCashFlows,
+      final Map<LocalDate, MultipleCurrencyAmount> receiveCashFlows) {
+    final Map<LocalDate, MultipleCurrencyAmount> result = new HashMap<LocalDate, MultipleCurrencyAmount>(receiveCashFlows);
+    for (final Map.Entry<LocalDate, MultipleCurrencyAmount> entry : payCashFlows.entrySet()) {
+      final MultipleCurrencyAmount mca = entry.getValue().multipliedBy(-1);
+      final LocalDate date = entry.getKey();
+      if (result.containsKey(date)) {
+        result.put(date, result.get(date).plus(mca));
+      } else {
+        result.put(date, mca);
+      }
+    }
+    return result;
+  }
+}
