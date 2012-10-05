@@ -254,6 +254,7 @@ $.register_module({
                     $selector.droppable({
                         hoverClass: 'og-drop',
                         accept: function (draggable) {return $(draggable).is('li[class^=og-tab-]')}, // is it a tab...
+                        tolerance: 'pointer',
                         over: function () {setTimeout(toggle_dropbox)}, // can't guarantee over and out fire in correct
                         out: function () {setTimeout(toggle_dropbox)},  // order, toggle function seems to solve issue
                         drop: function(e, ui) {
