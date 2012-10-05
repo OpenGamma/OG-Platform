@@ -8,7 +8,7 @@ $.register_module({
     obj: function () {
         var module = this, namespace = '.og_analytics_selector', overlay = '.OG-g-sel', cell = '.OG-g-cell';
         var constructor = function (grid) {
-            var selector = this, $ = grid.$, grid_offset, grid_width, grid_height, fixed_width;
+            var selector = this, grid_offset, grid_width, grid_height, fixed_width;
             var auto_scroll = function (event, scroll_top, scroll_left, start) {
                 var x = event.pageX - grid_offset.left, y = event.pageY - grid_offset.top, increment = 35,
                     interval = 100, scroll_body = grid.elements.scroll_body, over_fixed = x < fixed_width;
@@ -115,7 +115,7 @@ $.register_module({
             grid.on('mousedown', mousedown_observer).on('render', render); // initialize
         };
         constructor.prototype.clear = function () {
-            var selector = this, $ = selector.grid.$;
+            var selector = this;
             $(selector.grid.id + ' ' + overlay).remove();
             selector.regions = selector.rectangle = null;
         };

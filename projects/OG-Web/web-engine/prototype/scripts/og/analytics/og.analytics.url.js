@@ -18,7 +18,11 @@ $.register_module({
                 return (last_object[container] || (last_object[container] = [])).push(params), (!silent && go()), url;
             },
             last: last_object,
-            launch: function (params) {console.log('new window!', params);},
+            launch: function (params) {
+                var win = window.open(), url = './gadget.ftl' + routes.prefix() + '/gadgetscontainer/';
+                og.api.rest.compressor.put({content: [params]})
+                    .pipe(function (result) {win.location.href = url + result.data.data;});
+            },
             main: function (params) {(last_object.main = params), go(), url;},
             process: function (args) {
                 og.api.rest.compressor.get({content: args.data, dependencies: ['data']})

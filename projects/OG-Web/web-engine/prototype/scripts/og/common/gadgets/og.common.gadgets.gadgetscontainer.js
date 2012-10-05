@@ -63,20 +63,9 @@ $.register_module({
                         tabs_width = Array.prototype.reduce.apply($tabs
                             .map(function () {return $(this).outerWidth();}), [function (a, b) {return a + b;}, 0]),
                         new_window = function (i, dropped) {
-                            var prefix = 'gadget.ftl#/gadgetscontainer/', url,
-                                index = extract_index(extract_id($(this).attr('class'))),
-                                id = gadgets[index].config.options.id,
-                                type = gadgets[index].type;
-                            switch (type) {
-                                case 'timeseries': url = prefix + type + ':' + id; break;
-                                case 'surface': url = prefix + type + ':' + id; break;
-                                case 'curve': url = prefix + type + ':' + id; break;
-                                case 'grid': url = prefix + type + ':' + id; break;
-                                case 'data': url = prefix + type + ':' + id; break;
-                                case 'depgraph': url = prefix + type + ':' + id; break;
-                            }
+                            var index = extract_index(extract_id($(this).attr('class')));
                             if (!dropped) {
-                                window.open(url);
+                                og.common.events.fire(container.events.launch, gadgets[index].config);
                                 setTimeout(container.del.partial(gadgets[i]));
                             }
                         };
@@ -207,7 +196,7 @@ $.register_module({
                 update_tabs(id); // new active tab or empty
                 if (!silent) og.common.events.fire(container.events.del, index);
             };
-            container.events = {del: [], drop: []};
+            container.events = {del: [], drop: [], launch: []};
             container.gadgets = function () {return gadgets;};
             /**
              * Highlight gadget panel with number

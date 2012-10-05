@@ -6,14 +6,12 @@ $.register_module({
     name: 'og.analytics.Grid',
     dependencies: ['og.api.text', 'og.common.events', 'og.analytics.Data', 'og.analytics.CellMenu'],
     obj: function () {
-        var module = this, counter = 1, row_height = 19, title_height = 31, set_height = 24, templates = null,
+        var module = this, counter = 1, row_height = 21, title_height = 31, set_height = 24, templates = null,
             fire = og.common.events.fire, scrollbar_size = (function () {
                 var html = '<div style="width: 100px; height: 100px; position: absolute; \
                     visibility: hidden; overflow: auto; left: -10000px; z-index: -10000; bottom: 100px" />';
                 return 100 - $(html).appendTo('body').append('<div />').find('div').css('height', '200px').width();
             })();
-        if (window.parent !== window && window.parent.og.analytics && window.parent.og.analytics.Grid)
-            return window.parent.og.analytics.Grid.partial(undefined, $); // if already compiled, use that
         var available = (function () {
             var unravel = function (nodes, arr, result) {
                 var start = arr[0], end = arr[1], children = arr[2], last_end = null;
@@ -61,9 +59,8 @@ $.register_module({
                 handler.call(context);
             });
         };
-        var constructor = function (config, dollar) {
+        var constructor = function (config) {
             var grid = this;
-            grid.$ = dollar || $; // each grid holds a reference to its frame/window's $
             grid.config = config || {};
             grid.elements = {empty: true};
             grid.events = {
@@ -71,7 +68,7 @@ $.register_module({
                 mousedown: [], rangeselect: [], render: [], scroll: [], select: []
             };
             grid.formatter = new og.analytics.Formatter(grid);
-            grid.id = '#analytics_grid_' + counter++;
+            grid.id = '#analytics_grid_' + counter++ + '_' + +new Date;
             grid.meta = null;
             grid.source = config.source;
             grid.updated = (function (last, delta) {
@@ -95,9 +92,10 @@ $.register_module({
             });
         };
         constructor.prototype.alive = function () {
-            var grid = this, $ = grid.$, alive = $(grid.id).length ? true : !grid.elements.style.remove();
-            if (!alive) grid.dataman.kill();
-            return alive;
+            var grid = this, live = $(grid.id).length;
+            if (live) return true;
+            try {grid.dataman.kill();} catch (error) {return false;}
+            try {grid.elements.style.remove();} catch (error) {return false;}
         };
         constructor.prototype.cell = function (selection) {
             if (1 !== selection.rows.length || 1 !== selection.cols.length) return null;
@@ -110,7 +108,7 @@ $.register_module({
             };
         };
         constructor.prototype.init_data = function () {
-            var grid = this, $ = grid.$, config = grid.config;
+            var grid = this, config = grid.config;
             grid.dataman = new og.analytics.Data(grid.source)
                 .on('meta', grid.init_grid, grid)
                 .on('data', grid.render_rows, grid);
@@ -128,7 +126,7 @@ $.register_module({
             });
         };
         constructor.prototype.init_elements = function () {
-            var grid = this, $ = grid.$, config = grid.config, elements, cellmenu,
+            var grid = this, config = grid.config, elements, cellmenu,
                 last_x, last_y, page_x, page_y, last_corner, cell // cached values for mousemove and mouseleave events;
             (elements = grid.elements).style = $('<style type="text/css" />').appendTo('head');
             elements.parent = $(config.selector).html(templates.container({id: grid.id.substring(1)}))
@@ -150,6 +148,7 @@ $.register_module({
                             selection = grid.selector.selection(rectangle);
                         if (!selection || last_corner === (corner_cache = JSON.stringify(corner))) return;
                         cell = grid.cell(grid.transpose_selection(selection));
+                        if (!cell) return;
                         cell.top = corner.top - scroll_top + grid.meta.header_height;
                         cell.right = corner.right - (page_x > fixed_width ? scroll_left : 0);
                         last_corner = corner_cache; last_x = page_x; last_y = page_y;

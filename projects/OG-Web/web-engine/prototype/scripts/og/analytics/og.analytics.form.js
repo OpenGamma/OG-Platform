@@ -125,6 +125,14 @@ $.register_module({
                         if ($(elm).closest('.og-aggregation').length) datasources_menu.close();
                         if ($(elm).closest('.og-datasources').length) aggregation_menu.close();
                     })
+                    .on('click', '.og-load', function () {
+                        if (!~auto_combo_menu[0].value.indexOf('Db')) return;
+                        og.analytics.url.main({
+                            type: 'portfolio', depgraph: false,
+                            viewdefinition: auto_combo_menu[0].value,
+                            providers: [{'marketDataType': 'live', 'source': 'Bloomberg'}]
+                        });
+                    })
                     .on('click', '.og-menu-aggregation button', function () {
                         var val = $(this).text();
                         if (val === 'OK') $(selector).trigger('tab', 'datasources'), datasources_menu.focus();
@@ -139,17 +147,7 @@ $.register_module({
                         '.OG-analytics-form .og-view', 'search...', response.view)
                     .on('input autocompletechange autocompleteselect', function (event, ui) {
                         var $load = $(selector + ' .og-load');
-                        if ((ui && ui.item && ui.item.value || $(this).val()) !== '') {
-                            $load.removeClass('og-disabled').on('click', function () {
-                                og.analytics.url.main({
-                                    type: 'portfolio',
-                                    depgraph: false,
-                                    viewdefinition: auto_combo_menu[0].value,
-                                    providers: [{'marketDataType': 'live', 'source': 'Bloomberg'}]
-                                });
-//                                status.play();
-                            });
-                        }
+                        if ((ui && ui.item && ui.item.value || $(this).val()) !== '') $load.removeClass('og-disabled');
                         else $load.addClass('og-disabled').off('click');
                     });
                 var aggregation_menu = new FormCombo(
@@ -159,6 +157,7 @@ $.register_module({
                     selector + ' .og-datasources', 'og.analytics.form_datasources_tash', response.datasources
                 );
                 var status = new Status(selector + ' .og-status');
+                
                 og.views.common.layout.main.allowOverflow('north');
             });
         }

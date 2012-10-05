@@ -6,18 +6,22 @@ $.register_module({
     name: 'og.analytics.Data',
     dependencies: ['og.api.rest'],
     obj: function () {
-        var module = this, counter = 1, api = og.api.rest.views;
+        var module = this, counter = 1, connections = {};
+        $(window).on('unload', function () {
+            Object.keys(connections).forEach(function (key) {try {connections[key].kill();} catch (error) {}});
+        });
         var constructor = function (config) {
-            var data = this, id = 'data_' + counter++, meta, cols, fire = og.common.events.fire,
-                viewport = null, view_id = config.view, graph_id, viewport_id, viewport_version, subscribed = false,
-                ROOT = 'rootNode', SETS = 'columnSets', ROWS = 'rowCount',
+            var data = this, api = og.api.rest.views, id = 'data_' + counter++ + '_' + +new Date, meta, cols,
+                fire = og.common.events.fire, viewport = null, view_id = config.view, graph_id, viewport_id,
+                viewport_version, subscribed = false, ROOT = 'rootNode', SETS = 'columnSets', ROWS = 'rowCount',
                 grid_type = config.type, depgraph = !!config.depgraph,
                 fixed_set = {portfolio: 'Portfolio', primitives: 'Primitives'};
             var data_handler = function (result) {
                 if (!result || result.error)
                     return og.dev.warn(result && result.message || module.name + ': reset connection');
                 if (!data.events.data.length || !result.data) return; // if a tree falls or there's no tree, etc.
-                if (result.data.version === viewport_version) fire(data.events.data, result.data.data);
+                if (result.data.version === viewport_version) try {fire(data.events.data, result.data.data);}
+                    catch (error) {return og.dev.warn(module.name + ': killed connection due to ', error), data.kill();}
             };
             var data_setup = function () {
                 if (!view_id || !viewport) return;
@@ -53,7 +57,8 @@ $.register_module({
                 meta.columns.scroll = result.data[SETS].slice(1).map(function (set) {
                     return set.columns.forEach(function (col) {return (col.width = 175), col;}), set;
                 });
-                fire(data.events.meta, meta);
+                try {fire(data.events.meta, meta);}
+                catch (error) {return og.dev.warn(module.name + ': killed connection due to ', error), data.kill();}
                 if (!subscribed) return data_setup();
             };
             var grid_setup = function () {
@@ -72,6 +77,7 @@ $.register_module({
                     : api[grid_type].grid.get({view_id: view_id, update: initialize});
             };
             var initialize = function () {
+                
                 var put_options = ['viewdefinition', 'aggregators', 'providers']
                     .reduce(function (acc, val) {return (acc[val] = config[val]), acc;}, {});
                 (view_id ? grid_setup() : api.put(put_options).pipe(view_handler)).pipe(grid_handler);
@@ -83,7 +89,10 @@ $.register_module({
             data.events = {meta: [], data: []};
             data.id = id;
             data.kill = function () {
-                if (view_id)  api.del({view_id: view_id}).pipe(function (result) {view_id = null;});
+                if (view_id) api.del({view_id: view_id}).pipe(function (result) {
+                    view_id = null;
+                    delete connections[data.id];
+                });
             };
             data.meta = meta = {columns: {}};
             data.cols = cols = {};
@@ -100,6 +109,7 @@ $.register_module({
                 });
                 return data;
             };
+            connections[data.id] = data;
             initialize();
         };
         constructor.prototype.on = og.common.events.on;
