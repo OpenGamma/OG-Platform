@@ -23,6 +23,7 @@ import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
@@ -71,11 +72,12 @@ public class LiveDataDeltaCalculatorTest {
   }
   
   private DependencyNode createNode(String name, Set<DependencyNode> inputNodes) {
-    ComputationTarget target = getTarget(name); 
-    
-    MarketDataSourcingFunction function = new MarketDataSourcingFunction(getValueRequirement(name));
-    
-    DependencyNode node = new DependencyNode(target);
+    final ComputationTarget target = getTarget(name);
+    final ValueRequirement requirement = getValueRequirement(name);
+    final ValueSpecification specification = new ValueSpecification(requirement.getValueName(), requirement.getTargetSpecification(), requirement.getConstraints().copy()
+        .with(ValuePropertyNames.FUNCTION, "").get());
+    final MarketDataSourcingFunction function = new MarketDataSourcingFunction(requirement, specification);
+    final DependencyNode node = new DependencyNode(target);
     node.setFunction(function);
     node.addInputNodes(inputNodes);
     return node;

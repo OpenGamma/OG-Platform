@@ -23,12 +23,12 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeType;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
+import com.opengamma.engine.marketdata.MarketDataUtils;
 import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.PermissiveMarketDataPermissionProvider;
-import com.opengamma.engine.marketdata.availability.MarketDataAvailability;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.live.LiveMarketDataProvider;
 import com.opengamma.engine.marketdata.live.LiveMarketDataSnapshot;
@@ -41,6 +41,7 @@ import com.opengamma.engine.test.TestViewResultListener;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewProcessImpl;
 import com.opengamma.engine.view.ViewProcessorImpl;
@@ -439,11 +440,10 @@ public class ViewComputationJobTest {
     }
 
     @Override
-    public MarketDataAvailability getAvailability(ValueRequirement requirement) {
+    public ValueSpecification getAvailability(ValueRequirement requirement) {
       // Want the market data provider to indicate that data is available even before it's really available
-      return (requirement.equals(ViewProcessorTestEnvironment.getPrimitive1()) ||
-          requirement.equals(ViewProcessorTestEnvironment.getPrimitive2())) ? MarketDataAvailability.AVAILABLE
-          : MarketDataAvailability.NOT_AVAILABLE;
+      return (requirement.equals(ViewProcessorTestEnvironment.getPrimitive1()) || requirement.equals(ViewProcessorTestEnvironment.getPrimitive2())) ? MarketDataUtils
+          .createMarketDataValue(requirement) : null;
     }
 
     @Override

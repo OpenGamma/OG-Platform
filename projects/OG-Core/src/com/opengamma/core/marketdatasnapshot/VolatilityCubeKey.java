@@ -5,8 +5,6 @@
  */
 package com.opengamma.core.marketdatasnapshot;
 
-import java.io.Serializable;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -22,10 +20,10 @@ import com.opengamma.util.money.Currency;
  * <p>
  * This class is immutable and thread-safe.
  */
-public class VolatilityCubeKey implements StructuredMarketDataKey, Comparable<VolatilityCubeKey>, Serializable {
+public class VolatilityCubeKey extends StructuredMarketDataKey implements Comparable<VolatilityCubeKey> {
 
   /** Serialization version. */
-  private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 2L;
 
   /**
    * The currency.
@@ -114,7 +112,11 @@ public class VolatilityCubeKey implements StructuredMarketDataKey, Comparable<Vo
     return ObjectUtils.hashCode(getCurrency()) ^ ObjectUtils.hashCode(getName());
   }
 
-  //-------------------------------------------------------------------------
+  @Override
+  public <T> T accept(final Visitor<T> visitor) {
+    return visitor.visitVolatilityCubeKey(this);
+  }
+
   public MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
     final MutableFudgeMsg msg = serializer.newMessage();
     msg.add("currency", _currency.getCode());

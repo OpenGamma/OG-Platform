@@ -22,6 +22,7 @@ import com.opengamma.engine.marketdata.AbstractMarketDataSnapshot;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataSnapshot;
 import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.UniqueId;
 
@@ -119,7 +120,7 @@ public class LiveMarketDataSnapshot extends AbstractMarketDataSnapshot {
   }
 
   @Override
-  public Object query(ValueRequirement requirement) {
+  public ComputedValue query(ValueRequirement requirement) {
     //TODO: return useful error message if failed
     return _underlyingSnapshot.query(requirement);
   }

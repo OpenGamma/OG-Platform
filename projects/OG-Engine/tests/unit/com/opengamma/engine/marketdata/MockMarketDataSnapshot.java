@@ -7,6 +7,7 @@ package com.opengamma.engine.marketdata;
 
 import javax.time.Instant;
 
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.UniqueId;
 
@@ -24,7 +25,7 @@ public class MockMarketDataSnapshot extends AbstractMarketDataSnapshot {
 
   @Override
   public UniqueId getUniqueId() {
-    return UniqueId.of(MARKET_DATA_SNAPSHOT_ID_SCHEME, "MockMarketDataSnapshot:"+getSnapshotTime());
+    return UniqueId.of(MARKET_DATA_SNAPSHOT_ID_SCHEME, "MockMarketDataSnapshot:" + getSnapshotTime());
   }
   
   @Override
@@ -38,7 +39,7 @@ public class MockMarketDataSnapshot extends AbstractMarketDataSnapshot {
   }
 
   @Override
-  public Object query(ValueRequirement requirement) {
+  public ComputedValue query(ValueRequirement requirement) {
     _provider.incrementQueryCount();
     return _provider.getValue(requirement);
   }

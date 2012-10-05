@@ -396,27 +396,19 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     s_logger.debug("Populating {} market data items using snapshot {}", marketDataRequirements.size(), snapshot);
     Map<ViewComputationCache, OverrideOperation> cacheMarketDataOperation = getCacheMarketDataOperation();
     InMemoryViewComputationResultModel marketDataResultFragment = constructTemplateResultModel();
-    final Map<ValueRequirement, Object> marketDataValues = snapshot.query(marketDataRequirements.keySet());
+    final Map<ValueRequirement, ComputedValue> marketDataValues = snapshot.query(marketDataRequirements.keySet());
     for (Map.Entry<ValueRequirement, ValueSpecification> marketDataRequirement : marketDataRequirements.entrySet()) {
-      // REVIEW 2010-10-22 Andrew
-      // If we're asking the snapshot for a "requirement" then it should give back a more detailed "specification" with the data (i.e. a
-      // ComputedValue instance where the specification satisfies the requirement). Functions should then declare their requirements and
-      // not the exact specification they want for market data. Alternatively, if the snapshot will give us the exact value we ask for then
-      // we should be querying with a "specification" and not a requirement.
-      final Object data = marketDataValues.get(marketDataRequirement.getKey());
-      final ComputedValue dataAsValue;
+      ComputedValue data = marketDataValues.get(marketDataRequirement.getKey());
       if (data == null) {
         s_logger.debug("Unable to load market data value for {} from snapshot {}", marketDataRequirement, getValuationTime());
         missingMarketData.add(marketDataRequirement.getValue());
-        dataAsValue = new ComputedValue(marketDataRequirement.getValue(), MissingMarketDataSentinel.getInstance());
+        data = new ComputedValue(marketDataRequirement.getValue(), MissingMarketDataSentinel.getInstance());
       } else {
-        dataAsValue = new ComputedValue(marketDataRequirement.getValue(), data);
-
         // REVIEW jonathan 2011-11-17 -- do we really need to include all market data in the result by default?
-        getResultModel().addMarketData(dataAsValue);
-        addMarketDataToResultFragment(marketDataResultFragment, marketDataRequirement.getValue(), dataAsValue);
+        getResultModel().addMarketData(data);
+        addMarketDataToResultFragment(marketDataResultFragment, marketDataRequirement.getValue(), data);
       }
-      addToAllCaches(marketDataRequirement.getKey(), dataAsValue, cacheMarketDataOperation);
+      addToAllCaches(marketDataRequirement.getKey(), data, cacheMarketDataOperation);
     }
     if (!missingMarketData.isEmpty()) {
       s_logger.info("Missing {} market data elements: {}", missingMarketData.size(), formatMissingLiveData(missingMarketData));
