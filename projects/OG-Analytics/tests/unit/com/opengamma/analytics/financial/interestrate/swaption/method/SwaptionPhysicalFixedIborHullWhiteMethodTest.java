@@ -16,6 +16,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import cern.colt.Arrays;
 import cern.jet.random.engine.MersenneTwister;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
@@ -37,7 +38,7 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedC
 import com.opengamma.analytics.financial.interestrate.swap.method.SwapFixedCouponDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
-import com.opengamma.analytics.financial.model.interestrate.TestsDataSetsHullWhite;
+import com.opengamma.analytics.financial.model.interestrate.TestsDataSetHullWhite;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
@@ -107,7 +108,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
   private static final SwaptionPhysicalFixedIborHullWhiteApproximationMethod METHOD_HW_APPROXIMATION = new SwaptionPhysicalFixedIborHullWhiteApproximationMethod();
   private static final int NB_PATH = 12500;
   private static final HullWhiteMonteCarloMethod METHOD_HW_MONTECARLO = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0), NB_PATH);
-  private static final HullWhiteOneFactorPiecewiseConstantParameters PARAMETERS_HW = TestsDataSetsHullWhite.createHullWhiteParameters();
+  private static final HullWhiteOneFactorPiecewiseConstantParameters PARAMETERS_HW = TestsDataSetHullWhite.createHullWhiteParameters();
   private static final HullWhiteOneFactorPiecewiseConstantDataBundle BUNDLE_HW = new HullWhiteOneFactorPiecewiseConstantDataBundle(PARAMETERS_HW, CURVES);
   private static final HullWhiteOneFactorPiecewiseConstantInterestRateModel MODEL = new HullWhiteOneFactorPiecewiseConstantInterestRateModel();
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
@@ -436,7 +437,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
     System.out.println("Difference explicit-approximation: " + difference2);
     System.out.println("Difference explicit-Monte Carlo: " + difference3);
     System.out.println("Curve sensitivity: " + pvcs.toString());
-    System.out.println("HW sensitivity: " + pvhws.toString());
+    System.out.println("HW sensitivity: " + Arrays.toString(pvhws));
   }
 
   @Test(enabled = false)

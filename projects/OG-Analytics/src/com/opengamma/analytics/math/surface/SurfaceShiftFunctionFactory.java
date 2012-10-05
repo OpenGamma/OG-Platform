@@ -68,16 +68,19 @@ public class SurfaceShiftFunctionFactory {
    */
   public static Surface<Double, Double, Double> getShiftedSurface(final Surface<Double, Double, Double> surface, final double shift, final boolean useAdditive) {
     if (surface instanceof ConstantDoublesSurface) {
-      return useAdditive ? CONSTANT_ADDITIVE.evaluate((ConstantDoublesSurface) surface, shift) : CONSTANT_MULTIPLICATIVE.evaluate((ConstantDoublesSurface) surface, shift);
+      return useAdditive ? CONSTANT_ADDITIVE.evaluate((ConstantDoublesSurface) surface, shift) : CONSTANT_MULTIPLICATIVE
+          .evaluate((ConstantDoublesSurface) surface, shift);
     }
     if (surface instanceof FunctionalDoublesSurface) {
-      return useAdditive ? FUNCTIONAL_ADDITIVE.evaluate((FunctionalDoublesSurface) surface, shift) : FUNCTIONAL_MULTIPLICATIVE.evaluate((FunctionalDoublesSurface) surface, shift);
+      return useAdditive ? FUNCTIONAL_ADDITIVE.evaluate((FunctionalDoublesSurface) surface, shift) : FUNCTIONAL_MULTIPLICATIVE.evaluate(
+          (FunctionalDoublesSurface) surface, shift);
     }
     if (surface instanceof InterpolatedDoublesSurface) {
-      return useAdditive ? INTERPOLATED_ADDITIVE.evaluate((InterpolatedDoublesSurface) surface, shift) : INTERPOLATED_MULTIPLICATIVE.evaluate((InterpolatedDoublesSurface) surface, shift);
+      return useAdditive ? INTERPOLATED_ADDITIVE.evaluate((InterpolatedDoublesSurface) surface, shift) : INTERPOLATED_MULTIPLICATIVE.evaluate(
+          (InterpolatedDoublesSurface) surface, shift);
     }
     if (surface instanceof InterpolatedFromCurvesDoublesSurface && useAdditive) {
-      return INTERPOLATED_FROM_CURVES_ADDITIVE.evaluate((InterpolatedFromCurvesDoublesSurface) surface, shift); 
+      return INTERPOLATED_FROM_CURVES_ADDITIVE.evaluate((InterpolatedFromCurvesDoublesSurface) surface, shift);
     }
     if (surface instanceof NodalDoublesSurface) {
       return useAdditive ? NODAL_ADDITIVE.evaluate((NodalDoublesSurface) surface, shift) : NODAL_MULTIPLICATIVE.evaluate((NodalDoublesSurface) surface, shift);
@@ -98,19 +101,21 @@ public class SurfaceShiftFunctionFactory {
   public static Surface<Double, Double, Double> getShiftedSurface(final Surface<Double, Double, Double> surface, final double x, final double y, final double shift,
       final boolean useAdditive) {
     if (surface instanceof ConstantDoublesSurface) {
-      return useAdditive ? CONSTANT_ADDITIVE.evaluate((ConstantDoublesSurface) surface, x, y, shift) : CONSTANT_MULTIPLICATIVE.evaluate((ConstantDoublesSurface) surface, x, y, shift);
+      throw new UnsupportedOperationException("Cannot shift a single point on a constant curve");
     }
     if (surface instanceof FunctionalDoublesSurface) {
-      return useAdditive ? FUNCTIONAL_ADDITIVE.evaluate((FunctionalDoublesSurface) surface, x, y, shift) : FUNCTIONAL_MULTIPLICATIVE.evaluate((FunctionalDoublesSurface) surface, x, y, shift);
+      throw new UnsupportedOperationException("Cannot shift a single point on a functional curve");
     }
     if (surface instanceof InterpolatedDoublesSurface) {
-      return useAdditive ? INTERPOLATED_ADDITIVE.evaluate((InterpolatedDoublesSurface) surface, x, y, shift) : INTERPOLATED_MULTIPLICATIVE.evaluate((InterpolatedDoublesSurface) surface, x, y, shift);
+      return useAdditive ? INTERPOLATED_ADDITIVE.evaluate((InterpolatedDoublesSurface) surface, x, y, shift) : INTERPOLATED_MULTIPLICATIVE.evaluate(
+          (InterpolatedDoublesSurface) surface, x, y, shift);
     }
     if (surface instanceof InterpolatedFromCurvesDoublesSurface && useAdditive) {
-      return INTERPOLATED_FROM_CURVES_ADDITIVE.evaluate((InterpolatedFromCurvesDoublesSurface) surface, x, y, shift); 
+      return INTERPOLATED_FROM_CURVES_ADDITIVE.evaluate((InterpolatedFromCurvesDoublesSurface) surface, x, y, shift);
     }
     if (surface instanceof NodalDoublesSurface) {
-      return useAdditive ? NODAL_ADDITIVE.evaluate((NodalDoublesSurface) surface, x, y, shift) : NODAL_MULTIPLICATIVE.evaluate((NodalDoublesSurface) surface, x, y, shift);
+      return useAdditive ? NODAL_ADDITIVE.evaluate((NodalDoublesSurface) surface, x, y, shift) : NODAL_MULTIPLICATIVE
+          .evaluate((NodalDoublesSurface) surface, x, y, shift);
     }
     throw new IllegalArgumentException("Do not have a surface shift function for surface " + surface.getClass());
   }
@@ -125,22 +130,24 @@ public class SurfaceShiftFunctionFactory {
    * @return A shifted surface with an automatically-generated name
    * @throws IllegalArgumentException If the surface type is not constant, functional, interpolated, nodal or spread
    */
-  public static Surface<Double, Double, Double> getShiftedSurface(final Surface<Double, Double, Double> surface, final double[] x, final double[] y, final double[] shift,
-      final boolean useAdditive) {
+  public static Surface<Double, Double, Double> getShiftedSurface(final Surface<Double, Double, Double> surface, final double[] x, final double[] y,
+      final double[] shift, final boolean useAdditive) {
     if (surface instanceof ConstantDoublesSurface) {
-      return useAdditive ? CONSTANT_ADDITIVE.evaluate((ConstantDoublesSurface) surface, x, y, shift) : CONSTANT_MULTIPLICATIVE.evaluate((ConstantDoublesSurface) surface, x, y, shift);
+      throw new UnsupportedOperationException("Cannot parallel shift a constant curve");
     }
     if (surface instanceof FunctionalDoublesSurface) {
-      return useAdditive ? FUNCTIONAL_ADDITIVE.evaluate((FunctionalDoublesSurface) surface, x, y, shift) : FUNCTIONAL_MULTIPLICATIVE.evaluate((FunctionalDoublesSurface) surface, x, y, shift);
+      throw new UnsupportedOperationException("Cannot parallel shift a functional curve");
     }
     if (surface instanceof InterpolatedDoublesSurface) {
-      return useAdditive ? INTERPOLATED_ADDITIVE.evaluate((InterpolatedDoublesSurface) surface, x, y, shift) : INTERPOLATED_MULTIPLICATIVE.evaluate((InterpolatedDoublesSurface) surface, x, y, shift);
+      return useAdditive ? INTERPOLATED_ADDITIVE.evaluate((InterpolatedDoublesSurface) surface, x, y, shift) : INTERPOLATED_MULTIPLICATIVE.evaluate(
+          (InterpolatedDoublesSurface) surface, x, y, shift);
     }
     if (surface instanceof InterpolatedFromCurvesDoublesSurface && useAdditive) {
-      return INTERPOLATED_FROM_CURVES_ADDITIVE.evaluate((InterpolatedFromCurvesDoublesSurface) surface, x, y, shift); 
+      return INTERPOLATED_FROM_CURVES_ADDITIVE.evaluate((InterpolatedFromCurvesDoublesSurface) surface, x, y, shift);
     }
     if (surface instanceof NodalDoublesSurface) {
-      return useAdditive ? NODAL_ADDITIVE.evaluate((NodalDoublesSurface) surface, x, y, shift) : NODAL_MULTIPLICATIVE.evaluate((NodalDoublesSurface) surface, x, y, shift);
+      return useAdditive ? NODAL_ADDITIVE.evaluate((NodalDoublesSurface) surface, x, y, shift) : NODAL_MULTIPLICATIVE
+          .evaluate((NodalDoublesSurface) surface, x, y, shift);
     }
     throw new IllegalArgumentException("Do not have a surface shift function for surface " + surface.getClass());
   }
@@ -154,23 +161,26 @@ public class SurfaceShiftFunctionFactory {
    * @return A shifted surface 
    * @throws IllegalArgumentException If the surface type is not constant, functional, interpolated, nodal or spread
    */
-  public static Surface<Double, Double, Double> getShiftedSurface(final Surface<Double, Double, Double> surface, final double shift, final String newName, final boolean useAdditive) {
+  public static Surface<Double, Double, Double> getShiftedSurface(final Surface<Double, Double, Double> surface, final double shift, final String newName,
+      final boolean useAdditive) {
     if (surface instanceof ConstantDoublesSurface) {
-      return useAdditive ? CONSTANT_ADDITIVE.evaluate((ConstantDoublesSurface) surface, shift, newName) : CONSTANT_MULTIPLICATIVE.evaluate((ConstantDoublesSurface) surface, shift, newName);
+      return useAdditive ? CONSTANT_ADDITIVE.evaluate((ConstantDoublesSurface) surface, shift, newName) : CONSTANT_MULTIPLICATIVE.evaluate(
+          (ConstantDoublesSurface) surface, shift, newName);
     }
     if (surface instanceof FunctionalDoublesSurface) {
-      return useAdditive ? FUNCTIONAL_ADDITIVE.evaluate((FunctionalDoublesSurface) surface, shift, newName) : FUNCTIONAL_MULTIPLICATIVE.evaluate((FunctionalDoublesSurface) surface, shift, newName);
+      return useAdditive ? FUNCTIONAL_ADDITIVE.evaluate((FunctionalDoublesSurface) surface, shift, newName) : FUNCTIONAL_MULTIPLICATIVE.evaluate(
+          (FunctionalDoublesSurface) surface, shift, newName);
     }
     if (surface instanceof InterpolatedDoublesSurface) {
-      return useAdditive ? INTERPOLATED_ADDITIVE.evaluate((InterpolatedDoublesSurface) surface, shift, newName) :
-        INTERPOLATED_MULTIPLICATIVE.evaluate((InterpolatedDoublesSurface) surface, shift, newName);
+      return useAdditive ? INTERPOLATED_ADDITIVE.evaluate((InterpolatedDoublesSurface) surface, shift, newName) : INTERPOLATED_MULTIPLICATIVE.evaluate(
+          (InterpolatedDoublesSurface) surface, shift, newName);
     }
     if (surface instanceof InterpolatedFromCurvesDoublesSurface && useAdditive) {
       return INTERPOLATED_FROM_CURVES_ADDITIVE.evaluate((InterpolatedFromCurvesDoublesSurface) surface, shift, newName);
     }
     if (surface instanceof NodalDoublesSurface) {
-      return useAdditive ? NODAL_ADDITIVE.evaluate((NodalDoublesSurface) surface, shift, newName) : 
-        NODAL_MULTIPLICATIVE.evaluate((NodalDoublesSurface) surface, shift, newName);
+      return useAdditive ? NODAL_ADDITIVE.evaluate((NodalDoublesSurface) surface, shift, newName) : NODAL_MULTIPLICATIVE.evaluate((NodalDoublesSurface) surface, shift,
+          newName);
     }
     throw new IllegalArgumentException("Do not have a surface shift function for surface " + surface.getClass());
   }
@@ -186,26 +196,24 @@ public class SurfaceShiftFunctionFactory {
    * @return A shifted surface
    * @throws IllegalArgumentException If the surface type is not constant, functional, interpolated, nodal or spread
    */
-  public static Surface<Double, Double, Double> getShiftedSurface(final Surface<Double, Double, Double> surface, final double x, final double y, final double shift, final String newName,
-      final boolean useAdditive) {
+  public static Surface<Double, Double, Double> getShiftedSurface(final Surface<Double, Double, Double> surface, final double x, final double y, final double shift,
+      final String newName, final boolean useAdditive) {
     if (surface instanceof ConstantDoublesSurface) {
-      return useAdditive ? CONSTANT_ADDITIVE.evaluate((ConstantDoublesSurface) surface, x, y, shift, newName) : 
-        CONSTANT_MULTIPLICATIVE.evaluate((ConstantDoublesSurface) surface, x, y, shift, newName);
+      throw new UnsupportedOperationException("Cannot shift a single point on a constant curve");
     }
     if (surface instanceof FunctionalDoublesSurface) {
-      return useAdditive ? FUNCTIONAL_ADDITIVE.evaluate((FunctionalDoublesSurface) surface, x, y, shift, newName) :
-        FUNCTIONAL_MULTIPLICATIVE.evaluate((FunctionalDoublesSurface) surface, x, y, shift, newName);
+      throw new UnsupportedOperationException("Cannot shift a single point on a functional curve");
     }
     if (surface instanceof InterpolatedDoublesSurface) {
-      return useAdditive ? INTERPOLATED_ADDITIVE.evaluate((InterpolatedDoublesSurface) surface, x, y, shift, newName) :
-        INTERPOLATED_MULTIPLICATIVE.evaluate((InterpolatedDoublesSurface) surface, x, y, shift, newName);
+      return useAdditive ? INTERPOLATED_ADDITIVE.evaluate((InterpolatedDoublesSurface) surface, x, y, shift, newName) : INTERPOLATED_MULTIPLICATIVE.evaluate(
+          (InterpolatedDoublesSurface) surface, x, y, shift, newName);
     }
     if (surface instanceof InterpolatedFromCurvesDoublesSurface && useAdditive) {
-      return INTERPOLATED_FROM_CURVES_ADDITIVE.evaluate((InterpolatedFromCurvesDoublesSurface) surface, x, y, shift, newName); 
+      return INTERPOLATED_FROM_CURVES_ADDITIVE.evaluate((InterpolatedFromCurvesDoublesSurface) surface, x, y, shift, newName);
     }
     if (surface instanceof NodalDoublesSurface) {
-      return useAdditive ? NODAL_ADDITIVE.evaluate((NodalDoublesSurface) surface, x, y, shift, newName) : 
-        NODAL_MULTIPLICATIVE.evaluate((NodalDoublesSurface) surface, x, y, shift, newName);
+      return useAdditive ? NODAL_ADDITIVE.evaluate((NodalDoublesSurface) surface, x, y, shift, newName) : NODAL_MULTIPLICATIVE.evaluate((NodalDoublesSurface) surface, x,
+          y, shift, newName);
     }
     throw new IllegalArgumentException("Do not have a surface shift function for surface " + surface.getClass());
   }
@@ -221,26 +229,24 @@ public class SurfaceShiftFunctionFactory {
    * @return A shifted surface 
    * @throws IllegalArgumentException If the surface type is not constant, functional, interpolated, nodal or spread
    */
-  public static Surface<Double, Double, Double> getShiftedSurface(final Surface<Double, Double, Double> surface, final double[] x, final double[] y, final double[] shift, final String newName,
-      final boolean useAdditive) {
+  public static Surface<Double, Double, Double> getShiftedSurface(final Surface<Double, Double, Double> surface, final double[] x, final double[] y,
+      final double[] shift, final String newName, final boolean useAdditive) {
     if (surface instanceof ConstantDoublesSurface) {
-      return useAdditive ? CONSTANT_ADDITIVE.evaluate((ConstantDoublesSurface) surface, x, y, shift, newName) : 
-        CONSTANT_MULTIPLICATIVE.evaluate((ConstantDoublesSurface) surface, x, y, shift, newName);
+      throw new UnsupportedOperationException("Cannot parallel shift a constant curve");
     }
     if (surface instanceof FunctionalDoublesSurface) {
-      return useAdditive ? FUNCTIONAL_ADDITIVE.evaluate((FunctionalDoublesSurface) surface, x, y, shift, newName) :
-        FUNCTIONAL_MULTIPLICATIVE.evaluate((FunctionalDoublesSurface) surface, x, y, shift, newName);
+      throw new UnsupportedOperationException("Cannot parallel shift a functional curve");
     }
     if (surface instanceof InterpolatedDoublesSurface) {
-      return useAdditive ? INTERPOLATED_ADDITIVE.evaluate((InterpolatedDoublesSurface) surface, x, y, shift, newName) :
-        INTERPOLATED_MULTIPLICATIVE.evaluate((InterpolatedDoublesSurface) surface, x, y, shift, newName);
+      return useAdditive ? INTERPOLATED_ADDITIVE.evaluate((InterpolatedDoublesSurface) surface, x, y, shift, newName) : INTERPOLATED_MULTIPLICATIVE.evaluate(
+          (InterpolatedDoublesSurface) surface, x, y, shift, newName);
     }
     if (surface instanceof InterpolatedFromCurvesDoublesSurface && useAdditive) {
       return INTERPOLATED_FROM_CURVES_ADDITIVE.evaluate((InterpolatedFromCurvesDoublesSurface) surface, x, y, shift, newName);
     }
     if (surface instanceof NodalDoublesSurface) {
-      return useAdditive ? NODAL_ADDITIVE.evaluate((NodalDoublesSurface) surface, x, y, shift, newName) : 
-        NODAL_MULTIPLICATIVE.evaluate((NodalDoublesSurface) surface, x, y, shift, newName);
+      return useAdditive ? NODAL_ADDITIVE.evaluate((NodalDoublesSurface) surface, x, y, shift, newName) : NODAL_MULTIPLICATIVE.evaluate((NodalDoublesSurface) surface, x,
+          y, shift, newName);
     }
     throw new IllegalArgumentException("Do not have a surface shift function for surface " + surface.getClass());
   }

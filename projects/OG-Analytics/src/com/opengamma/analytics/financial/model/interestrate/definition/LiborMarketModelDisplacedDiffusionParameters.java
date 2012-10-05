@@ -17,6 +17,7 @@ import com.opengamma.analytics.financial.interestrate.swaption.derivative.Swapti
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Parameters related to a multi-factor Libor Market Model with separable
@@ -84,20 +85,32 @@ public class LiborMarketModelDisplacedDiffusionParameters {
    * @param meanReversion The mean reversion used for the volatility time dependency.
    */
   public LiborMarketModelDisplacedDiffusionParameters(double[] iborTime, double[] accrualFactor, double[] displacement, double[][] volatility, double meanReversion) {
-    Validate.notNull(iborTime, "LMM Libor times");
-    Validate.notNull(accrualFactor, "LMM accrual factors");
-    Validate.notNull(displacement, "LMM displacements");
-    Validate.notNull(volatility, "LMM volatility");
+    ArgumentChecker.notNull(iborTime, "LMM Libor times");
+    ArgumentChecker.notNull(accrualFactor, "LMM accrual factors");
+    ArgumentChecker.notNull(displacement, "LMM displacements");
+    ArgumentChecker.notNull(volatility, "LMM volatility");
     _nbPeriod = accrualFactor.length;
-    Validate.isTrue(iborTime.length == _nbPeriod + 1, "LMM data: Dimension");
-    Validate.isTrue(_nbPeriod == displacement.length, "LMM data: Dimension");
-    Validate.isTrue(_nbPeriod == volatility.length, "LMM data: Dimension");
+    ArgumentChecker.isTrue(iborTime.length == _nbPeriod + 1, "LMM data: Dimension");
+    ArgumentChecker.isTrue(_nbPeriod == displacement.length, "LMM data: Dimension");
+    ArgumentChecker.isTrue(_nbPeriod == volatility.length, "LMM data: Dimension");
     _iborTime = iborTime;
     _accrualFactor = accrualFactor;
     _displacement = displacement;
     _volatility = volatility;
     _meanReversion = meanReversion;
     _nbFactor = volatility[0].length;
+  }
+
+  /**
+   * Create a new copy of the object with the same data. All the arrays are cloned.
+   * @return The LMM parameters.
+   */
+  public LiborMarketModelDisplacedDiffusionParameters copy() {
+    double[][] vol = new double[_volatility.length][];
+    for (int loopperiod = 0; loopperiod < _volatility.length; loopperiod++) {
+      vol[loopperiod] = _volatility[loopperiod].clone();
+    }
+    return new LiborMarketModelDisplacedDiffusionParameters(_iborTime.clone(), _accrualFactor.clone(), _displacement.clone(), vol, _meanReversion);
   }
 
   /**
@@ -282,11 +295,21 @@ public class LiborMarketModelDisplacedDiffusionParameters {
    * @param startIndex The start index for the block to change.
    */
   public final void setVolatility(double[][] volatility, int startIndex) {
-    Validate.notNull(volatility, "LMM volatility");
-    Validate.isTrue(volatility[0].length == _nbFactor, "LMM: incorrect number of factors");
+    ArgumentChecker.notNull(volatility, "LMM volatility");
+    ArgumentChecker.isTrue(volatility[0].length == _nbFactor, "LMM: incorrect number of factors");
     for (int loopperiod = 0; loopperiod < volatility.length; loopperiod++) {
       System.arraycopy(volatility[loopperiod], 0, _volatility[startIndex + loopperiod], 0, volatility[loopperiod].length);
     }
+  }
+
+  /**
+   * Change the model displacement in a block to a given displacement vector.
+   * @param displacement The change displacement.
+   * @param startIndex The start index for the block to change.
+   */
+  public final void setDisplacement(double[] displacement, int startIndex) {
+    ArgumentChecker.notNull(displacement, "LMM displacement");
+    System.arraycopy(displacement, 0, _displacement, startIndex, displacement.length);
   }
 
 }

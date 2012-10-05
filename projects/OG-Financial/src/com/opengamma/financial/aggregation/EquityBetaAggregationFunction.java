@@ -34,10 +34,10 @@ import com.opengamma.util.tuple.Pair;
  */
 public class EquityBetaAggregationFunction implements AggregationFunction<String> {
   private static final Logger s_logger = LoggerFactory.getLogger(EquityBetaAggregationFunction.class);
-  
-  private boolean _useAttributes;
-  private boolean _includeEmptyCategories;
-  
+
+  private final boolean _useAttributes;
+  private final boolean _includeEmptyCategories;
+
   private static final String MORE_THAN_1_25 = "> 1.25";
   private static final String FROM_0_9_TO_1_25 = "0.9 - 1.25";
   private static final String FROM_0_75_TO_0_9 = "0.75 - 0.9";
@@ -47,67 +47,68 @@ public class EquityBetaAggregationFunction implements AggregationFunction<String
   private static final String FIELD = "APPLIED_BETA";
   private static final String RESOLUTION_KEY = "DEFAULT_TSS_CONFIG";
   private static final String NO_BETA = "N/A";
-  
+
   private final boolean _caching = true;
-  
-  private Map<UniqueId, Double> _equityBetaCache = new HashMap<UniqueId, Double>();
-  
+
+  private final Map<UniqueId, Double> _equityBetaCache = new HashMap<UniqueId, Double>();
+
   private static final List<String> REQUIRED = Arrays.asList(MORE_THAN_1_25, FROM_0_9_TO_1_25, FROM_0_75_TO_0_9, FROM_0_5_TO_0_75, LESS_THAN_0_5, NO_BETA);
 
-  private HistoricalTimeSeriesSource _htsSource;
-  private SecuritySource _secSource;
-  
-  public EquityBetaAggregationFunction(SecuritySource secSource, HistoricalTimeSeriesSource htsSource, boolean useAttributes, boolean includeEmptyCategories) {
+  private final HistoricalTimeSeriesSource _htsSource;
+  private final SecuritySource _secSource;
+
+  public EquityBetaAggregationFunction(final SecuritySource secSource, final HistoricalTimeSeriesSource htsSource, final boolean useAttributes, final boolean includeEmptyCategories) {
     _secSource = secSource;
     _htsSource = htsSource;
     _useAttributes = useAttributes;
     _includeEmptyCategories = includeEmptyCategories;
   }
 
-  public EquityBetaAggregationFunction(SecuritySource secSource, HistoricalTimeSeriesSource htsSource, boolean useAttributes) {
+  public EquityBetaAggregationFunction(final SecuritySource secSource, final HistoricalTimeSeriesSource htsSource, final boolean useAttributes) {
     this(secSource, htsSource, useAttributes, false);
   }
-  
-  public EquityBetaAggregationFunction(SecuritySource secSource, HistoricalTimeSeriesSource htsSource) {
+
+  public EquityBetaAggregationFunction(final SecuritySource secSource, final HistoricalTimeSeriesSource htsSource) {
     this(secSource, htsSource, false);
   }
-  
+
   @Override
-  public String classifyPosition(Position position) {
+  public String classifyPosition(final Position position) {
     if (_useAttributes) {
-      Map<String, String> attributes = position.getAttributes();
+      final Map<String, String> attributes = position.getAttributes();
       if (attributes.containsKey(getName())) {
         return attributes.get(getName());
-      } else {
-        return NO_BETA;
       }
-    } else {
-      return classifyPositionWithTS(position);
+      return NO_BETA;
     }
+    return classifyPositionWithTS(position);
   }
-  
-  /*package*/ Double getEquityBeta(Security security) {
+
+  /*package*/ Double getEquityBeta(final Security security) {
     if (_caching && security != null && security.getUniqueId() != null) {
       if (_equityBetaCache.containsKey(security.getUniqueId())) {
         return _equityBetaCache.get(security.getUniqueId());
       }
     }
-    ExternalIdBundle externalIdBundle = security.getExternalIdBundle();
-    Pair<LocalDate, Double> results = _htsSource.getLatestDataPoint(FIELD, externalIdBundle, RESOLUTION_KEY);
+    if (security == null) {
+      return null;
+    }
+    final ExternalIdBundle externalIdBundle = security.getExternalIdBundle();
+    final Pair<LocalDate, Double> results = _htsSource.getLatestDataPoint(FIELD, externalIdBundle, RESOLUTION_KEY);
     if (results != null && results.getFirst() != null && results.getSecond() != null) {
-      Double beta = results.getSecond();
+      final Double beta = results.getSecond();
       return beta;
     }
     return null;
   }
-  
-  /*package*/ String classifyPositionWithTS(Position position) {
-    Security sec = resolveSecurity(position);
-    Double beta = getEquityBeta(sec);
+
+  /*package*/ String classifyPositionWithTS(final Position position) {
+    final Security sec = resolveSecurity(position);
+    final Double beta = getEquityBeta(sec);
     return classifyEquityBeta(beta);
   }
-  
-  /*package*/ Security resolveSecurity(Position position) {
+
+  /*package*/ Security resolveSecurity(final Position position) {
     try {
       Security sec = position.getSecurityLink().getTarget();
       if (sec == null) {
@@ -118,16 +119,16 @@ public class EquityBetaAggregationFunction implements AggregationFunction<String
         }
       }
       if (sec.getSecurityType().equals(EquityOptionSecurity.SECURITY_TYPE)) {
-        EquityOptionSecurity equityOption = (EquityOptionSecurity) sec;
+        final EquityOptionSecurity equityOption = (EquityOptionSecurity) sec;
         sec = equityOption;
       }
       return sec;
-    } catch (UnsupportedOperationException ex) {
+    } catch (final UnsupportedOperationException ex) {
       return null;
     }
   }
-  
-  /*package*/ String classifyEquityBeta(Double beta) {
+
+  /*package*/ String classifyEquityBeta(final Double beta) {
     if (beta != null) {
       if (beta < 0.5) {
         return LESS_THAN_0_5;
@@ -140,11 +141,11 @@ public class EquityBetaAggregationFunction implements AggregationFunction<String
       } else {
         return MORE_THAN_1_25;
       }
-    } else {
-      return NO_BETA;
     }
+    return NO_BETA;
   }
-  
+
+  @Override
   public String getName() {
     return NAME;
   }
@@ -153,25 +154,24 @@ public class EquityBetaAggregationFunction implements AggregationFunction<String
   public Collection<String> getRequiredEntries() {
     if (_includeEmptyCategories) {
       return REQUIRED;
-    } else {
-      return Collections.emptyList();
     }
+    return Collections.emptyList();
   }
 
   @Override
-  public int compare(String o1, String o2) {
+  public int compare(final String o1, final String o2) {
     return CompareUtils.compareByList(REQUIRED, o1, o2);
   }
-  
+
   private class PositionComparator implements Comparator<Position> {
 
     @Override
-    public int compare(Position position1, Position position2) {
-      Security security1 = resolveSecurity(position1);
-      Security security2 = resolveSecurity(position2);
+    public int compare(final Position position1, final Position position2) {
+      final Security security1 = resolveSecurity(position1);
+      final Security security2 = resolveSecurity(position2);
       return CompareUtils.compareWithNullLow(getEquityBeta(security1), getEquityBeta(security2));
     }
-    
+
   }
 
   @Override

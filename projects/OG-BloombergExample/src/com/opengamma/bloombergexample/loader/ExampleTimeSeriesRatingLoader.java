@@ -5,7 +5,9 @@
  */
 package com.opengamma.bloombergexample.loader;
 
-import static com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames.*;
+import static com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames.DATA_PROVIDER_NAME;
+import static com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames.DATA_SOURCE_NAME;
+import static com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,8 +16,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.bbg.BloombergConstants;
-import com.opengamma.bloombergexample.tool.AbstractExampleTool;
+import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.impl.ConfigItem;
+import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRating;
@@ -29,7 +32,7 @@ import com.opengamma.util.generate.scripts.Scriptable;
  * It should be possible to run this class with no extra command line parameters.
  */
 @Scriptable
-public class ExampleTimeSeriesRatingLoader extends AbstractExampleTool {
+public class ExampleTimeSeriesRatingLoader extends AbstractTool<IntegrationToolContext> {
 
   /** Logger. */
   @SuppressWarnings("unused")
@@ -42,7 +45,7 @@ public class ExampleTimeSeriesRatingLoader extends AbstractExampleTool {
    * @param args  the arguments, unused
    */
   public static void main(String[] args) {  // CSIGNORE
-    new ExampleTimeSeriesRatingLoader().initAndRun(args);
+    new ExampleTimeSeriesRatingLoader().initAndRun(args, IntegrationToolContext.class);
     System.exit(0);
   }
 
@@ -50,7 +53,6 @@ public class ExampleTimeSeriesRatingLoader extends AbstractExampleTool {
   @Override
   protected void doRun() {
     ConfigMaster configMaster = getToolContext().getConfigMaster();
-
     List<HistoricalTimeSeriesRatingRule> rules = new ArrayList<HistoricalTimeSeriesRatingRule>();
     rules.add(new HistoricalTimeSeriesRatingRule(DATA_SOURCE_NAME, "BLOOMBERG", 2));
     rules.add(new HistoricalTimeSeriesRatingRule(DATA_SOURCE_NAME, BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME, 1));

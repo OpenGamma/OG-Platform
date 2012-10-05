@@ -82,6 +82,7 @@ import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
+import com.opengamma.provider.security.SecurityProvider;
 import com.opengamma.util.test.DbTest;
 
 /**
@@ -109,9 +110,9 @@ public class BloombergSecurityLoaderTest extends DbTest {
     ConfigurableApplicationContext context = new ClassPathXmlApplicationContext("/com/opengamma/bbg/loader/bloomberg-security-loader-test-context.xml");
     context.start();
     _context = context;
-    BloombergBulkSecurityLoader bbgSecLoader = (BloombergBulkSecurityLoader) _context.getBean("bbgBulkSecurityLoader");
+    SecurityProvider secProvider = _context.getBean("bloombergSecurityProvider", SecurityProvider.class);
     _securityMaster = _context.getBean(getDatabaseType() + "DbSecurityMaster", SecurityMaster.class);
-    _securityLoader = new BloombergSecurityLoader(_securityMaster, bbgSecLoader);
+    _securityLoader = new BloombergSecurityLoader(secProvider, _securityMaster);
   }
 
   @Override

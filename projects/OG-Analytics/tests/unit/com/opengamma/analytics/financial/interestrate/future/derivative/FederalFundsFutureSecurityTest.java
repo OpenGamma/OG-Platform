@@ -17,9 +17,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.instrument.index.IndexON;
-import com.opengamma.analytics.financial.instrument.index.indexon.EONIA;
-import com.opengamma.analytics.financial.instrument.index.indexon.FEDFUND;
-import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
+import com.opengamma.analytics.financial.instrument.index.IndexONMaster;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -35,7 +33,7 @@ public class FederalFundsFutureSecurityTest {
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 1, 30);
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
-  private static final IndexON INDEX_FEDFUND = new FEDFUND(NYC);
+  private static final IndexON INDEX_FEDFUND = IndexONMaster.getInstance().getIndex("FED FUND", NYC);
   private static final Currency USD = INDEX_FEDFUND.getCurrency();
   private static final BusinessDayConvention BUSINESS_DAY_FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final ZonedDateTime MARCH_1 = DateUtils.getUTCDate(2012, 3, 1);
@@ -124,8 +122,8 @@ public class FederalFundsFutureSecurityTest {
     assertTrue(FUTURE_FEDFUND.equals(other));
     assertTrue(FUTURE_FEDFUND.hashCode() == other.hashCode());
     FederalFundsFutureSecurity modifiedFuture;
-    modifiedFuture = new FederalFundsFutureSecurity(new EONIA(NYC), ACCRUED_INTERESTS, FIXING_TIME, FIXING_ACCURAL_FACTOR, FIXING_TOTAL_ACCURAL_FACTOR, NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME,
-        CURVE_NAME);
+    modifiedFuture = new FederalFundsFutureSecurity(IndexONMaster.getInstance().getIndex("EONIA", NYC), ACCRUED_INTERESTS, FIXING_TIME, FIXING_ACCURAL_FACTOR, FIXING_TOTAL_ACCURAL_FACTOR,
+        NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME, CURVE_NAME);
     assertFalse(FUTURE_FEDFUND.equals(modifiedFuture));
     modifiedFuture = new FederalFundsFutureSecurity(INDEX_FEDFUND, ACCRUED_INTERESTS + 0.1, FIXING_TIME, FIXING_ACCURAL_FACTOR, FIXING_TOTAL_ACCURAL_FACTOR, NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME,
         CURVE_NAME);

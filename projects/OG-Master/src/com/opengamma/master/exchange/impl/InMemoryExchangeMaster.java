@@ -61,7 +61,6 @@ public class InMemoryExchangeMaster extends SimpleAbstractInMemoryMaster<Managea
     this(objectIdSupplier, new BasicChangeManager());
   }
 
-
   /**
    * Creates an instance specifying the supplier of object identifiers and change manager.
    *
@@ -96,7 +95,7 @@ public class InMemoryExchangeMaster extends SimpleAbstractInMemoryMaster<Managea
 
   //-------------------------------------------------------------------------
   @Override
-  public ExchangeDocument get(final ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+  public ExchangeDocument get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     final ExchangeDocument document = _store.get(objectId.getObjectId());
@@ -118,9 +117,7 @@ public class InMemoryExchangeMaster extends SimpleAbstractInMemoryMaster<Managea
     exchange.setUniqueId(uniqueId);
     document.setUniqueId(uniqueId);
     final Instant now = Instant.now();
-    final ExchangeDocument doc = new ExchangeDocument();
-    doc.setObject(exchange);
-    doc.setUniqueId(uniqueId);
+    final ExchangeDocument doc = new ExchangeDocument(exchange);
     doc.setVersionFromInstant(now);
     doc.setCorrectionFromInstant(now);
     _store.put(objectId, doc);

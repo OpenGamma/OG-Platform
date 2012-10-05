@@ -349,7 +349,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
       settlementTime = TimeCalculator.getTimeBetween(date, settlementDate);
     }
     final Annuity<Coupon> nominal = (Annuity<Coupon>) getNominal().toDerivative(date, data, "Not used");
-    final AnnuityDefinition<CouponDefinition> couponDefinition = (AnnuityDefinition<CouponDefinition>) getCoupon().trimBefore(settlementDate);
+    final AnnuityDefinition<CouponDefinition> couponDefinition = (AnnuityDefinition<CouponDefinition>) getCoupons().trimBefore(settlementDate);
     final CouponDefinition[] couponExPeriodArray = new CouponDefinition[couponDefinition.getNumberOfPayments()];
     System.arraycopy(couponDefinition.getPayments(), 0, couponExPeriodArray, 0, couponDefinition.getNumberOfPayments());
     if (getExCouponDays() != 0) {
@@ -384,19 +384,19 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
    */
   public double accruedInterest(final ZonedDateTime date) {
     double result = 0;
-    final int nbCoupon = getCoupon().getNumberOfPayments();
+    final int nbCoupon = getCoupons().getNumberOfPayments();
     int couponIndex = 0;
     for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
-      if (getCoupon().getNthPayment(loopcpn).getAccrualEndDate().isAfter(date)) {
+      if (getCoupons().getNthPayment(loopcpn).getAccrualEndDate().isAfter(date)) {
         couponIndex = loopcpn;
         break;
       }
     }
-    final ZonedDateTime previousAccrualDate = getCoupon().getNthPayment(couponIndex).getAccrualStartDate();
-    final ZonedDateTime nextAccrualDate = getCoupon().getNthPayment(couponIndex).getAccrualEndDate();
-    final CouponInflationGearing currentCoupon = ((CouponInflationGearing) getCoupon().getNthPayment(couponIndex));
+    final ZonedDateTime previousAccrualDate = getCoupons().getNthPayment(couponIndex).getAccrualStartDate();
+    final ZonedDateTime nextAccrualDate = getCoupons().getNthPayment(couponIndex).getAccrualEndDate();
+    final CouponInflationGearing currentCoupon = ((CouponInflationGearing) getCoupons().getNthPayment(couponIndex));
     final double accruedInterest = AccruedInterestCalculator.getAccruedInterest(getDayCount(), couponIndex, nbCoupon, previousAccrualDate, date, nextAccrualDate, currentCoupon.getFactor(),
-        getCouponPerYear(), isEOM()) * getCoupon().getNthPayment(couponIndex).getNotional();
+        getCouponPerYear(), isEOM()) * getCoupons().getNthPayment(couponIndex).getNotional();
     if (getExCouponDays() != 0 && nextAccrualDate.minusDays(getExCouponDays()).isBefore(date)) {
       result = accruedInterest - currentCoupon.getFactor() / _couponPerYear;
     } else {

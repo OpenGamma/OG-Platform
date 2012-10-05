@@ -463,7 +463,7 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
   }
 
   //TODO write a fuzzer that hits SABR with random parameters
-  @Test(invocationCount = 3, successPercentage = 25)
+  @Test(invocationCount = 5, successPercentage = 19)
   public void testRandomParameters() {
     final double eps = 1e-5;
     final double tol = 1e-3;
@@ -678,16 +678,19 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
         funcA = func;
         break;
     }
-
-    switch (fdType) {
-      case FORWARD:
-        return (-1.5 * funcA.evaluate(dataA) + 2.0 * funcB.evaluate(dataB) - 0.5 * funcC.evaluate(dataC)) / delta;
-      case BACKWARD:
-        return (0.5 * funcA.evaluate(dataA) - 2.0 * funcB.evaluate(dataB) + 1.5 * funcC.evaluate(dataC)) / delta;
-      case CENTRAL:
-        return (funcC.evaluate(dataC) - funcA.evaluate(dataA)) / 2.0 / delta;
-      default:
-        throw new MathException("enum not found");
+    
+    if (fdType != null) {
+      switch (fdType) {
+        case FORWARD:
+          return (-1.5 * funcA.evaluate(dataA) + 2.0 * funcB.evaluate(dataB) - 0.5 * funcC.evaluate(dataC)) / delta;
+        case BACKWARD:
+          return (0.5 * funcA.evaluate(dataA) - 2.0 * funcB.evaluate(dataB) + 1.5 * funcC.evaluate(dataC)) / delta;
+        case CENTRAL:
+          return (funcC.evaluate(dataC) - funcA.evaluate(dataA)) / 2.0 / delta;
+        default:
+          throw new MathException("enum not found");
+      }
     }
+    throw new MathException("enum not found");
   }
 }

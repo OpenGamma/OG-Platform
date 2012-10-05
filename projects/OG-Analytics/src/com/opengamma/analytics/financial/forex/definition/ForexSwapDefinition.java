@@ -8,7 +8,6 @@ package com.opengamma.analytics.financial.forex.definition;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
@@ -37,11 +36,11 @@ public class ForexSwapDefinition implements InstrumentDefinition<InstrumentDeriv
    * @param nearLeg The near leg.
    * @param farLeg The far leg.
    */
-  public ForexSwapDefinition(ForexDefinition nearLeg, ForexDefinition farLeg) {
-    Validate.notNull(nearLeg, "Near leg");
-    Validate.notNull(farLeg, "Far leg");
-    this._nearLeg = nearLeg;
-    this._farLeg = farLeg;
+  public ForexSwapDefinition(final ForexDefinition nearLeg, final ForexDefinition farLeg) {
+    ArgumentChecker.notNull(nearLeg, "Near leg");
+    ArgumentChecker.notNull(farLeg, "Far leg");
+    _nearLeg = nearLeg;
+    _farLeg = farLeg;
   }
 
   /**
@@ -54,12 +53,12 @@ public class ForexSwapDefinition implements InstrumentDefinition<InstrumentDeriv
    * @param forexRate The near leg forex rate.
    * @param forwardPoints The forward points, i.e. the far leg forex rate is forexRate+forwardPoints.
    */
-  public ForexSwapDefinition(final Currency currency1, final Currency currency2, final ZonedDateTime nearDate, final ZonedDateTime farDate, final double amount1, double forexRate, 
-      double forwardPoints) {
-    Validate.notNull(currency1, "Currency 1");
-    Validate.notNull(currency2, "Currency 2");
-    Validate.notNull(nearDate, "Near date");
-    Validate.notNull(farDate, "Far date");
+  public ForexSwapDefinition(final Currency currency1, final Currency currency2, final ZonedDateTime nearDate, final ZonedDateTime farDate, final double amount1,
+      final double forexRate, final double forwardPoints) {
+    ArgumentChecker.notNull(currency1, "Currency 1");
+    ArgumentChecker.notNull(currency2, "Currency 2");
+    ArgumentChecker.notNull(nearDate, "Near date");
+    ArgumentChecker.notNull(farDate, "Far date");
     _nearLeg = new ForexDefinition(currency1, currency2, nearDate, amount1, forexRate);
     _farLeg = new ForexDefinition(currency1, currency2, farDate, -amount1, forexRate + forwardPoints);
   }
@@ -84,23 +83,23 @@ public class ForexSwapDefinition implements InstrumentDefinition<InstrumentDeriv
   /**
    * The first curve is the discounting curve for the first currency and the second curve is the discounting curve for the second currency.
    */
-  public InstrumentDerivative toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+  public InstrumentDerivative toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.isTrue(!date.isAfter(_farLeg.getExchangeDate()), "date is after payment far date");
     if (date.isAfter(_nearLeg.getExchangeDate())) { // Implementation note: only the far leg left.
       return _farLeg.toDerivative(date, yieldCurveNames);
     }
-    Forex nearLeg = _nearLeg.toDerivative(date, yieldCurveNames);
-    Forex farLeg = _farLeg.toDerivative(date, yieldCurveNames);
+    final Forex nearLeg = _nearLeg.toDerivative(date, yieldCurveNames);
+    final Forex farLeg = _farLeg.toDerivative(date, yieldCurveNames);
     return new ForexSwap(nearLeg, farLeg);
   }
 
   @Override
-  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     return visitor.visitForexSwapDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitForexSwapDefinition(this);
   }
 
@@ -114,7 +113,7 @@ public class ForexSwapDefinition implements InstrumentDefinition<InstrumentDeriv
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -124,7 +123,7 @@ public class ForexSwapDefinition implements InstrumentDefinition<InstrumentDeriv
     if (getClass() != obj.getClass()) {
       return false;
     }
-    ForexSwapDefinition other = (ForexSwapDefinition) obj;
+    final ForexSwapDefinition other = (ForexSwapDefinition) obj;
     if (!ObjectUtils.equals(_farLeg, other._farLeg)) {
       return false;
     }

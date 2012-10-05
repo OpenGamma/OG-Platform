@@ -27,7 +27,7 @@
       <property name="option" value="space"/>
     </module>
     <module name="EqualsHashCode"/>
-    <module name="IllegalImport"/>
+    <module name="IllegalImport"/><!-- other imports disallowed by regex below -->
     <module name="IllegalInstantiation">
       <property name="classes" value="Boolean"/>
     </module>
@@ -138,6 +138,11 @@
   <module name="RegexpSingleline">
     <property name="format" value="import org.testng.collections."/>
     <property name="message" value="Invalid import, maybe you want com.google.common.collect"/>
+    <property name="severity" value="error"/>
+  </module>
+  <module name="RegexpSingleline">
+    <property name="format" value="import org.testng.internal."/>
+    <property name="message" value="Invalid import, internal testng classes not allowed"/>
     <property name="severity" value="error"/>
   </module>
   <module name="RegexpSingleline">

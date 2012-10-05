@@ -15,8 +15,8 @@ import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.examples.tool.AbstractExampleTool;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -39,6 +39,7 @@ import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.master.portfolio.ManageablePortfolio;
@@ -60,7 +61,7 @@ import com.opengamma.util.time.Expiry;
  * Example code to load a multi asset portfolio.
  */
 @Scriptable
-public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
+public class ExampleMultiAssetPortfolioLoader extends AbstractTool<ToolContext> {
 
   /**
    * Example mixed portfolio name
@@ -78,7 +79,7 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
   private static final LocalDate TODAY = LocalDate.now();
 
   public static void main(String[] args) { //CSIGNORE
-    new ExampleMultiAssetPortfolioLoader().initAndRun(args);
+    new ExampleMultiAssetPortfolioLoader().initAndRun(args, ToolContext.class);
     System.exit(0);
   }
 

@@ -13,7 +13,6 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
-import com.opengamma.analytics.financial.instrument.index.iborindex.IndexIborTestsMaster;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
@@ -25,7 +24,7 @@ import com.opengamma.util.time.DateUtils;
 public class GeneratorInterestRateFuturesTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
-  private static final IndexIborTestsMaster IBOR_MASTER = IndexIborTestsMaster.getInstance();
+  private static final IndexIborMaster IBOR_MASTER = IndexIborMaster.getInstance();
   private static final IborIndex USDLIBOR3M = IBOR_MASTER.getIndex("USDLIBOR3M", NYC);
   private static final GeneratorInterestRateFutures GENERATOR_FUTURES_ED = new GeneratorInterestRateFutures("USD-ED", USDLIBOR3M);
 

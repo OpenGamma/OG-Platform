@@ -49,7 +49,7 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements Instrumen
     final Currency currency0 = payments[0].getCurrency();
     for (int loopcpn = 1; loopcpn < payments.length; loopcpn++) {
       ArgumentChecker.isTrue(currency0.equals(payments[loopcpn].getCurrency()), "currency not the same for all payments");
-      amount = amount == 0 ? payments[loopcpn].getReferenceAmount() : amount; // amount contains the first non-zero element if any and 0 if not.
+      amount = Double.doubleToLongBits(amount) == 0 ? payments[loopcpn].getReferenceAmount() : amount; // amount contains the first non-zero element if any and 0 if not.
     }
     _payments = payments;
     _isPayer = amount < 0;
@@ -113,11 +113,12 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements Instrumen
 
   @Override
   public String toString() {
-    String result = "Annuity:";
+    StringBuffer result = new StringBuffer("Annuity:");
     for (final P payment : _payments) {
-      result += payment.toString();
+      result.append(payment.toString());
+      result.append(" ");
     }
-    return result;
+    return result.toString();
   }
 
   @Override

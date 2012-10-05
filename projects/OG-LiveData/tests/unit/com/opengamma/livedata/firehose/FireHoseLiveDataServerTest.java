@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
-import com.opengamma.livedata.server.AbstractLiveDataServer;
+import com.opengamma.livedata.server.StandardLiveDataServer;
 import com.opengamma.livedata.server.distribution.MarketDataDistributor;
 import com.opengamma.livedata.server.distribution.MarketDataSender;
 import com.opengamma.livedata.server.distribution.MarketDataSenderFactory;
@@ -130,7 +130,7 @@ public class FireHoseLiveDataServerTest {
     }
   }
 
-  private BlockingQueue<LiveDataValueUpdateBean> connect(final AbstractLiveDataServer liveDataServer, final int buffer) {
+  private BlockingQueue<LiveDataValueUpdateBean> connect(final StandardLiveDataServer liveDataServer, final int buffer) {
     final BlockingQueue<LiveDataValueUpdateBean> queue = new LinkedBlockingQueue<LiveDataValueUpdateBean>(buffer);
     liveDataServer.setMarketDataSenderFactory(new MarketDataSenderFactory() {
       @Override
@@ -189,7 +189,7 @@ public class FireHoseLiveDataServerTest {
     }
   }
 
-  @Test(invocationCount = 3, successPercentage = 25)
+  @Test(invocationCount = 5, successPercentage = 19)
   public void testRapidUpdates() throws InterruptedException {
     // If the live data server abstraction is slow to consume the fire hose, updates will be lost and the
     // most recent values should win.

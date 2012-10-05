@@ -53,8 +53,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.bbg.BloombergSecuritySource;
-import com.opengamma.bbg.ReferenceDataProvider;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
+import com.opengamma.bbg.security.BloombergSecurityProvider;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -319,7 +319,7 @@ public class BondLoader extends SecurityLoader {
     final Set<ExternalId> identifiers = new HashSet<ExternalId>();
     if (isValidField(bbgUnique)) {
       identifiers.add(ExternalSchemes.bloombergBuidSecurityId(bbgUnique));
-      security.setUniqueId(BloombergSecuritySource.createUniqueId(bbgUnique));
+      security.setUniqueId(BloombergSecurityProvider.createUniqueId(bbgUnique));
     }
     if (isValidField(cusip)) {
       identifiers.add(ExternalSchemes.cusipSecurityId(cusip));

@@ -10,7 +10,6 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.instrument.index.iborindex.IndexIborTestsMaster;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
@@ -18,7 +17,7 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 public class GeneratorSwapIborIborTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
-  private static final IndexIborTestsMaster IBOR_MASTER = IndexIborTestsMaster.getInstance();
+  private static final IndexIborMaster IBOR_MASTER = IndexIborMaster.getInstance();
   private static final IborIndex USDLIBOR3M = IBOR_MASTER.getIndex("USDLIBOR3M", NYC);
   private static final IborIndex USDLIBOR6M = IBOR_MASTER.getIndex("USDLIBOR6M", NYC);
   private static final GeneratorSwapIborIbor USDLIBOR3MLIBOR6M = new GeneratorSwapIborIbor("USDLIBOR3MLIBOR6M", USDLIBOR3M, USDLIBOR6M);

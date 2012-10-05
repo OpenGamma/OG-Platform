@@ -12,7 +12,10 @@ import com.opengamma.analytics.financial.calculator.PresentValueMCACalculator;
 import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
 import com.opengamma.analytics.financial.forex.method.ForexSwapDiscountingMethod;
 import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
+import com.opengamma.analytics.financial.interestrate.bond.method.BillTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
+import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZero;
 import com.opengamma.analytics.financial.interestrate.cash.method.CashDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.cash.method.DepositZeroDiscountingMethod;
@@ -59,6 +62,7 @@ public final class ParSpreadMarketQuoteCurveSensitivityCalculator extends Abstra
   private static final PresentValueBasisPointCurveSensitivityCalculator PVBPCSC = PresentValueBasisPointCurveSensitivityCalculator.getInstance();
   private static final CashDiscountingMethod METHOD_DEPOSIT = CashDiscountingMethod.getInstance();
   private static final DepositZeroDiscountingMethod METHOD_DEPOSIT_ZERO = DepositZeroDiscountingMethod.getInstance();
+  private static final BillTransactionDiscountingMethod METHOD_BILL_TRANSACTION = BillTransactionDiscountingMethod.getInstance();
   private static final ForwardRateAgreementDiscountingMethod METHOD_FRA = ForwardRateAgreementDiscountingMethod.getInstance();
   private static final InterestRateFutureDiscountingMethod METHOD_IR_FUTURES = InterestRateFutureDiscountingMethod.getInstance();
   private static final ForexSwapDiscountingMethod METHOD_FX_SWAP = ForexSwapDiscountingMethod.getInstance();
@@ -70,6 +74,8 @@ public final class ParSpreadMarketQuoteCurveSensitivityCalculator extends Abstra
     return derivative.accept(this, curves);
   }
 
+  //     -----     Deposit     -----
+
   @Override
   public InterestRateCurveSensitivity visitCash(final Cash deposit, final YieldCurveBundle curves) {
     return METHOD_DEPOSIT.parSpreadCurveSensitivity(deposit, curves);
@@ -78,6 +84,18 @@ public final class ParSpreadMarketQuoteCurveSensitivityCalculator extends Abstra
   @Override
   public InterestRateCurveSensitivity visitDepositZero(final DepositZero deposit, final YieldCurveBundle curves) {
     return METHOD_DEPOSIT_ZERO.parSpreadCurveSensitivity(deposit, curves);
+  }
+
+  @Override
+  public InterestRateCurveSensitivity visitDepositCounterpart(final DepositCounterpart deposit, final YieldCurveBundle curves) {
+    return METHOD_DEPOSIT.parSpreadCurveSensitivity(deposit, curves);
+  }
+
+  //     -----     Bill & bonds     -----
+
+  @Override
+  public InterestRateCurveSensitivity visitBillTransaction(final BillTransaction bill, final YieldCurveBundle curves) {
+    return METHOD_BILL_TRANSACTION.parSpreadCurveSensitivity(bill, curves);
   }
 
   @Override

@@ -16,7 +16,7 @@ import com.opengamma.util.PublicAPI;
 /**
  * Resolver capable of providing users.
  * <p>
- * This resolver provides lookup of an {@link OGUSer user} to the engine functions.
+ * This resolver provides lookup of an {@link OGUser user} to the engine functions.
  * The lookup may require selecting a single "best match" from a set of potential options.
  * The best match behavior is the key part that distinguishes one implementation from another.
  * Best match selection may use a version-correction, configuration or code as appropriate.
@@ -79,8 +79,8 @@ public interface UserResolver extends LinkResolver<OGUser> {
    * Gets a user by external identifier bundle.
    * <p>
    * A bundle represents the set of external identifiers which in theory map to a single user.
-   * Unfortunately, not all external identifiers uniquely identify a single version of a single exchange.
-   * As such, it is likely that multiple versions/corrections of multiple different exchanges will match the bundle.
+   * Unfortunately, not all external identifiers uniquely identify a single version of a single user.
+   * As such, it is likely that multiple versions/corrections of multiple different users will match the bundle.
    * The resolver implementation is responsible for selecting the best match.
    * 
    * @param bundle  the external identifier bundle to find, not null
@@ -90,4 +90,5 @@ public interface UserResolver extends LinkResolver<OGUser> {
    * @throws RuntimeException if an error occurs
    */
   OGUser getUser(ExternalIdBundle bundle);
+
 }

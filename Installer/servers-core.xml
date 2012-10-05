@@ -145,6 +145,9 @@
     <ai-build file="common64.aip" build-id="DefaultBuild" />
   </target>
 
-  <target name="enable-servers" depends="build-common,enable-engine,enable-marketdata" />
+  <target name="enable-servers" depends="build-common,enable-engine,enable-marketdata">
+    <!-- OG-Install doesn't get published by any of the main server projects, but is needed to run during and after install -->
+    <copy file="${project.dir}/projects/OG-Install/build/og-install.jar" tofile="${install.dir}/lib/com.opengamma-og-install-og-install.jar" />
+  </target>
 
 </project>

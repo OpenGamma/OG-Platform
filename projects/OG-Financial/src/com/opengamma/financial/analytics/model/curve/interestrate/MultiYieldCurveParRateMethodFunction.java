@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.curve.interestrate;
@@ -40,9 +40,7 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
-import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.linearalgebra.Decomposition;
 import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
@@ -81,15 +79,13 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunction {
 
   private static final ParSpreadRateCalculator PAR_SPREAD_RATE_CALCULATOR = ParSpreadRateCalculator.getInstance();
   private static final ParSpreadRateCurveSensitivityCalculator PAR_SPREAD_RATE_SENSITIVITY_CALCULATOR = ParSpreadRateCurveSensitivityCalculator.getInstance();
   private static final LastTimeCalculator LAST_TIME_CALCULATOR = LastTimeCalculator.getInstance();
-  private static final String LEFT_EXTRAPOLATOR_NAME = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
-  private static final String RIGHT_EXTRAPOLATOR_NAME = Interpolator1DFactory.FLAT_EXTRAPOLATOR;
   private InterestRateInstrumentTradeOrSecurityConverter _securityConverter;
   private FixedIncomeConverterDataProvider _definitionConverter;
 
@@ -130,12 +126,13 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
     for (final String curveName : curveNames) {
       int nInstruments = 0;
       final InterpolatedYieldCurveSpecificationWithSecurities spec = getYieldCurveSpecification(inputs, targetSpec, curveName);
+      final Interpolator1D interpolator = spec.getInterpolator();
       final Map<ExternalId, Double> marketDataMap = getMarketData(inputs, targetSpec, curveName);
       final DoubleArrayList nodeTimes = new DoubleArrayList();
       for (final FixedIncomeStripWithSecurity strip : spec.getStrips()) {
         final Double marketValue = marketDataMap.get(strip.getSecurityIdentifier());
         if (marketValue == null) {
-          throw new OpenGammaRuntimeException("Could not get market data for " + strip);
+          throw new OpenGammaRuntimeException("Could not get market data for " + strip.getSecurityIdentifier());
         }
         final Security security = strip.getSecurity();
         final String[] curveNamesForSecurity = curveCalculationConfig.getCurveExposureForInstrument(curveName, strip.getInstrumentType());
@@ -159,8 +156,7 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
       }
       nodesPerCurve.put(curveName, nInstruments);
       curveNodes.put(curveName, nodeTimes.toDoubleArray());
-      interpolators.put(curveName,
-          CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.getInterpolatorName(spec.getInterpolator()), LEFT_EXTRAPOLATOR_NAME, RIGHT_EXTRAPOLATOR_NAME));
+      interpolators.put(curveName, interpolator);
     }
     final double absoluteTolerance = Double.parseDouble(absoluteToleranceName);
     final double relativeTolerance = Double.parseDouble(relativeToleranceName);
@@ -176,7 +172,7 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MultipleYieldCurveFinderIRSJacobian(data, PAR_SPREAD_RATE_SENSITIVITY_CALCULATOR);
     final double[] fittedYields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess.toDoubleArray())).getData();
     final DoubleMatrix2D jacobianMatrix = jacobianCalculator.evaluate(new DoubleMatrix1D(fittedYields));
-    final ValueProperties properties = getProperties(curveCalculationConfigName, absoluteToleranceName, relativeToleranceName, iterationsName,
+    final ValueProperties properties = getJacobianProperties(curveCalculationConfigName, absoluteToleranceName, relativeToleranceName, iterationsName,
         decompositionName, useFiniteDifferenceName);
     results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_JACOBIAN, targetSpec, properties), jacobianMatrix.getData()));
     int i = 0;
@@ -196,7 +192,7 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
   }
 
   @Override
-  protected ValueProperties getProperties() {
+  protected ValueProperties getJacobianProperties() {
     return createValueProperties()
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, PAR_RATE_STRING)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
@@ -221,7 +217,7 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
   }
 
   @Override
-  protected ValueProperties getProperties(final String curveCalculationConfigName) {
+  protected ValueProperties getJacobianProperties(final String curveCalculationConfigName) {
     return createValueProperties()
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, PAR_RATE_STRING)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
@@ -246,7 +242,7 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
   }
 
   @Override
-  protected ValueProperties getProperties(final String curveCalculationConfigName, final String absoluteTolerance, final String relativeTolerance, final String maxIterations,
+  protected ValueProperties getJacobianProperties(final String curveCalculationConfigName, final String absoluteTolerance, final String relativeTolerance, final String maxIterations,
       final String decomposition, final String useFiniteDifference) {
     return createValueProperties()
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, PAR_RATE_STRING)

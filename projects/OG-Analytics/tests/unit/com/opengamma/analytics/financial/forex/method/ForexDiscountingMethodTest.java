@@ -55,7 +55,8 @@ public class ForexDiscountingMethodTest {
   private static final PaymentFixed PAY_2 = PAY_DEFINITION_2.toDerivative(REFERENCE_DATE, CURVES_NAME[1]);
 
   private static final ForexDiscountingMethod METHOD = ForexDiscountingMethod.getInstance();
-  private static final com.opengamma.analytics.financial.interestrate.PresentValueCalculator PVC_IR = com.opengamma.analytics.financial.interestrate.PresentValueCalculator.getInstance();
+  private static final com.opengamma.analytics.financial.interestrate.PresentValueCalculator PVC_IR = com.opengamma.analytics.financial.interestrate.PresentValueCalculator
+      .getInstance();
   private static final com.opengamma.analytics.financial.calculator.PresentValueMCACalculator PVC_FX = com.opengamma.analytics.financial.calculator.PresentValueMCACalculator
       .getInstance();
   private static final PresentValueCurveSensitivityCalculator PVSC = PresentValueCurveSensitivityCalculator.getInstance();
@@ -184,8 +185,8 @@ public class ForexDiscountingMethodTest {
   public void forexTodayPaymentOnPayment() {
     final Forex fx = FX_DEFINITION.toDerivative(PAYMENT_DATE, CURVES_NAME);
     final MultipleCurrencyAmount cash = TPC.visit(fx);
-    assertEquals("TodayPaymentCalculator: forex", FX_DEFINITION.getPaymentCurrency1().getAmount(), cash.getAmount(fx.getCurrency1()), TOLERANCE_PV);
-    assertEquals("TodayPaymentCalculator: forex", FX_DEFINITION.getPaymentCurrency2().getAmount(), cash.getAmount(fx.getCurrency2()), TOLERANCE_PV);
+    assertEquals("TodayPaymentCalculator: forex", FX_DEFINITION.getPaymentCurrency1().getReferenceAmount(), cash.getAmount(fx.getCurrency1()), TOLERANCE_PV);
+    assertEquals("TodayPaymentCalculator: forex", FX_DEFINITION.getPaymentCurrency2().getReferenceAmount(), cash.getAmount(fx.getCurrency2()), TOLERANCE_PV);
     assertEquals("TodayPaymentCalculator: forex", 2, cash.getCurrencyAmounts().length);
   }
 

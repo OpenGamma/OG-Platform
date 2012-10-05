@@ -63,7 +63,6 @@ public class ForexSecurityConverter extends FinancialSecurityVisitorAdapter<Inst
     if (baseQuotePair == null) {
       throw new OpenGammaRuntimeException("Could not get base/quote order for currency pair (" + putCurrency + ", " + callCurrency + ")");
     }
-    //final boolean order = FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency);
     // Implementation note: To get Base/quote in market standard order.
     if (baseQuotePair.getBase().equals(putCurrency)) {
       underlying = ForexDefinition.fromAmounts(putCurrency, callCurrency, settlementDate, putAmount, -callAmount);
@@ -152,19 +151,30 @@ public class ForexSecurityConverter extends FinancialSecurityVisitorAdapter<Inst
     Validate.notNull(barrierOptionSecurity, "fx barrier option security");
     Validate.isTrue(barrierOptionSecurity.getBarrierType() != BarrierType.DOUBLE, "Can only handle single barrier options");
     Validate.isTrue(barrierOptionSecurity.getMonitoringType() == MonitoringType.CONTINUOUS, "Can only handle continuously-monitored barrier options");
-    final double level = barrierOptionSecurity.getBarrierLevel();
+    final ZonedDateTime expiry = barrierOptionSecurity.getExpiry().getExpiry();
+    final ZonedDateTime settlementDate = barrierOptionSecurity.getSettlementDate();
+    final boolean isLong = barrierOptionSecurity.isLong();
     final Currency putCurrency = barrierOptionSecurity.getPutCurrency();
     final Currency callCurrency = barrierOptionSecurity.getCallCurrency();
     final double putAmount = barrierOptionSecurity.getPutAmount();
     final double callAmount = barrierOptionSecurity.getCallAmount();
-    final double fxRate = callAmount / putAmount;
-    final ZonedDateTime expiry = barrierOptionSecurity.getExpiry().getExpiry();
-    final ZonedDateTime settlementDate = barrierOptionSecurity.getSettlementDate();
-    final ForexDefinition underlying = new ForexDefinition(putCurrency, callCurrency, settlementDate, putAmount, fxRate); //TODO this needs its own converter
-    final boolean isLong = barrierOptionSecurity.isLong();
     final Barrier barrier = new Barrier(getKnockType(barrierOptionSecurity.getBarrierDirection()), getBarrierType(barrierOptionSecurity.getBarrierType()),
-        getObservationType(barrierOptionSecurity.getMonitoringType()), level);
-    return new ForexOptionSingleBarrierDefinition(new ForexOptionVanillaDefinition(underlying, expiry, true, isLong), barrier);
+        getObservationType(barrierOptionSecurity.getMonitoringType()), barrierOptionSecurity.getBarrierLevel());
+    // Compose underlying FXOption s.t. strike is quoted using market convention, as defined in _currencyPairs
+    final CurrencyPair baseQuotePair = _currencyPairs.getCurrencyPair(putCurrency, callCurrency);
+    if (baseQuotePair == null) {
+      throw new OpenGammaRuntimeException("Could not get base/quote order for currency pair (" + putCurrency + ", " + callCurrency + ")");
+    }
+    ForexDefinition underlying;
+    boolean isCall;
+    if (baseQuotePair.getBase().equals(putCurrency)) {
+      underlying = ForexDefinition.fromAmounts(putCurrency, callCurrency, settlementDate, putAmount, -callAmount);
+      isCall = false;
+    } else {
+      underlying = ForexDefinition.fromAmounts(callCurrency, putCurrency, settlementDate, callAmount, -putAmount);
+      isCall = true;
+    }
+    return new ForexOptionSingleBarrierDefinition(new ForexOptionVanillaDefinition(underlying, expiry, isCall, isLong), barrier);
   }
 
   @Override

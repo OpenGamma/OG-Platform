@@ -31,7 +31,7 @@ import com.opengamma.util.paging.Paging;
 public class InMemoryPositionMaster extends SimpleAbstractInMemoryMaster<ManageablePosition, PositionDocument> implements PositionMaster {
 
   /**
-   * The default scheme used for each {@link UniqueId}.
+   * The default scheme used for each {@link ObjectId}.
    */
   public static final String DEFAULT_OID_SCHEME = "MemPos";
 
@@ -76,6 +76,7 @@ public class InMemoryPositionMaster extends SimpleAbstractInMemoryMaster<Managea
     super(objectIdSupplier, changeManager);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected void validateDocument(PositionDocument document) {
     ArgumentChecker.notNull(document, "document");
@@ -87,8 +88,9 @@ public class InMemoryPositionMaster extends SimpleAbstractInMemoryMaster<Managea
     return get(uniqueId, VersionCorrection.LATEST);
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public PositionDocument get(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+  public PositionDocument get(ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     final PositionDocument document = _store.get(objectId.getObjectId());
@@ -104,8 +106,9 @@ public class InMemoryPositionMaster extends SimpleAbstractInMemoryMaster<Managea
     return clone;
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public PositionDocument add(PositionDocument document) {
+  public PositionDocument add(final PositionDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getObject(), "document.position");
 
@@ -143,8 +146,9 @@ public class InMemoryPositionMaster extends SimpleAbstractInMemoryMaster<Managea
     }
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public PositionDocument update(PositionDocument document) {
+  public PositionDocument update(final PositionDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     ArgumentChecker.notNull(document.getObject(), "document.position");
@@ -193,6 +197,7 @@ public class InMemoryPositionMaster extends SimpleAbstractInMemoryMaster<Managea
     }
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public void remove(ObjectIdentifiable objectIdentifiable) {
     ArgumentChecker.notNull(objectIdentifiable, "objectIdentifiable");
@@ -204,11 +209,18 @@ public class InMemoryPositionMaster extends SimpleAbstractInMemoryMaster<Managea
     _changeManager.entityChanged(ChangeType.REMOVED, objectIdentifiable.getObjectId(), null, null, Instant.now());
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public PositionDocument correct(PositionDocument document) {
+  public PositionDocument correct(final PositionDocument document) {
     return update(document);
   }
+  
+  @Override
+  public PositionHistoryResult history(PositionHistoryRequest request) {
+    throw new UnsupportedOperationException("History request not supported by InMemoryPositionMaster");
+  }
 
+  //-------------------------------------------------------------------------
   @Override
   public PositionSearchResult search(PositionSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
@@ -223,12 +235,8 @@ public class InMemoryPositionMaster extends SimpleAbstractInMemoryMaster<Managea
     result.getDocuments().addAll(request.getPagingRequest().select(list));
     return result;
   }
-
-  @Override
-  public PositionHistoryResult history(PositionHistoryRequest request) {
-    throw new UnsupportedOperationException("History request not supported by InMemoryPositionMaster");
-  }
-
+  
+  //-------------------------------------------------------------------------
   @Override
   public ManageableTrade getTrade(UniqueId tradeId) {
     ArgumentChecker.notNull(tradeId, "tradeId");

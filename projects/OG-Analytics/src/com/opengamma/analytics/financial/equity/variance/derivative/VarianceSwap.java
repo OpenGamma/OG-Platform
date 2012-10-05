@@ -5,15 +5,14 @@
  */
 package com.opengamma.analytics.financial.equity.variance.derivative;
 
-import java.util.Arrays;
-
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.equity.Derivative;
 import com.opengamma.analytics.financial.equity.DerivativeVisitor;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+
+import java.util.Arrays;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * A Variance Swap is a forward contract on the realised variance of a generic underlying. This could be a single equity price, the value of an equity index,
@@ -117,6 +116,7 @@ public class VarianceSwap implements Derivative {
    * Gets the timeToSettlement.
    * @return the timeToSettlement
    */
+  @Override
   public double getTimeToSettlement() {
     return _timeToSettlement;
   }
@@ -197,10 +197,14 @@ public class VarianceSwap implements Derivative {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((_currency == null) ? 0 : _currency.hashCode());
-    result = prime * result + _nObsExpected;
-    result = prime * result + ((_observations == null) ? 0 : _observations.hashCode());
     long temp;
+    temp = Double.doubleToLongBits(_annualizationFactor);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + ((_currency == null) ? 0 : _currency.hashCode());
+    result = prime * result + _nObsDisrupted;
+    result = prime * result + _nObsExpected;
+    result = prime * result + ((_observations == null) ? 0 : Arrays.hashCode(_observations));
+    result = prime * result + ((_observationWeights == null) ? 0 : Arrays.hashCode(_observations));
     temp = Double.doubleToLongBits(_timeToObsEnd);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_timeToObsStart);
@@ -219,20 +223,33 @@ public class VarianceSwap implements Derivative {
     if (this == obj) {
       return true;
     }
-    if (!(obj instanceof VarianceSwap)) {
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
       return false;
     }
     VarianceSwap other = (VarianceSwap) obj;
-    if (!ObjectUtils.equals(_currency, other._currency)) {
+    if (Double.doubleToLongBits(_annualizationFactor) != Double.doubleToLongBits(other._annualizationFactor)) {
       return false;
     }
-    if (!ObjectUtils.equals(_observations, other._observations)) {
+    if (_currency == null) {
+      if (other._currency != null) {
+        return false;
+      }
+    } else if (!_currency.equals(other._currency)) {
       return false;
     }
-    if (!ObjectUtils.equals(_observationWeights, other._observationWeights)) {
+    if (_nObsDisrupted != other._nObsDisrupted) {
       return false;
     }
     if (_nObsExpected != other._nObsExpected) {
+      return false;
+    }
+    if (!Arrays.equals(_observationWeights, other._observationWeights)) {
+      return false;
+    }
+    if (!Arrays.equals(_observations, other._observations)) {
       return false;
     }
     if (Double.doubleToLongBits(_timeToObsEnd) != Double.doubleToLongBits(other._timeToObsEnd)) {

@@ -5,7 +5,6 @@
  */
 package com.opengamma.web.bundle;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -24,34 +23,11 @@ public class BundleManager {
    * The map of bundles by ID.
    */
   private Map<String, Bundle> _bundleMap = new ConcurrentHashMap<String, Bundle>();
-  /**
-   * The base directory that the fragments are stored in.
-   */
-  private File _baseDir;
 
   /**
    * Creates an instance.
    */
   public BundleManager() {
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the base directory.
-   * 
-   * @return the base directory, may be null
-   */
-  public File getBaseDir() {
-    return _baseDir;
-  }
-
-  /**
-   * Sets the base directory.
-   * 
-   * @param baseDir  the base directory, may be null
-   */
-  public void setBaseDir(File baseDir) {
-    _baseDir = baseDir;
   }
 
   //-------------------------------------------------------------------------

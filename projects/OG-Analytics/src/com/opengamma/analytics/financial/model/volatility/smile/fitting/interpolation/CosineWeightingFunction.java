@@ -40,6 +40,9 @@ public final class CosineWeightingFunction extends WeightingFunction {
 
   @Override
   public boolean equals(final Object obj) {
+    if (obj == null) {
+      return false;
+    }
     if (this == obj) {
       return true;
     }

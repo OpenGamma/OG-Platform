@@ -29,18 +29,72 @@ public class DefaultRiskFactorsConfigurationProvider implements RiskFactorsConfi
 
   @Override
   public String getFundingCurve() {
-    return "FUNDING";
+    return "Discounting";
   }
 
   @Override
   public String getForwardCurve(Currency currency) {
     String suffix;
-    if (currency.equals(Currency.USD) || currency.equals(Currency.NZD)) { 
+    if (currency.equals(Currency.USD) || currency.equals(Currency.NZD) || currency.equals(Currency.SEK)) { 
       suffix = "3M";
     } else {
       suffix = "6M";
     }
-    return "FORWARD_" + suffix;
+    return "Forward" + suffix;
   }
   
+  @Override
+  public String getFXCurve(Currency ccy) {
+    return "Discounting";
+  }
+
+  @Override
+  public String getFXVanillaOptionSurfaceName(Currency ccy1, Currency ccy2) {
+    return "TULLETT";//_" + ccy1.getCode() + ccy2.getCode();
+  }
+
+  @Override
+  public String getIRFutureOptionVolatilitySurfaceName(String futureCode) {
+    return "DEFAULT";// + futureCode;;
+  }
+  
+  @Override
+  public String getCommodityFutureOptionVolatilitySurfaceName(String futureCode) {
+    return "DEFAULT";// + futureCode;
+  }
+
+  @Override
+  public String getEquityIndexOptionVolatilitySurfaceName(String tickerPlusMarketSector) {
+    return "BBG";// + tickerPlusMarketSector;
+  }
+
+  @Override
+  public String getSwaptionVolatilitySurfaceName(Currency ccy) {
+    return "DEFAULT";//_ + ccy.getCode();
+  }
+
+  @Override
+  public String getSwaptionVolatilityCubeName(Currency ccy) {
+    return "BLOOMBERG";// + ccy.getCode();
+  }
+  
+  @Override
+  public String getFXCalculationMethod() {
+    return "BlackMethod";
+  }
+  
+  @Override
+  public String getEquityFundingCurve() {
+    return "FUNDING";
+  }
+  
+  @Override
+  public String getEquityCalculationMethod() {
+    return "BlackMethod";
+  }
+  
+  @Override
+  public String getEquitySmileInterpolator() {
+    return "Spline";
+  }
 }

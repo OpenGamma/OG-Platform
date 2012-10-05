@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT Type="Advanced Installer" CreateVersion="8.7.1" version="8.7.1" Modules="enterprise" RootPath="." Language="en" Id="{7997CC97-7ACD-423A-8200-A62A660E851C}">
+<DOCUMENT Type="Advanced Installer" CreateVersion="8.7.1" version="9.4" Modules="enterprise" RootPath="." Language="en" Id="{7997CC97-7ACD-423A-8200-A62A660E851C}">
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
     <ROW Property="ALLUSERS" Value="2" MultiBuildValue="NoJVM32:1#NoJVM64:1#JVM32:1#JVM64:1"/>
     <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
@@ -22,7 +22,7 @@
     <ROW Property="ProductCode" Value="1033:{5821617A-0112-480C-AADD-36B39470A669} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="OpenGamma Tools" ValueLocId="*"/>
-    <ROW Property="ProductVersion" Value="1.0.0"/>
+    <ROW Property="ProductVersion" Value="1.0.0" Type="32"/>
     <ROW Property="RSTAT_FILE" Value="Tools for R"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{A4D1D866-03BC-459E-A812-8BD9D130609C}"/>
@@ -56,20 +56,20 @@
     <ROW Component="OG_RStats" ComponentId="{F24FAFDE-4D7B-451E-85CA-C930B21F3BD1}" Directory_="APPDIR" Attributes="4" KeyPath="OG_RStats"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
-    <ROW Feature="JVM32" Title="32-bit JVM" Description="The 32-bit Java runtime" Display="13" Level="4" Directory_="APPDIR" Attributes="8" Options="32" Components="JRE32" Builds="JVM32"/>
-    <ROW Feature="JVM64" Title="64-bit JVM" Description="The 64-bit Java runtime" Display="15" Level="4" Directory_="APPDIR" Attributes="8" Options="32" Components="JRE64" Builds="JVM64"/>
+    <ROW Feature="JVM32" Title="32-bit JVM" Description="The 32-bit Java runtime" Display="13" Level="32767" Directory_="APPDIR" Attributes="8" Options="32" Components="JRE32" Builds="JVM32"/>
+    <ROW Feature="JVM64" Title="64-bit JVM" Description="The 64-bit Java runtime" Display="15" Level="32767" Directory_="APPDIR" Attributes="8" Options="32" Components="JRE64" Builds="JVM64"/>
     <ROW Feature="Runtime32" Title="32-bit C++ Runtime" Description="The 32-bit C++ runtime libraries" Display="0" Level="1" Directory_="APPDIR" Attributes="24" Components="MSVC32"/>
     <ROW Feature="Runtime64" Title="64-bit C++ Runtime" Description="The 64-bit C++ runtime libraries" Display="0" Level="1" Directory_="APPDIR" Attributes="24" Components="MSVC64" Builds="NoJVM64;JVM64"/>
-    <ROW Feature="og_excel" Title="Tools for Microsoft Excel" Description="OpenGamma support for Microsoft Excel" Display="7" Level="4" Directory_="APPDIR" Attributes="8" Options="32" Components="OG_Excel" Builds="MsiBuild"/>
-    <ROW Feature="og_excel_32" Feature_Parent="og_excel" Title="32-bit Addin" Description="32-bit Addin for Microsoft Excel 2007 and 2010" Display="5" Level="4" Directory_="APPDIR" Attributes="8" Options="32" Components="OG_Excel32" Builds="MsiBuild"/>
-    <ROW Feature="og_excel_64" Feature_Parent="og_excel" Title="64-bit Addin" Description="64-bit Addin for Microsoft Excel 2010" Display="3" Level="4" Directory_="APPDIR" Attributes="8" Options="32" Components="OG_Excel64" Builds="MsiBuild"/>
+    <ROW Feature="og_excel" Title="Tools for Microsoft Excel" Description="OpenGamma support for Microsoft Excel" Display="7" Level="32767" Directory_="APPDIR" Attributes="8" Options="32" Components="OG_Excel" Builds="MsiBuild"/>
+    <ROW Feature="og_excel_32" Feature_Parent="og_excel" Title="32-bit Addin" Description="32-bit Addin for Microsoft Excel 2007 and 2010" Display="5" Level="32767" Directory_="APPDIR" Attributes="8" Options="32" Components="OG_Excel32" Builds="MsiBuild"/>
+    <ROW Feature="og_excel_64" Feature_Parent="og_excel" Title="64-bit Addin" Description="64-bit Addin for Microsoft Excel 2010" Display="3" Level="32767" Directory_="APPDIR" Attributes="8" Options="32" Components="OG_Excel64" Builds="MsiBuild"/>
     <ROW Feature="og_language_32" Feature_Parent="og_language_core" Title="32-bit Service" Description="The 32-bit Java hosting service" Display="0" Level="1" Directory_="APPDIR" Attributes="10" Components="OG_Language32" Builds="MsiBuild"/>
     <ROW Feature="og_language_64" Feature_Parent="og_language_core" Title="64-bit Service" Description="The 64-bit Java hosting service" Display="0" Level="1" Directory_="APPDIR" Attributes="10" Components="OG_Language64" Builds="MsiBuild"/>
-    <ROW Feature="og_language_core" Title="Language Integration Service" Description="The core service required to support integration with other environments" Display="2" Level="4" Directory_="APPDIR" Attributes="8" Options="32" Components="Logging OG_LanguageCore" Builds="MsiBuild"/>
+    <ROW Feature="og_language_core" Title="Language Integration Service" Description="The core service required to support integration with other environments" Display="2" Level="32767" Directory_="APPDIR" Attributes="8" Options="32" Components="Logging OG_LanguageCore" Builds="MsiBuild"/>
     <ROW Feature="og_language_sdk" Feature_Parent="og_language_core" Title="Client SDK" Description="Header and library files for developing against the service" Display="3" Level="4" Directory_="APPDIR" Attributes="8" Components="OG_LanguageSDK" Builds="MsiBuild"/>
-    <ROW Feature="og_python_32" Title="32-bit Python Libraries" Description="32-bit Python Libraries" Display="9" Level="1" Directory_="APPDIR" Attributes="8" Components="OG_Python32" Builds="MsiBuild"/>
-    <ROW Feature="og_python_64" Title="64-bit Python Libraries" Description="64-bit Python Libraries" Display="11" Level="1" Directory_="APPDIR" Attributes="8" Components="OG_Python64" Builds="MsiBuild"/>
-    <ROW Feature="og_rstats" Title="Tools for R" Description="Support for R" Display="5" Level="4" Directory_="APPDIR" Attributes="8" Options="32" Components="OG_RStats" Builds="MsiBuild"/>
+    <ROW Feature="og_python_32" Title="32-bit Python Libraries" Description="32-bit Python Libraries" Display="9" Level="4" Directory_="APPDIR" Attributes="8" Components="OG_Python32" Builds="MsiBuild"/>
+    <ROW Feature="og_python_64" Title="64-bit Python Libraries" Description="64-bit Python Libraries" Display="11" Level="4" Directory_="APPDIR" Attributes="8" Components="OG_Python64" Builds="MsiBuild"/>
+    <ROW Feature="og_rstats" Title="Tools for R" Description="Support for R" Display="5" Level="32767" Directory_="APPDIR" Attributes="8" Options="32" Components="OG_RStats" Builds="MsiBuild"/>
     <ATTRIBUTE name="CurrentFeature" value="og_excel"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
@@ -89,12 +89,17 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.FragmentComponent">
     <ROW Fragment="CommonUI.aip" Path="&lt;AI_FRAGS&gt;CommonUI.aip"/>
+    <ROW Fragment="MaintenanceTypeDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\MaintenanceTypeDlg.aip"/>
+    <ROW Fragment="MaintenanceWelcomeDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\MaintenanceWelcomeDlg.aip"/>
     <ROW Fragment="SequenceDialogs.aip" Path="&lt;AI_THEMES&gt;classic\fragments\SequenceDialogs.aip"/>
     <ROW Fragment="Sequences.aip" Path="&lt;AI_FRAGS&gt;Sequences.aip"/>
     <ROW Fragment="SetupTypeDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\SetupTypeDlg.aip"/>
     <ROW Fragment="StaticUIStrings.aip" Path="&lt;AI_FRAGS&gt;StaticUIStrings.aip"/>
     <ROW Fragment="UI.aip" Path="&lt;AI_THEMES&gt;classic\fragments\UI.aip"/>
     <ROW Fragment="Validation.aip" Path="&lt;AI_FRAGS&gt;Validation.aip"/>
+    <ROW Fragment="VerifyRemoveDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\VerifyRemoveDlg.aip"/>
+    <ROW Fragment="VerifyRepairDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\VerifyRepairDlg.aip"/>
+    <ROW Fragment="WelcomeDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\WelcomeDlg.aip"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiActionTextComponent">
     <ROW Action="AI_TxtUpdaterCommit" Description="Commit text file changes. " Template="Commit text file changes." DescriptionLocId="ActionText.Description.AI_TxtUpdaterCommit" TemplateLocId="ActionText.Template.AI_TxtUpdaterCommit"/>
@@ -126,31 +131,49 @@
     <ROW Feature_="JVM32" Level="1" Condition="NOT JAVASOFT_JRE_VERSION_32" Options="1"/>
     <ROW Feature_="JVM64" Level="1" Condition="NOT JAVASOFT_JRE_VERSION_64" Options="1"/>
     <ROW Feature_="og_rstats" Level="1" Condition="R32_PATH OR R64_PATH" Options="1"/>
-    <ROW Feature_="og_language_core" Level="1" Condition="NOT REG_OG_LANGUAGE_JAR OR NOT REG_OG_LANGUAGE_EXT" Options="1"/>
+    <ROW Feature_="og_language_core" Level="1" Condition="NOT REG_OG_LANGUAGE_EXT OR NOT REG_OG_LANGUAGE_JAR" Options="1"/>
     <ROW Feature_="og_excel_64" Level="1" Condition="EXCEL_14_64" Options="1"/>
     <ROW Feature_="og_excel_32" Level="1" Condition="EXCEL_12_32 OR EXCEL_14_32" Options="1"/>
     <ROW Feature_="og_excel" Level="1" Condition="EXCEL_12_32 OR EXCEL_14_32 OR EXCEL_14_64" Options="1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiControlComponent">
-    <ROW Dialog_="SetupTypeDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="59" Height="17" Attributes="1" Text="[ButtonText_Next]" Control_Next="Cancel" TextLocId="-" MsiKey="SetupTypeDlg#Next" Options="1"/>
-    <ROW Dialog_="AdminInstallPointDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="59" Height="17" Attributes="3" Text="[ButtonText_Next]" Control_Next="Cancel" TextLocId="-" MsiKey="AdminInstallPointDlg#Next" Options="1"/>
-    <ROW Dialog_="AdminRegistrationDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="59" Height="17" Attributes="3" Text="[ButtonText_Next]" Control_Next="Cancel" TextLocId="-" MsiKey="AdminRegistrationDlg#Next"/>
-    <ROW Dialog_="AdminWelcomeDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="59" Height="17" Attributes="3" Text="[ButtonText_Next]" Control_Next="Cancel" TextLocId="-" MsiKey="AdminWelcomeDlg#Next" Options="1"/>
-    <ROW Dialog_="CustomizeDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="59" Height="17" Attributes="3" Text="[ButtonText_Next]" Control_Next="Cancel" TextLocId="-" MsiKey="CustomizeDlg#Next" Options="1"/>
-    <ROW Dialog_="MaintenanceTypeDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="59" Height="17" Attributes="1" Text="[ButtonText_Next]" Control_Next="Cancel" TextLocId="-" MsiKey="MaintenanceTypeDlg#Next" Options="1"/>
-    <ROW Dialog_="MaintenanceWelcomeDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="59" Height="17" Attributes="3" Text="[ButtonText_Next]" Control_Next="Cancel" TextLocId="-" MsiKey="MaintenanceWelcomeDlg#Next" Options="1"/>
-    <ROW Dialog_="PrepareDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="59" Height="17" Attributes="1" Text="[ButtonText_Next]" Control_Next="Description" TextLocId="-" MsiKey="PrepareDlg#Next" Options="1"/>
-    <ROW Dialog_="ProgressDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="59" Height="17" Attributes="1" Text="[ButtonText_Next]" Control_Next="BannerLine" TextLocId="-" MsiKey="ProgressDlg#Next" Options="1"/>
-    <ROW Dialog_="WelcomeDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="59" Height="17" Attributes="3" Text="[ButtonText_Next]" Control_Next="Cancel" TextLocId="-" MsiKey="WelcomeDlg#Next" Options="1"/>
-    <ROW Dialog_="PatchWelcomeDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="59" Height="17" Attributes="3" Text="[ButtonText_Next]" Control_Next="Cancel" TextLocId="-" MsiKey="PatchWelcomeDlg#Next" Options="1"/>
-    <ROW Dialog_="SetupTypeDlg" Control="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Back]" Control_Next="CompleteText" TextLocId="-" MsiKey="SetupTypeDlg#Back" Options="1"/>
-    <ROW Dialog_="SetupTypeDlg" Control="CompleteButton" Type="PushButton" X="50" Y="173" Width="38" Height="38" Attributes="5767171" Text="[CompleteSetupIcon]" Control_Next="BottomLine" Help="Complete Installation|" HelpLocId="Control.Help.SetupTypeDlg#CompleteButton" MsiKey="SetupTypeDlg#CompleteButton"/>
-    <ROW Dialog_="SetupTypeDlg" Control="CustomButton" Type="PushButton" X="50" Y="118" Width="38" Height="38" Attributes="5767171" Text="[CustomSetupIcon]" Control_Next="CompleteButton" Help="Custom Installation|" HelpLocId="Control.Help.SetupTypeDlg#CustomButton" MsiKey="SetupTypeDlg#CustomButton"/>
-    <ROW Dialog_="SetupTypeDlg" Control="CustomText" Type="Text" X="105" Y="131" Width="230" Height="30" Attributes="3" Text="Allows users to choose additional program features to be installed. Recommended for advanced users." Control_Next="BannerLine" TextLocId="Control.Text.SetupTypeDlg#CustomText" MsiKey="SetupTypeDlg#CustomText"/>
-    <ROW Dialog_="CustomizeDlg" Control="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Attributes="1048577" Text="[BannerBitmap]" Control_Next="Description" MsiKey="CustomizeDlg#BannerBitmap"/>
-    <ROW Dialog_="CustomizeDlg" Control="Tree" Type="SelectionTree" X="25" Y="85" Width="175" Height="95" Attributes="7" Property="_BrowseProperty" Text="Tree of selections" Control_Next="Reset" TextLocId="Control.Text.CustomizeDlg#Tree" MsiKey="CustomizeDlg#Tree"/>
-    <ROW Dialog_="SetupTypeDlg" Control="CompleteText" Type="Text" X="105" Y="185" Width="230" Height="20" Attributes="3" Text="All program features will be installed where possible." Control_Next="CompleteLabel" TextLocId="Control.Text.SetupTypeDlg#CompleteText"/>
-    <ROW Dialog_="SetupTypeDlg" Control="CompleteLabel" Type="Text" X="105" Y="173" Width="100" Height="10" Attributes="3" Text="C&amp;omplete" TextStyle="[DlgTitleFont]" Control_Next="Next" TextLocId="Control.Text.SetupTypeDlg#CompleteLabel"/>
+    <ROW Dialog_="AdminInstallPointDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="59" Height="17" Attributes="3" Text="[ButtonText_Next]" Order="700" TextLocId="-" MsiKey="AdminInstallPointDlg#Next" Options="1"/>
+    <ROW Dialog_="AdminRegistrationDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="59" Height="17" Attributes="3" Text="[ButtonText_Next]" Order="800" TextLocId="-" MsiKey="AdminRegistrationDlg#Next"/>
+    <ROW Dialog_="AdminWelcomeDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="59" Height="17" Attributes="3" Text="[ButtonText_Next]" Order="100" TextLocId="-" MsiKey="AdminWelcomeDlg#Next" Options="1"/>
+    <ROW Dialog_="CustomizeDlg" Control="Tree" Type="SelectionTree" X="25" Y="85" Width="175" Height="95" Attributes="7" Property="_BrowseProperty" Text="Tree of selections" Order="100" TextLocId="Control.Text.CustomizeDlg#Tree" MsiKey="CustomizeDlg#Tree"/>
+    <ROW Dialog_="CustomizeDlg" Control="Reset" Type="PushButton" X="15" Y="243" Width="76" Height="17" Attributes="3" Text="[ButtonText_Reset]" Order="200" TextLocId="-" MsiKey="CustomizeDlg#Reset"/>
+    <ROW Dialog_="CustomizeDlg" Control="DiskCost" Type="PushButton" X="91" Y="243" Width="76" Height="17" Attributes="3" Text="Disk &amp;Usage" Order="300" TextLocId="Control.Text.CustomizeDlg#DiskCost" MsiKey="CustomizeDlg#DiskCost"/>
+    <ROW Dialog_="CustomizeDlg" Control="BottomLine" Type="Line" X="5" Y="234" Width="368" Height="0" Attributes="1" Order="400" MsiKey="CustomizeDlg#BottomLine"/>
+    <ROW Dialog_="CustomizeDlg" Control="Logo" Type="Text" X="4" Y="228" Width="70" Height="12" Attributes="1" Text="Advanced Installer" Order="500" TextLocId="Control.Text.CustomizeDlg#Logo" MsiKey="CustomizeDlg#Logo"/>
+    <ROW Dialog_="CustomizeDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="59" Height="17" Attributes="3" Text="[ButtonText_Next]" Order="600" TextLocId="-" MsiKey="CustomizeDlg#Next" Options="1"/>
+    <ROW Dialog_="CustomizeDlg" Control="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Attributes="1048577" Text="[BannerBitmap]" Order="800" MsiKey="CustomizeDlg#BannerBitmap"/>
+    <ROW Dialog_="CustomizeDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Select the way you want features to be installed." Order="1000" TextLocId="Control.Text.CustomizeDlg#Description" MsiKey="CustomizeDlg#Description"/>
+    <ROW Dialog_="CustomizeDlg" Control="Box" Type="GroupBox" X="210" Y="81" Width="140" Height="98" Attributes="1" Order="1100" MsiKey="CustomizeDlg#Box"/>
+    <ROW Dialog_="CustomizeDlg" Control="ItemSize" Type="Text" X="215" Y="128" Width="131" Height="50" Attributes="3" Text="The size of the currently selected item." Order="1200" TextLocId="Control.Text.CustomizeDlg#ItemSize" MsiKey="CustomizeDlg#ItemSize"/>
+    <ROW Dialog_="CustomizeDlg" Control="ItemDescription" Type="Text" X="215" Y="90" Width="131" Height="30" Attributes="3" Text="Multiline description of the currently selected item." Order="1300" TextLocId="Control.Text.CustomizeDlg#ItemDescription" MsiKey="CustomizeDlg#ItemDescription"/>
+    <ROW Dialog_="CustomizeDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Order="1400" MsiKey="CustomizeDlg#BannerLine"/>
+    <ROW Dialog_="CustomizeDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Custom Setup" TextStyle="[DlgTitleFont]" Order="1500" TextLocId="Control.Text.CustomizeDlg#Title" MsiKey="CustomizeDlg#Title"/>
+    <ROW Dialog_="CustomizeDlg" Control="Text" Type="Text" X="25" Y="55" Width="320" Height="20" Attributes="3" Text="Click on the icons in the tree below to change the way features will be installed." Order="1600" TextLocId="Control.Text.CustomizeDlg#Text" MsiKey="CustomizeDlg#Text"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="59" Height="17" Attributes="1" Text="[ButtonText_Next]" Order="800" TextLocId="-" MsiKey="MaintenanceTypeDlg#Next" Options="1"/>
+    <ROW Dialog_="MaintenanceWelcomeDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="59" Height="17" Attributes="3" Text="[ButtonText_Next]" Order="100" TextLocId="-" MsiKey="MaintenanceWelcomeDlg#Next" Options="1"/>
+    <ROW Dialog_="PatchWelcomeDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="59" Height="17" Attributes="3" Text="[ButtonText_Next]" Order="100" TextLocId="-" MsiKey="PatchWelcomeDlg#Next" Options="1"/>
+    <ROW Dialog_="PrepareDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="59" Height="17" Attributes="1" Text="[ButtonText_Next]" Order="400" TextLocId="-" MsiKey="PrepareDlg#Next" Options="1"/>
+    <ROW Dialog_="ProgressDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="59" Height="17" Attributes="1" Text="[ButtonText_Next]" Order="600" TextLocId="-" MsiKey="ProgressDlg#Next" Options="1"/>
+    <ROW Dialog_="SetupTypeDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="59" Height="17" Attributes="1" Text="[ButtonText_Next]" Order="100" TextLocId="-" MsiKey="SetupTypeDlg#Next" Options="1"/>
+    <ROW Dialog_="SetupTypeDlg" Control="CustomText" Type="Text" X="105" Y="131" Width="230" Height="30" Attributes="3" Text="Allows users to choose additional program features to be installed. Recommended for advanced users." Order="400" TextLocId="Control.Text.SetupTypeDlg#CustomText" MsiKey="SetupTypeDlg#CustomText"/>
+    <ROW Dialog_="SetupTypeDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Order="500" MsiKey="SetupTypeDlg#BannerLine"/>
+    <ROW Dialog_="SetupTypeDlg" Control="TypicalText" Type="Text" X="105" Y="78" Width="230" Height="20" Attributes="3" Text="Installs the most common program features. Recommended for most users." Order="600" TextLocId="Control.Text.SetupTypeDlg#TypicalText" MsiKey="SetupTypeDlg#TypicalText"/>
+    <ROW Dialog_="SetupTypeDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Choose Setup Type" TextStyle="[DlgTitleFont]" Order="700" TextLocId="Control.Text.SetupTypeDlg#Title" MsiKey="SetupTypeDlg#Title"/>
+    <ROW Dialog_="SetupTypeDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Choose the setup type that best suits your needs" Order="800" TextLocId="Control.Text.SetupTypeDlg#Description" MsiKey="SetupTypeDlg#Description"/>
+    <ROW Dialog_="SetupTypeDlg" Control="TypicalLabel" Type="Text" X="105" Y="65" Width="100" Height="10" Attributes="3" Text="&amp;Typical" TextStyle="[DlgTitleFont]" Order="900" TextLocId="Control.Text.SetupTypeDlg#TypicalLabel" MsiKey="SetupTypeDlg#TypicalLabel"/>
+    <ROW Dialog_="SetupTypeDlg" Control="TypicalButton" Type="PushButton" X="50" Y="65" Width="38" Height="38" Attributes="5767171" Text="[InstallerIcon]" Help="Typical Installation|" Order="1000" HelpLocId="Control.Help.SetupTypeDlg#TypicalButton" MsiKey="SetupTypeDlg#TypicalButton"/>
+    <ROW Dialog_="SetupTypeDlg" Control="CustomButton" Type="PushButton" X="50" Y="118" Width="38" Height="38" Attributes="5767171" Text="[CustomSetupIcon]" Help="Custom Installation|" Order="1100" HelpLocId="Control.Help.SetupTypeDlg#CustomButton" MsiKey="SetupTypeDlg#CustomButton"/>
+    <ROW Dialog_="SetupTypeDlg" Control="CompleteButton" Type="PushButton" X="50" Y="173" Width="38" Height="38" Attributes="5767171" Text="[CompleteSetupIcon]" Help="Complete Installation|" Order="1300" HelpLocId="Control.Help.SetupTypeDlg#CompleteButton" MsiKey="SetupTypeDlg#CompleteButton"/>
+    <ROW Dialog_="SetupTypeDlg" Control="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Back]" Order="1400" TextLocId="-" MsiKey="SetupTypeDlg#Back" Options="1"/>
+    <ROW Dialog_="SetupTypeDlg" Control="BottomLine" Type="Line" X="5" Y="234" Width="368" Height="0" Attributes="1" Order="1500" MsiKey="SetupTypeDlg#BottomLine"/>
+    <ROW Dialog_="SetupTypeDlg" Control="CompleteText" Type="Text" X="105" Y="185" Width="230" Height="20" Attributes="3" Text="All program features will be installed where possible." Order="1600" TextLocId="Control.Text.SetupTypeDlg#CompleteText"/>
+    <ROW Dialog_="SetupTypeDlg" Control="CompleteLabel" Type="Text" X="105" Y="173" Width="100" Height="10" Attributes="3" Text="C&amp;omplete" TextStyle="[DlgTitleFont]" Order="1800" TextLocId="Control.Text.SetupTypeDlg#CompleteLabel"/>
+    <ROW Dialog_="WelcomeDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="59" Height="17" Attributes="3" Text="[ButtonText_Next]" Order="100" TextLocId="-" MsiKey="WelcomeDlg#Next" Options="1"/>
     <ATTRIBUTE name="DeletedRows" value="CustomizeDlg#Location@CustomizeDlg#LocationLabel@CustomizeDlg#Browse@SetupTypeDlg#CompleteLabel@SetupTypeDlg#CompleteText"/>
     <ATTRIBUTE name="FixedSizeBitmaps" value="0"/>
   </COMPONENT>
@@ -261,6 +284,12 @@
     <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="[invalid_Excel64NotFound]" Argument="1" Condition="&amp;og_excel_64=3 AND (NOT EXCEL_14_64)" Ordering="517"/>
     <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="Remove" Argument="og_excel_64" Condition="invalid_Excel64NotFound=1" Ordering="520"/>
     <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="Remove" Argument="og_excel" Condition="&amp;og_excel=3 AND &amp;og_excel_32&lt;&gt;3 AND &amp;og_excel_64&lt;&gt;3" Ordering="521"/>
+    <ROW Dialog_="VerifyRemoveDlg" Control_="Remove" Event="EndDialog" Argument="Return" Condition="AI_MAINT AND InstallMode = &quot;Remove&quot;" Ordering="299"/>
+    <ROW Dialog_="VerifyRepairDlg" Control_="Repair" Event="EndDialog" Argument="Return" Condition="AI_MAINT AND InstallMode = &quot;Repair&quot;" Ordering="399"/>
+    <ROW Dialog_="VerifyRemoveDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT AND InstallMode = &quot;Remove&quot;" Ordering="1"/>
+    <ROW Dialog_="VerifyRepairDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT AND InstallMode = &quot;Repair&quot;" Ordering="1"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="RemoveButton" Event="NewDialog" Argument="VerifyRemoveDlg" Condition="AI_MAINT AND InstallMode = &quot;Remove&quot;" Ordering="601"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="RepairButton" Event="NewDialog" Argument="VerifyRepairDlg" Condition="AI_MAINT AND InstallMode = &quot;Repair&quot;" Ordering="601"/>
     <ATTRIBUTE name="DeletedRows" value="CustomizeDlg#Browse#SelectionBrowse#BrowseDlg#1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCreateFolderComponent">
@@ -268,9 +297,11 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCustActComponent">
     <ROW Action="AI_DOWNGRADE" Type="19" Target="4010"/>
+    <ROW Action="AI_InstallModeCheck" Type="1" Source="aicustact.dll" Target="UpdateInstallMode" WithoutSeq="true"/>
     <ROW Action="AI_PREPARE_UPGRADE" Type="65" Source="aicustact.dll" Target="PrepareUpgrade"/>
     <ROW Action="AI_RESTORE_LOCATION" Type="65" Source="aicustact.dll" Target="RestoreLocation"/>
     <ROW Action="AI_ResolveKnownFolders" Type="1" Source="aicustact.dll" Target="AI_ResolveKnownFolders"/>
+    <ROW Action="AI_ResolveLocalizedCredentials" Type="1" Source="aicustact.dll" Target="GetLocalizedCredentials"/>
     <ROW Action="AI_SHOW_LOG" Type="65" Source="aicustact.dll" Target="LaunchLogFile" WithoutSeq="true"/>
     <ROW Action="AI_STORE_LOCATION" Type="51" Source="ARPINSTALLLOCATION" Target="[APPDIR]"/>
     <ROW Action="AI_TxtUpdaterCommit" Type="11777" Source="TxtUpdater.dll" Target="OnTxtUpdaterCommit" WithoutSeq="true"/>
@@ -307,20 +338,22 @@
     <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="749"/>
     <ROW Action="AI_STORE_LOCATION" Condition="(Not Installed) OR REINSTALL" Sequence="1501"/>
     <ROW Action="AI_PREPARE_UPGRADE" Condition="AI_UPGRADE=&quot;No&quot; AND (Not Installed)" Sequence="1399"/>
-    <ROW Action="AI_ResolveKnownFolders" Sequence="51"/>
+    <ROW Action="AI_ResolveKnownFolders" Sequence="52"/>
     <ROW Action="AI_TxtUpdaterInstall" Sequence="5101"/>
     <ROW Action="OG_LANGUAGE_JAR_2" Condition="NOT REG_OG_LANGUAGE_JAR" Sequence="202"/>
     <ROW Action="OG_LANGUAGE_EXT_1" Condition="REG_OG_LANGUAGE_EXT" Sequence="204"/>
     <ROW Action="OG_LANGUAGE_JAR_1" Condition="REG_OG_LANGUAGE_JAR" Sequence="203"/>
     <ROW Action="OG_LANGUAGE_EXT_2" Condition="NOT REG_OG_LANGUAGE_EXT" Sequence="201"/>
+    <ROW Action="AI_ResolveLocalizedCredentials" Sequence="51"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstallUISequenceComponent">
     <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="749"/>
-    <ROW Action="AI_ResolveKnownFolders" Sequence="51"/>
+    <ROW Action="AI_ResolveKnownFolders" Sequence="52"/>
     <ROW Action="OG_LANGUAGE_EXT_4" Condition="NOT REG_OG_LANGUAGE_EXT" Sequence="204"/>
     <ROW Action="OG_LANGUAGE_JAR_4" Condition="NOT REG_OG_LANGUAGE_JAR" Sequence="203"/>
     <ROW Action="OG_LANGUAGE_JAR_3" Condition="REG_OG_LANGUAGE_JAR" Sequence="202"/>
     <ROW Action="OG_LANGUAGE_EXT_3" Condition="REG_OG_LANGUAGE_EXT" Sequence="201"/>
+    <ROW Action="AI_ResolveLocalizedCredentials" Sequence="51"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiLaunchConditionsComponent">
     <ROW Condition="VersionNT" Description="[ProductName] cannot be installed on [WindowsType9XDisplay]" DescriptionLocId="AI.LaunchCondition.No9X" IsPredefined="true" Builds="NoJVM64;JVM32;JVM64;MsiBuild"/>
@@ -330,7 +363,7 @@
     <ROW Module="JRE64.msm" Path="..\projects\OG-Install\Merge Modules\JRE64.msm" Feature="JVM64" Directory="APPDIR"/>
     <ROW Module="Microsoft_VC100_CRT_x64.msm" Path="C:\Program Files (x86)\Common Files\Merge modules\Microsoft_VC100_CRT_x64.msm" Feature="Runtime64" Directory="APPDIR"/>
     <ROW Module="Microsoft_VC100_CRT_x86.msm" Path="C:\Program Files (x86)\Common Files\Merge modules\Microsoft_VC100_CRT_x86.msm" Feature="Runtime32" Directory="APPDIR"/>
-    <ROW Module="OG_Excel_Core.msm" Path="..\install\install\OG-Excel-Core.msm" Feature="og_excel" Directory="APPDIR" Params="OG_LANGUAGE_EXT=[OG_LANGUAGE_EXT];OG_LANGUAGE_JAR=[OG_LANGUAGE_JAR];"/>
+    <ROW Module="OG_Excel_Core.msm" Path="..\install\install\OG-Excel-Core.msm" Feature="og_excel" Directory="APPDIR"/>
     <ROW Module="OG_Excel_i386.msm" Path="..\install\install\OG-Excel-i386.msm" Feature="og_excel_32" Directory="APPDIR"/>
     <ROW Module="OG_Excel_x64.msm" Path="..\install\install\OG-Excel-x64.msm" Feature="og_excel_64" Directory="APPDIR"/>
     <ROW Module="OG_Language_Core.msm" Path="..\install\install\OG-Language-Core.msm" Feature="og_language_core" Directory="APPDIR"/>

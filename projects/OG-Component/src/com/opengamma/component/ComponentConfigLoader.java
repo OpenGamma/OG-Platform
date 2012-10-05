@@ -7,6 +7,7 @@ package com.opengamma.component;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -108,6 +109,23 @@ public class ComponentConfigLoader {
     ConcurrentMap<String, String> map = new ConcurrentHashMap<String, String>();
     for (String key : input.keySet()) {
       map.put("${" + key + "}", input.get(key));
+    }
+    for (String key : new HashSet<String>(map.keySet())) {
+      String value = map.get(key);
+      boolean hasChanged;
+      do {
+        hasChanged = false;
+        for (Map.Entry<String, String> replacementEntry : map.entrySet()) {
+          if (value.contains(replacementEntry.getKey())) {
+            if (replacementEntry.getKey().equals(key)) {
+              throw new OpenGammaRuntimeException("Property " + key + " references itself");
+            }
+            hasChanged = true;
+            value = value.replace(replacementEntry.getKey(), replacementEntry.getValue());
+          }
+        }
+      } while (hasChanged);
+      map.put(key, value);
     }
     return map;
   }

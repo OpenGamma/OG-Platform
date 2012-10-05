@@ -19,10 +19,8 @@ import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZer
 import com.opengamma.analytics.financial.interestrate.PresentValueInflationCalculator;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
-import com.opengamma.analytics.financial.interestrate.bond.method.BondCapitalIndexedSecurityDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.bond.method.BondCapitalIndexedTransactionDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.market.MarketBundle;
-import com.opengamma.analytics.financial.interestrate.market.MarketDataSets;
+import com.opengamma.analytics.financial.interestrate.market.MarketDiscountDataSets;
+import com.opengamma.analytics.financial.interestrate.market.description.MarketDiscountBundle;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -32,7 +30,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
-import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
@@ -41,11 +39,11 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  */
 public class BondCapitalIndexedTransactionDiscountingMethodTest {
 
-  private static final MarketBundle MARKET = MarketDataSets.createMarket1();
-  private static final IndexPrice[] PRICE_INDEXES = MARKET.getPriceIndexes().toArray(new IndexPrice[0]);
-  private static final IndexPrice PRICE_INDEX_USCPI = PRICE_INDEXES[0];
-  private static final String[] ISSUER_NAMES = MARKET.getIssuers().toArray(new String[0]);
-  private static final String ISSUER_US_GOVT = ISSUER_NAMES[1];
+  private static final MarketDiscountBundle MARKET = MarketDiscountDataSets.createMarket1();
+  private static final IndexPrice[] PRICE_INDEXES = MarketDiscountDataSets.getPriceIndexes();
+  private static final IndexPrice PRICE_INDEX_USCPI = PRICE_INDEXES[2];
+  private static final String[] ISSUER_NAMES = MarketDiscountDataSets.getIssuerNames();
+  private static final String ISSUER_US_GOVT = ISSUER_NAMES[0];
   private static final ZonedDateTime PRICING_DATE = DateUtils.getUTCDate(2011, 8, 8);
   private static final BondCapitalIndexedSecurityDiscountingMethod METHOD_BOND_SECURITY = new BondCapitalIndexedSecurityDiscountingMethod();
   private static final BondCapitalIndexedTransactionDiscountingMethod METHOD_BOND_TRANSACTION = new BondCapitalIndexedTransactionDiscountingMethod();
@@ -69,7 +67,7 @@ public class BondCapitalIndexedTransactionDiscountingMethodTest {
   private static final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> BOND_SECURITY_TIPS_1_DEFINITION = BondCapitalIndexedSecurityDefinition
       .fromInterpolation(PRICE_INDEX_USCPI, MONTH_LAG_TIPS_1, START_DATE_TIPS_1, INDEX_START_TIPS_1, MATURITY_DATE_TIPS_1, COUPON_PERIOD_TIPS_1, NOTIONAL_TIPS_1, REAL_RATE_TIPS_1, BUSINESS_DAY_USD,
           SETTLEMENT_DAYS_TIPS_1, CALENDAR_USD, DAY_COUNT_TIPS_1, YIELD_CONVENTION_TIPS_1, IS_EOM_TIPS_1, ISSUER_US_GOVT);
-  private static final DoubleTimeSeries<ZonedDateTime> US_CPI = MarketDataSets.usCpiFrom2009();
+  private static final DoubleTimeSeries<ZonedDateTime> US_CPI = MarketDiscountDataSets.usCpiFrom2009();
   private static final BondCapitalIndexedSecurity<Coupon> BOND_SECURITY_TIPS_1 = BOND_SECURITY_TIPS_1_DEFINITION.toDerivative(PRICING_DATE, US_CPI, "Not used");
 
   private static final double QUANTITY_TIPS_1 = 654321;
@@ -81,12 +79,12 @@ public class BondCapitalIndexedTransactionDiscountingMethodTest {
 
   @Test
   public void presentValueTips1() {
-    CurrencyAmount pv = METHOD_BOND_TRANSACTION.presentValue(BOND_TIPS_1_TRANSACTION, MARKET);
-    CurrencyAmount pvSecurity = METHOD_BOND_SECURITY.presentValue(BOND_SECURITY_TIPS_1, MARKET);
-    CurrencyAmount pvSettlement = PVIC.visit(BOND_TIPS_1_TRANSACTION.getBondTransaction().getSettlement(), MARKET).multipliedBy(
+    MultipleCurrencyAmount pv = METHOD_BOND_TRANSACTION.presentValue(BOND_TIPS_1_TRANSACTION, MARKET);
+    MultipleCurrencyAmount pvSecurity = METHOD_BOND_SECURITY.presentValue(BOND_SECURITY_TIPS_1, MARKET);
+    MultipleCurrencyAmount pvSettlement = PVIC.visit(BOND_TIPS_1_TRANSACTION.getBondTransaction().getSettlement(), MARKET).multipliedBy(
         BOND_TIPS_1_TRANSACTION.getQuantity() * BOND_TIPS_1_TRANSACTION.getBondTransaction().getCoupon().getNthPayment(0).getNotional());
-    assertEquals("Inflation Capital Indexed bond transaction: present value", BOND_SECURITY_TIPS_1.getCurrency(), pv.getCurrency());
-    assertEquals("Inflation Capital Indexed bond transaction: present value", pvSecurity.multipliedBy(QUANTITY_TIPS_1).plus(pvSettlement).getAmount(), pv.getAmount(), 1.0E-2);
+    assertEquals("Inflation Capital Indexed bond transaction: present value", pvSecurity.multipliedBy(QUANTITY_TIPS_1).plus(pvSettlement).getAmount(BOND_SECURITY_TIPS_1.getCurrency()),
+        pv.getAmount(BOND_SECURITY_TIPS_1.getCurrency()), 1.0E-2);
   }
 
   @Test
@@ -94,8 +92,8 @@ public class BondCapitalIndexedTransactionDiscountingMethodTest {
    * Tests the present value Method vs Calculator.
    */
   public void presentValueMethodVsCalculator() {
-    CurrencyAmount pvMethod = METHOD_BOND_TRANSACTION.presentValue(BOND_TIPS_1_TRANSACTION, MARKET);
-    CurrencyAmount pvCalculator = PVIC.visit(BOND_TIPS_1_TRANSACTION, MARKET);
+    MultipleCurrencyAmount pvMethod = METHOD_BOND_TRANSACTION.presentValue(BOND_TIPS_1_TRANSACTION, MARKET);
+    MultipleCurrencyAmount pvCalculator = PVIC.visit(BOND_TIPS_1_TRANSACTION, MARKET);
     assertEquals("Inflation Capital Indexed bond transaction: Method vs Calculator", pvMethod, pvCalculator);
   }
 }

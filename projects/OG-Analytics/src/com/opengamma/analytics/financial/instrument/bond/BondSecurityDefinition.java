@@ -6,7 +6,6 @@
 package com.opengamma.analytics.financial.instrument.bond;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
@@ -16,6 +15,7 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BondSecuri
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -23,7 +23,8 @@ import com.opengamma.util.money.Currency;
  * @param <N> The notional type (usually FixedPayment or CouponInflationZeroCoupon).
  * @param <C> The coupon type.
  */
-public abstract class BondSecurityDefinition<N extends PaymentDefinition, C extends CouponDefinition> implements InstrumentDefinition<BondSecurity<? extends Payment, ? extends Coupon>> {
+public abstract class BondSecurityDefinition<N extends PaymentDefinition, C extends CouponDefinition> implements
+    InstrumentDefinition<BondSecurity<? extends Payment, ? extends Coupon>> {
   /**
    * The notional payments. For bullet bond, it is restricted to a single payment.
    */
@@ -61,17 +62,18 @@ public abstract class BondSecurityDefinition<N extends PaymentDefinition, C exte
    * @param settlementDays Standard number of days between trade date and trade settlement. Used for clean price and yield computation.
    * @param calendar The calendar used to compute the standard settlement date.
    */
-  public BondSecurityDefinition(final AnnuityDefinition<N> nominal, final AnnuityDefinition<C> coupon, final int exCouponDays, final int settlementDays, final Calendar calendar) {
-    Validate.notNull(nominal, "Nominal");
-    Validate.notNull(coupon, "Coupon");
-    Validate.isTrue(nominal.getCurrency() == coupon.getCurrency(), "Currency of nominal and coupons should be the same");
-    Validate.isTrue(!nominal.isPayer(), "Notional should be positive");
-    Validate.isTrue(!coupon.isPayer(), "Coupon notional should be positive");
-    this._nominal = nominal;
-    this._coupon = coupon;
-    // TODO: check that the coupon and nominal correspond in term of remaining notional.
-    this._exCouponDays = exCouponDays;
-    this._settlementDays = settlementDays;
+  public BondSecurityDefinition(final AnnuityDefinition<N> nominal, final AnnuityDefinition<C> coupon, final int exCouponDays, final int settlementDays,
+      final Calendar calendar) {
+    ArgumentChecker.notNull(nominal, "Nominal");
+    ArgumentChecker.notNull(coupon, "Coupon");
+    ArgumentChecker.isTrue(nominal.getCurrency().equals(coupon.getCurrency()), "Currency of nominal and coupons should be the same");
+    ArgumentChecker.isTrue(!nominal.isPayer(), "Notional should be positive");
+    ArgumentChecker.isTrue(!coupon.isPayer(), "Coupon notional should be positive");
+    _nominal = nominal;
+    _coupon = coupon;
+    // TODO: check that the coupon and nominal correspond in term of remaining notional (in the case of amortization)
+    _exCouponDays = exCouponDays;
+    _settlementDays = settlementDays;
     _calendar = calendar;
     _issuer = "";
     _repoType = "";
@@ -87,17 +89,19 @@ public abstract class BondSecurityDefinition<N extends PaymentDefinition, C exte
    * @param issuer The issuer name.
    * @param repoType The repo type name.
    */
-  public BondSecurityDefinition(final AnnuityDefinition<N> nominal, final AnnuityDefinition<C> coupon, final int exCouponDays, final int settlementDays, final Calendar calendar, final String issuer, final String repoType) {
-    Validate.notNull(nominal, "Nominal");
-    Validate.notNull(coupon, "Coupon");
-    Validate.isTrue(nominal.getCurrency() == coupon.getCurrency(), "Currency of nominal and coupons should be the same");
-    Validate.isTrue(!nominal.isPayer(), "Notional should be positive");
-    Validate.isTrue(!coupon.isPayer(), "Coupon notional should be positive");
-    this._nominal = nominal;
-    this._coupon = coupon;
-    // TODO: check that the coupon and nominal correspond in term of remaining notional.
-    this._exCouponDays = exCouponDays;
-    this._settlementDays = settlementDays;
+  public BondSecurityDefinition(final AnnuityDefinition<N> nominal, final AnnuityDefinition<C> coupon, final int exCouponDays, final int settlementDays,
+      final Calendar calendar, final String issuer, final String repoType) {
+    ArgumentChecker.notNull(nominal, "Nominal");
+    ArgumentChecker.notNull(coupon, "Coupons");
+    ArgumentChecker.isTrue(nominal.getCurrency().equals(coupon.getCurrency()), "Currency of nominal {} and coupons {} should be the same", nominal.getCurrency(),
+        coupon.getCurrency());
+    ArgumentChecker.isTrue(!nominal.isPayer(), "Notional should be positive");
+    ArgumentChecker.isTrue(!coupon.isPayer(), "Coupon notional should be positive");
+    _nominal = nominal;
+    _coupon = coupon;
+    // TODO: check that the coupon and nominal correspond in term of remaining notional (in the case of amortization)
+    _exCouponDays = exCouponDays;
+    _settlementDays = settlementDays;
     _calendar = calendar;
     _issuer = issuer;
     _repoType = repoType;
@@ -115,7 +119,7 @@ public abstract class BondSecurityDefinition<N extends PaymentDefinition, C exte
    * Gets the coupons.
    * @return The coupons.
    */
-  public AnnuityDefinition<C> getCoupon() {
+  public AnnuityDefinition<C> getCoupons() {
     return _coupon;
   }
 

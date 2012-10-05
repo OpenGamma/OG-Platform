@@ -30,7 +30,7 @@ public abstract class DoublesCube extends Cube<Double, Double, Double, Double> {
    * @param zData An array of <i>z</i> data, not null, must be the same length as the <i>x</i> data array
    * @param values An array of <i>values</i> , not null, must be the same length as the <i>x</i> data array
    */
-  public DoublesCube(final double[] xData, final double[] yData, final double[] zData, double[] values) {
+  public DoublesCube(final double[] xData, final double[] yData, final double[] zData, final double[] values) {
     super();
     Validate.notNull(xData, "x data");
     Validate.notNull(yData, "y data");
@@ -52,7 +52,7 @@ public abstract class DoublesCube extends Cube<Double, Double, Double, Double> {
    * @param zData An array of <i>z</i> data, not null, must be the same length as the <i>x</i> data array
    * @param values An array of <i>values</i> , not null, must be the same length as the <i>x</i> data array
    */
-  public DoublesCube(final Double[] xData, final Double[] yData, final Double[] zData, Double[] values) {
+  public DoublesCube(final Double[] xData, final Double[] yData, final Double[] zData, final Double[] values) {
     super();
     Validate.notNull(xData, "x data");
     Validate.notNull(yData, "y data");
@@ -84,7 +84,7 @@ public abstract class DoublesCube extends Cube<Double, Double, Double, Double> {
    * @param zData A list of <i>z</i> data, not null, must be the same length as the <i>x</i> data list
    * @param values A list of <i>values</i> , not null, must be the same length as the <i>x</i> data list
    */
-  public DoublesCube(final List<Double> xData, final List<Double> yData, final List<Double> zData, List<Double> values) {
+  public DoublesCube(final List<Double> xData, final List<Double> yData, final List<Double> zData, final List<Double> values) {
     super();
     Validate.notNull(xData, "x data");
     Validate.notNull(yData, "y data");
@@ -121,7 +121,7 @@ public abstract class DoublesCube extends Cube<Double, Double, Double, Double> {
    * @param values An array of <i>values</i> , not null, must be the same length as the <i>x</i> data array
    * @param name The name of the cube
    */
-  public DoublesCube(final double[] xData, final double[] yData, final double[] zData, double[] values, String name) {
+  public DoublesCube(final double[] xData, final double[] yData, final double[] zData, final double[] values, final String name) {
     super(name);
     Validate.notNull(xData, "x data");
     Validate.notNull(yData, "y data");
@@ -144,7 +144,7 @@ public abstract class DoublesCube extends Cube<Double, Double, Double, Double> {
    * @param values An array of <i>values</i> , not null, must be the same length as the <i>x</i> data array
    * @param name The name of the cube
    */
-  public DoublesCube(final Double[] xData, final Double[] yData, final Double[] zData, Double[] values, String name) {
+  public DoublesCube(final Double[] xData, final Double[] yData, final Double[] zData, final Double[] values, final String name) {
     super(name);
     Validate.notNull(xData, "x data");
     Validate.notNull(yData, "y data");
@@ -177,7 +177,7 @@ public abstract class DoublesCube extends Cube<Double, Double, Double, Double> {
    * @param values A list of <i>values</i> , not null, must be the same length as the <i>x</i> data list
    * @param name The name of the cube
    */
-  public DoublesCube(final List<Double> xData, final List<Double> yData, final List<Double> zData, List<Double> values, String name) {
+  public DoublesCube(final List<Double> xData, final List<Double> yData, final List<Double> zData, final List<Double> values, final String name) {
     super(name);
     Validate.notNull(xData, "x data");
     Validate.notNull(yData, "y data");
@@ -304,7 +304,7 @@ public abstract class DoublesCube extends Cube<Double, Double, Double, Double> {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -314,7 +314,7 @@ public abstract class DoublesCube extends Cube<Double, Double, Double, Double> {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    DoublesCube other = (DoublesCube) obj;
+    final DoublesCube other = (DoublesCube) obj;
     if (!Arrays.equals(_values, other._values)) {
       return false;
     }

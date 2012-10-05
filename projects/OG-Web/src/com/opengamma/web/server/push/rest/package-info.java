@@ -33,9 +33,11 @@
  * <h2>Entities</h2>
  * <p>If a client requests an entity (for example a portfolio as shown above) it will receive a notification
  * if the entity is updated.  To enable this the REST method that returns the entity must have a parameter annotated
- * with {@link com.opengamma.web.server.push.rest.Subscribe}.  The annotation must be on a string parameter that can be parsed by
- * {@link com.opengamma.id.UniqueId#parse(String)} and the parameter must also have a {@link javax.ws.rs.PathParam} annotation.  See
- * {@link com.opengamma.web.portfolio.WebPortfoliosResource#findPortfolio(String)} for an example.</p>
+ * with {@link com.opengamma.web.server.push.rest.Subscribe}.  The annotation must be on a string parameter that can be
+ * parsed by {@link com.opengamma.id.UniqueId#parse UniqueId.parse()} and the parameter must also have a
+ * {@link javax.ws.rs.PathParam PathParam} annotation.
+ * See {@link com.opengamma.web.portfolio.WebPortfoliosResource#findPortfolio WebPortfoliosResource.findPortfolio()}
+ * for an example.</p>
  *
  * <h2>Queries</h2>
  * <p>If a client performs a query to search for multiple entities it will receive a notification if something
@@ -46,33 +48,59 @@
  * This is a very conservative approach which will often lead to a client re-running a query and receiving the same
  * results. A complete solution to this problem would be much more complex and this behaviour is not a problem if the
  * queries are cheap.</p>
- * <p>To enable subscriptions for queries the REST method must be annotated with {@link com.opengamma.web.server.push.rest.SubscribeMaster} and
- * the type(s) of master specified as annotation parameters.  See
- * {@link com.opengamma.web.portfolio.WebPortfoliosResource#getJSON(Integer, Integer, Integer, String, String, java.util.List, java.util.List, Boolean)}
+ * <p>To enable subscriptions for queries the REST method must be annotated with
+ * {@link com.opengamma.web.server.push.rest.SubscribeMaster} and the type(s) of master specified as annotation
+ * parameters.  See
+ * {@link com.opengamma.web.portfolio.WebPortfoliosResource#getJSON WebPortfoliosResource.getJSON()}
  * for an example.</p>
  *
- * <h2>Querying Available View Definitions, Market Data Snapshots and Aggregators</h2>
- * <p>The view definitions, market data snapshots and aggregators available in the system can be queried as follows:</p>
+ * <h2>Querying the data needed for setting up views</h2>
+ * <h3>Live Data Sources</h3>
+ * <pre>
+ *   /jax/livedatasources</pre>
+ * <p>returns the names of the available sources of live data</p>
+ * <pre>
+ *   [dataSourceName1, dataSourceName2, ...]
+ * </pre>
+ * <h3>View Definitions</h3>
  * <pre>
  *   /jax/viewdefinitions</pre>
- * <p>returns</p>
+ * <p>returns a list of available view definitions</p>
  * <pre>
  *   [{id: viewDefId1, name: viewDefName1}, {id: viewDefId2, name: viewDefName2}, ...]
  * </pre>
- * <p>and</p>
+ * <h3>Market Data Snapshots</h3>
  * <pre>
  *   /jax/marketdatasnapshots</pre>
- * <p>returns</p>
+ * <p>returns a list of available snapshots</p>
  * <pre>
  *   [{basisViewName: basisViewName1, snapshots: [{id: snapshot1Id, name: snapshot1Name}, {id: snapshot2Id, name: snapshot2Name}, ...]},
  *    {basisViewName: basisViewName2, snapshots: [{id: snapshot3Id, name: snapshot3Name}, {id: snapshot4Id, name: snapshot4Name}, ...]}, ...]
  * </pre>
- * <p>and</p>
+ * <pre>
+ *   /jax/marketdatasnapshots/{snapshotObjectId}</pre>
+ * <p>returns the version history for a snapshot</p>
+ * <pre>
+ *   [{uniqueId: snapshot1Id,
+ *     correctionFrom: snapshot1CorrectionFromTime,
+ *     correctionTo: snapshot1CorrectionToTime,
+ *     versionFrom: snapshot1VersionFromTime,
+ *     versionTo: snapshot1VersionToTime}, ...]
+ * </pre>
+ * <h3>Aggregators</h3>
  * <pre>
  *   /jax/aggregators</pre>
- * <p>returns</p>
+ * <p>returns the available portfolio aggregators</p>
  * <pre>
  *   [aggregatorName1, aggregatorName2, ...]
+ * </pre>
+ * <h3>Time Series Resolver Keys</h3>
+ * <pre>
+ *   /jax/timeseriesresolverkeys</pre>
+ * <p>returns a list of time series resolver keys (which are the names of configuration entries for
+ * {@link com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRating HistoricalTimeSeriesRating}s)</p>
+ * <pre>
+ *   [keyName1, keyName2, ...]
  * </pre>
  *
  * <h2>Analytics</h2>
@@ -82,29 +110,23 @@
  *   /jax/views                                                                      POST to create view
  *   /jax/views/{viewId}                                                             POST to pause and resume, DELETE to close
  *
- *   /jax/views/{viewId}/portfolio/grid                                              GET column and row structure, notification on structure change
+ *   /jax/views/{viewId}/portfolio                                                   GET column and row structure, notification on structure change
  *   /jax/views/{viewId}/portfolio/viewports                                         POST to create viewport
- *   /jax/views/{viewId}/portfolio/viewports/{viewportId}                            PUT to update, DELETE to close
- *   /jax/views/{viewId}/portfolio/viewports/{viewportId}/data                       GET data, notification when new data is available
+ *   /jax/views/{viewId}/portfolio/viewports/{viewportId}                            GET data, PUT to update, DELETE to close, notification when new data is available
  *
  *   /jax/views/{viewId}/portfolio/depgraphs                                         POST to create dependency graph grid
- *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}                               DELETE to close
- *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}/grid                          GET column and row structure, notification on structure change
+ *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}                               GET column and row structure, DELETE to close, notification on structure change
  *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}/viewports                     POST to create viewport
- *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}/viewports/{viewportId}        PUT to update, DELETE to close
- *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}/viewports/{viewportId}/data   GET data, notification when new data is available
+ *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}/viewports/{viewportId}        GET data, PUT to update, DELETE to close, notification when new data is available
  *
- *   /jax/views/{viewId}/primitives/grid                                             GET column and row structure, notification on structure change
+ *   /jax/views/{viewId}/primitives                                                  GET column and row structure, notification on structure change
  *   /jax/views/{viewId}/primitives/viewports                                        POST to create viewport
- *   /jax/views/{viewId}/primitives/viewports/{viewportId}                           PUT to update, DELETE to close
- *   /jax/views/{viewId}/primitives/viewports/{viewportId}/data                      GET data, notification when new data is available
+ *   /jax/views/{viewId}/primitives/viewports/{viewportId}                           GET data, PUT to update, DELETE to close, notification when new data is available
  *
  *   /jax/views/{viewId}/primitives/depgraphs                                        POST to create dependency graph grid
- *   /jax/views/{viewId}/primitives/depgraphs/{graphId}                              DELETE to close
- *   /jax/views/{viewId}/primitives/depgraphs/{graphId}/grid                         GET column and row structure, notification on structure change
+ *   /jax/views/{viewId}/primitives/depgraphs/{graphId}                              GET column and row structure, DELETE to close, notification on structure change
  *   /jax/views/{viewId}/primitives/depgraphs/{graphId}/viewports                    POST to create viewport
- *   /jax/views/{viewId}/primitives/depgraphs/{graphId}/viewports/{viewportId}       PUT to update, DELETE to close
- *   /jax/views/{viewId}/primitives/depgraphs/{graphId}/viewports/{viewportId}/data  GET data, notification when new data is available
+ *   /jax/views/{viewId}/primitives/depgraphs/{graphId}/viewports/{viewportId}       GET data, PUT to update, DELETE to close, notification when new data is available
  * </pre>
  *
  * <h3>Views</h3>
@@ -116,10 +138,12 @@
  * <ul>
  *   <li>{@code viewDefinitionId}: Unique ID of the view definition.</li>
  *   <li>{@code aggregators}: names of the aggregators used to aggregate the portfolio, omit for no aggregation.</li>
- *   <li>{@code live}: {@code true} or {@code false} - whether to use live market data or a snapshot.</li>
- *   <li>{@code provider}: name of the market data provider.  Only required for live data. <em>TODO use the value "Live market data (Bloomberg, Activ)" for testing</em>.</li>
- *   <li>{@code snapshotId}: ID of the market data snapshot.  Only required if using a market data snapshot.</li>
- *   <li>{@code versionDateTime}: time of the snapshot.  Only required if using a market data snapshot.</li>
+ *   <li>{@code valuationTime}: valuation time used by the calculation engine.</li>
+ *   <li>{@code portfolioVersionTime}: the time of the portfolio version used in the calculations.</li>
+ *   <li>{@code portfolioCorrectionTime}: the correction time of the portfolio version used in the calculations.</li>
+ *   <li>{@code marketDataProviders}: JSON array spcifying the market data providers.
+ *   See {@link com.opengamma.web.server.push.analytics.MarketDataSpecificationJsonReader MarketDataSpecificationJsonReader}
+ *   for details.</li>
  * </ul>
  * <p>The response header will contain the location of the new view. To close a view the client should make a
  * {@code DELETE} request to the view's location.</p>
@@ -130,10 +154,10 @@
  * <h3>Grid Structure</h3>
  * <p>To retrieve the row and column structure for each grid the client should make a {@code GET} request to:</p>
  * <pre>
- *   /jax/views/{viewId}/portfolio/grid
- *   /jax/views/{viewId}/primitives/grid
- *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}/grid
- *   /jax/views/{viewId}/primitives/depgraphs/{graphId}/grid
+ *   /jax/views/{viewId}/portfolio
+ *   /jax/views/{viewId}/primitives
+ *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}
+ *   /jax/views/{viewId}/primitives/depgraphs/{graphId}
  * </pre>
  * <p>TODO document the grid structure JSON</p>
  *
@@ -146,19 +170,26 @@
  *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}/viewports
  *   /jax/views/{viewId}/primitives/depgraphs/{graphId}/viewports
  * </pre>
- * <p>The request must contain parameters called {@code rows} and {@code columns} with a list of the row and
- * column indices that define the viewport.</p>
+ * <p>The request must contain parameters specifying which cells the viewport should contain. These can be either:
+ * <ul>
+ *   <li>{@code rows} and {@code columns} containing the row and column indices in the viewport. This
+ *   creates a rectangular viewport.</li>
+ *   <li>{@code cells} containing the row and column index for each cell in the viewport as a comma-separated pair,
+ *   e.g. '10,12'.</li>
+ * </ul>
  * <p>The response header will contain the location of the new viewport. To close the viewport the client should make
- * a {@code DELETE} request to the view's location.</p>
+ * a {@code DELETE} request to the viewport's location.</p>
  *
  * <h3>Viewport Data</h3>
  * <p>To retrieve data for the viewport the client must make a {@code GET} request to:</p>
  * <pre>
- *   /jax/views/{viewId}/portfolio/viewports/{viewportId}/data
- *   /jax/views/{viewId}/primitives/viewports/{viewportId}/data
- *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}/viewports/{viewportId}/data
- *   /jax/views/{viewId}/primitives/depgraphs/{graphId}/viewports/{viewportId}/data
+ *   /jax/views/{viewId}/portfolio/viewports/{viewportId}
+ *   /jax/views/{viewId}/primitives/viewports/{viewportId}
+ *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}/viewports/{viewportId}
+ *   /jax/views/{viewId}/primitives/depgraphs/{graphId}/viewports/{viewportId}
  * </pre>
+ * <p>The data is returned as an array of objects for each cell by row and then by column. The order of cell or
+ * indices in the parameters used to create the viewport is ignored.</p>
  * <p>TODO document data JSON</p>
  *
  * <p>TODO async updates</p>

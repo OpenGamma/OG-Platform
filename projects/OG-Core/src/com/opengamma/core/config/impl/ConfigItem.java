@@ -162,7 +162,6 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
     return super.propertyGet(propertyName, quiet);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
@@ -190,7 +189,7 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
         setCorrectionToInstant((Instant) newValue);
         return;
       case 3575610:  // type
-        setType((Class<T>) newValue);
+        setType((Class<?>) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -437,7 +436,7 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
    * Gets the the {@code type} property.
    * @return the property, not null
    */
-  public final Property<Class<T>> type() {
+  public final Property<Class<?>> type() {
     return metaBean().type().createProperty(this);
   }
 
@@ -492,7 +491,7 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
      * The meta-property for the {@code type} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Class<T>> _type = DirectMetaProperty.ofReadWrite(
+    private final MetaProperty<Class<?>> _type = DirectMetaProperty.ofReadWrite(
         this, "type", ConfigItem.class, (Class) Class.class);
     /**
      * The meta-properties.
@@ -614,7 +613,7 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
      * The meta-property for the {@code type} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Class<T>> type() {
+    public final MetaProperty<Class<?>> type() {
       return _type;
     }
 

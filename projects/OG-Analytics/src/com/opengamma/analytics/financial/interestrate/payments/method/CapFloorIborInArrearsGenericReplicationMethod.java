@@ -90,7 +90,7 @@ public class CapFloorIborInArrearsGenericReplicationMethod implements PricingMet
   /**
    * Inner class to implement the integration used in price replication.
    */
-  private class InArrearsIntegrant extends Function1D<Double, Double> {
+  private static final class InArrearsIntegrant extends Function1D<Double, Double> {
 
     /**
      * The base method for the pricing of standard cap/floors.

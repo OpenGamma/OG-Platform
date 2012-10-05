@@ -7,6 +7,9 @@ package com.opengamma.analytics.financial.interestrate;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.time.calendar.Period;
 
 import org.testng.annotations.Test;
@@ -42,6 +45,7 @@ import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.DeliverableSwapFuturesSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
@@ -60,6 +64,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFlo
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounded;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
@@ -291,13 +296,21 @@ public class InstrumentDerivativeVisitorTest {
     }
 
     @Override
-    public Class<?>[] visit(final InstrumentDerivative[] derivative, final Object data) {
-      return visit(derivative, data);
+    public Class<?>[] visit(final InstrumentDerivative[] derivatives, final Object data) {
+      List<Class<?>> results = new ArrayList<Class<?>>();
+      for (InstrumentDerivative derivative : derivatives) {
+        results.add(derivative.accept(this, data));
+      }
+      return results.toArray(new Class[0]);
     }
 
     @Override
-    public Class<?>[] visit(final InstrumentDerivative[] derivative) {
-      return visit(derivative);
+    public Class<?>[] visit(final InstrumentDerivative[] derivatives) {
+      List<Class<?>> results = new ArrayList<Class<?>>();
+      for (InstrumentDerivative derivative : derivatives) {
+        results.add(derivative.accept(this));
+      }
+      return results.toArray(new Class[0]);
     }
 
     @Override
@@ -724,6 +737,28 @@ public class InstrumentDerivativeVisitorTest {
 
     @Override
     public Class<?> visitAnnuityCouponIborSpread(AnnuityCouponIborSpread annuity) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitCouponIborCompounded(CouponIborCompounded payment) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public Class<?> visitCouponIborCompounded(CouponIborCompounded payment, Object data) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public Class<?> visitDeliverableSwapFuturesSecurity(DeliverableSwapFuturesSecurity futures, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitDeliverableSwapFuturesSecurity(DeliverableSwapFuturesSecurity futures) {
       return null;
     }
 

@@ -77,7 +77,7 @@ public class BondCouponPaymentDiaryFunction extends NonCompiledInvoker {
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final BondSecurity security = (BondSecurity) target.getSecurity();
     final BondFixedSecurityDefinition bond = (BondFixedSecurityDefinition) security.accept(_visitor);
-    final AnnuityCouponFixedDefinition coupons = bond.getCoupon();
+    final AnnuityCouponFixedDefinition coupons = bond.getCoupons();
     final int n = coupons.getNumberOfPayments();
     final LocalDate[] dates = new LocalDate[n];
     final double[] payments = new double[n];

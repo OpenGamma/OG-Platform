@@ -38,12 +38,12 @@ public class ClientConnectionTest {
   private static final UniqueId _uid1 = UniqueId.of("Tst", "101");
   private static final UniqueId _uid2 = UniqueId.of("Tst", "102");
 
-  private RestUpdateListener _listener;
+  private UpdateListener _listener;
   private ClientConnection _connection;
 
   @BeforeMethod
   public void setUp() throws Exception {
-    _listener = mock(RestUpdateListener.class);
+    _listener = mock(UpdateListener.class);
     ConnectionTimeoutTask timeoutTask = mock(ConnectionTimeoutTask.class);
     _connection = new ClientConnection(USER_ID, CLIENT_ID, _listener, timeoutTask);
   }

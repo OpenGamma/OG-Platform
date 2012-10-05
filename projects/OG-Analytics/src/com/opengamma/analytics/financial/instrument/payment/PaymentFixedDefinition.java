@@ -31,15 +31,7 @@ public class PaymentFixedDefinition extends PaymentDefinition {
    */
   public PaymentFixedDefinition(final Currency currency, final ZonedDateTime paymentDate, final double amount) {
     super(currency, paymentDate);
-    this._amount = amount;
-  }
-
-  /**
-   * Gets the amount field.
-   * @return the amount
-   */
-  public double getAmount() {
-    return _amount;
+    _amount = amount;
   }
 
   @Override
@@ -80,7 +72,7 @@ public class PaymentFixedDefinition extends PaymentDefinition {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     ArgumentChecker.isTrue(yieldCurveNames.length > 0, "at least one curve required");
-    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
+    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date {} is after payment date {}", date, getPaymentDate());
     final String fundingCurveName = yieldCurveNames[0];
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
     return new PaymentFixed(getCurrency(), paymentTime, _amount, fundingCurveName);
@@ -88,12 +80,12 @@ public class PaymentFixedDefinition extends PaymentDefinition {
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
-    return visitor.visitPaymentFixed(this, data);
+    return visitor.visitPaymentFixedDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
-    return visitor.visitPaymentFixed(this);
+    return visitor.visitPaymentFixedDefinition(this);
   }
 
   @Override

@@ -22,14 +22,20 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.tuple.Pair;
 
 /**
- *
+ * {@link ViewCycle} implementation that acts as a placeholder when a calculation cycle hasn't completed and there
+ * isn't a cycle available. This is cleaner than using a null cycle reference and being forced to do a null check
+ * everywhere it's used. Only a sigle instance of this class should ever exist.
  */
 /* package */ class EmptyViewCycle implements ViewCycle {
 
+  /** Reference to the empty cycle. */
   /* package */ static final EngineResourceReference<ViewCycle> REFERENCE = new EmptyViewCycleReference();
+  /** Single empty cycle instance. */
   /* package */ static final ViewCycle INSTANCE = new EmptyViewCycle();
 
+  /** Empty set of analytics results. */
   private static final InMemoryViewComputationResultModel EMPTY_RESULTS = new InMemoryViewComputationResultModel();
+  /** Empty response for a cache lookup. */
   private static final ComputationCacheResponse EMPTY_RESPONSE;
 
   static {

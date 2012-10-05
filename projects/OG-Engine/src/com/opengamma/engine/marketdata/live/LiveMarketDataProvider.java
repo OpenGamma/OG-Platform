@@ -113,7 +113,12 @@ public class LiveMarketDataProvider extends AbstractMarketDataProvider implement
 
   @Override
   public void unsubscribe(Set<ValueRequirement> valueRequirements) {
-    // TODO
+    // TODO is there any reason not to unsubscribe from _liveDataClient
+    //Set<LiveDataSpecification> specs = Sets.newHashSet();
+    //for (ValueRequirement requirement : valueRequirements) {
+    //  // TODO need a map from req to spec
+    //}
+    //_liveDataClient.unsubscribe(_marketDataUser, , this);
   }
 
   private void registerLiveDataSpec(ValueRequirement requirement, LiveDataSpecification liveDataSpec) {

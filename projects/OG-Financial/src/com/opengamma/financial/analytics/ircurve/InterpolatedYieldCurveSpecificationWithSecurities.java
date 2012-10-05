@@ -24,7 +24,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  *
  */
 public class InterpolatedYieldCurveSpecificationWithSecurities implements Serializable {
@@ -36,6 +36,7 @@ public class InterpolatedYieldCurveSpecificationWithSecurities implements Serial
   private final Currency _currency;
   private final String _name;
   private final Interpolator1D _interpolator;
+  private final boolean _interpolateYield;
   private final SortedSet<FixedIncomeStripWithSecurity> _strips = new TreeSet<FixedIncomeStripWithSecurity>();
 
   public InterpolatedYieldCurveSpecificationWithSecurities(final LocalDate curveDate, final String name, final Currency currency, final Interpolator1D interpolator,
@@ -49,6 +50,24 @@ public class InterpolatedYieldCurveSpecificationWithSecurities implements Serial
     _currency = currency;
     _name = name;
     _interpolator = interpolator;
+    _interpolateYield = true;
+    for (final FixedIncomeStripWithSecurity strip : resolvedStrips) {
+      addStrip(strip);
+    }
+  }
+
+  public InterpolatedYieldCurveSpecificationWithSecurities(final LocalDate curveDate, final String name, final Currency currency, final Interpolator1D interpolator,
+      final boolean interpolateYield, final Collection<FixedIncomeStripWithSecurity> resolvedStrips) {
+    Validate.notNull(curveDate, "CurveDate");
+    Validate.notNull(currency, "Currency");
+    Validate.notNull(interpolator, "Interpolator1D");
+    Validate.notNull(resolvedStrips, "ResolvedStrips");
+    // Name can be null.
+    _curveDate = curveDate;
+    _currency = currency;
+    _name = name;
+    _interpolator = interpolator;
+    _interpolateYield = interpolateYield;
     for (final FixedIncomeStripWithSecurity strip : resolvedStrips) {
       addStrip(strip);
     }
@@ -87,6 +106,9 @@ public class InterpolatedYieldCurveSpecificationWithSecurities implements Serial
     return _interpolator;
   }
 
+  public boolean interpolateYield() {
+    return _interpolateYield;
+  }
   /**
    * @return the strips
    */
@@ -116,6 +138,9 @@ public class InterpolatedYieldCurveSpecificationWithSecurities implements Serial
       return false;
     }
     if (!ObjectUtils.equals(_strips, other._strips)) {
+      return false;
+    }
+    if (_interpolateYield != other._interpolateYield) {
       return false;
     }
     return true;

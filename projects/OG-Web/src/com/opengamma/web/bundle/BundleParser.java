@@ -5,9 +5,9 @@
  */
 package com.opengamma.web.bundle;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,9 +43,13 @@ public class BundleParser {
   private static final String ID_ATTR = "id";
 
   /**
-   * The base directory for the fragments.
+   * The URI provider for fragment references.
    */
-  private File _baseDir;
+  private final UriProvider _fragmentUriProvider;
+  /**
+   * The base path.
+   */
+  private final String _basePath;
   /**
    * The bundle manager to populate.
    */
@@ -58,34 +62,14 @@ public class BundleParser {
   /**
    * Creates a parser
    * 
+   * @param fragmentUriProvider  the URI provider for fragments, not null
+   * @param basePath  the base path, not null
    */
-  public BundleParser() {
-  }
-
-  /**
-   * Gets the base directory.
-   * 
-   * @return the base directory, not null
-   */
-  public File getBaseDir() {
-    return _baseDir;
-  }
-
-  /**
-   * Sets the base directory.
-   * 
-   * @param baseDir  the base directory, not null
-   */
-  public void setBaseDir(File baseDir) {
-    validateFile(baseDir);
-    _bundleManager.setBaseDir(baseDir);
-    _baseDir = baseDir;
-  }
-
-  private void validateFile(File baseDir) {
-    if (baseDir != null) {
-      ArgumentChecker.isTrue(baseDir.exists(), baseDir + " does not exist");
-    }
+  public BundleParser(UriProvider fragmentUriProvider, String basePath) {
+    ArgumentChecker.notNull(fragmentUriProvider, "fragmentUriProvider");
+    ArgumentChecker.notNull(basePath, "basePath");
+    _fragmentUriProvider = fragmentUriProvider;
+    _basePath = basePath.startsWith("/") ? basePath : "/" + basePath;
   }
 
   //-------------------------------------------------------------------------
@@ -151,9 +135,10 @@ public class BundleParser {
     throw new OpenGammaRuntimeException("invalid fragment value while parsing bundle xml file");
   }
 
-
   private BundleNode createBundleFragment(String fragment) {
-    return new Fragment(new File(_baseDir, fragment));
+    URI fragmentUri = getFragmentUriProvider().getUri(fragment);
+    String fragmentPath = getBasePath() + fragment;
+    return new Fragment(fragmentUri, fragmentPath);
   }
 
   private void processRefBundle(Bundle bundle, Element element) {
@@ -244,6 +229,14 @@ public class BundleParser {
       s_logger.warn("Unable to create a DOM parser", e);
     }
     return builder;
+  }
+  
+  private UriProvider getFragmentUriProvider() {
+    return _fragmentUriProvider;
+  }
+  
+  private String getBasePath() {
+    return _basePath;
   }
 
 }

@@ -255,7 +255,7 @@ public final class ForexOptionVanillaBlackSmileMethod implements ForexPricingMet
   }
 
   /**
-   * Computes the gamma of the Forex option. The gamma is the second order derivative of the pv.
+   * Computes the gamma of the Forex option. The gamma is the second order derivative of the option present value to the spot fx rate.
    * @param optionForex The Forex option.
    * @param curves The yield curve bundle.
    * @param directQuote Flag indicating if the gamma should be computed with respect to the direct quote (1 foreign = x domestic) or the reverse quote (1 domestic = x foreign)
@@ -308,7 +308,8 @@ public final class ForexOptionVanillaBlackSmileMethod implements ForexPricingMet
   }
 
   /**
-   * Computes the Vanna (2nd order cross-sensitivity of the present value to the spot fx and implied vol), 
+   * Computes the Vanna (2nd order cross-sensitivity of the option present value to the spot fx and implied vol),
+   *  
    * $\frac{\partial^2 (PV)}{\partial FX \partial \sigma}$ 
    * @param optionForex The Forex option.
    * @param curves The yield curve bundle.
@@ -325,13 +326,14 @@ public final class ForexOptionVanillaBlackSmileMethod implements ForexPricingMet
     final double forward = spot * dfForeign / dfDomestic;
     final double volatility = FXVolatilityUtils.getVolatility(smile, optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
     final double sign = (optionForex.isLong() ? 1.0 : -1.0);
-    final double vanna = BlackFormulaRepository.vanna(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility)
+    final double vanna = dfForeign * BlackFormulaRepository.vanna(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility)
         * sign * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount());
+
     return CurrencyAmount.of(optionForex.getUnderlyingForex().getCurrency2(), vanna);
   }
 
   /**
-   * Computes the Vomma (aka Volga) (2nd order sensitivity of the price to the implied vol)
+   * Computes the Vomma (aka Volga) (2nd order sensitivity of the option present value to the implied vol)
    * @param optionForex The Forex option.
    * @param curves The yield curve bundle.
    * @return The Volga. In the same currency as present value.
@@ -346,13 +348,13 @@ public final class ForexOptionVanillaBlackSmileMethod implements ForexPricingMet
     final double forward = spot * dfForeign / dfDomestic;
     final double volatility = FXVolatilityUtils.getVolatility(smile, optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
     final double sign = (optionForex.isLong() ? 1.0 : -1.0);
-    final double vomma = BlackFormulaRepository.vomma(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility) * sign
+    final double vomma = dfDomestic * BlackFormulaRepository.vomma(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility) * sign
         * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount());
     return CurrencyAmount.of(optionForex.getUnderlyingForex().getCurrency2(), vomma);
   }
 
   /**
-   * Computes the Volga (aka Vomma) (2nd order sensitivity of the price to the implied vol)
+   * Computes the Volga (aka Vomma) (2nd order sensitivity of the option present value to the implied vol)
    * @param optionForex The Forex option.
    * @param curves The yield curve bundle.
    * @return The Volga. In the same currency as present value.

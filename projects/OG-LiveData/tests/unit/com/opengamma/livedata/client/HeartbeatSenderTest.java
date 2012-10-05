@@ -50,6 +50,7 @@ public class HeartbeatSenderTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test(invocationCount = 5, successPercentage = 19)
   public void basicOperation() throws InterruptedException, IOException {
     CollectingByteArrayMessageSender messageSender = new CollectingByteArrayMessageSender();
     ValueDistributor valueDistributor = new ValueDistributor();

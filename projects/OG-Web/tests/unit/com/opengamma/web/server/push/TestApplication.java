@@ -10,8 +10,6 @@ import java.util.Set;
 
 import javax.ws.rs.core.Application;
 
-import com.opengamma.web.server.push.rest.ViewportDefinitionMessageBodyReader;
-
 /**
  *
  */
@@ -22,7 +20,6 @@ public class TestApplication extends Application {
     HashSet<Class<?>> classes = new HashSet<Class<?>>();
     classes.add(TestResource.class);
     classes.add(TestSubResources.class);
-    classes.add(ViewportDefinitionMessageBodyReader.class);
     return classes;
   }
 }

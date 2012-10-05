@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.server.push;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.UniqueId;
 import com.opengamma.web.server.push.rest.MasterType;
@@ -55,4 +56,15 @@ public interface ConnectionManager {
    * @param masterType The type of master which should trigger the update
    */
   void subscribe(String userId, String clientId, MasterType masterType, String url);
+
+  /**
+   * Returns the {@link ClientConnection} for a given client ID.
+   * @param userId ID of the user
+   * @param clientId ID of the connection
+   * @return The connection for the specified client ID
+   * @throws DataNotFoundException If there is no connection with the specified client ID or if the connection
+   * doesn't belong to the specified user
+   */
+  ClientConnection getConnectionByClientId(String userId, String clientId);
+
 }

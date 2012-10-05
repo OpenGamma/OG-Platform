@@ -347,6 +347,21 @@ public class ExternalSchemes {
     return ExternalId.of(SURF, ticker);
   }
 
+  /**
+   * Creates an ICAP ticker.
+   * <p>
+   * This is the ticker used by ICAP.
+   * 
+   * @param ticker The ICAP ticker, not null
+   * @return The security identifier, not null
+   */
+  public static ExternalId icapSecurityId(final String ticker) {
+    ArgumentChecker.notNull(ticker, "ticker");
+    if (ticker.length() == 0) {
+      throw new IllegalArgumentException("Ticker is invalid: " + ticker);
+    }
+    return ExternalId.of(ICAP, ticker);
+  }
   // -------------------------- METHODS FOR REGIONS ---------------------------
 
   /**

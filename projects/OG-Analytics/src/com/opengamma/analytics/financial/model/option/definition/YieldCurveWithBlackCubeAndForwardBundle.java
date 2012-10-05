@@ -30,6 +30,7 @@ public class YieldCurveWithBlackCubeAndForwardBundle extends YieldCurveBundle {
    * Constructor from Black volatility curve and curve bundle.
    * @param parameters The Black volatility cube.
    * @param curves Curve bundle.
+   * @param forward The forward.
    */
   public YieldCurveWithBlackCubeAndForwardBundle(final Surface<Double, Double, Double> parameters, final YieldCurveBundle curves, final double forward) {
     super(curves);

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.util.time;
@@ -60,7 +60,7 @@ public class Expiry implements InstantProvider, Serializable {
    * Gets the expiry date-time.
    * @return the date-time
    */
-  // we probably don't need this.
+  // TODO Consider changing this to getZonedDateTime
   public ZonedDateTime getExpiry() {
     return _expiry;
   }
@@ -98,7 +98,7 @@ public class Expiry implements InstantProvider, Serializable {
 
   /**
    * Compares two expiry dates for equality to the given level of accuracy only.
-   * 
+   *
    * @param accuracy  the accuracy to compare to, not null
    * @param expiry1  the first date/time to compare, not null
    * @param expiry2  the second date/time to compare, not null
@@ -141,7 +141,7 @@ public class Expiry implements InstantProvider, Serializable {
   /**
    * This is for more efficient code within the .proto representations of securities, allowing this class
    * to be used directly as a message type instead of through the serialization framework.
-   * 
+   *
    * @param serializer  the serializer, not null
    * @param msg  the message to populate, not null
    * @deprecated Use builder
@@ -154,7 +154,7 @@ public class Expiry implements InstantProvider, Serializable {
   /**
    * This is for more efficient code within the .proto representations of securities, allowing this class
    * to be used directly as a message type instead of through the serialization framework.
-   * 
+   *
    * @param deserializer  the deserializer, not null
    * @param msg  the message to decode, not null
    * @return the created object, not null

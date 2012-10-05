@@ -237,51 +237,59 @@ public class PDEUtilityTools {
     Validate.isTrue(xSteps > 0, "need xSteps > 0");
     Validate.isTrue(ySteps > 0, "need ySteps > 0");
 
-    String result = "";
-    result += name;
-    result += "\n";
-    //System.out.println(name);
+    StringBuffer result = new StringBuffer(name);
+    result.append("\n");
     for (int i = 0; i <= ySteps; i++) {
       final double y = yMin + ((yMax - yMin) * i) / ySteps;
-      result += ("\t" + y);
+      result.append("\t");
+      result.append(y);
     }
-    result += "\n";
+    result.append("\n");
 
     for (int j = 0; j <= xSteps; j++) {
       final double t = xMin + ((xMax - xMin) * j) / xSteps;
-      result += t;
+      result.append(t);
       for (int i = 0; i <= ySteps; i++) {
         final double k = yMin + ((yMax - yMin) * i) / ySteps;
-        result += "\t" + surface.getZValue(t, k);
+        result.append("\t");
+        result.append(surface.getZValue(t, k));
       }
-      result += "\n";
+      result.append("\n");
     }
-    result += "\n";
+    result.append("\n");
     System.out.println(result);
   }
 
-  /** This form takes vectors of x (typically expiry) and y (typically strike) */
+  /** 
+   * This form takes vectors of x (typically expiry) and y (typically strike) 
+   *
+   * @param name The name
+   * @param surface The surface
+   * @param x The x values
+   * @param y The y values
+   */
   public static void printSurface(final String name, final Surface<Double, Double, Double> surface, final double[] x, final double[] y) {
     Validate.isTrue(x.length > 0, "The x-array was empty");
     Validate.isTrue(y.length > 0, "The y-array was empty");
 
-    String result = "";
-    result += name;
-    result += "\n";
+    StringBuffer result = new StringBuffer(name);
+    result.append("\n");
     for (int i = 0; i < y.length; i++) {
-      result += ("\t" + y[i]);
+      result.append("\t");
+      result.append(y[i]);
     }
-    result += "\n";
+    result.append("\n");
     for (int j = 0; j < x.length; j++) {
       final double t = x[j];
-      result += t;
+      result.append(t);
       for (int i = 0; i < y.length; i++) {
         final double k = y[i];
-        result += "\t" + surface.getZValue(t, k);
+        result.append("\t");
+        result.append(surface.getZValue(t, k));
       }
-      result += "\n";
+      result.append("\n");
     }
-    result += "\n";
+    result.append("\n");
     System.out.println(result);
   }
 

@@ -105,6 +105,7 @@ public class Loader extends ContextInitializationBean {
     s_logger.info("Configuring view processor support");
     globalContext.setViewProcessor(new RemoteViewProcessor(uri, getJmsConnector(), getHousekeepingScheduler()));
     globalContext.getFunctionProvider().addProvider(new FunctionProviderBean(
+        FetchViewDefinitionFunction.INSTANCE,
         GetViewPortfolioFunction.INSTANCE, 
         GetViewResultFunction.INSTANCE,
         HistoricalExecutionSequenceFunction.INSTANCE,

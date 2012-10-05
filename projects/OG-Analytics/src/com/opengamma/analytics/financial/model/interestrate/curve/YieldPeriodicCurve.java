@@ -10,10 +10,13 @@ import java.util.List;
 
 import org.apache.commons.lang.ObjectUtils;
 
+import com.opengamma.analytics.financial.interestrate.ContinuousInterestRate;
 import com.opengamma.analytics.financial.interestrate.InterestRate;
 import com.opengamma.analytics.financial.interestrate.PeriodicInterestRate;
 import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.analytics.math.curve.DoublesCurve;
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -52,6 +55,27 @@ public class YieldPeriodicCurve extends YieldAndDiscountCurve {
   public static YieldPeriodicCurve from(final int compoundingPeriodsPerYear, final DoublesCurve yieldCurve) {
     ArgumentChecker.notNull(yieldCurve, "Curve");
     return new YieldPeriodicCurve(yieldCurve.getName(), compoundingPeriodsPerYear, yieldCurve);
+  }
+
+  /**
+   * Builder of an interpolated discount factor curve from yields (continuously compounded).
+   * @param nodePoints The node points for the interpolated curve.
+   * @param yields The yields (cc) at the node points.
+   * @param compoundingPeriodsPerYear The number of composition periods per year for the storage curve (1 for annual, 2 for semi-annual, etc.).
+   * @param interpolator The period yield interpolator.
+   * @param name The curve name.
+   * @return The periodic yield curve.
+   */
+  public static YieldPeriodicCurve fromYieldsInterpolated(final double[] nodePoints, final double[] yields, final int compoundingPeriodsPerYear, final Interpolator1D interpolator, final String name) {
+    int nbYields = yields.length;
+    ArgumentChecker.isTrue(nodePoints.length == nbYields, "Yields array of incorrect length");
+    double[] yieldPeriodic = new double[nbYields];
+    for (int loopy = 0; loopy < nbYields; loopy++) {
+      InterestRate continous = new ContinuousInterestRate(yields[loopy]);
+      yieldPeriodic[loopy] = continous.toPeriodic(compoundingPeriodsPerYear).getRate();
+    }
+    InterpolatedDoublesCurve curve = new InterpolatedDoublesCurve(nodePoints, yieldPeriodic, interpolator, false);
+    return new YieldPeriodicCurve(name, compoundingPeriodsPerYear, curve);
   }
 
   @Override

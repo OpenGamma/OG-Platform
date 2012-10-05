@@ -35,9 +35,9 @@ public class Forex implements InstrumentDerivative {
   public Forex(PaymentFixed paymentCurrency1, PaymentFixed paymentCurrency2) {
     Validate.notNull(paymentCurrency1, "Payment 1");
     Validate.notNull(paymentCurrency2, "Payment 2");
-    Validate.isTrue(paymentCurrency1.getPaymentTime() == paymentCurrency2.getPaymentTime(), "Payments on different time");
+    Validate.isTrue(Double.doubleToLongBits(paymentCurrency1.getPaymentTime()) == Double.doubleToLongBits(paymentCurrency2.getPaymentTime()), "Payments on different time");
     Validate.isTrue((paymentCurrency1.getAmount() * paymentCurrency2.getAmount()) <= 0, "Payments with same sign");
-    Validate.isTrue(paymentCurrency1.getCurrency() != paymentCurrency2.getCurrency(), "same currency");
+    Validate.isTrue(!paymentCurrency1.getCurrency().equals(paymentCurrency2.getCurrency()), "same currency");
     this._paymentCurrency1 = paymentCurrency1;
     this._paymentCurrency2 = paymentCurrency2;
   }

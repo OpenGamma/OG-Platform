@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.master.user.impl;
@@ -21,6 +21,7 @@ import com.opengamma.core.change.ChangeType;
 import com.opengamma.id.*;
 import com.opengamma.master.user.*;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.paging.Paging;
 
 /**
  * A simple, in-memory implementation of {@code UserMaster}.
@@ -31,6 +32,7 @@ import com.opengamma.util.ArgumentChecker;
  * As such, this implementation is currently most useful for testing scenarios.
  */
 public class InMemoryUserMaster implements UserMaster {
+
   /**
    * The default scheme used for each {@link ObjectId}.
    */
@@ -74,7 +76,6 @@ public class InMemoryUserMaster implements UserMaster {
     this(objectIdSupplier, new BasicChangeManager());
   }
 
-
   /**
    * Creates an instance specifying the supplier of object identifiers and change manager.
    * 
@@ -88,13 +89,31 @@ public class InMemoryUserMaster implements UserMaster {
     _changeManager = changeManager;
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public UserDocument get(UniqueId uniqueId) {
+  public UserSearchResult search(final UserSearchRequest request) {
+    ArgumentChecker.notNull(request, "request");
+    final List<UserDocument> list = new ArrayList<UserDocument>();
+    for (UserDocument doc : _store.values()) {
+      if (request.matches(doc)) {
+        list.add(doc);
+      }
+    }
+    UserSearchResult result = new UserSearchResult();
+    result.setPaging(Paging.of(request.getPagingRequest(), list));
+    result.getDocuments().addAll(request.getPagingRequest().select(list));
+    return result;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public UserDocument get(final UniqueId uniqueId) {
     return get(uniqueId, VersionCorrection.LATEST);
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public UserDocument get(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+  public UserDocument get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     final UserDocument document = _store.get(objectId.getObjectId());
@@ -104,8 +123,9 @@ public class InMemoryUserMaster implements UserMaster {
     return document;
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public UserDocument add(UserDocument document) {
+  public UserDocument add(final UserDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getObject(), "document.user");
     
@@ -125,8 +145,9 @@ public class InMemoryUserMaster implements UserMaster {
     return doc;
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public UserDocument update(UserDocument document) {
+  public UserDocument update(final UserDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     ArgumentChecker.notNull(document.getObject(), "document.user");
@@ -150,6 +171,7 @@ public class InMemoryUserMaster implements UserMaster {
     return document;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public void remove(ObjectIdentifiable objectIdentifiable) {
     ArgumentChecker.notNull(objectIdentifiable, "objectIdentifiable");
@@ -160,27 +182,16 @@ public class InMemoryUserMaster implements UserMaster {
     _changeManager.entityChanged(ChangeType.REMOVED, removed.getObjectId(), removed.getVersionFromInstant(), removed.getVersionToInstant(), Instant.now());
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public UserDocument correct(UserDocument document) {
+  public UserDocument correct(final UserDocument document) {
     return update(document);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public ChangeManager changeManager() {
     return _changeManager;
-  }
-
-  @Override
-  public UserSearchResult search(UserSearchRequest request) {
-    List<UserDocument> docs = new LinkedList<UserDocument>();
-    
-    for (UserDocument doc : _store.values()) {
-      if (request.matches(doc)) {
-        docs.add(doc);
-      }
-    }
-    
-    return new UserSearchResult(docs);
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  

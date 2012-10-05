@@ -68,6 +68,7 @@ public class BloombergEventDispatcher extends AbstractEventDispatcher {
         
         FudgeMsg eventAsFudgeMsg = BloombergDataUtils.parseElement(msg.asElement());
         getServer().liveDataReceived(bbgUniqueId, eventAsFudgeMsg);
+        // REVIEW 2012-09-19 Andrew -- Why return? Might the event contain multiple messages?
         return;
         
       } 

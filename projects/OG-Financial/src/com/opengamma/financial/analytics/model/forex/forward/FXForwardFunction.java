@@ -61,12 +61,12 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
-    final FXForwardSecurity security = (FXForwardSecurity) target.getSecurity();
-    if (now.isAfter(security.getForwardDate())) {
-      throw new OpenGammaRuntimeException("FX forward has expired");
-    }
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency payCurrency = security.accept(ForexVisitors.getPayCurrencyVisitor());
     final Currency receiveCurrency = security.accept(ForexVisitors.getReceiveCurrencyVisitor());
+    if (now.isAfter(security.accept(ForexVisitors.getExpiryVisitor()))) {
+      throw new OpenGammaRuntimeException("FX forward " + payCurrency.getCode() + "/" + receiveCurrency + " has expired");
+    }
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String payCurveName = desiredValue.getConstraint(ValuePropertyNames.PAY_CURVE);
     final String receiveCurveName = desiredValue.getConstraint(ValuePropertyNames.RECEIVE_CURVE);
@@ -74,13 +74,11 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
     final String receiveCurveConfig = desiredValue.getConstraint(RECEIVE_CURVE_CALC_CONFIG);
     final String fullPayCurveName = payCurveName + "_" + payCurrency.getCode();
     final String fullReceiveCurveName = receiveCurveName + "_" + receiveCurrency.getCode();
-    final YieldAndDiscountCurve payFundingCurve = getCurve(inputs, payCurrency, payCurveName, payCurveConfig);
-    final YieldAndDiscountCurve receiveFundingCurve = getCurve(inputs, receiveCurrency, receiveCurveName, receiveCurveConfig);
-    final YieldAndDiscountCurve[] curves;
+    final YieldAndDiscountCurve payCurve = getPayCurve(inputs, payCurrency, payCurveName, payCurveConfig);
+    final YieldAndDiscountCurve receiveCurve = getReceiveCurve(inputs, receiveCurrency, receiveCurveName, receiveCurveConfig);
     final Map<String, Currency> curveCurrency = new HashMap<String, Currency>();
     curveCurrency.put(fullPayCurveName, payCurrency);
     curveCurrency.put(fullReceiveCurveName, receiveCurrency);
-    final String[] allCurveNames;
     final Object baseQuotePairsObject = inputs.getValue(ValueRequirementNames.CURRENCY_PAIRS);
     if (baseQuotePairsObject == null) {
       throw new OpenGammaRuntimeException("Could not get base/quote pair data");
@@ -90,13 +88,11 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
     if (baseQuotePair == null) {
       throw new OpenGammaRuntimeException("Could not get base/quote pair for currency pair (" + payCurrency + ", " + receiveCurrency + ")");
     }
-    if (baseQuotePair.getBase().equals(payCurrency)) { // To get Base/quote in market standard order.
-      curves = new YieldAndDiscountCurve[] {payFundingCurve, receiveFundingCurve};
-      allCurveNames = new String[] {fullPayCurveName, fullReceiveCurveName};
-    } else {
-      curves = new YieldAndDiscountCurve[] {receiveFundingCurve, payFundingCurve};
-      allCurveNames = new String[] {fullReceiveCurveName, fullPayCurveName};
-    }
+    final YieldAndDiscountCurve[] curves;
+    final String[] allCurveNames;
+    curves = new YieldAndDiscountCurve[] {payCurve, receiveCurve};
+    allCurveNames = new String[] {fullPayCurveName, fullReceiveCurveName};
+    // Implementation note: The ForexSecurityConverter create the Forex with currency order pay/receive. The curve are passed in the same order.
     final ForexSecurityConverter converter = new ForexSecurityConverter(baseQuotePairs);
     final InstrumentDefinition<?> definition = security.accept(converter);
     final Forex forex = (Forex) definition.toDerivative(now, allCurveNames);
@@ -155,8 +151,8 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency payCurrency = security.accept(ForexVisitors.getPayCurrencyVisitor());
     final Currency receiveCurrency = security.accept(ForexVisitors.getReceiveCurrencyVisitor());
-    final ValueRequirement payFundingCurve = getCurveRequirement(payCurveName, payCurrency, payCurveCalculationConfig);
-    final ValueRequirement receiveFundingCurve = getCurveRequirement(receiveCurveName, receiveCurrency, receiveCurveCalculationConfig);
+    final ValueRequirement payFundingCurve = getPayCurveRequirement(payCurveName, payCurrency, payCurveCalculationConfig);
+    final ValueRequirement receiveFundingCurve = getReceiveCurveRequirement(receiveCurveName, receiveCurrency, receiveCurveCalculationConfig);
     final UnorderedCurrencyPair currencyPair = UnorderedCurrencyPair.of(payCurrency, receiveCurrency);
     final ValueRequirement pairQuoteRequirement = new ValueRequirement(ValueRequirementNames.CURRENCY_PAIRS, ComputationTargetType.PRIMITIVE, currencyPair.getUniqueId());
     return Sets.newHashSet(payFundingCurve, receiveFundingCurve, pairQuoteRequirement);
@@ -170,15 +166,33 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
     return _valueRequirementName;
   }
 
-  protected static ValueRequirement getCurveRequirement(final String curveName, final Currency currency, final String curveCalculationConfigName) {
+  protected static ValueRequirement getPayCurveRequirement(final String curveName, final Currency currency, final String curveCalculationConfigName) {
     final ValueProperties.Builder properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, curveName)
-        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName);
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
+        .withOptional(ValuePropertyNames.PAY_CURVE);
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, currency.getUniqueId(), properties.get());
   }
 
-  protected static YieldAndDiscountCurve getCurve(final FunctionInputs inputs, final Currency currency, final String curveName, final String curveCalculationConfig) {
-    final Object curveObject = inputs.getValue(getCurveRequirement(curveName, currency, curveCalculationConfig));
+  protected static YieldAndDiscountCurve getPayCurve(final FunctionInputs inputs, final Currency currency, final String curveName, final String curveCalculationConfig) {
+    final Object curveObject = inputs.getValue(getPayCurveRequirement(curveName, currency, curveCalculationConfig));
+    if (curveObject == null) {
+      throw new OpenGammaRuntimeException("Could not get " + curveName + " curve");
+    }
+    final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) curveObject;
+    return curve;
+  }
+
+  protected static ValueRequirement getReceiveCurveRequirement(final String curveName, final Currency currency, final String curveCalculationConfigName) {
+    final ValueProperties.Builder properties = ValueProperties.builder()
+        .with(ValuePropertyNames.CURVE, curveName)
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
+        .withOptional(ValuePropertyNames.RECEIVE_CURVE);
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, currency.getUniqueId(), properties.get());
+  }
+
+  protected static YieldAndDiscountCurve getReceiveCurve(final FunctionInputs inputs, final Currency currency, final String curveName, final String curveCalculationConfig) {
+    final Object curveObject = inputs.getValue(getReceiveCurveRequirement(curveName, currency, curveCalculationConfig));
     if (curveObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + curveName + " curve");
     }

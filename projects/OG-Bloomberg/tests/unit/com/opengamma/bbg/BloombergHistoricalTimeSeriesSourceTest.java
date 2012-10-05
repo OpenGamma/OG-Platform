@@ -10,7 +10,6 @@ import static com.opengamma.bbg.BloombergConstants.DATA_PROVIDER_UNKNOWN;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.fail;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,6 +26,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.opengamma.bbg.historicaltimeseries.BloombergHistoricalTimeSeriesProvider;
 import com.opengamma.bbg.test.BloombergTestUtils;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
@@ -41,6 +41,7 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 @Test(groups = "integration")
 public class BloombergHistoricalTimeSeriesSourceTest {
   
+  private BloombergHistoricalTimeSeriesProvider _provider;
   private HistoricalTimeSeriesSource _source;
   private ExternalIdBundle _secDes = ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("IBM US Equity"));
   private static final String DEFAULT_DATA_PROVIDER = DATA_PROVIDER_UNKNOWN;
@@ -50,19 +51,18 @@ public class BloombergHistoricalTimeSeriesSourceTest {
   @BeforeMethod
   public void setUp() throws Exception {
     BloombergConnector connector = BloombergTestUtils.getBloombergConnector();
-    BloombergHistoricalTimeSeriesSource source = new BloombergHistoricalTimeSeriesSource(connector);
-    
-    source.start();
-    _source = source;
+    _provider = new BloombergHistoricalTimeSeriesProvider(connector);
+    _source = new BloombergHistoricalTimeSeriesSource(_provider);
+    _provider.start();
   }
 
   @AfterMethod
   public void tearDown() throws Exception {
-    BloombergHistoricalTimeSeriesSource dataProvider = (BloombergHistoricalTimeSeriesSource) _source;
-    if (dataProvider != null) {
-      dataProvider.stop();
+    if (_provider != null) {
+      _provider.stop();
     }
     _source = null;
+    _provider = null;
   }
 
   //-------------------------------------------------------------------------
@@ -143,20 +143,6 @@ public class BloombergHistoricalTimeSeriesSourceTest {
     
     // does it contain the expected data points?
     assertEquals(reference.getTimeSeries(), hts.getTimeSeries()); 
-  }
-
-  @Test
-  public void getHistoricalTimeSeriesWithPositiveMaxPoints() throws Exception {
-    LocalDate endDate = LocalDate.of(2012, 03, 07);
-    LocalDate startDate = endDate.minusMonths(1);
-    for (int maxPoints : new int[] {1, 2, 3, 4, 5}) {
-      try {
-        _source.getHistoricalTimeSeries(_secDes,  DEFAULT_DATA_SOURCE, DEFAULT_DATA_PROVIDER, PX_LAST, startDate, true, endDate, true, maxPoints);
-        fail("positive maxPoints should not be allowed when fetching bloomberg timeseries");
-      } catch (UnsupportedOperationException ex) {
-        // expected
-      }
-    }
   }
 
   @Test

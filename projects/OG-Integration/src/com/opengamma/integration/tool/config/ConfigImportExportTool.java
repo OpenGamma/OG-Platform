@@ -15,7 +15,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import com.opengamma.component.factory.tool.RemoteComponentFactoryToolContextAdapter;
+import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.util.generate.scripts.Scriptable;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
@@ -25,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.tool.ToolContext;
-import com.opengamma.component.tool.AbstractComponentTool;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 
@@ -33,21 +33,22 @@ import com.opengamma.master.portfolio.PortfolioMaster;
  * Tool to read currency pairs from a text file and store them in the config master.
  * The pairs must be in the format AAA/BBB, one per line in the file.
  */
-public class ConfigImportExportTool extends AbstractComponentTool {
+@Scriptable
+public class ConfigImportExportTool extends AbstractTool<ToolContext> {
   private static final Logger s_logger = LoggerFactory.getLogger(ConfigImportExportTool.class);
 
   /**
    * Main method to run the tool.
    */
   public static void main(String[] args) {  // CSIGNORE
-    new ConfigImportExportTool().initAndRun(args);
+    new ConfigImportExportTool().initAndRun(args, ToolContext.class);
     System.exit(0);
   }
 
   //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
-    ToolContext toolContext = new RemoteComponentFactoryToolContextAdapter(getRemoteComponentFactory());
+    ToolContext toolContext = getToolContext();
     ConfigMaster configMaster = toolContext.getConfigMaster();
     PortfolioMaster portfolioMaster = toolContext.getPortfolioMaster();
     CommandLine commandLine = getCommandLine();
@@ -150,8 +151,9 @@ public class ConfigImportExportTool extends AbstractComponentTool {
     }
   }
 
-  protected Options createOptions() {
-    Options options = super.createOptions();
+  @Override
+  protected Options createOptions(boolean mandatoryConfig) {
+    Options options = super.createOptions(mandatoryConfig);
     options.addOption(createTypeOption());
     options.addOption(createSearchOption());
     options.addOption(createLoadOption());
@@ -230,7 +232,8 @@ public class ConfigImportExportTool extends AbstractComponentTool {
   protected Class<?> getEntryPointClass() {
     return getClass();
   }
-  
+
+  @Override
   protected void usage(Options options) {
     HelpFormatter formatter = new HelpFormatter();
     formatter.setWidth(120);

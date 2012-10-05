@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.volatility.surface;
@@ -20,7 +20,9 @@ import com.opengamma.id.ExternalScheme;
 
 /**
  * Generates equity option Bloomberg ticker codes from ATM strike (set via init()), tenor, double and date).
+ * @deprecated This has been replaced by BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider
  */
+@Deprecated
 public class BloombergEquityOptionVolatilitySurfaceInstrumentProvider implements SurfaceInstrumentProvider<LocalDate, Double> {
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergEquityOptionVolatilitySurfaceInstrumentProvider.class);
   private static final ExternalScheme SCHEME = ExternalSchemes.BLOOMBERG_TICKER_WEAK;

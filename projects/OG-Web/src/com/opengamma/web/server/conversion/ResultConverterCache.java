@@ -29,6 +29,8 @@ import com.opengamma.engine.view.cache.MissingMarketDataSentinel;
 import com.opengamma.financial.analytics.LabelledMatrix1D;
 import com.opengamma.financial.analytics.LabelledMatrix2D;
 import com.opengamma.financial.analytics.LabelledMatrix3D;
+import com.opengamma.financial.analytics.PaymentScheduleMatrix;
+import com.opengamma.financial.analytics.ResetScheduleMatrix;
 import com.opengamma.util.ClassMap;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -41,17 +43,17 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 public class ResultConverterCache {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ResultConverterCache.class);
-  
+
   private final DoubleConverter _doubleConverter;
   private final ResultConverter<Object> _genericConverter;
   private final ClassMap<ResultConverter<?>> _converterMap;
 
   private final Map<String, ResultConverter<?>> _valueNameConverterCache = new ConcurrentHashMap<String, ResultConverter<?>>();
 
-  public ResultConverterCache(FudgeContext fudgeContext) {
+  public ResultConverterCache(final FudgeContext fudgeContext) {
     _genericConverter = new ToStringConverter();
     _doubleConverter = new DoubleConverter();
-    ResultConverter<Object> primitiveConverter = new PrimitiveConverter();
+    final ResultConverter<Object> primitiveConverter = new PrimitiveConverter();
 
     // Add standard custom converters here
     _converterMap = new ClassMap<ResultConverter<?>>();
@@ -81,14 +83,15 @@ public class ResultConverterCache {
     registerConverter(Double[][].class, new DoubleObjectArrayConverter());
     registerConverter(List.class, new ListDoubleArrayConverter());
     registerConverter(PresentValueForexBlackVolatilitySensitivity.class, new PresentValueVolatilitySensitivityConverter(_doubleConverter));
+    registerConverter(PaymentScheduleMatrix.class, new PaymentScheduleMatrixConverter());
+    registerConverter(ResetScheduleMatrix.class, new ResetScheduleMatrixConverter());
   }
 
-  private <T> void registerConverter(Class<T> clazz, ResultConverter<? super T> converter) {
+  private <T> void registerConverter(final Class<T> clazz, final ResultConverter<? super T> converter) {
     _converterMap.put(clazz, converter);
   }
 
-  @SuppressWarnings("unchecked")
-  public <T> ResultConverter<? super T> getAndCacheConverter(String valueName, Class<T> valueType) {
+  public <T> ResultConverter<? super T> getAndCacheConverter(final String valueName, final Class<T> valueType) {
     ResultConverter<? super T> converter = (ResultConverter<? super T>) _valueNameConverterCache.get(valueName);
     if (converter == null) {
       converter = getConverterForType(valueType);
@@ -98,18 +101,16 @@ public class ResultConverterCache {
     return converter;
   }
 
-  @SuppressWarnings("unchecked")
-  public <T> ResultConverter<? super T> getConverterForType(Class<T> type) {
-    ResultConverter<? super T> converter = (ResultConverter<? super T>) _converterMap.get(type);
+  public <T> ResultConverter<? super T> getConverterForType(final Class<T> type) {
+    final ResultConverter<? super T> converter = (ResultConverter<? super T>) _converterMap.get(type);
     if (converter == null) {
       return _genericConverter;
     }
     return converter;
   }
 
-  @SuppressWarnings("unchecked")
-  public <T> Object convert(T value, ConversionMode mode) {
-    ResultConverter<? super T> converter = getConverterForType((Class<T>) value.getClass());
+  public <T> Object convert(final T value, final ConversionMode mode) {
+    final ResultConverter<? super T> converter = getConverterForType((Class<T>) value.getClass());
     return converter.convertForDisplay(this, null, value, mode);
   }
 
@@ -117,8 +118,8 @@ public class ResultConverterCache {
     return _doubleConverter;
   }
 
-  public String getKnownResultTypeName(String valueName) {
-    ResultConverter<?> converter = _valueNameConverterCache.get(valueName);
+  public String getKnownResultTypeName(final String valueName) {
+    final ResultConverter<?> converter = _valueNameConverterCache.get(valueName);
     return converter != null ? converter.getFormatterName() : null;
   }
 

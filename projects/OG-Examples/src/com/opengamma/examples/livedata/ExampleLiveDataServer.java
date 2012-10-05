@@ -34,12 +34,13 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalScheme;
-import com.opengamma.livedata.server.AbstractLiveDataServer;
+import com.opengamma.livedata.server.StandardLiveDataServer;
 import com.opengamma.livedata.server.Subscription;
 import com.opengamma.livedata.server.SubscriptionListener;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.NamedThreadPoolFactory;
 import com.opengamma.util.TerminatableJob;
+import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
@@ -48,31 +49,33 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  * <identification-scheme>, <identifier-value>, <requirement-name>, <value>
  * typically, for last price, you'd use "Market_Value" @see MarketDataRequirementNames
  */
-public class ExampleLiveDataServer extends AbstractLiveDataServer {
-  
+public class ExampleLiveDataServer extends StandardLiveDataServer {
+
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleLiveDataServer.class);
-  
+
   private static final FudgeContext s_fudgeConext = OpenGammaFudgeContext.getInstance();
   private static final int NUM_FIELDS = 3;
   private static final double SCALING_FACTOR = 0.005; // i.e. 0.5% * 1SD
   private static final int MAX_MILLIS_BETWEEN_TICKS = 50;
-  
+
   private Map<String, FudgeMsg> _marketValues = Maps.newConcurrentMap();
   private volatile double _scalingFactor;
   private volatile int _maxMillisBetweenTicks;
   private TerminatableJob _marketDataSimulatorJob = new SimulatedMarketDataJob();
   private ExecutorService _executorService;
-  
+
   public ExampleLiveDataServer(final Resource initialValuesFile) {
     this(initialValuesFile, SCALING_FACTOR, MAX_MILLIS_BETWEEN_TICKS);
   }
-  
+
   public ExampleLiveDataServer(final Resource initialValuesFile, double scalingFactor, int maxMillisBetweenTicks) {
+    super(EHCacheUtils.createCacheManager());
     readInitialValues(initialValuesFile);
     _scalingFactor = scalingFactor;
     _maxMillisBetweenTicks = maxMillisBetweenTicks;
   }
-   
+
+  //-------------------------------------------------------------------------
   private void readInitialValues(Resource initialValuesFile) {
     CSVReader reader = null;
     try {

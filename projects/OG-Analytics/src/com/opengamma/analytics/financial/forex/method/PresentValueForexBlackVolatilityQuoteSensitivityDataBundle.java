@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.forex.method;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
@@ -79,14 +81,14 @@ public class PresentValueForexBlackVolatilityQuoteSensitivityDataBundle {
     final int prime = 31;
     int result = 1;
     result = prime * result + _currencyPair.hashCode();
-    result = prime * result + _expiries.hashCode();
-    result = prime * result + _delta.hashCode();
-    result = prime * result + _vega.hashCode();
+    result = prime * result + Arrays.hashCode(_expiries);
+    result = prime * result + Arrays.hashCode(_delta);
+    result = prime * result + Arrays.hashCode(_vega);
     return result;
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
@@ -96,17 +98,17 @@ public class PresentValueForexBlackVolatilityQuoteSensitivityDataBundle {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final PresentValueForexBlackVolatilityQuoteSensitivityDataBundle other = (PresentValueForexBlackVolatilityQuoteSensitivityDataBundle) obj;
+    PresentValueForexBlackVolatilityQuoteSensitivityDataBundle other = (PresentValueForexBlackVolatilityQuoteSensitivityDataBundle) obj;
     if (!ObjectUtils.equals(_currencyPair, other._currencyPair)) {
       return false;
     }
-    if (!ObjectUtils.equals(_vega, other._vega)) {
+    if (!Arrays.equals(_delta, other._delta)) {
       return false;
     }
-    if (!ObjectUtils.equals(_expiries, other._expiries)) {
+    if (!Arrays.equals(_expiries, other._expiries)) {
       return false;
     }
-    if (!ObjectUtils.equals(_delta, other._delta)) {
+    if (!Arrays.equals(_vega, other._vega)) {
       return false;
     }
     return true;

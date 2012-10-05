@@ -47,6 +47,7 @@
     <orderEntry type="module" module-name="OG-LiveData" />
     <orderEntry type="module" module-name="OG-Core" />
     <orderEntry type="module" module-name="OG-Security" />
+    <orderEntry type="module" module-name="OG-Provider" exported="" />
     <orderEntry type="module-library">
       <library name="IvyIDEA-OG-Financial-default">
         <CLASSES>

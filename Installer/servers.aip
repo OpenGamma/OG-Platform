@@ -17,6 +17,7 @@
     <ROW Property="ProductName" Value="OpenGamma Server" ValueLocId="*"/>
     <ROW Property="ProductVersion" Value="1.0.0" Type="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
+    <ROW Property="TOOL_UI_FLAG" Value="-gui"/>
     <ROW Property="UpgradeCode" Value="{0346DEDE-F3E5-4BAD-9026-AB709E235B31}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="NoJVM32:Windows 9x/ME#JVM32:Windows 9x/ME#JVM64:Windows 9x/ME#NoJVM64:Windows 9x/ME#MsiBuild:Windows 9x/ME" ValueLocId="-"/>
     <ROW Property="WindowsType9XDisplay" MultiBuildValue="NoJVM32:Windows 9x/ME#JVM32:Windows 9x/ME#JVM64:Windows 9x/ME#NoJVM64:Windows 9x/ME#MsiBuild:Windows 9x/ME" ValueLocId="-"/>
@@ -52,12 +53,12 @@
     <ROW Component="www" ComponentId="{6653768A-52B4-4242-AEDF-2C7C6DDFF5E2}" Directory_="APPDIR" Attributes="4" KeyPath="www"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
-    <ROW Feature="JRE32" Title="32-bit JRE" Description="This feature contains the JRE bundle." Display="16" Level="4" Directory_="APPDIR" Attributes="8" Options="32" Components="jre32" Builds="JVM32"/>
-    <ROW Feature="JRE64" Title="64-bit JRE" Description="This feature contains the 64-bit JRE bundle." Display="18" Level="4" Directory_="APPDIR" Attributes="8" Options="32" Components="jre64" Builds="JVM64"/>
+    <ROW Feature="JRE32" Title="32-bit JRE" Description="This feature contains the JRE bundle." Display="16" Level="32767" Directory_="APPDIR" Attributes="8" Options="32" Components="jre32" Builds="JVM32"/>
+    <ROW Feature="JRE64" Title="64-bit JRE" Description="This feature contains the 64-bit JRE bundle." Display="18" Level="32767" Directory_="APPDIR" Attributes="8" Options="32" Components="jre64" Builds="JVM64"/>
     <ROW Feature="OG_Activ" Title="Activfeed Market Data Server" Description="The Activfeed market data server" Display="10" Level="4" Directory_="APPDIR" Attributes="8" Components="og_activ" Builds="MsiBuild"/>
     <ROW Feature="OG_Bloomberg" Title="Bloomberg Market Data Server" Description="The Bloomberg market data server" Display="6" Level="4" Directory_="APPDIR" Attributes="8" Components="og_bloomberg" Builds="MsiBuild"/>
-    <ROW Feature="OG_BloombergExample" Title="Bloomberg Example Server" Description="The example OpenGamma engine server running from Bloomberg data" Display="8" Level="4" Directory_="APPDIR" Attributes="8" Options="32" Components="og_bloombergexample og_bloombergexample_start" Builds="MsiBuild"/>
-    <ROW Feature="OG_Examples" Title="Example Server" Description="The example OpenGamma engine server" Display="14" Level="4" Directory_="APPDIR" Attributes="8" Options="32" Components="og_examples og_examples_start" Builds="MsiBuild"/>
+    <ROW Feature="OG_BloombergExample" Title="Bloomberg Example Server" Description="The example OpenGamma engine server running from Bloomberg data" Display="8" Level="32767" Directory_="APPDIR" Attributes="8" Options="32" Components="og_bloombergexample og_bloombergexample_start" Builds="MsiBuild"/>
+    <ROW Feature="OG_Examples" Title="Example Server" Description="The example OpenGamma engine server" Display="14" Level="32767" Directory_="APPDIR" Attributes="8" Options="32" Components="og_examples og_examples_start" Builds="MsiBuild"/>
     <ROW Feature="OG_Integration" Title="OpenGamma Server" Description="The OpenGamma engine server" Display="12" Level="1" Directory_="APPDIR" Attributes="8" Components="og_integration" Builds="MsiBuild"/>
     <ROW Feature="OG_Reuters" Title="Reuters Market Data Server" Description="The Reuters market data server" Display="4" Level="4" Directory_="APPDIR" Attributes="8" Components="og_reuters" Builds="MsiBuild"/>
     <ROW Feature="OG_TullettPrebon" Title="Tullett-Prebon Market Data Server" Description="The Tullett-Prebon market data server" Display="2" Level="4" Directory_="APPDIR" Attributes="8" Components="og_tullettprebon" Builds="MsiBuild"/>
@@ -133,11 +134,10 @@
     <ROW Name="xmlCfg.dll" SourcePath="&lt;AI_CUSTACTS&gt;xmlCfg.dll"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiConditionComponent">
-    <ROW Feature_="JRE64" Level="0" Condition="NOT VersionNT64"/>
     <ROW Feature_="OG_BloombergExample" Level="1" Condition="BLOOMBERG_SAPI_PORT" Options="1"/>
+    <ROW Feature_="OG_Examples" Level="1" Condition="NOT BLOOMBERG_SAPI_PORT" Options="1"/>
     <ROW Feature_="JRE32" Level="1" Condition="NOT JRE_32" Options="1"/>
     <ROW Feature_="JRE64" Level="1" Condition="NOT JRE_64" Options="1"/>
-    <ROW Feature_="OG_Examples" Level="1" Condition="NOT BLOOMBERG_SAPI_PORT" Options="1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiControlComponent">
     <ROW Dialog_="CustomizeDlg" Control="Tree" Type="SelectionTree" X="25" Y="85" Width="175" Height="95" Attributes="7" Property="_BrowseProperty" Text="Tree of selections" Order="100" TextLocId="Control.Text.CustomizeDlg#Tree" MsiKey="CustomizeDlg#Tree"/>
@@ -224,11 +224,12 @@
     <ROW Action="AI_XmlRemove" Type="11265" Source="xmlCfg.dll" Target="OnXmlRemove" WithoutSeq="true"/>
     <ROW Action="AI_XmlRollback" Type="11521" Source="xmlCfg.dll" Target="OnXmlRollback" WithoutSeq="true"/>
     <ROW Action="AI_XmlUninstall" Type="1" Source="xmlCfg.dll" Target="OnXmlUninstall"/>
-    <ROW Action="BloombergExample" Type="1058" Source="APPDIR" Target="&quot;[APPDIR]bin\Wait for Startup.exe&quot; -t &quot;OpenGamma Example Server&quot; -s BloombergExample"/>
-    <ROW Action="OpenGammaExample" Type="1058" Source="APPDIR" Target="&quot;[APPDIR]bin\Wait for Startup.exe&quot; -t &quot;OpenGamma Example Server&quot; -s OpenGammaExample"/>
+    <ROW Action="BloombergExample" Type="1058" Source="APPDIR" Target="&quot;[APPDIR]bin\Wait for Startup.exe&quot; -t &quot;OpenGamma Example Server&quot; -s BloombergExample [TOOL_UI_FLAG]"/>
+    <ROW Action="OpenGammaExample" Type="1058" Source="APPDIR" Target="&quot;[APPDIR]bin\Wait for Startup.exe&quot; -t &quot;OpenGamma Example Server&quot; -s OpenGammaExample [TOOL_UI_FLAG]"/>
     <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder][Manufacturer]\[ProductName]" MultiBuildTarget="JVM64:[ProgramFiles64Folder][Manufacturer]\[ProductName]#NoJVM64:[ProgramFiles64Folder][Manufacturer]\[ProductName]"/>
     <ROW Action="SET_SHORTCUTDIR" Type="307" Source="SHORTCUTDIR" Target="[ProgramMenuFolder][ProductName]"/>
     <ROW Action="SET_TARGETDIR_TO_APPDIR" Type="51" Source="TARGETDIR" Target="[APPDIR]"/>
+    <ROW Action="TOOL_UI_FLAG" Type="51" Source="TOOL_UI_FLAG" Target="-silent"/>
     <ROW Action="viewer.exe" Type="1730" Source="viewer.exe" Target="http://localhost:8080/" Options="1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiEventMappingComponent">
@@ -251,6 +252,7 @@
     <ROW Action="AI_AiRemoveFilesRollback" Sequence="3099"/>
     <ROW Action="viewer.exe" Condition="( NOT Installed ) AND ( &amp;www=3 AND  (&amp;OG_BloombergExample=3 OR &amp;OG_Integration=3 OR &amp;OG_Examples=3) AND  UILevel&gt;=4 )" Sequence="5969"/>
     <ROW Action="AI_ResolveLocalizedCredentials" Sequence="51"/>
+    <ROW Action="TOOL_UI_FLAG" Condition="( NOT Installed ) AND ( UILevel&lt;4 )" Sequence="201"/>
     <ROW Action="AI_AiRemoveFilesImmediate" Sequence="3499"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstallUISequenceComponent">
@@ -269,8 +271,8 @@
     <ROW Module="common.msm" Path="build\common.msm" Feature="Platform" Directory="APPDIR"/>
     <ROW Module="common32.msm" Path="build\common32.msm" Feature="Platform32" Directory="APPDIR"/>
     <ROW Module="common64.msm" Path="build\common64.msm" Feature="Platform64" Directory="APPDIR"/>
-    <ROW Module="og_bloombergexample.msm" Path="build\og_bloombergexample.msm" Feature="OG_BloombergExample" Directory="APPDIR" Params="JAVA_XMX=[JAVA_XMX];"/>
-    <ROW Module="og_examples.msm" Path="build\og_examples.msm" Feature="OG_Examples" Directory="APPDIR" Params="JAVA_XMX=[JAVA_XMX];"/>
+    <ROW Module="og_bloombergexample.msm" Path="build\og_bloombergexample.msm" Feature="OG_BloombergExample" Directory="APPDIR"/>
+    <ROW Module="og_examples.msm" Path="build\og_examples.msm" Feature="OG_Examples" Directory="APPDIR"/>
     <ROW Module="www.msm" Path="build\www.msm" Feature="www" Directory="APPDIR"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiRegLocatorComponent">
@@ -342,10 +344,28 @@
     <ROW XmlElement="24" Name="class" Flags="14" Order="0" Value="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy"/>
     <ROW XmlElement="16" Name="name" Flags="14" Order="0" Value="FILE"/>
     <ROW XmlElement="16" Name="class" Flags="14" Order="1" Value="ch.qos.logback.core.rolling.RollingFileAppender"/>
+    <ROW XmlElement="26" Name="name" Flags="14" Order="0" Value="INSTALL"/>
+    <ROW XmlElement="26" Name="class" Flags="14" Order="1" Value="com.opengamma.install.feedback.Logback"/>
+    <ROW XmlElement="27" Name="class" Flags="14" Order="0" Value="ch.qos.logback.classic.PatternLayout"/>
+    <ROW XmlElement="29" Name="name" Flags="14" Order="0" Value="com.opengamma.bloombergexample.tool.ExampleDatabasePopulator"/>
+    <ROW XmlElement="29" Name="level" Flags="14" Order="1" Value="info"/>
+    <ROW XmlElement="30" Name="ref" Flags="14" Order="0" Value="INSTALL"/>
+    <ROW XmlElement="31" Name="name" Flags="14" Order="0" Value="com.opengamma.util.test.DbTool"/>
+    <ROW XmlElement="31" Name="level" Flags="14" Order="1" Value="INFO"/>
+    <ROW XmlElement="32" Name="ref" Flags="14" Order="0" Value="INSTALL"/>
+    <ROW XmlElement="33" Name="name" Flags="14" Order="0" Value="INSTALL"/>
+    <ROW XmlElement="33" Name="class" Flags="14" Order="1" Value="com.opengamma.install.feedback.Logback"/>
+    <ROW XmlElement="34" Name="name" Flags="14" Order="0" Value="com.opengamma.examples.tool.ExampleDatabasePopulator"/>
+    <ROW XmlElement="34" Name="level" Flags="14" Order="1" Value="info"/>
+    <ROW XmlElement="35" Name="ref" Flags="14" Order="0" Value="INSTALL"/>
+    <ROW XmlElement="36" Name="name" Flags="14" Order="0" Value="com.opengamma.util.test.DbTool"/>
+    <ROW XmlElement="36" Name="level" Flags="14" Order="1" Value="info"/>
+    <ROW XmlElement="37" Name="ref" Flags="14" Order="0" Value="INSTALL"/>
+    <ROW XmlElement="38" Name="class" Flags="14" Order="0" Value="ch.qos.logback.classic.PatternLayout"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.XmlElementComponent">
     <ROW XmlElement="0" Name="configuration" Order="0" Flags="30"/>
-    <ROW XmlElement="1" ParentElement="0" Name="root" Order="1" Flags="14"/>
+    <ROW XmlElement="1" ParentElement="0" Name="root" Order="2" Flags="14"/>
     <ROW XmlElement="2" ParentElement="1" Name="appender-ref" Order="0" Flags="14"/>
     <ROW XmlElement="3" ParentElement="0" Name="appender" Order="0" Flags="14"/>
     <ROW XmlElement="4" ParentElement="3" Name="rollingPolicy" Order="1" Flags="14"/>
@@ -358,7 +378,7 @@
     <ROW XmlElement="11" ParentElement="3" Name="triggeringPolicy" Order="2" Flags="14"/>
     <ROW XmlElement="12" ParentElement="11" Name="maxFileSize" Order="0" Flags="14" Text="50MB"/>
     <ROW XmlElement="13" Name="configuration" Order="0" Flags="30"/>
-    <ROW XmlElement="14" ParentElement="13" Name="root" Order="1" Flags="14"/>
+    <ROW XmlElement="14" ParentElement="13" Name="root" Order="2" Flags="14"/>
     <ROW XmlElement="15" ParentElement="14" Name="appender-ref" Order="0" Flags="14"/>
     <ROW XmlElement="16" ParentElement="13" Name="appender" Order="0" Flags="14"/>
     <ROW XmlElement="17" ParentElement="16" Name="file" Order="0" Flags="14" Text="[APPDIR]log\example.log"/>
@@ -370,6 +390,20 @@
     <ROW XmlElement="23" ParentElement="20" Name="minIndex" Order="1" Flags="14" Text="1"/>
     <ROW XmlElement="24" ParentElement="16" Name="triggeringPolicy" Order="2" Flags="14"/>
     <ROW XmlElement="25" ParentElement="24" Name="maxFileSize" Order="0" Flags="14" Text="50MB"/>
+    <ROW XmlElement="26" ParentElement="0" Name="appender" Order="1" Flags="14"/>
+    <ROW XmlElement="27" ParentElement="26" Name="layout" Order="0" Flags="14"/>
+    <ROW XmlElement="28" ParentElement="27" Name="Pattern" Order="0" Flags="14" Text="%msg"/>
+    <ROW XmlElement="29" ParentElement="0" Name="logger" Order="3" Flags="14"/>
+    <ROW XmlElement="30" ParentElement="29" Name="appender-ref" Order="0" Flags="14"/>
+    <ROW XmlElement="31" ParentElement="0" Name="logger" Order="4" Flags="14"/>
+    <ROW XmlElement="32" ParentElement="31" Name="appender-ref" Order="0" Flags="14"/>
+    <ROW XmlElement="33" ParentElement="13" Name="appender" Order="1" Flags="14"/>
+    <ROW XmlElement="34" ParentElement="13" Name="logger" Order="3" Flags="14"/>
+    <ROW XmlElement="35" ParentElement="34" Name="appender-ref" Order="0" Flags="14"/>
+    <ROW XmlElement="36" ParentElement="13" Name="logger" Order="4" Flags="14"/>
+    <ROW XmlElement="37" ParentElement="36" Name="appender-ref" Order="0" Flags="14"/>
+    <ROW XmlElement="38" ParentElement="33" Name="layout" Order="0" Flags="14"/>
+    <ROW XmlElement="39" ParentElement="38" Name="Pattern" Order="0" Flags="14" Text="%msg"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.XmlFileComponent">
     <ROW XmlFile="bloombergexample_logback.xml" FileName="bloomb~1.xml|bloombergexample-logback.xml" DirProperty="config_Dir" Component="og_bloombergexample" RootElement="0" Flags="89" Version="1.0" Encoding="UTF-8" IndentUnits="2"/>

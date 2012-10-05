@@ -17,9 +17,11 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -51,15 +53,34 @@ public final class DependencyGraphBuilder implements Cancelable {
   private static final AtomicInteger s_nextObjectId = new AtomicInteger();
   private static final AtomicInteger s_nextJobId = new AtomicInteger();
 
-  private static final boolean NO_BACKGROUND_THREADS = false; // DON'T CHECK IN WITH =true
-  private static final int MAX_ADDITIONAL_THREADS = -1; // DON'T CHECK IN WITH !=-1
-  private static final boolean DEBUG_DUMP_DEPENDENCY_GRAPH = false; // DON'T CHECK IN WITH =true
-  private static final boolean DEBUG_DUMP_FAILURE_INFO = false; // DON'T CHECK IN WITH =true
+  /**
+   * Disables the multi-threaded graph building. If set, value requirements will be queued as they are added and the graph built by a single thread when {@link #getDependencyGraph} is called. This is
+   * false by default but can be controlled by the {@code DependencyGraphBuilder.noBackgroundThreads} property. When set the value of {@link #_maxAdditionalThreads} is ignored.
+   */
+  private static final boolean NO_BACKGROUND_THREADS = System.getProperty("DependencyGraphBuilder.noBackgroundThreads", "FALSE").equalsIgnoreCase("TRUE");
+  /**
+   * Limits the maximum number of additional threads that the builder will spawn by default. This is used for the default value for {@link #_maxAdditionalThreads}. A value of {@code -1} will use the
+   * number of processor cores as the default. The number of threads actually used by be different as the {@link DependencyGraphBuilderFactory} may only provide a limited pool to all active graph
+   * builders. This is {@code -1} by default (use the number of processor cores) but can be controlled by the {@code DependencyGraphBuilder.maxAdditionalThreads} property.
+   */
+  private static final int MAX_ADDITIONAL_THREADS = Integer.parseInt(System.getProperty("DependencyGraphBuilder.maxAdditionalThreads", "-1"));
+  /**
+   * Writes the dependency graph structure (in ASCII) out after each graph build completes. Graphs are written to the user's temporary folder with the name {@code dependencyGraph} and a numeric suffix
+   * from the builder's object ID. The default value is off but can be controlled by the {@code DependencyGraphBuilder.dumpDependencyGraph} property.
+   */
+  private static final boolean DEBUG_DUMP_DEPENDENCY_GRAPH = System.getProperty("DependencyGraphBuilder.dumpDependencyGraph", "FALSE").equalsIgnoreCase("TRUE");
+  /**
+   * Writes the value requirements that could not be resolved out. Failure information is written to the user's temporary folder with the name {@code resolutionFailure} and a sequential numeric suffix
+   * from the builder's object ID. The verbosity of failure information will depend on the {@link #_disableFailureReporting} flag typically controlled by
+   * {@link DependencyGraphBuilderFactory#setEnableFailureReporting}. The default value is off but can be controlled by the {@code DependencyGraphBuilder.dumpFailureInfo} property.
+   */
+  private static final boolean DEBUG_DUMP_FAILURE_INFO = System.getProperty("DependencyGraphBuilder.dumpFailureInfo", "FALSE").equalsIgnoreCase("TRUE");
 
   private final int _objectId = s_nextObjectId.incrementAndGet();
   private final AtomicInteger _activeJobCount = new AtomicInteger();
   private final Set<Job> _activeJobs = new HashSet<Job>();
   private final RunQueue _runQueue;
+  private final Queue<ContextRunnable> _deferredQueue = new ConcurrentLinkedQueue<ContextRunnable>();
   private final Object _buildCompleteLock = new Object();
   private final GraphBuildingContext _context = new GraphBuildingContext(this);
   private final AtomicLong _completedSteps = new AtomicLong();
@@ -465,7 +486,7 @@ public final class DependencyGraphBuilder implements Cancelable {
         final boolean abortLoops;
         synchronized (_activeJobs) {
           _activeJobs.remove(this);
-          abortLoops = _activeJobs.isEmpty() && _runQueue.isEmpty();
+          abortLoops = _activeJobs.isEmpty() && _runQueue.isEmpty() && _deferredQueue.isEmpty();
         }
         if (abortLoops) {
           // Any tasks that are still active have created a reciprocal loop disjoint from the runnable
@@ -499,11 +520,31 @@ public final class DependencyGraphBuilder implements Cancelable {
    * @return true if there is more work still to do, false if all the work is done
    */
   protected boolean buildGraph(final GraphBuildingContext context) {
-    final ContextRunnable task = _runQueue.take();
+    ContextRunnable task = _runQueue.take();
     if (task == null) {
-      return false;
+      task = _deferredQueue.poll();
+      if (task == null) {
+        // Nothing runnable and nothing deferred
+        return false;
+      }
     }
-    task.run(context);
+    if (!task.tryRun(context)) {
+      // A concurrency limit was hit. Post the job into the contention buffer and try and take another from the run queue.
+      do {
+        _deferredQueue.add(task);
+        task = _runQueue.take();
+        if (task == null) {
+          // Nothing runnable. Abort as we can't just add the deferred items or we might end up spinning
+          return false;
+        }
+      } while (!task.tryRun(context));
+    }
+    // Reschedule a deferred item. There may be multiple deferred items, but we only release them one at a time as other jobs complete
+    // which may resolve the contention. If the run queue becomes empty they will be taken directly by the code above.
+    task = _deferredQueue.poll();
+    if (task != null) {
+      addToRunQueue(task);
+    }
     _completedSteps.incrementAndGet();
     return true;
   }
@@ -512,6 +553,7 @@ public final class DependencyGraphBuilder implements Cancelable {
    * Tests if the graph has been built or if work is still required. Graphs are only built in the background if additional threads is set to non-zero.
    * 
    * @return true if the graph has been built, false if it is outstanding
+   * @throws CancellationException if the graph build has been canceled
    */
   public boolean isGraphBuilt() {
     synchronized (_buildCompleteLock) {
@@ -519,7 +561,7 @@ public final class DependencyGraphBuilder implements Cancelable {
         if (_cancelled) {
           throw new CancellationException();
         }
-        return _activeJobs.isEmpty() && _runQueue.isEmpty();
+        return _activeJobs.isEmpty() && _runQueue.isEmpty() && _deferredQueue.isEmpty();
       }
     }
   }
@@ -633,7 +675,7 @@ public final class DependencyGraphBuilder implements Cancelable {
           }
         }
         if (allowBackgroundContinuation) {
-          // ... but nothing in the queue for us so take a nap
+          // Nothing in the queue for us so take a nap. There are background threads running and maybe items on the deferred queue.
           s_logger.info("Waiting for background threads");
           Thread.sleep(100);
         } else {
@@ -800,8 +842,8 @@ public final class DependencyGraphBuilder implements Cancelable {
       }
     }
     s_logger.info("Specifications cache = {} tasks for {} specifications", count, _specifications.size());
-    s_logger.info("Production cache = {} resolved values", _resolvedValues.size());
-    s_logger.info("Run queue length = {}, pending resolutions = {}", _runQueue.size(), _pendingRequirements.getValueRequirements().size());
+    s_logger.info("Production cache = {} resolved values, prending requirements = {}", _resolvedValues.size(), _pendingRequirements.getValueRequirements().size());
+    s_logger.info("Run queue length = {}, deferred queue length = {}", _runQueue.size(), _deferredQueue.size());
   }
 
   protected DependencyGraph createDependencyGraph() {

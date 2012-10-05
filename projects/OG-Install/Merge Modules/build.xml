@@ -19,7 +19,7 @@
   </target>
 
   <target name="dist-publish">
-    <zip destfile="${dist.dir}/MSM.zip" whenempty="create">
+    <zip destfile="${dist.dir}/MSM-msm.zip" whenempty="create">
       <fileset dir="${basedir}">
         <include name="*.msm" />
       </fileset>

@@ -47,7 +47,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
   public static final String DEFAULT_OID_SCHEME = "MemCfg";
 
   /**
-   * A cache of securities by identifier.
+   * A cache of configurations by identifier.
    */
   private final ConcurrentMap<ObjectId, ConfigDocument> _store = new ConcurrentHashMap<ObjectId, ConfigDocument>();
   /**

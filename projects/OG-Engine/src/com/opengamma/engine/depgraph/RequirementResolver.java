@@ -51,11 +51,35 @@ import com.opengamma.engine.value.ValueRequirement;
   }
 
   @Override
+  protected boolean isLastResult() {
+    // Caller already holds monitor - see javadoc
+    if (_fallback == null) {
+      for (ResolveTask task : _tasks) {
+        if (!task.wasRecursionDetected()) {
+          // One ran to completion without hitting a recursion constraint so no fallback task will be created - this is the last result
+          return true;
+        }
+      }
+      // A fallback task may be created during the finished call, so suppress the last result indicator for now
+      return false;
+    } else {
+      // The fallback task is active so let its last result carry through
+      return true;
+    }
+  }
+
+  @Override
   protected void finished(final GraphBuildingContext context) {
-    assert getPendingTasks() <= 1; // either the final pending task running with the "lastValue" flag, or all tasks have finished
     boolean useFallback = false;
     ResolveTask fallback;
     synchronized (this) {
+      final int pendingTasks = getPendingTasks();
+      if (pendingTasks == Integer.MIN_VALUE) {
+        // We've already been discarded (everything was released when we went to rc=0)
+        s_logger.debug("Ignoring finish on discarded {}", this);
+        return;
+      }
+      assert (pendingTasks == 0) || (pendingTasks == 1); // Either the final pending task running with the "lastValue" flag, or all tasks have finished
       fallback = _fallback;
       if (fallback == null) {
         // Only create a fallback if none of the others ran to completion without hitting a recursion constraint.

@@ -29,6 +29,7 @@ import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefi
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.DeliverableSwapFuturesSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
@@ -41,10 +42,14 @@ import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZer
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyGearingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CapFloorIborDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponFloatingDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborGearingDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborRatchetDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponOISDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponOISSimplifiedDefinition;
@@ -58,226 +63,268 @@ import com.opengamma.analytics.financial.instrument.swap.SwapXCcyIborIborDefinit
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionBermudaFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
+import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborSpreadDefinition;
 
 /**
  * 
- * @param <T> Type of the data 
- * @param <U> Type of the result
+ * @param <DATA_TYPE> Type of the data 
+ * @param <RESULT_TYPE> Type of the result
  */
-public interface InstrumentDefinitionVisitor<T, U> {
+public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
 
-  U visit(InstrumentDefinition<?> definition, T data);
+  RESULT_TYPE visit(InstrumentDefinition<?> definition, DATA_TYPE data);
 
-  U visit(InstrumentDefinition<?> definition);
+  RESULT_TYPE visit(InstrumentDefinition<?> definition);
 
-  U visitBondFixedSecurityDefinition(BondFixedSecurityDefinition bond, T data);
+  // -----     Bond and bill     -----
 
-  U visitBondFixedSecurityDefinition(BondFixedSecurityDefinition bond);
+  RESULT_TYPE visitBondFixedSecurityDefinition(BondFixedSecurityDefinition bond, DATA_TYPE data);
 
-  U visitBondFixedTransactionDefinition(BondFixedTransactionDefinition bond, T data);
+  RESULT_TYPE visitBondFixedSecurityDefinition(BondFixedSecurityDefinition bond);
 
-  U visitBondFixedTransactionDefinition(BondFixedTransactionDefinition bond);
+  RESULT_TYPE visitBondFixedTransactionDefinition(BondFixedTransactionDefinition bond, DATA_TYPE data);
 
-  U visitBondFutureSecurityDefinition(BondFutureDefinition bond, T data);
+  RESULT_TYPE visitBondFixedTransactionDefinition(BondFixedTransactionDefinition bond);
 
-  U visitBondFutureSecurityDefinition(BondFutureDefinition bond);
+  RESULT_TYPE visitBondFutureSecurityDefinition(BondFutureDefinition bond, DATA_TYPE data);
 
-  U visitBondFutureOptionPremiumSecurityDefinition(BondFutureOptionPremiumSecurityDefinition bond, T data);
+  RESULT_TYPE visitBondFutureOptionPremiumSecurityDefinition(BondFutureOptionPremiumSecurityDefinition bond, DATA_TYPE data);
 
-  U visitBondFutureOptionPremiumSecurityDefinition(BondFutureOptionPremiumSecurityDefinition bond);
+  RESULT_TYPE visitBondFutureOptionPremiumTransactionDefinition(BondFutureOptionPremiumTransactionDefinition bond, DATA_TYPE data);
 
-  U visitBondFutureOptionPremiumTransactionDefinition(BondFutureOptionPremiumTransactionDefinition bond, T data);
+  RESULT_TYPE visitBondIborTransactionDefinition(BondIborTransactionDefinition bond, DATA_TYPE data);
 
-  U visitBondFutureOptionPremiumTransactionDefinition(BondFutureOptionPremiumTransactionDefinition bond);
+  RESULT_TYPE visitBondIborTransactionDefinition(BondIborTransactionDefinition bond);
 
-  U visitBondIborTransactionDefinition(BondIborTransactionDefinition bond, T data);
+  RESULT_TYPE visitBondIborSecurityDefinition(BondIborSecurityDefinition bond, DATA_TYPE data);
 
-  U visitBondIborTransactionDefinition(BondIborTransactionDefinition bond);
+  RESULT_TYPE visitBondIborSecurityDefinition(BondIborSecurityDefinition bond);
 
-  U visitBondIborSecurityDefinition(BondIborSecurityDefinition bond, T data);
+  RESULT_TYPE visitBillSecurityDefinition(BillSecurityDefinition bill, DATA_TYPE data);
 
-  U visitBondIborSecurityDefinition(BondIborSecurityDefinition bond);
+  RESULT_TYPE visitBillSecurityDefinition(BillSecurityDefinition bill);
 
-  U visitBillSecurityDefinition(BillSecurityDefinition bill, T data);
+  RESULT_TYPE visitBillTransactionDefinition(BillTransactionDefinition bill, DATA_TYPE data);
 
-  U visitBillSecurityDefinition(BillSecurityDefinition bill);
+  RESULT_TYPE visitBillTransactionDefinition(BillTransactionDefinition bill);
 
-  U visitBillTransactionDefinition(BillTransactionDefinition bill, T data);
+  // -----     Deposit     -----
 
-  U visitBillTransactionDefinition(BillTransactionDefinition bill);
+  RESULT_TYPE visitCashDefinition(CashDefinition cash, DATA_TYPE data);
 
-  U visitCashDefinition(CashDefinition cash, T data);
+  RESULT_TYPE visitCashDefinition(CashDefinition cash);
 
-  U visitCashDefinition(CashDefinition cash);
+  RESULT_TYPE visitDepositIborDefinition(DepositIborDefinition deposit, DATA_TYPE data);
 
-  U visitDepositIborDefinition(DepositIborDefinition deposit, T data);
+  RESULT_TYPE visitDepositIborDefinition(DepositIborDefinition deposit);
 
-  U visitDepositIborDefinition(DepositIborDefinition deposit);
+  RESULT_TYPE visitDepositCounterpartDefinition(DepositCounterpartDefinition deposit, DATA_TYPE data);
 
-  U visitDepositCounterpartDefinition(DepositCounterpartDefinition deposit, T data);
+  RESULT_TYPE visitDepositCounterpartDefinition(DepositCounterpartDefinition deposit);
 
-  U visitDepositCounterpartDefinition(DepositCounterpartDefinition deposit);
+  RESULT_TYPE visitDepositZeroDefinition(DepositZeroDefinition deposit, DATA_TYPE data);
 
-  U visitDepositZeroDefinition(DepositZeroDefinition deposit, T data);
+  RESULT_TYPE visitDepositZeroDefinition(DepositZeroDefinition deposit);
 
-  U visitDepositZeroDefinition(DepositZeroDefinition deposit);
+  // -----     Futures     -----
+  RESULT_TYPE visitForwardRateAgreementDefinition(ForwardRateAgreementDefinition fra, DATA_TYPE data);
 
-  U visitForwardRateAgreementDefinition(ForwardRateAgreementDefinition fra, T data);
+  RESULT_TYPE visitForwardRateAgreementDefinition(ForwardRateAgreementDefinition fra);
 
-  U visitForwardRateAgreementDefinition(ForwardRateAgreementDefinition fra);
+  RESULT_TYPE visitInterestRateFutureSecurityDefinition(InterestRateFutureDefinition future, DATA_TYPE data);
 
-  U visitInterestRateFutureSecurityDefinition(InterestRateFutureDefinition future, T data);
+  RESULT_TYPE visitInterestRateFutureSecurityDefinition(InterestRateFutureDefinition future);
 
-  U visitInterestRateFutureSecurityDefinition(InterestRateFutureDefinition future);
+  RESULT_TYPE visitFederalFundsFutureSecurityDefinition(FederalFundsFutureSecurityDefinition future, DATA_TYPE data);
 
-  U visitFederalFundsFutureSecurityDefinition(FederalFundsFutureSecurityDefinition future, T data);
+  RESULT_TYPE visitFederalFundsFutureSecurityDefinition(FederalFundsFutureSecurityDefinition future);
 
-  U visitFederalFundsFutureSecurityDefinition(FederalFundsFutureSecurityDefinition future);
+  RESULT_TYPE visitFederalFundsFutureTransactionDefinition(FederalFundsFutureTransactionDefinition future, DATA_TYPE data);
 
-  U visitFederalFundsFutureTransactionDefinition(FederalFundsFutureTransactionDefinition future, T data);
+  RESULT_TYPE visitFederalFundsFutureTransactionDefinition(FederalFundsFutureTransactionDefinition future);
 
-  U visitFederalFundsFutureTransactionDefinition(FederalFundsFutureTransactionDefinition future);
+  RESULT_TYPE visitBondFutureSecurityDefinition(BondFutureDefinition bond);
 
-  U visitInterestRateFutureOptionPremiumSecurityDefinition(InterestRateFutureOptionPremiumSecurityDefinition future, T data);
+  RESULT_TYPE visitDeliverableSwapFuturesSecurityDefinition(DeliverableSwapFuturesSecurityDefinition futures, DATA_TYPE data);
 
-  U visitInterestRateFutureOptionPremiumSecurityDefinition(InterestRateFutureOptionPremiumSecurityDefinition future);
+  RESULT_TYPE visitDeliverableSwapFuturesSecurityDefinition(DeliverableSwapFuturesSecurityDefinition futures);
 
-  U visitInterestRateFutureOptionPremiumTransactionDefinition(InterestRateFutureOptionPremiumTransactionDefinition future, T data);
+  // -----     Futures options    -----
 
-  U visitInterestRateFutureOptionPremiumTransactionDefinition(InterestRateFutureOptionPremiumTransactionDefinition future);
+  RESULT_TYPE visitInterestRateFutureOptionPremiumSecurityDefinition(InterestRateFutureOptionPremiumSecurityDefinition future, DATA_TYPE data);
 
-  U visitInterestRateFutureOptionMarginSecurityDefinition(InterestRateFutureOptionMarginSecurityDefinition future, T data);
+  RESULT_TYPE visitInterestRateFutureOptionPremiumSecurityDefinition(InterestRateFutureOptionPremiumSecurityDefinition future);
 
-  U visitInterestRateFutureOptionMarginSecurityDefinition(InterestRateFutureOptionMarginSecurityDefinition future);
+  RESULT_TYPE visitInterestRateFutureOptionPremiumTransactionDefinition(InterestRateFutureOptionPremiumTransactionDefinition future, DATA_TYPE data);
 
-  U visitInterestRateFutureOptionMarginTransactionDefinition(InterestRateFutureOptionMarginTransactionDefinition future, T data);
+  RESULT_TYPE visitInterestRateFutureOptionPremiumTransactionDefinition(InterestRateFutureOptionPremiumTransactionDefinition future);
 
-  U visitInterestRateFutureOptionMarginTransactionDefinition(InterestRateFutureOptionMarginTransactionDefinition future);
+  RESULT_TYPE visitInterestRateFutureOptionMarginSecurityDefinition(InterestRateFutureOptionMarginSecurityDefinition future, DATA_TYPE data);
 
-  U visitPaymentFixed(PaymentFixedDefinition payment, T data);
+  RESULT_TYPE visitInterestRateFutureOptionMarginSecurityDefinition(InterestRateFutureOptionMarginSecurityDefinition future);
 
-  U visitPaymentFixed(PaymentFixedDefinition payment);
+  RESULT_TYPE visitInterestRateFutureOptionMarginTransactionDefinition(InterestRateFutureOptionMarginTransactionDefinition future, DATA_TYPE data);
 
-  U visitCouponFixed(CouponFixedDefinition payment, T data);
+  RESULT_TYPE visitInterestRateFutureOptionMarginTransactionDefinition(InterestRateFutureOptionMarginTransactionDefinition future);
 
-  U visitCouponFixed(CouponFixedDefinition payment);
+  RESULT_TYPE visitBondFutureOptionPremiumSecurityDefinition(BondFutureOptionPremiumSecurityDefinition bond);
 
-  U visitCouponFloating(CouponFloatingDefinition payment, T data);
+  RESULT_TYPE visitBondFutureOptionPremiumTransactionDefinition(BondFutureOptionPremiumTransactionDefinition bond);
 
-  U visitCouponFloating(CouponFloatingDefinition payment);
+  // -----     Payment and coupon     -----
 
-  U visitCouponIbor(CouponIborDefinition payment, T data);
+  RESULT_TYPE visitPaymentFixedDefinition(PaymentFixedDefinition payment, DATA_TYPE data);
 
-  U visitCouponIbor(CouponIborDefinition payment);
+  RESULT_TYPE visitPaymentFixedDefinition(PaymentFixedDefinition payment);
 
-  U visitCouponIborSpread(CouponIborSpreadDefinition payment, T data);
+  RESULT_TYPE visitCouponFixedDefinition(CouponFixedDefinition payment, DATA_TYPE data);
 
-  U visitCouponIborSpread(CouponIborSpreadDefinition payment);
+  RESULT_TYPE visitCouponFixedDefinition(CouponFixedDefinition payment);
 
-  U visitCouponOISSimplified(CouponOISSimplifiedDefinition payment, T data);
+  RESULT_TYPE visitCouponIborDefinition(CouponIborDefinition payment, DATA_TYPE data);
 
-  U visitCouponOISSimplified(CouponOISSimplifiedDefinition payment);
+  RESULT_TYPE visitCouponIborDefinition(CouponIborDefinition payment);
 
-  U visitCouponOIS(CouponOISDefinition payment, T data);
+  RESULT_TYPE visitCouponIborSpreadDefinition(CouponIborSpreadDefinition payment, DATA_TYPE data);
 
-  U visitCouponOIS(CouponOISDefinition payment);
+  RESULT_TYPE visitCouponIborSpreadDefinition(CouponIborSpreadDefinition payment);
 
-  U visitCouponCMS(CouponCMSDefinition payment, T data);
+  RESULT_TYPE visitCouponIborGearingDefinition(CouponIborGearingDefinition payment, DATA_TYPE data);
 
-  U visitCouponCMS(CouponCMSDefinition payment);
+  RESULT_TYPE visitCouponIborGearingDefinition(CouponIborGearingDefinition payment);
 
-  U visitCapFloorCMS(CapFloorCMSDefinition payment, T data);
+  RESULT_TYPE visitCouponIborCompoundedDefinition(CouponIborCompoundedDefinition payment, DATA_TYPE data);
 
-  U visitCapFloorCMS(CapFloorCMSDefinition payment);
+  RESULT_TYPE visitCouponIborCompoundedDefinition(CouponIborCompoundedDefinition payment);
 
-  U visitAnnuityDefinition(AnnuityDefinition<? extends PaymentDefinition> annuity, T data);
+  RESULT_TYPE visitCouponIborRatchetDefinition(CouponIborRatchetDefinition payment, DATA_TYPE data);
 
-  U visitAnnuityDefinition(AnnuityDefinition<? extends PaymentDefinition> annuity);
+  RESULT_TYPE visitCouponIborRatchetDefinition(CouponIborRatchetDefinition payment);
 
-  U visitSwapDefinition(SwapDefinition swap, T data);
+  RESULT_TYPE visitCapFloorIborDefinition(CapFloorIborDefinition payment, DATA_TYPE data);
 
-  U visitSwapDefinition(SwapDefinition swap);
+  RESULT_TYPE visitCapFloorIborDefinition(CapFloorIborDefinition payment);
 
-  U visitSwapFixedIborDefinition(SwapFixedIborDefinition swap, T data);
+  RESULT_TYPE visitCouponOISSimplifiedDefinition(CouponOISSimplifiedDefinition payment, DATA_TYPE data);
 
-  U visitSwapFixedIborDefinition(SwapFixedIborDefinition swap);
+  RESULT_TYPE visitCouponOISSimplifiedDefinition(CouponOISSimplifiedDefinition payment);
 
-  U visitSwapFixedIborSpreadDefinition(SwapFixedIborSpreadDefinition swap, T data);
+  RESULT_TYPE visitCouponOISDefinition(CouponOISDefinition payment, DATA_TYPE data);
 
-  U visitSwapFixedIborSpreadDefinition(SwapFixedIborSpreadDefinition swap);
+  RESULT_TYPE visitCouponOISDefinition(CouponOISDefinition payment);
 
-  U visitSwapIborIborDefinition(SwapIborIborDefinition swap, T data);
+  RESULT_TYPE visitCouponCMSDefinition(CouponCMSDefinition payment, DATA_TYPE data);
 
-  U visitSwapIborIborDefinition(SwapIborIborDefinition swap);
+  RESULT_TYPE visitCouponCMSDefinition(CouponCMSDefinition payment);
 
-  U visitSwapXCcyIborIborDefinition(SwapXCcyIborIborDefinition swap, T data);
+  RESULT_TYPE visitCapFloorCMSDefinition(CapFloorCMSDefinition payment, DATA_TYPE data);
 
-  U visitSwapXCcyIborIborDefinition(SwapXCcyIborIborDefinition swap);
+  RESULT_TYPE visitCapFloorCMSDefinition(CapFloorCMSDefinition payment);
 
-  U visitSwaptionCashFixedIborDefinition(SwaptionCashFixedIborDefinition swaption, T data);
+  RESULT_TYPE visitCapFloorCMSSpreadDefinition(CapFloorCMSSpreadDefinition payment, DATA_TYPE data);
 
-  U visitSwaptionCashFixedIborDefinition(SwaptionCashFixedIborDefinition swaption);
+  RESULT_TYPE visitCapFloorCMSSpreadDefinition(CapFloorCMSSpreadDefinition payment);
 
-  U visitSwaptionPhysicalFixedIborDefinition(SwaptionPhysicalFixedIborDefinition swaption, T data);
+  // -----     Annuity     -----
 
-  U visitSwaptionPhysicalFixedIborDefinition(SwaptionPhysicalFixedIborDefinition swaption);
+  RESULT_TYPE visitAnnuityDefinition(AnnuityDefinition<? extends PaymentDefinition> annuity, DATA_TYPE data);
 
-  U visitSwaptionBermudaFixedIborDefinition(SwaptionBermudaFixedIborDefinition swaption, T data);
+  RESULT_TYPE visitAnnuityDefinition(AnnuityDefinition<? extends PaymentDefinition> annuity);
 
-  U visitSwaptionBermudaFixedIborDefinition(SwaptionBermudaFixedIborDefinition swaption);
+  // -----     Swap     -----
 
-  U visitCouponInflationZeroCouponFirstOfMonth(CouponInflationZeroCouponMonthlyDefinition coupon, T data);
+  RESULT_TYPE visitSwapDefinition(SwapDefinition swap, DATA_TYPE data);
 
-  U visitCouponInflationZeroCouponFirstOfMonth(CouponInflationZeroCouponMonthlyDefinition coupon);
+  RESULT_TYPE visitSwapDefinition(SwapDefinition swap);
 
-  U visitCouponInflationZeroCouponInterpolation(CouponInflationZeroCouponInterpolationDefinition coupon, T data);
+  RESULT_TYPE visitSwapFixedIborDefinition(SwapFixedIborDefinition swap, DATA_TYPE data);
 
-  U visitCouponInflationZeroCouponInterpolation(CouponInflationZeroCouponInterpolationDefinition coupon);
+  RESULT_TYPE visitSwapFixedIborDefinition(SwapFixedIborDefinition swap);
 
-  U visitCouponInflationZeroCouponMonthlyGearing(CouponInflationZeroCouponMonthlyGearingDefinition coupon, T data);
+  RESULT_TYPE visitSwapFixedIborSpreadDefinition(SwapFixedIborSpreadDefinition swap, DATA_TYPE data);
 
-  U visitCouponInflationZeroCouponMonthlyGearing(CouponInflationZeroCouponMonthlyGearingDefinition coupon);
+  RESULT_TYPE visitSwapFixedIborSpreadDefinition(SwapFixedIborSpreadDefinition swap);
 
-  U visitCouponInflationZeroCouponInterpolationGearing(CouponInflationZeroCouponInterpolationGearingDefinition coupon, T data);
+  RESULT_TYPE visitSwapIborIborDefinition(SwapIborIborDefinition swap, DATA_TYPE data);
 
-  U visitCouponInflationZeroCouponInterpolationGearing(CouponInflationZeroCouponInterpolationGearingDefinition coupon);
+  RESULT_TYPE visitSwapIborIborDefinition(SwapIborIborDefinition swap);
 
-  U visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurityDefinition<?> bond, T data);
+  RESULT_TYPE visitSwapXCcyIborIborDefinition(SwapXCcyIborIborDefinition swap, DATA_TYPE data);
 
-  U visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurityDefinition<?> bond);
+  RESULT_TYPE visitSwapXCcyIborIborDefinition(SwapXCcyIborIborDefinition swap);
 
-  U visitBondCapitalIndexedTransaction(BondCapitalIndexedTransactionDefinition<?> bond, T data);
+  // -----     Swaption     -----
 
-  U visitBondCapitalIndexedTransaction(BondCapitalIndexedTransactionDefinition<?> bond);
+  RESULT_TYPE visitSwaptionCashFixedIborDefinition(SwaptionCashFixedIborDefinition swaption, DATA_TYPE data);
+
+  RESULT_TYPE visitSwaptionCashFixedIborDefinition(SwaptionCashFixedIborDefinition swaption);
+
+  RESULT_TYPE visitSwaptionPhysicalFixedIborDefinition(SwaptionPhysicalFixedIborDefinition swaption, DATA_TYPE data);
+
+  RESULT_TYPE visitSwaptionPhysicalFixedIborDefinition(SwaptionPhysicalFixedIborDefinition swaption);
+
+  RESULT_TYPE visitSwaptionPhysicalFixedIborSpreadDefinition(SwaptionPhysicalFixedIborSpreadDefinition swaption, DATA_TYPE data);
+
+  RESULT_TYPE visitSwaptionPhysicalFixedIborSpreadDefinition(SwaptionPhysicalFixedIborSpreadDefinition swaption);
+
+  RESULT_TYPE visitSwaptionBermudaFixedIborDefinition(SwaptionBermudaFixedIborDefinition swaption, DATA_TYPE data);
+
+  RESULT_TYPE visitSwaptionBermudaFixedIborDefinition(SwaptionBermudaFixedIborDefinition swaption);
+
+  // -----     Inflation     -----
+
+  RESULT_TYPE visitCouponInflationZeroCouponFirstOfMonth(CouponInflationZeroCouponMonthlyDefinition coupon, DATA_TYPE data);
+
+  RESULT_TYPE visitCouponInflationZeroCouponFirstOfMonth(CouponInflationZeroCouponMonthlyDefinition coupon);
+
+  RESULT_TYPE visitCouponInflationZeroCouponInterpolation(CouponInflationZeroCouponInterpolationDefinition coupon, DATA_TYPE data);
+
+  RESULT_TYPE visitCouponInflationZeroCouponInterpolation(CouponInflationZeroCouponInterpolationDefinition coupon);
+
+  RESULT_TYPE visitCouponInflationZeroCouponMonthlyGearing(CouponInflationZeroCouponMonthlyGearingDefinition coupon, DATA_TYPE data);
+
+  RESULT_TYPE visitCouponInflationZeroCouponMonthlyGearing(CouponInflationZeroCouponMonthlyGearingDefinition coupon);
+
+  RESULT_TYPE visitCouponInflationZeroCouponInterpolationGearing(CouponInflationZeroCouponInterpolationGearingDefinition coupon, DATA_TYPE data);
+
+  RESULT_TYPE visitCouponInflationZeroCouponInterpolationGearing(CouponInflationZeroCouponInterpolationGearingDefinition coupon);
+
+  RESULT_TYPE visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurityDefinition<?> bond, DATA_TYPE data);
+
+  RESULT_TYPE visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurityDefinition<?> bond);
+
+  RESULT_TYPE visitBondCapitalIndexedTransaction(BondCapitalIndexedTransactionDefinition<?> bond, DATA_TYPE data);
+
+  RESULT_TYPE visitBondCapitalIndexedTransaction(BondCapitalIndexedTransactionDefinition<?> bond);
 
   // -----     Forex     -----
 
-  U visitForexDefinition(ForexDefinition fx, T data);
+  RESULT_TYPE visitForexDefinition(ForexDefinition fx, DATA_TYPE data);
 
-  U visitForexDefinition(ForexDefinition fx);
+  RESULT_TYPE visitForexDefinition(ForexDefinition fx);
 
-  U visitForexSwapDefinition(ForexSwapDefinition fx, T data);
+  RESULT_TYPE visitForexSwapDefinition(ForexSwapDefinition fx, DATA_TYPE data);
 
-  U visitForexSwapDefinition(ForexSwapDefinition fx);
+  RESULT_TYPE visitForexSwapDefinition(ForexSwapDefinition fx);
 
-  U visitForexOptionVanillaDefinition(ForexOptionVanillaDefinition fx, T data);
+  RESULT_TYPE visitForexOptionVanillaDefinition(ForexOptionVanillaDefinition fx, DATA_TYPE data);
 
-  U visitForexOptionVanillaDefinition(ForexOptionVanillaDefinition fx);
+  RESULT_TYPE visitForexOptionVanillaDefinition(ForexOptionVanillaDefinition fx);
 
-  U visitForexOptionSingleBarrierDefiniton(ForexOptionSingleBarrierDefinition fx, T data);
+  RESULT_TYPE visitForexOptionSingleBarrierDefiniton(ForexOptionSingleBarrierDefinition fx, DATA_TYPE data);
 
-  U visitForexOptionSingleBarrierDefiniton(ForexOptionSingleBarrierDefinition fx);
+  RESULT_TYPE visitForexOptionSingleBarrierDefiniton(ForexOptionSingleBarrierDefinition fx);
 
-  U visitForexNonDeliverableForwardDefinition(ForexNonDeliverableForwardDefinition ndf, T data);
+  RESULT_TYPE visitForexNonDeliverableForwardDefinition(ForexNonDeliverableForwardDefinition ndf, DATA_TYPE data);
 
-  U visitForexNonDeliverableForwardDefinition(ForexNonDeliverableForwardDefinition ndf);
+  RESULT_TYPE visitForexNonDeliverableForwardDefinition(ForexNonDeliverableForwardDefinition ndf);
 
-  U visitForexNonDeliverableOptionDefinition(ForexNonDeliverableOptionDefinition ndo, T data);
+  RESULT_TYPE visitForexNonDeliverableOptionDefinition(ForexNonDeliverableOptionDefinition ndo, DATA_TYPE data);
 
-  U visitForexNonDeliverableOptionDefinition(ForexNonDeliverableOptionDefinition ndo);
+  RESULT_TYPE visitForexNonDeliverableOptionDefinition(ForexNonDeliverableOptionDefinition ndo);
 
-  U visitForexOptionDigitalDefinition(ForexOptionDigitalDefinition fx, T data);
+  RESULT_TYPE visitForexOptionDigitalDefinition(ForexOptionDigitalDefinition fx, DATA_TYPE data);
 
-  U visitForexOptionDigitalDefinition(ForexOptionDigitalDefinition fx);
+  RESULT_TYPE visitForexOptionDigitalDefinition(ForexOptionDigitalDefinition fx);
 
 }

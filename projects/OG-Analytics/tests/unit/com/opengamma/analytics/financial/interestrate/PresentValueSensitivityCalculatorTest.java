@@ -230,7 +230,7 @@ public class PresentValueSensitivityCalculatorTest {
 
     //single curve
     Map<String, List<DoublesPair>> sense = PVSC.visit(iborAnnuity1Curve, curves);
-    assertTrue(!sense.containsValue(FORWARD_CURVE_NAME));
+    assertTrue(!sense.containsKey(FORWARD_CURVE_NAME));
     List<DoublesPair> senseAnal = clean(sense.get(FUNDING_CURVE_NAME), relTol, absTol);
     List<DoublesPair> senseFD = curveSensitvityFDCalculator(iborAnnuity1Curve, PVC, curves, FUNDING_CURVE_NAME, t, absTol);
     assertSensitivityEquals(senseFD, senseAnal, absTol);

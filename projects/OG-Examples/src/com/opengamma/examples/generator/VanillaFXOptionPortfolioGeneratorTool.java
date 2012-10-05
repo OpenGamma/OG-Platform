@@ -43,7 +43,7 @@ public class VanillaFXOptionPortfolioGeneratorTool extends AbstractPortfolioGene
     FX_OPTION[2] = fxOption3;
     final FXOptionSecurity fxOption4 = new FXOptionSecurity(Currency.EUR, Currency.USD, 1, 2, new Expiry(DateUtils.getUTCDate(2019, 1, 13)), DateUtils.getUTCDate(2019, 1, 13),
         true, european);
-    fxOption4.setName("Long 2 USD/EUR  expiring 2014-1-13");
+    fxOption4.setName("Long 2 USD/EUR  expiring 2019-1-13");
     FX_OPTION[3] = fxOption4;
   }
 

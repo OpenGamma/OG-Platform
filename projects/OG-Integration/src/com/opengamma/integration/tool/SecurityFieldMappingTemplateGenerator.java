@@ -11,10 +11,8 @@ import org.joda.beans.MetaProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import au.com.bytecode.opencsv.CSVWriter;
-
 import com.opengamma.component.tool.AbstractTool;
-import com.opengamma.integration.tool.config.ConfigImportExportTool;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecurityMetaDataRequest;
@@ -23,11 +21,13 @@ import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.generate.scripts.Scriptable;
 
+import au.com.bytecode.opencsv.CSVWriter;
+
 /**
  * Tool to generate a template for doing field mapping tasks
  */
 @Scriptable
-public class SecurityFieldMappingTemplateGenerator extends AbstractTool {
+public class SecurityFieldMappingTemplateGenerator extends AbstractTool<ToolContext> {
   private static final Logger s_logger = LoggerFactory.getLogger(SecurityFieldMappingTemplateGenerator.class);
   @Override
   protected void doRun() throws Exception {
@@ -50,6 +50,7 @@ public class SecurityFieldMappingTemplateGenerator extends AbstractTool {
   private void dumpSecurityStructure(CSVWriter csvWriter, String securityType, ManageableSecurity firstSecurity) {
     if (firstSecurity == null) {
       s_logger.error("null security passed to dumpSecurityStructure");
+      return;
     }
     s_logger.info("Processing security " + firstSecurity);
     csvWriter.writeNext(new String[] {securityType });
@@ -73,7 +74,7 @@ public class SecurityFieldMappingTemplateGenerator extends AbstractTool {
    * Main method to run the tool.
    */
   public static void main(String[] args) {  // CSIGNORE
-    new SecurityFieldMappingTemplateGenerator().initAndRun(args);
+    new SecurityFieldMappingTemplateGenerator().initAndRun(args, ToolContext.class);
     System.exit(0);
   }
 }

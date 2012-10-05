@@ -7,20 +7,31 @@ package com.opengamma.util.test;
 
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.difference;
-import static com.google.common.collect.Sets.newTreeSet;
 import static com.opengamma.util.RegexUtils.extract;
 import static com.opengamma.util.RegexUtils.matches;
 
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
 import org.apache.commons.io.FileUtils;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
@@ -40,7 +51,9 @@ import com.opengamma.util.tuple.Pair;
  */
 public class DbTool extends Task {
 
-  /** Logger. */
+  /**
+   * During installation, INFO level messages will be reported to the user as progress.
+   */
   private static final Logger s_logger = LoggerFactory.getLogger(DbTool.class);
 
   private static final String DATABASE_INSTALL_FOLDER = "install/db";
@@ -660,6 +673,41 @@ public class DbTool extends Task {
     }
     return scripts;
   }
+  
+  public Map<String, Integer> getLatestVersions() {
+    Map<String, Integer> result = new HashMap<String, Integer>();
+    for (String scriptDir : _dbScriptDirs) {
+      File parentDirectory = new File(scriptDir, DATABASE_CREATE_FOLDER);
+      for (File dialectDir : parentDirectory.listFiles()) {
+        if (!dialectDir.isDirectory()) {
+          continue;
+        }
+        Map<File, Map<Integer, File>> scripts = getScripts(dialectDir, CREATE_SCRIPT_PATTERN);
+        for (Map.Entry<File, Map<Integer, File>> masterScripts : scripts.entrySet()) {
+          String masterName = masterScripts.getKey().getName(); 
+          Set<Integer> versions = masterScripts.getValue().keySet();
+          if (versions.isEmpty()) {
+            continue;
+          }
+          int maxVersion = -1;
+          for (int version : versions) {
+            if (version > maxVersion) {
+              maxVersion = version;
+            }
+          }
+          if (result.containsKey(masterName)) {
+            if (((int) result.get(masterName)) != maxVersion) {
+              throw new BuildException("Latest versions differ between database dialects for master '" + masterName +
+                  "'. Found latest versions of both " + result.get(masterName) + " and " + maxVersion + ".");
+            }
+          } else {
+            result.put(masterName, maxVersion);
+          }
+        }
+      }
+    }
+    return result;
+  }
 
   public void createTables(String catalog, String schema, final TableCreationCallback callback) {
     final Map<String, Map<Integer, Pair<File, File>>> dbScripts = getScriptDirs();
@@ -677,8 +725,8 @@ public class DbTool extends Task {
     if (createScript == null || !createScript.exists()) {
       throw new OpenGammaRuntimeException("The " + migrateFromVersion + " create script is missing (" + createScript + ")");
     }
-    s_logger.info("Creating DB version " + migrateFromVersion);
-    s_logger.info("Executing create script " + dbScripts.get(migrateFromVersion).getFirst());
+    s_logger.debug("Creating {} DB version {}", masterDB, migrateFromVersion);
+    s_logger.debug("Executing create script {}", dbScripts.get(migrateFromVersion).getFirst());
     executeSQLScript(catalog, schema, createScript);
     if (callback != null) {
       callback.tablesCreatedOrUpgraded(Integer.toString(migrateFromVersion), masterDB);
@@ -689,8 +737,8 @@ public class DbTool extends Task {
       if (migrateScript == null || !migrateScript.exists()) {
         throw new OpenGammaRuntimeException("The " + v + " create script is missing (" + migrateScript + ")");
       }
-      s_logger.info("Migrating DB from " + (v - 1) + "version to" + v);
-      s_logger.info("Executing migrate script " + dbScripts.get(v).getFirst());
+      s_logger.debug("Migrating DB from version {} to {}", (v - 1), v);
+      s_logger.debug("Executing migrate script {}", dbScripts.get(v).getFirst());
       executeSQLScript(catalog, schema, migrateScript);
       if (callback != null) {
         callback.tablesCreatedOrUpgraded(Integer.toString(v), masterDB);
@@ -715,25 +763,25 @@ public class DbTool extends Task {
     }
 
     if (_clear) {
-      s_logger.info("Clearing tables...");
+      s_logger.info("Clearing database tables at {}", getJdbcUrl());
       initialize();
       clearTables(_catalog, _schema);
     }
 
     if (_drop) {
-      s_logger.info("Dropping schema...");
+      s_logger.info("Dropping existing database schema at {}", getJdbcUrl());
       initialize();
       dropSchema(_catalog, _schema);
     }
 
     if (_create) {
-      s_logger.info("Creating schema...");
+      s_logger.info("Creating new database schema at {}", getJdbcUrl());
       initialize();
       createSchema(_catalog, _schema);
     }
 
     if (_createTables) {
-      s_logger.info("Creating tables...");
+      s_logger.info("Creating database tables at {}", getJdbcUrl());
       initialize();
       createTables(_catalog, null, null);
       shutdown(_catalog);
@@ -743,7 +791,7 @@ public class DbTool extends Task {
       TestProperties.setBaseDir(_testPropertiesDir);
 
       for (String dbType : TestProperties.getDatabaseTypes(_testDbType)) {
-        s_logger.info("Creating " + dbType + " test database...");
+        s_logger.debug("Creating " + dbType + " test database...");
 
         String dbUrl = TestProperties.getDbHost(dbType);
         String user = TestProperties.getDbUsername(dbType);
@@ -760,8 +808,7 @@ public class DbTool extends Task {
         shutdown(getTestCatalog());
       }
     }
-
-    s_logger.info("All tasks succeeded.");
+    s_logger.info("OpenGamma database created at {}", getJdbcUrl());
   }
 
   public static void usage(Options options) {
@@ -822,7 +869,7 @@ public class DbTool extends Task {
     try {
       tool.execute();
     } catch (BuildException e) {
-      s_logger.info(e.getMessage());
+      s_logger.error(e.getMessage());
       usage(options);
       System.exit(-1);
     }

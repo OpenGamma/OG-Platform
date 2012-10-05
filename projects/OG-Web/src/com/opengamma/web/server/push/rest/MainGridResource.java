@@ -13,7 +13,7 @@ import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.web.server.push.analytics.AnalyticsView;
 import com.opengamma.web.server.push.analytics.GridStructure;
-import com.opengamma.web.server.push.analytics.ViewportSpecification;
+import com.opengamma.web.server.push.analytics.ViewportDefinition;
 
 /**
  *
@@ -30,27 +30,27 @@ public class MainGridResource extends AbstractGridResource implements Dependency
   }
 
   @Override
-  public long createViewport(String viewportId, String dataId, ViewportSpecification viewportSpecification) {
-    return _view.createViewport(_gridType, viewportId, dataId, viewportSpecification);
+  /* package */ long createViewport(int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
+    return _view.createViewport(_gridType, viewportId, callbackId, viewportDefinition).getFirst();
   }
 
   @Override
-  public AbstractViewportResource getViewport(String viewportId) {
+  public AbstractViewportResource getViewport(int viewportId) {
     return new MainGridViewportResource(_gridType, _view, viewportId);
   }
 
   @Override
   public Response openDependencyGraph(UriInfo uriInfo, int row, int col) {
-    String graphId = Long.toString(s_nextId.getAndIncrement());
-    URI graphUri = uriInfo.getAbsolutePathBuilder().path(graphId).build();
-    URI gridUri = uriInfo.getAbsolutePathBuilder().path(graphId).path(AbstractGridResource.class, "getGridStructure").build();
-    String gridId = gridUri.getPath();
-    _view.openDependencyGraph(_gridType, graphId, gridId, row, col);
+    int graphId = s_nextId.getAndIncrement();
+    String graphIdStr = Integer.toString(graphId);
+    URI graphUri = uriInfo.getAbsolutePathBuilder().path(graphIdStr).build();
+    String callbackId = graphUri.getPath();
+    _view.openDependencyGraph(_gridType, graphId, callbackId, row, col);
     return Response.status(Response.Status.CREATED).header(HttpHeaders.LOCATION, graphUri).build();
   }
 
   @Override
-  public AbstractGridResource getDependencyGraph(String graphId) {
+  public AbstractGridResource getDependencyGraph(int graphId) {
     return new DependencyGraphResource(_gridType, _view, graphId);
   }
 }

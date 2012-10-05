@@ -39,6 +39,10 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
    */
   public static final ExternalScheme IN_MEMORY_UNIQUE_SCHEME = ExternalScheme.of("In-memory Reference Rate unique");
   /**
+   * Scheme to use when specifying exchange names with simple descriptions e.g. "CME"
+   */
+  public static final ExternalScheme SIMPLE_EXCHANGE_NAME_SCHEME = ExternalScheme.of("Exchange Simple Name");
+  /**
    * Data store for the conventions.
    */
   private final ExternalIdBundleMapper<ConventionBundle> _mapper = new ExternalIdBundleMapper<ConventionBundle>(IN_MEMORY_UNIQUE_SCHEME.getName());
@@ -59,17 +63,21 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     CHConventions.addFixedIncomeInstrumentConventions(this);
     CHConventions.addTreasuryBondConvention(this);
     CHConventions.addCorporateBondConvention(this);
+    CLConventions.addFixedIncomeInstrumentConventions(this);
+    CNConventions.addFixedIncomeInstrumentConventions(this);
     DKConventions.addFixedIncomeInstrumentConventions(this);
     EUConventions.addFixedIncomeInstrumentConventions(this);
     GBConventions.addFixedIncomeInstrumentConventions(this);
     GBConventions.addTreasuryBondConvention(this);
     GBConventions.addCorporateBondConvention(this);
     GBConventions.addBondFutureConvention(this);
+    HKConventions.addFixedIncomeInstrumentConventions(this);
     INConventions.addFixedIncomeInstrumentConventions(this);
     JPConventions.addFixedIncomeInstrumentConventions(this);
     KRConventions.addFixedIncomeInstrumentConventions(this);
     MXConventions.addFixedIncomeInstrumentConventions(this);
     NZConventions.addFixedIncomeInstrumentConventions(this);
+    RUConventions.addFixedIncomeInstrumentConventions(this);
     TWConventions.addFixedIncomeInstrumentConventions(this);
     USConventions.addFixedIncomeInstrumentConventions(this);
     USConventions.addCAPMConvention(this);
@@ -102,6 +110,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addITCorporateBondConvention();
     addHUTreasuryBondConvention();
     addHUCorporateBondConvention();
+
+    ExchangeConventions.addExchangeFutureOptionConventions(this);
   }
 
   @Override
@@ -434,4 +444,17 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     return ExternalId.of(SIMPLE_NAME_SCHEME, securityId);
   }
 
+  /**
+   * Creates a simple exchange name id.
+   * <p>
+   * @param exchangeName  the simple exchange name, not null
+   * @return the exchange identifier, not null
+   */
+  public static ExternalId simpleExchangeNameSecurityId(final String exchangeName) {
+    ArgumentChecker.notNull(exchangeName, "exchange name");
+    if (exchangeName.length() == 0) {
+      throw new IllegalArgumentException("Exchange name is invalid: " + exchangeName);
+    }
+    return ExternalId.of(SIMPLE_EXCHANGE_NAME_SCHEME, exchangeName);
+  }
 }

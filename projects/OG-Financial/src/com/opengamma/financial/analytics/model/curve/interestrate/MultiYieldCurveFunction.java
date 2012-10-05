@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.curve.interestrate;
@@ -47,7 +47,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public abstract class MultiYieldCurveFunction extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(MultiYieldCurveFunction.class);
@@ -68,7 +68,7 @@ public abstract class MultiYieldCurveFunction extends AbstractFunction.NonCompil
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties curveProperties = getCurveProperties();
-    final ValueProperties properties = getProperties();
+    final ValueProperties properties = getJacobianProperties();
     final ValueSpecification curve = new ValueSpecification(ValueRequirementNames.YIELD_CURVE, target.toSpecification(), curveProperties);
     final ValueSpecification jacobian = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_JACOBIAN, target.toSpecification(), properties);
     return Sets.newHashSet(curve, jacobian);
@@ -168,21 +168,21 @@ public abstract class MultiYieldCurveFunction extends AbstractFunction.NonCompil
       }
     }
     assert curveCalculationConfigName != null;
-    final ValueProperties properties = getProperties(curveCalculationConfigName);
+    final ValueProperties properties = getJacobianProperties(curveCalculationConfigName);
     final ValueSpecification jacobian = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_JACOBIAN, targetSpec, properties);
     results.add(jacobian);
     return results;
   }
 
-  protected abstract ValueProperties getProperties();
+  protected abstract ValueProperties getJacobianProperties();
 
   protected abstract ValueProperties getCurveProperties();
 
-  protected abstract ValueProperties getProperties(final String curveCalculationConfigName);
+  protected abstract ValueProperties getJacobianProperties(final String curveCalculationConfigName);
 
   protected abstract ValueProperties getCurveProperties(final String curveCalculationConfigName, final String curveName);
 
-  protected abstract ValueProperties getProperties(final String curveCalculationConfigName, final String absoluteTolerance, final String relativeTolerance, final String maxIterations,
+  protected abstract ValueProperties getJacobianProperties(final String curveCalculationConfigName, final String absoluteTolerance, final String relativeTolerance, final String maxIterations,
       final String decomposition, final String useFiniteDifference);
 
   protected abstract ValueProperties getCurveProperties(final String curveCalculationConfigName, final String curveName, final String absoluteTolerance, final String relativeTolerance,

@@ -89,7 +89,7 @@ import com.opengamma.engine.value.ValueSpecification;
       return getTask().getComputationTarget(context);
     }
 
-    protected void run(final GraphBuildingContext context) {
+    protected boolean run(final GraphBuildingContext context) {
       throw new UnsupportedOperationException("Not runnable state (" + toString() + ")");
     }
 
@@ -209,10 +209,14 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   @Override
-  public void run(final GraphBuildingContext context) {
-    getState().run(context);
-    // Release the lock that the context added before we got queued
-    release(context);
+  public boolean tryRun(final GraphBuildingContext context) {
+    if (getState().run(context)) {
+      // Release the lock that the context added before we got queued
+      release(context);
+      return true;
+    } else {
+      return false;
+    }
   }
 
   private Set<ValueRequirement> getParentValueRequirements() {

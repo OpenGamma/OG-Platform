@@ -72,13 +72,11 @@ public abstract class AbstractWebSecurityResourceTestCase {
     
     HistoricalTimeSeriesMaster htsMaster = new InMemoryHistoricalTimeSeriesMaster();
     ConfigSource cfgSource = new MasterConfigSource(new InMemoryConfigMaster());
-    HistoricalTimeSeriesResolver htsResolver = new DefaultHistoricalTimeSeriesResolver(new DefaultHistoricalTimeSeriesSelector(cfgSource), htsMaster);
-    _htsSource = new MasterHistoricalTimeSeriesSource(htsMaster, htsResolver);
     
     addSecurity(WebResourceTestUtils.getEquitySecurity());
     addSecurity(WebResourceTestUtils.getBondFutureSecurity());
         
-    _webSecuritiesResource = new WebSecuritiesResource(_secMaster, _secLoader, _htsSource);
+    _webSecuritiesResource = new WebSecuritiesResource(_secMaster, _secLoader, htsMaster);
     MockServletContext sc = new MockServletContext("/web-engine", new FileSystemResourceLoader());
     Configuration cfg = FreemarkerOutputter.createConfiguration();
     cfg.setServletContextForTemplateLoading(sc, "WEB-INF/pages");

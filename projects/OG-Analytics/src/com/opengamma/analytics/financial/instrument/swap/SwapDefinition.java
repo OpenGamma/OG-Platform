@@ -8,7 +8,6 @@ package com.opengamma.analytics.financial.instrument.swap;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
@@ -17,6 +16,7 @@ import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
@@ -31,9 +31,9 @@ public class SwapDefinition implements InstrumentDefinitionWithData<Swap<? exten
   private final AnnuityDefinition<? extends PaymentDefinition> _secondLeg;
 
   public SwapDefinition(final AnnuityDefinition<? extends PaymentDefinition> firstLeg, final AnnuityDefinition<? extends PaymentDefinition> secondLeg) {
-    Validate.notNull(firstLeg, "first leg");
-    Validate.notNull(secondLeg, "second leg");
-    Validate.isTrue((firstLeg.isPayer() != secondLeg.isPayer()), "both legs have same payer flag");
+    ArgumentChecker.notNull(firstLeg, "first leg");
+    ArgumentChecker.notNull(secondLeg, "second leg");
+    ArgumentChecker.isTrue((firstLeg.isPayer() != secondLeg.isPayer()), "both legs have same payer flag");
     _firstLeg = firstLeg;
     _secondLeg = secondLeg;
   }
@@ -113,7 +113,7 @@ public class SwapDefinition implements InstrumentDefinitionWithData<Swap<? exten
   @SuppressWarnings({"unchecked", "rawtypes" })
   @Override
   public Swap<? extends Payment, ? extends Payment> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime>[] data, final String... yieldCurveNames) {
-    Validate.notNull(data, "index data time series array");
+    ArgumentChecker.notNull(data, "index data time series array");
     final Annuity<? extends Payment> firstLeg = getFirstLeg().toDerivative(date, data[0], yieldCurveNames);
     final Annuity<? extends Payment> secondLeg = getSecondLeg().toDerivative(date, data[1], yieldCurveNames);
     return new Swap(firstLeg, secondLeg);

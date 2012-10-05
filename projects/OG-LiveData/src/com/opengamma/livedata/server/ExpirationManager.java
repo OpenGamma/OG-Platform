@@ -36,7 +36,7 @@ public class ExpirationManager implements SubscriptionListener {
   /**
    * The live data server.
    */
-  private final AbstractLiveDataServer _dataServer;
+  private final StandardLiveDataServer _dataServer;
   /**
    * The extension to the timeout.
    */
@@ -47,7 +47,7 @@ public class ExpirationManager implements SubscriptionListener {
    * 
    * @param dataServer  the live data server, not null
    */
-  public ExpirationManager(AbstractLiveDataServer dataServer) {
+  public ExpirationManager(StandardLiveDataServer dataServer) {
     this(dataServer, DEFAULT_CHECK_PERIOD);
   }
 
@@ -57,7 +57,7 @@ public class ExpirationManager implements SubscriptionListener {
    * @param dataServer  the live data server, not null
    * @param checkPeriod  the check period in milliseconds
    */
-  public ExpirationManager(AbstractLiveDataServer dataServer, long checkPeriod) {
+  public ExpirationManager(StandardLiveDataServer dataServer, long checkPeriod) {
     this(dataServer, DEFAULT_TIMEOUT_EXTENSION, new Timer("ExpirationManager Timer"), checkPeriod);
   }
 
@@ -68,7 +68,7 @@ public class ExpirationManager implements SubscriptionListener {
    * @param timeoutExtension  the timeout extension in milliseconds
    * @param checkPeriod  the check period in milliseconds
    */
-  public ExpirationManager(AbstractLiveDataServer dataServer, long timeoutExtension, long checkPeriod) {
+  public ExpirationManager(StandardLiveDataServer dataServer, long timeoutExtension, long checkPeriod) {
     this(dataServer, timeoutExtension, new Timer("ExpirationManager Timer"), checkPeriod);
   }
 
@@ -80,7 +80,7 @@ public class ExpirationManager implements SubscriptionListener {
    * @param timer  the timer to use, not null
    * @param checkPeriod  the check period in milliseconds
    */
-  public ExpirationManager(AbstractLiveDataServer dataServer, long timeoutExtension, Timer timer, long checkPeriod) {
+  public ExpirationManager(StandardLiveDataServer dataServer, long timeoutExtension, Timer timer, long checkPeriod) {
     ArgumentChecker.notNull(dataServer, "dataServer");
     ArgumentChecker.notNull(timer, "timer");
     _dataServer = dataServer;
@@ -95,7 +95,7 @@ public class ExpirationManager implements SubscriptionListener {
    * 
    * @return the dataServer  the server, not null
    */
-  public AbstractLiveDataServer getDataServer() {
+  public StandardLiveDataServer getDataServer() {
     return _dataServer;
   }
 

@@ -10,8 +10,6 @@ import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -24,23 +22,12 @@ import java.util.Set;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import au.com.bytecode.opencsv.CSVReader;
 
@@ -51,8 +38,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.bbg.util.BloombergDomainIdentifierResolver;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -67,41 +52,30 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchR
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.master.position.PositionMaster;
+import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.MapUtils;
-import com.opengamma.util.PlatformConfigUtils;
 import com.opengamma.util.time.DateUtils;
+import com.opengamma.util.time.LocalDateRange;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Tool to load time-series information from Bloomberg.
+ * Loader that manages the process of loading time-series information from Bloomberg.
  * <p>
  * This loads missing historical time-series data from Bloomberg.
  */
 public class BloombergHistoricalLoader {
 
-  /** The spring configuration. */
-  public static final String CONTEXT_CONFIGURATION_PATH = "/com/opengamma/bbg/loader/bloomberg-historical-loader-context.xml";
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergHistoricalLoader.class);
 
-  private static final String FIELDS_OPTION = "fields";
-  private static final String DATAPROVIDERS_OPTION = "dataproviders";
-  private static final String HELP_OPTION = "help";
-  private static final String POSITION_MASTER_OPTION = "pm";
-  private static final String RELOAD_OPTION = "reload";
-  private static final String UPDATE_OPTION = "update";
-  private static final String START_OPTION = "start";
-  private static final String END_OPTION = "end";
-  private static final String UNIQUE_ID_OPTION = "unique";
-  private static final String CSV_OPTION = "csv";
   private static final LocalDate DEFAULT_START_DATE = LocalDate.of(1900, MonthOfYear.JANUARY, 1);
 
   private final HistoricalTimeSeriesMaster _timeSeriesMaster;
-  private final HistoricalTimeSeriesSource _bbgHistoricalTimeSeriesSource;
-  private PositionMaster _positionMaster;
+  private final HistoricalTimeSeriesProvider _historicalTimeSeriesProvider;
   private final BloombergHistoricalTimeSeriesLoader _loader;
+  private PositionMaster _positionMaster;
 
   private boolean _updateDb;
   private LocalDate _startDate;
@@ -114,16 +88,14 @@ public class BloombergHistoricalLoader {
   private boolean _bbgUniqueId;
   private boolean _isCsv;
 
-  private List<ExternalIdBundle> _errors = new ArrayList<ExternalIdBundle>();
-
   public BloombergHistoricalLoader(final HistoricalTimeSeriesMaster htsMaster, 
-      final HistoricalTimeSeriesSource underlyingHtsProvider, 
+      final HistoricalTimeSeriesProvider underlyingHtsProvider, 
       final ExternalIdResolver identifierProvider) {
     ArgumentChecker.notNull(htsMaster, "htsMaster");
     ArgumentChecker.notNull(underlyingHtsProvider, "underlyingHtsProvider");
     ArgumentChecker.notNull(identifierProvider, "identifierProvider");
     _timeSeriesMaster = htsMaster;
-    _bbgHistoricalTimeSeriesSource = underlyingHtsProvider;
+    _historicalTimeSeriesProvider = underlyingHtsProvider;
     _loader = new BloombergHistoricalTimeSeriesLoader(htsMaster, underlyingHtsProvider, identifierProvider);
   }
 
@@ -159,7 +131,11 @@ public class BloombergHistoricalLoader {
     _bbgUniqueId = bbgUniqueId;
   }
 
-  private boolean isCsv() {
+  /**
+   * Gets the csv field.
+   * @return the csv
+   */
+  public boolean isCsv() {
     return _isCsv;
   }
 
@@ -256,7 +232,6 @@ public class BloombergHistoricalLoader {
   }
 
   public void run() {
-    _errors.clear();
     //update/reload current timeseries in datastore
     if (_updateDb || _reload) {
       if (_reload) {
@@ -541,7 +516,7 @@ public class BloombergHistoricalLoader {
           Set<ExternalIdBundle> identifiers = fieldIdentifiers.getValue();
           
           String bbgDataProvider = BloombergDataUtils.resolveDataProvider(dataProvider);
-          Map<ExternalIdBundle, HistoricalTimeSeries> bbgLoadedTS = getTimeSeries(dataField, startDate, endDate, bbgDataProvider, identifiers);
+          Map<ExternalIdBundle, LocalDateDoubleTimeSeries> bbgLoadedTS = getTimeSeries(dataField, startDate, endDate, bbgDataProvider, identifiers);
           if (bbgLoadedTS.size() < identifiers.size()) {
             s_logger.error("Failed to load time series for {}", Sets.difference(identifiers, bbgLoadedTS.keySet()));
           }
@@ -551,10 +526,10 @@ public class BloombergHistoricalLoader {
     }
   }
 
-  private void storeUpdatedSeriesInDb(Map<ExternalIdBundle, HistoricalTimeSeries> bbgLoadedTS, Map<MetaDataKey, ObjectId> metaDataKeyMap, String dataProvider, String dataField) {
-    for (Entry<ExternalIdBundle, HistoricalTimeSeries> identifierTS : bbgLoadedTS.entrySet()) {
+  private void storeUpdatedSeriesInDb(Map<ExternalIdBundle, LocalDateDoubleTimeSeries> bbgLoadedTS, Map<MetaDataKey, ObjectId> metaDataKeyMap, String dataProvider, String dataField) {
+    for (Entry<ExternalIdBundle, LocalDateDoubleTimeSeries> identifierTS : bbgLoadedTS.entrySet()) {
       // ensure data points are after the last stored data point
-      LocalDateDoubleTimeSeries timeSeries = identifierTS.getValue().getTimeSeries();
+      LocalDateDoubleTimeSeries timeSeries = identifierTS.getValue();
       if (timeSeries.isEmpty()) {
         s_logger.info("No new data for series {} {}", dataField, identifierTS.getKey());
         continue;  // avoids errors in getLatestTime()
@@ -581,247 +556,7 @@ public class BloombergHistoricalLoader {
     }
   }
 
-  private String getBloombergDataProvider(String requestDataProvider) {
-    return (requestDataProvider == null || requestDataProvider.equals(BloombergDataUtils.UNKNOWN_DATA_PROVIDER)) ? null : requestDataProvider;
-  }
-
   //-------------------------------------------------------------------------
-  /**
-   * Program main entry point
-   * 
-   * <pre>
-   * usage: java com.opengamma.bbg.loader.BloombergHistoricalLoader [options]... [files]...
-   *  -e,--end (yyyymmdd)                            End date
-   *  -f,--fields (PX_LAST,VOLUME,LAST_VOLATILITY)   List of bloomberg fields
-   *  -h,--help                                      Print this message
-   *  -p,--dataproviders (CMPL,CMPT)                 List of data providers
-   *  -pm                                            Load missing data from position master
-   *  -r,--reload                                    Reload historical data
-   *  -s,--start (yyyymmdd)                          Start date
-   *  -u,--update                                    Update historical data in database
-   *  -unique                                        BLOOMBERG UNIQUE IDS in files otherwise treat as BLOOMBERG_TICKERS
-   *  -csv                                           Files are in CSV format (provider,field,id-scheme,id-value)
-   * </pre>
-   * 
-   * @param args the command line arguments
-   */
-  public static void main(String[] args) {   // CSIGNORE
-    PlatformConfigUtils.configureSystemProperties();
-    
-    Options options = createOptions();
-    processCommandLineOptions(args, options);
-  }
-
-  /**
-   * @param args
-   * @param options
-   */
-  private static void processCommandLineOptions(String[] args, Options options) {
-    CommandLineParser parser = new PosixParser();
-    CommandLine line = null;
-    try {
-      line = parser.parse(options, args);
-    } catch (ParseException e) {
-      usage(options);
-      return;
-    }
-    if (line.hasOption(HELP_OPTION)) {
-      usage(options);
-      return;
-    }
-    ConfigurableApplicationContext applicationContext = null;
-    try {
-      applicationContext = getApplicationContext();
-      BloombergHistoricalLoader dataLoader = getDataHistoricalLoader(applicationContext);
-      configureOptions(options, line, dataLoader);
-      dataLoader.run();
-      List<ExternalIdBundle> errors = dataLoader.getErrors();
-      if (!errors.isEmpty()) {
-        for (ExternalIdBundle bundle : errors) {
-          s_logger.warn("Could not load historical data for {}", bundle);
-        }
-      }
-    } finally {
-      if (applicationContext != null) {
-        applicationContext.close();
-      }
-    }
-    
-  }
-
-  private static void configureOptions(Options options, CommandLine line, BloombergHistoricalLoader dataLoader) {
-    //get files from command line if any
-    String[] files = line.getArgs();
-    dataLoader.setFiles(Arrays.asList(files));
-    if (line.hasOption(UPDATE_OPTION)) {
-      dataLoader.setUpdateDb(true);
-    }
-    if (line.hasOption(POSITION_MASTER_OPTION)) {
-      dataLoader.setLoadPositionMaster(true);
-    }
-    if (line.hasOption(RELOAD_OPTION)) {
-      dataLoader.setReload(true);
-    }
-    if (line.hasOption(CSV_OPTION)) {
-      dataLoader.setCsv(true);
-    }
-    if (line.hasOption(DATAPROVIDERS_OPTION)) {
-      if (dataLoader.isCsv()) {
-        s_logger.warn("Cannot specify data providers with CSV input files, since providers are part of the CSV file.");
-        usage(options);
-        return;
-      }
-
-      String[] dataProviders = splitByComma(line.getOptionValue(DATAPROVIDERS_OPTION));
-      dataLoader.setDataProviders(Arrays.asList(dataProviders));
-    }
-    if (line.hasOption(START_OPTION)) {
-      String startOption = line.getOptionValue(START_OPTION);
-      try {
-        LocalDate startDate = DateUtils.toLocalDate(startOption);
-        dataLoader.setStartDate(startDate);
-      } catch (Exception ex) {
-        s_logger.warn("unable to parse start date {}", startOption);
-        usage(options);
-        return;
-      }
-    }
-    if (line.hasOption(END_OPTION)) {
-      String endOption = line.getOptionValue(END_OPTION);
-      try {
-        LocalDate endDate = DateUtils.toLocalDate(endOption);
-        dataLoader.setEndDate(endDate);
-      } catch (Exception ex) {
-        s_logger.warn("unable to parse end date {}", endOption);
-        usage(options);
-        return;
-      }
-    }
-    String[] fields = null;
-    if (line.hasOption(FIELDS_OPTION)) {
-      if (dataLoader.isCsv()) {
-        s_logger.warn("Cannot specify fields with CSV input files, since fields are part of the CSV file.");
-        usage(options);
-        return;
-      }
-
-      fields = splitByComma(line.getOptionValue(FIELDS_OPTION));
-      dataLoader.setDataFields(Arrays.asList(fields));
-    }
-
-    if (line.hasOption(UNIQUE_ID_OPTION)) {
-      dataLoader.setBbgUniqueId(true);
-    }
-
-    //check we have right options and input files
-    if (files != null && files.length > 0 && !dataLoader.isCsv() && (fields == null || fields.length == 0)) {
-      s_logger.warn("DataFields must be specified");
-      usage(options);
-      return;
-    }
-  }
-
-  private static String[] splitByComma(String word) {
-    return word.split(",\\s*");
-  }
- 
-  private static BloombergHistoricalLoader getDataHistoricalLoader(ApplicationContext context) {    
-    BloombergHistoricalLoader loader = (BloombergHistoricalLoader) context.getBean("htsLoader");
-    return loader;
-  }
-  
-  private static ConfigurableApplicationContext getApplicationContext() {
-    ConfigurableApplicationContext context = new ClassPathXmlApplicationContext(CONTEXT_CONFIGURATION_PATH);
-    context.start();
-    return context;
-  }
-
-  /**
-   * @param options
-   */
-  private static void usage(Options options) {
-    HelpFormatter formatter = new HelpFormatter();
-    formatter.setWidth(120);
-    formatter.printHelp("java " + BloombergHistoricalLoader.class.getName() + " [options]... [files]...", options);
-  }
-
-  /**
-   * @return
-   */
-  private static Options createOptions() {
-    Options options = new Options();
-    options.addOption(createHelpOption());
-    options.addOption(createDataProviderOption());
-    options.addOption(createFieldsOption());
-    options.addOption(createReloadOption());
-    options.addOption(createLoadPositionMasterOption());
-    options.addOption(createUpdateOption());
-    options.addOption(createStartOption());
-    options.addOption(createEndOption());
-    options.addOption(createUniqueOption());
-    options.addOption(createCsvOption());
-    return options;
-  }
-  
-  private static Option createUniqueOption() {
-    return new Option(UNIQUE_ID_OPTION, false, "BLOOMBERG UNIQUE IDS in files otherwise treat as BLOOMBERG_TICKERS");
-  }
-  
-  private static Option createCsvOption() {
-    OptionBuilder.withLongOpt(CSV_OPTION);
-    OptionBuilder.withDescription("CSV input files");
-    return OptionBuilder.create("csv");
-  }
-
-
-  private static Option createEndOption() {
-    OptionBuilder.withLongOpt(END_OPTION);
-    OptionBuilder.withDescription("End date");
-    OptionBuilder.hasArg();
-    OptionBuilder.withArgName("yyyymmdd");
-    return OptionBuilder.create("e");
-  }
-
-  private static Option createStartOption() {
-    OptionBuilder.withLongOpt(START_OPTION);
-    OptionBuilder.withDescription("Start date");
-    OptionBuilder.hasArg();
-    OptionBuilder.withArgName("yyyymmdd");
-    return OptionBuilder.create("s");
-  }
-
-  private static Option createUpdateOption() {
-    return new Option("u", UPDATE_OPTION, false, "Update historical data in database");
-  }
-
-  private static Option createReloadOption() {
-    return new Option("r", RELOAD_OPTION, false, "Reload historical data");
-  }
-
-  private static Option createLoadPositionMasterOption() {
-    return new Option(POSITION_MASTER_OPTION, false, "Load missing data from position master");
-  }
-  
-  private static Option createHelpOption() {
-    return new Option("h", HELP_OPTION, false, "Print this message");
-  }
-
-  private static Option createFieldsOption() {
-    OptionBuilder.withLongOpt(FIELDS_OPTION);
-    OptionBuilder.withDescription("List of bloomberg fields");
-    OptionBuilder.hasArg();
-    OptionBuilder.withArgName("PX_LAST,VOLUME,LAST_VOLATILITY");
-    return OptionBuilder.create("f");
-  }
-  
-  private static Option createDataProviderOption() {
-    OptionBuilder.withLongOpt(DATAPROVIDERS_OPTION);
-    OptionBuilder.withDescription("List of data providers");
-    OptionBuilder.hasArg();
-    OptionBuilder.withArgName("CMPL,CMPT");
-    return OptionBuilder.create("p");
-  }
-  
   private static class MetaDataKey {
     private ExternalIdBundle _identifiers;
     private String _dataProvider;
@@ -880,20 +615,13 @@ public class BloombergHistoricalLoader {
     }
   }
 
-  /**
-   * Gets the errors field.
-   * @return the errors
-   */
-  public List<ExternalIdBundle> getErrors() {
-    return Collections.unmodifiableList(_errors);
-  }
-
   //-------------------------------------------------------------------------
-  private Map<ExternalIdBundle, HistoricalTimeSeries> getTimeSeries(
+  private Map<ExternalIdBundle, LocalDateDoubleTimeSeries> getTimeSeries(
       final String dataField, final LocalDate startDate, final LocalDate endDate, String bbgDataProvider, Set<ExternalIdBundle> identifierSet) {
     s_logger.debug("Loading time series {} ({}-{}) {}: {}", new Object[] {dataField, startDate, endDate, bbgDataProvider, identifierSet});
-    return _bbgHistoricalTimeSeriesSource.getHistoricalTimeSeries(
-        identifierSet, BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME, bbgDataProvider, dataField, startDate, true, endDate, true);
+    LocalDateRange dateRange = LocalDateRange.of(startDate, endDate, true);
+    return _historicalTimeSeriesProvider.getHistoricalTimeSeries(
+        identifierSet, BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME, bbgDataProvider, dataField, dateRange);
   }
 
 }

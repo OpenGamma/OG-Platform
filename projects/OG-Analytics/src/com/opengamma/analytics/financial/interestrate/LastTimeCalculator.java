@@ -11,6 +11,7 @@ import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIbor;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondIborSecurity;
@@ -164,6 +165,13 @@ public final class LastTimeCalculator extends AbstractInstrumentDerivativeVisito
   }
 
   @Override
+  public Double visitDepositZero(final DepositZero deposit) {
+    return deposit.getEndTime();
+  }
+
+  // -----     Bond     -----
+
+  @Override
   public Double visitBondFixedSecurity(final BondFixedSecurity bond) {
     return Math.max(visit(bond.getCoupon()), visit(bond.getNominal()));
   }
@@ -183,9 +191,11 @@ public final class LastTimeCalculator extends AbstractInstrumentDerivativeVisito
     return visit(bond.getBondStandard());
   }
 
+  // -----     Bond     -----
+
   @Override
-  public Double visitDepositZero(final DepositZero deposit) {
-    return deposit.getEndTime();
+  public Double visitBillTransaction(final BillTransaction bill) {
+    return bill.getBillStandard().getEndTime();
   }
 
   // -----     Forex     -----

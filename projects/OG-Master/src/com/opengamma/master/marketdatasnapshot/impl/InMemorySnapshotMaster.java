@@ -86,7 +86,7 @@ public class InMemorySnapshotMaster extends SimpleAbstractInMemoryMaster<Managea
 
   //-------------------------------------------------------------------------
   @Override
-  public MarketDataSnapshotSearchResult search(MarketDataSnapshotSearchRequest request) {
+  public MarketDataSnapshotSearchResult search(final MarketDataSnapshotSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
     final List<MarketDataSnapshotDocument> list = new ArrayList<MarketDataSnapshotDocument>();
     for (MarketDataSnapshotDocument doc : _store.values()) {
@@ -102,7 +102,7 @@ public class InMemorySnapshotMaster extends SimpleAbstractInMemoryMaster<Managea
 
   //-------------------------------------------------------------------------
   @Override
-  public MarketDataSnapshotDocument get(UniqueId uniqueId) {
+  public MarketDataSnapshotDocument get(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     validateUniqueId(uniqueId);
     final MarketDataSnapshotDocument document = _store.get(uniqueId.getObjectId());
@@ -114,7 +114,7 @@ public class InMemorySnapshotMaster extends SimpleAbstractInMemoryMaster<Managea
 
   //-------------------------------------------------------------------------
   @Override
-  public MarketDataSnapshotDocument get(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+  public MarketDataSnapshotDocument get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     validateObjectId(objectId.getObjectId());
@@ -127,7 +127,7 @@ public class InMemorySnapshotMaster extends SimpleAbstractInMemoryMaster<Managea
 
   //-------------------------------------------------------------------------
   @Override
-  public MarketDataSnapshotDocument add(MarketDataSnapshotDocument document) {
+  public MarketDataSnapshotDocument add(final MarketDataSnapshotDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getObject(), "document.snapshot");
 
@@ -146,7 +146,7 @@ public class InMemorySnapshotMaster extends SimpleAbstractInMemoryMaster<Managea
 
   //-------------------------------------------------------------------------
   @Override
-  public MarketDataSnapshotDocument update(MarketDataSnapshotDocument document) {
+  public MarketDataSnapshotDocument update(final MarketDataSnapshotDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     ArgumentChecker.notNull(document.getObject(), "document.snapshot");
@@ -181,13 +181,13 @@ public class InMemorySnapshotMaster extends SimpleAbstractInMemoryMaster<Managea
 
   //-------------------------------------------------------------------------
   @Override
-  public MarketDataSnapshotDocument correct(MarketDataSnapshotDocument document) {
+  public MarketDataSnapshotDocument correct(final MarketDataSnapshotDocument document) {
     return update(document);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public MarketDataSnapshotHistoryResult history(MarketDataSnapshotHistoryRequest request) {
+  public MarketDataSnapshotHistoryResult history(final MarketDataSnapshotHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     validateObjectId(request.getObjectId());

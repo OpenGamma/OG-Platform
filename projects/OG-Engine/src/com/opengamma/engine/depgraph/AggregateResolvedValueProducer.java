@@ -28,6 +28,9 @@ import com.opengamma.engine.value.ValueRequirement;
     super(valueRequirement);
   }
 
+  /**
+   * Returns the number of pending tasks. The caller must hold the monitor.
+   */
   protected int getPendingTasks() {
     return _pendingTasks;
   }
@@ -38,6 +41,11 @@ import com.opengamma.engine.value.ValueRequirement;
     storeFailure(failure);
     Collection<ResolutionPump> pumps = null;
     synchronized (this) {
+      if (_pendingTasks == Integer.MIN_VALUE) {
+        // We were discarded after we requested the callback
+        s_logger.debug("Failed resolution after discard of {}", this);
+        return;
+      }
       assert _pendingTasks > 0;
       if (--_pendingTasks == 0) {
         if (_wantResult) {
@@ -55,53 +63,86 @@ import com.opengamma.engine.value.ValueRequirement;
     pumpImpl(context, pumps);
   }
 
+  /**
+   * Tests if the result about to be pushed from {@link #resolved} can be considered the "last result". The result has come from the last pending task. The default behavior is to return true but a
+   * sub-class that hooks the {@link #finished} call to introduce more productions must return false to avoid an intermediate last result being passed to the consumer of this aggregate.
+   * <p>
+   * This is called holding the monitor.
+   * 
+   * @return true if the result really is the last result, false otherwise
+   */
+  protected boolean isLastResult() {
+    return true;
+  }
+
   @Override
   public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue value, final ResolutionPump pump) {
-    s_logger.debug("Received {} for {}", value, valueRequirement);
-    boolean wantedResult = false;
-    final boolean lastResult;
-    synchronized (this) {
-      assert _pendingTasks > 0;
-      if (_wantResult) {
-        s_logger.debug("Clearing \"want result\" flag for {}", this);
-        wantedResult = true;
-        _wantResult = false;
-      }
-      lastResult = ((_pendingTasks == 1) && (pump == null) && _pumps.isEmpty());
-    }
-    // Note that the lastResult indicator isn't 100% if there are concurrent calls to resolved. The "last" condition may
-    // not be seen. The alternative would be to serialize the calls through pushResult so that we can guarantee spotting
-    // the final one.
-    if (pushResult(context, value, lastResult)) {
-      Collection<ResolutionPump> pumps = null;
+    do {
+      s_logger.debug("Received {} for {}", value, valueRequirement);
+      boolean wantedResult = false;
+      final boolean lastResult;
       synchronized (this) {
-        assert _pendingTasks > 0;
-        if (pump != null) {
-          _pumps.add(pump);
+        if (_pendingTasks == Integer.MIN_VALUE) {
+          // We were discarded after we requested the callback
+          s_logger.debug("Successful resolution after discard of {}", this);
+          break;
         }
-        if (--_pendingTasks == 0) {
-          if (_wantResult) {
-            s_logger.debug("Pumping underlying after last input resolved for {}", this);
-            pumps = pumpImpl();
-          } else {
-            s_logger.debug("No pending tasks after last input resolved for {} but no further results requested", this);
+        assert _pendingTasks > 0;
+        if (_wantResult) {
+          s_logger.debug("Clearing \"want result\" flag for {}", this);
+          wantedResult = true;
+          _wantResult = false;
+        }
+        lastResult = (pump == null) && (_pendingTasks == 1) && _pumps.isEmpty() && isLastResult();
+      }
+      // Note that the lastResult indicator isn't 100% if there are concurrent calls to resolved. The "last" condition may
+      // not be seen. The alternative would be to serialize the calls through pushResult so that we can guarantee spotting
+      // the final one.
+      if (pushResult(context, value, lastResult)) {
+        Collection<ResolutionPump> pumps = null;
+        synchronized (this) {
+          if (_pendingTasks == Integer.MIN_VALUE) {
+            // We were discarded while the result was handled
+            s_logger.debug("Discard of {} while pushing result", this);
+            break;
+          }
+          assert _pendingTasks > 0;
+          if (pump != null) {
+            _pumps.add(pump);
+          }
+          if (--_pendingTasks == 0) {
+            if (_wantResult && !lastResult) {
+              s_logger.debug("Pumping underlying after last input resolved for {}", this);
+              pumps = pumpImpl();
+            } else {
+              s_logger.debug("No pending tasks after last input resolved for {} but no further results requested", this);
+            }
           }
         }
-      }
-      pumpImpl(context, pumps);
-    } else {
-      if (wantedResult) {
-        synchronized (this) {
-          assert _pendingTasks > 0;
-          s_logger.debug("Reinstating \"want result\" flag for {}", this);
-          _wantResult = true;
+        pumpImpl(context, pumps);
+      } else {
+        if (wantedResult) {
+          synchronized (this) {
+            if (_pendingTasks == Integer.MIN_VALUE) {
+              // We were discarded while the result was rejected
+              s_logger.debug("Discard of {} while pushing rejected result", this);
+              break;
+            }
+            assert _pendingTasks > 0;
+            s_logger.debug("Reinstating \"want result\" flag for {}", this);
+            _wantResult = true;
+          }
+        }
+        if (pump != null) {
+          context.pump(pump);
+        } else {
+          context.failed(this, valueRequirement, null);
         }
       }
-      if (pump != null) {
-        context.pump(pump);
-      } else {
-        context.failed(this, valueRequirement, null);
-      }
+      return;
+    } while (false);
+    if (pump != null) {
+      context.close(pump);
     }
   }
 
@@ -198,6 +239,10 @@ import com.opengamma.engine.value.ValueRequirement;
         if (s_logger.isDebugEnabled()) {
           s_logger.debug("Releasing {} - with {} pumped inputs", this, _pumps.size());
         }
+        // If _pendingTasks > 0 then there may be calls to failure or resolved from one or more of them. Setting _pendingTasks to
+        // Integer.MIN_VALUE means we can detect these and discard them. Our reference count is zero so nothing subscribing to us
+        // cares.
+        _pendingTasks = Integer.MIN_VALUE;
         if (_pumps.isEmpty()) {
           return count;
         }

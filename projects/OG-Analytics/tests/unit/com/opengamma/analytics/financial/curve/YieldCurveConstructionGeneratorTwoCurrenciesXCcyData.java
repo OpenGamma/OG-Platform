@@ -13,20 +13,26 @@ import java.util.List;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.analytics.financial.curve.building.MultipleYieldCurveFinderGeneratorDataBundle;
+import com.opengamma.analytics.financial.curve.building.MultipleYieldCurveFinderGeneratorFunction;
+import com.opengamma.analytics.financial.curve.building.MultipleYieldCurveFinderGeneratorJacobian;
+import com.opengamma.analytics.financial.curve.generator.GeneratorYDCurve;
+import com.opengamma.analytics.financial.curve.generator.GeneratorCurveYieldInterpolatedNode;
+import com.opengamma.analytics.financial.curve.sensitivity.ParameterSensitivityCalculator;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
-import com.opengamma.analytics.financial.instrument.index.Generator;
+import com.opengamma.analytics.financial.instrument.index.GeneratorInstrument;
 import com.opengamma.analytics.financial.instrument.index.GeneratorDeposit;
 import com.opengamma.analytics.financial.instrument.index.GeneratorDepositON;
-import com.opengamma.analytics.financial.instrument.index.GeneratorFixedON;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
 import com.opengamma.analytics.financial.instrument.index.GeneratorForexSwap;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapXCcyIborIbor;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
-import com.opengamma.analytics.financial.instrument.index.generator.GeneratorSwapTestsMaster;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedONDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapXCcyIborIborDefinition;
@@ -85,11 +91,11 @@ public class YieldCurveConstructionGeneratorTwoCurrenciesXCcyData {
   private static final IndexON INDEX_ON_1 = new IndexON("Fed Fund", CCY1, DAY_COUNT_CASH, 1, CALENDAR);
   private static final GeneratorDepositON GENERATOR_DEPOSIT_ON_1 = new GeneratorDepositON("USD Deposit ON", CCY1, CALENDAR, DAY_COUNT_CASH);
   private static final GeneratorDepositON GENERATOR_DEPOSIT_ON_2 = new GeneratorDepositON("EUR Deposit ON", CCY2, CALENDAR, DAY_COUNT_CASH);
-  private static final GeneratorFixedON GENERATOR_OIS_1 = new GeneratorFixedON("USD1YFEDFUND", INDEX_ON_1, Period.ofMonths(12), DAY_COUNT_CASH, BDC, true, SPOT_LAG, SPOT_LAG);
+  private static final GeneratorSwapFixedON GENERATOR_OIS_1 = new GeneratorSwapFixedON("USD1YFEDFUND", INDEX_ON_1, Period.ofMonths(12), DAY_COUNT_CASH, BDC, true, SPOT_LAG, SPOT_LAG);
   private static final GeneratorForexSwap GENERATOR_FX = new GeneratorForexSwap("EURUSD", CCY2, CCY1, CALENDAR, SPOT_LAG, BDC, true);
   private static final GeneratorDeposit GENERATOR_DEPOSIT_1 = new GeneratorDeposit("USD Deposit", CCY1, CALENDAR, SPOT_LAG, DAY_COUNT_CASH, BDC, true);
   private static final GeneratorDeposit GENERATOR_DEPOSIT_2 = new GeneratorDeposit("EuR Deposit", CCY2, CALENDAR, SPOT_LAG, DAY_COUNT_CASH, BDC, true);
-  private static final GeneratorSwapTestsMaster GENERATOR_SWAP_MASTER = GeneratorSwapTestsMaster.getInstance();
+  private static final GeneratorSwapFixedIborMaster GENERATOR_SWAP_MASTER = GeneratorSwapFixedIborMaster.getInstance();
   private static final GeneratorSwapFixedIbor USD6MLIBOR3M = GENERATOR_SWAP_MASTER.getGenerator("USD6MLIBOR3M", CALENDAR);
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR3M = GENERATOR_SWAP_MASTER.getGenerator("EUR1YEURIBOR3M", CALENDAR);
   private static final IborIndex USDLIBOR3M = USD6MLIBOR3M.getIborIndex();
@@ -139,8 +145,8 @@ public class YieldCurveConstructionGeneratorTwoCurrenciesXCcyData {
   /** Market values for the dsc USD curve */
   public static final double[] DSC_1_MARKET_QUOTES = new double[] {0.0045, 0.0050, 0.0075, 0.0080, 0.0085, 0.0090, 0.0095, 0.0110, 0.0120, 0.0130, 0.0140, 0.0150, 0.0200};
   /** Generators for the dsc USD curve */
-  public static final Generator[] DSC_1_GENERATORS = new Generator[] {GENERATOR_DEPOSIT_ON_1, GENERATOR_DEPOSIT_ON_1, GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1,
-      GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1};
+  public static final GeneratorInstrument[] DSC_1_GENERATORS = new GeneratorInstrument[] {GENERATOR_DEPOSIT_ON_1, GENERATOR_DEPOSIT_ON_1, GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1, 
+    GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1};
   /** Tenors for the dsc USD curve */
   public static final Period[] DSC_1_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(1), Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9),
       Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(10)};
@@ -148,15 +154,15 @@ public class YieldCurveConstructionGeneratorTwoCurrenciesXCcyData {
   /** Market values for the Fwd 3M USD curve */
   public static final double[] FWD_1_MARKET_QUOTES = new double[] {0.0050, 0.0075, 0.0160, 0.0170, 0.0200, 0.0225};
   /** Generators for the Fwd 3M USD curve */
-  public static final Generator[] FWD_1_GENERATORS = new Generator[] {GENERATOR_DEPOSIT_1, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M};
+  public static final GeneratorInstrument[] FWD_1_GENERATORS = new GeneratorInstrument[] {GENERATOR_DEPOSIT_1, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M};
   /** Tenors for the Fwd 3M USD curve */
   public static final Period[] FWD_1_TENOR = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(5), Period.ofYears(10)};
 
   /** Market values for the dsc EUR curve */
   public static final double[] DSC_2_MARKET_QUOTES = new double[] {0.0070, 0.0075, 0.0002, 0.0004, 0.0006, 0.0012, 0.0018, 0.0025, -0.0025, -0.0025, -0.0025, -0.0025, -0.0025};
   /** Generators for the dsc EUR curve */
-  public static final Generator[] DSC_2_GENERATORS = new Generator[] {GENERATOR_DEPOSIT_ON_2, GENERATOR_DEPOSIT_ON_2, GENERATOR_FX, GENERATOR_FX, GENERATOR_FX, GENERATOR_FX, GENERATOR_FX,
-      GENERATOR_FX, GENERATOR_XCCY, GENERATOR_XCCY, GENERATOR_XCCY, GENERATOR_XCCY, GENERATOR_XCCY};
+  public static final GeneratorInstrument[] DSC_2_GENERATORS = new GeneratorInstrument[] {GENERATOR_DEPOSIT_ON_2, GENERATOR_DEPOSIT_ON_2, GENERATOR_FX, GENERATOR_FX, GENERATOR_FX, GENERATOR_FX, 
+    GENERATOR_FX, GENERATOR_FX, GENERATOR_XCCY, GENERATOR_XCCY, GENERATOR_XCCY, GENERATOR_XCCY, GENERATOR_XCCY};
   /** Tenors for the dsc EUR curve */
   public static final Period[] DSC_2_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(1), Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9),
       Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(10)};
@@ -167,8 +173,8 @@ public class YieldCurveConstructionGeneratorTwoCurrenciesXCcyData {
   /** Market values for the Fwd 3M EUR curve */
   public static final double[] FWD_2_MARKET_QUOTES = new double[] {0.0075, 0.0100, 0.0185, 0.0195, 0.0205, 0.0215, 0.0225, 0.0250};
   /** Generators for the Fwd 3M USD curve */
-  public static final Generator[] FWD_2_GENERATORS = new Generator[] {GENERATOR_DEPOSIT_2, EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M,
-      EUR1YEURIBOR3M};
+  public static final GeneratorInstrument[] FWD_2_GENERATORS = new GeneratorInstrument[] {GENERATOR_DEPOSIT_2, EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M, 
+    EUR1YEURIBOR3M, EUR1YEURIBOR3M};
   /** Tenors for the Fwd 3M USD curve */
   public static final Period[] FWD_2_TENOR = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
       Period.ofYears(10)};
@@ -207,7 +213,7 @@ public class YieldCurveConstructionGeneratorTwoCurrenciesXCcyData {
     FWD_2;
   }
 
-  public static List<InstrumentDefinition<?>> getDefinitions(final double[] marketQuotes, final Generator[] generators, final Period[] tenors) {
+  public static List<InstrumentDefinition<?>> getDefinitions(final double[] marketQuotes, final GeneratorInstrument[] generators, final Period[] tenors) {
     final List<InstrumentDefinition<?>> definitions = new ArrayList<InstrumentDefinition<?>>();
     for (int loopmv = 0; loopmv < marketQuotes.length; loopmv++) {
       definitions.add(generators[loopmv].generateInstrument(NOW, tenors[loopmv], marketQuotes[loopmv], NOTIONAL, FX_MATRIX));
@@ -231,7 +237,7 @@ public class YieldCurveConstructionGeneratorTwoCurrenciesXCcyData {
     return 0.01;
   }
 
-  @SuppressWarnings({"unchecked"})
+  @SuppressWarnings({"unchecked" })
   /**
    * The returned pair contains 1) the yield curve bundle and 2) the inverse Jacobian (derivative of the curve parameters with respect to the market quotes).
    */
@@ -310,7 +316,7 @@ public class YieldCurveConstructionGeneratorTwoCurrenciesXCcyData {
       fwd2Node[j++] = MATURITY_CALCULATOR.visit(ird);
     }
 
-    final LinkedHashMap<String, GeneratorCurve> curveGenerators = new LinkedHashMap<String, GeneratorCurve>();
+    final LinkedHashMap<String, GeneratorYDCurve> curveGenerators = new LinkedHashMap<String, GeneratorYDCurve>();
     curveGenerators.put(CURVE_NAME_DSC_1, new GeneratorCurveYieldInterpolatedNode(dsc1Node, INTERPOLATOR));
     curveGenerators.put(CURVE_NAME_FWD_1, new GeneratorCurveYieldInterpolatedNode(fwd1Node, INTERPOLATOR));
     curveGenerators.put(CURVE_NAME_DSC_2, new GeneratorCurveYieldInterpolatedNode(dsc2Node, INTERPOLATOR));
@@ -350,7 +356,7 @@ public class YieldCurveConstructionGeneratorTwoCurrenciesXCcyData {
     return new ObjectsPair<YieldCurveBundle, DoubleMatrix2D>(bundle, inverseJacobian);
   }
 
-  @SuppressWarnings({"unchecked"})
+  @SuppressWarnings({"unchecked" })
   /**
    * Build the curves and returns a pair containing 
    * 1) the yield curve bundle (4 curves) and 
@@ -396,7 +402,7 @@ public class YieldCurveConstructionGeneratorTwoCurrenciesXCcyData {
       initGuess1[i1++] = initialGuess(instrument);
       fwd1Node[j1++] = MATURITY_CALCULATOR.visit(ird);
     }
-    final LinkedHashMap<String, GeneratorCurve> curveGenerators1 = new LinkedHashMap<String, GeneratorCurve>();
+    final LinkedHashMap<String, GeneratorYDCurve> curveGenerators1 = new LinkedHashMap<String, GeneratorYDCurve>();
     curveGenerators1.put(CURVE_NAME_DSC_1, new GeneratorCurveYieldInterpolatedNode(dsc1Node, INTERPOLATOR));
     curveGenerators1.put(CURVE_NAME_FWD_1, new GeneratorCurveYieldInterpolatedNode(fwd1Node, INTERPOLATOR));
     final YieldCurveBundle knowData = new YieldCurveBundle(FX_MATRIX, CCY_MAP);
@@ -449,7 +455,7 @@ public class YieldCurveConstructionGeneratorTwoCurrenciesXCcyData {
       fwd2Node[j2++] = MATURITY_CALCULATOR.visit(ird);
     }
 
-    final LinkedHashMap<String, GeneratorCurve> curveGenerators2 = new LinkedHashMap<String, GeneratorCurve>();
+    final LinkedHashMap<String, GeneratorYDCurve> curveGenerators2 = new LinkedHashMap<String, GeneratorYDCurve>();
     curveGenerators2.put(CURVE_NAME_DSC_2, new GeneratorCurveYieldInterpolatedNode(dsc2Node, INTERPOLATOR));
     curveGenerators2.put(CURVE_NAME_FWD_2, new GeneratorCurveYieldInterpolatedNode(fwd2Node, INTERPOLATOR));
     final MultipleYieldCurveFinderGeneratorDataBundle data2 = new MultipleYieldCurveFinderGeneratorDataBundle(instruments2, bundle1, curveGenerators2);
@@ -463,7 +469,7 @@ public class YieldCurveConstructionGeneratorTwoCurrenciesXCcyData {
     final InstrumentDerivative[] instrumentsT = new InstrumentDerivative[nbDsc1 + nbFwd1 + nbDsc2 + nbFwd2];
     System.arraycopy(instruments1, 0, instrumentsT, 0, nbDsc1 + nbFwd1);
     System.arraycopy(instruments2, 0, instrumentsT, nbDsc1 + nbFwd1, nbDsc2 + nbFwd2);
-    final LinkedHashMap<String, GeneratorCurve> curveGeneratorsT = new LinkedHashMap<String, GeneratorCurve>();
+    final LinkedHashMap<String, GeneratorYDCurve> curveGeneratorsT = new LinkedHashMap<String, GeneratorYDCurve>();
     curveGeneratorsT.put(CURVE_NAME_DSC_1, new GeneratorCurveYieldInterpolatedNode(dsc1Node, INTERPOLATOR));
     curveGeneratorsT.put(CURVE_NAME_FWD_1, new GeneratorCurveYieldInterpolatedNode(fwd1Node, INTERPOLATOR));
     curveGeneratorsT.put(CURVE_NAME_DSC_2, new GeneratorCurveYieldInterpolatedNode(dsc2Node, INTERPOLATOR));

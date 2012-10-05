@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.math.linearalgebra;
 
+import static org.testng.AssertJUnit.assertArrayEquals;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
@@ -74,7 +75,7 @@ public class SVDecompositionCommonsResultTest {
     assertRealMatrixEquals(UT, SVD.getUT());
     assertRealMatrixEquals(V, SVD.getV());
     assertRealMatrixEquals(VT, SVD.getVT());
-    assertEquals(SINGULAR_VALUES, SVD.getSingularValues());
+    assertArrayEquals(SINGULAR_VALUES, SVD.getSingularValues(), 1e-12);
   }
 
   @Test

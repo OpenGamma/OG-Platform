@@ -101,8 +101,28 @@ public final class ValueRequirementNames {
    * A FX series for a security
    */
   public static final String HISTORICAL_FX_TIME_SERIES = "Historical FX Time Series";
-  ///// Curves
-
+  /**
+   * The cash-flows of a security or portfolio
+   */
+  public static final String FIXED_PAY_CASH_FLOWS = "Pay Fixed Cash-Flows";
+  /**
+   * The cash-flows of a security or portfolio
+   */
+  public static final String FIXED_RECEIVE_CASH_FLOWS = "Receive Fixed Cash-Flows";
+  /**
+   * The cash-flows of a security or portfolio
+   */
+  public static final String NETTED_FIXED_CASH_FLOWS = "Netted Fixed Cash-Flows";
+  /**
+   * The reset dates and indices of a security or portfolio
+   */
+  public static final String RESET_DATES = "Reset Dates";
+  /**
+   * The projected cash-flows of a security or portfolio
+   */
+  public static final String PROJECTED_CASH_FLOWS = "Projected Cash Flows";
+  
+  ///// Curves  
   /**
    * Curve containing (date, discount factor) pairs.
    */
@@ -167,7 +187,7 @@ public final class ValueRequirementNames {
    * Currency pairs property metadata
    */
   public static final String CURRENCY_PAIRS = "CurrencyPairs";
-  
+
   ///// Surfaces
 
   /**
@@ -245,6 +265,7 @@ public final class ValueRequirementNames {
    * The points that have been included in a fit
    */
   public static final String VOLATILITY_CUBE_FITTED_POINTS = "VolatilityCubeFittedPoints";
+
   ///// Pricing
 
   /**
@@ -961,9 +982,15 @@ public final class ValueRequirementNames {
   ///// Fixed Income
 
   /**
-   * The forward price of a security
+   * The forward value of a security
    */
   public static final String FORWARD = "Forward";
+
+  /**
+   * The forward price of a security
+   */
+  public static final String FORWARD_PRICE = "Forward Price";
+
   /**
    * The sensitivity of the par rate of a cash-flow instrument to a shift of 100 percent in the (named) yield curve.
    */
@@ -1172,7 +1199,7 @@ public final class ValueRequirementNames {
    * The PDE space grid values of the price
    */
   public static final String GRID_PRESENT_VALUE = "Grid Present Value";
-  
+
   ///// Externally-sourced values
   // Existing value requirement names with a suffix
   // NOTE jonathan 2012-07-13 -- simply to allow clearer column headers. Should be removed once we have a better solution.
@@ -1197,5 +1224,5 @@ public final class ValueRequirementNames {
    * External position quantity.
    */
   public static final String EXTERNAL_QUANTITY = "Quantity" + EXTERNAL_SUFFIX;
-  
+
 }

@@ -7,7 +7,7 @@ package com.opengamma.web.server.push.rest;
 
 import java.net.URI;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -20,10 +20,12 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.http.HttpHeaders;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.push.analytics.AnalyticsView;
+import com.opengamma.web.server.push.analytics.GridCell;
 import com.opengamma.web.server.push.analytics.GridStructure;
-import com.opengamma.web.server.push.analytics.ViewportSpecification;
+import com.opengamma.web.server.push.analytics.ViewportDefinition;
 
 /**
  * REST resource superclass for all analytics grids.
@@ -31,11 +33,12 @@ import com.opengamma.web.server.push.analytics.ViewportSpecification;
 public abstract class AbstractGridResource {
 
   /** For generating IDs for grids and viewports. */
-  protected static final AtomicLong s_nextId = new AtomicLong(0);
+  protected static final AtomicInteger s_nextId = new AtomicInteger(0);
 
   /** The view whose data the grid displays. */
   protected final AnalyticsView _view;
 
+  /** The type of data displayed in the grid (portfolio or primitives). */
   protected final AnalyticsView.GridType _gridType;
 
   /**
@@ -50,31 +53,55 @@ public abstract class AbstractGridResource {
   }
 
   /**
-   * @return The structure of the grid
+   * @return The row and column structure of the grid
    */
   @GET
-  @Path("grid")
   public abstract GridStructure getGridStructure();
 
+  /**
+   * Creates a new viewport which represents a part of a grid that the user is viewing.
+   * @param uriInfo Details of the request URI
+   * @param rows Indices of rows in the viewport, can be empty if {@code cells} is non-empty
+   * @param columns Indices of columns in the viewport, can be empty if {@code cells} is non-empty
+   * @param cells Cells in the viewport, can be empty if {@code rows} and {@code columns} are non-empty
+   * @param expanded Whether the full data should be returned (e.g. for display in a popup window) or if it should
+   * be formatted to fit in a single grid cell
+   * @return A response with the viewport's URL in the {@code Location} header
+   */
   @POST
   @Path("viewports")
   public Response createViewport(@Context UriInfo uriInfo,
                                  @FormParam("rows") List<Integer> rows,
                                  @FormParam("columns") List<Integer> columns,
+                                 @FormParam("cells") List<GridCell> cells,
                                  @FormParam("expanded") boolean expanded) {
-    ViewportSpecification viewportSpecification = new ViewportSpecification(rows, columns, expanded);
-    String viewportId = Long.toString(s_nextId.getAndIncrement());
-    URI viewportUri = uriInfo.getAbsolutePathBuilder().path(viewportId).build();
-    URI dataUri = uriInfo.getAbsolutePathBuilder().path(viewportId).path(AbstractViewportResource.class, "getData").build();
-    String dataId = dataUri.getPath();
-    long version = createViewport(viewportId, dataId, viewportSpecification);
+    ViewportDefinition viewportDefinition = ViewportDefinition.create(rows, columns, cells, expanded);
+    int viewportId = s_nextId.getAndIncrement();
+    String viewportIdStr = Integer.toString(viewportId);
+    URI viewportUri = uriInfo.getAbsolutePathBuilder().path(viewportIdStr).build();
+    String callbackId = viewportUri.getPath();
+    long version = createViewport(viewportId, callbackId, viewportDefinition);
     ViewportVersion viewportVersion = new ViewportVersion(version);
-    return Response.status(Response.Status.CREATED).entity(viewportVersion).header(HttpHeaders.LOCATION, viewportUri).build();
+    return Response.status(Response.Status.CREATED).entity(viewportVersion).header(HttpHeaders.LOCATION,
+                                                                                   viewportUri).build();
   }
 
-  public abstract long createViewport(String viewportId, String dataId, ViewportSpecification viewportSpec);
+  /**
+   * Creates a viewport corresponding to a visible area of the grid.
+   * @param viewportId Unique ID for the viewport
+   * @param callbackId ID passed to listeners when the viewport data changes
+   * @param viewportDefinition Definition of the viewport
+   * @return Viewport version number, allows clients to ensure the data they receive for a viewport corresponds to
+   * its current state
+   */
+  /* package */ abstract long createViewport(int viewportId, String callbackId, ViewportDefinition viewportDefinition);
 
+  /**
+   * Returns a resource for a viewport. If the ID is unknown a resource will be returned but a
+   * {@link DataNotFoundException} will be thrown when it is used.
+   * @param viewportId The viewport ID
+   * @return A resource for the viewport with the given ID, not null
+   */
   @Path("viewports/{viewportId}")
-  public abstract AbstractViewportResource getViewport(@PathParam("viewportId") String viewportId);
-
+  public abstract AbstractViewportResource getViewport(@PathParam("viewportId") int viewportId);
 }

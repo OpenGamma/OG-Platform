@@ -42,6 +42,10 @@ public final class SimpleFrequency implements Frequency, Serializable {
    */
   public static final SimpleFrequency MONTHLY = new SimpleFrequency(MONTHLY_NAME, 12);
   /**
+   * A frequency with a period of twenty eight days.
+   */
+  public static final SimpleFrequency TWENTY_EIGHT_DAYS = new SimpleFrequency(TWENTY_EIGHT_DAYS_NAME, 365. / 28);
+  /**
    * A frequency with a period of two weeks.
    */
   public static final SimpleFrequency BIWEEKLY = new SimpleFrequency(BIWEEKLY_NAME, 26);

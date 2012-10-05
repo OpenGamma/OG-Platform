@@ -41,6 +41,12 @@ public abstract class FXOptionBlackSingleValuedFunction extends FXOptionBlackFun
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+    final CurrencyPair baseQuotePair = getBaseQuotePair(context, target, inputs);
+    final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), getResultProperties(target, baseQuotePair).get());
+    return Collections.singleton(resultSpec);
+  }
+
+  protected CurrencyPair getBaseQuotePair(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     String currencyPairConfigName = null;
     for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
       final ValueSpecification key = entry.getKey();
@@ -60,9 +66,9 @@ public abstract class FXOptionBlackSingleValuedFunction extends FXOptionBlackFun
     if (baseQuotePair == null) {
       throw new OpenGammaRuntimeException("Could not get base/quote pair for currency pair (" + putCurrency + ", " + callCurrency + ")");
     }
-    final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), getResultProperties(target, baseQuotePair).get());
-    return Collections.singleton(resultSpec);
+    return baseQuotePair;
   }
+
 
   @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {

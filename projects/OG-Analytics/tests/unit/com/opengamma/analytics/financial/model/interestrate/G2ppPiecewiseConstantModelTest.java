@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.model.interestrate;
 
+import static org.testng.AssertJUnit.assertArrayEquals;
 import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
@@ -29,7 +30,7 @@ public class G2ppPiecewiseConstantModelTest {
    * Tests the class getters.
    */
   public void getter() {
-    assertEquals(MEAN_REVERSION, MODEL_PARAMETERS.getMeanReversion());
+    assertArrayEquals(MEAN_REVERSION, MODEL_PARAMETERS.getMeanReversion(), 1e-10);
     assertEquals(CORRELATION, MODEL_PARAMETERS.getCorrelation());
     for (int loopperiod = 0; loopperiod < VOLATILITY[0].length; loopperiod++) {
       assertEquals(VOLATILITY[0][loopperiod], MODEL_PARAMETERS.getVolatility()[0].get(loopperiod));

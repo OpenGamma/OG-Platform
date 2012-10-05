@@ -45,6 +45,7 @@ import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefi
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.DeliverableSwapFuturesSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.FutureInstrumentsDescriptionDataSet;
@@ -60,10 +61,14 @@ import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZer
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyGearingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CapFloorIborDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponFloatingDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborGearingDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborRatchetDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponOISDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponOISSimplifiedDefinition;
@@ -78,7 +83,7 @@ import com.opengamma.analytics.financial.instrument.swaption.SwaptionBermudaFixe
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionInstrumentsDescriptionDataSet;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
+import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborSpreadDefinition;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -87,7 +92,6 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * Class testing the Fixed income instrument definition visitor.
@@ -105,8 +109,8 @@ public class InstrumentDefinitionVisitorTest {
   private static final double NOTIONAL = 100000000; //100m
   private static final double FIXED_RATE = 0.05;
   private static final boolean IS_PAYER = true;
-  private static final AnnuityCouponFixedDefinition ANNUITY_FIXED = AnnuityCouponFixedDefinition.from(CUR, SETTLE_DATE, TENOR, FIXED_PERIOD, C, FIXED_DAY_COUNT, BD, IS_EOM, NOTIONAL, FIXED_RATE,
-      IS_PAYER);
+  private static final AnnuityCouponFixedDefinition ANNUITY_FIXED = AnnuityCouponFixedDefinition.from(CUR, SETTLE_DATE, TENOR, FIXED_PERIOD, C, FIXED_DAY_COUNT, BD,
+      IS_EOM, NOTIONAL, FIXED_RATE, IS_PAYER);
   private static final Period IBOR_PERIOD_1 = Period.ofMonths(3);
   private static final int SPOT_LAG = 2;
   private static final DayCount IBOR_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("ACT/360");
@@ -116,28 +120,17 @@ public class InstrumentDefinitionVisitorTest {
   private static final Period IBOR_PERIOD_2 = Period.ofMonths(6);
   private static final IborIndex IBOR_INDEX_2 = new IborIndex(CUR, IBOR_PERIOD_2, SPOT_LAG, C, IBOR_DAY_COUNT, BD, IS_EOM);
   private static final double SPREAD = 0.001;
-  private static final AnnuityCouponIborSpreadDefinition ANNUITY_IBOR_SPREAD_1 = AnnuityCouponIborSpreadDefinition.from(SETTLE_DATE, TENOR, NOTIONAL, IBOR_INDEX_2, SPREAD, !IS_PAYER);
-  private static final AnnuityCouponIborSpreadDefinition ANNUITY_IBOR_SPREAD_2 = AnnuityCouponIborSpreadDefinition.from(SETTLE_DATE, TENOR, NOTIONAL, IBOR_INDEX_1, 0.0, IS_PAYER);
+  private static final AnnuityCouponIborSpreadDefinition ANNUITY_IBOR_SPREAD_1 = AnnuityCouponIborSpreadDefinition.from(SETTLE_DATE, TENOR, NOTIONAL, IBOR_INDEX_2,
+      SPREAD, !IS_PAYER);
+  private static final AnnuityCouponIborSpreadDefinition ANNUITY_IBOR_SPREAD_2 = AnnuityCouponIborSpreadDefinition.from(SETTLE_DATE, TENOR, NOTIONAL, IBOR_INDEX_1, 0.0,
+      IS_PAYER);
   private static final SwapFixedIborDefinition SWAP_FIXED_IBOR = new SwapFixedIborDefinition(ANNUITY_FIXED, ANNUITY_IBOR);
   private static final SwapFixedIborSpreadDefinition SWAP_FIXED_IBOR_SPREAD = new SwapFixedIborSpreadDefinition(ANNUITY_FIXED, ANNUITY_IBOR_SPREAD_1);
   private static final SwapIborIborDefinition SWAP_IBOR_IBOR = new SwapIborIborDefinition(ANNUITY_IBOR_SPREAD_2, ANNUITY_IBOR_SPREAD_1);
   private static final AnnuityDefinition<PaymentFixedDefinition> GENERAL_ANNUITY = new AnnuityDefinition<PaymentFixedDefinition>(new PaymentFixedDefinition[] {
-      new PaymentFixedDefinition(CUR, DateUtils.getUTCDate(2011, 1, 1), 1000), new PaymentFixedDefinition(CUR, DateUtils.getUTCDate(2012, 1, 1), 1000) });
-  private static final CouponFloatingDefinition COUPON_FLOATING = new CouponFloatingDefinition(CUR, SETTLE_DATE.plusMonths(3), SETTLE_DATE, SETTLE_DATE.plusMonths(3), 0.25, NOTIONAL, SETTLE_DATE) {
-
-    @Override
-    public Payment toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data, final String... yieldCurveNames) {
-      return null;
-    }
-
-    @Override
-    public Payment toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-      return null;
-    }
-
-  };
+      new PaymentFixedDefinition(CUR, DateUtils.getUTCDate(2011, 1, 1), 1000), new PaymentFixedDefinition(CUR, DateUtils.getUTCDate(2012, 1, 1), 1000)});
   private static final CouponCMSDefinition COUPON_CMS = CouponCMSDefinition.from(CouponIborDefinition.from(1000, SETTLE_DATE, IBOR_INDEX_1), CMS_INDEX);
-  private static final AnnuityCouponCMSDefinition ANNUITY_COUPON_CMS = new AnnuityCouponCMSDefinition(new CouponCMSDefinition[] {COUPON_CMS });
+  private static final AnnuityCouponCMSDefinition ANNUITY_COUPON_CMS = new AnnuityCouponCMSDefinition(new CouponCMSDefinition[] {COUPON_CMS});
 
   private static final InterestRateFutureDefinition IR_FUT_SECURITY_DEFINITION = FutureInstrumentsDescriptionDataSet.createInterestRateFutureSecurityDefinition();
   private static final BondFutureDefinition BNDFUT_SECURITY_DEFINITION = FutureInstrumentsDescriptionDataSet.createBondFutureSecurityDefinition();
@@ -166,8 +159,6 @@ public class InstrumentDefinitionVisitorTest {
     assertEquals(SWAP_IBOR_IBOR.accept(VISITOR, o), "SwapIborIbor1");
     assertEquals(GENERAL_ANNUITY.accept(VISITOR), "Annuity2");
     assertEquals(GENERAL_ANNUITY.accept(VISITOR, o), "Annuity1");
-    assertEquals(COUPON_FLOATING.accept(VISITOR), "CouponFloating2");
-    assertEquals(COUPON_FLOATING.accept(VISITOR, o), "CouponFloating1");
     assertEquals(COUPON_CMS.accept(VISITOR), "CouponCMS2");
     assertEquals(COUPON_CMS.accept(VISITOR, o), "CouponCMS1");
     assertEquals(ANNUITY_COUPON_CMS.accept(VISITOR), "Annuity2");
@@ -205,52 +196,52 @@ public class InstrumentDefinitionVisitorTest {
     }
 
     @Override
-    public String visitPaymentFixed(final PaymentFixedDefinition payment, final T data) {
+    public String visitPaymentFixedDefinition(final PaymentFixedDefinition payment, final T data) {
       return "PaymentFixed1";
     }
 
     @Override
-    public String visitPaymentFixed(final PaymentFixedDefinition payment) {
+    public String visitPaymentFixedDefinition(final PaymentFixedDefinition payment) {
       return "PaymentFixed2";
     }
 
     @Override
-    public String visitCouponFixed(final CouponFixedDefinition payment, final T data) {
+    public String visitCouponFixedDefinition(final CouponFixedDefinition payment, final T data) {
       return "CouponFixed1";
     }
 
     @Override
-    public String visitCouponFixed(final CouponFixedDefinition payment) {
+    public String visitCouponFixedDefinition(final CouponFixedDefinition payment) {
       return "CouponFixed2";
     }
 
     @Override
-    public String visitCouponIbor(final CouponIborDefinition payment, final T data) {
+    public String visitCouponIborDefinition(final CouponIborDefinition payment, final T data) {
       return "CouponIbor1";
     }
 
     @Override
-    public String visitCouponIbor(final CouponIborDefinition payment) {
+    public String visitCouponIborDefinition(final CouponIborDefinition payment) {
       return "CouponIbor2";
     }
 
     @Override
-    public String visitCouponCMS(final CouponCMSDefinition payment, final T data) {
+    public String visitCouponCMSDefinition(final CouponCMSDefinition payment, final T data) {
       return "CouponCMS1";
     }
 
     @Override
-    public String visitCouponCMS(final CouponCMSDefinition payment) {
+    public String visitCouponCMSDefinition(final CouponCMSDefinition payment) {
       return "CouponCMS2";
     }
 
     @Override
-    public String visitCouponIborSpread(final CouponIborSpreadDefinition payment, final T data) {
+    public String visitCouponIborSpreadDefinition(final CouponIborSpreadDefinition payment, final T data) {
       return "CouponIborSpread1";
     }
 
     @Override
-    public String visitCouponIborSpread(final CouponIborSpreadDefinition payment) {
+    public String visitCouponIborSpreadDefinition(final CouponIborSpreadDefinition payment) {
       return "CouponIborSpread2";
     }
 
@@ -302,21 +293,6 @@ public class InstrumentDefinitionVisitorTest {
     @Override
     public String visitSwapIborIborDefinition(final SwapIborIborDefinition swap) {
       return "SwapIborIbor2";
-    }
-
-    @Override
-    public String visitCouponFloating(final CouponFloatingDefinition payment, final T data) {
-      return "CouponFloating1";
-    }
-
-    @Override
-    public String visitCouponFloating(final CouponFloatingDefinition payment) {
-      return "CouponFloating2";
-    }
-
-    @Override
-    public String visitForwardRateAgreementDefinition(final ForwardRateAgreementDefinition fra, final T data) {
-      return "ForwardRateAgreement1";
     }
 
     @Override
@@ -445,286 +421,362 @@ public class InstrumentDefinitionVisitorTest {
     }
 
     @Override
-    public String visitSwaptionBermudaFixedIborDefinition(SwaptionBermudaFixedIborDefinition swaption, T data) {
+    public String visitSwaptionBermudaFixedIborDefinition(final SwaptionBermudaFixedIborDefinition swaption, final T data) {
       return "SwaptionBermudaFixedIbor2";
     }
 
     @Override
-    public String visitSwaptionBermudaFixedIborDefinition(SwaptionBermudaFixedIborDefinition swaption) {
+    public String visitSwaptionBermudaFixedIborDefinition(final SwaptionBermudaFixedIborDefinition swaption) {
       return "SwaptionBermudaFixedIbor1";
     }
 
     @Override
-    public String visitCapFloorCMS(CapFloorCMSDefinition payment, T data) {
+    public String visitCapFloorCMSDefinition(final CapFloorCMSDefinition payment, final T data) {
       return null;
     }
 
     @Override
-    public String visitCapFloorCMS(CapFloorCMSDefinition payment) {
+    public String visitCapFloorCMSDefinition(final CapFloorCMSDefinition payment) {
       return null;
     }
 
     @Override
-    public String visitCouponInflationZeroCouponFirstOfMonth(CouponInflationZeroCouponMonthlyDefinition coupon, T data) {
+    public String visitCouponInflationZeroCouponFirstOfMonth(final CouponInflationZeroCouponMonthlyDefinition coupon, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponInflationZeroCouponFirstOfMonth(CouponInflationZeroCouponMonthlyDefinition coupon) {
+    public String visitCouponInflationZeroCouponFirstOfMonth(final CouponInflationZeroCouponMonthlyDefinition coupon) {
       return null;
     }
 
     @Override
-    public String visitCouponInflationZeroCouponInterpolation(CouponInflationZeroCouponInterpolationDefinition coupon, T data) {
+    public String visitCouponInflationZeroCouponInterpolation(final CouponInflationZeroCouponInterpolationDefinition coupon, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponInflationZeroCouponInterpolation(CouponInflationZeroCouponInterpolationDefinition coupon) {
+    public String visitCouponInflationZeroCouponInterpolation(final CouponInflationZeroCouponInterpolationDefinition coupon) {
       return null;
     }
 
     @Override
-    public String visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurityDefinition<?> bond, T data) {
+    public String visitBondCapitalIndexedSecurity(final BondCapitalIndexedSecurityDefinition<?> bond, final T data) {
       return null;
     }
 
     @Override
-    public String visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurityDefinition<?> bond) {
+    public String visitBondCapitalIndexedSecurity(final BondCapitalIndexedSecurityDefinition<?> bond) {
       return null;
     }
 
     @Override
-    public String visitBondCapitalIndexedTransaction(BondCapitalIndexedTransactionDefinition<?> bond, T data) {
+    public String visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransactionDefinition<?> bond, final T data) {
       return null;
     }
 
     @Override
-    public String visitBondCapitalIndexedTransaction(BondCapitalIndexedTransactionDefinition<?> bond) {
+    public String visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransactionDefinition<?> bond) {
       return null;
     }
 
     @Override
-    public String visitCouponInflationZeroCouponInterpolationGearing(CouponInflationZeroCouponInterpolationGearingDefinition coupon, T data) {
+    public String visitCouponInflationZeroCouponInterpolationGearing(final CouponInflationZeroCouponInterpolationGearingDefinition coupon, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponInflationZeroCouponInterpolationGearing(CouponInflationZeroCouponInterpolationGearingDefinition coupon) {
+    public String visitCouponInflationZeroCouponInterpolationGearing(final CouponInflationZeroCouponInterpolationGearingDefinition coupon) {
       return null;
     }
 
     @Override
-    public String visitCouponInflationZeroCouponMonthlyGearing(CouponInflationZeroCouponMonthlyGearingDefinition coupon, T data) {
+    public String visitCouponInflationZeroCouponMonthlyGearing(final CouponInflationZeroCouponMonthlyGearingDefinition coupon, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponInflationZeroCouponMonthlyGearing(CouponInflationZeroCouponMonthlyGearingDefinition coupon) {
+    public String visitCouponInflationZeroCouponMonthlyGearing(final CouponInflationZeroCouponMonthlyGearingDefinition coupon) {
       return null;
     }
 
     @Override
-    public String visitCouponOISSimplified(CouponOISSimplifiedDefinition payment, T data) {
+    public String visitCouponOISSimplifiedDefinition(final CouponOISSimplifiedDefinition payment, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponOISSimplified(CouponOISSimplifiedDefinition payment) {
+    public String visitCouponOISSimplifiedDefinition(final CouponOISSimplifiedDefinition payment) {
       return null;
     }
 
     @Override
-    public String visitCouponOIS(CouponOISDefinition payment, T data) {
+    public String visitCouponOISDefinition(final CouponOISDefinition payment, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponOIS(CouponOISDefinition payment) {
+    public String visitCouponOISDefinition(final CouponOISDefinition payment) {
       return null;
     }
 
     @Override
-    public String visitForexDefinition(ForexDefinition fx, T data) {
+    public String visitForexDefinition(final ForexDefinition fx, final T data) {
       return null;
     }
 
     @Override
-    public String visitForexDefinition(ForexDefinition fx) {
+    public String visitForexDefinition(final ForexDefinition fx) {
       return null;
     }
 
     @Override
-    public String visitForexSwapDefinition(ForexSwapDefinition fx, T data) {
+    public String visitForexSwapDefinition(final ForexSwapDefinition fx, final T data) {
       return null;
     }
 
     @Override
-    public String visitForexSwapDefinition(ForexSwapDefinition fx) {
+    public String visitForexSwapDefinition(final ForexSwapDefinition fx) {
       return null;
     }
 
     @Override
-    public String visitForexOptionVanillaDefinition(ForexOptionVanillaDefinition fx, T data) {
+    public String visitForexOptionVanillaDefinition(final ForexOptionVanillaDefinition fx, final T data) {
       return null;
     }
 
     @Override
-    public String visitForexOptionVanillaDefinition(ForexOptionVanillaDefinition fx) {
+    public String visitForexOptionVanillaDefinition(final ForexOptionVanillaDefinition fx) {
       return null;
     }
 
     @Override
-    public String visitForexOptionSingleBarrierDefiniton(ForexOptionSingleBarrierDefinition fx, T data) {
+    public String visitForexOptionSingleBarrierDefiniton(final ForexOptionSingleBarrierDefinition fx, final T data) {
       return null;
     }
 
     @Override
-    public String visitForexOptionSingleBarrierDefiniton(ForexOptionSingleBarrierDefinition fx) {
+    public String visitForexOptionSingleBarrierDefiniton(final ForexOptionSingleBarrierDefinition fx) {
       return null;
     }
 
     @Override
-    public String visitForexNonDeliverableForwardDefinition(ForexNonDeliverableForwardDefinition ndf, T data) {
+    public String visitForexNonDeliverableForwardDefinition(final ForexNonDeliverableForwardDefinition ndf, final T data) {
       return null;
     }
 
     @Override
-    public String visitForexNonDeliverableForwardDefinition(ForexNonDeliverableForwardDefinition ndf) {
+    public String visitForexNonDeliverableForwardDefinition(final ForexNonDeliverableForwardDefinition ndf) {
       return null;
     }
 
     @Override
-    public String visitForexNonDeliverableOptionDefinition(ForexNonDeliverableOptionDefinition ndo, T data) {
+    public String visitForexNonDeliverableOptionDefinition(final ForexNonDeliverableOptionDefinition ndo, final T data) {
       return null;
     }
 
     @Override
-    public String visitForexNonDeliverableOptionDefinition(ForexNonDeliverableOptionDefinition ndo) {
-      return null;
-    }
-
-    //    @Override
-    //    public String visitDepositDefinition(DepositDefinition deposit, T data) {
-    //      return null;
-    //    }
-    //
-    //    @Override
-    //    public String visitDepositDefinition(DepositDefinition deposit) {
-    //      return null;
-    //    }
-
-    @Override
-    public String visitDepositIborDefinition(DepositIborDefinition deposit, T data) {
+    public String visitForexNonDeliverableOptionDefinition(final ForexNonDeliverableOptionDefinition ndo) {
       return null;
     }
 
     @Override
-    public String visitDepositIborDefinition(DepositIborDefinition deposit) {
+    public String visitDepositIborDefinition(final DepositIborDefinition deposit, final T data) {
       return null;
     }
 
     @Override
-    public String visitDepositCounterpartDefinition(DepositCounterpartDefinition deposit, T data) {
+    public String visitDepositIborDefinition(final DepositIborDefinition deposit) {
       return null;
     }
 
     @Override
-    public String visitDepositCounterpartDefinition(DepositCounterpartDefinition deposit) {
+    public String visitDepositCounterpartDefinition(final DepositCounterpartDefinition deposit, final T data) {
       return null;
     }
 
     @Override
-    public String visitForexOptionDigitalDefinition(ForexOptionDigitalDefinition fx, T data) {
+    public String visitDepositCounterpartDefinition(final DepositCounterpartDefinition deposit) {
       return null;
     }
 
     @Override
-    public String visitForexOptionDigitalDefinition(ForexOptionDigitalDefinition fx) {
+    public String visitForexOptionDigitalDefinition(final ForexOptionDigitalDefinition fx, final T data) {
       return null;
     }
 
     @Override
-    public String visitBillSecurityDefinition(BillSecurityDefinition bill, T data) {
+    public String visitForexOptionDigitalDefinition(final ForexOptionDigitalDefinition fx) {
       return null;
     }
 
     @Override
-    public String visitBillSecurityDefinition(BillSecurityDefinition bill) {
+    public String visitBillSecurityDefinition(final BillSecurityDefinition bill, final T data) {
       return null;
     }
 
     @Override
-    public String visitBillTransactionDefinition(BillTransactionDefinition bill, T data) {
+    public String visitBillSecurityDefinition(final BillSecurityDefinition bill) {
       return null;
     }
 
     @Override
-    public String visitBillTransactionDefinition(BillTransactionDefinition bill) {
+    public String visitBillTransactionDefinition(final BillTransactionDefinition bill, final T data) {
       return null;
     }
 
     @Override
-    public String visitFederalFundsFutureSecurityDefinition(FederalFundsFutureSecurityDefinition future, T data) {
+    public String visitBillTransactionDefinition(final BillTransactionDefinition bill) {
       return null;
     }
 
     @Override
-    public String visitFederalFundsFutureSecurityDefinition(FederalFundsFutureSecurityDefinition future) {
+    public String visitFederalFundsFutureSecurityDefinition(final FederalFundsFutureSecurityDefinition future, final T data) {
       return null;
     }
 
     @Override
-    public String visitFederalFundsFutureTransactionDefinition(FederalFundsFutureTransactionDefinition future, T data) {
+    public String visitFederalFundsFutureSecurityDefinition(final FederalFundsFutureSecurityDefinition future) {
       return null;
     }
 
     @Override
-    public String visitFederalFundsFutureTransactionDefinition(FederalFundsFutureTransactionDefinition future) {
+    public String visitFederalFundsFutureTransactionDefinition(final FederalFundsFutureTransactionDefinition future, final T data) {
       return null;
     }
 
     @Override
-    public String visitDepositZeroDefinition(DepositZeroDefinition deposit, T data) {
+    public String visitFederalFundsFutureTransactionDefinition(final FederalFundsFutureTransactionDefinition future) {
+      return null;
+    }
+
+    @Override
+    public String visitDepositZeroDefinition(final DepositZeroDefinition deposit, final T data) {
       // TODO Auto-generated method stub
       return null;
     }
 
     @Override
-    public String visitDepositZeroDefinition(DepositZeroDefinition deposit) {
+    public String visitDepositZeroDefinition(final DepositZeroDefinition deposit) {
       // TODO Auto-generated method stub
       return null;
     }
 
     @Override
-    public String visitBondFutureOptionPremiumSecurityDefinition(BondFutureOptionPremiumSecurityDefinition bond, T data) {
+    public String visitBondFutureOptionPremiumSecurityDefinition(final BondFutureOptionPremiumSecurityDefinition bond, final T data) {
       return null;
     }
 
     @Override
-    public String visitBondFutureOptionPremiumSecurityDefinition(BondFutureOptionPremiumSecurityDefinition bond) {
+    public String visitBondFutureOptionPremiumSecurityDefinition(final BondFutureOptionPremiumSecurityDefinition bond) {
       return null;
     }
 
     @Override
-    public String visitBondFutureOptionPremiumTransactionDefinition(BondFutureOptionPremiumTransactionDefinition bond, T data) {
+    public String visitBondFutureOptionPremiumTransactionDefinition(final BondFutureOptionPremiumTransactionDefinition bond, final T data) {
       return null;
     }
 
     @Override
-    public String visitBondFutureOptionPremiumTransactionDefinition(BondFutureOptionPremiumTransactionDefinition bond) {
+    public String visitBondFutureOptionPremiumTransactionDefinition(final BondFutureOptionPremiumTransactionDefinition bond) {
       return null;
     }
 
     @Override
-    public String visitSwapXCcyIborIborDefinition(SwapXCcyIborIborDefinition swap, T data) {
+    public String visitSwapXCcyIborIborDefinition(final SwapXCcyIborIborDefinition swap, final T data) {
       // TODO Auto-generated method stub
       return null;
     }
 
     @Override
-    public String visitSwapXCcyIborIborDefinition(SwapXCcyIborIborDefinition swap) {
+    public String visitSwapXCcyIborIborDefinition(final SwapXCcyIborIborDefinition swap) {
       // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborGearingDefinition(final CouponIborGearingDefinition payment, final T data) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborGearingDefinition(final CouponIborGearingDefinition payment) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborCompoundedDefinition(final CouponIborCompoundedDefinition payment, final T data) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborCompoundedDefinition(final CouponIborCompoundedDefinition payment) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitForwardRateAgreementDefinition(final ForwardRateAgreementDefinition payment, final T data) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborRatchetDefinition(final CouponIborRatchetDefinition payment, final T data) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborRatchetDefinition(final CouponIborRatchetDefinition payment) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitCapFloorIborDefinition(final CapFloorIborDefinition payment, final T data) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitCapFloorIborDefinition(final CapFloorIborDefinition payment) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitCapFloorCMSSpreadDefinition(final CapFloorCMSSpreadDefinition payment, final T data) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitCapFloorCMSSpreadDefinition(final CapFloorCMSSpreadDefinition payment) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitSwaptionPhysicalFixedIborSpreadDefinition(final SwaptionPhysicalFixedIborSpreadDefinition swaption, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitSwaptionPhysicalFixedIborSpreadDefinition(final SwaptionPhysicalFixedIborSpreadDefinition swaption) {
+      return null;
+    }
+
+    @Override
+    public String visitDeliverableSwapFuturesSecurityDefinition(final DeliverableSwapFuturesSecurityDefinition futures, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitDeliverableSwapFuturesSecurityDefinition(final DeliverableSwapFuturesSecurityDefinition futures) {
       return null;
     }
 

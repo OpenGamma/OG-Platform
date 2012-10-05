@@ -38,7 +38,7 @@
     <dependency org="org.apache.derby" name="derby" rev="10.6+"/>
     <dependency org="org.postgresql" name="postgresql-jdbc" rev="[9.0,10.0["/>
     <dependency org="com.microsoft" name="sqljdbc" rev="3.0"/>
-    <dependency org="org.hsqldb" name="hsqldb" rev="2.2.8"/>
+    <dependency org="org.hsqldb" name="hsqldb" rev="2.2.9"/>
     <dependency org="org.mockito" name="mockito" rev="1.9"/>
     <dependency org="it.unimi.dsi" name="fastutil" rev="6.4.2"/>
     <dependency org="org.mongodb" name="mongo-java-driver" rev="2.7.3"/>

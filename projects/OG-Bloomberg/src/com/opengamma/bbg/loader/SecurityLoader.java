@@ -10,7 +10,6 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_LAST_TRADE_DT;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,10 +23,8 @@ import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.bbg.BloombergSecuritySource;
-import com.opengamma.bbg.PerSecurityReferenceDataResult;
-import com.opengamma.bbg.ReferenceDataProvider;
-import com.opengamma.bbg.ReferenceDataResult;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
+import com.opengamma.bbg.security.BloombergSecurityProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.option.AmericanExerciseType;
@@ -121,37 +118,15 @@ public abstract class SecurityLoader {
     if (bloombergKeys.isEmpty()) {
       return result;
     }
-
-    ReferenceDataResult refDataResult = _referenceDataProvider.getFields(bloombergKeys, bbgFields);
-
-    if (refDataResult == null) {
-      _logger.warn("Bloomberg Reference Data Provider returned NULL result for {}", bloombergKeys);
-      return result;
-    }
-
+    
+    Map<String, FudgeMsg> refData = _referenceDataProvider.getReferenceData(bloombergKeys, bbgFields);
     for (String securityDes : bloombergKeys) {
-      PerSecurityReferenceDataResult secResult = refDataResult.getResult(securityDes);
-      if (secResult == null) {
-        _logger.warn("PerSecurityReferenceDataResult for {} cannot be null", securityDes);
+      FudgeMsg fieldData = refData.get(securityDes);
+      if (fieldData == null) {
+        _logger.warn("No reference data for {} cannot be null", securityDes);
         continue;
       }
-      //check no exceptions
-      List<String> exceptions = secResult.getExceptions();
-      if (exceptions != null && exceptions.size() > 0) {
-        for (String msg : exceptions) {
-          _logger.warn("Exception looking up {}/{} - {}",
-              new Object[] {securityDes, bbgFields, msg });
-        }
-        continue;
-      }
-      // check same security was returned
-      String refSec = secResult.getSecurity();
-      if (!securityDes.equals(refSec)) {
-        _logger.warn("Returned security {} not the same as searched security {}", refSec, securityDes);
-        continue;
-      }
-      //get field data
-      FudgeMsg fieldData = secResult.getFieldData();
+      // get field data
       ManageableSecurity security = createSecurity(fieldData);
       if (security != null) {
         result.put(securityDes, security);
@@ -267,7 +242,7 @@ public abstract class SecurityLoader {
 
   protected void parseIdentifiers(final FudgeMsg fieldData, final ManageableSecurity security, final String firstTradeDateField, final String lastTradeDateField) {
     ExternalIdBundle identifierBundle = BloombergDataUtils.parseIdentifiers(fieldData, firstTradeDateField, lastTradeDateField).toBundle();
-    security.setUniqueId(BloombergSecuritySource.createUniqueId(identifierBundle.getValue(ExternalSchemes.BLOOMBERG_BUID)));
+    security.setUniqueId(BloombergSecurityProvider.createUniqueId(identifierBundle.getValue(ExternalSchemes.BLOOMBERG_BUID)));
     security.setExternalIdBundle(identifierBundle);
   }
   

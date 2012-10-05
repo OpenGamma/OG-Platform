@@ -11,7 +11,6 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapIborONDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -20,7 +19,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 /**
  * Generator (or template) for OIS.
  */
-public class GeneratorSwapIborON extends Generator {
+public class GeneratorSwapIborON extends GeneratorInstrument {
 
   /**
    * The Ibor index.
@@ -178,7 +177,7 @@ public class GeneratorSwapIborON extends Generator {
   }
 
   @Override
-  public InstrumentDefinition<?> generateInstrument(ZonedDateTime date, Period tenor, double spread, double notional, Object... objects) {
+  public SwapIborONDefinition generateInstrument(ZonedDateTime date, Period tenor, double spread, double notional, Object... objects) {
     final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(date, _spotLag, _indexIbor.getCalendar());
     return SwapIborONDefinition.from(startDate, tenor, this, notional, spread, true);
   }

@@ -66,8 +66,11 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
           submit(new Runnable() {
             @Override
             public void run() {
-              getCallback().preOrderOperation(position);
-              childDone();
+              try {
+                getCallback().preOrderOperation(position);
+              } finally {
+                childDone();
+              }
             }
           });
         }
@@ -79,17 +82,23 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
       public void childDone() {
         if (_count.decrementAndGet() == 0) {
           if (_secondPass) {
-            getCallback().postOrderOperation(_node);
-            if (_parent != null) {
-              _parent.childDone();
+            try {
+              getCallback().postOrderOperation(_node);
+            } finally {
+              if (_parent != null) {
+                _parent.childDone();
+              }
             }
           } else {
             _secondPass = true;
             final List<Position> positions = _node.getPositions();
             if (positions.isEmpty()) {
-              getCallback().postOrderOperation(_node);
-              if (_parent != null) {
-                _parent.childDone();
+              try {
+                getCallback().postOrderOperation(_node);
+              } finally {
+                if (_parent != null) {
+                  _parent.childDone();
+                }
               }
             } else {
               _count.addAndGet(positions.size());
@@ -97,8 +106,11 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
                 submit(new Runnable() {
                   @Override
                   public void run() {
-                    getCallback().postOrderOperation(position);
-                    childDone();
+                    try {
+                      getCallback().postOrderOperation(position);
+                    } finally {
+                      childDone();
+                    }
                   }
                 });
               }

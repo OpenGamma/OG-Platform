@@ -157,7 +157,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
     // Get the actual data points and attach to the Manageable HTS
     if (filter.getLatestDate() == null || filter.getEarliestDate() == null || !filter.getLatestDate().isBefore(filter.getEarliestDate())) {
       final String sqlPoints = getElSqlBundle().getSql("SelectDataPoints", args);
-      LocalDateDoubleTimeSeries series = namedJdbc.query(sqlPoints, args, new DataPointsExtractor());
+      final LocalDateDoubleTimeSeries series = namedJdbc.query(sqlPoints, args, new DataPointsExtractor());
       result.setTimeSeries(series);
     } else {
       //TODO: this is a hack, most of the places that call with this condition want some kind of metadata, which it would be cheaper for us to expose specifically

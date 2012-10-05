@@ -14,7 +14,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -46,7 +45,7 @@ public class PaymentFixedDefinitionTest {
   @Test
   public void test() {
     assertEquals(FIXED_PAYMENT.getPaymentDate(), PAYMENT_DATE);
-    assertEquals(FIXED_PAYMENT.getAmount(), AMOUNT, 1E-2);
+    assertEquals(FIXED_PAYMENT.getReferenceAmount(), AMOUNT, 1E-2);
   }
 
   //TODO: test equal/hashCode
@@ -70,7 +69,6 @@ public class PaymentFixedDefinitionTest {
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(REFERENCE_DATE), TimeZone.UTC);
     final double paymentTime = actAct.getDayCountFraction(zonedDate, PAYMENT_DATE);
-    //    double paymentTime = 7.0 / 365.0; //TODO: precision?
     final String fundingCurve = "Funding";
     final PaymentFixed paymentFixed = new PaymentFixed(CUR, paymentTime, AMOUNT, fundingCurve);
     final PaymentFixed convertedDefinition = FIXED_PAYMENT.toDerivative(REFERENCE_DATE, fundingCurve);

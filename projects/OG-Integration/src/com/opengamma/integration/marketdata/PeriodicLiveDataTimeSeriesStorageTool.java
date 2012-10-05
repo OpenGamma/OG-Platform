@@ -5,6 +5,8 @@
  */
 package com.opengamma.integration.marketdata;
 
+import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.util.generate.scripts.Scriptable;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
@@ -15,7 +17,8 @@ import com.opengamma.livedata.LiveDataClient;
 /**
  * 
  */
-public class PeriodicLiveDataTimeSeriesStorageTool extends AbstractTool {
+@Scriptable
+public class PeriodicLiveDataTimeSeriesStorageTool extends AbstractTool<ToolContext> {
   /** File name option flag */
   public static final String FILE_NAME_OPT = "f";
   /** Time series data source option flag*/
@@ -102,7 +105,7 @@ public class PeriodicLiveDataTimeSeriesStorageTool extends AbstractTool {
    */
   public static void main(String[] args) throws Exception { //CSIGNORE
     PeriodicLiveDataTimeSeriesStorageTool tool = new PeriodicLiveDataTimeSeriesStorageTool();
-    tool.initAndRun(args);
+    tool.initAndRun(args, ToolContext.class);
     //System.exit(0);
   }
 

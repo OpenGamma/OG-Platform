@@ -62,7 +62,6 @@ public class InMemoryRegionMaster extends SimpleAbstractInMemoryMaster<Manageabl
     this(objectIdSupplier, new BasicChangeManager());
   }
 
-
   /**
    * Creates an instance specifying the supplier of object identifiers and change manager.
    *
@@ -98,7 +97,7 @@ public class InMemoryRegionMaster extends SimpleAbstractInMemoryMaster<Manageabl
 
   //-------------------------------------------------------------------------
   @Override
-  public RegionDocument get(final ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+  public RegionDocument get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     final RegionDocument document = _store.get(objectId.getObjectId());

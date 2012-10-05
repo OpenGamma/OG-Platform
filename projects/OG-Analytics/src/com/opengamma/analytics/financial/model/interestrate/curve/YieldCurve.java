@@ -11,8 +11,9 @@ import java.util.List;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.analytics.math.curve.DoublesCurve;
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -45,6 +46,25 @@ public class YieldCurve extends YieldAndDiscountCurve {
     return new YieldCurve(yieldCurve.getName(), yieldCurve);
   }
 
+  /**
+   * Builder of an interpolated yield  (continuously compounded) curve from discount factors.
+   * @param nodePoints The node points for the interpolated curve.
+   * @param discountFactors The discount factors at the node points.
+   * @param interpolator The yield (cc) interpolator.
+   * @param name The curve name.
+   * @return The yield curve.
+   */
+  public static YieldCurve fromDiscountFactorInterpolated(final double[] nodePoints, final double[] discountFactors, final Interpolator1D interpolator, final String name) {
+    int nbDF = discountFactors.length;
+    ArgumentChecker.isTrue(nodePoints.length == nbDF, "Yields array of incorrect length");
+    double[] yields = new double[nbDF];
+    for (int loopy = 0; loopy < nbDF; loopy++) {
+      yields[loopy] = -Math.log(discountFactors[loopy]) / nodePoints[loopy];
+    }
+    InterpolatedDoublesCurve curve = new InterpolatedDoublesCurve(nodePoints, yields, interpolator, false);
+    return new YieldCurve(name, curve);
+  }
+
   @Override
   public double getInterestRate(final Double t) {
     return getCurve().getYValue(t);
@@ -69,7 +89,7 @@ public class YieldCurve extends YieldAndDiscountCurve {
    * Gets the underlying curve. 
    * @return The curve.
    */
-  public Curve<Double, Double> getCurve() {
+  public DoublesCurve getCurve() {
     return _curve;
   }
 

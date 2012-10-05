@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.fixedincome.deprecated;
@@ -110,10 +110,11 @@ public class InterestRateInstrumentDefaultCurveNameFunctionDeprecated extends De
 
   @Override
   public PriorityClass getPriority() {
-    if ("SECONDARY".equals(_forwardCurve) || "SECONDARY".equals(_fundingCurve)) {
-      return PriorityClass.BELOW_NORMAL;
-    }
-    return super.getPriority();
+    return PriorityClass.LOWEST;
+//    if ("SECONDARY".equals(_forwardCurve) || "SECONDARY".equals(_fundingCurve)) {
+//      return PriorityClass.BELOW_NORMAL;
+//    }
+//    return super.getPriority();
   }
 
 }

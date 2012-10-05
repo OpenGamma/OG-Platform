@@ -72,9 +72,8 @@ public class DbUserMasterTest extends DbTest {
 
   @Test
   public void test_example() throws Exception {
-    ManageableOGUser user = new ManageableOGUser();
+    ManageableOGUser user = new ManageableOGUser("Test");
     user.setExternalIdBundle(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D")));
-    user.setName("Test");
     user.setPasswordHash("PASSWORD_HASH");
     user.getEntitlements().add("ENTITLEMENT-1");
     user.getEntitlements().add("ENTITLEMENT-2");
@@ -88,8 +87,7 @@ public class DbUserMasterTest extends DbTest {
 
   @Test
   public void test_noid() throws Exception {
-    ManageableOGUser user = new ManageableOGUser();
-    user.setName("Test");
+    ManageableOGUser user = new ManageableOGUser("Test");
     user.setPasswordHash("PASSWORD_HASH");
     user.getEntitlements().add("ENTITLEMENT-1");
     user.getEntitlements().add("ENTITLEMENT-2");
@@ -103,9 +101,8 @@ public class DbUserMasterTest extends DbTest {
 
   @Test
   public void test_no_entitlements() throws Exception {
-    ManageableOGUser user = new ManageableOGUser();
+    ManageableOGUser user = new ManageableOGUser("Test");
     user.setExternalIdBundle(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D")));
-    user.setName("Test");
     user.setPasswordHash("PASSWORD_HASH");
     UserDocument addDoc = new UserDocument(user);
     UserDocument added = _userMaster.add(addDoc);
@@ -113,7 +110,7 @@ public class DbUserMasterTest extends DbTest {
     UserDocument loaded = _userMaster.get(added.getUniqueId());
     assertEquals(added, loaded);
   }
-  
+
   @Test
   public void test_multiple_users() throws Exception {
     UserDocument doc1 = addUser("user-1", "pw-1", ExternalIdBundle.of(ExternalId.of("A", "1"), ExternalId.of("B", "1")), "E-1", "E-2");
@@ -133,26 +130,24 @@ public class DbUserMasterTest extends DbTest {
     docs = source.getUsers(ExternalIdBundle.of(ExternalId.of("A", "5")), VersionCorrection.LATEST);
     assertNotNull(docs);
     assertEquals(2, docs.size());
-    assertTrue("Docs was " + docs, docs.contains(doc5.getObject()));
-    assertTrue("Docs was " + docs, docs.contains(doc6.getObject()));
-
+    assertTrue("Docs was " + docs, docs.contains(doc5.getUser()));
+    assertTrue("Docs was " + docs, docs.contains(doc6.getUser()));
+    
     docs = source.getUsers(ExternalIdBundle.of(ExternalId.of("A", "5"), ExternalId.of("B", "2")), VersionCorrection.LATEST);
     assertNotNull(docs);
     assertEquals(3, docs.size());
-    assertTrue("Docs was " + docs, docs.contains(doc4.getObject()));
-    assertTrue("Docs was " + docs, docs.contains(doc5.getObject()));
-    assertTrue("Docs was " + docs, docs.contains(doc6.getObject()));
-
-    docs = source.getUsers("user-2", VersionCorrection.LATEST);
-    assertNotNull(docs);
-    assertEquals(1, docs.size());
-    assertTrue("Docs was " + docs, docs.contains(doc2.getObject()));
+    assertTrue("Docs was " + docs, docs.contains(doc4.getUser()));
+    assertTrue("Docs was " + docs, docs.contains(doc5.getUser()));
+    assertTrue("Docs was " + docs, docs.contains(doc6.getUser()));
+    
+    OGUser found = source.getUser("user-2", VersionCorrection.LATEST);
+    assertNotNull(found);
+    assertEquals(doc2.getUser(), found);
   }
-  
-  protected UserDocument addUser(String userName, String passwordHash, ExternalIdBundle idBundle, String... entitlements) {
-    ManageableOGUser user = new ManageableOGUser();
+
+  protected UserDocument addUser(String userId, String passwordHash, ExternalIdBundle idBundle, String... entitlements) {
+    ManageableOGUser user = new ManageableOGUser(userId);
     user.setExternalIdBundle(idBundle);
-    user.setName(userName);
     user.setPasswordHash(passwordHash);
     for (String entitlement : entitlements) {
       user.getEntitlements().add(entitlement);
@@ -161,4 +156,5 @@ public class DbUserMasterTest extends DbTest {
     UserDocument added = _userMaster.add(addDoc);
     return added;
   }
+
 }

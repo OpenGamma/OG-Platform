@@ -31,7 +31,7 @@ import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ *
  */
 public class BondTenorFunction extends NonCompiledInvoker {
 
@@ -58,9 +58,9 @@ public class BondTenorFunction extends NonCompiledInvoker {
     final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
     final BondSecurityConverter visitor = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
     final BondFixedSecurityDefinition bond = (BondFixedSecurityDefinition) security.accept(visitor);
-    final ZonedDateTime firstCouponDate = bond.getCoupon().getNthPayment(0).getAccrualStartDate();
-    final ZonedDateTime lastCouponDate = bond.getCoupon().getNthPayment(bond.getCoupon().getNumberOfPayments() - 1).getPaymentDate();
-    final double t = DateUtils.getDaysBetween(firstCouponDate, lastCouponDate) / 365;
+    final ZonedDateTime firstCouponDate = bond.getCoupons().getNthPayment(0).getAccrualStartDate();
+    final ZonedDateTime lastCouponDate = bond.getCoupons().getNthPayment(bond.getCoupons().getNumberOfPayments() - 1).getPaymentDate();
+    final int t = DateUtils.getDaysBetween(firstCouponDate, lastCouponDate) / 365;
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.BOND_TENOR, security), getUniqueId());
     return Sets.newHashSet(new ComputedValue(specification, t));
   }

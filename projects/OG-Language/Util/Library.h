@@ -51,9 +51,15 @@ public:
 	/// Creates a new library reference, if the library exists.
 	///
 	/// @param[in] pszPath full path to the library file, or file name if pszSearchPath is not NULL
+#ifdef _WIN32
 	/// @param[in] pszSearchPath path to search for the library, or NULL if pszPath is a full filename
+#endif /* ifdef _WIN32 */
 	/// @return the library instance, or NULL if the library could not be found
-	static CLibrary *Create (const TCHAR *pszPath, const TCHAR *pszSearchPath = NULL) {
+	static CLibrary *Create (const TCHAR *pszPath
+#ifdef _WIN32
+			, const TCHAR *pszSearchPath = NULL
+#endif /* ifdef _WIN32 */
+			) {
 		CLibrary *po = new CLibrary ();
 #ifdef _WIN32
 		if (pszSearchPath) {

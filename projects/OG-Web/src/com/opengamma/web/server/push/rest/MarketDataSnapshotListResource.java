@@ -8,22 +8,29 @@ import java.util.regex.Pattern;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
+import com.opengamma.id.ObjectId;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryResult;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * REST resource that produces a JSON list of market data snapshots and their IDs.  This isn't a full REST
@@ -45,6 +52,7 @@ public class MarketDataSnapshotListResource {
   private final MarketDataSnapshotMaster _snapshotMaster;
 
   public MarketDataSnapshotListResource(MarketDataSnapshotMaster snapshotMaster) {
+    ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
     _snapshotMaster = snapshotMaster;
   }
 
@@ -91,5 +99,37 @@ public class MarketDataSnapshotListResource {
       basisViewSnapshotList.add(ImmutableMap.of(BASIS_VIEW_NAME, basisViewName, SNAPSHOTS, snapshotsList));
     }
     return new JSONArray(basisViewSnapshotList).toString();
+  }
+
+  /**
+   * Returns the version history of a market data snapshot.
+   * @param snapshotId An snapshot {@link ObjectId}
+   * @return JSON array of the snapshot's history
+   * <pre>
+   *   [{"uniqueId": "DbSnp~12345~2",
+   *     "correctionFrom": "2012-05-23T10:54:10.124293Z",
+   *     "correctionTo": null,
+   *     "versionFrom": "2012-05-23T10:54:10.124293Z",
+   *     "versionTo": null}]
+   * </pre>
+   */
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  @Path("{snapshotId}")
+  public String getMarketDataSnapshotHistory(@PathParam("snapshotId") String snapshotId) {
+    ObjectId id = ObjectId.parse(snapshotId);
+    MarketDataSnapshotHistoryResult result = _snapshotMaster.history(new MarketDataSnapshotHistoryRequest(id));
+    List<MarketDataSnapshotDocument> documents = result.getDocuments();
+    List<Map<String, Object>> json = Lists.newArrayListWithCapacity(documents.size());
+    for (MarketDataSnapshotDocument document : documents) {
+      Map<String, Object> map = Maps.newHashMapWithExpectedSize(5);
+      map.put("uniqueId", document.getUniqueId());
+      map.put("versionFrom", document.getVersionFromInstant());
+      map.put("versionTo", document.getVersionToInstant());
+      map.put("correctionFrom", document.getCorrectionFromInstant());
+      map.put("correctionTo", document.getCorrectionToInstant());
+      json.add(map);
+    }
+    return new JSONArray(json).toString();
   }
 }

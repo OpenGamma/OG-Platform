@@ -9,7 +9,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
-import java.io.File;
+import java.net.URI;
 import java.util.List;
 
 import org.testng.annotations.Test;
@@ -25,7 +25,8 @@ public class DevBundleBuilderTest {
     
     Bundle testBundle = new Bundle("A.css");
     for (int i = 1; i <= 100; i++) {
-      testBundle.addChildNode(new Fragment(new File("A" + i + ".css")));
+      URI uri = new URI("A" + i + ".css");
+      testBundle.addChildNode(new Fragment(uri, "/" + uri.toString()));
     }
     bundleManager.addBundle(testBundle);
     

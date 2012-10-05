@@ -102,9 +102,12 @@ public class SubscriptionHandle {
     } else {
       if (response.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS) {
         s_logger.debug("Established subscription to {}", getRequestedSpecification());
+      } else if (response.getSubscriptionResult() == LiveDataSubscriptionResult.INTERNAL_ERROR) {
+        s_logger.warn("Failed to establish subscription, {} {}, request = {}", 
+            new Object[] {response.getSubscriptionResult(), response.getUserMessage(), getRequestedSpecification()});
       } else {
-        s_logger.debug("Failed to establish subscription to {}. Result was {}, msg = {}", 
-            new Object[] {getRequestedSpecification(), response.getSubscriptionResult(), response.getUserMessage()});
+        s_logger.debug("Failed to establish subscription, {} {}, request = {}", 
+            new Object[] {response.getSubscriptionResult(), response.getUserMessage(), getRequestedSpecification()});
       }
     }
     

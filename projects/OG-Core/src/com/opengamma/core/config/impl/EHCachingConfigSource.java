@@ -33,7 +33,7 @@ import net.sf.ehcache.Element;
  */
 public class EHCachingConfigSource extends AbstractEHCachingSource<ConfigSource, ConfigItem<?>> implements ConfigSource {
 
-  private static final String CACHE_NAME = "configs_by_name";
+  /*pacakge*/ static final String CACHE_NAME = "configs_by_name";
   private final Cache _cache;
 
 //  /**

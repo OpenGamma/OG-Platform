@@ -37,7 +37,7 @@ import com.opengamma.util.money.Currency;
  */
 public class EHCachingHolidaySource implements HolidaySource {
 
-  private static final String CACHE_NAME = "holiday";
+  /*package*/ static final String CACHE_NAME = "holiday";
   private final HolidaySource _underlying;
   private final Cache _cache;
 

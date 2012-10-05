@@ -173,3 +173,11 @@
 
 
 -- ==========================================================================
+@NAME(GetSchemaVersion)
+  SELECT version_value
+  FROM snp_schema_version
+  WHERE version_key = :version_key
+
+
+-- ==========================================================================
+

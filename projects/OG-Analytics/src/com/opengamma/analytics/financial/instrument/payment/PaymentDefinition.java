@@ -8,10 +8,10 @@ package com.opengamma.analytics.financial.instrument.payment;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -34,10 +34,10 @@ public abstract class PaymentDefinition implements InstrumentDefinition<Payment>
    * @param paymentDate The payment date.
    */
   public PaymentDefinition(final Currency currency, final ZonedDateTime paymentDate) {
-    Validate.notNull(currency, "currency");
+    ArgumentChecker.notNull(currency, "currency");
+    ArgumentChecker.notNull(paymentDate, "payment date");
     _currency = currency;
-    Validate.notNull(paymentDate, "payment date");
-    this._paymentDate = paymentDate;
+    _paymentDate = paymentDate;
   }
 
   /**

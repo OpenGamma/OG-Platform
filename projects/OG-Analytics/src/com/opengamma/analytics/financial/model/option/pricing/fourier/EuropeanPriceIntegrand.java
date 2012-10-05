@@ -62,7 +62,8 @@ public class EuropeanPriceIntegrand {
     };
   }
 
-  private ComplexNumber getIntegrand(final double x, final Function1D<ComplexNumber, ComplexNumber> ce, final Function1D<ComplexNumber, ComplexNumber> gaussian, final double k) {
+  private ComplexNumber getIntegrand(final double x, final Function1D<ComplexNumber, ComplexNumber> ce, final Function1D<ComplexNumber, ComplexNumber> gaussian,
+      final double k) {
     final ComplexNumber z = new ComplexNumber(x, -1 - _alpha);
     final ComplexNumber num1 = exp(add(new ComplexNumber(0, -x * k), ce.evaluate(z)));
     final ComplexNumber num2 = gaussian == null ? new ComplexNumber(0.0) : exp(add(new ComplexNumber(0, -x * k), gaussian.evaluate(z)));

@@ -27,3 +27,10 @@
 
 
 -- ==========================================================================
+@NAME(GetSchemaVersion)
+  SELECT version_value
+  FROM eng_schema_version
+  WHERE version_key = :version_key
+
+
+-- ==========================================================================

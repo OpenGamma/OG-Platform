@@ -33,7 +33,7 @@ public class SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationEngine extends 
    * Constructor of the calibration engine.
    * @param calibrationObjective The calibration objective.
    */
-  public SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationEngine(SwaptionPhysicalLMMDDCalibrationObjective calibrationObjective) {
+  public SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationEngine(SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective calibrationObjective) {
     super(calibrationObjective);
     _instrumentIndex.add(0);
   }
@@ -55,8 +55,8 @@ public class SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationEngine extends 
     getBasket().add(instrument);
     getMethod().add(method);
     getCalibrationPrice().add(0.0);
-    _instrumentIndex.add(Arrays.binarySearch(((SwaptionPhysicalLMMDDCalibrationObjective) getCalibrationObjective()).getLMMParameters().getIborTime(), swaption.getUnderlyingSwap().getSecondLeg()
-        .getNthPayment(swaption.getUnderlyingSwap().getSecondLeg().getNumberOfPayments() - 1).getPaymentTime()));
+    _instrumentIndex.add(Arrays.binarySearch(((SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective) getCalibrationObjective()).getLMMParameters().getIborTime(), 
+        swaption.getUnderlyingSwap().getSecondLeg().getNthPayment(swaption.getUnderlyingSwap().getSecondLeg().getNumberOfPayments() - 1).getPaymentTime()));
   }
 
   @Override
@@ -64,7 +64,7 @@ public class SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationEngine extends 
     computeCalibrationPrice(curves);
     getCalibrationObjective().setCurves(curves);
     int nbInstruments = getBasket().size();
-    SwaptionPhysicalLMMDDCalibrationObjective objective = (SwaptionPhysicalLMMDDCalibrationObjective) getCalibrationObjective();
+    SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective objective = (SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective) getCalibrationObjective();
     final RidderSingleRootFinder rootFinder = new RidderSingleRootFinder(objective.getFunctionValueAccuracy(), objective.getVariableAbsoluteAccuracy());
     final BracketRoot bracketer = new BracketRoot();
     for (int loopins = 0; loopins < nbInstruments; loopins++) {

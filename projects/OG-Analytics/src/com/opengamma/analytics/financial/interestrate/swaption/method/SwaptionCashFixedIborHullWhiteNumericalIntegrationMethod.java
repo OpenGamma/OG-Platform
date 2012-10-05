@@ -13,7 +13,6 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
 import com.opengamma.analytics.financial.interestrate.method.PricingMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
-import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 import com.opengamma.analytics.math.function.Function1D;
@@ -88,15 +87,15 @@ public class SwaptionCashFixedIborHullWhiteNumericalIntegrationMethod implements
 
   @Override
   public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
-    Validate.isTrue(instrument instanceof SwaptionPhysicalFixedIbor, "Physical delivery swaption");
+    Validate.isTrue(instrument instanceof SwaptionCashFixedIbor, "Cash-settled swaption");
     Validate.isTrue(curves instanceof HullWhiteOneFactorPiecewiseConstantDataBundle, "Bundle should contain Hull-White data");
-    return presentValue(instrument, curves);
+    return presentValue((SwaptionCashFixedIbor) instrument, (HullWhiteOneFactorPiecewiseConstantDataBundle) curves);
   }
 
   /**
    * Inner class to implement the integration used in price replication.
    */
-  private class SwaptionIntegrant extends Function1D<Double, Double> {
+  private static final class SwaptionIntegrant extends Function1D<Double, Double> {
 
     private final double[] _discountedCashFlowFixed;
     private final double[] _alphaFixed;
@@ -118,8 +117,7 @@ public class SwaptionCashFixedIborHullWhiteNumericalIntegrationMethod implements
      * @param strike The strike.
      */
     public SwaptionIntegrant(final double[] discountedCashFlowFixed, final double[] alphaFixed, final double[] discountedCashFlowIbor, final double[] alphaIbor, final int nbFixedPaymentYear,
-        final double strike,
-        final boolean isPayer) {
+        final double strike, final boolean isPayer) {
       _discountedCashFlowFixed = discountedCashFlowFixed;
       _alphaFixed = alphaFixed;
       _discountedCashFlowIbor = discountedCashFlowIbor;

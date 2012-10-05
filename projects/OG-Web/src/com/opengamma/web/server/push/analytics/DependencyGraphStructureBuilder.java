@@ -23,43 +23,62 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 
 /**
- *
+ * Builds the row and column structure of a dependency graph grid given the compiled view definition and the
+ * target at the root of the graph.
  */
-public class DependencyGraphStructureBuilder {
+/* package */ class DependencyGraphStructureBuilder {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphStructureBuilder.class);
 
-  // TODO could this be used for both grid types?
-  private final List<DependencyGraphGridStructure.Row> _rows = Lists.newArrayList();
+  /** {@link ValueSpecification}s for all rows in the grid in row index order. */
+  private final List<ValueSpecification> _valueSpecs = Lists.newArrayList();
+  /** Function names for all rows in the grid in row index order. */
+  private final List<String> _fnNames = Lists.newArrayList();
+  /** The grid structure. */
   private final DependencyGraphGridStructure _structure;
 
-  /* Keeps track of the index of the last row */
+  /** Mutable variable for keeping track of the index of the last row */
   private int _lastRow = 0;
 
-  public DependencyGraphStructureBuilder(CompiledViewDefinition compiledViewDef,
-                                         ValueSpecification root,
-                                         String calcConfigName,
-                                         ComputationTargetResolver targetResolver) {
+  /**
+   * @param compiledViewDef The compiled view definition containing the dependency graph
+   * @param root Specificaion of the value whose dependency graph structure is being built
+   * @param calcConfigName The calculation configuration used when calculating the value
+   * @param targetResolver For looking up calculation targets given their specification
+   */
+  /* package */ DependencyGraphStructureBuilder(CompiledViewDefinition compiledViewDef,
+                                                ValueSpecification root,
+                                                String calcConfigName,
+                                                ComputationTargetResolver targetResolver) {
     // TODO see [PLAT-2478] this is a bit nasty but will work as long as the engine and web are running in the same VM
     if (!(compiledViewDef instanceof CompiledViewDefinitionWithGraphs)) {
       s_logger.warn("Compiled view definition is not an instance of CompiledViewDefinitionWithGraphs, class={}." +
                         " Dependency graphs not supported");
       _structure = new DependencyGraphGridStructure(AnalyticsNode.emptyRoot(),
-                                                    Collections.<DependencyGraphGridStructure.Row>emptyList(),
+                                                    Collections.<ValueSpecification>emptyList(),
+                                                    Collections.<String>emptyList(),
                                                     targetResolver);
     } else {
       CompiledViewDefinitionWithGraphs viewDef = (CompiledViewDefinitionWithGraphs) compiledViewDef;
       DependencyGraphExplorer depGraphExplorer = viewDef.getDependencyGraphExplorer(calcConfigName);
       DependencyGraph depGraph = depGraphExplorer.getSubgraphProducing(root);
       AnalyticsNode node = createNode(root, depGraph);
-      _structure = new DependencyGraphGridStructure(node, _rows, targetResolver);
+      _structure = new DependencyGraphGridStructure(node, _valueSpecs, _fnNames, targetResolver);
     }
   }
 
+  /**
+   * Builds the tree structure of the graph starting at a node and working up the dependency graph through all the
+   * nodes it depends on. Recursively builds up the node structure representing whole the dependency graph.
+   * @param valueSpec The value specification of the target that is the current root
+   * @param depGraph Dependency graph for the entire view definition
+   * @return Root node of the grid structure representing the dependency graph for the value
+   */
   private AnalyticsNode createNode(ValueSpecification valueSpec, DependencyGraph depGraph) {
     DependencyNode targetNode = depGraph.getNodeProducing(valueSpec);
     String fnName = targetNode.getFunction().getFunction().getFunctionDefinition().getShortName();
-    _rows.add(new DependencyGraphGridStructure.Row(valueSpec, fnName));
+    _valueSpecs.add(valueSpec);
+    _fnNames.add(fnName);
     int nodeStart = _lastRow;
     List<AnalyticsNode> nodes = new ArrayList<AnalyticsNode>();
     Set<ValueSpecification> inputValues = targetNode.getInputValues();
@@ -78,7 +97,10 @@ public class DependencyGraphStructureBuilder {
     }
   }
 
-  public DependencyGraphGridStructure getStructure() {
+  /**
+   * @return The grid structure
+   */
+  /* package */ DependencyGraphGridStructure getStructure() {
     return _structure;
   }
 }

@@ -32,7 +32,7 @@ public class InterestRateFutureOptionBlackGammaFunction extends InterestRateFutu
 
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec) {
-    final Double gamma = CALCULATOR.visit(irFutureOption, data);
+    final Double gamma = CALCULATOR.visit(irFutureOption, data) / 1e8; // REVIEW: jim 31-Aug-2012 - represents change in PV01 per basis-point now.
     return Collections.singleton(new ComputedValue(spec, gamma));
   }
 

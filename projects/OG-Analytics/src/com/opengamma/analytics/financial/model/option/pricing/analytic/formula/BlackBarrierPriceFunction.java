@@ -5,14 +5,14 @@
  */
 package com.opengamma.analytics.financial.model.option.pricing.analytic.formula;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.model.option.definition.Barrier;
 import com.opengamma.analytics.financial.model.option.definition.Barrier.BarrierType;
 import com.opengamma.analytics.financial.model.option.definition.Barrier.KnockType;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.util.CompareUtils;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * The price function to compute the price of barrier option in the Black world.
@@ -37,9 +37,9 @@ public final class BlackBarrierPriceFunction {
    * Computes the price of a barrier option in the Black world.
    * @param option The underlying European vanilla option.
    * @param barrier The barrier.
-   * @param rebate The rebate.
+   * @param rebate The rebate. This is paid <b>immediately</b> if the knock-out barrier is hit and at expiry if the knock-in barrier is not hit
    * @param spot The spot price.
-   * @param costOfCarry The cost of carry.
+   * @param costOfCarry The cost of carry (i.e. the forward = spot*exp(costOfCarry*T) )
    * @param rate The interest rate.
    * @param sigma The Black volatility.
    * @return The price.
@@ -88,17 +88,18 @@ public final class BlackBarrierPriceFunction {
         return strike > h ? xA + xE : xB - xC + xD + xE;
       }
       return strike > h ? xA - xB + xD + xE : xC + xE;
-    }
-    if (isDown) {
-      if (isCall) {
-        return strike > h ? xA - xC + xE : xB - xD + xE;
+    } else { // KnockOut
+      if (isDown) {
+        if (isCall) {
+          return strike > h ? xA - xC + xE : xB - xD + xE;
+        }
+        return strike > h ? xA - xB + xC - xD + xE : xE;
       }
-      return strike > h ? xA - xB + xC - xD + xE : xE;
+      if (isCall) {
+        return strike > h ? xE : xA - xB + xC - xD + xE;
+      }
+      return strike > h ? xB - xD + xE : xA - xC + xE;
     }
-    if (isCall) {
-      return strike > h ? xE : xA - xB + xC - xD + xE;
-    }
-    return strike > h ? xB - xD + xE : xA - xC + xE;
   }
 
   /**
@@ -275,7 +276,7 @@ public final class BlackBarrierPriceFunction {
         } // UP end
       } // OUT end
     }
-    // Backward sweep (first step in the foward sweep)
+    // Backward sweep (first step in the forward sweep)
     double zBar = 0.0;
     double y2Bar = 0.0;
     double x2Bar = 0.0;
@@ -292,7 +293,7 @@ public final class BlackBarrierPriceFunction {
       derivatives[0] = eDerivatives[0] * xEBar;
     } else {
       zBar = fDerivatives[1] * xEBar;
-      lambdaBar = fDerivatives[4] * xEBar;
+      lambdaBar = fDerivatives[4] * xEBar; // only F has lambda dependence, which in turn is a function of mu, see muBar+= below
       muBar = fDerivatives[3] * xEBar;
       sigmaTBar = fDerivatives[2] * xEBar;
       derivatives[0] = fDerivatives[0] * xEBar;
@@ -303,9 +304,16 @@ public final class BlackBarrierPriceFunction {
     final double x1Bar = aDerivatives[4] * xABar;
     final double m1Bar = x1Bar + x2Bar + y1Bar + y2Bar;
     muBar += cDerivatives[6] * xCBar + dDerivatives[6] * xDBar + sigmaT * m1Bar + mu / lambda * lambdaBar;
-    sigmaTBar += aDerivatives[5] * xABar + bDerivatives[5] * xBBar + cDerivatives[5] * xCBar + dDerivatives[5] * xDBar + (lambda - Math.log(h / spot) / (sigmaT * sigmaT)) * zBar - Math.log(h / spot)
-        / (sigmaT * sigmaT) * y2Bar - Math.log(h * h / spot / strike) / (sigmaT * sigmaT) * y1Bar - Math.log(spot / h) / (sigmaT * sigmaT) * x2Bar - Math.log(spot / strike) / (sigmaT * sigmaT)
-        * x1Bar + (1 + mu) * m1Bar;
+    sigmaTBar += aDerivatives[5] * xABar // dA/dsigT - it does not include x1's dependence on sigmaT. This is below in x1Bar 
+        + bDerivatives[5] * xBBar // Same as above - A and B share form/function
+        + cDerivatives[5] * xCBar // C additionally has mu dependence on sigma. This is captured in muBar
+        + dDerivatives[5] * xDBar
+              + (lambda - Math.log(h / spot) / (sigmaT * sigmaT)) * zBar
+              - Math.log(h / spot) / (sigmaT * sigmaT) * y2Bar
+              - Math.log(h * h / spot / strike) / (sigmaT * sigmaT) * y1Bar
+              - Math.log(spot / h) / (sigmaT * sigmaT) * x2Bar
+              - Math.log(spot / strike) / (sigmaT * sigmaT) * x1Bar
+              + (1 + mu) * m1Bar;
     final double sigmaSqBar = -costOfCarry / (sigmaSq * sigmaSq) * muBar - rate / (sigmaSq * sigmaSq) / lambda * lambdaBar;
     df2Bar += aDerivatives[3] * xABar + bDerivatives[3] * xBBar + cDerivatives[3] * xCBar + dDerivatives[3] * xDBar;
     final double df1Bar = aDerivatives[2] * xABar + bDerivatives[2] * xBBar + cDerivatives[2] * xCBar + dDerivatives[2] * xDBar;

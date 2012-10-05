@@ -88,7 +88,7 @@ public class LinkUtils {
       return true;
     }
     final ExternalIdBundle externalId = link.getExternalId();
-    return externalId != null & externalId.size() > 0;
+    return externalId != null && externalId.size() > 0;
   }
 
 }

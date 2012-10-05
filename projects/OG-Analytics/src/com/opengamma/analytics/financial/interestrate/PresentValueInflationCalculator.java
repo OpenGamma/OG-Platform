@@ -18,17 +18,17 @@ import com.opengamma.analytics.financial.interestrate.inflation.method.CouponInf
 import com.opengamma.analytics.financial.interestrate.inflation.method.CouponInflationZeroCouponInterpolationGearingDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.inflation.method.CouponInflationZeroCouponMonthlyDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.inflation.method.CouponInflationZeroCouponMonthlyGearingDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.market.MarketBundle;
-import com.opengamma.analytics.financial.interestrate.market.MarketDiscountingDecorated;
+import com.opengamma.analytics.financial.interestrate.market.description.MarketDiscountBundle;
+import com.opengamma.analytics.financial.interestrate.market.description.MarketDiscountBundleDiscountingDecorated;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
-import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Calculates the present value of an inflation instruments by discounting for a given MarketBundle
  */
-public class PresentValueInflationCalculator extends AbstractInstrumentDerivativeVisitor<MarketBundle, CurrencyAmount> {
+public class PresentValueInflationCalculator extends AbstractInstrumentDerivativeVisitor<MarketDiscountBundle, MultipleCurrencyAmount> {
 
   /**
    * Pricing method for zero-coupon with monthly reference index.
@@ -67,26 +67,26 @@ public class PresentValueInflationCalculator extends AbstractInstrumentDerivativ
   }
 
   @Override
-  public CurrencyAmount visit(final InstrumentDerivative derivative, final MarketBundle market) {
+  public MultipleCurrencyAmount visit(final InstrumentDerivative derivative, final MarketDiscountBundle market) {
     Validate.notNull(market);
     Validate.notNull(derivative);
     return derivative.accept(this, market);
   }
 
   @Override
-  public CurrencyAmount visitFixedPayment(final PaymentFixed payment, final MarketBundle market) {
-    return CurrencyAmount.of(payment.getCurrency(), market.getDiscountingFactor(payment.getCurrency(), payment.getPaymentTime()) * payment.getAmount());
+  public MultipleCurrencyAmount visitFixedPayment(final PaymentFixed payment, final MarketDiscountBundle market) {
+    return MultipleCurrencyAmount.of(payment.getCurrency(), market.getDiscountFactor(payment.getCurrency(), payment.getPaymentTime()) * payment.getAmount());
   }
 
   @Override
-  public CurrencyAmount visitCouponFixed(final CouponFixed coupon, final MarketBundle market) {
-    return CurrencyAmount.of(coupon.getCurrency(), market.getDiscountingFactor(coupon.getCurrency(), coupon.getPaymentTime()) * coupon.getAmount());
+  public MultipleCurrencyAmount visitCouponFixed(final CouponFixed coupon, final MarketDiscountBundle market) {
+    return MultipleCurrencyAmount.of(coupon.getCurrency(), market.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime()) * coupon.getAmount());
   }
 
   @Override
-  public CurrencyAmount visitGenericAnnuity(final Annuity<? extends Payment> annuity, final MarketBundle market) {
+  public MultipleCurrencyAmount visitGenericAnnuity(final Annuity<? extends Payment> annuity, final MarketDiscountBundle market) {
     Validate.notNull(annuity);
-    CurrencyAmount pv = CurrencyAmount.of(annuity.getCurrency(), 0.0);
+    MultipleCurrencyAmount pv = MultipleCurrencyAmount.of(annuity.getCurrency(), 0.0);
     for (final Payment p : annuity.getPayments()) {
       pv = pv.plus(visit(p, market));
     }
@@ -94,39 +94,40 @@ public class PresentValueInflationCalculator extends AbstractInstrumentDerivativ
   }
 
   @Override
-  public CurrencyAmount visitCouponInflationZeroCouponMonthly(final CouponInflationZeroCouponMonthly coupon, final MarketBundle market) {
+  public MultipleCurrencyAmount visitCouponInflationZeroCouponMonthly(final CouponInflationZeroCouponMonthly coupon, final MarketDiscountBundle market) {
     return METHOD_ZC_MONTHLY.presentValue(coupon, market);
   }
 
   @Override
-  public CurrencyAmount visitCouponInflationZeroCouponInterpolation(final CouponInflationZeroCouponInterpolation coupon, final MarketBundle market) {
+  public MultipleCurrencyAmount visitCouponInflationZeroCouponInterpolation(final CouponInflationZeroCouponInterpolation coupon, final MarketDiscountBundle market) {
     return METHOD_ZC_INTERPOLATION.presentValue(coupon, market);
   }
 
   @Override
-  public CurrencyAmount visitCouponInflationZeroCouponMonthlyGearing(final CouponInflationZeroCouponMonthlyGearing coupon, final MarketBundle market) {
+  public MultipleCurrencyAmount visitCouponInflationZeroCouponMonthlyGearing(final CouponInflationZeroCouponMonthlyGearing coupon, final MarketDiscountBundle market) {
     return METHOD_ZC_MONTHLY_GEARING.presentValue(coupon, market);
   }
 
   @Override
-  public CurrencyAmount visitCouponInflationZeroCouponInterpolationGearing(final CouponInflationZeroCouponInterpolationGearing coupon, final MarketBundle market) {
+  public MultipleCurrencyAmount visitCouponInflationZeroCouponInterpolationGearing(final CouponInflationZeroCouponInterpolationGearing coupon, final MarketDiscountBundle market) {
     return METHOD_ZC_INTERPOLATION_GEARING.presentValue(coupon, market);
   }
 
   @Override
-  public CurrencyAmount visitBondCapitalIndexedSecurity(final BondCapitalIndexedSecurity<?> bond, final MarketBundle market) {
+  public MultipleCurrencyAmount visitBondCapitalIndexedSecurity(final BondCapitalIndexedSecurity<?> bond, final MarketDiscountBundle market) {
     Validate.notNull(bond, "Bond");
-    MarketBundle creditDiscounting = new MarketDiscountingDecorated(market, bond.getCurrency(), market.getCurve(bond.getIssuer()));
-    final CurrencyAmount pvNominal = visit(bond.getNominal(), creditDiscounting);
-    final CurrencyAmount pvCoupon = visit(bond.getCoupon(), creditDiscounting);
+    MarketDiscountBundle creditDiscounting = new MarketDiscountBundleDiscountingDecorated(market, bond.getCurrency(), market.getCurve(bond.getIssuerCurrency()));
+    final MultipleCurrencyAmount pvNominal = visit(bond.getNominal(), creditDiscounting);
+    final MultipleCurrencyAmount pvCoupon = visit(bond.getCoupon(), creditDiscounting);
     return pvNominal.plus(pvCoupon);
   }
 
   @Override
-  public CurrencyAmount visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransaction<?> bond, final MarketBundle market) {
+  public MultipleCurrencyAmount visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransaction<?> bond, final MarketDiscountBundle market) {
     Validate.notNull(bond, "Bond");
-    final CurrencyAmount pvBond = visit(bond.getBondTransaction(), market);
-    CurrencyAmount pvSettlement = visit(bond.getBondTransaction().getSettlement(), market).multipliedBy(bond.getQuantity() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional());
+    final MultipleCurrencyAmount pvBond = visit(bond.getBondTransaction(), market);
+    final MultipleCurrencyAmount pvSettlement = visit(bond.getBondTransaction().getSettlement(), market).multipliedBy(
+        bond.getQuantity() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional());
     return pvBond.multipliedBy(bond.getQuantity()).plus(pvSettlement);
   }
 

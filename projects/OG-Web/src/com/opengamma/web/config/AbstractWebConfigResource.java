@@ -34,8 +34,11 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveDefinition;
+import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveSpecification;
 import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
+import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
@@ -48,7 +51,10 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.web.AbstractPerRequestWebResource;
 import com.opengamma.web.WebHomeUris;
 import com.opengamma.web.json.CurveSpecificationBuilderConfigurationJSONBuilder;
+import com.opengamma.web.json.FXForwardCurveDefinitionJSONBuilder;
+import com.opengamma.web.json.FXForwardCurveSpecificationJSONBuilder;
 import com.opengamma.web.json.FudgeMsgJSONReader;
+import com.opengamma.web.json.MultiCurveCalculationConfigJSONBuilder;
 import com.opengamma.web.json.ViewDefinitionJSONBuilder;
 import com.opengamma.web.json.VolatilityCubeDefinitionJSONBuilder;
 import com.opengamma.web.json.VolatilitySurfaceDefinitionJSONBuilder;
@@ -100,6 +106,9 @@ public abstract class AbstractWebConfigResource extends AbstractPerRequestWebRes
     data().getJsonBuilderMap().put(VolatilityCubeDefinition.class, VolatilityCubeDefinitionJSONBuilder.INSTANCE);
     data().getJsonBuilderMap().put(VolatilitySurfaceDefinition.class, VolatilitySurfaceDefinitionJSONBuilder.INSTANCE);
     data().getJsonBuilderMap().put(VolatilitySurfaceSpecification.class, VolatilitySurfaceSpecificationJSONBuilder.INSTANCE);
+    data().getJsonBuilderMap().put(FXForwardCurveDefinition.class, FXForwardCurveDefinitionJSONBuilder.INSTANCE);
+    data().getJsonBuilderMap().put(FXForwardCurveSpecification.class, FXForwardCurveSpecificationJSONBuilder.INSTANCE);
+    data().getJsonBuilderMap().put(MultiCurveCalculationConfig.class, MultiCurveCalculationConfigJSONBuilder.INSTANCE);
   }
 
   /**

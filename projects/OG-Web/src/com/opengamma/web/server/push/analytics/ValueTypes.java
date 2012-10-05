@@ -21,6 +21,11 @@ import com.google.common.collect.Maps;
 /**
  * Maps value names to their types.
  * TODO this is very much a work in progress
+ * TODO this needs to be extensible so new types can be added in client projects without editing the main list
+ * TODO do we need the ability to exclude types that are in the main list?
+ * this might be necessary for values where a function can return different types at different times. these need to have
+ * no type associated with them so the UI gets sent the type with every set of results. if that is required for a value
+ * name which has a type in the main list there needs to be a mechanism to override it
  */
 public class ValueTypes {
 

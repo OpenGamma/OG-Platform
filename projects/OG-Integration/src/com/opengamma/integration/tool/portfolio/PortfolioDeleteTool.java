@@ -8,6 +8,7 @@ package com.opengamma.integration.tool.portfolio;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.opengamma.financial.tool.ToolContext;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
@@ -28,7 +29,7 @@ import com.opengamma.util.generate.scripts.Scriptable;
  * The portfolio loader tool
  */
 @Scriptable
-public class PortfolioDeleteTool extends AbstractTool {
+public class PortfolioDeleteTool extends AbstractTool<ToolContext> {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioDeleteTool.class);
 
@@ -54,7 +55,7 @@ public class PortfolioDeleteTool extends AbstractTool {
    * @param args  the arguments, not null
    */
   public static void main(String[] args) { //CSIGNORE
-    new PortfolioDeleteTool().initAndRun(args);
+    new PortfolioDeleteTool().initAndRun(args, ToolContext.class);
     System.exit(0);
   }
 

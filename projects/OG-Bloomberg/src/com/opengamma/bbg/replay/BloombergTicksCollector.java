@@ -39,10 +39,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergConnector;
-import com.opengamma.bbg.CachingReferenceDataProvider;
-import com.opengamma.bbg.PerSecurityReferenceDataResult;
-import com.opengamma.bbg.ReferenceDataProvider;
-import com.opengamma.bbg.ReferenceDataResult;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.bbg.util.BloombergDomainIdentifierResolver;
 import com.opengamma.bbg.util.SessionOptionsUtils;
@@ -186,17 +183,10 @@ public class BloombergTicksCollector implements Lifecycle {
   
   private void doSnapshot(Map<String, String> ticker2Buid) {
     ReferenceDataProvider refDataProvider = _refDataProvider;
-    if (_refDataProvider instanceof CachingReferenceDataProvider) {
-      refDataProvider = ((CachingReferenceDataProvider) _refDataProvider).getUnderlying();
-    }
-    
-    ReferenceDataResult referenceData = refDataProvider.getFields(ticker2Buid.keySet(), BloombergDataUtils.STANDARD_FIELDS_SET);
-    if (referenceData == null) {
-      throw new OpenGammaRuntimeException("Could not obtain reference data for " + ticker2Buid.keySet());      
-    }
+    Map<String, FudgeMsg> refDataValues = refDataProvider.getReferenceDataIgnoreCache(ticker2Buid.keySet(), BloombergDataUtils.STANDARD_FIELDS_SET);
     
     for (String bloombergKey : ticker2Buid.keySet()) {
-      PerSecurityReferenceDataResult result = referenceData.getResult(bloombergKey);
+      FudgeMsg result = refDataValues.get(bloombergKey);
       if (result == null) {
         throw new OpenGammaRuntimeException("Result for " + bloombergKey + " was not found");
       }
@@ -206,7 +196,7 @@ public class BloombergTicksCollector implements Lifecycle {
       long epochMillis = instant.toEpochMillisLong();
       tickMsg.add(RECEIVED_TS_KEY, epochMillis);
       tickMsg.add(SECURITY_KEY, bloombergKey);
-      tickMsg.add(FIELDS_KEY, result.getFieldData());
+      tickMsg.add(FIELDS_KEY, result);
       tickMsg.add(BUID_KEY, ticker2Buid.get(bloombergKey));
       try {
         _allTicksQueue.put(tickMsg);

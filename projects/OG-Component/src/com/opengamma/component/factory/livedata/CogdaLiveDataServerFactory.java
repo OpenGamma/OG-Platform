@@ -79,7 +79,6 @@ public class CogdaLiveDataServerFactory extends AbstractComponentFactory {
     container.setDestinationName(getListenTopicName());
     container.setPubSubDomain(true);
     container.setConnectionFactory(getListenJmsConnector().getConnectionFactory());
-    container.afterPropertiesSet();
     
     CogdaLiveDataServerMBean mbean = new CogdaLiveDataServerMBean(liveDataServer);
     

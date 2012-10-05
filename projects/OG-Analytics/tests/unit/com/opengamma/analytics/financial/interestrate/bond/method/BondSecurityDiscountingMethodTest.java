@@ -89,7 +89,7 @@ public class BondSecurityDiscountingMethodTest {
   @Test
   public void presentValueFixedMiddle() {
     final AnnuityPaymentFixed nominal = (AnnuityPaymentFixed) BOND_FIXED_SECURITY_DEFINITION.getNominal().toDerivative(REFERENCE_DATE_1, CURVES_NAME);
-    AnnuityCouponFixed coupon = BOND_FIXED_SECURITY_DEFINITION.getCoupon().toDerivative(REFERENCE_DATE_1, CURVES_NAME);
+    AnnuityCouponFixed coupon = BOND_FIXED_SECURITY_DEFINITION.getCoupons().toDerivative(REFERENCE_DATE_1, CURVES_NAME);
     coupon = coupon.trimBefore(REFERENCE_TIME_1);
     final double pvNominal = PVC.visit(nominal, CURVES);
     final double pvCoupon = PVC.visit(coupon, CURVES);
@@ -100,7 +100,7 @@ public class BondSecurityDiscountingMethodTest {
   @Test
   public void presentValueFixedOnCoupon() {
     final AnnuityPaymentFixed nominal = (AnnuityPaymentFixed) BOND_FIXED_SECURITY_DEFINITION.getNominal().toDerivative(REFERENCE_DATE_2, CURVES_NAME);
-    AnnuityCouponFixed coupon = BOND_FIXED_SECURITY_DEFINITION.getCoupon().toDerivative(REFERENCE_DATE_2, CURVES_NAME);
+    AnnuityCouponFixed coupon = BOND_FIXED_SECURITY_DEFINITION.getCoupons().toDerivative(REFERENCE_DATE_2, CURVES_NAME);
     coupon = coupon.trimBefore(REFERENCE_TIME_2);
     final double pvNominal = PVC.visit(nominal, CURVES);
     final double pvCoupon = PVC.visit(coupon, CURVES);
@@ -535,7 +535,7 @@ public class BondSecurityDiscountingMethodTest {
         CALENDAR_G, DAY_COUNT_G, BUSINESS_DAY_G, YIELD_CONVENTION_G, IS_EOM_G, ISSUER, REPO_TYPE);
     final BondFixedSecurity BondNoEx = bondNoExDefinition.toDerivative(REFERENCE_DATE_3, CURVES_NAME);
     final double pvNoEx = METHOD.presentValue(BondNoEx, CURVES);
-    final CouponFixedDefinition couponDefinitionEx = BOND_FIXED_SECURITY_DEFINITION_G.getCoupon().getNthPayment(17);
+    final CouponFixedDefinition couponDefinitionEx = BOND_FIXED_SECURITY_DEFINITION_G.getCoupons().getNthPayment(17);
     final double pvCpn = PVC.visit(couponDefinitionEx.toDerivative(REFERENCE_DATE_3, CURVES_NAME), CURVES);
     assertEquals("Fixed coupon bond security: present value ex dividend", pvNoEx - pvCpn, pv, 1.0E-6);
   }

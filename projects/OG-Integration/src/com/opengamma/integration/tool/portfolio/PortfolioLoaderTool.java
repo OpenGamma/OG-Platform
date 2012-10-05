@@ -27,7 +27,7 @@ import com.opengamma.util.generate.scripts.Scriptable;
  * The portfolio loader tool
  */
 @Scriptable
-public class PortfolioLoaderTool extends AbstractTool {
+public class PortfolioLoaderTool extends AbstractTool<ToolContext> {
 
   /** File name option flag */
   private static final String FILE_NAME_OPT = "f";
@@ -41,6 +41,8 @@ public class PortfolioLoaderTool extends AbstractTool {
   private static final String VERBOSE_OPT = "v";
   /** Asset class flag */
   private static final String SECURITY_TYPE_OPT = "s";
+  /** Ignore versioning flag */
+  private static final String IGNORE_VERSION_OPT = "i";
 
   private static ToolContext s_context;
   
@@ -51,7 +53,7 @@ public class PortfolioLoaderTool extends AbstractTool {
    * @param args  the arguments, not null
    */
   public static void main(String[] args) { //CSIGNORE
-    new PortfolioLoaderTool().initAndRun(args);
+    new PortfolioLoaderTool().initAndRun(args, ToolContext.class);
     System.exit(0);
   }
 
@@ -142,7 +144,7 @@ public class PortfolioLoaderTool extends AbstractTool {
       
       case ZIP:
         // Create zipped multi-asset class loader
-        return new ZippedPortfolioReader(filename);
+        return new ZippedPortfolioReader(filename, getCommandLine().hasOption(IGNORE_VERSION_OPT));
         
       default:
         throw new OpenGammaRuntimeException("Input filename should end in .CSV, .XLS or .ZIP");
@@ -177,6 +179,11 @@ public class PortfolioLoaderTool extends AbstractTool {
         OVERWRITE_OPT, "overwrite", false, 
         "Deletes any existing matching securities, positions and portfolios and recreates them from input data");
     options.addOption(overwriteOption);
+
+    Option ignoreVersionOption = new Option(
+        IGNORE_VERSION_OPT, "ignoreversion", false,
+        "Ignore the versioning hashes in METADATA.INI when reading from a ZIP file");
+    options.addOption(ignoreVersionOption);
 
     Option verboseOption = new Option(
         VERBOSE_OPT, "verbose", false, 

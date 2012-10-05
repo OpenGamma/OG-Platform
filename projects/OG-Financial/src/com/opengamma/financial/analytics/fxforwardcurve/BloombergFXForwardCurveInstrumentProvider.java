@@ -1,11 +1,12 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.fxforwardcurve;
 
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.Period;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.id.ExternalSchemes;
@@ -16,7 +17,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ *
  */
 public class BloombergFXForwardCurveInstrumentProvider implements FXForwardCurveInstrumentProvider {
   private static final ExternalScheme SCHEME = ExternalSchemes.BLOOMBERG_TICKER;
@@ -70,14 +71,28 @@ public class BloombergFXForwardCurveInstrumentProvider implements FXForwardCurve
   public ExternalId getInstrument(final LocalDate curveDate, final Tenor tenor) {
     final StringBuffer ticker = new StringBuffer();
     ticker.append(_prefix);
-    if (tenor.getPeriod().getYears() != 0) {
-      ticker.append(tenor.getPeriod().getYears() + "Y");
-    } else if (tenor.getPeriod().getMonths() != 0) {
-      ticker.append(tenor.getPeriod().getMonths() + "M");
-    } else if (tenor.getPeriod().getDays() != 0 && tenor.getPeriod().getDays() % 7 == 0) {
-      ticker.append(tenor.getPeriod().getDays() / 7 + "W");
+    final Period period = tenor.getPeriod();
+    if (period.getYears() != 0) {
+      ticker.append(period.getYears() + "Y");
+    } else if (period.getMonths() != 0) {
+      ticker.append(period.getMonths() + "M");
     } else {
-      throw new OpenGammaRuntimeException("Can only handle periods of year, month and week");
+      final int days = period.getDays();
+      if (days != 0) {
+        if (days % 7 == 0) {
+          ticker.append(days / 7 + "W");
+        } else if (days == 1) {
+          ticker.append("ON");
+        } else if (days == 2) {
+          ticker.append("TN");
+        } else if (days == 3) {
+          ticker.append("SN");
+        } else {
+          throw new OpenGammaRuntimeException("Cannot handle period of " + days + " days");
+        }
+      } else {
+        throw new OpenGammaRuntimeException("Can only handle periods of year, month, week and day");
+      }
     }
     ticker.append(" ");
     ticker.append(_postfix);

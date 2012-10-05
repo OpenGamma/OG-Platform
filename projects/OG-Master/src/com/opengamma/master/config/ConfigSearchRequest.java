@@ -173,7 +173,7 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
         setName((String) newValue);
         return;
       case 3575610:  // type
-        setType((Class<T>) newValue);
+        setType((Class<?>) newValue);
         return;
       case -26774448:  // sortOrder
         setSortOrder((ConfigSearchSortOrder) newValue);
@@ -279,7 +279,7 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
    * Gets the the {@code type} property.
    * @return the property, not null
    */
-  public final Property<Class<T>> type() {
+  public final Property<Class<?>> type() {
     return metaBean().type().createProperty(this);
   }
 
@@ -335,7 +335,7 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
      * The meta-property for the {@code type} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Class<T>> _type = DirectMetaProperty.ofReadWrite(
+    private final MetaProperty<Class<?>> _type = DirectMetaProperty.ofReadWrite(
         this, "type", ConfigSearchRequest.class, (Class) Class.class);
     /**
      * The meta-property for the {@code sortOrder} property.
@@ -410,7 +410,7 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
      * The meta-property for the {@code type} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Class<T>> type() {
+    public final MetaProperty<Class<?>> type() {
       return _type;
     }
 

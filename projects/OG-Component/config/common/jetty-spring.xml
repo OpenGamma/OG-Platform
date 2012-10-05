@@ -10,9 +10,21 @@
 
   <bean id="webAppContext" class="org.eclipse.jetty.webapp.WebAppContext">
     <property name="contextPath" value="/" />
-    <property name="resourceBase" value="${jetty.resourceBase}" />
+    <property name="resourceBase">
+      <bean class="com.opengamma.util.spring.ResourcePathFactoryBean">
+        <property name="resource" value="${jetty.resourceBase}" />
+      </bean>
+    </property>
+    <!--
+    REVIEW jonathan 2012-09-17 - this is being set to what would be the default value, except this fails if
+    jetty.resourceBase is in a JAR.
     <property name="descriptor" value="${jetty.resourceBase}/WEB-INF/web.xml" />
+    -->
+    <!--
+    REVIEW jonathan 2012-09-17 - the file should be referenced using a property if needed, but as nobody seems to know
+    why we have this defaults file I'm commenting it out for now.
     <property name="defaultsDescriptor" value="webdefaults.xml" />
+    -->
     <property name="initParams">
       <map>
         <entry key="contextConfigLocation" value="${server.spring}" />

@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.examples.generator.SyntheticPortfolioGeneratorTool;
 import com.opengamma.examples.loader.ExampleCurveAndSurfaceDefinitionLoader;
@@ -42,10 +43,12 @@ import com.opengamma.util.time.Tenor;
  * It is designed to run against the HSQLDB example database.
  */
 @Scriptable
-public class ExampleDatabasePopulator extends AbstractExampleTool {
+public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
 
-
-  private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabasePopulator.class);
+  /**
+   * The properties file.
+   */
+  public static final String TOOLCONTEXT_EXAMPLE_PROPERTIES = "classpath:toolcontext/toolcontext-example.properties";
   /**
    * The name of the multi-currency swap portfolio.
    */
@@ -70,6 +73,9 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
    * The name of a vanilla FX option portfolio
    */
   public static final String VANILLA_FX_OPTION_PORTFOLIO_NAME = "Vanilla FX Option Portfolio";
+
+  /** Logger. */
+  private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabasePopulator.class);
   /**
    * The currencies.
    */
@@ -82,17 +88,17 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
    * @param args the arguments, unused
    */
   public static void main(final String[] args) { // CSIGNORE
+    s_logger.info("Populating example database");
     try {
-      new ExampleDatabasePopulator().initAndRun(args);
-    } catch (final Exception e) {
-      e.printStackTrace();
+      new ExampleDatabasePopulator().initAndRun(args, TOOLCONTEXT_EXAMPLE_PROPERTIES, null, ToolContext.class);
+    } catch (final Exception ex) {
+      ex.printStackTrace();
     }
   }
 
   //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
-
     loadCurveAndSurfaceDefinitions();
     loadCurveCalculationConfigurations();
     loadDefaultVolatilityCubeDefinition();
@@ -111,49 +117,83 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
     loadViews();
   }
 
-  private void loadCurveAndSurfaceDefinitions() {
-    final ExampleCurveAndSurfaceDefinitionLoader curveLoader = new ExampleCurveAndSurfaceDefinitionLoader();
-    s_logger.info("Creating curve and surface definitions");
-    curveLoader.run(getToolContext());
-    s_logger.info("Finished");
-  }
-
-  private void loadCurveCalculationConfigurations() {
-    final ExampleCurveConfigurationLoader curveConfigLoader = new ExampleCurveConfigurationLoader();
-    s_logger.info("Creating curve calculation configurations");
-    curveConfigLoader.run(getToolContext());
-    s_logger.info("Finished");
-  }
-
-  private void loadDefaultVolatilityCubeDefinition() {
-    final ToolContext toolContext = getToolContext();
-    final ConfigMaster configMaster = toolContext.getConfigMaster();
-
-    final ConfigItem<VolatilityCubeDefinition> config = ConfigItem.of(createDefaultDefinition(), "SECONDARY_USD", VolatilityCubeDefinition.class);
-    s_logger.info("Populating vol cube defn " + config.getName());
-    ConfigMasterUtils.storeByName(configMaster, config);
-
-    VolatilityCubeConfigPopulator.populateVolatilityCubeConfigMaster(configMaster);
-  }
-
+  /**
+   * Logging helper. All stages must go through this. When run as part of the Windows install, the logger is customized to recognize messages formatted in this fashion and route them towards the
+   * progress indicators.
+   */
   private static final class Log {
 
     private final String _str;
 
     private Log(final String str) {
-      s_logger.info(str);
+      s_logger.info("{}", str);
       _str = str;
     }
 
     private void done() {
-      s_logger.info(_str + " - finished");
+      s_logger.debug("{} - finished", _str);
     }
 
     private void fail(final RuntimeException e) {
-      System.err.println(_str + " - failed - " + e.getMessage());
+      s_logger.error("{} - failed - {}", _str, e.getMessage());
       throw e;
     }
 
+  }
+
+  private void loadCurveAndSurfaceDefinitions() {
+    final Log log = new Log("Creating curve and surface definitions");
+    try {
+      final ExampleCurveAndSurfaceDefinitionLoader curveLoader = new ExampleCurveAndSurfaceDefinitionLoader();
+      curveLoader.run(getToolContext());
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  private void loadCurveCalculationConfigurations() {
+    final Log log = new Log("Creating curve calculation configurations");
+    try {
+      final ExampleCurveConfigurationLoader curveConfigLoader = new ExampleCurveConfigurationLoader();
+      curveConfigLoader.run(getToolContext());
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  private void loadDefaultVolatilityCubeDefinition() {
+    final Log log = new Log("Creating volatility cube definitions");
+    try {
+      final ToolContext toolContext = getToolContext();
+      final ConfigMaster configMaster = toolContext.getConfigMaster();
+      final ConfigItem<VolatilityCubeDefinition> item = ConfigItem.of(createDefaultVolatilityCubeDefinition(), "SECONDARY_USD", VolatilityCubeDefinition.class);
+      ConfigMasterUtils.storeByName(configMaster, item);
+      VolatilityCubeConfigPopulator.populateVolatilityCubeConfigMaster(configMaster);
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  private static VolatilityCubeDefinition createDefaultVolatilityCubeDefinition() {
+    final VolatilityCubeDefinition volatilityCubeDefinition = new VolatilityCubeDefinition();
+    volatilityCubeDefinition.setSwapTenors(Lists.newArrayList(Tenor.ofMonths(3), Tenor.ofYears(1), Tenor.ofYears(2), Tenor.ofYears(5), Tenor.ofYears(10), Tenor.ofYears(15), Tenor.ofYears(20),
+        Tenor.ofYears(30)));
+    volatilityCubeDefinition.setOptionExpiries(Lists.newArrayList(Tenor.ofMonths(3), Tenor.ofMonths(6), Tenor.ofYears(1), Tenor.ofYears(2), Tenor.ofYears(4), Tenor.ofYears(5), Tenor.ofYears(10),
+        Tenor.ofYears(15), Tenor.ofYears(20)));
+    final int[] values = new int[] {0, 20, 25, 50, 70, 75, 100, 200, 5 };
+    final List<Double> relativeStrikes = new ArrayList<Double>(values.length * 2 - 1);
+    for (final int value : values) {
+      relativeStrikes.add(Double.valueOf(value));
+      if (value != 0) {
+        relativeStrikes.add(Double.valueOf(-value));
+      }
+    }
+    Collections.sort(relativeStrikes);
+    volatilityCubeDefinition.setRelativeStrikes(relativeStrikes);
+    return volatilityCubeDefinition;
   }
 
   private void loadTimeSeriesRating() {
@@ -300,26 +340,4 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
     return s_currencies;
   }
 
-  private static VolatilityCubeDefinition createDefaultDefinition() {
-
-    final VolatilityCubeDefinition volatilityCubeDefinition = new VolatilityCubeDefinition();
-    volatilityCubeDefinition.setSwapTenors(Lists.newArrayList(Tenor.ofMonths(3), Tenor.ofYears(1), Tenor.ofYears(2),
-        Tenor.ofYears(5), Tenor.ofYears(10), Tenor.ofYears(15), Tenor.ofYears(20), Tenor.ofYears(30)));
-    volatilityCubeDefinition.setOptionExpiries(Lists.newArrayList(Tenor.ofMonths(3), Tenor.ofMonths(6),
-        Tenor.ofYears(1), Tenor.ofYears(2), Tenor.ofYears(4), Tenor.ofYears(5), Tenor.ofYears(10), Tenor.ofYears(15),
-        Tenor.ofYears(20)));
-
-    final int[] values = new int[] {0, 20, 25, 50, 70, 75, 100, 200, 5 };
-    final List<Double> relativeStrikes = new ArrayList<Double>(values.length * 2 - 1);
-    for (final int value : values) {
-      relativeStrikes.add(Double.valueOf(value));
-      if (value != 0) {
-        relativeStrikes.add(Double.valueOf(-value));
-      }
-    }
-    Collections.sort(relativeStrikes);
-
-    volatilityCubeDefinition.setRelativeStrikes(relativeStrikes);
-    return volatilityCubeDefinition;
-  }
 }

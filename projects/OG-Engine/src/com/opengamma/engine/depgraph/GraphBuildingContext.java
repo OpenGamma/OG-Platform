@@ -268,15 +268,22 @@ import com.opengamma.util.tuple.Pair;
   }
 
   public void discardTask(final ResolveTask task) {
-    final Map<ResolveTask, ResolveTask> tasks = getBuilder().getTasks(task.getValueRequirement());
-    synchronized (tasks) {
-      if (tasks.remove(task) == null) {
-        // Wasn't in the set
+    do {
+      final Map<ResolveTask, ResolveTask> tasks = getBuilder().getTasks(task.getValueRequirement());
+      if (tasks == null) {
         return;
       }
-    }
-    task.release(this);
-    getBuilder().decrementActiveResolveTasks();
+      synchronized (tasks) {
+        if (tasks.containsKey(null)) {
+          continue;
+        }
+        if (tasks.remove(task) == null) {
+          return;
+        }
+      }
+      task.release(this);
+      getBuilder().decrementActiveResolveTasks();
+    } while (true);
   }
 
   public ResolvedValueProducer declareTaskProducing(final ValueSpecification valueSpecification, final ResolveTask task, final ResolvedValueProducer producer) {

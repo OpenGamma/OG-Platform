@@ -18,9 +18,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.bbg.BloombergConstants;
-import com.opengamma.bbg.PerSecurityReferenceDataResult;
-import com.opengamma.bbg.ReferenceDataProvider;
-import com.opengamma.bbg.ReferenceDataResult;
+import com.opengamma.bbg.referencedata.ReferenceData;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
+import com.opengamma.bbg.referencedata.ReferenceDataProviderGetRequest;
+import com.opengamma.bbg.referencedata.ReferenceDataProviderGetResult;
 import com.opengamma.bbg.util.BloombergDomainIdentifierResolver;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
@@ -79,13 +80,13 @@ public class BloombergJmsTopicNameResolver extends AbstractResolver<JmsTopicName
     }
     
     if (!lookupKey2Requests.keySet().isEmpty()) {
-      ReferenceDataResult referenceData = _referenceDataProvider.getFields(
-          lookupKey2Requests.keySet(), 
-          BloombergConstants.JMS_TOPIC_NAME_RESOLVER_FIELDS);
+      ReferenceDataProviderGetRequest rdRequest = ReferenceDataProviderGetRequest.createGet(
+          lookupKey2Requests.keySet(), BloombergConstants.JMS_TOPIC_NAME_RESOLVER_FIELDS, true);
+      ReferenceDataProviderGetResult referenceData = _referenceDataProvider.getReferenceData(rdRequest);
       
       for (Map.Entry<String, Collection<JmsTopicNameResolveRequest>> entry : lookupKey2Requests.entrySet()) {
         String lookupKey = entry.getKey();
-        PerSecurityReferenceDataResult result = referenceData.getResult(lookupKey);
+        ReferenceData result = referenceData.getReferenceDataOrNull(lookupKey);
         
         for (JmsTopicNameResolveRequest request : entry.getValue()) {
           String jmsTopicName = getJmsTopicName(request, result);
@@ -97,15 +98,15 @@ public class BloombergJmsTopicNameResolver extends AbstractResolver<JmsTopicName
     return returnValue;
   }
   
-  private String getJmsTopicName(JmsTopicNameResolveRequest request, PerSecurityReferenceDataResult result) {
+  private String getJmsTopicName(JmsTopicNameResolveRequest request, ReferenceData result) {
     if (result == null) {
-      s_logger.info("No reference data available for " + request);
+      s_logger.info("No reference data available for {}", request);
       return null;
-    } else if (!result.getExceptions().isEmpty()) {
-      s_logger.info("Failed to retrieve reference data for " + request + ": " + result.getExceptions());
+    } else if (result.isIdentifierError()) {
+      s_logger.info("Failed to retrieve reference data for {}: {}", request, result.getErrors());
       return null;
     }
-    FudgeMsg resultFields = result.getFieldData();
+    FudgeMsg resultFields = result.getFieldValues();
     
     final String prefix = "LiveData" + SEPARATOR + "Bloomberg" + SEPARATOR;
     final String suffix = request.getNormalizationRule().getJmsTopicSuffix();

@@ -14,8 +14,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -40,8 +40,8 @@ public class InterestRateCurveSensitivity {
    * @param sensitivity The map.
    */
   public InterestRateCurveSensitivity(final Map<String, List<DoublesPair>> sensitivity) {
-    Validate.notNull(sensitivity, "sensitivity");
-    this._sensitivity = sensitivity;
+    ArgumentChecker.notNull(sensitivity, "sensitivity");
+    _sensitivity = new HashMap<String, List<DoublesPair>>(sensitivity);
   }
 
   /**
@@ -50,8 +50,8 @@ public class InterestRateCurveSensitivity {
    * @param sensitivityCurve The sensitivity as a list.
    * @return The interest rate curve sensitivity.
    */
-  public static InterestRateCurveSensitivity from(String name, List<DoublesPair> sensitivityCurve) {
-    HashMap<String, List<DoublesPair>> ircs = new HashMap<String, List<DoublesPair>>();
+  public static InterestRateCurveSensitivity from(final String name, final List<DoublesPair> sensitivityCurve) {
+    final HashMap<String, List<DoublesPair>> ircs = new HashMap<String, List<DoublesPair>>();
     ircs.put(name, sensitivityCurve);
     return new InterestRateCurveSensitivity(ircs);
   }
@@ -116,6 +116,36 @@ public class InterestRateCurveSensitivity {
    */
   public InterestRateCurveSensitivity cleaned(final double relTol, final double absTol) {
     return new InterestRateCurveSensitivity(InterestRateCurveSensitivityUtils.clean(_sensitivity, relTol, absTol));
+  }
+
+  /**
+   * Returns a map<String, Double> with the total sensitivity with respect to each curve.
+   * @return The map.
+   */
+  public Map<String, Double> totalSensitivityByCurve() {
+    final HashMap<String, Double> s = new HashMap<String, Double>();
+    for (final Map.Entry<String, List<DoublesPair>> entry : _sensitivity.entrySet()) {
+      double total = 0.0;
+      for (final DoublesPair p : entry.getValue()) {
+        total += p.second;
+      }
+      s.put(entry.getKey(), total);
+    }
+    return s;
+  }
+
+  /**
+   * Returns the total sensitivity to all curves.
+   * @return The sensitivity.
+   */
+  public double totalSensitivity() {
+    double total = 0.0;
+    for (final List<DoublesPair> pairs : _sensitivity.values()) {
+      for (final DoublesPair p : pairs) {
+        total += p.second;
+      }
+    }
+    return total;
   }
 
   /**

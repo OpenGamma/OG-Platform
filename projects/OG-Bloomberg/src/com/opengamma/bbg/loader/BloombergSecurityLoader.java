@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -22,43 +23,50 @@ import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
+import com.opengamma.provider.security.SecurityProvider;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Loads security from bloomberg and populates the security master
  */
 public class BloombergSecurityLoader implements SecurityLoader {
-  
-  private final SecurityMaster _secMaster;
-  
-  private final BloombergBulkSecurityLoader _bbgBulkSecLoader;
-  
+
+  /**
+   * The security provider to load from.
+   */
+  private final SecurityProvider _securityProvider;
+  /**
+   * The security master to load into.
+   */
+  private final SecurityMaster _securityMaster;
+
   /**
    * Creates BloombergSecurityLoader
    * 
-   * @param secMaster the security master, not-null
-   * @param bbgBulkSecLoader bloomberg security loader, not-null
+   * @param securityMaster  the security master, not null
+   * @param securityProvider  the security provider, not null
    */
-  public BloombergSecurityLoader(SecurityMaster secMaster, BloombergBulkSecurityLoader bbgBulkSecLoader) {
-    ArgumentChecker.notNull(secMaster, "HibernateSecMaster");
-    ArgumentChecker.notNull(bbgBulkSecLoader, "BloombergBulkSecurityLoader");
-    _secMaster = secMaster;
-    _bbgBulkSecLoader = bbgBulkSecLoader;
+  public BloombergSecurityLoader(SecurityProvider securityProvider, SecurityMaster securityMaster) {
+    ArgumentChecker.notNull(securityProvider, "securityProvider");
+    ArgumentChecker.notNull(securityMaster, "HibernateSecMaster");
+    _securityProvider = securityProvider;
+    _securityMaster = securityMaster;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Map<ExternalIdBundle, UniqueId> loadSecurity(final Collection<ExternalIdBundle> identifiers) {
     ArgumentChecker.notNull(identifiers, "identifiers");
     
     Map<ExternalIdBundle, UniqueId> result = new HashMap<ExternalIdBundle, UniqueId>();
     
-    Map<ExternalIdBundle, ManageableSecurity> securities = _bbgBulkSecLoader.loadSecurity(identifiers);
+    Map<ExternalIdBundle, Security> securities = _securityProvider.getSecurities(identifiers);
     
     UnderlyingIdentifierCollector identifierCollector = new UnderlyingIdentifierCollector();
         
-    for (Entry<ExternalIdBundle, ManageableSecurity> entry : securities.entrySet()) {
+    for (Entry<ExternalIdBundle, Security> entry : securities.entrySet()) {
       ExternalIdBundle requestBundle = entry.getKey();
-      ManageableSecurity security = entry.getValue();
+      Security security = entry.getValue();
       
       //getUnderlying identifiers
       if (security instanceof FinancialSecurity) {
@@ -67,14 +75,10 @@ public class BloombergSecurityLoader implements SecurityLoader {
       }
       
       UniqueId uid = null;
-      if (security != null) {
+      if (security != null && security instanceof ManageableSecurity) {
         ExternalId buid = security.getExternalIdBundle().getExternalId(ExternalSchemes.BLOOMBERG_BUID);
         uid = getUid(buid);
-        if (uid == null) {
-          uid = addSecurity(security);
-        } else {
-          uid = updateSecurity(security, uid);
-        }
+        addOrUpdate((ManageableSecurity) security, uid);
       }
       result.put(requestBundle, uid);
     }
@@ -85,18 +89,22 @@ public class BloombergSecurityLoader implements SecurityLoader {
   }
 
   private void addOrUpdateUnderlying(Set<ExternalIdBundle> underlyingIdentifiers) {
-    Map<ExternalIdBundle, ManageableSecurity> securities = _bbgBulkSecLoader.loadSecurity(underlyingIdentifiers);
-    for (Entry<ExternalIdBundle, ManageableSecurity> entry : securities.entrySet()) {
-      ManageableSecurity security = entry.getValue();
-      if (security != null) {
+    Map<ExternalIdBundle, Security> securities = _securityProvider.getSecurities(underlyingIdentifiers);
+    for (Entry<ExternalIdBundle, Security> entry : securities.entrySet()) {
+      Security security = entry.getValue();
+      if (security != null && security instanceof ManageableSecurity) {
         ExternalId buid = security.getExternalIdBundle().getExternalId(ExternalSchemes.BLOOMBERG_BUID);
         UniqueId uid = getUid(buid);
-        if (uid == null) {
-          uid = addSecurity(security);
-        } else {
-          updateSecurity(security, uid);
-        }
+        addOrUpdate((ManageableSecurity) security, uid);
       }
+    }
+  }
+
+  private void addOrUpdate(ManageableSecurity security, UniqueId uid) {
+    if (uid == null) {
+      uid = addSecurity(security);
+    } else {
+      updateSecurity(security, uid);
     }
   }
 
@@ -128,7 +136,7 @@ public class BloombergSecurityLoader implements SecurityLoader {
 
   @Override
   public SecurityMaster getSecurityMaster() {
-    return _secMaster;
+    return _securityMaster;
   }
 
 }

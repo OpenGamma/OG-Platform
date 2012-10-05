@@ -32,7 +32,7 @@ public class BloombergIRFuturePriceCurveInstrumentProviderTest {
   private static final BloombergIRFuturePriceCurveInstrumentProvider PROVIDER_USD = new BloombergIRFuturePriceCurveInstrumentProvider(PREFIX_USD, POSTFIX, FIELD_NAME);
 
   private static final int nFutures = 9;
-  private static final String[] RESULTS_EUR = new String[] {"ERM10 Comdty","ERU10 Comdty","ERZ10 Comdty","ERH11 Comdty", "ERM11 Comdty", "ERU1 Comdty","ERZ1 Comdty","ERH2 Comdty", "ERM2 Comdty"};
+  private static final String[] RESULTS_EUR = new String[] {"ERM10 Comdty","ERU10 Comdty","ERZ10 Comdty","ERH11 Comdty", "ERM11 Comdty", "ERU11 Comdty","ERZ1 Comdty","ERH2 Comdty", "ERM2 Comdty"};
 
   /**
    *  The first test will begin to fail in August, on the 17th or 20th. Good, but not quite good enough.
@@ -50,12 +50,12 @@ public class BloombergIRFuturePriceCurveInstrumentProviderTest {
     }
   }
   /**
-   * Want to nail down when ERU1 Comdty is no longer available, and then infer what fields of the Security this is based on
+   * Want to nail down when ERZ1 Comdty is no longer available, and then infer what fields of the Security this is based on.
    */
   @Test
-  public void whenThisBeginsToFailCheckIfERU1IsValid() {
+  public void whenThisBeginsToFailCheckIfERZ1IsValid() {
     final LocalDate today = LocalDate.now(OpenGammaClock.getInstance());
-    assertTrue(today.isBefore(LocalDate.of(2012,8,16)));
+    assertTrue(today.isBefore(LocalDate.of(2012,11,16)));
   }
 
   @Test

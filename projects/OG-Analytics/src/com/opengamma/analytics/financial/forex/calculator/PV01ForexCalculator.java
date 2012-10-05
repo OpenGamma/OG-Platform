@@ -5,16 +5,17 @@
  */
 package com.opengamma.analytics.financial.forex.calculator;
 
-import java.util.List;
-import java.util.Map;
-
 import com.google.common.collect.Maps;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionDigital;
+import com.opengamma.analytics.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Returns the change in present value of an instrument due to a parallel move of the yield curve, scaled so that the move is 1bp.
@@ -44,6 +45,11 @@ public final class PV01ForexCalculator extends AbstractInstrumentDerivativeVisit
 
   @Override
   public Map<String, Double> visitForexOptionVanilla(final ForexOptionVanilla option, final Map<String, List<DoublesPair>> curveSensitivities) {
+    return visit(curveSensitivities);
+  }
+
+  @Override
+  public Map<String, Double> visitForexOptionSingleBarrier(final ForexOptionSingleBarrier option, final Map<String, List<DoublesPair>> curveSensitivities) {
     return visit(curveSensitivities);
   }
 

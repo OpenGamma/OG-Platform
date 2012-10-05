@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.math.linearalgebra;
 
+import static org.testng.AssertJUnit.assertArrayEquals;
 import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
@@ -63,7 +64,7 @@ public class SVDecompositionColtResultTest {
     assertColtMatrixEquals(U_T, RESULT.getUT());
     assertColtMatrixEquals(V, RESULT.getV());
     assertColtMatrixEquals(V_T, RESULT.getVT());
-    assertEquals(SINGULAR_VALUES, RESULT.getSingularValues());
+    assertArrayEquals(SINGULAR_VALUES, RESULT.getSingularValues(), 1e-12);
   }
 
   private void assertColtMatrixEquals(final DoubleMatrix2D m1, final com.opengamma.analytics.math.matrix.DoubleMatrix2D m2) {

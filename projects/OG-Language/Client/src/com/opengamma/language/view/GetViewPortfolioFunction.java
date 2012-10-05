@@ -34,6 +34,8 @@ public class GetViewPortfolioFunction extends AbstractFunctionInvoker implements
   
   private final MetaFunction _meta;
   
+  // TODO: this should take a ViewDefinition object and we use type conversion to go from a unique id to the object
+
   private static List<MetaParameter> parameters() {
     final MetaParameter viewDefinitionId = new MetaParameter("id", JavaTypeInfo.builder(UniqueId.class).get());
     return ImmutableList.of(viewDefinitionId);

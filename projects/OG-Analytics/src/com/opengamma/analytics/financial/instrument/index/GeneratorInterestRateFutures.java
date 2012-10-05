@@ -18,7 +18,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Class used to store future description and generate instruments.
  */
-public class GeneratorInterestRateFutures extends Generator {
+public class GeneratorInterestRateFutures extends GeneratorInstrument {
 
   /**
    * The Ibor index to which the future is linked.

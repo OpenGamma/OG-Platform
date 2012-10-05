@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.volatility.surface;
@@ -19,6 +19,7 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Sets;
 import com.opengamma.financial.analytics.model.irfutureoption.FutureOptionUtils;
+import com.opengamma.financial.convention.BondFutureOptionExpiryCalculator;
 import com.opengamma.util.OpenGammaClock;
 
 /**
@@ -108,7 +109,7 @@ public class BloombergFutureUtils {
    */
   public static final String getExpiryCodeForBondFutureOptions(final String futurePrefix, final int nthFuture, final LocalDate curveDate) {
     final StringBuilder futureCode = new StringBuilder();
-    final LocalDate expiry  = FutureOptionUtils.getQuarterlyExpiry(nthFuture, curveDate);
+    final LocalDate expiry = BondFutureOptionExpiryCalculator.getInstance().getExpiryMonth(nthFuture, curveDate);
     futureCode.append(MONTH_CODE.get(expiry.getMonthOfYear()));
     final int yearsNum = expiry.getYear() % 10;
     futureCode.append(Integer.toString(yearsNum));
@@ -124,12 +125,12 @@ public class BloombergFutureUtils {
    * @param curveDate Date curve is valid; valuation date
    * @return e.g. M10 (for June 2010) or Z3 (for December 2013), both valid as of valuationDate 2012/04/10
    */
-  public static final String getExpiryCodeForFutureOptions(final String futurePrefix, final int nthFuture, final LocalDate curveDate) {
+  public static final String getExpiryCodeForIRFutureOptions(final String futurePrefix, final int nthFuture, final LocalDate curveDate) {
     if (!TESTED_PREFIX_SET.contains(futurePrefix)) {
       LOG.debug("We recommended that you ask QR to test behaviour of IRFutureOption Volatility Surface's Expiries for prefix {}", futurePrefix);
       // The reason being that we have hard coded the behaviour of 6 consecutive months, then quarterly thereafter..
     }
-    final LocalDate expiry  = FutureOptionUtils.getFutureOptionWithSerialOptionsExpiry(nthFuture, curveDate);
+    final LocalDate expiry  = FutureOptionUtils.getApproximateIRFutureOptionWithSerialOptionsExpiry(nthFuture, curveDate);
     return getMonthYearCode(expiry, expiry.minusYears(10));
   }
 
@@ -142,7 +143,7 @@ public class BloombergFutureUtils {
    */
   public static final String getQuarterlyExpiryMonthYearCode(final int nthQuarter, final LocalDate valuationDate, final LocalDate twoDigitYearDate) {
     Validate.isTrue(nthQuarter > 0, "nthFuture must be greater than 0.");
-    final LocalDate expiry = FutureOptionUtils.getQuarterlyExpiry(nthQuarter, valuationDate);
+    final LocalDate expiry = FutureOptionUtils.getApproximateIRFutureQuarterlyExpiry(nthQuarter, valuationDate);
     return getMonthYearCode(expiry, twoDigitYearDate);
   }
 
@@ -155,7 +156,7 @@ public class BloombergFutureUtils {
    */
   public static final String getMonthlyExpiryMonthYearCode(final int nthMonth, final LocalDate valuationDate, final LocalDate twoDigitYearDate) {
     Validate.isTrue(nthMonth > 0, "nthFuture must be greater than 0.");
-    final LocalDate expiry = FutureOptionUtils.getMonthlyExpiry(nthMonth, valuationDate);
+    final LocalDate expiry = FutureOptionUtils.getIRFutureMonthlyExpiry(nthMonth, valuationDate);
     return getMonthYearCode(expiry, twoDigitYearDate);
   }
   /**

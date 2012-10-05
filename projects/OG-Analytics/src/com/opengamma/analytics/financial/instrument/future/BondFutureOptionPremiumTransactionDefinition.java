@@ -51,7 +51,7 @@ public class BondFutureOptionPremiumTransactionDefinition implements InstrumentD
   public BondFutureOptionPremiumTransactionDefinition(BondFutureOptionPremiumSecurityDefinition underlyingOption, int quantity, ZonedDateTime premiumDate, double premiumAmount) {
     ArgumentChecker.notNull(underlyingOption, "underlying option");
     ArgumentChecker.notNull(premiumDate, "premium date");
-    ArgumentChecker.isTrue(premiumAmount * quantity >= 0, "Premium amount should have the same sign as quantity.");
+    ArgumentChecker.isTrue(premiumAmount * quantity <= 0, "Premium amount should have the opposite sign as quantity.");
     this._underlyingOption = underlyingOption;
     this._quantity = quantity;
     this._tradePrice = premiumAmount / (underlyingOption.getUnderlyingFuture().getNotional() * quantity);

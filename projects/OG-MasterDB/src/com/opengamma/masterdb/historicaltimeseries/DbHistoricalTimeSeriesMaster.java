@@ -240,7 +240,6 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Manag
     }
     args.addValue("paging_offset", request.getPagingRequest().getFirstItem());
     args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
-
     String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args)};
     searchWithPaging(request.getPagingRequest(), sql, args, new HistoricalTimeSeriesDocumentExtractor(), result);
     return result;

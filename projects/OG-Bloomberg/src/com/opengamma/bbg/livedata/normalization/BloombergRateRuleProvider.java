@@ -24,7 +24,7 @@ public class BloombergRateRuleProvider implements SecurityRuleProvider {
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergRateRuleProvider.class);
 
   private static final NormalizationRule RULE_100 = new UnitChange(MarketDataRequirementNames.MARKET_VALUE, 0.01);
-  private static final NormalizationRule RULE_10000 = new UnitChange(MarketDataRequirementNames.MARKET_VALUE, 0.00001);
+  private static final NormalizationRule RULE_10000 = new UnitChange(MarketDataRequirementNames.MARKET_VALUE, 0.0001);
 
   private final BloombergRateClassifier _classifier;
   

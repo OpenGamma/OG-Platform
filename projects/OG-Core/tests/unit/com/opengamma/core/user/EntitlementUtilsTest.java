@@ -9,10 +9,10 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 /**
- * 
+ * Test.
  */
 public class EntitlementUtilsTest {
-  
+
   @Test
   public void test_entitlementText() {
     String actual = EntitlementUtils.generateEntitlementString(true, "op", "module", "detail");

@@ -8,7 +8,6 @@ package com.opengamma.analytics.financial.instrument.bond;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
@@ -18,6 +17,7 @@ import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.yield.YieldConvention;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -71,13 +71,13 @@ public class BillSecurityDefinition implements InstrumentDefinition<BillSecurity
    */
   public BillSecurityDefinition(final Currency currency, final ZonedDateTime endDate, final double notional, final int settlementDays, final Calendar calendar,
       final YieldConvention yieldConvention, final DayCount dayCount, final String issuer) {
-    Validate.notNull(currency, "Currency");
-    Validate.notNull(endDate, "End date");
-    Validate.notNull(calendar, "Calendar");
-    Validate.notNull(yieldConvention, "Yield convention");
-    Validate.notNull(dayCount, "Day count");
-    Validate.notNull(issuer, "Issuer");
-    Validate.isTrue(notional > 0.0, "Notional should be positive");
+    ArgumentChecker.notNull(currency, "Currency");
+    ArgumentChecker.notNull(endDate, "End date");
+    ArgumentChecker.notNull(calendar, "Calendar");
+    ArgumentChecker.notNull(yieldConvention, "Yield convention");
+    ArgumentChecker.notNull(dayCount, "Day count");
+    ArgumentChecker.notNull(issuer, "Issuer");
+    ArgumentChecker.isTrue(notional > 0.0, "Notional should be positive");
     _currency = currency;
     _endDate = endDate;
     _notional = notional;
@@ -164,35 +164,35 @@ public class BillSecurityDefinition implements InstrumentDefinition<BillSecurity
    * @param yieldCurveNames The yield curves names. [0] discounting curve, [1] credit curve.
    * @return The bill security.
    */
-  public BillSecurity toDerivative(ZonedDateTime date, ZonedDateTime settlementDate, String... yieldCurveNames) {
-    Validate.notNull(date, "Reference date");
-    Validate.notNull(settlementDate, "Settlement date");
-    Validate.notNull(yieldCurveNames, "Yield curve names");
-    Validate.isTrue(!date.isAfter(_endDate), "Reference date is after end date");
+  public BillSecurity toDerivative(final ZonedDateTime date, final ZonedDateTime settlementDate, final String... yieldCurveNames) {
+    ArgumentChecker.notNull(date, "Reference date");
+    ArgumentChecker.notNull(settlementDate, "Settlement date");
+    ArgumentChecker.notNull(yieldCurveNames, "Yield curve names");
+    ArgumentChecker.isTrue(!date.isAfter(_endDate), "Reference date {} is after end date {}", date, _endDate);
     double settlementTime = TimeCalculator.getTimeBetween(date, settlementDate);
     settlementTime = Math.max(settlementTime, 0.0);
-    double endTime = TimeCalculator.getTimeBetween(date, _endDate);
-    double accrualFactor = _dayCount.getDayCountFraction(settlementDate, _endDate);
+    final double endTime = TimeCalculator.getTimeBetween(date, _endDate);
+    final double accrualFactor = _dayCount.getDayCountFraction(settlementDate, _endDate);
     return new BillSecurity(_currency, settlementTime, endTime, _notional, _yieldConvention, accrualFactor, _issuer, yieldCurveNames[1], yieldCurveNames[0]);
   }
 
   @Override
-  public BillSecurity toDerivative(ZonedDateTime date, String... yieldCurveNames) {
-    Validate.notNull(date, "Reference date");
-    Validate.notNull(yieldCurveNames, "Yield curve names");
-    Validate.isTrue(!date.isAfter(_endDate), "Reference date is after end date");
+  public BillSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    ArgumentChecker.notNull(date, "Reference date");
+    ArgumentChecker.notNull(yieldCurveNames, "Yield curve names");
+    ArgumentChecker.isTrue(!date.isAfter(_endDate), "Reference date {} is after end date {}", date, _endDate);
     ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(date, _settlementDays, _calendar);
     settlementDate = (settlementDate.isAfter(_endDate)) ? _endDate : settlementDate;
     return toDerivative(date, settlementDate, yieldCurveNames);
   }
 
   @Override
-  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     return visitor.visitBillSecurityDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitBillSecurityDefinition(this);
   }
 
@@ -214,7 +214,7 @@ public class BillSecurityDefinition implements InstrumentDefinition<BillSecurity
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -224,7 +224,7 @@ public class BillSecurityDefinition implements InstrumentDefinition<BillSecurity
     if (getClass() != obj.getClass()) {
       return false;
     }
-    BillSecurityDefinition other = (BillSecurityDefinition) obj;
+    final BillSecurityDefinition other = (BillSecurityDefinition) obj;
     if (!ObjectUtils.equals(_calendar, other._calendar)) {
       return false;
     }

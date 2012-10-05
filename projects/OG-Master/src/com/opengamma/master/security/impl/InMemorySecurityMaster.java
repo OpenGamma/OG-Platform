@@ -74,7 +74,7 @@ public class InMemorySecurityMaster extends SimpleAbstractInMemoryMaster<Managea
 
   //-------------------------------------------------------------------------
   @Override
-  public SecurityMetaDataResult metaData(SecurityMetaDataRequest request) {
+  public SecurityMetaDataResult metaData(final SecurityMetaDataRequest request) {
     ArgumentChecker.notNull(request, "request");
     SecurityMetaDataResult result = new SecurityMetaDataResult();
     if (request.isSecurityTypes()) {
@@ -111,7 +111,7 @@ public class InMemorySecurityMaster extends SimpleAbstractInMemoryMaster<Managea
 
   //-------------------------------------------------------------------------
   @Override
-  public SecurityDocument get(final ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+  public SecurityDocument get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     final SecurityDocument document = _store.get(objectId.getObjectId());

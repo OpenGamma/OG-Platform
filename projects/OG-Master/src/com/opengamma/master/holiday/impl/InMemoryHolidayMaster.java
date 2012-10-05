@@ -64,7 +64,6 @@ public class InMemoryHolidayMaster extends SimpleAbstractInMemoryMaster<Manageab
     this(objectIdSupplier, new BasicChangeManager());
   }
 
-
   /**
    * Creates an instance specifying the supplier of object identifiers and change manager.
    *
@@ -84,7 +83,7 @@ public class InMemoryHolidayMaster extends SimpleAbstractInMemoryMaster<Manageab
 
   //-------------------------------------------------------------------------
   @Override
-  public HolidayMetaDataResult metaData(HolidayMetaDataRequest request) {
+  public HolidayMetaDataResult metaData(final HolidayMetaDataRequest request) {
     ArgumentChecker.notNull(request, "request");
     HolidayMetaDataResult result = new HolidayMetaDataResult();
     if (request.isHolidayTypes()) {

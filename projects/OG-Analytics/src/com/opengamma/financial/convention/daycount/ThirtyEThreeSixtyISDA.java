@@ -45,12 +45,12 @@ public class ThirtyEThreeSixtyISDA extends ThirtyThreeSixtyTypeDayCount {
 
   public double getDayCountFraction(final LocalDate firstDate, final LocalDate secondDate, final boolean isMaturity) {
     testDates(firstDate, secondDate);
-    double d1 = firstDate.getDayOfMonth();
-    double d2 = secondDate.getDayOfMonth();
-    final double m1 = firstDate.getMonthOfYear().getValue();
-    final double m2 = secondDate.getMonthOfYear().getValue();
-    final double y1 = firstDate.getYear();
-    final double y2 = secondDate.getYear();
+    int d1 = firstDate.getDayOfMonth();
+    int d2 = secondDate.getDayOfMonth();
+    final int m1 = firstDate.getMonthOfYear().getValue();
+    final int m2 = secondDate.getMonthOfYear().getValue();
+    final int y1 = firstDate.getYear();
+    final int y2 = secondDate.getYear();
     if (d1 == firstDate.getMonthOfYear().getLastDayOfMonth(firstDate.isLeapYear())) {
       d1 = 30;
     }

@@ -41,6 +41,7 @@ import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.DeliverableSwapFuturesSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
@@ -59,6 +60,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFlo
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounded;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
@@ -789,6 +791,28 @@ public class ForexDerivativeVisitorTest {
 
     @Override
     public String visitAnnuityCouponIborSpread(AnnuityCouponIborSpread annuity) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborCompounded(CouponIborCompounded payment) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborCompounded(CouponIborCompounded payment, T data) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitDeliverableSwapFuturesSecurity(DeliverableSwapFuturesSecurity futures, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitDeliverableSwapFuturesSecurity(DeliverableSwapFuturesSecurity futures) {
       return null;
     }
 

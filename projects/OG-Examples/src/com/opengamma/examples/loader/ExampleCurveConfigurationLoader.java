@@ -5,14 +5,15 @@
  */
 package com.opengamma.examples.loader;
 
-import com.opengamma.examples.tool.AbstractExampleTool;
+import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfigPopulator;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.config.ConfigMaster;
 
 /**
  * 
  */
-public class ExampleCurveConfigurationLoader extends AbstractExampleTool {
+public class ExampleCurveConfigurationLoader extends AbstractTool<ToolContext> {
 
   @Override
   protected void doRun() throws Exception {
@@ -26,7 +27,7 @@ public class ExampleCurveConfigurationLoader extends AbstractExampleTool {
    * @param args the arguments, unused
    */
   public static void main(final String[] args) { //CSIGNORE
-    new ExampleCurveConfigurationLoader().initAndRun(args);
+    new ExampleCurveConfigurationLoader().initAndRun(args, ToolContext.class);
     System.exit(0);
   }
 }

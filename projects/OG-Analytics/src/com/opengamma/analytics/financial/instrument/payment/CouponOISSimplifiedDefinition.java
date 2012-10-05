@@ -9,7 +9,6 @@ import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
@@ -17,6 +16,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -56,14 +56,14 @@ public class CouponOISSimplifiedDefinition extends CouponDefinition {
    * @param fixingPeriodEndDate The end date of the fixing period.
    * @param fixingPeriodAccrualFactor The accrual factor (or year fraction) associated to the fixing period in the Index day count convention.
    */
-  public CouponOISSimplifiedDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
-      final double paymentYearFraction, final double notional, final IndexON index, final ZonedDateTime fixingPeriodStartDate, final ZonedDateTime fixingPeriodEndDate,
-      final double fixingPeriodAccrualFactor) {
+  public CouponOISSimplifiedDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate,
+      final ZonedDateTime accrualEndDate, final double paymentYearFraction, final double notional, final IndexON index, final ZonedDateTime fixingPeriodStartDate,
+      final ZonedDateTime fixingPeriodEndDate, final double fixingPeriodAccrualFactor) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional);
-    Validate.notNull(index, "Coupon OIS Simplified: index");
-    Validate.notNull(fixingPeriodStartDate, "Coupon OIS Simplified: fixingPeriodStartDate");
-    Validate.notNull(fixingPeriodEndDate, "Coupon OIS Simplified: fixingPeriodEndDate");
-    Validate.isTrue(currency.equals(index.getCurrency()), "Currency and index not compatible");
+    ArgumentChecker.notNull(index, "Coupon OIS Simplified: index");
+    ArgumentChecker.notNull(fixingPeriodStartDate, "Coupon OIS Simplified: fixingPeriodStartDate");
+    ArgumentChecker.notNull(fixingPeriodEndDate, "Coupon OIS Simplified: fixingPeriodEndDate");
+    ArgumentChecker.isTrue(currency.equals(index.getCurrency()), "Currency and index not compatible");
     _index = index;
     _fixingPeriodStartDate = fixingPeriodStartDate;
     _fixingPeriodEndDate = fixingPeriodEndDate;
@@ -81,8 +81,8 @@ public class CouponOISSimplifiedDefinition extends CouponDefinition {
    * @param isEOM The end-of-month convention to compute the end date of the coupon.
    * @return The OIS coupon.
    */
-  public static CouponOISSimplifiedDefinition from(final IndexON index, final ZonedDateTime settlementDate, final Period tenor, final double notional, final int settlementDays,
-      final BusinessDayConvention businessDayConvention, final boolean isEOM) {
+  public static CouponOISSimplifiedDefinition from(final IndexON index, final ZonedDateTime settlementDate, final Period tenor, final double notional,
+      final int settlementDays, final BusinessDayConvention businessDayConvention, final boolean isEOM) {
     final ZonedDateTime endFixingPeriodDate = ScheduleCalculator.getAdjustedDate(settlementDate, tenor, businessDayConvention, index.getCalendar(), isEOM);
     return CouponOISSimplifiedDefinition.from(index, settlementDate, endFixingPeriodDate, notional, settlementDays);
   }
@@ -97,13 +97,14 @@ public class CouponOISSimplifiedDefinition extends CouponDefinition {
    * @param settlementDays The number of days between last fixing date and the payment date (also called payment lag). 
    * @return The OIS coupon.
    */
-  public static CouponOISSimplifiedDefinition from(final IndexON index, final ZonedDateTime settlementDate, final ZonedDateTime endFixingPeriodDate, final double notional, final int settlementDays) {
+  public static CouponOISSimplifiedDefinition from(final IndexON index, final ZonedDateTime settlementDate, final ZonedDateTime endFixingPeriodDate,
+      final double notional, final int settlementDays) {
     ZonedDateTime lastFixingDate = ScheduleCalculator.getAdjustedDate(endFixingPeriodDate, -1, index.getCalendar()); // Overnight
     lastFixingDate = ScheduleCalculator.getAdjustedDate(lastFixingDate, index.getPublicationLag(), index.getCalendar()); // Lag
     final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(lastFixingDate, settlementDays, index.getCalendar());
     final double payementAccrualFactor = index.getDayCount().getDayCountFraction(settlementDate, endFixingPeriodDate);
-    return new CouponOISSimplifiedDefinition(index.getCurrency(), paymentDate, settlementDate, endFixingPeriodDate, payementAccrualFactor, notional, index, settlementDate, endFixingPeriodDate,
-        payementAccrualFactor);
+    return new CouponOISSimplifiedDefinition(index.getCurrency(), paymentDate, settlementDate, endFixingPeriodDate, payementAccrualFactor, notional, index,
+        settlementDate, endFixingPeriodDate, payementAccrualFactor);
   }
 
   /**
@@ -180,26 +181,26 @@ public class CouponOISSimplifiedDefinition extends CouponDefinition {
 
   @Override
   public CouponOIS toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    Validate.notNull(date, "date");
-    Validate.isTrue(!date.isAfter(_fixingPeriodStartDate) || date.toLocalDate().equals(_fixingPeriodStartDate.toLocalDate()),
-        "Simplified Coupon OIS only valid at dates where the fixing has not taken place yet.");
-    Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.isTrue(!date.isAfter(_fixingPeriodStartDate) || date.toLocalDate().equals(_fixingPeriodStartDate.toLocalDate()),
+        "Simplified Coupon OIS only valid for dates where the fixing has not taken place yet.");
+    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
     final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(date, _fixingPeriodStartDate);
     final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(date, _fixingPeriodEndDate);
-    final CouponOIS cpn = new CouponOIS(getCurrency(), paymentTime, yieldCurveNames[0], getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTime, fixingPeriodEndTime,
-        _fixingPeriodAccrualFactor, getNotional(), yieldCurveNames[1]);
+    final CouponOIS cpn = new CouponOIS(getCurrency(), paymentTime, yieldCurveNames[0], getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTime,
+        fixingPeriodEndTime, _fixingPeriodAccrualFactor, getNotional(), yieldCurveNames[1]);
     return cpn;
   }
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
-    return visitor.visitCouponOISSimplified(this, data);
+    return visitor.visitCouponOISSimplifiedDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
-    return visitor.visitCouponOISSimplified(this);
+    return visitor.visitCouponOISSimplifiedDefinition(this);
   }
 
 }

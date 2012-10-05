@@ -39,7 +39,7 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
   /**
    * Cache key for configs.
    */
-  private static final String CONFIG_CACHE = "config";
+  /*package*/ static final String CONFIG_CACHE = "config";
 
   /**
    * The cache manager.

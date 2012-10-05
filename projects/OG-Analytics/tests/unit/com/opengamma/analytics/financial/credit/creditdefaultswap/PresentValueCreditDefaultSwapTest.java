@@ -5,160 +5,443 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap;
 
+import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.credit.BuySellProtection;
+import com.opengamma.analytics.financial.credit.CalibrateHazardRate;
+import com.opengamma.analytics.financial.credit.CreditRating;
+import com.opengamma.analytics.financial.credit.CreditRatingFitch;
+import com.opengamma.analytics.financial.credit.CreditRatingMoodys;
+import com.opengamma.analytics.financial.credit.CreditRatingStandardAndPoors;
+import com.opengamma.analytics.financial.credit.DebtSeniority;
+import com.opengamma.analytics.financial.credit.Obligor;
+import com.opengamma.analytics.financial.credit.Region;
+import com.opengamma.analytics.financial.credit.RestructuringClause;
+import com.opengamma.analytics.financial.credit.Sector;
+import com.opengamma.analytics.financial.credit.StubType;
+import com.opengamma.analytics.financial.credit.SurvivalCurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.GenerateCreditDefaultSwapPremiumLegSchedule;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.PresentValueCreditDefaultSwap;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ *  Test of the implementation of the valuation model for a CDS 
  */
 public class PresentValueCreditDefaultSwapTest {
-  
-  private static final String buySellProtection = "Buy";
 
-  private static final String protectionBuyer = "ABC";
-  private static final String protectionSeller = "XYZ";
-  private static final String referenceEntity = "C";
+  // ----------------------------------------------------------------------------------
+
+  // TODO : Add all the tests
+  // TODO : Move the calendar into a seperate TestCalendar class
+  // TODO : Fix the time decay test
+
+  // ----------------------------------------------------------------------------------
+
+  // CDS contract parameters
+
+  private static final BuySellProtection buySellProtection = BuySellProtection.BUY;
+
+  private static final String protectionBuyerTicker = "MSFT";
+  private static final String protectionBuyerShortName = "Microsoft";
+  private static final String protectionBuyerREDCode = "ABC123";
+
+  private static final String protectionSellerTicker = "IBM";
+  private static final String protectionSellerShortName = "International Business Machines";
+  private static final String protectionSellerREDCode = "XYZ321";
+
+  private static final String referenceEntityTicker = "BT";
+  private static final String referenceEntityShortName = "British telecom";
+  private static final String referenceEntityREDCode = "123ABC";
+
+  private static final CreditRating protectionBuyerCompositeRating = CreditRating.AA;
+  private static final CreditRating protectionBuyerImpliedRating = CreditRating.A;
+
+  private static final CreditRating protectionSellerCompositeRating = CreditRating.AA;
+  private static final CreditRating protectionSellerImpliedRating = CreditRating.A;
+
+  private static final CreditRating referenceEntityCompositeRating = CreditRating.AA;
+  private static final CreditRating referenceEntityImpliedRating = CreditRating.A;
+
+  private static final CreditRatingMoodys protectionBuyerCreditRatingMoodys = CreditRatingMoodys.AA;
+  private static final CreditRatingStandardAndPoors protectionBuyerCreditRatingStandardAndPoors = CreditRatingStandardAndPoors.A;
+  private static final CreditRatingFitch protectionBuyerCreditRatingFitch = CreditRatingFitch.AA;
+
+  private static final CreditRatingMoodys protectionSellerCreditRatingMoodys = CreditRatingMoodys.AA;
+  private static final CreditRatingStandardAndPoors protectionSellerCreditRatingStandardAndPoors = CreditRatingStandardAndPoors.A;
+  private static final CreditRatingFitch protectionSellerCreditRatingFitch = CreditRatingFitch.AA;
+
+  private static final CreditRatingMoodys referenceEntityCreditRatingMoodys = CreditRatingMoodys.AA;
+  private static final CreditRatingStandardAndPoors referenceEntityCreditRatingStandardAndPoors = CreditRatingStandardAndPoors.A;
+  private static final CreditRatingFitch referenceEntityCreditRatingFitch = CreditRatingFitch.AA;
+
+  private static final Sector protectionBuyerSector = Sector.INDUSTRIALS;
+  private static final Region protectionBuyerRegion = Region.NORTHAMERICA;
+  private static final String protectionBuyerCountry = "United States";
+
+  private static final Sector protectionSellerSector = Sector.INDUSTRIALS;
+  private static final Region protectionSellerRegion = Region.NORTHAMERICA;
+  private static final String protectionSellerCountry = "United States";
+
+  private static final Sector referenceEntitySector = Sector.INDUSTRIALS;
+  private static final Region referenceEntityRegion = Region.EUROPE;
+  private static final String referenceEntityCountry = "United Kingdom";
 
   private static final Currency currency = Currency.USD;
 
-  private static final String debtSeniority = "Senior";
-  private static final String restructuringClause = "NR";
+  private static final DebtSeniority debtSeniority = DebtSeniority.SENIOR;
+  private static final RestructuringClause restructuringClause = RestructuringClause.NORE;
 
-  private static final Calendar calendar = new MondayToFridayCalendar("A");
-  
-  private static final ZonedDateTime startDate = DateUtils.getUTCDate(2012, 8, 21);
-  private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2012, 8, 22);
-  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2017, 9, 20);
-  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2012, 8, 22);
-    
-  private static final String scheduleGenerationMethod = "Backward";
-  private static final String couponFrequency = "Quarterly";
-  private static final String daycountFractionConvention = "ACT/360";
-  private static final String businessdayAdjustmentConvention = "Following";
+  private static final Calendar calendar = new MyCalendar();
+
+  private static final ZonedDateTime startDate = DateUtils.getUTCDate(2007, 10, 22);
+  private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2007, 10, 23);
+  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2012, 12, 20);
+  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2007, 10, 23);
+
+  private static final StubType stubType = StubType.FRONTSHORT;
+  private static final PeriodFrequency couponFrequency = PeriodFrequency.QUARTERLY;
+  private static final DayCount daycountFractionConvention = DayCountFactory.INSTANCE.getDayCount("ACT/360");
+  private static final BusinessDayConvention businessdayAdjustmentConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+
+  private static final boolean immAdjustMaturityDate = true;
+  private static final boolean adjustEffectiveDate = true;
+  private static final boolean adjustMaturityDate = true;
 
   private static final double notional = 10000000.0;
-  private static final double parSpread = 100.0;
+  private static final double premiumLegCoupon = 100.0;
+  private static final double recoveryRate = 0.40;
+  private static final boolean includeAccruedPremium = false;
 
-  private static final double valuationRecoveryRate = 0.40;
-  private static final double curveRecoveryRate = 0.40;
-
-  private static final boolean includeAccruedPremium = true;
-  private static final boolean adjustMaturityDate = false;
-  
-  private static final int numberOfIntegrationSteps = 10;
-  
-  // TODO : replace this with something more meaningful
   // Dummy yield curve
-  private static final double[] TIME = new double[] {0, 3, 5};
-  private static final double[] RATES = new double[] {0.0, 0.0, 0.0};
-  //private static final double[] DF_VALUES = new double[] {Math.exp(-0.03), Math.exp(-0.08), Math.exp(-0.15)};
+  private static final double interestRate = 0.0;
+  private static final double[] TIME = new double[] {0, 3, 5, 10, 15, 40 };
+  private static final double[] RATES = new double[] {interestRate, interestRate, interestRate, interestRate, interestRate, interestRate };
   private static final InterpolatedDoublesCurve R = InterpolatedDoublesCurve.from(TIME, RATES, new LinearInterpolator1D());
   private static final YieldCurve yieldCurve = YieldCurve.from(R);
-  
-  // Create a CDS contract object
-  private static final CreditDefaultSwapDefinition CDS_1 = new CreditDefaultSwapDefinition(buySellProtection, 
-                                                                                            protectionBuyer, 
-                                                                                            protectionSeller, 
-                                                                                            referenceEntity,
-                                                                                            currency, 
-                                                                                            debtSeniority, 
-                                                                                            restructuringClause, 
-                                                                                            calendar,
-                                                                                            startDate,
-                                                                                            effectiveDate,
-                                                                                            maturityDate,
-                                                                                            valuationDate,
-                                                                                            scheduleGenerationMethod,
-                                                                                            couponFrequency,
-                                                                                            daycountFractionConvention,
-                                                                                            businessdayAdjustmentConvention,
-                                                                                            notional, 
-                                                                                            parSpread, 
-                                                                                            valuationRecoveryRate, 
-                                                                                            curveRecoveryRate, 
-                                                                                            includeAccruedPremium,
-                                                                                            adjustMaturityDate,
-                                                                                            numberOfIntegrationSteps,
-                                                                                            yieldCurve);
-  
- 
-  // TODO : Sort out what exception to throw
-  @Test //(expectedExceptions = testng.TestException.class)
-  public void testGetPresentValueCreditDefaultSwap() {
-    
-    int n = 20;
-    
-    double pV = 0.0;
-    double h = 0.01;
-    
-    double cashflowSchedule[][] = new double [n + 1][2];
-    
-    double irCurve[][] = new double [n + 1][2];
-    double survCurve[][] = new double [n + 1][2];
 
-    System.out.println("There are " + cashflowSchedule.length + " cashflow dates (including time zero)");
-    
+  // Construct a survival curve based on a flat hazard rate term structure (for testing purposes only)
+  private static final double hazardRate = (premiumLegCoupon / 10000.0) / (1 - recoveryRate);
+  private static final double[] tenorsAsDoubles = new double[] {5 };
+  private static final double[] hazardRates = new double[] {hazardRate };
+  private static final SurvivalCurve flatSurvivalCurve = new SurvivalCurve(tenorsAsDoubles, hazardRates);
+
+  // ----------------------------------------------------------------------------------
+
+  private static final Obligor protectionBuyer = new Obligor(
+      protectionBuyerTicker,
+      protectionBuyerShortName,
+      protectionBuyerREDCode,
+      protectionBuyerCompositeRating,
+      protectionBuyerImpliedRating,
+      protectionBuyerCreditRatingMoodys,
+      protectionBuyerCreditRatingStandardAndPoors,
+      protectionBuyerCreditRatingFitch,
+      protectionBuyerSector,
+      protectionBuyerRegion,
+      protectionBuyerCountry);
+
+  private static final Obligor protectionSeller = new Obligor(
+      protectionSellerTicker,
+      protectionSellerShortName,
+      protectionSellerREDCode,
+      protectionSellerCompositeRating,
+      protectionSellerImpliedRating,
+      protectionSellerCreditRatingMoodys,
+      protectionSellerCreditRatingStandardAndPoors,
+      protectionSellerCreditRatingFitch,
+      protectionSellerSector,
+      protectionSellerRegion,
+      protectionSellerCountry);
+
+  private static final Obligor referenceEntity = new Obligor(
+      referenceEntityTicker,
+      referenceEntityShortName,
+      referenceEntityREDCode,
+      referenceEntityCompositeRating,
+      referenceEntityImpliedRating,
+      referenceEntityCreditRatingMoodys,
+      referenceEntityCreditRatingStandardAndPoors,
+      referenceEntityCreditRatingFitch,
+      referenceEntitySector,
+      referenceEntityRegion,
+      referenceEntityCountry);
+
+  // --------------------------------------------------------------------------------------------------------------------------------------------------
+
+  // Construct a CDS contract 
+  private static final CreditDefaultSwapDefinition cds = new CreditDefaultSwapDefinition(
+      buySellProtection,
+      protectionBuyer,
+      protectionSeller,
+      referenceEntity,
+      currency,
+      debtSeniority,
+      restructuringClause,
+      calendar,
+      startDate,
+      effectiveDate,
+      maturityDate,
+      valuationDate,
+      stubType,
+      couponFrequency,
+      daycountFractionConvention,
+      businessdayAdjustmentConvention,
+      immAdjustMaturityDate,
+      adjustEffectiveDate,
+      adjustMaturityDate,
+      notional,
+      premiumLegCoupon,
+      recoveryRate,
+      includeAccruedPremium);
+
+  // -----------------------------------------------------------------------------------------------
+
+  // Simple test to compute the PV of a CDS assuming a flat term structure of market observed CDS par spreads
+
+  @Test
+  public void testPresentValueCreditDefaultSwapFlatSurvivalCurve() {
+
     // -----------------------------------------------------------------------------------------------
-    
-    // Generate a dummy cashflow schedule 'object'
-    for(int i = 0; i <= n; i++)
-    {
-      // Calculate the dummy time
-      double t = (double)i/4;
-      
-      // Store dummy time in the cashflow schedule 'object'
-      cashflowSchedule[i][0] = t;
-      
-      // Calculate the time difference (in years) between consecutive coupon payment dates 
-      if(i > 0) {
-        cashflowSchedule[i][1] = cashflowSchedule[i][0] - cashflowSchedule[i - 1][0];
-      }
-      
-      irCurve[i][0] = cashflowSchedule[i][0];
 
-      /*
-      if (i > 0) {
-        irCurve[i][1] = yieldCurve.getDiscountFactor(t);
-      } else {
-        irCurve[i][1] = 0.0;
-      }
-      */
+    final boolean outputResults = false;
 
-      irCurve[i][1] = yieldCurve.getDiscountFactor(t);
-      
-      survCurve[i][0] = cashflowSchedule[i][0];
-      survCurve[i][1] = Math.exp(-h * t);
-      
-      //System.out.println(cashflowSchedule[i][0] + " " + cashflowSchedule[i][1]);
-      System.out.println(irCurve[i][0] + " " + irCurve[i][1]);
-      //System.out.println(survCurve[i][0] + " " + survCurve[i][1]);
+    double presentValue = 0.0;
+
+    if (outputResults) {
+      System.out.println("Running CDS PV test (with a simple flat survival curve) ...");
     }
-    
-    //System.out.println("Generated schedule");
-    
+
     // -----------------------------------------------------------------------------------------------
-    
-    // Call the ctor to create a CDS
-    final PresentValueCreditDefaultSwap cds = new PresentValueCreditDefaultSwap();
-    
-    // Call the CDS PV calculator to get the current PV
-    pV = cds.getPresentValueCreditDefaultSwap(CDS_1, cashflowSchedule, irCurve, survCurve);
-    
-    System.out.println("CDS PV = " + pV);
-    
-    // -----------------------------------------------------------------------------------------------
-  
+
+    // Call the constructor to create a CDS whose PV we will compute
+    final PresentValueCreditDefaultSwap creditDefaultSwap = new PresentValueCreditDefaultSwap();
+
+    // Call the CDS PV calculator (with a flat survival curve) to get the current PV
+    presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(cds, yieldCurve, flatSurvivalCurve);
+
+    if (outputResults) {
+      System.out.println("CDS PV = " + presentValue);
+    }
+
   }
 
+  // -----------------------------------------------------------------------------------------------
+
+  // Simple test to calibrate a single name CDS to a term structure of market observed par CDS spreads and compute the PV
+
+  @Test
+  public void testPresentValueCreditSwapCalibratedSurvivalCurve() {
+
+    // -----------------------------------------------------------------------------------------------
+
+    final boolean outputResults = false;
+
+    double presentValue = 0.0;
+
+    if (outputResults) {
+      System.out.println("Running CDS PV test (with a calibrated survival curve) ...");
+    }
+
+    // -----------------------------------------------------------------------------------------------
+
+    // Define the market data to calibrate to
+
+    // The number of CDS instruments used to calibrate against
+    int numberOfCalibrationCDS = 10;
+
+    // The CDS tenors to calibrate to
+    final ZonedDateTime[] tenors = new ZonedDateTime[numberOfCalibrationCDS];
+
+    tenors[0] = DateUtils.getUTCDate(2008, 12, 20);
+    tenors[1] = DateUtils.getUTCDate(2009, 6, 20);
+    tenors[2] = DateUtils.getUTCDate(2010, 6, 20);
+    tenors[3] = DateUtils.getUTCDate(2011, 6, 20);
+    tenors[4] = DateUtils.getUTCDate(2012, 6, 20);
+    tenors[5] = DateUtils.getUTCDate(2014, 6, 20);
+    tenors[6] = DateUtils.getUTCDate(2017, 6, 20);
+    tenors[7] = DateUtils.getUTCDate(2022, 6, 20);
+    tenors[8] = DateUtils.getUTCDate(2030, 6, 20);
+    tenors[9] = DateUtils.getUTCDate(2040, 6, 20);
+
+    // The market observed par CDS spreads at these tenors
+    final double[] marketSpreads = new double[numberOfCalibrationCDS];
+
+    final double flatSpread = 100.0;
+
+    marketSpreads[0] = flatSpread;
+    marketSpreads[1] = flatSpread;
+    marketSpreads[2] = flatSpread;
+    marketSpreads[3] = flatSpread;
+    marketSpreads[4] = flatSpread;
+    marketSpreads[5] = flatSpread;
+    marketSpreads[6] = flatSpread;
+    marketSpreads[7] = flatSpread;
+    marketSpreads[8] = flatSpread;
+    marketSpreads[9] = flatSpread;
+
+    // The recovery rate assumption used in the PV calculations when calibrating
+    final double calibrationRecoveryRate = 0.40;
+
+    // -------------------------------------------------------------------------------------
+
+    // Calibrate the hazard rate term structure to the market observed par spreads
+
+    // Create a calibration CDS (will be a modified version of the baseline CDS)
+    CreditDefaultSwapDefinition calibrationCDS = cds;
+
+    // Set the recovery rate of the calibration CDS used for the curve calibration (this appears in the calculation of the contingent leg)
+    calibrationCDS = calibrationCDS.withRecoveryRate(calibrationRecoveryRate);
+
+    // Create a calibrate survival curve object
+    final CalibrateHazardRate hazardRateCurve = new CalibrateHazardRate();
+
+    // Calibrate the survival curve to the market observed par CDS spreads (returns hazard rate term structure as a vector of doubles)
+    double[] calibratedHazardRateTermStructure = hazardRateCurve.getCalibratedHazardRateTermStructure(calibrationCDS, tenors, marketSpreads, yieldCurve);
+
+    // -------------------------------------------------------------------------------------
+
+    // Now want to create a new CDS and price it using the calibrated survival curve
+
+    // Create a cashflow schedule object (to facilitate the conversion of tenors into doubles)
+    GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
+
+    // Convert the ZonedDateTime tenors into doubles (measured from valuationDate)
+    double[] tenorsAsDoubles = cashflowSchedule.convertTenorsToDoubles(cds, tenors);
+
+    // Build a survival curve using the input tenors (converted to doubles) and the previously calibrated hazard rates
+    final SurvivalCurve survivalCurve = new SurvivalCurve(tenorsAsDoubles, calibratedHazardRateTermStructure);
+
+    // Call the constructor to create a CDS whose PV we will compute
+    final PresentValueCreditDefaultSwap creditDefaultSwap = new PresentValueCreditDefaultSwap();
+
+    // Call the CDS PV calculator to get the current PV (should be equal to zero)
+    presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(cds, yieldCurve, survivalCurve);
+
+    if (outputResults) {
+      System.out.println("CDS PV = " + presentValue);
+    }
+
+    // -------------------------------------------------------------------------------------
+  }
+
+  // -----------------------------------------------------------------------------------------------
+
+  // Test to vary the valuationDate of a CDS from adjustedEffectiveDate to adjustedMaturityDate and compute PV
+
+  @Test
+  public void testPresentValueCreditDefaultSwapTimeDecay() {
+
+    // -----------------------------------------------------------------------------------------------
+
+    final boolean outputResults = false;
+
+    double presentValue = 0.0;
+
+    if (outputResults) {
+      System.out.println("Running CDS PV time decay test ...");
+    }
+
+    // -----------------------------------------------------------------------------------------------
+
+    // Create a valuation CDS whose valuationDate will vary (will be a modified version of the baseline CDS)
+    CreditDefaultSwapDefinition valuationCDS = cds;
+
+    // Call the constructor to create a CDS whose PV we will compute
+    final PresentValueCreditDefaultSwap creditDefaultSwap = new PresentValueCreditDefaultSwap();
+
+    // Call the CDS PV calculator to get the current PV
+    presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(cds, yieldCurve, flatSurvivalCurve);
+
+    if (outputResults) {
+      System.out.println(valuationDate + "\t" + presentValue);
+    }
+
+    // -----------------------------------------------------------------------------------------------
+
+    // start at the initial valuation date
+    ZonedDateTime rollingValuationDate = cds.getValuationDate();
+
+    while (!rollingValuationDate.isAfter(cds.getMaturityDate().minusDays(10))) {
+
+      // Roll the current valuation date
+      rollingValuationDate = rollingValuationDate.plusDays(1);
+
+      // Modify the CDS's valuation date
+      valuationCDS = valuationCDS.withValuationDate(rollingValuationDate);
+
+      // Calculate the CDS PV
+      presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(valuationCDS, yieldCurve, flatSurvivalCurve);
+
+      if (outputResults) {
+        System.out.println(rollingValuationDate + "\t" + presentValue);
+      }
+    }
+
+    // -----------------------------------------------------------------------------------------------
+  }
+
+  //-----------------------------------------------------------------------------------------------
+
+  // Bespoke calendar class (have made this public - may want to change this)
+  public static class MyCalendar implements Calendar {
+
+    private static final Calendar weekend = new MondayToFridayCalendar("GBP");
+
+    @Override
+    public boolean isWorkingDay(LocalDate date) {
+
+      if (!weekend.isWorkingDay(date)) {
+        return false;
+      }
+
+      /*
+      // Custom bank holiday
+      if (date.equals(LocalDate.of(2012, 8, 27))) {
+        return false;
+      }
+
+      // Custom bank holiday
+      if (date.equals(LocalDate.of(2012, 8, 28))) {
+        return false;
+      }
+
+      // Custom bank holiday
+      if (date.equals(LocalDate.of(2017, 8, 28))) {
+        return false;
+      }
+
+      // Custom bank holiday
+      if (date.equals(LocalDate.of(2017, 8, 29))) {
+        return false;
+      }
+       */
+
+      return true;
+    }
+
+    @Override
+    public String getConventionName() {
+      return "";
+    }
+
+  }
+
+  // -----------------------------------------------------------------------------------------------
 }
+
+//-----------------------------------------------------------------------------------------------
