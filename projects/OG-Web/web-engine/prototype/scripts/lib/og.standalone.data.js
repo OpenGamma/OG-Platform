@@ -20,14 +20,14 @@
                 'height': $selector.height() + 'px',
                 'backgroundColor': settings.background_color
             });
-            var pdata = util.process_data(input); 
+            var pdata = util.process_data(input);
             cols = json_strify(pdata.columns);
             data = json_strify(pdata.data);
             grid = new Slick.Grid($selector, pdata.data, pdata.columns);
         };
         gadget.update = function(input) {
             var pdata = util.process_data(input);
-            if (data !== json_strify(pdata.data)) 
+            if (data !== json_strify(pdata.data))
                 data = json_strify(pdata.data), grid.setData(pdata.data), grid.invalidate();
             if (cols !== json_strify(pdata.columns))
                 cols = json_strify(pdata.columns), grid.setColumns(pdata.columns), grid.invalidate();
