@@ -115,8 +115,10 @@ $.register_module({
                             $overflow_panel.hide();
                         }
                         // set inactive tab widths to calculated value
-                        $tabs.each(function () {if (!$(this).hasClass('og-active'))
-                            $(this).outerWidth(new_tab_width)});
+                        $tabs.each(function () {if (!$(this).hasClass('og-active')) {
+                            var original_width = $(this).outerWidth();
+                            $(this).outerWidth(original_width < new_tab_width ? original_width : new_tab_width);
+                        }});
                         // unset width of tabs in overflow panel
                         if ($tabs_to_move) $tabs_to_move.each(function () {$(this).attr('style', '');});
                         // set position of overflow panel
