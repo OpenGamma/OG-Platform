@@ -41,7 +41,8 @@ public class MarketDataSnapshotAvailabilityProvider implements MarketDataAvailab
     if (snapshotValue != null) {
       return snapshotValue.getSpecification();
     }
-    // TODO: what is this logic supposed to be doing?
+    // Andrew 2012-10-05 -- No one in the office can remember why this logic to suppress graph construction was needed, or exactly
+    // what the suppression logic should have been.
     //if (UserMarketDataSnapshot.getStructuredKey(requirement) != null) {
     //throw new MarketDataNotSatisfiableException(requirement);
     //}
