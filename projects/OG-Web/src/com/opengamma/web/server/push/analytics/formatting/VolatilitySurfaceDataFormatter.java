@@ -11,11 +11,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 
+import javax.time.calendar.LocalDate;
+
+import org.apache.commons.collections.CollectionUtils;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.time.Tenor;
 import com.opengamma.web.server.conversion.LabelFormatter;
 
 /* package */ class VolatilitySurfaceDataFormatter extends NoHistoryFormatter<VolatilitySurfaceData> {
@@ -42,13 +47,28 @@ import com.opengamma.web.server.conversion.LabelFormatter;
     SortedSet yVals = Sets.newTreeSet((Iterable) Arrays.asList(value.getYs()));
     List<String> xLabels = getAxisLabels(xVals);
     List<String> yLabels = getAxisLabels(yVals);
+    // numeric values corresponding to the axis labels to help with plotting the surface
+    List<Object> xAxisValues = Lists.newArrayListWithCapacity(xVals.size());
+    List<Object> yAxisValues = Lists.newArrayListWithCapacity(yVals.size());
     List<Double> vol = Lists.newArrayListWithCapacity(xVals.size() * yVals.size());
     for (Object yVal : yVals) {
       for (Object xVal : xVals) {
         vol.add(value.getVolatility(xVal, yVal));
       }
+      CollectionUtils.addIgnoreNull(yAxisValues, getAxisValue(yVal));
     }
-    // TODO numeric values for the x and y axis
+    for (Object xVal : xVals) {
+      CollectionUtils.addIgnoreNull(xAxisValues, getAxisValue(xVal));
+    }
+    // not all volatility surfaces can be sensibly plotted. if a value can't be meaningfully converted to a number
+    // then it will be null and won't be added to the collection. so if the collection is empty it isn't added to the
+    // results and a plot won't be generated
+    if (!yAxisValues.isEmpty()) {
+      results.put("y_values", yAxisValues);
+    }
+    if (!xAxisValues.isEmpty()) {
+      results.put("x_values", xAxisValues);
+    }
     results.put("x_labels", xLabels);
     results.put("y_labels", yLabels);
     results.put("vol", vol);
@@ -61,6 +81,22 @@ import com.opengamma.web.server.conversion.LabelFormatter;
       labels.add(LabelFormatter.format(value));
     }
     return labels;
+  }
+
+  /**
+   * Returns a numeric value corresponding to a point on volatility surface axis to help with plotting the surface.
+   * @param axisValue A point on the axis
+   * @return A numeric value corresponding to the value or null if there's no meaningful numeric value
+   */
+  private Object getAxisValue(Object axisValue) {
+    if (axisValue instanceof Number) {
+      return axisValue;
+    } else if (axisValue instanceof LocalDate) {
+      return ((LocalDate) axisValue).toEpochDays();
+    } else if (axisValue instanceof Tenor) {
+      return ((Tenor) axisValue).getPeriod().toEstimatedDuration().toSeconds();
+    }
+    return null;
   }
 
   @Override
