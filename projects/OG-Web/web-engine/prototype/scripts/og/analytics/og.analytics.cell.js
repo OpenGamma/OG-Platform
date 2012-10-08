@@ -10,7 +10,11 @@ $.register_module({
             var cell = this;
             cell.dataman = new og.analytics.Data(config.source)
                 .viewport({rows: [config.row], cols: [config.col], expanded: true})
-                .on('data', function (data) {events.fire(cell.events.data, data[0]);});
+                .on('data', function (data) {
+                    var cell_data = data[0];
+                    if (cell_data.t === 'PRIMITIVE') return; // we never subscribe to primitives
+                    events.fire(cell.events.data, cell_data.v || cell_data);
+                });
             cell.events = {data: []};
         };
         constructor.prototype.kill = function () {this.dataman.kill();};
