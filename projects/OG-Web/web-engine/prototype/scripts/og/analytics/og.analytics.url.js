@@ -34,13 +34,14 @@ $.register_module({
                     .pipe(function (result) {
                         var config = result.data.data, current_main, panel, cellmenu;
                         panels.forEach(function (panel) {delete last_object[panel];});
-                        if (config.main && last_fingerprint.main !== (current_main = JSON.stringify(config.main)))
+                        if (config.main && last_fingerprint.main !== (current_main = JSON.stringify(config.main))) {
                             if (og.analytics.grid) og.analytics.grid.dataman.kill();
                             $(main_selector).html('loading...');
                             og.analytics.grid = new og.analytics.Grid({
                                 selector: main_selector, cellmenu: true,
                                 source: last_object.main = JSON.parse(last_fingerprint.main = current_main)
                             });
+                        }
                         panels.forEach(function (panel) {
                             var gadgets = config[panel];
                             if (!gadgets) return (last_fingerprint[panel] = []), (last_object[panel] = []);

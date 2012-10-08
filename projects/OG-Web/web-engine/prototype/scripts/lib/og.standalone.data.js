@@ -52,7 +52,8 @@
         /**
          * Create html columns to house the grids
          */
-        util.process_data = function(object){
+        util.process_data = function (object) {
+            if (!object.data) return;
             var ismatrix, xlabels, ylabels, col_width, cols, obj_data;
             ismatrix = (object.data['matrix'] && !$.isEmptyObject(object.data['matrix']));
             if (!ismatrix && !object.labels) object.labels = ['Label', 'Value'];

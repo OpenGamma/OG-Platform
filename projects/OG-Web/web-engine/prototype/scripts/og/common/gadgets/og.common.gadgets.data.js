@@ -15,13 +15,13 @@ $.register_module({
                 $(config.selector).addClass(alive).css(css_position);
                 gadget.dataman = new og.analytics.Cell({source: config.source, col: config.col, row: config.row})
                     .on('data', function (data) {
-                        if (data && (data.length || $.isPlainObject(data) && !$.isEmptyObject(data))) {
+                        if (data) {
                             if (!instantiated)
                                 $data_grid = (instantiated = true) && $(config.selector).ogdata({data: data});
                             else gadget.update({data: data});
                         } else {
-                            $(config.selector).html('Bad data!');
-                            gadget.die();
+                            $(config.selector).html('loading...');
+                            og.dev.warn('bad data: ', data);
                         }
                     });
             };
