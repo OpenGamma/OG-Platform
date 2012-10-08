@@ -12,7 +12,8 @@ $.register_module({
                     containers[panel] = new GadgetsContainer('.OG-layout-analytics-', panel)
                         .init()
                         .on('del', function (index) {og.analytics.url.remove(panel, index);})
-                        .on('drop', function (params) {return og.analytics.url.add(panel, params, true), false;});
+                        .on('drop', function (params) {return og.analytics.url.add(panel, params, true), false;})
+                        .on('launch', og.analytics.url.launch);
                 });
                 delete containers.initialize;
             }

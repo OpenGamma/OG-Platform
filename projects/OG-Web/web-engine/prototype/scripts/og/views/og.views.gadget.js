@@ -12,19 +12,14 @@ $.register_module({
             init: function () {for (var rule in view.rules) routes.add(view.rules[rule]);},
             root: function () {$content.html('No gadget was specified.');},
             grid: function (args) {
-                og.api.rest.compressor.get({content: args.blob})
-                    .pipe(function (result) {
-                        // TODO this is a global ... remove it!
-                        grid = new og.analytics.Grid({
-                            selector: content,
-                            sparklines: false,
-                            source: result.data.data
-                        });
-                    });
+                og.api.rest.compressor.get({content: args.data}).pipe(function (result) {
+                    // TODO this is a global ... remove it!
+                    grid = new og.analytics.Grid({selector: content, sparklines: false, source: result.data.data});
+                });
             },
             gadgetscontainer: function (args) {
-                ['center'].forEach(function (val) {
-                    new og.common.gadgets.GadgetsContainer('.OG-gadgets-container-', val).add(args[val]);
+                og.api.rest.compressor.get({content: args.data}).pipe(function (result) {
+                    new og.common.gadgets.GadgetsContainer('.OG-gadgets-container-', 'center').add(result.data.data);
                 });
             },
             positions: function (args) {
@@ -52,11 +47,8 @@ $.register_module({
             },
             rules: {
                 root: {route: '/', method: module.name + '.root'},
-                grid: {route: '/grid/:blob', method: module.name + '.grid'},
-                gadgetscontainer: {
-                    route: '/gadgetscontainer/:center',
-                    method: module.name + '.gadgetscontainer'
-                },
+                grid: {route: '/grid/:data', method: module.name + '.grid'},
+                gadgetscontainer: {route: '/gadgetscontainer/:data', method: module.name + '.gadgetscontainer'},
                 positions: {route: '/positions/:id/trades:?', method: module.name + '.positions'},
                 securities: {route: '/securities/:id', method: module.name + '.securities'},
                 timeseries: {route: '/timeseries/id:?/key:?', method: module.name + '.timeseries'}

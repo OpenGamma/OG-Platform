@@ -10,7 +10,7 @@ $.register_module({
         return function (config) {
             var gadget = this, alive = prefix + counter++,
                 css_position = {position: 'absolute', top: '0', left: 0, right: 0, bottom: 0}, grid;
-            gadget.alive = function () {return !!$('.' + alive).length;};
+            gadget.alive = function () {return grid.alive();};
             gadget.load = function () {
                 $(config.selector).addClass(alive).css(css_position);
                 grid = new og.analytics.Grid({selector: config.selector, source: config.source, cellmenu: true});

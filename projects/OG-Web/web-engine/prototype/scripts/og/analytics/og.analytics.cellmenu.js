@@ -8,7 +8,10 @@ $.register_module({
     obj: function () {
         var icons = '.og-num, .og-icon-new-window-2', open_icon = '.og-small', expand_class = 'og-expanded',
             panels = ['south', 'dock-north', 'dock-center', 'dock-south'], width = 34,
-            mapping = og.common.gadgets.mapping;
+            mapping = og.common.gadgets.mapping, typemap = mapping.type_map,
+            onlydepgraphs = []; // a list of datatypes that only support depgraph gadgets
+        for (var i in typemap) if (typemap.hasOwnProperty(i))
+            if (typemap[i].length === 1 && typemap[i][0] === 0) onlydepgraphs.push(i);
         var constructor = function (grid) {
             var cellmenu = this, timer, depgraph = !!grid.config.source.depgraph, parent = grid.elements.parent;
             og.api.text({module: 'og.analytics.cell_options'}).pipe(function (template) {
@@ -30,8 +33,9 @@ $.register_module({
                     if (!panel) og.analytics.url.launch(options); else og.analytics.url.add(panel, options);
                 });
                 grid.on('cellhoverin', function (cell) {
-                    var hide = !(cellmenu.current = cell).value || cell.type === 'PRIMITIVE' ||
-                        (cell.col < (depgraph ? 1 : 2)) || (cell.right > parent.width());
+                    var type = cell.type, hide = !(cellmenu.current = cell).value
+                        || (cell.col < (depgraph ? 1 : 2)) || (cell.right > parent.width())
+                        || (depgraph && $.inArray(type, onlydepgraphs) > -1);
                     if (hide) cellmenu.hide(); else cellmenu.show();
                 }).on('cellhoverout', function () {cellmenu.hide();}).elements.parent.append(cellmenu.menu);
             });

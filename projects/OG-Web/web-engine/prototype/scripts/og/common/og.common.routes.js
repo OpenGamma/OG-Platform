@@ -41,7 +41,7 @@ $.register_module({
                 // escape key will break long-polling, so prevent the default action
                 $(window).on('keydown', function (e) {if (e.keyCode === $.ui.keyCode.ESCAPE) e.preventDefault();});
                 $(function () { // in addition to binding hash change events to window, also fire it onload
-                    var common = og.views.common;
+                    var common = og.views.common, is_child, parent_api, api = og.api.rest;
                     $('.OG-js-loading').hide();
                     $('.OG-layout-admin-container, .OG-layout-analytics-container').css({'visibility': 'visible'});
                     common.layout = (({
@@ -52,10 +52,10 @@ $.register_module({
                     })[window.location.pathname.split('/').reverse()[0].toLowerCase()] || $.noop)();
                     // check if the parent's document is the same as the window's (instead of just comparing
                     // window.parent to window, we use document because IE8 doesn't know true from false)
-                    if (window.parent.document !== window.document && window.parent.og.api.rest)
-                        og.api.rest = window.parent.og.api.rest;
-                    else
-                        if (og.api.rest) og.api.rest.subscribe();
+                    is_child = (window.parent.document !== window.document) || window.opener;
+                    parent_api = (window.opener && window.opener.og && window.opener.og.api.rest) ||
+                        window.parent.og.api.rest;
+                    if (is_child && parent_api) og.api.rest = parent_api; else if (og.api.rest) api.subscribe();
                     routes.handler();
                     set_title((new Date).toLocaleTimeString());
                 });
