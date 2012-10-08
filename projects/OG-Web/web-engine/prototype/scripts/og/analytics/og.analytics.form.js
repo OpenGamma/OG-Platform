@@ -10,7 +10,7 @@ $.register_module({
         'og.analytics.DatasourcesMenu',
         'og.views.common.layout'
     ],
-    obj: function () { 
+    obj: function () {
         return function (selector) {
             var emitter = new EventEmitter(), Form, ag_dropmenu = og.analytics.AggregatorsMenu,
                 ds_dropmenu = og.analytics.DatasourcesMenu, Status, MastHead, events = {
@@ -51,8 +51,8 @@ $.register_module({
             };
             MastHead = function (template, search, aggregators, datasource) {
                 var MastHead = this, Form, ag_dropdwn, ds_dropdwn, vd_s = '.og-view',
-                    fcntrls_s = 'input, select, button', ac_s = 'input autocompletechange autocompleteselect', 
-                    $form = $(selector).html(template), $ag = $('.og-aggregation', $form), 
+                    fcntrls_s = 'input, select, button', ac_s = 'input autocompletechange autocompleteselect',
+                    $form = $(selector).html(template), $ag = $('.og-aggregation', $form),
                     $ds = $('.og-datasources', $form), $ag_fcntrls, $ds_fcntrls, $load_btn = $('.og-load', $form),
                     status, ac_menu;
                 return Form = function(){
@@ -73,12 +73,12 @@ $.register_module({
                                 if (ag_dropdwn.is_opened()) {
                                     ds_dropdwn.emitEvent(events.open).emitEvent(events.focus);
                                 } else if (ds_dropdwn.is_opened()) {
-                                    ds_dropdwn.emitEvent(events.close); 
+                                    ds_dropdwn.emitEvent(events.close);
                                     $load_btn.focus();
                                 }
                             } else if (val === 'Cancel') {
                                 emitter.emitEvent(events.closeall);
-                                ac_menu.$input.select(); 
+                                ac_menu.$input.select();
                             }
                         },
                         click_handler = function (event) {
@@ -110,7 +110,7 @@ $.register_module({
                             close_dropmenu(ag_dropdwn);
                             close_dropmenu(ds_dropdwn);
                         }),
-                        og.views.common.layout.main.allowOverflow('north'), 
+                        og.views.common.layout.main.allowOverflow('north'),
                         status = new Status(selector + ' .og-status'),
                         form;
                 }, Form.prototype = EventEmitter.prototype, MastHead = new Form();

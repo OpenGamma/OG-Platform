@@ -18,10 +18,7 @@ $.register_module({
             return Combo = function () {
                 var combo = this;
                 return combo.state = 'blurred',
-                    combo.open = function () { // open using the current input value or an empty string
-                        combo.$input.autocomplete('search', (combo.$input.val() !== placeholder) ? 
-                        (combo.$input.val() || '') : '').select();
-                    },
+                    combo.open = function () {$input.autocomplete('search', '').select();},
                     combo.placeholder = placeholder || '', 
                     combo.autocomplete_obj = {
                         minLength: 0, delay: 0,
