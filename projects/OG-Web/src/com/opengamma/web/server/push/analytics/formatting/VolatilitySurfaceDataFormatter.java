@@ -31,11 +31,21 @@ import com.opengamma.web.server.conversion.LabelFormatter;
   }
 
   /**
-   * Returns a map containing the x-axis labels, y-axis labels and volatility values. The lists of axis labels
-   * are sorted and have no duplicate values (which isn't necessarily true of the underlying data). The volatility
-   * data list contains a value for every combination of x and y values. If there is no corresponding value in the
-   * underlying data the volatility value will be {@code null}.
-   * @return {x_labels: [...], y_labels: [...], vol: [x0y0, x1y0,... , x0y1, x1y1,...]}
+   * <p>Returns a map containing the x-axis labels and values, y-axis labels and values, and volatility values. The lists
+   * of axis labels are sorted and have no duplicate values (which isn't necessarily true of the underlying data). The
+   * volatility data list contains a value for every combination of x and y values. If there is no corresponding value
+   * in the underlying data the volatility value will be {@code null}.</p>
+   * <p>The axis values are numeric values which correspond to the axis labels. It is unspecified what they
+   * actually represent but their relative sizes show the relationship between the label values.
+   * This allows the labels to be properly laid out on the plot axes.</p>
+   * <p>Not all volatility surfaces can be sensibly plotted as a surface and in that case the axis labels can't
+   * be converted to a meaningful numeric value. For these surfaces one or both of the axis values will be missing
+   * and the UI shouldn't attempt to plot the surface.</p>
+   * @return {x_labels: [...],
+   *          x_values: [...],
+   *          y_labels: [...],
+   *          y_values: [...],
+   *          vol: [x0y0, x1y0,... , x0y1, x1y1,...]}
    */
   @SuppressWarnings("unchecked")
   @Override
