@@ -32,32 +32,51 @@ import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * 
+ * Returns all of the dates where a floating payment is to be made for an instrument from a particular date. If there are no payments to
+ * be made, an empty map is returned. The payments are always positive. 
  */
-public final class FloatingCashFlowVisitor extends AbstractInstrumentDefinitionVisitor<LocalDate, Map<LocalDate, MultipleCurrencyAmount>> {
-  private static final FloatingCashFlowVisitor INSTANCE = new FloatingCashFlowVisitor();
+public final class FloatingPayCashFlowVisitor extends AbstractInstrumentDefinitionVisitor<LocalDate, Map<LocalDate, MultipleCurrencyAmount>> {
+  private static final FloatingPayCashFlowVisitor INSTANCE = new FloatingPayCashFlowVisitor();
 
-  public static FloatingCashFlowVisitor getInstance() {
+  public static FloatingPayCashFlowVisitor getInstance() {
     return INSTANCE;
   }
 
-  private FloatingCashFlowVisitor() {
+  private FloatingPayCashFlowVisitor() {
   }
 
+  /**
+   * The default behaviour of this visitor is to return an empty map.
+   * @param definition The instrument definition
+   * @param fromDate The date from which to list the cash-flows
+   * @return An empty map
+   */
   @Override
   public Map<LocalDate, MultipleCurrencyAmount> visit(final InstrumentDefinition<?> definition, final LocalDate fromDate) {
     return Collections.emptyMap();
   }
 
+  /**
+   * If the date is after the maturity of the deposit, or if the notional is positive (i.e. and amount is to be received), returns
+   * an empty map. Otherwise, returns a map containing a single payment date and the notional amount divided by the accrual period.
+   * That is, if the notional of the deposit is $1000 and the accrual period is 0.25 years, the amount will be $250.
+   * @param deposit The deposit instrument, not null
+   * @param fromDate The date from which to calculate the notional of the cash-flow, not null
+   * @return A map containing the (single) payment date and amount, or an empty map, as appropriate
+   */
   @Override
   public Map<LocalDate, MultipleCurrencyAmount> visitDepositIborDefinition(final DepositIborDefinition deposit, final LocalDate fromDate) {
     ArgumentChecker.notNull(deposit, "deposit");
     ArgumentChecker.notNull(fromDate, "date");
     final LocalDate endDate = deposit.getEndDate().toLocalDate();
+    if (deposit.getNotional() > 0) {
+      return Collections.emptyMap();
+    }
     if (endDate.isBefore(fromDate)) {
       return Collections.emptyMap();
     }
-    return Collections.singletonMap(endDate, MultipleCurrencyAmount.of(CurrencyAmount.of(deposit.getCurrency(), deposit.getNotional())));
+    final double amount = deposit.getNotional() * deposit.getAccrualFactor();
+    return Collections.singletonMap(endDate, MultipleCurrencyAmount.of(CurrencyAmount.of(deposit.getCurrency(), amount)));
   }
 
   @Override
