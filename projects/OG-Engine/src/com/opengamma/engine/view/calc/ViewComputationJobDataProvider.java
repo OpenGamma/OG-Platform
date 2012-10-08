@@ -17,15 +17,17 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.opengamma.engine.marketdata.MarketDataUtils;
 import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
-import com.opengamma.engine.marketdata.availability.MarketDataAvailability;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.MarketDataNotSatisfiableException;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
@@ -109,7 +111,7 @@ import com.opengamma.util.ArgumentChecker;
     for (ValueRequirement valueRequirement : requirements) {
       for (int i = 0; i < _providers.size(); i++) {
         MarketDataProvider provider = _providers.get(i);
-        if (provider.getAvailabilityProvider().getAvailability(valueRequirement) == MarketDataAvailability.AVAILABLE) {
+        if (MarketDataUtils.isAvailable(provider.getAvailabilityProvider(), valueRequirement)) {
           reqsByProvider.get(i).add(valueRequirement);
         }
       }
@@ -228,24 +230,26 @@ import com.opengamma.util.ArgumentChecker;
   private class AvailabilityProvider implements MarketDataAvailabilityProvider {
 
     /**
-     * @param requirement  the market data requirement, not null
-     * @return The availablility of the requirement from the underlying providers.
+     * @param requirement the market data requirement, not null
+     * @return The satisfaction of the requirement from the underlying providers.
      */
     @Override
-    public MarketDataAvailability getAvailability(ValueRequirement requirement) {
-      boolean missing = false;
+    public ValueSpecification getAvailability(ValueRequirement requirement) {
+      MarketDataNotSatisfiableException missing = null;
       for (MarketDataProvider provider : _providers) {
-        MarketDataAvailability availability = provider.getAvailabilityProvider().getAvailability(requirement);
-        if (availability == MarketDataAvailability.AVAILABLE) {
-          return MarketDataAvailability.AVAILABLE;
-        } else if (availability == MarketDataAvailability.MISSING) {
-          missing = true;
+        try {
+          final ValueSpecification availability = provider.getAvailabilityProvider().getAvailability(requirement);
+          if (availability != null) {
+            return availability;
+          }
+        } catch (MarketDataNotSatisfiableException e) {
+          missing = e;
         }
       }
-      if (missing) {
-        return MarketDataAvailability.MISSING;
+      if (missing != null) {
+        throw missing;
       } else {
-        return MarketDataAvailability.NOT_AVAILABLE;
+        return null;
       }
     }
   }

@@ -17,10 +17,11 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.marketdata.availability.MarketDataAvailability;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
@@ -33,7 +34,7 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
   
   private static final Logger s_logger = LoggerFactory.getLogger(InMemoryLKVMarketDataProvider.class);
   
-  private final Map<ValueRequirement, Object> _lastKnownValues = new ConcurrentHashMap<ValueRequirement, Object>();
+  private final Map<ValueRequirement, ComputedValue> _lastKnownValues = new ConcurrentHashMap<ValueRequirement, ComputedValue>();
   private final SecuritySource _securitySource;
   private final MarketDataPermissionProvider _permissionProvider;
 
@@ -100,14 +101,14 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
 
   //-------------------------------------------------------------------------
   @Override
-  public MarketDataAvailability getAvailability(ValueRequirement requirement) {
-    return _lastKnownValues.containsKey(requirement) ? MarketDataAvailability.AVAILABLE : MarketDataAvailability.NOT_AVAILABLE;
+  public ValueSpecification getAvailability(ValueRequirement requirement) {
+    return _lastKnownValues.containsKey(requirement) ? MarketDataUtils.createMarketDataValue(requirement) : null;
   }
 
   //-------------------------------------------------------------------------
   @Override
   public void addValue(ValueRequirement requirement, Object value) {
-    _lastKnownValues.put(requirement, value);
+    _lastKnownValues.put(requirement, new ComputedValue(MarketDataUtils.createMarketDataValue(requirement), value));
     valueChanged(requirement);
   }
   
@@ -134,13 +135,13 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
     return Collections.unmodifiableSet(_lastKnownValues.keySet());
   }
 
-  public Object getCurrentValue(ValueRequirement valueRequirement) {
+  public ComputedValue getCurrentValue(ValueRequirement valueRequirement) {
     return _lastKnownValues.get(valueRequirement);
   }
   
   //-------------------------------------------------------------------------
-  /*package*/ Map<ValueRequirement, Object> doSnapshot() {
-    return new HashMap<ValueRequirement, Object>(_lastKnownValues);
+  /*package*/Map<ValueRequirement, ComputedValue> doSnapshot() {
+    return new HashMap<ValueRequirement, ComputedValue>(_lastKnownValues);
   }
   
   private ValueRequirement resolveRequirement(ExternalId identifier, String valueName) {

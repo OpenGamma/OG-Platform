@@ -7,8 +7,9 @@ package com.opengamma.engine.marketdata.availability;
 
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
-import com.opengamma.engine.marketdata.snapshot.UserMarketDataSnapshot;
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -30,19 +31,22 @@ public class MarketDataSnapshotAvailabilityProvider implements MarketDataAvailab
   }
 
   @Override
-  public MarketDataAvailability getAvailability(final ValueRequirement requirement) {
+  public ValueSpecification getAvailability(final ValueRequirement requirement) {
     if (requirement.getTargetSpecification().getType() == ComputationTargetType.PORTFOLIO_NODE ||
         requirement.getTargetSpecification().getType() == ComputationTargetType.POSITION ||
         requirement.getTargetSpecification().getType() == ComputationTargetType.TRADE) {
-      return MarketDataAvailability.NOT_AVAILABLE;
+      return null;
     }
-    if (getSnapshot().query(requirement) != null) {
-      return MarketDataAvailability.AVAILABLE;
+    final ComputedValue snapshotValue = getSnapshot().query(requirement);
+    if (snapshotValue != null) {
+      return snapshotValue.getSpecification();
     }
-    if (UserMarketDataSnapshot.getStructuredKey(requirement) != null) {
-      return MarketDataAvailability.MISSING;
-    }
-    return MarketDataAvailability.NOT_AVAILABLE;
+    // Andrew 2012-10-05 -- No one in the office can remember why this logic to suppress graph construction was needed, or exactly
+    // what the suppression logic should have been.
+    //if (UserMarketDataSnapshot.getStructuredKey(requirement) != null) {
+    //throw new MarketDataNotSatisfiableException(requirement);
+    //}
+    return null;
   }
 
   //-------------------------------------------------------------------------

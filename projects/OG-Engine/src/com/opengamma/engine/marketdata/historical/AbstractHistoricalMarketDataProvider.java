@@ -21,14 +21,15 @@ import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.marketdata.AbstractMarketDataProvider;
+import com.opengamma.engine.marketdata.MarketDataUtils;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.MarketDataTargetResolver;
 import com.opengamma.engine.marketdata.PermissiveMarketDataPermissionProvider;
-import com.opengamma.engine.marketdata.availability.MarketDataAvailability;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
@@ -137,10 +138,10 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
 
   //-------------------------------------------------------------------------
   @Override
-  public MarketDataAvailability getAvailability(final ValueRequirement requirement) {
+  public ValueSpecification getAvailability(final ValueRequirement requirement) {
     final ExternalIdBundle idBundle = getExternalIdBundle(requirement);
     if (idBundle == null) {
-      return MarketDataAvailability.NOT_AVAILABLE;
+      return null;
     }
     final HistoricalTimeSeries hts =
         _historicalTimeSeriesSource.getHistoricalTimeSeries(requirement.getValueName(), idBundle, null,
@@ -149,9 +150,9 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
       if (s_logger.isDebugEnabled() && requirement.getValueName().equals(MarketDataRequirementNames.MARKET_VALUE)) {
         s_logger.debug("Missing market data {}", requirement);
       }
-      return MarketDataAvailability.NOT_AVAILABLE;
+      return null;
     } else {
-      return MarketDataAvailability.AVAILABLE;
+      return MarketDataUtils.createMarketDataValue(requirement);
     }
   }
 

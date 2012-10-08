@@ -33,6 +33,7 @@ import com.opengamma.engine.function.CompiledFunctionRepository;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroup;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
+import com.opengamma.engine.marketdata.MarketDataUtils;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -254,7 +255,7 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
         for (ValueRequirement requirement : requirements) {
           final ComputationTargetSpecification targetSpec = requirement.getTargetSpecification();
           if (targetSpec.getUniqueId() != null) {
-            if (marketDataAvailabilityProvider.getAvailability(requirement).isAvailable()) {
+            if (MarketDataUtils.isAvailable(marketDataAvailabilityProvider, requirement)) {
               s_logger.debug("Requirement {} can be satisfied by market data", requirement);
               inputs.put(Collections.singleton(new ValueSpecification(requirement, "marketdata")).iterator(), requirement);
             } else {
