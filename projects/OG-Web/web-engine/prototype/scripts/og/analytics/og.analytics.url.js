@@ -7,6 +7,7 @@ $.register_module({
     dependencies: ['og.common.routes', 'og.api.rest'],
     obj: function () {
         var url, last_fingerprint = {}, last_object = {}, routes = og.common.routes,
+            main_selector = '.OG-layout-analytics-center',
             panels = ['south', 'dock-north', 'dock-center', 'dock-south'];
         var go = function () {
             og.api.rest.compressor.put({content: last_object, dependencies: ['data']}).pipe(function (result) {
@@ -23,15 +24,21 @@ $.register_module({
                 og.api.rest.compressor.put({content: [params]})
                     .pipe(function (result) {win.location.href = url + result.data.data;});
             },
-            main: function (params) {(last_object.main = params), go(), url;},
+            main: function (params) {
+                if (og.analytics.grid) og.analytics.grid.dataman.kill();
+                $(main_selector).html('requesting...');
+                return (last_object.main = params), go(), url;
+            },
             process: function (args) {
                 og.api.rest.compressor.get({content: args.data, dependencies: ['data']})
                     .pipe(function (result) {
                         var config = result.data.data, current_main, panel, cellmenu;
                         panels.forEach(function (panel) {delete last_object[panel];});
                         if (config.main && last_fingerprint.main !== (current_main = JSON.stringify(config.main)))
+                            if (og.analytics.grid) og.analytics.grid.dataman.kill();
+                            $(main_selector).html('loading...');
                             og.analytics.grid = new og.analytics.Grid({
-                                selector: '.OG-layout-analytics-center', cellmenu: true,
+                                selector: main_selector, cellmenu: true,
                                 source: last_object.main = JSON.parse(last_fingerprint.main = current_main)
                             });
                         panels.forEach(function (panel) {
