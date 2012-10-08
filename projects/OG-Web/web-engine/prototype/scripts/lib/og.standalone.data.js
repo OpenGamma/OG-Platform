@@ -54,7 +54,7 @@
          */
         util.process_data = function (object) {
             if (!object.data) return;
-            var ismatrix, xlabels, ylabels, col_width, cols, obj_data;
+            var ismatrix, xlabels, ylabels, col_width, cols;
             ismatrix = (object.data['matrix'] && !$.isEmptyObject(object.data['matrix']));
             if (!ismatrix && !object.labels) object.labels = ['Label', 'Value'];
             xlabels = ismatrix ? object.data['xLabels'] : object.labels;
@@ -64,15 +64,14 @@
             if (ismatrix){
                 cols.push({id: 'ylabelscol', name: '', field: 'ylabelscol', width: col_width});
                 $selector.addClass('matrix');
-            }else{
+            } else {
                 $selector.removeClass('matrix');
             }
             xlabels.forEach(function (val) {
                 cols.push({id: val, name: val, field: val, width: col_width});
             });
-            obj_data = ismatrix ? object.data['matrix'] : object.data;
             return { 
-                data: obj_data.reverse().reduce(function (acc, val, i) {
+                data: (ismatrix ? object.data['matrix'] : object.data).reduce(function (acc, val, i) {
                     var obj = {};
                     if (ismatrix) obj.ylabelscol = ylabels[i];
                     val.forEach(function (val, i) {obj[xlabels[i]] = val;});
