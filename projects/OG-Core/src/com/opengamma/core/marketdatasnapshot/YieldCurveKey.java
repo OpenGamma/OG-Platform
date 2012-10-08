@@ -5,8 +5,6 @@
  */
 package com.opengamma.core.marketdatasnapshot;
 
-import java.io.Serializable;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
@@ -20,10 +18,10 @@ import com.opengamma.util.money.Currency;
  * <p>
  * This class is immutable and thread-safe.
  */
-public class YieldCurveKey implements StructuredMarketDataKey, Comparable<YieldCurveKey>, Serializable {
+public class YieldCurveKey extends StructuredMarketDataKey implements Comparable<YieldCurveKey> {
 
   /** Serialization version. */
-  private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 2L;
 
   /**
    * The currency.
@@ -112,7 +110,11 @@ public class YieldCurveKey implements StructuredMarketDataKey, Comparable<YieldC
     return ObjectUtils.hashCode(getCurrency()) ^ ObjectUtils.hashCode(getName());
   }
 
-  //-------------------------------------------------------------------------
+  @Override
+  public <T> T accept(final Visitor<T> visitor) {
+    return visitor.visitYieldCurveKey(this);
+  }
+
   public MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
     final MutableFudgeMsg msg = serializer.newMessage();
     msg.add("currency", _currency.getCode());

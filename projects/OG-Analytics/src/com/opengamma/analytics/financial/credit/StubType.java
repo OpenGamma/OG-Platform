@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.credit;
 
 /**
  * Enumeration of the different methods for creating the stub on the premium leg of a credit default swap
+ * Note that the code does not calculate if the first coupon is long or short. The first coupon is determined based on this switches setting
  */
 public enum StubType {
   /**

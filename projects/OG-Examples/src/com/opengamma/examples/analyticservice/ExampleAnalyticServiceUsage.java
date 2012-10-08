@@ -92,11 +92,7 @@ public class ExampleAnalyticServiceUsage extends AbstractTool<ToolContext> {
     jmsConnectorFactoryBean.setConnectionFactory(jmsConnectionFactory);
     jmsConnectorFactoryBean.setClientBrokerUri(URI.create(activeMQUrl));
     
-    JmsConnector jmsConnector = jmsConnectorFactoryBean.getObjectCreating();
-    
-    String providerId = generateTrade("ARG", destinationName, jmsConnector);
-    String topicStr = PREFIX + SEPARATOR + providerId + SEPARATOR + "Default" + SEPARATOR + ValueRequirementNames.FAIR_VALUE;
-    
+    JmsConnector jmsConnector = jmsConnectorFactoryBean.getObjectCreating(); 
     ByteArrayFudgeMessageReceiver fudgeReceiver = new ByteArrayFudgeMessageReceiver(new FudgeMessageReceiver() {
       
       @Override
@@ -108,40 +104,30 @@ public class ExampleAnalyticServiceUsage extends AbstractTool<ToolContext> {
     final JmsByteArrayMessageDispatcher jmsDispatcher = new JmsByteArrayMessageDispatcher(fudgeReceiver);
     
     Connection connection = jmsConnector.getConnectionFactory().createConnection();
-    try {
-      connection.start();
-      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      
-      Topic topic = session.createTopic(topicStr);
-
-      final MessageConsumer messageConsumer = session.createConsumer(topic);
-      messageConsumer.setMessageListener(jmsDispatcher);
-    } catch (JMSException e) {
-      throw new OpenGammaRuntimeException("Failed to create subscription to JMS topics ", e);
-    }  
+    connection.start();
     
-//    DefaultMessageListenerContainer container = new DefaultMessageListenerContainer();
-//    container.setMessageListener(
-//        new JmsByteArrayMessageDispatcher(
-//            new ByteArrayFudgeMessageReceiver(new FudgeMessageReceiver() {
-//              
-//              @Override
-//              public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
-//                
-//              }
-//            })));
-//    container.setDestinationName(topic);
-//    container.setPubSubDomain(true);
-//    container.setConnectionFactory(jmsConnector.getConnectionFactory());
-//    
-//    container.start();
-    
+    pushTrade("ARG", connection, destinationName, jmsConnector, jmsDispatcher);
+    Thread.sleep(WAIT_BTW_TRADES);
+    pushTrade("MMM", connection, destinationName, jmsConnector, jmsDispatcher);
     Thread.sleep(WAIT_BTW_TRADES * 10);
     connection.stop();
     jmsConnectionFactory.stop();
    
   }
   
+  private void pushTrade(String securityId, Connection connection, String destinationName, JmsConnector jmsConnector, JmsByteArrayMessageDispatcher jmsDispatcher) {
+    String providerId = generateTrade(securityId, destinationName, jmsConnector);
+    String topicStr = PREFIX + SEPARATOR + providerId + SEPARATOR + "Default" + SEPARATOR + ValueRequirementNames.FAIR_VALUE;
+    try {
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Topic topic = session.createTopic(topicStr);
+      final MessageConsumer messageConsumer = session.createConsumer(topic);
+      messageConsumer.setMessageListener(jmsDispatcher);
+    } catch (JMSException e) {
+      throw new OpenGammaRuntimeException("Failed to create subscription to JMS topics ", e);
+    }  
+  }
+
   private String generateTrade(String securityId, String destinationName, JmsConnector jmsConnector) {
     SimpleTrade trade = new SimpleTrade();
     trade.setCounterparty(COUNTERPARTY);

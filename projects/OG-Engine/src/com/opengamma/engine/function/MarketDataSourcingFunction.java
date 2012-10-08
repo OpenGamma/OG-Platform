@@ -31,18 +31,11 @@ public class MarketDataSourcingFunction extends AbstractFunction.NonCompiledInvo
 
   private final Pair<ValueRequirement, ValueSpecification> _value;
 
-  public MarketDataSourcingFunction(ValueRequirement requirement) {
-    ArgumentChecker.notNull(requirement, "Value Requirement");
+  public MarketDataSourcingFunction(ValueRequirement requirement, ValueSpecification result) {
+    ArgumentChecker.notNull(requirement, "requirement");
+    ArgumentChecker.notNull(result, "result");
     setUniqueId(UNIQUE_ID);
-    _value = Pair.of(requirement, new ValueSpecification(requirement, getUniqueId()));
-  }
-
-  protected MarketDataSourcingFunction(String uniqueId, ValueRequirement requirement, ValueSpecification specification) {
-    ArgumentChecker.notNull(requirement, "Value requirement");
-    ArgumentChecker.notNull(specification, "Value specification");
-    assert requirement.isSatisfiedBy(specification);
-    setUniqueId(uniqueId);
-    _value = Pair.of(requirement, specification);
+    _value = Pair.of(requirement, result);
   }
 
   //-------------------------------------------------------------------------

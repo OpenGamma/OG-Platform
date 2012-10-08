@@ -38,14 +38,21 @@
           <root url="jar://$USER_HOME$/.ivy2/cache/edu.emory.mathcs/jtransforms/jars/jtransforms-2.3.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-math/jars/commons-math-2.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/com.googlecode/json-simple/jars/json-simple-1.1.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.poi/poi/jars/poi-3.7.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-logging/jars/commons-logging-1.1.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-logging/jars/commons-logging-api-1.1.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-logging/jars/commons-logging-adapters-1.1.1.jar!/" />
         </CLASSES>
         <JAVADOC>
           <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-math/javadocs/commons-math-javadoc-2.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-logging/javadocs/commons-logging-javadoc-1.1.1.jar!/" />
         </JAVADOC>
         <SOURCES>
           <root url="jar://$USER_HOME$/.ivy2/cache/cern/colt/sources/colt-src-1.2.0.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/edu.emory.mathcs/jtransforms/sources/jtransforms-src-2.3.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-math/sources/commons-math-src-2.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.poi/poi/sources/poi-sources-3.7.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.commons/commons-logging/sources/commons-logging-src-1.1.1.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

@@ -16,7 +16,7 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.MemoryUtils;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.function.ParameterizedFunction;
-import com.opengamma.engine.marketdata.availability.MarketDataAvailability;
+import com.opengamma.engine.marketdata.availability.MarketDataNotSatisfiableException;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.async.BlockingOperation;
 import com.opengamma.util.tuple.Triple;
@@ -31,28 +31,41 @@ import com.opengamma.util.tuple.Triple;
 
   @Override
   protected boolean run(final GraphBuildingContext context) {
-    final MarketDataAvailability mda;
+    boolean missing = false;
+    ValueSpecification marketDataSpec = null;
     BlockingOperation.off();
     try {
-      mda = context.getMarketDataAvailabilityProvider().getAvailability(getValueRequirement());
+      marketDataSpec = context.getMarketDataAvailabilityProvider().getAvailability(getValueRequirement());
     } catch (BlockingOperation e) {
       return false;
+    } catch (MarketDataNotSatisfiableException e) {
+      missing = true;
     } finally {
       BlockingOperation.on();
     }
-    switch (mda) {
-      case AVAILABLE:
-        s_logger.info("Found live data for {}", getValueRequirement());
-        final MarketDataSourcingFunction function = new MarketDataSourcingFunction(getValueRequirement());
+    if (marketDataSpec != null) {
+      s_logger.info("Found live data for {}", getValueRequirement());
+      if (getValueRequirement().isSatisfiedBy(marketDataSpec)) {
+        final MarketDataSourcingFunction function = new MarketDataSourcingFunction(getValueRequirement(), marketDataSpec);
         final ResolvedValue result = createResult(function.getResult(), new ParameterizedFunction(function, function.getDefaultParameters()), Collections.<ValueSpecification>emptySet(), Collections
-            .singleton(MemoryUtils.instance(function.getResult())));
+              .singleton(MemoryUtils.instance(function.getResult())));
         context.declareProduction(result);
         if (!pushResult(context, result, true)) {
           throw new IllegalStateException(result + " rejected by pushResult");
         }
         // Leave in current state; will go to finished after being pumped
-        break;
-      case NOT_AVAILABLE:
+      } else {
+        // A well behaved market data provider shouldn't do this, treat as missing market data
+        s_logger.warn("Live data {} cannot satisfy {}", marketDataSpec, getValueRequirement());
+        storeFailure(context.marketDataMissing(getValueRequirement()));
+        setTaskStateFinished(context);
+        }
+    } else {
+      if (missing) {
+        s_logger.info("Missing market data for {}", getValueRequirement());
+        storeFailure(context.marketDataMissing(getValueRequirement()));
+        setTaskStateFinished(context);
+      } else {
         final ComputationTarget target = getComputationTarget(context);
         if (target != null) {
           final Iterator<Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>>> itr = context.getFunctionResolver().resolveFunction(getValueRequirement(), target);
@@ -69,14 +82,7 @@ import com.opengamma.util.tuple.Triple;
           storeFailure(context.couldNotResolve(getValueRequirement()));
           setTaskStateFinished(context);
         }
-        break;
-      case MISSING:
-        s_logger.info("Missing market data for {}", getValueRequirement());
-        storeFailure(context.marketDataMissing(getValueRequirement()));
-        setTaskStateFinished(context);
-        break;
-      default:
-        throw new IllegalStateException();
+      }
     }
     return true;
   }

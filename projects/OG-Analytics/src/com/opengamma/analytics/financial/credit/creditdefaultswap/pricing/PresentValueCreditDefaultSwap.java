@@ -68,7 +68,7 @@ public class PresentValueCreditDefaultSwap {
     double presentValueContingentLeg = calculateContingentLeg(cds, yieldCurve, survivalCurve);
 
     // Calculate the PV of the CDS (assumes we are buying protection i.e. paying the premium leg, receiving the contingent leg)
-    double presentValue = -(cds.getPremiumLegCoupon() / 10000.0) * presentValuePremiumLeg + presentValueContingentLeg;
+    double presentValue = -(cds.getPremiumLegCoupon() / 10000.0) * presentValuePremiumLeg; // + presentValueContingentLeg;
 
     // If we are selling protection, then reverse the direction of the premium and contingent leg cashflows
     if (cds.getBuySellProtection() == BuySellProtection.SELL) {

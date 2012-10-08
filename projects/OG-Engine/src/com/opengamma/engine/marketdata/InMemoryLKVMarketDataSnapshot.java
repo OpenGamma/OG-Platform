@@ -12,11 +12,12 @@ import java.util.concurrent.TimeUnit;
 
 import javax.time.Instant;
 
-import com.opengamma.id.UniqueId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.id.UniqueId;
 
 /**
  * An implementation of {@link MarketDataSnapshot} backed by an {@link InMemoryLKVMarketDataProvider}.
@@ -27,7 +28,7 @@ public class InMemoryLKVMarketDataSnapshot extends AbstractMarketDataSnapshot {
   
   private final InMemoryLKVMarketDataProvider _provider;
   private Instant _snapshotTime;
-  private Map<ValueRequirement, Object> _snapshot;
+  private Map<ValueRequirement, ComputedValue> _snapshot;
   
   public InMemoryLKVMarketDataSnapshot(InMemoryLKVMarketDataProvider provider) {
     _provider = provider;
@@ -35,7 +36,7 @@ public class InMemoryLKVMarketDataSnapshot extends AbstractMarketDataSnapshot {
 
   @Override
   public UniqueId getUniqueId() {
-    return UniqueId.of(MARKET_DATA_SNAPSHOT_ID_SCHEME, "InMemoryLKVMarketDataSnapshot:"+getSnapshotTime());
+    return UniqueId.of(MARKET_DATA_SNAPSHOT_ID_SCHEME, "InMemoryLKVMarketDataSnapshot:" + getSnapshotTime());
   }
   
   @Override
@@ -61,7 +62,7 @@ public class InMemoryLKVMarketDataSnapshot extends AbstractMarketDataSnapshot {
   }
 
   @Override
-  public Object query(ValueRequirement requirement) {
+  public ComputedValue query(ValueRequirement requirement) {
     return getSnapshot().get(requirement);
   }
 
@@ -71,7 +72,7 @@ public class InMemoryLKVMarketDataSnapshot extends AbstractMarketDataSnapshot {
   }
   
   //-------------------------------------------------------------------------
-  private Map<ValueRequirement, Object> getSnapshot() {
+  private Map<ValueRequirement, ComputedValue> getSnapshot() {
     if (_snapshot == null) {
       throw new IllegalStateException("Snapshot has not been initialised");
     }

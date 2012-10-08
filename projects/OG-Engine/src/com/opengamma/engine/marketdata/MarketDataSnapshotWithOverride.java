@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 import javax.time.Instant;
 
 import com.google.common.collect.Maps;
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.UniqueId;
 
@@ -35,7 +36,7 @@ public class MarketDataSnapshotWithOverride extends AbstractMarketDataSnapshot {
 
   @Override
   public UniqueId getUniqueId() {
-    return UniqueId.of(MARKET_DATA_SNAPSHOT_ID_SCHEME, "MarketDataSnapshotWithOverride:"+getSnapshotTime());
+    return UniqueId.of(MARKET_DATA_SNAPSHOT_ID_SCHEME, "MarketDataSnapshotWithOverride:" + getSnapshotTime());
   }
   
   @Override
@@ -61,14 +62,14 @@ public class MarketDataSnapshotWithOverride extends AbstractMarketDataSnapshot {
   }
 
   @Override
-  public Object query(ValueRequirement requirement) {
-    Object result = getOverride().query(requirement);
+  public ComputedValue query(ValueRequirement requirement) {
+    ComputedValue result = getOverride().query(requirement);
     if (result != null) {
-      if (result instanceof OverrideOperation) {
-        final OverrideOperation operation = (OverrideOperation) result;
+      if (result.getValue() instanceof OverrideOperation) {
+        final OverrideOperation operation = (OverrideOperation) result.getValue();
         result = getUnderlying().query(requirement);
         if (result != null) {
-          return operation.apply(requirement, result);
+          return new ComputedValue(result.getSpecification(), operation.apply(requirement, result.getValue()));
         } else {
           return null;
         }
@@ -81,16 +82,16 @@ public class MarketDataSnapshotWithOverride extends AbstractMarketDataSnapshot {
   }
   
   @Override
-  public Map<ValueRequirement, Object> query(final Set<ValueRequirement> requirements) {
+  public Map<ValueRequirement, ComputedValue> query(final Set<ValueRequirement> requirements) {
     final Set<ValueRequirement> unqueried = new HashSet<ValueRequirement>(requirements);
-    final Map<ValueRequirement, Object> result = Maps.newHashMapWithExpectedSize(requirements.size());
-    Map<ValueRequirement, Object> response = getOverride().query(unqueried);
+    final Map<ValueRequirement, ComputedValue> result = Maps.newHashMapWithExpectedSize(requirements.size());
+    Map<ValueRequirement, ComputedValue> response = getOverride().query(unqueried);
     final Map<ValueRequirement, OverrideOperation> overrideOperations;
     if (response != null) {
       overrideOperations = Maps.newHashMapWithExpectedSize(response.size());
-      for (Map.Entry<ValueRequirement, Object> overrideEntry : response.entrySet()) {
-        if (overrideEntry.getValue() instanceof OverrideOperation) {
-          overrideOperations.put(overrideEntry.getKey(), (OverrideOperation) overrideEntry.getValue());
+      for (Map.Entry<ValueRequirement, ComputedValue> overrideEntry : response.entrySet()) {
+        if (overrideEntry.getValue().getValue() instanceof OverrideOperation) {
+          overrideOperations.put(overrideEntry.getKey(), (OverrideOperation) overrideEntry.getValue().getValue());
         } else {
           result.put(overrideEntry.getKey(), overrideEntry.getValue());
           unqueried.remove(overrideEntry.getKey());
@@ -102,10 +103,10 @@ public class MarketDataSnapshotWithOverride extends AbstractMarketDataSnapshot {
     if (!unqueried.isEmpty()) {
       response = getUnderlying().query(unqueried);
       if (response != null) {
-        for (Map.Entry<ValueRequirement, Object> underlyingEntry : response.entrySet()) {
+        for (Map.Entry<ValueRequirement, ComputedValue> underlyingEntry : response.entrySet()) {
           final OverrideOperation overrideOperation = overrideOperations.get(underlyingEntry.getKey());
           if (overrideOperation != null) {
-            result.put(underlyingEntry.getKey(), overrideOperation.apply(underlyingEntry.getKey(), underlyingEntry.getValue()));
+            result.put(underlyingEntry.getKey(), new ComputedValue(underlyingEntry.getValue().getSpecification(), overrideOperation.apply(underlyingEntry.getKey(), underlyingEntry.getValue())));
           } else {
             result.put(underlyingEntry.getKey(), underlyingEntry.getValue());
           }

@@ -8,6 +8,7 @@ package com.opengamma.engine.marketdata.availability;
 import java.util.Collection;
 
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.async.BlockingOperation;
 
 /**
@@ -26,27 +27,32 @@ public class UnionMarketDataAvailabilityProvider implements MarketDataAvailabili
   }
 
   @Override
-  public MarketDataAvailability getAvailability(final ValueRequirement requirement) {
-    boolean missing = false;
+  public ValueSpecification getAvailability(final ValueRequirement requirement) {
+    MarketDataNotSatisfiableException missing = null;
     boolean failed = false;
-    for (MarketDataAvailabilityProvider underlying : _underlyings) {
-      try {
-        switch (underlying.getAvailability(requirement)) {
-          case AVAILABLE:
-            return MarketDataAvailability.AVAILABLE;
-          case MISSING:
-            missing = true;
-            break;
+    try {
+      for (MarketDataAvailabilityProvider underlying : _underlyings) {
+        try {
+          final ValueSpecification result = underlying.getAvailability(requirement);
+          if (result != null) {
+            return result;
+          }
+        } catch (BlockingOperation e) {
+          failed = true;
         }
-      } catch (BlockingOperation e) {
-        failed = true;
       }
+    } catch (MarketDataNotSatisfiableException e) {
+      missing = e;
     }
     if (failed) {
       // Blocking mode is off, nothing declared AVAILABLE, and at least one wanted to block
       throw BlockingOperation.block();
     } else {
-      return missing ? MarketDataAvailability.MISSING : MarketDataAvailability.NOT_AVAILABLE;
+      if (missing != null) {
+        throw missing;
+      } else {
+        return null;
+      }
     }
   }
 

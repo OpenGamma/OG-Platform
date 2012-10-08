@@ -36,6 +36,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // TODO : Should convertDatesToDoubles be put somewhere else? To use it, need to create a GenerateCreditDefaultSwapPremiumLegSchedule object which is a bit wasteful
   // TODO : Do we need all the ArgumentCheckers on things that have already been checked?
   // TODO : Look at DateAdjuster class for IMM date handling
+  // TODO : FrontLong stubs - e.g. startDate = 20/12/2007, effDate = 21/12/2007; first coupon at 20/6/2008. ISDA model first coupon at 20/3/2008 (seems to use start date not eff date)
 
   // -------------------------------------------------------------------------------------------
 
@@ -104,7 +105,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     // If specified by the user adjust the maturity date to fall on the next IMM date
     if (cds.getIMMAdjustMaturityDate()) {
-      adjustedMaturityDate = immAdjustMaturityDate(cds.getMaturityDate());
+      adjustedMaturityDate = immAdjustDate(cds.getMaturityDate());
     }
 
     return adjustedMaturityDate;
@@ -209,7 +210,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     // Get the coupon frequency
     PeriodFrequency couponFrequency = cds.getCouponFrequency();
 
-    // Compute the number of cashflows in the premium leg schedule (based on the adjusted effective and maturity dates and the coupon frequency)
+    // Compute the number of cashflows in the premium leg schedule (based on the adjusted effective and maturity dates and the coupon frequency and stub type)
     int numberOfCashflows = calculateNumberOfPremiumLegCashflows(adjustedEffectiveDate, adjustedMaturityDate, couponFrequency, stubType);
 
     // Build the cashflow schedule (include the node at the effective date even though there is no cashflow on this date)
@@ -223,7 +224,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
       // Start at the adjusted maturity of the contract
       ZonedDateTime cashflowDate = adjustedMaturityDate;
 
-      // Note the order of the loop
+      // Note the order of the loop and the termination condition (i > 0 not i = 0)
       for (int i = numberOfCashflows; i > 0; i--) {
 
         // Store the date (note this is at the top of the loop)
@@ -286,7 +287,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // -------------------------------------------------------------------------------------------
 
   // Method to adjust the specified maturity date to the next IMM date
-  private ZonedDateTime immAdjustMaturityDate(ZonedDateTime maturityDate) {
+  private ZonedDateTime immAdjustDate(ZonedDateTime maturityDate) {
 
     // Check that the input date is not null
     ArgumentChecker.notNull(maturityDate, "Maturity date field");
@@ -446,10 +447,15 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
         // Increment the counter
         numberOfCashflows++;
       }
+
+      if (stubType == StubType.FRONTLONG) {
+        numberOfCashflows--;
+      }
     }
 
     // -------------------------------------------------------------------------------
 
+    /*
     // The stub is at the end of the premium leg schedule
     if (stubType == StubType.BACKSHORT || stubType == StubType.BACKLONG) {
 
@@ -466,6 +472,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
         numberOfCashflows++;
       }
     }
+    */
 
     // -------------------------------------------------------------------------------
 
