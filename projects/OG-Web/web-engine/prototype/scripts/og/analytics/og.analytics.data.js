@@ -18,7 +18,7 @@ $.register_module({
                 fixed_set = {portfolio: 'Portfolio', primitives: 'Primitives'};
             var data_handler = function (result) {
                 if (!result || result.error)
-                    return og.dev.warn(result && result.message || module.name + ': reset connection');
+                    return og.dev.warn(module.name + ': ' + (result && result.message || 'reset connection'));
                 if (!data.events.data.length || !result.data) return; // if a tree falls or there's no tree, etc.
                 if (result.data.version === viewport_version) try {fire(data.events.data, result.data.data);}
                     catch (error) {return og.dev.warn(module.name + ': killed connection due to ', error), data.kill();}
@@ -46,17 +46,12 @@ $.register_module({
             var grid_handler = function (result) {
                 if (depgraph && !graph_id) return;
                 if (!result || result.error) return (view_id = graph_id = viewport_id = subscribed = null),
-                    og.dev.warn(result && result.message || module.name + ': reset connection'), initialize();
+                    og.dev.warn(module.name + ': ' + (result && result.message || 'reset connection')), initialize();
                 if (!result.data[SETS].length) return;
                 meta.data_rows = result.data[ROOT] ? result.data[ROOT][1] + 1 : result.data[ROWS];
                 meta.structure = result.data[ROOT] || [];
-                meta.columns.fixed = [{
-                    name: fixed_set[grid_type], columns: result.data[SETS][0].columns
-                        .map(function (col, i) {return (col.width = i ? 150 : 250), col;})
-                }];
-                meta.columns.scroll = result.data[SETS].slice(1).map(function (set) {
-                    return set.columns.forEach(function (col) {return (col.width = 175), col;}), set;
-                });
+                meta.columns.fixed = [{name: fixed_set[grid_type], columns: result.data[SETS][0].columns}];
+                meta.columns.scroll = result.data[SETS].slice(1);
                 try {fire(data.events.meta, meta);}
                 catch (error) {return og.dev.warn(module.name + ': killed connection due to ', error), data.kill();}
                 if (!subscribed) return data_setup();
@@ -98,6 +93,8 @@ $.register_module({
             data.cols = cols = {};
             data.viewport = function (new_viewport) {
                 var viewports = (depgraph ? api[grid_type].depgraphs : api[grid_type]).viewports;
+                if (!new_viewport.rows.length || !new_viewport.cols.length)
+                    return og.dev.warn(module.name + ': nonsensical viewport, ', new_viewport), data;
                 viewport = new_viewport;
                 if (!viewport_id) return data;
                 data.busy(true);

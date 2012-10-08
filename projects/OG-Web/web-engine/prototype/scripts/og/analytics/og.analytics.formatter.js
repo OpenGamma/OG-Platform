@@ -42,7 +42,7 @@ $.register_module({
                             series: {shadowSize: 0, lines: {lineWidth: 1}},
                             xaxis: {show: false}, yaxis: {show: false}
                         });
-                    } catch (error) {return;}
+                    } catch (error) {og.dev.warn(module.name + ': ', error);}
                 });
             });
         };
