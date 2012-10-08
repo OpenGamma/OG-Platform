@@ -11,8 +11,7 @@ $.register_module({
             var gadget = this, $curve, alive = prefix + counter++;
             gadget.dataman = new og.analytics.Cell({source: config.source, row: config.row, col: config.col})
                 .on('data', function (data) {
-                    if (!$.isArray(data))
-                        return $curve.html('loading...'), og.dev.warn(module.name + ': data should be an Array');
+                    if (!$.isArray(data)) return og.dev.warn(module.name + ': data should be an Array', data);
                     gadget.data = [{curve: data}];
                     $curve.update ? $curve.update(gadget.data) : gadget.resize();
                 });
@@ -27,7 +26,7 @@ $.register_module({
                     .css({position: 'absolute', top: 0, left: 0, right: 0, bottom: 0})
                     .ogcurve(gadget.data);
             };
-            $curve = $(config.selector).addClass(alive);
+            $curve = $(config.selector).addClass(alive).html('loading...');
             if (!config.child) og.common.gadgets.manager.register(gadget);
         };
     }
