@@ -6,7 +6,8 @@ $.register_module({
     name: 'og.analytics.Grid',
     dependencies: ['og.api.text', 'og.common.events', 'og.analytics.Data', 'og.analytics.CellMenu'],
     obj: function () {
-        var module = this, counter = 1, row_height = 21, title_height = 31, set_height = 24, templates = null,
+        var module = this, counter = 1, row_height = 21, title_height = 31, set_height = 24, 
+            templates = null, default_col_width = 175,
             fire = og.common.events.fire, scrollbar_size = (function () {
                 var html = '<div style="width: 100px; height: 100px; position: absolute; \
                     visibility: hidden; overflow: auto; left: -10000px; z-index: -10000; bottom: 100px" />';
@@ -62,7 +63,7 @@ $.register_module({
         var constructor = function (config) {
             var grid = this;
             grid.config = config || {};
-            grid.elements = {empty: true};
+            grid.elements = {empty: true, parent: $(config.selector)};
             grid.events = {
                 cellhoverin: [], cellhoverout: [], cellselect: [],
                 mousedown: [], rangeselect: [], render: [], scroll: [], select: []
@@ -107,10 +108,20 @@ $.register_module({
                 row_name: grid.data[data_index - col_index], col_name: meta.columns.headers[col]
             };
         };
+        constructor.prototype.col_widths = function () {
+            var grid = this, meta = grid.meta, avg_col_width, fixed_width, parent_width = grid.elements.parent.width();
+            meta.fixed_length = meta.columns.fixed[0].columns.length;
+            meta.scroll_length = meta.columns.scroll.reduce(function (acc, set) {return acc + set.columns.length;}, 0);
+            fixed_width = meta.columns.fixed[0].columns
+                .reduce(function (acc, col, idx) {return acc + (col.width = idx ? 150 : 250);}, 0);
+            avg_col_width = Math.floor((parent_width - fixed_width - scrollbar_size) / meta.scroll_length);
+            meta.columns.scroll.forEach(function (set) {
+                set.columns.forEach(function (col) {col.width = Math.max(default_col_width, avg_col_width);});
+            });
+        };
         constructor.prototype.init_data = function () {
             var grid = this, config = grid.config;
-            grid.dataman = new og.analytics.Data(grid.source)
-                .on('meta', grid.init_grid, grid)
+            grid.dataman = new og.analytics.Data(grid.source).on('meta', grid.init_grid, grid)
                 .on('data', grid.render_rows, grid);
             grid.on('render', function () {
                 grid.elements.main.find('.node').each(function (idx, val) {
@@ -129,7 +140,7 @@ $.register_module({
             var grid = this, config = grid.config, elements, cellmenu,
                 last_x, last_y, page_x, page_y, last_corner, cell // cached values for mousemove and mouseleave events;
             (elements = grid.elements).style = $('<style type="text/css" />').appendTo('head');
-            elements.parent = $(config.selector).html(templates.container({id: grid.id.substring(1)}))
+            elements.parent.html(templates.container({id: grid.id.substring(1)}))
                 .on('mousedown', function (event) {event.preventDefault(), fire(grid.events.mousedown, event);})
                 .on('mousemove', '.OG-g-sel, .OG-g-cell', (function () {
                     var resolution = 8, counter = 0; // only accept 1/resolution of the mouse moves, we have too many
@@ -206,10 +217,7 @@ $.register_module({
             grid.meta = metadata;
             grid.meta.row_height = row_height;
             grid.meta.header_height =  (config.source.depgraph ? 0 : set_height) + title_height;
-            grid.meta.fixed_length = grid.meta.columns.fixed
-                .reduce(function (acc, set) {return acc + set.columns.length;}, 0);
-            grid.meta.scroll_length = grid.meta.columns.fixed
-                .reduce(function (acc, set) {return acc + set.columns.length;}, 0);
+            grid.col_widths();
             grid.meta.columns.headers = [];
             grid.meta.columns.types = [];
             columns.fixed[0].columns.forEach(function (col) {
@@ -224,7 +232,7 @@ $.register_module({
             });
             grid.unravel_structure();
             if (grid.elements.empty) grid.init_elements();
-            grid.resize(grid.render_header);
+            grid.resize();
         };
         constructor.prototype.nearest_cell = function (x, y) {
             var grid = this, top, bottom, lcv, scan = grid.meta.columns.scan.all, len = scan.length;
@@ -289,9 +297,10 @@ $.register_module({
             };
         })();
         constructor.prototype.resize = function (handler) {
-            var grid = this, config = grid.config, meta = grid.meta, columns = meta.columns, id = grid.id, css,
-                width = config.width || grid.elements.parent.width(), data_width,
-                height = config.height || grid.elements.parent.height(), header_height = grid.meta.header_height;
+            var grid = this, config = grid.config, meta = grid.meta, columns = meta.columns, id = grid.id, css, sheet,
+                width = grid.elements.parent.width(), data_width,
+                height = grid.elements.parent.height(), header_height = grid.meta.header_height;
+            grid.col_widths();
             meta.columns.width = {
                 fixed: meta.columns.fixed.reduce(function (acc, set) {
                     return acc + set.columns.reduce(function (acc, col) {return acc + col.width;}, 0);
@@ -329,10 +338,10 @@ $.register_module({
                 columns: col_css(id, columns.fixed).concat(col_css(id, columns.scroll, meta.fixed_length)),
                 sets: set_css(id, columns.fixed).concat(set_css(id, columns.scroll, columns.fixed.length))
             });
-            if (grid.elements.style[0].styleSheet) grid.elements.style[0].styleSheet.cssText = css; // IE
-            else grid.elements.style[0].appendChild(document.createTextNode(css));
+            if ((sheet = grid.elements.style[0]).styleSheet) sheet.styleSheet.cssText = css; // IE
+            else sheet.appendChild(document.createTextNode(css));
             grid.offset = grid.elements.parent.offset();
-            return grid.viewport(handler);
+            return grid.viewport(grid.render_header);
         };
         constructor.prototype.transpose_selection = function (raw) {
             var grid = this, meta = grid.meta;
