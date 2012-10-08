@@ -7,7 +7,7 @@
     border-bottom: 1px solid #dadcdd;
     border-top: 1px solid #dadcdd;
     border-right: 1px solid #dadcdd;
-    height: 18px;
+    height: 20px;
     position: absolute;
     width: 31px;
     padding-right: 2px;
@@ -71,14 +71,15 @@
 .OG-cell-options .og-group {
     padding-left: 4px;
     position: relative;
-    top: 2px;
+    top: 3px;
 }
 
 .OG-cell-options .og-icon-new-window-2 {
     background-color: #c9cacb;
-    padding: 4px 4px 4px 3px;
-    top: -2px;
+    padding: 5px 4px 4px 3px;
+    top: -3px;
     right: -2px;
+    height: 11px;
 }
 
 .OG-cell-options .og-num {
