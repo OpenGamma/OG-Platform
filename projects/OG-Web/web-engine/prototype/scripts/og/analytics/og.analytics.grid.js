@@ -93,7 +93,7 @@ $.register_module({
         };
         constructor.prototype.alive = function () {
             var grid = this, live = $(grid.id).length;
-            if (live) return true;
+            if (grid.elements.empty || live) return true; // if elements collection is empty, grid is still loading
             try {grid.dataman.kill();} catch (error) {return false;}
             try {grid.elements.style.remove();} catch (error) {return false;}
         };
