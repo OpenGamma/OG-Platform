@@ -63,6 +63,9 @@ $.register_module({
                 og.api.rest.viewdefinitions.get({}),
                 og.api.rest.aggregators.get()
             ).then(function (template, search, aggregators) {
+                search.data.sort((function(i){ // sort by name
+                    return function (a, b) {return (a[i] === b[i] ? 0 : (a[i] < b[i] ? -1 : 1));};
+                })('name'));
                 var response = { // dummy response
                     view: search.data,
                     aggregation: {
@@ -157,7 +160,6 @@ $.register_module({
                     selector + ' .og-datasources', 'og.analytics.form_datasources_tash', response.datasources
                 );
                 var status = new Status(selector + ' .og-status');
-                
                 og.views.common.layout.main.allowOverflow('north');
             });
         }
