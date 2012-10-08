@@ -29,6 +29,9 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.Presen
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
+import com.opengamma.analytics.math.random.NormalRandomNumberGenerator;
+import com.opengamma.analytics.math.statistics.descriptive.PercentileCalculator;
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -213,7 +216,7 @@ public class PresentValueCreditDefaultSwapTest {
 
   // Simple test to compute the PV of a CDS assuming a flat term structure of market observed CDS par spreads
 
-  @Test
+  //@Test
   public void testPresentValueCreditDefaultSwapFlatSurvivalCurve() {
 
     // -----------------------------------------------------------------------------------------------
@@ -244,7 +247,7 @@ public class PresentValueCreditDefaultSwapTest {
 
   // Simple test to calibrate a single name CDS to a term structure of market observed par CDS spreads and compute the PV
 
-  @Test
+  //@Test
   public void testPresentValueCreditSwapCalibratedSurvivalCurve() {
 
     // -----------------------------------------------------------------------------------------------
@@ -343,7 +346,7 @@ public class PresentValueCreditDefaultSwapTest {
 
   // Test to vary the valuationDate of a CDS from adjustedEffectiveDate to adjustedMaturityDate and compute PV
 
-  @Test
+  //@Test
   public void testPresentValueCreditDefaultSwapTimeDecay() {
 
     // -----------------------------------------------------------------------------------------------
@@ -395,7 +398,143 @@ public class PresentValueCreditDefaultSwapTest {
     // -----------------------------------------------------------------------------------------------
   }
 
-  //-----------------------------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------------------------
+
+  @Test
+  public void testPFECalculation() {
+
+    // -----------------------------------------------------------------------------------------------
+
+    int counter = 0;
+    int numberOfSimulations = 1;
+
+    double[] presentValue = new double[1];
+
+    double mu = 0.90;
+    double sigma = 1.0;
+
+    // -----------------------------------------------------------------------------------------------
+
+    // Create an N(0, 1) random number generator
+    NormalRandomNumberGenerator normRand = new NormalRandomNumberGenerator(0.0, 1.0);
+
+    PercentileCalculator quantile = new PercentileCalculator(0.5);
+
+    // -----------------------------------------------------------------------------------------------
+
+    // The simulation start date
+    ZonedDateTime simulationStartDate = DateUtils.getUTCDate(2007, 10, 23);
+
+    // The simulation end date
+    ZonedDateTime simulationEndDate = DateUtils.getUTCDate(2008, 10, 23);
+
+    // Initialise the current timenode to be the start of the simulation
+    ZonedDateTime currentTimenode = simulationStartDate;
+
+    // -----------------------------------------------------------------------------------------------
+
+    // Call the constructor to create a CDS whose PV we will compute
+    final PresentValueCreditDefaultSwap creditDefaultSwap = new PresentValueCreditDefaultSwap();
+
+    // Create a CDS object whose valuation date we will vary
+    CreditDefaultSwapDefinition rollingCDS = cds;
+
+    // -----------------------------------------------------------------------------------------------
+
+    // Determine how many timenodes there are
+    while (currentTimenode.isBefore(simulationEndDate.minusDays(5))) {
+      currentTimenode = currentTimenode.plusDays(1);
+      counter++;
+    }
+
+    int numberOfTimenodes = counter;
+
+    // -----------------------------------------------------------------------------------------------
+
+    // Create an array to store the simulated PV's in
+    double[][] results = new double[numberOfTimenodes + 1][numberOfSimulations];
+
+    // Create a vector to hold the PFE
+    double[] potentialFutureExposure = new double[numberOfTimenodes + 1];
+
+    // Create a vector to hold the random numbers for each simulation
+    double[] epsilon = new double[numberOfTimenodes + 1];
+
+    // -----------------------------------------------------------------------------------------------
+
+    // Main Monte Carlo loop
+    for (int alpha = 0; alpha < numberOfSimulations; alpha++) {
+
+      if (alpha % 100 == 0) {
+        //System.out.println("Simulation = " + alpha);
+      }
+
+      // -----------------------------------------------------------------------------------------------
+
+      // Reset the current timenode to the start of the simulation
+      currentTimenode = simulationStartDate;
+
+      // -----------------------------------------------------------------------------------------------
+
+      // Call the CDS PV calculator (with a flat survival curve) to get the current PV at time zero
+      presentValue[0] = creditDefaultSwap.getPresentValueCreditDefaultSwap(cds, yieldCurve, flatSurvivalCurve);
+
+      // Get a vector of N(0, 1) normal random variables
+      epsilon = normRand.getVector(numberOfTimenodes + 1);
+
+      // Reset the counter
+      counter = 0;
+
+      // Loop over all the timenodes
+      while (currentTimenode.isBefore(simulationEndDate.minusDays(5))) {
+
+        // Store the simulated PV
+        results[counter][alpha] = presentValue[0];
+
+        // Roll the timenode to the next one
+        currentTimenode = currentTimenode.plusDays(1);
+
+        // Calculate the time from simulationStartDate to the current timenode
+        double t = TimeCalculator.getTimeBetween(simulationStartDate, currentTimenode);
+
+        // Calculate the simulated hazard rate (assume it is a simple GBM)
+        double h = hazardRate * Math.exp((mu - 0.5 * sigma * sigma) * t + sigma * Math.sqrt(t) * epsilon[counter]);
+
+        //System.out.println(currentTimenode + "\t" + t + "\t" + h);
+
+        // Build a vector with this simulated value in
+        double[] simulatedHazardRates = new double[] {h };
+
+        // Construct a survival curve from this simulated rate
+        SurvivalCurve simulatedSurvivalCurve = new SurvivalCurve(tenorsAsDoubles, simulatedHazardRates);
+
+        // Roll the valuation date of the CDS to the current timenode
+        rollingCDS = rollingCDS.withValuationDate(currentTimenode);
+
+        // Re-val the CDS given the simulated hazard rate at the new timenode
+        presentValue[0] = creditDefaultSwap.getPresentValueCreditDefaultSwap(rollingCDS, yieldCurve, simulatedSurvivalCurve);
+
+        counter++;
+      }
+    }
+
+    for (int i = 0; i < numberOfTimenodes; i++) {
+
+      double[] x = new double[numberOfTimenodes + 1];
+
+      for (int alpha = 0; alpha < numberOfSimulations; alpha++) {
+        x[alpha] = results[i][alpha];
+      }
+
+      potentialFutureExposure[i] = quantile.evaluate(x);
+
+      //System.out.println(i + "\t" + potentialFutureExposure[i]);
+    }
+
+    // -----------------------------------------------------------------------------------------------
+  }
+
+  // -----------------------------------------------------------------------------------------------
 
   // Bespoke calendar class (have made this public - may want to change this)
   public static class MyCalendar implements Calendar {

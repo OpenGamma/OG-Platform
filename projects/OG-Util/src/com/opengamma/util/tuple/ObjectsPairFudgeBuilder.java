@@ -12,6 +12,7 @@ import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
+import org.fudgemsg.wire.types.FudgeWireType;
 
 
 /**
@@ -29,10 +30,18 @@ public final class ObjectsPairFudgeBuilder implements FudgeBuilder<ObjectsPair<?
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ObjectsPair<?, ?> object) {
     final MutableFudgeMsg msg = serializer.newMessage();
     if (object.getFirst() != null) {
-      serializer.addToMessageObject(msg, FIRST_FIELD_NAME, null, object.getFirst(), Object.class);
+      if (object.getFirst() instanceof String) {
+        msg.add(FIRST_FIELD_NAME, null, FudgeWireType.STRING, object.getFirst());
+      } else {
+        serializer.addToMessageObject(msg, FIRST_FIELD_NAME, null, object.getFirst(), Object.class);
+      }
     }
     if (object.getSecond() != null) {
-      serializer.addToMessageObject(msg, SECOND_FIELD_NAME, null, object.getSecond(), Object.class);
+      if (object.getSecond() instanceof String) {
+        msg.add(SECOND_FIELD_NAME, null, FudgeWireType.STRING, object.getSecond());
+      } else {
+        serializer.addToMessageObject(msg, SECOND_FIELD_NAME, null, object.getSecond(), Object.class);
+      }
     }
     return msg;
   }

@@ -65,7 +65,7 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveInterpolatingFunction
   }
 
   @Override
-  public Object formatForExpandedDisplay(YieldCurve value, ValueSpecification valueSpec) {
+  public List<Double[]> formatForExpandedDisplay(YieldCurve value, ValueSpecification valueSpec) {
     NodalDoublesCurve detailedCurve = YieldCurveInterpolatingFunction.interpolateCurve(value.getCurve());
     List<Double[]> detailedData = new ArrayList<Double[]>();
     Double[] xs = detailedCurve.getXData();

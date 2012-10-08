@@ -16,6 +16,7 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
@@ -122,7 +123,7 @@ import com.opengamma.util.ArgumentChecker;
    * @return The value from one of the underlying snapshots or null if it isn't available in any of them
    */
   @Override
-  public Object query(ValueRequirement requirement) {
+  public ComputedValue query(ValueRequirement requirement) {
     ArgumentChecker.notNull(requirement, "requirement");
     List<Set<ValueRequirement>> subscriptions = _subscriptionSupplier.get();
     for (int i = 0; i < _snapshots.size(); i++) {
@@ -142,16 +143,16 @@ import com.opengamma.util.ArgumentChecker;
    * missing from the results map
    */
   @Override
-  public Map<ValueRequirement, Object> query(Set<ValueRequirement> requirements) {
+  public Map<ValueRequirement, ComputedValue> query(Set<ValueRequirement> requirements) {
     ArgumentChecker.notNull(requirements, "requirements");
-    Map<ValueRequirement, Object> results = Maps.newHashMapWithExpectedSize(requirements.size());
+    Map<ValueRequirement, ComputedValue> results = Maps.newHashMapWithExpectedSize(requirements.size());
     List<Set<ValueRequirement>> subscriptions = _subscriptionSupplier.get();
     for (int i = 0; i < _snapshots.size(); i++) {
       MarketDataSnapshot snapshot = _snapshots.get(i);
       Set<ValueRequirement> snapshotSubscriptions = subscriptions.get(i);
       Set<ValueRequirement> snapshotRequirements = Sets.intersection(snapshotSubscriptions, requirements);
       if (!snapshotRequirements.isEmpty()) {
-        Map<ValueRequirement, Object> snapshotValues = snapshot.query(snapshotRequirements);
+        Map<ValueRequirement, ComputedValue> snapshotValues = snapshot.query(snapshotRequirements);
         results.putAll(snapshotValues);
       }
     }

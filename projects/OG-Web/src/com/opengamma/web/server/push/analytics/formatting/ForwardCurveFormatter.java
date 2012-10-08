@@ -11,7 +11,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Lists;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.engine.value.ValueSpecification;
@@ -48,9 +50,35 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   @Override
-  public Object formatForExpandedDisplay(ForwardCurve value, ValueSpecification valueSpec) {
-    // TODO implement formatForExpandedDisplay()
-    throw new UnsupportedOperationException("formatForExpandedDisplay not implemented");
+  public List<Double[]> formatForExpandedDisplay(ForwardCurve value, ValueSpecification valueSpec) {
+    Curve<Double, Double> forwardCurve = value.getForwardCurve();
+    if (forwardCurve instanceof FunctionalDoublesCurve) {
+      return formatFunctionalDoubleCurve((FunctionalDoublesCurve) forwardCurve);
+    } else if (forwardCurve instanceof InterpolatedDoublesCurve) {
+      return formatInterpolatedDoubleCurve((InterpolatedDoublesCurve) forwardCurve);
+    }
+    throw new IllegalArgumentException("Unable to format forward curve of type " + forwardCurve.getClass().getName());
+  }
+
+  private List<Double[]> formatInterpolatedDoubleCurve(InterpolatedDoublesCurve detailedCurve) {
+    List<Double[]> detailedData = Lists.newArrayList();
+    Double[] xs = detailedCurve.getXData();
+    double eps = (xs[xs.length - 1] - xs[0]) / 100;
+    double x = 0;
+    for (int i = 0; i < 100; i++) {
+      detailedData.add(new Double[]{x, detailedCurve.getYValue(x)});
+      x += eps;
+    }
+    return detailedData;
+  }
+
+  private List<Double[]> formatFunctionalDoubleCurve(FunctionalDoublesCurve detailedCurve) {
+    List<Double[]> detailedData = Lists.newArrayList();
+    for (int i = 0; i < 100; i++) {
+      double x = 3 * i / 10.;
+      detailedData.add(new Double[]{x, detailedCurve.getYValue(x)});
+    }
+    return detailedData;
   }
 
   @Override

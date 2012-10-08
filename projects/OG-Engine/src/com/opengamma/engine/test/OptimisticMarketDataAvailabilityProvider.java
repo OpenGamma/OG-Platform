@@ -5,9 +5,10 @@
  */
 package com.opengamma.engine.test;
 
-import com.opengamma.engine.marketdata.availability.MarketDataAvailability;
+import com.opengamma.engine.marketdata.MarketDataUtils;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 
 /**
  * Market data availability provider that assumes market values will be available.
@@ -15,8 +16,8 @@ import com.opengamma.engine.value.ValueRequirement;
 public class OptimisticMarketDataAvailabilityProvider implements MarketDataAvailabilityProvider {
 
   @Override
-  public MarketDataAvailability getAvailability(final ValueRequirement requirement) {
-    return requirement.getValueName().startsWith("Market_") ? MarketDataAvailability.AVAILABLE : MarketDataAvailability.NOT_AVAILABLE;
+  public ValueSpecification getAvailability(final ValueRequirement requirement) {
+    return requirement.getValueName().startsWith("Market_") ? MarketDataUtils.createMarketDataValue(requirement) : null;
   }
 
 }

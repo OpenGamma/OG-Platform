@@ -5,10 +5,10 @@
  */
 package com.opengamma.engine.marketdata.snapshot;
 
-import static org.testng.AssertJUnit.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNull;
 
 import java.util.Map;
 
@@ -25,6 +25,7 @@ import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
 import com.opengamma.core.value.MarketDataRequirementNames;
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -65,14 +66,14 @@ public class UserMarketDataSnapshotTest {
     
     ValueProperties yieldCurveConstraints = ValueProperties.with(ValuePropertyNames.CURVE, "testCurve").get();
     ValueRequirement yieldCurveRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, Currency.USD, yieldCurveConstraints);
-    SnapshotDataBundle yieldCurveBundle = (SnapshotDataBundle) userSnapshot.query(yieldCurveRequirement);
+    SnapshotDataBundle yieldCurveBundle = (SnapshotDataBundle) userSnapshot.query(yieldCurveRequirement).getValue();
     assertEquals(123d, yieldCurveBundle.getDataPoints().get(testValueId));
     
     ValueProperties unsatisfiableYieldCurveConstraints = ValueProperties
         .with(ValuePropertyNames.CURVE, "testCurve")
         .with("SomethingElse", "Value").get();
     ValueRequirement unsatisfiableYieldCurveRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, Currency.USD, unsatisfiableYieldCurveConstraints);
-    SnapshotDataBundle unsatisfiableYieldCurveBundle = (SnapshotDataBundle) userSnapshot.query(unsatisfiableYieldCurveRequirement);
+    ComputedValue unsatisfiableYieldCurveBundle = userSnapshot.query(unsatisfiableYieldCurveRequirement);
     assertNull(unsatisfiableYieldCurveBundle);
   }
 

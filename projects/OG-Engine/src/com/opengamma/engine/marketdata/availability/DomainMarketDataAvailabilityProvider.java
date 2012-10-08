@@ -15,7 +15,9 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.marketdata.MarketDataUtils;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.ArgumentChecker;
@@ -56,33 +58,33 @@ public class DomainMarketDataAvailabilityProvider implements MarketDataAvailabil
   }
 
   @Override
-  public MarketDataAvailability getAvailability(final ValueRequirement requirement) {
+  public ValueSpecification getAvailability(final ValueRequirement requirement) {
     if (!_validMarketDataRequirementNames.contains(requirement.getValueName())) {
-      return MarketDataAvailability.NOT_AVAILABLE;
+      return null;
     }
     switch (requirement.getTargetSpecification().getType()) {
       case PRIMITIVE: {
         if (requirement.getTargetSpecification().getIdentifier() == null) {
-          return MarketDataAvailability.NOT_AVAILABLE;
+          return null;
         }
         final ExternalScheme scheme = requirement.getTargetSpecification().getIdentifier().getScheme();
-        return _acceptableSchemes.contains(scheme) ? MarketDataAvailability.AVAILABLE : MarketDataAvailability.NOT_AVAILABLE;
+        return _acceptableSchemes.contains(scheme) ? MarketDataUtils.createMarketDataValue(requirement) : null;
       }
       case SECURITY: {
         try {
           final Security security = _securitySource.getSecurity(requirement.getTargetSpecification().getUniqueId());
           for (final ExternalId identifier : security.getExternalIdBundle()) {
             if (_acceptableSchemes.contains(identifier.getScheme())) {
-              return MarketDataAvailability.AVAILABLE;
+              return MarketDataUtils.createMarketDataValue(requirement);
             }
           }
-          return MarketDataAvailability.NOT_AVAILABLE;
+          return null;
         } catch (final DataNotFoundException ex) {
-          return MarketDataAvailability.NOT_AVAILABLE;
+          return null;
         }
       }
       default:
-        return MarketDataAvailability.NOT_AVAILABLE;
+        return null;
     }
   }
 

@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import javax.time.Instant;
 
 import com.google.common.collect.Maps;
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.UniqueId;
 
@@ -64,7 +65,7 @@ public class CombinedMarketDataSnapshot extends AbstractMarketDataSnapshot {
   }
 
   @Override
-  public Object query(ValueRequirement requirement) {
+  public ComputedValue query(ValueRequirement requirement) {
     MarketDataProvider provider = _combinedMarketDataProvider.getProvider(requirement);
     if (provider == null) {
       return null;
@@ -73,11 +74,11 @@ public class CombinedMarketDataSnapshot extends AbstractMarketDataSnapshot {
   }
 
   @Override
-  public Map<ValueRequirement, Object> query(final Set<ValueRequirement> requirements) {
-    final Map<ValueRequirement, Object> result = Maps.newHashMapWithExpectedSize(requirements.size());
+  public Map<ValueRequirement, ComputedValue> query(final Set<ValueRequirement> requirements) {
+    final Map<ValueRequirement, ComputedValue> result = Maps.newHashMapWithExpectedSize(requirements.size());
     final Map<MarketDataProvider, Set<ValueRequirement>> groupByProvider = _combinedMarketDataProvider.groupByProvider(requirements);
     for (Entry<MarketDataProvider, Set<ValueRequirement>> entry : groupByProvider.entrySet()) {
-      final Map<ValueRequirement, Object> values = _snapshotByProvider.get(entry.getKey()).query(entry.getValue());
+      final Map<ValueRequirement, ComputedValue> values = _snapshotByProvider.get(entry.getKey()).query(entry.getValue());
       if (values != null) {
         result.putAll(values);
       }
