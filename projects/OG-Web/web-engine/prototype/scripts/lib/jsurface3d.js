@@ -117,9 +117,7 @@
      * Material Library
      */
     var Matlib = function (settings) {
-        var matlib = {};
-        matlib.canvas = {};
-        matlib.cache = {};
+        var matlib = {canvas: {}, cache: {}};
         matlib.get_material = function (material, color) {
             var name = material + '_' + color;
             if (matlib.cache[name]) return matlib.cache[name];
