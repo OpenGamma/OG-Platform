@@ -12,7 +12,7 @@ $.register_module({
                 process_ag_opts = function () {
                     if(ag_opts.length) {
                         var i = 0, arr = [], query;
-                        ag_opts.sort(sort_ag_opts).forEach(function (entry) {
+                        ag_opts.sort(sort_opts).forEach(function (entry) { // revisit the need for sorting this..
                             if (i > 0) arr[i++] = $dom.title_infix.html() + " ";
                             arr[i++] = entry;
                         });
@@ -20,24 +20,21 @@ $.register_module({
                         $ag_selection.html(query);
                     }
                 },
-                sort_ag_opts = function (a, b) {
+                sort_opts = function (a, b) {
                     if (a.pos < b.pos) return -1;
                     if (a.pos > b.pos) return 1;
                     return 0;
                 },
                 remove_entry = function (entry) {
-                    if (ag_opts.length === 1) {
-                        return $sel_select.val(default_sel_txt).focus(),
-                            $ag_selection.text(default_sel_txt), ag_opts.length = 0;
-                    }
+                    if (ag_opts.length === 1) return ag_opts.length = 0;
                     ag_opts.splice(entry, 1);
                 },
                 del_handler = function (entry) {
+                    if($sel_select !== undefined) menu.del_handler($sel_parent);
                     if (menu.opts.length === 1) {
-                        return $sel_checkbox[0].disabled = true, $ag_selection.html(default_sel_txt), 
+                        return $sel_checkbox[0].disabled = true, $ag_selection.text(default_sel_txt), 
                             $sel_select.val(default_sel_txt).focus(), remove_entry();
                     }
-                    if($sel_select !== undefined) menu.del_handler($sel_parent);
                     for (var i = ~entry ? entry : sel_pos, len = ag_opts.length; i < len; ag_opts[i++].pos-=1);
                     if (~entry) {
                         remove_entry(entry);
@@ -105,7 +102,7 @@ $.register_module({
                     return $sel_checkbox = checkbox; 
                 };
             $dom.title_prefix.append('<span>Aggregated by</span>');
-            $dom.title_infix.append('<span>then</span>');
+            $dom.title_infix.append('<span>then</span>'); // Move to DropMenu class
             if ($dom) {
                 if ($dom.title) $dom.title.on('click', menu.title_handler.bind(menu));
                 if ($dom.menu) {

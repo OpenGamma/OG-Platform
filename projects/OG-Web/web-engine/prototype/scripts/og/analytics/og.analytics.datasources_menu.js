@@ -4,66 +4,108 @@ $.register_module({
     dependencies: ['og.analytics.DropMenu'],
     obj: function () { 
         return function (config) {
-            var menu = new og.analytics.DropMenu(config), $dom = menu.$dom, opts = menu.opts, data = menu.data,
-                ds_opts = [], $ds_selection = $('.datasources-selection', $dom.title), ds_val, type_val, sel_pos,
-                $sel_parent, $type_select, $ds_select, $sel_checkbox, default_sel_txt = 'select data source...',
-                del_s = '.og-icon-delete', options_s = '.OG-dropmenu-options', type_s = '.type', ds_s = '.source',
-                select_s = 'select', checkbox_s = '.og-option :checkbox', $sel_opt = $('<div>').append('<option>'),
-                menu_click_s = 'input, div.og-icon-delete, a.OG-link-add', menu_change_s = select_s,
-                populate_ds_opts = function () {
+            var menu = new og.analytics.DropMenu(config), opts = menu.opts, data = menu.data, ds_opts = [], ds_val, 
+                type_val, sel_pos, default_type_txt = 'select type...', default_sel_txt = 'select data source...',
+                del_s = '.og-icon-delete', options_s = '.OG-dropmenu-options', dummy_s = '<div>', type_s = '.type', 
+                ds_s = '.source', select_s = 'select', menu_click_s = 'input, div.og-icon-delete, a.OG-link-add', 
+                menu_change_s = select_s, $dom = menu.$dom,  $type_select, $ds_select, $sel_parent, 
+                $ds_selection = $('.datasources-selection', $dom.title), $sel_opt = $(dummy_s).append('<option>'), 
+                $snapshot_opts = $(dummy_s).append([
+                    '<td>',
+                        '<span>Versions:</span>',
+                        '<button class="latest active">Latest</button>', 
+                        '<button class="custom">Custom</button>',
+                        '<span>Correction:</span>',
+                        '<button class="latest active">Latest</button>', 
+                        '<button class="custom">Custom</button>',
+                    '</td>'
+                ].join('')),
+                populate_type_opts = function (data) {
                     $ds_select.empty().append($($sel_opt.html()).text(default_sel_txt));
-                    ds_opts[type_val].forEach(function (entry) {
-                        $ds_select.append($($sel_opt.html()).text(entry.name || entry));
-                    });                        
+                    data.forEach(function (d) {$ds_select.append($($sel_opt.html()).text(d.name || d));});
                 },
                 populate_marketdatasnapshots = function () {
                     og.api.rest.marketdatasnapshots.get().pipe(function (resp) {
-                        if (resp) ds_opts[type_val] = resp.data[0].snapshots;
-                    }).pipe(populate_ds_opts);            
+                        populate_type_opts(resp.data[0].snapshots);
+                    }).pipe(function () {
+                        $ds_select.parents('td').after($snapshot_opts.html());
+                    });
                 },
                 populate_livedatasources = function () {
                     og.api.rest.livedatasources.get().pipe(function (resp) {
-                        if (resp) ds_opts[type_val] = resp.data;
-                    }).pipe(populate_ds_opts);
+                        populate_type_opts(resp.data);
+                    });
                 },
-                select_handler = function (entry) {
+                process_ds_opts = function () {
+                    if(ds_opts.length) {
+                        var i = 0, arr = [];
+                        ds_opts.sort(sort_opts).forEach(function (entry) { // revisit the need for sorting this..
+                            if (i > 0) arr[i++] = $dom.title_infix.html() + " ";
+                            arr[i++] = entry;
+                        });
+                        $ds_selection.html(arr.reduce(function (a, v) {
+                            return a += v.type ? v.type + ":" + v.ds : v;
+                        }, ''));
+                    }
+                },
+                sort_opts = function (a, b) {
+                    if (a.pos < b.pos) return -1;
+                    if (a.pos > b.pos) return 1;
+                    return 0;
+                },
+                type_select_handler = function () {
+                    if (type_val === '' || type_val === default_type_txt) return;
+                    var clname = $sel_parent.data('clname');
                     switch(type_val) {
                         case 'Snapshot': populate_marketdatasnapshots(); break;
                         case 'Live': populate_livedatasources(); break;
                     }
+                    if (clname) $sel_parent.removeClass(clname);
+                    $sel_parent.data('clname', type_val.toLowerCase()).addClass($sel_parent.data('clname'));
+                },
+                ds_select_handler = function (entry) {
+                    if (ds_val === default_sel_txt) {
+                        remove_entry(entry);
+                        if (ds_opts.length === 0) return $ds_selection.html(default_sel_txt);
+                    } else if (~entry) ds_opts[entry] = {pos:sel_pos, type:type_val, ds:ds_val};
+                    else ds_opts.splice(sel_pos, 0, {pos:sel_pos, type:type_val, ds:ds_val});
+                    process_ds_opts();
                 },
                 remove_entry = function (entry) {
-                    if (ds_opts.length === 1) {
-                        return $type_select.val(default_sel_txt).focus(),
-                            $ds_selection.text(default_sel_txt), ds_opts.length = 0;
-                    }
+                    if (ds_opts.length === 1) return ds_opts.length = 0;
                     ds_opts.splice(entry, 1);
                 },
                 add_handler = function () {
                     menu.add_handler(); 
                 },
-                del_handler = function () {
-                    if (menu.opts.length === 1) {
-                        return $ds_selection.html(default_sel_txt),
-                            $type_select.val(default_sel_txt).focus(), $ds_select.val(default_sel_txt), remove_entry();
+                del_handler = function (entry) {
+                    if($type_select !== undefined) menu.del_handler($sel_parent);
+                    if (menu.opts.length === 1 || menu.opts.length > 1 && ds_opts.length === 1) {
+                        return $ds_selection.text(default_sel_txt), $type_select.val(default_sel_txt).focus(), 
+                            $ds_select.empty().append($($sel_opt.html()).text(default_sel_txt)), remove_entry();
+                    }
+                    for (var i = ~entry ? entry : sel_pos, len = ds_opts.length; i < len; ds_opts[i++].pos-=1);
+                    if (~entry) {
+                        remove_entry(entry);
+                        process_ds_opts();
                     }
                 },
                 menu_handler = function (event) {
                     var target = event.srcElement || event.target,
                         elem = $(target), entry;
-                        $sel_parent = elem.parents(options_s);
-                        $type_select = $sel_parent.find(type_s);
-                        $ds_select = $sel_parent.find(ds_s);
-                        $sel_checkbox = $sel_parent.find(checkbox_s);
-                        type_val = $type_select.val();
-                        ds_val = $ds_select.val();
-                        sel_pos = $sel_parent.data('pos');
-                        entry = ds_opts.pluck('pos').indexOf(sel_pos);
+                    $sel_parent = elem.parents(options_s);
+                    $type_select = $sel_parent.find(type_s);
+                    $ds_select = $sel_parent.find(ds_s);
+                    type_val = $type_select.val();
+                    ds_val = $ds_select.val();
+                    sel_pos = $sel_parent.data('pos');
+                    entry = (ds_opts.pluck('pos').indexOf(sel_pos));
                     if (elem.is(menu.$dom.add)) return add_handler();
                     if (elem.is(del_s)) return  del_handler(entry);
-                    if (elem.is($sel_checkbox)) return checkbox_handler(entry); 
-                    if (elem.is(select_s+'.'+type_s)) return select_handler(entry);
+                    if (elem.is(select_s+'.'+type_s)) return type_select_handler();
+                    if (elem.is(select_s+'.'+ds_s)) return ds_select_handler(entry);
                 };
+            $dom.title_infix.append('<span>then</span>'); // Move to DropMenu class
             if ($dom) {
                 if ($dom.title) $dom.title.on('click', menu.title_handler.bind(menu));
                 if ($dom.menu) {
