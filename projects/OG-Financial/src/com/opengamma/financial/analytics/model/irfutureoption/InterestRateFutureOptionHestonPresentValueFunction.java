@@ -65,8 +65,9 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * @deprecated Uses old properties
  */
+@Deprecated
 public class InterestRateFutureOptionHestonPresentValueFunction extends AbstractFunction.NonCompiledInvoker {
   private final String _forwardCurveName;
   private final String _fundingCurveName;
@@ -100,7 +101,6 @@ public class InterestRateFutureOptionHestonPresentValueFunction extends Abstract
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
     final SimpleTrade trade = (SimpleTrade) target.getTrade();
-    @SuppressWarnings("unchecked")
     final InstrumentDefinition<InstrumentDerivative> irFutureOptionDefinition = (InstrumentDefinition<InstrumentDerivative>) _converter.convert(trade);
     final InstrumentDerivative irFutureOption = _dataConverter.convert(trade.getSecurity(), irFutureOptionDefinition, now, new String[] {_fundingCurveName, _forwardCurveName }, timeSeries);
     final double price = irFutureOption.accept(new MyDerivativeVisitor(target, inputs));
@@ -131,8 +131,7 @@ public class InterestRateFutureOptionHestonPresentValueFunction extends Abstract
     requirements.add(getCurveRequirement(target, _forwardCurveName, _forwardCurveName, _fundingCurveName));
     requirements.add(getCurveRequirement(target, _fundingCurveName, _forwardCurveName, _fundingCurveName));
     final Trade trade = target.getTrade();
-    final Set<ValueRequirement> timeSeriesRequirements = _dataConverter.getConversionTimeSeriesRequirements(trade.getSecurity(), _converter.convert(trade),
-        new String[] {_fundingCurveName, _forwardCurveName });
+    final Set<ValueRequirement> timeSeriesRequirements = _dataConverter.getConversionTimeSeriesRequirements(trade.getSecurity(), _converter.convert(trade));
     if (timeSeriesRequirements == null) {
       return null;
     }

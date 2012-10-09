@@ -187,10 +187,7 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     }
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
-    final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
-    final String[] yieldCurveNames = curveNames.length == 1 ? new String[] {curveNames[0], curveNames[0] } : curveNames;
-    final String[] curveNamesForSecurity = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, yieldCurveNames[0], yieldCurveNames[1]);
-    final Set<ValueRequirement> timeSeriesRequirements = getDerivativeTimeSeriesRequirements(security, curveNamesForSecurity, security.accept(_visitor), _definitionConverter);
+    final Set<ValueRequirement> timeSeriesRequirements = getDerivativeTimeSeriesRequirements(security, security.accept(_visitor), _definitionConverter);
     if (timeSeriesRequirements == null) {
       return null;
     }
@@ -327,23 +324,9 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     return derivative;
   }
 
-  static Set<ValueRequirement> getDerivativeTimeSeriesRequirements(final FinancialSecurity security, final String[] curveNames, final InstrumentDefinition<?> definition,
+  static Set<ValueRequirement> getDerivativeTimeSeriesRequirements(final FinancialSecurity security, final InstrumentDefinition<?> definition,
       final FixedIncomeConverterDataProvider definitionConverter) {
-    if (security instanceof SwapSecurity) {
-      final SwapSecurity swapSecurity = (SwapSecurity) security;
-      final InterestRateInstrumentType type = SwapSecurityUtils.getSwapType(swapSecurity);
-      if (type == InterestRateInstrumentType.SWAP_FIXED_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD) {
-        final Frequency resetFrequency;
-        if (swapSecurity.getPayLeg() instanceof FloatingInterestRateLeg) {
-          resetFrequency = ((FloatingInterestRateLeg) swapSecurity.getPayLeg()).getFrequency();
-        } else {
-          resetFrequency = ((FloatingInterestRateLeg) swapSecurity.getReceiveLeg()).getFrequency();
-        }
-        return definitionConverter.getConversionTimeSeriesRequirements(security, definition, FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, curveNames, resetFrequency));
-      }
-      return definitionConverter.getConversionTimeSeriesRequirements(security, definition, FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, curveNames));
-    }
-    return definitionConverter.getConversionTimeSeriesRequirements(security, definition, FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, curveNames));
+    return definitionConverter.getConversionTimeSeriesRequirements(security, definition);
   }
 
 }

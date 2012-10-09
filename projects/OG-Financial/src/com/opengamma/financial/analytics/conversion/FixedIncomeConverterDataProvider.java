@@ -86,10 +86,9 @@ public class FixedIncomeConverterDataProvider {
      * Returns the time series requirements that will be needed for the {@link #convert} method.
      *
      * @param security the security, not null
-     * @param curveNames the names of the curves, not null
      * @return the set of requirements, the empty set if nothing is required, null if the conversion will not be possible (for example a missing timeseries)
      */
-    public abstract Set<ValueRequirement> getTimeSeriesRequirements(S security, String[] curveNames);
+    public abstract Set<ValueRequirement> getTimeSeriesRequirements(S security);
 
     /**
      * Converts the "security" and "definition" form to its "derivative" form.
@@ -143,8 +142,8 @@ public class FixedIncomeConverterDataProvider {
   }
 
   @SuppressWarnings("unchecked")
-  public Set<ValueRequirement> getConversionTimeSeriesRequirements(final Security security, final InstrumentDefinition<?> definition, final String[] curveNames) {
-    return getConverter(security, definition).getTimeSeriesRequirements(security, curveNames);
+  public Set<ValueRequirement> getConversionTimeSeriesRequirements(final Security security, final InstrumentDefinition<?> definition) {
+    return getConverter(security, definition).getTimeSeriesRequirements(security);
   }
 
   @SuppressWarnings("unchecked")
@@ -164,7 +163,7 @@ public class FixedIncomeConverterDataProvider {
   private final Converter<BondFutureSecurity, BondFutureDefinition> _bondFutureSecurity = new Converter<BondFutureSecurity, BondFutureDefinition>() {
 
     @Override
-    public Set<ValueRequirement> getTimeSeriesRequirements(final BondFutureSecurity security, final String[] curveNames) {
+    public Set<ValueRequirement> getTimeSeriesRequirements(final BondFutureSecurity security) {
       return Collections.emptySet();
     }
 
@@ -183,7 +182,7 @@ public class FixedIncomeConverterDataProvider {
   private final Converter<FRASecurity, ForwardRateAgreementDefinition> _fraSecurity = new Converter<FRASecurity, ForwardRateAgreementDefinition>() {
 
     @Override
-    public Set<ValueRequirement> getTimeSeriesRequirements(final FRASecurity security, final String[] curveNames) {
+    public Set<ValueRequirement> getTimeSeriesRequirements(final FRASecurity security) {
       final ExternalId indexId = security.getUnderlyingId();
       final ConventionBundle indexConvention = getConventionSource().getConventionBundle(indexId);
       if (indexConvention == null) {
@@ -227,7 +226,7 @@ public class FixedIncomeConverterDataProvider {
   private final Converter<CapFloorSecurity, AnnuityCapFloorIborDefinition> _capFloorIborSecurity = new Converter<CapFloorSecurity, AnnuityCapFloorIborDefinition>() {
 
     @Override
-    public Set<ValueRequirement> getTimeSeriesRequirements(final CapFloorSecurity security, final String[] curveNames) {
+    public Set<ValueRequirement> getTimeSeriesRequirements(final CapFloorSecurity security) {
       final HistoricalTimeSeriesResolutionResult timeSeries = getTimeSeriesResolver().resolve(security.getUnderlyingId().toBundle(), null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
       if (timeSeries == null) {
         return null;
@@ -259,7 +258,7 @@ public class FixedIncomeConverterDataProvider {
 
     @SuppressWarnings("synthetic-access")
     @Override
-    public Set<ValueRequirement> getTimeSeriesRequirements(final CapFloorSecurity security, final String[] curveNames) {
+    public Set<ValueRequirement> getTimeSeriesRequirements(final CapFloorSecurity security) {
       final ExternalId id = security.getUnderlyingId();
       final ZonedDateTime capStartDate = security.getStartDate();
       final LocalDate startDate = capStartDate.toLocalDate().minusDays(7); // To catch first fixing. SwapSecurity does not have this date.
@@ -284,7 +283,7 @@ public class FixedIncomeConverterDataProvider {
   private final Converter<InterestRateFutureSecurity, InterestRateFutureDefinition> _irFutureSecurity = new Converter<InterestRateFutureSecurity, InterestRateFutureDefinition>() {
 
     @Override
-    public Set<ValueRequirement> getTimeSeriesRequirements(final InterestRateFutureSecurity security, final String[] curveNames) {
+    public Set<ValueRequirement> getTimeSeriesRequirements(final InterestRateFutureSecurity security) {
       final HistoricalTimeSeriesResolutionResult timeSeries = getTimeSeriesResolver().resolve(security.getExternalIdBundle(), null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
       if (timeSeries == null) {
         return null;
@@ -317,7 +316,7 @@ public class FixedIncomeConverterDataProvider {
   private final Converter<IRFutureOptionSecurity, InterestRateFutureOptionMarginTransactionDefinition> _irFutureOptionSecurity = new Converter<IRFutureOptionSecurity, InterestRateFutureOptionMarginTransactionDefinition>() { // CSIGNORE
 
     @Override
-    public Set<ValueRequirement> getTimeSeriesRequirements(final IRFutureOptionSecurity security, final String[] curveNames) {
+    public Set<ValueRequirement> getTimeSeriesRequirements(final IRFutureOptionSecurity security) {
       final HistoricalTimeSeriesResolutionResult timeSeries = getTimeSeriesResolver().resolve(security.getExternalIdBundle(), null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
       if (timeSeries == null) {
         return null;
@@ -347,7 +346,7 @@ public class FixedIncomeConverterDataProvider {
 
     @SuppressWarnings("synthetic-access")
     @Override
-    public Set<ValueRequirement> getTimeSeriesRequirements(final SwapSecurity security, final String[] curveNames) {
+    public Set<ValueRequirement> getTimeSeriesRequirements(final SwapSecurity security) {
       Validate.notNull(security, "security");
       final SwapLeg payLeg = security.getPayLeg();
       final SwapLeg receiveLeg = security.getReceiveLeg();
@@ -420,7 +419,7 @@ public class FixedIncomeConverterDataProvider {
 
     @SuppressWarnings("synthetic-access")
     @Override
-    public Set<ValueRequirement> getTimeSeriesRequirements(final CapFloorCMSSpreadSecurity security, final String[] curveNames) {
+    public Set<ValueRequirement> getTimeSeriesRequirements(final CapFloorCMSSpreadSecurity security) {
       final ExternalId longId = security.getLongId();
       final ExternalId shortId = security.getShortId();
       final ZonedDateTime capStartDate = security.getStartDate();
@@ -453,7 +452,7 @@ public class FixedIncomeConverterDataProvider {
   private final Converter<Security, InstrumentDefinition<?>> _default = new Converter<Security, InstrumentDefinition<?>>() {
 
     @Override
-    public Set<ValueRequirement> getTimeSeriesRequirements(final Security security, final String[] curveNames) {
+    public Set<ValueRequirement> getTimeSeriesRequirements(final Security security) {
       return Collections.emptySet();
     }
 

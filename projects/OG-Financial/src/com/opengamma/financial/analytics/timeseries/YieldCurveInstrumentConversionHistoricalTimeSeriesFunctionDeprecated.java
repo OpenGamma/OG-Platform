@@ -32,7 +32,6 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.InterestRateInstrumentTradeOrSecurityConverter;
-import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveExposureHelper;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithSecurity;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
@@ -112,20 +111,12 @@ public class YieldCurveInstrumentConversionHistoricalTimeSeriesFunctionDeprecate
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
-    final String forwardCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
-    final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
     final InterpolatedYieldCurveSpecificationWithSecurities curve = (InterpolatedYieldCurveSpecificationWithSecurities) inputs.getValue(ValueRequirementNames.YIELD_CURVE_SPEC);
     final Set<ValueRequirement> timeSeriesRequirements = new HashSet<ValueRequirement>();
     for (final FixedIncomeStripWithSecurity strip : curve.getStrips()) {
       final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
-      final String[] curveNames;
-      if (curveName.equals(forwardCurveName)) {
-        curveNames = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForForwardCurveInstrument(strip.getInstrumentType(), fundingCurveName, forwardCurveName);
-      } else {
-        curveNames = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForFundingCurveInstrument(strip.getInstrumentType(), fundingCurveName, forwardCurveName);
-      }
       final InstrumentDefinition<?> definition = getSecurityConverter().visit(financialSecurity);
-      final Set<ValueRequirement> requirements = getDefinitionConverter().getConversionTimeSeriesRequirements(financialSecurity, definition, curveNames);
+      final Set<ValueRequirement> requirements = getDefinitionConverter().getConversionTimeSeriesRequirements(financialSecurity, definition);
       if (requirements == null) {
         throw new OpenGammaRuntimeException("Can't get time series requirements for " + strip + " on " + curveName);
       }

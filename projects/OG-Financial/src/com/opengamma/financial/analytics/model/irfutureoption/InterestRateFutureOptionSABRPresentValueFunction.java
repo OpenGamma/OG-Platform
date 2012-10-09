@@ -25,8 +25,9 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 
 /**
- * 
+ * @deprecated Uses the old properties
  */
+@Deprecated
 public class InterestRateFutureOptionSABRPresentValueFunction extends InterestRateFutureOptionSABRFunction {
   private static final PresentValueSABRCalculator CALCULATOR = PresentValueSABRCalculator.getInstance();
 
