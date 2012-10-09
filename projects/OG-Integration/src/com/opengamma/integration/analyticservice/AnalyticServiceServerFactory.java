@@ -83,7 +83,6 @@ public class AnalyticServiceServerFactory extends AbstractComponentFactory {
         new JmsByteArrayMessageDispatcher(
             new ByteArrayFudgeMessageReceiver(tradeProducer)));
     container.setDestinationName(getListenTopicName());
-    container.setPubSubDomain(true);
     container.setConnectionFactory(getListenJmsConnector().getConnectionFactory());
     
     JmsAnalyticsDistributor analyticsDistributor = new JmsAnalyticsDistributor(new DefaultJmsTopicNameResolver(getPositionSource()), OpenGammaFudgeContext.getInstance(), _listenJmsConnector);
