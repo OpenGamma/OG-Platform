@@ -145,7 +145,7 @@ public class ExampleAnalyticServiceUsage extends AbstractTool<ToolContext> {
     
     final byte[] bytes = s_fudgeContext.toByteArray(msg);
     
-    jmsConnector.getJmsTemplateTopic().send(destinationName, new MessageCreator() {
+    jmsConnector.getJmsTemplateQueue().send(destinationName, new MessageCreator() {
       @Override
       public Message createMessage(Session session) throws JMSException {
         BytesMessage bytesMessage = session.createBytesMessage();
