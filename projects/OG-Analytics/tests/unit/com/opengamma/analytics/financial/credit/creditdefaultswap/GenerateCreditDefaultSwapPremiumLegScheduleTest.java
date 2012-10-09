@@ -99,12 +99,12 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
 
   private static final Calendar calendar = new MyCalendar();
 
-  private static final ZonedDateTime startDate = DateUtils.getUTCDate(2008, 3, 21);
+  private static final ZonedDateTime startDate = DateUtils.getUTCDate(2008, 3, 20);
   private static final ZonedDateTime effectiveDate = startDate.plusDays(1); //DateUtils.getUTCDate(2008, 12, 22);
   private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2013, 3, 20);
   private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2010, 2, 4);
 
-  private static final StubType stubType = StubType.FRONTLONG;
+  private static final StubType stubType = StubType.FRONTSHORT;
   private static final PeriodFrequency couponFrequency = PeriodFrequency.QUARTERLY;
   private static final DayCount daycountFractionConvention = DayCountFactory.INSTANCE.getDayCount("ACT/360");
   private static final BusinessDayConvention businessdayAdjustmentConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
@@ -117,6 +117,11 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
   private static final double premiumLegCoupon = 100.0;
   private static final double recoveryRate = 0.40;
   private static final boolean includeAccruedPremium = false;
+  private static final boolean protectionStart = true;
+
+  // --------------------------------------------------------------------------------------------------------------------------------------------------
+
+  // Construct the obligors in the contract
 
   private static final Obligor protectionBuyer = new Obligor(
       protectionBuyerTicker,
@@ -183,7 +188,8 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
       notional,
       premiumLegCoupon,
       recoveryRate,
-      includeAccruedPremium);
+      includeAccruedPremium,
+      protectionStart);
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 

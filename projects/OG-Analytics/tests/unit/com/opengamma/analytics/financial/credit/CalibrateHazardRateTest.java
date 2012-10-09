@@ -104,6 +104,7 @@ public class CalibrateHazardRateTest {
   private static final double premiumLegCoupon = 100.0;
   private static final double recoveryRate = 0.40;
   private static final boolean includeAccruedPremium = false;
+  private static final boolean protectionStart = true;
 
   // Dummy yield curve
   private static final double interestRate = 0.0;
@@ -153,6 +154,8 @@ public class CalibrateHazardRateTest {
       referenceEntityRegion,
       referenceEntityCountry);
 
+  // ----------------------------------------------------------------------------------
+
   // Construct a CDS contract 
   private static final CreditDefaultSwapDefinition cds = new CreditDefaultSwapDefinition(
       buySellProtection,
@@ -177,7 +180,8 @@ public class CalibrateHazardRateTest {
       notional,
       premiumLegCoupon,
       recoveryRate,
-      includeAccruedPremium);
+      includeAccruedPremium,
+      protectionStart);
 
   // ---------------------------------------------------------------------------------------
 
@@ -188,7 +192,7 @@ public class CalibrateHazardRateTest {
 
     // -------------------------------------------------------------------------------------
 
-    final boolean outputResults = false;
+    final boolean outputResults = true;
 
     // -------------------------------------------------------------------------------------
 
@@ -245,48 +249,16 @@ public class CalibrateHazardRateTest {
     // -------------------------------------------------------------------------------------
 
     // Create a calibrate survival curve object
-    final CalibrateHazardRate survivalCurve = new CalibrateHazardRate();
+    final CalibrateHazardRate hazardRateCurve = new CalibrateHazardRate();
 
     // Calibrate the survival curve to the market observed par CDS spreads (returns survival probabilities as a vector of doubles)
-    double[] calibratedSurvivalCurve = survivalCurve.getCalibratedHazardRateTermStructure(calibrationCDS, tenors, marketSpreads, yieldCurve);
+    double[] calibratedHazardRateCurve = hazardRateCurve.getCalibratedHazardRateTermStructure(calibrationCDS, tenors, marketSpreads, yieldCurve);
 
     if (outputResults) {
       for (int i = 0; i < numberOfCalibrationCDS; i++) {
-        System.out.println(calibratedSurvivalCurve[i]);
+        System.out.println(calibratedHazardRateCurve[i]);
       }
     }
-
-    // -------------------------------------------------------------------------------------
-
-    /*
-    // Create the interpolation/extrapolation object
-
-    String interpolatorName = Interpolator1DFactory.LINEAR;
-    String leftExtrapolatorName = Interpolator1DFactory.FLAT_EXTRAPOLATOR;
-    String rightExtrapolatorName = Interpolator1DFactory.FLAT_EXTRAPOLATOR;
-
-    Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
-    */
-
-    // -----------------------------------------------------------------------------------------------
-
-    /*
-
-
-    // Get the daycount fraction convention of the CDS to be calibrated
-    DayCount dayCount = calibrationCDS.getDayCountFractionConvention();
-
-    GenerateCreditDefaultSwapPremiumLegSchedule temp = new GenerateCreditDefaultSwapPremiumLegSchedule();
-
-    // Convert the ZonedDateTime tenors into doubles (measured from valuationDate)
-    double[] tenorsAsDoubles = temp.convertDatesToDoubles(valuationDate, tenors, dayCount);
-
-    // Build the survival curve interpolation object from the calibrated survival probabilities
-    InterpolatedDoublesCurve S = InterpolatedDoublesCurve.from(tenorsAsDoubles, calibratedSurvivalCurve, interpolator);
-
-    // Construct the survival curve from the DoublesCurve (complete with interpolator/extrapolator)
-    //final SurvivalCurve testCurve = SurvivalCurve.from(S);
-     */
 
     // -------------------------------------------------------------------------------------
 

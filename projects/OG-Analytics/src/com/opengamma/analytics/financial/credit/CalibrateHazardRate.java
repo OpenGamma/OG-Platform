@@ -99,6 +99,7 @@ public class CalibrateHazardRate {
     // Build a cashflow schedule object - need to do this just to convert tenors to doubles
     GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
 
+    // get the adjusted effective date
     ZonedDateTime adjustedEffectiveDate = cashflowSchedule.getAdjustedEffectiveDate(cds);
 
     ArgumentChecker.isTrue(adjustedEffectiveDate.equals(cds.getValuationDate()), "Valuation date should equal the adjusted effective date for calibration");
@@ -120,9 +121,12 @@ public class CalibrateHazardRate {
       // Construct a temporary vector of the first m tenors (note size of array)
       double[] runningTenors = new double[m + 1];
 
+      double[] runningHazardRates = new double[m + 1];
+
       // Populate this vector with the first m tenors (needed to construct the survival curve using these tenors)
       for (int i = 0; i <= m; i++) {
         runningTenors[i] = tenorsAsDoubles[i];
+        runningHazardRates[i] = hazardRates[i];
       }
 
       // Modify the calibration CDS to have a maturity of tenor[m] 
@@ -132,7 +136,7 @@ public class CalibrateHazardRate {
       calibrationCDS = calibrationCDS.withSpread(marketSpreads[m]);
 
       // Compute the calibrated hazard rate for tenor[m] (using the calibrated hazard rates for tenors 1, ..., m - 1) 
-      hazardRates[m] = calibrateHazardRate(calibrationCDS, presentValueCDS, yieldCurve, runningTenors, hazardRates);
+      hazardRates[m] = calibrateHazardRate(calibrationCDS, presentValueCDS, yieldCurve, runningTenors, runningHazardRates);
     }
 
     // ----------------------------------------------------------------------------
@@ -144,7 +148,8 @@ public class CalibrateHazardRate {
 
   // Private method to do the root search to find the hazard rate for tenor m which gives the CDS a PV of zero
 
-  private double calibrateHazardRate(CreditDefaultSwapDefinition calibrationCDS,
+  private double calibrateHazardRate(
+      CreditDefaultSwapDefinition calibrationCDS,
       PresentValueCreditDefaultSwap presentValueCDS,
       YieldCurve yieldCurve,
       double[] runningTenors,
@@ -177,18 +182,18 @@ public class CalibrateHazardRate {
 
     // ------------------------------------------------------------------------
 
-    // Construct a survival curve using the (calibrated) first m tenors in runningTenors
-    SurvivalCurve survivalCurve = new SurvivalCurve(runningTenors, hazardRates);
+    // Construct a hazard rate term structure curve using the (calibrated) first m tenors in runningTenors
+    HazardRateCurve hazardRateCurve = new HazardRateCurve(runningTenors, hazardRates, 0.0);
 
     // ------------------------------------------------------------------------
 
     // Now do the root search (in hazard rate space) - simple bisection method for the moment (guaranteed to work and we are not concerned with speed at the moment)
 
     // Calculate the CDS PV at the lower hazard rate bound
-    double cdsPresentValueAtLowerPoint = calculateCDSPV(calibrationCDS, presentValueCDS, runningTenors, hazardRates, lowerHazardRate, yieldCurve, survivalCurve);
+    double cdsPresentValueAtLowerPoint = calculateCDSPV(calibrationCDS, presentValueCDS, runningTenors, hazardRates, lowerHazardRate, yieldCurve, hazardRateCurve);
 
     // Calculate the CDS PV at the upper hazard rate bound
-    double cdsPresentValueAtMidPoint = calculateCDSPV(calibrationCDS, presentValueCDS, runningTenors, hazardRates, upperHazardRate, yieldCurve, survivalCurve);
+    double cdsPresentValueAtMidPoint = calculateCDSPV(calibrationCDS, presentValueCDS, runningTenors, hazardRates, upperHazardRate, yieldCurve, hazardRateCurve);
 
     // Orient the search
     if (cdsPresentValueAtLowerPoint < 0.0) {
@@ -213,7 +218,7 @@ public class CalibrateHazardRate {
       double hazardRateMidpoint = calibratedHazardRate + deltaHazardRate;
 
       // Calculate the CDS PV at the hazard rate range midpoint
-      cdsPresentValueAtMidPoint = calculateCDSPV(calibrationCDS, presentValueCDS, runningTenors, hazardRates, hazardRateMidpoint, yieldCurve, survivalCurve);
+      cdsPresentValueAtMidPoint = calculateCDSPV(calibrationCDS, presentValueCDS, runningTenors, hazardRates, hazardRateMidpoint, yieldCurve, hazardRateCurve);
 
       if (Double.doubleToLongBits(cdsPresentValueAtMidPoint) <= 0.0) {
         calibratedHazardRate = hazardRateMidpoint;
@@ -239,7 +244,7 @@ public class CalibrateHazardRate {
       double[] hazardRates,
       double hazardRateMidPoint,
       YieldCurve yieldCurve,
-      SurvivalCurve survivalCurve) {
+      HazardRateCurve hazardRateCurve) {
 
     int numberOfTenors = tenors.length;
 
@@ -247,10 +252,10 @@ public class CalibrateHazardRate {
     hazardRates[numberOfTenors - 1] = hazardRateMidPoint;
 
     // Modify the survival curve so that it has the modified vector of hazard rates as an input to the ctor
-    survivalCurve = survivalCurve.bootstrapHelperSurvivalCurve(tenors, hazardRates);
+    hazardRateCurve = hazardRateCurve.bootstrapHelperHazardRateCurve(tenors, hazardRates);
 
     // Compute the PV of the CDS with this term structure of hazard rates
-    double cdsPresentValueAtMidpoint = presentValueCDS.getPresentValueCreditDefaultSwap(calibrationCDS, yieldCurve, survivalCurve);
+    double cdsPresentValueAtMidpoint = presentValueCDS.getPresentValueCreditDefaultSwap(calibrationCDS, yieldCurve, hazardRateCurve);
 
     return cdsPresentValueAtMidpoint;
   }
