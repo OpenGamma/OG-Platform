@@ -38,7 +38,7 @@
         };
     /**
      * Buffer constructor
-     * Create buffers that store references to objects that requre their webgl buffers to be cleared together
+     * A buffer stores references to objects that requre their webgl buffers cleared together
      */
     var Buffer = function (renderer) {
         var buffer = {};
