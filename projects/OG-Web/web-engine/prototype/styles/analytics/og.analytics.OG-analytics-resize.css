@@ -8,6 +8,7 @@
     -webkit-border-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAAJ0lEQVQIW2NkQAJr1679HxwczAijGWFy6BIgPlgSmwTIBLgRdNQJAAPqVRodzsnGAAAAAElFTkSuQmCC') 0 5 5 0 repeat;
     -moz-border-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAAJ0lEQVQIW2NkQAJr1679HxwczAijGWFy6BIgPlgSmwTIBLgRdNQJAAPqVRodzsnGAAAAAElFTkSuQmCC') 0 5 5 0 repeat;
     border-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAAJ0lEQVQIW2NkQAJr1679HxwczAijGWFy6BIgPlgSmwTIBLgRdNQJAAPqVRodzsnGAAAAAElFTkSuQmCC') 0 5 5 0 repeat;
+    border-style: solid;
 }
 
 .ie8 .OG-analytics-resize.og-bars, .ie9 .OG-analytics-resize.og-bars {
