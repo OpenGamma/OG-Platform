@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.util.test;
+package com.opengamma.util.db.management;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

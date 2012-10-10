@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.util.test;
+package com.opengamma.util.db.management;
 
 /**
  * Strategy handling the creation of a database catalog.

@@ -3,12 +3,21 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.util.test;
+package com.opengamma.util.db.management;
 
 import static com.opengamma.util.RegexUtils.matches;
 
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -25,6 +34,11 @@ import com.opengamma.util.tuple.Pair;
  */
 public abstract class AbstractDbManagement implements DbManagement {
 
+  /**
+   * The schema version table suffix.
+   */
+  protected static final String SCHEMA_VERSION_TABLE_SUFFIX = "_schema_version";
+  
   /**
    * The database server.
    */
@@ -174,6 +188,10 @@ public abstract class AbstractDbManagement implements DbManagement {
   public abstract String getAllForeignKeyConstraintsSQL(String catalog, String schema);
 
   public abstract String getCreateSchemaSQL(String catalog, String schema);
+  
+  public abstract String getSchemaVersionTable(String schemaGroupName);
+  
+  public abstract String getSchemaVersionSQL(String catalog, String schemaGroupName);
 
   public abstract CatalogCreationStrategy getCatalogCreationStrategy();
 
@@ -576,4 +594,41 @@ public abstract class AbstractDbManagement implements DbManagement {
     return description.toString();
   }
 
+  @Override
+  public Integer getSchemaGroupVersion(String catalog, String schema, String schemaGroupName) {
+    Connection conn = null;
+    try {
+      conn = connect(catalog);
+      setActiveSchema(conn, schema);
+      Statement statement = conn.createStatement();
+      List<String> tables = getAllTables(catalog, schema, statement);
+      if (!tables.contains(getSchemaVersionTable(schemaGroupName))) {
+        return null;
+      }
+      ResultSet rs = statement.executeQuery(getSchemaVersionSQL(catalog, schemaGroupName));
+      String version;
+      try {
+        rs.next();
+        version = rs.getString("version_value");
+        if (rs.next()) {
+          throw new OpenGammaRuntimeException("Expected one schema version entry for group " + schemaGroupName + " but found multiple");
+        }
+      } finally {
+        rs.close();
+      }
+      return Integer.parseInt(version);
+    } catch (SQLException e) {
+      e.printStackTrace();
+      System.err.println("e.getMessage: " + e.getMessage());
+      throw new OpenGammaRuntimeException("SQL exception", e);
+    } finally {
+      if (conn != null) {
+        try {
+          conn.close();
+        } catch (SQLException e) {
+        }
+      }
+    }
+  }
+  
 }

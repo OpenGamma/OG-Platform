@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.util.test;
+package com.opengamma.util.db.management;
 
 import java.util.Collection;
 
@@ -127,6 +127,16 @@ public interface DbManagement {
    * @return a dialect specific string describing the database, not null
    */
   String describeDatabase(String catalog);
+  
+  /**
+   * Gets the current schema version of a named schema group.
+   *  
+   * @param catalog  the catalog (database) name, not null
+   * @param schema  the schema name within the database, null means the default schema
+   * @param schemaGroupName  the name of the schema group whose version to query, not null
+   * @return the schema group version, null if not applicable
+   */
+  Integer getSchemaGroupVersion(String catalog, String schema, String schemaGroupName);
 
   /**
    * Gets the database used for tests.

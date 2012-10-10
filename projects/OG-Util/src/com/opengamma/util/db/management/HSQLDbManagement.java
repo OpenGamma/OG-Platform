@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.util.test;
+package com.opengamma.util.db.management;
 
 import java.io.File;
 import java.sql.SQLInvalidAuthorizationSpecException;
@@ -11,6 +11,7 @@ import java.sql.SQLInvalidAuthorizationSpecException;
 import org.apache.commons.io.FileUtils;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.HSQLDialect;
+
 
 /**
  * Database management for HSQL databases.
@@ -128,6 +129,16 @@ public final class HSQLDbManagement extends AbstractDbManagement {
   @Override
   public String getCreateSchemaSQL(String catalog, String schema) {
     return "CREATE SCHEMA " + schema;
+  }
+  
+  @Override
+  public String getSchemaVersionTable(String schemaGroupName) {
+    return (schemaGroupName + SCHEMA_VERSION_TABLE_SUFFIX).toUpperCase();
+  }
+  
+  @Override
+  public String getSchemaVersionSQL(String catalog, String schemaGroupName) {
+    return "SELECT version_value FROM " + getSchemaVersionTable(schemaGroupName) + " WHERE version_key = 'schema_patch'";
   }
 
   @Override

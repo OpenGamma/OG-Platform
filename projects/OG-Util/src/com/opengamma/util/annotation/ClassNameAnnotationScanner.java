@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ClasspathUtils;
 
 /**
  * Static utility for scanning classes for a particular annotation.
@@ -36,7 +37,7 @@ public final class ClassNameAnnotationScanner {
   }
   
   public static Set<String> scan(String[] classpathElements, String annotationClassName) {
-    URL[] classpathUrls = getClasspathURLs(classpathElements);
+    URL[] classpathUrls = ClasspathUtils.getClasspathURLs(classpathElements);
     return scan(classpathUrls, annotationClassName);
   }
   
@@ -62,27 +63,6 @@ public final class ClassNameAnnotationScanner {
       throw new OpenGammaRuntimeException("Error scanning for annotations", e);
     }
     return annotationDb;
-  }
-  
-  private static URL[] getClasspathURLs(String[] classpath) {
-    if (classpath == null) {
-      return new URL[0];
-    }
-    Set<URL> classpathUrls = new HashSet<URL>();
-    for (String classpathEntry : classpath) {
-      File f = new File(classpathEntry);
-      if (!f.exists()) {
-        s_logger.debug("Skipping non-existent classpath entry '{}'", classpathEntry);
-        continue;
-      }
-      try {
-        classpathUrls.add(f.toURI().toURL());
-      } catch (MalformedURLException e) {
-        throw new OpenGammaRuntimeException("Error interpreting classpath entry '" + classpathEntry + "' as URL", e);
-      }
-    }
-    URL[] classpathUrlArray = classpathUrls.toArray(new URL[0]);
-    return classpathUrlArray;
   }
   
 }

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.util.test;
+package com.opengamma.util.db.management;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -133,6 +133,16 @@ public final class PostgresDbManagement extends AbstractDbManagement {
   @Override
   public String getCreateSchemaSQL(String catalog, String schema) {
     return "CREATE SCHEMA " + schema;
+  }
+  
+  @Override
+  public String getSchemaVersionTable(String schemaGroupName) {
+    return (schemaGroupName + SCHEMA_VERSION_TABLE_SUFFIX).toLowerCase();
+  }
+
+  @Override
+  public String getSchemaVersionSQL(String catalog, String schemaGroupName) {
+    return "SELECT version_value FROM " + getSchemaVersionTable(schemaGroupName) + " WHERE version_key = 'schema_patch'";
   }
 
   @Override
