@@ -36,7 +36,6 @@ $.register_module({
                         panels.forEach(function (panel) {delete last_object[panel];});
                         if (config.main && last_fingerprint.main !== (current_main = JSON.stringify(config.main))) {
                             if (og.analytics.grid) og.analytics.grid.dataman.kill();
-                            $(main_selector).html('loading...');
                             og.analytics.grid = new og.analytics.Grid({
                                 selector: main_selector, cellmenu: true,
                                 source: last_object.main = JSON.parse(last_fingerprint.main = current_main)

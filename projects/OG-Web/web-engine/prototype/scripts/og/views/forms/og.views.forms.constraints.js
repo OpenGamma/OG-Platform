@@ -50,7 +50,7 @@ $.register_module({
                     $withs.each(function (idx, el) {
                         var $el = $(el), optional = !!$el.find('input[type=checkbox]').filter(':checked').length,
                             key = $el.find('input.og-js-key').val();
-                        if (!key) throw Error('In a with constraint, type must be defined.');
+                        if (!key) throw new Error(module.name + ': in a with constraint, type must be defined');
                         if (!result['with']) result['with'] = {};
                         result['with'][key] = deconvert($el.find('input.og-js-value').val(), optional);
                     });

@@ -62,7 +62,7 @@ $.register_module({
         var constructor = function (config) {
             var grid = this;
             grid.config = config || {};
-            grid.elements = {empty: true, parent: $(config.selector)};
+            grid.elements = {empty: true, parent: $(config.selector).html('instantiating grid...')};
             grid.events = {
                 cellhoverin: [], cellhoverout: [], cellselect: [],
                 mousedown: [], rangeselect: [], render: [], scroll: [], select: []
@@ -81,6 +81,7 @@ $.register_module({
         var fire = og.common.events.fire;
         var init_data = function () {
             var grid = this, config = grid.config;
+            grid.elements.parent.html('initializing data connection...');
             grid.dataman = new og.analytics.Data(grid.source).on('meta', init_grid, grid).on('data', render_rows, grid);
             grid.on('render', function () {
                 grid.elements.main.find('.node').each(function (idx, val) {
@@ -321,7 +322,7 @@ $.register_module({
             try {grid.elements.style.remove();} catch (error) {return false;}
         };
         constructor.prototype.cell = function (selection) {
-            if (1 !== selection.rows.length || 1 !== selection.cols.length) return null;
+            if (!this.data || 1 !== selection.rows.length || 1 !== selection.cols.length) return null;
             var grid = this, meta = grid.meta, viewport = grid.meta.viewport, rows = viewport.rows,
                 cols = viewport.cols, row = selection.rows[0], col = selection.cols[0], col_index = cols.indexOf(col),
                 data_index = rows.indexOf(row) * cols.length + col_index, cell = grid.data[data_index];
@@ -355,39 +356,37 @@ $.register_module({
         constructor.prototype.on = og.common.events.on;
         constructor.prototype.resize = function (handler) {
             var grid = this, config = grid.config, meta = grid.meta, columns = meta.columns, id = grid.id, css, sheet,
-                width = grid.elements.parent.width(), data_width,
-                height = grid.elements.parent.height(), header_height = grid.meta.header_height;
+                width = grid.elements.parent.width(), data_width, height = grid.elements.parent.height(),
+                header_height = meta.header_height;
             grid.col_widths();
-            meta.columns.width = {
-                fixed: meta.columns.fixed.reduce(function (acc, set) {
+            columns.width = {
+                fixed: columns.fixed.reduce(function (acc, set) {
                     return acc + set.columns.reduce(function (acc, col) {return acc + col.width;}, 0);
                 }, 0),
-                scroll: meta.columns.scroll.reduce(function (acc, set) {
+                scroll: columns.scroll.reduce(function (acc, set) {
                     return acc + set.columns.reduce(function (acc, col) {return acc + col.width;}, 0);
                 }, 0)
             };
-            meta.columns.scan = {
-                fixed: meta.columns.fixed.reduce(function (acc, set) {
+            columns.scan = {
+                fixed: columns.fixed.reduce(function (acc, set) {
                     return set.columns
                         .reduce(function (acc, col) {return acc.arr.push(acc.val += col.width), acc;}, acc);
                 }, {arr: [], val: 0}).arr,
-                scroll: meta.columns.scroll.reduce(function (acc, set) {
+                scroll: columns.scroll.reduce(function (acc, set) {
                     return set.columns
                         .reduce(function (acc, col) {return acc.arr.push(acc.val += col.width), acc;}, acc);
                 }, {arr: [], val: 0}).arr
             };
-            meta.columns.scan.all = meta.columns.scan.fixed
-                .concat(meta.columns.scan.scroll.map(function (val) {return val + meta.columns.width.fixed;}));
-            data_width = meta.columns.scan.all[meta.columns.scan.all.length - 1] + scrollbar_size;
+            columns.scan.all = columns.scan.fixed
+                .concat(columns.scan.scroll.map(function (val) {return val + columns.width.fixed;}));
+            data_width = columns.scan.all[columns.scan.all.length - 1] + scrollbar_size;
             meta.rows = (meta.available = available(grid.meta)).length;
-            meta.viewport = {
-                height: meta.rows * row_height, width: Math.min(width, data_width) - meta.columns.width.fixed
-            };
+            meta.viewport = {height: meta.rows * row_height, width: Math.min(width, data_width) - columns.width.fixed};
             meta.visible_rows = Math.min(Math.ceil((height - header_height) / row_height), meta.rows);
             css = templates.css({
                 id: id, viewport_width: meta.viewport.width,
-                fixed_bg: background(columns.fixed, meta.columns.width.fixed, 'ecf5fa'),
-                scroll_bg: background(columns.scroll, meta.columns.width.scroll, 'ffffff'),
+                fixed_bg: background(columns.fixed, columns.width.fixed, 'ecf5fa'),
+                scroll_bg: background(columns.scroll, columns.width.scroll, 'ffffff'),
                 scroll_width: columns.width.scroll, fixed_width: columns.width.fixed + scrollbar_size,
                 scroll_left: columns.width.fixed,
                 height: height - header_height, header_height: header_height, row_height: row_height,
