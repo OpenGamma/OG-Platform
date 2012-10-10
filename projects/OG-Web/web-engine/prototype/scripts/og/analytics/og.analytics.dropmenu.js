@@ -15,7 +15,7 @@ $.register_module({
              * and not accessible directly via the instance.
              */
             DropMenu = function (config) {
-                var menu = this, tmpl = config.tmpl, dummy_s = '<div>', data = config.data || {};
+                var menu = this, tmpl = config.tmpl, dummy_s = '<wrapper>', data = config.data || {};
                 menu.state = 'closed';
                 menu.opened = false;
                 menu.data = data;

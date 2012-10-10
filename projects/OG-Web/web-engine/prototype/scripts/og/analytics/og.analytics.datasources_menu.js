@@ -9,13 +9,20 @@ $.register_module({
                 del_s = '.og-icon-delete', options_s = '.OG-dropmenu-options', dummy_s = '<wrapper>', type_s = '.type', 
                 ds_s = '.source', select_s = 'select', menu_click_s = 'input, div.og-icon-delete, a.OG-link-add', 
                 menu_change_s = select_s, $dom = menu.$dom,  $type_select, $ds_select, $sel_parent, $ds_selection, 
-                $sel_opt, $snapshot_opts, $snapshot_opts_tmpl,
+                $sel_opt, $snapshot_opts_tmpl, $historical_opts_tmpl,
                 events = {
+                    type_reset: 'dropmenu:ds:typereset',
                     type_switch:'dropmenu:ds:typeswitch'
                 },
                 populate_type_opts = function (data) {
+                    $sel_parent.data('type', type_val).addClass(type_val);
                     $ds_select.empty().append($($sel_opt.html()).text(default_sel_txt));
                     data.forEach(function (d) {$ds_select.append($($sel_opt.html()).text(d.name || d));});
+                },
+                populate_livedatasources = function () {
+                    og.api.rest.livedatasources.get().pipe(function (resp) {
+                        populate_type_opts(resp.data);
+                    });
                 },
                 populate_marketdatasnapshots = function () {
                     og.api.rest.marketdatasnapshots.get().pipe(function (resp) {
@@ -24,10 +31,9 @@ $.register_module({
                         $ds_select.after($snapshot_opts_tmpl.html());
                     });
                 },
-                populate_livedatasources = function () {
-                    og.api.rest.livedatasources.get().pipe(function (resp) {
-                        populate_type_opts(resp.data);
-                    });
+                populate_historical = function () {
+                    populate_type_opts(['Mock A','Mock B','Mock C', 'Mock D']);
+                    $ds_select.before($historical_opts_tmpl.html());
                 },
                 process_ds_opts = function () {
                     if(ds_opts.length) {
@@ -47,14 +53,19 @@ $.register_module({
                     return 0;
                 },
                 type_select_handler = function (entry) {
-                    if (type_val === '' || type_val === default_type_txt) return;
-                    var p_type = $sel_parent.data('previous_type');
-                    switch(type_val) {
-                        case 'snapshot': populate_marketdatasnapshots(); break;
+                    var type = $sel_parent.data('type');
+                    if ($sel_parent.hasClass(type)) menu.emitEvent(events.type_switch, [entry, type]);
+                    switch (type_val) {
                         case 'live': populate_livedatasources(); break;
+                        case 'snapshot': populate_marketdatasnapshots(); break;
+                        case 'historical': populate_historical(); break;
+                        case default_type_txt: {
+                            if (menu.opts.length === 1 || menu.opts.length > 1 && ds_opts.length === 1) {
+                                complete_opts_reset(); break;
+                            }
+                            opts_reset(entry); break;
+                        }
                     }
-                    if (p_type) menu.emitEvent(events.type_switch, [{pos:entry, previous:p_type, current:type_val}]);
-                    $sel_parent.data('previous_type', type_val).addClass($sel_parent.data('previous_type'));
                 },
                 ds_select_handler = function (entry) {
                     if (ds_val === default_sel_txt) {
@@ -68,11 +79,15 @@ $.register_module({
                     if (ds_opts.length === 1) return ds_opts.length = 0;
                     ds_opts.splice(entry, 1);
                 },
-                remove_orphans = function (obj) {
-                    // TODO AG: remove any selected extra options from ds_opts
-                    $sel_parent.removeClass(obj.previous);
-                    switch (obj.previous) {
-                        case 'snapshot' : $sel_parent.find('.extra-opts').remove();
+                remove_orphans = function (entry, type) { // TODO AG: remove any selected extra options from ds_opts
+                    $sel_parent.removeClass(type);
+                    switch (type) {
+                        case 'snapshot':
+                        case 'historical':
+                        case 'live':
+                            $sel_parent.find('.extra-opts').remove(); 
+                            $ds_select.empty().append($($sel_opt.html()).text(default_sel_txt));
+                            break;
                     }
                 },
                 add_handler = function () {
@@ -80,10 +95,16 @@ $.register_module({
                 },
                 del_handler = function (entry) {
                     if($type_select !== undefined) menu.del_handler($sel_parent);
-                    if (menu.opts.length === 1 || menu.opts.length > 1 && ds_opts.length === 1) {
-                        return $ds_selection.text(default_sel_txt), $type_select.val(default_sel_txt).focus(), 
-                            $ds_select.empty().append($($sel_opt.html()).text(default_sel_txt)), remove_entry();
-                    }
+                    if (menu.opts.length === 1 || menu.opts.length > 1 && ds_opts.length === 1)
+                        return complete_opts_reset();
+                    opts_reset(entry);
+                },
+                complete_opts_reset = function () {
+                    return $ds_selection.text(default_sel_txt), $type_select.val(default_sel_txt).focus(), 
+                        $ds_select.empty().append($($sel_opt.html()).text(default_sel_txt)), remove_entry();
+                },
+                opts_reset = function (entry) {
+                    entry = entry.pos || entry;
                     for (var i = ~entry ? entry : sel_pos, len = ds_opts.length; i < len; ds_opts[i++].pos-=1);
                     if (~entry) {
                         remove_entry(entry);
@@ -120,11 +141,17 @@ $.register_module({
                         '<button class="custom">Custom</button>',
                     '</div>'
                 ].join(''));
+                $historical_opts_tmpl = $(dummy_s).append([
+                    '<div class="extra-opts">',
+                        '<input class="OG-js-datetimepicker og-datetimepicker" />',
+                    '</div>'
+                ].join(''));
                 if ($dom.title) $dom.title.on('click', menu.title_handler.bind(menu));
                 if ($dom.menu) {
                     $dom.menu.on('click', menu_click_s, menu_handler).on('change', menu_handler);
                 }
             }
+            menu.addListener(events.type_reset, opts_reset);
             menu.addListener(events.type_switch, remove_orphans);
             return menu;
         };

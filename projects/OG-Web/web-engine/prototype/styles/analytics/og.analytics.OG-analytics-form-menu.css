@@ -109,7 +109,7 @@
         width: 95px;
     }
 
-    .OG-analytics-form-menu.og-menu-datasources tr td:nth-child(3) {
+    .OG-analytics-form-menu.og-menu-datasources tr.OG-dropmenu-actions td:nth-child(3) {
         text-align: right;
     }
 
@@ -122,25 +122,28 @@
         min-width: 256px;
     }
 
-    .OG-analytics-form-menu.og-menu-datasources .snapshot{
+    .OG-analytics-form-menu.og-menu-datasources .snapshot,
+    .OG-analytics-form-menu.og-menu-datasources .historical{
         white-space: nowrap;
     }
 
-    .OG-analytics-form-menu.og-menu-datasources .snapshot .source{
-        text-align: left;
-        width:120px;
-        min-width: 120px;
+    .OG-analytics-form-menu.og-menu-datasources .snapshot .extra-opts,
+    .OG-analytics-form-menu.og-menu-datasources .historical .extra-opts{
+        display: inline-block;
     }
 
-    .OG-analytics-form-menu.og-menu-datasources .snapshot td{ }
+    .OG-analytics-form-menu.og-menu-datasources .snapshot .source{
+        width:130px;
+        min-width: 130px;
+    }
+
+/* snapshots */
     .OG-analytics-form-menu.og-menu-datasources .snapshot select{
         vertical-align: initial;
     }
 
-    
     .OG-analytics-form-menu.og-menu-datasources .snapshot .extra-opts{
-        display: inline-block;
-        margin-left: 4px;
+        margin-left: 11px;
     }
 
     .OG-analytics-form-menu.og-menu-datasources .snapshot .extra-opts span{
@@ -151,7 +154,6 @@
         padding: 3px 0 2px 0;
         width: 49px;
     }
-
 
     .OG-analytics-form-menu.og-menu-datasources .snapshot .latest{
         border-top-left-radius: 4px;
@@ -170,6 +172,16 @@
         border-top-width: 2px !important;
         cursor: default;
     }
+
+/* historical */
+    .OG-analytics-form-menu.og-menu-datasources .historical td .source{
+        width: 335px;
+    }
+
+    .OG-analytics-form-menu.og-menu-datasources .historical td .source{
+        margin-left: 2px;
+    }
+
 
 /* ie8 doesnt support nth or last child...degrade */
     .ie8 .OG-analytics-form-menu select {
