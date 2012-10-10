@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -91,7 +92,6 @@ public class EquityIndexVanillaBarrierOptionVegaMatrixFunction extends EquityInd
           Function1D<Double, Double>[] scenarioSmileFits = Arrays.copyOf(smileFitsBase, smileFitsBase.length);
           scenarioSmileFits[t] = thisExpirysSmile;
           BlackVolatilitySurfaceMoneynessFcnBackedByGrid shiftedSurface = surfaceInterpolator.combineIndependentSmileFits(scenarioSmileFits, volGrid);
-          //TODO REMOVE: BlackVolatilitySurfaceMoneynessFcnBackedByGrid shiftedSurface = surfaceInterpolator.getBumpedVolatilitySurface(volGrid, t, k, -SHIFT);
           StaticReplicationDataBundle shiftedMarket = market.withShiftedSurface(shiftedSurface);
           // Sensitivities
           for (int v = 0; v < nVanillas; v++) {
@@ -104,38 +104,44 @@ public class EquityIndexVanillaBarrierOptionVegaMatrixFunction extends EquityInd
         }
       }
       vegaSurface = NodalDoublesSurface.from(triplesExpiryStrikeVega);
+
+      // Repackage into DoubleLabelledMatrix2D
+      // Find unique set of expiries,
+      final Double[] uniqueX = ArrayUtils.toObject(expiries);
+      // and strikes
+      Set<Double> strikeSet = new HashSet<Double>();
+      for (int i = 0; i < strikes.length; i++) {
+        strikeSet.addAll(Arrays.asList(ArrayUtils.toObject(strikes[i])));
+      }
+      final Double[] uniqueY = strikeSet.toArray(new Double[0]);
+      // Fill matrix with values, zero where no vega is available
+      final double[][] values = new double[uniqueY.length][uniqueX.length];
+      int i = 0;
+      for (final Double x : uniqueX) {
+        int j = 0;
+        for (final Double y : uniqueY) {
+          double vega;
+          try {
+            vega = vegaSurface.getZValue(x, y);
+          } catch (final IllegalArgumentException e) {
+            vega = 0;
+          }
+          values[j++][i] = vega;
+        }
+        i++;
+      }
+      final DoubleLabelledMatrix2D vegaMatrix = new DoubleLabelledMatrix2D(uniqueX, uniqueY, values);
+      return vegaMatrix;
+
+
     } else {
       throw new OpenGammaRuntimeException("Currently will only accept a VolatilitySurface of type: BlackVolatilitySurfaceMoneynessFcnBackedByGrid");
     }
-
-    final Double[] xValues = vegaSurface.getXData();
-    final Double[] yValues = vegaSurface.getYData();
-    final Set<Double> xSet = new HashSet<Double>(Arrays.asList(xValues));
-    final Set<Double> ySet = new HashSet<Double>(Arrays.asList(yValues));
-    final Double[] uniqueX = xSet.toArray(new Double[0]);
-    final Double[] uniqueY = ySet.toArray(new Double[0]);
-    final double[][] values = new double[ySet.size()][xSet.size()];
-    int i = 0;
-    for (final Double x : xSet) {
-      int j = 0;
-      for (final Double y : ySet) {
-        double vega;
-        try {
-          vega = vegaSurface.getZValue(x, y);
-        } catch (final IllegalArgumentException e) {
-          vega = 0;
-        }
-        values[j++][i] = vega;
-      }
-      i++;
-    }
-    final DoubleLabelledMatrix2D vegaMatrix = new DoubleLabelledMatrix2D(uniqueX, uniqueY, values);
-    return vegaMatrix;
   }
 
   /*
   @Override
-  // TODO CONFIRM: VanillaBarrierPV has this - is it appropriate here?!?
+  // TODO CONFIRM: VanillaBarrierPV has this - is it appropriate here?!? ===> MAYBE I CAN USE THIS TO SPECIFY UNDERLYING FOR SUMMING !!!
   protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
     return super.createValueProperties(target).with(ValuePropertyNames.CURRENCY, getEquityBarrierOptionSecurity(target).getCurrency().getCode());
   }
