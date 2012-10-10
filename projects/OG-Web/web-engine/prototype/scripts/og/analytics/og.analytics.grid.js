@@ -109,15 +109,18 @@ $.register_module({
             };
         };
         constructor.prototype.col_widths = function () {
-            var grid = this, meta = grid.meta, avg_col_width, fixed_width, parent_width = grid.elements.parent.width();
+            var grid = this, meta = grid.meta, avg_col_width, fixed_width, scroll_cols = meta.columns.scroll,
+                scroll_width, last_set, remainder, parent_width = grid.elements.parent.width();
             meta.fixed_length = meta.columns.fixed[0].columns.length;
             meta.scroll_length = meta.columns.scroll.reduce(function (acc, set) {return acc + set.columns.length;}, 0);
             fixed_width = meta.columns.fixed[0].columns
                 .reduce(function (acc, col, idx) {return acc + (col.width = idx ? 150 : 250);}, 0);
-            avg_col_width = Math.floor((parent_width - fixed_width - scrollbar_size) / meta.scroll_length);
-            meta.columns.scroll.forEach(function (set) {
+            remainder = (scroll_width = parent_width - fixed_width - scrollbar_size) -
+                ((avg_col_width = Math.floor(scroll_width / meta.scroll_length)) * meta.scroll_length);
+            scroll_cols.forEach(function (set) {
                 set.columns.forEach(function (col) {col.width = Math.max(default_col_width, avg_col_width);});
             });
+            (last_set = scroll_cols[scroll_cols.length - 1].columns)[last_set.length - 1].width += remainder;
         };
         constructor.prototype.init_data = function () {
             var grid = this, config = grid.config;
@@ -158,8 +161,7 @@ $.register_module({
                             rectangle = {top_left: (corner = grid.nearest_cell(x, y)), bottom_right: corner},
                             selection = grid.selector.selection(rectangle);
                         if (!selection || last_corner === (corner_cache = JSON.stringify(corner))) return;
-                        cell = grid.cell(grid.transpose_selection(selection));
-                        if (!cell) return;
+                        if (!(cell = grid.cell(grid.transpose_selection(selection)))) return;
                         cell.top = corner.top - scroll_top + grid.meta.header_height;
                         cell.right = corner.right - (page_x > fixed_width ? scroll_left : 0);
                         last_corner = corner_cache; last_x = page_x; last_y = page_y;
@@ -371,11 +373,10 @@ $.register_module({
             };
             return function () {
                 var grid = this, unraveled;
-                grid.meta.nodes = (unraveled = unravel(grid.meta.structure, 0, []))
-                    .reduce(function (acc, val, idx) {
-                        if (val.node) (acc[idx] = true), (acc.all.push(idx)), (acc.ranges.push(val.length));
-                        return acc;
-                    }, {all: [], ranges: []});
+                grid.meta.nodes = (unraveled = unravel(grid.meta.structure, 0, [])).reduce(function (acc, val, idx) {
+                    if (val.node) (acc[idx] = true), (acc.all.push(idx)), (acc.ranges.push(val.length));
+                    return acc;
+                }, {all: [], ranges: []});
                 grid.meta.unraveled = unraveled.pluck('prefix');
             };
         })();
@@ -397,8 +398,7 @@ $.register_module({
                 return acc;
             }, {scan: 0, cols: []}).cols);
             grid.dataman.viewport(viewport);
-            if (handler) handler.call(grid);
-            return grid;
+            return (handler && handler.call(grid)), grid;
         };
         return constructor;
     }

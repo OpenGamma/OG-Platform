@@ -24,7 +24,8 @@ $.register_module({
                 return value && formatter[type] ? formatter[type](value) : value && value.v || '';
             };
             formatter.CURVE = function (value) {
-                return '<span class="fl">[' + JSON.stringify(value.v) + ']</span>'
+                try {return '<span class="fl">[' + JSON.stringify(value.v) + ']</span>';}
+                catch (error) {return og.dev.warn(module.name + ': ', error), '';}
             };
             grid.on('render', function () {
                 var sp_options = {
