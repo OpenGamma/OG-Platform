@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.util.test;
+package com.opengamma.util.db.management;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -15,6 +15,7 @@ import org.hibernate.dialect.PostgreSQLDialect;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ReflectionUtils;
+import com.opengamma.util.test.CatalogCreationStrategy;
 
 /**
  * Database management for Vertica databases.
@@ -148,7 +149,17 @@ public final class VerticaDbManagement extends AbstractDbManagement {
   public String getCreateSchemaSQL(String catalog, String schema) {
     return "CREATE SCHEMA " + schema;
   }
+ 
+  @Override
+  public String getSchemaVersionTable(String schemaGroupName) {
+    return (schemaGroupName + SCHEMA_VERSION_TABLE_SUFFIX).toLowerCase();
+  }
 
+  @Override
+  public String getSchemaVersionSQL(String catalog, String schemaGroupName) {
+    return "SELECT version_value FROM " + getSchemaVersionTable(schemaGroupName) + " WHERE version_key = 'schema_patch'";
+  }
+  
   @Override
   public CatalogCreationStrategy getCatalogCreationStrategy() {
     return new VerticaCatalogCreationStrategy();

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.util.test;
+package com.opengamma.util.db.management;
 
 import java.sql.Connection;
 import java.sql.Driver;
@@ -17,6 +17,8 @@ import org.hibernate.mapping.ForeignKey;
 import org.hibernate.mapping.Table;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.test.CatalogCreationStrategy;
+import com.opengamma.util.test.SQLCatalogCreationStrategy;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -152,6 +154,16 @@ public final class SqlServer2008DbManagement extends AbstractDbManagement {
   @Override
   public String getCreateSchemaSQL(String catalog, String schema) {
     return "CREATE SCHEMA " + schema;
+  }
+  
+  @Override
+  public String getSchemaVersionTable(String schemaGroupName) {
+    return (schemaGroupName + SCHEMA_VERSION_TABLE_SUFFIX).toLowerCase();
+  }
+
+  @Override
+  public String getSchemaVersionSQL(String catalog, String schemaGroupName) {
+    return "SELECT version_value FROM " + getSchemaVersionTable(schemaGroupName) + " WHERE version_key = 'schema_patch'";
   }
 
   @Override
