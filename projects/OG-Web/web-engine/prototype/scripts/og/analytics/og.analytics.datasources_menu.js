@@ -6,19 +6,19 @@ $.register_module({
         return function (config) {
             var menu = new og.analytics.DropMenu(config), opts = menu.opts, data = menu.data, ds_opts = [], ds_val, 
                 type_val, sel_pos, default_type_txt = 'select type...', default_sel_txt = 'select data source...',
-                del_s = '.og-icon-delete', options_s = '.OG-dropmenu-options', dummy_s = '<div>', type_s = '.type', 
+                del_s = '.og-icon-delete', options_s = '.OG-dropmenu-options', dummy_s = '<wrapper>', type_s = '.type', 
                 ds_s = '.source', select_s = 'select', menu_click_s = 'input, div.og-icon-delete, a.OG-link-add', 
                 menu_change_s = select_s, $dom = menu.$dom,  $type_select, $ds_select, $sel_parent, 
                 $ds_selection = $('.datasources-selection', $dom.title), $sel_opt = $(dummy_s).append('<option>'), 
                 $snapshot_opts = $(dummy_s).append([
-                    '<td>',
+                    '<div class="extra-opts">',
                         '<span>Versions:</span>',
                         '<button class="latest active">Latest</button>', 
                         '<button class="custom">Custom</button>',
                         '<span>Correction:</span>',
                         '<button class="latest active">Latest</button>', 
                         '<button class="custom">Custom</button>',
-                    '</td>'
+                    '</div>'
                 ].join('')),
                 populate_type_opts = function (data) {
                     $ds_select.empty().append($($sel_opt.html()).text(default_sel_txt));
@@ -28,7 +28,7 @@ $.register_module({
                     og.api.rest.marketdatasnapshots.get().pipe(function (resp) {
                         populate_type_opts(resp.data[0].snapshots);
                     }).pipe(function () {
-                        $ds_select.parents('td').after($snapshot_opts.html());
+                        $ds_select.after($snapshot_opts.html());
                     });
                 },
                 populate_livedatasources = function () {

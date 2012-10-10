@@ -124,15 +124,24 @@
 
     .OG-analytics-form-menu.og-menu-datasources .snapshot{
         white-space: nowrap;
-        width:auto;
     }
 
     .OG-analytics-form-menu.og-menu-datasources .snapshot td{ }
-    .OG-analytics-form-menu.og-menu-datasources .snapshot select{ }
+    .OG-analytics-form-menu.og-menu-datasources .snapshot select{
+        vertical-align: top;
+    }
 
-    .OG-analytics-form-menu.og-menu-datasources .snapshot button{
+    .OG-analytics-form-menu.og-menu-datasources .snapshot .extra-opts{
+        display: inline-block;
+        margin-left: 4px;
+    }
+
+    .OG-analytics-form-menu.og-menu-datasources .snapshot .extra-opts span{
+        vertical-align: middle;        
+    }
+
+    .OG-analytics-form-menu.og-menu-datasources .snapshot .extra-opts button{
         padding: 2px 0;
-        vertical-align: baseline;
         width: 49px;
     }
 
