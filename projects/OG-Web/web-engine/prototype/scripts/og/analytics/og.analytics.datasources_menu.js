@@ -8,18 +8,11 @@ $.register_module({
                 type_val, sel_pos, default_type_txt = 'select type...', default_sel_txt = 'select data source...',
                 del_s = '.og-icon-delete', options_s = '.OG-dropmenu-options', dummy_s = '<wrapper>', type_s = '.type', 
                 ds_s = '.source', select_s = 'select', menu_click_s = 'input, div.og-icon-delete, a.OG-link-add', 
-                menu_change_s = select_s, $dom = menu.$dom,  $type_select, $ds_select, $sel_parent, 
-                $ds_selection = $('.datasources-selection', $dom.title), $sel_opt = $(dummy_s).append('<option>'), 
-                $snapshot_opts = $(dummy_s).append([
-                    '<div class="extra-opts">',
-                        '<span>Versions:</span>',
-                        '<button class="latest active">Latest</button>', 
-                        '<button class="custom">Custom</button>',
-                        '<span>Correction:</span>',
-                        '<button class="latest active">Latest</button>', 
-                        '<button class="custom">Custom</button>',
-                    '</div>'
-                ].join('')),
+                menu_change_s = select_s, $dom = menu.$dom,  $type_select, $ds_select, $sel_parent, $ds_selection, 
+                $sel_opt, $snapshot_opts, $snapshot_opts_tmpl,
+                events = {
+                    type_switch:'dropmenu:ds:typeswitch'
+                },
                 populate_type_opts = function (data) {
                     $ds_select.empty().append($($sel_opt.html()).text(default_sel_txt));
                     data.forEach(function (d) {$ds_select.append($($sel_opt.html()).text(d.name || d));});
@@ -28,7 +21,7 @@ $.register_module({
                     og.api.rest.marketdatasnapshots.get().pipe(function (resp) {
                         populate_type_opts(resp.data[0].snapshots);
                     }).pipe(function () {
-                        $ds_select.after($snapshot_opts.html());
+                        $ds_select.after($snapshot_opts_tmpl.html());
                     });
                 },
                 populate_livedatasources = function () {
@@ -53,15 +46,15 @@ $.register_module({
                     if (a.pos > b.pos) return 1;
                     return 0;
                 },
-                type_select_handler = function () {
+                type_select_handler = function (entry) {
                     if (type_val === '' || type_val === default_type_txt) return;
-                    var clname = $sel_parent.data('clname');
+                    var p_type = $sel_parent.data('previous_type');
                     switch(type_val) {
-                        case 'Snapshot': populate_marketdatasnapshots(); break;
-                        case 'Live': populate_livedatasources(); break;
+                        case 'snapshot': populate_marketdatasnapshots(); break;
+                        case 'live': populate_livedatasources(); break;
                     }
-                    if (clname) $sel_parent.removeClass(clname);
-                    $sel_parent.data('clname', type_val.toLowerCase()).addClass($sel_parent.data('clname'));
+                    if (p_type) menu.emitEvent(events.type_switch, [{pos:entry, previous:p_type, current:type_val}]);
+                    $sel_parent.data('previous_type', type_val).addClass($sel_parent.data('previous_type'));
                 },
                 ds_select_handler = function (entry) {
                     if (ds_val === default_sel_txt) {
@@ -74,6 +67,13 @@ $.register_module({
                 remove_entry = function (entry) {
                     if (ds_opts.length === 1) return ds_opts.length = 0;
                     ds_opts.splice(entry, 1);
+                },
+                remove_orphans = function (obj) {
+                    // TODO AG: remove any selected extra options from ds_opts
+                    $sel_parent.removeClass(obj.previous);
+                    switch (obj.previous) {
+                        case 'snapshot' : $sel_parent.find('.extra-opts').remove();
+                    }
                 },
                 add_handler = function () {
                     menu.add_handler(); 
@@ -102,16 +102,30 @@ $.register_module({
                     entry = (ds_opts.pluck('pos').indexOf(sel_pos));
                     if (elem.is(menu.$dom.add)) return add_handler();
                     if (elem.is(del_s)) return  del_handler(entry);
-                    if (elem.is(select_s+'.'+type_s)) return type_select_handler();
+                    if (elem.is(select_s+'.'+type_s)) 
+                        return type_val = type_val.toLowerCase(), type_select_handler(entry);
                     if (elem.is(select_s+'.'+ds_s)) return ds_select_handler(entry);
                 };
-            $dom.title_infix.append('<span>then</span>'); // Move to DropMenu class
             if ($dom) {
+                $dom.title_infix.append('<span>then</span>'); // Move to DropMenu class
+                $ds_selection = $('.datasources-selection', $dom.title);
+                $sel_opt = $(dummy_s).append('<option>');
+                $snapshot_opts_tmpl = $(dummy_s).append([
+                    '<div class="extra-opts">',
+                        '<span>Versions:</span>',
+                        '<button class="latest active">Latest</button>', 
+                        '<button class="custom">Custom</button>',
+                        '<span>Correction:</span>',
+                        '<button class="latest active">Latest</button>', 
+                        '<button class="custom">Custom</button>',
+                    '</div>'
+                ].join(''));
                 if ($dom.title) $dom.title.on('click', menu.title_handler.bind(menu));
                 if ($dom.menu) {
                     $dom.menu.on('click', menu_click_s, menu_handler).on('change', menu_handler);
                 }
             }
+            menu.addListener(events.type_switch, remove_orphans);
             return menu;
         };
     }
