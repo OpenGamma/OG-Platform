@@ -14,6 +14,7 @@ $.register_module({
             if (typemap[i].length === 1 && typemap[i][0] === 0) onlydepgraphs.push(i);
         var constructor = function (grid) {
             var cellmenu = this, timer, depgraph = !!grid.config.source.depgraph, parent = grid.elements.parent;
+            if (og.analytics.containers.initialize) return; // if containers has not been initialized, disable cellmenu
             og.api.text({module: 'og.analytics.cell_options'}).pipe(function (template) {
                 (cellmenu.menu = $(template)).hide().on('mouseleave', function () {
                     clearTimeout(timer), cellmenu.menu.removeClass(expand_class);
