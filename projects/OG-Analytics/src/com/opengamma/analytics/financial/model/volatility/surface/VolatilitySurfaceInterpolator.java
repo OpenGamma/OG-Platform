@@ -7,12 +7,6 @@ package com.opengamma.analytics.financial.model.volatility.surface;
 
 import static com.opengamma.analytics.math.FunctionUtils.square;
 
-import java.util.Arrays;
-
-import org.apache.commons.lang.ObjectUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.GeneralSmileInterpolator;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SmileInterpolatorSABR;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SurfaceArrayUtils;
@@ -26,6 +20,12 @@ import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.analytics.util.serialization.InvokedSerializedForm;
 import com.opengamma.util.ArgumentChecker;
+
+import java.util.Arrays;
+
+import org.apache.commons.lang.ObjectUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -133,12 +133,24 @@ public class VolatilitySurfaceInterpolator {
    * @param marketData The mark data - contains the forwards, expiries, and strikes and (market) implied volatilities at each expiry, not null
    * @return Implied volatility surface parameterised by time and moneyness
    */
-  public BlackVolatilitySurfaceMoneyness getVolatilitySurface(final SmileSurfaceDataBundle marketData) {
+  public BlackVolatilitySurfaceMoneynessFcnBackedByGrid getVolatilitySurface(final SmileSurfaceDataBundle marketData) {
     ArgumentChecker.notNull(marketData, "market data");
+
+    final Function1D<Double, Double>[] smileFunctions = getIndependentSmileFits(marketData);
+    return combineIndependentSmileFits(smileFunctions, marketData);
+  }
+
+  /**
+   * Given a set of smiles in the moneyness dimension, produce surface function that additionally intepolates in expiry. <p>
+   * Access to the individual parts of getVolatilitySurface() permits user to bump vols without having to recalibrate each independent smile
+   * @param smileFunctions Array of Function1D's, one per expiry, that return volatility given strike 
+   * @param marketData The mark data - contains the forwards, expiries, and strikes and (market) implied volatilities at each expiry, not null
+   * @return Implied volatility surface parameterised by time and moneyness
+   */
+  public BlackVolatilitySurfaceMoneynessFcnBackedByGrid combineIndependentSmileFits(final Function1D<Double, Double>[] smileFunctions, final SmileSurfaceDataBundle marketData) {
     final int n = marketData.getNumExpiries();
     final double[] forwards = marketData.getForwards();
     final double[] expiries = marketData.getExpiries();
-    final Function1D<Double, Double>[] smileFunctions = getIndependentSmileFits(marketData);
 
     double[] temp = null;
     if (_useLogTime) {
@@ -213,11 +225,11 @@ public class VolatilitySurfaceInterpolator {
       }
     };
 
-    return new BlackVolatilitySurfaceMoneyness(FunctionalDoublesSurface.from(surFunc), marketData.getForwardCurve());
+    return new BlackVolatilitySurfaceMoneynessFcnBackedByGrid(FunctionalDoublesSurface.from(surFunc), marketData.getForwardCurve(), marketData, VolatilitySurfaceInterpolator.this);
   }
 
   //TODO find a way of bumping a single point without recalibrating all unaffected smiles
-  public BlackVolatilitySurfaceMoneyness getBumpedVolatilitySurface(final SmileSurfaceDataBundle marketData, final int expiryIndex, final int strikeIndex, final double amount) {
+  public BlackVolatilitySurfaceMoneynessFcnBackedByGrid getBumpedVolatilitySurface(final SmileSurfaceDataBundle marketData, final int expiryIndex, final int strikeIndex, final double amount) {
     ArgumentChecker.notNull(marketData, "marketData");
     final SmileSurfaceDataBundle bumpedData = marketData.withBumpedPoint(expiryIndex, strikeIndex, amount);
     return getVolatilitySurface(bumpedData);

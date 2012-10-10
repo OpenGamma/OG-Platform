@@ -5,11 +5,11 @@
  */
 package com.opengamma.analytics.financial.equity;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * Market data required to price a Variance Swaps through static replication of a log-contract
@@ -32,6 +32,36 @@ public class StaticReplicationDataBundle {
     _discountCurve = discCrv;
     _volatilitySurface = volSurf;
     _forwardCurve = forwardCurve;
+  }
+
+  /**
+   * Create a data bundle based upon a new volatility surface 
+   * @param volSurf the volatility surface
+   * @return StaticReplicationDataBundle
+   */
+  public StaticReplicationDataBundle withShiftedSurface(final BlackVolatilitySurface<?> volSurf) {
+    Validate.notNull(volSurf, "null BlackVolatilitySurface");
+    return new StaticReplicationDataBundle(volSurf, getDiscountCurve(), getForwardCurve());
+  }
+
+  /**
+   * Create a data bundle based upon a new forward curve 
+   * @param forwardCurve the forward curve
+   * @return StaticReplicationDataBundle
+   */
+  public StaticReplicationDataBundle withShiftedForwardCurve(final ForwardCurve forwardCurve) {
+    Validate.notNull(forwardCurve, "null ForwardCurve");
+    return new StaticReplicationDataBundle(getVolatilitySurface(), getDiscountCurve(), forwardCurve);
+  }
+
+  /**
+   * Create a data bundle based upon a new discount curve 
+   * @param discCrv the discount curve
+   * @return StaticReplicationDataBundle
+   */
+  public StaticReplicationDataBundle withShiftedDiscountCurve(final YieldAndDiscountCurve discCrv) {
+    Validate.notNull(discCrv, "null YieldAndDiscountCurve");
+    return new StaticReplicationDataBundle(getVolatilitySurface(), discCrv, getForwardCurve());
   }
 
   /**
