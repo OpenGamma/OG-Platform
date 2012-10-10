@@ -5,24 +5,35 @@
  */
 package com.opengamma.analytics.financial.equity;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang.Validate;
-
 import com.google.common.collect.Lists;
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.interestrate.NodeYieldSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueNodeSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.GeneralSmileInterpolator;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SurfaceArrayUtils;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
+import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneynessFcnBackedByGrid;
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurfaceInterpolator;
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.analytics.math.surface.InterpolatedSurfaceAdditiveShiftFunction;
 import com.opengamma.analytics.math.surface.NodalDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.util.tuple.Triple;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * This Calculator provides simple bump and reprice sensitivities for Derivatives
@@ -30,6 +41,8 @@ import com.opengamma.util.tuple.DoublesPair;
 public class DerivativeSensitivityCalculator {
 
   private final AbstractDerivativeVisitor<StaticReplicationDataBundle, Double> _pricer;
+  private static final double DEFAULT_ABS_SHIFT = 0.0001; // Shift used for vol, +/- 1bp == 0.01%
+  private static final double DEFAULT_REL_SHIFT = 0.01; // Shift used for rates  +/- 1% * Rate
 
   public DerivativeSensitivityCalculator(final AbstractDerivativeVisitor<StaticReplicationDataBundle, Double> pricer) {
     _pricer = pricer;
@@ -69,8 +82,7 @@ public class DerivativeSensitivityCalculator {
    * @return A Double. Currency amount per unit amount change in the black volatility
    */
   public Double calcForwardSensitivity(final Derivative derivative, final StaticReplicationDataBundle market) {
-    final double relativeShift = 0.01;
-    return calcForwardSensitivity(derivative, market, relativeShift);
+    return calcForwardSensitivity(derivative, market, DEFAULT_REL_SHIFT);
   }
 
   /**
@@ -114,8 +126,7 @@ public class DerivativeSensitivityCalculator {
    * @return A Double in the currency, deriv.getCurrency(). Currency amount per unit amount change in discount rate
    */
   public Double calcDiscountRateSensitivity(final Derivative derivative, final StaticReplicationDataBundle market) {
-    final double relativeShift = 0.01;
-    return calcDiscountRateSensitivity(derivative, market, relativeShift);
+    return calcDiscountRateSensitivity(derivative, market, DEFAULT_REL_SHIFT);
   }
 
   /**
@@ -172,8 +183,7 @@ public class DerivativeSensitivityCalculator {
    * @return A Double. Currency amount per unit amount change in the black volatility
    */
   public Double calcBlackVegaParallel(final Derivative derivative, final StaticReplicationDataBundle market) {
-    final double shift = 0.001; // Shift each vol point by what? +/- 0.1%
-    return calcBlackVegaParallel(derivative, market, shift);
+    return calcBlackVegaParallel(derivative, market, DEFAULT_ABS_SHIFT);
   }
 
   /**
@@ -209,8 +219,7 @@ public class DerivativeSensitivityCalculator {
    * @return A NodalDoublesSurface with same axes as market.getVolatilitySurface(). Contains currencys amount per unit amount change in the black volatility of each node
    */
   public NodalDoublesSurface calcBlackVegaForEntireSurface(final Derivative derivative, final StaticReplicationDataBundle market) {
-    final double shift = 0.001; // Shift each vol point by what? +/- 0.1%
-    return calcBlackVegaForEntireSurface(derivative, market, shift);
+    return calcBlackVegaForEntireSurface(derivative, market, DEFAULT_ABS_SHIFT);
   }
 
   /**
@@ -226,22 +235,75 @@ public class DerivativeSensitivityCalculator {
     Validate.notNull(derivative, "null EquityDerivative");
     Validate.notNull(market, "null EquityOptionDataBundle");
 
-    // Unpack market data
-    final Surface<Double, Double, Double> surface = market.getVolatilitySurface().getSurface();
-    Validate.isTrue(surface instanceof InterpolatedDoublesSurface, "Currently will only accept a Equity VolatilitySurfaces based on an InterpolatedDoublesSurface");
-    final InterpolatedDoublesSurface blackSurf = (InterpolatedDoublesSurface) surface;
-    final Double[] maturities = blackSurf.getXData();
-    final Double[] strikes = blackSurf.getYData();
-    final int nNodes = maturities.length;
-    Validate.isTrue(nNodes == strikes.length);
+    if (market.getVolatilitySurface().getSurface() instanceof InterpolatedDoublesSurface) {
+      final InterpolatedDoublesSurface blackSurf = (InterpolatedDoublesSurface) market.getVolatilitySurface().getSurface();
+      final Double[] maturities = blackSurf.getXData();
+      final Double[] strikes = blackSurf.getYData();
+      final int nNodes = maturities.length;
+      Validate.isTrue(nNodes == strikes.length);
+      // Bump and reprice
+      final Double[] vegas = new Double[nNodes];
+      for (int j = 0; j < nNodes; j++) {
+        vegas[j] = calcBlackVegaForSinglePoint(derivative, market, maturities[j], strikes[j], shift);
+      }
+      return NodalDoublesSurface.from(maturities, strikes, vegas);
 
-    // Bump and reprice
-    final Double[] vegas = new Double[nNodes];
-    for (int j = 0; j < nNodes; j++) {
-      vegas[j] = calcBlackVegaForSinglePoint(derivative, market, maturities[j], strikes[j], shift);
+      // Special case for EquityIndexOptions
+    } else if (market.getVolatilitySurface() instanceof BlackVolatilitySurfaceMoneynessFcnBackedByGrid) {
+      final BlackVolatilitySurfaceMoneynessFcnBackedByGrid surfaceBundle = (BlackVolatilitySurfaceMoneynessFcnBackedByGrid) market.getVolatilitySurface();
+
+      final EquityIndexOption option;
+      if (derivative instanceof EquityIndexOption) {
+        option = (EquityIndexOption) derivative;
+      } else {
+        throw new OpenGammaRuntimeException("Calculator with BlackVolatilitySurfaceMoneynessFcnBackedByGrid was expecting an EquityIndexOption.");
+      }
+      // Unpack
+      final SmileSurfaceDataBundle volGrid = surfaceBundle.getGridData();
+      final double[] forwards = volGrid.getForwards();
+      final double[] volExpiries = volGrid.getExpiries();
+      final int nExpiries = volGrid.getNumExpiries();
+      final double[][] strikes = volGrid.getStrikes();
+      final double[][] vols = volGrid.getVolatilities();
+      final VolatilitySurfaceInterpolator surfaceInterpolator = surfaceBundle.getInterpolator();
+      final GeneralSmileInterpolator strikeInterpolator = surfaceInterpolator.getSmileInterpolator();
+
+      // Base price and set of independent smile fits (one function vol(k) for each expiry)
+      final Double pvBase = _pricer.visit(option, market);
+      Function1D<Double, Double>[] smileFitsBase = surfaceInterpolator.getIndependentSmileFits(volGrid);
+
+      // Bump and reprice - loop over expiry and strike
+      List<Triple<Double, Double, Double>> triplesExpiryStrikeVega = new ArrayList<Triple<Double, Double, Double>>();
+      // TODO: REVIEW: We can drastically reduce the time it takes to compute this if we are sensible about avoiding points which almost certainly won't have any sensitivity
+      // Of course, this is all based upon the interpolor's scheme...
+      final int expiryIndex = SurfaceArrayUtils.getLowerBoundIndex(volExpiries, option.getTimeToExpiry());
+      for (int t = Math.max(0, expiryIndex - 3); t < Math.min(nExpiries, expiryIndex + 4); t++) {
+        final int nStrikes = strikes[t].length;
+        final int strikeIndex = SurfaceArrayUtils.getLowerBoundIndex(strikes[t], option.getStrike());
+        for (int k = Math.max(0, strikeIndex - 6); k < Math.min(nStrikes, strikeIndex + 7); k++) {
+          // TODO: REVIEW We only recompute the smile function for the specific expiry we are bumping..
+          double[] bumpedVols = Arrays.copyOf(vols[t], nStrikes);
+          bumpedVols[k] = vols[t][k] - shift;
+          final Function1D<Double, Double> thisExpirysSmile = strikeInterpolator.getVolatilityFunction(forwards[t], strikes[t], volExpiries[t], bumpedVols);
+          Function1D<Double, Double>[] scenarioSmileFits = Arrays.copyOf(smileFitsBase, smileFitsBase.length);
+          scenarioSmileFits[t] = thisExpirysSmile;
+          BlackVolatilitySurfaceMoneynessFcnBackedByGrid shiftedSurface = surfaceInterpolator.combineIndependentSmileFits(scenarioSmileFits, volGrid);
+          //BlackVolatilitySurfaceMoneynessFcnBackedByGrid shiftedSurface = surfaceInterpolator.getBumpedVolatilitySurface(volGrid, t, k, -shift);
+          final StaticReplicationDataBundle shiftedMarket = market.withShiftedSurface(shiftedSurface);
+          final Double pvScenario = _pricer.visit(option, shiftedMarket);
+
+          Validate.notNull(pvScenario, "Null PV in shifted scenario, T = " + volExpiries[t] + ", k = " + strikes[t][k]);
+          final Double vega = (pvScenario - pvBase) / -shift;
+          final Triple<Double, Double, Double> xyz = new Triple<Double, Double, Double>(volExpiries[t], strikes[t][k], vega);
+          triplesExpiryStrikeVega.add(xyz);
+        }
+      }
+      return NodalDoublesSurface.from(triplesExpiryStrikeVega);
+
+    } else {
+      throw new OpenGammaRuntimeException("Currently will only accept an Equity Volatility Surface based on an InterpolatedDoublesSurface, " +
+          "or BlackVolatilitySurfaceMoneynessFcnBackedByGrid");
     }
-
-    return new NodalDoublesSurface(maturities, strikes, vegas);
   }
 
   /**
