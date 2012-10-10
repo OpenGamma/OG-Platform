@@ -17,8 +17,6 @@ import org.hibernate.mapping.ForeignKey;
 import org.hibernate.mapping.Table;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.util.test.CatalogCreationStrategy;
-import com.opengamma.util.test.SQLCatalogCreationStrategy;
 import com.opengamma.util.tuple.Pair;
 
 /**

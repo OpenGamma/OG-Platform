@@ -14,7 +14,6 @@ import org.hibernate.dialect.DerbyDialect;
 import org.hibernate.dialect.Dialect;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.util.test.CatalogCreationStrategy;
 
 /**
  * Database management for Derby databases.

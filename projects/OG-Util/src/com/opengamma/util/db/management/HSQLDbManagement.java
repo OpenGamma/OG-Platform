@@ -12,7 +12,6 @@ import org.apache.commons.io.FileUtils;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.HSQLDialect;
 
-import com.opengamma.util.test.CatalogCreationStrategy;
 
 /**
  * Database management for HSQL databases.

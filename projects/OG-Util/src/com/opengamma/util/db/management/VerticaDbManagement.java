@@ -15,7 +15,6 @@ import org.hibernate.dialect.PostgreSQLDialect;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ReflectionUtils;
-import com.opengamma.util.test.CatalogCreationStrategy;
 
 /**
  * Database management for Vertica databases.

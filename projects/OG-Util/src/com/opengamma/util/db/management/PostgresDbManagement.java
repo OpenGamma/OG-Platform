@@ -13,8 +13,6 @@ import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.PostgreSQLDialect;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.util.test.CatalogCreationStrategy;
-import com.opengamma.util.test.SQLCatalogCreationStrategy;
 
 /**
  * Database management for Postgres databases.
