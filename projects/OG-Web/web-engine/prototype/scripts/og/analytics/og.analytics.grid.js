@@ -175,20 +175,15 @@ $.register_module({
         var init_grid = function (meta) {
             var grid = this, config = grid.config, columns = meta.columns;
             grid.meta = meta;
-            grid.meta.row_height = row_height;
-            grid.meta.header_height =  (config.source.depgraph ? 0 : set_height) + title_height;
+            meta.row_height = row_height;
+            meta.header_height =  (config.source.depgraph ? 0 : set_height) + title_height;
             grid.col_widths();
-            grid.meta.columns.headers = [];
-            grid.meta.columns.types = [];
-            columns.fixed[0].columns.forEach(function (col) {
-                grid.meta.columns.headers.push(col.header);
-                grid.meta.columns.types.push(col.type);
-            });
+            columns.headers = [];
+            columns.types = [];
+            columns.fixed[0].columns
+                .forEach(function (col) {columns.headers.push(col.header); columns.types.push(col.type);});
             columns.scroll.forEach(function (set) {
-                set.columns.forEach(function (col) {
-                    grid.meta.columns.headers.push(col.header);
-                    grid.meta.columns.types.push(col.type);
-                });
+                set.columns.forEach(function (col) {columns.headers.push(col.header); columns.types.push(col.type);});
             });
             unravel_structure.call(grid);
             if (grid.elements.empty) init_elements.call(grid);
@@ -233,7 +228,7 @@ $.register_module({
                         value = (formatter[type = types[column]] ? formatter[type](data[index]) : data[index]) || '';
                         cells.push({
                             column: column,
-                            value: fixed && !j ? meta.unravel_cache[meta.unraveled[data_row]] + value : value
+                            value: fixed && !j ? meta.unraveled_cache[meta.unraveled[data_row]] + value : value
                         });
                     }
                 }
@@ -300,13 +295,12 @@ $.register_module({
             };
             return function () {
                 var grid = this, unraveled, prefix;
-                cache = {}; counter = 0; grid.meta.unravel_cache = [];
+                cache = {}; counter = 0; grid.meta.unraveled_cache = [];
                 grid.meta.nodes = (unraveled = unravel(grid.meta.structure, 0, [])).reduce(function (acc, val, idx) {
                     if (val.node) (acc[idx] = true), (acc.all.push(idx)), (acc.ranges.push(val.length));
                     return acc;
                 }, {all: [], ranges: []});
-                for (prefix in cache) grid.meta.unravel_cache[+cache[prefix]] = prefix;
-                cache = null;
+                for (prefix in cache) grid.meta.unraveled_cache[+cache[prefix]] = prefix;
                 grid.meta.unraveled = unraveled.pluck('prefix');
             };
         })();
