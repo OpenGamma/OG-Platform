@@ -9,7 +9,7 @@
   <appender name="FILE" class="ch.qos.logback.core.FileAppender">
     <file>server.log</file>
     <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-      <fileNamePattern>server.%i.log.zip</fileNamePattern>
+      <fileNamePattern>server.%i.log.gz</fileNamePattern>
       <minIndex>1</minIndex>
       <maxIndex>9</maxIndex>
     </rollingPolicy>
