@@ -231,7 +231,10 @@ $.register_module({
                     for (data_row = rows[i]; j < col_end; j += 1) {
                         index = i * total_cols + j; column = cols[j];
                         value = (formatter[type = types[column]] ? formatter[type](data[index]) : data[index]) || '';
-                        cells.push({column: column, value: fixed && !j ? meta.unraveled[data_row] + value : value});
+                        cells.push({
+                            column: column,
+                            value: fixed && !j ? meta.unravel_cache[meta.unraveled[data_row]] + value : value
+                        });
                     }
                 }
                 return result;
@@ -268,30 +271,42 @@ $.register_module({
             };
         };
         var unravel_structure = (function () {
-            var times = function (str, rep) {var result = ''; if (rep) while (rep--) result += str; return result;};
+            var times_str =  '&nbsp;&nbsp;&nbsp;', times_memo = {}, cache, counter;
+            var times = function (rep) {
+                if (rep in times_memo) return times_memo[rep];
+                var result = '';
+                if (rep) while (rep--) result += times_str;
+                return times_memo[rep] = result;
+            };
             var unravel = function (arr, indent, result) {
-                var start = arr[0], end = arr[1], children = arr[2], str = '&nbsp;&nbsp;&nbsp;', prefix, last_end;
-                result[start] = {
-                    prefix: times(str, indent) + '<span data-row="' + start + '" class="node"></span>&nbsp;',
-                    node: true, length: end - start
-                };
+                var start = arr[0], end = arr[1], children = arr[2], prefix, last_end, str;
+                prefix = (cache[times(indent) +
+                    '<span data-row="' + start + '" class="node"></span>&nbsp;'] = counter++);
+                result[start] = {prefix: prefix, node: true, length: end - start};
                 children.forEach(function (child) {
-                    var current_start = child[0], current_end = child[1], lcv;
-                    if (last_end !== null) for (lcv = last_end + 1; lcv < current_start; lcv += 1)
-                        result[lcv] = {prefix: times(str, indent + 2)};
+                    var current_start = child[0], current_end = child[1], lcv, prefix, str;
+                    if (last_end !== null) for (lcv = last_end + 1; lcv < current_start; lcv += 1) {
+                        str = times(indent + 2);
+                        prefix = str in cache ? cache[str] : (cache[str] = counter++);
+                        result[lcv] = {prefix: prefix};
+                    }
                     last_end = start = current_end;
                     unravel(child, indent + 1, result);
                 });
-                prefix = times(str, indent + 2);
+                str = times(indent + 2);
+                prefix = str in cache ? cache[str] : (cache[str] = counter++);
                 while (++start <= end) result[start] = {prefix: prefix};
                 return result;
             };
             return function () {
-                var grid = this, unraveled;
+                var grid = this, unraveled, prefix;
+                cache = {}; counter = 0; grid.meta.unravel_cache = [];
                 grid.meta.nodes = (unraveled = unravel(grid.meta.structure, 0, [])).reduce(function (acc, val, idx) {
                     if (val.node) (acc[idx] = true), (acc.all.push(idx)), (acc.ranges.push(val.length));
                     return acc;
                 }, {all: [], ranges: []});
+                for (prefix in cache) grid.meta.unravel_cache[+cache[prefix]] = prefix;
+                cache = null;
                 grid.meta.unraveled = unraveled.pluck('prefix');
             };
         })();
