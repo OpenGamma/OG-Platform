@@ -39,6 +39,7 @@
       var cometURL = location.protocol + "//" + location.host + config.contextPath + "/cometd";
       _cometd.configure({
         url : cometURL,
+        maxNetworkDelay : 20000,
         logLevel : 'warn'
       });
       _cometd.addListener('/meta/connect', handleMetaConnect);
