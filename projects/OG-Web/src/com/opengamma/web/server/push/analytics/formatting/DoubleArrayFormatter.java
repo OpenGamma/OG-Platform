@@ -26,9 +26,8 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   @Override
-  public Object formatForExpandedDisplay(double[][] value, ValueSpecification valueSpec) {
-    // TODO implement formatForExpandedDisplay()
-    throw new UnsupportedOperationException("formatForExpandedDisplay not implemented");
+  public double[][] formatForExpandedDisplay(double[][] value, ValueSpecification valueSpec) {
+    return value;
   }
 
   @Override
