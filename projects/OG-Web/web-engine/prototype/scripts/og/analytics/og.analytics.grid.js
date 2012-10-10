@@ -166,7 +166,8 @@ $.register_module({
                     fire(grid.events.rangeselect, selection);
                 fire(grid.events.select, selection); // fire for both single and multiple selection
             });
-            if (config.cellmenu) cellmenu = new og.analytics.CellMenu(grid);
+            if (config.cellmenu) try {cellmenu = new og.analytics.CellMenu(grid);}
+                catch (error) {og.dev.warn(module.name + ': caught an error', error);}
             og.common.gadgets.manager.register({alive: grid.alive, resize: grid.resize, context: grid});
             elements.empty = false;
         };
