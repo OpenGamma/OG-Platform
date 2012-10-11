@@ -44,4 +44,9 @@ public class FileDbScript implements DbScript {
     return FileUtils.readFileToString(getFile());
   }
 
+  @Override
+  public String toString() {
+    return getFile().toString();
+  }
+  
 }

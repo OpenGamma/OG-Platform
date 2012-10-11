@@ -73,4 +73,9 @@ public class ZipFileDbScript implements DbScript {
     }
   }
 
+  @Override
+  public String toString() {
+    return getZipFile() + "!/" + getEntryName();
+  }
+  
 }
