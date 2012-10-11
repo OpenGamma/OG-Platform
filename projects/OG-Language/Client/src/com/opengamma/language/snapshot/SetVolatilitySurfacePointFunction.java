@@ -43,6 +43,10 @@ public class SetVolatilitySurfacePointFunction extends AbstractFunctionInvoker i
    */
   public static enum ObjectType {
     /**
+     * Values of type Double.
+     */
+    DOUBLE,
+    /**
      * Values of type Tenor.
      */
     TENOR,
@@ -85,6 +89,8 @@ public class SetVolatilitySurfacePointFunction extends AbstractFunctionInvoker i
   private static Object convert(final ObjectType type, final String str, final int index) {
     try {
       switch (type) {
+        case DOUBLE:
+          return new Double(Double.parseDouble(str));
         case TENOR:
           return new Tenor(Period.parse(str));
         case INTEGER_FXVOLQUOTETYPE_PAIR: {
