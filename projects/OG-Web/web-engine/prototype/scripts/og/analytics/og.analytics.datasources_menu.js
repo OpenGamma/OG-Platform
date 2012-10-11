@@ -4,7 +4,7 @@ $.register_module({
     dependencies: ['og.analytics.DropMenu'],
     obj: function () { 
         return function (config) {
-            var menu = new og.analytics.DropMenu(config), opts = menu.opts, data = menu.data, ds_opts = [], ds_val, 
+            var menu = new og.analytics.DropMenu(config), opts = menu.opts, data = menu.data, query_opts = [], ds_val, 
                 type_val, sel_pos, default_type_txt = 'select type...', default_sel_txt = 'select data source...',
                 del_s = '.og-icon-delete', options_s = '.OG-dropmenu-options', dummy_s = '<wrapper>', type_s = '.type', 
                 ds_s = '.source', select_s = 'select', menu_click_s = 'input, div.og-icon-delete, a.OG-link-add', 
@@ -37,10 +37,10 @@ $.register_module({
                     populate_type_opts(['Mock A','Mock B','Mock C', 'Mock D']);
                     $ds_select.before($historical_opts_tmpl.html());
                 },
-                process_ds_opts = function () {
-                    if(ds_opts.length) {
+                process_query_opts = function () {
+                    if(query_opts.length) {
                         var i = 0, arr = [];
-                        ds_opts.sort(sort_opts).forEach(function (entry) { // revisit the need for sorting this..
+                        query_opts.sort(sort_opts).forEach(function (entry) { // revisit the need for sorting this..
                             if (i > 0) arr[i++] = $dom.title_infix.html() + " ";
                             arr[i++] = entry;
                         });
@@ -62,59 +62,50 @@ $.register_module({
                         case 'snapshot': populate_marketdatasnapshots(); break;
                         case 'historical': populate_historical(); break;
                         case default_type_txt: {
-                            if (menu.opts.length === 1 /*|| menu.opts.length > 1*/ && ds_opts.length === 1) {
-                                purge_opts(); break;
-                            }
-                            remove_entry(entry); 
-                            process_ds_opts(); // Emit event; type_selected
-                            break;
+                            if (menu.opts.length === 1 && query_opts.length === 1) return reset_query();
+                            return remove_entry(entry), process_query_opts(); // Emit event; type_selected
                         }
                     }
-                    console.log(ds_opts);
+                    if (query_opts.length === 0) return $ds_selection.text(default_sel_txt);
                 },
                 ds_select_handler = function (entry) {
                     if (ds_val === default_sel_txt) {
                         remove_entry(entry);
-                        if (ds_opts.length === 0) return $ds_selection.text(default_sel_txt);
-                    } else if (~entry) ds_opts[entry] = {pos:sel_pos, type:type_val, ds:ds_val};
-                    else ds_opts.splice(sel_pos, 0, {pos:sel_pos, type:type_val, ds:ds_val});
-                    process_ds_opts(); // Emit event; data_selected 
-                    console.log(ds_opts);
+                        if (query_opts.length === 0) return $ds_selection.text(default_sel_txt);
+                    } else if (~entry) query_opts[entry] = {pos:sel_pos, type:type_val, ds:ds_val};
+                    else query_opts.splice(sel_pos, 0, {pos:sel_pos, type:type_val, ds:ds_val});
+                    process_query_opts(); // Emit event; data_selected 
                 },
                 remove_entry = function (entry) {
-                    if (ds_opts.length === 1) return ds_opts.length = 0;
-                    ds_opts.splice(entry, 1);
-                },
+                    if (query_opts.length === 1) return query_opts.length = 0; // Emit event; reset_query
+                    query_opts.splice(entry, 1);
+                },  
                 remove_orphans = function (entry, type) {
-                    $sel_parent.removeClass(type);
-                    switch (type) {
-                        case 'snapshot':
-                        case 'historical':
-                        case 'live':
-                            $sel_parent.find('.extra-opts').remove(); 
-                            $ds_select.empty().append($($sel_opt.html()).text(default_sel_txt));
-                            break;
-                    }
+                    $sel_parent.removeClass(type ? type : '').find('.extra-opts').remove(); 
+                    $ds_select.empty().append($($sel_opt.html()).text(default_sel_txt));
+                    if (type_val !== default_type_txt || type_val !== type) remove_entry(entry), process_query_opts();
                 },
-                purge_opts = function () {
+                reset_query = function () {
                     return $ds_selection.text(default_sel_txt), $type_select.val(default_sel_txt).focus(), 
                         $ds_select.empty().append($($sel_opt.html()).text(default_sel_txt)), remove_entry();
                 },
-                repos_ds_opts = function (entry) {
-                    for (var i = ~entry ? entry : sel_pos, len = ds_opts.length; i < len; ds_opts[i++].pos-=1);
-                    if (~entry) {
-                        remove_entry(entry);
-                        process_ds_opts(); // Emit event; opts_repositioned 
+                repos_query_opts = function (entry) {
+                    if (menu.opts.length) {
+                        for (var i = ~entry ? entry : sel_pos, len = query_opts.length; i < len; query_opts[i++].pos-=1);
+                        if (~entry) {
+                            remove_entry(entry);
+                            process_query_opts(); // Emit event; opts_repositioned 
+                        }
                     }
                 },
                 add_handler = function () {
                     menu.add_handler(); 
                 },
                 del_handler = function (entry) {
-                    if (menu.opts.length === 1) return purge_opts();
-                    if ($type_select !== undefined) menu.del_handler($sel_parent);
-                    repos_ds_opts(entry);
-                    console.log(ds_opts);
+                    if (menu.opts.length === 1) return remove_orphans(entry, $sel_parent.data('type')), reset_query();
+                    else if (menu.opts.length > 1 && query_opts.length === 1) reset_query();
+                    if ($type_select !== undefined && menu.opts.length > 1) menu.del_handler($sel_parent);
+                    repos_query_opts(entry);    
                 },
                 menu_handler = function (event) {
                     var target = event.srcElement || event.target,
@@ -125,9 +116,9 @@ $.register_module({
                     type_val = $type_select.val();
                     ds_val = $ds_select.val();
                     sel_pos = $sel_parent.data('pos');
-                    entry = (ds_opts.pluck('pos').indexOf(sel_pos));
+                    entry = (query_opts.pluck('pos').indexOf(sel_pos));
                     if (elem.is(menu.$dom.add)) return add_handler();
-                    if (elem.is(del_s)) return  del_handler(entry);
+                    if (elem.is(del_s)) return del_handler(entry);
                     if (elem.is(select_s+'.'+type_s)) 
                         return type_val = type_val.toLowerCase(), type_select_handler(entry);
                     if (elem.is(select_s+'.'+ds_s)) return ds_select_handler(entry);
