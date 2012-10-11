@@ -92,12 +92,12 @@ import com.opengamma.util.ArgumentChecker;
 
     private AnalyticsNode createNode(PortfolioNode node) {
       int nodeStart = _lastRow;
+      _lastRow += node.getPositions().size();
       List<AnalyticsNode> nodes = new ArrayList<AnalyticsNode>();
       for (PortfolioNode child : node.getChildNodes()) {
         ++_lastRow;
         nodes.add(createNode(child));
       }
-      _lastRow += node.getPositions().size();
       return new AnalyticsNode(nodeStart, _lastRow, Collections.unmodifiableList(nodes));
     }
 

@@ -192,7 +192,7 @@ public class CalibrateHazardRateTest {
 
     // -------------------------------------------------------------------------------------
 
-    final boolean outputResults = true;
+    final boolean outputResults = false;
 
     // -------------------------------------------------------------------------------------
 

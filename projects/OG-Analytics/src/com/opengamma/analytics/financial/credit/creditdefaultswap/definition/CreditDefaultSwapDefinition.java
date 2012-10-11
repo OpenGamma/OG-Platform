@@ -117,6 +117,9 @@ public class CreditDefaultSwapDefinition {
   // The credit key to uniquely identify a reference entities par spread CDS curve
   private final String _creditKey;
 
+  // If _protectionStart = true then this is the offset
+  private final double _protectionOffset = 1.0 / 365.0;
+
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Constructor for a CDS contract object
@@ -343,6 +346,10 @@ public class CreditDefaultSwapDefinition {
 
   public String getCreditKey() {
     return _creditKey;
+  }
+
+  public double getProtectionOffset() {
+    return _protectionOffset;
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------

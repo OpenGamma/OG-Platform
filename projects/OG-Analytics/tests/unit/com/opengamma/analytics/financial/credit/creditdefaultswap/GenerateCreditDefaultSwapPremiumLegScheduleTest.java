@@ -99,9 +99,9 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
 
   private static final Calendar calendar = new MyCalendar();
 
-  private static final ZonedDateTime startDate = DateUtils.getUTCDate(2008, 3, 20);
+  private static final ZonedDateTime startDate = DateUtils.getUTCDate(2007, 10, 22);
   private static final ZonedDateTime effectiveDate = startDate.plusDays(1); //DateUtils.getUTCDate(2008, 12, 22);
-  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2013, 3, 20);
+  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2012, 12, 20);
   private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2010, 2, 4);
 
   private static final StubType stubType = StubType.FRONTSHORT;
@@ -202,11 +202,11 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
     final GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
 
     // Call the schedule generation method for the CDS contract
-    ZonedDateTime[][] schedule = cashflowSchedule.constructCreditDefaultSwapPremiumLegSchedule(cds);
+    ZonedDateTime[] schedule = cashflowSchedule.constructCreditDefaultSwapPremiumLegSchedule(cds);
 
     if (outputSchedule) {
       for (int i = 0; i < schedule.length; i++) {
-        System.out.println(schedule[i][0]);
+        System.out.println(schedule[i]);
       }
     }
 
