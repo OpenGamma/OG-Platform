@@ -147,7 +147,6 @@ public class CalibrateHazardRate {
   // ------------------------------------------------------------------------
 
   // Private method to do the root search to find the hazard rate for tenor m which gives the CDS a PV of zero
-
   private double calibrateHazardRate(
       CreditDefaultSwapDefinition calibrationCDS,
       PresentValueCreditDefaultSwap presentValueCDS,

@@ -114,10 +114,10 @@ public class PresentValueCreditDefaultSwapTest {
 
   private static final Calendar calendar = new MyCalendar();
 
-  private static final ZonedDateTime startDate = DateUtils.getUTCDate(2007, 10, 22);
-  private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2007, 10, 23);
-  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2012, 12, 20);
-  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2007, 10, 23);
+  private static final ZonedDateTime startDate = DateUtils.getUTCDate(2008, 3, 20);
+  private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2008, 3, 21);
+  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2013, 3, 20);
+  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2008, 3, 21);
 
   private static final StubType stubType = StubType.FRONTSHORT;
   private static final PeriodFrequency couponFrequency = PeriodFrequency.QUARTERLY;
@@ -233,14 +233,12 @@ public class PresentValueCreditDefaultSwapTest {
 
   // Simple test to compute the PV of a CDS assuming a flat term structure of market observed CDS par spreads
 
-  @Test
+  //@Test
   public void testPresentValueCreditDefaultSwap() {
 
     // -----------------------------------------------------------------------------------------------
 
     final boolean outputResults = false;
-
-    double presentValue = 0.0;
 
     if (outputResults) {
       System.out.println("Running CDS PV test  ...");
@@ -251,11 +249,20 @@ public class PresentValueCreditDefaultSwapTest {
     // Call the constructor to create a CDS whose PV we will compute
     final PresentValueCreditDefaultSwap creditDefaultSwap = new PresentValueCreditDefaultSwap();
 
-    // Call the CDS PV calculator (with a flat survival curve) to get the current PV
-    presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(cds, yieldCurve, hazardRateCurve);
+    // Calculate the value of the premium leg
+    double premiumLegPresentValue = (cds.getPremiumLegCoupon() / 10000.0) * creditDefaultSwap.calculatePremiumLeg(cds, yieldCurve, hazardRateCurve);
+
+    // Calculate the value of the contingent leg
+    //double contingentLegPresentValue = creditDefaultSwap.calculateContingentLeg(cds, yieldCurve, hazardRateCurve);
+
+    // Calculate the present value
+    //double presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(cds, yieldCurve, hazardRateCurve);
 
     if (outputResults) {
-      System.out.println("CDS PV = " + presentValue);
+
+      System.out.println("CDS Premium Leg PV = " + premiumLegPresentValue);
+      //System.out.println("CDS Contingent Leg PV = " + contingentLegPresentValue);
+      //System.out.println("CDS PV = " + presentValue);
     }
 
   }
@@ -264,7 +271,7 @@ public class PresentValueCreditDefaultSwapTest {
 
   // Simple test to calibrate a single name CDS to a term structure of market observed par CDS spreads and compute the PV
 
-  @Test
+  //@Test
   public void testPresentValueCreditSwapCalibrateSurvivalCurve() {
 
     // -----------------------------------------------------------------------------------------------
@@ -370,6 +377,8 @@ public class PresentValueCreditDefaultSwapTest {
 
     final boolean outputResults = false;
 
+    double premiumLegPresentValue = 0.0;
+    double contingentLegPresentValue = 0.0;
     double presentValue = 0.0;
 
     if (outputResults) {
@@ -385,10 +394,16 @@ public class PresentValueCreditDefaultSwapTest {
     final PresentValueCreditDefaultSwap creditDefaultSwap = new PresentValueCreditDefaultSwap();
 
     // Call the CDS PV calculator to get the current PV
-    presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(cds, yieldCurve, hazardRateCurve);
+    //presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(cds, yieldCurve, hazardRateCurve);
+
+    // Calculate the value of the premium leg
+    premiumLegPresentValue = (cds.getPremiumLegCoupon() / 10000.0) * creditDefaultSwap.calculatePremiumLeg(cds, yieldCurve, hazardRateCurve);
+
+    // Calculate the value of the contingent leg
+    contingentLegPresentValue = creditDefaultSwap.calculateContingentLeg(cds, yieldCurve, hazardRateCurve);
 
     if (outputResults) {
-      System.out.println(valuationDate + "\t" + presentValue);
+      System.out.println(valuationDate + "\t" + premiumLegPresentValue);
     }
 
     // -----------------------------------------------------------------------------------------------
@@ -405,10 +420,15 @@ public class PresentValueCreditDefaultSwapTest {
       valuationCDS = valuationCDS.withValuationDate(rollingValuationDate);
 
       // Calculate the CDS PV
-      presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(valuationCDS, yieldCurve, hazardRateCurve);
+      //presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(valuationCDS, yieldCurve, hazardRateCurve);
+
+      // Calculate the value of the premium leg
+      premiumLegPresentValue = (cds.getPremiumLegCoupon() / 10000.0) * creditDefaultSwap.calculatePremiumLeg(valuationCDS, yieldCurve, hazardRateCurve);
+
+      contingentLegPresentValue = creditDefaultSwap.calculateContingentLeg(valuationCDS, yieldCurve, hazardRateCurve);
 
       if (outputResults) {
-        System.out.println(rollingValuationDate + "\t" + presentValue);
+        System.out.println(rollingValuationDate + "\t" + contingentLegPresentValue);
       }
     }
 
