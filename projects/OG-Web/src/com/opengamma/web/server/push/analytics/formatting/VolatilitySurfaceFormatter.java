@@ -31,6 +31,7 @@ import com.opengamma.engine.value.ValueSpecification;
       Set<Double> uniqueYValues = Sets.newHashSet(inputSurface.getYData());
       return "Volatility Surface (" + uniqueXValues.size() + " x " + uniqueYValues.size() + ")";
     } else {
+      // TODO ConstantDoublesSurface
       s_logger.warn("Unable to format surface of type {}", inputSurface.getClass());
       return null;
     }
