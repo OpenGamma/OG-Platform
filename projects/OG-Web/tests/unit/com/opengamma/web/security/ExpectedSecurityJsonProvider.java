@@ -16,7 +16,18 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitorSameValueAdapter;
 import com.opengamma.financial.security.equity.EquitySecurity;
-import com.opengamma.financial.security.future.*;
+import com.opengamma.financial.security.future.AgricultureFutureSecurity;
+import com.opengamma.financial.security.future.BondFutureDeliverable;
+import com.opengamma.financial.security.future.BondFutureSecurity;
+import com.opengamma.financial.security.future.EnergyFutureSecurity;
+import com.opengamma.financial.security.future.EquityFutureSecurity;
+import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
+import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.future.FutureSecurity;
+import com.opengamma.financial.security.future.IndexFutureSecurity;
+import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.financial.security.future.MetalFutureSecurity;
+import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.time.Expiry;
 
@@ -38,7 +49,9 @@ import com.opengamma.util.time.Expiry;
     Map<String, Object> templateData = Maps.newHashMap();
     addDefaultFields(security, templateData);
 
-    templateData.put("attributes", security.getAttributes());
+    if (security.getAttributes() != null && !security.getAttributes().isEmpty()) {
+      templateData.put("attributes", security.getAttributes());
+    }
     if (StringUtils.isNotBlank(security.getShortName())) {
       templateData.put("shortName", security.getShortName());
     }
