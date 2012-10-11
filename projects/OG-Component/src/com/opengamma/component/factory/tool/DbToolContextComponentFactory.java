@@ -5,7 +5,11 @@
  */
 package com.opengamma.component.factory.tool;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -22,12 +26,17 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.springframework.core.io.Resource;
+import org.springframework.util.ResourceUtils;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.management.DbManagement;
+import com.opengamma.util.db.script.DbScriptDirectory;
+import com.opengamma.util.db.script.DbScriptReader;
+import com.opengamma.util.db.script.FileDbScriptDirectory;
+import com.opengamma.util.db.script.ZipFileDbScriptDirectory;
 import com.opengamma.util.db.tool.DbToolContext;
 
 /**
@@ -57,10 +66,10 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition
   private String _catalog;
   /**
-   * A comma-separated list of schema group names on which to operate.
+   * A comma-separated list of database object groups on which to operate.
    */
   @PropertyDefinition
-  private String _schemaGroupsList;
+  private String _groupsList;
   /**
    * A resource pointing to the root of the database installation scripts.
    */
@@ -76,12 +85,44 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
     for (MetaProperty<?> mp : mapTarget.values()) {
       mp.set(dbToolContext, property(mp.name()).get());
     }
+    if (getScriptsResource() != null) {
+      URL scriptsResourceUrl;
+      try {
+        scriptsResourceUrl = getScriptsResource().getURL();
+      } catch (IOException e) {
+        throw new OpenGammaRuntimeException("Unable to get scripts resource as URL", e);
+      }
+      DbScriptDirectory dbScriptDirectory;
+      if (ResourceUtils.isFileURL(scriptsResourceUrl)) {
+        try {
+          dbScriptDirectory = new FileDbScriptDirectory(ResourceUtils.getFile(scriptsResourceUrl));
+        } catch (FileNotFoundException e) {
+          throw new OpenGammaRuntimeException("Error resolving scripts resource to file from URL " + scriptsResourceUrl);
+        }
+      } else if (ResourceUtils.isJarURL(scriptsResourceUrl)) {
+        URL jarFileUrl;
+        try {
+          jarFileUrl = ResourceUtils.extractJarFileURL(scriptsResourceUrl);
+        } catch (MalformedURLException e) {
+          throw new OpenGammaRuntimeException("Error resolving JAR file from URL " + scriptsResourceUrl);
+        }
+        int jarPathSeparatorIdx = scriptsResourceUrl.getFile().indexOf("!/");
+        if (jarPathSeparatorIdx == -1) {
+          throw new OpenGammaRuntimeException("Could not find resource path in JAR URL " + scriptsResourceUrl);
+        }
+        String jarPath = scriptsResourceUrl.getFile().substring(jarPathSeparatorIdx + 2);
+        dbScriptDirectory = new ZipFileDbScriptDirectory(new File(jarFileUrl.getFile()), jarPath);
+      } else {
+        throw new OpenGammaRuntimeException("Unsupported scripts resource URL: " + scriptsResourceUrl);
+      }
+      dbToolContext.setScriptReader(new DbScriptReader(dbScriptDirectory));
+    }
     if (getSchemaGroupsList() != null) {
       Set<String> schemaGroups = new HashSet<String>();
       for (String schemaGroup : getSchemaGroupsList().split(",")) {
         schemaGroups.add(schemaGroup.toLowerCase().trim());
       }
-      dbToolContext.setSchemaGroups(schemaGroups);
+      dbToolContext.setGroups(schemaGroups);
     }
     repo.registerInfrastructure(DbToolContext.class, getClassifier(), dbToolContext);
   }
@@ -291,7 +332,7 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
    * @return the value of the property
    */
   public String getSchemaGroupsList() {
-    return _schemaGroupsList;
+    return _groupsList;
   }
 
   /**
@@ -299,7 +340,7 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
    * @param schemaGroupsList  the new value of the property
    */
   public void setSchemaGroupsList(String schemaGroupsList) {
-    this._schemaGroupsList = schemaGroupsList;
+    this._groupsList = schemaGroupsList;
   }
 
   /**
