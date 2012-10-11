@@ -8,11 +8,13 @@ $.register_module({
                 type_val, sel_pos, default_type_txt = 'select type...', default_sel_txt = 'select data source...',
                 del_s = '.og-icon-delete', options_s = '.OG-dropmenu-options', dummy_s = '<wrapper>', type_s = '.type', 
                 ds_s = '.source', select_s = 'select', menu_click_s = 'input, div.og-icon-delete, a.OG-link-add', 
-                menu_change_s = select_s, $dom = menu.$dom,  $type_select, $ds_select, $sel_parent, $ds_selection, 
-                $sel_opt, $snapshot_opts_tmpl, $historical_opts_tmpl,
+                $dom = menu.$dom,  $type_select, $ds_select, $sel_parent, $ds_selection, $sel_opt, $snapshot_opts_tmpl,
+                $historical_opts_tmpl,
                 events = {
                     type_reset: 'dropmenu:ds:typereset',
-                    type_switch:'dropmenu:ds:typeswitch'
+                    type_selected:'dropmenu:ds:typesselected',
+                    data_selected: 'dropmenu:ds:dataselected',
+                    opts_repositioned: 'dropmenu:ds:optsrespositioned'
                 },
                 populate_type_opts = function (data) {
                     $sel_parent.data('type', type_val).addClass(type_val);
@@ -54,32 +56,36 @@ $.register_module({
                 },
                 type_select_handler = function (entry) {
                     var type = $sel_parent.data('type');
-                    if ($sel_parent.hasClass(type)) menu.emitEvent(events.type_switch, [entry, type]);
+                    if ($sel_parent.hasClass(type)) remove_orphans(entry, type);
                     switch (type_val) {
                         case 'live': populate_livedatasources(); break;
                         case 'snapshot': populate_marketdatasnapshots(); break;
                         case 'historical': populate_historical(); break;
                         case default_type_txt: {
-                            if (menu.opts.length === 1 || menu.opts.length > 1 && ds_opts.length === 1) {
-                                complete_opts_reset(); break;
+                            if (menu.opts.length === 1 /*|| menu.opts.length > 1*/ && ds_opts.length === 1) {
+                                purge_opts(); break;
                             }
-                            opts_reset(entry); break;
+                            remove_entry(entry); 
+                            process_ds_opts(); // Emit event; type_selected
+                            break;
                         }
                     }
+                    console.log(ds_opts);
                 },
                 ds_select_handler = function (entry) {
                     if (ds_val === default_sel_txt) {
                         remove_entry(entry);
-                        if (ds_opts.length === 0) return $ds_selection.html(default_sel_txt);
+                        if (ds_opts.length === 0) return $ds_selection.text(default_sel_txt);
                     } else if (~entry) ds_opts[entry] = {pos:sel_pos, type:type_val, ds:ds_val};
                     else ds_opts.splice(sel_pos, 0, {pos:sel_pos, type:type_val, ds:ds_val});
-                    process_ds_opts();
+                    process_ds_opts(); // Emit event; data_selected 
+                    console.log(ds_opts);
                 },
                 remove_entry = function (entry) {
                     if (ds_opts.length === 1) return ds_opts.length = 0;
                     ds_opts.splice(entry, 1);
                 },
-                remove_orphans = function (entry, type) { // TODO AG: remove any selected extra options from ds_opts
+                remove_orphans = function (entry, type) {
                     $sel_parent.removeClass(type);
                     switch (type) {
                         case 'snapshot':
@@ -90,26 +96,25 @@ $.register_module({
                             break;
                     }
                 },
+                purge_opts = function () {
+                    return $ds_selection.text(default_sel_txt), $type_select.val(default_sel_txt).focus(), 
+                        $ds_select.empty().append($($sel_opt.html()).text(default_sel_txt)), remove_entry();
+                },
+                repos_ds_opts = function (entry) {
+                    for (var i = ~entry ? entry : sel_pos, len = ds_opts.length; i < len; ds_opts[i++].pos-=1);
+                    if (~entry) {
+                        remove_entry(entry);
+                        process_ds_opts(); // Emit event; opts_repositioned 
+                    }
+                },
                 add_handler = function () {
                     menu.add_handler(); 
                 },
                 del_handler = function (entry) {
-                    if($type_select !== undefined) menu.del_handler($sel_parent);
-                    if (menu.opts.length === 1 || menu.opts.length > 1 && ds_opts.length === 1)
-                        return complete_opts_reset();
-                    opts_reset(entry);
-                },
-                complete_opts_reset = function () {
-                    return $ds_selection.text(default_sel_txt), $type_select.val(default_sel_txt).focus(), 
-                        $ds_select.empty().append($($sel_opt.html()).text(default_sel_txt)), remove_entry();
-                },
-                opts_reset = function (entry) {
-                    entry = entry.pos || entry;
-                    for (var i = ~entry ? entry : sel_pos, len = ds_opts.length; i < len; ds_opts[i++].pos-=1);
-                    if (~entry) {
-                        remove_entry(entry);
-                        process_ds_opts();
-                    }
+                    if (menu.opts.length === 1) return purge_opts();
+                    if ($type_select !== undefined) menu.del_handler($sel_parent);
+                    repos_ds_opts(entry);
+                    console.log(ds_opts);
                 },
                 menu_handler = function (event) {
                     var target = event.srcElement || event.target,
@@ -148,11 +153,9 @@ $.register_module({
                 ].join(''));
                 if ($dom.title) $dom.title.on('click', menu.title_handler.bind(menu));
                 if ($dom.menu) {
-                    $dom.menu.on('click', menu_click_s, menu_handler).on('change', menu_handler);
+                    $dom.menu.on('click', menu_click_s, menu_handler).on('change', select_s, menu_handler);
                 }
             }
-            menu.addListener(events.type_reset, opts_reset);
-            menu.addListener(events.type_switch, remove_orphans);
             return menu;
         };
     }
