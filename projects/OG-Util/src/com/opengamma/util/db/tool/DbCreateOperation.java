@@ -7,18 +7,22 @@ package com.opengamma.util.db.tool;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Creates database schemas using the installation scripts.
- */
-public class DbSchemaCreateOperation extends AbstractDbSchemaScriptOperation<DbToolContext> {
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.db.script.DbScript;
 
-  private static final Logger s_logger = LoggerFactory.getLogger(DbSchemaCreateOperation.class);
+/**
+ * Creates database objects using the installation scripts.
+ */
+public class DbCreateOperation extends AbstractDbScriptOperation<DbToolContext> {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(DbCreateOperation.class);
   
-  private final boolean _dropExisting;
+  private final boolean _dropCatalog;
   
   /**
    * Constructs an instance.
@@ -26,28 +30,31 @@ public class DbSchemaCreateOperation extends AbstractDbSchemaScriptOperation<DbT
    * @param dbToolContext  the database tool context, not null
    * @param write  true to modify the database, false to output the commands that would be run
    * @param outputFile  the file to which the SQL should be written, null not to write to a file
-   * @param dropExisting  indicates whether to drop any existing contents before attempting to create the schemas 
+   * @param dropCatalog  indicates whether to drop the catalog if it already exists 
    */
-  public DbSchemaCreateOperation(DbToolContext dbToolContext, boolean write, File outputFile, boolean dropExisting) {
+  public DbCreateOperation(DbToolContext dbToolContext, boolean write, File outputFile, boolean dropCatalog) {
     super(dbToolContext, write, outputFile);
-    _dropExisting = dropExisting;
+    _dropCatalog = dropCatalog;
   }
   
   //-------------------------------------------------------------------------
   @Override
   public void execute() {
-    if (isDropExisting()) {
-      dropSchema();
+    if (isDropCatalog()) {
+      dropCatalog();
     }
     SqlScriptWriter writer = createSqlScriptWriter();
     try {
-      for (String schemaGroup : getDbToolContext().getSchemaGroups()) {
-        s_logger.info("Processing schema group " + schemaGroup);
-        File sqlScript = getLatestSchemaCreateScript(schemaGroup);
-        s_logger.debug("Using schema creation file: " + sqlScript);
-        writer.write(schemaGroup, sqlScript);
+      Set<String> groups = getDbToolContext().getGroups() != null ? getDbToolContext().getGroups() : getAllGroupNames();
+      for (String group : groups) {
+        s_logger.info("Processing group " + group);
+        DbScript script = getCreationScript(group);
+        s_logger.debug("Using script: " + script);
+        writer.write(group, script);
       }
       s_logger.info("Scripts processed successfully");
+    } catch (IOException e) {
+      throw new OpenGammaRuntimeException("Error processing creation scripts", e);
     } finally {
       try {
         writer.close();
@@ -57,9 +64,14 @@ public class DbSchemaCreateOperation extends AbstractDbSchemaScriptOperation<DbT
     }
   }
   
-  protected void dropSchema() {
+  protected void dropCatalog() {
     contextNotNull(getDbToolContext().catalog());
     
+    if (!isWrite()) {
+      s_logger.info("Would erase the contents of " + getDbToolContext().getCatalog() + " but skipping in read-only mode");
+      return;
+    }
+        
     // Give the user a chance to kill the script
     s_logger.warn("About to erase the contents of " + getDbToolContext().getCatalog() + "...");
     try {
@@ -72,8 +84,8 @@ public class DbSchemaCreateOperation extends AbstractDbSchemaScriptOperation<DbT
   }
   
   //-------------------------------------------------------------------------
-  private boolean isDropExisting() {
-    return _dropExisting;
+  private boolean isDropCatalog() {
+    return _dropCatalog;
   }
   
 }
