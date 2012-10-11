@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.credit.creditdefaultswap;
 
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
@@ -17,15 +18,16 @@ import com.opengamma.analytics.financial.credit.CreditRatingFitch;
 import com.opengamma.analytics.financial.credit.CreditRatingMoodys;
 import com.opengamma.analytics.financial.credit.CreditRatingStandardAndPoors;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
+import com.opengamma.analytics.financial.credit.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.Obligor;
 import com.opengamma.analytics.financial.credit.Region;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.Sector;
 import com.opengamma.analytics.financial.credit.StubType;
-import com.opengamma.analytics.financial.credit.SurvivalCurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.GenerateCreditDefaultSwapPremiumLegSchedule;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.PresentValueCreditDefaultSwap;
+import com.opengamma.analytics.financial.interestrate.PeriodicInterestRate;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
@@ -36,6 +38,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.convention.daycount.ActualThreeSixtyFive;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
@@ -129,6 +132,7 @@ public class PresentValueCreditDefaultSwapTest {
   private static final double premiumLegCoupon = 100.0;
   private static final double recoveryRate = 0.40;
   private static final boolean includeAccruedPremium = false;
+  private static final boolean protectionStart = true;
 
   // Dummy yield curve
   private static final double interestRate = 0.0;
@@ -137,11 +141,23 @@ public class PresentValueCreditDefaultSwapTest {
   private static final InterpolatedDoublesCurve R = InterpolatedDoublesCurve.from(TIME, RATES, new LinearInterpolator1D());
   private static final YieldCurve yieldCurve = YieldCurve.from(R);
 
-  // Construct a survival curve based on a flat hazard rate term structure (for testing purposes only)
-  private static final double hazardRate = (premiumLegCoupon / 10000.0) / (1 - recoveryRate);
-  private static final double[] tenorsAsDoubles = new double[] {5 };
-  private static final double[] hazardRates = new double[] {hazardRate };
-  private static final SurvivalCurve flatSurvivalCurve = new SurvivalCurve(tenorsAsDoubles, hazardRates);
+  protected static DayCount s_act365 = new ActualThreeSixtyFive();
+
+  static double[] times = {
+      0.0,
+      s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2013, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2015, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2018, 06, 20, 0, 0, 0, 0, TimeZone.UTC))
+  };
+
+  static double[] rates = {
+      (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.09705141266558010000, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.09701141671498870000, 1)).toContinuous().getRate()
+  };
+
+  private static final HazardRateCurve hazardRateCurve = new HazardRateCurve(times, rates, 0.0);
 
   // ----------------------------------------------------------------------------------
 
@@ -210,14 +226,15 @@ public class PresentValueCreditDefaultSwapTest {
       notional,
       premiumLegCoupon,
       recoveryRate,
-      includeAccruedPremium);
+      includeAccruedPremium,
+      protectionStart);
 
   // -----------------------------------------------------------------------------------------------
 
   // Simple test to compute the PV of a CDS assuming a flat term structure of market observed CDS par spreads
 
-  //@Test
-  public void testPresentValueCreditDefaultSwapFlatSurvivalCurve() {
+  @Test
+  public void testPresentValueCreditDefaultSwap() {
 
     // -----------------------------------------------------------------------------------------------
 
@@ -226,7 +243,7 @@ public class PresentValueCreditDefaultSwapTest {
     double presentValue = 0.0;
 
     if (outputResults) {
-      System.out.println("Running CDS PV test (with a simple flat survival curve) ...");
+      System.out.println("Running CDS PV test  ...");
     }
 
     // -----------------------------------------------------------------------------------------------
@@ -235,7 +252,7 @@ public class PresentValueCreditDefaultSwapTest {
     final PresentValueCreditDefaultSwap creditDefaultSwap = new PresentValueCreditDefaultSwap();
 
     // Call the CDS PV calculator (with a flat survival curve) to get the current PV
-    presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(cds, yieldCurve, flatSurvivalCurve);
+    presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(cds, yieldCurve, hazardRateCurve);
 
     if (outputResults) {
       System.out.println("CDS PV = " + presentValue);
@@ -247,8 +264,8 @@ public class PresentValueCreditDefaultSwapTest {
 
   // Simple test to calibrate a single name CDS to a term structure of market observed par CDS spreads and compute the PV
 
-  //@Test
-  public void testPresentValueCreditSwapCalibratedSurvivalCurve() {
+  @Test
+  public void testPresentValueCreditSwapCalibrateSurvivalCurve() {
 
     // -----------------------------------------------------------------------------------------------
 
@@ -257,7 +274,7 @@ public class PresentValueCreditDefaultSwapTest {
     double presentValue = 0.0;
 
     if (outputResults) {
-      System.out.println("Running CDS PV test (with a calibrated survival curve) ...");
+      System.out.println("Running CDS calibration test ...");
     }
 
     // -----------------------------------------------------------------------------------------------
@@ -327,7 +344,7 @@ public class PresentValueCreditDefaultSwapTest {
     double[] tenorsAsDoubles = cashflowSchedule.convertTenorsToDoubles(cds, tenors);
 
     // Build a survival curve using the input tenors (converted to doubles) and the previously calibrated hazard rates
-    final SurvivalCurve survivalCurve = new SurvivalCurve(tenorsAsDoubles, calibratedHazardRateTermStructure);
+    final HazardRateCurve survivalCurve = new HazardRateCurve(tenorsAsDoubles, calibratedHazardRateTermStructure, 0.0);
 
     // Call the constructor to create a CDS whose PV we will compute
     final PresentValueCreditDefaultSwap creditDefaultSwap = new PresentValueCreditDefaultSwap();
@@ -346,7 +363,7 @@ public class PresentValueCreditDefaultSwapTest {
 
   // Test to vary the valuationDate of a CDS from adjustedEffectiveDate to adjustedMaturityDate and compute PV
 
-  //@Test
+  @Test
   public void testPresentValueCreditDefaultSwapTimeDecay() {
 
     // -----------------------------------------------------------------------------------------------
@@ -368,7 +385,7 @@ public class PresentValueCreditDefaultSwapTest {
     final PresentValueCreditDefaultSwap creditDefaultSwap = new PresentValueCreditDefaultSwap();
 
     // Call the CDS PV calculator to get the current PV
-    presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(cds, yieldCurve, flatSurvivalCurve);
+    presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(cds, yieldCurve, hazardRateCurve);
 
     if (outputResults) {
       System.out.println(valuationDate + "\t" + presentValue);
@@ -388,7 +405,7 @@ public class PresentValueCreditDefaultSwapTest {
       valuationCDS = valuationCDS.withValuationDate(rollingValuationDate);
 
       // Calculate the CDS PV
-      presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(valuationCDS, yieldCurve, flatSurvivalCurve);
+      presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(valuationCDS, yieldCurve, hazardRateCurve);
 
       if (outputResults) {
         System.out.println(rollingValuationDate + "\t" + presentValue);
@@ -400,7 +417,9 @@ public class PresentValueCreditDefaultSwapTest {
 
   // -----------------------------------------------------------------------------------------------
 
-  @Test
+  // Work-in-Progress
+
+  //@Test
   public void testPFECalculation() {
 
     // -----------------------------------------------------------------------------------------------
@@ -412,6 +431,8 @@ public class PresentValueCreditDefaultSwapTest {
 
     double mu = 0.90;
     double sigma = 1.0;
+
+    double hazRate = 0.01;
 
     // -----------------------------------------------------------------------------------------------
 
@@ -477,7 +498,7 @@ public class PresentValueCreditDefaultSwapTest {
       // -----------------------------------------------------------------------------------------------
 
       // Call the CDS PV calculator (with a flat survival curve) to get the current PV at time zero
-      presentValue[0] = creditDefaultSwap.getPresentValueCreditDefaultSwap(cds, yieldCurve, flatSurvivalCurve);
+      presentValue[0] = creditDefaultSwap.getPresentValueCreditDefaultSwap(cds, yieldCurve, hazardRateCurve);
 
       // Get a vector of N(0, 1) normal random variables
       epsilon = normRand.getVector(numberOfTimenodes + 1);
@@ -498,7 +519,7 @@ public class PresentValueCreditDefaultSwapTest {
         double t = TimeCalculator.getTimeBetween(simulationStartDate, currentTimenode);
 
         // Calculate the simulated hazard rate (assume it is a simple GBM)
-        double h = hazardRate * Math.exp((mu - 0.5 * sigma * sigma) * t + sigma * Math.sqrt(t) * epsilon[counter]);
+        double h = hazRate * Math.exp((mu - 0.5 * sigma * sigma) * t + sigma * Math.sqrt(t) * epsilon[counter]);
 
         //System.out.println(currentTimenode + "\t" + t + "\t" + h);
 
@@ -506,13 +527,13 @@ public class PresentValueCreditDefaultSwapTest {
         double[] simulatedHazardRates = new double[] {h };
 
         // Construct a survival curve from this simulated rate
-        SurvivalCurve simulatedSurvivalCurve = new SurvivalCurve(tenorsAsDoubles, simulatedHazardRates);
+        //HazardRateCurveTemp simulatedSurvivalCurve = new HazardRateCurveTemp(tenorsAsDoubles, simulatedHazardRates, 0.0);
 
         // Roll the valuation date of the CDS to the current timenode
-        rollingCDS = rollingCDS.withValuationDate(currentTimenode);
+        //rollingCDS = rollingCDS.withValuationDate(currentTimenode);
 
         // Re-val the CDS given the simulated hazard rate at the new timenode
-        presentValue[0] = creditDefaultSwap.getPresentValueCreditDefaultSwap(rollingCDS, yieldCurve, simulatedSurvivalCurve);
+        //presentValue[0] = creditDefaultSwap.getPresentValueCreditDefaultSwap(rollingCDS, yieldCurve, simulatedSurvivalCurve);
 
         counter++;
       }
@@ -527,8 +548,6 @@ public class PresentValueCreditDefaultSwapTest {
       }
 
       potentialFutureExposure[i] = quantile.evaluate(x);
-
-      //System.out.println(i + "\t" + potentialFutureExposure[i]);
     }
 
     // -----------------------------------------------------------------------------------------------

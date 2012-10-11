@@ -44,6 +44,8 @@ import org.slf4j.LoggerFactory;
 import com.jolbox.bonecp.BoneCPDataSource;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.db.management.DbManagement;
+import com.opengamma.util.db.management.DbManagementUtils;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -66,18 +68,6 @@ public class DbTool extends Task {
 
   private static final Pattern CREATE_SCRIPT_PATTERN = Pattern.compile("^" + DATABASE_CRAETE_SCRIPT_PREFIX + "([0-9]+)__create_(.+?)\\.sql");
   private static final Pattern MIGRATE_SCRIPT_PATTERN = Pattern.compile("^" + DATABASE_MIGRATE_SCRIPT_PREFIX + "([0-9]+)__(.+?)\\.sql");
-
-  private static final Map<String, DbManagement> s_url2Management = new ConcurrentHashMap<String, DbManagement>();
-
-  /**
-   * Adds a db management to the map of known.
-   *
-   * @param jdbcUrlPrefix  the JDBC prefix, not null
-   * @param management  the management, not null
-   */
-  public static void addDbManagement(String jdbcUrlPrefix, DbManagement management) {
-    s_url2Management.put(jdbcUrlPrefix, management);
-  }
 
   /**
    */
@@ -144,24 +134,7 @@ public class DbTool extends Task {
     if (_dbServerHost == null || _user == null || _password == null) {
       throw new OpenGammaRuntimeException("Server/user/password not initialised");
     }
-
-    addDbManagement("jdbc:postgresql", PostgresDbManagement.getInstance());
-    addDbManagement("jdbc:derby", DerbyDbManagement.getInstance());
-    addDbManagement("jdbc:hsqldb", HSQLDbManagement.getInstance());
-    addDbManagement("jdbc:sqlserver", SqlServer2008DbManagement.getInstance());
-
-    String dbUrlLowercase = _dbServerHost.toLowerCase();
-    for (Map.Entry<String, DbManagement> entry : s_url2Management.entrySet()) {
-      if (dbUrlLowercase.indexOf(entry.getKey()) != -1) {
-        _dialect = entry.getValue();
-        break;
-      }
-    }
-
-    if (_dialect == null) {
-      throw new OpenGammaRuntimeException("Database " + _dbServerHost + " not supported. The database URL must contain one of: " + s_url2Management.entrySet());
-    }
-
+    _dialect = DbManagementUtils.getDbManagement(_dbServerHost);
     _dialect.initialise(_dbServerHost, _user, _password);
   }
 

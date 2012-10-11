@@ -111,6 +111,9 @@ public class CreditDefaultSwapDefinition {
   // Flag to determine whether the accrued coupons should be included in the CDS premium leg calculation
   private final boolean _includeAccruedPremium;
 
+  // Flag to determine if survival probabilities are calculated at the beginning or end of the day
+  private final boolean _protectionStart;
+
   // The credit key to uniquely identify a reference entities par spread CDS curve
   private final String _creditKey;
 
@@ -141,13 +144,14 @@ public class CreditDefaultSwapDefinition {
       double notional,
       double premiumLegCoupon,
       double recoveryRate,
-      boolean includeAccruedPremium) {
+      boolean includeAccruedPremium,
+      boolean protectionStart) {
 
     // ------------------------------------------------------------------------------------------------
 
     // Check the validity of the input arguments
 
-    ArgumentChecker.notNull(buySellProtection, "Buy/Sell field is null");
+    ArgumentChecker.notNull(buySellProtection, "Buy/Sell");
 
     ArgumentChecker.notNull(protectionBuyer, "Protection buyer");
     ArgumentChecker.notNull(protectionSeller, "Protection seller");
@@ -218,6 +222,8 @@ public class CreditDefaultSwapDefinition {
     _recoveryRate = recoveryRate;
 
     _includeAccruedPremium = includeAccruedPremium;
+
+    _protectionStart = protectionStart;
 
     // REVIEW 29/8/2012 think about using UniqueId instead of _creditKey
     _creditKey = _referenceEntity.getObligorTicker() + "_" + _currency + "_" + _debtSeniority + "_" + _restructuringClause;
@@ -329,6 +335,10 @@ public class CreditDefaultSwapDefinition {
     return _includeAccruedPremium;
   }
 
+  public boolean getProtectionStart() {
+    return _protectionStart;
+  }
+
   //----------------------------------------------------------------------------------------------------------------------------------------
 
   public String getCreditKey() {
@@ -344,7 +354,7 @@ public class CreditDefaultSwapDefinition {
     CreditDefaultSwapDefinition modifiedCDS = new CreditDefaultSwapDefinition(_buySellProtection, _protectionBuyer, _protectionSeller, _referenceEntity, _currency,
         _debtSeniority, _restructuringClause, _calendar, _startDate, _effectiveDate, maturityDate, _valuationDate, _stubType, _couponFrequency,
         _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustEffectiveDate, _adjustMaturityDate, _notional, _premiumLegCoupon,
-        _recoveryRate, _includeAccruedPremium);
+        _recoveryRate, _includeAccruedPremium, _protectionStart);
 
     return modifiedCDS;
   }
@@ -358,7 +368,7 @@ public class CreditDefaultSwapDefinition {
     CreditDefaultSwapDefinition modifiedCDS = new CreditDefaultSwapDefinition(_buySellProtection, _protectionBuyer, _protectionSeller, _referenceEntity, _currency,
         _debtSeniority, _restructuringClause, _calendar, _startDate, _effectiveDate, _maturityDate, _valuationDate, _stubType, _couponFrequency,
         _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustEffectiveDate, _adjustMaturityDate, _notional, premiumLegCoupon,
-        _recoveryRate, _includeAccruedPremium);
+        _recoveryRate, _includeAccruedPremium, _protectionStart);
 
     return modifiedCDS;
   }
@@ -372,7 +382,7 @@ public class CreditDefaultSwapDefinition {
     CreditDefaultSwapDefinition modifiedCDS = new CreditDefaultSwapDefinition(_buySellProtection, _protectionBuyer, _protectionSeller, _referenceEntity, _currency,
         _debtSeniority, _restructuringClause, _calendar, _startDate, _effectiveDate, _maturityDate, _valuationDate, _stubType, _couponFrequency,
         _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustEffectiveDate, _adjustMaturityDate, _notional, _premiumLegCoupon,
-        recoveryRate, _includeAccruedPremium);
+        recoveryRate, _includeAccruedPremium, _protectionStart);
 
     return modifiedCDS;
   }
@@ -386,7 +396,7 @@ public class CreditDefaultSwapDefinition {
     CreditDefaultSwapDefinition modifiedCDS = new CreditDefaultSwapDefinition(_buySellProtection, _protectionBuyer, _protectionSeller, _referenceEntity, _currency,
         _debtSeniority, _restructuringClause, _calendar, _startDate, _effectiveDate, _maturityDate, valuationDate, _stubType, _couponFrequency,
         _daycountFractionConvention, _businessdayAdjustmentConvention, _immAdjustMaturityDate, _adjustEffectiveDate, _adjustMaturityDate, _notional, _premiumLegCoupon,
-        _recoveryRate, _includeAccruedPremium);
+        _recoveryRate, _includeAccruedPremium, _protectionStart);
 
     return modifiedCDS;
   }
@@ -471,6 +481,10 @@ public class CreditDefaultSwapDefinition {
     }
 
     if (_includeAccruedPremium != other._includeAccruedPremium) {
+      return false;
+    }
+
+    if (_protectionStart != other._protectionStart) {
       return false;
     }
 

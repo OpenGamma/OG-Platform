@@ -72,7 +72,6 @@ $.register_module({
                     : api[grid_type].grid.get({view_id: view_id, update: initialize});
             };
             var initialize = function () {
-                
                 var put_options = ['viewdefinition', 'aggregators', 'providers']
                     .reduce(function (acc, val) {return (acc[val] = config[val]), acc;}, {});
                 (view_id ? grid_setup() : api.put(put_options).pipe(view_handler)).pipe(grid_handler);
