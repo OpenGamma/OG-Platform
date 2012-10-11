@@ -19,7 +19,7 @@ $.register_module({
                 if (!nodes[start]) return result;
                 children.forEach(function (child) {
                     var current_start = child[0], current_end = child[1], lcv;
-                    if (last_end !== null) for (lcv = last_end + 1; lcv < current_start; lcv += 1) result.push(lcv);
+                    for (lcv = (last_end || start) + 1; lcv < current_start; lcv += 1) result.push(lcv);
                     last_end = start = current_end;
                     unravel(nodes, child, result);
                 });
@@ -266,30 +266,26 @@ $.register_module({
             };
         };
         var unravel_structure = (function () {
-            var times_str =  '&nbsp;&nbsp;&nbsp;', times_memo = {}, cache, counter;
-            var times = function (rep) {
-                if (rep in times_memo) return times_memo[rep];
+            var rep_str =  '&nbsp;&nbsp;&nbsp;', rep_memo = {}, cache, counter;
+            var rep = function (times) {
+                if (times in rep_memo) return rep_memo[times];
                 var result = '';
-                if (rep) while (rep--) result += times_str;
-                return times_memo[rep] = result;
+                if (times) while (times--) result += rep_str;
+                return rep_memo[times] = result;
             };
             var unravel = function (arr, indent, result) {
-                var start = arr[0], end = arr[1], children = arr[2], prefix, last_end, str;
-                prefix = (cache[times(indent) +
-                    '<span data-row="' + start + '" class="node"></span>&nbsp;'] = counter++);
+                var start = arr[0], end = arr[1], children = arr[2], prefix, last_end = null, str;
+                prefix = (cache[rep(indent) + '<span data-row="' + start + '" class="node"></span>&nbsp;'] = counter++);
                 result[start] = {prefix: prefix, node: true, length: end - start};
                 children.forEach(function (child) {
-                    var current_start = child[0], current_end = child[1], lcv, prefix, str;
-                    if (last_end !== null) for (lcv = last_end + 1; lcv < current_start; lcv += 1) {
-                        str = times(indent + 2);
-                        prefix = str in cache ? cache[str] : (cache[str] = counter++);
-                        result[lcv] = {prefix: prefix};
-                    }
+                    var current_start = child[0], current_end = child[1], lcv = (last_end || start) + 1, prefix, str;
+                    if (lcv < current_start)
+                        prefix = (str = rep(indent + 2)) in cache ? cache[str] : (cache[str] = counter++);
+                    for (; lcv < current_start; lcv += 1) result[lcv] = {prefix: prefix};
                     last_end = start = current_end;
                     unravel(child, indent + 1, result);
                 });
-                str = times(indent + 2);
-                prefix = str in cache ? cache[str] : (cache[str] = counter++);
+                prefix = (str = rep(indent + 2)) in cache ? cache[str] : (cache[str] = counter++);
                 while (++start <= end) result[start] = {prefix: prefix};
                 return result;
             };
