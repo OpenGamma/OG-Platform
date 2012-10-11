@@ -41,6 +41,7 @@ public class CreditDefaultSwapDefinition {
   // TODO : Extend this class definition to include standard CDS contracts (post big-bang) i.e. quoted spread, upfront payment etc
   // TODO : Make sure the 'equals' method has all the necessary fields and the hashCode method is correct
   // TODO : Check that buyer is not equal to the seller etc
+  // TODO : Add methods to calc e.g. maturity as a double
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 

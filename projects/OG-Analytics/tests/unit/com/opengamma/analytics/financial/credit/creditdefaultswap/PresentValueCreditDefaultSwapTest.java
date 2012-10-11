@@ -24,13 +24,16 @@ import com.opengamma.analytics.financial.credit.Region;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.Sector;
 import com.opengamma.analytics.financial.credit.StubType;
+import com.opengamma.analytics.financial.credit.cds.ISDAExtrapolator1D;
+import com.opengamma.analytics.financial.credit.cds.ISDAInterpolator1D;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.GenerateCreditDefaultSwapPremiumLegSchedule;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.PresentValueCreditDefaultSwap;
 import com.opengamma.analytics.financial.interestrate.PeriodicInterestRate;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
+import com.opengamma.analytics.math.interpolation.FlatExtrapolator1D;
 import com.opengamma.analytics.math.random.NormalRandomNumberGenerator;
 import com.opengamma.analytics.math.statistics.descriptive.PercentileCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
@@ -117,7 +120,7 @@ public class PresentValueCreditDefaultSwapTest {
   private static final ZonedDateTime startDate = DateUtils.getUTCDate(2008, 3, 20);
   private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2008, 3, 21);
   private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2013, 3, 20);
-  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2008, 3, 21);
+  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2008, 9, 18);
 
   private static final StubType stubType = StubType.FRONTSHORT;
   private static final PeriodFrequency couponFrequency = PeriodFrequency.QUARTERLY;
@@ -134,30 +137,131 @@ public class PresentValueCreditDefaultSwapTest {
   private static final boolean includeAccruedPremium = false;
   private static final boolean protectionStart = true;
 
+  // ----------------------------------------------------------------------------------
+
   // Dummy yield curve
-  private static final double interestRate = 0.0;
-  private static final double[] TIME = new double[] {0, 3, 5, 10, 15, 40 };
-  private static final double[] RATES = new double[] {interestRate, interestRate, interestRate, interestRate, interestRate, interestRate };
-  private static final InterpolatedDoublesCurve R = InterpolatedDoublesCurve.from(TIME, RATES, new LinearInterpolator1D());
-  private static final YieldCurve yieldCurve = YieldCurve.from(R);
 
   protected static DayCount s_act365 = new ActualThreeSixtyFive();
 
-  static double[] times = {
+  private static final ZonedDateTime baseDate = ZonedDateTime.of(2008, 9, 22, 0, 0, 0, 0, TimeZone.UTC);
+
+  private static final double[] TIME = {
+      s_act365.getDayCountFraction(baseDate, baseDate),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2008, 10, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2008, 11, 24, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2008, 12, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2009, 3, 23, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2009, 6, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2009, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2010, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2010, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2011, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2011, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2012, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2012, 9, 24, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2013, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2013, 9, 23, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2014, 3, 24, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2014, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2015, 3, 23, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2015, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2016, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2016, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2017, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2017, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2018, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2018, 9, 24, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2019, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2019, 9, 23, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2020, 3, 23, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2020, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2021, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2021, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2022, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2022, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2023, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2023, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2024, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2024, 9, 23, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2025, 3, 24, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2025, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2026, 3, 23, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2026, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2027, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2027, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2028, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2028, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2029, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2029, 9, 24, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2030, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2030, 9, 23, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2031, 3, 24, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2031, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2032, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2032, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2033, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2033, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2034, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2034, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2035, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2035, 9, 24, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2036, 3, 24, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2036, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2037, 3, 23, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2037, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2038, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2038, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2040, 9, 22, 0, 0, 0, 0, TimeZone.UTC))
+  };
+
+  private static final double interestRate = 0.0;
+
+  //private static final double[] TIME = new double[] {0, 3, 5, 10, 15, 40 };
+  //private static final double[] RATES = new double[] {interestRate, interestRate, interestRate, interestRate, interestRate, interestRate };
+
+  private static final double[] RATES = new double[] {
+      interestRate, interestRate, interestRate, interestRate, interestRate,
+      interestRate, interestRate, interestRate, interestRate, interestRate,
+      interestRate, interestRate, interestRate, interestRate, interestRate,
+      interestRate, interestRate, interestRate, interestRate, interestRate,
+      interestRate, interestRate, interestRate, interestRate, interestRate,
+      interestRate, interestRate, interestRate, interestRate, interestRate,
+      interestRate, interestRate, interestRate, interestRate, interestRate,
+      interestRate, interestRate, interestRate, interestRate, interestRate,
+      interestRate, interestRate, interestRate, interestRate, interestRate,
+      interestRate, interestRate, interestRate, interestRate, interestRate,
+      interestRate, interestRate, interestRate, interestRate, interestRate,
+      interestRate, interestRate, interestRate, interestRate, interestRate,
+      interestRate, interestRate, interestRate, interestRate, interestRate, interestRate };
+
+  //private static final InterpolatedDoublesCurve R = InterpolatedDoublesCurve.from(TIME, RATES, new LinearInterpolator1D());
+
+  private static final InterpolatedDoublesCurve R = InterpolatedDoublesCurve.from(TIME, RATES, new CombinedInterpolatorExtrapolator(
+      new ISDAInterpolator1D(),    // ISDA style interpolation
+      new FlatExtrapolator1D(),    // Flat rate extrapolated to the left
+      new ISDAExtrapolator1D()));  // ISDA style extrapolation to the right);
+
+  private static final YieldCurve yieldCurve = YieldCurve.from(R);
+
+  // ----------------------------------------------------------------------------------
+
+  // Hazard rate term structure
+
+  static double[] hazardRateTimes = {
       0.0,
       s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2013, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
       s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2015, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
       s_act365.getDayCountFraction(valuationDate, ZonedDateTime.of(2018, 06, 20, 0, 0, 0, 0, TimeZone.UTC))
   };
 
-  static double[] rates = {
+  static double[] hazardRates = {
       (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
       (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
       (new PeriodicInterestRate(0.09705141266558010000, 1)).toContinuous().getRate(),
       (new PeriodicInterestRate(0.09701141671498870000, 1)).toContinuous().getRate()
   };
 
-  private static final HazardRateCurve hazardRateCurve = new HazardRateCurve(times, rates, 0.0);
+  private static final HazardRateCurve hazardRateCurve = new HazardRateCurve(hazardRateTimes, hazardRates, 0.0);
 
   // ----------------------------------------------------------------------------------
 
@@ -233,7 +337,7 @@ public class PresentValueCreditDefaultSwapTest {
 
   // Simple test to compute the PV of a CDS assuming a flat term structure of market observed CDS par spreads
 
-  //@Test
+  @Test
   public void testPresentValueCreditDefaultSwap() {
 
     // -----------------------------------------------------------------------------------------------
@@ -250,18 +354,25 @@ public class PresentValueCreditDefaultSwapTest {
     final PresentValueCreditDefaultSwap creditDefaultSwap = new PresentValueCreditDefaultSwap();
 
     // Calculate the value of the premium leg
-    double premiumLegPresentValue = (cds.getPremiumLegCoupon() / 10000.0) * creditDefaultSwap.calculatePremiumLeg(cds, yieldCurve, hazardRateCurve);
+    double presentValuePremiumLeg = (cds.getPremiumLegCoupon() / 10000.0) * creditDefaultSwap.calculatePremiumLeg(cds, yieldCurve, hazardRateCurve);
+
+    //double presentValueAccruedPremium = (cds.getPremiumLegCoupon() / 10000.0) * creditDefaultSwap.calculateAccruedPremium(cds, yieldCurve, hazardRateCurve);
 
     // Calculate the value of the contingent leg
-    //double contingentLegPresentValue = creditDefaultSwap.calculateContingentLeg(cds, yieldCurve, hazardRateCurve);
+    double presentValueContingentLeg = creditDefaultSwap.calculateContingentLeg(cds, yieldCurve, hazardRateCurve);
+
+    double presentValueISDAContingentLeg = creditDefaultSwap.calculateISDAContingentLeg(cds, yieldCurve, hazardRateCurve);
 
     // Calculate the present value
     //double presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(cds, yieldCurve, hazardRateCurve);
 
     if (outputResults) {
 
-      System.out.println("CDS Premium Leg PV = " + premiumLegPresentValue);
-      //System.out.println("CDS Contingent Leg PV = " + contingentLegPresentValue);
+      System.out.println("CDS Premium Leg PV = " + presentValuePremiumLeg);
+      //System.out.println("CDS Accrued Interest PV = " + presentValueAccruedPremium);
+      System.out.println("CDS Contingent Leg PV = " + presentValueContingentLeg);
+      System.out.println("IDSA CDS Contingent Leg PV = " + presentValueISDAContingentLeg);
+
       //System.out.println("CDS PV = " + presentValue);
     }
 
@@ -370,7 +481,7 @@ public class PresentValueCreditDefaultSwapTest {
 
   // Test to vary the valuationDate of a CDS from adjustedEffectiveDate to adjustedMaturityDate and compute PV
 
-  @Test
+  //@Test
   public void testPresentValueCreditDefaultSwapTimeDecay() {
 
     // -----------------------------------------------------------------------------------------------
