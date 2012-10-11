@@ -7,10 +7,12 @@ package com.opengamma.financial.analytics.model.equity.indexoption;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -24,8 +26,20 @@ import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilit
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurfaceInterpolator;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.surface.NodalDoublesSurface;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.FunctionExecutionContext;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValueProperties.Builder;
+import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
+import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -91,7 +105,6 @@ public class EquityIndexVanillaBarrierOptionVegaMatrixFunction extends EquityInd
           Function1D<Double, Double>[] scenarioSmileFits = Arrays.copyOf(smileFitsBase, smileFitsBase.length);
           scenarioSmileFits[t] = thisExpirysSmile;
           BlackVolatilitySurfaceMoneynessFcnBackedByGrid shiftedSurface = surfaceInterpolator.combineIndependentSmileFits(scenarioSmileFits, volGrid);
-          //TODO REMOVE: BlackVolatilitySurfaceMoneynessFcnBackedByGrid shiftedSurface = surfaceInterpolator.getBumpedVolatilitySurface(volGrid, t, k, -SHIFT);
           StaticReplicationDataBundle shiftedMarket = market.withShiftedSurface(shiftedSurface);
           // Sensitivities
           for (int v = 0; v < nVanillas; v++) {
@@ -104,40 +117,62 @@ public class EquityIndexVanillaBarrierOptionVegaMatrixFunction extends EquityInd
         }
       }
       vegaSurface = NodalDoublesSurface.from(triplesExpiryStrikeVega);
+
+      // Repackage into DoubleLabelledMatrix2D
+      // Find unique set of expiries,
+      final Double[] uniqueX = ArrayUtils.toObject(expiries);
+      // and strikes
+      Set<Double> strikeSet = new HashSet<Double>();
+      for (int i = 0; i < strikes.length; i++) {
+        strikeSet.addAll(Arrays.asList(ArrayUtils.toObject(strikes[i])));
+      }
+      final Double[] uniqueY = strikeSet.toArray(new Double[0]);
+      // Fill matrix with values, zero where no vega is available
+      final double[][] values = new double[uniqueY.length][uniqueX.length];
+      int i = 0;
+      for (final Double x : uniqueX) {
+        int j = 0;
+        for (final Double y : uniqueY) {
+          double vega;
+          try {
+            vega = vegaSurface.getZValue(x, y);
+          } catch (final IllegalArgumentException e) {
+            vega = 0;
+          }
+          values[j++][i] = vega;
+        }
+        i++;
+      }
+      final DoubleLabelledMatrix2D vegaMatrix = new DoubleLabelledMatrix2D(uniqueX, uniqueY, values);
+      return vegaMatrix;
+
+
     } else {
       throw new OpenGammaRuntimeException("Currently will only accept a VolatilitySurface of type: BlackVolatilitySurfaceMoneynessFcnBackedByGrid");
     }
-
-    final Double[] xValues = vegaSurface.getXData();
-    final Double[] yValues = vegaSurface.getYData();
-    final Set<Double> xSet = new HashSet<Double>(Arrays.asList(xValues));
-    final Set<Double> ySet = new HashSet<Double>(Arrays.asList(yValues));
-    final Double[] uniqueX = xSet.toArray(new Double[0]);
-    final Double[] uniqueY = ySet.toArray(new Double[0]);
-    final double[][] values = new double[ySet.size()][xSet.size()];
-    int i = 0;
-    for (final Double x : xSet) {
-      int j = 0;
-      for (final Double y : ySet) {
-        double vega;
-        try {
-          vega = vegaSurface.getZValue(x, y);
-        } catch (final IllegalArgumentException e) {
-          vega = 0;
-        }
-        values[j++][i] = vega;
-      }
-      i++;
-    }
-    final DoubleLabelledMatrix2D vegaMatrix = new DoubleLabelledMatrix2D(uniqueX, uniqueY, values);
-    return vegaMatrix;
   }
 
-  /*
   @Override
-  // TODO CONFIRM: VanillaBarrierPV has this - is it appropriate here?!?
-  protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
-    return super.createValueProperties(target).with(ValuePropertyNames.CURRENCY, getEquityBarrierOptionSecurity(target).getCurrency().getCode());
+  /* The VegaMatrixFunction advertises the particular underlying Bloomberg ticker that it applies to. The target must share this underlying. */
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+
+    String bbgTicker = getBloombergTicker(OpenGammaCompilationContext.getHistoricalTimeSeriesSource(context), ((EquityBarrierOptionSecurity) target.getSecurity()).getUnderlyingId());
+    return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), createValueProperties(target, bbgTicker).get()));
   }
-  */
+
+  /* We specify one additional property, the UnderlyingTicker, to allow a View to contain a VegaQuoteMatrix for each VolMatrix */
+  protected ValueProperties.Builder createValueProperties(final ComputationTarget target, final String bbgTicker) {
+    return super.createValueProperties(target)
+      .with(ValuePropertyNames.UNDERLYING_TICKER, bbgTicker);
+  }
+
+  @Override
+  protected ValueProperties.Builder createValueProperties(final ComputationTarget target, ValueRequirement desiredValue, FunctionExecutionContext executionContext) {
+    HistoricalTimeSeriesSource tsSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
+    String bbgTicker = getBloombergTicker(tsSource, getEquityBarrierOptionSecurity(target).getUnderlyingId());
+    Builder propsBuilder =  super.createValueProperties(target, desiredValue, executionContext)
+      .with(ValuePropertyNames.UNDERLYING_TICKER, bbgTicker);
+    return propsBuilder;
+  }
+
 }

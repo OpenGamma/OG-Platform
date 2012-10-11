@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.model.equity.indexoption;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,8 +18,20 @@ import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionPresentValueCalculator;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneynessFcnBackedByGrid;
 import com.opengamma.analytics.math.surface.NodalDoublesSurface;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.FunctionExecutionContext;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValueProperties.Builder;
+import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
+import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 
 /**
  * TODO: REVIEW- These options, if priced under Black, fail as the vol surface is functional => No X-Y nodes. It seems desirable to be able to establish where the risk is, so that we can sum it up.
@@ -75,4 +88,29 @@ public class EquityIndexOptionVegaMatrixFunction extends EquityIndexOptionFuncti
     final DoubleLabelledMatrix2D matrix = new DoubleLabelledMatrix2D(uniqueX, uniqueY, values);
     return matrix;
   }
+
+  @Override
+  /* The VegaMatrixFunction advertises the particular underlying Bloomberg ticker that it applies to. The target must share this underlying. */
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+
+    String bbgTicker = getBloombergTicker(OpenGammaCompilationContext.getHistoricalTimeSeriesSource(context), ((EquityIndexOptionSecurity) target.getSecurity()).getUnderlyingId());
+    return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), createValueProperties(target, bbgTicker).get()));
+  }
+
+
+  /* We specify one additional property, the UnderlyingTicker, to allow a View to contain a VegaQuoteMatrix for each VolMatrix */
+  protected ValueProperties.Builder createValueProperties(final ComputationTarget target, final String bbgTicker) {
+    return super.createValueProperties(target)
+      .with(ValuePropertyNames.UNDERLYING_TICKER, bbgTicker);
+  }
+
+  @Override
+  protected ValueProperties.Builder createValueProperties(final ComputationTarget target, ValueRequirement desiredValue, FunctionExecutionContext executionContext) {
+    HistoricalTimeSeriesSource tsSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
+    String bbgTicker = getBloombergTicker(tsSource, getEquityIndexOptionSecurity(target).getUnderlyingId());
+    Builder propsBuilder =  super.createValueProperties(target, desiredValue, executionContext)
+      .with(ValuePropertyNames.UNDERLYING_TICKER, bbgTicker);
+    return propsBuilder;
+  }
 }
+
