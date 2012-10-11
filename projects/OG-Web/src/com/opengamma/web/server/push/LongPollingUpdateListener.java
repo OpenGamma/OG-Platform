@@ -163,8 +163,8 @@ import com.opengamma.util.ArgumentChecker;
     synchronized (_lock) {
       if (_continuation != null && _continuation.isSuspended()) {
         _continuation.complete();
-        _continuation = null;
       }
+      _continuation = null;
     }
   }
 
