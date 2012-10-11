@@ -6,7 +6,6 @@
 package com.opengamma.web.security;
 
 import java.net.URI;
-import java.util.Collection;
 import java.util.Collections;
 
 import javax.ws.rs.Consumes;
@@ -20,19 +19,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
-import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.web.FreemarkerCustomRenderer;
 
@@ -137,12 +130,11 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
     
     // Get the last price HTS for the security
     ObjectId tsObjectId = null;
-    HistoricalTimeSeriesMaster htsMaster = data().getHistoricalTimeSeriesMaster();
     HistoricalTimeSeriesInfoSearchRequest searchRequest =
         new HistoricalTimeSeriesInfoSearchRequest(doc.getSecurity().getExternalIdBundle());
     HistoricalTimeSeriesInfoSearchResult searchResult = data().getHistoricalTimeSeriesMaster().search(searchRequest);
     if (searchResult.getFirstInfo() != null) {
-        tsObjectId = searchResult.getFirstInfo().getUniqueId().getObjectId();
+      tsObjectId = searchResult.getFirstInfo().getUniqueId().getObjectId();
     }
 
     out.put("securityAttributes", doc.getSecurity().getAttributes());
