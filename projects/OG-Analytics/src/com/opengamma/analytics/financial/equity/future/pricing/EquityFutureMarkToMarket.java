@@ -63,7 +63,7 @@ public final class EquityFutureMarkToMarket implements EquityFuturesPricer {
   public double ratesDelta(final EquityFuture future, final EquityFutureDataBundle dataBundle) {
     Validate.notNull(future, "Future");
     Validate.notNull(dataBundle);
-    Validate.notNull(dataBundle.getMarketPrice());
+    Validate.notNull(dataBundle.getMarketPrice(), "_marketPrice must not be null");
     return future.getTimeToSettlement() * dataBundle.getMarketPrice() * future.getUnitAmount();
   }
 

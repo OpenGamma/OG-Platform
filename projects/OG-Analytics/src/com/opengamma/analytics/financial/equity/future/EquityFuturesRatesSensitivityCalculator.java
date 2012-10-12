@@ -5,12 +5,6 @@
  */
 package com.opengamma.analytics.financial.equity.future;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang.Validate;
-
 import com.google.common.collect.Lists;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.interestrate.NodeYieldSensitivityCalculator;
@@ -19,6 +13,12 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.tuple.DoublesPair;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * 
@@ -46,7 +46,7 @@ public final class EquityFuturesRatesSensitivityCalculator {
     Validate.notNull(future, "null future");
     Validate.notNull(dataBundle, "null data bundle");
     if (!(dataBundle.getFundingCurve() instanceof YieldCurve)) {
-      throw new IllegalArgumentException("Can only handle YieldCurve");
+      throw new IllegalArgumentException("Calculator expects a YieldCurve. Perhaps it has encountered a discount curve?");
     }
     final YieldCurve discCrv = (YieldCurve) dataBundle.getFundingCurve();
     final String discCrvName = discCrv.getCurve().getName();
