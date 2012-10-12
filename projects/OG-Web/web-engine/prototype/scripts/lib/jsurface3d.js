@@ -1143,6 +1143,13 @@
         return group;
     };
     /**
+     * If Webgl inspector, query the dom and log out the active buffers
+     */
+    util.count_buffers = function () {
+        var live_buffer = '.buffer-item.listing-item', deleted_buffer = '.buffer-item.listing-item.buffer-item-deleted';
+        if ($(live_buffer).length) console.log($(live_buffer).length - $(deleted_buffer).length);
+    };
+    /**
      * Apply Natrual Log to each item in Array
      * @param {Array} arr
      * @returns {Array}
