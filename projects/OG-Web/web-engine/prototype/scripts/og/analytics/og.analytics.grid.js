@@ -83,7 +83,8 @@ $.register_module({
         var init_data = function () {
             var grid = this, config = grid.config;
             grid.elements.parent.html('initializing data connection...');
-            grid.dataman = new og.analytics.Data(grid.source).on('meta', init_grid, grid).on('data', render_rows, grid);
+            grid.dataman = new og.analytics.Data(grid.source).on('meta', init_grid, grid).on('data', render_rows, grid)
+                .on('fatal', function (error) {grid.elements.parent.html('fatal error: ' + error);});
             grid.on('render', function () {
                 grid.elements.main.find('.node').each(function (idx, val) {
                     var $node = $(this);

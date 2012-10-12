@@ -10,15 +10,15 @@ import java.io.File;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
-import com.opengamma.util.db.tool.DbSchemaCreateOperation;
+import com.opengamma.util.db.tool.DbCreateOperation;
 import com.opengamma.util.db.tool.DbToolContext;
 import com.opengamma.util.generate.scripts.Scriptable;
 
 /**
- * Tool for creating master database schemas using the installation scripts.
+ * Tool for creating database objects using the installation scripts.
  */
 @Scriptable
-public class DbSchemaCreateTool extends AbstractDbTool<DbToolContext> {
+public class DbCreateTool extends AbstractDbTool<DbToolContext> {
   
   /**
    * Drop existing contents command line option.
@@ -40,7 +40,10 @@ public class DbSchemaCreateTool extends AbstractDbTool<DbToolContext> {
   @Override
   protected void doRun(boolean write, File outputFile) throws Exception {
     boolean dropExisting = getCommandLine().hasOption(DROP_EXISTING_OPTION);
-    new DbSchemaCreateOperation(getDbToolContext(), write, outputFile, dropExisting).execute();
+    new DbCreateOperation(getDbToolContext(), write, outputFile, dropExisting).execute();
+    if (write) {
+      System.out.println("Database objects created successfully");
+    }
   }
   
   //-------------------------------------------------------------------------
@@ -50,7 +53,7 @@ public class DbSchemaCreateTool extends AbstractDbTool<DbToolContext> {
    * @param args  the arguments, not null
    */
   public static void main(String[] args) { //CSIGNORE
-    boolean success = new DbSchemaCreateTool().initAndRun(args, DbToolContext.class);
+    boolean success = new DbCreateTool().initAndRun(args, DbToolContext.class);
     System.exit(success ? 0 : 1);
   }
 

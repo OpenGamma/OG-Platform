@@ -7,20 +7,24 @@ package com.opengamma.component.tool;
 
 import java.io.File;
 
-import com.opengamma.util.db.tool.DbSchemaMigrateOperation;
+import com.opengamma.util.db.tool.DbUpgradeOperation;
 import com.opengamma.util.db.tool.DbToolContext;
 import com.opengamma.util.generate.scripts.Scriptable;
 
 /**
- * Tool for migrating master database schemas to the latest version using the installation scripts.
+ * Tool for upgrading database objects to the latest version using the installation scripts.
  */
 @Scriptable
-public class DbSchemaMigrateTool extends AbstractDbTool<DbToolContext> {
+public class DbUpgradeTool extends AbstractDbTool<DbToolContext> {
 
   //-------------------------------------------------------------------------
   @Override
   protected void doRun(boolean write, File outputFile) throws Exception {
-    new DbSchemaMigrateOperation(getDbToolContext(), write, outputFile).execute();
+    DbUpgradeOperation upgradeOp = new DbUpgradeOperation(getDbToolContext(), write, outputFile);
+    upgradeOp.execute();
+    if (!upgradeOp.isUpgradeRequired()) {
+      System.out.println("Database up-to-date");
+    }
   }
   
   //-------------------------------------------------------------------------
@@ -30,7 +34,7 @@ public class DbSchemaMigrateTool extends AbstractDbTool<DbToolContext> {
    * @param args  the arguments, not null
    */
   public static void main(String[] args) { //CSIGNORE
-    boolean success = new DbSchemaMigrateTool().initAndRun(args, DbToolContext.class);
+    boolean success = new DbUpgradeTool().initAndRun(args, DbToolContext.class);
     System.exit(success ? 0 : 1);
   }
 

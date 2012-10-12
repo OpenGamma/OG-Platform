@@ -22,7 +22,7 @@ public final class ExampleCalcNode {
    */
   public static void main(String[] args) { // CSIGNORE
     // Logging
-    System.setProperty("logback.configurationFile", "com/opengamma/util/test/warn-logback.xml");
+    System.setProperty("logback.configurationFile", "com/opengamma/util/warn-logback.xml");
     // Run mode
     PlatformConfigUtils.configureSystemProperties();
     // Configuration URL (should get from command line)

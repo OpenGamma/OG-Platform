@@ -7,8 +7,6 @@ package com.opengamma.analytics.financial.credit;
 
 import javax.time.calendar.ZonedDateTime;
 
-import org.testng.annotations.Test;
-
 import com.opengamma.analytics.financial.credit.creditdefaultswap.PresentValueCreditDefaultSwapTest.MyCalendar;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -187,7 +185,7 @@ public class CalibrateHazardRateTest {
 
   // Test to demonstrate calibration of a survival curve to market data
 
-  @Test
+  //@Test
   public void testSurvivalCurveCalibrationCreditDefaultSwap() {
 
     // -------------------------------------------------------------------------------------
