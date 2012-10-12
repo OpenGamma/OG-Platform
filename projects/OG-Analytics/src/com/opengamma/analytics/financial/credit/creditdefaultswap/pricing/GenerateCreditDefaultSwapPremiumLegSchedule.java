@@ -5,11 +5,17 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing;
 
+import java.util.NavigableSet;
+import java.util.Set;
+import java.util.TreeSet;
+
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.analytics.financial.credit.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.IMMDates;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -25,6 +31,7 @@ import com.opengamma.util.ArgumentChecker;
 public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
   private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("Act/360");
+  private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
 
   // -------------------------------------------------------------------------------------------
 
@@ -34,10 +41,11 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // TODO : Should convertDatesToDoubles be put somewhere else? To use it, need to create a GenerateCreditDefaultSwapPremiumLegSchedule object which is a bit wasteful
   // TODO : Look at DateAdjuster class for IMM date handling
   // TODO : FrontLong stubs - e.g. startDate = 20/12/2007, effDate = 21/12/2007; first coupon at 20/6/2008. ISDA model first coupon at 20/3/2008 (seems to use start date not eff date)
+  // TODO : Remove one of the overloaded convertdatesToDoubles methods
 
   // -------------------------------------------------------------------------------------------
 
-  // (Public) method to generate the premium leg cashflow schedule from the input CDS contract specification
+  // Public method to generate the premium leg cashflow schedule from the input CDS contract specification
   public ZonedDateTime[] constructCreditDefaultSwapPremiumLegSchedule(CreditDefaultSwapDefinition cds) {
 
     // ------------------------------------------------
@@ -68,6 +76,90 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     // ------------------------------------------------
 
     return cashflowSchedule;
+  }
+
+  // -------------------------------------------------------------------------------------------
+
+  // Public method to generate a set of timenodes compliant with the ISDA model (adapted from the RiskCare implementation)
+  public double[] constructISDACompliantCashflowSchedule(CreditDefaultSwapDefinition cds, YieldCurve yieldCurve, HazardRateCurve hazardRateCurve,
+      double startTime, double endTime, boolean includeSchedule) {
+
+    // ------------------------------------------------
+
+    // Check input arguments are not null
+    ArgumentChecker.notNull(cds, "CDS");
+    ArgumentChecker.notNull(yieldCurve, "Yield curve");
+    ArgumentChecker.notNull(hazardRateCurve, "Hazard rate curve");
+
+    ArgumentChecker.notNull(startTime, "Start time");
+    ArgumentChecker.notNull(endTime, "End time");
+
+    // ------------------------------------------------
+
+    double offset = 0.0;
+
+    ZonedDateTime[] cashflowSchedule = this.constructCreditDefaultSwapPremiumLegSchedule(cds);
+
+    double[] cashflowScheduleAsDoubles = convertTenorsToDoubles(cashflowSchedule, cds.getValuationDate(), ACT_365);
+
+    NavigableSet<Double> allTimePoints = new TreeSet<Double>();
+
+    Double[] x = yieldCurve.getCurve().getXData();
+
+    for (int i = 0; i < x.length; i++) {
+      allTimePoints.add(new Double(x[i]));
+    }
+
+    x = hazardRateCurve.getCurve().getXData();
+
+    for (int i = 0; i < x.length; i++) {
+      allTimePoints.add(new Double(x[i]));
+    }
+
+    allTimePoints.add(new Double(startTime));
+    allTimePoints.add(new Double(endTime));
+
+    Set<Double> timePointsInRange;
+
+    if (includeSchedule) {
+
+      final int maturityIndex = cashflowSchedule.length - 1;
+
+      if (cds.getProtectionStart()) {
+        offset = cds.getProtectionOffset();
+      }
+
+      double offsetStartTime = TimeCalculator.getTimeBetween(cds.getValuationDate(), cashflowSchedule[1], ACT_365) - offset;
+      allTimePoints.add(new Double(offsetStartTime));
+
+      double periodEndTime = 0.0;
+      for (int i = 0; i < cashflowSchedule.length; i++) {
+
+        if (i < cashflowSchedule.length - 1) {
+          periodEndTime = cashflowScheduleAsDoubles[i] - offset;
+        } else {
+          periodEndTime = cashflowScheduleAsDoubles[i];
+        }
+
+        allTimePoints.add(new Double(periodEndTime));
+      }
+
+      timePointsInRange = allTimePoints.subSet(new Double(offsetStartTime), true, new Double(endTime), true);
+
+    } else {
+      timePointsInRange = allTimePoints.subSet(new Double(startTime), true, new Double(endTime), true);
+    }
+
+    Double[] boxed = new Double[timePointsInRange.size()];
+    timePointsInRange.toArray(boxed);
+
+    double[] timePoints = new double[boxed.length];
+
+    for (int i = 0; i < boxed.length; ++i) {
+      timePoints[i] = boxed[i].doubleValue();
+    }
+
+    return timePoints;
   }
 
   // -------------------------------------------------------------------------------------------
@@ -110,7 +202,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
   // -------------------------------------------------------------------------------------------
 
-  // Public method to convert the input ZonedDateTime tenors into doubles
+  // Public method to convert the input ZonedDateTime tenors into doubles based on the CDS contract properties
   public double[] convertTenorsToDoubles(CreditDefaultSwapDefinition cds, ZonedDateTime[] tenors) {
 
     ArgumentChecker.notNull(cds, "CDS");
@@ -122,6 +214,24 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     for (int i = 0; i < numberOfTenors; i++) {
       tenorsAsDoubles[i] = TimeCalculator.getTimeBetween(cds.getValuationDate(), tenors[i], cds.getDayCountFractionConvention());
+    }
+
+    return tenorsAsDoubles;
+  }
+
+  // Public method to convert the input ZonedDateTime tenors into doubles relative to the specified date based on the daycount convention specified
+  public double[] convertTenorsToDoubles(ZonedDateTime[] tenors, ZonedDateTime baselineDate, DayCount dayCountConvention) {
+
+    ArgumentChecker.notNull(dayCountConvention, "Daycount convention");
+    ArgumentChecker.notNull(baselineDate, "Baseline date");
+    ArgumentChecker.notNull(tenors, "tenors");
+
+    int numberOfTenors = tenors.length;
+
+    double[] tenorsAsDoubles = new double[numberOfTenors];
+
+    for (int i = 0; i < numberOfTenors; i++) {
+      tenorsAsDoubles[i] = TimeCalculator.getTimeBetween(baselineDate, tenors[i], dayCountConvention);
     }
 
     return tenorsAsDoubles;

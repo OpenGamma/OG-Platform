@@ -6,27 +6,22 @@
 package com.opengamma.util.db.tool;
 
 import java.io.Closeable;
-import java.io.File;
+import java.io.IOException;
+
+import com.opengamma.util.db.script.DbScript;
 
 /**
- * Writes SQL scripts.
+ * Writes database scripts.
  */
 public interface SqlScriptWriter extends Closeable {
   
   /**
-   * Writes a SQL script from a string.
+   * Writes a database script.
    * 
    * @param title  the title of the script for display purposes, not null
-   * @param sql  the script, not null
+   * @param script  the script, not null
+   * @throws IOException  if there is a problem reading or writing the script
    */
-  void write(String title, String sql);
-  
-  /**
-   * Writes a SQL script from a file.
-   * 
-   * @param title  the title of the script for display purposes, not null
-   * @param sqlScript  the script, not null
-   */
-  void write(String title, File sqlScript);
+  void write(String title, DbScript script) throws IOException;
 
 }

@@ -9,11 +9,12 @@ import java.io.IOException;
 import java.util.Collection;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.db.script.DbScript;
 
 /**
  * Implementation of {@link SqlScriptWriter} which distributes calls to multiple underlying writers.
  */
-public class MultiSqlScriptWriter extends AbstractSqlScriptWriter {
+public class MultiSqlScriptWriter implements SqlScriptWriter {
 
   private final Collection<SqlScriptWriter> _writers;
   
@@ -23,9 +24,9 @@ public class MultiSqlScriptWriter extends AbstractSqlScriptWriter {
   }
 
   @Override
-  public void write(String title, String sql) {
+  public void write(String title, DbScript script) throws IOException {
     for (SqlScriptWriter writer : _writers) {
-      writer.write(title, sql);
+      writer.write(title, script);
     }
   }
   

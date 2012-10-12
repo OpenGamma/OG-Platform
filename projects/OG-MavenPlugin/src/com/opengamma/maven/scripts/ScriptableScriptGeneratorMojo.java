@@ -20,7 +20,6 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -29,6 +28,7 @@ import org.apache.maven.project.MavenProject;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
+import com.opengamma.maven.MojoUtils;
 import com.opengamma.util.ClasspathUtils;
 import com.opengamma.util.annotation.ClassNameAnnotationScanner;
 import com.opengamma.util.generate.scripts.Scriptable;
@@ -210,31 +210,11 @@ public class ScriptableScriptGeneratorMojo extends AbstractMojo {
     }
   }
 
-  @SuppressWarnings("unchecked")
   private static ClassLoader getResourceLoader(String resourceArtifact, MavenProject project) throws MojoExecutionException, MalformedURLException {
     if (StringUtils.isBlank(resourceArtifact)) {
       return ScriptableScriptGeneratorMojo.class.getClassLoader();
     }
-    String[] artifactParts = resourceArtifact.split(":");
-    if (artifactParts.length < 2 || artifactParts.length > 4) {
-      throw new MojoExecutionException("resourceArtifact must be of the form groupId:artifactId[:type[:classifier]]");
-    }
-    String groupId = artifactParts[0];
-    String artifactId = artifactParts[1];
-    String type = artifactParts.length > 2 ? artifactParts[2] : null;
-    String classifier = artifactParts.length > 3 ? artifactParts[3] : null;
-    
-    File artifactFile = null;
-    for (Artifact artifact : (Set<Artifact>) project.getDependencyArtifacts()) {
-      if (groupId.equals(artifact.getGroupId()) && artifactId.equals(artifact.getArtifactId()) &&
-          (type == null || type.equals(artifact.getType())) && (classifier == null || classifier.equals(artifact.getClassifier()))) {
-        artifactFile = artifact.getFile();
-        break;
-      }
-    }
-    if (artifactFile == null) {
-      throw new MojoExecutionException("Unable to find artifact with coordinates '" + resourceArtifact + "'");
-    }
+    File artifactFile = MojoUtils.getArtifactFile(resourceArtifact, project);
     return new URLClassLoader(new URL[] { artifactFile.toURI().toURL() });
   }
 
