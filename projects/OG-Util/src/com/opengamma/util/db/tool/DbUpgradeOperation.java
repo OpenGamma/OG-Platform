@@ -19,9 +19,11 @@ import com.opengamma.util.db.script.DbScript;
 /**
  * Upgrades database objects using the installation scripts.
  */
-public class DbMigrateOperation extends AbstractDbScriptOperation<DbToolContext> {
+public class DbUpgradeOperation extends AbstractDbScriptOperation<DbToolContext> {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(DbMigrateOperation.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(DbUpgradeOperation.class);
+  
+  private boolean _upgradeRequired;
   
   /**
    * Constructs an instance.
@@ -30,13 +32,29 @@ public class DbMigrateOperation extends AbstractDbScriptOperation<DbToolContext>
    * @param write  true to modify the database, false to output the commands that would be run
    * @param outputFile  the file to which the SQL should be written, null not to write to a file
    */
-  public DbMigrateOperation(DbToolContext dbToolContext, boolean write, File outputFile) {
+  public DbUpgradeOperation(DbToolContext dbToolContext, boolean write, File outputFile) {
     super(dbToolContext, write, outputFile);
   }
   
+  //-------------------------------------------------------------------------
+  /**
+   * Gets whether an upgrade was found to be required on the last execution.
+   * 
+   * @return true if an upgrade was required, false otherwise
+   */
+  public boolean isUpgradeRequired() {
+    return _upgradeRequired;
+  }
+
+  private void setUpgradeRequired(boolean upgradeRequired) {
+    _upgradeRequired = upgradeRequired;
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public void execute() {
     SqlScriptWriter writer = createSqlScriptWriter();
+    boolean upgradeRequired = false;
     try {
       Set<String> schemaGroups = getDbToolContext().getGroups() != null ? getDbToolContext().getGroups() : getAllGroupNames();
       for (String schemaGroup : schemaGroups) {
@@ -49,6 +67,7 @@ public class DbMigrateOperation extends AbstractDbScriptOperation<DbToolContext>
           s_logger.info(schemaGroup + " already at latest version");
           continue;
         }
+        upgradeRequired = true;
         s_logger.info(schemaGroup + " is behind by " + scripts.size() + " versions");
         for (int i = 0; i < scripts.size(); i++) {
           DbScript script = scripts.get(i);
@@ -59,6 +78,7 @@ public class DbMigrateOperation extends AbstractDbScriptOperation<DbToolContext>
     } catch (IOException e) {
       throw new OpenGammaRuntimeException("Error processing migration scripts", e);
     } finally {
+      setUpgradeRequired(upgradeRequired);
       try {
         writer.close();
       } catch (IOException e) {
