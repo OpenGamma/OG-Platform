@@ -13,20 +13,21 @@ $.register_module({
                 return 100 - $(html).appendTo('body').append('<div />').find('div').css('height', '200px').width();
             })();
         var available = (function () {
-            var unravel = function (nodes, arr, result) {
-                var start = arr[0], end = arr[1], children = arr[2], last_end = null;
+            var nodes, unravel = function (arr, result) {
+                var start = arr[0], end = arr[1], children = arr[2], last_end = null,
+                    i, j, len = children.length, child, curr_start, curr_end;
                 result.push(start);
                 if (!nodes[start]) return result;
-                children.forEach(function (child) {
-                    var current_start = child[0], current_end = child[1], lcv;
-                    for (lcv = (last_end || start) + 1; lcv < current_start; lcv += 1) result.push(lcv);
-                    last_end = start = current_end;
-                    unravel(nodes, child, result);
-                });
+                for (i = 0; i < len; i += 1) {
+                    child = children[i]; curr_start = child[0]; curr_end = child[1];
+                    for (j = (last_end || start) + 1; j < curr_start; j += 1) result.push(j);
+                    last_end = start = curr_end;
+                    unravel(child, result);
+                }
                 while (++start <= end) result.push(start);
                 return result;
             };
-            return function (meta) {return unravel(meta.nodes, meta.structure, []);};
+            return function (meta) {return (nodes = meta.nodes), unravel(meta.structure, []);};
         })();
         var background = function (sets, width, bg_color) {
             var columns = sets.reduce(function (acc, set) {return acc.concat(set.columns);}, []),
@@ -160,15 +161,14 @@ $.register_module({
                 })(null));
             })();
             grid.selector = new og.analytics.Selector(grid).on('select', function (raw) {
-                var cell, meta = grid.meta, selection = transpose_selection.call(grid, raw);
-                if (1 === selection.rows.length && 1 === selection.cols.length && (cell = grid.cell(selection)))
-                    fire(grid.events.cellselect, cell);
-                else
-                    fire(grid.events.rangeselect, selection);
-                fire(grid.events.select, selection); // fire for both single and multiple selection
+                var cell, meta = grid.meta, selection = transpose_selection.call(grid, raw), events;
+                events = 1 === selection.rows.length && 1 === selection.cols.length && (cell = grid.cell(selection)) ?
+                    grid.events.cellselect : grid.events.rangeselect;
+                fire(events, selection);
+                fire(grid.events.select, selection); // fire for single and multiple selections
             });
             if (config.cellmenu) try {cellmenu = new og.analytics.CellMenu(grid);}
-                catch (error) {og.dev.warn(module.name + ': caught an error', error);}
+                catch (error) {og.dev.warn(module.name + ': cellmenu failed', error);}
             og.common.gadgets.manager.register({alive: grid.alive, resize: grid.resize, context: grid});
             elements.empty = false;
         };
@@ -267,32 +267,31 @@ $.register_module({
         };
         var unravel_structure = (function () {
             var rep_str =  '&nbsp;&nbsp;&nbsp;', rep_memo = {}, cache, counter;
-            var rep = function (times) {
+            var rep = function (times, lcv, result) {
                 if (times in rep_memo) return rep_memo[times];
-                var result = '';
-                if (times) while (times--) result += rep_str;
+                if ((result = '') || (lcv = times)) while (lcv--) result += rep_str;
                 return rep_memo[times] = result;
             };
-            var unravel = function (arr, indent, result) {
-                var start = arr[0], end = arr[1], children = arr[2], prefix, last_end = null, str;
+            var unravel = function (arr, result, indent) {
+                var start = arr[0], end = arr[1], children = arr[2], prefix, last_end = null, str,
+                    i, j, len = children.length, child, curr_start, curr_end;
                 prefix = (cache[rep(indent) + '<span data-row="' + start + '" class="node"></span>&nbsp;'] = counter++);
-                result[start] = {prefix: prefix, node: true, length: end - start};
-                children.forEach(function (child) {
-                    var current_start = child[0], current_end = child[1], lcv = (last_end || start) + 1, prefix, str;
-                    if (lcv < current_start)
-                        prefix = (str = rep(indent + 2)) in cache ? cache[str] : (cache[str] = counter++);
-                    for (; lcv < current_start; lcv += 1) result[lcv] = {prefix: prefix};
-                    last_end = start = current_end;
-                    unravel(child, indent + 1, result);
-                });
+                result.push({prefix: prefix, node: true, length: end - start});
+                for (i = 0; i < len; i += 1) {
+                    child = children[i]; curr_start = child[0]; curr_end = child[1]; j = (last_end || start) + 1;
+                    if (j < curr_start) prefix = (str = rep(indent + 2)) in cache ? cache[str] : cache[str] = counter++;
+                    for (; j < curr_start; j += 1) result.push({prefix: prefix});
+                    last_end = start = curr_end;
+                    unravel(child, result, indent + 1);
+                }
                 prefix = (str = rep(indent + 2)) in cache ? cache[str] : (cache[str] = counter++);
-                while (++start <= end) result[start] = {prefix: prefix};
+                while (++start <= end) result.push({prefix: prefix});
                 return result;
             };
             return function () {
                 var grid = this, unraveled, prefix;
                 cache = {}; counter = 0; grid.meta.unraveled_cache = [];
-                grid.meta.nodes = (unraveled = unravel(grid.meta.structure, 0, [])).reduce(function (acc, val, idx) {
+                grid.meta.nodes = (unraveled = unravel(grid.meta.structure, [], 0)).reduce(function (acc, val, idx) {
                     if (val.node) (acc[idx] = true), (acc.all.push(idx)), (acc.ranges.push(val.length));
                     return acc;
                 }, {all: [], ranges: []});

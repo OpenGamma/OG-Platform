@@ -291,7 +291,12 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot implement
     }
     final Pair<? extends StructuredMarketDataKey, ValueSpecification> key = factory.fromRequirement(requirement, this);
     if (key != null) {
-      return new ComputedValue(key.getSecond(), key.getFirst().accept(this));
+      final Object value = key.getFirst().accept(this);
+      if (value == null) {
+        return null;
+      } else {
+        return new ComputedValue(key.getSecond(), value);
+      }
     } else {
       return queryUnstructured(requirement);
     }

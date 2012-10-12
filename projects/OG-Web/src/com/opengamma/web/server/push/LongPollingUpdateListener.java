@@ -161,10 +161,10 @@ import com.opengamma.util.ArgumentChecker;
    */
   /* package */ void disconnect() {
     synchronized (_lock) {
-      if (_continuation != null) {
+      if (_continuation != null && _continuation.isSuspended()) {
         _continuation.complete();
-        _continuation = null;
       }
+      _continuation = null;
     }
   }
 

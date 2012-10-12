@@ -8,9 +8,6 @@ package com.opengamma.financial.analytics.model.equity.indexoption;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionBlackMethod;
-import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
 
 /**
@@ -28,10 +25,4 @@ public class EquityIndexOptionForwardValueFunction extends EquityIndexOptionFunc
     EquityIndexOptionBlackMethod model = EquityIndexOptionBlackMethod.getInstance();
     return model.forwardIndexValue(derivative, market);
   }
-
-  @Override
-  protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
-    return super.createValueProperties(target).with(ValuePropertyNames.CURRENCY, getEquityIndexOptionSecurity(target).getCurrency().getCode());
-  }
-
 }
