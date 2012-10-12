@@ -23,7 +23,7 @@ import com.opengamma.engine.value.ValueSpecification;
   public Object formatForExpandedDisplay(PresentValueForexBlackVolatilitySensitivity value,
                                          ValueSpecification valueSpec) {
     // TODO implement formatForExpandedDisplay()
-    throw new UnsupportedOperationException("formatForExpandedDisplay not implemented");
+    throw new UnsupportedOperationException("Expanded display not supported for " + getClass().getSimpleName());
   }
 
   @Override

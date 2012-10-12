@@ -26,7 +26,7 @@ public class InterpolatedYieldCurveSpecificationWithSecuritiesFormatter<T>
   @Override
   public Object formatForExpandedDisplay(InterpolatedYieldCurveSpecificationWithSecurities value,
                                          ValueSpecification valueSpec) {
-    throw new UnsupportedOperationException("formatForExpandedDisplay not implemented");
+    throw new UnsupportedOperationException("Expanded display not supported for " + getClass().getSimpleName());
   }
 
   @Override
