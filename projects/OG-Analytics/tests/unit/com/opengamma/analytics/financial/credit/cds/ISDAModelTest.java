@@ -8,8 +8,6 @@ package com.opengamma.analytics.financial.credit.cds;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-import org.testng.annotations.Test;
-
 import com.opengamma.analytics.financial.instrument.Convention;
 import com.opengamma.analytics.financial.instrument.cds.ISDACDSDefinition;
 import com.opengamma.analytics.financial.instrument.cds.ISDACDSPremiumDefinition;
@@ -36,7 +34,7 @@ public class ISDAModelTest {
     final ZonedDateTime startDate = ZonedDateTime.of(2008, 3, 20, 0, 0, 0, 0, TimeZone.UTC);
     final ZonedDateTime maturity = ZonedDateTime.of(2013, 3, 20, 0, 0, 0, 0, TimeZone.UTC);
     final int settlementDays = 3;
-    final double notional = 10000000, spread = 0.01 /* 100bp */, recoveryRate = 0.40;
+    final double notional = 10000000, spread = 0.0 /* 100bp */, recoveryRate = 0.4;
 
     final Frequency couponFrequency = SimpleFrequency.QUARTERLY;
     final Calendar calendar = new MondayToFridayCalendar("TestCalendar");
@@ -45,14 +43,21 @@ public class ISDAModelTest {
     final Convention convention = new Convention(settlementDays, dayCount, businessDays, calendar, "");
     final StubType stubType = StubType.SHORT_START;
 
-    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, couponFrequency, convention, stubType, /* protectStart */true, notional, spread,
+    // Include the accrued coupon
+    final boolean accrualOnDefault = false;
+
+    // Pay contingent leg on default or at maturity?
+    final boolean payOnDefault = true;
+
+    final boolean protectStart = true;
+
+    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, couponFrequency, convention, stubType, protectStart, notional, spread,
         Currency.USD);
 
-    return new ISDACDSDefinition(startDate, maturity, premiumDefinition, notional, spread, recoveryRate, /* accrualOnDefault */true, /* payOnDefault */true, /* protectStart */true,
-        couponFrequency, convention, stubType);
+    return new ISDACDSDefinition(startDate, maturity, premiumDefinition, notional, spread, recoveryRate, accrualOnDefault, payOnDefault, protectStart, couponFrequency, convention, stubType);
   }
 
-  @Test
+  //@Test
   public void testISDAModel() {
 
     final DayCount s_act365 = new ActualThreeSixtyFive();
@@ -137,6 +142,7 @@ public class ISDAModelTest {
         s_act365.getDayCountFraction(baseDate2, ZonedDateTime.of(2038, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
     };
 
+    /*
     double[] rates = {
         (new PeriodicInterestRate(0.00452115893602745000, 1)).toContinuous().getRate(),
         (new PeriodicInterestRate(0.00965814197655757000, 1)).toContinuous().getRate(),
@@ -203,15 +209,14 @@ public class ISDAModelTest {
         (new PeriodicInterestRate(0.03502458863645770000, 1)).toContinuous().getRate(),
         (new PeriodicInterestRate(0.03501550511625420000, 1)).toContinuous().getRate()
     };
+    */
 
-    /*
     double[] rates = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0 };
-        */
 
-    ISDACurve discountCurve = new ISDACurve("IR_CURVE", times, rates, s_act365.getDayCountFraction(pricingDate, baseDate2));
+    ISDACurve discountCurve = new ISDACurve("IR_CURVE", times, rates, /*s_act365.getDayCountFraction(pricingDate, baseDate2)*/0.0);
 
     // -----------------------------------------------------------------------------------------------------------
 
@@ -233,7 +238,7 @@ public class ISDAModelTest {
 
     // -----------------------------------------------------------------------------------------------------------
 
-    final ZonedDateTime endDate = ZonedDateTime.of(2009, 9, 22, 0, 0, 0, 0, TimeZone.UTC);
+    final ZonedDateTime endDate = ZonedDateTime.of(2013, 3, 10, 0, 0, 0, 0, TimeZone.UTC);
 
     ZonedDateTime rollingdate = ZonedDateTime.of(2008, 3, 21, 0, 0, 0, 0, TimeZone.UTC);
 
@@ -243,16 +248,12 @@ public class ISDAModelTest {
 
       final ISDAApproxCDSPricingMethod method = new ISDAApproxCDSPricingMethod();
 
-      final double cleanPrice = method.calculateUpfrontCharge(cds, discountCurve, hazardRateCurve, true);
-      //final double cleanPriceError = Math.abs((cleanPrice - 1605993.21801408) / cds.getNotional());
+      final double dirtyPrice = method.calculateUpfrontCharge(cds, discountCurve, hazardRateCurve, false);
 
-      //System.out.println(rollingdate + "\t" + cleanPrice);
+      System.out.println(rollingdate + "\t" + dirtyPrice);
 
       rollingdate = rollingdate.plusDays(1);
-
     }
-
-    //Assert.assertTrue(cleanPriceError < 1E-15);
 
     // -----------------------------------------------------------------------------------------------------------
   }

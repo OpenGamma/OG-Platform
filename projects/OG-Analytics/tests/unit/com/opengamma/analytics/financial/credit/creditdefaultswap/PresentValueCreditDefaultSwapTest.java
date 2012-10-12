@@ -237,9 +237,9 @@ public class PresentValueCreditDefaultSwapTest {
   //private static final InterpolatedDoublesCurve R = InterpolatedDoublesCurve.from(TIME, RATES, new LinearInterpolator1D());
 
   private static final InterpolatedDoublesCurve R = InterpolatedDoublesCurve.from(TIME, RATES, new CombinedInterpolatorExtrapolator(
-      new ISDAInterpolator1D(),    // ISDA style interpolation
+      new ISDAInterpolator1D(),    // ISDA style interpolation - from RiskCare
       new FlatExtrapolator1D(),    // Flat rate extrapolated to the left
-      new ISDAExtrapolator1D()));  // ISDA style extrapolation to the right);
+      new ISDAExtrapolator1D()));  // ISDA style extrapolation to the right  - from RiskCare;
 
   private static final YieldCurve yieldCurve = YieldCurve.from(R);
 
@@ -337,7 +337,7 @@ public class PresentValueCreditDefaultSwapTest {
 
   // Simple test to compute the PV of a CDS assuming a flat term structure of market observed CDS par spreads
 
-  @Test
+  //@Test
   public void testPresentValueCreditDefaultSwap() {
 
     // -----------------------------------------------------------------------------------------------
@@ -353,27 +353,11 @@ public class PresentValueCreditDefaultSwapTest {
     // Call the constructor to create a CDS whose PV we will compute
     final PresentValueCreditDefaultSwap creditDefaultSwap = new PresentValueCreditDefaultSwap();
 
-    // Calculate the value of the premium leg
-    double presentValuePremiumLeg = (cds.getPremiumLegCoupon() / 10000.0) * creditDefaultSwap.calculatePremiumLeg(cds, yieldCurve, hazardRateCurve);
-
-    //double presentValueAccruedPremium = (cds.getPremiumLegCoupon() / 10000.0) * creditDefaultSwap.calculateAccruedPremium(cds, yieldCurve, hazardRateCurve);
-
-    // Calculate the value of the contingent leg
-    double presentValueContingentLeg = creditDefaultSwap.calculateContingentLeg(cds, yieldCurve, hazardRateCurve);
-
-    double presentValueISDAContingentLeg = creditDefaultSwap.calculateISDAContingentLeg(cds, yieldCurve, hazardRateCurve);
-
     // Calculate the present value
-    //double presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(cds, yieldCurve, hazardRateCurve);
+    double presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(cds, yieldCurve, hazardRateCurve);
 
     if (outputResults) {
-
-      System.out.println("CDS Premium Leg PV = " + presentValuePremiumLeg);
-      //System.out.println("CDS Accrued Interest PV = " + presentValueAccruedPremium);
-      System.out.println("CDS Contingent Leg PV = " + presentValueContingentLeg);
-      System.out.println("IDSA CDS Contingent Leg PV = " + presentValueISDAContingentLeg);
-
-      //System.out.println("CDS PV = " + presentValue);
+      System.out.println("CDS PV = " + presentValue);
     }
 
   }
@@ -481,7 +465,7 @@ public class PresentValueCreditDefaultSwapTest {
 
   // Test to vary the valuationDate of a CDS from adjustedEffectiveDate to adjustedMaturityDate and compute PV
 
-  //@Test
+  @Test
   public void testPresentValueCreditDefaultSwapTimeDecay() {
 
     // -----------------------------------------------------------------------------------------------
@@ -504,42 +488,34 @@ public class PresentValueCreditDefaultSwapTest {
     // Call the constructor to create a CDS whose PV we will compute
     final PresentValueCreditDefaultSwap creditDefaultSwap = new PresentValueCreditDefaultSwap();
 
-    // Call the CDS PV calculator to get the current PV
-    //presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(cds, yieldCurve, hazardRateCurve);
-
-    // Calculate the value of the premium leg
-    premiumLegPresentValue = (cds.getPremiumLegCoupon() / 10000.0) * creditDefaultSwap.calculatePremiumLeg(cds, yieldCurve, hazardRateCurve);
-
-    // Calculate the value of the contingent leg
-    contingentLegPresentValue = creditDefaultSwap.calculateContingentLeg(cds, yieldCurve, hazardRateCurve);
-
-    if (outputResults) {
-      System.out.println(valuationDate + "\t" + premiumLegPresentValue);
-    }
-
     // -----------------------------------------------------------------------------------------------
 
     // start at the initial valuation date
-    ZonedDateTime rollingValuationDate = cds.getValuationDate();
+    ZonedDateTime rollingdate = ZonedDateTime.of(2008, 3, 20, 0, 0, 0, 0, TimeZone.UTC);
 
-    while (!rollingValuationDate.isAfter(cds.getMaturityDate().minusDays(10))) {
+    // Specify the end date
+    ZonedDateTime endDate = ZonedDateTime.of(2013, 3, 10, 0, 0, 0, 0, TimeZone.UTC);
+
+    while (rollingdate.isBefore(endDate)) {
 
       // Roll the current valuation date
-      rollingValuationDate = rollingValuationDate.plusDays(1);
+      rollingdate = rollingdate.plusDays(1);
 
       // Modify the CDS's valuation date
-      valuationCDS = valuationCDS.withValuationDate(rollingValuationDate);
+      valuationCDS = valuationCDS.withValuationDate(rollingdate);
 
-      // Calculate the CDS PV
-      //presentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(valuationCDS, yieldCurve, hazardRateCurve);
+      // Set the recovery rate to 100% (kill contingent leg) to get the premium leg value
+      valuationCDS = valuationCDS.withSpread(premiumLegCoupon);
+      valuationCDS = valuationCDS.withRecoveryRate(1.0);
+      premiumLegPresentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(valuationCDS, yieldCurve, hazardRateCurve);
 
-      // Calculate the value of the premium leg
-      premiumLegPresentValue = (cds.getPremiumLegCoupon() / 10000.0) * creditDefaultSwap.calculatePremiumLeg(valuationCDS, yieldCurve, hazardRateCurve);
-
-      contingentLegPresentValue = creditDefaultSwap.calculateContingentLeg(valuationCDS, yieldCurve, hazardRateCurve);
+      // Set the coupon to 0 (kill premium leg) and reset the recovery rate to get the contingent leg value
+      valuationCDS = valuationCDS.withSpread(0.0);
+      valuationCDS = valuationCDS.withRecoveryRate(recoveryRate);
+      contingentLegPresentValue = creditDefaultSwap.getPresentValueCreditDefaultSwap(valuationCDS, yieldCurve, hazardRateCurve);
 
       if (outputResults) {
-        System.out.println(rollingValuationDate + "\t" + contingentLegPresentValue);
+        System.out.println(rollingdate + "\t" + premiumLegPresentValue + "\t" + contingentLegPresentValue);
       }
     }
 

@@ -383,7 +383,7 @@ public class CreditDefaultSwapDefinition {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // Builder method to allow the valuation recovery rate of a CDS object to be modified (used during calibration of the survival curve)
+  // Builder method to allow the recovery rate of a CDS object to be modified (used during calibration of the survival curve)
 
   public CreditDefaultSwapDefinition withRecoveryRate(double recoveryRate) {
 

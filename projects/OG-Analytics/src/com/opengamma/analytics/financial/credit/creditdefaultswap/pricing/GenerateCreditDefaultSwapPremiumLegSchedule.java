@@ -86,8 +86,13 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     // ------------------------------------------------
 
-    // Check input CDS object is not null
+    // Check input arguments are not null
     ArgumentChecker.notNull(cds, "CDS");
+    ArgumentChecker.notNull(yieldCurve, "Yield curve");
+    ArgumentChecker.notNull(hazardRateCurve, "Hazard rate curve");
+
+    ArgumentChecker.notNull(startTime, "Start time");
+    ArgumentChecker.notNull(endTime, "End time");
 
     // ------------------------------------------------
 
@@ -96,12 +101,6 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     ZonedDateTime[] cashflowSchedule = this.constructCreditDefaultSwapPremiumLegSchedule(cds);
 
     double[] cashflowScheduleAsDoubles = convertTenorsToDoubles(cashflowSchedule, cds.getValuationDate(), ACT_365);
-
-    /*
-    for (int i = 0; i < cashflowScheduleAsDoubles.length; i++) {
-      System.out.println("i = " + i + "\t" + cashflowScheduleAsDoubles[i]);
-    }
-    */
 
     NavigableSet<Double> allTimePoints = new TreeSet<Double>();
 
@@ -159,14 +158,6 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     for (int i = 0; i < boxed.length; ++i) {
       timePoints[i] = boxed[i].doubleValue();
     }
-
-    /*
-    Object[] temp = allTimePoints.toArray();
-
-    for (int i = 0; i < temp.length; i++) {
-      System.out.println("i = " + i + "\t" + temp[i]);
-    }
-    */
 
     return timePoints;
   }
