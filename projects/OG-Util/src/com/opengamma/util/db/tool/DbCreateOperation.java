@@ -72,11 +72,13 @@ public class DbCreateOperation extends AbstractDbScriptOperation<DbToolContext> 
       return;
     }
         
-    // Give the user a chance to kill the script
-    s_logger.warn("About to erase the contents of " + getDbToolContext().getCatalog() + "...");
-    try {
-      Thread.sleep(3000);
-    } catch (InterruptedException e) {
+    if (s_logger.isInfoEnabled()) {
+      // Give the user a chance to kill the script
+      s_logger.info("About to erase the contents of " + getDbToolContext().getCatalog() + "...");
+      try {
+        Thread.sleep(3000);
+      } catch (InterruptedException e) {
+      }
     }
     
     s_logger.info("Dropping contents of catalog " + getDbToolContext().getCatalog());

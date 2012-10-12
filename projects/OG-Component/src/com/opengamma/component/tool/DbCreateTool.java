@@ -41,6 +41,9 @@ public class DbCreateTool extends AbstractDbTool<DbToolContext> {
   protected void doRun(boolean write, File outputFile) throws Exception {
     boolean dropExisting = getCommandLine().hasOption(DROP_EXISTING_OPTION);
     new DbCreateOperation(getDbToolContext(), write, outputFile, dropExisting).execute();
+    if (write) {
+      System.out.println("Database objects created successfully");
+    }
   }
   
   //-------------------------------------------------------------------------
