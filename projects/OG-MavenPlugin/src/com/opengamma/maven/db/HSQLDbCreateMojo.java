@@ -44,7 +44,7 @@ public class HSQLDbCreateMojo extends AbstractMojo {
    * @parameter alias="dbPath"
    * @required
    */
-  private File _dbPath;
+  private String _dbPath;
   /**
    * @parameter alias="username"
    * @required
@@ -55,11 +55,6 @@ public class HSQLDbCreateMojo extends AbstractMojo {
    * @required
    */
   private String _password;
-  /**
-   * @parameter alias="catalog"
-   * @required
-   */
-  private String _catalog;
   /**
    * @parameter alias="scriptsArtifact"
    */
@@ -77,9 +72,17 @@ public class HSQLDbCreateMojo extends AbstractMojo {
   
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
+    String dbPath = _dbPath;
+    int lastSlashIdx = dbPath.lastIndexOf("/");
+    if (lastSlashIdx == -1) {
+      throw new MojoExecutionException("dbPath must contain '/' before the database name");
+    }
+    String dbHost = dbPath.substring(0, lastSlashIdx);
+    String catalog = dbPath.substring(lastSlashIdx + 1);
+    
     BoneCPDataSource dataSource = new BoneCPDataSource();
     dataSource.setDriverClass(jdbcDriver.class.getName());
-    dataSource.setJdbcUrl("jdbc:hsqldb:file:" + _dbPath.getAbsolutePath());
+    dataSource.setJdbcUrl("jdbc:hsqldb:file:" + dbPath);
     dataSource.setUsername(_username);
     dataSource.setPassword(_password);
     dataSource.setPoolName("hsqldb");
@@ -94,10 +97,10 @@ public class HSQLDbCreateMojo extends AbstractMojo {
     DbToolContext dbToolContext = new DbToolContext();
     try {
       DbManagement dbManagement = HSQLDbManagement.getInstance();
-      dbManagement.initialise(dataSource.getJdbcUrl(), _username, _password);
+      dbManagement.initialise(dbHost, _username, _password);
       dbToolContext.setDbManagement(dbManagement);
       dbToolContext.setDbConnector(new DbConnector("hsqldb", new HSQLDbDialect(), dataSource, jdbcTemplate, null, transactionTemplate));
-      dbToolContext.setCatalog(_catalog);
+      dbToolContext.setCatalog(catalog);
       
       DbScriptDirectory scriptsBaseDir;
       if (_scriptsArtifact != null) {

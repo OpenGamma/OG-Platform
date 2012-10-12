@@ -56,15 +56,15 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition
   private DbConnector _dbConnector;
   /**
+   * The JDBC URL.
+   */
+  @PropertyDefinition
+  private String _jdbcUrl;
+  /**
    * The database management instance.
    */
   @PropertyDefinition
   private DbManagement _dbManagement;
-  /**
-   * The database catalog name.
-   */
-  @PropertyDefinition
-  private String _catalog;
   /**
    * A comma-separated list of database object groups on which to operate.
    */
@@ -84,6 +84,13 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
     mapTarget.keySet().retainAll(this.metaBean().metaPropertyMap().keySet());
     for (MetaProperty<?> mp : mapTarget.values()) {
       mp.set(dbToolContext, property(mp.name()).get());
+    }
+    if (getJdbcUrl() != null) {
+      int lastSlashIdx = getJdbcUrl().lastIndexOf("/");
+      if (lastSlashIdx == -1) {
+        throw new OpenGammaRuntimeException("JDBC URL must contain '/' before the database name");
+      }
+      dbToolContext.setCatalog(getJdbcUrl().substring(lastSlashIdx + 1));
     }
     if (getScriptsResource() != null) {
       URL scriptsResourceUrl;
@@ -117,9 +124,9 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
       }
       dbToolContext.setScriptReader(new DbScriptReader(dbScriptDirectory));
     }
-    if (getSchemaGroupsList() != null) {
+    if (getGroupsList() != null) {
       Set<String> schemaGroups = new HashSet<String>();
-      for (String schemaGroup : getSchemaGroupsList().split(",")) {
+      for (String schemaGroup : getGroupsList().split(",")) {
         schemaGroups.add(schemaGroup.toLowerCase().trim());
       }
       dbToolContext.setGroups(schemaGroups);
@@ -152,12 +159,12 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
         return getClassifier();
       case 39794031:  // dbConnector
         return getDbConnector();
+      case -1752402828:  // jdbcUrl
+        return getJdbcUrl();
       case 209279841:  // dbManagement
         return getDbManagement();
-      case 555704345:  // catalog
-        return getCatalog();
-      case 1707225363:  // schemaGroupsList
-        return getSchemaGroupsList();
+      case 1299772562:  // groupsList
+        return getGroupsList();
       case 1948576054:  // scriptsResource
         return getScriptsResource();
     }
@@ -173,14 +180,14 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
       case 39794031:  // dbConnector
         setDbConnector((DbConnector) newValue);
         return;
+      case -1752402828:  // jdbcUrl
+        setJdbcUrl((String) newValue);
+        return;
       case 209279841:  // dbManagement
         setDbManagement((DbManagement) newValue);
         return;
-      case 555704345:  // catalog
-        setCatalog((String) newValue);
-        return;
-      case 1707225363:  // schemaGroupsList
-        setSchemaGroupsList((String) newValue);
+      case 1299772562:  // groupsList
+        setGroupsList((String) newValue);
         return;
       case 1948576054:  // scriptsResource
         setScriptsResource((Resource) newValue);
@@ -204,9 +211,9 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
       DbToolContextComponentFactory other = (DbToolContextComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(getDbConnector(), other.getDbConnector()) &&
+          JodaBeanUtils.equal(getJdbcUrl(), other.getJdbcUrl()) &&
           JodaBeanUtils.equal(getDbManagement(), other.getDbManagement()) &&
-          JodaBeanUtils.equal(getCatalog(), other.getCatalog()) &&
-          JodaBeanUtils.equal(getSchemaGroupsList(), other.getSchemaGroupsList()) &&
+          JodaBeanUtils.equal(getGroupsList(), other.getGroupsList()) &&
           JodaBeanUtils.equal(getScriptsResource(), other.getScriptsResource()) &&
           super.equals(obj);
     }
@@ -218,9 +225,9 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDbConnector());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJdbcUrl());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDbManagement());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCatalog());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSchemaGroupsList());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getGroupsList());
     hash += hash * 31 + JodaBeanUtils.hashCode(getScriptsResource());
     return hash ^ super.hashCode();
   }
@@ -278,6 +285,31 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the JDBC URL.
+   * @return the value of the property
+   */
+  public String getJdbcUrl() {
+    return _jdbcUrl;
+  }
+
+  /**
+   * Sets the JDBC URL.
+   * @param jdbcUrl  the new value of the property
+   */
+  public void setJdbcUrl(String jdbcUrl) {
+    this._jdbcUrl = jdbcUrl;
+  }
+
+  /**
+   * Gets the the {@code jdbcUrl} property.
+   * @return the property, not null
+   */
+  public final Property<String> jdbcUrl() {
+    return metaBean().jdbcUrl().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the database management instance.
    * @return the value of the property
    */
@@ -303,52 +335,27 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the database catalog name.
+   * Gets a comma-separated list of database object groups on which to operate.
    * @return the value of the property
    */
-  public String getCatalog() {
-    return _catalog;
-  }
-
-  /**
-   * Sets the database catalog name.
-   * @param catalog  the new value of the property
-   */
-  public void setCatalog(String catalog) {
-    this._catalog = catalog;
-  }
-
-  /**
-   * Gets the the {@code catalog} property.
-   * @return the property, not null
-   */
-  public final Property<String> catalog() {
-    return metaBean().catalog().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets a comma-separated list of schema group names on which to operate.
-   * @return the value of the property
-   */
-  public String getSchemaGroupsList() {
+  public String getGroupsList() {
     return _groupsList;
   }
 
   /**
-   * Sets a comma-separated list of schema group names on which to operate.
-   * @param schemaGroupsList  the new value of the property
+   * Sets a comma-separated list of database object groups on which to operate.
+   * @param groupsList  the new value of the property
    */
-  public void setSchemaGroupsList(String schemaGroupsList) {
-    this._groupsList = schemaGroupsList;
+  public void setGroupsList(String groupsList) {
+    this._groupsList = groupsList;
   }
 
   /**
-   * Gets the the {@code schemaGroupsList} property.
+   * Gets the the {@code groupsList} property.
    * @return the property, not null
    */
-  public final Property<String> schemaGroupsList() {
-    return metaBean().schemaGroupsList().createProperty(this);
+  public final Property<String> groupsList() {
+    return metaBean().groupsList().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -397,20 +404,20 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<DbConnector> _dbConnector = DirectMetaProperty.ofReadWrite(
         this, "dbConnector", DbToolContextComponentFactory.class, DbConnector.class);
     /**
+     * The meta-property for the {@code jdbcUrl} property.
+     */
+    private final MetaProperty<String> _jdbcUrl = DirectMetaProperty.ofReadWrite(
+        this, "jdbcUrl", DbToolContextComponentFactory.class, String.class);
+    /**
      * The meta-property for the {@code dbManagement} property.
      */
     private final MetaProperty<DbManagement> _dbManagement = DirectMetaProperty.ofReadWrite(
         this, "dbManagement", DbToolContextComponentFactory.class, DbManagement.class);
     /**
-     * The meta-property for the {@code catalog} property.
+     * The meta-property for the {@code groupsList} property.
      */
-    private final MetaProperty<String> _catalog = DirectMetaProperty.ofReadWrite(
-        this, "catalog", DbToolContextComponentFactory.class, String.class);
-    /**
-     * The meta-property for the {@code schemaGroupsList} property.
-     */
-    private final MetaProperty<String> _schemaGroupsList = DirectMetaProperty.ofReadWrite(
-        this, "schemaGroupsList", DbToolContextComponentFactory.class, String.class);
+    private final MetaProperty<String> _groupsList = DirectMetaProperty.ofReadWrite(
+        this, "groupsList", DbToolContextComponentFactory.class, String.class);
     /**
      * The meta-property for the {@code scriptsResource} property.
      */
@@ -423,9 +430,9 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "dbConnector",
+        "jdbcUrl",
         "dbManagement",
-        "catalog",
-        "schemaGroupsList",
+        "groupsList",
         "scriptsResource");
 
     /**
@@ -441,12 +448,12 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
           return _classifier;
         case 39794031:  // dbConnector
           return _dbConnector;
+        case -1752402828:  // jdbcUrl
+          return _jdbcUrl;
         case 209279841:  // dbManagement
           return _dbManagement;
-        case 555704345:  // catalog
-          return _catalog;
-        case 1707225363:  // schemaGroupsList
-          return _schemaGroupsList;
+        case 1299772562:  // groupsList
+          return _groupsList;
         case 1948576054:  // scriptsResource
           return _scriptsResource;
       }
@@ -486,6 +493,14 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
     }
 
     /**
+     * The meta-property for the {@code jdbcUrl} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> jdbcUrl() {
+      return _jdbcUrl;
+    }
+
+    /**
      * The meta-property for the {@code dbManagement} property.
      * @return the meta-property, not null
      */
@@ -494,19 +509,11 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
     }
 
     /**
-     * The meta-property for the {@code catalog} property.
+     * The meta-property for the {@code groupsList} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> catalog() {
-      return _catalog;
-    }
-
-    /**
-     * The meta-property for the {@code schemaGroupsList} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<String> schemaGroupsList() {
-      return _schemaGroupsList;
+    public final MetaProperty<String> groupsList() {
+      return _groupsList;
     }
 
     /**
