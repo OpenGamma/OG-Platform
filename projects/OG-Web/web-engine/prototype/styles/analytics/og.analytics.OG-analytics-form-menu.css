@@ -137,6 +137,12 @@
         min-width: 130px;
     }
 
+    .OG-analytics-form-menu.og-menu-datasources .source-datepicker{
+        position:absolute;
+        display: none;
+        z-index: 10;
+    }
+
 /* snapshots */
     .OG-analytics-form-menu.og-menu-datasources .snapshot select{
         vertical-align: initial;
