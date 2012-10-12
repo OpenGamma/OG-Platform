@@ -72,17 +72,9 @@ public class HSQLDbCreateMojo extends AbstractMojo {
   
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
-    String dbPath = _dbPath;
-    int lastSlashIdx = dbPath.lastIndexOf("/");
-    if (lastSlashIdx == -1) {
-      throw new MojoExecutionException("dbPath must contain '/' before the database name");
-    }
-    String dbHost = dbPath.substring(0, lastSlashIdx);
-    String catalog = dbPath.substring(lastSlashIdx + 1);
-    
     BoneCPDataSource dataSource = new BoneCPDataSource();
     dataSource.setDriverClass(jdbcDriver.class.getName());
-    dataSource.setJdbcUrl("jdbc:hsqldb:file:" + dbPath);
+    dataSource.setJdbcUrl("jdbc:hsqldb:file:" + _dbPath);
     dataSource.setUsername(_username);
     dataSource.setPassword(_password);
     dataSource.setPoolName("hsqldb");
@@ -90,6 +82,14 @@ public class HSQLDbCreateMojo extends AbstractMojo {
     dataSource.setAcquireIncrement(1);
     dataSource.setMinConnectionsPerPartition(1);
     dataSource.setMaxConnectionsPerPartition(1);
+    
+    String dbPath = dataSource.getJdbcUrl();
+    int lastSlashIdx = dbPath.lastIndexOf("/");
+    if (lastSlashIdx == -1) {
+      throw new MojoExecutionException("dbPath must contain '/' before the database name");
+    }
+    String dbHost = dbPath.substring(0, lastSlashIdx);
+    String catalog = dbPath.substring(lastSlashIdx + 1);
     
     SimpleJdbcTemplate jdbcTemplate = new SimpleJdbcTemplate(dataSource);
     TransactionTemplate transactionTemplate = new TransactionTemplate(new DataSourceTransactionManager(dataSource), new DefaultTransactionDefinition());
