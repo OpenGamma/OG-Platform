@@ -590,26 +590,12 @@ $.register_module({
                     method = method.concat(view_id);
                     return request(method, {data: {}, meta: meta});
                 },
-                portfolio: {
-                    columns: {
-                        root: 'views/{{id}}/portfolio/columns',
-                        get: function (config) {
-                            config = config || {};
-                            var root = this.root, method = root.split('/'), data = {}, meta;
-                            meta = check({
-                                bundle: {method: root + '#get', config: config},
-                                required: [{all_of: ['id']}]
-                            });
-                            return request(((method[1] = str(config.id)), method), {data: data, meta: meta});
-                        },
-                        put: not_available.partial('put'),
-                        del: not_available.partial('del')
-                    },
+                grid: {
                     depgraphs: {
-                        root: 'views/{{id}}/portfolio/depgraphs',
+                        root: 'views/{{view_id}}/portfolio/depgraphs',
                         del: not_implemented.partial('del'),
                         get: not_available.partial('get'),
-                        grid: {
+                        structure: {
                             root: 'views/{{view_id}}/portfolio/depgraphs/{{graph_id}}',
                             get: function (config) {
                                 var root = this.root, method = root.split('/'), data = {}, meta;
@@ -671,7 +657,7 @@ $.register_module({
                             del: not_available.partial('del')
                         }
                     },
-                    grid: {
+                    structure: {
                         root: 'views/{{view_id}}/portfolio',
                         get: function (config) {
                             config = config || {};
@@ -717,23 +703,6 @@ $.register_module({
                         },
                         del: not_available.partial('del')
                     }
-                },
-                primitives: {
-                    grid: {
-                        root: 'views/{{id}}/primitives',
-                        get: function (config) {
-                            config = config || {};
-                            var root = this.root, method = root.split('/'), data = {}, meta;
-                            meta = check({
-                                bundle: {method: root + '#get', config: config},
-                                required: [{all_of: ['id']}]
-                            });
-                            return request(((method[1] = str(config.id)), method), {data: data, meta: meta});
-                        },
-                        put: not_available.partial('put'),
-                        del: not_available.partial('del')
-                    },
-                    viewports: {}
                 }
             }
         };
