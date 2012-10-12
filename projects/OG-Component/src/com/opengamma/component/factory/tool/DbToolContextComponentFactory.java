@@ -86,6 +86,7 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
       mp.set(dbToolContext, property(mp.name()).get());
     }
     if (getJdbcUrl() != null) {
+      // REVIEW jonathan 2012-10-12 -- workaround for PLAT-2745
       int lastSlashIdx = getJdbcUrl().lastIndexOf("/");
       if (lastSlashIdx == -1) {
         throw new OpenGammaRuntimeException("JDBC URL must contain '/' before the database name");

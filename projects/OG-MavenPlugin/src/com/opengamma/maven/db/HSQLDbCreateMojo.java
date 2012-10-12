@@ -83,6 +83,7 @@ public class HSQLDbCreateMojo extends AbstractMojo {
     dataSource.setMinConnectionsPerPartition(1);
     dataSource.setMaxConnectionsPerPartition(1);
     
+    // REVIEW jonathan 2012-10-12 -- workaround for PLAT-2745
     String dbPath = dataSource.getJdbcUrl();
     int lastSlashIdx = dbPath.lastIndexOf("/");
     if (lastSlashIdx == -1) {
