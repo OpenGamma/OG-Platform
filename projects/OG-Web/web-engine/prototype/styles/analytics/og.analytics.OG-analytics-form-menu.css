@@ -60,6 +60,11 @@
     color: #aaa;
 }
 
+/** TODO AG: Remove, after solution found for plugin **/
+.ui-datepicker{
+    z-index: 9999 !important;
+}
+
 /* aggregation */
     .OG-analytics-form-menu.og-menu-aggregation tr td:nth-child(2) {
         color: #999;
@@ -127,8 +132,7 @@
         white-space: nowrap;
     }
 
-    .OG-analytics-form-menu.og-menu-datasources .snapshot .extra-opts,
-    .OG-analytics-form-menu.og-menu-datasources .historical .extra-opts{
+    .OG-analytics-form-menu.og-menu-datasources .extra-opts{
         display: inline-block;
     }
 
@@ -143,37 +147,48 @@
         z-index: 10;
     }
 
+    .OG-analytics-form-menu.og-menu-datasources .extra-opts .custom.active{
+        width:80px;
+    }
+
+
 /* snapshots */
     .OG-analytics-form-menu.og-menu-datasources .snapshot select{
         vertical-align: initial;
     }
 
-    .OG-analytics-form-menu.og-menu-datasources .snapshot .extra-opts{
+    .OG-analytics-form-menu.og-menu-datasources .extra-opts{
         margin-left: 11px;
     }
 
-    .OG-analytics-form-menu.og-menu-datasources .snapshot .extra-opts span{
+    .OG-analytics-form-menu.og-menu-datasources .extra-opts span{
         vertical-align: middle;        
     }
 
-    .OG-analytics-form-menu.og-menu-datasources .snapshot .extra-opts button{
+    .OG-analytics-form-menu.og-menu-datasources .extra-opts input[type=button]{
+        background: white;
+        border: 1px solid #CCC;
+        cursor: pointer;
         padding: 3px 0 2px 0;
         width: 49px;
     }
 
-    .OG-analytics-form-menu.og-menu-datasources .snapshot .latest{
+    .OG-analytics-form-menu.og-menu-datasources .extra-opts input[type=button]{
+    }
+
+    .OG-analytics-form-menu.og-menu-datasources .latest{
         border-top-left-radius: 4px;
         border-bottom-left-radius: 4px;
         margin-left: 4px;
     }
 
-    .OG-analytics-form-menu.og-menu-datasources .snapshot .custom{
+    .OG-analytics-form-menu.og-menu-datasources .custom{
         border-top-right-radius: 4px;
         border-bottom-right-radius: 4px;
         margin-right: 4px;
     }
 
-    .OG-analytics-form-menu.og-menu-datasources .snapshot .extra-opts button.active{
+    .OG-analytics-form-menu.og-menu-datasources .extra-opts input[type=button].active{
         border-top-color: #80c696 !important;
         border-top-width: 2px !important;
         cursor: default;
@@ -181,12 +196,17 @@
 
 /* historical */
     .OG-analytics-form-menu.og-menu-datasources .historical td .source{
-        width: 335px;
+        width: 356px;
     }
 
     .OG-analytics-form-menu.og-menu-datasources .historical td .source{
         margin-left: 2px;
     }
+
+    .OG-analytics-form-menu.og-menu-datasources .historical .extra-opts{
+        margin-left: 0px;
+    }
+
 
 
 /* ie8 doesnt support nth or last child...degrade */

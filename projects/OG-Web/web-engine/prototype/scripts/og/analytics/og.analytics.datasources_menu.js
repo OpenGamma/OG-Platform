@@ -9,7 +9,7 @@ $.register_module({
                 del_s = '.og-icon-delete', parent_s = '.OG-dropmenu-options', wrapper = '<wrapper>', type_s = '.type', 
                 source_s = '.source', menu_click_s = 'input, button, div.og-icon-delete, a.OG-link-add', 
                 $dom = menu.$dom,  $type_select, $source_select, $parent, $query, $option, $snapshot_opts, $datepicker,
-                $historical_opts,
+                $historical_opts, $latest, $custom, $extra_opts,
                 events = {
                     type_reset: 'dropmenu:ds:typereset',
                     type_selected:'dropmenu:ds:typesselected',
@@ -31,7 +31,7 @@ $.register_module({
                 },
                 populate_historical = function () {
                     populate_type_options(['Mock A','Mock B','Mock C', 'Mock D']);
-                    $source_select.before($historical_opts.html());
+                    $source_select.after($historical_opts.html());
                 },
                 display_query = function () {
                     if(query.length) {
@@ -64,7 +64,8 @@ $.register_module({
                     var type = $parent.data('type');
                     if (type_val === default_type_txt){
                         if (menu.opts.length === 1 && query.length === 1) return reset_query();
-                        return remove_entry(entry), remove_orphans(type), display_query(); // emitEvent; type_selected
+                        return remove_entry(entry), remove_orphans(type), display_query(), enable_extra_options(false);
+                        // emitEvent; type_selected
                     }
                     if ($parent.hasClass(type)) remove_entry(entry), remove_orphans(type), display_query();
                     switch (type_val) {
@@ -74,9 +75,12 @@ $.register_module({
                     }
                 },
                 source_handler = function (entry) {
-                    if (ds_val === default_sel_txt) return remove_entry(entry), display_query();
+                    if (ds_val === default_sel_txt) {
+                        return remove_entry(entry), display_query(), enable_extra_options(false);  
+                    } 
                     else if (~entry) query[entry] = {pos:sel_pos, type:type_val, ds:ds_val};
                     else query.splice(sel_pos, 0, {pos:sel_pos, type:type_val, ds:ds_val});
+                    enable_extra_options(true);
                     display_query(); // emitEvent; data_selected 
                 },
                 delete_handler = function (entry) {
@@ -89,12 +93,35 @@ $.register_module({
                         if (~entry) return remove_entry(entry), display_query(); // emitEvent; opts_repositioned 
                     }
                 },
+                enable_extra_options = function  (val) {
+                    var $inputs = $extra_opts.find('input');
+                    if (!$inputs) return;
+                    if (val) $inputs.removeAttr('disabled').filter('.latest').addClass('active');
+                    else  $inputs.attr('disabled', true).filter('.active').removeClass('active');
+                },
+                toggle_extra_options = function ($elem) {
+                    if($elem.is('.custom')){
+                        return $custom = $elem.datepicker({onSelect:calendar_blur}),
+                            $custom.addClass('active').siblings('.latest').removeClass('active'), datetime_handler();
+                    } else if ($elem.is('.latest')) {
+                        return $latest = $elem.addClass('active').siblings('.custom')
+                                                .removeClass('active').val('Custom');
+                    }
+                },
+                calendar_blur = function (event) {
+                    if (!$custom.datepicker('isDisabled')) {
+                        $custom.focus().datepicker('hide');
+                    }
+                },
+                datetime_handler = function () {
+                    $custom.datepicker('show');
+                },
                 menu_handler = function (event) {
                     var elem = $(event.srcElement || event.target), entry;
                     $parent = elem.parents(parent_s);
                     $type_select = $parent.find(type_s);
                     $source_select = $parent.find(source_s);
-                    $custom = $parent.find('.custom');
+                    $extra_opts = $parent.find('.extra-opts');
                     type_val = $type_select.val();
                     ds_val = $source_select.val();
                     sel_pos = $parent.data('pos');
@@ -103,11 +130,7 @@ $.register_module({
                     if (elem.is(del_s)) return delete_handler(entry);
                     if (elem.is($type_select)) return type_val = type_val.toLowerCase(), type_handler(entry);
                     if (elem.is($source_select)) return source_handler(entry);
-                    if (elem.is($custom)) return datetime_handler(entry);
-                },
-                datetime_handler = function (entry) {
-                    $datepicker.show();
-                    console.log($datepicker);
+                    if (elem.parent($extra_opts)) return toggle_extra_options(elem);
                 };
             if ($dom) {
                 $dom.title_infix.append('<span>then</span>'); // Move to DropMenu class
@@ -116,23 +139,22 @@ $.register_module({
                 $snapshot_opts = $(wrapper).append([
                     '<div class="extra-opts">',
                         '<span>Versions:</span>',
-                        '<button class="latest active">Latest</button>', 
-                        '<button class="OG-js-datetimepicker og-datetimepicker custom">Custom</button>',
+                        '<input class="latest" type="button" value="Latest" disabled />',
+                        '<input class="OG-js-datetimepicker custom" type="button" value="Custom" disabled />',
                         '<span>Correction:</span>',
-                        '<button class="latest active">Latest</button>', 
-                        '<button class="OG-js-datetimepicker og-datetimepicker custom">Custom</button>',
+                        '<input class="latest" type="button" value="Latest" disabled />',
+                        '<input class="OG-js-datetimepicker custom" type="button" value="Custom" disabled />',
                     '</div>'
                 ].join(''));
                 $historical_opts = $(wrapper).append([
                     '<div class="extra-opts">',
-                        '<input class="OG-js-datetimepicker og-datetimepicker custom" />',
+                        '<input class="latest" type="button" value="Latest" disabled />',
+                        '<input class="OG-js-datetimepicker custom" type="button" value="Custom" disabled />',
                     '</div>'
                 ].join(''));
                 if ($dom.title) $dom.title.on('click', menu.title_handler.bind(menu));
                 if ($dom.menu) {
                     $dom.menu.on('click', menu_click_s, menu_handler).on('change', 'select', menu_handler);
-                    $datepicker = $('<div class="source-datepicker">').datepicker();
-                    $dom.cntr.append($datepicker);
                 }
             }
             return menu;
