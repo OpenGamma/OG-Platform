@@ -3,11 +3,11 @@
     <div class="OG-g-h-set">
       {{#if not_depgraph}}
         {{#if views}}
-          <select>
+          <div class="OG-g-h-set-name s{{index}}"><div>
           {{#each views}}
-            <option value="{{value}}" {{#selected}}selected="selected"{{/selected}}>{{value}}</option>
+            {{#selected}}<strong>{{/selected}}<a href="#">{{value}}</a>{{#selected}}</strong>{{/selected}}
           {{/each}}
-          </select>
+          </div></div>
         {{else}}
           <div class="OG-g-h-set-name s{{index}}"><div>{{name}}</div></div>
         {{/if}}

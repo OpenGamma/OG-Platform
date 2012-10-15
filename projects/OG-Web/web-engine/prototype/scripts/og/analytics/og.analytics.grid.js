@@ -96,7 +96,8 @@ $.register_module({
                 .on('types', function (types) {
                     grid.views = Object.keys(types).filter(function (key) {return types[key];}).map(function (key) {
                         return {
-                            value: key.toUpperCase(), selected: (key === config.source.type) || (key === 'portfolio')
+                            value: key.toUpperCase(),
+                            selected: config.source.type ? key === config.source.type : key === 'portfolio'
                         };
                     });
                     if (grid.elements.empty) return; else render_header.call(grid);
@@ -119,7 +120,9 @@ $.register_module({
                 last_x, last_y, page_x, page_y, last_corner, cell // cached values for mousemove and mouseleave events;
             (elements = grid.elements).style = $('<style type="text/css" />').appendTo('head');
             elements.parent.html(templates.container({id: grid.id.substring(1)}))
-                .on('change', 'select', function () {fire(grid.events.viewchange, this.value.toLowerCase());})
+                .on('click', '.OG-g-h-set-name a', function (event) {
+                    return fire(grid.events.viewchange, $(this).html().toLowerCase()), false;
+                })
                 .on('mousedown', function (event) {event.preventDefault(), fire(grid.events.mousedown, event);})
                 .on('mousemove', '.OG-g-sel, .OG-g-cell', (function () {
                     var resolution = 8, counter = 0; // only accept 1/resolution of the mouse moves, we have too many
