@@ -11,10 +11,10 @@ import java.util.TreeSet;
 
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.analytics.financial.credit.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.IMMDates;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.hazardratemodel.HazardRateCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
